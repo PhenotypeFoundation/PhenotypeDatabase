@@ -1,3 +1,5 @@
+import grails.util.GrailsUtil
+
 /**
  * Debug Controller
  * @Author  Jeroen Wesbeek
@@ -13,6 +15,15 @@
  * $Date$
  */
 class DebugController {
-    def scaffold = true;
-    def index = { render('nothing to see here :)') }
+    /**
+     * Turn scaffolding on or off
+     */
+    def scaffold = (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT && this.class.name != 'DebugController');
+
+    /**
+     * Render output to the browser, overload this method to suit your needs
+     */
+    def index = { 
+	render(sprintf("%s @ %s environment :: nothing to see here! :)",this.class.name,GrailsUtil.environment));
+    }
 }
