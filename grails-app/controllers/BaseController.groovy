@@ -6,6 +6,7 @@ import grails.util.GrailsUtil
  * Base Controller
  * @Author  Jeroen Wesbeek
  * @Since   20091014
+ * @see	    Authorization.groovy
  * @Description
  *
  * Base Controller which provides general functionality. Should always be

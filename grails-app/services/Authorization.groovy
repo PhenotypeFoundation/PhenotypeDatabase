@@ -23,6 +23,10 @@ public class Authorization {
      * @return boolean
      */
     def isAuthorized(controller,action) {
+	// logic should be implemented here containing:
+	//	user / sessions
+	//	user authorization per controller + action
+	// another method should be able to list authorized actions?
 	printf("calling isAuthorized(%s,%s)\n",controller,action);
 
 	// everything is allowed for now...
