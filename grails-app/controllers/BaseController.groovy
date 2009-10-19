@@ -1,5 +1,6 @@
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
+//import org.apache.log4j.*
 
 /**
  * Base Controller
@@ -7,7 +8,8 @@ import grails.util.GrailsUtil
  * @Since   20091014
  * @Description
  *
- * Base Controller which provides general functionality
+ * Base Controller which provides general functionality. Should always be
+ * extended in all controllers
  *
  * Revision information:
  * $Rev$
@@ -16,48 +18,61 @@ import grails.util.GrailsUtil
  */
 class BaseController {
     /**
-     * Turn scaffolding on or off
+     * @var object authorization object
+     * @visibility public
      */
-    def scaffold = (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT && this.class.name != 'DebugController');
+    public def Authorization;
+    public def scaffold = false;
 
     /**
-     * Render default output to the browser, overload this method to suit your needs
+     * class constructor
+     * @void
      */
-    def index = { 
-	render(sprintf("%s @ %s environment :: nothing to see here! :)",this.class.name,GrailsUtil.environment));
+    protected BaseController() {
+	// instantiate Authorization class
+	this.Authorization = new Authorization();
+
+	// dynamically set scaffolding
+	this.scaffold = (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT && this.class.name != 'BaseController');
+    }
+
+    /**
+     * Render default output to the browser, overload this in extended classes
+     * @void
+     */
+    def index = {
+	render(sprintf("default index for %s @ %s environment :: nothing to see here! :)",this.class.name,GrailsUtil.environment));
     }
 
     /**
      * intercept any method calls in extended classes
      * @see http://www.grails.org/Controllers+-+Interceptors
      */
-    def beforeInterceptor = [action:this.&auth,except:'login']
+    def beforeInterceptor = {
+	def controller = params.controller;
+	def action = params.action;
+	
+	// check if the user is Authorized to call this method
+	if (Authorization.isAuthorized(controller,action)) {
+	    // user is not authorized to use this functionality
+	    printf("authorized call to action: %s->%s(...)\n",controller,action);
+	} else {
+	    // user is not authorized to use this functionality
+	    printf("!! unauthorized call to action: %s-->%s(...)\n",controller,action);
 
-    /**
-     * after interception
-     * @see http://www.grails.org/Controllers+-+Interceptors
-     */
-    def afterInterceptor = { model, modelAndView ->
-	println "Current view is ${modelAndView.viewName}"
-	if(model.someVar) modelAndView.viewName = "/mycontroller/someotherview"
-	println "View is now ${modelAndView.viewName}"
-    }
-
-    /**
-     * authentication method
-     */
-    def auth() {
-	if(!session.user) {
-	    redirect(action:'login')
-	    return false
+	    // redirect to error page
+	    flash['error'] = sprintf("unauthorized call to action: %s::%s\n",controller,action);
+	    redirect(controller:'error',action:'index');
 	}
     }
 
     /**
-     * login method
+     * after interception
+     * @param object model
+     * @param object modelAndView
+     * @see http://www.grails.org/Controllers+-+Interceptors
      */
-    def login = {
-	// display login page
-	println "render login...";
+    def afterInterceptor = {
+	// nothing here yet
     }
 }
