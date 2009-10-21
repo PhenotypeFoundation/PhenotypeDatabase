@@ -1,6 +1,5 @@
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
-//import org.apache.log4j.*
 
 /**
  * Base Controller
@@ -22,58 +21,50 @@ class BaseController {
      * @var object authorization object
      * @visibility public
      */
-    public def Authorization;
-    public def scaffold = false;
+    public def authorizationService;
+
+    /**
+     * @var boolean scaffolding default
+     * @visibility public
+     */
+    def scaffold = false;
 
     /**
      * class constructor
+     * @visibility protected
      * @void
      */
     protected BaseController() {
-	// instantiate Authorization class
-	this.Authorization = new Authorization();
+	// debug line for now
+	printf("instantiated %s\n",this.class.name);
+
+	// instantiate Authorization service
+	this.authorizationService = new AuthorizationService();
 
 	// dynamically set scaffolding
 	this.scaffold = (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT && this.class.name != 'BaseController');
     }
 
     /**
-     * Render default output to the browser, overload this in extended classes
-     * @void
-     */
-    def index = {
-	render(sprintf("default index for %s @ %s environment :: nothing to see here! :)",this.class.name,GrailsUtil.environment));
-    }
-
-    /**
      * intercept any method calls in extended classes
+     * @visibility public
      * @see http://www.grails.org/Controllers+-+Interceptors
      */
     def beforeInterceptor = {
 	def controller = params.controller;
 	def action = params.action;
-	
+
 	// check if the user is Authorized to call this method
-	if (Authorization.isAuthorized(controller,action)) {
+	if (this.authorizationService.isAuthorized(controller,action)) {
 	    // user is not authorized to use this functionality
-	    printf("authorized call to action: %s->%s(...)\n",controller,action);
+	    printf("authorized call to action: %s->%s(...)\n",this.class.name,action);
 	} else {
-	    // user is not authorized to use this functionality
-	    printf("!! unauthorized call to action: %s-->%s(...)\n",controller,action);
+	    // user is not authorized to use this controller + method
+	    printf("!! unauthorized call to action: %s-->%s(...)\n",this.class.name,action);
 
 	    // redirect to error page
 	    flash['error'] = sprintf("unauthorized call to action: %s::%s\n",controller,action);
 	    redirect(controller:'error',action:'index');
 	}
-    }
-
-    /**
-     * after interception
-     * @param object model
-     * @param object modelAndView
-     * @see http://www.grails.org/Controllers+-+Interceptors
-     */
-    def afterInterceptor = {
-	// nothing here yet
     }
 }

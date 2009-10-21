@@ -8,7 +8,7 @@
  * $Author$
  * $Date$
  */
-public class ErrorController {
+public class ErrorController extends BaseController {
     /**
      * render the flash message
      */

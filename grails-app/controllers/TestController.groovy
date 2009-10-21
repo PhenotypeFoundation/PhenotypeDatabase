@@ -14,7 +14,28 @@ public class TestController extends BaseController {
      * @void
      */
     public def TestController() {
-	// debug line for now
-	printf("instantiated %s\n",this.class.name);
+	// nothing yet
+    }
+
+    /**
+     * render dummy text when executed
+     * @void
+     */
+    def index = {
+	render(sprintf("this is %s",this.class.name));
+    }
+
+    /**
+     * dummy method
+     */
+    def sayHello = {
+	render("Hello World!");
+    }
+
+    /**
+     * another dummy method
+     */
+    def sayWeather = {
+	render("The weather is pretty good!");
     }
 }

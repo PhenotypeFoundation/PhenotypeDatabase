@@ -8,12 +8,12 @@
  * $Author$
  * $Date$
  */
-public class Authorization {
+public class AuthorizationService {
     /**
      * class constructor
      * @void
      */
-    public def Authorization() {
+    public def AuthorizationService() {
 	// debug line for now
 	printf("instantiated %s\n",this.class.name);
     }
@@ -22,7 +22,7 @@ public class Authorization {
      * check if a user is authenticated to use this class and / or method
      * @return boolean
      */
-    def isAuthorized(controller,action) {
+    public def isAuthorized(controller,action) {
 	// logic should be implemented here containing:
 	//	user / sessions
 	//	user authorization per controller + action
