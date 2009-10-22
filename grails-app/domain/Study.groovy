@@ -12,6 +12,12 @@
 
 class Study {
 
+    String      name
+    String      description
+    Date        created
+    Date        modified
+    Integer     StudyType
+
     static constraints = {
     }
 }
