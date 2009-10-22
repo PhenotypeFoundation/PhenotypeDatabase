@@ -1,4 +1,0 @@
-class ExperimentSampleController {
-
-    def index = { }
-}

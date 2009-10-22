@@ -1,4 +1,0 @@
-class StudyController {
-
-    def index = { }
-}

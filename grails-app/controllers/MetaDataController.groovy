@@ -1,4 +1,0 @@
-class MetaDataController {
-
-    def index = { }
-}

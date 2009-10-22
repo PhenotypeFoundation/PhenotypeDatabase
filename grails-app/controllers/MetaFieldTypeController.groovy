@@ -1,4 +1,0 @@
-class MetaFieldTypeController {
-
-    def index = { }
-}
