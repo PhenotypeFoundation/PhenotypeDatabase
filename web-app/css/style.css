@@ -103,6 +103,23 @@ html ul.topnav li ul.subnav li a:hover { /*--Hover effect for subnav links--*/
 	font-size: 10pt;
 	padding-bottom: 20px;
 }
+
+#content p {
+    text-align: justify; 
+}
+#content a:link, #content a:visited, #content a:hover{
+    color: #006dba;
+    text-decoration: none;
+}
+#content p img {
+    display: run-in;
+    float: right;
+    padding: 2px;
+    border: 1px solid #006dba;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    height: 120px;
+}
 /** END :: content **/
 /** START :: footer **/
 #footer {
@@ -113,7 +130,7 @@ html ul.topnav li ul.subnav li a:hover { /*--Hover effect for subnav links--*/
 	padding-top: 5px;
 }
 #footer a:link, #footer a:visited, #footer a:hover {
-    color: #ff7900;
+    color: #006dba;
     font-weight: normal;
     text-decoration: none;
 }

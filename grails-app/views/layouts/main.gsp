@@ -10,7 +10,7 @@
   <g:javascript library="jquery" />
   <g:javascript library="login_panel" />
   <g:javascript library="topnav" />
-  </head>
+ </head>
  <body>
   <g:render template="/common/login_panel" />
   <div class="container">
