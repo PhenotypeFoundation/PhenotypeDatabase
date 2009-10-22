@@ -1,0 +1,4 @@
+class DataController {
+
+    def index = { }
+}

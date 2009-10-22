@@ -1,0 +1,4 @@
+class MetaFieldOptionController {
+
+    def index = { }
+}
