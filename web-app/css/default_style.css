@@ -1,7 +1,7 @@
 body {
 	margin: 0; padding: 0;
 	font: 10px normal Arial, Helvetica, sans-serif;
-	background: #ddd url(../images/skin/body_bg.gif) repeat-x;
+	background: #ddd url(../images/default_style/body_bg.gif) repeat-x;
 }
 /*a:link, a:visited, a:hover {
     color: #ff7900;
@@ -23,7 +23,7 @@ h1 {
 /** END :: container **/
 /** START :: header **/
 #header {
-	background: url(../images/skin/header.png) no-repeat center top;
+	background: url(../images/default_style/header.png) no-repeat center top;
 	padding-top: 120px;
 }
 #header img {
@@ -39,7 +39,7 @@ ul.topnav {
 	width: 920px;
 	background: #222;
 	font-size: 1.2em;
-	background: url(../images/skin/topnav/topnav_bg.gif) repeat-x;
+	background: url(../images/default_style/topnav/topnav_bg.gif) repeat-x;
 }
 ul.topnav li {
 	float: left;
@@ -55,13 +55,13 @@ ul.topnav li a{
 	float: left;
 }
 ul.topnav li a:hover{
-	background: url(../images/skin/topnav/topnav_hover.gif) no-repeat center top;
+	background: url(../images/default_style/topnav/topnav_hover.gif) no-repeat center top;
 }
 ul.topnav li span { /*--Drop down trigger styles--*/
 	width: 17px;
 	height: 35px;
 	float: left;
-	background: url(../images/skin/topnav/subnav_btn.gif) no-repeat center top;
+	background: url(../images/default_style/topnav/subnav_btn.gif) no-repeat center top;
 }
 ul.topnav li span.subhover {background-position: center bottom; cursor: pointer;} /*--Hover effect for trigger--*/
 ul.topnav li ul.subnav {
@@ -89,11 +89,11 @@ ul.topnav li ul.subnav li{
 html ul.topnav li ul.subnav li a {
 	float: left;
 	width: 145px;
-	background: #333 url(../images/skin/topnav/dropdown_linkbg.gif) no-repeat 10px center;
+	background: #333 url(../images/default_style/topnav/dropdown_linkbg.gif) no-repeat 10px center;
 	padding-left: 20px;
 }
 html ul.topnav li ul.subnav li a:hover { /*--Hover effect for subnav links--*/
-	background: #222 url(../images/skin/topnav/dropdown_linkbg.gif) no-repeat 10px center;
+	background: #222 url(../images/default_style/topnav/dropdown_linkbg.gif) no-repeat 10px center;
 }
 /** END :: topnav **/
 /** START :: content **/
@@ -152,7 +152,7 @@ td, th {
     vertical-align: top;
 }
 th {
-    background: #fff url(../images/skin/tables/shadow.jpg);
+    background: #fff url(../images/default_style/tables/shadow.jpg);
     color: #666;
     font-size: 11px;
     font-weight: bold;
@@ -171,10 +171,10 @@ th.asc a, th.desc a {
     background-repeat: no-repeat;
 }
 th.asc a {
-    background-image: url(../images/skin/tables/sorted_asc.gif);
+    background-image: url(../images/default_style/tables/sorted_asc.gif);
 }
 th.desc a {
-    background-image: url(../images/skin/tables/sorted_desc.gif);
+    background-image: url(../images/default_style/tables/sorted_desc.gif);
 }
 
 .odd {
@@ -210,15 +210,15 @@ th.desc a {
     padding: 2px 6px;
 }
 .buttons input.delete {
-    background: transparent url(../images/obsolete/skin/database_delete.png) 5px 50% no-repeat;
+    background: transparent url(../images/obsolete/default_style/database_delete.png) 5px 50% no-repeat;
     padding-left: 28px;
 }
 .buttons input.edit {
-    background: transparent url(../images/obsolete/skin/database_edit.png) 5px 50% no-repeat;
+    background: transparent url(../images/obsolete/default_style/database_edit.png) 5px 50% no-repeat;
     padding-left: 28px;
 }
 .buttons input.save {
-    background: transparent url(../images/obsolete/skin/database_save.png) 5px 50% no-repeat;
+    background: transparent url(../images/obsolete/default_style/database_save.png) 5px 50% no-repeat;
     padding-left: 28px;
 }
 .buttons input.delete {

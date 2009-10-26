@@ -34,7 +34,7 @@ class BaseController {
      * @visibility protected
      * @void
      */
-    protected BaseController() {
+     BaseController() {
 	// debug line for now
 	printf("instantiated %s\n",this.class.name);
 
@@ -44,6 +44,7 @@ class BaseController {
 	// dynamically set scaffolding
 	this.scaffold = (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT && this.class.name != 'BaseController');
     }
+
 
     /**
      * intercept any method calls in extended classes

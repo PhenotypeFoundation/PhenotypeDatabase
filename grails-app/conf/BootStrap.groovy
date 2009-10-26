@@ -12,7 +12,7 @@ import grails.util.GrailsUtil
  * $Date$
  */
 class BootStrap {
-     def init = { servletContext ->
+     def init = { servletContext ->	 
 	 // check if we're in development
 	 if (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
 	     printf("development bootstrapping....\n\n");

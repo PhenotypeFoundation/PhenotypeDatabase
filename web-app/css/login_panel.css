@@ -26,7 +26,7 @@ Version: 1.0
 
 /* Panel Tab/button */
 .tab {
-  	background: url(../images/skin/login_panel/tab_b.png) repeat-x 0 0;
+  	background: url(../images/default_style/login_panel/tab_b.png) repeat-x 0 0;
 	height: 42px;
 	position: relative;
     top: 0;
@@ -50,7 +50,7 @@ Version: 1.0
 }
 
 .tab ul.login li.left {
-  	background: url(../images/skin/login_panel/tab_l.png) no-repeat left 0;
+  	background: url(../images/default_style/login_panel/tab_l.png) no-repeat left 0;
   	height: 42px;
 	width: 30px;
 	padding: 0;
@@ -60,7 +60,7 @@ Version: 1.0
 }
 
 .tab ul.login li.right {
-  	background: url(../images/skin/login_panel/tab_r.png) no-repeat left 0;
+  	background: url(../images/default_style/login_panel/tab_r.png) no-repeat left 0;
   	height: 42px;
 	width: 30px;
 	padding: 0;
@@ -75,7 +75,7 @@ Version: 1.0
 	display: block;
 	float: left;
 	height: 42px;
-  	background: url(../images/skin/login_panel/tab_m.png) repeat-x 0 0;
+  	background: url(../images/default_style/login_panel/tab_m.png) repeat-x 0 0;
 }
 
 .tab ul.login li a {
@@ -99,10 +99,10 @@ Version: 1.0
 	top: 11px;
 }
 
-.tab a.open {background: url(../images/skin/login_panel/bt_open.png) no-repeat left 0;}
-.tab a.close {background: url(../images/skin/login_panel/bt_close.png) no-repeat left 0;}
-.tab a:hover.open {background: url(../images/skin/login_panel/bt_open.png) no-repeat left -19px;}
-.tab a:hover.close {background: url(../images/skin/login_panel/bt_close.png) no-repeat left -19px;}
+.tab a.open {background: url(../images/default_style/login_panel/bt_open.png) no-repeat left 0;}
+.tab a.close {background: url(../images/default_style/login_panel/bt_close.png) no-repeat left 0;}
+.tab a:hover.open {background: url(../images/default_style/login_panel/bt_open.png) no-repeat left -19px;}
+.tab a:hover.close {background: url(../images/default_style/login_panel/bt_close.png) no-repeat left -19px;}
 
 /* sliding panel */
 #toppanel {
@@ -222,13 +222,13 @@ Version: 1.0
 
 #panel .content input.bt_login {
 	width: 74px;
-	background: transparent url(../images/skin/login_panel/bt_login.png) no-repeat 0 0;
+	background: transparent url(../images/default_style/login_panel/bt_login.png) no-repeat 0 0;
 }
 
 #panel .content input.bt_register {
 	width: 94px;
 	color: white;
-	background: transparent url(../images/skin/login_panel/bt_register.png) no-repeat 0 0;
+	background: transparent url(../images/default_style/login_panel/bt_register.png) no-repeat 0 0;
 }
 
 #panel .lost-pwd {
