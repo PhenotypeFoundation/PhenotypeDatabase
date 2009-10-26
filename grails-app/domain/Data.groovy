@@ -1,13 +1,15 @@
 /**
- * Data Domain Class
- * @Author  Prasad Gajula
- * @Since   20091019
+ * Species Domain
+ *
+ * @author	email2gajula@gmail.com
+ * @since	20091019
  *
  * Revision information:
- * $Rev:
- * $Author: 
- * $Date:
+ * $Rev$
+ * $Author$
+ * $Date$
  */
+
 
 class Data {
 
