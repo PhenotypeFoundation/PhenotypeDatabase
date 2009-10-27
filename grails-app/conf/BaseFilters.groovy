@@ -16,13 +16,13 @@
 class BaseFilters {
     // define filters
     def filters = {
-	loginCheck(controller:'*', action:'*') {
+	defineStyle(controller:'*', action:'*') {
 	    // before every execution
 	    before = {
-		// set the style in the session
-		//if (!session.style) {
+		// set the default style in the session
+		if (!session.style) {
 		    session.style = 'default_style'
-		//}
+		}
 	    }
 	}
     }
