@@ -39,7 +39,7 @@ class BaseController {
 	printf("instantiated %s\n",this.class.name);
 
 	// instantiate Authorization service
-	this.authorizationService = new AuthorizationService();
+	//this.authorizationService = new AuthorizationService();
 
 	// dynamically set scaffolding
 	this.scaffold = (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT && this.class.name != 'BaseController');
