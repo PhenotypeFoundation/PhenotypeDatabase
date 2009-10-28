@@ -12,11 +12,14 @@
 
 class Study {
 
-    String      name
+    String      title
     String      description
+    String      code
+    String      researchQuestion
+    Date        startDate
+    Integer     ecCode
     Date        created
     Date        modified
-    Integer     StudyType
 
     static constraints = {
     }
