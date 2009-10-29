@@ -17,9 +17,10 @@ class Study {
     String      code
     String      researchQuestion
     Date        startDate
-    Integer     ecCode
+    String      ecCode
     Date        created
     Date        modified
+    gscf.User   owner
 
     static constraints = {
     }

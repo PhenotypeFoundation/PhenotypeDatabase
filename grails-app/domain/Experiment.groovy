@@ -16,7 +16,7 @@ class Experiment {
     String      description
     Date        created
     Date        modified
-    Integer     Study
+    Study       study
 
     static constraints = {
     }
