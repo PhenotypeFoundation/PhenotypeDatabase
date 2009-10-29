@@ -14,4 +14,7 @@ $(document).ready(function(){
         }, function(){  //On Hover Out
             $(this).removeClass("subhover"); //On hover out, remove class "subhover"
     });
+
+    // make sure navigation is on top of everything
+    $("ul.subnav").css( { 'z-index': '1000' } );
 }); 
