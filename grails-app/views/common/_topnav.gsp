@@ -8,5 +8,20 @@
 	  <li><g:link controller="${c.logicalPropertyName}">${c.fullName}</g:link></li></g:each>
 	</ul>
       </li>
+<n:isAdministrator>
+      <li>
+	<a href="#">User administation</a>
+	<ul class="subnav">
+	  <li><g:link controller="admins" action="index" class="icon icon_user_suit">Manage Administrators</g:link></li>
+	  <li><g:link controller="user" action="list" class="icon icon_user">List Users</g:link></li>
+	  <li><g:link controller="user" action="create" class="icon icon_user_add">Create User</g:link></li>
+	  <li><g:link controller="role" action="list" class="icon icon_cog">List Roles</g:link></li>
+	  <li><g:link controller="role" action="create" class="icon icon_cog_add">Create Role</g:link></li>
+	  <li><g:link controller="group" action="list" class="icon icon_group">List Groups</g:link></li>
+	  <li><g:link controller="group" action="create" class="icon icon_group_add">Create Group</g:link></li>
+	  <li><g:link controller="auth" action="logout" class="icon icon_cross">Sign out</g:link></li>
+	</ul>
+      </li>
+</n:isAdministrator>
     </ul>
     <!-- /TOPNAV //-->

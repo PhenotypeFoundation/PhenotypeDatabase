@@ -10,7 +10,7 @@
 				<g:if test="${flash.message}"><p class="red">${flash.message}</p></g:if>
 			</div>
 			<div class="left">
-				<g:form url="[action:'signIn',controller:'auth']" class="clearfix">
+				<g:form url="[action:'signin',controller:'auth']" class="clearfix">
 					<input type="hidden" name="targetUri" value="${targetUri}" />
 					<h1>Member Login</h1>
 					<label class="grey" for="username">Username:</label>
@@ -40,14 +40,14 @@
 	<div class="tab">
 		<ul class="login">
 			<li class="left">&nbsp;</li>    
-			<li>Hello <jsec:isLoggedIn><jsec:principal/></jsec:isLoggedIn><jsec:isNotLoggedIn>Guest</jsec:isNotLoggedIn>!</li>
+			<li>Hello <n:isLoggedIn><n:principal/></n:isLoggedIn><n:isNotLoggedIn>Guest</n:isNotLoggedIn>!</li>
 			<li class="sep">|</li>
 			<li id="toggle">
-<!--				<jsec:isLoggedIn><g:link controller="auth" action="signOut">sign out</g:link></jsec:isLoggedIn> //-->
-				<jsec:isNotLoggedIn>
+				<n:isLoggedIn><g:link controller="auth" action="signout">sign out</g:link></n:isLoggedIn>
+				<n:isNotLoggedIn>
 				 <a id="open" class="open" href="#">Log In | Register</a>
 				 <a id="close" style="display: none;" class="close" href="#">Close Panel</a>			
-				</jsec:isNotLoggedIn>
+				</n:isNotLoggedIn>
 			</li>
 	    <li class="right">&nbsp;</li>
 		</ul> 

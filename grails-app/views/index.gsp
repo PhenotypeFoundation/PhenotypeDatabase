@@ -28,15 +28,15 @@
         </g:form>
         <p><a href="<g:createLink url="[action:'create',controller:'query']"/>">Create advanced query</a></p>
         <p>
-        <jsec:isNotLoggedIn>
+        <n:isNotLoggedIn>
         <small>To query private studies, please login above.</small>
-        </jsec:isNotLoggedIn>
+        </n:isNotLoggedIn>
         </p>
       </div>
       <div id="tab-add">
-        <jsec:isNotLoggedIn>
+        <n:isNotLoggedIn>
         To add or change study data, please login above.
-        </jsec:isNotLoggedIn>
+        </n:isNotLoggedIn>
       </div>
     </div>
   </body>

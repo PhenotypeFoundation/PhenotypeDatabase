@@ -6,10 +6,10 @@
   <link rel="stylesheet" href="${resource(dir:'css',file:session.style+'.css')}" />
   <link rel="stylesheet" href="${resource(dir:'css',file:'login_panel.css')}" />
   <link rel="shortcut icon" href="${resource(dir:'images',file:'favicon.ico')}" type="image/x-icon" />
-  <g:layoutHead />
   <g:javascript library="jquery" />
-  <g:javascript library="login_panel" />
-  <g:javascript library="topnav" />
+  <g:layoutHead />
+  <g:javascript src="login_panel.js" />
+  <g:javascript src="topnav.js" />
  </head>
  <body>
   <g:render template="/common/login_panel" />

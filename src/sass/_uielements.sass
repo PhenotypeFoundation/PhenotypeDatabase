@@ -1,0 +1,356 @@
+@import compass/utilities/lists.sass
+@import yui/modules/fonts.sass
+
+@import rounded.sass
+
+!color_button = #f2f2f2
+!color_button_text = #363636
+!color_button_border = #ccc
+!color_button_border_highlight = #eee
+
+!color_button2 = #363636
+!color_button2_text = #f2f2f2
+!color_button2_border = #666
+!color_button2_border_highlight = #868686
+
+!link_color = #363636
+
+!button_padding = 6px
+
+!yui_default_base_font_size = 12px
+
+=nomargin
+  margin = 0px
+
+=automargin
+  :margin
+    :left = "auto"
+    :right = "auto"
+
+=nopadding
+  padding = 0px
+
+=noborder
+  border = "none"
+
+=left
+  float = "left"
+
+=right
+  float = "right"
+
+=clearleft
+  clear = "left"
+
+=clearright
+  clear = "right"
+
+=clear
+  clear = "all"
+
+=bold
+  font-weight = "bold"
+
+=italic
+  font-style = "italic"  
+
+=easyinput
+  padding = 5px
+
+  :font
+    :size = 1.2em
+
+=cleanlist
+  ul
+    list-style-type = "none" 
+
+    li
+      list-style-type = "none"
+
+
+=link(!color = !link_color, !hover_decoration = "underline", !nonhover_decoration = "none")
+  color = !color
+  cursor = "pointer"
+  text-decoration = !nonhover_decoration
+
+  &:hover
+    :text-decoration = !hover_decoration
+
+=datatable(!margin = 0px, !width = 25%, !odd_bg_color = "#fff", !even_bg_color = "#fbfbfb", !head_bg_color = "#fff")
+  margin = !margin
+  width = !width
+
+  h3
+    +nomargin
+    +nopadding
+
+    :margin
+      :bottom = 3px
+
+  thead
+    tr
+      th
+        :background
+          :color = !head_bg_color
+
+        a
+          +link
+
+  tbody
+    tr
+      &.odd
+        td
+          :background
+            :color = !odd_bg_color
+
+      &.even
+        td
+          :background
+            :color = !even_bg_color
+
+      td
+        &.name
+          :font
+            :weight = "bold"
+
+=datatablewithbuttons
+  tbody
+    tr
+      td
+        padding = !button_padding + 3
+
+=popup
+  +nomargin
+  +nopadding
+
+  .banner
+    +font-size(14px)
+    padding = 9px
+
+    text-align = "center"
+
+  .content
+    padding = 18px
+
+  .buttons
+    +right
+    padding = 18px
+
+=button(!radius=5px)
+  +nomargin
+  +rounded(!radius)
+  +link(!link_color, "none")
+
+  padding = 6px
+
+  :background
+    :color = !color_button
+
+  border = 1px "solid" !color_button_border
+  :border
+    :top = 1px "solid" !color_button_border_highlight
+    :left = 1px "solid" !color_button_border_highlight
+
+  color = !color_button_text
+
+  :font
+    :size = 1.1em
+    :weight = "normal"
+
+=button2(!radius=5px)
+  +button(!radius)
+
+  :background
+    :color = !color_button2
+
+  border = 1px "solid" !color_button2_border
+  :border
+    :top = 1px "solid" !color_button2_border_highlight
+    :left = 1px "solid" !color_button2_border_highlight
+
+  a
+    color = !color_button2_text
+
+=notification
+  +rounded
+  +font-size(14px)
+
+  margin = 3px
+  padding = 6px
+  :font
+    :weight = "normal"
+
+  p
+    margin = 2px
+
+=paginatebuttons
+  margin = 5px
+  padding = 5px
+
+  a
+    +link
+
+=paginatebutton
+  margin = 5px
+  padding = 5px
+
+=paginatebuttoncurrent
+  +paginatebutton
+
+  :font
+    :weight = "bold"
+
+=paginatebuttonprevious
+  +paginatebutton
+
+  padding-left: 24px
+
+  :background
+    :repeat = "no-repeat"
+    :position = "left center"
+    :image = url("icons/arrow_left.png")
+
+=paginatebuttonnext
+  +paginatebutton
+
+  padding-right: 24px
+
+  :background
+    :repeat = "no-repeat"
+    :position = "right center"
+    :image = url("icons/arrow_right.png")
+
+=horizontallist
+  +nomargin
+  +nopadding
+
+  list-style-type = "none"
+
+  li
+    +nomargin
+    +nopadding
+    display = "inline"
+
+    list-style-type = "none"
+
+=horizontalmenu(!background = "images/horizontalmenubg.png", !color = "#e2e2e2")
+  +horizontallist
+  height = 42px
+  width = 100%
+  position = "relative"
+
+  :background
+    :image = url(!background)
+    :color = !color
+    :position = "top left"
+    :repeat = "repeat-x"
+
+
+  li
+    +left
+    minheight = 42px
+    overflow = "visible"
+
+    :margin
+      :right = 6px
+
+    :padding
+      :left = 12px
+      :right = 12px
+
+    a
+      +link
+      +left
+      height = 42px
+      line-height = 42px
+      display = "block"
+      :font
+        :weight = "normal"
+        :size = 1.2em
+
+    &.current
+      :background
+        :color = #3e3e3e
+        :position = "bottom left"
+        :repeat = "repeat-x"
+
+      a
+        +link("#fff")
+
+=horizontalsubmenu(!background = "images/horizontalsubmenubg.png", !color = "#000")
+  +horizontallist
+  position = absolute
+  top = 42px
+  left = -9999px
+  z-index = 100
+  width = 100%
+
+  :background
+    :image = url(!background)
+    :color = !color
+    :position = "top left"
+    :repeat = "repeat-x"
+
+  li
+    :margin
+      :right = 6px
+
+    :padding
+      :left = 12px
+      :right = 12px
+
+    a
+      +link("#fff")
+
+
+// Generic UI classes
+.error
+  +notification
+
+  background-color = #FFBABA
+  border = 1px "solid" #FFBABA
+  color = "#D8000C"
+
+.information
+  +notification
+
+  background-color = #BDE5F8
+  border = 1px "solid" #BDE5F8
+  color = "#00529B"
+
+.success
+  +notification
+
+  background-color = #DFF2BF
+  border = 1px "solid" #DFF2BF
+  color = "#4F8A10"
+
+.easyinput
+  +easyinput
+
+.helppopup
+  +popup
+
+  .banner
+    :background
+      :color =  #1B4366
+
+    color = #fbfbfb
+
+.errorpopup
+  +popup
+
+  .banner
+    :background
+      :color =  #870000
+
+    color = #fbfbfb
+
+.deletepopup
+  +popup
+
+  .banner
+    :background
+      :color =  #870000
+
+    color = #fbfbfb
