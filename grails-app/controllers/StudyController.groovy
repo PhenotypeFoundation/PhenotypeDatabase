@@ -1,6 +1,6 @@
 
 
-class StudyController {
+class StudyController extends BaseController {
     
     def index = { redirect(action:list,params:params) }
 

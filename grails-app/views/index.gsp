@@ -41,7 +41,7 @@
     </div>
 
     <span style="border: 1px solid red;">
-      Temporary login information: Administrator ( admin / admiN123! ) User ( user / useR123! )
+      use these credentials to log in: Administrator ( admin / admiN123! ), User ( user / useR123! )
     </span>
   </body>
 </html>

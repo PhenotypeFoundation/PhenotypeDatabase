@@ -55,18 +55,6 @@ class BaseController {
 	def controller = params.controller;
 	def action = params.action;
 
-	/* check if the user is Authorized to call this method
-	if (this.authorizationService.isAuthorized(controller,action)) {
-	    // user is not authorized to use this functionality
-	    printf("authorized call to action: %s->%s(...)\n",this.class.name,action);
-	} else {
-	    // user is not authorized to use this controller + method
-	    printf("!! unauthorized call to action: %s-->%s(...)\n",this.class.name,action);
-
-	    // redirect to error page
-	    flash['error'] = sprintf("unauthorized call to action: %s::%s\n",controller,action);
-	    redirect(controller:'error',action:'index');
-	}
-	*/
+	printf("calling %s->%s(...)\n",this.class.name,action);
     }
 }
