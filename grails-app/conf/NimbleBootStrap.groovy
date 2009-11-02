@@ -47,8 +47,8 @@ class NimbleBootStrap {
     internalBootStap(servletContext)
 
     // Execute any custom Nimble related BootStrap for your application below
-
-    if ( GrailsUtil.getEnvironment().equals(GrailsApplication.ENV_DEVELOPMENT)) {
+    // To prevent adding test users to producton, add !GrailsUtil.getEnvironment().equals(GrailsApplication.ENV_DEVELOPMENT)
+    if ( gscf.User.count()==0 ) {
 
         // Create example User account
         def user = InstanceGenerator.user()
