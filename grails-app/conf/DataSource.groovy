@@ -32,7 +32,7 @@ environments {
 
                             //Postgres
                             driverClassName = "org.postgresql.Driver"
-                            url = "jdbc:postgresql://localhost/gscf"
+                            url = "jdbc:postgresql://localhost:5432/gscf"
 
                             //MySQL
                             //url = "jdbc:mysql://localhost/gscf"
