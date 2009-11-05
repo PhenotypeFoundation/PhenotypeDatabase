@@ -19,6 +19,7 @@ nimble {
     layout {
 	// main style template
 	application = 'main'
+	administration = 'main'
     }
     organization {
         name = ""
