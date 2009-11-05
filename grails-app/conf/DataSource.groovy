@@ -17,7 +17,7 @@ environments {
 			url = "jdbc:hsqldb:mem:devDB"
 		}
 	}
-    test {
+	test {
 		dataSource {
 			dbCreate = "update"
 			url = "jdbc:hsqldb:mem:testDb"
@@ -25,21 +25,29 @@ environments {
 	}
 	production {
 		dataSource {
+			/*
+			 * when releasing a new stable to the live environment
+			 * you would probably comment out the dbCreate option
+			 * so hibernate won't try to update (which is does not
+			 * do so well) and you update the live database yourself
+			 *
+			 * @see http://grails.org/plugin/autobase
+			 * @see http://wiki.github.com/RobertFischer/autobase/example-usage
+			 */
+			dbCreate =  "update"
+			username = "gscf"
+			password = "dbnp"
 
-                            dbCreate =  "update"
-                            username = "gscf"
-                            password = "dbnp"
+			// PostgreSQL
+			driverClassName = "org.postgresql.Driver"
+			url = "jdbc:postgresql://localhost:5432/gscf"
 
-                            //Postgres
-                            driverClassName = "org.postgresql.Driver"
-                            url = "jdbc:postgresql://localhost:5432/gscf"
+			// MySQL
+			//url = "jdbc:mysql://localhost/gscf"
 
-                            //MySQL
-                            //url = "jdbc:mysql://localhost/gscf"
-
-                            //In memory
-                            //driverClassName = "com.mysql.jdbc.Driver"
-                            //url = "jdbc:hsqldb:file:prodDb;shutdown=true"
+			//In memory
+			//driverClassName = "com.mysql.jdbc.Driver"
+			//url = "jdbc:hsqldb:file:prodDb;shutdown=true"
 		}
 	}
 }
