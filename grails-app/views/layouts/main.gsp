@@ -8,8 +8,8 @@
   <link rel="shortcut icon" href="${resource(dir:'images',file:'favicon.ico')}" type="image/x-icon" />
   <g:javascript library="jquery" />
   <g:layoutHead />
-  <g:javascript src="login_panel.js" />
-  <g:javascript src="topnav.js" />
+  <script type="text/javascript" src="${resource(dir:'js', file:'login_panel.js')}"></script>
+  <script type="text/javascript" src="${resource(dir:'js', file:'topnav.js')}"></script>
  </head>
  <body>
   <g:render template="/common/login_panel" />
