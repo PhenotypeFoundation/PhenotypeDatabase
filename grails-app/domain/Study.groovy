@@ -20,7 +20,7 @@ class Study {
     String      ecCode
     Date        created
     Date        modified
-    gscf.User   owner
+//    nimble.User	owner
 
     static constraints = {
     }
