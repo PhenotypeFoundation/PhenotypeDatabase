@@ -16,10 +16,9 @@
  */
 
 nimble {
-    // define layout
     layout {
-	application = 'main'
-	administration = 'main'
+	application = "main"
+	administration = "main"
     }
     organization {
         name = ""
