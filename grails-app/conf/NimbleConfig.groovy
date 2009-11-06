@@ -18,7 +18,7 @@
 nimble {
     layout {
 	application = "main"
-	administration = "main"
+	administration = "nimble"
     }
     organization {
         name = ""
