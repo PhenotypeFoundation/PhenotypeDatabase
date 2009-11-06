@@ -1,3 +1,5 @@
+import nimble.*
+
 /**
  * Study Domain
  *
@@ -9,7 +11,6 @@
  * $Author$
  * $Date$
  */
-
 class Study {
 
     String      title
@@ -20,7 +21,7 @@ class Study {
     String      ecCode
     Date        created
     Date        modified
-//    nimble.User	owner
+    //User	owner
 
     static constraints = {
     }
