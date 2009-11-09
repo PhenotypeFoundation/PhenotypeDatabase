@@ -34,19 +34,21 @@ environments {
 			 * @see http://grails.org/plugin/autobase
 			 * @see http://wiki.github.com/RobertFischer/autobase/example-usage
 			 */
-			dbCreate =  "update"
+			dbCreate = "update"
 			username = "gscf"
 			password = "dbnp"
 
 			// PostgreSQL
 			driverClassName = "org.postgresql.Driver"
 			url = "jdbc:postgresql://localhost:5432/gscf"
+                        dialect = org.hibernate.dialect.PostgreSQLDialect
 
 			// MySQL
+			//driverClassName = "com.mysql.jdbc.Driver"
 			//url = "jdbc:mysql://localhost/gscf"
+                        //dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 
 			//In memory
-			//driverClassName = "com.mysql.jdbc.Driver"
 			//url = "jdbc:hsqldb:file:prodDb;shutdown=true"
 		}
 	}
