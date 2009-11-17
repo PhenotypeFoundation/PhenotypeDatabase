@@ -1,6 +1,8 @@
+package magetab.idf
+
 import grails.test.*
 
-class FakeObjectControllerTests extends ControllerUnitTestCase {
+class PublicationTests extends GrailsUnitTestCase {
     protected void setUp() {
         super.setUp()
     }
