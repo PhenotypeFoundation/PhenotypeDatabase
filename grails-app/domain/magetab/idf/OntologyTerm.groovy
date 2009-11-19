@@ -5,10 +5,10 @@ class OntologyTerm {
     String text
     String category
     String accessionNumber
-    TermSource termSource
+//    magetab.adf.TermSource termSource
 
 
     static constraints = {
-        termSource(nullable: true)
+//        termSource(nullable: true)
     }
 }

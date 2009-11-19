@@ -17,8 +17,8 @@ class InvestigationDesign {
         normalizationTypes: OntologyTerm,
         qualityControlTypes: OntologyTerm,
         replicateTypes: OntologyTerm,
-        experimentalDesigns: OntologyTerm,
-        termSources: TermSource
+        experimentalDesigns: OntologyTerm
+//        termSources: magetab.adf.TermSource
     ]
 
     static constraints = {

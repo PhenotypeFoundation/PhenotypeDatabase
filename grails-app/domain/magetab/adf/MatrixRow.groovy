@@ -3,11 +3,11 @@ package magetab.adf
 class MatrixRow {
 
 
-    Integer rowNumber
-    String[] rowData
+    int rowNumber
+    String rowData
     MatrixRowId matrixRowId
 
     static constraints = {
-        matrixRowId(true)
+        matrixRowId(nullable:true)
     }
 }

@@ -2,7 +2,7 @@ package magetab.sdrf
 
 class ArrayDataMatrix {
 
-    DataMatrix dataMatrix
+    //DataMatrix dataMatrix
 
     static constraints = {
     }

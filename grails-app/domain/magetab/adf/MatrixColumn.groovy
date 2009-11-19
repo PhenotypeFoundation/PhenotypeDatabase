@@ -2,9 +2,9 @@ package magetab.adf
 
 class MatrixColumn {
 
-    Integer columnNumber
-    String[] columnData
-    Node columnHeader
+    int columnNumber
+    String columnData
+    magetab.sdrf.Node columnHeader
     magetab.idf.OntologyTerm quantitationType
 
     static constrainst = {
