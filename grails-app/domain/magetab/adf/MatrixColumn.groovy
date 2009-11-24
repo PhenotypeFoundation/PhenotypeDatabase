@@ -7,7 +7,7 @@ class MatrixColumn {
     magetab.sdrf.Node columnHeader
     magetab.idf.OntologyTerm quantitationType
 
-    static constrainst = {
+    static constraints = {
         quantitationType(nullable:true)
     }
 }
