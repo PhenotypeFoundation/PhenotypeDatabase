@@ -4,9 +4,9 @@ class ArrayDesign {
 
 	String arrayDesignName
 	String arrayDesignFile
-	String version
+	String versionNumber // renamed from version to versionNumber to circumvent problems with Hibernate
 	String provider
-	String printingProtocole
+	String printingProtocol
 	magetab.idf.OntologyTerm arrayDesignRef
 	magetab.idf.OntologyTerm surfaceType
 	magetab.idf.OntologyTerm sequencePolymerType
