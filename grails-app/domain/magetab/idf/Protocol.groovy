@@ -7,12 +7,20 @@ class Protocol {
     String software
     String hardware
     OntologyTerm type
+    String parameters
+    String contact
 
     static hasMany = [
         parameters: Parameter
     ]
 
     static constraints = {
-        type(nullable: true)
+        type(nullable: true,blank:true)
+        name(nullable:true,blank:true)
+        description(nullable:true,blank:true)
+        software(nullable:true,blank:true)
+        hardware(nullable:true,blank:true)
+        parameters(nullable:true,blank:true)
+        contact(nullable:true,blank:true)
     }
 }

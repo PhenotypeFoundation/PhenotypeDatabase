@@ -12,6 +12,9 @@ class Publication {
     ]
 
     static constraints = {
-        status(nullable: true)
+        status(nullable:true,blank:true)
+        title(nullable:true,blank:true)
+        pubMedID(nullable:true,blank:true)
+        DOI(nullable:true,blank:true)
     }
 }
