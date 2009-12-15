@@ -21,7 +21,8 @@ class LoadController {
 
         render("Loading ...\n");
 
-        File file = new File("/home/ademcan/Desktop/magetab/examples/E-GEOD-2354.idf.txt");
+        InputStream inputStream = request.getFile("uploadfile").inputStream;
+        BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
 
         def investigationDesign = new magetab.idf.InvestigationDesign();
         def person = new magetab.idf.Person();
@@ -34,10 +35,10 @@ class LoadController {
 
         ArrayList rows = new ArrayList();
 
-        for (i in file.readLines()){
+        for (i in fileReader.readLines()){
             String line = i.toString() ;
             ArrayList tmp_list = new ArrayList();
-            List parsedTab = line.split("\t");
+            def parsedTab = line.split("\t");
 
             for (j in parsedTab) {
                 tmp_list.add(j);

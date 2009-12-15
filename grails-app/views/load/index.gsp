@@ -17,9 +17,9 @@
         <li><a href="#tab-simple">Loading MageTab studies</a></li>
       </ul>
       <div id="tab-simple">
-        <g:form url="[action:'load',controller:'load']">
+        <g:form action="load" controller="load" method="post" enctype="multipart/form-data">
           <input type="hidden" name="targetUri" value="${targetUri}" />
-          <label class="grey" for="querytext">Select the IDF file to load into dbNP :</label>
+          <label class="grey" for="uploadfile">Select the IDF file to load into dbNP :</label>
           <!--input class="field" type="text" name="querytext" id="querytext" size="40" /-->
           <input type="file" name="uploadfile" />
           <input type ="submit" name="submit" />
