@@ -6,6 +6,8 @@ class Publication {
     String pubMedID
     String DOI
     OntologyTerm status
+    String status_term_source_ref
+    String authors_list
 
     static hasMany = [
         authors: Person
@@ -16,5 +18,6 @@ class Publication {
         title(nullable:true,blank:true)
         pubMedID(nullable:true,blank:true)
         DOI(nullable:true,blank:true)
+        authors_list(nullable:true,blank:true)
     }
 }

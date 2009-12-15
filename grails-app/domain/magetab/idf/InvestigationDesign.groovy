@@ -4,8 +4,8 @@ class InvestigationDesign {
 
     String title
     String experimentDescription
-    Date dateOfExperiment
-    Date publicReleaseDate
+    String dateOfExperiment
+    String publicReleaseDate
 
     static hasMany = [
         experimentalFactors: Factor,
@@ -22,5 +22,9 @@ class InvestigationDesign {
     ]
 
     static constraints = {
+        title(nullable:true,blank:true)
+        experimentDescription(nullable:true,blank:true)
+        dateOfExperiment(nullable:true,blank:true)
+        publicReleaseDate(nullable:true,blank:true)
     }
 }

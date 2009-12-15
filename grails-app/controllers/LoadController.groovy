@@ -23,9 +23,14 @@ class LoadController {
 
         File file = new File("/home/ademcan/Desktop/magetab/examples/E-GEOD-2354.idf.txt");
 
+        def investigationDesign = new magetab.idf.InvestigationDesign();
         def person = new magetab.idf.Person();
         def protocol = new magetab.idf.Protocol();
         def publication = new magetab.idf.Publication();
+        def normalization = new magetab.sdrf.Normalization();
+        //def termSource = new magetab.adf.Termsource();
+        def comment = new magetab.idf.Comment();
+        def experimentalInfo = new magetab.idf.ExperimentalInfo();
 
         ArrayList rows = new ArrayList();
 
@@ -40,23 +45,53 @@ class LoadController {
             
             if (tmp_list.size() > 1){
                 if (tmp_list[0]=="Investigation Title"){
-                    magetab.idf.InvestigationDesign investigationDesign = new magetab.idf.InvestigationDesign();
-                    investigationDesign.title=tmp_list[1];
+                    investigationDesign.title = tmp_list[1];
+                }
+                else if (tmp_list[0]=="Comment[AEMIAMESCORE]") {
+                    comment.aemiameScore = tmp_list[1];
+                }
+                else if (tmp_list[0]=="Comment[SecondaryAccession]") {
+                    comment.secondaryAccession = tmp_list[1];
+                }
+                else if (tmp_list[0]=="Comment[ArrayExpressReleaseDate]") {
+                    comment.arrayExpressReleaseDate = tmp_list[1];
+                }
+                else if (tmp_list[0]=="Comment[ArrayExpressAccession]") {
+                    comment.arrayExpressAccession = tmp_list[1];
+                }
+                else if (tmp_list[0]=="Comment[MAGETAB TimeStamp_Version]") {
+                    comment.timestamp_version = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Experimental Design") {
-
+                    String design = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        design = design + " , " +tmp_list[a];
+                    }
+                    experimentalInfo.design = design;
                 }
-                else if (tmp_list[0]=="Experimental Term Source REF") {
-
+                else if (tmp_list[0]=="Experimental Design Term Source REF") {
+                    String term_ref = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        term_ref = term_ref + " , " +tmp_list[a];
+                    }
+                    experimentalInfo.design_term_source_ref = term_ref;
                 }
                 else if (tmp_list[0]=="Experimental Factor Name") {
-
+                    String factor_name = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        factor_name = factor_name + " , " +tmp_list[a];
+                    }
+                    experimentalInfo.factor_name = factor_name;
                 }
                 else if (tmp_list[0]=="Experimental Factor Type") {
-
+                    String factor_type = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        factor_type = factor_type + " , " +tmp_list[a];
+                    }
+                    experimentalInfo.factor_type = factor_type;
                 }
                 else if (tmp_list[0]=="Experimental Factor Term Source REF") {
-
+                    experimentalInfo.factor_term_source_ref = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Person Last Name") {
                     person.lastName = tmp_list[1];
@@ -101,16 +136,16 @@ class LoadController {
 
                 }
                 else if (tmp_list[0]=="Normalization Type") {
-
+                    normalization.type = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Normalization Term Source REF") {
-
+                    normalization.term_source_ref = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Date Of Experiment") {
-
+                    investigationDesign.dateOfExperiment = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Public Release Date") {
-
+                    investigationDesign.publicReleaseDate = tmp_list[1];
                 }
                 else if (tmp_list[0]=="PubMed ID") {
                     publication.pubMedID = tmp_list[1];
@@ -119,25 +154,33 @@ class LoadController {
                     publication.DOI = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Publication Author List") {
-
+                    publication.authors_list = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Publication Title") {
                     publication.title = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Publication Status") {
-
+                    def status = new magetab.idf.OntologyTerm();
+                    status.text = tmp_list[1];
+                    status.save();
+                    publication.status = status;
                 }
                 else if (tmp_list[0]=="Publication Status Term Source REF") {
-
+                    publication.status_term_source_ref = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Experiment Description") {
-
+                    investigationDesign.experimentDescription = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Protocol Name") {
                     protocol.name = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Protocol Type") {
-                    
+                    def type = new magetab.idf.OntologyTerm();
+                    for (j in 1..tmp_list.size()){
+                        type.text = tmp_list[j];
+                        type.save();
+                    }
+                    protocol.type = type;
                 }
                 else if (tmp_list[0]=="Protocol Description") {
                     protocol.description = tmp_list[1];
@@ -155,26 +198,30 @@ class LoadController {
                     protocol.contact = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Protocol Term Source REF") {
-
+                    protocol.term_source_ref = tmp_list[1];
                 }
                 else if (tmp_list[0]=="SDRF File") {
 
                 }
                 else if (tmp_list[0]=="Term Source Name") {
-
+                    //termSource.name = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Term Source File") {
-
+                    //termSource.file = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Term Source Version") {
-
+                    //termSource.version = tmp_list[1];
                 }
-
             }
 
             person.save();
             protocol.save();
             publication.save();
+            normalization.save();
+            investigationDesign.save();
+            comment.save();
+            experimentalInfo.save();
+            //termSource.save();
 
         }
 
