@@ -1,9 +1,16 @@
 /**
- * The ChipAnnotation entity.
+ * The ChipAnnotation Domain Class
  *
- * @author    
+ * What is this?
  *
+ * @author  Robert Kerkhoven
+ * @since   20091215
+ * @package Proteomics
  *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 class ChipAnnotation {
     static mapping = {

@@ -1,9 +1,16 @@
 /**
- * The Chip entity.
+ * The Chip Domain Class
  *
- * @author    
+ * What is this?
  *
+ * @author  Robert Kerkhoven
+ * @since   20091215
+ * @package Proteomics
  *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 class Chip {
     static mapping = {
