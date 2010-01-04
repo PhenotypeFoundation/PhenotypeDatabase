@@ -1,6 +1,8 @@
+import dbnp.studycapturing.Study
+
 class HomeController {
 
     def index = {
-       [ studyCount: Study.count() ]
+       [ studyCount: dbnp.studycapturing.Study.count() ]
     }
 }

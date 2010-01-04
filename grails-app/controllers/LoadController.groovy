@@ -17,23 +17,23 @@ class LoadController {
 
     def load = {
 
-        static ArrayList attributs = new ArrayList();
+        //ArrayList attributes = new ArrayList();
 
         render("Loading ...\n");
 
         InputStream inputStream = request.getFile("uploadfile").inputStream;
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
 
-        def investigationDesign = new magetab.idf.InvestigationDesign();
-        def person = new magetab.idf.Person();
-        def protocol = new magetab.idf.Protocol();
-        def publication = new magetab.idf.Publication();
-        def normalization = new magetab.sdrf.Normalization();
-        //def termSource = new magetab.adf.Termsource();
-        def comment = new magetab.idf.Comment();
-        def experimentalInfo = new magetab.idf.ExperimentalInfo();
+        def investigationDesign = new dbnp.transcriptomics.magetab.idf.InvestigationDesign();
+        def person = new dbnp.transcriptomics.magetab.idf.Person();
+        def protocol = new dbnp.transcriptomics.magetab.idf.MAGEProtocol();
+        def publication = new dbnp.transcriptomics.magetab.idf.Publication();
+        def normalization = new dbnp.transcriptomics.magetab.sdrf.Normalization();
+        //def termSource = new dbnp.transcriptomics.magetab.adf.Termsource();
+        def comment = new dbnp.transcriptomics.magetab.idf.Comment();
+        def experimentalInfo = new dbnp.transcriptomics.magetab.idf.ExperimentalInfo();
 
-        ArrayList rows = new ArrayList();
+        //ArrayList rows = new ArrayList();
 
         for (i in fileReader.readLines()){
             String line = i.toString() ;
@@ -161,7 +161,7 @@ class LoadController {
                     publication.title = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Publication Status") {
-                    def status = new magetab.idf.OntologyTerm();
+                    def status = new dbnp.transcriptomics.magetab.idf.OntologyTerm();
                     status.text = tmp_list[1];
                     status.save();
                     publication.status = status;
@@ -176,7 +176,7 @@ class LoadController {
                     protocol.name = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Protocol Type") {
-                    def type = new magetab.idf.OntologyTerm();
+                    def type = new dbnp.transcriptomics.magetab.idf.OntologyTerm();
                     for (j in 1..tmp_list.size()){
                         type.text = tmp_list[j];
                         type.save();

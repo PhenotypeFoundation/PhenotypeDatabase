@@ -27,7 +27,7 @@ class BaseController {
      * @var boolean scaffolding default
      * @visibility public
      */
-    def scaffold = false;
+    //def scaffold = false;
 
     /**
      * class constructor
@@ -42,7 +42,7 @@ class BaseController {
 	//this.authorizationService = new AuthorizationService();
 
 	// dynamically set scaffolding
-	this.scaffold = (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT && this.class.name != 'BaseController');
+	//this.scaffold = (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT && this.class.name != 'BaseController');
     }
 
 

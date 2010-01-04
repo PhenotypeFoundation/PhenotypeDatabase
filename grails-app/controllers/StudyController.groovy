@@ -1,4 +1,4 @@
 class StudyController extends BaseController {
 
-    def scaffold = true
+    def scaffold = dbnp.studycapturing.Study
 }
