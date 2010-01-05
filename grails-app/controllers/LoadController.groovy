@@ -15,11 +15,19 @@ class LoadController {
 
     def index = {}
 
+    def get_string(ArrayList tmp_list) {
+        String value = tmp_list[1];
+        for (a in 2..tmp_list.size()-1){
+            value = value + " , " +tmp_list[a];
+        }
+        return value;
+    }
+
     def load = {
 
         //ArrayList attributes = new ArrayList();
 
-        render("Loading ...\n");
+        render("Loading ...<br>");
 
         InputStream inputStream = request.getFile("uploadfile").inputStream;
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -36,6 +44,7 @@ class LoadController {
         //ArrayList rows = new ArrayList();
 
         for (i in fileReader.readLines()){
+            render(i);
             String line = i.toString() ;
             ArrayList tmp_list = new ArrayList();
             def parsedTab = line.split("\t");
@@ -71,11 +80,10 @@ class LoadController {
                     experimentalInfo.design = design;
                 }
                 else if (tmp_list[0]=="Experimental Design Term Source REF") {
-                    String term_ref = tmp_list[1];
-                    for (a in 2..tmp_list.size()-1){
-                        term_ref = term_ref + " , " +tmp_list[a];
-                    }
-                    experimentalInfo.design_term_source_ref = term_ref;
+                    String value = get_string(tmp_list);
+                    experimentalInfo.design_term_source_ref = value;
+                    render("value : " + value );
+                    println("value : "+value);
                 }
                 else if (tmp_list[0]=="Experimental Factor Name") {
                     String factor_name = tmp_list[1];
@@ -92,7 +100,11 @@ class LoadController {
                     experimentalInfo.factor_type = factor_type;
                 }
                 else if (tmp_list[0]=="Experimental Factor Term Source REF") {
-                    experimentalInfo.factor_term_source_ref = tmp_list[1];
+                    String exp_ref  = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        exp_ref = exp_ref + " , " +tmp_list[a];
+                    }
+                    experimentalInfo.factor_term_source_ref = exp_ref;
                 }
                 else if (tmp_list[0]=="Person Last Name") {
                     person.lastName = tmp_list[1];
@@ -173,8 +185,13 @@ class LoadController {
                     investigationDesign.experimentDescription = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Protocol Name") {
-                    protocol.name = tmp_list[1];
+                    String protocol_name = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        protocol_name = protocol_name + " , " +tmp_list[a];
+                    }
+                    protocol.name = protocol_name;
                 }
+                //todo list of type
                 else if (tmp_list[0]=="Protocol Type") {
                     def type = new dbnp.transcriptomics.magetab.idf.OntologyTerm();
                     for (j in 1..tmp_list.size()){
@@ -184,10 +201,18 @@ class LoadController {
                     protocol.type = type;
                 }
                 else if (tmp_list[0]=="Protocol Description") {
-                    protocol.description = tmp_list[1];
+                    String protocol_description = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        protocol_description = protocol_description + " , " +tmp_list[a];
+                    }
+                    protocol.description = protocol_description;
                 }
                 else if (tmp_list[0]=="Protocol Parameters") {
-                    protocol.parameters = tmp_list[1];
+                    String protocol_parameters = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        protocol_parameters = protocol_parameters + " , " +tmp_list[a];
+                    }
+                    protocol.parameters = protocol_parameters;
                 }
                 else if (tmp_list[0]=="Protocol Hardware") {
                     protocol.hardware = tmp_list[1];
@@ -202,7 +227,7 @@ class LoadController {
                     protocol.term_source_ref = tmp_list[1];
                 }
                 else if (tmp_list[0]=="SDRF File") {
-
+                    investigationDesign.sdrf_file = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Term Source Name") {
                     //termSource.name = tmp_list[1];
