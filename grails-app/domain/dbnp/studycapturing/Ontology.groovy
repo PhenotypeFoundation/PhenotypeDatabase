@@ -4,8 +4,6 @@ class Ontology {
 
     String name
     String shortName
-    URI url
+    String url
 
-    static constraints = {
-    }
 }

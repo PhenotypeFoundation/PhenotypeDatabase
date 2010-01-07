@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="" />
+<title>add protocol</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">add protocol</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/gscf/#</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>open</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>username</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admiN123!</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//div[@id='header']/ul/li[5]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=OntologyController</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=New Ontology</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name</td>
+	<td>ArrayExpress Protocols Ontology</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>shortName</td>
+	<td>EBI_MAGE_PROTOCOL</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>url</td>
+	<td>http://www.ebi.ac.uk/microarray-as/aer/result?queryFor=Protocol</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>create</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//div[@id='header']/ul/li[5]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=TermController</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=New Term</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>accession</td>
+	<td>P-MTAB-3518</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name</td>
+	<td>Animal Care</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>create</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//div[@id='header']/ul/li[5]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=ProtocolController</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=New Protocol</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name</td>
+	<td>Animal Care</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>create</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//div[@id='header']/ul/li[5]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=ProtocolParameterController</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=New ProtocolParameter</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>description</td>
+	<td>diet</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name</td>
+	<td>diet</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>description</td>
+	<td>	ebi.ac.uk:MAGETabulator:P-MTAB-3518.diet.Parameter</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>create</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

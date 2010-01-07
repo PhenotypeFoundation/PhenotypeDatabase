@@ -1,3 +1,4 @@
+package dbnp.transcriptomics.data
 /**
  * The Chip entity.
  * Author

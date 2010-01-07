@@ -2,11 +2,14 @@ package dbnp.studycapturing
 
 class ProtocolParameter {
 
-    enum ParameterType { STRING, NUMBER, LIST }
-
     String name
-    ParameterType type
-    
+    ProtocolParameterType type
+    String unit
+    String description
+    Term reference
+
+    static hasMany = [listEntries : String]
+
     static constraints = {
     }
 }

@@ -6,5 +6,10 @@ class Template {
     nimble.User owner
   
     static constraints = {
+        name(unique:true)
+    }
+
+    def String toString() {
+        return this.name;
     }
 }

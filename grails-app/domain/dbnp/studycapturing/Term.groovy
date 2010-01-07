@@ -4,7 +4,7 @@ class Term {
 
     String name
     Ontology ontology
-    long accessionNumber
+    String accession
 
     static constraints = {
     }
