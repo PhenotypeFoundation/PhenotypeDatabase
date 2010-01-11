@@ -1,6 +1,6 @@
 package dbnp.transcriptomics.magetab.sdrf
 
-class Assay {
+class MAGEAssay {
 
     static constraints = {
     }
