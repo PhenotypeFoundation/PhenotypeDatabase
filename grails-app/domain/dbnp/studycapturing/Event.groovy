@@ -2,13 +2,10 @@ package dbnp.studycapturing
 
 class Event {
 
-    String name
+    Subject subject
+    EventDescription eventDescription
     Date startTime
     Date endTime
-    Term classification
-    ProtocolInstance protocol
-
-    static hasMany = [subjects: Subject]
 
     static constraints = {
     }
