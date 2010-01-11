@@ -6,6 +6,11 @@ class InvestigationDesign {
     String experimentDescription
     String dateOfExperiment
     String publicReleaseDate
+    String sdrf_file;
+
+    static mapping = {
+       experimentDescription type: 'text'
+    }
 
     static hasMany = [
         experimentalFactors: Factor,
@@ -26,5 +31,6 @@ class InvestigationDesign {
         experimentDescription(nullable:true,blank:true)
         dateOfExperiment(nullable:true,blank:true)
         publicReleaseDate(nullable:true,blank:true)
+        sdrf_file(nullable:true,blank:true)
     }
 }

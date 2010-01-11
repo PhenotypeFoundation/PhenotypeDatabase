@@ -34,17 +34,18 @@ class LoadController {
 
         def investigationDesign = new dbnp.transcriptomics.magetab.idf.InvestigationDesign();
         def person = new dbnp.transcriptomics.magetab.idf.Person();
-        def protocol = new dbnp.transcriptomics.magetab.idf.MAGEProtocol();
+        def protocol = new dbnp.transcriptomics.magetab.idf.MAGEProtocol();l
         def publication = new dbnp.transcriptomics.magetab.idf.Publication();
         def normalization = new dbnp.transcriptomics.magetab.sdrf.Normalization();
         //def termSource = new dbnp.transcriptomics.magetab.adf.Termsource();
         def comment = new dbnp.transcriptomics.magetab.idf.Comment();
         def experimentalInfo = new dbnp.transcriptomics.magetab.idf.ExperimentalInfo();
+        def factor = new dbnp.transcriptomics.magetab.idf.Factor();
 
         //ArrayList rows = new ArrayList();
 
         for (i in fileReader.readLines()){
-            render(i);
+            //render(i);
             String line = i.toString() ;
             ArrayList tmp_list = new ArrayList();
             def parsedTab = line.split("\t");
@@ -82,7 +83,7 @@ class LoadController {
                 else if (tmp_list[0]=="Experimental Design Term Source REF") {
                     String value = get_string(tmp_list);
                     experimentalInfo.design_term_source_ref = value;
-                    render("value : " + value );
+                    //render("value : " + value );
                     println("value : "+value);
                 }
                 else if (tmp_list[0]=="Experimental Factor Name") {
@@ -90,15 +91,15 @@ class LoadController {
                     for (a in 2..tmp_list.size()-1){
                         factor_name = factor_name + " , " +tmp_list[a];
                     }
-                    experimentalInfo.factor_name = factor_name;
+                    factor.name = factor_name;
                 }
-                else if (tmp_list[0]=="Experimental Factor Type") {
-                    String factor_type = tmp_list[1];
-                    for (a in 2..tmp_list.size()-1){
-                        factor_type = factor_type + " , " +tmp_list[a];
-                    }
-                    experimentalInfo.factor_type = factor_type;
-                }
+                //else if (tmp_list[0]=="Experimental Factor Type") {
+//                    String factor_type = tmp_list[1];
+//                    for (a in 2..tmp_list.size()-1){
+//                        factor_type = factor_type + " , " +tmp_list[a];
+//                    }
+//                    factor.type = factor_type;
+                //}
                 else if (tmp_list[0]=="Experimental Factor Term Source REF") {
                     String exp_ref  = tmp_list[1];
                     for (a in 2..tmp_list.size()-1){
@@ -107,31 +108,67 @@ class LoadController {
                     experimentalInfo.factor_term_source_ref = exp_ref;
                 }
                 else if (tmp_list[0]=="Person Last Name") {
-                    person.lastName = tmp_list[1];
+                    String last_name = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        last_name = last_name  + " , " +tmp_list[a];
+                    }
+                    person.lastName = last_name;
                 }
                 else if (tmp_list[0]=="Person First Name") {
-                    person.firstName = tmp_list[1];
+                    String first_name = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        first_name = first_name  + " , " +tmp_list[a];
+                    }
+                    person.firstName = first_name;
                 }
                 else if (tmp_list[0]=="Person Mid Initials") {
-                    person.midInitials = tmp_list[1];
+                    String mid_initials = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        mid_initials = mid_initials  + " , " +tmp_list[a];
+                    }
+                    person.midInitials = mid_initials;
                 }
                 else if (tmp_list[0]=="Person Email") {
-                    person.email = tmp_list[1];
+                    String pemail = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        pemail = pemail + " , " +tmp_list[a];
+                    }
+                    person.email = pemail;
                 }
                 else if (tmp_list[0]=="Person Phone") {
-                    person.phone = tmp_list[1];
+                    String pphone = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        pphone = pphone + " , " +tmp_list[a];
+                    }
+                    person.phone = pphone;
                 }
                 else if (tmp_list[0]=="Person Fax") {
-                    person.fax = tmp_list[1];
+                    String pfax = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        pfax = pfax + " , " +tmp_list[a];
+                    }
+                    person.fax = pfax;
                 }
                 else if (tmp_list[0]=="Person Address") {
-                    person.address = tmp_list[1];
+                    String paddress = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        paddress = paddress + " , " +tmp_list[a];
+                    }
+                    person.address = paddress;
                 }
                 else if (tmp_list[0]=="Person Affiliation") {
-                    person.affiliation = tmp_list[1];
+                    String paffiliation = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        paffiliation = paffiliation + " , " +tmp_list[a];
+                    }
+                    person.affiliation = paffiliation;
                 }
                 else if (tmp_list[0]=="Person Roles") {
-                    person.roles = tmp_list[1];
+                    String proles = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        proles = proles + " , " +tmp_list[a];
+                    }
+                    person.roles = proles;
                 }
                 else if (tmp_list[0]=="Person Roles Term Source REF") {
                     person.roles_ref = tmp_list[1];
@@ -164,13 +201,21 @@ class LoadController {
                     publication.pubMedID = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Publication DOI") {
-                    publication.DOI = tmp_list[1];
+                    String doi = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        doi = doi + " , " +tmp_list[a];
+                    }
+                    publication.DOI = doi;
                 }
                 else if (tmp_list[0]=="Publication Author List") {
                     publication.authors_list = tmp_list[1];
                 }
                 else if (tmp_list[0]=="Publication Title") {
-                    publication.title = tmp_list[1];
+                    String pubTitle = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        pubTitle = pubTitle + " , " +tmp_list[a];
+                    }
+                    publication.title = pubTitle;
                 }
                 else if (tmp_list[0]=="Publication Status") {
                     def status = new dbnp.transcriptomics.magetab.idf.OntologyTerm();
@@ -215,19 +260,35 @@ class LoadController {
                     protocol.parameters = protocol_parameters;
                 }
                 else if (tmp_list[0]=="Protocol Hardware") {
-                    protocol.hardware = tmp_list[1];
+                    String phardware = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        phardware = phardware + " , " +tmp_list[a];
+                    }
+                    protocol.hardware = phardware;
                 }
                 else if (tmp_list[0]=="Protocol Software") {
-                    protocol.software = tmp_list[1];
+                    String psoftware = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        psoftware = psoftware + " , " +tmp_list[a];
+                    }
+                    protocol.software = psoftware;
                 }
                 else if (tmp_list[0]=="Protocol Contact") {
-                    protocol.contact = tmp_list[1];
+                    String pcontact = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        pcontact = pcontact + " , " +tmp_list[a];
+                    }
+                    protocol.contact = pcontact;
                 }
                 else if (tmp_list[0]=="Protocol Term Source REF") {
                     protocol.term_source_ref = tmp_list[1];
                 }
                 else if (tmp_list[0]=="SDRF File") {
-                    investigationDesign.sdrf_file = tmp_list[1];
+                    String sdrf = tmp_list[1];
+                    for (a in 2..tmp_list.size()-1){
+                        sdrf = sdrf + " , " +tmp_list[a];
+                    }
+                    investigationDesign.sdrf_file = sdrf;
                 }
                 else if (tmp_list[0]=="Term Source Name") {
                     //termSource.name = tmp_list[1];
@@ -247,11 +308,9 @@ class LoadController {
             investigationDesign.save();
             comment.save();
             experimentalInfo.save();
+            //factor.save();
             //termSource.save();
-
         }
-
     }
-
 }
 

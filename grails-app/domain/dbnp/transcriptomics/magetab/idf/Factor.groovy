@@ -6,8 +6,7 @@ class Factor {
     OntologyTerm type
 
     static constraints = {
-
-        type(nullable: true)
-        
+        name(nullable:true,blank:true)
+        type(nullable: true, blank:true)
     }
 }

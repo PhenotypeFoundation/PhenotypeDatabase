@@ -15,6 +15,10 @@ class MAGEProtocol {
         parameters: Parameter
     ]
 
+    static mapping = {
+       description type: 'text'
+    }
+
     static constraints = {
         type(nullable: true,blank:true)
         name(nullable:true,blank:true)

@@ -19,5 +19,6 @@ class Publication {
         pubMedID(nullable:true,blank:true)
         DOI(nullable:true,blank:true)
         authors_list(nullable:true,blank:true)
+        status_term_source_ref(nullable:true,blank:true)
     }
 }
