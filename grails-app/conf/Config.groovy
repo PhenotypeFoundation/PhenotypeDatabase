@@ -69,5 +69,17 @@ log4j = {
     warn   'org.mortbay.log'
 }
 
-
-     
+graphviz {
+    // graphviz installation path is dependent on OS
+    // (requirement for class diagram plugin)
+        switch (System.properties["os.name"]) {
+            case "Mac OS X":
+                // define mac path to Graphviz dot executable
+                // (install using macports: sudo port install graphviz)
+                dot.executable = "/opt/local/bin/dot"
+                break
+            default:
+                // assume the linux default path
+                dot.executable = "/usr/bin/dot"
+        }
+}

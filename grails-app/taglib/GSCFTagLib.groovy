@@ -12,5 +12,4 @@ class GSCFTagLib {
     def jqueryui = {attrs, body ->
         out << render(template: "/common/jqueryuisetup")
     }
-
 }
