@@ -16,7 +16,9 @@ class Study {
     Date startDate
     Template template
 
-    static hasMany = [ editors : nimble.User, subjects: Subject, protocols: Protocol ]
+    static hasMany = [ editors : nimble.User, readers : nimble.User,
+            subjects: Subject, groups : SubjectGroup,
+            events: Event, samplingEvents : SamplingEvent]
 
     static constraints = {
     }

@@ -1,5 +1,8 @@
 package dbnp.studycapturing
 
+/**
+ * Class describing a concrete application of a protocol (which goes with numbers/values for the protocol parameters).
+ */
 class ProtocolInstance {
 
     Protocol protocol

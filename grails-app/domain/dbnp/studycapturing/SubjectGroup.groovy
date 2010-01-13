@@ -1,8 +1,9 @@
 package dbnp.studycapturing
 
+/**
+ * This class describes groupings in the subjects of a study.
+ */
 class SubjectGroup {
-
-    Study study
 
     static hasMany = [ subjects : Subject]
 

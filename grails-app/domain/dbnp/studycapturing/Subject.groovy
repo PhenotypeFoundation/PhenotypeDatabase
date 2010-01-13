@@ -1,8 +1,10 @@
 package dbnp.studycapturing
 
+/**
+ * This domain class describes the subjects in a study.
+ */
 class Subject {
 
-    Study study
     String name
     Term species
 
