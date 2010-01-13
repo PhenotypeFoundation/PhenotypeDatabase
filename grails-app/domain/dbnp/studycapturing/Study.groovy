@@ -21,6 +21,7 @@ class Study {
             events: Event, samplingEvents : SamplingEvent]
 
     static constraints = {
+        template(nullable:true,blank:true)
     }
 
     static mapping = {
