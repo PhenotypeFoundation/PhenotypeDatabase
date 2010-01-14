@@ -14,6 +14,6 @@
  * $Date$
  */
 %>
-<div class="wizardHeader">
-  tabs go in here
+<div class="tabs">
+  <g:each status="i" var="item" in="${pages}"><div class="element<g:if test="${(i == (page-1))}"> active</g:if>">${i+1}. ${item.title}</div></g:each>
 </div>

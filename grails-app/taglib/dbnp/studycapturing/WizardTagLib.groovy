@@ -17,6 +17,9 @@ class WizardTagLib extends JavascriptTagLib {
   // define the tag namespace (e.g.: <wizard:action ... />
   static namespace = "wizard"
 
+  // define the AJAX provider to use
+  static ajaxProvider = "jquery"
+  
   /**
    * ajaxButton tag, this is a modified version of the default
    * grails submitToRemote tag to work with grails webflows.
@@ -61,14 +64,26 @@ class WizardTagLib extends JavascriptTagLib {
   }
 
   /**
-   * render the wizard navigation button
-   * @param map attrs (supports: previous="true/false" and next="true/false"
+   * wizard navigation buttons render wrapper, in order to be able to add
+   * functionality in the future
    */
   def previousNext = { attrs ->
-    def buttons = new LinkedHashMap()
-    buttons.previous  = (attrs.get('previous') == null || (attrs.get('previous') instanceof String && attrs.get('previous') == "true")) ? true : false
-    buttons.next      = (attrs.get('next') == null || (attrs.get('next') instanceof String && attrs.get('next') == "true")) ? true : false
+    // define AJAX provider
+    setProvider([library:ajaxProvider])
 
-    out << render(template:"/wizard/common/buttons", model:[button:buttons])
+    // render navigation buttons
+    out << render(template:"/wizard/common/buttons")
+  }
+
+  def pageContent = { attrs, body ->
+    // define AJAX provider
+    setProvider([library:ajaxProvider])
+
+    // render new body content
+    out << render(template:"/wizard/common/tabs")
+    out << '<div class="content">'
+    out << body()
+    out << '</div>'
+    out << render(template:"/wizard/common/navigation")
   }
 }

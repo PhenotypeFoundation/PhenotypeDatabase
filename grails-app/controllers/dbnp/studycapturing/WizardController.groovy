@@ -42,6 +42,15 @@ class WizardController {
       // start the flow
       onStart {
         println "wizard started"
+        
+        // define flow variables
+        flow.page = 0
+        flow.pages = [
+                [title:'Een'],
+                [title:'Twoooo'],
+                [title:'Trois']
+        ]
+        
       }
       onEnd {
 	    println "wizard ended"
@@ -51,6 +60,7 @@ class WizardController {
 	  mainPage {
 	    onRender {
 		  println "render main page"
+          flow.page = 1
 	    }
 	    render(view:"/wizard/index")
         on("next") {
@@ -61,6 +71,7 @@ class WizardController {
       pageOne {
 	    onRender {
 		  println "render page one"
+          flow.page = 1
 	    }
 	    render(view:"_one")
         on("next") {
@@ -72,6 +83,7 @@ class WizardController {
 	  pageTwo {
 	    onRender {
 		  println "render page two"
+          flow.page = 2
 	    }
         render(view:"_two")
         on("next") {
@@ -86,6 +98,7 @@ class WizardController {
 	  pageThree {
 	    onRender {
 		  println "render page three"
+          flow.page = 3
 	    }
         render(view:"_three")
         on("previous") {
