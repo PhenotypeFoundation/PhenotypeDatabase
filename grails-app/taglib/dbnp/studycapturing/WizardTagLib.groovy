@@ -19,6 +19,9 @@ class WizardTagLib extends JavascriptTagLib {
 
   // define the AJAX provider to use
   static ajaxProvider = "jquery"
+
+  // define default text field width
+  static defaultTextFieldSize = 25;
   
   /**
    * ajaxButton tag, this is a modified version of the default
@@ -31,8 +34,8 @@ class WizardTagLib extends JavascriptTagLib {
    * @see   http://www.grails.org/Tag+-+submitToRemote
    * @todo  perhaps some methods should be moved to a more generic
    *        'webflow' taglib
-   * @param map     attributes
-   * @param string  body
+   * @param Map     attributes
+   * @param Closure body
    */
   def ajaxButton = { attrs, body ->
     // fetch the element name from the attributes
@@ -75,6 +78,11 @@ class WizardTagLib extends JavascriptTagLib {
     out << render(template:"/wizard/common/buttons")
   }
 
+  /**
+   * render the content of a particular wizard page
+   * @param Map     attrs
+   * @param Closure body
+   */
   def pageContent = { attrs, body ->
     // define AJAX provider
     setProvider([library:ajaxProvider])
@@ -85,5 +93,32 @@ class WizardTagLib extends JavascriptTagLib {
     out << body()
     out << '</div>'
     out << render(template:"/wizard/common/navigation")
+  }
+
+  def textFieldElement = { attrs, body ->
+    // set default size, or scale to max length if it is less than the default size
+    if (!attrs.get("size")) {
+      if (attrs.get("maxlength")) {
+        attrs.size = ((attrs.get("maxlength") as int) > defaultTextFieldSize) ? defaultTextFieldSize : attrs.get("maxlength") 
+      } else {
+        attrs.size = defaultTextFieldSize
+      }
+    }
+
+    // render a text element
+    out << '<div class="element">'
+    out << ' <div class="description">'
+    out << body()
+    out << ' </div>'
+    out << ' <div class="input">'
+    out << textField(attrs)
+    out << ' </div>'
+
+    // add help icon?
+    if (attrs.get('help')) {
+      out << ' <div class="help"><img src="../images/icons/famfamfam/help.png"></div>'
+    }
+    
+    out << '</div>'
   }
 }

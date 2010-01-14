@@ -59,3 +59,34 @@
     display: block;
     padding-top: 10px;
 }
+
+.wizard .element {
+    display: block;
+}
+
+.wizard .element .description {
+    display: inline-block;
+    font-size: 11px;
+    width: 250px;
+    word-wrap: break-word;
+}
+
+.wizard .element .input {
+    display: inline;
+}
+
+.wizard .element .input input {
+    vertical-align: top;
+    border: 1px solid #CCC;
+    margin: 2px 0;
+    padding: 2px 4px;
+}
+
+.wizard .element .input input:focus, select:focus, textarea:focus {
+    border: 1px solid #B2D1FF;
+}
+
+.wizard .element .help {
+    vertical-align: top;
+    display: inline;
+}
