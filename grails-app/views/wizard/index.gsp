@@ -18,7 +18,7 @@
  <head>
   <meta name="layout" content="main" />
   <link rel="stylesheet" href="${resource(dir:'css',file:'wizard.css')}" />
-  <g:javascript library="jquery" />
+  <script type="text/javascript" src="${resource(dir:'js', file:'wizard.js')}"></script>
  </head>
  <body>
   <g:render template="common/wizard"/>
