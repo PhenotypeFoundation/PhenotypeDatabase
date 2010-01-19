@@ -46,6 +46,7 @@ class NimbleBootStrap {
 
     // Execute any custom Nimble related BootStrap for your application below
     if (nimble.User.count() == 0) {
+        println ".bootstrapping nimble"
 
         // Create example User account
         def user = InstanceGenerator.user()

@@ -13,4 +13,10 @@ class Term {
 
     static constraints = {
     }
+
+  def String toString() {
+    return name
+  }
+
+
 }

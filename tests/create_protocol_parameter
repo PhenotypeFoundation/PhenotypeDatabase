@@ -38,7 +38,7 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>//div[@id='header']/ul/li[5]/span</td>
+	<td>//div[@id='header']/ul/li[6]/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -73,7 +73,7 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>//div[@id='header']/ul/li[5]/span</td>
+	<td>//div[@id='header']/ul/li[6]/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -103,7 +103,7 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>//div[@id='header']/ul/li[5]/span</td>
+	<td>//div[@id='header']/ul/li[6]/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -128,7 +128,7 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>//div[@id='header']/ul/li[5]/span</td>
+	<td>//div[@id='header']/ul/li[6]/span</td>
 	<td></td>
 </tr>
 <tr>

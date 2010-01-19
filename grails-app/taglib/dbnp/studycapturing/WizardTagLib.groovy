@@ -30,6 +30,7 @@ class WizardTagLib extends JavascriptTagLib {
    * that a 'name' form element attribute is required. E.g.
    * <wizard:ajaxButton name="myAction" value="myButton ... />
    *
+   * @see   http://blog.osx.eu/2010/01/18/ajaxifying-a-grails-webflow/
    * @see   http://www.grails.org/WebFlow
    * @see   http://www.grails.org/Tag+-+submitToRemote
    * @todo  perhaps some methods should be moved to a more generic

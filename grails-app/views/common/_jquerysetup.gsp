@@ -9,4 +9,4 @@
   @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1658
   @see http://github.com/intient/nimble/issues#issue/55
 //-->
-<script type="text/javascript" src="/gscf/js/jquery/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="/gscf/js/jquery/jquery-1.4.js"></script>
