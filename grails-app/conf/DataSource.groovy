@@ -13,8 +13,20 @@ hibernate {
 environments {
         development {
 		dataSource {
+
+                        dbCreate = "update"
+			username = "gscf"
+			password = "dbnp"
+
+			// PostgreSQL
+			driverClassName = "org.postgresql.Driver"
+			url = "jdbc:postgresql://localhost:5432/gscf"
+                        dialect = org.hibernate.dialect.PostgreSQLDialect
+
+                        /**
 			dbCreate = "create-drop" // one of 'create', 'create-drop','update'
 			url = "jdbc:hsqldb:mem:devDB"
+                        */
 		}
 	}
 	test {
