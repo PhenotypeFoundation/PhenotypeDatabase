@@ -19,8 +19,8 @@
 
 .wizard .tabs .element {
     background-color:#EEEEEE;
-    border-bottom:4px solid #717f81;
-    border-right:1px solid #717f81;
+    border-bottom:4px solid #006DBA;
+    border-right:1px solid #006DBA;
     color:#006DBA;
     cursor:default;
     display:inline;
@@ -33,7 +33,7 @@
 }
 
 .wizard .tabs .active {
-    background-color: #006DBA;
+    background-color: #add9ee;
     color: #fff;
     font-weight: bold;
 }
@@ -89,26 +89,15 @@
 .wizard .element .help {
     vertical-align: top;
     display: inline-block;
-    font-size: 11px;
-    line-height: 20px;
 }
 
 .wizard .element .help .icon {
-    margin-top: 4px;    
-}
-
-.wizard .element .help .text {
-    padding-left: 5px;
-    padding-right: 5px;
-    border: 1px solid white;
+    margin-top: 4px;
+    background: url(../images/icons/famfamfam/help.png) no-repeat left top;
+    width: 16px;
+    height: 16px;
 }
 
 .wizard .element .help .content {
-    position: absolute;
-    background-color: #292929;
-    color: #006DBA;
-    margin-left: 20px;
-    margin-top: -19px;
-    opacity: 0;
-    border: 1px solid black;
+    display: none;
 }

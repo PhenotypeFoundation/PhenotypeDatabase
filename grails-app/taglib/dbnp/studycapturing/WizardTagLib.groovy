@@ -132,11 +132,9 @@ class WizardTagLib extends JavascriptTagLib {
 		// add help icon?
 		if (attrs.get('help')) {
 			out << ' <div class="help">'
-			out << '  <div class="icon"><img src="../images/icons/famfamfam/help.png"></div>'
+			out << '  <div class="icon"></div>'
 			out << '  <div class="content">'
-			out << '   <div class="text">'
 			out << '    ' + attrs.get('help')
-			out << '   </div>'
 			out << '  </div>'
 			out << ' </div>'
 		}
