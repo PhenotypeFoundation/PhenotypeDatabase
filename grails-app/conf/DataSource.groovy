@@ -13,10 +13,13 @@ hibernate {
 environments {
 	development {
 		dataSource {
-			println "DATASOURCE DEBUG :: user.home = "+System.properties["user.home"]
+			//println "DATASOURCE DEBUG :: user.home = "+System.properties["user.home"]
 			switch (System.properties["user.home"]) {
-				case "/Users/adem":
-					// Adem like to use his own postgres database
+				case "/Users/adem/TURNEDOFFBYDEFAULT":
+					// Development Postgres Database is turned off by default
+					// if you do want to keep your data you can:
+					// 	- reformate 'case' to your user.home (/Users/adem ?)
+					//	- define development data in the BootStrap.groovy instead
 					dbCreate = "update"
 					username = "gscf"
 					password = "dbnp"
