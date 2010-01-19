@@ -15,6 +15,9 @@ import intient.nimble.InstanceGenerator
  */
 class BootStrap {
 	def init = {servletContext ->
+
+            new Study(title:"test",code:"code",researchQuestion:"Rquestion",description:"description",ecCode:"ecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
+
 		if (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
 			printf("development bootstrapping....\n\n");
 
