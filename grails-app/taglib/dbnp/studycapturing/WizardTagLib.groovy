@@ -107,6 +107,9 @@ class WizardTagLib extends JavascriptTagLib {
 		out << render(template: "/wizard/common/navigation")
 	}
 
+	/**
+	 * render a textFieldElement
+	 */
 	def textFieldElement = {attrs, body ->
 		// set default size, or scale to max length if it is less than the default size
 		if (!attrs.get("size")) {

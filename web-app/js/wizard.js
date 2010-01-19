@@ -12,17 +12,30 @@
  * $Author$
  * $Date$
  */
-
-$(document).ready(function(){
+$(document).ready(function() {
     // attach help action on all wizard help icons
-    $('div#wizard').find('div.help')
-            .bind('mouseenter',function() {
-        $(this).find('div.content').animate({
-            opacity: 0.95
-        }, 200 );
-    }).bind('mouseleave',function() {
-        $(this).find('div.content').animate({
-            opacity: 0
-        }, 200 );
-    });
+    $('div#wizard').find('div.help').each(function() {
+        $(this).find('div.icon').qtip({
+            content: 'leftMiddle',
+            position: {
+               corner: {
+                  tooltip: 'leftMiddle',
+                  target: 'rightMiddle'
+               }
+            },
+            style: {
+               border: {
+                  width: 5,
+                  radius: 10
+               },
+               padding: 10,
+               textAlign: 'center',
+               tip: true, // Give it a speech bubble tip with automatic corner detection
+               name: 'blue' // Style it according to the preset 'cream' style
+            },
+            content: $(this).find('div.content').html(),
+            show: 'mouseover',
+            hide: 'mouseout'
+        })
+    })
 });
