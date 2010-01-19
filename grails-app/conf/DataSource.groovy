@@ -5,28 +5,33 @@ dataSource {
 	password = ""
 }
 hibernate {
-    cache.use_second_level_cache=true
-    cache.use_query_cache=true
-    cache.provider_class='net.sf.ehcache.hibernate.EhCacheProvider'
+	cache.use_second_level_cache = true
+	cache.use_query_cache = true
+	cache.provider_class = 'net.sf.ehcache.hibernate.EhCacheProvider'
 }
 // environment specific settings
 environments {
-        development {
+	development {
 		dataSource {
+			println "DATASOURCE DEBUG :: user.home = "+System.properties["user.home"]
+			switch (System.properties["user.home"]) {
+				case "/Users/adem":
+					// Adem like to use his own postgres database
+					dbCreate = "update"
+					username = "gscf"
+					password = "dbnp"
 
-                        dbCreate = "update"
-			username = "gscf"
-			password = "dbnp"
-
-			// PostgreSQL
-			driverClassName = "org.postgresql.Driver"
-			url = "jdbc:postgresql://localhost:5432/gscf"
-                        dialect = org.hibernate.dialect.PostgreSQLDialect
-
-                        /**
-			dbCreate = "create-drop" // one of 'create', 'create-drop','update'
-			url = "jdbc:hsqldb:mem:devDB"
-                        */
+					// PostgreSQL
+					driverClassName = "org.postgresql.Driver"
+					url = "jdbc:postgresql://localhost:5432/gscf"
+					dialect = org.hibernate.dialect.PostgreSQLDialect
+					break;
+				default:
+					// by default we use an in memory development database
+					dbCreate = "create-drop" // one of 'create', 'create-drop','update'
+					url = "jdbc:hsqldb:mem:devDB"
+			   		break;
+			}
 		}
 	}
 	test {
@@ -53,12 +58,12 @@ environments {
 			// PostgreSQL
 			driverClassName = "org.postgresql.Driver"
 			url = "jdbc:postgresql://localhost:5432/gscf"
-                        dialect = org.hibernate.dialect.PostgreSQLDialect
+			dialect = org.hibernate.dialect.PostgreSQLDialect
 
 			// MySQL
 			//driverClassName = "com.mysql.jdbc.Driver"
 			//url = "jdbc:mysql://localhost/gscf"
-                        //dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+			//dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 
 			//In memory
 			//url = "jdbc:hsqldb:file:prodDb;shutdown=true"
