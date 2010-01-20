@@ -31,6 +31,10 @@ class WizardTagLib extends JavascriptTagLib {
 	 * that a 'name' form element attribute is required. E.g.
 	 * <wizard:ajaxButton name="myAction" value="myButton ... />
 	 *
+	 * you can also provide a javascript function to execute after
+	 * success. This behaviour differs from the default 'after'
+	 * action which always fires after a button press...
+	 *
 	 * @see http://blog.osx.eu/2010/01/18/ajaxifying-a-grails-webflow/
 	 * @see http://www.grails.org/WebFlow
 	 * @see http://www.grails.org/Tag+-+submitToRemote
@@ -39,12 +43,15 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attributes
 	 * @param Closure body
 	 */
-	def ajaxButton = {attrs, body ->
+	def ajaxButton = { attrs, body ->
 		// get the jQuery version
 		def jQueryVersion = grailsApplication.getMetadata()['plugins.jquery']
 
 		// fetch the element name from the attributes
 		def elementName = attrs['name'].replaceAll(/ /, "_")
+
+		// javascript function to call after success
+		def afterSuccess = attrs['afterSuccess']
 
 		// generate a normal submitToRemote button
 		def button = submitToRemote(attrs, body)
@@ -73,9 +80,78 @@ class WizardTagLib extends JavascriptTagLib {
 			// this.form part has been fixed. Consequently, our wrapper has changed as well... 
 			button = button.replaceFirst(/data\:jQuery/, "data:\'_eventId_${elementName}=1&\'+jQuery")
 		}
+ 
+		// add an after success function call?
+		// usefull for performing actions on success data (hence on refreshed
+		// wizard pages, such as attaching tooltips)
+		if (afterSuccess) {
+			button = button.replaceFirst(/\.html\(data\)\;/, '.html(data);' + afterSuccess + ';')
+		}
 
+		// replace double semi colons
+		button = button.replaceAll(/;{2,}/, '!!!')
+		
 		// render button
 		out << button
+	}
+
+	/**
+	 * generate ajax webflow redirect javascript
+	 *
+	 * As we have an Ajaxified webflow, the initial wizard page
+	 * cannot contain a wizard form, as upon a failing submit
+	 * (e.g. the form data does not validate) the form should be
+	 * shown again. However, the Grails webflow then renders the
+	 * complete initial wizard page into the success div. As this
+	 * ruins the page layout (a page within a page) we want the
+	 * initial page to redirect to the first wizard form to enter
+	 * the webflow correctly. We do this by emulating an ajax post
+	 * call which updates the wizard content with the first wizard
+	 * form.
+	 *
+	 * Usage: <wizard:ajaxFlowRedirect form="form#wizardForm" name="next" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" />
+	 * form = the form identifier
+	 * name = the action to execute in the webflow
+	 * update = the divs to update upon success or error
+	 *
+	 * Example initial webflow action to work with this javascript:
+	 * ...
+	 * mainPage {
+	 * 	render(view: "/wizard/index")
+	 * 	onRender {
+	 * 		flow.page = 1
+	 * 	}
+	 * 	on("next").to "pageOne"
+	 * }
+	 * ...
+	 *
+	 * @param Map attributes
+	 * @param Closure body
+	 */
+	def ajaxFlowRedirect = { attrs, body ->
+		// define AJAX provider
+		setProvider([library: ajaxProvider])
+
+		// generate an ajax button
+		def button = this.ajaxButton(attrs, body)
+
+		// strip the button part to only leave the Ajax call
+		button = button.replaceFirst(/<[^\"]*\"jQuery.ajax/,'jQuery.ajax')
+		button = button.replaceFirst(/return false.*/,'')
+
+		// change form if a form attribute is present
+		if (attrs.get('form')) {
+			button = button.replaceFirst(/this\.form/,
+				"\\\$('" + attrs.get('form') + "')"
+			)
+		}
+
+		// generate javascript
+		out << '<script language="JavaScript">'
+		out << '$(document).ready(function() {'
+		out << button
+		out << '});'
+		out << '</script>'
 	}
 
 	/**
@@ -123,18 +199,18 @@ class WizardTagLib extends JavascriptTagLib {
 		// render a text element
 		out << '<div class="element">'
 		out << ' <div class="description">'
-		out << body()
+		out << attrs.get('description')
 		out << ' </div>'
 		out << ' <div class="input">'
 		out << textField(attrs)
 		out << ' </div>'
 
 		// add help icon?
-		if (attrs.get('help')) {
+		if (body()) {
 			out << ' <div class="help">'
 			out << '  <div class="icon"></div>'
 			out << '  <div class="content">'
-			out << '    ' + attrs.get('help')
+			out << '    ' + body()
 			out << '  </div>'
 			out << ' </div>'
 		}

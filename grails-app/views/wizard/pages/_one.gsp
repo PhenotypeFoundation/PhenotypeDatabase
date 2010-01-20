@@ -1,6 +1,6 @@
 <%
 /**
- * Wizard page one
+ * Study page
  *
  * @author  Jeroen Wesbeek
  * @since   20100113
@@ -15,9 +15,15 @@
  */
 %>
 <wizard:pageContent>
-	<wizard:textFieldElement name="studyTitle" help="The title of the study you are creating">Title</wizard:textFieldElement>
-	<wizard:textFieldElement name="studyCode" help="A code to reference your study by">Code</wizard:textFieldElement>
-	<wizard:textFieldElement name="studyResearchQuestion" help="The research question">Research Question</wizard:textFieldElement>
-	<wizard:textFieldElement name="studyDescription">Description</wizard:textFieldElement>
-	<wizard:textFieldElement name="studyEcCode">Ethical Committee Code</wizard:textFieldElement>
+	<wizard:textFieldElement name="studyTitle" description="Title">
+		The title of the study you are creating
+	</wizard:textFieldElement>
+	<wizard:textFieldElement name="studyCode" description="Code">
+		A code to reference your study by
+	</wizard:textFieldElement>
+	<wizard:textFieldElement name="studyResearchQuestion" description="Research Question">
+		The research question
+	</wizard:textFieldElement>
+	<wizard:textFieldElement name="studyDescription" description="Description" />
+	<wizard:textFieldElement name="studyEcCode" description="Ethical Committee Code" />
 </wizard:pageContent>

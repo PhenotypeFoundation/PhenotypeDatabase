@@ -20,8 +20,9 @@ class Study {
 		events: Event, samplingEvents: SamplingEvent]
 
 	static constraints = {
-                owner(nullable:true,blank:true)
-		template(nullable:true,blank:true)
+		owner(nullable: true, blank: true)
+		title(nullable: false, blank: false)
+		template(nullable: true, blank: true)
 	}
 
 	static mapping = {
