@@ -28,4 +28,10 @@ class Study {
 		researchQuestion type: 'text'
 		description type: 'text'
 	}
+
+  def String toString() {
+    return title;
+  }
+
+
 }

@@ -5,8 +5,8 @@
      <li>
       <a href="#">Studies</a>
       <ul class="subnav">
-        <li><a href="#">View Studies</a></li>
-        <li><g:link controller="wizard" action="index">Create Study</g:link></li>
+        <li><g:link controller="study" action="list">View studies</g:link></li>
+        <li><g:link controller="wizard" action="index">Create study</g:link></li>
       </ul>
      </li>
      <li><g:link controller="load" action="index">Loading data</g:link></li>
