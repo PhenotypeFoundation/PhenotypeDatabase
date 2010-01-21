@@ -20,6 +20,6 @@
 		<div id="wizardPage">
 			<wizard:ajaxFlowRedirect form="form#wizardForm" name="next" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="attachHelpTooltips()" />
 		</div>
-		<g:render template="common/error"/>
+		<!--g:render template="common/error"//-->
 	</g:form>
 </div>

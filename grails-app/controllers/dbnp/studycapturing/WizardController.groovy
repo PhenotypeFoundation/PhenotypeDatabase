@@ -47,7 +47,7 @@ class WizardController {
 			// define flow variables
 			flow.page = 0
 			flow.pages = [
-				[title: 'Een'],
+				[title: 'Study'],
 				[title: 'Twoooo'],
 				[title: 'Trois']
 			]
@@ -60,29 +60,31 @@ class WizardController {
 			onRender {
 				flow.page = 1
 			}
-			on("next").to "pageOne"
+			on("next").to "study"
 		}
 
-		pageOne {
-			render(view: "_one")
+		study {
+			render(view: "_study")
 			onRender {
 				println "render page one"
 				flow.page = 1
 			}
 			on("next") {
 				// create a study instance
-				/*
 				println params
-				def study = new Study(params)
+				flow.study = new Study(params)
 
-				
-				if (study.validate()) {
+				// validate study
+				if (flow.study.validate()) {
 					println "study validates"
 				} else {
+					// validation failed, feedback errors
+					flash.errors = new LinkedHashMap()
+					this.appendErrors(flow.study,flash.errors)
 					println "errorrrs"
+					println flash.errors
 					error()
 				}
-				*/
 			}.to "pageTwo"
 		}
 
@@ -98,7 +100,7 @@ class WizardController {
 			}.to "pageThree"
 			on("previous") {
 				println "previous page!"
-			}.to "pageOne"
+			}.to "study"
 		}
 
 		// render page three
@@ -113,4 +115,43 @@ class WizardController {
 			}.to "pageTwo"
 		}
 	}
+
+	/**
+	 * transform domain class validation errors into a human readable
+	 * linked hash map
+	 * @param object validated domain class
+	 * @returns object  linkedHashMap
+	 */
+	def getHumanReadableErrors(object) {
+		def errors = new LinkedHashMap()
+
+		object.errors.getAllErrors().each() {
+			errors[it.getArguments()[0]] = it.getDefaultMessage()
+		}
+
+		return errors
+	}
+
+	/**
+	 * append errors of a particular object to a map
+	 * @param object
+	 * @param map linkedHashMap
+	 * @void
+	 */
+	def appendErrors(object, map) {
+		this.appendErrorMap(this.getHumanReadableErrors(object), map)
+	}
+
+	/**
+	 * append errors of one map to another map
+	 * @param map linkedHashMap
+	 * @param map linkedHashMap
+	 * @void
+	 */
+	def appendErrorMap(map, mapToExtend) {
+		map.each() {key, value ->
+			mapToExtend[key] = value
+		}
+	}
+
 }

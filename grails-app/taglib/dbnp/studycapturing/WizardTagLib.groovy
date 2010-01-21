@@ -181,6 +181,7 @@ class WizardTagLib extends JavascriptTagLib {
 		out << body()
 		out << '</div>'
 		out << render(template: "/wizard/common/navigation")
+		out << render(template: "/wizard/common/error")
 	}
 
 	/**
