@@ -24,6 +24,7 @@
 		</g:each>
 	</div>
 	<script type="text/javascript">
+		// show error dialog
 		$(function() {
 			$("div#wizardError").dialog({
 				bgiframe: true,

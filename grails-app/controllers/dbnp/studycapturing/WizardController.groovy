@@ -47,14 +47,17 @@ class WizardController {
 			// define flow variables
 			flow.page = 0
 			flow.pages = [
-				[title: 'Study'],
+				[title: 'Study'],		// study
 				[title: 'Twoooo'],
 				[title: 'Trois']
 			]
 
 		}
 
-		// render the main wizard page
+		// render the main wizard page which immediately
+		// triggers the 'next' action (hence, the main
+		// page dynamically renders the study template
+		// and makes the flow jump to the study logic)
 		mainPage {
 			render(view: "/wizard/index")
 			onRender {
@@ -63,6 +66,7 @@ class WizardController {
 			on("next").to "study"
 		}
 
+		// render the study page and handle study logic
 		study {
 			render(view: "_study")
 			onRender {
@@ -71,18 +75,15 @@ class WizardController {
 			}
 			on("next") {
 				// create a study instance
-				println params
 				flow.study = new Study(params)
 
 				// validate study
 				if (flow.study.validate()) {
-					println "study validates"
+					success()
 				} else {
 					// validation failed, feedback errors
 					flash.errors = new LinkedHashMap()
 					this.appendErrors(flow.study,flash.errors)
-					println "errorrrs"
-					println flash.errors
 					error()
 				}
 			}.to "pageTwo"
@@ -153,5 +154,4 @@ class WizardController {
 			mapToExtend[key] = value
 		}
 	}
-
 }
