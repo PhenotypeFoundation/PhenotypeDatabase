@@ -1,7 +1,9 @@
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
 import dbnp.studycapturing.*
-import intient.nimble.InstanceGenerator
+
+import dbnp.data.Ontology
+import dbnp.data.Term
 
 /**
  * Application Bootstrapper

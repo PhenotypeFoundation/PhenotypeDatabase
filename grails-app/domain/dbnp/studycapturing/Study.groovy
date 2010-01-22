@@ -21,11 +21,11 @@ class Study implements Serializable {
 	Template template
 
 	static hasMany = [	editors:		nimble.User,
-						readers:		nimble.User,
-						subjects:		Subject,
-						groups:			SubjectGroup,
-						events:			Event,
-						samplingEvents:	SamplingEvent
+                                readers:		nimble.User,
+                                subjects:		Subject,
+                                groups:			SubjectGroup,
+                                events:			Event,
+                                samplingEvents:	SamplingEvent
 	]
 
 	static constraints = {

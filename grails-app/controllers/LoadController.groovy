@@ -34,7 +34,7 @@ class LoadController {
 
         def investigationDesign = new dbnp.transcriptomics.magetab.idf.InvestigationDesign();
         def person = new dbnp.transcriptomics.magetab.idf.Person();
-        def protocol = new dbnp.transcriptomics.magetab.idf.MAGEProtocol();l
+        def protocol = new dbnp.transcriptomics.magetab.idf.MAGEProtocol();
         def publication = new dbnp.transcriptomics.magetab.idf.Publication();
         def normalization = new dbnp.transcriptomics.magetab.sdrf.Normalization();
         //def termSource = new dbnp.transcriptomics.magetab.adf.Termsource();

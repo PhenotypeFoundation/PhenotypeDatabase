@@ -1,4 +1,6 @@
-package dbnp.studycapturing
+package dbnp.data
+
+import dbnp.data.Ontology
 
 /**
  * The Term object describes a term in the ontology that is referred to in other entities such as events.

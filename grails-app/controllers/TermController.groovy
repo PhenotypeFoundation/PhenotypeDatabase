@@ -1,4 +1,6 @@
+import dbnp.data.Term
+
 class TermController {
 
-    def scaffold = dbnp.studycapturing.Term
+    def scaffold = Term
 }

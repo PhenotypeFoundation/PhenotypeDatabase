@@ -1,5 +1,7 @@
 package dbnp.studycapturing
 
+import dbnp.data.Term
+
 /**
  * The ProtocolParameter class describes a protocol parameter, and belongs to the Protocol class.
  * Actual values of this parameter are stored in the corresponding field of the ProtocolInstance class.

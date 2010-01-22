@@ -1,5 +1,7 @@
 package dbnp.studycapturing
 
+import dbnp.data.Term
+
 /**
  * The Sample class describes an actual sample which results from a SamplingEvent.
  */

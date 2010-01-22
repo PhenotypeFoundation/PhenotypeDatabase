@@ -1,4 +1,6 @@
+import dbnp.data.Ontology
+
 class OntologyController {
 
-    def scaffold = dbnp.studycapturing.Ontology
+    def scaffold = Ontology
 }

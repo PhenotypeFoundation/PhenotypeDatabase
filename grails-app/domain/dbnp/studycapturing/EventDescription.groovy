@@ -1,5 +1,7 @@
 package dbnp.studycapturing
 
+import dbnp.data.Term
+
 /**
  * Description of an event. Actual events are described by instances of the Event class.
  * For the moment, EventDescription is not linked to a specific study or user.
