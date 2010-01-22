@@ -155,21 +155,9 @@ class WizardTagLib extends JavascriptTagLib {
 	}
 
 	/**
-	 * wizard navigation buttons render wrapper, in order to be able to add
-	 * functionality in the future
-	 */
-	def previousNext = {attrs ->
-		// define AJAX provider
-		setProvider([library: ajaxProvider])
-
-		// render navigation buttons
-		out << render(template: "/wizard/common/buttons")
-	}
-
-	/**
 	 * render the content of a particular wizard page
 	 * @param Map attrs
-	 * @param Closure body
+	 * @param Closure body  (help text)
 	 */
 	def pageContent = {attrs, body ->
 		// define AJAX provider
@@ -186,6 +174,8 @@ class WizardTagLib extends JavascriptTagLib {
 
 	/**
 	 * render a textFieldElement
+	 * @param Map attrs
+	 * @param Closure body  (help text)
 	 */
 	def textFieldElement = {attrs, body ->
 		// set default size, or scale to max length if it is less than the default size
@@ -197,25 +187,66 @@ class WizardTagLib extends JavascriptTagLib {
 			}
 		}
 
+		// work variables
+		def addExampleElement = attrs.remove('addExampleElement')
+		//attrs.remove('addExampleElement')
+
 		// render a text element
 		out << '<div class="element">'
 		out << ' <div class="description">'
 		out << attrs.get('description')
 		out << ' </div>'
 		out << ' <div class="input">'
+
+		// add text input field
 		out << textField(attrs)
+
+		// add a help icon if help information is available
+		if (body()) {
+			out << '	<div class="helpIcon" />'
+		}
+
+		// add an disabled input box for feedback purposes
+		// @see dateElement(...)
+		if (addExampleElement) {
+			def exampleAttrs = new LinkedHashMap()
+			exampleAttrs.name = attrs.get('name')+'Example'
+			exampleAttrs.class  = 'isExample'
+			exampleAttrs.disabled = 'disabled'
+			out << textField(exampleAttrs)
+		}
+
+		// end HTML
 		out << ' </div>'
 
-		// add help icon?
+		// add help content if it is available
 		if (body()) {
-			out << ' <div class="help">'
-			out << '  <div class="icon"></div>'
-			out << '  <div class="content">'
+			out << '  <div class="helpContent">'
 			out << '    ' + body()
 			out << '  </div>'
-			out << ' </div>'
 		}
 
 		out << '</div>'
+	}
+
+	/**
+	 * render a dateElement
+	 * @param Map attrs
+	 * @param Closure body  (help text)
+	 */
+	def dateElement = { attrs, body ->
+		// set some textfield values
+		attrs.maxlength = 10
+		attrs.addExampleElement = true
+		
+		// render a normal text field
+		out << textFieldElement(attrs,body)
+
+		// and attach the jquery-ui datepicker
+		out << '<script type="text/javascript">'
+		out << '$(document).ready(function() {'
+		out << '	$("#' + attrs.get('name') + '").datepicker({altField: \'#' + attrs.get('name') + 'Example\', altFormat: \'DD, d MM, yy\'});'
+		out << '});'
+		out << '</script>'
 	}
 }

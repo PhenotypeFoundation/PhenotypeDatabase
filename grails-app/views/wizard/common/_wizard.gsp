@@ -15,7 +15,7 @@
 	 */
 %>
 <div id="wizard" class="wizard">
-	<h1>Proof of concept AJAXified Grails Webflow Wizard</h1>
+	<h1>Create a new study</h1>
 	<g:form action="pages" name="wizardForm" id="wizardForm">
 		<div id="wizardPage">
 			<wizard:ajaxFlowRedirect form="form#wizardForm" name="next" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="attachHelpTooltips()" />

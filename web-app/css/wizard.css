@@ -55,6 +55,14 @@
     border: none;
 }
 
+.wizard .element .input .isExample {
+    color: #006DBA;
+    background-color: transparent;
+    border: 0px;
+    input: disabled;
+}
+
+
 .wizard .error {
     display: block;
     padding-top: 10px;
@@ -84,6 +92,18 @@
 
 .wizard .element .input input:focus, select:focus, textarea:focus {
     border: 1px solid #B2D1FF;
+}
+
+.wizard .element .helpIcon {
+    display: inline-block;
+    margin-top: 4px;
+    background: url(../images/icons/famfamfam/help.png) no-repeat left top;
+    width: 16px;
+    height: 16px;
+}
+
+.wizard .element .helpContent {
+    display: none;
 }
 
 .wizard .element .help {

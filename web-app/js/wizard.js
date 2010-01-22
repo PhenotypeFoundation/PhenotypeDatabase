@@ -17,7 +17,7 @@ $(document).ready(function() {
     if (navigator.userAgent.match(re)) {
         // http://code.google.com/p/fbug/issues/detail?id=1899
         var wizard = $('div#wizard')
-        wizard.html('<span style="color:red;font-size:8px;">You are using firefox 3.6, note that firefox 3.6 in combination with firebug (latest 1.6X.0a3) and XMLHttpRequest enabled in the console, break the workings of this wizard... Either disable console XMLHttpRequests, disable firebug altogether or downgrade to Firefox 3.5.7 instead</span>' + wizard.html())
+        wizard.html('<span style="color:red;font-size:8px;">Firefox 3.6 contains <a href="http://code.google.com/p/fbug/issues/detail?id=2746" target="_new">a bug</a> in combination with Firebug\'s XMLHttpRequest spy which causes the wizard to not function anymore. Please make sure you have firebug\'s XMLHttpRequest spy disabled use use Firefox 3.5.7 instead...</span>' + wizard.html())
     }
 
     // attach Tooltips
@@ -27,8 +27,8 @@ $(document).ready(function() {
 // attach help tooltips
 function attachHelpTooltips() {
     // attach help action on all wizard help icons
-    $('div#wizard').find('div.help').each(function() {
-        $(this).find('div.icon').qtip({
+    $('div#wizard').find('div.helpIcon').each(function() {
+        $(this).qtip({
             content: 'leftMiddle',
             position: {
                 corner: {
@@ -43,12 +43,12 @@ function attachHelpTooltips() {
                 },
                 padding: 10,
                 textAlign: 'center',
-                tip: true, // Give it a speech bubble tip with automatic corner detection
-                name: 'blue' // Style it according to the preset 'cream' style
+                tip: true,
+                name: 'blue'
             },
-            content: $(this).find('div.content').html(),
+            content: $(this).parent().parent().find('div.helpContent').html(),
             show: 'mouseover',
             hide: 'mouseout'
         })
-    })
+    });
 }
