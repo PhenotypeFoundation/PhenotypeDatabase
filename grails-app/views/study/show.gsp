@@ -1,4 +1,3 @@
-
 <%@ page import="dbnp.studycapturing.Study" %>
 <html>
   <head>
@@ -6,8 +5,6 @@
     <meta name="layout" content="main" />
   <g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}" />
   <title><g:message code="default.show.label" args="[entityName]" /></title>
-
-        <my:jqueryui/>
       <script type="text/javascript">
 	$(function() {
 		$("#accordion").accordion();

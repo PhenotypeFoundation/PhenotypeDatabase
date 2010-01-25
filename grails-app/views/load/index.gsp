@@ -1,9 +1,7 @@
-
 <html>
     <head>
       <title>Generic Study Capture Framework - Load data</title>
       <meta name="layout" content="main" />
-      <my:jqueryui/>
       <script type="text/javascript">
 	$(function() {
 		$("#tabs").tabs();
