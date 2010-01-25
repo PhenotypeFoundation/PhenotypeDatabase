@@ -11,10 +11,10 @@ import dbnp.data.Term
 class Protocol {
 
     String name
-    Term reference
+    Term   reference
     
     static hasMany = [parameters : ProtocolParameter]
+    static constraints = { }
 
-    static constraints = {
-    }
+
 }
