@@ -9,7 +9,7 @@ import dbnp.data.Term
 class ProtocolParameter {
 
     String name
-    ProtocolParameterType type
+    String type       //  development. replace by: ProtocolParameterType type
     String unit
     String description
     Term reference
