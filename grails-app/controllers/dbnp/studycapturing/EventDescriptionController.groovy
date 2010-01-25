@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import dbnp.data.Term
 
 class EventDescriptionController {
 

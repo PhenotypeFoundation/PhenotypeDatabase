@@ -1,5 +1,6 @@
 package dbnp.studycapturing
 import java.text.SimpleDateFormat
+import dbnp.data.Term
 
 class EventController {
 
