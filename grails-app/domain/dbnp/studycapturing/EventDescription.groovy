@@ -14,7 +14,6 @@ class EventDescription {
     Term classification
     ProtocolInstance protocol
 
-
     static constraints = {
     }
 }
