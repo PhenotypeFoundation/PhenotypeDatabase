@@ -29,4 +29,7 @@
 		<p>Donec euismod, tellus facilisis semper elementum, neque lorem volutpat ante, ac consectetur lectus ante sit amet neque. Donec hendrerit, libero quis suscipit iaculis, lacus ligula viverra nibh, eu condimentum diam dui sit amet quam. Praesent turpis orci, laoreet sodales adipiscing eget, ultrices at augue. Nullam sed dolor a velit posuere euismod. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut libero mauris, fermentum id congue sit amet, pharetra in purus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 		<p>Nullam a blandit quam. Cras porta tempus lectus, vel varius lacus vulputate in. Aenean ac nunc lectus, hendrerit tempor elit. Sed ut varius diam.</p>
 	</wizard:textFieldElement>
+	<wizard:dateElement name="startDate" description="Date element" error="startDate" value="${study?.startDate}">
+		<object width="320" height="265"><param name="movie" value="http://www.youtube.com/v/2WNrx2jq184&hl=en_US&fs=1&rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/2WNrx2jq184&hl=en_US&fs=1&rel=0" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="320" height="265"></embed></object>
+	</wizard:dateElement>
 </wizard:pageContent>

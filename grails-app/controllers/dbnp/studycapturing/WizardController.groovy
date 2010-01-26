@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import dbnp.studycapturing.*
+import dbnp.data.*
 import grails.converters.*
 
 /**
@@ -48,8 +49,8 @@ class WizardController {
 			flow.page = 0
 			flow.pages = [
 				[title: 'Study'],		// study
-				[title: 'Twoooo'],
-				[title: 'Trois']
+				[title: 'Subjects'],	// subjects
+				[title: 'Form elements demo page']
 			]
 
 		}
@@ -74,11 +75,18 @@ class WizardController {
 				flow.page = 1
 			}
 			on("next") {
+				// create date instance from date string?
+				// @see WizardTagLibrary::dateElement{...}
+				if (params.get('startDate')) {
+					params.startDate = new Date().parse("d/M/yyyy", params.get('startDate').toString())
+				}
+
 				// create a study instance
 				flow.study = new Study(params)
 
 				// validate study
 				if (flow.study.validate()) {
+					println "ok"
 					success()
 				} else {
 					// validation failed, feedback errors
@@ -86,21 +94,40 @@ class WizardController {
 					this.appendErrors(flow.study,flash.errors)
 					error()
 				}
-			}.to "pageTwo"
+			}.to "subjects"
 		}
 
 		// render page two
-		pageTwo {
-			render(view: "_two")
+		subjects {
+			render(view: "_subjects")
 			onRender {
-				println "render page two"
 				flow.page = 2
+
+				if (!flow.subjects) {
+					flow.subjects = new LinkedHashMap()
+				}
 			}
+			on ("add") {
+				def speciesTerm = Term.findByName(params.addSpecies)
+				
+				// add x subject of species y
+				(params.addNumber as int).times {
+					def increment = flow.subjects.size()
+					flow.subjects[ increment ] = new Subject(
+						name: 'Subject ' + (increment+1),
+						species: speciesTerm
+					)
+				}
+			}.to "subjects"
 			on("next") {
-				println "next page!"
+				// got one or more subjects?
+				if (flow.subjects.size() < 1) {
+					error()
+				}
 			}.to "pageThree"
 			on("previous") {
-				println "previous page!"
+				// handle data?
+				// go to study page
 			}.to "study"
 		}
 
@@ -113,7 +140,7 @@ class WizardController {
 			}
 			on("previous") {
 				println "previous page!"
-			}.to "pageTwo"
+			}.to "subjects"
 		}
 	}
 

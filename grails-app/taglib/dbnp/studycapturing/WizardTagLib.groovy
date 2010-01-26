@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import org.codehaus.groovy.grails.plugins.web.taglib.JavascriptTagLib
+import dbnp.data.Term
 
 /**
  * Wizard tag library
@@ -89,7 +90,7 @@ class WizardTagLib extends JavascriptTagLib {
 		}
 
 		// replace double semi colons
-		button = button.replaceAll(/;{2,}/, '!!!')
+		button = button.replaceAll(/;{2,}/, ';')
 		
 		// render button
 		out << button
@@ -235,6 +236,12 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Closure body  (help text)
 	 */
 	def dateElement = { attrs, body ->
+		// transform value?
+		if (attrs.value instanceof Date) {
+			// transform date instance to formatted string (dd/mm/yyyy)
+			attrs.value = String.format('%td/%<tm/%<tY', attrs.value)
+		}
+		
 		// set some textfield values
 		attrs.maxlength = 10
 		attrs.addExampleElement = true
@@ -245,8 +252,28 @@ class WizardTagLib extends JavascriptTagLib {
 		// and attach the jquery-ui datepicker
 		out << '<script type="text/javascript">'
 		out << '$(document).ready(function() {'
-		out << '	$("#' + attrs.get('name') + '").datepicker({altField: \'#' + attrs.get('name') + 'Example\', altFormat: \'DD, d MM, yy\'});'
+		out << '	$("#' + attrs.get('name') + '").datepicker({'
+		out << '		dateFormat: \'dd/mm/yy\','
+		out << '		altField: \'#' + attrs.get('name') + 'Example\', altFormat: \'DD, d MM, yy\''
+		out << '	});'
 		out << '});'
 		out << '</script>'
+	}
+
+	/**
+	 * render a species select element
+	 * @param Map attrs
+	 * @param Closure body (help text)
+	 */
+	def speciesSelect = { attrs, body ->
+		// fetch all species
+		attrs.from = Term.findAll()	// for now, all terms, should be refactored to be species ontology only!
+
+		// got a name?
+		if (!attrs.name) {
+			attrs.name = 'species'
+		}
+
+		out << select(attrs)
 	}
 }

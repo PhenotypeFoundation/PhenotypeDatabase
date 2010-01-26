@@ -17,6 +17,8 @@ import dbnp.data.Term
  */
 class BootStrap {
 	def init = {servletContext ->
+		// define timezone
+		System.setProperty('user.timezone', 'CET')	
 
 		if (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
 			printf("development bootstrapping....\n\n");

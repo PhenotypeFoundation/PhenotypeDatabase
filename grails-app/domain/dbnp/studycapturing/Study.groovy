@@ -8,7 +8,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class Study {
+class Study implements Serializable {
 	nimble.User owner
 	String title
 	String code
@@ -20,12 +20,12 @@ class Study {
 	Date startDate
 	Template template
 
-	static hasMany = [	editors:		nimble.User,
-                                readers:		nimble.User,
-                                subjects:		Subject,
-                                groups:			SubjectGroup,
-                                events:			Event,
-                                samplingEvents:	SamplingEvent
+	static hasMany = [	editors: nimble.User,
+						readers: nimble.User,
+						subjects: Subject,
+						groups: SubjectGroup,
+						events: Event,
+						samplingEvents: SamplingEvent
 	]
 
 	static constraints = {

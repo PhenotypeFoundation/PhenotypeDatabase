@@ -121,3 +121,31 @@
 .wizard .element .help .content {
     display: none;
 }
+
+.wizard .subjects {
+    display: block;
+    /*
+    background-color: #c0ddea;
+    border: 1px solid #575a5d;
+    margin-top: 2px;
+    */
+    border: 1px solid #575a5d;
+    background-color: #ebf7fc;
+    margin-top: 10px;
+}
+
+.wizard .subjects .subject {
+    display: block;
+}
+
+.wizard .topborder {
+    border-top: 1px solid #8e908f;
+}
+
+.wizard .subjects .subject .row {
+    display: inline-block;
+    /*
+    border: 1px solid #575a5d;
+    margin: 1px 1px 0px 0px;
+    */
+}
