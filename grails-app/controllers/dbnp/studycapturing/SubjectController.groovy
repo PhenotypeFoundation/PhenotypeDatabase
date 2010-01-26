@@ -3,5 +3,5 @@ package dbnp.studycapturing
 class SubjectController {
 
     //def index = { }
-    def scaffold = true
+    def scaffold = dbnp.studycapturing.Subject
 }

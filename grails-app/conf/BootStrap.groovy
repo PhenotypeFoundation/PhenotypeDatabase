@@ -23,8 +23,8 @@ class BootStrap {
 
 			// ontologies
 			def speciesOntology = new Ontology(
-				name: 'Species',
-				shortName: 'Species',
+				name: 'NCBI Taxonomy',
+				shortName: 'Taxon',
 				url: 'http://www.obofoundry.org/cgi-bin/detail.cgi?id=ncbi_taxonomy'
 			).save()
 
@@ -50,19 +50,33 @@ class BootStrap {
 			))
 			*/
 
-			// define template fields
-			def genotypeTemplateField = new TemplateSubjectField(
-				name: 'Genotype',
-				type: TemplateFieldType.STRINGLIST
-			).save()
-
 			// Mouse template
 			def mouseTemplate = new Template(
 				name: 'Mouse'
-			).addToSubjectFields(genotypeTemplateField).save()
+			).addToSubjectFields(new TemplateSubjectField(
+				name: 'Genotype',type: TemplateFieldType.STRINGLIST))
+			.addToSubjectFields(new TemplateSubjectField(
+				name: 'Age',type: TemplateFieldType.NUMBER)
+			).save()
 
 			// studies
-			new Study(title:"test",code:"code",researchQuestion:"Rquestion",description:"description",ecCode:"ecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
+			def exampleStudy = new Study(
+				title:"NuGO PPS3 mouse study leptin module",
+				code:"PPS3_leptin_module",
+				researchQuestion:"Leptin etc.",
+				description:"C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled.",
+				ecCode:"2007117.c",
+				startDate: Date.parse('yyyy-MM-dd','2007-12-11'))
+			def x=1
+			12.times {
+				exampleStudy.addToSubjects(new Subject(
+					name: "A" + x++,
+					species: mouseTerm,
+					templateStringFields: ["Genotype" : "C57/Bl6j"],
+					templateNumberFields: ["Age" : 17F]
+				))}
+			exampleStudy.save()
+
                         new Study(title:"example",code:"Excode",researchQuestion:"ExRquestion",description:"Exdescription",ecCode:"ExecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
                         new Study(title:"testAgain",code:"testcode",researchQuestion:"testRquestion",description:"testdescription",ecCode:"testCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
                         new Study(title:"Exampletest",code:"Examplecode",researchQuestion:"ExampleRquestion",description:"Exampledescription",ecCode:"ExampleecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()

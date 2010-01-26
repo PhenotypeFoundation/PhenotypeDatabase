@@ -6,8 +6,11 @@ package dbnp.studycapturing
 abstract class TemplateField {
     String name
     TemplateFieldType type
+    String unit
 
     static constraints = {
+	    name(unique:true)
+	    unit(nullable:true, blank:true)
     }
 
 	def String toString() {

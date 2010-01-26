@@ -7,9 +7,20 @@ import dbnp.data.Term
  */
 class Subject {
 
-    String name
-    Term species
+	String name
+	Term species
+	Map templateStringFields
+	Map templateNumberFields
+	Map templateStringListFields
+	Map templateTermFields
 
-    static constraints = {
-    }
+	static hasMany = [
+	        templateStringFields : String,
+		templateNumberFields : float,
+		templateStringListFields : String,
+		templateTermFields : Term
+	]
+	
+	static constraints = {
+	}
 }

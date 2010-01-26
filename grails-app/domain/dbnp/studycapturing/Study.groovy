@@ -8,7 +8,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class Study implements Serializable {
+class Study {
 	nimble.User owner
 	String title
 	String code
@@ -37,6 +37,7 @@ class Study implements Serializable {
 	static mapping = {
 		researchQuestion type: 'text'
 		description type: 'text'
+		autoTimestamp true
 	}
 
 	def String toString() {
