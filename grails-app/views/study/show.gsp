@@ -13,6 +13,7 @@
 
 </head>
 <body>
+
 <div class="nav">
   <span class="menuButton"><a class="home" href="${createLink(uri: '/')}">Home</a></span>
   <span class="menuButton"><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></span>
@@ -30,7 +31,7 @@
       <a href="#"> Id </a> <div> ${fieldValue(bean: studyInstance, field: "id")} </div>
       <a href="#"> Template </a> <div> <g:link controller="template" action="show" id="${studyInstance?.template?.id}">${studyInstance?.template?.encodeAsHTML()}</g:link> </div>
       <a href="#"> Start Date </a> <div> <g:formatDate date="${studyInstance?.startDate}" /> </div>
-      <a href="#"> Sampling Events </a> <div>  <ul>
+      <a href="#"> Sampling Events </a> <div> <ul>
           <g:each in="${studyInstance.samplingEvents}" var="s">
             <li><g:link controller="samplingEvent" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></li>
           </g:each>

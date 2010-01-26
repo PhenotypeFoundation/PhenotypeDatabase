@@ -8,9 +8,9 @@
   <title><g:message code="default.list.label" args="[entityName]" /></title>
 </head>
 <body>
-  
- <!--g:form url="[action:'see',controller:'study']"-->
-  <g:form action="show.gsp">
+
+ <!--g:form url="[action:'list_extended',controller:'study']"-->
+  <g:form action="list_extended.gsp">
 
   <div class="nav">
     <span class="menuButton"><a class="home" href="${createLink(uri: '/')}">Home</a></span>
@@ -22,11 +22,13 @@
       <div class="message">${flash.message}</div>
     </g:if>
     <div class="list">
+
       <g:each in="${studyInstanceList}" status="i" var="studyInstance">
         <br>
         <table>
           <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-            <td><input type="checkbox" name="${studyInstance.id}" id="${studyInstance.id}"></td>
+            <td>
+              <input type="checkbox" name="${studyInstance.title}" id="${studyInstance.title}"></td>
 
             <td width=200>
           <g:link action="show" id="${studyInstance.id}">

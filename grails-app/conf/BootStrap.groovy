@@ -63,7 +63,10 @@ class BootStrap {
 
 			// studies
 			new Study(title:"test",code:"code",researchQuestion:"Rquestion",description:"description",ecCode:"ecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
-		}
+                        new Study(title:"example",code:"Excode",researchQuestion:"ExRquestion",description:"Exdescription",ecCode:"ExecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
+                        new Study(title:"testAgain",code:"testcode",researchQuestion:"testRquestion",description:"testdescription",ecCode:"testCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
+                        new Study(title:"Exampletest",code:"Examplecode",researchQuestion:"ExampleRquestion",description:"Exampledescription",ecCode:"ExampleecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
+                }
 	}
 
 	def destroy = {
