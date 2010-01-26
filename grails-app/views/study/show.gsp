@@ -1,3 +1,4 @@
+
 <%@ page import="dbnp.studycapturing.Study" %>
 <html>
   <head>

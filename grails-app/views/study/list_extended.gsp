@@ -10,7 +10,7 @@
   <my:jqueryui/>
   <script type="text/javascript">
     $(function() {
-            $("#accordion").accordion();
+            $("#tabs").tabs();
     });
   </script>
 
@@ -43,21 +43,30 @@
       <% selectedStudies.add(i) %>
      <% }} %>
 
-    <table border="2">
-      <g:each in="${att_list}" status="s" var="attribute">
-        <tr>
-        <g:each in="${selectedStudies}" status="i" var="studyInstance">
-          <div id="accordion">
-            <td>
-              <a href="#">  ${message(code: 'study.id.'+attribute , default: attribute)} </a>:
-              <div>${fieldValue(bean: studyInstance, field: attribute)} </div>
-            </td>
-          </div>
-        </g:each>
-        </tr>
+
+    <div id="tabs">
+      <ul>
+      <g:each in="${selectedStudies}" status="i" var="studyInstance">
+        <li><a href="#${studyInstance}"> ${studyInstance} </a></li>
       </g:each>
-    </table>
-  </div>
+      </ul>
+
+      <g:each in="${selectedStudies}" status="i" var="studyIns">
+
+        
+      <div id="${studyIns}">
+        <g:each in="${att_list}" status="s" var="attribute">
+              ${message(code: 'study.id.'+attribute , default: attribute)} :
+              ${fieldValue(bean: studyIns, field: attribute)}
+                            <br>
+        </g:each>
+      </div>
+
+        </g:each>
+    </div>
+
+    </div>
+
 
 </body>
 </html>
