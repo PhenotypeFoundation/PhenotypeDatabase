@@ -1,5 +1,6 @@
 package dbnp.studycapturing
 
+// this class is now obsolete, should be deleted by Jahn when he's done with Event controller/views
 class ProtocolParameterInstance {
 
     ProtocolParameter protocolParameter

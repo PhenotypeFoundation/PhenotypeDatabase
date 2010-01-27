@@ -12,7 +12,7 @@ class EventDescription {
     String name
     String description
     Term classification
-    ProtocolInstance protocol
+    Protocol protocol
 
     static constraints = {
     }

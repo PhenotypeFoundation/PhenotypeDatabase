@@ -9,6 +9,7 @@ package dbnp.studycapturing
  * $Date$
  */
 class Study implements Serializable {
+	static searchable = true
 	nimble.User owner
 	String title
 	String code

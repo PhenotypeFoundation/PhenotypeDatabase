@@ -6,6 +6,7 @@ import dbnp.data.Term
  * The Sample class describes an actual sample which results from a SamplingEvent.
  */
 class Sample {
+	static searchable = true
 
     // TODO: should Sample also carry a reference to its parent study,
     // or should this be inferred via the parent SamplingEvent?

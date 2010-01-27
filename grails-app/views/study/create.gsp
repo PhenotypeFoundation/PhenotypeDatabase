@@ -29,7 +29,7 @@
                         
                             <tr class="prop">
                                 <td valign="top" class="name">
-                                    <label for="template"><g:message code="study.template.label" default="Template" /></label>
+                                    <label for="template.id"><g:message code="study.template.label" default="Template" /></label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean: studyInstance, field: 'template', 'errors')}">
                                     <g:select name="template.id" from="${dbnp.studycapturing.Template.list()}" optionKey="id" value="${studyInstance?.template?.id}" noSelection="['null': '']" />
@@ -101,7 +101,7 @@
                         
                             <tr class="prop">
                                 <td valign="top" class="name">
-                                    <label for="owner"><g:message code="study.owner.label" default="Owner" /></label>
+                                    <label for="owner.id"><g:message code="study.owner.label" default="Owner" /></label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean: studyInstance, field: 'owner', 'errors')}">
                                     <g:select name="owner.id" from="${nimble.User.list()}" optionKey="id" value="${studyInstance?.owner?.id}"  />

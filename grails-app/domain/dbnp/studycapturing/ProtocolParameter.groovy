@@ -9,7 +9,7 @@ import dbnp.data.Term
 class ProtocolParameter {
 
     String name
-    String type       //  development. replace by: ProtocolParameterType type
+    ProtocolParameterType type
     String unit
     String description
     Term reference
@@ -17,5 +17,8 @@ class ProtocolParameter {
     static hasMany = [listEntries : String] // to store the entries to choose from when the type is 'item from predefined list'
 
     static constraints = {
+	    unit(nullable: true)
+	    reference(nullable: true)
+	    description(nullable: true)
     }
 }

@@ -28,19 +28,53 @@ class BootStrap {
 				name: 'NCBI Taxonomy',
 				shortName: 'Taxon',
 				url: 'http://www.obofoundry.org/cgi-bin/detail.cgi?id=ncbi_taxonomy'
-			).save()
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
 
 			// terms
 			def mouseTerm = new Term(
 				name: 'Mus musculus',
 				ontology: speciesOntology,
 				accession: '10090'
-			).save()
+			).with { if (!validate()) { errors.each { println it} } else save()}
 			def humanTerm = new Term(
 				name: 'Homo sapiens',
 				ontology: speciesOntology,
 				accession: '9606'
-			).save()
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def madmaxOntology = new Ontology(
+				name: 'Madmax ontology',
+				shortName: 'MDMX',
+				url: 'madmax.bioinformatics.nl'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def treatmentTerm = new Term(
+				name: 'ExperimentalProtocol',
+				ontology: madmaxOntology,
+				accession: 'P-MDMXGE-264'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+
+			def treatmentProtocol = new Protocol(
+				name: 'MADMAX Experimental Protocol',
+				reference: treatmentTerm
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			treatmentProtocol
+			.addToParameters(new ProtocolParameter(
+				name: 'Diet',
+				type: ProtocolParameterType.STRINGLIST,
+				listEntries: ['10% fat (palm oil)','45% fat (palm oil)']))
+			.addToParameters(new ProtocolParameter(
+				name: 'Compound',
+				type: ProtocolParameterType.STRINGLIST,
+				listEntries: ['Vehicle','Leptin']))
+			.addToParameters(new ProtocolParameter(
+				name: 'Administration',
+				type: ProtocolParameterType.STRING))
+			.save()
+
 
 			// create system user
 			/*
@@ -58,8 +92,21 @@ class BootStrap {
 			).addToSubjectFields(new TemplateSubjectField(
 				name: 'Genotype',type: TemplateFieldType.STRINGLIST))
 			.addToSubjectFields(new TemplateSubjectField(
-				name: 'Age',type: TemplateFieldType.NUMBER)
-			).save()
+				name: 'Gender',type: TemplateFieldType.STRINGLIST))
+			.addToSubjectFields(new TemplateSubjectField(
+				name: 'Age',type: TemplateFieldType.INTEGER))
+			.addToSubjectFields(new TemplateSubjectField(
+				name: 'Cage',type: TemplateFieldType.INTEGER))
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+
+			//events
+			def eventTreatment = new EventDescription(
+				name: 'Treatment',
+				description: 'Experimental Treatment Protocol NuGO PPS3 leptin module',
+				classification: treatmentTerm,
+				protocol: treatmentProtocol
+			).with { if (!validate()) { errors.each { println it} } else save()}
 
 			// studies
 			def exampleStudy = new Study(
@@ -68,16 +115,27 @@ class BootStrap {
 				researchQuestion:"Leptin etc.",
 				description:"C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled.",
 				ecCode:"2007117.c",
-				startDate: Date.parse('yyyy-MM-dd','2007-12-11'))
+				startDate: Date.parse('yyyy-MM-dd','2007-12-11')
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
 			def x=1
 			12.times {
-				exampleStudy.addToSubjects(new Subject(
+				def currentSubject = new Subject(
 					name: "A" + x++,
 					species: mouseTerm,
-					templateStringFields: ["Genotype" : "C57/Bl6j"],
-					templateNumberFields: ["Age" : 17F]
-				))}
-			exampleStudy.save()
+					templateStringFields: ["Genotype" : "C57/Bl6j", "Gender" : "Male"],
+					templateNumberFields: ["Age" : 17, "Cage" : (int)(x/2)]
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				exampleStudy.addToSubjects(currentSubject)
+				.addToEvents(new Event(
+					subject: currentSubject,
+					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					eventDescription: eventTreatment,
+					parameterStringValues: ['Diet':'10% fat (palm oil)','Compound':'Vehicle','Administration':'intraperitoneal injection'])
+				).with { if (!validate()) { errors.each { println it} } else save()}
+			}
 
                         new Study(title:"example",code:"Excode",researchQuestion:"ExRquestion",description:"Exdescription",ecCode:"ExecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
                         new Study(title:"testAgain",code:"testcode",researchQuestion:"testRquestion",description:"testdescription",ecCode:"testCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()

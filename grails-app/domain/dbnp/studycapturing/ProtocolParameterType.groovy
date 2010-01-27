@@ -5,7 +5,8 @@ package dbnp.studycapturing
  */
 public enum ProtocolParameterType {
     STRING('String'),
-    NUMBER('Number'),
+    INTEGER('Integer number'),
+    FLOAT('Decimal number'),
     STRINGLIST('List')
 
     String name
@@ -15,7 +16,7 @@ public enum ProtocolParameterType {
     }
 
     static list() {
-     [STRING, NUMBER, STRINGLIST]
+     [STRING, INTEGER, FLOAT, STRINGLIST]
     }
 
 

@@ -5,8 +5,9 @@ package dbnp.studycapturing
  */
 public enum TemplateFieldType {
     STRING('String'),
-    NUMBER('Number'),
-    STRINGLIST('List'),
+    INTEGER('Integer number'),
+    FLOAT('Decimal number'),
+    STRINGLIST('List of items'),
     ONTOLOGYTERM('Ontology Reference')
 
     String name
@@ -16,7 +17,7 @@ public enum TemplateFieldType {
     }
 
     static list() {
-     [STRING, NUMBER, STRINGLIST, ONTOLOGYTERM]
+     [STRING, INTEGER, FLOAT, STRINGLIST, ONTOLOGYTERM]
     }
 
   // It would be nice to see the description string in the scaffolding,

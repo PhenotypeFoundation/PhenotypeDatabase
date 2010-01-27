@@ -16,10 +16,10 @@
         <li><a href="#tab-advanced">Advanced query</a></li>
       </ul>
       <div id="tab-simple">
-        <g:form url="[action:'list',controller:'study']">
+        <g:form url="[action:'index',controller:'searchable',params: 'q']">
           <input type="hidden" name="targetUri" value="${targetUri}" />
-          <label class="grey" for="querytext">Search for:</label>
-          <input class="field" type="text" name="querytext" id="querytext" size="40" />
+          <label class="grey" for="q">Search for:</label>
+          <input class="field" type="text" name="q" id="q" size="40" />
           <input type="submit" name="submit" value="Query"/>
         </g:form>
         <p>
