@@ -104,7 +104,7 @@ class WizardController {
 				flow.page = 2
 
 				if (!flow.subjects) {
-					flow.subjects = new LinkedHashMap()
+					flow.subjects = []
 				}
 			}
 			on ("add") {

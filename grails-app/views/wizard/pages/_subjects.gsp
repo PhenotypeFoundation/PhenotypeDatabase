@@ -23,8 +23,12 @@ subjects of species
 <div class="subjects">
 <g:each var="subject" status="i" in="${subjects}">
 	<div class="subject<g:if test="${i>0}"> topborder</g:if>">
-		<div class="row">subject ${i}</div>
-		<div class="row">${subject}</div>
+		<div class="row">${i+1}</div>
+		<div class="row"><g:textField name="test" value="test" size="12" maxlength="12" /></div>
+		<div class="row">
+			<wizard:speciesSelect value="${subject.species}" name="species_${i}" />
+		</div>
+		<div class="row">${subject.name}</div>
 	</div>
 </g:each>
 </div>

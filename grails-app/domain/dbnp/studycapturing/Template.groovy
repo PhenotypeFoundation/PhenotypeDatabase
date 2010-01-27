@@ -4,9 +4,13 @@ package dbnp.studycapturing
  * The Template class describes a study template, which is basically an extension of the study capture entities
  * in terms of extra fields (described by classes that extend the TemplateField class).
  * At this moment, only extension of the subject entity is implemented.
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
  */
-class Template {
-
+class Template implements Serializable {
     String name
     //nimble.User owner
 

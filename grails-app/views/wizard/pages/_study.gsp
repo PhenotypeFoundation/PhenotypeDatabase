@@ -15,6 +15,7 @@
  */
 %>
 <wizard:pageContent>
+	<wizard:templateSelect />
 	<wizard:textFieldElement name="title" description="Title" error="title" value="${study?.title}">
 		The title of the study you are creating
 	</wizard:textFieldElement>

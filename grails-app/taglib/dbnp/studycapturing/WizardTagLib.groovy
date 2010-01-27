@@ -1,7 +1,8 @@
 package dbnp.studycapturing
 
 import org.codehaus.groovy.grails.plugins.web.taglib.JavascriptTagLib
-import dbnp.data.Term
+import dbnp.studycapturing.*
+import dbnp.data.*
 
 /**
  * Wizard tag library
@@ -230,6 +231,12 @@ class WizardTagLib extends JavascriptTagLib {
 		out << '</div>'
 	}
 
+	//def baseElement
+
+	def templateElement = { attrs, body ->
+
+	}
+
 	/**
 	 * render a dateElement
 	 * @param Map attrs
@@ -263,15 +270,30 @@ class WizardTagLib extends JavascriptTagLib {
 	/**
 	 * render a species select element
 	 * @param Map attrs
-	 * @param Closure body (help text)
 	 */
-	def speciesSelect = { attrs, body ->
+	def speciesSelect = { attrs ->
 		// fetch all species
 		attrs.from = Term.findAll()	// for now, all terms, should be refactored to be species ontology only!
 
 		// got a name?
 		if (!attrs.name) {
 			attrs.name = 'species'
+		}
+
+		out << select(attrs)
+	}
+
+	/**
+	 * render a template select element
+	 * @param Map attrs
+	 */
+	def templateSelect = { attrs ->
+		// fetch all templates
+		attrs.from = Template.findAll() // for now, all templates
+
+		// got a name?
+		if (!attrs.name) {
+			attrs.name = 'template'
 		}
 
 		out << select(attrs)
