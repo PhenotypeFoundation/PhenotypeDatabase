@@ -59,11 +59,30 @@
       Date Created :<g:formatDate date="${studyInstance?.dateCreated}" /> <br>
        </div>
 
-      <a href="#"> Subjects </a><div> <ul>
+      <a href="#"> Subjects </a><div>
+        <table>
+          <tr>
+            <td><b>Id </b></td>
+            <td><b>Template Integer Fields</b></td>
+            <td><b>Species</b></td>
+            <td><b>Template Term Fields</b></td>
+            <td><b>Name</b></td>
+            <td><b>Template Float Fields</b></td>
+            <td><b>Template String Fields</b></td>
+          </tr>
           <g:each in="${studyInstance.subjects}" var="s">
-            <li><g:link controller="subject" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></li>
+            <tr>
+              <td><g:link controller="subject" action="show" id="${s.id}">${s.id}</g:link></td>
+              <td>${s.templateIntegerFields}</td>
+              <td>${s.species}</td>
+              <td>${s.templateTermFields}</td>
+              <td>${s.name}</td>
+              <td>${s.templateFloatFields}</td>
+              <td>${s.templateStringFields}</td>
+          </tr>
           </g:each>
-        </ul> </div>
+          </table>
+      </div>
 
        <a href="#"> Groups </a> <div><ul>
           <g:each in="${studyInstance.groups}" var="g">
@@ -71,17 +90,48 @@
           </g:each>
         </ul> </div>
 
-       <a href="#"> Protocols </a><div> <ul>
+       <a href="#"> Protocols </a><div>
+             <table>
+          <tr>
+            <td><b>Id </b></td>
+            <td><b>Name</b></td>
+            <td><b>Parameters</b></td>
+            <td><b>Reference</b></td>
+          </tr>
           <g:each in="${studyInstance.events.eventDescription.protocol}" var="s">
-            <li><g:link controller="protocol" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></li>
+            <tr>
+              <td><g:link controller="protocol" action="show" id="${s.id}">${s.id}</g:link></td>
+          <td>${s.name}</td>
+          <td>
+          <g:each in="${s.parameters}" var="p">
+            <g:link controller="protocolParameter" action="show" id="${p.id}">${p.name}</g:link>
           </g:each>
-        </ul> </div>
+          </td>
+          <td>${s.reference}</td>
+          </tr>
+          </g:each>
+             </table>
+       </div>
 
-      <a href="#"> Events </a><div> <ul>
+      <a href="#"> Events </a><div>
+          <table>
+          <tr>
+            <td><b>Event Description</b></td>
+            <td><b>Subject</b></td>
+            <td><b>Start Time</b></td>
+            <td><b>End Time</b></td>
+            <td><b>Duration</b></td>
+          </tr>
           <g:each in="${studyInstance.events}" var="e">
-            <li><g:link controller="event" action="show" id="${e.id}">  ${e?.encodeAsHTML()}</g:link></li>
+            <tr>
+              <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>
+          <td>${e.subject.id}</td>
+          <td>${e.startTime}</td>
+          <td>${e.endTime}</td>
+          <td>${e.getDurationString()}</td>
+          </tr>
           </g:each>
-        </ul>
+          </table>
       </div>
 
       <a href="#"> Assays </a><div>
