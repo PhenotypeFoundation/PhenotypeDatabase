@@ -18,7 +18,7 @@
 	<h1>Create a new study</h1>
 	<g:form action="pages" name="wizardForm" id="wizardForm">
 		<div id="wizardPage">
-			<wizard:ajaxFlowRedirect form="form#wizardForm" name="next" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="attachHelpTooltips()" />
+			<wizard:ajaxFlowRedirect form="form#wizardForm" name="next" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
 		</div>
 	</g:form>
 </div>

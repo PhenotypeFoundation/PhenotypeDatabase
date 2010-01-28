@@ -50,6 +50,7 @@ class WizardController {
 			flow.pages = [
 				[title: 'Study'],		// study
 				[title: 'Subjects'],	// subjects
+				[title: 'Groups'],		// groups
 				[title: 'Form elements demo page']
 			]
 
@@ -79,6 +80,11 @@ class WizardController {
 				// @see WizardTagLibrary::dateElement{...}
 				if (params.get('startDate')) {
 					params.startDate = new Date().parse("d/M/yyyy", params.get('startDate').toString())
+				}
+
+				// if a template is selected, get template instance
+				if (params.get('template')) {
+					params.template = Template.findByName(params.get('template'))
 				}
 
 				// create a study instance
@@ -124,15 +130,31 @@ class WizardController {
 				if (flow.subjects.size() < 1) {
 					error()
 				}
-			}.to "pageThree"
+			}.to "groups"
 			on("previous") {
-				// handle data?
-				// go to study page
+				// TODO
 			}.to "study"
 		}
 
+		groups {
+			render(view: "_groups")
+			onRender {
+				flow.page = 3
+
+				if (!flow.groups) {
+					flow.groups = []
+				}
+			}
+			on("next") {
+				// TODO
+			}.to "groups"
+			on("previous") {
+				// TODO
+			}.to "subjects"
+		}
+
 		// render page three
-		pageThree {
+		demo {
 			render(view: "_three")
 			onRender {
 				println "render page three"

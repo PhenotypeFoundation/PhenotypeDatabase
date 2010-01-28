@@ -175,37 +175,25 @@ class WizardTagLib extends JavascriptTagLib {
 	}
 
 	/**
-	 * render a textFieldElement
-	 * @param Map attrs
-	 * @param Closure body  (help text)
+	 * generate a base form element
+	 * @param String	inputElement name
+	 * @param Map		attributes
+	 * @param Closure	help content
 	 */
-	def textFieldElement = {attrs, body ->
-		// set default size, or scale to max length if it is less than the default size
-		if (!attrs.get("size")) {
-			if (attrs.get("maxlength")) {
-				attrs.size = ((attrs.get("maxlength") as int) > defaultTextFieldSize) ? defaultTextFieldSize : attrs.get("maxlength")
-			} else {
-				attrs.size = defaultTextFieldSize
-			}
-		}
-
+	def baseElement = { inputElement, attrs, help ->
 		// work variables
+		def description = attrs.remove('description')
 		def addExampleElement = attrs.remove('addExampleElement')
-		//attrs.remove('addExampleElement')
 
-		// render a text element
+		// render a form element
 		out << '<div class="element">'
 		out << ' <div class="description">'
-		out << attrs.get('description')
+		out << description
 		out << ' </div>'
 		out << ' <div class="input">'
-
-		// add text input field
-		out << textField(attrs)
-
-		// add a help icon if help information is available
-		if (body()) {
-			out << '	<div class="helpIcon" />'
+		out << "$inputElement"(attrs)
+		if(help()) {
+			out << '	<div class="helpIcon"></div>'
 		}
 
 		// add an disabled input box for feedback purposes
@@ -215,30 +203,48 @@ class WizardTagLib extends JavascriptTagLib {
 			exampleAttrs.name = attrs.get('name')+'Example'
 			exampleAttrs.class  = 'isExample'
 			exampleAttrs.disabled = 'disabled'
+			exampleAttrs.size = 30
 			out << textField(exampleAttrs)
 		}
 
-		// end HTML
 		out << ' </div>'
 
 		// add help content if it is available
-		if (body()) {
+		if (help()) {
 			out << '  <div class="helpContent">'
-			out << '    ' + body()
+			out << '    ' + help()
 			out << '  </div>'
 		}
 
 		out << '</div>'
 	}
 
-	//def baseElement
+	/**
+	 * render a textFieldElement
+	 * @param Map attrs
+	 * @param Closure body  (help text)
+	 */
+	def textFieldElement = { attrs, body ->
+		// set default size, or scale to max length if it is less than the default size
+		if (!attrs.get("size")) {
+			if (attrs.get("maxlength")) {
+				attrs.size = ((attrs.get("maxlength") as int) > defaultTextFieldSize) ? defaultTextFieldSize : attrs.get("maxlength")
+			} else {
+				attrs.size = defaultTextFieldSize
+			}
+		}
 
-	def templateElement = { attrs, body ->
-
+		// render template element
+		baseElement.call(
+			'textField',
+			attrs,
+			body
+		)
 	}
 
 	/**
 	 * render a dateElement
+	 * NOTE: datepicker is attached through wizard.js!
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
@@ -254,17 +260,25 @@ class WizardTagLib extends JavascriptTagLib {
 		attrs.addExampleElement = true
 		
 		// render a normal text field
-		out << textFieldElement(attrs,body)
-
-		// and attach the jquery-ui datepicker
-		out << '<script type="text/javascript">'
-		out << '$(document).ready(function() {'
-		out << '	$("#' + attrs.get('name') + '").datepicker({'
-		out << '		dateFormat: \'dd/mm/yy\','
-		out << '		altField: \'#' + attrs.get('name') + 'Example\', altFormat: \'DD, d MM, yy\''
-		out << '	});'
-		out << '});'
-		out << '</script>'
+		//out << textFieldElement(attrs,body)
+		textFieldElement.call(
+			attrs,
+			body
+		)
+	}
+	
+	/**
+	 * Template form element
+	 * @param Map		attributes
+	 * @param Closure	help content
+	 */
+	def speciesElement = { attrs, body ->
+		// render template element
+		baseElement.call(
+			'speciesSelect',
+			attrs,
+			body
+		)
 	}
 
 	/**
@@ -284,6 +298,20 @@ class WizardTagLib extends JavascriptTagLib {
 	}
 
 	/**
+	 * Template form element
+	 * @param Map		attributes
+	 * @param Closure	help content
+	 */
+	def templateElement = { attrs, body ->
+		// render template element
+		baseElement.call(
+			'templateSelect',
+			attrs,
+			body
+		)
+	}
+	
+	/**
 	 * render a template select element
 	 * @param Map attrs
 	 */
@@ -295,7 +323,25 @@ class WizardTagLib extends JavascriptTagLib {
 		if (!attrs.name) {
 			attrs.name = 'template'
 		}
-
+		
 		out << select(attrs)
+	}
+
+	def templateColumnHeaders = { attrs, body ->
+		TemplateSubjectField.findAll().each() {
+			out << '<div class="column">' + it + '</div>'
+		}
+	}
+
+	def templateColumns = { attrs, body ->
+		def subjectId = attrs.remove('id')
+		
+		// for now, fetch them all
+		// also, this should probably be cached to reduce database load...
+		TemplateSubjectField.findAll().each() {
+			out << '<div class="column">'
+			out << '<input type="text">'
+			out << '</div>'
+		}
 	}
 }

@@ -15,7 +15,6 @@
  */
 %>
 <wizard:pageContent>
-	<wizard:templateSelect />
 	<wizard:textFieldElement name="title" description="Title" error="title" value="${study?.title}">
 		The title of the study you are creating
 	</wizard:textFieldElement>
@@ -30,4 +29,7 @@
 	<wizard:dateElement name="startDate" description="Start date" error="startDate" value="${study?.startDate}">
 		The start date of the study	
 	</wizard:dateElement>
+	<wizard:templateElement name="template" description="Template" value="${study?.template}">
+		The meta data template to use for this study
+	</wizard:templateElement>
 </wizard:pageContent>
