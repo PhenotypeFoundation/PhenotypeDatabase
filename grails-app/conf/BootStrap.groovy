@@ -115,7 +115,8 @@ class BootStrap {
 				researchQuestion:"Leptin etc.",
 				description:"C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled.",
 				ecCode:"2007117.c",
-				startDate: Date.parse('yyyy-MM-dd','2007-12-11')
+				startDate: Date.parse('yyyy-MM-dd','2007-12-11'),
+				template: mouseTemplate
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
 			def x=1
