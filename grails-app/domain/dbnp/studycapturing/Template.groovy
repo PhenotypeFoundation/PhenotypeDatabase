@@ -11,16 +11,28 @@ package dbnp.studycapturing
  * $Date$
  */
 class Template implements Serializable {
-    String name
-    //nimble.User owner
+	String name
+	//nimble.User owner
 
-    static hasMany = [subjectFields : TemplateSubjectField]
-  
-    static constraints = {
-        name(unique:true)
-    }
+	static hasMany = [subjectFields: TemplateSubjectField]
 
-    def String toString() {
-        return this.name;
-    }
+	static constraints = {
+		name(unique: true)
+	}
+
+	def String toString() {
+		return this.name;
+	}
+
+	/**
+	 * Look up the type of a certain template subject field
+	 * @param fieldName The name of the template field
+	 * @return The type (static member of TemplateFieldType) of the field, or null of the field does not exist
+	 */
+	def TemplateFieldType getSubjectFieldType(String fieldName) {
+		def field = subjectFields.find {
+			it.name == fieldName	
+		}
+		field?.type
+	}
 }

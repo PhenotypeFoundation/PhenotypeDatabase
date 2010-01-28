@@ -8,9 +8,26 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
-  <head><title>Sandbox</title></head>
-  <body>
-  <h1>Sandbox</h1>
-  <h2>Template fields</h2>
-  <g:each in="${fields}"><p>${it.name}</p></g:each></body>
+<head><title>Sandbox</title></head>
+<body>
+<h1>Sandbox</h1>
+<h2>Subject Template fields demo</h2>
+<table>
+	<tr>
+		<td>Name</td>
+	<g:each in="${fields}" var="field">
+		<td>${field.name} (${field.type})</td>
+	</g:each>
+	</tr>
+	<g:each in="${subjects}" var="subject">
+		<tr>
+			<td>${subject.name}</td>
+		<g:each in="${fields}" var="field">
+			<td>${subject.getFieldValue(field.name)}</td>
+		</g:each>
+		</tr>
+	</g:each>
+</tr>
+</table>
+</body>
 </html>

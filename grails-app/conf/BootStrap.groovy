@@ -124,8 +124,9 @@ class BootStrap {
 				def currentSubject = new Subject(
 					name: "A" + x++,
 					species: mouseTerm,
+					template: mouseTemplate,
 					templateStringFields: ["Genotype" : "C57/Bl6j", "Gender" : "Male"],
-					templateNumberFields: ["Age" : 17, "Cage" : (int)(x/2)]
+					templateIntegerFields: ["Age" : 17, "Cage" : (int)(x/2)]
 				).with { if (!validate()) { errors.each { println it} } else save()}
 
 				exampleStudy.addToSubjects(currentSubject)
