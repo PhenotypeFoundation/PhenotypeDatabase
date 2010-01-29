@@ -46,30 +46,20 @@ class EventDescriptionController {
 
 
     def showMyProtocol = {
-        println params  // dbg, remove
 
         def protocol = ( params.protocolid) ?  Protocol.get(params.protocolid) : Protocol.find("for Protocol id")
         def event = Event.get(params.id)
 	def protocolInstance = event.eventDescription.protocol
 
-        println params
-        println event
-        println protocol
-        println protocolInstance
-
         if( protocolInstance && protocolInstance && protocol.id==protocolInstance.id ) {
 	    def parameterStringValues = event.parameterStringValues
-            println parameterStringValues
-            print "showFull"
             render( view:"showMyProtocolFilled", model:["protocolInstance":protocolInstance,"event":event,"parameterStringValues":parameterStringValues] )
         }
         else {
-            print "showEmpty"
 	    if(protocol!=null) render( view: "showMyProtocolEmpty", model:["protocolInstance":protocol] )
 	    else               render( "NULL" )
         }
 }
-
 
 
     def edit = {
