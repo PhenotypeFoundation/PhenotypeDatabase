@@ -61,6 +61,15 @@ class BootStrap {
 				reference: treatmentTerm
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
+
+			// added by Jahn for testing the event views
+			def treatmentProtocol2 = new Protocol(
+				name: 'MADMAX Experimental Protocol 2',
+				reference: treatmentTerm
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+
+
 			treatmentProtocol
 			.addToParameters(new ProtocolParameter(
 				name: 'Diet',
@@ -74,6 +83,23 @@ class BootStrap {
 				name: 'Administration',
 				type: ProtocolParameterType.STRING))
 			.save()
+
+
+			// added by Jahn for testing the event views
+			treatmentProtocol2
+			.addToParameters(new ProtocolParameter(
+				name: 'Diet',
+				type: ProtocolParameterType.STRINGLIST,
+				listEntries: ['99% fat (crude oil)','1% fat (palm oil)']))
+			.addToParameters(new ProtocolParameter(
+				name: 'Compound',
+				type: ProtocolParameterType.STRINGLIST,
+				listEntries: ['Vehicle','Leptin']))
+			.addToParameters(new ProtocolParameter(
+				name: 'Administration',
+				type: ProtocolParameterType.STRING))
+			.save()
+
 
 
 			// create system user
@@ -107,6 +133,7 @@ class BootStrap {
 				classification: treatmentTerm,
 				protocol: treatmentProtocol
 			).with { if (!validate()) { errors.each { println it} } else save()}
+
 
 			// studies
 			def exampleStudy = new Study(
