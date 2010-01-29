@@ -28,6 +28,8 @@
   </g:if>
   <div class="dialog">
 
+    <% protocolList = dbnp.studycapturing.Protocol.list() %>
+
     <div id="accordion">
       <a href="#"> Study Information </a>
         
@@ -63,22 +65,33 @@
         <table>
           <tr>
             <td><b>Id </b></td>
-            <td><b>Template Integer Fields</b></td>
             <td><b>Species</b></td>
-            <td><b>Template Term Fields</b></td>
             <td><b>Name</b></td>
-            <td><b>Template Float Fields</b></td>
-            <td><b>Template String Fields</b></td>
+          <g:each in="${studyInstance.template.subjectFields}" var="g">
+            <td><b>
+              <g:link controller="templateSubjectField" action="show" id="${g.id}">
+              ${g}</b></td>
+            </g:link>
+          </g:each>
           </tr>
+
           <g:each in="${studyInstance.subjects}" var="s">
             <tr>
               <td><g:link controller="subject" action="show" id="${s.id}">${s.id}</g:link></td>
-              <td>${s.templateIntegerFields}</td>
               <td>${s.species}</td>
-              <td>${s.templateTermFields}</td>
               <td>${s.name}</td>
-              <td>${s.templateFloatFields}</td>
-              <td>${s.templateStringFields}</td>
+
+                <g:each in="${studyInstance.template.subjectFields}" var="g">
+               <td>
+              <% if (g.type==dbnp.studycapturing.TemplateFieldType.INTEGER){ %>
+                  <% print s.templateIntegerFields.get(g.toString())  %>
+              <% } %>
+               <% if (g.type==dbnp.studycapturing.TemplateFieldType.STRINGLIST){ %>
+                <% print s.templateStringFields.get(g.toString())  %>
+              <% } %>
+
+            </td>
+          </g:each>
           </tr>
           </g:each>
           </table>
@@ -98,13 +111,14 @@
             <td><b>Parameters</b></td>
             <td><b>Reference</b></td>
           </tr>
-          <g:each in="${studyInstance.events.eventDescription.protocol}" var="s">
+          <g:each in="${protocolList}" var="s">
             <tr>
               <td><g:link controller="protocol" action="show" id="${s.id}">${s.id}</g:link></td>
           <td>${s.name}</td>
           <td>
-          <g:each in="${s.parameters}" var="p">
+          <g:each in="${s.parameters}" var="p"><ul><li>
             <g:link controller="protocolParameter" action="show" id="${p.id}">${p.name}</g:link>
+            </li></ul>
           </g:each>
           </td>
           <td>${s.reference}</td>

@@ -9,7 +9,6 @@
 </head>
 <body>
 
- <!--g:form url="[action:'list_extended',controller:'study']"-->
   <g:form action="list_extended.gsp">
 
   <div class="nav">

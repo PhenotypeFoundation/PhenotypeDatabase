@@ -43,6 +43,7 @@
       <% selectedStudies.add(i) %>
      <% }} %>
 
+    <% if (selectedStudies.size()>0) {%>
 
     <div id="tabs">
       <ul>
@@ -50,20 +51,21 @@
         <li><a href="#${studyInstance}"> ${studyInstance} </a></li>
       </g:each>
       </ul>
-
       <g:each in="${selectedStudies}" status="i" var="studyIns">
-
-        
       <div id="${studyIns}">
         <g:each in="${att_list}" status="s" var="attribute">
               ${message(code: 'study.id.'+attribute , default: attribute)} :
-              ${fieldValue(bean: studyIns, field: attribute)}
-                            <br>
+              ${fieldValue(bean: studyIns, field: attribute)}<br>
         </g:each>
       </div>
-
         </g:each>
     </div>
+
+    <% } %>
+    
+     <% if (selectedStudies.size()==0) {%>
+    Please select studies to compare.
+    <% } %>
 
     </div>
 

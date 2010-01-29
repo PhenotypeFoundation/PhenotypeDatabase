@@ -139,9 +139,40 @@ class BootStrap {
 				).with { if (!validate()) { errors.each { println it} } else save()}
 			}
 
-                        new Study(title:"example",code:"Excode",researchQuestion:"ExRquestion",description:"Exdescription",ecCode:"ExecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
-                        new Study(title:"testAgain",code:"testcode",researchQuestion:"testRquestion",description:"testdescription",ecCode:"testCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
-                        new Study(title:"Exampletest",code:"Examplecode",researchQuestion:"ExampleRquestion",description:"Exampledescription",ecCode:"ExampleecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
+
+                        def secondStudy = new Study(
+				title:"NuGO PPS1 mouse study leptin module",
+				code:"PPS1",
+				researchQuestion:"etc.",
+				description:"C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled.",
+				ecCode:"2007.c",
+				startDate: Date.parse('yyyy-MM-dd','2007-12-11'),
+                                template: mouseTemplate
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+                        def y=1
+			5.times {
+				def currentSubject = new Subject(
+					name: "A" + y++,
+					species: mouseTerm,
+					template: mouseTemplate,
+					templateStringFields: ["Genotype" : "C57/Bl6j", "Gender" : "Male"],
+					templateIntegerFields: ["Age" : 17, "Cage" : (int)(y/2)]
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				secondStudy.addToSubjects(currentSubject)
+				.addToEvents(new Event(
+					subject: currentSubject,
+					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					eventDescription: eventTreatment,
+					parameterStringValues: ['Diet':'10% fat (palm oil)','Compound':'Vehicle','Administration':'intraperitoneal injection'])
+				).with { if (!validate()) { errors.each { println it} } else save()}
+			}
+
+//                        new Study(title:"example",code:"Excode",researchQuestion:"ExRquestion",description:"Exdescription",ecCode:"ExecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
+//                        new Study(title:"testAgain",code:"testcode",researchQuestion:"testRquestion",description:"testdescription",ecCode:"testCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
+//                        new Study(title:"Exampletest",code:"Examplecode",researchQuestion:"ExampleRquestion",description:"Exampledescription",ecCode:"ExampleecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
                 }
 	}
 
