@@ -1,18 +1,4 @@
-
 <!-- Rows for a two column table -->
-
-
-
-
-        <tr class="prop">
-            <td valign="top" class="name">
-              <label for="protocol"><g:message code="eventDescription.protocol.label" default="Protocol" /></label>
-            </td>
-            <td valign="top" class="value ${hasErrors(bean: description, field: 'protocol', 'errors')}">
-                <g:select name="protocol.id" id="protocol" from="${dbnp.studycapturing.Protocol.list()}" optionKey="id" optionValue="${{it.id}}" value="${description?.protocol?.id}" onchange="${remoteFunction(action:'showMyProtocol', controller:'eventDescription', id:description.id, update:'preview', onComplete:'Effect.Appear(preview)', params:'\'protocol=\' + this.value' )}" />
-            </td>
-        </tr>
-
 
         <tr class="prop">
             <td valign="top" class="name">
@@ -22,8 +8,6 @@
                 <g:textField name="name" value="${description?.name}" />
             </td>
         </tr>
-
-
 
 
         <tr class="prop">
@@ -36,19 +20,37 @@
         </tr>
 
 
-	<!-- changes here on select -->
+	<!-- select -->
+
+        <tr class="prop">
+
+            <td valign="top" class="name" width=200 >
+              <label for="protocol"><g:message code="eventDescription.protocol.label" default="Protocol" /></label>
+            </td>
+            <td valign="top" class="value ${hasErrors(bean: description, field: 'protocol', 'errors')}">
+                <g:select name="protocol.id" id="protocol" from="${dbnp.studycapturing.Protocol.list()}" optionKey="id" optionValue="${{it.name}}" value="${{it?.id}}" onchange="${remoteFunction(action:'showMyProtocol', controller:'eventDescription', update:'preview', onComplete:'Effect.Appear(preview)', params:'\'protocolid=\' + this.value', id:params['id'])}" />
+            </td>
+        </tr>
+
+
+	<!-- this part changes dynamiccally on select -->
+
 	<tbody id="preview">
-	    <g:each in="${description.protocol.values}">
+            <% def list = [] %>
+            <g:each in="${description.protocol.parameters}" > <% list.add( it )%> </g:each>
+            <% list.sort{ a,b -> a.name <=> b.name }%>
+
+	    <g:each in="${list}">
 
                  <tr class="prop">
-                 <td valign="top" class="name">
-                 <label for="protocolInstance"><g:message code="${it.protocolParameter.name}" /></label>
+                 <td valign="top" class="name" width=200>
+                 <label for="parameter"><g:message code="${it.name}" /></label>
                  </td>
 
                  <td valign="top" class="name">
-                 <g:textField name="protocolInstance.${it.id}" value="${it.value}" />
+                 <g:textField name="protocolParameter.${it.id}" value="${eventInstance.parameterStringValues[it.name]}" />
                  </td>
-
                  </tr>
+
             </g:each>
 	</tbody>

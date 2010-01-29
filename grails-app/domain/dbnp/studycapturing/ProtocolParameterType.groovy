@@ -10,10 +10,8 @@ public enum ProtocolParameterType {
     STRINGLIST('List')
 
     String name
+    ProtocolParameterType(String name) { this.name = name }
 
-    ProtocolParameterType(String name) {
-     this.name = name
-    }
 
     static list() {
      [STRING, INTEGER, FLOAT, STRINGLIST]

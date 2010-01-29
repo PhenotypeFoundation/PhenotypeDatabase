@@ -1,16 +1,16 @@
-<g:each in="${protocolInstance.values}">
+<% def list = [] %>
+<g:each in="${protocolInstance.parameters}" > <% list.add( it )%> </g:each>
+<% list.sort{ a,b -> a.name <=> b.name }%>
 
-<tr class="prop">
+<g:each in ="${list}" >
+    <tr class="prop">
 
-    <td valign="top" class="name">
-    <label for="protocolInstance"><g:message code="${it.protocolParameter.name}" /></label>
-    </td>
+         <td valign="top" class="name" width=200>
+         <label for="protocolInstance"><g:message code="${it.name}" /></label>
+         </td>
 
-    <td valign="top" class="name">
-     <g:textField name="protocolInstance.${it.id}" value="${it.value}" />
-     </td>
-
-</tr>
-
-
+         <td valign="top" class="name">
+         <g:textField name="protocolParameter.${it.id}" value="${parameterStringValues[it.name]}" />
+         </td>
+    </tr>
 </g:each>

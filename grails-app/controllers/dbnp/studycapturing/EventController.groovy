@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 import java.text.SimpleDateFormat
 import dbnp.data.Term
+import dbnp.data.Ontology
 
 class EventController {
 
@@ -24,7 +25,6 @@ class EventController {
 
 
     def createForEventDescription = {
-
         if( params["id"]==null)
 	{
             def eventInstance = new Event()
@@ -49,7 +49,6 @@ class EventController {
     // Input format:  "01/20/2010 08:45 am"
     // Output format: "01/20/2010 20:45"
     // Note: the "am" amd "pm" suffixes are removed.
-
     def parseDate = {  st ->
             def subst = st.substring(0,16)
             def ampm =  st.substring(17,19)
@@ -68,7 +67,6 @@ class EventController {
 
     def save = {
         println "In EventController.save: ${params}"
-
 	params["startTime"] = parseDate(params["startTime"])     // parse the date strings
 	params["endTime"] = parseDate(params["endTime"])
 
@@ -138,7 +136,7 @@ class EventController {
 	    def sDate = new Date( params["startTime"])
 	    def eDate = new Date( params["endTime"])
 	    def description = EventDescription.findById((params["eventDescription"])["id"])
-            return [testo:params.clone(), sDate:sDate, eDate:eDate, description:description ]
+            return [eventInstance:eventInstance, testo:params.clone(), sDate:sDate, eDate:eDate, description:description ]
 	}
 
 	else
@@ -148,12 +146,10 @@ class EventController {
                 flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'event.label', default: 'Event'), params.id])}"
                 redirect(action: "list")
             }
-            return [testo:params.clone(), sDate:eventInstance.startTime, eDate:eventInstance.endTime, description:eventInstance.eventDescription]
+            return [eventInstance:eventInstance, testo:params.clone(), sDate:eventInstance.startTime, eDate:eventInstance.endTime, description:eventInstance.eventDescription]
         }
 
     }
-
-
 
 
 
@@ -203,71 +199,9 @@ class EventController {
         }
     }
 
-
-
-    def createDummies = {
-
-         ["ONE","TWO"].each{ x -> println x }
-	 def t = new Term()
-	 t.name =  "homo politicus russicus"
-	 t.ontology = "Ontology: Monkies and Typewriters"
-	 t.accession = "up or down"
-	 t.save()
-
-         def pp = new ProtocolParameter()
-	 pp.name = "LSD reatment"
-         pp.unit = "Tt"
-         pp.description = "feed the LSD to the subject"
-         pp.reference = t
-         pp.type = "String"     // should become ProtocolParameterType at some point
-	 pp.save()
-
-    	 def p = new Protocol()
-	 p.name = "Hugo (dummy #1)"
-	 p.reference = t
-	 p.save()
-	 p.addToParameters(pp)
-
-         def ppi = new ProtocolParameterInstance()
-	 ppi.value = "1.2"
-	 ppi.protocolParameter = pp
-	 ppi.save()
-
-         def ppi2 = new ProtocolParameterInstance()
-	 ppi2.value = "23.5"
-	 ppi2.protocolParameter = pp
-	 ppi2.save()
-
-	 def pi = new ProtocolInstance()
-	 pi.protocol = p.find("from Protocol p ")
-	 pi.save()
-	 pi.addToValues(ppi)
-	 pi.addToValues(ppi2)
-
-	 def s= new Subject()
-	 s.name = "Vladimir Putin"
-	 s.species = t
-	 s.save()
-
-	 def ed = new EventDescription()
-	 ed.name = "dummmy name"
-	 ed.description = "dummmy description"
-	 ed.protocol = pi
-	 ed.classification = Term.find("from Term t")
-	 ed.save()
-
-         def sdfh = new SimpleDateFormat("dd/MM/yyyy hh:mm")
-         def eventInstance = new Event()
-         def someDate = sdfh.parse("29/11/2008 18:00")
-	 eventInstance.subject = s
-	 eventInstance.eventDescription= ed
-	 eventInstance.startTime = someDate
-	 eventInstance.endTime = someDate
-	 if( eventInstance.save() )
-	 { redirect( action:show, id: eventInstance.id ) }
-         else { chain( action:list ) }
-
-
-
+    def showMySample = {
+	  render( view:"showMySample" )
     }
+
+    
 }

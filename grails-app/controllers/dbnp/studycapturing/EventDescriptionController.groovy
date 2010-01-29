@@ -46,27 +46,27 @@ class EventDescriptionController {
 
 
     def showMyProtocol = {
+        println params  // dbg, remove
 
-        def protocol = ( params.protocol) ?  Protocol.get(params.protocol) : Protocol.find("for Protocol id")
-        def description = EventDescription.get(params.id)
-	def protocolInstance = description.protocol
+        def protocol = ( params.protocolid) ?  Protocol.get(params.protocolid) : Protocol.find("for Protocol id")
+        def event = Event.get(params.id)
+	def protocolInstance = event.eventDescription.protocol
 
         println params
+        println event
         println protocol
-        println description
         println protocolInstance
 
-
-        if( protocol.id==protocolInstance.protocol.id ) {
-            println "redner this FILLED rubish"
-            println protocolInstance
-            println "the fuck?"
-            render( view:"showMyProtocolFilled", model:["protocolInstance":protocolInstance] )
+        if( protocolInstance && protocolInstance && protocol.id==protocolInstance.id ) {
+	    def parameterStringValues = event.parameterStringValues
+            println parameterStringValues
+            print "showFull"
+            render( view:"showMyProtocolFilled", model:["protocolInstance":protocolInstance,"event":event,"parameterStringValues":parameterStringValues] )
         }
         else {
-            println "redner this EMPTY rubish"
-            render( view: "showMyProtocolEmpty", model:[protocol:protocol] )
-            //render( view:"showMyProtocolEmpty", model:[protocol:protocol] )
+            print "showEmpty"
+	    if(protocol!=null) render( view: "showMyProtocolEmpty", model:["protocolInstance":protocol] )
+	    else               render( "NULL" )
         }
 }
 
@@ -130,21 +130,6 @@ class EventDescriptionController {
     }
 
 
-    /* Jahn - For development only
-     * Create one dummy instance of EventDescription */
-    def createDummies =
-    {
-	 def newInstance = new EventDescription()
-	 newInstance.name = "dummmy name"
-	 newInstance.description = "dummmy description"
-	 newInstance.protocol = ProtocolInstance.find("from ProtocolInstance p ")
-	 newInstance.classification = Term.find("from Term t")
-
-	 if( newInstance.save() )
-	      { redirect( action:show, id: newInstance.id ) }
-         else { chain( action:list ) }
-    }
-
-
-    def test = { render("test") }
+    def test = { println "test"
+	    render("test") }
 }
