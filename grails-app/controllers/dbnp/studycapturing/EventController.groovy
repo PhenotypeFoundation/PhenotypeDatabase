@@ -199,8 +199,11 @@ class EventController {
         }
     }
 
-    def showMySample = {
-	  render( view:"showMySample" )
+
+    def showSample = {
+          def event = Event.get(params.id)
+          if( event instanceof SamplingEvent ) { render( view:"showSample", model:[samples:event.samples] )    }
+	  else                                 { render( view:"showNewSample" ) }
     }
 
     

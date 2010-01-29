@@ -188,7 +188,7 @@ class BootStrap {
 				).with { if (!validate()) { errors.each { println it} } else save()}
 
 				secondStudy.addToSubjects(currentSubject)
-				.addToEvents(new Event(
+				.addToEvents(new SamplingEvent(
 					subject: currentSubject,
 					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
 					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
