@@ -24,7 +24,7 @@
 
 
 
-            <g:form action="save" method="post" >
+            <g:form action="save" method="post" id="${eventInstance.id}">
 
                 <div class="dialog">
                     <table>
@@ -77,11 +77,37 @@
                             <g:render template="../common/eventDescriptionTableRows" model="${[description:description, event:event]}"/>
 
 
+                            <tr class="prop">
+                            <td>This is a sampling event </td>
+                            <td valign="top" class="value ${hasErrors(bean: description, field: 'protocol', 'errors')}">
+                                 <g:select name="mySampleEvent" id="mySampleEvent" from="${['yes','no']}" value="${isSamplingEvent}" onchange="${remoteFunction(action:'showSample', controller='event', update:'samplePartial', onComplete:'Effect.Appear(samplePartial)', id:params['id'], params:'\'wantSample=\' + this.value',)}" />
+                            </td>
+                            </tr>
+
+
                         </tbody>
 
 
 
-                             <tbody id="samplePartial"> </tbody>
+                        <tbody id="samplePartial"> 
+
+                        <g:if  test="${(eventInstance.isSamplingEvent()) && (eventInstance.samples!=null)}" >
+			        <% def list = eventInstance.samples %>
+				<% list.sort{ a,b -> a.name <=> b.name }%>
+				<g:each in="${list}">
+				<tr class="prop">
+					<td valign="top" class="name" width=200 >
+					<label><%=  it.name %> </label>
+					</td>
+					<td valign="top" class="name">
+					<g:textField name="${it.name}" value="" />
+					</td>
+				</tr>
+				</g:each>
+			</g:if>
+			</tbody>
+
+
 
 
 
@@ -90,7 +116,7 @@
 
 
                 <div class="buttons">
-                    <span class="button"><g:submitButton name="create" class="save" value="${message(code: 'default.button.create.label', default: 'Create')}" /></span>
+                    <span class="button"><g:submitButton name="create" class="save" value="${message(code: 'default.button.create.label', default: 'Save')}" /></span>
                 </div>
 
 
