@@ -26,6 +26,7 @@ subjects of species
 		<div class="column">name</div>
 		<div class="column">species</div>
 		<wizard:templateColumnHeaders template="${study.template}" class="column" />
+		<wizard:templateColumnHeaders template="${study.template}" class="column" />
 	</div>
 <g:each var="subject" status="i" in="${subjects}">
 	<div class="row">
@@ -34,6 +35,7 @@ subjects of species
 		<div class="column">
 			<wizard:speciesSelect value="${subject.species}" name="subject_${i}_species" />
 		</div>
+		<wizard:templateColumns id="${i}" template="${study.template}" class="column" />
 		<wizard:templateColumns id="${i}" template="${study.template}" class="column" />
 	</div>
 </g:each>

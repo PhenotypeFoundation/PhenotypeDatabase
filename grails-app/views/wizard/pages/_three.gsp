@@ -32,4 +32,7 @@
 	<wizard:dateElement name="startDate" description="Date element" error="startDate" value="${study?.startDate}">
 		[youtube:2WNrx2jq184]
 	</wizard:dateElement>
+		<wizard:dateElement name="startDate" description="Date element" error="startDate" value="${study?.startDate}">
+		[youtube:vtIpipFY5k4]		
+	</wizard:dateElement>
 </wizard:pageContent>

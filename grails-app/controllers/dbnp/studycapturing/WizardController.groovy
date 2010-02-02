@@ -144,7 +144,7 @@ class WizardController {
 			}
 			on("next") {
 				// TODO
-			}.to "groups"
+			}.to "demo"
 			on("previous") {
 				// TODO
 			}.to "subjects"
@@ -154,11 +154,11 @@ class WizardController {
 		demo {
 			render(view: "_three")
 			onRender {
-				flow.page = 3
+				flow.page = 4
 			}
 			on("previous") {
 				// TODO
-			}.to "subjects"
+			}.to "groups"
 		}
 	}
 

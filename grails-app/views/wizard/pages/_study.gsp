@@ -28,7 +28,7 @@
 		A short description summarizing your study
 	</wizard:textFieldElement>
 	<wizard:textFieldElement name="ecCode" description="Ethical Committee Code" error="ecCode" value="${study?.ecCode}">
-		If you study has been approved by the Ethical Committee, here is where you will enter that partical reference code
+		[youtube:irvC_1ujhKo]
 	</wizard:textFieldElement>
 	<wizard:dateElement name="startDate" description="Start date" error="startDate" value="${study?.startDate}">
 		The start date of the study	
