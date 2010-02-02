@@ -95,7 +95,6 @@ function attachHelpTooltips() {
 
 // insert a youtube player in a certain element
 function youtube(video, element) {
-    console.log('youtube ready!')
     // insert a div we will replace with a youtube player
     element.html("<div id='" + video + "'></div>")
 
@@ -197,8 +196,6 @@ function attachSubjectSlider() {
 
 // handle selecting and grouping of subjects
 function attachGroupingEvents() {
-    console.log('attach drag and drop events')
-
     $(".groups").find('div.group').droppable({
         accept: '.subjects > ol > li',
         drop: function(event, ui) {
