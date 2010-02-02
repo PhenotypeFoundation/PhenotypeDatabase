@@ -168,6 +168,12 @@
     width: auto;
 }
 
+.wizard .table .row .error {
+    color: red;
+    font-size: 8px;
+    height: 10px;
+}
+
 .wizard .table input, .wizard .table select {
     border: 1px solid #8e908f;
     margin: 2px 0;
@@ -262,7 +268,7 @@
 .wizard .groups .group .gallery li a { float: right; }
 .wizard .groups .group .gallery li a.ui-icon-zoomin { float: left; }
 .wizard .groups .group .gallery li img { width: 100%; cursor: move; }
-*/
+
 .wizard .groups .group .gallery {
     display: block;
     float: left;
@@ -270,6 +276,11 @@
 
 .wizard .groups .group .gallery li {
     display: inline-block;
+}
+*/
+
+.wizard .groups .group ul.gallery {
+    background-color: red;
 }
 
 

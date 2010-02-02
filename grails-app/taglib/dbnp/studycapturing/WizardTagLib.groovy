@@ -286,15 +286,17 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attrs
 	 */
 	def speciesSelect = { attrs ->
-		// fetch all species
-		attrs.from = Term.findAll()	// for now, all terms, should be refactored to be species ontology only!
-		def speciesOntology = Ontology.findAllByName('NCBI Taxonomy')
+		// fetch the speciesOntology
+		// note that this is a bit nasty, probably the ontologyName should
+		// be configured in a configuration file... --> TODO
+		def speciesOntology = Ontology.findByName('NCBI Taxonomy')
 
-		println speciesOntology
-		//println Term.findAllByOntology(speciesOntology)
+		// fetch all species
+		attrs.from = Term.findAllByOntology(speciesOntology)
 
 		// got a name?
 		if (!attrs.name) {
+			// nope, use a default name
 			attrs.name = 'species'
 		}
 
@@ -354,21 +356,29 @@ class WizardTagLib extends JavascriptTagLib {
 
 		// output columns for these subjectFields
 		template.subjectFields.each() {
-			println it.type
 			out << '<div class="' + attrs.get('class') + '">'
 
 			switch (it.type) {
 				case 'STRINGLIST':
 					// render stringlist subjectfield
-					out << '<select><option>TODO</option></select>'
+					if (!it.listEntries.isEmpty()) {
+						out << select(
+							name: it.name,
+							from: it.listEntries
+						)
+					} else {
+						out << '<span class="error">no values!!</span>'
+					}
 					break;
 				case 'INTEGER':
 					// render integer subjectfield
-					out << '<input type="text" value="TODO">'
+					out << textField(
+						name: it.name
+					)
 					break;
 				default:
 					// unsupported field type
-					out << '<b>!! ' + it.type + '</b>'
+					out << '<span class="error">unsuported type '+it.type+'</span>'
 					break;
 			}
 			out << '</div>'

@@ -19,7 +19,9 @@ $(document).ready(function() {
     if (navigator.userAgent.match(re)) {
         // http://code.google.com/p/fbug/issues/detail?id=1899
         var wizard = $('div#wizard')
-        wizard.html('<span style="color:red;font-size:8px;">Firefox 3.6 contains <a href="http://code.google.com/p/fbug/issues/detail?id=2746" target="_new">a bug</a> in combination with Firebug\'s XMLHttpRequest spy which causes the wizard to not function anymore. Please make sure you have firebug\'s XMLHttpRequest spy disabled use use Firefox 3.5.7 instead...</span>' + wizard.html())
+        if (wizard.find("#warning").length == 0) {
+            wizard.html('<span id="warning" style="color:red;font-size:8px;">Firefox 3.6 contains <a href="http://code.google.com/p/fbug/issues/detail?id=2746" target="_new">a bug</a> in combination with Firebug\'s XMLHttpRequest spy which causes the wizard to not function anymore. Please make sure you have firebug\'s XMLHttpRequest spy disabled use use Firefox 3.5.7 instead...</span>' + wizard.html())
+        }
     }
 
     // attach Tooltips
@@ -48,43 +50,46 @@ function attachHelpTooltips() {
         helpContent = helpIcon.parent().parent().find('div.helpContent')
 
         // handle special content
-        var specialContent = helpContent.html().match(/\[([^:]+)\:([^\]]+)\]/)
-        if (specialContent) {
-            // replace content by calling a helper function
-            eval(specialContent[1] + "('" + specialContent[2] + "',helpContent)");
-        }
-
-        // attach tooltip
-        helpIcon.qtip({
-            content: 'leftMiddle',
-            position: {
-                corner: {
-                    tooltip: 'leftMiddle',
-                    target: 'rightMiddle'
-                }
-            },
-            style: {
-                border: {
-                    width: 5,
-                    radius: 10
-                },
-                padding: 10,
-                textAlign: 'center',
-                tip: true,
-                name: 'blue'
-            },
-            content: helpContent.html(),
-            show: 'mouseover',
-            hide: 'mouseout',
-            api: {
-                beforeShow: function() {
-                    // not used at this moment
-                }
+        var html = (helpContent.html()) ? helpContent.html() : '';
+        if (html) {
+            var specialContent = html.match(/\[([^:]+)\:([^\]]+)\]/)
+            if (specialContent) {
+                // replace content by calling a helper function
+                eval(specialContent[1] + "('" + specialContent[2] + "',helpContent)");
             }
-        })
 
-        // remove helpcontent div as we don't need it anymore
-        helpContent.remove();
+            // attach tooltip
+            helpIcon.qtip({
+                content: 'leftMiddle',
+                position: {
+                    corner: {
+                        tooltip: 'leftMiddle',
+                        target: 'rightMiddle'
+                    }
+                },
+                style: {
+                    border: {
+                        width: 5,
+                        radius: 10
+                    },
+                    padding: 10,
+                    textAlign: 'center',
+                    tip: true,
+                    name: 'blue'
+                },
+                content: helpContent.html(),
+                show: 'mouseover',
+                hide: 'mouseout',
+                api: {
+                    beforeShow: function() {
+                        // not used at this moment
+                    }
+                }
+            })
+
+            // remove helpcontent div as we don't need it anymore
+            helpContent.remove();
+        }
     });
 }
 
@@ -127,7 +132,7 @@ function attachTableEvents() {
                 function() {
                     $(this).removeClass('highlight');
                 }
-        )
+                )
     });
 }
 
@@ -196,45 +201,14 @@ function attachGroupingEvents() {
     $(".groups").find('div.group').droppable({
         accept: '.subjects > ol > li',
         drop: function(event, ui) {
-            /*
-            $(this).addClass('ui-state-highlight').find('p').html('Dropped!');
-deleteImage(ui.draggable);
-            function deleteImage($item) {
-                $item.fadeOut(function() {
-                    var $list = $('ul',$trash).length ? $('ul',$trash) : $('<ul class="gallery ui-helper-reset"/>').appendTo($trash);
-
-                    $item.find('a.ui-icon-trash').remove();
-                    $item.append(recycle_icon).appendTo($list).fadeIn(function() {
-                        $item.animate({ width: '48px' }).find('img').animate({ height: '36px' });
-                    });
-                });
-            }
-*/
-
-            //console.log($(this))
-            //console.log(ui.draggable)
             var group = $(this)
-            var list = $('ul',group).length ? $('ul',group) : $('<ul class="gallery ui-helper-reset"/>').appendTo(group);
+            var list = $('ul', group).length ? $('ul', group) : $('<ul class="henk"/>').appendTo(group);
 
             // append selected subjects to this group
             $(".subjects").find(".ui-selected").each(function() {
                 // append to group
                 $(this).appendTo(list);
-
-                // make undraggable
-                /*
-                $(this).draggable('destroy');
-
-                //$(this).css({ 'position': 'absolute' });
-
-                // make all visible
-                $(this).animate(
-                    {opacity: 100},
-                    200
-                );
-                */
             });
-
 
 
         }
@@ -269,9 +243,9 @@ deleteImage(ui.draggable);
                         subjects.each(function() {
                             if (this != d) {
                                 $(this).animate(
-                                    { opacity: 0 },
-                                    200
-                                );
+                                { opacity: 0 },
+                                        200
+                                        );
                             }
                         });
                     },
@@ -283,9 +257,9 @@ deleteImage(ui.draggable);
                         subjects.each(function() {
                             if (this != d) {
                                 $(this).animate(
-                                    {opacity: 100},
-                                    200
-                                );
+                                {opacity: 100},
+                                        200
+                                        );
                             }
                         });
                     }
