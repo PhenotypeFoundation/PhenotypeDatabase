@@ -26,8 +26,7 @@ class Event {
 	// static constraints = { }
 
 	def getDuration() {
-		//endTime - startTime  // this is not documented and does not work either
-		// so, it's useless.
+		// time diff between end and start date
 		// thus, do this manually as follows
 
 		def timeMillis = (endTime.getTime() - startTime.getTime()).abs()
@@ -41,10 +40,20 @@ class Event {
 	}
 
 
+	def getPrettyDuration() {
+	     // return a string that prints the duration sensibly.
+	     // the largest date unit (sec, min, h, day, month, or year)
+	     // is output
+	}
+
+
 	def getDurationString() {
 		def d = getDuration()
 		return "${d.days} days, ${d.hours} hrs, ${d.minutes} min, ${d.seconds} sec."
 	}
 
 
+	def isSamplingEvent() {
+		return ( this instanceof SamplingEvent )
+        }
 }
