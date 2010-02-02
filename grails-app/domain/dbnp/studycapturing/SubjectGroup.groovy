@@ -5,6 +5,7 @@ package dbnp.studycapturing
  */
 class SubjectGroup {
 
+    String name 
     static hasMany = [ subjects : Subject]
 
     static constraints = {
