@@ -13,6 +13,8 @@ abstract class TemplateField implements Serializable {
 	TemplateFieldType type
 	String unit
 
+    static hasMany = [listEntries : String] // to store the entries to choose from when the type is 'item from predefined list'
+
 	static constraints = {
 		name(unique: true)
 		unit(nullable: true, blank: true)

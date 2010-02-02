@@ -118,7 +118,7 @@ class BootStrap {
 			).addToSubjectFields(new TemplateSubjectField(
 				name: 'Genotype',type: TemplateFieldType.STRINGLIST))
 			.addToSubjectFields(new TemplateSubjectField(
-				name: 'Gender',type: TemplateFieldType.STRINGLIST))
+				name: 'Gender',type: TemplateFieldType.STRINGLIST, listEntries: ['Male','Female']))
 			.addToSubjectFields(new TemplateSubjectField(
 				name: 'Age',type: TemplateFieldType.INTEGER))
 			.addToSubjectFields(new TemplateSubjectField(
