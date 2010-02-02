@@ -209,8 +209,6 @@ function attachGroupingEvents() {
                 // append to group
                 $(this).appendTo(list);
             });
-
-
         }
     });
 
