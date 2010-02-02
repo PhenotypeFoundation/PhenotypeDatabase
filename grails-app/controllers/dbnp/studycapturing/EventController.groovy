@@ -65,34 +65,77 @@ class EventController {
     }
 
 
+    // This action is not complete yet.
+    // (1) Need to include Sampling events.
+    // (2) This probably causes orphened PrtocolPrameters that have to be delt with.
+    // (3) Parts of this might have to be moved into the Domain object's save() method.
+    // (4) The correspoding view's params are bloated and contain redundancy.
+    // (5) The whole thing should be moved to update.
+    // (6) A "create" should be added.
+
     def save = {
-        println "In EventController.save: ${params}"
+
+        def event = Event.get(params["id"])
+
+
+	if( event==null ) {                         // this is an entirely new event
+            render(action: "list", total:Event.count() )
+	}
+
 	params["startTime"] = parseDate(params["startTime"])     // parse the date strings
 	params["endTime"] = parseDate(params["endTime"])
 
-        def eventInstance = new Event(params)
 
-	println params.protocolInstance
-                                                                  // If a protocol instnace already exists,
-                                                                  // update this event's parameter values.
-        if(params.protocolInstance != null) {
-            params.protocolInstance.each { id, value ->
-                    println id + " " + value
-		    def parameter = ProtocolParameterInstance.get(id)
-		    parameter.value=value
-		    parameter.save()
-	        }
+        // the Subject is automatically parsed
+	// update Event Description
+        def oldProtocol=event.eventDescription.protocol.id.toString()
+        def newProtocol=params["protocol.id"]
+	def protocolParameters = params["protocolParameter"]
+
+
+        if(oldProtocol<=>newProtocol) {                                             // protocol id changed
+            event.eventDescription=EventDescription.get(newProtocol)
+	    event.parameterStringValues.clear()                                    // this does not propagate orphened parameters
+	    def protocol=Protocol.get(newProtocol)
+	    protocolParameters.each{ key, value ->
+                 def parameter=ProtocolParameter.get(key)
+		 event.parameterStringValues[key] = value
+	    }
+	}
+        else                                                                       // protocol is the same, values changed
+        {
+       	    protocolParameters.each{ key, value ->
+                 def parameter=ProtocolParameter.get(key)
+		 event.parameterStringValues[key]=value
+	    }
+
+	}
+
+        println "parameterStringValues: " + event.parameterStringValues
+
+        println "Old Protocol: " + event.eventDescription.protocol.id
+        println "New Protocol: " + params["protocol.id"]
+
+
+        println "Old: "
+	println event.parameterStringValues.each {
+		k,v -> println "${k}: ${v}\n"
+	}
+
+	println "New:"
+	protocolParameters.each{
+		k,v -> println "${k}: ${v}\n"
+	}
+
+        if (event.save(flush: true)) {
+            flash.message = "${message(code: 'default.created.message', args: [message(code: 'event.label', default: 'Event'), event.id])}"
+            redirect(action: "show", id: event.id)
         }
 
-        if (eventInstance.save(flush: true)) {
-            flash.message = "${message(code: 'default.created.message', args: [message(code: 'event.label', default: 'Event'), eventInstance.id])}"
-            redirect(action: "show", id: eventInstance.id)
-        }
-        else {
-            render(view: "create", model: [eventInstance: eventInstance])
-        }
-        render(view: "create", model: [eventInstance: eventInstance])
+        render(action: "list", total:Event.count() )
     }
+
+
 
 
     def show = {
@@ -138,7 +181,6 @@ class EventController {
 	    def description = EventDescription.findById((params["eventDescription"])["id"])
             return [eventInstance:eventInstance, testo:params.clone(), sDate:sDate, eDate:eDate, description:description ]
 	}
-
 	else
 	{
 	    def eventInstance = Event.get(params.id)
@@ -201,9 +243,18 @@ class EventController {
 
 
     def showSample = {
+	  def samples = null
           def event = Event.get(params.id)
-          if( event instanceof SamplingEvent ) { render( view:"showSample", model:[samples:event.samples] )    }
-	  else                                 { render( view:"showNewSample" ) }
+                                              // user wants this Event to be a SamplingEvent?
+	  def wantSample = params.wantSample <=>'no'?true:false
+	  print wantSample
+	  if( event.isSamplingEvent() ) {
+	      samples=event.samples
+	      println "yes ${event.id}"
+          }
+	  else    println "no ${event.id}"
+
+	  render( view:"showSample", model:[samples:samples,wantSample:wantSample] )
     }
 
     
