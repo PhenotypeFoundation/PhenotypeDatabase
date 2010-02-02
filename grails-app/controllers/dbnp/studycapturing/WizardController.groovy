@@ -43,8 +43,6 @@ class WizardController {
 	def pagesFlow = {
 		// start the flow
 		onStart {
-			println "wizard started"
-
 			// define flow variables
 			flow.page = 0
 			flow.pages = [
@@ -72,7 +70,6 @@ class WizardController {
 		study {
 			render(view: "_study")
 			onRender {
-				println "render page one"
 				flow.page = 1
 			}
 			on("next") {
@@ -92,7 +89,6 @@ class WizardController {
 
 				// validate study
 				if (flow.study.validate()) {
-					println "ok"
 					success()
 				} else {
 					// validation failed, feedback errors
@@ -114,6 +110,7 @@ class WizardController {
 				}
 			}
 			on ("add") {
+				// fetch species by name (as posted by the form)
 				def speciesTerm = Term.findByName(params.addSpecies)
 				
 				// add x subject of species y
@@ -157,11 +154,10 @@ class WizardController {
 		demo {
 			render(view: "_three")
 			onRender {
-				println "render page three"
 				flow.page = 3
 			}
 			on("previous") {
-				println "previous page!"
+				// TODO
 			}.to "subjects"
 		}
 	}

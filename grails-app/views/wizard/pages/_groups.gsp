@@ -23,9 +23,12 @@
 	</div>
 
 	<div class="groups">
-		<div class="ui-widget-header droppable">
-			<h1>Group 1<h1>
-			<p>drop here...</p>
+		<div class="ui-widget-content group">
+			<h4 class="ui-widget-header">Group 1</h4>
+		</div>
+
+		<div class="ui-widget-content group">
+			<h4 class="ui-widget-header">Group 2</h4>
 		</div>
 	</div>
 </div>

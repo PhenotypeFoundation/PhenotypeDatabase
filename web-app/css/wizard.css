@@ -10,6 +10,12 @@
     display: none;
 }
 
+.wizard .sliderContainer {
+    display: block;
+    padding-top: 10px;
+    width: 150px;
+}
+
 .wizard .tabs {
     display: block;
     height: 18px;
@@ -18,18 +24,18 @@
 }
 
 .wizard .tabs .element {
-    background-color:#EEEEEE;
-    border-bottom:4px solid #006DBA;
-    border-right:1px solid #006DBA;
-    color:#006DBA;
-    cursor:default;
-    display:inline;
-    font-size:10px;
-    height:20px;
-    margin:0px 0px 0px 0px;
-    padding:20px 15px 0px 15px;
-    text-align:center;
-    text-decoration:none;
+    background-color: #EEEEEE;
+    border-bottom: 4px solid #006DBA;
+    border-right: 1px solid #006DBA;
+    color: #006DBA;
+    cursor: default;
+    display: inline;
+    font-size: 10px;
+    height: 20px;
+    margin: 0px 0px 0px 0px;
+    padding: 20px 15px 0px 15px;
+    text-align: center;
+    text-decoration: none;
 }
 
 .wizard .tabs .active {
@@ -46,6 +52,7 @@
     display: block;
     color: #666666;
     font-size: 10px;
+    padding-top: 10px;
 }
 
 .wizard .prevnext {
@@ -61,7 +68,6 @@
     border: 0px;
     input: disabled;
 }
-
 
 .wizard .error {
     display: block;
@@ -122,6 +128,7 @@
 .wizard .element .help .content {
     display: none;
 }
+
 /** END :: HELP **/
 
 /* START ::  TABLE */
@@ -131,7 +138,15 @@
     background-color: #ebf7fc;
     margin-top: 10px;
     font-size: 11px;
-    overflow: hidden;    
+    overflow: hidden;
+}
+
+.wizard .table .header {
+    display: block;
+    background-color: #006DBA;
+    color: #fff;
+    font-weight: bold;
+    width: auto;
 }
 
 .wizard .column {
@@ -143,26 +158,14 @@
 .wizard .firstColumn {
     display: inline-block;
     padding: 2px 4px;
-    width: 40px;
-}
-
-.wizard .table .header {
-    display: block;
-    background-color: #006DBA;
-    color: #fff;
-    font-weight: bold;
-    width: 2000px;
-}
-
-.wizard .table .header .column .first {
-    width: 40px;
+    width: 20px;
 }
 
 .wizard .table .row {
     display: block;
-    width: 2000px;
     height: 28px;
     border-top: 1px solid #8e908f;
+    width: auto;
 }
 
 .wizard .table input, .wizard .table select {
@@ -177,27 +180,97 @@
     background-color: #006DBA;
     color: #fff;
 }
+
+.wizard .table .highlight input, .wizard .table .highlight select {
+    background-color: #6e99d4;
+    color: #fff;
+}
+
 /* END :: TABLE */
 
+.selectable .ui-selecting {
+    background: #add9ef;
+}
 
-.selectable .ui-selecting { background: #FECA40; }
-.selectable .ui-selected { background: #F39814; color: white; }
-.selectable { list-style-type: none; margin: 0; padding: 0; width: 200px; }
-.selectable li { margin: 3px; padding: 0.4em; font-size: 1em; height: 18px; }
+.selectable .ui-selected {
+    background: #006dbd;
+    color: white;
+}
+
+.selectable {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 200px;
+}
+
+.selectable li {
+    margin: 3px;
+    padding: 0.4em;
+    font-size: 1em;
+    height: 18px;
+}
 
 .wizard .grouping {
     display: block;
+    height: auto;
+    vertical-align: top;
 }
 
 .wizard .subjects {
     display: inline-block;
+    vertical-align: top;
 }
 
 .wizard .groups {
     display: inline-block;
-    height: 100%
+    height: 100%;
+    vertical-align: top;
 }
 
-.droppable { width: 300px; }
+.wizard .groups .groupbla {
+    margin: 3px;
+    padding: 0.4em;
+    font-size: 1em;
+}
+
+.droppable {
+    width: 300px;
+}
+
+.wizard .groups .group {
+    display: inline-block;
+    float: right;
+    width: 250px;
+    min-height: 18em;
+    margin: 3px;
+    padding: 0.4em;
+
+} * html #trash {
+    height: 18em;
+} /* IE6 */
+
+.wizard .groups .group h4 {
+    line-height: 16px;
+    margin: 0 0 0.4em;
+}
+/*
+.wizard .groups .group .gallery { float: left; width: 65%; min-height: 12em; } * html #gallery { height: 12em; } /* IE6 */
+.wizard .groups .group .gallery.custom-state-active { background: #eee; }
+.wizard .groups .group .gallery li { float: left; width: 96px; padding: 0.4em; margin: 0 0.4em 0.4em 0; text-align: center; }
+.wizard .groups .group .gallery li h5 { margin: 0 0 0.4em; cursor: move; }
+.wizard .groups .group .gallery li a { float: right; }
+.wizard .groups .group .gallery li a.ui-icon-zoomin { float: left; }
+.wizard .groups .group .gallery li img { width: 100%; cursor: move; }
+*/
+.wizard .groups .group .gallery {
+    display: block;
+    float: left;
+}
+
+.wizard .groups .group .gallery li {
+    display: inline-block;
+}
+
 
 

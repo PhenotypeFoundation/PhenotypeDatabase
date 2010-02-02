@@ -24,8 +24,12 @@
 	<wizard:textFieldElement name="researchQuestion" description="Research Question" error="researchQuestion" value="${study?.researchQuestion}">
 		The research question
 	</wizard:textFieldElement>
-	<wizard:textFieldElement name="description" description="Description" error="description" value="${study?.description}" />
-	<wizard:textFieldElement name="ecCode" description="Ethical Committee Code" error="ecCode" value="${study?.ecCode}" />
+	<wizard:textFieldElement name="description" description="Description" error="description" value="${study?.description}">
+		A short description summarizing your study
+	</wizard:textFieldElement>
+	<wizard:textFieldElement name="ecCode" description="Ethical Committee Code" error="ecCode" value="${study?.ecCode}">
+		If you study has been approved by the Ethical Committee, here is where you will enter that partical reference code
+	</wizard:textFieldElement>
 	<wizard:dateElement name="startDate" description="Start date" error="startDate" value="${study?.startDate}">
 		The start date of the study	
 	</wizard:dateElement>

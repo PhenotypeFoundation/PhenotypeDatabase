@@ -288,6 +288,10 @@ class WizardTagLib extends JavascriptTagLib {
 	def speciesSelect = { attrs ->
 		// fetch all species
 		attrs.from = Term.findAll()	// for now, all terms, should be refactored to be species ontology only!
+		def speciesOntology = Ontology.findAllByName('NCBI Taxonomy')
+
+		println speciesOntology
+		//println Term.findAllByOntology(speciesOntology)
 
 		// got a name?
 		if (!attrs.name) {
@@ -327,20 +331,46 @@ class WizardTagLib extends JavascriptTagLib {
 		out << select(attrs)
 	}
 
-	def templateColumnHeaders = { attrs, body ->
-		TemplateSubjectField.findAll().each() {
-			out << '<div class="column">' + it + '</div>'
+	/**
+	 * render table headers for all subjectFields in a template
+	 * @param Map attributes
+	 */
+	def templateColumnHeaders = { attrs ->
+		def template = attrs.remove('template')
+
+		// output table headers for template fields
+		template.subjectFields.each() {
+			out << '<div class="' + attrs.get('class') + '">' + it + '</div>'
 		}
 	}
 
+	/**
+	 * render table input elements for all subjectFields in a template
+	 * @param Map attributes
+	 */
 	def templateColumns = { attrs, body ->
 		def subjectId = attrs.remove('id')
-		
-		// for now, fetch them all
-		// also, this should probably be cached to reduce database load...
-		TemplateSubjectField.findAll().each() {
-			out << '<div class="column">'
-			out << '<input type="text">'
+		def template = attrs.remove('template')
+
+		// output columns for these subjectFields
+		template.subjectFields.each() {
+			println it.type
+			out << '<div class="' + attrs.get('class') + '">'
+
+			switch (it.type) {
+				case 'STRINGLIST':
+					// render stringlist subjectfield
+					out << '<select><option>TODO</option></select>'
+					break;
+				case 'INTEGER':
+					// render integer subjectfield
+					out << '<input type="text" value="TODO">'
+					break;
+				default:
+					// unsupported field type
+					out << '<b>!! ' + it.type + '</b>'
+					break;
+			}
 			out << '</div>'
 		}
 	}

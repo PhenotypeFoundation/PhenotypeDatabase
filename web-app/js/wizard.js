@@ -35,6 +35,9 @@ function onWizardPage() {
     attachDatePickers();
     attachTableEvents();
     attachGroupingEvents();
+
+    resizeWizardTable();
+    attachSubjectSlider();
 }
 
 // attach help tooltips
@@ -48,7 +51,7 @@ function attachHelpTooltips() {
         var specialContent = helpContent.html().match(/\[([^:]+)\:([^\]]+)\]/)
         if (specialContent) {
             // replace content by calling a helper function
-            eval(specialContent[1]+"('"+specialContent[2]+"',helpContent)");
+            eval(specialContent[1] + "('" + specialContent[2] + "',helpContent)");
         }
 
         // attach tooltip
@@ -86,20 +89,20 @@ function attachHelpTooltips() {
 }
 
 // insert a youtube player in a certain element
-function youtube(video,element) {
+function youtube(video, element) {
     // insert a div we will replace with a youtube player
-    element.html("<div id='"+video+"'></div>")
+    element.html("<div id='" + video + "'></div>")
 
     // insert youtube player
     var params = { allowScriptAccess: "always" };
-    var atts = { id: 'myytplayer_'+video };
-    swfobject.embedSWF("http://www.youtube.com/v/"+video+"?enablejsapi=1&playerapiid=ytplayer_"+video,
-                       video, "200", "150", "8", null, null, params, atts)
+    var atts = { id: 'myytplayer_' + video };
+    swfobject.embedSWF("http://www.youtube.com/v/" + video + "?enablejsapi=1&playerapiid=ytplayer_" + video,
+            video, "200", "150", "8", null, null, params, atts)
 }
 
 // when a youtube player is ready, play the video
 function onYouTubePlayerReady(playerId) {
-    ytplayer = document.getElementById("my"+playerId);
+    ytplayer = document.getElementById("my" + playerId);
     ytplayer.playVideo();
 }
 
@@ -118,31 +121,132 @@ function attachDatePickers() {
 function attachTableEvents() {
     $('div#wizard').find('div.row').each(function() {
         $(this).hover(
-            function() {
-                $(this).addClass('highlight');
-            },
-            function() {
-                $(this).removeClass('highlight');
-            }
+                function() {
+                    $(this).addClass('highlight');
+                },
+                function() {
+                    $(this).removeClass('highlight');
+                }
         )
     });
 }
 
+// if the wizard page contains a table, the width of
+// the header and the rows is automatically scaled to
+// the cummalative width of the columns in the header
+function resizeWizardTable() {
+    var wizardTable = $("div#wizard").find('div.table');
+
+    if (wizardTable) {
+        var header = wizardTable.find('div.header')
+        // calculate total width of elements in header
+        var width = 20;
+        header.children().each(function() {
+            // calculate width per column
+            var c = $(this);
+            var columnWidth = c.width();
+            columnWidth += parseInt(c.css("padding-left"), 10) + parseInt(c.css("padding-right"), 10);          // padding width
+            columnWidth += parseInt(c.css("margin-left"), 10) + parseInt(c.css("margin-right"), 10);            // margin width
+            columnWidth += parseInt(c.css("borderLeftWidth"), 10) + parseInt(c.css("borderRightWidth"), 10);    // border width
+            width += columnWidth;
+        });
+
+        // resize the header
+        header.css({ width: width + 'px' });
+
+        // set table row width and assume column widths are
+        // identical to those in the header (css!)
+        wizardTable.find('div.row').each(function() {
+            $(this).css({ width: width + 'px' });
+        });
+    }
+}
+
+// if we have a table and a slider, make the slider
+// slide the contents of the table if the content of
+// the table is wider than the table itself
+function attachSubjectSlider() {
+    var slider = $("div#wizard").find('div.slider');
+    var header = $("div#wizard").find('div.header');
+    var table = $("div#wizard").find('div.table');
+
+    if (slider && table && header) {
+        // do we really need a slider?
+        if (header.width() < table.width()) {
+            // no, so hide it
+            slider.css({ 'display': 'none '});
+        } else {
+            slider.slider({
+                value   : 1,
+                min     : 1,
+                max     : header.width() - table.width(),
+                step    : 1,
+                slide: function(event, ui) {
+                    $("div#wizard").find('div.header, div.row').css({ 'margin-left': ( 1 - ui.value ) + 'px' });
+                }
+            });
+        }
+    }
+}
+
+// handle selecting and grouping of subjects
 function attachGroupingEvents() {
     console.log('attach drag and drop events')
 
-    $(".groups").find('div.droppable').droppable({
-		drop: function(event, ui) {
-			$(this).addClass('ui-state-highlight').find('p').html('Dropped!');
-		}
-	});
+    $(".groups").find('div.group').droppable({
+        accept: '.subjects > ol > li',
+        drop: function(event, ui) {
+            /*
+            $(this).addClass('ui-state-highlight').find('p').html('Dropped!');
+deleteImage(ui.draggable);
+            function deleteImage($item) {
+                $item.fadeOut(function() {
+                    var $list = $('ul',$trash).length ? $('ul',$trash) : $('<ul class="gallery ui-helper-reset"/>').appendTo($trash);
+
+                    $item.find('a.ui-icon-trash').remove();
+                    $item.append(recycle_icon).appendTo($list).fadeIn(function() {
+                        $item.animate({ width: '48px' }).find('img').animate({ height: '36px' });
+                    });
+                });
+            }
+*/
+
+            //console.log($(this))
+            //console.log(ui.draggable)
+            var group = $(this)
+            var list = $('ul',group).length ? $('ul',group) : $('<ul class="gallery ui-helper-reset"/>').appendTo(group);
+
+            // append selected subjects to this group
+            $(".subjects").find(".ui-selected").each(function() {
+                // append to group
+                $(this).appendTo(list);
+
+                // make undraggable
+                /*
+                $(this).draggable('destroy');
+
+                //$(this).css({ 'position': 'absolute' });
+
+                // make all visible
+                $(this).animate(
+                    {opacity: 100},
+                    200
+                );
+                */
+            });
 
 
-    $(".subjects").find(".selectable").selectable({
+
+        }
+    });
+
+
+    //$(".subjects").find(".selectable").selectable({
+    $(".selectable").selectable({
         stop: function() {
             // remove draggable from unselected items
             $('.ui-selectee:not(.ui-selected)', this).each(function() {
-                $(this).draggable('destroy')   
+                $(this).draggable('destroy')
             })
 
             // attach draggable to selected items
@@ -155,6 +259,8 @@ function attachGroupingEvents() {
 
                 D.draggable({
                     revert: 'invalid',
+                    containment: '.grouping',
+                    corsor: 'move',
                     start: function(event, ui) {
                         // change dragged item's content to summarize selected items
                         D.html(subjects.length + ' subjects');
@@ -163,14 +269,12 @@ function attachGroupingEvents() {
                         subjects.each(function() {
                             if (this != d) {
                                 $(this).animate(
-                                    {
-                                        opacity: 0
-                                    },
+                                    { opacity: 0 },
                                     200
                                 );
                             }
                         });
-                    },                  
+                    },
                     stop: function(event, ui) {
                         // restore original content
                         D.html(content);
@@ -179,9 +283,7 @@ function attachGroupingEvents() {
                         subjects.each(function() {
                             if (this != d) {
                                 $(this).animate(
-                                    {
-                                        opacity: 100
-                                    },
+                                    {opacity: 100},
                                     200
                                 );
                             }
