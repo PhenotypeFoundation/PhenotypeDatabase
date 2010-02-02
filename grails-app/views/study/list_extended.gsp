@@ -10,7 +10,7 @@
   <my:jqueryui/>
   <script type="text/javascript">
     $(function() {
-            $("#tabs").tabs();
+            $("#accordions").accordion();
     });
   </script>
 
@@ -18,7 +18,7 @@
 <body>
 
   <% studyList = dbnp.studycapturing.Study.list() %>
-  <% def att_list = ['id','template','startDate','code','title'] %>
+  <% def att_list = ['startDate','code','title'] %>
   <% def selectedStudies = [] %>
   <% def tmpList = [] %>
 
@@ -28,7 +28,7 @@
   </div>
 
   <div class="body">
-    <h1><g:message code="default.list.label" args="[entityName]" /></h1>
+    <h1>Compare Studies</h1>
     <g:if test="${flash.message}">
       <div class="message">${flash.message}</div>
     </g:if>
@@ -45,21 +45,74 @@
 
     <% if (selectedStudies.size()>0) {%>
 
-    <div id="tabs">
-      <ul>
-      <g:each in="${selectedStudies}" status="i" var="studyInstance">
-        <li><a href="#${studyInstance}"> ${studyInstance} </a></li>
+    <div id="accordions">
+
+    <a href="#"> Study Information </a>
+    <div>
+      <br>
+      <table>
+      <tr>
+        <td></td>
+        <g:each in="${selectedStudies}" status="j" var="studyIns">
+        <td><b>${studyIns.title}</b></td>
+        </g:each>
+      </tr>
+      <tr>
+        <td><b>Id</b></td>
+        <g:each in="${selectedStudies}" status="k" var="studyIns">
+          <td><g:link action="show" id="${studyIns.id}">
+${fieldValue(bean: studyIns, field: "id")}</g:link></td>
+        </g:each>
+      </tr>
+
+      <g:each in="${att_list}" var="att">
+      <tr>
+        <td><b>${att}</b></td>
+        <g:each in="${selectedStudies}" status="k" var="studyIns">
+<td>${fieldValue(bean: studyIns, field: att)}</td>
+        </g:each>
+      </tr>
       </g:each>
-      </ul>
-      <g:each in="${selectedStudies}" status="i" var="studyIns">
-      <div id="${studyIns}">
-        <g:each in="${att_list}" status="s" var="attribute">
-              ${message(code: 'study.id.'+attribute , default: attribute)} :
-              ${fieldValue(bean: studyIns, field: attribute)}<br>
-        </g:each>
-      </div>
-        </g:each>
+
+      </table>
     </div>
+
+     <a href="#"> Subjects </a><div>
+       
+       <table border="2">
+         <tr>
+           <td></td>
+           <g:each in="${dbnp.studycapturing.Study.list()}" var="stud">
+             <td>
+         ${stud}
+             </td>
+           </g:each>
+         </tr>
+       </table>
+       
+      </div>
+
+ <a href="#"> Groups </a> <div>
+   <g:each in="${selectedStudies}" var="stud">
+   ${stud}
+   </g:each>
+        </div>
+
+       <a href="#"> Protocols </a><div>
+         <g:each in="${selectedStudies}" var="stud">
+   ${stud}
+   </g:each>
+       </div>
+
+      <a href="#"> Events </a><div>
+      </div>
+
+      <a href="#"> Assays </a><div>
+      </div>
+
+    </div>
+
+    
 
     <% } %>
     
