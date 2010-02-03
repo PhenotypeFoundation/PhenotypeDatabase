@@ -13,7 +13,7 @@ class Sample {
 
     String name      // should be unique with respect to the parent study (which can be inferred)
     Term material
-    // don't we need a member, that describes the quantity of the sample?
+    // don't we need a member that describes the quantity of the sample?
 
     static constraints = {
     }
