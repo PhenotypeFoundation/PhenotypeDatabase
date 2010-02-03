@@ -24,8 +24,6 @@ class ImporterService {
 
     boolean transactional = true
 
-    def hello() { println "hello "}
-
     /**
     * @param is input stream representing the (workbook) resource
     * @return high level representation of the workbook
@@ -40,22 +38,63 @@ class ImporterService {
      * @param wb high level representation of the workbook
      * @return header representation as a string array
      */
-    def getHeader(HSSFWorkbook wb){
-	def sheet = wb.getSheetAt(0)
-        def row = 0
-	def header = []
-        def cellvalue
+    def getHeader(HSSFWorkbook wb, int sheetindex){
+
+	def sheet = wb.getSheetAt(sheetindex)
+	def datamatrix_start = sheet.getFirstRowNum() + 1
+	def header = []        
         def df = new DataFormatter()
 
-	for (HSSFCell c: sheet.getRow(row)) {
-            switch (c.getCellType()) {
-                    case HSSFCell.CELL_TYPE_STRING: header.add (df.formatCellValue(c)); break
-                    case HSSFCell.CELL_TYPE_NUMERIC: header.add (df.formatCellValue(c)); break
-                    case HSSFCell.CELL_TYPE_BLANK: header.add(""); break
-                    default: header.add("")
-            }	    
+	for (HSSFCell c: sheet.getRow(sheet.getFirstRowNum())) {
+	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(c.getColumnIndex()).getCellType()
+
+            // Check for every celltype, currently redundant code, but possibly this will be 
+	    // a piece of custom code for every cell type like specific formatting
+	    
+	    switch (c.getCellType()) {
+                    case HSSFCell.CELL_TYPE_STRING: 			
+			header.add (columnindex:c.getColumnIndex(), value:df.formatCellValue(c), celltype:datamatrix_celltype);
+			break
+                    case HSSFCell.CELL_TYPE_NUMERIC:
+			header.add (columnindex:c.getColumnIndex(), value:df.formatCellValue(c), celltype:datamatrix_celltype);
+			break
+		    case HSSFCell.CELL_TYPE_BLANK:
+			header.add (columnindex:c.getColumnIndex(), value:"-", celltype:datamatrix_celltype);
+			break
+                    default:
+			header.add (columnindex:c.getColumnIndex(), value:df.formatCellValue(c), celltype:datamatrix_celltype);
+			break
+            }
 	}
         return header
+    }
+
+    /**
+     * This method is meant to return a matrix of the rows and columns
+     * used in the preview
+     *
+     * @param wb workbook object
+     * @param sheetindex sheet index used
+     * @param rows amount of rows returned
+     * @return two dimensional array (matrix) of HSSFCell objects
+     */
+
+    HSSFCell[][] getDatamatrix(HSSFWorkbook wb, int sheetindex, int count) {
+	def sheet = wb.getSheetAt(sheetindex)
+	def rows  = []
+	def df = new DataFormatter()
+
+	(count <= sheet.getLastRowNum()) ?
+	((1+sheet.getFirstRowNum())..count).each { rowindex ->
+
+	    def row = []
+	    for (HSSFCell c: sheet.getRow(rowindex))
+		row.add(c)
+		//row.add(df.formatCellValue(c))
+	    rows.add(row)
+	} : 0
+
+	return rows
     }
 
     /**

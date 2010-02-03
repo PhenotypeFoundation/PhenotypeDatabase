@@ -19,6 +19,8 @@
  */
 
 package dbnp.importer
+import org.apache.poi.hssf.usermodel.HSSFCell
+import org.apache.poi.ss.usermodel.DataFormatter
 
 class ImporterController {
     def ImporterService
@@ -37,7 +39,10 @@ class ImporterController {
         
 	def wb = ImporterService.getWorkbook(new FileInputStream(tempfile))
         
-	def header = ImporterService.getHeader(wb)
-        render (view:"preview", model:[header:header])
+	def header = ImporterService.getHeader(wb, 0)
+	def datamatrix= ImporterService.getDatamatrix(wb, 0, 5)
+
+        render (view:"step1", model:[header:header, datamatrix:datamatrix])
+
     }
 }
