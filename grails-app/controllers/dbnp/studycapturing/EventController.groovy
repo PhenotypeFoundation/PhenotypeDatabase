@@ -65,24 +65,16 @@ class EventController {
     }
 
 
-    // This action is not complete yet.
-    // (1) Need to include Sampling events.
-    // (2) This probably causes orphened PrtocolPrameters that have to be delt with.
-    // (3) Parts of this might have to be moved into the Domain object's save() method.
-    // (4) The correspoding view's params are bloated and contain redundancy.
-    // (5) The whole thing should be moved to update.
-    // (6) A "create" should be added.
 
     def save = {
 
         def event = Event.get(params["id"])
 
-
-	if( event==null ) {                         // this is an entirely new event
+	if( event==null ) {                                                        // this is an entirely new event
             render(action: "list", total:Event.count() )
 	}
 
-	params["startTime"] = parseDate(params["startTime"])     // parse the date strings
+	params["startTime"] = parseDate(params["startTime"])                       // parse the date strings
 	params["endTime"] = parseDate(params["endTime"])
 
 
@@ -92,40 +84,29 @@ class EventController {
         def newProtocol=params["protocol.id"]
 	def protocolParameters = params["protocolParameter"]
 
+        println "\n\nparams"
+        params.each{ println it }
 
-        if(oldProtocol<=>newProtocol) {                                             // protocol id changed
+        if(oldProtocol<=>newProtocol) {                                            // protocol id changed
             event.eventDescription=EventDescription.get(newProtocol)
 	    event.parameterStringValues.clear()                                    // this does not propagate orphened parameters
 	    def protocol=Protocol.get(newProtocol)
 	    protocolParameters.each{ key, value ->
-                 def parameter=ProtocolParameter.get(key)
-		 event.parameterStringValues[key] = value
+                 def parameter=ProtocolParameter.get(key).name
+		 event.parameterStringValues[parameter] = value
 	    }
+	    println event.parameterStringValues
+	    event.eventDescription.protocol=protocol
 	}
         else                                                                       // protocol is the same, values changed
         {
        	    protocolParameters.each{ key, value ->
                  def parameter=ProtocolParameter.get(key)
-		 event.parameterStringValues[key]=value
+		 event.parameterStringValues[parameter.name]=value                 // changed from key to id
 	    }
 
 	}
 
-        println "parameterStringValues: " + event.parameterStringValues
-
-        println "Old Protocol: " + event.eventDescription.protocol.id
-        println "New Protocol: " + params["protocol.id"]
-
-
-        println "Old: "
-	println event.parameterStringValues.each {
-		k,v -> println "${k}: ${v}\n"
-	}
-
-	println "New:"
-	protocolParameters.each{
-		k,v -> println "${k}: ${v}\n"
-	}
 
         if (event.save(flush: true)) {
             flash.message = "${message(code: 'default.created.message', args: [message(code: 'event.label', default: 'Event'), event.id])}"
@@ -170,6 +151,15 @@ class EventController {
 
 
 
+
+    // This action is not complete yet.
+    // (1) Need to include SamplingEvents.
+    // (2) This probably causes orphened PrtocolPrameters that have to be delt with.
+    //     The orphanes have to be managed centrally with the Protocols.
+    // (3) Parts of this might have to be moved into the Domain object's save() method.
+    // (4) The correspoding view's params are bloated and contain redundancy.
+    // (5) The whole thing should be moved to update.
+    // (6) A "create" should be added.
 
     def edit = {
 
@@ -221,6 +211,7 @@ class EventController {
             redirect(action: "list")
         }
     }
+
 
     def delete = {
         def eventInstance = Event.get(params.id)
