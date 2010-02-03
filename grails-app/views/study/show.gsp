@@ -37,7 +37,7 @@
        Template :<g:link controller="template" action="show" id="${studyInstance?.template?.id}">${studyInstance?.template?.encodeAsHTML()}</g:link><br>
        Start :<g:formatDate date="${studyInstance?.startDate}" /> <br>
       Sampling Events :
-          <g:each in="${studyInstance.samplingEvents}" var="s">
+          <g:each in="${studyInstance.samplingEvents}" var="s"><ul>
             <li><g:link controller="samplingEvent" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></li>
           </g:each>
         </ul><br>
@@ -111,7 +111,10 @@
             <td><b>Parameters</b></td>
             <td><b>Reference</b></td>
           </tr>
-          <g:each in="${protocolList}" var="s">
+          <g:each in="${dbnp.studycapturing .Protocol.list()}" var="s">
+            
+            <% if  (studyInstance.events.eventDescription.protocol.contains(s)) { %>
+           
             <tr>
               <td><g:link controller="protocol" action="show" id="${s.id}">${s.id}</g:link></td>
           <td>${s.name}</td>
@@ -123,6 +126,8 @@
           </td>
           <td>${s.reference}</td>
           </tr>
+ <%  } %>
+
           </g:each>
              </table>
        </div>

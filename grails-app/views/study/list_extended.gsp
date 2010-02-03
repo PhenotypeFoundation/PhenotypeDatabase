@@ -81,10 +81,49 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
        
        <table border="2">
          <tr>
-           <td></td>
-           <g:each in="${dbnp.studycapturing.Study.list()}" var="stud">
+         <g:each in="${selectedStudies}" var="study">
+           <td><center><b>${study.title}</b></center></td>
+         </g:each>
+       </tr>
+
+         <tr>
+         <g:each in="${selectedStudies}" var="stud">
              <td>
-         ${stud}
+
+               <table>
+          <tr>
+            <td><b>Id </b></td>
+            <td><b>Species</b></td>
+            <td><b>Name</b></td>
+          <g:each in="${stud.template.subjectFields}" var="g">
+            <td><b>
+              <g:link controller="templateSubjectField" action="show" id="${g.id}">
+              ${g}</b></td>
+            </g:link>
+          </g:each>
+          </tr>
+
+          <g:each in="${stud.subjects}" var="s">
+            <tr>
+              <td><g:link controller="subject" action="show" id="${s.id}">${s.id}</g:link></td>
+              <td>${s.species}</td>
+              <td>${s.name}</td>
+
+                <g:each in="${stud.template.subjectFields}" var="g">
+               <td>
+              <% if (g.type==dbnp.studycapturing.TemplateFieldType.INTEGER){ %>
+                  <% print s.templateIntegerFields.get(g.toString())  %>
+              <% } %>
+               <% if (g.type==dbnp.studycapturing.TemplateFieldType.STRINGLIST){ %>
+                <% print s.templateStringFields.get(g.toString())  %>
+              <% } %>
+
+            </td>
+          </g:each>
+          </tr>
+          </g:each>
+          </table>
+
              </td>
            </g:each>
          </tr>
@@ -93,18 +132,94 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
       </div>
 
  <a href="#"> Groups </a> <div>
-   <g:each in="${selectedStudies}" var="stud">
-   ${stud}
-   </g:each>
+
         </div>
 
        <a href="#"> Protocols </a><div>
+         <table border="2">
+         <tr>
+         <g:each in="${selectedStudies}" var="study">
+           <td><center><b>${study.title}</b></center></td>
+         </g:each>
+       </tr>
+
+         <tr>
          <g:each in="${selectedStudies}" var="stud">
-   ${stud}
-   </g:each>
+             <td>
+                <table>
+          <tr>
+            <td><b>Id </b></td>
+            <td><b>Name</b></td>
+            <td><b>Parameters</b></td>
+            <td><b>Reference</b></td>
+          </tr>
+
+          <% def protocol_list = [] %>
+          <% def tmp_protocol = stud.events.eventDescription.protocol.get(0) %>
+          <% protocol_list.add(tmp_protocol) %>
+          <g:each in="${stud.events.eventDescription.protocol}" var="s">
+
+          <% if (tmp_protocol!=s) { %>
+            <% protocol_list.add(s) %>
+            <%}%>
+          </g:each>
+
+            <g:each in="${protocol_list}" var="protocol">
+            <tr>
+              <td><g:link controller="protocol" action="show" id="${protocol.id}">${protocol.id}</g:link></td>
+          <td>${protocol.name}</td>
+          <td>
+          <g:each in="${protocol.parameters}" var="p"><ul><li>
+            <g:link controller="protocolParameter" action="show" id="${p.id}">${p.name}</g:link>
+            </li></ul>
+          </g:each>
+          </td>
+          <td>${protocol.reference}</td>
+          </tr>
+          </g:each>
+             </table>
+
+        </td>
+           </g:each>
+         </tr>
+       </table>
        </div>
 
       <a href="#"> Events </a><div>
+          <table border="2">
+         <tr>
+         <g:each in="${selectedStudies}" var="study">
+           <td><center><b>${study.title}</b></center></td>
+         </g:each>
+       </tr>
+
+         <tr>
+         <g:each in="${selectedStudies}" var="stud">
+             <td>
+
+        <table>
+          <tr>
+            <td><b>Event Description</b></td>
+            <td><b>Subject</b></td>
+            <td><b>Start Time</b></td>
+            <td><b>End Time</b></td>
+            <td><b>Duration</b></td>
+          </tr>
+          <g:each in="${stud.events}" var="e">
+            <tr>
+              <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>
+          <td>${e.subject.id}</td>
+          <td>${e.startTime}</td>
+          <td>${e.endTime}</td>
+          <td>${e.getDurationString()}</td>
+          </tr>
+          </g:each>
+          </table>
+        </td>
+           </g:each>
+         </tr>
+       </table>
+
       </div>
 
       <a href="#"> Assays </a><div>

@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <g:form action="list_extended.gsp">
+  <g:form action="list_extended">
 
   <div class="nav">
     <span class="menuButton"><a class="home" href="${createLink(uri: '/')}">Home</a></span>

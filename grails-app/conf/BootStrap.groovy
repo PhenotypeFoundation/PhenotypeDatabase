@@ -134,6 +134,12 @@ class BootStrap {
 				protocol: treatmentProtocol
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
+                        def eventTreatment2 = new EventDescription(
+				name: 'Treatment2',
+				description: 'Treatment Protocol NuGO PPS1',
+				classification: treatmentTerm,
+				protocol: treatmentProtocol2
+			).with { if (!validate()) { errors.each { println it} } else save()}
 
 			// studies
 			def exampleStudy = new Study(
@@ -192,7 +198,7 @@ class BootStrap {
 					subject: currentSubject,
 					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
 					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					eventDescription: eventTreatment,
+					eventDescription: eventTreatment2,
 					parameterStringValues: ['Diet':'10% fat (palm oil)','Compound':'Vehicle','Administration':'intraperitoneal injection'])
 				).with { if (!validate()) { errors.each { println it} } else save()}
 			}

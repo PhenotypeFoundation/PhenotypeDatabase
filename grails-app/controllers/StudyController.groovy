@@ -15,6 +15,10 @@
 class StudyController extends BaseController {
     def scaffold = dbnp.studycapturing.Study
 
+    def list_extended = {
+        
+    }
+
     def see = {
         render params
     }
