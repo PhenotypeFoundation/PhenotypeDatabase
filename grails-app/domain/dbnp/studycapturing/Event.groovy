@@ -23,12 +23,10 @@ class Event {
 		parameterFloatValues : float
 	]
 
-	// static constraints = { }
 
-	def getDuration() {
 		// time diff between end and start date
 		// thus, do this manually as follows
-
+	def getDuration() {
 		def timeMillis = (endTime.getTime() - startTime.getTime()).abs()
 		def days = (timeMillis / (1000 * 60 * 60 * 24)).toInteger()
 		def hours = (timeMillis / (1000 * 60 * 60)).toInteger()
@@ -40,10 +38,17 @@ class Event {
 	}
 
 
-	def getPrettyDuration() {
 	     // return a string that prints the duration sensibly.
-	     // the largest date unit (sec, min, h, day, month, or year)
+	     // the largest date unit (sec, min, h, day, week, month, or year)
 	     // is output
+	def getPrettyDuration() {
+	     def duration = getDuration()
+	     if( duration.getYears()   > 0 ) return duration.getYears()   + " years"
+	     if( duration.getMonths()  > 0 ) return duration.getMonths()  + " months"
+	     if( duration.getWeeks()   > 0 ) return duration.getWeeks()   + " weeks"
+	     if( duration.getDays()    > 0 ) return duration.getDays()    + " days"
+	     if( duration.getHours()   > 0 ) return duration.getHours()   + " minutes"
+	                                     return duration.getSeconds() + " seconds"
 	}
 
 
