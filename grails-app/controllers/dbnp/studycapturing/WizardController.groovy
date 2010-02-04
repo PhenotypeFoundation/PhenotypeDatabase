@@ -127,6 +127,7 @@ class WizardController {
 				if (flow.subjects.size() < 1) {
 					error()
 				}
+				println params
 			}.to "groups"
 			on("previous") {
 				// TODO

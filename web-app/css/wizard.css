@@ -147,6 +147,8 @@
     color: #fff;
     font-weight: bold;
     width: auto;
+    height: 32px;
+    line-height: 32px;
 }
 
 .wizard .column {
@@ -163,9 +165,21 @@
 
 .wizard .table .row {
     display: block;
-    height: 28px;
+    height: 32px;
     border-top: 1px solid #8e908f;
     width: auto;
+}
+
+.wizard .table .row input, .wizard .table .row select {
+    background-color: #fff;
+}
+
+.wizard .table .ui-selected {
+    background-color: #ffab7b;
+}
+
+.wizard .table .ui-selecting {
+    background-color: #f2e3bc;
 }
 
 .wizard .table .row .error {
