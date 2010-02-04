@@ -33,32 +33,32 @@
     <div id="accordion">
       <a href="#"> Study Information </a>
         
-       <div> Id : ${fieldValue(bean: studyInstance, field: "id")} <br>
-       Template :<g:link controller="template" action="show" id="${studyInstance?.template?.id}">${studyInstance?.template?.encodeAsHTML()}</g:link><br>
-       Start :<g:formatDate date="${studyInstance?.startDate}" /> <br>
-      Sampling Events :
+       <div><b> Id </b>: ${fieldValue(bean: studyInstance, field: "id")} <br>
+         <b>Template </b>:<g:link controller="template" action="show" id="${studyInstance?.template?.id}">${studyInstance?.template?.encodeAsHTML()}</g:link><br>
+         <b> Start </b>:<g:formatDate date="${studyInstance?.startDate}" /> <br>
+         <b>Sampling Events </b>:
           <g:each in="${studyInstance.samplingEvents}" var="s"><ul>
             <li><g:link controller="samplingEvent" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></li>
           </g:each>
         </ul><br>
-       Last Updated :<g:formatDate date="${studyInstance?.lastUpdated}" /><br>
-             Readers :<ul>
+        <b>Last Updated </b>:<g:formatDate date="${studyInstance?.lastUpdated}" /><br>
+        <b>Readers </b>:<ul>
           <g:each in="${studyInstance.readers}" var="r">
             <li><g:link controller="user" action="show" id="${r.id}">${r?.encodeAsHTML()}</g:link></li>
           </g:each>
         </ul> <br>
-      Code : ${fieldValue(bean: studyInstance, field: "code")} <br>
-      Editors : <ul>
+        <b>Code </b>: ${fieldValue(bean: studyInstance, field: "code")} <br>
+        <b>Editors </b>: <ul>
           <g:each in="${studyInstance.editors}" var="e">
             <li><g:link controller="user" action="show" id="${e.id}">${e?.encodeAsHTML()}</g:link></li>
           </g:each>
         </ul> <br>
-     EC Code : ${fieldValue(bean: studyInstance, field: "ecCode")} <br>
-     Research Question : ${fieldValue(bean: studyInstance, field: "researchQuestion")} <br>
-     Title : ${fieldValue(bean: studyInstance, field: "title")} <br>
-     Description : ${fieldValue(bean: studyInstance, field: "description")} <br>
-     Owner :<g:link controller="user" action="show" id="${studyInstance?.owner?.id}">${studyInstance?.owner?.encodeAsHTML()}</g:link> <br>
-      Date Created :<g:formatDate date="${studyInstance?.dateCreated}" /> <br>
+        <b>EC Code </b>: ${fieldValue(bean: studyInstance, field: "ecCode")} <br>
+        <b>Research Question </b>: ${fieldValue(bean: studyInstance, field: "researchQuestion")} <br>
+        <b>Title </b>: ${fieldValue(bean: studyInstance, field: "title")} <br>
+        <b>Description </b>: ${fieldValue(bean: studyInstance, field: "description")} <br>
+        <b>Owner </b>:<g:link controller="user" action="show" id="${studyInstance?.owner?.id}">${studyInstance?.owner?.encodeAsHTML()}</g:link> <br>
+        <b>Date Created </b>:<g:formatDate date="${studyInstance?.dateCreated}" /> <br>
        </div>
 
       <a href="#"> Subjects </a><div>

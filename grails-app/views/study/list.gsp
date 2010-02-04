@@ -20,45 +20,53 @@
     <g:if test="${flash.message}">
       <div class="message">${flash.message}</div>
     </g:if>
-    <div class="list">
 
-      <g:each in="${studyInstanceList}" status="i" var="studyInstance">
+      <g:each in="${studyInstanceList}" var="studyInstance">
         <br>
         <table>
-          <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+          <tr>
+            <td></td>
+            <td colspan="3">
+              <center><b>${studyInstance.title}</b></center>
+            </td>
+          </tr>
+          <tr>
             <td>
+
               <input type="checkbox" name="${studyInstance.title}" id="${studyInstance.title}"></td>
 
-            <td width=200>
+            <td>
           <g:link action="show" id="${studyInstance.id}">
 ${message(code: 'study.id.label', default: 'Id')} :
 ${fieldValue(bean: studyInstance, field: "id")}</g:link></td>
 
-          <td width=300>
-${message(code: 'study.template.label', default: 'Template')} :
+          <td >
+<b>${message(code: 'study.template.label', default: 'Template')} </b>:
 ${fieldValue(bean: studyInstance, field: "template")}</td>
 
-          <td width=500>
-${message(code: 'study.startDate.label', default: 'Start Date')} :
-          <g:formatDate date="${studyInstance.startDate}" /></td>
+<td >
+<b>${message(code: 'study.subjects.label', default: 'Subjects')} </b>:
+${studyInstance.subjects.size()} subjects</td>
 
-          <td width=500>
-${message(code: 'study.lastUpdated.label', default: 'Last Updated')} :
-          <g:formatDate date="${studyInstance.lastUpdated}" /></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td >
+<b>${message(code: 'study.owner.label', default: 'Owner')} </b>:
+${fieldValue(bean: studyInstance, field: "owner")}</td>
 
-          <td width=300>
-${message(code: 'study.code.label', default: 'Code')} :
-${fieldValue(bean: studyInstance, field: "code")}</td>
-
-          <td width=300>
-${message(code: 'study.ecCode.label', default: 'Ec Code')} :
-${fieldValue(bean: studyInstance, field: "ecCode")}</td>
-
-          </tr>
+          <td >
+            <b>Assays </b>: </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td colspan="3">
+            <b>${message(code: 'study.description.label', default: 'Description')} </b>:
+${fieldValue(bean: studyInstance, field: "description")}</td>
+        </tr>
         </table>
       </g:each>
-      </table>
-    </div>
+   
     <div class="paginateButtons">
       <g:paginate total="${studyInstanceTotal}" />
       <br>
