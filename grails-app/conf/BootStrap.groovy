@@ -116,9 +116,11 @@ class BootStrap {
 			def mouseTemplate = new Template(
 				name: 'Mouse'
 			).addToSubjectFields(new TemplateSubjectField(
-				name: 'Genotype',type: TemplateFieldType.STRINGLIST))
+				name: 'Genotype',type: TemplateFieldType.STRINGLIST,
+				listEntries: ['C57/Bl6j','wild type']))
 			.addToSubjectFields(new TemplateSubjectField(
-				name: 'Gender',type: TemplateFieldType.STRINGLIST, listEntries: ['Male','Female']))
+				name: 'Gender',type: TemplateFieldType.STRINGLIST,
+				listEntries: ['Male','Female']))
 			.addToSubjectFields(new TemplateSubjectField(
 				name: 'Age',type: TemplateFieldType.INTEGER))
 			.addToSubjectFields(new TemplateSubjectField(

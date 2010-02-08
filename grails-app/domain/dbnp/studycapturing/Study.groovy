@@ -45,20 +45,7 @@ class Study implements Serializable {
 		return title;
 	}
 
-	Map giveAllFields() {
-		def result = [:]
-
-		// Using reflection here gives way too many properties, like searchable, hasMany,
-		// and it will probably extend when we use new plugins
-		// It is probably best
-		// - to either hardcode the above given properties
-		// - or to move all fields to the template
-		
-		this.properties.each{ //public fields only
-		        println it.name
-			result[it.name] = it.type.name //name of field and name of type
-		}
-
-		return result;
+	def giveAllFields() {
+		return template.studyFields;
 	}
 }
