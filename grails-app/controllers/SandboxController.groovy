@@ -10,6 +10,8 @@ class SandboxController {
 		def st = Study.get(1)
 		def f = st.template.subjectFields
 
+		//println st.giveAllFields()
+
 		// This is a way to iterate over the fields in your controller
 		// And print them to the console
 		// Most of the time, you would just iterate over them in the view using <g:each>
@@ -21,9 +23,12 @@ class SandboxController {
 		//Let's get a certain field for a certain subject
 		def subject = Subject.findByName('A1')
 		println st.template.getSubjectFieldType('Age')
-		println subject.getFieldValue('Age')
-
-
+		println subject.getFieldValue('Genotype')
+		subject.setFieldValue('Genotype','wildtype')
+		println subject.getFieldValue('Genotype')
+		subject.setFieldValue('name','hallo')
+		println subject.name
+		
 		// Specify which variables we want to be available in the controller (implicit return statement)
 		[fields: f, subjects: st.subjects]
 }

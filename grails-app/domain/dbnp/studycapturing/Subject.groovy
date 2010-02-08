@@ -52,4 +52,17 @@ class Subject implements Serializable {
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}
 	}
+
+	def setFieldValue(String fieldName, value) {
+		this.properties.each { println it}
+		if (this.properties.containsKey(fieldName)) {
+			this[fieldName] = value
+		}
+		else if (templateStringFields.containsKey(fieldName) && value.class == String) {
+			this.templateStringFields[fieldName] = value
+		}
+		else {
+			println "Field ${fieldName} not found"
+		}
+	}
 }

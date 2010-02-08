@@ -14,7 +14,7 @@ class Template implements Serializable {
 	String name
 	//nimble.User owner
 
-	static hasMany = [subjectFields: TemplateSubjectField]
+	static hasMany = [studyFields: TemplateStudyField, subjectFields: TemplateSubjectField]
 
 	static constraints = {
 		name(unique: true)

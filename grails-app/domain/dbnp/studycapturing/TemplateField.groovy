@@ -20,7 +20,7 @@ abstract class TemplateField implements Serializable {
 		unit(nullable: true, blank: true)
 	}
 
-	def String toString() {
+	String toString() {
 		return name
 	}
 }
