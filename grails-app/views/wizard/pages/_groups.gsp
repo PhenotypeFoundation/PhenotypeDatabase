@@ -16,19 +16,24 @@
 %>
 <wizard:pageContent>
 <div class="grouping">
+
 	<div class="subjects">
-		<ol class="selectable">
-			<g:each var="subject" status="i" in="${subjects}"><li class="ui-widget-content">Subject ${i} ${subject.species}</li></g:each>
-		</ol>
+		<g:each var="subject" status="i" in="${subjects}"><div class="subject">${subject.name}</div>
+		</g:each>
 	</div>
-
-	<div class="groups">
-		<div class="ui-widget-content group">
-			<h4 class="ui-widget-header">Group 1</h4>
+	<div class="right">
+		<div class="form">
+			name: <g:textField name="name" value="" /><br />
+			<wizard:ajaxButton name="add" value="Add Group" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
 		</div>
-
-		<div class="ui-widget-content group">
-			<h4 class="ui-widget-header">Group 2</h4>
+		<div class="groups">
+		<g:each var="group" status="i" in="${groups}">
+			<div class="group">
+				<div class="label">${group.name}</div>
+				<div class="subjects">
+				</div>
+			</div>
+		</g:each>
 		</div>
 	</div>
 </div>

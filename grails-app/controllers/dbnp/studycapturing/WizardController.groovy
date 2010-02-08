@@ -143,9 +143,15 @@ class WizardController {
 					flow.groups = []
 				}
 			}
+			on("add") {
+				def increment = flow.groups.size()
+				flow.groups[ increment ] = new SubjectGroup(params)
+
+				println flow.groups
+			}.to "groups"
 			on("next") {
 				// TODO
-			}.to "demo"
+			}.to "groups"
 			on("previous") {
 				// TODO
 			}.to "subjects"

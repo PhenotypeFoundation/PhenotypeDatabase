@@ -208,94 +208,54 @@
 
 /* END :: TABLE */
 
-.selectable .ui-selecting {
-    background: #add9ef;
-}
-
-.selectable .ui-selected {
-    background: #006dbd;
-    color: white;
-}
-
-.selectable {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    width: 200px;
-}
-
-.selectable li {
-    margin: 3px;
-    padding: 0.4em;
-    font-size: 1em;
-    height: 18px;
-}
-
+/* START :: GROUPING */
 .wizard .grouping {
-    display: block;
+    border: 1px solid black;
+    display: inline-block;
     height: auto;
-    vertical-align: top;
+    width: 100%;
 }
 
-.wizard .subjects {
-    display: inline-block;
-    vertical-align: top;
-}
-
-.wizard .groups {
-    display: inline-block;
-    height: 100%;
-    vertical-align: top;
-}
-
-.wizard .groups .groupbla {
-    margin: 3px;
-    padding: 0.4em;
-    font-size: 1em;
-}
-
-.droppable {
-    width: 300px;
-}
-
-.wizard .groups .group {
-    display: inline-block;
-    float: right;
-    width: 250px;
-    min-height: 18em;
-    margin: 3px;
-    padding: 0.4em;
-
-} * html #trash {
-    height: 18em;
-} /* IE6 */
-
-.wizard .groups .group h4 {
-    line-height: 16px;
-    margin: 0 0 0.4em;
-}
-/*
-.wizard .groups .group .gallery { float: left; width: 65%; min-height: 12em; } * html #gallery { height: 12em; } /* IE6 */
-.wizard .groups .group .gallery.custom-state-active { background: #eee; }
-.wizard .groups .group .gallery li { float: left; width: 96px; padding: 0.4em; margin: 0 0.4em 0.4em 0; text-align: center; }
-.wizard .groups .group .gallery li h5 { margin: 0 0 0.4em; cursor: move; }
-.wizard .groups .group .gallery li a { float: right; }
-.wizard .groups .group .gallery li a.ui-icon-zoomin { float: left; }
-.wizard .groups .group .gallery li img { width: 100%; cursor: move; }
-
-.wizard .groups .group .gallery {
+.wizard .grouping .subjects {
     display: block;
     float: left;
 }
-
-.wizard .groups .group .gallery li {
-    display: inline-block;
-}
-*/
-
-.wizard .groups .group .henk {
+.wizard .grouping .ui-selected {
     background-color: red;
 }
+.wizard .grouping .ui-selecting {
+    background-color: orange;
+}
 
+.wizard .grouping .right {
+    display: inline-block;
+    float: right;
+}
+.wizard .grouping .right .form {
+    border: 1px solid black;
+}
+.wizard .grouping .group {
+    margin: 5px 0px 5px 0px;
+    border: 1px solid black;
+    height: auto;
+}
+.wizard .grouping .group .label {
+    display: block;
+    background-color: #006DBA;
+    color: #fff;
+    font-weight: bold;
+    width: auto;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+}
+.wizard .grouping .group .subjects {
+    display: inline-block;
+}
+.wizard .grouping .group .subject {
+    display: block;
+    width: 100%;
+    font-size: 10px;
+}
 
-
+/* END :: GROUPING */

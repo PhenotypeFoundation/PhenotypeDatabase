@@ -41,7 +41,7 @@ function onWizardPage() {
     new TableEditor().init('div.table','div.row','div.column');
     
     // GROUPING
-    //attachGroupingEvents();
+    new Grouping().init('div.subjects', 'div.subject', 'div.groups', 'div.group');
 }
 
 // attach help tooltips
@@ -195,75 +195,3 @@ function attachSubjectSlider() {
         }
     }
 }
-
-// handle selecting and grouping of subjects
-function attachGroupingEvents() {
-    $(".groups").find('div.group').droppable({
-        accept: '.subjects > ol > li',
-        drop: function(event, ui) {
-            var group = $(this)
-            var list = $('ul', group).length ? $('ul', group) : $('<ul class="henk"/>').appendTo(group);
-
-            // append selected subjects to this group
-            $(".subjects").find(".ui-selected").each(function() {
-                // append to group
-                $(this).appendTo(list);
-            });
-        }
-    });
-
-
-    //$(".subjects").find(".selectable").selectable({
-    $(".selectable").selectable({
-        stop: function() {
-            // remove draggable from unselected items
-            $('.ui-selectee:not(.ui-selected)', this).each(function() {
-                $(this).draggable('destroy')
-            })
-
-            // attach draggable to selected items
-            var subjects = $('.ui-selected', this);
-            subjects.each(function() {
-                var d = this
-                var D = $(this)
-                var content = D.html()
-                var offset = D.offset()
-
-                D.draggable({
-                    revert: 'invalid',
-                    containment: '.grouping',
-                    corsor: 'move',
-                    start: function(event, ui) {
-                        // change dragged item's content to summarize selected items
-                        D.html(subjects.length + ' subjects');
-
-                        // hide the other items
-                        subjects.each(function() {
-                            if (this != d) {
-                                $(this).animate(
-                                { opacity: 0 },
-                                        200
-                                        );
-                            }
-                        });
-                    },
-                    stop: function(event, ui) {
-                        // restore original content
-                        D.html(content);
-
-                        // make selected items visible
-                        subjects.each(function() {
-                            if (this != d) {
-                                $(this).animate(
-                                {opacity: 100},
-                                        200
-                                        );
-                            }
-                        });
-                    }
-                });
-            });
-        }
-    });
-}
-
