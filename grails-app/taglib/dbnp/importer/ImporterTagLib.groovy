@@ -17,6 +17,11 @@ package dbnp.importer
 
 class ImporterTagLib {
     static namespace = 'importer'
+    def entities = [[value:0, name:"Study"], [value:1, name:"Subject"], [value:2, name:"Event"],
+			[value:3, name:"Protocol"], [value:4, name:"Sample"]]
+
+    def celltypes = [[value:0, name:"Numeric"], [value:1, name:"String"], [value:2, name:"Formula"],
+			 [value:3, name:"Blank"], [value:4, name:"Boolean"], [value:5, name:"Error"]]
 
     /**
     * @param header string array containing header
@@ -31,30 +36,36 @@ class ImporterTagLib {
 	out << render (template:"common/preview", model:[header:header, datamatrix:datamatrix])
     }
 
-    /**
-    * @param selected selected celltype
-    * @param name name of the HTML select object
-    * @param celltypes built-in cell types, based on the cell type
-    * @see org.apache.poi.ss.usermodel.Cell
-    * @return HTML select object
-    */
-    def celltypeselector = { attrs ->
-	def selected = attrs['selected']
-	def name = attrs['name']
-	def celltypes = [[celltype:0, name:"Numeric"], [celltype:1, name:"String"], [celltype:2, name:"Formula"],
-			 [celltype:3, name:"Blank"], [celltype:4, name:"Boolean"], [celltype:5, name:"Error"]]
+    def createSelect(int selected, String name, ArrayList options) {
+	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
 
-	def res = "<select name=\"${name}\">"
-
-	celltypes.each { c ->
-	    res += "<option value=\"${c.celltype}\""
-	    res += (c.celltype == selected) ? " selected" : ""
-	    res += ">${c.name}</option>"
+	options.each { e ->
+	    res += "<option value=\"${e.value}\""
+	    res += (e.value == selected) ? " selected" : ""
+	    res += ">${e.name}</option>"
 	}
 
 	res += "</select>"
-
-	out << res
+	return res
     }
 
+    /**
+     * @param selected selected entity
+     * @param name name of the HTML select object
+     **/
+    def entitySelect = { attrs ->	
+	def selected = (attrs['selected']==null) ? -1 : attrs['selected']
+	out << createSelect(selected, attrs['name'], entities)
+    }
+
+    /**
+    * @param selected selected celltype
+    * @param name name of the HTML select object
+    * @see org.apache.poi.ss.usermodel.Cell for the possible cell types
+    * @return HTML select object
+    */
+    def celltypeSelect = { attrs ->
+	def selected = (attrs['selected']==null) ? -1 : attrs['selected']
+	out << createSelect(selected, attrs['name'], celltypes)
+    }
 }

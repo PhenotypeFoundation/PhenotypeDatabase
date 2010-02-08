@@ -25,11 +25,15 @@ import org.apache.poi.ss.usermodel.DataFormatter
 class ImporterController {
     def ImporterService
 
+    /**
+     * Default page
+     **/
     def index = { }
 
     /**
     * This method will move the uploaded file to a temporary path and send the header
     * and the first n rows to the preview
+    * @param importfile uploaded file to import
     */
     def upload = {
 	def downloadedfile = request.getFile('importfile');
@@ -44,5 +48,9 @@ class ImporterController {
 
         render (view:"step1", model:[header:header, datamatrix:datamatrix])
 
+    }
+
+    def accept = {
+	
     }
 }

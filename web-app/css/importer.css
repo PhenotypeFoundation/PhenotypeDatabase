@@ -1,0 +1,13 @@
+.header
+{
+    border-collapse:collapse;
+    border-width: 1px;
+    border-color: red;
+    background-color: #DDDDDD;
+}
+
+.datamatrix
+{
+    background-color: #CCDDCC;
+}
+

@@ -14,25 +14,46 @@
 %>
 <g:form name="previewform" action="accept">
     <table>
-      <tr>
-        <g:each var="column" in="${header}">	    
-          <td>${column.value}<br />
-	      <importer:celltypeselector selected="${column.celltype}" name="celltype[${column.columnindex}]"/>
-            </td>
-        </g:each>
-      </tr>
+	<tr>
+	  <td>Columnname:</td>
+	  <g:each var="column" in="${header}">
+	      <td class="header">
+		  <b>${column.value}</b>
+	      </td>
+	  </g:each>
+	</tr>
+
+	<tr>
+	    <td>Datatype:</td>
+	    <g:each var="column" in="${header}">
+		<td class="header">
+		    <importer:celltypeSelect selected="${column.celltype}" name="celltype[${column.columnindex}]"/>
+		</td>
+	    </g:each>
+	</tr>
+	
+	<tr>
+	    <td>Entity:</td>
+	    <g:each var="column" in="${header}">
+		<td class="header">
+		    <importer:entitySelect name="entity[${column.columnindex}]"/>
+		</td>
+	    </g:each>
+	</tr>
+
 	<g:each var="row" in="${datamatrix}">
 	    <tr>
+		<td>Value</td>
 		<g:each var="column" in="${row}">
-		    <td>
+		    <td class="datamatrix">
 			<g:if test="${column.toString()==''}">.</g:if>
 			<g:else>${column.toString()}</g:else>
 		    </td>
 		</g:each>
 	    </tr>
 	</g:each>
-      <tr>
-	  <td align="right" colspan="${datamatrix.length}"><input type="submit" value="Accept"></td>
-      </tr>
+	<tr>
+	    <td align="right" colspan="${datamatrix.length}"><input type="submit" value="Accept"></td>
+	</tr>
   </table>
   </g:form>
