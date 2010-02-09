@@ -1,12 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  *
  * @author ademcan
  */
+
+import dbnp.studycapturing.*
+import dbnp.data.Term
+
 class LoadController {
 
     String path;
@@ -32,17 +31,19 @@ class LoadController {
         InputStream inputStream = request.getFile("uploadfile").inputStream;
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
 
-        def investigationDesign = new dbnp.transcriptomics.magetab.idf.InvestigationDesign();
-        def person = new dbnp.transcriptomics.magetab.idf.Person();
-        def protocol = new dbnp.transcriptomics.magetab.idf.MAGEProtocol();
-        def publication = new dbnp.transcriptomics.magetab.idf.Publication();
-        def normalization = new dbnp.transcriptomics.magetab.sdrf.Normalization();
+        def study = new Study();
+        def person = new Person();
+        //def protocol = new dbnp.transcriptomics.magetab.idf.MAGEProtocol();
+        def publication = Publication();
+        //def normalization = new dbnp.transcriptomics.magetab.sdrf.Normalization();
         //def termSource = new dbnp.transcriptomics.magetab.adf.Termsource();
-        def comment = new dbnp.transcriptomics.magetab.idf.Comment();
-        def experimentalInfo = new dbnp.transcriptomics.magetab.idf.ExperimentalInfo();
-        def factor = new dbnp.transcriptomics.magetab.idf.Factor();
+        //def comment = new dbnp.transcriptomics.magetab.idf.Comment();
+        //def experimentalInfo = new dbnp.transcriptomics.magetab.idf.ExperimentalInfo();
+        //def factor = new dbnp.transcriptomics.magetab.idf.Factor();
 
         //ArrayList rows = new ArrayList();
+
+        // TODO: remap to dbnp studycapturing data model + extra template fields for MIAMI studies
 
         for (i in fileReader.readLines()){
             //render(i);
@@ -218,7 +219,7 @@ class LoadController {
                     publication.title = pubTitle;
                 }
                 else if (tmp_list[0]=="Publication Status") {
-                    def status = new dbnp.transcriptomics.magetab.idf.OntologyTerm();
+                    def status = new Term();
                     status.text = tmp_list[1];
                     status.save();
                     publication.status = status;
@@ -238,7 +239,7 @@ class LoadController {
                 }
                 //todo list of type
                 else if (tmp_list[0]=="Protocol Type") {
-                    def type = new dbnp.transcriptomics.magetab.idf.OntologyTerm();
+                    def type = new Term();
                     for (j in 1..tmp_list.size()){
                         type.text = tmp_list[j];
                         type.save();

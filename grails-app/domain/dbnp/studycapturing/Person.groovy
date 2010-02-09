@@ -1,5 +1,8 @@
-package dbnp.transcriptomics.magetab.idf
+package dbnp.studycapturing
 
+/**
+ * Person class, describes persons that are somehow connected to the study
+ */
 class Person {
 
     String lastName
@@ -9,24 +12,15 @@ class Person {
     String fax
     String phone
     String address
-    String affiliation
-    String roles
-    String roles_ref
 
-    static hasMany = [
-        roles: OntologyTerm
-    ]
+    static hasMany = [roles : PersonRole, affiliations: PersonAffiliation]
 
     static constraints = {
-        lastName(nullable:true,blank:true)
         firstName(nullable:true,blank:true)
         midInitials(nullable:true,blank:true)
         email(nullable:true,blank:true)
         fax(nullable:true,blank:true)
         phone(nullable:true,blank:true)
-        affiliation(nullable:true,blank:true)
-        roles(nullable:true,blank:true)
-        roles_ref(nullable:true,blank:true)
         address(nullable:true,blank:true)
     }
 }

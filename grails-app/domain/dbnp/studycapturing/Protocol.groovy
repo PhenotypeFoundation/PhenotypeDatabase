@@ -13,7 +13,7 @@ class Protocol {
     String name
     Term   reference
     
-    static hasMany = [parameters : ProtocolParameter]
+    static hasMany = [parameters : ProtocolParameter, compounds: Compound]
     static constraints = { }
 
 

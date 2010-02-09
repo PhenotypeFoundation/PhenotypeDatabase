@@ -8,8 +8,8 @@ package dbnp.studycapturing
 class Assay {
 
     String name
-    AssayType type
-    String platform
+    AssayModule module
+    long externalAssayId
 
     static hasMany = [samples : Sample]
 

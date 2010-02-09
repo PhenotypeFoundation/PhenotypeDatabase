@@ -26,7 +26,9 @@ class Study implements Serializable {
 						subjects: Subject,
 						groups: SubjectGroup,
 						events: Event,
-						samplingEvents: SamplingEvent
+						samplingEvents: SamplingEvent,
+                        persons: StudyPerson,
+                        publications: Publication
 	]
 
 	static constraints = {
