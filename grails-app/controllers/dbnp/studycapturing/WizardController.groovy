@@ -186,10 +186,6 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def handleSubjects(flow, flash, params) {
-		println flow.getClass()
-		println flash.getClass()
-		println params.getClass()
-		
 		if (flow.subjects.size() < 1) {
 			return false
 		} else {
