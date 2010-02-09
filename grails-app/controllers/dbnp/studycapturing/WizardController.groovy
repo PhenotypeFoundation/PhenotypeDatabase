@@ -124,70 +124,24 @@ class WizardController {
 				}
 			}.to "subjects"
 			on("next") {
-				def errors = false
 				flash.errors = new LinkedHashMap()
 
-				// got one or more subjects?
-				if (flow.subjects.size() < 1) {
-					errors = true;
-				} else {
-					// handle form data
-					def id = 0;
-					flow.subjects.each() {
-						// store subject properties
-						it.name = params.get('subject_' + id + '_name')
-						it.species = Term.findByName(params.get('subject_' + id + '_species'))
-
-						// clear lists
-						def stringList = new LinkedHashMap();
-						def intList = new LinkedHashMap();
-
-						// get all template fields
-						flow.study.template.subjectFields.each() {
-							// get value
-							def value = params.get('subject_' + id + '_' + it.name);
-							if (value) {
-								// add to template parameters
-								switch (it.type) {
-									case 'STRINGLIST':
-										stringList[it.name] = value
-										break;
-									case 'INTEGER':
-										intList[ it.name ] = value
-										break;
-									default:
-										// unsupported type?
-										println "ERROR: unsupported type: "+it.type
-										break;
-								}
-							}
-						}
-
-						// set field data
-						it.templateStringFields		= stringList
-						it.templateIntegerFields	= intList
-
-						// validate subject
-						if (!it.validate()) {
-							errors = true
-							//println id + ' :: ' + it.errors.getAllErrors()
-							this.appendErrors(it, flash.errors)
-						}
-
-						id++;
-					}
-				}
-
-				// got errors?
-				if (errors) {
-					println flash.errors
+				// handle form data
+				if (!this.handleSubjects(flow, flash, params)) {
 					error()
 				} else {
 					success()
 				}
 			}.to "groups"
 			on("previous") {
-				// TODO
+				flash.errors = new LinkedHashMap()
+
+				// handle form data
+				if (!this.handleSubjects(flow, flash, params)) {
+					error()
+				} else {
+					success()
+				}
 			}.to "study"
 		}
 
@@ -203,8 +157,6 @@ class WizardController {
 			on("add") {
 				def increment = flow.groups.size()
 				flow.groups[increment] = new SubjectGroup(params)
-
-				println flow.groups
 			}.to "groups"
 			on("next") {
 				// TODO
@@ -223,6 +175,72 @@ class WizardController {
 			on("previous") {
 				// TODO
 			}.to "groups"
+		}
+	}
+
+	/**
+	 * re-usable code for handling subject form data in a web flow
+	 * @param Map	LocalAttributeMap (the flow scope)
+	 * @param Map	localAttributeMap (the flash scope)
+	 * @param Map	GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handleSubjects(flow, flash, params) {
+		println flow.getClass()
+		println flash.getClass()
+		println params.getClass()
+		
+		if (flow.subjects.size() < 1) {
+			return false
+		} else {
+			def errors = false;
+			def id = 0;
+			flow.subjects.each() {
+				// store subject properties
+				it.name = params.get('subject_' + id + '_name')
+				it.species = Term.findByName(params.get('subject_' + id + '_species'))
+
+				// clear lists
+				def stringList = new LinkedHashMap();
+				def intList = new LinkedHashMap();
+
+				// get all template fields
+				flow.study.template.subjectFields.each() {
+					// get value
+					def value = params.get('subject_' + id + '_' + it.name);
+
+					if (value) {
+						// add to template parameters
+						switch (it.type) {
+							case 'STRINGLIST':
+								stringList[it.name] = value
+								break;
+							case 'INTEGER':
+								intList[it.name] = value
+								break;
+							default:
+								// unsupported type?
+								println "ERROR: unsupported type: " + it.type
+								break;
+						}
+					}
+				}
+
+				// set field data
+				it.templateStringFields = stringList
+				it.templateIntegerFields = intList
+
+				// validate subject
+				if (!it.validate()) {
+					errors = true
+					println id + ' :: ' + it.errors.getAllErrors()
+					this.appendErrors(it, flash.errors)
+				}
+
+				id++;
+			}
+
+			return !errors
 		}
 	}
 
