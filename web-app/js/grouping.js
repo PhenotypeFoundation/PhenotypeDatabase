@@ -13,11 +13,35 @@
  */
 function Grouping() {
 }
+/*
 Grouping.prototype = {
     itemsIdentifier:    null,
-    itemIdentifier:    null,
+    itemIdentifier:     null,
     groupsIdentifier:   null,
-    groupIdentifier:   null,
+    groupIdentifier:    null,
+
+    init: function(itemsIdentifier, itemIdentifier, groupsIdentifier, groupIdentifier) {
+        var that = this;
+
+        this.itemsIdentifier    = itemsIdentifier;
+        this.itemIdentifier     = itemIdentifier;
+        this.groupsIdentifier   = groupsIdentifier;
+        this.groupIdentifier    = groupIdentifier;
+
+        this.initItems();
+    },
+
+    initItems: function() {
+        $(this.itemsIdentifier).
+    }
+}
+*/
+
+Grouping.prototype = {
+    itemsIdentifier:    null,
+    itemIdentifier:     null,
+    groupsIdentifier:   null,
+    groupIdentifier:    null,
 
     init: function(itemsIdentifier, itemIdentifier, groupsIdentifier, groupIdentifier) {
         this.itemsIdentifier    = itemsIdentifier;
@@ -35,6 +59,7 @@ Grouping.prototype = {
         var that = this;
 
         // make all items selectable
+        console.log($(this.itemsIdentifier))
         $(this.itemsIdentifier).selectable({
             filter: that.itemIdentifier,
             stop: function() {
@@ -61,7 +86,7 @@ Grouping.prototype = {
                     // append the dropped subjects to the group
                     $('.ui-selected', $(that.itemsIdentifier)).each(function() {
                         var E = $(this);
-                        
+
                         // add to list
                         E.appendTo(list);
 
@@ -130,5 +155,4 @@ Grouping.prototype = {
         })
     }
 }
-
 

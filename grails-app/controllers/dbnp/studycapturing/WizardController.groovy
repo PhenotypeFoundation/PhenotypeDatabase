@@ -93,7 +93,7 @@ class WizardController {
 				} else {
 					// validation failed, feedback errors
 					flash.errors = new LinkedHashMap()
-					this.appendErrors(flow.study,flash.errors)
+					this.appendErrors(flow.study, flash.errors)
 					error()
 				}
 			}.to "subjects"
@@ -109,25 +109,82 @@ class WizardController {
 					flow.subjects = []
 				}
 			}
-			on ("add") {
+			on("add") {
 				// fetch species by name (as posted by the form)
 				def speciesTerm = Term.findByName(params.addSpecies)
-				
+
 				// add x subject of species y
 				(params.addNumber as int).times {
 					def increment = flow.subjects.size()
-					flow.subjects[ increment ] = new Subject(
-						name: 'Subject ' + (increment+1),
-						species: speciesTerm
+					flow.subjects[increment] = new Subject(
+						name: 'Subject ' + (increment + 1),
+						species: speciesTerm,
+						template: flow.study.template
 					)
 				}
 			}.to "subjects"
 			on("next") {
+				def errors = false
+				flash.errors = new LinkedHashMap()
+
 				// got one or more subjects?
 				if (flow.subjects.size() < 1) {
-					error()
+					errors = true;
+				} else {
+					// handle form data
+					def id = 0;
+					flow.subjects.each() {
+						// store subject properties
+						it.name = params.get('subject_' + id + '_name')
+						it.species = Term.findByName(params.get('subject_' + id + '_species'))
+
+						// clear lists
+						def stringList = new LinkedHashMap();
+						def intList = new LinkedHashMap();
+
+						// get all template fields
+						flow.study.template.subjectFields.each() {
+							// get value
+							def value = params.get('subject_' + id + '_' + it.name);
+							if (value) {
+								// add to template parameters
+								switch (it.type) {
+									case 'STRINGLIST':
+										stringList[it.name] = value
+										break;
+									case 'INTEGER':
+										intList[ it.name ] = value
+										break;
+									default:
+										// unsupported type?
+										println "ERROR: unsupported type: "+it.type
+										break;
+								}
+							}
+						}
+
+						// set field data
+						it.templateStringFields		= stringList
+						it.templateIntegerFields	= intList
+
+						// validate subject
+						if (!it.validate()) {
+							errors = true
+							//println id + ' :: ' + it.errors.getAllErrors()
+							this.appendErrors(it, flash.errors)
+						}
+
+						id++;
+					}
 				}
-				println params
+
+				// got errors?
+				if (errors) {
+					println flash.errors
+					error()
+				} else {
+					success()
+				}
 			}.to "groups"
 			on("previous") {
 				// TODO
@@ -145,7 +202,7 @@ class WizardController {
 			}
 			on("add") {
 				def increment = flow.groups.size()
-				flow.groups[ increment ] = new SubjectGroup(params)
+				flow.groups[increment] = new SubjectGroup(params)
 
 				println flow.groups
 			}.to "groups"

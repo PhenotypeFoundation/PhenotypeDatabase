@@ -34,7 +34,7 @@ subjects of species
 		<div class="column">
 			<wizard:speciesSelect value="${subject.species}" name="subject_${i}_species" />
 		</div>
-		<wizard:templateColumns id="${i}" template="${study.template}" class="column" />
+		<wizard:templateColumns id="${i}" template="${study.template}" name="subject_${i}" class="column" subject="${subject}" />
 	</div>
 </g:each>
 </div>

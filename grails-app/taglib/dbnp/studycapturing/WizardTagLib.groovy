@@ -351,11 +351,15 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attributes
 	 */
 	def templateColumns = { attrs, body ->
-		def subjectId = attrs.remove('id')
-		def template = attrs.remove('template')
+		def subject			= attrs.remove('subject')
+		def subjectId		= attrs.remove('id')
+		def template		= attrs.remove('template')
+		def intFields		= subject.templateIntegerFields
+		def stringFields	= subject.templateStringFields
 
 		// output columns for these subjectFields
 		template.subjectFields.each() {
+			// output div
 			out << '<div class="' + attrs.get('class') + '">'
 
 			switch (it.type) {
@@ -363,8 +367,9 @@ class WizardTagLib extends JavascriptTagLib {
 					// render stringlist subjectfield
 					if (!it.listEntries.isEmpty()) {
 						out << select(
-							name: it.name,
-							from: it.listEntries
+							name: attrs.name + '_' + it.name,
+							from: it.listEntries,
+							value: (stringFields) ? stringFields.get(it.name) : ''
 						)
 					} else {
 						out << '<span class="error">no values!!</span>'
@@ -373,7 +378,8 @@ class WizardTagLib extends JavascriptTagLib {
 				case 'INTEGER':
 					// render integer subjectfield
 					out << textField(
-						name: it.name
+						name: attrs.name + '_' + it.name,
+						value: (intFields) ? intFields.get(it.name) : ''
 					)
 					break;
 				default:

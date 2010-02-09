@@ -31,6 +31,9 @@
 			<div class="group">
 				<div class="label">${group.name}</div>
 				<div class="subjects">
+					<div class="subject">test subject 1</div>
+					<div class="subject">test subject 2</div>
+					<div class="subject">test subject 3</div>
 				</div>
 			</div>
 		</g:each>
