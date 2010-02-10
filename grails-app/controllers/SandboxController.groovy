@@ -1,8 +1,12 @@
 import dbnp.studycapturing.*
+import dbnp.clinicaldata.ClinicalFloatData
+import dbnp.clinicaldata.ClinicalMeasurement
 
 // The sandbox is meant for internal communication over code examples etc.
 
 class SandboxController {
+
+	def clinicalDataLayerService
 
 	def index = {
 
@@ -21,18 +25,22 @@ class SandboxController {
 		}
 
 		//Let's get a certain field for a certain subject
-		def subject = Subject.findByName('A1')
+		/*def subject = st.subjects.get(1)
+
+		if (subject) {
 		println st.template.getSubjectFieldType('Age')
 		println subject.getFieldValue('Genotype')
 		subject.setFieldValue('Genotype','wildtype')
 		println subject.getFieldValue('Genotype')
 		subject.setFieldValue('name','hallo')
-		println subject.name
+		println subject.name }*/
 
-		println Study.get(2).giveSamples()*.name
-	
+
+		// Demonstration of querying mechanism
+		println clinicalDataLayerService.getFeaturesQuantitative(1)
+		clinicalDataLayerService.getDataQuantitative('LDL',1,['A1_B','A3_B'] as String[])
 
 		// Specify which variables we want to be available in the controller (implicit return statement)
 		[fields: f, subjects: st.subjects]
-}
+	}
 }

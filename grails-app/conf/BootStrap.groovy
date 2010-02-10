@@ -294,7 +294,7 @@ class BootStrap {
 			def ldlMeasurement = new dbnp.clinicaldata.ClinicalMeasurement(
 				name: 'LDL',
 				unit: 'mg/dL',
-				type: dbnp.clinicaldata.ClinicalMeasurementType.NUMBER,
+				type: dbnp.data.FeatureType.QUANTITATIVE,
 				referenceValues: '100 mg/dL',
 				detectableLimit: 250,
 				isDrug: false, isIntake: true, inSerum: true
@@ -303,7 +303,7 @@ class BootStrap {
 			def hdlMeasurement = new dbnp.clinicaldata.ClinicalMeasurement(
 				name: 'HDL',
 				unit: 'mg/dL',
-				type: dbnp.clinicaldata.ClinicalMeasurementType.NUMBER,
+				type: dbnp.data.FeatureType.QUANTITATIVE,
 				referenceValues: '50 mg/dL',
 				detectableLimit: 100,
 				isDrug: false, isIntake: true, inSerum: true

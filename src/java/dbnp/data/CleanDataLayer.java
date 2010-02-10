@@ -7,9 +7,20 @@ import java.util.Map;
  */
 public interface CleanDataLayer {
 
-        public String getAssayDescription(long assayID);
-        public String[] getFeatureNames(long assayID);
-        public Map getFeatureData(long assayID, long[] sampleIDs);
-        public Map getFeatureDataDifferential(long assayID, long[] sampleIDs1, long[] sampleIDs2);
+        /**
+         * Get the names of all quantitative features that are available for a certain assay
+         * @param assayID the module internal ID for the assay
+         * @return
+         */
+        public String[] getFeaturesQuantitative(long assayID);
+
+        /**
+         * Get the data for a quantitative feature for a certain assay for a certain set of samples
+         * @param feature
+         * @param assayID
+         * @param sampleIDs
+         * @return
+         */
+        public Map getDataQuantitative(String feature, long assayID, String[] sampleIDs);
 
 }

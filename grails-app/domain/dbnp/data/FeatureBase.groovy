@@ -4,6 +4,7 @@ class FeatureBase {
 
 	String name
 	String unit
+	FeatureType type
 
 	static hasMany = [
 		metabolite: Term,

@@ -4,19 +4,13 @@ class ClinicalDataLayerService implements dbnp.data.CleanDataLayer {
 
 	boolean transactional = false
 
-	String getAssayDescription(long assayID) {
-		return "";
+	Map getDataQuantitative(String feature, long assayID, String[] sampleIDs) {
+		def measurement = ClinicalMeasurement.findByName(feature)
+		if (!measurement) throw new NoSuchFieldException("Feature ${feature} not found")
+		measurement.getValues(assayID,sampleIDs)
 	}
 
-	String[] getFeatureNames(long assayID) {
-		return new String[0];
-	}
-
-	Map getFeatureData(long assayID, long[] sampleIDs) {
-		return null;
-	}
-
-	Map getFeatureDataDifferential(long assayID, long[] sampleIDs1, long[] sampleIDs2) {
-		return null;
+	String[] getFeaturesQuantitative(long assayID) {
+		return ClinicalAssayInstance.get(assayID).assay.measurements*.name;
 	}
 }
