@@ -41,7 +41,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @see http://www.grails.org/WebFlow
 	 * @see http://www.grails.org/Tag+-+submitToRemote
 	 * @todo perhaps some methods should be moved to a more generic
-	 *        'webflow' taglib
+	 *        'webflow' taglib or plugin
 	 * @param Map attributes
 	 * @param Closure body
 	 */
@@ -356,6 +356,8 @@ class WizardTagLib extends JavascriptTagLib {
 		def template		= attrs.remove('template')
 		def intFields		= subject.templateIntegerFields
 		def stringFields	= subject.templateStringFields
+		def floatFields		= subject.templateFloatFields
+		def termFields		= subject.templateTermFields
 
 		// output columns for these subjectFields
 		template.subjectFields.each() {
@@ -382,9 +384,16 @@ class WizardTagLib extends JavascriptTagLib {
 						value: (intFields) ? intFields.get(it.name) : ''
 					)
 					break;
+				case 'FLOAT':
+					// render float subjectfield
+					out << textField(
+						name: attrs.name + '_' + it.name,
+						value: (floatFields) ? floatFields.get(it.name) : ''
+					)
+					break;
 				default:
 					// unsupported field type
-					out << '<span class="error">unsuported type '+it.type+'</span>'
+					out << '<span class="error">!'+it.type+'</span>'
 					break;
 			}
 			out << '</div>'

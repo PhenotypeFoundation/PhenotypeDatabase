@@ -1,5 +1,12 @@
 package dbnp.clinicaldata
-
+/**
+ * class description
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
+ */
 class ClinicalAssay {
 
 	String name

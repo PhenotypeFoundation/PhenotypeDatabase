@@ -31,16 +31,17 @@ $(document).ready(function() {
 // runs when document is ready or a wizard action has been performs
 // @see _wizard.gsp, _navigation.gsp, _subjects.gsp
 function onWizardPage() {
+    // GENERAL
     attachHelpTooltips();
     attachDatePickers();
 
-    // SUBJECTS
+    // SUBJECT PAGE
     attachTableEvents();
     resizeWizardTable();
     attachSubjectSlider();
     new TableEditor().init('div.table','div.row','div.column');
     
-    // GROUPING
+    // GROUPING PAGE
     new Grouping().init('div.subjects', 'div.subject', 'div.groups', 'div.group');
 }
 

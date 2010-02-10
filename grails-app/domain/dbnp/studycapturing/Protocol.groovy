@@ -7,16 +7,18 @@ import dbnp.data.Term
  * Concrete instances of protocol application (and parameter values) should be stored as ProtocolInstance
  * For the moment, there is one global Protocol store. From user experience, it should become clear if this store
  * has to remain global or should be bound to specific templates, users, user groups or even studies.
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
  */
-class Protocol {
-
+class Protocol implements Serializable {
     String name
     Term   reference
     
     static hasMany = [parameters : ProtocolParameter, compounds: Compound]
     static constraints = {
-        reference(nullable: true)
+        reference(nullable: true, blank: true)
     }
-
-
 }

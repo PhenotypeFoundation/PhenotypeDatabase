@@ -66,7 +66,7 @@ class WizardController {
 			on("next").to "study"
 		}
 
-		// render the study page and handle study logic
+		// render and handle the study page
 		study {
 			render(view: "_study")
 			onRender {
@@ -99,7 +99,7 @@ class WizardController {
 			}.to "subjects"
 		}
 
-		// render page two
+		// render and handle subjects page
 		subjects {
 			render(view: "_subjects")
 			onRender {
@@ -145,6 +145,7 @@ class WizardController {
 			}.to "study"
 		}
 
+		// render and handle group page
 		groups {
 			render(view: "_groups")
 			onRender {
@@ -189,42 +190,74 @@ class WizardController {
 		if (flow.subjects.size() < 1) {
 			return false
 		} else {
+			def names = new LinkedHashMap();
 			def errors = false;
 			def id = 0;
+
+			// iterate through subjects
 			flow.subjects.each() {
 				// store subject properties
+				def name = params.get('subject_' + id + '_name')
 				it.name = params.get('subject_' + id + '_name')
 				it.species = Term.findByName(params.get('subject_' + id + '_species'))
 
+				// remember name and check for duplicates
+				if (!names[ it.name ]) {
+					names[ it.name ] = [count: 1, first: 'subject_' + id + '_name']	
+				} else {
+					// duplicate name found, set error flag
+					names[ it.name ]['count']++
+
+					// second occurence?
+					if (names[ it.name ]['count'] == 2) {
+						// yeah, also mention the first
+						// occurrence in the error message
+						this.appendErrorMap([[names[ it.name ]['first']]: 'The subject name needs to be unique!'], flash.errors)
+					}
+
+					// add to error map
+					this.appendErrorMap([['subject_' + id + '_name']: 'The subject name needs to be unique!'], flash.errors)
+					errors = true
+				}
+
 				// clear lists
-				def stringList = new LinkedHashMap();
-				def intList = new LinkedHashMap();
+				def stringList	= new LinkedHashMap();
+				def intList		= new LinkedHashMap();
+				def floatList	= new LinkedHashMap();
+				def termList	= new LinkedHashMap();
 
 				// get all template fields
 				flow.study.template.subjectFields.each() {
+					// valid type?
+					if (!it.type) throw new NoSuchFieldException("Field name ${fieldName} not recognized")
+
 					// get value
 					def value = params.get('subject_' + id + '_' + it.name);
-
 					if (value) {
 						// add to template parameters
 						switch (it.type) {
 							case 'STRINGLIST':
-								stringList[it.name] = value
+								stringList[it.name]	= value
 								break;
 							case 'INTEGER':
-								intList[it.name] = value
+								intList[it.name]	= value
+								break;
+							case 'FLOAT':
+								floatList[it.name]	= value
 								break;
 							default:
 								// unsupported type?
-								println "ERROR: unsupported type: " + it.type
+								throw new NoSuchFieldException("Field type ${it.type} not recognized")
 								break;
 						}
 					}
 				}
 
 				// set field data
-				it.templateStringFields = stringList
-				it.templateIntegerFields = intList
+				it.templateStringFields		= stringList
+				it.templateIntegerFields	= intList
+				it.templateFloatFields		= floatList
+				it.templateTermFields		= termList
 
 				// validate subject
 				if (!it.validate()) {

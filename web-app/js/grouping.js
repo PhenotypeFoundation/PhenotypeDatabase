@@ -13,7 +13,6 @@
  */
 function Grouping() {
 }
-/*
 Grouping.prototype = {
     itemsIdentifier:    null,
     itemIdentifier:     null,
@@ -32,10 +31,10 @@ Grouping.prototype = {
     },
 
     initItems: function() {
-        $(this.itemsIdentifier).
+        //$(this.itemsIdentifier).
     }
 }
-*/
+/*
 
 Grouping.prototype = {
     itemsIdentifier:    null,
@@ -155,4 +154,4 @@ Grouping.prototype = {
         })
     }
 }
-
+*/

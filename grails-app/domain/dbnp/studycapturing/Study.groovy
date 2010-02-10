@@ -28,8 +28,8 @@ class Study implements Serializable {
 			events: Event,
 			samplingEvents: SamplingEvent,
 			assays: Assay,
-                        persons: StudyPerson,
-                        publications: Publication
+            persons: StudyPerson,
+            publications: Publication
 	]
 
 	static constraints = {

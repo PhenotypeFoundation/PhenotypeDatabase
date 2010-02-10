@@ -30,7 +30,6 @@ class BootStrap {
 				url: 'http://www.obofoundry.org/cgi-bin/detail.cgi?id=ncbi_taxonomy'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-
 			def humanBodyOntology = new Ontology(
 				name: 'Foundational Model of Anatomy',
 				shortName: 'HumanBody',
@@ -66,8 +65,6 @@ class BootStrap {
 				ontology: madmaxOntology,
 				accession: 'P-MDMXGE-264'
 			).with { if (!validate()) { errors.each { println it} } else save()}
-
-
 
 			def treatmentProtocol = new Protocol(
 				name: 'MADMAX Experimental Protocol',
@@ -157,6 +154,10 @@ class BootStrap {
 				name: 'Age',type: TemplateFieldType.INTEGER))
 			.addToSubjectFields(new TemplateSubjectField(
 				name: 'Cage',type: TemplateFieldType.INTEGER))
+			.addToSubjectFields(new TemplateSubjectField(
+				name: 'Some float', type: TemplateFieldType.FLOAT))
+			.addToSubjectFields(new TemplateSubjectField(
+				name: 'Some ontology', type: TemplateFieldType.ONTOLOGYTERM))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Human template
@@ -237,10 +238,10 @@ class BootStrap {
 				.with { if (!validate()) { errors.each { println it} } else save()}
 			}
 
-
+/*
 			println 'Adding PPSH study...'
 
-                        def humanStudy = new Study(
+            def humanStudy = new Study(
 				title:"NuGO PPS human study",
 				code:"PPSH",
 				researchQuestion:"etc.",
@@ -354,9 +355,8 @@ class BootStrap {
 
 			humanStudy.addToAssays(lipidAssayRef);
 			humanStudy.save()
-
+*/
 		}
-
 	}
 
 	def destroy = {
