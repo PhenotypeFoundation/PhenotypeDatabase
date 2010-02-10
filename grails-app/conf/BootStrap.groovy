@@ -238,9 +238,8 @@ class BootStrap {
 				.with { if (!validate()) { errors.each { println it} } else save()}
 			}
 
+			println 'Adding PPSH study... --> DISABLED due to bootstrapping errors'
 /*
-			println 'Adding PPSH study...'
-
             def humanStudy = new Study(
 				title:"NuGO PPS human study",
 				code:"PPSH",
