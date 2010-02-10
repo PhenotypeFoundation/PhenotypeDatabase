@@ -37,8 +37,8 @@ class SandboxController {
 
 
 		// Demonstration of querying mechanism
-		println clinicalDataLayerService.getFeaturesQuantitative(1)
-		clinicalDataLayerService.getDataQuantitative('LDL',1,['A1_B','A3_B'] as String[])
+		println "Features available for first assay of PPSH study: " + clinicalDataLayerService.getFeaturesQuantitative(Study.findByCode("PPSH").assays*.id[0])
+		println "LDL feature value for two subjects: " + clinicalDataLayerService.getDataQuantitative('LDL',1,['A1_B','A3_B'] as String[])
 
 		// Specify which variables we want to be available in the controller (implicit return statement)
 		[fields: f, subjects: st.subjects]

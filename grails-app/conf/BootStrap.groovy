@@ -352,6 +352,9 @@ class BootStrap {
 			}
 			lipidAssayRef.save()
 
+			humanStudy.addToAssays(lipidAssayRef);
+			humanStudy.save()
+
 		}
 
 	}
