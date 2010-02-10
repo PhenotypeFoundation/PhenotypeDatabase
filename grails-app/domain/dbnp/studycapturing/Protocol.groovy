@@ -14,7 +14,9 @@ class Protocol {
     Term   reference
     
     static hasMany = [parameters : ProtocolParameter, compounds: Compound]
-    static constraints = { }
+    static constraints = {
+        reference(nullable: true)
+    }
 
 
 }

@@ -12,5 +12,8 @@ class ClinicalMeasurement
 	boolean inSerum
 
 	static constraints = {
+		referenceValues(nullable: true, blank: true)
+		detectableLimit(nullable: true)
+		correctionMethod(nullable: true, blank: true)
 	}
 }

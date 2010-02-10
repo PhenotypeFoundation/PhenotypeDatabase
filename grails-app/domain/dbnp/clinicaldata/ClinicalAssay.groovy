@@ -13,5 +13,8 @@ class ClinicalAssay {
 	]
 
 	static constraints = {
+		reference(nullable: true, blank: true)
+		appliedMethod(nullable: true, blank: true)
+		SOP(nullable: true, blank: true)
 	}
 }

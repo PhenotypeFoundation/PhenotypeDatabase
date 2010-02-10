@@ -50,4 +50,8 @@ class Study implements Serializable {
 	def giveAllFields() {
 		return template.studyFields;
 	}
+
+	def giveSamples() {
+		return samplingEvents*.samples;
+	}
 }

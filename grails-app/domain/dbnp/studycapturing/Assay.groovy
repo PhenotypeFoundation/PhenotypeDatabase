@@ -9,7 +9,7 @@ class Assay {
 
     String name
     AssayModule module
-    long externalAssayId
+    long externalAssayId // the assay ID the assay has in the external module
 
     static hasMany = [samples : Sample]
 

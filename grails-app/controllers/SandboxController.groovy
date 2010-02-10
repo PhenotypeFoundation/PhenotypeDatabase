@@ -28,7 +28,10 @@ class SandboxController {
 		println subject.getFieldValue('Genotype')
 		subject.setFieldValue('name','hallo')
 		println subject.name
-		
+
+		println Study.get(2).giveSamples()*.name
+	
+
 		// Specify which variables we want to be available in the controller (implicit return statement)
 		[fields: f, subjects: st.subjects]
 }

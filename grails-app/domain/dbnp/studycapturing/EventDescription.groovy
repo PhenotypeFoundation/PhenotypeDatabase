@@ -9,11 +9,14 @@ import dbnp.data.Term
  */
 class EventDescription {
 
-    String name
-    String description
-    Term classification
-    Protocol protocol
+	String name
+	String description
+	Term classification
+	Protocol protocol
+	boolean isSamplingEvent
 
-    static constraints = {
-    }
+	static constraints = {
+		classification(nullable: true)
+	}
+
 }

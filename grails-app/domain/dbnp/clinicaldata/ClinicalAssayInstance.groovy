@@ -2,7 +2,8 @@ package dbnp.clinicaldata
 
 class ClinicalAssayInstance {
 
-	long externalAssayID // in the future, we might do a more sophisticated mapping to the study capture part, as multiple metadata instances might exist
+	// The (auto-generated) id of this instance will be used in the study capture module to refer to the assay
+
 	ClinicalAssay assay
 
     static constraints = {

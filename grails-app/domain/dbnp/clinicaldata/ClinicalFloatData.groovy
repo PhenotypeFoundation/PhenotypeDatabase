@@ -5,9 +5,9 @@ package dbnp.clinicaldata
  */
 class ClinicalFloatData {
 
-	long assayID   // external or internal assay ID? the latter approach seems better
-	long sampleID  // same question
+	ClinicalAssayInstance assay
 	ClinicalMeasurement measurement
+	String sample  // universal sample ID
 	float value
 
     static constraints = {
