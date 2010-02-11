@@ -216,10 +216,6 @@
     width: 100%;
 }
 
-.wizard .grouping .subjects {
-    display: block;
-    float: left;
-}
 .wizard .grouping .ui-selected {
     background-color: red;
 }
@@ -227,6 +223,16 @@
     background-color: orange;
 }
 
+.wizard .grouping .subjects {
+    display: block;
+    float: left;
+}
+.wizard .grouping .subjects .subject {
+    margin: 1px;
+    padding: 0.2em;
+    font-size: .8em;
+    height: 14px;
+}
 .wizard .grouping .right {
     display: inline-block;
     float: right;
@@ -251,9 +257,10 @@
 }
 .wizard .grouping .group .subjects {
     display: inline-block;
+    height: auto;
 }
 .wizard .grouping .group .subject {
-    display: block;
+    display: inline-block;
     width: 100%;
     font-size: 10px;
 }

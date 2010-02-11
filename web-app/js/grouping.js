@@ -28,10 +28,36 @@ Grouping.prototype = {
         this.groupIdentifier    = groupIdentifier;
 
         this.initItems();
+        this.initGroupItems();
+        this.initGroups();
+        //this.initGroups();
+        
+        console.log('bla')
     },
 
     initItems: function() {
+        var that = this;
+        
         //$(this.itemsIdentifier).
+        $(this.itemsIdentifier).first().selectable({
+            filter: that.itemIdentifier,
+            stop: function() {
+                // done selecting, make all selected items draggable
+                //that.makeDraggable(this);
+            }
+        });
+    },
+
+    initGroups: function() {
+        this.initGroupItems();
+    },
+
+    initGroupItems: function() {
+        var that = this;
+
+        $(this.groupsIdentifier).selectable({
+            filter: that.itemIdentifier
+        })
     }
 }
 /*
@@ -155,3 +181,9 @@ Grouping.prototype = {
     }
 }
 */
+
+// for debugging purposes this is here
+// TODO: to be be migrated to wizard.js....
+$(document).ready(function() {
+    new Grouping().init('div.subjects', 'div.subject', 'div.groups', 'div.group');
+});

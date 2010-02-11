@@ -126,8 +126,13 @@ class WizardController {
 			on("next") {
 				flash.errors = new LinkedHashMap()
 
-				// handle form data
-				if (!this.handleSubjects(flow, flash, params)) {
+				// check if we have at least one subject
+				// and check form data
+				if (flow.subjects.size() < 1) {
+					// append error map
+					this.appendErrorMap(['subjects': 'You need at least to create one subject for your study'], flash.errors)
+					error()
+				} else if (!this.handleSubjects(flow, flash, params)) {
 					error()
 				} else {
 					success()
@@ -181,96 +186,92 @@ class WizardController {
 
 	/**
 	 * re-usable code for handling subject form data in a web flow
-	 * @param Map	LocalAttributeMap (the flow scope)
-	 * @param Map	localAttributeMap (the flash scope)
-	 * @param Map	GrailsParameterMap (the flow parameters = form data)
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
 	 * @returns boolean
 	 */
 	def handleSubjects(flow, flash, params) {
-		if (flow.subjects.size() < 1) {
-			return false
-		} else {
-			def names = new LinkedHashMap();
-			def errors = false;
-			def id = 0;
+		def names = new LinkedHashMap();
+		def errors = false;
+		def id = 0;
 
-			// iterate through subjects
-			flow.subjects.each() {
-				// store subject properties
-				def name = params.get('subject_' + id + '_name')
-				it.name = params.get('subject_' + id + '_name')
-				it.species = Term.findByName(params.get('subject_' + id + '_species'))
+		// iterate through subjects
+		flow.subjects.each() {
+			// store subject properties
+			def name = params.get('subject_' + id + '_name')
+			it.name = params.get('subject_' + id + '_name')
+			it.species = Term.findByName(params.get('subject_' + id + '_species'))
 
-				// remember name and check for duplicates
-				if (!names[ it.name ]) {
-					names[ it.name ] = [count: 1, first: 'subject_' + id + '_name']	
-				} else {
-					// duplicate name found, set error flag
-					names[ it.name ]['count']++
+			// remember name and check for duplicates
+			if (!names[it.name]) {
+				names[it.name] = [count: 1, first: 'subject_' + id + '_name']
+			} else {
+				// duplicate name found, set error flag
+				names[it.name]['count']++
 
-					// second occurence?
-					if (names[ it.name ]['count'] == 2) {
-						// yeah, also mention the first
-						// occurrence in the error message
-						this.appendErrorMap([[names[ it.name ]['first']]: 'The subject name needs to be unique!'], flash.errors)
-					}
-
-					// add to error map
-					this.appendErrorMap([['subject_' + id + '_name']: 'The subject name needs to be unique!'], flash.errors)
-					errors = true
+				// second occurence?
+				if (names[it.name]['count'] == 2) {
+					// yeah, also mention the first
+					// occurrence in the error message
+					this.appendErrorMap([[names[it.name]['first']]: 'The subject name needs to be unique!'], flash.errors)
 				}
 
-				// clear lists
-				def stringList	= new LinkedHashMap();
-				def intList		= new LinkedHashMap();
-				def floatList	= new LinkedHashMap();
-				def termList	= new LinkedHashMap();
-
-				// get all template fields
-				flow.study.template.subjectFields.each() {
-					// valid type?
-					if (!it.type) throw new NoSuchFieldException("Field name ${fieldName} not recognized")
-
-					// get value
-					def value = params.get('subject_' + id + '_' + it.name);
-					if (value) {
-						// add to template parameters
-						switch (it.type) {
-							case 'STRINGLIST':
-								stringList[it.name]	= value
-								break;
-							case 'INTEGER':
-								intList[it.name]	= value
-								break;
-							case 'FLOAT':
-								floatList[it.name]	= value
-								break;
-							default:
-								// unsupported type?
-								throw new NoSuchFieldException("Field type ${it.type} not recognized")
-								break;
-						}
-					}
-				}
-
-				// set field data
-				it.templateStringFields		= stringList
-				it.templateIntegerFields	= intList
-				it.templateFloatFields		= floatList
-				it.templateTermFields		= termList
-
-				// validate subject
-				if (!it.validate()) {
-					errors = true
-					println id + ' :: ' + it.errors.getAllErrors()
-					this.appendErrors(it, flash.errors)
-				}
-
-				id++;
+				// add to error map
+				this.appendErrorMap([['subject_' + id + '_name']: 'The subject name needs to be unique!'], flash.errors)
+				errors = true
 			}
 
-			return !errors
+			// clear lists
+			def stringList = new LinkedHashMap();
+			def intList = new LinkedHashMap();
+			def floatList = new LinkedHashMap();
+			def termList = new LinkedHashMap();
+
+			// get all template fields
+			flow.study.template.subjectFields.each() {
+				// valid type?
+				if (!it.type) throw new NoSuchFieldException("Field name ${fieldName} not recognized")
+
+				// get value
+				def value = params.get('subject_' + id + '_' + it.name);
+				if (value) {
+					// add to template parameters
+					switch (it.type) {
+						case 'STRINGLIST':
+							stringList[it.name] = value
+							break;
+						case 'INTEGER':
+							intList[it.name] = value
+							break;
+						case 'FLOAT':
+							floatList[it.name] = value
+							break;
+						default:
+							// unsupported type?
+							throw new NoSuchFieldException("Field type ${it.type} not recognized")
+							break;
+					}
+				}
+			}
+
+			// set field data
+			it.templateStringFields = stringList
+			it.templateIntegerFields = intList
+			it.templateFloatFields = floatList
+			it.templateTermFields = termList
+
+			// validate subject
+			if (!it.validate()) {
+				errors = true
+				println id + ' :: ' + it.errors.getAllErrors()
+				this.appendErrors(it, flash.errors)
+			}
+
+			id++;
 		}
+
+		return !errors
 	}
 
 	/**

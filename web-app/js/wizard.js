@@ -42,7 +42,7 @@ function onWizardPage() {
     new TableEditor().init('div.table','div.row','div.column');
     
     // GROUPING PAGE
-    new Grouping().init('div.subjects', 'div.subject', 'div.groups', 'div.group');
+    //new Grouping().init('div.subjects', 'div.subject', 'div.groups', 'div.group');
 }
 
 // attach help tooltips
