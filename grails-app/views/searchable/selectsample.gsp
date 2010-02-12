@@ -3,6 +3,9 @@
   <head>
       <title>Generic Study Capture Framework - Query studies</title>
       <meta name="layout" content="main" />
+      <g:setProvider library="jquery"/>
+      <script src = ${createLinkTo(dir: 'js/jquery_combobox', file: 'ui.core.js')}></script>
+      <script src = ${createLinkTo(dir: 'js/jquery_combobox', file: 'ui.combobox')}></script
     </head>
 
 <body>
@@ -10,23 +13,18 @@
   <h1>Advanced query - select samples</h1>
   <br>
 
-   <% def tmpList = [] %>
-    <% studyList = dbnp.studycapturing.Study.list() %>
-<% def selectedStudies = [] %>
 
-<% params.each{key,values-> %>
-    <% if (values=="on"){ %>
-      <% tmpList.add(key) %>
-    <%  } }%>
+  <g:form action="selectsample" url >
 
-  <% for (i in studyList) {%>
-    <% if (tmpList.contains(i.getTitle())) { %>
-      <% selectedStudies.add(i) %>
-     <% }} %>
-   
+
+   <br> <%= params %>
+   <br> <%= selectedStudyIds.each{ println it } %>
+   <br> <%= subgroups%>
+   <input type="hidden" name="selectedStudyIds" value="${selectedStudyIds}"   </div>
+
+
   <% if (selectedStudies.size()>0) {%>
        <table >
-
          <tr>
            <td></td>
            <td><b> Study </b></td>
@@ -35,36 +33,80 @@
            <td><b> Sample Name </b></td>
            <td><b> Sample Material </b></td>
            <td><b> Duration </b></td>
+           <g:if test="${subgroups.size>0}"> <td><b> Subgroups </b></td> </g:if>
          </tr>
-     <g:each in="${selectedStudies}" status="j" var="studyIns">
+
+  <g:each in="${selectedStudies}" status="j" var="studyIns">
   <tr>
-  <td> <input type="checkbox" name="${studyIns.title}" id="${studyIns.title}"> </td>
+  <td> <input type="checkbox" name="${studyIns.title}" id="${studyIns.title}" class="checkbox1${studyIns.id}"> </td>
           <td> ${studyIns.title} </td>
-          
-        </tr>
+  </tr>
+
+
+
   <g:each in ="${studyIns.events}" var="events">
         <tr>
           <td></td><td></td>
-          <td> <input type="checkbox" name="${events.subject.name}" id="${events.subject.name}">
-  ${events.subject.name} </td>
+          <td> <input type="checkbox" name="${studyIns.id}.${events.subject.name}" id="${events.subject.name}" class="checkbox2${studyIns.id}" >
+               ${events.subject.name} </td>
           <td> ${studyIns.samplingEvents} </td>
           <td> ${studyIns.samplingEvents.samples.name}</td>
           <td> ${studyIns.samplingEvents.samples.material}</td>
           <td> ${events.getDurationString()}</td>
+
+          <g:if test="${subgroups.size>0}">
+	  <td> <select id="demo">
+              <g:each in ="${subgroups}" var="p">
+	          <option value = "${p}"> "${p}" </option>
+              </g:each>
+	  </select> </td>
+	  </g:if>
         </tr>
      </g:each>
-     </g:each>
-       
-       </table>
-<%}%>
 
-       <% if (selectedStudies.size()==0) {%>
-    Please select studies to query samples.
+
+    </g:each>
+       
+     </table>
+
+
+
+    <g:each in="${selectedStudies}" status="j" var="studyIns">
+        <% def cb1 = '\'.checkbox1' + studyIns.id + '\''  %>
+        <% def cb2 = '\'.checkbox2' + studyIns.id + '\''  %>
+        <script>
+              $(${cb1}).click(function () {
+                  if($(this).attr("checked")==true)
+                     $(${cb2}).attr("checked", "checked");
+                  });
+              $(${cb2}).click(function () {
+                  if($(this).attr("checked")==false)
+                         $(${cb1}).attr("checked", false);
+                  });
+        </script>
+    </g:each>
+
+
+
+  <%}%>
+
+
+     Infer subgroups:
+    <INPUT TYPE=submit name=submit Value="Subject Groups">
+    <INPUT TYPE=submit name=submit Value="Event Groups">
+    <INPUT TYPE=submit name=submit Value="Starting Time Groups">
+
+    <% if (selectedStudies.size()==0) { %>
+    <br> Please select studies to query samples.
     <% } %>
 
     <br>
     <INPUT TYPE=submit name=submit Value="<< Back to study selection">
     <INPUT TYPE=submit name=submit Value=">> Execute and continue with biomarker selection">
+
+    </g:form>
+
+
 
   </body>
 </html>

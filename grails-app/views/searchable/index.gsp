@@ -86,7 +86,7 @@
         <g:each var="result" in="${searchResult.results}" status="index">
             <tr>
               <td>
-              <input type="checkbox" name="${result.title}" id="${result.title}">
+              <input type="checkbox" name="${result.id}" id="${result.title}">
               </td>
               <td>
           <div class="result">
