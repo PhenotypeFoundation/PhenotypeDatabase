@@ -33,7 +33,4 @@
 	<wizard:dateElement name="startDate" description="Start date" error="startDate" value="${study?.startDate}">
 		The start date of the study	
 	</wizard:dateElement>
-	<wizard:templateElement name="template" description="Template" value="${study?.template}">
-		The meta data template to use for this study
-	</wizard:templateElement>
 </wizard:pageContent>

@@ -46,10 +46,15 @@ class WizardController {
 			// define flow variables
 			flow.page = 0
 			flow.pages = [
+				[title: 'Templates'],	// templates
 				[title: 'Study'],		// study
 				[title: 'Subjects'],	// subjects
 				[title: 'Groups'],		// groups
-				[title: 'Form elements demo page']
+				[title: 'Events'],		// events
+				[title: 'Samples'],		// samples
+				[title: 'Protocols'],	// protocols
+				[title: 'Assays'],		// assays
+				[title: 'Done']			// finish page
 			]
 
 		}
@@ -63,29 +68,37 @@ class WizardController {
 			onRender {
 				flow.page = 1
 			}
-			on("next").to "study"
+			on("next").to "templates"
 		}
 
-		// render and handle the study page
-		study {
-			render(view: "_study")
+		// select the templates to use for this study
+		templates {
+			render(view: "_templates")
 			onRender {
 				flow.page = 1
 			}
 			on("next") {
-				// create date instance from date string?
-				// @see WizardTagLibrary::dateElement{...}
-				if (params.get('startDate')) {
-					params.startDate = new Date().parse("d/M/yyyy", params.get('startDate').toString())
+				// if we don't have a study, instantiate a study with dummy values
+				if (!flow.study) {
+					flow.study = new Study(
+						title: "my study",
+						code: "",
+						ecCode: "",
+						researchQuestion: "",
+						description: "",
+						startDate: new Date().format("d/M/yyyy")
+					)
 				}
-
-				// if a template is selected, get template instance
-				if (params.get('template')) {
-					params.template = Template.findByName(params.get('template'))
-				}
-
-				// create a study instance
-				flow.study = new Study(params)
+/*
+flow.study.getProperties().constraints.each() { key, value ->
+	println key
+	value.getProperties().each() {
+		println it
+	}
+}
+*/
+				// assign template to study
+				flow.study.template = Template.findByName(params.get('template'));
 
 				// validate study
 				if (flow.study.validate()) {
@@ -96,6 +109,32 @@ class WizardController {
 					this.appendErrors(flow.study, flash.errors)
 					error()
 				}
+			}.to "study"
+		}
+
+		// render and handle the study page
+		study {
+			render(view: "_study")
+			onRender {
+				flow.page = 2
+			}
+			on("previous") {
+				flash.errors = new LinkedHashMap()
+
+				if (this.handleStudy(flow, flash, params)) {
+					success()
+				} else {
+					error()
+				}
+			}.to "templates"
+			on("next") {
+				flash.errors = new LinkedHashMap()
+
+				if (this.handleStudy(flow, flash, params)) {
+					success()
+				} else {
+					error()
+				}
 			}.to "subjects"
 		}
 
@@ -103,7 +142,7 @@ class WizardController {
 		subjects {
 			render(view: "_subjects")
 			onRender {
-				flow.page = 2
+				flow.page = 3
 
 				if (!flow.subjects) {
 					flow.subjects = []
@@ -154,7 +193,7 @@ class WizardController {
 		groups {
 			render(view: "_groups")
 			onRender {
-				flow.page = 3
+				flow.page = 4
 
 				if (!flow.groups) {
 					flow.groups = []
@@ -173,14 +212,110 @@ class WizardController {
 		}
 
 		// render page three
-		demo {
-			render(view: "_three")
+		events {
+			render(view: "_events")
 			onRender {
-				flow.page = 4
+				flow.page = 5
 			}
 			on("previous") {
 				// TODO
-			}.to "groups"
+			}.to "subjects"
+			on("next") {
+				// TODO
+			}.to "samples"
+		}
+
+		// render page three
+		samples {
+			render(view: "_samples")
+			onRender {
+				flow.page = 6
+			}
+			on("previous") {
+				// TODO
+			}.to "events"
+			on("next") {
+				// TODO
+			}.to "protocols"
+		}
+
+		// render page three
+		protocols {
+			render(view: "_protocols")
+			onRender {
+				flow.page = 7
+			}
+			on("previous") {
+				// TODO
+			}.to "samples"
+			on("next") {
+				// TODO
+			}.to "assays"
+		}
+
+		// render page three
+		assays {
+			render(view: "_assays")
+			onRender {
+				flow.page = 8
+			}
+			on("previous") {
+				// TODO
+			}.to "protocols"
+			on("next") {
+				// TODO
+			}.to "done"
+		}
+
+		// render page three
+		done {
+			render(view: "_done")
+			onRender {
+				flow.page = 9
+			}
+			on("previous") {
+				// TODO
+			}.to "assays"
+		}
+	}
+
+	/**
+	 * re-usable code for handling study form data in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handleStudy(flow, flash, params) {
+		// create study instance if we have none
+		if (!flow.study) flow.study = new Study();
+
+		// create date instance from date string?
+		// @see WizardTagLibrary::dateElement{...}
+		if (params.get('startDate')) {
+			params.startDate = new Date().parse("d/M/yyyy", params.get('startDate').toString())
+		}
+
+		// if a template is selected, get template instance
+		if (params.get('template')) {
+			params.template = Template.findByName(params.get('template'))
+		}
+
+		// update study instance with parameters
+		params.each() {key, value ->
+			if (flow.study.hasProperty(key)) {
+				flow.study.setProperty(key, value);
+			}
+		}
+
+		// validate study
+		if (flow.study.validate()) {
+			return true
+		} else {
+			// validation failed, feedback errors
+			flash.errors = new LinkedHashMap()
+			this.appendErrors(flow.study, flash.errors)
+			return false
 		}
 	}
 
