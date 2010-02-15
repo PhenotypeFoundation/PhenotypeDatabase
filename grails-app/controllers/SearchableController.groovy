@@ -57,7 +57,6 @@ class SearchableController {
            }
 
 
-
         // subgroups
 	// provide list of subgroups depending on the type of subgrouping
 	// selected by the user
@@ -69,7 +68,23 @@ class SearchableController {
 	     case "Subject Groups":
 	          render(params)
 	          render("Subject Groups")
-		  subgroups=["subject group 1","subject group 2"]
+                  def studyGroups = []
+		  if(selectedStudies!=null)
+		  {
+		     selectedStudies.each{ study ->
+		         study.groups.each{ group -> studyGroups.add[group] }
+		     }
+		     println "study groups: "
+		     studyGroups.each{x-> println x}
+		  }
+
+		  // testing:
+		  // there is a lack of data in the mockup
+		  // as long as there are no groups in the bootstart,
+		  // we use this
+		  subgroups = studyGroups.size()<=0 ?
+		      ["subject group 1","subject group 2"] : studyGroups
+
 	          render(view:"selectsample",model:[selectedStudies:selectedStudies,selectedStudyIds:selectedStudyIds,subgroups:subgroups])
 	          break
 	     case "Event Groups":
