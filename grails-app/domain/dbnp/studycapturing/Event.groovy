@@ -24,10 +24,10 @@ class Event {
 	]
 
 
-		// time diff between end and start date
-		// thus, do this manually as follows
-	def getDuration() {
-		def timeMillis = (endTime.getTime() - startTime.getTime()).abs()
+	// time diff between end and start date
+	// thus, do this manually as follows
+	def getDuration( date1, date2 ) {
+		def timeMillis = (date2.getTime() - date1.getTime()).abs()
 		def days = (timeMillis / (1000 * 60 * 60 * 24)).toInteger()
 		def hours = (timeMillis / (1000 * 60 * 60)).toInteger()
 		def minutes = (timeMillis / (1000 * 60)).toInteger()
@@ -38,17 +38,37 @@ class Event {
 	}
 
 
-	     // return a string that prints the duration sensibly.
-	     // the largest date unit (sec, min, h, day, week, month, or year)
-	     // is output
+	def getDuration() {
+		return getDuration(startTime, endTime)
+	}
+
+
+	// return a string that prints the duration sensibly.
+	// the largest date unit (sec, min, h, day, week, month, or year)
+	// is output
+	def getPrettyDuration( duration ) {
+             def handleNumerus = { number ,string ->
+		     return number.toString() + (number==1 ? string : string + 's' )
+	     }
+	     if( duration.getYears()   > 0 ) return handleNumerus( duration.getYears(), " year" )
+	     if( duration.getMonths()  > 0 ) return handleNumerus( duration.getMonths(), " month" )
+	     if( duration.getDays()    > 0 ) return handleNumerus( duration.getDays(), " day" )
+	     if( duration.getHours()   > 0 ) return handleNumerus( duration.getHours(), " hour" )
+	     if( duration.getMinutes() > 0 ) return handleNumerus( duration.getMinutes(), " minute" )
+	                                     return handleNumerus( duration.getSeconds(), " second" )
+	}
+
+
+	// convenience method. gives formatted string output for a duration
 	def getPrettyDuration() {
-	     def duration = getDuration()
-	     if( duration.getYears()   > 0 ) return duration.getYears()   + " years"
-	     if( duration.getMonths()  > 0 ) return duration.getMonths()  + " months"
-	     if( duration.getWeeks()   > 0 ) return duration.getWeeks()   + " weeks"
-	     if( duration.getDays()    > 0 ) return duration.getDays()    + " days"
-	     if( duration.getHours()   > 0 ) return duration.getHours()   + " minutes"
-	                                     return duration.getSeconds() + " seconds"
+	     getPrettyDuration( getDuration() )
+	}
+
+
+	// convenience method. gives formatted string output for a duration
+        def getPrettyDuration( date1, date2 )
+	{
+	     return  getPrettyDuration( getDuration( date1, date2 ) )
 	}
 
 
@@ -61,4 +81,5 @@ class Event {
 	def isSamplingEvent() {
 		return ( this instanceof SamplingEvent )
         }
+
 }
