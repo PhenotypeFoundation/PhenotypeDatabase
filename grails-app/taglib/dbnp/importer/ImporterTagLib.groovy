@@ -36,11 +36,30 @@ class ImporterTagLib {
 	out << render (template:"common/preview", model:[header:header, datamatrix:datamatrix])
     }
 
-    def createSelect(int selected, String name, ArrayList options) {
+    def entity = { attrs ->
+	out << entities[attrs['index']].name
+    }
+
+    /**
+     * @param entities array of entity:columnindex values
+     */
+    def properties = { attrs ->
+	def ent = []
+
+	attrs['entities'].each { e ->
+	    def temp = e.split(":")	    
+	    def entity = [type:temp[0],columnindex:temp[1]]
+	    ent.add(entity)
+	}
+
+	out << render (template:"common/properties", model:[entities:ent])
+    }
+
+    def createSelect(int selected, String name, ArrayList options, String customvalue) {
 	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
 
 	options.each { e ->
-	    res += "<option value=\"${e.value}\""
+	    res += "<option value=\"${e.value}:${customvalue}\""
 	    res += (e.value == selected) ? " selected" : ""
 	    res += ">${e.name}</option>"
 	}
@@ -49,13 +68,16 @@ class ImporterTagLib {
 	return res
     }
 
+    
+
     /**
      * @param selected selected entity
      * @param name name of the HTML select object
      **/
     def entitySelect = { attrs ->	
 	def selected = (attrs['selected']==null) ? -1 : attrs['selected']
-	out << createSelect(selected, attrs['name'], entities)
+	def customvalue = (attrs['customvalue']==null) ? "" : attrs['customvalue']
+	out << createSelect(selected, attrs['name'], entities, customvalue)
     }
 
     /**
@@ -66,6 +88,7 @@ class ImporterTagLib {
     */
     def celltypeSelect = { attrs ->
 	def selected = (attrs['selected']==null) ? -1 : attrs['selected']
-	out << createSelect(selected, attrs['name'], celltypes)
+	def customvalue = (attrs['customvalue']==null) ? "" : attrs['customvalue']
+	out << createSelect(selected, attrs['name'], celltypes, customvalue)
     }
 }

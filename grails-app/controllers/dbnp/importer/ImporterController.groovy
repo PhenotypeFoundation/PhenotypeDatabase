@@ -37,7 +37,7 @@ class ImporterController {
     */
     def upload = {
 	def downloadedfile = request.getFile('importfile');
-        def tempfile = new File(System.getProperty('java.io.tmpdir') + File.pathSeparator + System.currentTimeMillis() + ".nmcdsp")
+        def tempfile = new File(System.getProperty('java.io.tmpdir') + File.separatorChar + System.currentTimeMillis() + ".nmcdsp")
         downloadedfile.transferTo(tempfile)
         
 	def wb = ImporterService.getWorkbook(new FileInputStream(tempfile))
@@ -49,7 +49,9 @@ class ImporterController {
 
     }
 
-    def accept = {
-	
+    def savepreview = {	
+	def entities  = request.getParameterValues("entity")
+
+	render(view:"step2", model:[entities:entities])
     }
 }

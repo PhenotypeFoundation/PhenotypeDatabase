@@ -12,7 +12,7 @@
 	 * $Date$
 	 */
 %>
-<g:form name="previewform" action="accept">
+<g:form name="previewform" action="savepreview">
     <table>
 	<tr>
 	  <td>Columnname:</td>
@@ -27,7 +27,7 @@
 	    <td>Datatype:</td>
 	    <g:each var="column" in="${header}">
 		<td class="header">
-		    <importer:celltypeSelect selected="${column.celltype}" name="celltype[${column.columnindex}]"/>
+		    <importer:celltypeSelect selected="${column.celltype}" name="celltype" customvalue="${column.columnindex.toString()}"/>
 		</td>
 	    </g:each>
 	</tr>
@@ -36,7 +36,7 @@
 	    <td>Entity:</td>
 	    <g:each var="column" in="${header}">
 		<td class="header">
-		    <importer:entitySelect name="entity[${column.columnindex}]"/>
+		    <importer:entitySelect name="entity" customvalue="${column.columnindex.toString()}"/>
 		</td>
 	    </g:each>
 	</tr>
