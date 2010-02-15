@@ -32,7 +32,7 @@
            <td><b> Sampling Events </b></td>
            <td><b> Sample Name </b></td>
            <td><b> Sample Material </b></td>
-           <td><b> Duration </b></td>
+           <td><b> Start Time </b></td>
            <g:if test="${subgroups.size>0}"> <td><b> Subgroups </b></td> </g:if>
          </tr>
 
@@ -44,15 +44,17 @@
 
 
 
-  <g:each in ="${studyIns.events}" var="events">
+  <g:if test="${studyIns.samplingEvents.size ()>0}" >
+  <g:each in ="${studyIns.samplingEvents}" var="event">
+     <g:each in ="${event.samples}" var="sample">
         <tr>
           <td></td><td></td>
-          <td> <input type="checkbox" name="${studyIns.id}.${events.subject.name}" id="${events.subject.name}" class="checkbox2${studyIns.id}" >
-               ${events.subject.name} </td>
+          <td> <input type="checkbox" name="${studyIns.id}.${event.subject.name}" id="${event.subject.name}" class="checkbox2${studyIns.id}" >
+               ${event.subject.name} </td>
           <td> ${studyIns.samplingEvents} </td>
-          <td> ${studyIns.samplingEvents.samples.name}</td>
-          <td> ${studyIns.samplingEvents.samples.material}</td>
-          <td> ${events.getDurationString()}</td>
+          <td> ${sample.name}</td>
+          <td> ${sample.material}</td>
+          <td> ${event.getPrettyDuration( studyIns.startDate, event.startTime)} </td>
 
           <g:if test="${subgroups.size>0}">
 	  <td> <select id="demo">
@@ -63,10 +65,19 @@
 	  </g:if>
         </tr>
      </g:each>
-
-
     </g:each>
-       
+  </g:if>
+
+
+  <g:else>
+	<tr>
+	    <td></td> <td>Study does not cotain any samples. </td>
+	    <td></td> <td></td> <td></td> <td></td> <td></td>
+            <g:if test="${subgroups.size>0}"> <td></td> </g:if>
+	</tr>
+    </g:else>
+    </g:each>
+
      </table>
 
 
@@ -85,8 +96,6 @@
                   });
         </script>
     </g:each>
-
-
 
   <%}%>
 
