@@ -27,6 +27,11 @@ class SearchableController {
 
     def selectsample = {
 
+
+            // produce error message here if studies don't contain samples!
+	    // redirect back or use error
+
+
             println "in selectsample: "
             params.each{println it}
 
@@ -79,24 +84,45 @@ class SearchableController {
 		  }
 
 		  // testing:
-		  // there is a lack of data in the mockup
-		  // as long as there are no groups in the bootstart,
+		  // there is a lack of data in the mockup (subject groups are still missing)
+		  // as long as there are no groups in the boot script,
 		  // we use this
 		  subgroups = studyGroups.size()<=0 ?
-		      ["subject group 1","subject group 2"] : studyGroups
+		       ["subject group 1","subject group 2"] : studyGroups
 
 	          render(view:"selectsample",model:[selectedStudies:selectedStudies,selectedStudyIds:selectedStudyIds,subgroups:subgroups])
 	          break
+
 	     case "Event Groups":
-	          render("Event Groups")
-		  subgroups=["event group 1","event group 2"]
+                  def eventGroups = []
+		  if(selectedStudies!=null)
+		  {
+		    selectedStudies.each{ study ->
+			 println study.id
+		         println study.samplingEvents.each{ eventGroups.add(it) }
+		    }
+		  }
+		  subgroups=eventGroups
 	          render(view:"selectsample",model:[selectedStudies:selectedStudies,selectedStudyIds:selectedStudyIds,subgroups:subgroups])
 	          break
+
 	     case "Starting Time Groups":
+
+                  def timeGroups = []
+		  if(selectedStudies!=null)
+		  {
+		    selectedStudies.each{ study ->
+		         println study.samplingEvents.each{ 
+                             def timeDiff = it.getPrettyDuration( study.startDate, it.startTime ) 
+			     if( !timeGroups.contains(timeDiff) ) timeGroups.add(timeDiff)
+			 }
+		    }
+		  }
+		  subgroups=timeGroups
 	          render("Starting Time Groups")
-		  subgroups=["time group 1","time group 2"]
 	          render(view:"selectsample",model:[selectedStudies:selectedStudies,selectedStudyIds:selectedStudyIds,subgroups:subgroups])
 	          break
+
              case ">> Execute and continue with biomarker selection":
 	          render("Starting Time Groups")
 	          break

@@ -82,4 +82,9 @@ class Event {
 		return ( this instanceof SamplingEvent )
         }
 
+
+	def String toString() {
+		return eventDescription ? eventDescription.name : ""
+	}
+
 }
