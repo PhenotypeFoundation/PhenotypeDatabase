@@ -112,13 +112,18 @@
                              if($(this).attr("checked")==true) {
                                 $(${cb2}).attr("checked", "checked");
                                 $(${cb3}).attr("checked", "checked");
+			     }
+			     else {
+                                $(${cb2}).attr("checked", false);
+                                $(${cb3}).attr("checked", false);
 			     } });
                          $(${cb2}).click(function () {
                              if($(this).attr("checked")==true)
                                     $(${cb3}).attr("checked", true);
-                             else
+                             else {
                                     $(${cb1}).attr("checked", false);
-                             });
+                                    $(${cb3}).attr("checked", false);
+			     } });
                          $(${cb3}).click(function () {
                              if($(this).attr("checked")==false) {
                                     $(${cb1}).attr("checked", false);
@@ -149,9 +154,8 @@
     </script>
 
 
-    Select samples:
-    <input type="button" name="CheckAll" value="All" onClick="checkAll(true)">
-    <input type="button" name="UncheckAll" value="None" onClick="checkAll(false)">
+    <input type="button" name="CheckAll" value="Check All" onClick="checkAll(true)">
+    <input type="button" name="UncheckAll" value="Uncheck All" onClick="checkAll(false)">
 
      Infer subgroups:
     <INPUT TYPE=submit name=submit Value="Subject Groups">
