@@ -21,6 +21,12 @@
 		<g:each var="subject" status="i" in="${subjects}"><div class="subject">${subject.name}</div>
 		</g:each>
 	</div>
+	<div class="middle">
+		<div class="actions">
+			<div class="add"></div>
+			<div class="remove"></div>
+		</div>
+	</div>
 	<div class="right">
 		<div class="form">
 			name: <g:textField name="name" value="" /><br />
@@ -31,9 +37,6 @@
 			<div class="group">
 				<div class="label">${group.name}</div>
 				<div class="subjects">
-					<div class="subject">test subject 1</div>
-					<div class="subject">test subject 2</div>
-					<div class="subject">test subject 3</div>
 				</div>
 			</div>
 		</g:each>

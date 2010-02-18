@@ -233,6 +233,29 @@
     font-size: .8em;
     height: 14px;
 }
+.wizard .grouping .middle {
+    display: inline-block;
+    float: left;
+}
+.wizard .grouping .add {
+    background: url(../images/wizard/add.png) no-repeat left top;
+    width: 149px;
+    height: 29px;
+    margin-top: 10px;
+    margin-left: 14px;
+}
+.wizard .grouping .add-hover {
+    background: url(../images/wizard/add-hover.png) no-repeat left top;
+}
+.wizard .grouping .remove {
+    background: url(../images/wizard/remove.png) no-repeat left top;
+    width: 149px;
+    height: 29px;
+    margin-top: 10px;
+}
+.wizard .grouping .remove-hover {
+    background: url(../images/wizard/remove-hover.png) no-repeat left top;    
+}
 .wizard .grouping .right {
     display: inline-block;
     float: right;
@@ -244,6 +267,9 @@
     margin: 5px 0px 5px 0px;
     border: 1px solid black;
     height: auto;
+}
+.wizard .grouping .ui-selected {
+    border: 4px solid red;
 }
 .wizard .grouping .group .label {
     display: block;

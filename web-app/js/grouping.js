@@ -18,15 +18,21 @@ Grouping.prototype = {
     itemIdentifier:     null,
     groupsIdentifier:   null,
     groupIdentifier:    null,
+    addIdentifier:      null,
+    removeIdentifier:   null,
 
-    init: function(itemsIdentifier, itemIdentifier, groupsIdentifier, groupIdentifier) {
+    init: function(itemsIdentifier, itemIdentifier, groupsIdentifier, groupIdentifier, addIdentifier, removeIdentifier) {
         var that = this;
 
         this.itemsIdentifier    = itemsIdentifier;
         this.itemIdentifier     = itemIdentifier;
         this.groupsIdentifier   = groupsIdentifier;
         this.groupIdentifier    = groupIdentifier;
+        this.addIdentifier      = addIdentifier;
+        this.removeIdentifier   = removeIdentifier;
 
+        this.initAdd();
+        this.initRemove();
         this.initItems();
         this.initGroupItems();
         this.initGroups();
@@ -35,9 +41,43 @@ Grouping.prototype = {
         console.log('bla')
     },
 
+    initAdd: function() {
+        var that = this;
+        var add = $(this.addIdentifier);
+
+        add.bind('mouseenter mouseleave',function() {
+            $(this).toggleClass('add-hover');
+        })
+
+        add.bind('click',function() {
+            that.addSelectedItemsToSelectedGroup();
+        });
+    },
+
+    addSelectedItemsToSelectedGroup: function() {
+        var that = this;
+        var groups = $(this.groupIdentifier, $(this.groupsIdentifier))
+        var group = $('.ui-selected', groups)
+        console.log(groups)
+        console.log(group)
+    },
+
+    initRemove: function() {
+        var that = this;
+        var remove = $(this.removeIdentifier);
+
+        remove.bind('mouseenter mouseleave',function() {
+            $(this).toggleClass('remove-hover');
+        })
+
+        remove.bind('click',function() {
+            console.log('removveeeee!!!!');
+        })
+    },
+
     initItems: function() {
         var that = this;
-        
+        console.log($(this.itemsIdentifier).first());
         //$(this.itemsIdentifier).
         $(this.itemsIdentifier).first().selectable({
             filter: that.itemIdentifier,
@@ -49,14 +89,25 @@ Grouping.prototype = {
     },
 
     initGroups: function() {
+        var that = this;
+
+        // init group items
         this.initGroupItems();
+        
+        // init groups
+        $(this.itemsIdentifier).first().selectable({
+            filter: that.groupIdentifier,
+            stop: function() {
+
+            }
+        })
     },
 
     initGroupItems: function() {
         var that = this;
 
         $(this.groupsIdentifier).selectable({
-            filter: that.itemIdentifier
+            filter: that.groupIdentifier
         })
     }
 }
@@ -181,9 +232,3 @@ Grouping.prototype = {
     }
 }
 */
-
-// for debugging purposes this is here
-// TODO: to be be migrated to wizard.js....
-$(document).ready(function() {
-    new Grouping().init('div.subjects', 'div.subject', 'div.groups', 'div.group');
-});

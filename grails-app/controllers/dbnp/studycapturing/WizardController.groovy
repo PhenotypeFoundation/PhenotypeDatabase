@@ -86,17 +86,10 @@ class WizardController {
 						ecCode: "",
 						researchQuestion: "",
 						description: "",
-						startDate: new Date().format("d/M/yyyy")
+						startDate: new Date()
 					)
 				}
-/*
-flow.study.getProperties().constraints.each() { key, value ->
-	println key
-	value.getProperties().each() {
-		println it
-	}
-}
-*/
+
 				// assign template to study
 				flow.study.template = Template.findByName(params.get('template'));
 
