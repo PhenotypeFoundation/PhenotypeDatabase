@@ -18,7 +18,7 @@ package dbnp.importer
 import org.apache.poi.hssf.usermodel.*
 import org.apache.poi.poifs.filesystem.POIFSFileSystem
 import org.apache.poi.ss.usermodel.DataFormatter
-
+import dbnp.importer.Column
 
 class ImporterService {
 
@@ -42,8 +42,10 @@ class ImporterService {
 
 	def sheet = wb.getSheetAt(sheetindex)
 	def datamatrix_start = sheet.getFirstRowNum() + 1
-	def header = []        
+	//def header = []
+	def header = [:]
         def df = new DataFormatter()
+
 
 	for (HSSFCell c: sheet.getRow(sheet.getFirstRowNum())) {
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(c.getColumnIndex()).getCellType()
@@ -53,16 +55,16 @@ class ImporterService {
 	    
 	    switch (c.getCellType()) {
                     case HSSFCell.CELL_TYPE_STRING: 			
-			header.add (columnindex:c.getColumnIndex(), value:df.formatCellValue(c), celltype:datamatrix_celltype);
+			header[c.getColumnIndex()] = new dbnp.importer.Column(value:df.formatCellValue(c), type:datamatrix_celltype);
 			break
                     case HSSFCell.CELL_TYPE_NUMERIC:
-			header.add (columnindex:c.getColumnIndex(), value:df.formatCellValue(c), celltype:datamatrix_celltype);
+			header[c.getColumnIndex()] = new dbnp.importer.Column(value:df.formatCellValue(c), type:datamatrix_celltype);
 			break
 		    case HSSFCell.CELL_TYPE_BLANK:
-			header.add (columnindex:c.getColumnIndex(), value:"-", celltype:datamatrix_celltype);
+			header[c.getColumnIndex()] = new dbnp.importer.Column(value:df.formatCellValue(c), type:datamatrix_celltype);
 			break
                     default:
-			header.add (columnindex:c.getColumnIndex(), value:df.formatCellValue(c), celltype:datamatrix_celltype);
+			header[c.getColumnIndex()] = new dbnp.importer.Column(value:df.formatCellValue(c), type:datamatrix_celltype);
 			break
             }
 	}

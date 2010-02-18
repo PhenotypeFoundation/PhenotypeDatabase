@@ -17,11 +17,11 @@ package dbnp.importer
 
 class ImporterTagLib {
     static namespace = 'importer'
-    def entities = [[value:0, name:"Study"], [value:1, name:"Subject"], [value:2, name:"Event"],
-			[value:3, name:"Protocol"], [value:4, name:"Sample"]]
+    def standardentities = [[type:0, name:"Study"], [type:1, name:"Subject"], [type:2, name:"Event"],
+			[type:3, name:"Protocol"], [type:4, name:"Sample"]]
 
-    def celltypes = [[value:0, name:"Numeric"], [value:1, name:"String"], [value:2, name:"Formula"],
-			 [value:3, name:"Blank"], [value:4, name:"Boolean"], [value:5, name:"Error"]]
+    def standardcelltypes = [[type:0, name:"Numeric"], [type:1, name:"String"], [type:2, name:"Formula"],
+			 [type:3, name:"Blank"], [type:4, name:"Boolean"], [type:5, name:"Error"]]
 
     /**
     * @param header string array containing header
@@ -44,23 +44,24 @@ class ImporterTagLib {
      * @param entities array of entity:columnindex values
      */
     def properties = { attrs ->
-	def ent = []
+	def selectedentities = []
+	def header = attrs['header']
 
-	attrs['entities'].each { e ->
-	    def temp = e.split(":")	    
+	attrs['entities'].each { se ->
+	    def temp = se.split(":")
 	    def entity = [type:temp[0],columnindex:temp[1]]
-	    ent.add(entity)
+	    selectedentities.add(entity)
 	}
 
-	out << render (template:"common/properties", model:[entities:ent])
+	out << render (template:"common/properties", model:[selectedentities:selectedentities, standardentities:standardentities, header:header])
     }
 
     def createSelect(int selected, String name, ArrayList options, String customvalue) {
 	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
 
 	options.each { e ->
-	    res += "<option value=\"${e.value}:${customvalue}\""
-	    res += (e.value == selected) ? " selected" : ""
+	    res += "<option value=\"${e.type}:${customvalue}\""
+	    res += (e.type.toInteger() == selected) ? " selected" : ""
 	    res += ">${e.name}</option>"
 	}
 
@@ -77,7 +78,7 @@ class ImporterTagLib {
     def entitySelect = { attrs ->	
 	def selected = (attrs['selected']==null) ? -1 : attrs['selected']
 	def customvalue = (attrs['customvalue']==null) ? "" : attrs['customvalue']
-	out << createSelect(selected, attrs['name'], entities, customvalue)
+	out << createSelect(selected, attrs['name'], standardentities, customvalue)
     }
 
     /**
@@ -89,6 +90,6 @@ class ImporterTagLib {
     def celltypeSelect = { attrs ->
 	def selected = (attrs['selected']==null) ? -1 : attrs['selected']
 	def customvalue = (attrs['customvalue']==null) ? "" : attrs['customvalue']
-	out << createSelect(selected, attrs['name'], celltypes, customvalue)
+	out << createSelect(selected, attrs['name'], standardcelltypes, customvalue)
     }
 }

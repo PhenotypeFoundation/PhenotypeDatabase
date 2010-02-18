@@ -26,4 +26,5 @@
     <p>Below you see a preview of your imported file, please correct the automatically detected types.</p>
   <importer:preview header="${header}" datamatrix="${datamatrix}"/>
   </body>
+
 </html>

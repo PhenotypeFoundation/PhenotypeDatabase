@@ -29,5 +29,9 @@
 	</g:each>
 </tr>
 </table>
+<%@
+ def a = new Column(value:"value", name:"naam")
+ println a.name
+%>
 </body>
 </html>

@@ -18,16 +18,16 @@
 	  <td>Columnname:</td>
 	  <g:each var="column" in="${header}">
 	      <td class="header">
-		  <b>${column.value}</b>
+		  <b>${column.value.value}</b>
 	      </td>
 	  </g:each>
 	</tr>
 
 	<tr>
-	    <td>Datatype:</td>
+	    <td>Celltype:</td>
 	    <g:each var="column" in="${header}">
 		<td class="header">
-		    <importer:celltypeSelect selected="${column.celltype}" name="celltype" customvalue="${column.columnindex.toString()}"/>
+		    <importer:celltypeSelect selected="${column.value.type.toInteger()}" name="celltype" customvalue="${column.key.toString()}"/>
 		</td>
 	    </g:each>
 	</tr>
@@ -36,7 +36,7 @@
 	    <td>Entity:</td>
 	    <g:each var="column" in="${header}">
 		<td class="header">
-		    <importer:entitySelect name="entity" customvalue="${column.columnindex.toString()}"/>
+		    <importer:entitySelect name="entity" customvalue="${column.key.toString()}"/>
 		</td>
 	    </g:each>
 	</tr>

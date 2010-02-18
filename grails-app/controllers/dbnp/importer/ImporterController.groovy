@@ -45,6 +45,8 @@ class ImporterController {
 	def header = ImporterService.getHeader(wb, 0)
 	def datamatrix= ImporterService.getDatamatrix(wb, 0, 5)
 
+	session.header = header
+
         render (view:"step1", model:[header:header, datamatrix:datamatrix])
 
     }
@@ -52,6 +54,6 @@ class ImporterController {
     def savepreview = {	
 	def entities  = request.getParameterValues("entity")
 
-	render(view:"step2", model:[entities:entities])
+	render(view:"step2", model:[entities:entities, header:session.header])
     }
 }

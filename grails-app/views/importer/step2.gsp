@@ -25,6 +25,6 @@
   <body>
     <h1>Step 2: import wizard entities/properties</h1>
     <p>Below you see the entities and columns, assign properties to the columns.</p>
-  <importer:properties entities="${entities}" />
+  <importer:properties entities="${entities}" header="${header}"/>
   </body>
 </html>
