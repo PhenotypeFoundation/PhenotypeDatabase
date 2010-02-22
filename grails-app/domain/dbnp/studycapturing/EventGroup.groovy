@@ -1,14 +1,21 @@
 package dbnp.studycapturing
 
-class EventGroup {
-
+/**
+ * EventGroup groups events
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
+ */
+class EventGroup implements Serializable {
 	String name
 
 	static hasMany = [
-	        subjects : Subject,
-		events : Event
+		subjects: Subject,
+		events: Event
 	]
 
-    static constraints = {
-    }
+	static constraints = {
+	}
 }

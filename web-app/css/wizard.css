@@ -139,6 +139,7 @@
     margin-top: 10px;
     font-size: 11px;
     overflow: hidden;
+    white-space: nowrap;
 }
 
 .wizard .table .header {

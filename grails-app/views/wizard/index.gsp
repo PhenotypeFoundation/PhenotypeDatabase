@@ -23,6 +23,7 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'swfobject.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'grouping.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'timepicker-0.2.1.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'wizard.js')}"></script>
 </head>
 <body>

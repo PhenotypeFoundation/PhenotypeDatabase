@@ -184,6 +184,7 @@ class WizardTagLib extends JavascriptTagLib {
 		// work variables
 		def description = attrs.remove('description')
 		def addExampleElement = attrs.remove('addExampleElement')
+		def addExample2Element	= attrs.remove('addExample2Element')
 
 		// render a form element
 		out << '<div class="element">'
@@ -201,6 +202,17 @@ class WizardTagLib extends JavascriptTagLib {
 		if (addExampleElement) {
 			def exampleAttrs = new LinkedHashMap()
 			exampleAttrs.name = attrs.get('name')+'Example'
+			exampleAttrs.class  = 'isExample'
+			exampleAttrs.disabled = 'disabled'
+			exampleAttrs.size = 30
+			out << textField(exampleAttrs)
+		}
+
+		// add an disabled input box for feedback purposes
+		// @see dateElement(...)
+		if (addExample2Element) {
+			def exampleAttrs = new LinkedHashMap()
+			exampleAttrs.name = attrs.get('name')+'Example2'
 			exampleAttrs.class  = 'isExample'
 			exampleAttrs.disabled = 'disabled'
 			exampleAttrs.size = 30
@@ -242,6 +254,33 @@ class WizardTagLib extends JavascriptTagLib {
 		)
 	}
 
+
+	/**
+	 * render a select form element
+	 * @param Map attrs
+	 * @param Closure body  (help text)
+	 */
+	def selectElement = { attrs, body ->
+		baseElement.call(
+			'select',
+			attrs,
+			body
+		)
+	}
+
+	/**
+	 * render a checkBox form element
+	 * @param Map attrs
+	 * @param Closure body  (help text)
+	 */
+	def checkBoxElement = { attrs, body ->
+		baseElement.call(
+			'checkBox',
+			attrs,
+			body
+		)
+	}
+
 	/**
 	 * render a dateElement
 	 * NOTE: datepicker is attached through wizard.js!
@@ -256,9 +295,34 @@ class WizardTagLib extends JavascriptTagLib {
 		}
 		
 		// set some textfield values
-		attrs.maxlength = 10
+		attrs.maxlength = (attrs.maxlength) ? attrs.maxlength : 10
 		attrs.addExampleElement = true
 		
+		// render a normal text field
+		//out << textFieldElement(attrs,body)
+		textFieldElement.call(
+			attrs,
+			body
+		)
+	}
+
+	/**
+	 * render a dateElement
+	 * NOTE: datepicker is attached through wizard.js!
+	 * @param Map attrs
+	 * @param Closure body  (help text)
+	 */
+	def timeElement = { attrs, body ->
+		// transform value?
+		if (attrs.value instanceof Date) {
+			// transform date instance to formatted string (dd/mm/yyyy)
+			attrs.value = String.format('%td/%<tm/%<tY %<tH:%<tM', attrs.value)
+		}
+
+		attrs.addExampleElement = true
+		attrs.addExample2Element = true
+		attrs.maxlength = 16
+
 		// render a normal text field
 		//out << textFieldElement(attrs,body)
 		textFieldElement.call(
@@ -282,13 +346,27 @@ class WizardTagLib extends JavascriptTagLib {
 	}
 
 	/**
+	 * Button form element
+	 * @param Map		attributes
+	 * @param Closure	help content
+	 */
+	def buttonElement = { attrs, body ->
+		// render template element
+		baseElement.call(
+			'ajaxButton',
+			attrs,
+			body
+		)
+	}
+
+	/**
 	 * render a species select element
 	 * @param Map attrs
 	 */
 	def speciesSelect = { attrs ->
 		// fetch the speciesOntology
 		// note that this is a bit nasty, probably the ontologyName should
-		// be configured in a configuration file... --> TODO
+		// be configured in a configuration file... --> TODO: centralize species configuration
 		def speciesOntology = Ontology.findByName('NCBI Taxonomy')
 
 		// fetch all species
@@ -330,6 +408,36 @@ class WizardTagLib extends JavascriptTagLib {
 			attrs.name = 'template'
 		}
 		
+		out << select(attrs)
+	}
+
+	/**
+	 * Term form element
+	 * @param Map		attributes
+	 * @param Closure	help content
+	 */
+	def termElement = { attrs, body ->
+		// render term element
+		baseElement.call(
+			'termSelect',
+			attrs,
+			body
+		)
+	}
+
+	/**
+	 * render a term select element
+	 * @param Map attrs
+	 */
+	def termSelect = { attrs ->
+		// fetch all terms
+		attrs.from = Term.findAll()	// for now, all terms as we cannot identify terms as being treatment terms...
+
+		// got a name?
+		if (!attrs.name) {
+			attrs.name = 'term'
+		}
+
 		out << select(attrs)
 	}
 

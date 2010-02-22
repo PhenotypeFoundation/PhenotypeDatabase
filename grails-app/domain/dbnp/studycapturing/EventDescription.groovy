@@ -20,6 +20,13 @@ class EventDescription implements Serializable {
 	boolean isSamplingEvent
 
 	static constraints = {
+		name(nullable: false, blank: false)
+		description(nullable: false, blank: false)
 		classification(nullable: true, blank: true)
+		protocol(nullable: true, blank: true)
+	}
+
+	def String toString() {
+		return name
 	}
 }

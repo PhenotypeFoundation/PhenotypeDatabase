@@ -46,15 +46,16 @@ class WizardController {
 			// define flow variables
 			flow.page = 0
 			flow.pages = [
-				[title: 'Templates'],	// templates
-				[title: 'Study'],		// study
-				[title: 'Subjects'],	// subjects
-				[title: 'Groups'],		// groups
-				[title: 'Events'],		// events
-				[title: 'Samples'],		// samples
-				[title: 'Protocols'],	// protocols
-				[title: 'Assays'],		// assays
-				[title: 'Done']			// finish page
+				[title: 'Templates'],			// templates
+				[title: 'Study'],				// study
+				[title: 'Subjects'],			// subjects
+				[title: 'Event Descriptions'],	// event descriptions
+				[title: 'Events'],				// groups
+				[title: '---'],				// events
+				[title: '---'],				// samples
+				[title: '---'],			// protocols
+				[title: '---'],				// assays
+				[title: 'Done']					// finish page
 			]
 
 		}
@@ -169,7 +170,7 @@ class WizardController {
 				} else {
 					success()
 				}
-			}.to "groups"
+			}.to "eventDescriptions"
 			on("previous") {
 				flash.errors = new LinkedHashMap()
 
@@ -182,11 +183,131 @@ class WizardController {
 			}.to "study"
 		}
 
+		// render page three
+		eventDescriptions {
+			render(view: "_eventDescriptions")
+			onRender {
+				flow.page = 4
+
+				if (!flow.eventDescriptions) {
+					flow.eventDescriptions = []
+				}
+			}
+			on("add") {
+				// fetch classification by name (as posted by the form)
+				params.classification = Term.findByName(params.classification)
+
+				// transform checkbox form value to boolean
+				params.isSamplingEvent = (params.containsKey('isSamplingEvent'))
+
+				// instantiate EventDescription with parameters
+				def eventDescription = new EventDescription(params)
+
+				// validate
+				if (eventDescription.validate()) {
+					def increment = flow.eventDescriptions.size()
+					flow.eventDescriptions[increment] = eventDescription
+					success()
+				} else {
+					// validation failed, feedback errors
+					flash.errors = new LinkedHashMap()
+					this.appendErrors(eventDescription, flash.errors)
+					error()
+				}
+			}.to "eventDescriptions"
+			on("previous") {
+				flash.errors = new LinkedHashMap()
+
+				// handle form data
+				if (!this.handleEventDescriptions(flow, flash, params)) {
+					error()
+				} else {
+					success()
+				}
+			}.to "subjects"
+			on("next") {
+				flash.errors = new LinkedHashMap()
+
+				// check if we have at least one subject
+				// and check form data
+				if (flow.eventDescriptions.size() < 1) {
+					// append error map
+					this.appendErrorMap(['eventDescriptions': 'You need at least to create one eventDescription for your study'], flash.errors)
+					error()
+				} else if (!this.handleEventDescriptions(flow, flash, params)) {
+					error()
+				} else {
+					success()
+				}
+			}.to "events"
+		}
+
+		// render events page
+		events {
+			render(view: "_events")
+			onRender {
+				flow.page = 5
+
+				if (!flow.events) {
+					flow.events = []
+				}
+
+				if (!flow.eventGroups) {
+					flow.eventGroups = []
+				}
+			}
+			on("add") {
+				// create date instances from date string?
+				// @see WizardTagLibrary::timeElement{...}
+				if (params.get('startTime')) {
+					println params.get('startTime').toString()
+					params.startTime = new Date().parse("d/M/yyyy HH:mm", params.get('startTime').toString())
+				}
+				if (params.get('endTime')) {
+					params.get('endTime').toString()
+					params.endTime = new Date().parse("d/M/yyyy HH:mm", params.get('endTime').toString())
+				}
+
+				// get eventDescription instance by name
+				params.eventDescription = this.getObjectByName(params.get('eventDescription'),flow.eventDescriptions)
+
+				// instantiate Event with parameters
+				def event = new Event(params)
+
+				// validate event
+				if (event.validate()) {
+					def increment = flow.events.size()
+					flow.events[increment] = event
+					success()
+				} else {
+					// validation failed, feedback errors
+					flash.errors = new LinkedHashMap()
+					this.appendErrors(event, flash.errors)
+
+					flash.startTime			= params.startTime
+					flash.endTime			= params.endTime
+					flash.eventDescription	= params.eventDescription
+					
+					error()
+				}
+			}.to "events"
+			on("addEventGroup") {
+				def increment = flow.eventGroups.size()
+				flow.eventGroups[ increment ] = new EventGroup(name: "group "+(increment+1))
+			}.to "events"
+			on("previous") {
+				// TODO
+			}.to "eventDescriptions"
+			on("next") {
+				// TODO
+			}.to "events"
+		}
+
 		// render and handle group page
 		groups {
 			render(view: "_groups")
 			onRender {
-				flow.page = 4
+				flow.page = 6
 
 				if (!flow.groups) {
 					flow.groups = []
@@ -205,24 +326,10 @@ class WizardController {
 		}
 
 		// render page three
-		events {
-			render(view: "_events")
-			onRender {
-				flow.page = 5
-			}
-			on("previous") {
-				// TODO
-			}.to "subjects"
-			on("next") {
-				// TODO
-			}.to "samples"
-		}
-
-		// render page three
 		samples {
 			render(view: "_samples")
 			onRender {
-				flow.page = 6
+				flow.page = 7
 			}
 			on("previous") {
 				// TODO
@@ -236,7 +343,7 @@ class WizardController {
 		protocols {
 			render(view: "_protocols")
 			onRender {
-				flow.page = 7
+				flow.page = 8
 			}
 			on("previous") {
 				// TODO
@@ -250,7 +357,7 @@ class WizardController {
 		assays {
 			render(view: "_assays")
 			onRender {
-				flow.page = 8
+				flow.page = 9
 			}
 			on("previous") {
 				// TODO
@@ -264,7 +371,7 @@ class WizardController {
 		done {
 			render(view: "_done")
 			onRender {
-				flow.page = 9
+				flow.page = 10
 			}
 			on("previous") {
 				// TODO
@@ -309,6 +416,35 @@ class WizardController {
 			flash.errors = new LinkedHashMap()
 			this.appendErrors(flow.study, flash.errors)
 			return false
+		}
+	}
+
+	/**
+	 * re-usable code for handling eventDescription form data in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handleEventDescriptions(flow, flash, params) {
+		def names = new LinkedHashMap();
+		def errors = false;
+		def id = 0;
+
+		flow.eventDescriptions.each() {
+			it.name			= params.get('eventDescription_' + id + '_name')
+			it.description		= params.get('eventDescription_' + id + '_description')
+			it.classification	= Term.findByName(params.get('eventDescription_' + id + '_classification'))
+			it.isSamplingEvent	= (params.containsKey('eventDescription_' + id + '_isSamplingEvent'))
+
+			// validate eventDescription
+			if (!it.validate()) {
+				errors = true
+				println id + ' :: ' + it.errors.getAllErrors()
+				this.appendErrors(it, flash.errors)
+			}
+
+			id++
 		}
 	}
 
@@ -400,6 +536,24 @@ class WizardController {
 		}
 
 		return !errors
+	}
+
+
+	/**
+	 * return the object from a map of objects by searching for a name
+	 * @param String 	name
+	 * @param Map		map of objects
+	 * @return Object
+	 */
+	def getObjectByName(name, map) {
+		def result = null
+		map.each() {
+			if (it.name == name) {
+				result = it
+			}
+		}
+
+		return result
 	}
 
 	/**

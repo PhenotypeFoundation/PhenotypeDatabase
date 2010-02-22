@@ -20,7 +20,7 @@ $(document).ready(function() {
         // http://code.google.com/p/fbug/issues/detail?id=1899
         var wizard = $('div#wizard')
         if (wizard.find("#warning").length == 0) {
-            wizard.html('<span id="warning" style="color:red;font-size:8px;">Firefox 3.6 contains <a href="http://code.google.com/p/fbug/issues/detail?id=2746" target="_new">a bug</a> in combination with Firebug\'s XMLHttpRequest spy which causes the wizard to not function anymore. Please make sure you have firebug\'s XMLHttpRequest spy disabled use use Firefox 3.5.7 instead...</span>' + wizard.html())
+            wizard.html('<span id="warning" style="color:red;font-size:8px;">Firefox 3.6 contains <a href="http://code.google.com/p/fbug/issues/detail?id=2746" target="_new">a bug</a> in combination with Firebug\'s XMLHttpRequest spy which causes the wizard to not function anymore. Please make sure you have Firebug\'s XMLHttpRequest spy disabled or use Firefox 3.5.7 instead...</span>' + wizard.html())
         }
     }
 
@@ -34,6 +34,7 @@ function onWizardPage() {
     // GENERAL
     attachHelpTooltips();
     attachDatePickers();
+    attachDateTimePickers();
 
     // SUBJECT PAGE
     attachTableEvents();
@@ -121,6 +122,20 @@ function attachDatePickers() {
             dateFormat  : 'dd/mm/yy',
             altField    : '#' + $(this).attr('name') + 'Example',
             altFormat   : 'DD, d MM, yy'
+        });
+    })
+}
+
+// add datetimepickers to date fields
+function attachDateTimePickers() {
+    $('div#wizard').find("input[type=text][name$='Time']").each(function() {
+        $(this).datepicker({
+            dateFormat      : 'dd/mm/yy',
+            altField        : '#' + $(this).attr('name') + 'Example',
+            altTimeField    : '#' + $(this).attr('name') + 'Example2',
+            altFormat       : 'DD, d MM, yy',
+            showTime        : true,
+            time24h         : true
         });
     })
 }

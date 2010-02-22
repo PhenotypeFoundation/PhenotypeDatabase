@@ -53,10 +53,12 @@ TableEditor.prototype = {
         var count = 0;
         $(this.columnIdentifier, $(row)).each(function() {
             var input = $(':input', $(this));
-
             // does this column contain an input field
+console.log(input)
             if (input) {
                 var type = $(input).attr('type');
+console.log(input)
+console.log('type: '+type)
 
                 switch (type) {
                     case 'text':
@@ -72,6 +74,9 @@ TableEditor.prototype = {
                         $(input).bind('change', function() {
                             that.updateSingleInputElements(input, columnNumber, 'select');
                         })
+                        break;
+                    case 'hidden':
+                        // hidden is hidden :)
                         break;
                     case null:
                         // not an input field...
