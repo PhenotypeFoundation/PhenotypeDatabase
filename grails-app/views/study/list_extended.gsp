@@ -68,7 +68,7 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
 
       <g:each in="${att_list}" var="att">
       <tr>
-        <td><b>${att}</b></td>
+        <td><b>${att[0].toUpperCase()+att.substring(1)}</b></td>
         <g:each in="${selectedStudies}" status="k" var="studyIns">
 <td>${fieldValue(bean: studyIns, field: att)}</td>
         </g:each>
@@ -227,8 +227,6 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
       </div>
 
     </div>
-
-    
 
     <% } %>
     

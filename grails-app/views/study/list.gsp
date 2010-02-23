@@ -25,7 +25,7 @@
         <br>
         <table>
           <tr>
-            <td></td>
+            <td width="50"></td>
             <td colspan="3">
               <center><b>${studyInstance.title}</b></center>
             </td>
@@ -35,12 +35,12 @@
 
               <input type="checkbox" name="${studyInstance.title}" id="${studyInstance.title}"></td>
 
-            <td>
+            <td width="150">
           <g:link action="show" id="${studyInstance.id}">
 ${message(code: 'study.id.label', default: 'Id')} :
 ${fieldValue(bean: studyInstance, field: "id")}</g:link></td>
 
-          <td >
+        <td width="300">
 <b>${message(code: 'study.template.label', default: 'Template')} </b>:
 ${fieldValue(bean: studyInstance, field: "template")}</td>
 
@@ -56,7 +56,19 @@ ${studyInstance.subjects.size()} subjects</td>
 ${fieldValue(bean: studyInstance, field: "owner")}</td>
 
           <td >
-            <b>Assays </b>: </td>
+<b>Assays </b>:
+        <g:each in="${studyInstance.assays}" var="assay">
+          ${assay.name}
+        </g:each>
+          </td>
+
+          <td><b> Samples </b>:
+          <g:each in="${studyInstance.assays.samples}" var="samples">
+          ${samples.name}
+          </g:each>
+          </td>
+
+
         </tr>
         <tr>
           <td></td>
