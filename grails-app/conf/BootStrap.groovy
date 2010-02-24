@@ -239,7 +239,7 @@ class BootStrap {
 			}
 
 			println 'Adding PPSH study'
-			
+
             def humanStudy = new Study(
 				title:"NuGO PPS human study",
 				code:"PPSH",

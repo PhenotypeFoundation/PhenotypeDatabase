@@ -36,14 +36,34 @@
        <div><b> Id </b>: ${fieldValue(bean: studyInstance, field: "id")} <br>
          <b>Template </b>:<g:link controller="template" action="show" id="${studyInstance?.template?.id}">${studyInstance?.template?.encodeAsHTML()}</g:link><br>
          <b> Start </b>:<g:formatDate date="${studyInstance?.startDate}" /> <br>
-         <b>Sampling Events </b>:
-
-           <% def tmpList = [] %>
+         <b> Events </b>:
+         <% def eventList = [] %>
 
           <g:each in="${studyInstance.events}" var="s">
-            <g:if test="${s.eventDescription.isSamplingEvent}">
-            tmpList.add(s.eventDescription)
-            </g:if>
+            <%  eventList.add(s.eventDescription) %>
+          </g:each>
+
+         <g:if test="${eventList.size()==0}">
+          -
+         </g:if>
+
+         <g:else>
+           <% def sampEvent = eventList.get(0).name %>
+           ${sampEvent}
+         <g:each in="${eventList}" var="samplingEvent">
+           <g:if test="${(samplingEvent.name!=sampEvent)}">
+            ${samplingEvent.name}
+         </g:if>
+          </g:each>
+         </g:else>
+           <br>
+
+
+         <b>Sampling Events </b>:
+           <% def tmpList = [] %>
+
+          <g:each in="${studyInstance.samplingEvents}" var="s">
+            <%  tmpList.add(s.eventDescription) %>
           </g:each>
 
          <g:if test="${tmpList.size()==0}">
@@ -55,25 +75,38 @@
            ${sampEvent}
          <g:each in="${tmpList}" var="samplingEvent">
            <g:if test="${(samplingEvent.name!=sampEvent)}">
-            ${samplingEvents.name}
+            ${samplingEvent.name}
          </g:if>
           </g:each>
          </g:else>
            <br>
-        
-
         <b>Last Updated </b>:<g:formatDate date="${studyInstance?.lastUpdated}" /><br>
-        <b>Readers </b>:<ul>
+        <b>Readers </b>:
+
+        <g:if test="${studyInstance.readers.size()==0}">
+          -
+        </g:if>
+        <g:else>
+        <ul>
           <g:each in="${studyInstance.readers}" var="r">
             <li><g:link controller="user" action="show" id="${r.id}">${r?.encodeAsHTML()}</g:link></li>
           </g:each>
-        </ul> <br>
+        </ul>
+        </g:else>
+          <br>
         <b>Code </b>: ${fieldValue(bean: studyInstance, field: "code")} <br>
-        <b>Editors </b>: <ul>
+        <b>Editors </b>:
+          <g:if test="${studyInstance.editors.size()==0}">
+          -
+        </g:if>
+        <g:else>
+        <ul>
           <g:each in="${studyInstance.editors}" var="e">
             <li><g:link controller="user" action="show" id="${e.id}">${e?.encodeAsHTML()}</g:link></li>
           </g:each>
-        </ul> <br>
+        </ul>
+        </g:else>
+          <br>
         <b>EC Code </b>: ${fieldValue(bean: studyInstance, field: "ecCode")} <br>
         <b>Research Question </b>: ${fieldValue(bean: studyInstance, field: "researchQuestion")} <br>
         <b>Title </b>: ${fieldValue(bean: studyInstance, field: "title")} <br>
@@ -142,7 +175,8 @@
           </tr>
           <g:each in="${dbnp.studycapturing .Protocol.list()}" var="s">
             
-            <% if  (studyInstance.events.eventDescription.protocol.contains(s)) { %>
+            <% if  ((studyInstance.events.eventDescription.protocol.contains(s))||
+              (studyInstance.samplingEvents.eventDescription.protocol.contains(s))) { %>
            
             <tr>
               <td><g:link controller="protocol" action="show" id="${s.id}">${s.id}</g:link></td>
@@ -174,20 +208,27 @@
           </tr>
           <g:each in="${studyInstance.events}" var="e">
             <tr>
-             
           <td><g:link controller="event" action="edit" id="${e.id}">${e.subject.id}</g:link></td>
           <td>${e.getPrettyDuration(studyInstance.startDate,e.startTime)}</td>
           <td>${e.getPrettyDuration()}</td>
            <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>
-          <g:if test="${e.eventDescription.isSamplingEvent}">
-            <td><input type="checkbox" id="" disabled="false" value="true"></td>
-          </g:if>
-          <g:else>
-            <td><input type="checkbox" id="" disabled="false" value="false"></td>
-          </g:else>
+            <td><g:checkBox name="event" disabled="${true}" value="${false}"/></td>
           <td>${e.eventDescription.protocol.parameters.name}</td>
           </tr>
           </g:each>
+
+          <g:each in="${studyInstance.samplingEvents}" var="e">
+            <tr>
+          <td><g:link controller="event" action="edit" id="${e.id}">${e.subject.id}</g:link></td>
+          <td>${e.getPrettyDuration(studyInstance.startDate,e.startTime)}</td>
+          <td>${e.getPrettyDuration()}</td>
+           <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>
+            <td><g:checkBox name="samplingEvent" disabled="${true}" value="${true}"/>
+            </td>
+          <td>${e.eventDescription.protocol.parameters.name}</td>
+          </tr>
+          </g:each>
+
           </table>
       </div>
 
@@ -195,7 +236,7 @@
           <table>
           <tr>
 
-            <td><b>Name</b></td>
+            <td><b>Event Name</b></td>
             <td><b>Parameters </b></td>
           </tr>
           <tr>
@@ -228,11 +269,33 @@
             </g:each>
             </g:if>
             </g:each>
+
+           <g:each in="${dbnp.studycapturing.EventDescription.list()}" var="e">
+          <g:if test="${(studyInstance.samplingEvents.eventDescription.contains(e))}" >
+            <tr>
+              <td>${e.name} </td></tr><tr>
+            <g:each in="${e.protocol.parameters}" var="p">
+              <td></td>
+          <td>${p.name}</td>
+          <td>${p.description}</td>
+          <td>${p.unit}</td>
+          <td>${p.reference}</td>
+          <g:if test="${(p.listEntries.size()==0)}" >
+          <td>-</td>
+            </g:if>
+          <g:else>
+          <td>${p.listEntries}</td>
+          </g:else>
+          <td>${p.type}</td>
+            </tr>
+            </g:each>
+            </g:if>
+            </g:each>
+
           </table>
 
-        <g:form>
-    
-      <span class="button"><g:actionSubmit class="event" action="create" value="${message(code: 'default.button.create.label', default: 'Create')}" /></span>
+        <g:form controller="eventDescription" action="create">
+         <INPUT TYPE=submit name=submit Value="New Event Description">
     </g:form>
 
       </div>
@@ -242,9 +305,31 @@
           No assays in this study
         </g:if>
         <g:else>
+          <table>
+            <tr>
+              <td width="100"><b>Assay Name</b></td>
+              <td width="100"><b>Module</b></td>
+              <td><b>Type</b></td>
+              <td width="150"><b>Platform</b></td>
+              <td><b>Url</b></td>
+              <td><b>Samples</b></td>
+            </tr>
           <g:each in="${studyInstance.assays}" var="assay">
-            ${assay.name}
+            <tr>
+            <td>${assay.name}</td>
+            <td>${assay.module.name}</td>
+            <td>${assay.module.type}</td>
+            <td>${assay.module.platform}</td>
+            <td>${assay.module.url}</td>
+            <td>
+              <g:each in="${assay.samples}" var="assaySample">
+                ${assaySample.name}<br>
+              </g:each>
+            </td>
+            </tr>
           </g:each>
+
+          </table>
         </g:else>
       </div>
 
