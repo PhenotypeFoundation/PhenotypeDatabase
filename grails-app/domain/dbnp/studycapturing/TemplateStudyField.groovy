@@ -11,6 +11,7 @@ package dbnp.studycapturing
 
 class TemplateStudyField extends TemplateField {
 	static constraints = {
+		name(unique: true)
 	}
 
 	def String toString() {

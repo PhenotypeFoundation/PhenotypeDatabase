@@ -137,16 +137,7 @@
 
                 <g:each in="${studyInstance.template.subjectFields}" var="g">
                <td>
-              <% if (g.type==dbnp.studycapturing.TemplateFieldType.INTEGER){ %>
-                  <% print s.templateIntegerFields.get(g.toString())  %>
-              <% } %>
-               <% if (g.type==dbnp.studycapturing.TemplateFieldType.STRINGLIST){ %>
-                <% print s.templateStringFields.get(g.toString())  %>
-              <% } %>
-             <% if (g.type==dbnp.studycapturing.TemplateFieldType.FLOAT){ %>
-                <% print s.templateFloatFields.get(g.toString())  %>
-              <% } %>
-
+                  <% print s.getFieldValue(g.toString())  %>
             </td>
           </g:each>
           </tr>

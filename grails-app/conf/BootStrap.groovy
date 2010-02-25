@@ -4,6 +4,7 @@ import dbnp.studycapturing.*
 
 import dbnp.data.Ontology
 import dbnp.data.Term
+import java.text.SimpleDateFormat
 
 /**
  * Application Bootstrapper
@@ -71,10 +72,8 @@ class BootStrap {
 				reference: treatmentTerm
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-
-			// added by Jahn for testing the event views
-			def treatmentProtocol2 = new Protocol(
-				name: 'MADMAX Experimental Protocol 2',
+			def fastingProtocol = new Protocol(
+				name: 'Fasting',
 				reference: treatmentTerm
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
@@ -92,15 +91,9 @@ class BootStrap {
 				type: ProtocolParameterType.STRING))
 			.save()
 
-
-			// added by Jahn for testing the event views
-			treatmentProtocol2
+			fastingProtocol
 			.addToParameters(new ProtocolParameter(
-				name: 'Diet',
-				type: ProtocolParameterType.STRINGLIST,
-				listEntries: ['99% fat (crude oil)','1% fat (palm oil)']))
-			.addToParameters(new ProtocolParameter(
-				name: 'BackgroundDiet',
+				name: 'Fasting period',
 				type: ProtocolParameterType.STRING))
 			.save()
 
@@ -142,6 +135,9 @@ class BootStrap {
 				name: 'Gender',type: TemplateFieldType.STRINGLIST,
 				listEntries: ['Male','Female'])
 			.with { if (!validate()) { errors.each { println it} } else save()}
+			def ageField = new TemplateSubjectField(
+				name: 'Age',type: TemplateFieldType.INTEGER)
+			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Mouse template
 			def mouseTemplate = new Template(
@@ -150,12 +146,11 @@ class BootStrap {
 				name: 'Genotype',type: TemplateFieldType.STRINGLIST,
 				listEntries: ['C57/Bl6j','wild type']))
 			.addToSubjectFields(genderField)
-			.addToSubjectFields(new TemplateSubjectField(
-				name: 'Age',type: TemplateFieldType.INTEGER))
+			.addToSubjectFields(ageField)
 			.addToSubjectFields(new TemplateSubjectField(
 				name: 'Cage',type: TemplateFieldType.INTEGER))
 			.addToSubjectFields(new TemplateSubjectField(
-				name: 'Some float', type: TemplateFieldType.FLOAT))
+				name: 'Some double', type: TemplateFieldType.DOUBLE))
 			.addToSubjectFields(new TemplateSubjectField(
 				name: 'Some ontology', type: TemplateFieldType.ONTOLOGYTERM))
 			.with { if (!validate()) { errors.each { println it} } else save()}
@@ -164,6 +159,15 @@ class BootStrap {
 			def humanTemplate = new Template(
 				name: 'Human')
 			.addToSubjectFields(genderField)
+			.addToSubjectFields(ageField)
+			.addToSubjectFields(new TemplateSubjectField(
+				name: 'DOB',type: TemplateFieldType.DATE))
+			.addToSubjectFields(new TemplateSubjectField(
+				name: 'Height',type: TemplateFieldType.DOUBLE))
+			.addToSubjectFields(new TemplateSubjectField(
+				name: 'Weight',type: TemplateFieldType.DOUBLE))
+			.addToSubjectFields(new TemplateSubjectField(
+				name: 'BMI',type: TemplateFieldType.DOUBLE))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			//events
@@ -190,10 +194,10 @@ class BootStrap {
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
 
-                        def eventTreatment2 = new EventDescription(
-				name: 'Diet treatment',
-				description: 'Treatment Protocol NuGO PPSH',
-				protocol: treatmentProtocol2,
+                        def fastingTreatment = new EventDescription(
+				name: 'Fasting treatment',
+				description: 'Fasting Protocol NuGO PPSH',
+				protocol: fastingProtocol,
 	                        isSamplingEvent: false
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
@@ -243,20 +247,33 @@ class BootStrap {
             def humanStudy = new Study(
 				title:"NuGO PPS human study",
 				code:"PPSH",
-				researchQuestion:"etc.",
+				researchQuestion:"How much are fasting plasma and urine metabolite levels affected by prolonged fasting ?",
 				description:"Human study",
 				ecCode:"unknown",
-				startDate: Date.parse('yyyy-MM-dd','2008-01-11'),
+				startDate: Date.parse('yyyy-MM-dd','2009-01-01'),
                                 template: humanTemplate
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
                         def y=1
-			5.times {
+			11.times {
 				def currentSubject = new Subject(
-					name: "A" + y++,
+					name: "" + y++,
 					species: humanTerm,
 					template: humanTemplate,
-					templateStringFields: ["Gender" : "Male"],
+					templateStringFields: [
+						"Gender" : (boolean)(x/2) ? "Male" : "Female"
+						],
+					templateDateFields: [
+						"DOB" : new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19"+(10+(int)(Math.random()*80)))
+					],
+					templateIntegerFields: [
+						"Age" : 30
+					],
+					templateDoubleFields: [
+						"Height" : Math.random()*2F,
+						"Weight" : Math.random()*150F,
+						"BMI" : 20 + Math.random()*10F
+					]
 				).with { if (!validate()) { errors.each { println it} } else save()}
 
 				humanStudy.addToSubjects(currentSubject)
@@ -264,8 +281,8 @@ class BootStrap {
 					subject: currentSubject,
 					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
 					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					eventDescription: eventTreatment2,
-					parameterStringValues: ['Diet':'99% fat (crude oil)','BackgroundDiet':'Mediterranean diet'])
+					eventDescription: fastingTreatment,
+					parameterStringValues: ['Fasting period':'8h'])
 				)
 				.addToSamplingEvents(new SamplingEvent(
 					subject: currentSubject,
