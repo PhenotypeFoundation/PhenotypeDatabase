@@ -15,17 +15,27 @@
  */
 %>
 <wizard:pageContent>
-	<wizard:selectElement name="eventDescription" description="Event Description" error="eventDescription" from="${eventDescriptions}" value="${eventDescription}">
+	<span class="info">
+		<span class="title">Define all events and their duration that occur in your study</span>
+		In the previous screen you defined the unique event types, in this screen you need to define
+		all events of a specific event type that occur in time. Select the type of event, and the
+		start and stop time of an event. As it is frequently the case that <i>sets</i> of events act
+		upon (groups of) subjects, you can define event groups, and add events to a particular group.<br/>
+		<i>Note that you can edit multiple events at once by selecting multpiple rows by either
+		ctrl-clicking them or dragging a selection over them.</i>
+	</span>
+
+	<wizard:selectElement name="eventDescription" description="Event Description" error="eventDescription" from="${eventDescriptions}" value="${values?.eventDescription}">
 		The event description for this event
 	</wizard:selectElement>
-	<wizard:timeElement name="startTime" description="Start Time" error="startTime" value="${startTime}">
+	<wizard:timeElement name="startTime" description="Start Time" error="startTime" value="${values?.startTime}">
 		The start time of the study
 	</wizard:timeElement>
-	<wizard:timeElement name="endTime" description="End time" error="endTimee" value="${endTime}">
+	<wizard:timeElement name="endTime" description="End time" error="endTimee" value="${values?.endTime}">
 		The end time of the study
 	</wizard:timeElement>
 	<wizard:buttonElement name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()"/>
-<g:if test="${events}">
+<g:if test="${events}">	
 	<div class="table">
 		<div class="header">
 			<div class="firstColumn">#</div>

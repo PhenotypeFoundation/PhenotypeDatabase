@@ -50,11 +50,8 @@ class WizardController {
 				[title: 'Study'],				// study
 				[title: 'Subjects'],			// subjects
 				[title: 'Event Descriptions'],	// event descriptions
-				[title: 'Events'],				// groups
-				[title: '---'],				// events
-				[title: '---'],				// samples
-				[title: '---'],			// protocols
-				[title: '---'],				// assays
+				[title: 'Events'],				// events
+				[title: 'Confirmation'],        // confirmation page
 				[title: 'Done']					// finish page
 			]
 
@@ -211,6 +208,7 @@ class WizardController {
 				} else {
 					// validation failed, feedback errors
 					flash.errors = new LinkedHashMap()
+					flash.values = params
 					this.appendErrors(eventDescription, flash.errors)
 					error()
 				}
@@ -220,6 +218,7 @@ class WizardController {
 
 				// handle form data
 				if (!this.handleEventDescriptions(flow, flash, params)) {
+					flash.values = params
 					error()
 				} else {
 					success()
@@ -232,9 +231,11 @@ class WizardController {
 				// and check form data
 				if (flow.eventDescriptions.size() < 1) {
 					// append error map
+					flash.values = params
 					this.appendErrorMap(['eventDescriptions': 'You need at least to create one eventDescription for your study'], flash.errors)
 					error()
 				} else if (!this.handleEventDescriptions(flow, flash, params)) {
+					flash.values = params
 					error()
 				} else {
 					success()
@@ -254,13 +255,13 @@ class WizardController {
 
 				if (!flow.eventGroups) {
 					flow.eventGroups = []
+					flow.eventGroups[0] = new EventGroup(name: 'Group 1')	// 1 group by default
 				}
 			}
 			on("add") {
 				// create date instances from date string?
 				// @see WizardTagLibrary::timeElement{...}
 				if (params.get('startTime')) {
-					println params.get('startTime').toString()
 					params.startTime = new Date().parse("d/M/yyyy HH:mm", params.get('startTime').toString())
 				}
 				if (params.get('endTime')) {
@@ -282,6 +283,7 @@ class WizardController {
 				} else {
 					// validation failed, feedback errors
 					flash.errors = new LinkedHashMap()
+					flash.values = params
 					this.appendErrors(event, flash.errors)
 
 					flash.startTime			= params.startTime
@@ -293,89 +295,48 @@ class WizardController {
 			}.to "events"
 			on("addEventGroup") {
 				def increment = flow.eventGroups.size()
-				flow.eventGroups[ increment ] = new EventGroup(name: "group "+(increment+1))
+				flow.eventGroups[ increment ] = new EventGroup(name: "Group "+(increment+1))
 			}.to "events"
 			on("previous") {
 				// TODO
 			}.to "eventDescriptions"
 			on("next") {
-				// TODO
-			}.to "events"
+				flash.errors = new LinkedHashMap()
+
+				// check if we have at least one subject
+				// and check form data
+				if (flow.events.size() < 1) {
+					// append error map
+					flash.values = params
+					this.appendErrorMap(['events': 'You need at least to create one event for your study'], flash.errors)
+					error()
+				}
+			}.to "confirm"
 		}
 
-		// render and handle group page
-		groups {
-			render(view: "_groups")
+		confirm {
+			render(view: "_confirmation")
 			onRender {
 				flow.page = 6
-
-				if (!flow.groups) {
-					flow.groups = []
-				}
-			}
-			on("add") {
-				def increment = flow.groups.size()
-				flow.groups[increment] = new SubjectGroup(params)
-			}.to "groups"
-			on("next") {
-				// TODO
-			}.to "groups"
-			on("previous") {
-				// TODO
-			}.to "subjects"
-		}
-
-		// render page three
-		samples {
-			render(view: "_samples")
-			onRender {
-				flow.page = 7
 			}
 			on("previous") {
-				// TODO
+				// do nothing
 			}.to "events"
 			on("next") {
-				// TODO
-			}.to "protocols"
-		}
-
-		// render page three
-		protocols {
-			render(view: "_protocols")
-			onRender {
-				flow.page = 8
-			}
-			on("previous") {
-				// TODO
-			}.to "samples"
-			on("next") {
-				// TODO
-			}.to "assays"
-		}
-
-		// render page three
-		assays {
-			render(view: "_assays")
-			onRender {
-				flow.page = 9
-			}
-			on("previous") {
-				// TODO
-			}.to "protocols"
-			on("next") {
-				// TODO
-			}.to "done"
+				// store everything in the database!
+				success()
+			}.to "confirm"
 		}
 
 		// render page three
 		done {
 			render(view: "_done")
 			onRender {
-				flow.page = 10
+				flow.page = 6
 			}
 			on("previous") {
 				// TODO
-			}.to "assays"
+			}.to "confirm"
 		}
 	}
 
@@ -394,6 +355,8 @@ class WizardController {
 		// @see WizardTagLibrary::dateElement{...}
 		if (params.get('startDate')) {
 			params.startDate = new Date().parse("d/M/yyyy", params.get('startDate').toString())
+		} else {
+			params.remove('startDate')
 		}
 
 		// if a template is selected, get template instance
@@ -427,12 +390,12 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def handleEventDescriptions(flow, flash, params) {
-		def names = new LinkedHashMap();
-		def errors = false;
-		def id = 0;
+		def names = new LinkedHashMap()
+		def errors = false
+		def id = 0
 
 		flow.eventDescriptions.each() {
-			it.name			= params.get('eventDescription_' + id + '_name')
+			it.name				= params.get('eventDescription_' + id + '_name')
 			it.description		= params.get('eventDescription_' + id + '_description')
 			it.classification	= Term.findByName(params.get('eventDescription_' + id + '_classification'))
 			it.isSamplingEvent	= (params.containsKey('eventDescription_' + id + '_isSamplingEvent'))
@@ -440,12 +403,13 @@ class WizardController {
 			// validate eventDescription
 			if (!it.validate()) {
 				errors = true
-				println id + ' :: ' + it.errors.getAllErrors()
-				this.appendErrors(it, flash.errors)
+				this.appendErrors(it, flash.errors, 'eventDescription_' + id + '_')
 			}
 
 			id++
 		}
+
+		return !(errors)
 	}
 
 	/**
@@ -469,7 +433,7 @@ class WizardController {
 
 			// remember name and check for duplicates
 			if (!names[it.name]) {
-				names[it.name] = [count: 1, first: 'subject_' + id + '_name']
+				names[it.name] = [count: 1, first: 'subject_' + id + '_name', firstId: id]
 			} else {
 				// duplicate name found, set error flag
 				names[it.name]['count']++
@@ -478,11 +442,11 @@ class WizardController {
 				if (names[it.name]['count'] == 2) {
 					// yeah, also mention the first
 					// occurrence in the error message
-					this.appendErrorMap([[names[it.name]['first']]: 'The subject name needs to be unique!'], flash.errors)
+					this.appendErrorMap(name: 'The subject name needs to be unique!', flash.errors, 'subject_'+names[it.name]['firstId']+'_')
 				}
 
 				// add to error map
-				this.appendErrorMap([['subject_' + id + '_name']: 'The subject name needs to be unique!'], flash.errors)
+				this.appendErrorMap([name: 'The subject name needs to be unique!'], flash.errors, 'subject_'+id+'_')
 				errors = true
 			}
 
@@ -528,7 +492,6 @@ class WizardController {
 			// validate subject
 			if (!it.validate()) {
 				errors = true
-				println id + ' :: ' + it.errors.getAllErrors()
 				this.appendErrors(it, flash.errors)
 			}
 
@@ -581,6 +544,9 @@ class WizardController {
 	def appendErrors(object, map) {
 		this.appendErrorMap(this.getHumanReadableErrors(object), map)
 	}
+	def appendErrors(object, map, prepend) {
+		this.appendErrorMap(this.getHumanReadableErrors(object), map, prepend)
+	}
 
 	/**
 	 * append errors of one map to another map
@@ -590,7 +556,12 @@ class WizardController {
 	 */
 	def appendErrorMap(map, mapToExtend) {
 		map.each() {key, value ->
-			mapToExtend[key] = value
+			mapToExtend[key] = ['key': key, 'value': value, 'dynamic': false]
+		}
+	}
+	def appendErrorMap(map, mapToExtend, prepend) {
+		map.each() {key, value ->
+			mapToExtend[prepend + key] = ['key': key, 'value': value, 'dynamic': true]
 		}
 	}
 }

@@ -15,6 +15,11 @@
  */
 %>
 <wizard:pageContent>
+	<span class="info">
+		<span class="title">Add subjects to your study</span>
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet leo nec leo vehicula quis scelerisque elit pulvinar. Vivamus arcu dui, adipiscing eu vestibulum id, consectetur et erat. Aenean risus mauris, placerat et lacinia vulputate, commodo eget ligula. Pellentesque ornare blandit metus ac dictum. Donec scelerisque feugiat quam, a congue ipsum malesuada nec. Donec vulputate, diam eget porta rhoncus, est mauris ullamcorper turpis, vitae dictum risus justo quis justo. Aenean blandit feugiat accumsan. Donec porttitor bibendum elementum.
+	</span>
+
 	<wizard:ajaxButton name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
 	<input name="addNumber" size="4" maxlength="4" value="1">
 	subjects of species

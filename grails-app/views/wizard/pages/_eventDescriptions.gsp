@@ -15,16 +15,23 @@
  */
 %>
 <wizard:pageContent>
-	<wizard:termElement name="classification" description="Classification" error="classification" value="${classification}">
+	<span class="info">
+		<span class="title">Describe all unique event types that occur in your study</span>
+		These unique events are, for example, treatments, challenges and sampling events. Every event description
+		should be unique. If your study, for example, samples both blood as well as tissue, then create two sample
+		descriptions. One for 'sampling blood', and one for 'sampling tissue'.
+	</span>
+
+	<wizard:termElement name="classification" description="Classification" error="classification" value="${values?.classification}">
 		The classification
 	</wizard:termElement>
-	<wizard:textFieldElement name="name" description="Name" error="name" value="${name}">
+	<wizard:textFieldElement name="name" description="Name" error="name" value="${values?.name}">
 		The name of the event description you are creating
 	</wizard:textFieldElement>
-	<wizard:textFieldElement name="description" description="Description" error="description" value="${description}">
+	<wizard:textFieldElement name="description" description="Description" error="description" value="${values?.description}">
 		A short description summarizing your event description
 	</wizard:textFieldElement>
-	<wizard:checkBoxElement name="isSamplingEvent" description="Sampling event" error="isSamplingEvent" value="${isSamplingEvent}">
+	<wizard:checkBoxElement name="isSamplingEvent" description="Sampling event" error="isSamplingEvent" value="${values?.isSamplingEvent}">
 		Is this a sampling event description?
 	</wizard:checkBoxElement>
 	<wizard:buttonElement name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()"/>

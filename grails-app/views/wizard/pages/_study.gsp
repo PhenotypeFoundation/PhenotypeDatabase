@@ -15,6 +15,11 @@
  */
 %>
 <wizard:pageContent>
+	<span class="info">
+		<span class="title">Define the basic properties of your study</span>
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet leo nec leo vehicula quis scelerisque elit pulvinar. Vivamus arcu dui, adipiscing eu vestibulum id, consectetur et erat. Aenean risus mauris, placerat et lacinia vulputate, commodo eget ligula. Pellentesque ornare blandit metus ac dictum. Donec scelerisque feugiat quam, a congue ipsum malesuada nec. Donec vulputate, diam eget porta rhoncus, est mauris ullamcorper turpis, vitae dictum risus justo quis justo. Aenean blandit feugiat accumsan. Donec porttitor bibendum elementum.
+	</span>
+	
 	<wizard:textFieldElement name="title" description="Title" error="title" value="${study?.title}">
 		The title of the study you are creating
 	</wizard:textFieldElement>

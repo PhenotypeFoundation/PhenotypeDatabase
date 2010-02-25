@@ -441,6 +441,18 @@ class WizardTagLib extends JavascriptTagLib {
 		out << select(attrs)
 	}
 
+	def show = { attrs ->
+		// is object parameter set?
+		def o = attrs.object
+
+		println o.getProperties();
+		o.getProperties().each {
+			println it
+		}
+
+		out << "!! test version of 'show' tag !!"
+	}
+
 	/**
 	 * render table headers for all subjectFields in a template
 	 * @param Map attributes
@@ -482,7 +494,7 @@ class WizardTagLib extends JavascriptTagLib {
 							value: (stringFields) ? stringFields.get(it.name) : ''
 						)
 					} else {
-						out << '<span class="error">no values!!</span>'
+						out << '<span class="warning">no values!!</span>'
 					}
 					break;
 				case 'INTEGER':
@@ -501,7 +513,7 @@ class WizardTagLib extends JavascriptTagLib {
 					break;
 				default:
 					// unsupported field type
-					out << '<span class="error">!'+it.type+'</span>'
+					out << '<span class="warning">!'+it.type+'</span>'
 					break;
 			}
 			out << '</div>'

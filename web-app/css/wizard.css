@@ -3,6 +3,25 @@
     padding-top: 10px;
 }
 
+.wizard .info {
+    display: block;
+    border: 1px solid #006DBA;
+    background-color: #EEE;
+    padding: 10px;
+    font-size: 10px;
+    margin: 10px 0px 10px 0px;
+}
+
+.wizard .info .title {
+    color:#006DBA;
+    font-size:14px;
+    font-weight:normal;
+    display: block;
+    margin-bottom: 5px;
+    padding-left: 20px;
+    background: url(../images/icons/famfamfam/information.png) no-repeat center left;
+}
+
 .wizard .spinner {
     background: url(../images/spinner.gif) no-repeat left top;
     width: 16px;
@@ -69,11 +88,6 @@
     input: disabled;
 }
 
-.wizard .error {
-    display: block;
-    padding-top: 10px;
-}
-
 .wizard .element {
     display: block;
 }
@@ -87,6 +101,10 @@
 
 .wizard .element .input {
     display: inline;
+}
+
+.wizard .error {
+    background: url(../images/icons/famfamfam/exclamation.png) no-repeat 230px 4px;
 }
 
 .wizard .element .input input {
@@ -183,10 +201,14 @@
     background-color: #f2e3bc;
 }
 
-.wizard .table .row .error {
+.wizard .table .row .warning {
     color: red;
     font-size: 8px;
     height: 10px;
+}
+
+.wizard .table .row .error {
+    background-color: #ffb0b7;
 }
 
 .wizard .table input, .wizard .table select {
@@ -194,6 +216,13 @@
     margin: 2px 0;
     padding: 2px 4px;
     background-color: transparent;
+    width: 100px;
+}
+.wizard .table .header input, .wizard .table .header select, .wizard .table .header button {
+    border: 1px solid #8e908f;
+    margin: 2px 0;
+    padding: 2px 4px;
+    background-color: #fff;
     width: 100px;
 }
 

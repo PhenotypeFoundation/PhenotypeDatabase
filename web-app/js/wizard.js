@@ -36,14 +36,14 @@ function onWizardPage() {
     attachDatePickers();
     attachDateTimePickers();
 
-    // SUBJECT PAGE
+    // table handlers
     attachTableEvents();
     resizeWizardTable();
-    attachSubjectSlider();
+    attachTableSlider();
     new TableEditor().init('div.table','div.row','div.column');
-    
-    // GROUPING PAGE
-    new Grouping().init('div.subjects', 'div.subject', 'div.groups', 'div.group','div.add','div.remove');
+
+    // accordeon(s)
+    $("#accordion").accordion();
 }
 
 // attach help tooltips
@@ -188,7 +188,7 @@ function resizeWizardTable() {
 // if we have a table and a slider, make the slider
 // slide the contents of the table if the content of
 // the table is wider than the table itself
-function attachSubjectSlider() {
+function attachTableSlider() {
     var slider = $("div#wizard").find('div.slider');
     var header = $("div#wizard").find('div.header');
     var table = $("div#wizard").find('div.table');

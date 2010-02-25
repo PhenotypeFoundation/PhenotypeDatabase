@@ -17,6 +17,12 @@ TableEditor.prototype = {
     rowIdentifier:      null,
     columnIdentifier:   null,
 
+    /**
+     * initialize object
+     * @param tableIdentifier
+     * @param rowIdentifier
+     * @param columnIdentifier
+     */
     init: function(tableIdentifier, rowIdentifier, columnIdentifier) {
         // store parameters globally
         this.tableIdentifier = tableIdentifier;
@@ -34,6 +40,10 @@ TableEditor.prototype = {
         }
     },
 
+    /**
+     * initialize table
+     * @param table
+     */
     initializeTable: function(table) {
         var that = this;
 
@@ -48,17 +58,18 @@ TableEditor.prototype = {
         });
     },
 
+    /**
+     * attach handlers to the input elements in a table row
+     * @param row
+     */
     attachColumnHandlers: function(row) {
         var that = this;
         var count = 0;
         $(this.columnIdentifier, $(row)).each(function() {
             var input = $(':input', $(this));
             // does this column contain an input field
-console.log(input)
             if (input) {
                 var type = $(input).attr('type');
-console.log(input)
-console.log('type: '+type)
 
                 switch (type) {
                     case 'text':
@@ -73,7 +84,15 @@ console.log('type: '+type)
                         var columnNumber = count;
                         $(input).bind('change', function() {
                             that.updateSingleInputElements(input, columnNumber, 'select');
-                        })
+                        });
+                        break;
+                    case 'checkbox':
+                        // checkbox
+                        var columnNumber = count;
+                        $(input).bind('click', function() {
+                            console.log(columnNumber+': update checkboxes with value '+input)
+                            that.updateSingleInputElements(input, columnNumber, 'input');
+                        });
                         break;
                     case 'hidden':
                         // hidden is hidden :)
@@ -92,26 +111,65 @@ console.log('type: '+type)
         })
     },
 
+    /**
+     * update all input elements in a selected column
+     * @param element
+     * @param columnNumber
+     * @param elementSelector
+     */
     updateSingleInputElements: function(element, columnNumber, elementSelector) {
         var that = this;
         var e = $(element);
         var c = e.parent();
         var r = c.parent();
         var t = r.parent();
-
-        // get value(s)
-        // TODO for multiple selects...
-        var v = e.val();
+        var v = this.getValue(e);
+        // TODO for multiples...
 
         // select all input elements in the selected rows
         $('.ui-selected', t).each(function() {
             $(that.columnIdentifier + ':eq(' + columnNumber + ') ' + elementSelector, $(this)).each(function() {
-                if ($(this).val() != v) {
-                    $(this).val(v);
-                    // TODO support multiple selects
+                var me = $(this)
+                var myVal = that.getValue(me);
+                if (myVal != v) {
+                    that.setValue(me,v);
                 }
             })
-
         })
+    },
+
+    /**
+     * get the value /status of an input field based on it's type
+     * @param input
+     */
+    getValue: function(input) {
+        var i = $(input);
+
+        switch (i.attr('type')) {
+            case 'checkbox':
+                return i.attr('checked');
+                break;
+            default:
+                return i.val();
+                break;
+        }
+    },
+
+    /**
+     * set the value / status of an input field based on it's type
+     * @param input
+     * @param value
+     */
+    setValue: function(input,value) {
+        var i = $(input);
+
+        switch (i.attr('type')) {
+            case 'checkbox':
+                return i.attr('checked',value);
+                break;
+            default:
+                return i.val(value);
+                break;
+        }
     }
 }

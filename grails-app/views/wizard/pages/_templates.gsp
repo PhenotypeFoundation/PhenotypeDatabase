@@ -15,6 +15,11 @@
  */
 %>
 <wizard:pageContent>
+	<span class="info">
+		<span class="title">Select the template you would like to use</span>
+		A template is a predefined set of values to store with all elements of your study.
+	</span>
+
 	<wizard:templateElement name="template" description="Template" value="${study?.template}">
 		The meta data template to use for this study
 	</wizard:templateElement>
