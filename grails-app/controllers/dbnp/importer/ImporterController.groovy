@@ -21,6 +21,7 @@
 package dbnp.importer
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.ss.usermodel.DataFormatter
+import dbnp.studycapturing.Template
 
 class ImporterController {
     def ImporterService
@@ -28,7 +29,9 @@ class ImporterController {
     /**
      * Default page
      **/
-    def index = { }
+    def index = { 
+	[templates:Template.list()]
+    }
 
     /**
     * This method will move the uploaded file to a temporary path and send the header
@@ -46,14 +49,26 @@ class ImporterController {
 	def datamatrix= ImporterService.getDatamatrix(wb, 0, 5)
 
 	session.header = header
+	session.importtemplate_id = params.template_id
 
         render (view:"step1", model:[header:header, datamatrix:datamatrix])
 
     }
 
+    /**
+    * User has assigned all entities to the columns and continues to the next step (assigning properties to columns)
+    *
+    * @param entity list of entities
+    * @return properties page
+    */
     def savepreview = {	
 	def entities  = request.getParameterValues("entity")
 
-	render(view:"step2", model:[entities:entities, header:session.header])
+	// currently only one template is used for all entities
+	// TODO: show template fields per entity
+	
+	def templates = Template.get(session.importtemplate_id)
+
+	render(view:"step2", model:[entities:entities, header:session.header, templates:templates])
     }
 }

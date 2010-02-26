@@ -92,4 +92,6 @@ class ImporterTagLib {
 	def customvalue = (attrs['customvalue']==null) ? "" : attrs['customvalue']
 	out << createSelect(selected, attrs['name'], standardcelltypes, customvalue)
     }
+    
+
 }

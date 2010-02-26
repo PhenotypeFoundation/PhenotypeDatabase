@@ -26,7 +26,10 @@
 				<b>${header[selentity.columnindex.toInteger()].value}</b>
 			    </td>
 			    <td>
-				<g:select name="property" from="${['BMI', 'DOB', 'Gender']}" />
+				
+				<g:each var="template" in="${templates}">
+				    ${template.studyFields()}
+				</g:each>
 			    </td>
 		    </g:if>
 		</g:each>

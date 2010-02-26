@@ -53,7 +53,7 @@
 	    </tr>
 	</g:each>
 	<tr>
-	    <td align="right" colspan="${datamatrix.length}"><input type="submit" value="Accept"></td>
+	    <td align="right" colspan="${datamatrix.length}"><input type="submit" value="Next"></td>
 	</tr>
   </table>
   </g:form>
