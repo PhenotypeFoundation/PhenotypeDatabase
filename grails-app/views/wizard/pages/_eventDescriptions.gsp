@@ -18,12 +18,19 @@
 	<span class="info">
 		<span class="title">Describe all unique event types that occur in your study</span>
 		These unique events are, for example, treatments, challenges and sampling events. Every event description
-		should be unique. If your study, for example, samples both blood as well as tissue, then create two sample
-		descriptions. One for 'sampling blood', and one for 'sampling tissue'.
+		should be unique. If your study, for example, samples both blood as well as tissue on one or more subjects,
+		then create two sample descriptions. One for 'sampling blood', and one for 'sampling tissue'.
+	</span>
+
+	<span class="info">
+		<span class="title">Note!</span>
+		Currently 'classification' display all terms because there is no way to machine interpret
+		the different values. So please -for now- make sure to pick the Ontology reference applicable for
+		events until this particular challenge is solved.
 	</span>
 
 	<wizard:termElement name="classification" description="Classification" error="classification" value="${values?.classification}">
-		The classification
+		The ontology reference for this particular type of event
 	</wizard:termElement>
 	<wizard:textFieldElement name="name" description="Name" error="name" value="${values?.name}">
 		The name of the event description you are creating

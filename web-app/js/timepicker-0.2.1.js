@@ -216,9 +216,14 @@ Timepicker.prototype = {
             this._orgValue = $('#' + this._inputId).val();
         }
 
-        this.resize();
-
-        $('#' + this._mainDivId).show();
+        // timepicker did not show correctly on initial show due to the fact
+        // that the show animation wasn't over when resizing was performed,
+        // hence using an incorrect datepicker width. Now calling resize method
+        // AFTER show animation has finished
+        var that = this;
+        $('#' + this._mainDivId).show('slow',function() {
+            that.resize();
+        });
 
         this._visible = true;
 
