@@ -39,6 +39,7 @@
 	<div class="table">
 		<div class="header">
 			<div class="firstColumn">#</div>
+			<div class="firstColumn"></div>
 			<div class="column">eventDescription</div>
 			<div class="column">startTime</div>
 			<div class="column">endTime</div>
@@ -56,6 +57,9 @@
 	<g:each var="event" status="i" in="${events}">
 		<div class="row">
 			<div class="firstColumn">${i+1}</div>
+			<div class="firstColumn">
+				<wizard:ajaxButton name="deleteEvent" src="../images/icons/famfamfam/delete.png" alt="delete this event" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${i});" afterSuccess="onWizardPage()" />				
+			</div>
 			<div class="column">${event.eventDescription}</div>
 			<div class="column"><g:formatDate format="dd/MM/yyyy hh:mm" date="${event.startTime}" /></div>
 			<div class="column"><g:formatDate format="dd/MM/yyyy hh:mm" date="${event.endTime}" /></div>

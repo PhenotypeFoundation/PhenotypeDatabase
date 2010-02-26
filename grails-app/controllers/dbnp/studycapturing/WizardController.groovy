@@ -50,7 +50,7 @@ class WizardController {
 				[title: 'Study'],				// study
 				[title: 'Subjects'],			// subjects
 				[title: 'Event Descriptions'],	// event descriptions
-				[title: 'Events'],				// events
+				[title: 'Events'],				// events and event grouping
 				[title: 'Confirmation'],		// confirmation page
 				[title: 'Done']					// finish page
 			]
@@ -213,6 +213,29 @@ class WizardController {
 					error()
 				}
 			}.to "eventDescriptions"
+			on("delete") {
+				def delete = params.get('do') as int;
+
+				// handle form data
+				if (!this.handleEventDescriptions(flow, flash, params)) {
+					flash.values = params
+					error()
+				} else {
+					success()
+				}
+
+				// remove eventDescription
+				if (flow.eventDescriptions[ delete ] && flow.eventDescriptions[ delete ] instanceof EventDescription) {
+					// remove all events based on this eventDescription
+					for ( i in flow.events.size()..0 ) {
+						if (flow.events[ i ] && flow.events[ i ].eventDescription == flow.eventDescriptions[ delete ]) {
+							flow.events.remove(i)
+						}
+					}
+
+					flow.eventDescriptions.remove(delete)
+				}
+			}.to "eventDescriptions"
 			on("previous") {
 				flash.errors = new LinkedHashMap()
 
@@ -296,7 +319,24 @@ class WizardController {
 					error()
 				}
 			}.to "events"
+			on("deleteEvent") {
+				flash.values = params
+				def delete = params.get('do') as int;
+
+				// handle event groupings
+				this.handleEventGrouping(flow, flash, params)
+
+				// remove event
+				if (flow.events[ delete ] && flow.events[ delete ] instanceof Event) {
+					flow.events.remove(delete)
+				}
+			}.to "events"
 			on("addEventGroup") {
+				flash.values = params
+				
+				// handle event groupings
+				this.handleEventGrouping(flow, flash, params)
+
 				def increment = flow.eventGroups.size()
 				def groupName = "Group " + (increment + 1)
 
@@ -323,6 +363,8 @@ class WizardController {
 				flow.eventGroups[increment] = new EventGroup(name: groupName)
 			}.to "events"
 			on("deleteEventGroup") {
+				flash.values = params
+				
 				def delete = params.get('do') as int;
 
 				// handle event groupings
@@ -339,6 +381,8 @@ class WizardController {
 				this.handleEventGrouping(flow, flash, params)
 			}.to "eventDescriptions"
 			on("next") {
+				flash.values = params
+				
 				flash.errors = new LinkedHashMap()
 
 				// handle event groupings
@@ -402,8 +446,6 @@ class WizardController {
 			flow.events.each() {
 				if (params.get('event_' + e + '_group_' + g) == 'on') {
 					eventGroup.addToEvents(it)
-					//} else {
-					//	eventGroup.events.minus(it)
 				}
 				e++
 			}

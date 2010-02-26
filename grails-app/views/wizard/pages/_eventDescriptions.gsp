@@ -46,6 +46,7 @@
 	<div class="table">
 		<div class="header">
 			<div class="firstColumn">#</div>
+			<div class="firstColumn"></div>
 			<div class="column">name</div>
 			<div class="column">description</div>
 			<div class="column">classification</div>
@@ -55,6 +56,9 @@
 	<g:each var="eventDescription" status="i" in="${eventDescriptions}">
 		<div class="row">
 			<div class="firstColumn">${i+1}</div>
+			<div class="firstColumn">
+				<wizard:ajaxButton name="delete" src="../images/icons/famfamfam/delete.png" alt="delete this event" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${i});" afterSuccess="onWizardPage()" />
+			</div>
 			<div class="column"><g:textField name="eventDescription_${i}_name" value="${eventDescription.name}" size="12" maxlength="12" /></div>
 			<div class="column"><g:textField name="eventDescription_${i}_description" value="${eventDescription.description}" size="12" maxlength="12" /></div>
 			<div class="column"><wizard:termSelect name="eventDescription_${i}_classification" value="${eventDescription.classification}" /></div>
