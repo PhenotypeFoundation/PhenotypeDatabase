@@ -55,6 +55,10 @@ class WizardTagLib extends JavascriptTagLib {
 		// javascript function to call after success
 		def afterSuccess = attrs['afterSuccess']
 
+		// src parameter?
+		def src = attrs['src']
+		def alt = attrs['alt']
+
 		// generate a normal submitToRemote button
 		def button = submitToRemote(attrs, body)
 
@@ -88,6 +92,15 @@ class WizardTagLib extends JavascriptTagLib {
 		// wizard pages, such as attaching tooltips)
 		if (afterSuccess) {
 			button = button.replaceFirst(/\.html\(data\)\;/, '.html(data);' + afterSuccess + ';')
+		}
+
+		// got an src parameter?
+		if (src) {
+			def replace = 'type="image" src="' + src + '"'
+
+			if (alt) replace = replace + ' alt="' + alt + '"'
+
+			button = button.replaceFirst(/type="button"/, replace)
 		}
 
 		// replace double semi colons

@@ -90,7 +90,6 @@ TableEditor.prototype = {
                         // checkbox
                         var columnNumber = count;
                         $(input).bind('click', function() {
-                            console.log(columnNumber+': update checkboxes with value '+input)
                             that.updateSingleInputElements(input, columnNumber, 'input');
                         });
                         break;

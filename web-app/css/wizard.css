@@ -22,6 +22,12 @@
     background: url(../images/icons/famfamfam/information.png) no-repeat center left;
 }
 
+.wizard .famfamfam {
+    width: 16px;
+    height: 16px;
+    margin-top: 5px;
+}
+
 .wizard .spinner {
     background: url(../images/spinner.gif) no-repeat left top;
     width: 16px;
@@ -211,19 +217,19 @@
     background-color: #ffb0b7;
 }
 
-.wizard .table input, .wizard .table select {
+.wizard .table input[type=text], .wizard .table select {
     border: 1px solid #8e908f;
     margin: 2px 0;
     padding: 2px 4px;
     background-color: transparent;
     width: 100px;
 }
-.wizard .table .header input, .wizard .table .header select, .wizard .table .header button {
+.wizard .table .header input[type=text], .wizard .table .header select, .wizard .table .header button {
     border: 1px solid #8e908f;
     margin: 2px 0;
     padding: 2px 4px;
     background-color: #fff;
-    width: 100px;
+    width: 75px;
 }
 
 .wizard .table .highlight, .wizard .table .highlight input, .wizard .table .highlight select {
@@ -237,88 +243,3 @@
 }
 
 /* END :: TABLE */
-
-/* START :: GROUPING */
-.wizard .grouping {
-    border: 1px solid black;
-    display: inline-block;
-    height: auto;
-    width: 100%;
-}
-
-.wizard .grouping .ui-selected {
-    background-color: red;
-}
-.wizard .grouping .ui-selecting {
-    background-color: orange;
-}
-
-.wizard .grouping .subjects {
-    display: block;
-    float: left;
-}
-.wizard .grouping .subjects .subject {
-    margin: 1px;
-    padding: 0.2em;
-    font-size: .8em;
-    height: 14px;
-}
-.wizard .grouping .middle {
-    display: inline-block;
-    float: left;
-}
-.wizard .grouping .add {
-    background: url(../images/wizard/add.png) no-repeat left top;
-    width: 149px;
-    height: 29px;
-    margin-top: 10px;
-    margin-left: 14px;
-}
-.wizard .grouping .add-hover {
-    background: url(../images/wizard/add-hover.png) no-repeat left top;
-}
-.wizard .grouping .remove {
-    background: url(../images/wizard/remove.png) no-repeat left top;
-    width: 149px;
-    height: 29px;
-    margin-top: 10px;
-}
-.wizard .grouping .remove-hover {
-    background: url(../images/wizard/remove-hover.png) no-repeat left top;    
-}
-.wizard .grouping .right {
-    display: inline-block;
-    float: right;
-}
-.wizard .grouping .right .form {
-    border: 1px solid black;
-}
-.wizard .grouping .group {
-    margin: 5px 0px 5px 0px;
-    border: 1px solid black;
-    height: auto;
-}
-.wizard .grouping .ui-selected {
-    border: 4px solid red;
-}
-.wizard .grouping .group .label {
-    display: block;
-    background-color: #006DBA;
-    color: #fff;
-    font-weight: bold;
-    width: auto;
-    height: 32px;
-    line-height: 32px;
-    text-align: center;
-}
-.wizard .grouping .group .subjects {
-    display: inline-block;
-    height: auto;
-}
-.wizard .grouping .group .subject {
-    display: inline-block;
-    width: 100%;
-    font-size: 10px;
-}
-
-/* END :: GROUPING */

@@ -51,7 +51,7 @@ class WizardController {
 				[title: 'Subjects'],			// subjects
 				[title: 'Event Descriptions'],	// event descriptions
 				[title: 'Events'],				// events
-				[title: 'Confirmation'],        // confirmation page
+				[title: 'Confirmation'],		// confirmation page
 				[title: 'Done']					// finish page
 			]
 
@@ -270,10 +270,13 @@ class WizardController {
 				}
 
 				// get eventDescription instance by name
-				params.eventDescription = this.getObjectByName(params.get('eventDescription'),flow.eventDescriptions)
+				params.eventDescription = this.getObjectByName(params.get('eventDescription'), flow.eventDescriptions)
 
 				// instantiate Event with parameters
 				def event = new Event(params)
+
+				// handle event groupings
+				this.handleEventGrouping(flow, flash, params)
 
 				// validate event
 				if (event.validate()) {
@@ -286,22 +289,60 @@ class WizardController {
 					flash.values = params
 					this.appendErrors(event, flash.errors)
 
-					flash.startTime			= params.startTime
-					flash.endTime			= params.endTime
-					flash.eventDescription	= params.eventDescription
-					
+					flash.startTime = params.startTime
+					flash.endTime = params.endTime
+					flash.eventDescription = params.eventDescription
+
 					error()
 				}
 			}.to "events"
 			on("addEventGroup") {
 				def increment = flow.eventGroups.size()
-				flow.eventGroups[ increment ] = new EventGroup(name: "Group "+(increment+1))
+				def groupName = "Group " + (increment + 1)
+
+				// check if group name exists
+				def nameExists = true
+				def u = 0
+
+				// make sure a unique name is generated
+				while (nameExists) {
+					u++
+					def count = 0
+					
+					flow.eventGroups.each() {
+						if (it.name == groupName) {
+							groupName = "Group " + (increment + 1) + "," + u
+						} else {
+							count++
+						}
+					}
+
+					nameExists = !(count == flow.eventGroups.size())
+				}
+
+				flow.eventGroups[increment] = new EventGroup(name: groupName)
+			}.to "events"
+			on("deleteEventGroup") {
+				def delete = params.get('do') as int;
+
+				// handle event groupings
+				this.handleEventGrouping(flow, flash, params)
+
+				// remove the group with this specific id
+				if (flow.eventGroups[delete] && flow.eventGroups[delete] instanceof EventGroup) {
+					// remove this eventGroup
+					flow.eventGroups.remove(delete)
+				}
 			}.to "events"
 			on("previous") {
-				// TODO
+				// handle event groupings
+				this.handleEventGrouping(flow, flash, params)
 			}.to "eventDescriptions"
 			on("next") {
 				flash.errors = new LinkedHashMap()
+
+				// handle event groupings
+				this.handleEventGrouping(flow, flash, params)
 
 				// check if we have at least one subject
 				// and check form data
@@ -311,7 +352,7 @@ class WizardController {
 					this.appendErrorMap(['events': 'You need at least to create one event for your study'], flash.errors)
 					error()
 				}
-			}.to "confirm"
+			}.to "events"
 		}
 
 		confirm {
@@ -337,6 +378,36 @@ class WizardController {
 			on("previous") {
 				// TODO
 			}.to "confirm"
+		}
+	}
+
+	/**
+	 * re-usable code for handling event grouping in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handleEventGrouping(flow, flash, params) {
+		// walk through eventGroups
+		def g = 0
+		flow.eventGroups.each() {
+			def e = 0
+			def eventGroup = it
+
+			// reset events
+			eventGroup.events = new HashSet()
+
+			// walk through events
+			flow.events.each() {
+				if (params.get('event_' + e + '_group_' + g) == 'on') {
+					eventGroup.addToEvents(it)
+					//} else {
+					//	eventGroup.events.minus(it)
+				}
+				e++
+			}
+			g++
 		}
 	}
 
@@ -395,10 +466,10 @@ class WizardController {
 		def id = 0
 
 		flow.eventDescriptions.each() {
-			it.name				= params.get('eventDescription_' + id + '_name')
-			it.description		= params.get('eventDescription_' + id + '_description')
-			it.classification	= Term.findByName(params.get('eventDescription_' + id + '_classification'))
-			it.isSamplingEvent	= (params.containsKey('eventDescription_' + id + '_isSamplingEvent'))
+			it.name = params.get('eventDescription_' + id + '_name')
+			it.description = params.get('eventDescription_' + id + '_description')
+			it.classification = Term.findByName(params.get('eventDescription_' + id + '_classification'))
+			it.isSamplingEvent = (params.containsKey('eventDescription_' + id + '_isSamplingEvent'))
 
 			// validate eventDescription
 			if (!it.validate()) {
@@ -442,11 +513,11 @@ class WizardController {
 				if (names[it.name]['count'] == 2) {
 					// yeah, also mention the first
 					// occurrence in the error message
-					this.appendErrorMap(name: 'The subject name needs to be unique!', flash.errors, 'subject_'+names[it.name]['firstId']+'_')
+					this.appendErrorMap(name: 'The subject name needs to be unique!', flash.errors, 'subject_' + names[it.name]['firstId'] + '_')
 				}
 
 				// add to error map
-				this.appendErrorMap([name: 'The subject name needs to be unique!'], flash.errors, 'subject_'+id+'_')
+				this.appendErrorMap([name: 'The subject name needs to be unique!'], flash.errors, 'subject_' + id + '_')
 				errors = true
 			}
 
@@ -501,11 +572,10 @@ class WizardController {
 		return !errors
 	}
 
-
 	/**
 	 * return the object from a map of objects by searching for a name
-	 * @param String 	name
-	 * @param Map		map of objects
+	 * @param String name
+	 * @param Map map of objects
 	 * @return Object
 	 */
 	def getObjectByName(name, map) {
@@ -544,6 +614,7 @@ class WizardController {
 	def appendErrors(object, map) {
 		this.appendErrorMap(this.getHumanReadableErrors(object), map)
 	}
+
 	def appendErrors(object, map, prepend) {
 		this.appendErrorMap(this.getHumanReadableErrors(object), map, prepend)
 	}
@@ -559,6 +630,7 @@ class WizardController {
 			mapToExtend[key] = ['key': key, 'value': value, 'dynamic': false]
 		}
 	}
+
 	def appendErrorMap(map, mapToExtend, prepend) {
 		map.each() {key, value ->
 			mapToExtend[prepend + key] = ['key': key, 'value': value, 'dynamic': true]
