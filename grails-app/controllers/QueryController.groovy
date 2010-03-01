@@ -1,4 +1,0 @@
-class QueryController {
-
-    def index = { }
-}
