@@ -46,20 +46,28 @@ class EventDescriptionController {
 
 
     def showMyProtocol = {
-
-        def protocol = ( params.protocolid) ?  Protocol.get(params.protocolid) : Protocol.find("for Protocol id")
-        def event = Event.get(params.id)
-	def protocolInstance = event.eventDescription.protocol
-
-        if( protocolInstance && protocolInstance && protocol.id==protocolInstance.id ) {
-	    def parameterStringValues = event.parameterStringValues
-            render( view:"showMyProtocolFilled", model:["protocolInstance":protocolInstance,"event":event,"parameterStringValues":parameterStringValues] )
+        def description = EventDescription.get(params.id)
+        if( description.protocol==null ) {
+            protocol = new Protocol()
+            render( view:"showMyProtocolEmpty", model:[protocol:protocol,description:description] )
         }
         else {
-	    if(protocol!=null) render( view: "showMyProtocolEmpty", model:["protocolInstance":protocol] )
-	    else               render( "NULL" )
+	    render( view: "showMyProtocolFilled", model:[protocol:description.protocol,description:description] )
         }
-}
+    }
+
+
+    def showMyProtocolEmpty = {
+       println "in showMyProtocolEmpty"
+    }
+
+
+    def showMyProtocolFilled = {
+       println "in showMyProtocolFilled"
+    }
+
+
+
 
 
     def edit = {
@@ -120,6 +128,44 @@ class EventDescriptionController {
     }
 
 
-    def test = { println "test"
-	    render("test") }
+    def test = { render(params) }
+
+    def test2 = {
+        def eventDescriptionInstance = EventDescription.get(params.id)
+        if (!eventDescriptionInstance) {
+            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventDescription.label', default: 'EventDescription'), params.id])}"
+            redirect(action: "list")
+        }
+        else {
+            return [eventDescriptionInstance: eventDescriptionInstance]
+        }
+    }
+
+
+    def addProtocolParameter = {
+        render( action:"showProtocolParameters", model:['addNew':true] )
+    }
+
+
+    def showProtocolParameters = {
+        println params
+
+        def description = EventDescription.get(params.id)
+        def protocol =  description.protocol==null ? new Protocol() : description.protocol
+
+        if( params['addOneParameter']=='true') {    // add a new parameter
+	    println "adding"
+            def parameter = new ProtocolParameter()
+	    protocol.addToParameters(parameter)
+        }
+
+        def list = []
+        protocol.parameters.each {
+	    list.add(it)
+            list.sort{ a,b -> a.name <=> b.name }
+        }
+
+        render( view:"showProtocolParameters", model:[protocol:protocol,description:description,list:list] )
+    }
+
 }
