@@ -1,10 +1,14 @@
 package dbnp.studycapturing
 
 import dbnp.data.Term
+import org.codehaus.groovy.runtime.NullObject
 
 class TemplateEntity {
 
+	Template template
+
 	Map templateStringFields
+	Map templateStringListFields
 	Map templateIntegerFields
 	Map templateFloatFields
 	Map templateDoubleFields
@@ -12,7 +16,8 @@ class TemplateEntity {
 	Map templateTermFields
 
 	static hasMany = [
-		templateStringFields: String, // stores both STRING and STRINGLIST items (latter should be checked against the list)
+		templateStringFields: String,
+		templateStringListFields: TemplateFieldListItem,
 		templateIntegerFields: int,
 		templateFloatFields: float,
 		templateDoubleFields: double,
@@ -30,11 +35,13 @@ class TemplateEntity {
 	 * @throws NoSuchFieldException If the field is not found or the field type is not supported
 	 */
 	def getFieldValue(String fieldName) {
-		TemplateFieldType fieldType = template.getSubjectFieldType(fieldName)
+		TemplateFieldType fieldType = template.getFieldType(fieldName)
 		if (!fieldType) throw new NoSuchFieldException("Field name ${fieldName} not recognized")
 		switch(fieldType) {
 			case [TemplateFieldType.STRING, TemplateFieldType.STRINGLIST]:
 				return templateStringFields[fieldName]
+			case [TemplateFieldType.STRINGLIST]:
+				return templateStringListFields[fieldName]
 			case TemplateFieldType.INTEGER:
 				return templateIntegerFields[fieldName]
 			case TemplateFieldType.DATE:
@@ -51,31 +58,64 @@ class TemplateEntity {
 	}
 
 	def setFieldValue(String fieldName, value) {
-		this.properties.each { println it}
 		if (this.properties.containsKey(fieldName)) {
 			this[fieldName] = value
 		}
-		else if (templateStringFields.containsKey(fieldName) && value.class == String) {
-			this.templateStringFields[fieldName] = value
-		}
-		else if (templateIntegerFields.containsKey(fieldName) && value.class == Integer) {
-			this.templateIntegerFields[fieldName] = value
-		}
-		else if (templateFloatFields.containsKey(fieldName) && value.class == Float) {
-			this.templateFloatFields[fieldName] = value
-		}
-		else if (templateDoubleFields.containsKey(fieldName) && value.class == Double) {
-			this.templateDoubleFields[fieldName] = value
-		}
-		else if (templateDateFields.containsKey(fieldName) && value.class == Date) {
-			this.templateDateFields[fieldName] = value
-		}
-		else if (templateTermFields.containsKey(fieldName) && value.class == Term) {
-			this.templateTermFields[fieldName] = value
+		else
+		if (template == null) {
+			throw new NoSuchFieldException("Field ${fieldName} not found in class properties")
 		}
 		else {
-			println "Field ${fieldName} not found"
+			if (templateStringFields.containsKey(fieldName) && value.class == String) {
+				this.templateStringFields[fieldName] = value
+			}
+			if (templateStringListFields.containsKey(fieldName) && value.class == TemplateFieldListItem) {
+				this.templateStringFields[fieldName] = value
+			}
+			else if (templateIntegerFields.containsKey(fieldName) && value.class == Integer) {
+				this.templateIntegerFields[fieldName] = value
+			}
+			else if (templateFloatFields.containsKey(fieldName) && value.class == Float) {
+				this.templateFloatFields[fieldName] = value
+			}
+			else if (templateDoubleFields.containsKey(fieldName) && value.class == Double) {
+				this.templateDoubleFields[fieldName] = value
+			}
+			else if (templateDateFields.containsKey(fieldName) && value.class == Date) {
+				this.templateDateFields[fieldName] = value
+			}
+			else if (templateTermFields.containsKey(fieldName) && value.class == Term) {
+				this.templateTermFields[fieldName] = value
+			}
+			else {
+				throw new NoSuchFieldException("Field ${fieldName} not found in class properties or template fields")
+			}
 		}
+	}
+
+	def Set<TemplateField> giveFields() {
+		return this.template.fields;
+	}
+
+	@Override
+	void setTemplate(Template newTemplate) {
+
+		// Contrary to expectation, this method does not cause an infinite loop but calls the super method
+		// whereas super.setTemplate(newTemplate) leads to errors concerning NullObject values
+		this.template = newTemplate
+
+		// TODO: initialize all template fields with the necessary keys and null values
+
+		println "Setting template " + newTemplate
+		/*if (template == null || template instanceof NullObject) {} else{ // negation doesn't seem to work well
+			def stringFields = template.getFieldsByType(TemplateFieldType.STRINGLIST)
+			println stringFields*.name
+			if (stringFields.size() > 0) {
+				templateStringFields = new HashMap<String,String>()
+				templateStringFields.keyset.add stringFields*.name;
+				println templateStringFields
+			}
+		}*/
 	}
 
 }

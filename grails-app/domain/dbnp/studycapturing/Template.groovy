@@ -11,13 +11,16 @@ package dbnp.studycapturing
  * $Date$
  */
 class Template implements Serializable {
+
 	String name
+	Class entity
 	//nimble.User owner
 
-	static hasMany = [studyFields: TemplateStudyField, subjectFields: TemplateSubjectField]
+	static hasMany = [fields: TemplateField]
 
 	static constraints = {
-		name(unique: true)
+		name(unique:['entity'])
+
 	}
 
 	def String toString() {
@@ -29,10 +32,17 @@ class Template implements Serializable {
 	 * @param fieldName The name of the template field
 	 * @return The type (static member of TemplateFieldType) of the field, or null of the field does not exist
 	 */
-	def TemplateFieldType getSubjectFieldType(String fieldName) {
-		def field = subjectFields.find {
+	def TemplateFieldType getFieldType(String fieldName) {
+		def field = fields.find {
 			it.name == fieldName	
 		}
 		field?.type
+	}
+
+	def getFieldsByType(TemplateFieldType fieldType) {
+		def result = fields.findAll {
+			it.type == fieldType
+		}
+		return result;
 	}
 }

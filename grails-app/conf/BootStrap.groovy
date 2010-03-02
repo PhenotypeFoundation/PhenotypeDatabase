@@ -122,51 +122,51 @@ class BootStrap {
 			.save()
 
 			// create system user
-			/*
-			def systemUser = userService.createUser(InstanceGenerator.user(
+
+			/*def systemUser = userService.createUser(InstanceGenerator.user(
 				username: 'system',
 				pass: 'system',
 				passConfirm: 'system',
 				enabled: true
-			))
-			*/
+			))*/
+			
 
-			def genderField = new TemplateSubjectField(
+			def genderField = new TemplateField(
 				name: 'Gender',type: TemplateFieldType.STRINGLIST,
 				listEntries: ['Male','Female'])
 			.with { if (!validate()) { errors.each { println it} } else save()}
-			def ageField = new TemplateSubjectField(
+			def ageField = new TemplateField(
 				name: 'Age',type: TemplateFieldType.INTEGER)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Mouse template
 			def mouseTemplate = new Template(
-				name: 'Mouse'
-			).addToSubjectFields(new TemplateSubjectField(
+				name: 'Mouse', entity: dbnp.studycapturing.Subject
+			).addToFields(new TemplateField(
 				name: 'Genotype',type: TemplateFieldType.STRINGLIST,
 				listEntries: ['C57/Bl6j','wild type']))
-			.addToSubjectFields(genderField)
-			.addToSubjectFields(ageField)
-			.addToSubjectFields(new TemplateSubjectField(
+			.addToFields(genderField)
+			.addToFields(ageField)
+			.addToFields(new TemplateField(
 				name: 'Cage',type: TemplateFieldType.INTEGER))
-			.addToSubjectFields(new TemplateSubjectField(
+			.addToFields(new TemplateField(
 				name: 'Some double', type: TemplateFieldType.DOUBLE))
-			.addToSubjectFields(new TemplateSubjectField(
+			.addToFields(new TemplateField(
 				name: 'Some ontology', type: TemplateFieldType.ONTOLOGYTERM))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Human template
 			def humanTemplate = new Template(
-				name: 'Human')
-			.addToSubjectFields(genderField)
-			.addToSubjectFields(ageField)
-			.addToSubjectFields(new TemplateSubjectField(
+				name: 'Human', entity: dbnp.studycapturing.Subject)
+			.addToFields(genderField)
+			.addToFields(ageField)
+			.addToFields(new TemplateField(
 				name: 'DOB',type: TemplateFieldType.DATE))
-			.addToSubjectFields(new TemplateSubjectField(
+			.addToFields(new TemplateField(
 				name: 'Height',type: TemplateFieldType.DOUBLE))
-			.addToSubjectFields(new TemplateSubjectField(
+			.addToFields(new TemplateField(
 				name: 'Weight',type: TemplateFieldType.DOUBLE))
-			.addToSubjectFields(new TemplateSubjectField(
+			.addToFields(new TemplateField(
 				name: 'BMI',type: TemplateFieldType.DOUBLE))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
@@ -244,7 +244,7 @@ class BootStrap {
 
 			println 'Adding PPSH study'
 
-            def humanStudy = new Study(
+                        def humanStudy = new Study(
 				title:"NuGO PPS human study",
 				code:"PPSH",
 				researchQuestion:"How much are fasting plasma and urine metabolite levels affected by prolonged fasting ?",
@@ -290,11 +290,12 @@ class BootStrap {
 					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
 					eventDescription: bloodSamplingEvent,
 					parameterFloatValues: ['Sample volume':4.5F])
-					.addToSamples(new Sample(
-						name: currentSubject.name + '_B',
-						material: bloodTerm
-				))
-				).with { if (!validate()) { errors.each { println it} } else save()}
+				)
+				.addToSamples(new Sample(
+					name: currentSubject.name + '_B',
+					material: bloodTerm)
+				)
+				.with { if (!validate()) { errors.each { println it} } else save()}
 			}
 
 //                        new Study(title:"example",code:"Excode",researchQuestion:"ExRquestion",description:"Exdescription",ecCode:"ExecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
@@ -333,7 +334,7 @@ class BootStrap {
 				assay: lipidAssay
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-			humanStudy.giveSamples()*.each {
+			humanStudy.samples*.each {
 				new dbnp.clinicaldata.ClinicalFloatData(
 					assay: lipidAssayInstance,
 					measurement: ldlMeasurement,
@@ -364,13 +365,14 @@ class BootStrap {
 				externalAssayId: lipidAssayInstance.id
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-			humanStudy.giveSamples()*.each {
+			humanStudy.samples*.each {
 				lipidAssayRef.addToSamples(it)
 			}
 			lipidAssayRef.save()
 
 			humanStudy.addToAssays(lipidAssayRef);
 			humanStudy.save()
+
 		}
 	}
 

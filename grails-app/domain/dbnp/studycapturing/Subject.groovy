@@ -12,7 +12,6 @@ import dbnp.data.Term
  */
 class Subject extends TemplateEntity implements Serializable {
 	static searchable = true
-	Template template
 	String name
 	Term species
 }

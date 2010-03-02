@@ -19,7 +19,6 @@ class Study extends TemplateEntity implements Serializable {
 	Date dateCreated
 	Date lastUpdated
 	Date startDate
-	Template template
 
 	static hasMany = [
 		editors: nimble.User,
@@ -28,6 +27,7 @@ class Study extends TemplateEntity implements Serializable {
 		groups: SubjectGroup,
 		events: Event,
 		samplingEvents: SamplingEvent,
+		samples: Sample,
 		assays: Assay,
 		persons: StudyPerson,
 		publications: Publication
@@ -49,11 +49,4 @@ class Study extends TemplateEntity implements Serializable {
 		return title;
 	}
 
-	def giveAllFields() {
-		return template.studyFields;
-	}
-
-	def giveSamples() {
-		return samplingEvents*.samples;
-	}
 }
