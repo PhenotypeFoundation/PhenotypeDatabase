@@ -8,7 +8,7 @@
   <title><g:message code="default.show.label" args="[entityName]" /></title>
       <script type="text/javascript">
 	$(function() {
-		$("#accordion").accordion();
+		$("#tabs").tabs();
 	});
       </script>
 
@@ -30,10 +30,23 @@
 
     <% protocolList = dbnp.studycapturing.Protocol.list() %>
 
-    <div id="accordion">
-      <a href="#"> Study Information </a>
+
+
+      <div id="tabs">
+      <ul>
+        <li><a href="#study">Study Information</a></li>
+        <li><a href="#subjects">Subjects</a></li>
+        <li><a href="#groups">Groups</a></li>
+        <li><a href="#protocols">Protocols</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#event-description">Event Description</a></li>
+        <li><a href="#event-group">Event Groups</a></li>
+        <li><a href="#assays">Assays</a></li>
+      </ul>
+
+    <div id="study">
         
-       <div><b> Id </b>: ${fieldValue(bean: studyInstance, field: "id")} <br>
+         <b> Id </b>: ${fieldValue(bean: studyInstance, field: "id")} <br>
          <b>Template </b>:<g:link controller="template" action="show" id="${studyInstance?.template?.id}">${studyInstance?.template?.encodeAsHTML()}</g:link><br>
          <b> Start </b>:<g:formatDate date="${studyInstance?.startDate}" /> <br>
          <b> Events </b>:
@@ -115,7 +128,7 @@
         <b>Date Created </b>:<g:formatDate date="${studyInstance?.dateCreated}" /> <br>
        </div>
 
-      <a href="#"> Subjects </a><div>
+        <div id="subjects">
         <table>
           <tr>
             <td><b>Id </b></td>
@@ -145,7 +158,7 @@
           </table>
       </div>
 
-       <a href="#"> Groups </a> <div>
+        <div id="groups">
          <g:if test="${studyInstance.groups.size()==0}">
            No groups in this study
          </g:if>
@@ -156,7 +169,7 @@
          </g:else>
          </div>
 
-       <a href="#"> Protocols </a><div>
+        <div id="protocols">
              <table>
           <tr>
             <td><b>Id </b></td>
@@ -164,29 +177,46 @@
             <td><b>Parameters</b></td>
             <td><b>Reference</b></td>
           </tr>
-          <g:each in="${dbnp.studycapturing .Protocol.list()}" var="s">
-            
-            <% if  ((studyInstance.events.eventDescription.protocol.contains(s))||
-              (studyInstance.samplingEvents.eventDescription.protocol.contains(s))) { %>
-           
+
+             <% def protocol_list = [] %>
+          <% def tmp_protocol = studyInstance.events.eventDescription.protocol.get(0) %>
+          <% def tmpBis_protocol = studyInstance.samplingEvents.eventDescription.protocol.get(0) %>
+          <% protocol_list.add(tmp_protocol) %>
+          <% protocol_list.add(tmpBis_protocol) %>
+
+            <g:each in="${studyInstance.events.eventDescription.protocol}" var="s">
+
+          <% if (tmp_protocol!=s) { %>
+            <% protocol_list.add(s) %>
+            <%}%>
+          </g:each>
+
+          <g:each in="${studyInstance.samplingEvents.eventDescription.protocol}" var="s">
+
+          <% if (tmpBis_protocol!=s) { %>
+            <% protocol_list.add(s) %>
+            <%}%>
+          </g:each>
+
+
+            <g:each in="${protocol_list}" var="protocol">
             <tr>
-              <td><g:link controller="protocol" action="show" id="${s.id}">${s.id}</g:link></td>
-          <td>${s.name}</td>
+              <td><g:link controller="protocol" action="show" id="${protocol.id}">${protocol.id}</g:link></td>
+          <td>${protocol.name}</td>
           <td>
-          <g:each in="${s.parameters}" var="p"><ul><li>
+          <g:each in="${protocol.parameters}" var="p"><ul><li>
             <g:link controller="protocolParameter" action="show" id="${p.id}">${p.name}</g:link>
             </li></ul>
           </g:each>
           </td>
-          <td>${s.reference}</td>
+          <td>${protocol.reference}</td>
           </tr>
- <%  } %>
 
           </g:each>
              </table>
        </div>
 
-      <a href="#"> Events </a><div>
+        <div id="events">
           <table>
           <tr>
             
@@ -204,8 +234,13 @@
           <td>${e.getPrettyDuration()}</td>
            <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>
             <td><g:checkBox name="event" disabled="${true}" value="${false}"/></td>
-          <td>${e.eventDescription.protocol.parameters.name}</td>
-          </tr>
+
+            <g:each in="${e.eventDescription.protocol.parameters}" var="param">
+          <td>
+            ${param.name} : ${param.listEntries}
+          </td>
+            </g:each>
+            </tr>
           </g:each>
 
           <g:each in="${studyInstance.samplingEvents}" var="e">
@@ -214,16 +249,20 @@
           <td>${e.getPrettyDuration(studyInstance.startDate,e.startTime)}</td>
           <td>${e.getPrettyDuration()}</td>
            <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>
-            <td><g:checkBox name="samplingEvent" disabled="${true}" value="${true}"/>
-            </td>
-          <td>${e.eventDescription.protocol.parameters.name}</td>
+            <td><g:checkBox name="samplingEvent" disabled="${true}" value="${true}"/></td>
+
+            <g:each in="${e.eventDescription.protocol.parameters}" var="param">
+          <td>
+            ${param.name} : ${param.listEntries}
+          </td>
+            </g:each>
           </tr>
           </g:each>
 
           </table>
       </div>
 
-      <a href="#"> Event Description </a><div>
+        <div id="event-description">
           <table>
           <tr>
 
@@ -291,7 +330,10 @@
 
       </div>
 
-      <a href="#"> Assays </a><div>
+        <div id="event-group">
+        </div>
+
+        <div id="assays">
         <g:if test="${studyInstance.assays.size()==0}">
           No assays in this study
         </g:if>
