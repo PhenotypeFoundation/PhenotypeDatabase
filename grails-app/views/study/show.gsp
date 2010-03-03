@@ -128,13 +128,14 @@
         <b>Date Created </b>:<g:formatDate date="${studyInstance?.dateCreated}" /> <br>
        </div>
 
-        <div id="subjects">
+       <div id="subjects">
+	   <g:each in="${studyInstance.giveSubjectTemplates()}" var="template">
         <table>
           <tr>
             <td><b>Id </b></td>
             <td><b>Species</b></td>
             <td><b>Name</b></td>
-          <g:each in="${studyInstance.template.fields}" var="g">
+          <g:each in="${template.fields}" var="g">
             <td><b>
               <g:link controller="templateField" action="show" id="${g.id}">
               ${g}</b></td>
@@ -142,12 +143,12 @@
           </g:each>
           </tr>
 
-          <g:each in="${studyInstance.subjects}" var="s">
+          <g:each in="${studyInstance.subjects.findAll { it.template == template}}" var="s">
             <tr>
               <td><g:link controller="subject" action="show" id="${s.id}">${s.id}</g:link></td>
               <td>${s.species}</td>
               <td>${s.name}</td>
-              <g:each in="${studyInstance.template.fields}" var="g">
+              <g:each in="${template.fields}" var="g">
                <td>
                   <% print s.getFieldValue(g.toString())  %>
                </td>
@@ -156,6 +157,8 @@
           </g:each>
 
           </table>
+
+	  </g:each>
       </div>
 
         <div id="groups">

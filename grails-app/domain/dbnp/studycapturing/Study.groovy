@@ -50,19 +50,27 @@ class Study extends TemplateEntity implements Serializable {
 	}
 
 	/**
+	 * Return the unique Subject templates that are used in this study
+	 */
+	def Set<Template> giveSubjectTemplates() {
+		TemplateEntity.giveTemplates(subjects);
+	}
+
+
+	/**
 	 * Returns the template of all subjects in the study
 	 * Throws an error if there are no or multiple subject templates
 	 */
-	def Template giveSubjectTemplate() {
-		TemplateEntity.giveTemplate(subjects);
-	}
+	// outcommented, we shouldn't make it too easy for ourselves by introducing uncertain assumptions (1 distinct template)
+	//def Template giveSubjectTemplate() {
+	//	TemplateEntity.giveTemplate(subjects);
+	//}
 
 	/**
-	 * Returns the template of all samples in the study
-	 * Throws an error if there are no or multiple sample templates
+	 * Returns the unique Sample templates that are used in the study
 	 */
-	def Template giveSampleTemplate() {
-		TemplateEntity.giveTemplate(samples);
+	def Template giveSampleTemplates() {
+		TemplateEntity.giveTemplates(samples);
 	}
 	/**
 	 * Returns the template of the study
