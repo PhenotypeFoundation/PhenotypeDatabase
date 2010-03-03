@@ -13,7 +13,6 @@ import groovy.time.*
  * $Date$
  */
 class Event implements Serializable {
-	Subject subject
 	EventDescription eventDescription
 	Date startTime
 	Date endTime
@@ -28,7 +27,6 @@ class Event implements Serializable {
 	]
 
 	static constraints = {
-		subject(nullable: true, blank: true)	// TODO: subject is to be removed from Event, and into EventGroup
 		startTime(nullable:false)
 		endTime(validator: {val, obj ->
            if (val && val.before(obj.startTime)) {

@@ -67,8 +67,13 @@ class BootStrap {
 				accession: 'P-MDMXGE-264'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-			def treatmentProtocol = new Protocol(
-				name: 'MADMAX Experimental Protocol',
+			def dietProtocol = new Protocol(
+				name: 'Diet treatment Protocol NuGO PPS3 leptin module',
+				reference: treatmentTerm
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def boostProtocol = new Protocol(
+				name: 'Boost treatment Protocol NuGO PPS3 leptin module',
 				reference: treatmentTerm
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
@@ -77,18 +82,18 @@ class BootStrap {
 				reference: treatmentTerm
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-			treatmentProtocol
+			dietProtocol
 			.addToParameters(new ProtocolParameter(
 				name: 'Diet',
 				type: ProtocolParameterType.STRINGLIST,
 				listEntries: ['10% fat (palm oil)','45% fat (palm oil)']))
+			.save()
+
+			boostProtocol
 			.addToParameters(new ProtocolParameter(
 				name: 'Compound',
 				type: ProtocolParameterType.STRINGLIST,
 				listEntries: ['Vehicle','Leptin']))
-			.addToParameters(new ProtocolParameter(
-				name: 'Administration',
-				type: ProtocolParameterType.STRING))
 			.save()
 
 			fastingProtocol
@@ -133,18 +138,28 @@ class BootStrap {
 
 			def genderField = new TemplateField(
 				name: 'Gender',type: TemplateFieldType.STRINGLIST,
-				listEntries: ['Male','Female'])
+				listEntries: [new TemplateFieldListItem(name:'Male'),new TemplateFieldListItem(name: 'Female')])
 			.with { if (!validate()) { errors.each { println it} } else save()}
+						
 			def ageField = new TemplateField(
 				name: 'Age',type: TemplateFieldType.INTEGER)
 			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			// Nutritional study template
+
+			def studyTemplate = new Template(
+				name: 'Nutritional study', entity: dbnp.studycapturing.Study
+			).addToFields(new TemplateField(
+				name: 'NuGO Code',type: TemplateFieldType.STRING)
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
 
 			// Mouse template
 			def mouseTemplate = new Template(
 				name: 'Mouse', entity: dbnp.studycapturing.Subject
 			).addToFields(new TemplateField(
 				name: 'Genotype',type: TemplateFieldType.STRINGLIST,
-				listEntries: ['C57/Bl6j','wild type']))
+				listEntries: [new TemplateFieldListItem(name:'C57/Bl6j'),new TemplateFieldListItem(name:'wild type')]))
 			.addToFields(genderField)
 			.addToFields(ageField)
 			.addToFields(new TemplateField(
@@ -171,11 +186,19 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			//events
-			def eventTreatment = new EventDescription(
-				name: 'Treatment',
-				description: 'Experimental Treatment Protocol NuGO PPS3 leptin module',
+			def eventDiet = new EventDescription(
+				name: 'Diet treatment',
+				description: 'Diet treatment (fat percentage)',
 				classification: treatmentTerm,
-				protocol: treatmentProtocol,
+				protocol: dietProtocol,
+				isSamplingEvent: false
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def eventBoost = new EventDescription(
+				name: 'Boost treatment',
+				description: 'Boost treatment (leptin or vehicle)',
+				classification: treatmentTerm,
+				protocol: boostProtocol,
 				isSamplingEvent: false
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
@@ -186,7 +209,7 @@ class BootStrap {
 				isSamplingEvent: true
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-			def bloodSamplingEvent = new EventDescription(
+			def bloodSamplingEventDescription = new EventDescription(
 				name: 'Blood extraction',
 				description: 'Blood extraction targeted at lipid assays',
 				protocol: bloodSamplingProtocol,
@@ -205,6 +228,7 @@ class BootStrap {
 
 			// studies
 			def exampleStudy = new Study(
+				template: studyTemplate,
 				title:"NuGO PPS3 mouse study leptin module",
 				code:"PPS3_leptin_module",
 				researchQuestion:"Leptin etc.",
@@ -213,8 +237,134 @@ class BootStrap {
 				startDate: Date.parse('yyyy-MM-dd','2007-12-11')
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
+			def evLF = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+				eventDescription: eventDiet,
+				parameterStringValues: ['Diet':'10% fat (palm oil)']
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def evHF = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+				eventDescription: eventDiet,
+				parameterStringValues: ['Diet':'45% fat (palm oil)']
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def evBV = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+				eventDescription: eventBoost,
+				parameterStringValues: ['Compound':'Vehicle']
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def evBL = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+				eventDescription: eventBoost,
+				parameterStringValues: ['Compound':'Leptin']
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def evLF4 = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+				eventDescription: eventDiet,
+				parameterStringValues: ['Diet':'10% fat (palm oil)']
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def evHF4 = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+				eventDescription: eventDiet,
+				parameterStringValues: ['Diet':'45% fat (palm oil)']
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def evBV4 = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+				eventDescription: eventBoost,
+				parameterStringValues: ['Compound':'Vehicle']
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def evBL4 = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+				eventDescription: eventBoost,
+				parameterStringValues: ['Compound':'Leptin']
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def evS = new SamplingEvent(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					eventDescription: samplingEvent,
+					parameterFloatValues: ['Sample weight':5F]
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def evS4 = new SamplingEvent(
+					startTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+					endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+					eventDescription: samplingEvent,
+					parameterFloatValues: ['Sample weight':5F]
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			// Add events to study
+			exampleStudy
+			.addToEvents(evLF)
+			.addToEvents(evHF)
+			.addToEvents(evBV)
+			.addToEvents(evBL)
+			.addToEvents(evLF4)
+			.addToEvents(evHF4)
+			.addToEvents(evBV4)
+			.addToEvents(evBL4)
+			.addToSamplingEvents(evS)
+			.addToSamplingEvents(evS4)
+			.save()
+
+			def LFBV1 = new EventGroup(name:"10% fat + vehicle for 1 week")
+			.addToEvents(evLF)
+			.addToEvents(evBV)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			def LFBL1 = new EventGroup(name:"10% fat + leptin for 1 week")
+			.addToEvents(evLF)
+			.addToEvents(evBL)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			def HFBV1 = new EventGroup(name:"45% fat + vehicle for 1 week")
+			.addToEvents(evHF)
+			.addToEvents(evBV)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			def HFBL1 = new EventGroup(name:"45% fat + leptin for 1 week")
+			.addToEvents(evHF)
+			.addToEvents(evBL)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			def LFBV4 = new EventGroup(name:"10% fat + vehicle for 4 weeks")
+			.addToEvents(evLF4)
+			.addToEvents(evBV4)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			def LFBL4 = new EventGroup(name:"10% fat + leptin for 4 weeks")
+			.addToEvents(evLF4)
+			.addToEvents(evBL4)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			def HFBV4 = new EventGroup(name:"45% fat + vehicle for 4 weeks")
+			.addToEvents(evHF4)
+			.addToEvents(evBV4)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			def HFBL4 = new EventGroup(name:"45% fat + leptin for 4 weeks")
+			.addToEvents(evHF4)
+			.addToEvents(evBL4)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+
+
 			def x=1
-			12.times {
+			80.times {
 				def currentSubject = new Subject(
 					name: "A" + x++,
 					species: mouseTerm,
@@ -224,26 +374,24 @@ class BootStrap {
 				).with { if (!validate()) { errors.each { println it} } else save()}
 
 				exampleStudy.addToSubjects(currentSubject)
-				.addToEvents(new Event(
-					subject: currentSubject,
-					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					eventDescription: eventTreatment,
-					parameterStringValues: ['Diet':'10% fat (palm oil)','Compound':'Vehicle','Administration':'intraperitoneal injection'])
-				)
-				.addToSamplingEvents(new SamplingEvent(
-					subject: currentSubject,
-					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					eventDescription: samplingEvent,
-					parameterFloatValues: ['Sample weight':5F])
-				)
 				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				// Add subject to appropriate EventGroup
+				if (x > 70) { HFBL4.addToSubjects(currentSubject).save() }
+				else if (x > 60) { HFBV4.addToSubjects(currentSubject).save() }
+				else if (x > 50) { LFBL4.addToSubjects(currentSubject).save() }
+				else if (x > 40) { LFBV4.addToSubjects(currentSubject).save() }
+				else if (x > 30) { HFBL1.addToSubjects(currentSubject).save() }
+				else if (x > 20) { HFBV1.addToSubjects(currentSubject).save() }
+				else if (x > 10) { LFBL1.addToSubjects(currentSubject).save() }
+				else             { LFBV1.addToSubjects(currentSubject).save() }
+
 			}
 
 			println 'Adding PPSH study'
 
                         def humanStudy = new Study(
+	                        template: studyTemplate,
 				title:"NuGO PPS human study",
 				code:"PPSH",
 				researchQuestion:"How much are fasting plasma and urine metabolite levels affected by prolonged fasting ?",
@@ -251,6 +399,23 @@ class BootStrap {
 				ecCode:"unknown",
 				startDate: Date.parse('yyyy-MM-dd','2009-01-01')
 			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def fastingEvent = new Event(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					eventDescription: fastingTreatment,
+					parameterStringValues: ['Fasting period':'8h']);
+
+			def bloodSamplingEvent = new SamplingEvent(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					eventDescription: bloodSamplingEventDescription,
+					parameterFloatValues: ['Sample volume':4.5F]);
+
+			def rootGroup = new EventGroup(name: 'Root group');
+			rootGroup.addToEvents fastingEvent
+			rootGroup.addToEvents bloodSamplingEvent
+			rootGroup.save()
 
                         def y=1
 			11.times {
@@ -274,25 +439,18 @@ class BootStrap {
 					]
 				).with { if (!validate()) { errors.each { println it} } else save()}
 
-				humanStudy.addToSubjects(currentSubject)
-				.addToEvents(new Event(
-					subject: currentSubject,
-					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					eventDescription: fastingTreatment,
-					parameterStringValues: ['Fasting period':'8h'])
-				)
-				.addToSamplingEvents(new SamplingEvent(
-					subject: currentSubject,
-					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					eventDescription: bloodSamplingEvent,
-					parameterFloatValues: ['Sample volume':4.5F])
-				)
-				.addToSamples(new Sample(
+				def currentSample = new Sample(
 					name: currentSubject.name + '_B',
-					material: bloodTerm)
-				)
+					material: bloodTerm,
+					parentSubject: currentSubject,
+					parentEvent: bloodSamplingEvent);
+
+				rootGroup.addToSubjects currentSubject
+				rootGroup.save()
+
+				humanStudy.addToSubjects(currentSubject)
+				.addToSamples(currentSample)
+				.addToEventGroups rootGroup
 				.with { if (!validate()) { errors.each { println it} } else save()}
 			}
 

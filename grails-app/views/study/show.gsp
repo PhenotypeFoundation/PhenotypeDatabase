@@ -232,7 +232,7 @@
           </tr>
           <g:each in="${studyInstance.events}" var="e">
             <tr>
-          <td><g:link controller="event" action="edit" id="${e.id}">${e.subject.id}</g:link></td>
+          <td>-</td>
           <td>${e.getPrettyDuration(studyInstance.startDate,e.startTime)}</td>
           <td>${e.getPrettyDuration()}</td>
            <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>
@@ -248,7 +248,7 @@
 
           <g:each in="${studyInstance.samplingEvents}" var="e">
             <tr>
-          <td><g:link controller="event" action="edit" id="${e.id}">${e.subject.id}</g:link></td>
+          <td>-</td>
           <td>${e.getPrettyDuration(studyInstance.startDate,e.startTime)}</td>
           <td>${e.getPrettyDuration()}</td>
            <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>

@@ -27,6 +27,7 @@ class Study extends TemplateEntity implements Serializable {
 		groups: SubjectGroup,
 		events: Event,
 		samplingEvents: SamplingEvent,
+		eventGroups: EventGroup,
 		samples: Sample,
 		assays: Assay,
 		persons: StudyPerson,

@@ -5,16 +5,17 @@ import dbnp.data.Term
 /**
  * The Sample class describes an actual sample which results from a SamplingEvent.
  */
-class Sample {
+class Sample extends TemplateEntity {
 	static searchable = true
 
+	Subject parentSubject
+	SamplingEvent parentEvent
 
+	String name      // should be unique with respect to the parent study (which can be inferred)
+	Term material
+	// a member that describes the quantity of the sample? --> should be in the templates
 
-    String name      // should be unique with respect to the parent study (which can be inferred)
-    Term material
-    // don't we need a member that describes the quantity of the sample? --> should be in the templates
-
-    static constraints = {
-    }
+	static constraints = {
+	}
 
 }

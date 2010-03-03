@@ -13,8 +13,7 @@ class TemplateField implements Serializable {
 	TemplateFieldType type
 	String unit
 
-    static hasMany = [listEntries : String] // to store the entries to choose from when the type is 'item from predefined list'
-	//TODO: make TemplateFieldListItem and make a convenience setter for a string array
+    static hasMany = [listEntries : TemplateFieldListItem] // to store the entries to choose from when the type is 'item from predefined list'
 
 	static constraints = {
 		name(unique: true)
@@ -24,4 +23,14 @@ class TemplateField implements Serializable {
 	String toString() {
 		return name
 	}
+
+	//TODO: make a convenience setter for a string array
+	/*def setListEntries(ArrayList entries) {
+		list=[]
+		entries.each {
+			list.add(new TemplateFieldListItem(name: it))
+		}
+		this
+	}*/
+
 }
