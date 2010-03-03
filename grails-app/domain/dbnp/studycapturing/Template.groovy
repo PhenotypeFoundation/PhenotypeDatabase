@@ -23,14 +23,18 @@ class Template implements Serializable {
 
 	}
 
+	/**
+	 * overloaded toString method
+	 * @return String
+	 */
 	def String toString() {
 		return this.name;
 	}
 
 	/**
 	 * Look up the type of a certain template subject field
-	 * @param fieldName The name of the template field
-	 * @return The type (static member of TemplateFieldType) of the field, or null of the field does not exist
+	 * @param	String	fieldName The name of the template field
+	 * @return	String	The type (static member of TemplateFieldType) of the field, or null of the field does not exist
 	 */
 	def TemplateFieldType getFieldType(String fieldName) {
 		def field = fields.find {
@@ -39,10 +43,34 @@ class Template implements Serializable {
 		field?.type
 	}
 
+	/**
+	 * get all field of a particular type
+	 * @param	Class	fieldType
+	 * @return	ArrayList
+	 */
 	def getFieldsByType(TemplateFieldType fieldType) {
 		def result = fields.findAll {
 			it.type == fieldType
 		}
 		return result;
+	}
+
+	/**
+	 * overloading the findAllByEntity method to make it function as expected
+	 * @param	Class		entity (for example: dbnp.studycapturing.Subject)
+	 * @return	ArrayList
+	 */
+	public static findAllByEntity(java.lang.Class entity) {
+		def results = []
+
+		// this should not work in static context, however it does so I'll keep
+		// this in for now :)
+		this.findAll().each() {
+			if (entity.equals(it.entity)) {
+				results[ results.size() ] = it
+			}
+		}
+
+		return results
 	}
 }
