@@ -152,9 +152,9 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
             <td><b>Id </b></td>
             <td><b>Species</b></td>
             <td><b>Name</b></td>
-          <g:each in="${stud.template.subjectFields}" var="g">
+          <g:each in="${stud.template.fields}" var="g">
             <td><b>
-              <g:link controller="templateSubjectField" action="show" id="${g.id}">
+              <g:link controller="templateField" action="show" id="${g.id}">
               ${g}</b></td>
             </g:link>
           </g:each>
@@ -166,7 +166,7 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
               <td>${s.species}</td>
               <td>${s.name}</td>
 
-                <g:each in="${stud.template.subjectFields}" var="g">
+                <g:each in="${stud.template.fields}" var="g">
                <td>
                   <% print s.getFieldValue(g.toString())  %>
             </td>

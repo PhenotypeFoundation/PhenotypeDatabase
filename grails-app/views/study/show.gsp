@@ -134,9 +134,9 @@
             <td><b>Id </b></td>
             <td><b>Species</b></td>
             <td><b>Name</b></td>
-          <g:each in="${studyInstance.template.subjectFields}" var="g">
+          <g:each in="${studyInstance.template.fields}" var="g">
             <td><b>
-              <g:link controller="templateSubjectField" action="show" id="${g.id}">
+              <g:link controller="templateField" action="show" id="${g.id}">
               ${g}</b></td>
             </g:link>
           </g:each>
@@ -147,14 +147,14 @@
               <td><g:link controller="subject" action="show" id="${s.id}">${s.id}</g:link></td>
               <td>${s.species}</td>
               <td>${s.name}</td>
-
-                <g:each in="${studyInstance.template.subjectFields}" var="g">
+              <g:each in="${studyInstance.template.fields}" var="g">
                <td>
                   <% print s.getFieldValue(g.toString())  %>
-            </td>
+               </td>
           </g:each>
-          </tr>
+            </tr>
           </g:each>
+
           </table>
       </div>
 
