@@ -25,12 +25,11 @@
 			    <td class="header" width="200px">
 				<b>${header[selentity.columnindex.toInteger()].value}</b>
 			    </td>
-			    <td>
-				
-				<g:each var="template" in="${templates}">
-				    ${template.studyFields()}
-				</g:each>
+			    <td>				
+				<!-- <g:select name="template" from="${templates.fields}"/> -->
+				<importer:propertyChooser entity="${selentity.type.toLong()}" columnindex="${selentity.columnindex}"/>
 			    </td>
+			</tr>
 		    </g:if>
 		</g:each>
 	      <tr>
@@ -39,5 +38,11 @@
 		  </td>
 	      </tr>
 	  </g:each>
+	<tr>
+	    <td>
+		<input type="submit" name="savebutton" value="Next"/>
+	    </td>
+	</tr>
+
     </table>
 </g:form>

@@ -124,4 +124,8 @@ class ImporterService {
     def random = {
 	    return System.currentTimeMillis() + Runtime.runtime.freeMemory()
 	}
+
+    def importdata = {
+	
+    }
 }
