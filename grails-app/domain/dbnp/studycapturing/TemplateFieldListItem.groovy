@@ -6,4 +6,8 @@ class TemplateFieldListItem {
 
         static constraints = {
         }
+
+	String toString() {
+		return name;
+	}
 }

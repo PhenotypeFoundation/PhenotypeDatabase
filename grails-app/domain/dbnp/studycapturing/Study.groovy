@@ -49,4 +49,25 @@ class Study extends TemplateEntity implements Serializable {
 		return title;
 	}
 
+	/**
+	 * Returns the template of all subjects in the study
+	 * Throws an error if there are no or multiple subject templates
+	 */
+	def Template giveSubjectTemplate() {
+		TemplateEntity.giveTemplate(subjects);
+	}
+
+	/**
+	 * Returns the template of all samples in the study
+	 * Throws an error if there are no or multiple sample templates
+	 */
+	def Template giveSampleTemplate() {
+		TemplateEntity.giveTemplate(samples);
+	}
+	/**
+	 * Returns the template of the study
+	 */
+	def Template giveStudyTemplate() {
+		return this.template;
+	}
 }

@@ -26,6 +26,7 @@ class TemplateEntity {
 	]
 
 	static constraints = {
+		template(nullable: true)
 	}
 
 	/**
@@ -70,6 +71,7 @@ class TemplateEntity {
 				this.templateStringFields[fieldName] = value
 			}
 			if (templateStringListFields.containsKey(fieldName) && value.class == TemplateFieldListItem) {
+				// TODO: check if item really belongs to the list under fieldName
 				this.templateStringFields[fieldName] = value
 			}
 			else if (templateIntegerFields.containsKey(fieldName) && value.class == Integer) {
@@ -116,6 +118,26 @@ class TemplateEntity {
 				println templateStringFields
 			}
 		}*/
+	}
+
+	/**
+	 * Convenience method. Returns all unique templates within a collection of TemplateEntities.
+	 */
+	static List<Template> giveTemplates(Set<TemplateEntity> entityCollection) {
+		return entityCollection*.template.unique();
+	}
+
+	static Template giveTemplate(Set<TemplateEntity> entityCollection) {
+		def templates = giveTemplates(entityCollection);
+		if (templates.size() == 0) {
+			throw new NoSuchFieldException("No templates found in collection!")
+		}
+		else if (templates.size() == 1) {
+			return templates[0];
+		}
+		else {
+			throw new NoSuchFieldException("Multiple templates found in collection!")
+		}
 	}
 
 }
