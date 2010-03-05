@@ -7,4 +7,8 @@ class ParameterStringListItem {
     static constraints = {
         name(nullable: false);
     }
+
+
+    def String toString() { return name }
+
 }

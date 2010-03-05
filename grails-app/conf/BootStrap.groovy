@@ -82,18 +82,34 @@ class BootStrap {
 				reference: treatmentTerm
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
+
+                        // ParameterStringListItems
+                        def oil10= new ParameterStringListItem(
+			        name: '10% fat (palm oil)'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+                        def oil45= new ParameterStringListItem(
+			        name: '45% fat (palm oil)'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+                        def vehicle= new ParameterStringListItem(
+			        name: 'Vehicle'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+                        def leptin= new ParameterStringListItem(
+			        name: 'Leptin'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+
 			dietProtocol
 			.addToParameters(new ProtocolParameter(
 				name: 'Diet',
 				type: ProtocolParameterType.STRINGLIST,
-				listEntries: ['10% fat (palm oil)','45% fat (palm oil)']))
+				listEntries: [oil10,oil45]))
 			.save()
 
 			boostProtocol
 			.addToParameters(new ProtocolParameter(
 				name: 'Compound',
 				type: ProtocolParameterType.STRINGLIST,
-				listEntries: ['Vehicle','Leptin']))
+				listEntries: [vehicle,leptin]))
 			.save()
 
 			fastingProtocol
@@ -101,6 +117,7 @@ class BootStrap {
 				name: 'Fasting period',
 				type: ProtocolParameterType.STRING))
 			.save()
+
 
 			// sampling event protocols
 

@@ -14,7 +14,7 @@ class ProtocolParameter {
     String description
     Term reference
 
-    static hasMany = [listEntries : String] // to store the entries to choose from when the type is 'item from predefined list'
+    static hasMany = [listEntries : ParameterStringListItem ] // to store the entries to choose from when the type is 'item from predefined list'
 
     static constraints = {
 	    unit(nullable: true)
