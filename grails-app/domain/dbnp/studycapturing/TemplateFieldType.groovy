@@ -7,7 +7,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-public enum TemplateFieldType {
+public enum TemplateFieldType implements Serializable  {
 	STRING('String'),
 	TEXT('Long string'),
 	INTEGER('Integer number'),

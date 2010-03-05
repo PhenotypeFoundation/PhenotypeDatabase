@@ -20,7 +20,7 @@
 		A template is a predefined set of values to store with all elements of your study.
 	</span>
 
-	<wizard:templateElement name="template" description="Template" value="${study?.template}">
-		The meta data template to use for this study
+	<wizard:templateElement name="template" description="Template" value="${study?.template}" entity="${dbnp.studycapturing.Subject}">
+		The subject template to use for this study
 	</wizard:templateElement>
 </wizard:pageContent>

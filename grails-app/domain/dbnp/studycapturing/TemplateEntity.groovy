@@ -3,7 +3,15 @@ package dbnp.studycapturing
 import dbnp.data.Term
 import org.codehaus.groovy.runtime.NullObject
 
-class TemplateEntity {
+/**
+ * TemplateEntity Domain Class
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
+ */
+class TemplateEntity implements Serializable {
 
 	Template template
 
@@ -28,7 +36,7 @@ class TemplateEntity {
 	]
 
 	static constraints = {
-		template(nullable: true)
+		template(nullable: true, blank: true)
 
 	}
 
@@ -82,29 +90,29 @@ class TemplateEntity {
 			throw new NoSuchFieldException("Field ${fieldName} not found in class properties")
 		}
 		else {
-			if (templateStringFields.containsKey(fieldName) && value.class == String) {
+			if (templateStringFields && templateStringFields.containsKey(fieldName) && value.class == String) {
 				this.templateStringFields[fieldName] = value
 			}
-			if (templateStringListFields.containsKey(fieldName) && value.class == TemplateFieldListItem) {
+			if (templateStringFields && templateStringListFields.containsKey(fieldName) && value.class == TemplateFieldListItem) {
 				// TODO: check if item really belongs to the list under fieldName
 				this.templateStringListFields[fieldName] = value
 			}
 			if (templateTextFields.containsKey(fieldName) && value.class == String) {
 				this.templateTextFields[fieldName] = value
 			}
-			else if (templateIntegerFields.containsKey(fieldName) && value.class == Integer) {
+			else if (templateIntegerFields && templateIntegerFields.containsKey(fieldName) && value.class == Integer) {
 				this.templateIntegerFields[fieldName] = value
 			}
-			else if (templateFloatFields.containsKey(fieldName) && value.class == Float) {
+			else if (templateFloatFields && templateFloatFields.containsKey(fieldName) && value.class == Float) {
 				this.templateFloatFields[fieldName] = value
 			}
-			else if (templateDoubleFields.containsKey(fieldName) && value.class == Double) {
+			else if (templateDoubleFields && templateDoubleFields.containsKey(fieldName) && value.class == Double) {
 				this.templateDoubleFields[fieldName] = value
 			}
-			else if (templateDateFields.containsKey(fieldName) && value.class == Date) {
+			else if (templateDateFields && templateDateFields.containsKey(fieldName) && value.class == Date) {
 				this.templateDateFields[fieldName] = value
 			}
-			else if (templateTermFields.containsKey(fieldName) && value.class == Term) {
+			else if (templateTermFields && templateTermFields.containsKey(fieldName) && value.class == Term) {
 				this.templateTermFields[fieldName] = value
 			}
 			else {
@@ -128,7 +136,7 @@ class TemplateEntity {
 
 		// TODO: initialize all template fields with the necessary keys and null values
 
-		println "Setting template " + newTemplate
+		//println "Setting template " + newTemplate
 		if (template != null) {
 
 			// Loop over all template field types and

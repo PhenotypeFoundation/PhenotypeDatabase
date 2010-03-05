@@ -199,13 +199,19 @@ class WizardTagLib extends JavascriptTagLib {
 		def addExampleElement = attrs.remove('addExampleElement')
 		def addExample2Element	= attrs.remove('addExample2Element')
 
+		// execute inputElement call
+		def renderedElement = "$inputElement"(attrs)
+
+		// if false, then we skip this element
+		if (!renderedElement) return false
+
 		// render a form element
 		out << '<div class="element">'
 		out << ' <div class="description">'
 		out << description
 		out << ' </div>'
 		out << ' <div class="input">'
-		out << "$inputElement"(attrs)
+		out << renderedElement
 		if(help()) {
 			out << '	<div class="helpIcon"></div>'
 		}
@@ -413,15 +419,24 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attrs
 	 */
 	def templateSelect = { attrs ->
-		// fetch all templates
-		attrs.from = Template.findAll() // for now, all templates
+		def entity = attrs.remove('entity')
+
+		// fetch templates
+		attrs.from = (entity) ? Template.findAllByEntity(entity) : Template.findAll()
 
 		// got a name?
 		if (!attrs.name) {
 			attrs.name = 'template'
 		}
-		
-		out << select(attrs)
+
+		// got result?
+		if (attrs.from.size() >0) {
+			out << select(attrs)
+		} else {
+			// no, return false to make sure this element
+			// is not rendered in the template
+			return false
+		}
 	}
 
 	/**
@@ -474,7 +489,7 @@ class WizardTagLib extends JavascriptTagLib {
 		def template = attrs.remove('template')
 
 		// output table headers for template fields
-		template.subjectFields.each() {
+		template.fields.each() {
 			out << '<div class="' + attrs.get('class') + '">' + it + '</div>'
 		}
 	}
@@ -493,7 +508,7 @@ class WizardTagLib extends JavascriptTagLib {
 		def termFields		= subject.templateTermFields
 
 		// output columns for these subjectFields
-		template.subjectFields.each() {
+		template.fields.each() {
 			// output div
 			out << '<div class="' + attrs.get('class') + '">'
 
@@ -505,7 +520,7 @@ class WizardTagLib extends JavascriptTagLib {
 							name: attrs.name + '_' + it.name,
 							from: it.listEntries,
 							value: (stringFields) ? stringFields.get(it.name) : ''
-						)
+						)						
 					} else {
 						out << '<span class="warning">no values!!</span>'
 					}
@@ -527,8 +542,10 @@ class WizardTagLib extends JavascriptTagLib {
 				default:
 					// unsupported field type
 					out << '<span class="warning">!'+it.type+'</span>'
+					//out << subject.getFieldValue(it.name)
 					break;
 			}
+
 			out << '</div>'
 		}
 	}

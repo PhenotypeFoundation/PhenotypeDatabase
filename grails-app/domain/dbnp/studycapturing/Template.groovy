@@ -11,7 +11,6 @@ package dbnp.studycapturing
  * $Date$
  */
 class Template implements Serializable {
-
 	String name
 	Class entity
 	//nimble.User owner
@@ -20,7 +19,6 @@ class Template implements Serializable {
 
 	static constraints = {
 		name(unique:['entity'])
-
 	}
 
 	/**
@@ -63,7 +61,7 @@ class Template implements Serializable {
 	public static findAllByEntity(java.lang.Class entity) {
 		def results = []
 
-		// this should not work in static context, however it does so I'll keep
+		// 'this' should not work in static context, however it does so I'll keep
 		// this in for now :)
 		this.findAll().each() {
 			if (entity.equals(it.entity)) {

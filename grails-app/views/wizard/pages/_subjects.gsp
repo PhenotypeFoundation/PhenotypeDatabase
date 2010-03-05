@@ -24,27 +24,35 @@
 	<input name="addNumber" size="4" maxlength="4" value="1">
 	subjects of species
 	<wizard:speciesSelect name="addSpecies" />
+	using the
+	<wizard:templateSelect name="template" description="Template" value="${study?.template}" entity="${dbnp.studycapturing.Subject}" />
+	template
+
 <g:if test="${subjects}">
-	<div class="table">
-		<div class="header">
-			<div class="firstColumn">#</div>
-			<div class="column">name</div>
-			<div class="column">species</div>
-			<wizard:templateColumnHeaders template="${study.template}" class="column" />
-		</div>
-	<g:each var="subject" status="i" in="${subjects}">
-		<div class="row">
-			<div class="firstColumn">${i}</div>
-			<div class="column"><g:textField name="subject_${i}_name" value="${subject.name}" size="12" maxlength="12" /></div>
-			<div class="column">
-				<wizard:speciesSelect value="${subject.species}" name="subject_${i}_species" />
+	<g:each var="subjectTemplate" in="${subjectTemplates}">
+		<h1>${subjectTemplate.getValue().name} template</h1>
+		<div class="table">
+			<div class="header">
+				<div class="firstColumn">#</div>
+				<div class="column">name</div>
+				<div class="column">species</div>
+				<wizard:templateColumnHeaders template="${subjectTemplate.getValue().template}" class="column" />
+			</div>	
+		<g:each var="subjectId" in="${subjectTemplate.getValue().subjects}">
+			<div class="row">
+				<div class="firstColumn">${subjectId}</div>
+				<div class="column"><g:textField name="subject_${subjectId}_name" value="${subjects[ subjectId ].name}" size="12" maxlength="12" /></div>
+				<div class="column">
+					<wizard:speciesSelect value="${subjects[ subjectId ].species}" name="subject_${subjectId}_species" />
+				</div>
+				<wizard:templateColumns id="${subjectId}" template="${subjects[ subjectId ].template}" name="subject_${subjectId}" class="column" subject="${subjects[ subjectId ]}" />				
 			</div>
-			<wizard:templateColumns id="${i}" template="${study.template}" name="subject_${i}" class="column" subject="${subject}" />
+		</g:each>
+		</div>
+		<div class="sliderContainer">
+			<div class="slider" ></div>
 		</div>
 	</g:each>
-	</div>
-	<div class="sliderContainer">
-		<div class="slider"/>
-	</div>
 </g:if>
+
 </wizard:pageContent>

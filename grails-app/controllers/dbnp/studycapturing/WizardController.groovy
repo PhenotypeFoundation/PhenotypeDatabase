@@ -46,7 +46,8 @@ class WizardController {
 			// define flow variables
 			flow.page = 0
 			flow.pages = [
-				[title: 'Templates'],			// templates
+				//[title: 'Templates'],			// templates
+				[title: 'Start'],				// load or create a study
 				[title: 'Study'],				// study
 				[title: 'Subjects'],			// subjects
 				[title: 'Event Descriptions'],	// event descriptions
@@ -66,7 +67,7 @@ class WizardController {
 			onRender {
 				flow.page = 1
 			}
-			on("next").to "templates"
+			on("next").to "start"
 		}
 
 		// select the templates to use for this study
@@ -103,7 +104,20 @@ class WizardController {
 			}.to "study"
 		}
 
+		// create or modify a study
+		start {
+			render(view: "_start")
+			onRender {
+				flow.page = 1
+			}
+			on("next") {
+
+			}.to "study"
+		}
+
 		// render and handle the study page
+		// TODO: make sure both template as well as logic will
+		//       handle Study templates as well!!!
 		study {
 			render(view: "_study")
 			onRender {
@@ -117,7 +131,7 @@ class WizardController {
 				} else {
 					error()
 				}
-			}.to "templates"
+			}.to "start"
 			on("next") {
 				flash.errors = new LinkedHashMap()
 
@@ -137,23 +151,44 @@ class WizardController {
 
 				if (!flow.subjects) {
 					flow.subjects = []
+					flow.subjectTemplates = new LinkedHashMap()
 				}
 			}
 			on("add") {
 				// fetch species by name (as posted by the form)
 				def speciesTerm = Term.findByName(params.addSpecies)
+				def subjectTemplateName = params.get('template')
+				def subjectTemplate	= Template.findByName(subjectTemplateName)
+
+				// add this subject template to the subject template array
+				if (!flow.subjectTemplates[ subjectTemplateName ]) {
+					flow.subjectTemplates[ subjectTemplateName ] = [
+						name: subjectTemplateName,
+						template: subjectTemplate,
+						subjects: []
+					]
+				}
 
 				// add x subject of species y
 				(params.addNumber as int).times {
 					def increment = flow.subjects.size()
-					flow.subjects[increment] = new Subject(
+					def subject = new Subject(
 						name: 'Subject ' + (increment + 1),
 						species: speciesTerm,
-						template: flow.study.template
+						template: subjectTemplate
 					)
+
+					// instantiate a new Subject
+					flow.subjects[ increment ] = subject
+
+					// and remember the subject id with the template
+					def subjectsSize = flow.subjectTemplates[ subjectTemplateName ]['subjects'].size()
+					flow.subjectTemplates[ subjectTemplateName ]['subjects'][ subjectsSize ] = increment
 				}
 			}.to "subjects"
 			on("next") {
+				println flow.subjectTemplates
+				println flow.subjects
 				flash.errors = new LinkedHashMap()
 
 				// check if we have at least one subject
@@ -192,7 +227,7 @@ class WizardController {
 			}
 			on("add") {
 				// fetch classification by name (as posted by the form)
-				params.classification = Term.findByName(params.classification)
+				//params.classification = Term.findByName(params.classification)
 
 				// transform checkbox form value to boolean
 				params.isSamplingEvent = (params.containsKey('isSamplingEvent'))
@@ -426,34 +461,6 @@ class WizardController {
 	}
 
 	/**
-	 * re-usable code for handling event grouping in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
-	 */
-	def handleEventGrouping(flow, flash, params) {
-		// walk through eventGroups
-		def g = 0
-		flow.eventGroups.each() {
-			def e = 0
-			def eventGroup = it
-
-			// reset events
-			eventGroup.events = new HashSet()
-
-			// walk through events
-			flow.events.each() {
-				if (params.get('event_' + e + '_group_' + g) == 'on') {
-					eventGroup.addToEvents(it)
-				}
-				e++
-			}
-			g++
-		}
-	}
-
-	/**
 	 * re-usable code for handling study form data in a web flow
 	 * @param Map LocalAttributeMap (the flow scope)
 	 * @param Map localAttributeMap (the flash scope)
@@ -510,7 +517,7 @@ class WizardController {
 		flow.eventDescriptions.each() {
 			it.name = params.get('eventDescription_' + id + '_name')
 			it.description = params.get('eventDescription_' + id + '_description')
-			it.classification = Term.findByName(params.get('eventDescription_' + id + '_classification'))
+			//it.classification = Term.findByName(params.get('eventDescription_' + id + '_classification'))
 			it.isSamplingEvent = (params.containsKey('eventDescription_' + id + '_isSamplingEvent'))
 
 			// validate eventDescription
@@ -522,7 +529,35 @@ class WizardController {
 			id++
 		}
 
-		return !(errors)
+		return !errors
+	}
+
+	/**
+	 * re-usable code for handling event grouping in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handleEventGrouping(flow, flash, params) {
+		// walk through eventGroups
+		def g = 0
+		flow.eventGroups.each() {
+			def e = 0
+			def eventGroup = it
+
+			// reset events
+			eventGroup.events = new HashSet()
+
+			// walk through events
+			flow.events.each() {
+				if (params.get('event_' + e + '_group_' + g) == 'on') {
+					eventGroup.addToEvents(it)
+				}
+				e++
+			}
+			g++
+		}
 	}
 
 	/**
@@ -537,78 +572,48 @@ class WizardController {
 		def errors = false;
 		def id = 0;
 
-		// iterate through subjects
-		flow.subjects.each() {
-			// store subject properties
-			def name = params.get('subject_' + id + '_name')
-			it.name = params.get('subject_' + id + '_name')
-			it.species = Term.findByName(params.get('subject_' + id + '_species'))
+		// iterate through subject templates
+		flow.subjectTemplates.each() {
+			def subjectTemplate = it.getValue().template
+			def templateFields	= subjectTemplate.fields
 
-			// remember name and check for duplicates
-			if (!names[it.name]) {
-				names[it.name] = [count: 1, first: 'subject_' + id + '_name', firstId: id]
-			} else {
-				// duplicate name found, set error flag
-				names[it.name]['count']++
+			// iterate through subjects
+			it.getValue().subjects.each() { subjectId ->
+				flow.subjects[ subjectId ].name = params.get('subject_' + subjectId + '_name')
+				flow.subjects[ subjectId ].species = Term.findByName(params.get('subject_' + subjectId + '_species'))
 
-				// second occurence?
-				if (names[it.name]['count'] == 2) {
-					// yeah, also mention the first
-					// occurrence in the error message
-					this.appendErrorMap(name: 'The subject name needs to be unique!', flash.errors, 'subject_' + names[it.name]['firstId'] + '_')
-				}
+				// remember name and check for duplicates
+				if (!names[ flow.subjects[ subjectId ].name ]) {
+					names[ flow.subjects[ subjectId ].name ] = [count: 1, first: 'subject_' + subjectId + '_name', firstId: subjectId]
+				} else {
+					// duplicate name found, set error flag
+					names[ flow.subjects[ subjectId ].name ]['count']++
 
-				// add to error map
-				this.appendErrorMap([name: 'The subject name needs to be unique!'], flash.errors, 'subject_' + id + '_')
-				errors = true
-			}
-
-			// clear lists
-			def stringList = new LinkedHashMap();
-			def intList = new LinkedHashMap();
-			def floatList = new LinkedHashMap();
-			def termList = new LinkedHashMap();
-
-			// get all template fields
-			flow.study.template.subjectFields.each() {
-				// valid type?
-				if (!it.type) throw new NoSuchFieldException("Field name ${fieldName} not recognized")
-
-				// get value
-				def value = params.get('subject_' + id + '_' + it.name);
-				if (value) {
-					// add to template parameters
-					switch (it.type) {
-						case 'STRINGLIST':
-							stringList[it.name] = value
-							break;
-						case 'INTEGER':
-							intList[it.name] = value
-							break;
-						case 'FLOAT':
-							floatList[it.name] = value
-							break;
-						default:
-							// unsupported type?
-							throw new NoSuchFieldException("Field type ${it.type} not recognized")
-							break;
+					// second occurence?
+					if (names[ flow.subjects[ subjectId ].name ]['count'] == 2) {
+						// yeah, also mention the first
+						// occurrence in the error message
+						this.appendErrorMap(name: 'The subject name needs to be unique!', flash.errors, 'subject_' + names[ flow.subjects[ subjectId ].name ]['firstId'] + '_')
 					}
+
+					// add to error map
+					this.appendErrorMap([name: 'The subject name needs to be unique!'], flash.errors, 'subject_' + subjectId + '_')
+					errors = true
+				}
+
+				// iterate through template fields
+				templateFields.each() { subjectField ->
+					def value = params.get('subject_' + subjectId + '_' + subjectField.name)
+
+// TODO: UNCOMMENT THIS		if (value) flow.subjects[ subjectId ].setFieldValue(subjectField.name, value)
+				}
+
+				// validate subject
+				if (!flow.subjects[ subjectId ].validate()) {
+					errors = true
+					this.appendErrors(flow.subjects[ subjectId ], flash.errors)
 				}
 			}
-
-			// set field data
-			it.templateStringFields = stringList
-			it.templateIntegerFields = intList
-			it.templateFloatFields = floatList
-			it.templateTermFields = termList
-
-			// validate subject
-			if (!it.validate()) {
-				errors = true
-				this.appendErrors(it, flash.errors)
-			}
-
-			id++;
 		}
 
 		return !errors

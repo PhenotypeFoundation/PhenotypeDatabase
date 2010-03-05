@@ -38,9 +38,8 @@ function onWizardPage() {
 
     // table handlers
     attachTableEvents();
-    resizeWizardTable();
-    attachTableSlider();
-    new TableEditor().init('div.table','div.row','div.column');
+    handleWizardTable();
+    new TableEditor().init('div.table', 'div.row', 'div.column');
 
     // accordeon(s)
     $("#accordion").accordion();
@@ -157,13 +156,17 @@ function attachTableEvents() {
 // if the wizard page contains a table, the width of
 // the header and the rows is automatically scaled to
 // the cummalative width of the columns in the header
-function resizeWizardTable() {
-    var wizardTable = $("div#wizard").find('div.table');
+function handleWizardTable() {
+    var that = this;
+    var wizardTables = $("div#wizard").find('div.table');
 
-    if (wizardTable) {
+    wizardTables.each(function() {
+        var wizardTable = $(this);
+        var sliderContainer = (wizardTable.next().attr('class') == 'sliderContainer') ? wizardTable.next() : null;
         var header = wizardTable.find('div.header')
-        // calculate total width of elements in header
         var width = 20;
+
+        // calculate total width of elements in header
         header.children().each(function() {
             // calculate width per column
             var c = $(this);
@@ -182,32 +185,24 @@ function resizeWizardTable() {
         wizardTable.find('div.row').each(function() {
             $(this).css({ width: width + 'px' });
         });
-    }
-}
 
-// if we have a table and a slider, make the slider
-// slide the contents of the table if the content of
-// the table is wider than the table itself
-function attachTableSlider() {
-    var slider = $("div#wizard").find('div.slider');
-    var header = $("div#wizard").find('div.header');
-    var table = $("div#wizard").find('div.table');
-
-    if (slider && table && header) {
-        // do we really need a slider?
-        if (header.width() < table.width()) {
-            // no, so hide it
-            slider.css({ 'display': 'none '});
-        } else {
-            slider.slider({
-                value   : 1,
-                min     : 1,
-                max     : header.width() - table.width(),
-                step    : 1,
-                slide: function(event, ui) {
-                    $("div#wizard").find('div.header, div.row').css({ 'margin-left': ( 1 - ui.value ) + 'px' });
-                }
-            });
+        // got a slider for this table?
+        if (sliderContainer) {
+            // handle slider
+            if (header.width() < wizardTable.width()) {
+                // no, so hide it
+                sliderContainer.css({ 'display': 'none '});
+            } else {
+                sliderContainer.slider({
+                    value   : 1,
+                    min     : 1,
+                    max     : header.width() - wizardTable.width(),
+                    step    : 1,
+                    slide: function(event, ui) {
+                        wizardTable.find('div.header, div.row').css({ 'margin-left': ( 1 - ui.value ) + 'px' });
+                    }
+                });
+            }
         }
-    }
+    });
 }
