@@ -70,40 +70,6 @@ class WizardController {
 			on("next").to "start"
 		}
 
-		// select the templates to use for this study
-		templates {
-			render(view: "_templates")
-			onRender {
-				flow.page = 1
-			}
-			on("next") {
-				// if we don't have a study, instantiate a study with dummy values
-				if (!flow.study) {
-					flow.study = new Study(
-						title: "my study",
-						code: "",
-						ecCode: "",
-						researchQuestion: "",
-						description: "",
-						startDate: new Date()
-					)
-				}
-
-				// assign template to study
-				flow.study.template = Template.findByName(params.get('template'));
-
-				// validate study
-				if (flow.study.validate()) {
-					success()
-				} else {
-					// validation failed, feedback errors
-					flash.errors = new LinkedHashMap()
-					this.appendErrors(flow.study, flash.errors)
-					error()
-				}
-			}.to "study"
-		}
-
 		// create or modify a study
 		start {
 			render(view: "_start")
@@ -123,6 +89,11 @@ class WizardController {
 			onRender {
 				flow.page = 2
 			}
+			on("switchTemplate") {
+				println "switching template..."
+				println params
+				this.handleStudy(flow, flash, params)
+			}.to "study"
 			on("previous") {
 				flash.errors = new LinkedHashMap()
 

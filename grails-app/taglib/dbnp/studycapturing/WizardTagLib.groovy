@@ -111,6 +111,38 @@ class WizardTagLib extends JavascriptTagLib {
 	}
 
 	/**
+	 * generate a ajax submit JavaScript
+	 * @see WizardTagLib::ajaxFlowRedirect
+	 * @see WizardTagLib::baseElement (ajaxSubmitOnChange)
+	 */
+	def ajaxSubmitJs = { attrs, body ->
+		// define AJAX provider
+		setProvider([library: ajaxProvider])
+
+		// got a function name?
+		def functionName = attrs.remove('functionName')
+		if (functionName && !attrs.get('name')) {
+			attrs.name = functionName
+		}
+
+		// generate an ajax button
+		def button = this.ajaxButton(attrs, body)
+
+		// strip the button part to only leave the Ajax call
+		button = button.replaceFirst(/<[^\"]*\"jQuery.ajax/,'jQuery.ajax')
+		button = button.replaceFirst(/return false.*/,'')
+
+		// change form if a form attribute is present
+		if (attrs.get('form')) {
+			button = button.replaceFirst(/this\.form/,
+				"\\\$('" + attrs.get('form') + "')"
+			)
+		}
+
+		out << button
+	}
+
+	/**
 	 * generate ajax webflow redirect javascript
 	 *
 	 * As we have an Ajaxified webflow, the initial wizard page
@@ -129,6 +161,8 @@ class WizardTagLib extends JavascriptTagLib {
 	 * name = the action to execute in the webflow
 	 * update = the divs to update upon success or error
 	 *
+	 * OR: to generate a JavaScript function you can call yourself, use 'functionName' instead of 'name'
+	 *
 	 * Example initial webflow action to work with this javascript:
 	 * ...
 	 * mainPage {
@@ -144,27 +178,10 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Closure body
 	 */
 	def ajaxFlowRedirect = { attrs, body ->
-		// define AJAX provider
-		setProvider([library: ajaxProvider])
-
-		// generate an ajax button
-		def button = this.ajaxButton(attrs, body)
-
-		// strip the button part to only leave the Ajax call
-		button = button.replaceFirst(/<[^\"]*\"jQuery.ajax/,'jQuery.ajax')
-		button = button.replaceFirst(/return false.*/,'')
-
-		// change form if a form attribute is present
-		if (attrs.get('form')) {
-			button = button.replaceFirst(/this\.form/,
-				"\\\$('" + attrs.get('form') + "')"
-			)
-		}
-
 		// generate javascript
-		out << '<script language="JavaScript">'
+		out << '<script type="text/javascript">'
 		out << '$(document).ready(function() {'
-		out << button
+		out << ajaxSubmitJs(attrs, body)
 		out << '});'
 		out << '</script>'
 	}
@@ -198,6 +215,23 @@ class WizardTagLib extends JavascriptTagLib {
 		def description = attrs.remove('description')
 		def addExampleElement = attrs.remove('addExampleElement')
 		def addExample2Element	= attrs.remove('addExample2Element')
+
+		// got an ajax onchange action?
+		def ajaxOnChange = attrs.remove('ajaxOnChange')
+		if (ajaxOnChange) {
+			if (!attrs.onChange) attrs.onChange = ''
+
+			// add onChange AjaxSubmit javascript
+			attrs.onChange += ajaxSubmitJs(
+				[
+					functionName: ajaxOnChange,
+					url: attrs.get('url'),
+					update: attrs.get('update'),
+					afterSuccess: attrs.get('afterSuccess')
+				],
+				''
+			)
+		}
 
 		// execute inputElement call
 		def renderedElement = "$inputElement"(attrs)
