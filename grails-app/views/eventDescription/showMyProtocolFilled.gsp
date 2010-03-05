@@ -1,5 +1,9 @@
 <script type="text/javascript">
 
+var parametertypes= new Array();
+<% dbnp.studycapturing.ProtocolParameterType.list().each{ print "parametertypes.push(\'${it}\');" } %>
+
+
 function addRowEmpty(id){
     var tbody = document.getElementById(id);
     var row = document.createElement("tr");
@@ -16,7 +20,7 @@ function addRowEmpty(id){
 
     addTextFieldToRow(row,'classification',20); addTextFieldToRow(row,'unit',6);
     var textField=addSelector(row,null); addTextFieldToRow(row,'reference',10); addTextFieldToRow(row,'description',20);
-    addTextElementToRow(row,textField,'option',6); addRowButton(row); tbody.appendChild(row);
+    addElementToRow(row,textField,'option',6); addRowButton(row); tbody.appendChild(row);
 }
 
 
@@ -41,20 +45,10 @@ function addRow(id,newId,name,unit,type,reference,description) {
     var textField=addSelector(row,type);
     addTextFieldToRow(row,'reference',10).value=reference;
     addTextFieldToRow(row,'description',20).value=description;
-    addTextElementToRow(row,textField,'option',6);
+    addElementToRow(row,textField,'option',6);
     addRowButton(row);
     tbody.appendChild(row);
 }
-
-
-
-
-
-
-
-var parametertypes= new Array();
-<% dbnp.studycapturing.ProtocolParameterType.list().each{ print "parametertypes.push(\'${it}\');" } %>
-
 
 
   function addRowButton(parent) {
@@ -69,7 +63,7 @@ var parametertypes= new Array();
   }
 
 
-  function addTextElementToRow(row,field,id,size){
+  function addElementToRow(row,field,id,size){
      var td=document.createElement('td');
      td.setAttribute('id',id + '_' + row.id);
      td.appendChild(field);
@@ -97,7 +91,73 @@ var parametertypes= new Array();
   }
 
 
-  function addSelector(row,selectedText){
+  // for the STRINGLIST type, display a link to show
+  // all optional values of the parameter.
+  function showLinkForSTRINGLIST(anchor,textNode,option,showDialogString,dialog) {
+        if(option.value=='STRINGLIST') {
+	   textNode.nodeValue='edit';
+           anchor.setAttribute('onclick',showDialogString);
+        }
+        else {
+           textNode.nodeValue='n.a.';
+	   anchor.setAttribute('onclick','');
+        }
+  }
+
+
+
+   function addRowToDialog(dialogTableBodyId) {
+        var tbody = document.getElementById(dialogTableBodyId);
+	var input=document.createElement('input');
+        tbody.insertRow(-1).insertCell(-1).appendChild(input);
+   }
+
+
+
+   // create the dialog for this STRINGLIST.
+   // the dialog holds all possible values this parameter can take.
+   // moreover, it is extendable.
+   function addDialogForSelector(rowId,options) {
+     var dialog = document.createElement('div');
+     dialog.setAttribute('id','dialog_'+rowId);
+     //var dialogText = document.createTextNode(dialog.id);
+     //dialog.appendChild(dialogText);
+
+
+     var table=document.createElement('table');
+     var tbody=document.createElement('tbody'); tbody.id='options_'+dialog.id;
+     var tr=document.createElement('tr');
+     var th=document.createElement('th');
+     var tx=document.createTextNode('Parameter Values');
+     dialog.appendChild(table);
+     table.appendChild(tbody);
+     tbody.appendChild(tr);
+     tr.appendChild(tx);
+
+     for(i=0;i<options.length;i++){
+	 var input=document.createElement('input');
+	 input.value=options[i];
+         tbody.insertRow(-1).insertCell(-1).appendChild(input);
+     }
+
+     var button=document.createElement('input');
+     button.setAttribute('type','Button');
+     button.value='Add Option';
+     dialog.appendChild(button);
+     button.onclick=function(){ addRowToDialog('options_'+dialog.id); }
+
+
+     return dialog;
+   }
+
+
+   function addSelector(row,selectedText){
+
+     // add dialog for displaying paramter options
+     // preserve row's id
+     var options= [1,2,3,4,5,6,7,8,9];
+     var dialog = addDialogForSelector(row.id,options);
+
 
      var selector=document.createElement("select");
      selector.setAttribute('id',"parameter_type"+row.id);
@@ -107,32 +167,41 @@ var parametertypes= new Array();
          var text = document.createTextNode(parametertypes[i]);
 	 option.appendChild(text);
 	 selector.appendChild(option);
-	 if(selectedText!=null&&selectedText==parametertypes[i]) {
-              selectedIndex=i;
-	      alert(selectedText);
-         }
+	 if(selectedText!=null&&selectedText==parametertypes[i]) { selectedIndex=i; }
      }
 
-     // set label for selected element
-     selector.selectedIndex=selectedIndex;
-     var option=selector.options[selector.selectedIndex];
-     var textNode = document.createTextNode("");
-     option=selector.options[selector.selectedIndex];
-     textNode.nodeValue=(option.value=='STRINGLIST') ? 'link stuff' : 'n.a.';
-
-
-     // show edit link for STRINGLIST
-     selector.onchange=function(){
-         option=this.options[this.selectedIndex];
-	 textNode.nodeValue=(option.value=='STRINGLIST') ? 'link stuff' : 'n.a.';
-     }
 
      //  td for the selector
      var td=document.createElement('td');
      td.appendChild(selector);
      row.appendChild(td);
+     td.appendChild(dialog);                          // dialog
+     jQuery(dialog).dialog({autoOpen:false});
 
-     return textNode;
+     var showDialogString = "jQuery('#"+ dialog.id + "').dialog('open');"
+
+
+     // set label for selected element
+     selector.selectedIndex=selectedIndex;
+     var option=selector.options[selector.selectedIndex];
+
+     var anchor= document.createElement('a');
+     anchor.setAttribute('name', 'myanchor');
+     var textNode=document.createTextNode('');
+     option=selector.options[selector.selectedIndex];
+     textNode.nodeValue=(option.value=='STRINGLIST') ? 'edit' : 'n.a.';
+     showLinkForSTRINGLIST(anchor,textNode,option,showDialogString,dialog);
+     anchor.appendChild(textNode);
+
+
+     // show edit link for STRINGLIST
+     selector.onchange=function(){
+         option=this.options[this.selectedIndex];
+         showLinkForSTRINGLIST(anchor,textNode,option,showDialogString,dialog);
+     }
+
+
+     return anchor;
   }
 
 
@@ -180,14 +249,13 @@ function doStuff(caller) { var row = caller.parentNode.parentNode; $("#"+row.id)
 
 <tr class="prop">
     <td id='test'>  nope </td>
-    <td> <g:select name="selectedProtocol" from="${dbnp.studycapturing.Protocol.list()}" value="${protocol.id}" onchange=
-           "${remoteFunction( action:'showProtocolParameters', update:'showProtocolParameters', params:'\'something=\'+this.value', id:'this.id')} " />
+    <td> <g:select name="selectedProtocol" from="${dbnp.studycapturing.Protocol.list()}" value="${protocol.id}" optionKey="id"   optionValue="name"
+		   onchange= "${remoteFunction( action:'showProtocolParameters', update:'showProtocolParameters', params:'\'id=\'+this.value' )} " />
     </td>
 </tr>
 
 
 <tr><td></td>
-
 <td>
 
 <table id="someId" >
