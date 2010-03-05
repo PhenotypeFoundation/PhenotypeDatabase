@@ -1,7 +1,6 @@
 package dbnp.studycapturing
 
 import dbnp.data.Term
-import org.codehaus.groovy.runtime.NullObject
 
 /**
  * TemplateEntity Domain Class
@@ -90,33 +89,19 @@ class TemplateEntity implements Serializable {
 			throw new NoSuchFieldException("Field ${fieldName} not found in class properties")
 		}
 		else {
-			if (templateStringFields && templateStringFields.containsKey(fieldName) && value.class == String) {
-				this.templateStringFields[fieldName] = value
-			}
-			if (templateStringFields && templateStringListFields.containsKey(fieldName) && value.class == TemplateFieldListItem) {
-				// TODO: check if item really belongs to the list under fieldName
-				this.templateStringListFields[fieldName] = value
-			}
-			if (templateTextFields.containsKey(fieldName) && value.class == String) {
-				this.templateTextFields[fieldName] = value
-			}
-			else if (templateIntegerFields && templateIntegerFields.containsKey(fieldName) && value.class == Integer) {
-				this.templateIntegerFields[fieldName] = value
-			}
-			else if (templateFloatFields && templateFloatFields.containsKey(fieldName) && value.class == Float) {
-				this.templateFloatFields[fieldName] = value
-			}
-			else if (templateDoubleFields && templateDoubleFields.containsKey(fieldName) && value.class == Double) {
-				this.templateDoubleFields[fieldName] = value
-			}
-			else if (templateDateFields && templateDateFields.containsKey(fieldName) && value.class == Date) {
-				this.templateDateFields[fieldName] = value
-			}
-			else if (templateTermFields && templateTermFields.containsKey(fieldName) && value.class == Term) {
-				this.templateTermFields[fieldName] = value
+			TemplateField field = this.template.fields.find { it.name == fieldName} 
+			if (field == null) {
+				throw new NoSuchFieldException("Field ${fieldName} not found in class properties or template fields")
 			}
 			else {
-				throw new NoSuchFieldException("Field ${fieldName} not found in class properties or template fields")
+				if (field.type == TemplateFieldType.STRINGLIST && value.class == String) {
+					// Convenience setter: find template item by name
+					value = field.listEntries.find { it.name == value }
+				}
+				// Caution: this assumes that all template...Field Maps are already initialized
+				// Otherwise, the results are pretty much unpredictable!
+				getStore(field.type)[fieldName] = value
+				return this
 			}
 		}
 	}
@@ -127,66 +112,9 @@ class TemplateEntity implements Serializable {
 		return this.template.fields;
 	}
 
-	@Override
-	void setTemplate(Template newTemplate) {
 
-		// Contrary to expectation, this method does not cause an infinite loop but calls the super method
-		// whereas super.setTemplate(newTemplate) leads to errors concerning NullObject values
-		this.template = newTemplate
-
-		// TODO: initialize all template fields with the necessary keys and null values
-
-		//println "Setting template " + newTemplate
-		if (template != null) {
-
-			// Loop over all template field types and
-			// That is inpossible in Java if the Maps are not yet set because the pointer is evaluated here
-
-			// So this code is quite dangerous stuff:
-
-			/*TemplateFieldType.list().each() { fieldType ->
-				Set<TemplateFieldType> fields = template.getFieldsByType(fieldType)
-				println fieldType
-				println "before: " + getStore(fieldType)
-				initFields(getStore(fieldType),fieldType.getDefaultValue(),fields)
-				println "after: " + getStore(fieldType)
-
-			}
-			println "SF:" + templateStringListFields*/
-
-
-			/*def type = TemplateFieldType.STRING
-			//<T extends Annotation> T = type.getTypeClass().class
-			def stringFields = template.getFieldsByType(TemplateFieldType.STRING)
-			if (stringFields.size() > 0) {
-				templateStringFields = new HashMap<String,String>(stringFields.size())
-				stringFields.each {
-					templateStringFields.put(it.name,TemplateFieldType.STRING.getDefaultValue())
-				}
-				println templateStringFields
-			}
-			stringFields = template.getFieldsByType(TemplateFieldType.INTEGER)
-			println stringFields*.name
-			if (stringFields.size() > 0) {
-				templateIntegerFields = new HashMap<String,Integer>(stringFields.size())
-				stringFields.each {
-					templateIntegerFields.put(it.name,TemplateFieldType.INTEGER.getDefaultValue())
-				}
-			}*/
-		}
-	}
-
-	// Private function to initialize template field collections
-	private <T> void initFields(Map fieldCollection, T defaultValue, Set<TemplateFieldType> fields) {
-		if (fields.size() > 0) {
-			fieldCollection = new HashMap<String,T>(fields.size());
-			fields.each {
-				fieldCollection.put(it.name,defaultValue);
-			}
-			println fieldCollection
-		}
-	}
-
+	// See revision 237 for ideas about initializing the different templateField Maps
+	// with tailored Maps that already contain the neccessary keys
 	/**
 	 * Convenience method. Returns all unique templates used within a collection of TemplateEntities.
 	 */

@@ -386,9 +386,12 @@ class BootStrap {
 					name: "A" + x++,
 					species: mouseTerm,
 					template: mouseTemplate,
-					templateStringFields: ["Genotype" : "C57/Bl6j", "Gender" : "Male"],
-					templateIntegerFields: ["Age" : 17, "Cage" : (int)(x/2)]
-				).with { if (!validate()) { errors.each { println it} } else save()}
+				)
+				.setFieldValue("Gender", "Male")
+				.setFieldValue("Genotype", "C57/Bl6j")
+				.setFieldValue("Age", 17)
+				.setFieldValue("Cage", (int)(x/2))
+				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				exampleStudy.addToSubjects(currentSubject)
 				.with { if (!validate()) { errors.each { println it} } else save()}
@@ -451,22 +454,14 @@ class BootStrap {
 				def currentSubject = new Subject(
 					name: "" + y++,
 					species: humanTerm,
-					template: humanTemplate,
-					templateStringFields: [
-						"Gender" : (boolean)(x/2) ? "Male" : "Female"
-						],
-					templateDateFields: [
-						"DOB" : new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19"+(10+(int)(Math.random()*80)))
-					],
-					templateIntegerFields: [
-						"Age" : 30
-					],
-					templateDoubleFields: [
-						"Height" : Math.random()*2F,
-						"Weight" : Math.random()*150F,
-						"BMI" : 20 + Math.random()*10F
-					]
-				).with { if (!validate()) { errors.each { println it} } else save()}
+					template: humanTemplate)
+				.setFieldValue("Gender", (boolean)(x/2) ? "Male" : "Female")
+				.setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19"+(10+(int)(Math.random()*80))))
+				.setFieldValue("Age", 30)
+				.setFieldValue("Height",Math.random()*2F)
+				.setFieldValue("Weight",Math.random()*150F)
+				.setFieldValue("BMI",20 + Math.random()*10F)
+				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def currentSample = new Sample(
 					name: currentSubject.name + '_B',
