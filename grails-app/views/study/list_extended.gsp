@@ -147,12 +147,14 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
          <g:each in="${selectedStudies}" var="stud">
              <td>
 
-               <table>
+
+  <g:each in="${stud.giveSubjectTemplates()}" var="template">
+        <table>
           <tr>
             <td><b>Id </b></td>
             <td><b>Species</b></td>
             <td><b>Name</b></td>
-          <g:each in="${stud.template.fields}" var="g">
+          <g:each in="${template.fields}" var="g">
             <td><b>
               <g:link controller="templateField" action="show" id="${g.id}">
               ${g}</b></td>
@@ -160,20 +162,24 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
           </g:each>
           </tr>
 
-          <g:each in="${stud.subjects}" var="s">
+          <g:each in="${stud.subjects.findAll { it.template == template}}" var="s">
             <tr>
               <td><g:link controller="subject" action="show" id="${s.id}">${s.id}</g:link></td>
               <td>${s.species}</td>
               <td>${s.name}</td>
-
-                <g:each in="${stud.template.fields}" var="g">
+              <g:each in="${template.fields}" var="g">
                <td>
                   <% print s.getFieldValue(g.toString())  %>
-            </td>
+               </td>
           </g:each>
-          </tr>
+            </tr>
           </g:each>
+
           </table>
+
+	  </g:each>
+
+
 
              </td>
            </g:each>
