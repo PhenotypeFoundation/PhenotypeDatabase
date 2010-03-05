@@ -12,10 +12,13 @@ class Study extends TemplateEntity implements Serializable {
 	static searchable = true
 	nimble.User owner
 	String title
+
+	// TODO: The following 4 fields should be moved into templates
 	String code
 	String researchQuestion
 	String description
 	String ecCode
+
 	Date dateCreated
 	Date lastUpdated
 	Date startDate

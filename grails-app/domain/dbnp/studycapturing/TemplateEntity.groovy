@@ -7,16 +7,18 @@ class TemplateEntity {
 
 	Template template
 
-	Map templateStringFields
-	Map templateStringListFields
-	Map templateIntegerFields
-	Map templateFloatFields
-	Map templateDoubleFields
-	Map templateDateFields
-	Map templateTermFields
+	Map templateStringFields = [:]
+	Map templateTextFields = [:]
+	Map templateStringListFields = [:]
+	Map templateIntegerFields = [:]
+	Map templateFloatFields = [:]
+	Map templateDoubleFields = [:]
+	Map templateDateFields = [:]
+	Map templateTermFields = [:]
 
 	static hasMany = [
 		templateStringFields: String,
+		templateTextFields: String,
 		templateStringListFields: TemplateFieldListItem,
 		templateIntegerFields: int,
 		templateFloatFields: float,
@@ -27,6 +29,36 @@ class TemplateEntity {
 
 	static constraints = {
 		template(nullable: true)
+
+	}
+
+	static mapping = {
+		tablePerHierarchy false
+
+		templateTextFields type: 'text'
+	}
+
+	private Map getStore(TemplateFieldType fieldType) {
+		switch(fieldType) {
+			case TemplateFieldType.STRING:
+				return templateStringFields
+			case TemplateFieldType.TEXT:
+				return templateTextFields
+			case TemplateFieldType.STRINGLIST:
+				return templateStringListFields
+			case TemplateFieldType.INTEGER:
+				return templateIntegerFields
+			case TemplateFieldType.DATE:
+				return templateDateFields
+			case TemplateFieldType.FLOAT:
+				return templateFloatFields
+			case TemplateFieldType.DOUBLE:
+				return templateDoubleFields
+			case TemplateFieldType.ONTOLOGYTERM:
+				return templateTermFields
+		        default:
+				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
+		}
 	}
 
 	/**
@@ -38,24 +70,7 @@ class TemplateEntity {
 	def getFieldValue(String fieldName) {
 		TemplateFieldType fieldType = template.getFieldType(fieldName)
 		if (!fieldType) throw new NoSuchFieldException("Field name ${fieldName} not recognized")
-		switch(fieldType) {
-			case [TemplateFieldType.STRING, TemplateFieldType.STRINGLIST]:
-				return templateStringFields[fieldName]
-			case [TemplateFieldType.STRINGLIST]:
-				return templateStringListFields[fieldName]
-			case TemplateFieldType.INTEGER:
-				return templateIntegerFields[fieldName]
-			case TemplateFieldType.DATE:
-				return templateDateFields[fieldName]
-			case TemplateFieldType.FLOAT:
-				return templateFloatFields[fieldName]
-			case TemplateFieldType.DOUBLE:
-				return templateDoubleFields[fieldName]
-			case TemplateFieldType.ONTOLOGYTERM:
-				return templateTermFields[fieldName]
-		        default:
-				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
-		}
+		getStore(fieldType)[fieldName]
 	}
 
 	def setFieldValue(String fieldName, value) {
@@ -72,7 +87,10 @@ class TemplateEntity {
 			}
 			if (templateStringListFields.containsKey(fieldName) && value.class == TemplateFieldListItem) {
 				// TODO: check if item really belongs to the list under fieldName
-				this.templateStringFields[fieldName] = value
+				this.templateStringListFields[fieldName] = value
+			}
+			if (templateTextFields.containsKey(fieldName) && value.class == String) {
+				this.templateTextFields[fieldName] = value
 			}
 			else if (templateIntegerFields.containsKey(fieldName) && value.class == Integer) {
 				this.templateIntegerFields[fieldName] = value
@@ -95,6 +113,8 @@ class TemplateEntity {
 		}
 	}
 
+
+
 	def Set<TemplateField> giveFields() {
 		return this.template.fields;
 	}
@@ -109,25 +129,69 @@ class TemplateEntity {
 		// TODO: initialize all template fields with the necessary keys and null values
 
 		println "Setting template " + newTemplate
-		/*if (template == null || template instanceof NullObject) {} else{ // negation doesn't seem to work well
-			def stringFields = template.getFieldsByType(TemplateFieldType.STRINGLIST)
-			println stringFields*.name
+		if (template != null) {
+
+			// Loop over all template field types and
+			// That is inpossible in Java if the Maps are not yet set because the pointer is evaluated here
+
+			// So this code is quite dangerous stuff:
+
+			/*TemplateFieldType.list().each() { fieldType ->
+				Set<TemplateFieldType> fields = template.getFieldsByType(fieldType)
+				println fieldType
+				println "before: " + getStore(fieldType)
+				initFields(getStore(fieldType),fieldType.getDefaultValue(),fields)
+				println "after: " + getStore(fieldType)
+
+			}
+			println "SF:" + templateStringListFields*/
+
+
+			/*def type = TemplateFieldType.STRING
+			//<T extends Annotation> T = type.getTypeClass().class
+			def stringFields = template.getFieldsByType(TemplateFieldType.STRING)
 			if (stringFields.size() > 0) {
-				templateStringFields = new HashMap<String,String>()
-				templateStringFields.keyset.add stringFields*.name;
+				templateStringFields = new HashMap<String,String>(stringFields.size())
+				stringFields.each {
+					templateStringFields.put(it.name,TemplateFieldType.STRING.getDefaultValue())
+				}
 				println templateStringFields
 			}
-		}*/
+			stringFields = template.getFieldsByType(TemplateFieldType.INTEGER)
+			println stringFields*.name
+			if (stringFields.size() > 0) {
+				templateIntegerFields = new HashMap<String,Integer>(stringFields.size())
+				stringFields.each {
+					templateIntegerFields.put(it.name,TemplateFieldType.INTEGER.getDefaultValue())
+				}
+			}*/
+		}
+	}
+
+	// Private function to initialize template field collections
+	private <T> void initFields(Map fieldCollection, T defaultValue, Set<TemplateFieldType> fields) {
+		if (fields.size() > 0) {
+			fieldCollection = new HashMap<String,T>(fields.size());
+			fields.each {
+				fieldCollection.put(it.name,defaultValue);
+			}
+			println fieldCollection
+		}
 	}
 
 	/**
-	 * Convenience method. Returns all unique templates within a collection of TemplateEntities.
+	 * Convenience method. Returns all unique templates used within a collection of TemplateEntities.
 	 */
 	static List<Template> giveTemplates(Set<TemplateEntity> entityCollection) {
 		return entityCollection*.template.unique();
 	}
 
-	static Template giveTemplate(Set<TemplateEntity> entityCollection) {
+	/**
+	 * Convenience method. Returns the template used within a collection of TemplateEntities.
+	 * @throws NoSuchFieldException when 0 or multiple templates are used in the collection
+	 * @return The template used by all members of a collection
+	 */
+	static Template giveSingleTemplate(Set<TemplateEntity> entityCollection) {
 		def templates = giveTemplates(entityCollection);
 		if (templates.size() == 0) {
 			throw new NoSuchFieldException("No templates found in collection!")

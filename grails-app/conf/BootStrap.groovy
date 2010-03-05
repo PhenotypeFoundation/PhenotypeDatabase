@@ -405,6 +405,18 @@ class BootStrap {
 
 			}
 
+			// Add EventGroups to study
+			exampleStudy
+			.addToEventGroups(LFBV1)
+			.addToEventGroups(LFBL1)
+			.addToEventGroups(HFBV1)
+			.addToEventGroups(HFBL1)
+			.addToEventGroups(LFBV4)
+			.addToEventGroups(LFBL4)
+			.addToEventGroups(HFBV4)
+			.addToEventGroups(HFBL4)
+			.save()
+
 			println 'Adding PPSH study'
 
                         def humanStudy = new Study(
@@ -470,6 +482,8 @@ class BootStrap {
 				.addToEventGroups rootGroup
 				.with { if (!validate()) { errors.each { println it} } else save()}
 			}
+
+			humanStudy.addToEventGroups(rootGroup).save()
 
 //                        new Study(title:"example",code:"Excode",researchQuestion:"ExRquestion",description:"Exdescription",ecCode:"ExecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
 //                        new Study(title:"testAgain",code:"testcode",researchQuestion:"testRquestion",description:"testdescription",ecCode:"testCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()

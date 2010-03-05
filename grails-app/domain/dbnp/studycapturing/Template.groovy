@@ -46,7 +46,7 @@ class Template implements Serializable {
 	/**
 	 * get all field of a particular type
 	 * @param	Class	fieldType
-	 * @return	ArrayList
+	 * @return	Set<TemplateField>
 	 */
 	def getFieldsByType(TemplateFieldType fieldType) {
 		def result = fields.findAll {
