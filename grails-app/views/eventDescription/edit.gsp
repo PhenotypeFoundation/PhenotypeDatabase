@@ -10,6 +10,8 @@
     </head>
 
     <body>
+
+
         <div class="nav">
             <span class="menuButton"><a class="home" href="${createLink(uri: '/')}">Home</a></span>
             <span class="menuButton"><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></span>
@@ -30,8 +32,8 @@
             </g:hasErrors>
 
 
-
-            <g:form method="post" >
+           <% println eventDescriptionInstance.toString() %>
+            <g:form action="save" method="post" id="${eventDescriptionInstance.id}" onsubmit="addHiddenDialogsToForm();">
                 <g:hiddenField name="id" value="${eventDescriptionInstance?.id}" />
                 <g:hiddenField name="version" value="${eventDescriptionInstance?.version}" />
                 <div class="dialog">
@@ -88,19 +90,14 @@
 
 
 
-                            <tbody id="protocolPartial">
-                                <g:include action="showMyProtocol" controller="eventDescription" id="${eventDescriptionInstance.id}" />
-                            </tbody>
-
-
-
 
                         </tbody>
                     </table>
                 </div>
+                                <g:include action="showMyProtocol" controller="eventDescription" id="${eventDescriptionInstance.id}" />
                 <div class="buttons">
-                    <span class="button"><g:actionSubmit class="save" action="update" value="${message(code: 'default.button.update.label', default: 'Update')}" /></span>
-                    <span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" /></span>
+                    <span class="button"><g:submitButton name="save" class="save" value="${message(code: 'default.save.label', default: 'Save')}" /></span>
+                    <span class="button"><g:submitToRemote class="delete" action="list" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" /></span>
                 </div>
             </g:form>
         </div>
