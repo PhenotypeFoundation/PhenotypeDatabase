@@ -56,13 +56,40 @@ class ImporterController {
     }
 
     /**
-    * User has assigned all entities to the columns and continues to the next step (assigning properties to columns)
+    * User has assigned all entities and celltypes to the columns and continues to the next step (assigning properties to columns)
     *
-    * @param entity list of entities
+    * @param entity list of entities and columns it has been assigned to (columnindex:entitytype format)
+    * @param celltype list of celltypes and columns it has been assigned to (columnindex:celltype format)
     * @return properties page
     */
     def savepreview = {	
 	def entities  = request.getParameterValues("entity")
+	def celltypes = request.getParameterValues("celltype")
+
+	celltypes.each { c ->
+	    def temp = c.split(":")
+	    
+	    session.header[temp[0].toInteger()].celltype =  temp[1].toInteger()
+	}
+
+	entities.each { e ->
+	    def temp = e.split(":")
+	    Class clazz
+	    switch (temp[1]) {
+		case 0: clazz = Study
+			break
+		case 1: clazz = Subject
+			break
+		case 2: clazz = Event
+			break
+		case 3: clazz = Protocol
+			break
+		case 4: clazz = Sample
+			break
+		default: clazz = String
+	    }
+	    session.header[temp[0].toInteger()].entity = clazz
+	}
 
 	// currently only one template is used for all entities
 	// TODO: show template fields per entity
@@ -70,5 +97,22 @@ class ImporterController {
 	def templates = Template.get(session.importtemplate_id)
 
 	render(view:"step2", model:[entities:entities, header:session.header, templates:templates])
+    }
+
+    /**
+    * @param columnproperty array of columns and the assigned property in `column:property_id` format
+    *
+    */
+    def saveproperties = {
+
+	/*def columnproperties  = request.getParameterValues("columnproperty")
+	columnproperties.each { cp ->
+		def temp = cp.split(":")
+		session.header[temp[0]]
+	}*/
+	for (e in session.header) {
+	    println e
+	}
+	render ("properties saved")
     }
 }

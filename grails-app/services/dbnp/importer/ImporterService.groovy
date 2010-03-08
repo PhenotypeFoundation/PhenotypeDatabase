@@ -55,16 +55,16 @@ class ImporterService {
 	    
 	    switch (c.getCellType()) {
                     case HSSFCell.CELL_TYPE_STRING: 			
-			header[c.getColumnIndex()] = new dbnp.importer.Column(value:df.formatCellValue(c), type:datamatrix_celltype);
+			header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(c), celltype:datamatrix_celltype);
 			break
                     case HSSFCell.CELL_TYPE_NUMERIC:
-			header[c.getColumnIndex()] = new dbnp.importer.Column(value:df.formatCellValue(c), type:datamatrix_celltype);
+			header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(c), celltype:datamatrix_celltype);
 			break
 		    case HSSFCell.CELL_TYPE_BLANK:
-			header[c.getColumnIndex()] = new dbnp.importer.Column(value:df.formatCellValue(c), type:datamatrix_celltype);
+			header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(c), celltype:datamatrix_celltype);
 			break
                     default:
-			header[c.getColumnIndex()] = new dbnp.importer.Column(value:df.formatCellValue(c), type:datamatrix_celltype);
+			header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(c), celltype:datamatrix_celltype);
 			break
             }
 	}

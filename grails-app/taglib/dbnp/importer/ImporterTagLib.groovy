@@ -18,7 +18,7 @@ import dbnp.studycapturing.Template
 
 class ImporterTagLib {
     static namespace = 'importer'
-    def standardentities = [[type:0, name:"Study"], [type:1, name:"Subject"], [type:2, name:"Event"],
+    def standardentities = [[type:-1, name:"Don't import"], [type:0, name:"Study"], [type:1, name:"Subject"], [type:2, name:"Event"],
 			[type:3, name:"Protocol"], [type:4, name:"Sample"]]
 
     def standardcelltypes = [[type:0, name:"Numeric"], [type:1, name:"String"], [type:2, name:"Formula"],
@@ -42,7 +42,7 @@ class ImporterTagLib {
     }
 
     /**
-     * @param entities array of entity:columnindex values
+     * @param entities array in the format of columnindex:entitytype format
      */
     def properties = { attrs ->
 	def selectedentities = []
@@ -50,7 +50,7 @@ class ImporterTagLib {
 
 	attrs['entities'].each { se ->
 	    def temp = se.split(":")
-	    def entity = [type:temp[0],columnindex:temp[1]]
+	    def entity = [type:temp[1],columnindex:temp[0]]
 	    selectedentities.add(entity)
 	}
 
@@ -61,7 +61,7 @@ class ImporterTagLib {
 	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
 
 	options.each { e ->
-	    res += "<option value=\"${e.type}:${customvalue}\""
+	    res += "<option value=\"${customvalue}:${e.type}\""
 	    res += (e.type.toInteger() == selected) ? " selected" : ""
 	    res += ">${e.name}</option>"
 	}
@@ -83,12 +83,12 @@ class ImporterTagLib {
 	def columnindex = attrs['columnindex']
 
 	switch (attrs['entitytype']) {
-	    case 0  : createSelect(-1, "property", t.fields, "1")
-		     break
+	    case 0  : createPropertySelect(attrs['name'], t.fields, columnindex)
+		      break
 	    case 1  : break
 	    case 2  : break
 	    case 3  : break
-	    default : out << createPropertySelect("property", t.fields, columnindex)
+	    default : out << createPropertySelect(attrs['name'], t.fields, columnindex)
 		     break
 	}
     }

@@ -23,11 +23,10 @@
 		    <g:if test="${selentity.type.toLong()==stdentity.type}">
 			<tr>
 			    <td class="header" width="200px">
-				<b>${header[selentity.columnindex.toInteger()].value}</b>
+				<b>${header[selentity.columnindex.toInteger()].name}</b>
 			    </td>
 			    <td>				
-				<!-- <g:select name="template" from="${templates.fields}"/> -->
-				<importer:propertyChooser entity="${selentity.type.toLong()}" columnindex="${selentity.columnindex}"/>
+				<importer:propertyChooser name="columnproperty" entity="${selentity.type.toLong()}" columnindex="${selentity.columnindex}"/>
 			    </td>
 			</tr>
 		    </g:if>

@@ -18,7 +18,7 @@
 	  <td>Columnname:</td>
 	  <g:each var="column" in="${header}">
 	      <td class="header">
-		  <b>${column.value.value}</b>
+		  <b>${column.value.name}</b>
 	      </td>
 	  </g:each>
 	</tr>
@@ -27,7 +27,7 @@
 	    <td>Celltype:</td>
 	    <g:each var="column" in="${header}">
 		<td class="header">
-		    <importer:celltypeSelect selected="${column.value.type.toInteger()}" name="celltype" customvalue="${column.key.toString()}"/>
+		    <importer:celltypeSelect selected="${column.value.celltype.toInteger()}" name="celltype" customvalue="${column.key.toString()}"/>
 		</td>
 	    </g:each>
 	</tr>
