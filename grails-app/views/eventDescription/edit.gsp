@@ -78,7 +78,7 @@
                             <tr class="prop">
 			    <g:if test="!editExisting">
                                 <td valign="top" class="name"> <label> This is a sampling event</label> </td>
-				<td>  <INPUT TYPE="checkbox" NAME="isSampleCheckBox" VALUE="checkboxValue"> </td>
+				<td>  <INPUT TYPE="checkbox" NAME="isSample" VALUE="true"> </td>
 			    </g:if>
 			    <g:else>
                             <tr class="prop">

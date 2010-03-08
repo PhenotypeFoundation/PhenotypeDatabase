@@ -103,7 +103,14 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
 	var input=document.createElement('input');
 	var id = tbody.rows.length + 1;
         input.setAttribute('name','parameterStringValue__new'+id+'__protocol__'+rowId);
-        tbody.insertRow(-1).insertCell(-1).appendChild(input);
+	var tr=document.createElement('tr');
+        tr.insertCell(-1).appendChild(input);
+	tbody.appendChild(tr);
+	var button=document.createElement('input');
+	button.type='button';
+	button.value='delete';
+	button.onclick=function(){jQuery(tr).remove()};
+	tr.insertCell(-1).appendChild(button);
   }
 
 
@@ -129,7 +136,14 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
 	 var input=document.createElement('input');
 	 input.value=unescape(options[i]);
 	 input.name='parameterStringValue__'+options[i+1]+'__protocol__'+rowId;
-         tbody.insertRow(-1).insertCell(-1).appendChild(input);
+	 var tr=document.createElement('tr');
+	 tbody.appendChild(tr);
+	 tr.insertCell(-1).appendChild(input);
+	 var button=document.createElement('input');
+	 button.type='button';
+	 button.value='delete';
+	 button.onclick=function(){jQuery(tr).remove()};
+	 tr.insertCell(-1).appendChild(button);
      }
 
      var button=document.createElement('input');
@@ -242,7 +256,7 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
 
 <tr class="prop">
     <td id='test'>  Protocol </td>
-    <td> <g:select name="selectedProtocol" from="${dbnp.studycapturing.Protocol.list()}" value="${protocol}" optionKey="id"   optionValue="name"
+    <td> <g:select name="protocol" from="${dbnp.studycapturing.Protocol.list()}" value="${protocol}" optionKey="id"   optionValue="name"
 		   onchange= "${remoteFunction( action:'showProtocolParameters', update:'showProtocolParameters', params:'\'id=\'+this.value' )}; deleteHiddenDialogs();" />
     </td>
 </tr>
