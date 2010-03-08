@@ -104,12 +104,13 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
 	var id = tbody.rows.length + 1;
         input.setAttribute('name','parameterStringValue__new'+id+'__protocol__'+rowId);
 	var tr=document.createElement('tr');
+        tr.id='rowparameterStringValue__new'+id+'__protocol__'+rowId;
         tr.insertCell(-1).appendChild(input);
 	tbody.appendChild(tr);
 	var button=document.createElement('input');
 	button.type='button';
 	button.value='delete';
-	button.onclick=function(){jQuery(tr).remove()};
+	button.setAttribute('onclick','removeById(\''+tr.id+'\');');
 	tr.insertCell(-1).appendChild(button);
   }
 
@@ -137,12 +138,13 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
 	 input.value=unescape(options[i]);
 	 input.name='parameterStringValue__'+options[i+1]+'__protocol__'+rowId;
 	 var tr=document.createElement('tr');
+	 tr.id='rowparameterStringValue__'+options[i+1]+'__protocol__'+rowId;
 	 tbody.appendChild(tr);
 	 tr.insertCell(-1).appendChild(input);
 	 var button=document.createElement('input');
 	 button.type='button';
 	 button.value='delete';
-	 button.onclick=function(){jQuery(tr).remove()};
+	 button.setAttribute('onclick','removeById(\''+tr.id+'\');');
 	 tr.insertCell(-1).appendChild(button);
      }
 
@@ -155,6 +157,9 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
      return dialog;
    }
 
+   function removeById(id) {
+        jQuery(document.getElementById(id)).remove();
+   }
 
    function addSelector(row,selectedText,options){
 
