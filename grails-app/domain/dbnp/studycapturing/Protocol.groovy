@@ -21,4 +21,12 @@ class Protocol implements Serializable {
     static constraints = {
         reference(nullable: true, blank: true)
     }
+
+	/**
+	 * overloaded toString method
+	 * @return String
+	 */
+	def String toString() {
+		return this.name;
+	}
 }

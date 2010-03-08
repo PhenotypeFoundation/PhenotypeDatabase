@@ -22,19 +22,15 @@
 		then create two sample descriptions. One for 'sampling blood', and one for 'sampling tissue'.
 	</span>
 
-	<span class="info">
-		<span class="title">Note!</span>
-		Currently 'classification' display all terms because there is no way to machine interpret
-		the different values. So please -for now- make sure to pick the Ontology reference applicable for
-		events until this particular challenge is solved.
-	</span>
-
 	<wizard:textFieldElement name="name" description="Name" error="name" value="${values?.name}">
 		The name of the event description you are creating
 	</wizard:textFieldElement>
 	<wizard:textFieldElement name="description" description="Description" error="description" value="${values?.description}">
 		A short description summarizing your event description
 	</wizard:textFieldElement>
+	<wizard:protocolElement name="protocol" description="Protocol" error="protocol" value="${values?.protocol}" >
+		Select the protocol for this event description
+	</wizard:protocolElement>
 	<wizard:checkBoxElement name="isSamplingEvent" description="Sampling event" error="isSamplingEvent" value="${values?.isSamplingEvent}">
 		Is this a sampling event description?
 	</wizard:checkBoxElement>
@@ -46,6 +42,7 @@
 			<div class="firstColumn"></div>
 			<div class="column">name</div>
 			<div class="column">description</div>
+			<div class="column">protocol</div>
 			<div class="column">sampling event</div>
 			<div class="column">protocol</div>
 		</div>
@@ -57,6 +54,7 @@
 			</div>
 			<div class="column"><g:textField name="eventDescription_${i}_name" value="${eventDescription.name}" size="12" maxlength="12" /></div>
 			<div class="column"><g:textField name="eventDescription_${i}_description" value="${eventDescription.description}" size="12" maxlength="12" /></div>
+			<div class="column"><wizard:protocolSelect name="eventDescription_${i}_protocol" value="${eventDescription.protocol}" /></div>
 			<div class="column"><g:checkBox name="eventDescription_${i}_isSamplingEvent" value="${eventDescription.isSamplingEvent}" /></div>
 			<div class="column"><g:if test="${eventDescription.protocol}">${eventDescription.protocol}</g:if><g:else>-</g:else></div>
 		</div>

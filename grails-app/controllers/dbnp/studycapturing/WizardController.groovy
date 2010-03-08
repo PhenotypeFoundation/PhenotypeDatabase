@@ -90,8 +90,6 @@ class WizardController {
 				flow.page = 2
 			}
 			on("switchTemplate") {
-				println "switching template..."
-				println params
 				this.handleStudy(flow, flash, params)
 			}.to "study"
 			on("previous") {
@@ -158,8 +156,6 @@ class WizardController {
 				}
 			}.to "subjects"
 			on("next") {
-				println flow.subjectTemplates
-				println flow.subjects
 				flash.errors = new LinkedHashMap()
 
 				// check if we have at least one subject
@@ -199,6 +195,9 @@ class WizardController {
 			on("add") {
 				// fetch classification by name (as posted by the form)
 				//params.classification = Term.findByName(params.classification)
+
+				// fetch protocol by name (as posted by the form)
+				params.protocol = Protocol.findByName(params.protocol)
 
 				// transform checkbox form value to boolean
 				params.isSamplingEvent = (params.containsKey('isSamplingEvent'))
@@ -451,8 +450,11 @@ class WizardController {
 		}
 
 		// if a template is selected, get template instance
-		if (params.get('template')) {
-			params.template = Template.findByName(params.get('template'))
+		def template = params.remove('template')
+		if (template instanceof String && template.size() > 0) {
+			params.template = Template.findByName(template)
+		} else if (template instanceof Template) {
+			params.template = template
 		}
 
 		// update study instance with parameters
@@ -488,6 +490,7 @@ class WizardController {
 		flow.eventDescriptions.each() {
 			it.name = params.get('eventDescription_' + id + '_name')
 			it.description = params.get('eventDescription_' + id + '_description')
+			it.protocol = Protocol.findByName(params.get('eventDescription_' + id + '_protocol'))
 			//it.classification = Term.findByName(params.get('eventDescription_' + id + '_classification'))
 			it.isSamplingEvent = (params.containsKey('eventDescription_' + id + '_isSamplingEvent'))
 

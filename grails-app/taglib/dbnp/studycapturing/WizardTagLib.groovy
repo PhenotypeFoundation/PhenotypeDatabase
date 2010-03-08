@@ -45,7 +45,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attributes
 	 * @param Closure body
 	 */
-	def ajaxButton = { attrs, body ->
+	def ajaxButton = {attrs, body ->
 		// get the jQuery version
 		def jQueryVersion = grailsApplication.getMetadata()['plugins.jquery']
 
@@ -86,7 +86,7 @@ class WizardTagLib extends JavascriptTagLib {
 			// this.form part has been fixed. Consequently, our wrapper has changed as well... 
 			button = button.replaceFirst(/data\:jQuery/, "data:\'_eventId_${elementName}=1&\'+jQuery")
 		}
- 
+
 		// add an after success function call?
 		// usefull for performing actions on success data (hence on refreshed
 		// wizard pages, such as attaching tooltips)
@@ -105,7 +105,7 @@ class WizardTagLib extends JavascriptTagLib {
 
 		// replace double semi colons
 		button = button.replaceAll(/;{2,}/, ';')
-		
+
 		// render button
 		out << button
 	}
@@ -115,7 +115,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @see WizardTagLib::ajaxFlowRedirect
 	 * @see WizardTagLib::baseElement (ajaxSubmitOnChange)
 	 */
-	def ajaxSubmitJs = { attrs, body ->
+	def ajaxSubmitJs = {attrs, body ->
 		// define AJAX provider
 		setProvider([library: ajaxProvider])
 
@@ -129,8 +129,8 @@ class WizardTagLib extends JavascriptTagLib {
 		def button = this.ajaxButton(attrs, body)
 
 		// strip the button part to only leave the Ajax call
-		button = button.replaceFirst(/<[^\"]*\"jQuery.ajax/,'jQuery.ajax')
-		button = button.replaceFirst(/return false.*/,'')
+		button = button.replaceFirst(/<[^\"]*\"jQuery.ajax/, 'jQuery.ajax')
+		button = button.replaceFirst(/return false.*/, '')
 
 		// change form if a form attribute is present
 		if (attrs.get('form')) {
@@ -165,19 +165,15 @@ class WizardTagLib extends JavascriptTagLib {
 	 *
 	 * Example initial webflow action to work with this javascript:
 	 * ...
-	 * mainPage {
-	 * 	render(view: "/wizard/index")
-	 * 	onRender {
-	 * 		flow.page = 1
-	 * 	}
-	 * 	on("next").to "pageOne"
-	 * }
-	 * ...
+	 * mainPage {* 	render(view: "/wizard/index")
+	 * 	onRender {* 		flow.page = 1
+	 *}* 	on("next").to "pageOne"
+	 *}* ...
 	 *
 	 * @param Map attributes
 	 * @param Closure body
 	 */
-	def ajaxFlowRedirect = { attrs, body ->
+	def ajaxFlowRedirect = {attrs, body ->
 		// generate javascript
 		out << '<script type="text/javascript">'
 		out << '$(document).ready(function() {'
@@ -206,15 +202,15 @@ class WizardTagLib extends JavascriptTagLib {
 
 	/**
 	 * generate a base form element
-	 * @param String	inputElement name
-	 * @param Map		attributes
-	 * @param Closure	help content
+	 * @param String inputElement name
+	 * @param Map attributes
+	 * @param Closure help content
 	 */
-	def baseElement = { inputElement, attrs, help ->
+	def baseElement = {inputElement, attrs, help ->
 		// work variables
 		def description = attrs.remove('description')
 		def addExampleElement = attrs.remove('addExampleElement')
-		def addExample2Element	= attrs.remove('addExample2Element')
+		def addExample2Element = attrs.remove('addExample2Element')
 
 		// got an ajax onchange action?
 		def ajaxOnChange = attrs.remove('ajaxOnChange')
@@ -246,7 +242,7 @@ class WizardTagLib extends JavascriptTagLib {
 		out << ' </div>'
 		out << ' <div class="input">'
 		out << renderedElement
-		if(help()) {
+		if (help()) {
 			out << '	<div class="helpIcon"></div>'
 		}
 
@@ -254,8 +250,8 @@ class WizardTagLib extends JavascriptTagLib {
 		// @see dateElement(...)
 		if (addExampleElement) {
 			def exampleAttrs = new LinkedHashMap()
-			exampleAttrs.name = attrs.get('name')+'Example'
-			exampleAttrs.class  = 'isExample'
+			exampleAttrs.name = attrs.get('name') + 'Example'
+			exampleAttrs.class = 'isExample'
 			exampleAttrs.disabled = 'disabled'
 			exampleAttrs.size = 30
 			out << textField(exampleAttrs)
@@ -265,8 +261,8 @@ class WizardTagLib extends JavascriptTagLib {
 		// @see dateElement(...)
 		if (addExample2Element) {
 			def exampleAttrs = new LinkedHashMap()
-			exampleAttrs.name = attrs.get('name')+'Example2'
-			exampleAttrs.class  = 'isExample'
+			exampleAttrs.name = attrs.get('name') + 'Example2'
+			exampleAttrs.class = 'isExample'
 			exampleAttrs.disabled = 'disabled'
 			exampleAttrs.size = 30
 			out << textField(exampleAttrs)
@@ -289,7 +285,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def textFieldElement = { attrs, body ->
+	def textFieldElement = {attrs, body ->
 		// set default size, or scale to max length if it is less than the default size
 		if (!attrs.get("size")) {
 			if (attrs.get("maxlength")) {
@@ -307,13 +303,12 @@ class WizardTagLib extends JavascriptTagLib {
 		)
 	}
 
-
 	/**
 	 * render a select form element
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def selectElement = { attrs, body ->
+	def selectElement = {attrs, body ->
 		baseElement.call(
 			'select',
 			attrs,
@@ -326,7 +321,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def checkBoxElement = { attrs, body ->
+	def checkBoxElement = {attrs, body ->
 		baseElement.call(
 			'checkBox',
 			attrs,
@@ -340,17 +335,17 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def dateElement = { attrs, body ->
+	def dateElement = {attrs, body ->
 		// transform value?
 		if (attrs.value instanceof Date) {
 			// transform date instance to formatted string (dd/mm/yyyy)
 			attrs.value = String.format('%td/%<tm/%<tY', attrs.value)
 		}
-		
+
 		// set some textfield values
 		attrs.maxlength = (attrs.maxlength) ? attrs.maxlength : 10
 		attrs.addExampleElement = true
-		
+
 		// render a normal text field
 		//out << textFieldElement(attrs,body)
 		textFieldElement.call(
@@ -365,7 +360,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def timeElement = { attrs, body ->
+	def timeElement = {attrs, body ->
 		// transform value?
 		if (attrs.value instanceof Date) {
 			// transform date instance to formatted string (dd/mm/yyyy)
@@ -383,13 +378,13 @@ class WizardTagLib extends JavascriptTagLib {
 			body
 		)
 	}
-	
+
 	/**
 	 * Template form element
-	 * @param Map		attributes
-	 * @param Closure	help content
+	 * @param Map attributes
+	 * @param Closure help content
 	 */
-	def speciesElement = { attrs, body ->
+	def speciesElement = {attrs, body ->
 		// render template element
 		baseElement.call(
 			'speciesSelect',
@@ -400,10 +395,10 @@ class WizardTagLib extends JavascriptTagLib {
 
 	/**
 	 * Button form element
-	 * @param Map		attributes
-	 * @param Closure	help content
+	 * @param Map attributes
+	 * @param Closure help content
 	 */
-	def buttonElement = { attrs, body ->
+	def buttonElement = {attrs, body ->
 		// render template element
 		baseElement.call(
 			'ajaxButton',
@@ -416,7 +411,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * render a species select element
 	 * @param Map attrs
 	 */
-	def speciesSelect = { attrs ->
+	def speciesSelect = {attrs ->
 		// fetch the speciesOntology
 		// note that this is a bit nasty, probably the ontologyName should
 		// be configured in a configuration file... --> TODO: centralize species configuration
@@ -436,10 +431,10 @@ class WizardTagLib extends JavascriptTagLib {
 
 	/**
 	 * Template form element
-	 * @param Map		attributes
-	 * @param Closure	help content
+	 * @param Map attributes
+	 * @param Closure help content
 	 */
-	def templateElement = { attrs, body ->
+	def templateElement = {attrs, body ->
 		// render template element
 		baseElement.call(
 			'templateSelect',
@@ -447,16 +442,25 @@ class WizardTagLib extends JavascriptTagLib {
 			body
 		)
 	}
-	
+
 	/**
 	 * render a template select element
 	 * @param Map attrs
 	 */
-	def templateSelect = { attrs ->
+	def templateSelect = {attrs ->
 		def entity = attrs.remove('entity')
 
 		// fetch templates
-		attrs.from = (entity) ? Template.findAllByEntity(entity) : Template.findAll()
+		if (attrs.remove('addDummy')) {
+			attrs.from = ['']
+			if (entity && entity instanceof Class) {
+				Template.findAllByEntity(entity).each() {
+					attrs.from[attrs.from.size()] = it
+				}
+			}
+		} else {
+			attrs.from = (entity) ? Template.findAllByEntity(entity) : Template.findAll()
+		}
 
 		// got a name?
 		if (!attrs.name) {
@@ -464,7 +468,7 @@ class WizardTagLib extends JavascriptTagLib {
 		}
 
 		// got result?
-		if (attrs.from.size() >0) {
+		if (attrs.from.size() > 0) {
 			out << select(attrs)
 		} else {
 			// no, return false to make sure this element
@@ -475,10 +479,10 @@ class WizardTagLib extends JavascriptTagLib {
 
 	/**
 	 * Term form element
-	 * @param Map		attributes
-	 * @param Closure	help content
+	 * @param Map attributes
+	 * @param Closure help content
 	 */
-	def termElement = { attrs, body ->
+	def termElement = {attrs, body ->
 		// render term element
 		baseElement.call(
 			'termSelect',
@@ -491,7 +495,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * render a term select element
 	 * @param Map attrs
 	 */
-	def termSelect = { attrs ->
+	def termSelect = {attrs ->
 		// fetch all terms
 		attrs.from = Term.findAll()	// for now, all terms as we cannot identify terms as being treatment terms...
 
@@ -503,7 +507,37 @@ class WizardTagLib extends JavascriptTagLib {
 		out << select(attrs)
 	}
 
-	def show = { attrs ->
+	/**
+	 * Protocol form element
+	 * @param Map attributes
+	 * @param Closure help content
+	 */
+	def protocolElement = {attrs, body ->
+		// render protocol element
+		baseElement.call(
+			'protocolSelect',
+			attrs,
+			body
+		)
+	}
+
+	/**
+	 * render a protocol select element
+	 * @param Map attrs
+	 */
+	def protocolSelect = {attrs ->
+		// fetch all protocold
+		attrs.from = Protocol.findAll()	// for now, all protocols
+
+		// got a name?
+		if (!attrs.name) {
+			attrs.name = 'protocol'
+		}
+
+		out << select(attrs)
+	}
+
+	def show = {attrs ->
 		// is object parameter set?
 		def o = attrs.object
 
@@ -519,7 +553,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * render table headers for all subjectFields in a template
 	 * @param Map attributes
 	 */
-	def templateColumnHeaders = { attrs ->
+	def templateColumnHeaders = {attrs ->
 		def template = attrs.remove('template')
 
 		// output table headers for template fields
@@ -532,14 +566,14 @@ class WizardTagLib extends JavascriptTagLib {
 	 * render table input elements for all subjectFields in a template
 	 * @param Map attributes
 	 */
-	def templateColumns = { attrs, body ->
-		def subject			= attrs.remove('subject')
-		def subjectId		= attrs.remove('id')
-		def template		= attrs.remove('template')
-		def intFields		= subject.templateIntegerFields
-		def stringFields	= subject.templateStringFields
-		def floatFields		= subject.templateFloatFields
-		def termFields		= subject.templateTermFields
+	def templateColumns = {attrs, body ->
+		def subject = attrs.remove('subject')
+		def subjectId = attrs.remove('id')
+		def template = attrs.remove('template')
+		def intFields = subject.templateIntegerFields
+		def stringFields = subject.templateStringFields
+		def floatFields = subject.templateFloatFields
+		def termFields = subject.templateTermFields
 
 		// output columns for these subjectFields
 		template.fields.each() {
@@ -554,7 +588,7 @@ class WizardTagLib extends JavascriptTagLib {
 							name: attrs.name + '_' + it.name,
 							from: it.listEntries,
 							value: (stringFields) ? stringFields.get(it.name) : ''
-						)						
+						)
 					} else {
 						out << '<span class="warning">no values!!</span>'
 					}
@@ -575,12 +609,70 @@ class WizardTagLib extends JavascriptTagLib {
 					break;
 				default:
 					// unsupported field type
-					out << '<span class="warning">!'+it.type+'</span>'
+					out << '<span class="warning">!' + it.type + '</span>'
 					//out << subject.getFieldValue(it.name)
 					break;
 			}
 
 			out << '</div>'
+		}
+	}
+
+	/**
+	 * render form elements based on an entity's template
+	 * @param Map attributes
+	 * @param String body
+	 */
+	def templateElements = {attrs ->
+		def entity = (attrs.get('entity'))
+		def template = (entity && entity instanceof TemplateEntity) ? entity.template : null
+
+		// got a template?
+		if (template) {
+			// render template fields
+			template.fields.each() {
+				switch (it.type) {
+					case 'STRINGLIST':
+						if (!it.listEntries.isEmpty()) {
+							out << selectElement(
+								description: it.name,
+								name: it.name,
+								from: it.listEntries,
+								value: attrs
+							)
+						} else {
+							out << '<span class="warning">no values!!</span>'
+						}
+						break
+					case 'STRING':
+						out << textFieldElement(
+							description: it.name,
+							name: it.name
+						)
+						break
+					case 'DATE':
+						out << dateElement(
+							description: it.name,
+							name: it.name
+						)
+						break
+					case 'INTEGER':
+						out << textFieldElement(
+							description: it.name,
+							name: it.name
+						)
+						break
+					case 'DOUBLE':
+						out << textFieldElement(
+							description: it.name,
+							name: it.name
+						)
+						break
+					default:
+						out << "unkown field type '" + it.type + "'<br/>"
+						break
+				}
+			}
 		}
 	}
 }

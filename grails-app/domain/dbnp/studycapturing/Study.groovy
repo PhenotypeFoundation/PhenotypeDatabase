@@ -40,7 +40,7 @@ class Study extends TemplateEntity implements Serializable {
 	static constraints = {
 		owner(nullable: true, blank: true)
 		title(nullable: false, blank: false)
-		template(nullable: true, blank: true)
+		template(nullable: false, blank: false)
 	}
 
 	static mapping = {

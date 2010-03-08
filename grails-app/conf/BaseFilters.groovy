@@ -23,6 +23,9 @@ class BaseFilters {
 				if (!session.style) {
 					session.style = 'default_style'
 				}
+
+				// set session lifetime to 1 week
+				session.setMaxInactiveInterval(604800)
 			}
 		}
 	}

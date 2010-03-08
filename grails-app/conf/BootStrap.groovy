@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat
 class BootStrap {
 	def init = {servletContext ->
 		// define timezone
-		System.setProperty('user.timezone', 'CET')	
+		System.setProperty('user.timezone', 'CET')
 
 		if (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
 			printf("development bootstrapping....\n\n");
@@ -133,7 +133,7 @@ class BootStrap {
 			.save()
 
 			def bloodSamplingProtocol = new Protocol(
-				name: 'Liver sampling'
+				name: 'Blood sampling'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
 			bloodSamplingProtocol
