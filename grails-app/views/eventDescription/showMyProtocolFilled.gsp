@@ -9,17 +9,19 @@ var parametertypes= new Array();
 var newRows=0;
 <% dbnp.studycapturing.ProtocolParameterType.list().each{ print "parametertypes.push(\'${it}\');" } %>
 
+
 /* create a prefix for all members of a protocol */
 function setName(element,protocolId) {
-    element.name='protocolId_'+protocolId+'_'+element.id;
+    element.name='row_'+protocolId+'__'+element.id;
 }
+
 
 function addRowEmpty(id){
     var tbody = document.getElementById(id);
     var row = document.createElement("tr");
     row.setAttribute('id','new' + (newRows++) );
 
-    addTextFieldToRow(row,'classification',20); addTextFieldToRow(row,'unit',6);
+    addTextFieldToRow(row,'name',20); addTextFieldToRow(row,'unit',6);
     var textField=addSelector(row,null,[]); addTextFieldToRow(row,'reference',10); addTextFieldToRow(row,'description',20);
     addElementToRow(row,textField,'option',6); addRowButton(row); tbody.appendChild(row);
 }
@@ -31,7 +33,7 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
     var row = document.createElement("tr");
     row.setAttribute('id',newId);
 
-    addTextFieldToRow(row,'classification',20).value=name;
+    addTextFieldToRow(row,'name',20).value=name;
     addTextFieldToRow(row,'unit',6).value=unit;
     var textField=addSelector(row,type,options);
     addTextFieldToRow(row,'reference',10).value=reference;
@@ -102,9 +104,9 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
   function addRowToDialog(tbody,rowId) {
 	var input=document.createElement('input');
 	var id = tbody.rows.length + 1;
-        input.setAttribute('name','parameterStringValue__new'+id+'__protocol__'+rowId);
+        input.setAttribute('name','row_'+rowId+'__parameterStringValue__new'+id);
 	var tr=document.createElement('tr');
-        tr.id='rowparameterStringValue__new'+id+'__protocol__'+rowId;
+        tr.id='row_'+rowId+'parameterStringValue__new'+id;
         tr.insertCell(-1).appendChild(input);
 	tbody.appendChild(tr);
 	var button=document.createElement('input');
@@ -136,9 +138,9 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
      for(i=0;i<options.length;i+=2){
 	 var input=document.createElement('input');
 	 input.value=unescape(options[i]);
-	 input.name='parameterStringValue__'+options[i+1]+'__protocol__'+rowId;
+	 input.name='row_'+rowId+'__parameterStringValue__'+options[i+1];
 	 var tr=document.createElement('tr');
-	 tr.id='rowparameterStringValue__'+options[i+1]+'__protocol__'+rowId;
+	 tr.id='row_'+rowId+'__parameterStringValue__'+options[i+1];
 	 tbody.appendChild(tr);
 	 tr.insertCell(-1).appendChild(input);
 	 var button=document.createElement('input');
