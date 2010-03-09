@@ -342,6 +342,9 @@ class WizardTagLib extends JavascriptTagLib {
 			attrs.value = String.format('%td/%<tm/%<tY', attrs.value)
 		}
 
+		// add 'rel' field to identity the datefield using javascript
+		attrs.rel = 'date'
+
 		// set some textfield values
 		attrs.maxlength = (attrs.maxlength) ? attrs.maxlength : 10
 		attrs.addExampleElement = true
@@ -366,6 +369,9 @@ class WizardTagLib extends JavascriptTagLib {
 			// transform date instance to formatted string (dd/mm/yyyy)
 			attrs.value = String.format('%td/%<tm/%<tY %<tH:%<tM', attrs.value)
 		}
+
+		// add 'rel' field to identity the field using javascript
+		attrs.rel = 'datetime'
 
 		attrs.addExampleElement = true
 		attrs.addExample2Element = true
@@ -580,7 +586,13 @@ class WizardTagLib extends JavascriptTagLib {
 			// output div
 			out << '<div class="' + attrs.get('class') + '">'
 
-			switch (it.type) {
+			switch (it.type.toString()) {
+				case ['STRING', 'TEXT', 'INTEGER', 'FLOAT', 'DOUBLE']:
+					out << textField(
+						name: attrs.name + '_' + it.name,
+						value: (intFields) ? intFields.get(it.name) : ''
+					)
+					break
 				case 'STRINGLIST':
 					// render stringlist subjectfield
 					if (!it.listEntries.isEmpty()) {
@@ -592,21 +604,7 @@ class WizardTagLib extends JavascriptTagLib {
 					} else {
 						out << '<span class="warning">no values!!</span>'
 					}
-					break;
-				case 'INTEGER':
-					// render integer subjectfield
-					out << textField(
-						name: attrs.name + '_' + it.name,
-						value: (intFields) ? intFields.get(it.name) : ''
-					)
-					break;
-				case 'FLOAT':
-					// render float subjectfield
-					out << textField(
-						name: attrs.name + '_' + it.name,
-						value: (floatFields) ? floatFields.get(it.name) : ''
-					)
-					break;
+					break
 				default:
 					// unsupported field type
 					out << '<span class="warning">!' + it.type + '</span>'
@@ -631,7 +629,13 @@ class WizardTagLib extends JavascriptTagLib {
 		if (template) {
 			// render template fields
 			template.fields.each() {
-				switch (it.type) {
+				switch (it.type.toString()) {
+					case ['STRING', 'TEXT', 'INTEGER', 'FLOAT', 'DOUBLE']:
+						out << textFieldElement(
+							description: it.name,
+							name: it.name
+						)
+						break
 					case 'STRINGLIST':
 						if (!it.listEntries.isEmpty()) {
 							out << selectElement(
@@ -644,26 +648,8 @@ class WizardTagLib extends JavascriptTagLib {
 							out << '<span class="warning">no values!!</span>'
 						}
 						break
-					case 'STRING':
-						out << textFieldElement(
-							description: it.name,
-							name: it.name
-						)
-						break
 					case 'DATE':
 						out << dateElement(
-							description: it.name,
-							name: it.name
-						)
-						break
-					case 'INTEGER':
-						out << textFieldElement(
-							description: it.name,
-							name: it.name
-						)
-						break
-					case 'DOUBLE':
-						out << textFieldElement(
 							description: it.name,
 							name: it.name
 						)

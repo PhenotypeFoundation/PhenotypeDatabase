@@ -25,6 +25,7 @@ $(document).ready(function() {
     }
 
     // attach Tooltips
+    insertOnRedirectWarning();
     onWizardPage();
 });
 
@@ -43,6 +44,23 @@ function onWizardPage() {
 
     // accordeon(s)
     $("#accordion").accordion();
+}
+
+// insert a redirect confirmation dialogue to all anchors leading the
+// user away from the wizard
+function insertOnRedirectWarning() {
+    // find all anchors that lie outside the wizard
+    $('a').each(function() {
+        var element = $(this)
+        var re = /^#/gi;
+
+        if (!element.attr('href').match(/^#/gi) && !element.attr('href').match(/\/([^\/]+)\/wizard\/pages/gi)) {
+            // bind a warning to the onclick event
+            element.bind('click',function() {
+                return confirm('Warning: navigating away from the wizard causes loss of work and unsaved data. Are you sure you want to continue?');
+            })
+        }
+    })
 }
 
 // attach help tooltips
@@ -116,7 +134,7 @@ function onYouTubePlayerReady(playerId) {
 
 // add datepickers to date fields
 function attachDatePickers() {
-    $('div#wizard').find("input[type=text][name$='Date']").each(function() {
+    $('div#wizard').find("input[type=text][rel$='date']").each(function() {
         $(this).datepicker({
             dateFormat  : 'dd/mm/yy',
             altField    : '#' + $(this).attr('name') + 'Example',
@@ -127,7 +145,7 @@ function attachDatePickers() {
 
 // add datetimepickers to date fields
 function attachDateTimePickers() {
-    $('div#wizard').find("input[type=text][name$='Time']").each(function() {
+    $('div#wizard').find("input[type=text][rel$='datetime']").each(function() {
         $(this).datepicker({
             dateFormat      : 'dd/mm/yy',
             altField        : '#' + $(this).attr('name') + 'Example',

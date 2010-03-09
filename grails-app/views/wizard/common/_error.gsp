@@ -20,6 +20,7 @@
 			<p>
 				<g:if test="${!e}"><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span></g:if>
 				${error.value['key']} &rarr; ${error.value['value']}
+${error.value['dynamic']}
 			</p>
 		</g:each>
 	</div>
@@ -27,16 +28,15 @@
 		// mark error fields
 		<g:each in="${errors}" var="error">
 		<g:if test="${error.value['dynamic']}">
-		$("input:[name='${error.key}']").addClass('error');
+		$("input:[name='${error.key}'], select:[name='${error.key}']").addClass('error');
 		</g:if><g:else>
-		$("input:[name='${error.key}']").parent().parent().addClass('error');
+		$("input:[name='${error.key}'], select:[name='${error.key}']").parent().parent().addClass('error');
 		</g:else>
 		</g:each>
 
 		// show error dialog
 		$(function() {
 			$("div#wizardError").dialog({
-				bgiframe: true,
 				modal: true,
 				width: 600,
 				buttons: {
