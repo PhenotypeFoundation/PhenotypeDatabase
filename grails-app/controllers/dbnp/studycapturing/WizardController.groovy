@@ -55,7 +55,6 @@ class WizardController {
 				[title: 'Confirmation'],		// confirmation page
 				[title: 'Done']					// finish page
 			]
-
 		}
 
 		// render the main wizard page which immediately
@@ -90,10 +89,14 @@ class WizardController {
 				flow.page = 2
 			}
 			on("switchTemplate") {
+				// handle study data
 				this.handleStudy(flow, flash, params)
+
+				// remove errors as we don't want any warnings now
+				flash.errors = [:]
 			}.to "study"
 			on("previous") {
-				flash.errors = new LinkedHashMap()
+				flash.errors = [:]
 
 				if (this.handleStudy(flow, flash, params)) {
 					success()
@@ -102,7 +105,7 @@ class WizardController {
 				}
 			}.to "start"
 			on("next") {
-				flash.errors = new LinkedHashMap()
+				flash.errors = [:]
 
 				if (this.handleStudy(flow, flash, params)) {
 					success()
@@ -120,7 +123,7 @@ class WizardController {
 
 				if (!flow.subjects) {
 					flow.subjects = []
-					flow.subjectTemplates = new LinkedHashMap()
+					flow.subjectTemplates = [:]
 				}
 			}
 			on("add") {
@@ -156,7 +159,7 @@ class WizardController {
 				}
 			}.to "subjects"
 			on("next") {
-				flash.errors = new LinkedHashMap()
+				flash.errors = [:]
 
 				// check if we have at least one subject
 				// and check form data
@@ -171,7 +174,7 @@ class WizardController {
 				}
 			}.to "eventDescriptions"
 			on("previous") {
-				flash.errors = new LinkedHashMap()
+				flash.errors = [:]
 
 				// handle form data
 				if (!this.handleSubjects(flow, flash, params)) {
@@ -212,7 +215,7 @@ class WizardController {
 					success()
 				} else {
 					// validation failed, feedback errors
-					flash.errors = new LinkedHashMap()
+					flash.errors = [:]
 					flash.values = params
 					this.appendErrors(eventDescription, flash.errors)
 					error()
@@ -242,7 +245,7 @@ class WizardController {
 				}
 			}.to "eventDescriptions"
 			on("previous") {
-				flash.errors = new LinkedHashMap()
+				flash.errors = [:]
 
 				// handle form data
 				if (!this.handleEventDescriptions(flow, flash, params)) {
@@ -253,7 +256,7 @@ class WizardController {
 				}
 			}.to "subjects"
 			on("next") {
-				flash.errors = new LinkedHashMap()
+				flash.errors = [:]
 
 				// check if we have at least one subject
 				// and check form data
@@ -313,7 +316,7 @@ class WizardController {
 					success()
 				} else {
 					// validation failed, feedback errors
-					flash.errors = new LinkedHashMap()
+					flash.errors = [:]
 					flash.values = params
 					this.appendErrors(event, flash.errors)
 
@@ -388,7 +391,7 @@ class WizardController {
 			on("next") {
 				flash.values = params
 				
-				flash.errors = new LinkedHashMap()
+				flash.errors = [:]
 
 				// handle event groupings
 				this.handleEventGrouping(flow, flash, params)
@@ -401,7 +404,7 @@ class WizardController {
 					this.appendErrorMap(['events': 'You need at least to create one event for your study'], flash.errors)
 					error()
 				}
-			}.to "events"
+			}.to "confirm"
 		}
 
 		confirm {
@@ -409,6 +412,9 @@ class WizardController {
 			onRender {
 				flow.page = 6
 			}
+			on("toStudy").to "study"
+			on("toSubjects").to "subjects"
+			on("toEvents").to "events"
 			on("previous") {
 				// do nothing
 			}.to "events"
@@ -469,7 +475,7 @@ class WizardController {
 			return true
 		} else {
 			// validation failed, feedback errors
-			flash.errors = new LinkedHashMap()
+			flash.errors = [:]
 			this.appendErrors(flow.study, flash.errors)
 			return false
 		}
@@ -483,7 +489,7 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def handleEventDescriptions(flow, flash, params) {
-		def names = new LinkedHashMap()
+		def names = [:]
 		def errors = false
 		def id = 0
 
@@ -542,7 +548,7 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def handleSubjects(flow, flash, params) {
-		def names = new LinkedHashMap();
+		def names = [:];
 		def errors = false;
 		def id = 0;
 
@@ -617,7 +623,7 @@ class WizardController {
 	 * @returns object  linkedHashMap
 	 */
 	def getHumanReadableErrors(object) {
-		def errors = new LinkedHashMap()
+		def errors = [:]
 
 		object.errors.getAllErrors().each() {
 			errors[it.getArguments()[0]] = it.getDefaultMessage()
