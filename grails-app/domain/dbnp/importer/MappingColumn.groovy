@@ -12,7 +12,7 @@ package dbnp.importer
 class MappingColumn {
 
 	String name
-	dbnp.studycapturing.TemplateFieldType type
+	dbnp.studycapturing.TemplateFieldType templatefieldtype
 	Class entity
 	String property
 	Integer celltype
@@ -24,6 +24,6 @@ class MappingColumn {
     }
 
     String toString() {
-	return name + "/" + type + "/" + entity + "/" + property + "/" + celltype + "/" + index + "/" + value
+	return "Name:" + name + "/Type:" + templatefieldtype + "/Entity:" + entity + "/Property:" + property + "/Celltype:" + celltype + "/Index:" + index + "/Value:" + value
     }
 }

@@ -22,6 +22,12 @@ package dbnp.importer
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.ss.usermodel.DataFormatter
 import dbnp.studycapturing.Template
+import dbnp.studycapturing.Study
+import dbnp.studycapturing.Subject
+import dbnp.studycapturing.Event
+import dbnp.studycapturing.Protocol
+import dbnp.studycapturing.Sample
+import dbnp.studycapturing.TemplateFieldType
 
 class ImporterController {
     def ImporterService
@@ -52,15 +58,17 @@ class ImporterController {
 	session.importtemplate_id = params.template_id
 
         render (view:"step1", model:[header:header, datamatrix:datamatrix])
-
     }
 
     /**
     * User has assigned all entities and celltypes to the columns and continues to the next step (assigning properties to columns)
+    * All information of the columns is stored in a session as MappingColumn object
     *
     * @param entity list of entities and columns it has been assigned to (columnindex:entitytype format)
     * @param celltype list of celltypes and columns it has been assigned to (columnindex:celltype format)
     * @return properties page
+    *
+    * @see celltype: http://poi.apache.org/apidocs/org/apache/poi/ss/usermodel/Cell.html
     */
     def savepreview = {	
 	def entities  = request.getParameterValues("entity")
@@ -68,14 +76,29 @@ class ImporterController {
 
 	celltypes.each { c ->
 	    def temp = c.split(":")
+	    def celltype = temp[1].toInteger()
+	    def templatefieldtype = TemplateFieldType.STRING
 	    
-	    session.header[temp[0].toInteger()].celltype =  temp[1].toInteger()
+	    session.header[temp[0].toInteger()].celltype = celltype
+
+	    switch (celltype) {
+		case 0 : templatefieldtype = TemplateFieldType.INTEGER
+			 break
+		case 1 : templatefieldtype = TemplateFieldType.STRING
+			 break
+		case 2 :  // formula cell type, cannot handle this
+			 break
+		case 3 : templatefieldtype = TemplateFieldType.STRING
+			 break
+		default: break
+	    }
 	}
 
 	entities.each { e ->
 	    def temp = e.split(":")
 	    Class clazz
-	    switch (temp[1]) {
+
+	    switch (temp[1].toInteger()) {
 		case 0: clazz = Study
 			break
 		case 1: clazz = Subject
@@ -86,8 +109,10 @@ class ImporterController {
 			break
 		case 4: clazz = Sample
 			break
-		default: clazz = String
+		default: clazz = Object
 	    }
+
+	    session.header[temp[0].toInteger()].index = temp[0].toInteger()
 	    session.header[temp[0].toInteger()].entity = clazz
 	}
 
@@ -105,11 +130,12 @@ class ImporterController {
     */
     def saveproperties = {
 
-	/*def columnproperties  = request.getParameterValues("columnproperty")
+	def columnproperties  = request.getParameterValues("columnproperty")
 	columnproperties.each { cp ->
 		def temp = cp.split(":")
-		session.header[temp[0]]
-	}*/
+		session.header[temp[0].toInteger()].property = temp[1].toInteger()
+	}
+	
 	for (e in session.header) {
 	    println e
 	}

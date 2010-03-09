@@ -21,8 +21,11 @@ class ImporterTagLib {
     def standardentities = [[type:-1, name:"Don't import"], [type:0, name:"Study"], [type:1, name:"Subject"], [type:2, name:"Event"],
 			[type:3, name:"Protocol"], [type:4, name:"Sample"]]
 
-    def standardcelltypes = [[type:0, name:"Numeric"], [type:1, name:"String"], [type:2, name:"Formula"],
-			 [type:3, name:"Blank"], [type:4, name:"Boolean"], [type:5, name:"Error"]]
+    def standardcelltypes = [
+			 [type:0, name:"Numeric"], [type:1, name:"String"], [type:2, name:"Formula"],
+			 [type:3, name:"Blank"], [type:4, name:"Boolean"], [type:5, name:"Error"], [type:6, name:"Date"],
+			 [type:7, name:"Float"], [type:8, name:"Double"], [type:9, name:"List of items"], [type:10, name:"Ontologyterm"]
+		     ]
 
     /**
     * @param header string array containing header
