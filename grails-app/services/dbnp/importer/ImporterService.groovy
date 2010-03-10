@@ -18,7 +18,9 @@ package dbnp.importer
 import org.apache.poi.hssf.usermodel.*
 import org.apache.poi.poifs.filesystem.POIFSFileSystem
 import org.apache.poi.ss.usermodel.DataFormatter
+import org.apache.poi.hssf.usermodel.HSSFDateUtil
 import dbnp.importer.Column
+import dbnp.studycapturing.TemplateFieldType
 
 class ImporterService {
 
@@ -47,25 +49,31 @@ class ImporterService {
         def df = new DataFormatter()
 
 
-	for (HSSFCell c: sheet.getRow(sheet.getFirstRowNum())) {
+	for (HSSFCell c: sheet.getRow(datamatrix_start)) {
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(c.getColumnIndex()).getCellType()
+	    def headercell = sheet.getRow(sheet.getFirstRowNum()).getCell(c.getColumnIndex())
 
             // Check for every celltype, currently redundant code, but possibly this will be 
 	    // a piece of custom code for every cell type like specific formatting
-	    
-	    switch (c.getCellType()) {
-                    case HSSFCell.CELL_TYPE_STRING: 			
-			header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(c), celltype:datamatrix_celltype);
-			break
-                    case HSSFCell.CELL_TYPE_NUMERIC:
-			header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(c), celltype:datamatrix_celltype);
-			break
+	        
+	    switch (datamatrix_celltype) {
+                    case HSSFCell.CELL_TYPE_STRING:
+			    header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING);
+			    break
+                    case HSSFCell.CELL_TYPE_NUMERIC:			
+			    if (HSSFDateUtil.isCellDateFormatted(c)) {
+				println("DATE")
+				header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.DATE)
+			    }
+			    else
+				header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.INTEGER);
+			    break
 		    case HSSFCell.CELL_TYPE_BLANK:
-			header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(c), celltype:datamatrix_celltype);
-			break
+			    header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING);
+			    break
                     default:
-			header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(c), celltype:datamatrix_celltype);
-			break
+			    header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING);
+			    break
             }
 	}
         return header
@@ -125,7 +133,35 @@ class ImporterService {
 	    return System.currentTimeMillis() + Runtime.runtime.freeMemory()
 	}
 
-    def importdata = {
-	
+    /**
+    * Method to read data from a workbook and to import data into the database
+    * by using mapping information
+    *
+    *
+    * @param wb POI horrible spreadsheet formatted workbook object
+    * @param mc array of MappingColumns
+    * @param sheetindex sheet to use when using multiple sheets
+    * @param rowindex first row to start with reading the actual data (NOT the header)
+    * 
+    * @see dbnp.importer.MappingColumn
+    */
+    def importdata(HSSFWorkbook wb, int sheetindex, int rowindex, MappingColumn[] mc) {
+	def sheet = wb.getSheetAt(sheetindex)
+	def rows  = []
+
+	(count <= sheet.getLastRowNum()) ?
+	(rowindex..count).each { i ->
+
+	    def row = []
+	    for (HSSFCell c: sheet.getRow(i))
+		//row.add(c)
+		//row.add(df.formatCellValue(c))
+		switch(mc[c.getColumnIndex()].celltype) {
+		    case 0  : break
+		    default : break
+		}
+
+		rows.add(row)
+	} : 0
     }
 }

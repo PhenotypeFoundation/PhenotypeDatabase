@@ -90,6 +90,8 @@ class ImporterController {
 			 break
 		case 3 : templatefieldtype = TemplateFieldType.STRING
 			 break
+		case 4 : templatefieldtype = TemplateFieldType.STRING
+			 break
 		default: break
 	    }
 	}

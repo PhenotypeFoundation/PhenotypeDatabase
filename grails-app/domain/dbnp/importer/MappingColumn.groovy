@@ -24,6 +24,6 @@ class MappingColumn {
     }
 
     String toString() {
-	return "Name:" + name + "/Type:" + templatefieldtype + "/Entity:" + entity + "/Property:" + property + "/Celltype:" + celltype + "/Index:" + index + "/Value:" + value
+	return "Name:" + name + "/TemplateFieldType:" + templatefieldtype + "/Entity:" + entity + "/Property:" + property + "/Celltype:" + celltype + "/Index:" + index + "/Value:" + value
     }
 }
