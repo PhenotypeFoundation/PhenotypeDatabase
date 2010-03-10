@@ -1,4 +1,4 @@
-import dbnp.data.Ontology
+package dbnp.data
 
 class OntologyController {
 

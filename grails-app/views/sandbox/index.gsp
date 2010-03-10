@@ -29,9 +29,7 @@
 	</g:each>
 </tr>
 </table>
-<%@
- def a = new Column(value:"value", name:"naam")
- println a.name
-%>
+<h2>Events</h2>
+<% println studyInstance.events.eventDescription.protocol.name %>
 </body>
 </html>

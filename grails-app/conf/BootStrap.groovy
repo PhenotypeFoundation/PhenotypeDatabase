@@ -151,13 +151,13 @@ class BootStrap {
 				passConfirm: 'system',
 				enabled: true
 			))*/
-			
+
 
 			def genderField = new TemplateField(
 				name: 'Gender',type: TemplateFieldType.STRINGLIST,
 				listEntries: [new TemplateFieldListItem(name:'Male'),new TemplateFieldListItem(name: 'Female')])
 			.with { if (!validate()) { errors.each { println it} } else save()}
-						
+
 			def ageField = new TemplateField(
 				name: 'Age',type: TemplateFieldType.INTEGER)
 			.with { if (!validate()) { errors.each { println it} } else save()}
@@ -234,7 +234,7 @@ class BootStrap {
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
 
-                        def fastingTreatment = new EventDescription(
+            def fastingTreatment = new EventDescription(
 				name: 'Fasting treatment',
 				description: 'Fasting Protocol NuGO PPSH',
 				protocol: fastingProtocol,
@@ -378,7 +378,7 @@ class BootStrap {
 			.addToEvents(evBL4)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
-
+            // Add subjects and samples and compose EventGroups
 
 			def x=1
 			80.times {
@@ -449,40 +449,28 @@ class BootStrap {
 			rootGroup.addToEvents bloodSamplingEvent
 			rootGroup.save()
 
-                        def y=1
-			11.times {
-				def currentSubject = new Subject(
-					name: "" + y++,
-					species: humanTerm,
-					template: humanTemplate)
-				.setFieldValue("Gender", (boolean)(x/2) ? "Male" : "Female")
-				.setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19"+(10+(int)(Math.random()*80))))
-				.setFieldValue("Age", 30)
-				.setFieldValue("Height",Math.random()*2F)
-				.setFieldValue("Weight",Math.random()*150F)
-				.setFieldValue("BMI",20 + Math.random()*10F)
-				.with { if (!validate()) { errors.each { println it} } else save()}
+            def y = 1
+            11.times {
+              def currentSubject = new Subject(
+                      name: "" + y++,
+                      species: humanTerm,
+                      template: humanTemplate).setFieldValue("Gender", (boolean) (x / 2) ? "Male" : "Female").setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19" + (10 + (int) (Math.random() * 80)))).setFieldValue("Age", 30).setFieldValue("Height", Math.random() * 2F).setFieldValue("Weight", Math.random() * 150F).setFieldValue("BMI", 20 + Math.random() * 10F).with { if (!validate()) { errors.each { println it} } else save()}
 
-				def currentSample = new Sample(
-					name: currentSubject.name + '_B',
-					material: bloodTerm,
-					parentSubject: currentSubject,
-					parentEvent: bloodSamplingEvent);
+              rootGroup.addToSubjects currentSubject
+              rootGroup.save()
 
-				rootGroup.addToSubjects currentSubject
-				rootGroup.save()
+              def currentSample = new Sample(
+                      name: currentSubject.name + '_B',
+                      material: bloodTerm,
+                      parentSubject: currentSubject,
+                      parentEvent: bloodSamplingEvent);
 
-				humanStudy.addToSubjects(currentSubject)
-				.addToSamples(currentSample)
-				.addToEventGroups rootGroup
-				.with { if (!validate()) { errors.each { println it} } else save()}
-			}
 
-			humanStudy.addToEventGroups(rootGroup).save()
+              humanStudy.addToSubjects(currentSubject).addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
+          }
 
-//                        new Study(title:"example",code:"Excode",researchQuestion:"ExRquestion",description:"Exdescription",ecCode:"ExecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
-//                        new Study(title:"testAgain",code:"testcode",researchQuestion:"testRquestion",description:"testdescription",ecCode:"testCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
-//                        new Study(title:"Exampletest",code:"Examplecode",researchQuestion:"ExampleRquestion",description:"Exampledescription",ecCode:"ExampleecCode",dateCreated:new Date(),lastUpdated:new Date(),startDate:new Date()).save()
+          humanStudy.addToEventGroups rootGroup
+          humanStudy.save()
 
 			// Add clinical data
 

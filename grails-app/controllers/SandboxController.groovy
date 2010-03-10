@@ -12,15 +12,20 @@ class SandboxController {
 
 		// Get the example study in a lazy way
 		def st = Study.get(1)
-		def f = st.template.subjectFields
-
-		//println st.giveAllFields()
+		def fieldsAll = st.giveSubjectTemplates().fields
+        def f = fieldsAll[0]
+        println fieldsAll.class
+	    println f.class
+      f.each {
+        println "" + it + "-" + it.class
+      }
+      //println st.giveAllFields()
 
 		// This is a way to iterate over the fields in your controller
 		// And print them to the console
 		// Most of the time, you would just iterate over them in the view using <g:each>
 		// See also views/sandbox/index.gsp
-		f.each {field ->
+		f.each { field ->
 			println field.name + "(" + field.type + ")"
 		}
 
@@ -41,6 +46,6 @@ class SandboxController {
 		println "LDL feature value for two subjects: " + clinicalDataLayerService.getDataQuantitative('LDL',1,['A1_B','A3_B'] as String[])
 
 		// Specify which variables we want to be available in the controller (implicit return statement)
-		[fields: f, subjects: st.subjects]
+		[fields: f, subjects: st.subjects, studyInstance: st]
 	}
 }
