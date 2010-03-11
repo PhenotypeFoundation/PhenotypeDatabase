@@ -61,44 +61,49 @@ class ImporterController {
     }
 
     /**
-    * User has assigned all entities and celltypes to the columns and continues to the next step (assigning properties to columns)
+    * User has assigned all entities and templatefieldtypes to the columns and continues to the next step (assigning properties to columns)
     * All information of the columns is stored in a session as MappingColumn object
     *
     * @param entity list of entities and columns it has been assigned to (columnindex:entitytype format)
-    * @param celltype list of celltypes and columns it has been assigned to (columnindex:celltype format)
+    * @param templatefieldtype list of celltypes and columns it has been assigned to (columnindex:templatefieldtype format)
     * @return properties page
     *
     * @see celltype: http://poi.apache.org/apidocs/org/apache/poi/ss/usermodel/Cell.html
     */
-    def savepreview = {	
+    def savepreview = {
+	def tft = null
 	def entities  = request.getParameterValues("entity")
-	def celltypes = request.getParameterValues("celltype")
+	def templatefieldtypes = request.getParameterValues("templatefieldtype")
 
-	celltypes.each { c ->
-	    def temp = c.split(":")
-	    def celltype = temp[1].toInteger()
-	    def templatefieldtype = TemplateFieldType.STRING
+	templatefieldtypes.each { t ->
+	    def temp = t.split(":")
+	    def templatefieldtype = temp[1]	    
 	    
-	    session.header[temp[0].toInteger()].celltype = celltype
-
-	    switch (celltype) {
-		case 0 : templatefieldtype = TemplateFieldType.INTEGER
-			 break
-		case 1 : templatefieldtype = TemplateFieldType.STRING
-			 break
-		case 2 :  // formula cell type, cannot handle this
-			 break
-		case 3 : templatefieldtype = TemplateFieldType.STRING
-			 break
-		case 4 : templatefieldtype = TemplateFieldType.STRING
-			 break
+	    switch (templatefieldtype) {
+		case "STRING"	    : tft = TemplateFieldType.STRING
+				      break
+		case "TEXT"	    : tft = TemplateFieldType.TEXT
+				      break
+		case "INTEGER"	    : tft = TemplateFieldType.INTEGER
+				      break
+		case "FLOAT"	    : tft = TemplateFieldType.FLOAT
+				      break
+		case "DOUBLE"	    : tft = TemplateFieldType.DOUBLE
+				      break
+		case "STRINGLIST"   : tft = TemplateFieldType.STRINGLIST
+				      break
+		case "ONTOLOGYTERM" : tft = TemplateFieldType.ONTOLOGYTERM
+				      break
+		case "DATE"	    : tft = TemplateFieldType.DATE
+				      break
 		default: break
 	    }
+	    session.header[temp[0].toInteger()].templatefieldtype = tft
 	}
 
 	entities.each { e ->
 	    def temp = e.split(":")
-	    Class clazz
+	    Class clazz	    
 
 	    switch (temp[1].toInteger()) {
 		case 0: clazz = Study
@@ -112,6 +117,7 @@ class ImporterController {
 		case 4: clazz = Sample
 			break
 		default: clazz = Object
+			break
 	    }
 
 	    session.header[temp[0].toInteger()].index = temp[0].toInteger()
@@ -131,8 +137,8 @@ class ImporterController {
     *
     */
     def saveproperties = {
-
 	def columnproperties  = request.getParameterValues("columnproperty")
+
 	columnproperties.each { cp ->
 		def temp = cp.split(":")
 		session.header[temp[0].toInteger()].property = temp[1].toInteger()

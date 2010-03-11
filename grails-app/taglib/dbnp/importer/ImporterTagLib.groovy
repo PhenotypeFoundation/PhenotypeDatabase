@@ -22,12 +22,6 @@ class ImporterTagLib {
     def standardentities = [[type:-1, name:"Don't import"], [type:0, name:"Study"], [type:1, name:"Subject"], [type:2, name:"Event"],
 			[type:3, name:"Protocol"], [type:4, name:"Sample"]]
 
-    /*def standardcelltypes = [
-			 [type:0, name:"Numeric"], [type:1, name:"String"], [type:2, name:"Formula"],
-			 [type:3, name:"Blank"], [type:4, name:"Boolean"], [type:5, name:"Error"], [type:6, name:"Date"],
-			 [type:7, name:"Float"], [type:8, name:"Double"], [type:9, name:"List of items"], [type:10, name:"Ontologyterm"]
-		     ]*/
-
     /**
     * @param header string array containing header
     * @param datamatrix two dimensional array containing actual data
@@ -61,13 +55,13 @@ class ImporterTagLib {
 	out << render (template:"common/properties", model:[selectedentities:selectedentities, standardentities:standardentities, header:header])
     }
 
-    def createSelect(int selected, String name, options, String customvalue) {
+    def createSelect(selected, String name, options, String customvalue) {
 	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
 
 	options.each { e ->
-	    res += "<option value=\"${customvalue}:${e.type}\""
-	    res += (e.type.toInteger() == selected) ? " selected" : ""
-	    res += ">${e.name}</option>"
+	    res += "<option value=\"${customvalue}:${e}\""
+	    res += (e == selected) ? " selected" : ""
+	    res += ">${e}</option>"
 	}
 
 	res += "</select>"
@@ -117,14 +111,21 @@ class ImporterTagLib {
 	return res
     }    
 
-    /**
-     * @param selected selected entity
-     * @param name name of the HTML select object
-     **/
-    def entitySelect = { attrs ->	
-	def selected = (attrs['selected']==null) ? -1 : attrs['selected']
-	def customvalue = (attrs['customvalue']==null) ? "" : attrs['customvalue']
-	out << createSelect(selected, attrs['name'], standardentities, customvalue)
+     def entitySelect = { attrs ->
+	def sel = (attrs['selected']==null) ? -1 : attrs['selected']
+	def custval = (attrs['customvalue']==null) ? "" : attrs['customvalue']
+	def name = (attrs['name']==null) ? -1 : attrs['name']
+
+	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
+
+	standardentities.each { e ->
+	    res += "<option value=\"${custval}:${e.type}\""
+	    res += (e.type == sel) ? " selected" : ""
+	    res += ">${e.name}</option>"
+	}
+
+	res += "</select>"
+	out << res
     }
 
     /**
@@ -133,10 +134,22 @@ class ImporterTagLib {
     * @see org.apache.poi.ss.usermodel.Cell for the possible cell types
     * @return HTML select object
     */
-    def celltypeSelect = { attrs ->
+    def templatefieldtypeSelect = { attrs ->
 	def selected = (attrs['selected']==null) ? -1 : attrs['selected']
 	def customvalue = (attrs['customvalue']==null) ? "" : attrs['customvalue']
+	def name = (attrs['name']==null) ? "" : attrs['name']
 	//out << createSelect(selected, attrs['name'], standardcelltypes, customvalue)
-	out << createSelect(selected, attrs['name'], TemplateFieldType.list(), customvalue)
+
+	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
+
+	TemplateFieldType.list().each { e ->
+	    res += "<option value=\"${customvalue}:${e}\""
+	    res += (e == selected) ? " selected" : ""
+	    res += ">${e}</option>"
+	}
+
+	res += "</select>"
+
+	out << res
     }
 }

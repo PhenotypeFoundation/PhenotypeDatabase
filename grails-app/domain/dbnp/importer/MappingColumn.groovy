@@ -14,8 +14,7 @@ class MappingColumn {
 	String name
 	dbnp.studycapturing.TemplateFieldType templatefieldtype
 	Class entity
-	String property
-	Integer celltype
+	String property	
 	Integer index
 	String value
 
@@ -24,6 +23,6 @@ class MappingColumn {
     }
 
     String toString() {
-	return "Name:" + name + "/TemplateFieldType:" + templatefieldtype + "/Entity:" + entity + "/Property:" + property + "/Celltype:" + celltype + "/Index:" + index + "/Value:" + value
+	return "Name:" + name + "/TemplateFieldType:" + templatefieldtype + "/Entity:" + entity + "/Property:" + property + "/Index:" + index + "/Value:" + value
     }
 }

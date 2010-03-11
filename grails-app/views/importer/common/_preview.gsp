@@ -27,7 +27,7 @@
 	    <td>Celltype:</td>
 	    <g:each var="column" in="${header}">
 		<td class="header">
-		    <importer:celltypeSelect selected="${column.value.templatefieldtype}" name="celltype" customvalue="${column.key.toString()}"/>
+		    <importer:templatefieldtypeSelect selected="${column.value.templatefieldtype}" name="templatefieldtype" customvalue="${column.key.toString()}"/>
 		</td>
 	    </g:each>
 	</tr>
