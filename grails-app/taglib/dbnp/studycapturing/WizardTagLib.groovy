@@ -583,14 +583,17 @@ class WizardTagLib extends JavascriptTagLib {
 
 		// output columns for these subjectFields
 		template.fields.each() {
+			def fieldValue = subject.getFieldValue(it.name)
+
 			// output div
 			out << '<div class="' + attrs.get('class') + '">'
 
+			// handle field types
 			switch (it.type.toString()) {
 				case ['STRING', 'TEXT', 'INTEGER', 'FLOAT', 'DOUBLE']:
 					out << textField(
 						name: attrs.name + '_' + it.name,
-						value: (intFields) ? intFields.get(it.name) : ''
+						value: fieldValue
 					)
 					break
 				case 'STRINGLIST':
@@ -599,17 +602,39 @@ class WizardTagLib extends JavascriptTagLib {
 						out << select(
 							name: attrs.name + '_' + it.name,
 							from: it.listEntries,
-							value: (stringFields) ? stringFields.get(it.name) : ''
+							value: fieldValue
 						)
 					} else {
 						out << '<span class="warning">no values!!</span>'
 					}
 					break
+				case 'DATE':
+					// transform value?
+					if (fieldValue instanceof Date) {
+						if (fieldValue.getHours() == 0 && fieldValue.getMinutes() == 0) {
+							// transform date instance to formatted string (dd/mm/yyyy)
+							fieldValue = String.format('%td/%<tm/%<tY', fieldValue)
+						} else {
+							// transform to date + time
+							fieldValue = String.format('%td/%<tm/%<tY %<tH:%<tM', fieldValue)
+						}
+					}
+
+					// output a date field (not the 'rel' which makes the
+					// javascript front-end bind the jquery-ui datepicker)
+					out << textField(
+						name: attrs.name + '_' + it.name,
+						value: fieldValue,
+						rel: 'date'
+					)
+					break
+				case 'ONTOLOGYTERM':
+					out << it.getClass()
+					break
 				default:
 					// unsupported field type
 					out << '<span class="warning">!' + it.type + '</span>'
-					//out << subject.getFieldValue(it.name)
-					break;
+					break
 			}
 
 			out << '</div>'

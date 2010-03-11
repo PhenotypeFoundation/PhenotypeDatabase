@@ -585,7 +585,9 @@ class WizardController {
 				templateFields.each() { subjectField ->
 					def value = params.get('subject_' + subjectId + '_' + subjectField.name)
 
-					if (value) flow.subjects[ subjectId ].setFieldValue(subjectField.name, value)
+					if (value) {
+						flow.subjects[ subjectId ].setFieldValue(subjectField.name, value)
+					}
 				}
 
 				// validate subject

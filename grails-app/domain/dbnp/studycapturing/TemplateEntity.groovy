@@ -89,7 +89,7 @@ class TemplateEntity implements Serializable {
 			throw new NoSuchFieldException("Field ${fieldName} not found in class properties")
 		}
 		else {
-			TemplateField field = this.template.fields.find { it.name == fieldName} 
+			TemplateField field = this.template.fields.find { it.name == fieldName}
 			if (field == null) {
 				throw new NoSuchFieldException("Field ${fieldName} not found in class properties or template fields")
 			}
@@ -98,6 +98,26 @@ class TemplateEntity implements Serializable {
 					// Convenience setter: find template item by name
 					value = field.listEntries.find { it.name == value }
 				}
+
+				// handle string values for date fields
+				if (field.type == TemplateFieldType.DATE && value.class == String) {
+					// a string was given, attempt to transform it into a date instance
+					// and -for now- assume the dd/mm/yyyy format
+					def dateMatch = value =~ /^([0-9]{1,})([^0-9]{1,})([0-9]{1,})([^0-9]{1,})([0-9]{1,})((([^0-9]{1,})([0-9]{1,2}):([0-9]{1,2})){0,})/
+					if (dateMatch.matches()) {
+						// create limited 'autosensing' datetime parser
+						// assume dd mm yyyy  or dd mm yy
+						def parser = 'd' + dateMatch[0][2] + 'M' + dateMatch[0][4] + (((dateMatch[0][5] as int) > 999) ? 'yyyy' : 'yy')
+
+						// add time as well?
+						if (dateMatch[0][7] != null) {
+							parser += dateMatch[0][6] + 'HH:mm'
+						}
+
+						value = new Date().parse(parser, value)
+					}
+				}
+
 				// Caution: this assumes that all template...Field Maps are already initialized
 				// Otherwise, the results are pretty much unpredictable!
 				getStore(field.type)[fieldName] = value

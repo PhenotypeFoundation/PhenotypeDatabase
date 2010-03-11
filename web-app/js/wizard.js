@@ -54,13 +54,16 @@ function insertOnRedirectWarning() {
         var element = $(this)
         var re = /^#/gi;
 
+        // bind to the anchor?
         if (!element.attr('href').match(/^#/gi) && !element.attr('href').match(/\/([^\/]+)\/wizard\/pages/gi)) {
             // bind a warning to the onclick event
-            element.bind('click',function() {
-                return confirm('Warning: navigating away from the wizard causes loss of work and unsaved data. Are you sure you want to continue?');
-            })
+            element.bind('click',function() { return onDirectWarning(); });
         }
     })
+}
+
+function onDirectWarning() {
+    return confirm('Warning: navigating away from the wizard causes loss of work and unsaved data. Are you sure you want to continue?');
 }
 
 // attach help tooltips
