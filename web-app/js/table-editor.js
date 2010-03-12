@@ -11,11 +11,13 @@
  * $Author$
  * $Date$
  */
-function TableEditor() { }
+function TableEditor() {
+}
 TableEditor.prototype = {
     tableIdentifier:    null,
     rowIdentifier:      null,
     columnIdentifier:   null,
+    selected:           null,
 
     /**
      * initialize object
@@ -50,9 +52,12 @@ TableEditor.prototype = {
         $(table).selectable({
             filter: this.rowIdentifier,
             stop: function() {
+                // remember selected rows
+                that.selected = $('.ui-selected', table);
+
                 // bind on change to columns in rows
-                $('.ui-selected', table).each(function() {
-                    that.attachColumnHandlers(this);
+                that.selected.each(function() {
+                    that.attachColumnHandlers(this,table);
                 })
             }
         });
@@ -62,34 +67,52 @@ TableEditor.prototype = {
      * attach handlers to the input elements in a table row
      * @param row
      */
-    attachColumnHandlers: function(row) {
+    attachColumnHandlers: function(row,table) {
         var that = this;
         var count = 0;
+
+        // define regular expressions
+        var regAutoComplete = new RegExp("ui-autocomplete-input");
+
         $(this.columnIdentifier, $(row)).each(function() {
             var input = $(':input', $(this));
             // does this column contain an input field
             if (input) {
-                var type = $(input).attr('type');
+                var inputElement = $(input)
+                var type = inputElement.attr('type');
 
                 switch (type) {
                     case 'text':
                         // text input
                         var columnNumber = count;
-                        $(input).bind('keyup', function() {
-                            that.updateSingleInputElements(input, columnNumber, 'input');
-                        })
+
+                        // handle special cases
+                        // if (inputElement.attr('rel') && regBp.test(inputElement.attr('rel'))) {
+                        if (regAutoComplete.test(inputElement.attr('class'))) {
+                            // this is a jquery-ui autocomplete field
+                            inputElement.bind('autocompleteclose', function() {
+                                // TODO: autocompletion deselects rows... which is what we don't want
+                                //       to happen of course...
+                                that.updateSingleInputElements(input, columnNumber, 'input');
+                            })
+                        } else {
+                            // regular text element
+                            inputElement.bind('keyup', function() {
+                                that.updateSingleInputElements(input, columnNumber, 'input');
+                            });
+                        }
                         break;
                     case 'select-one':
                         // single select
                         var columnNumber = count;
-                        $(input).bind('change', function() {
+                        inputElement.bind('change', function() {
                             that.updateSingleInputElements(input, columnNumber, 'select');
                         });
                         break;
                     case 'checkbox':
                         // checkbox
                         var columnNumber = count;
-                        $(input).bind('click', function() {
+                        inputElement.bind('click', function() {
                             that.updateSingleInputElements(input, columnNumber, 'input');
                         });
                         break;
@@ -107,7 +130,7 @@ TableEditor.prototype = {
             }
 
             count++;
-        })
+        });
     },
 
     /**
@@ -119,9 +142,9 @@ TableEditor.prototype = {
     updateSingleInputElements: function(element, columnNumber, elementSelector) {
         var that = this;
         var e = $(element);
-        var c = e.parent();
-        var r = c.parent();
-        var t = r.parent();
+        var c = e.parent();     // column
+        var r = c.parent();     // row
+        var t = r.parent();     // table
         var v = this.getValue(e);
         // TODO for multiples...
 
@@ -131,7 +154,7 @@ TableEditor.prototype = {
                 var me = $(this)
                 var myVal = that.getValue(me);
                 if (myVal != v) {
-                    that.setValue(me,v);
+                    that.setValue(me, v);
                 }
             })
         })
@@ -159,12 +182,12 @@ TableEditor.prototype = {
      * @param input
      * @param value
      */
-    setValue: function(input,value) {
+    setValue: function(input, value) {
         var i = $(input);
 
         switch (i.attr('type')) {
             case 'checkbox':
-                return i.attr('checked',value);
+                return i.attr('checked', value);
                 break;
             default:
                 return i.val(value);

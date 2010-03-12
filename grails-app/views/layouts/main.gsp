@@ -7,8 +7,8 @@
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'login_panel.css')}"/>
 	<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
 	<g:javascript library="jquery"/>
-	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.7.2.custom.min.js')}" type="text/javascript"></script>
-	<link rel="stylesheet" href="${createLinkTo(dir: 'css/jquery-ui', file: 'jquery-ui-1.7.2.custom.css')}"/>
+	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8rc3.custom.min.js')}" type="text/javascript"></script>
+	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8rc3.custom.css')}"/>
 	<!-- layouthead //-->
 	<g:layoutHead/>
 	<!-- /layouthead //-->

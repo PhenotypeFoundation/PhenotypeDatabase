@@ -159,6 +159,7 @@ class WizardController {
 				}
 			}.to "subjects"
 			on("next") {
+				println params
 				flash.errors = [:]
 
 				// check if we have at least one subject

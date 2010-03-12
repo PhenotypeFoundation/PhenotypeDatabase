@@ -240,5 +240,18 @@
     background-color: #6e99d4;
     color: #fff;
 }
-
 /* END :: TABLE */
+
+/* START :: wizard autocomplete */
+.ui-autocomplete .ui-menu-item {
+    font-size: 10px;
+}
+.ui-autocomplete .about {
+    font-size: 8px;
+    color: #006DBA;
+}
+.ui-autocomplete .from {
+    font-size: 8px;
+    color: #666;
+}
+/* END :: wizard autocomplete */

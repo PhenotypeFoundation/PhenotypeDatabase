@@ -629,7 +629,15 @@ class WizardTagLib extends JavascriptTagLib {
 					)
 					break
 				case 'ONTOLOGYTERM':
-					out << it.getClass()
+					// @see http://www.bioontology.org/wiki/index.php/NCBO_Widgets#Term-selection_field_on_a_form
+					// @see table-editor.js
+					//out << it.getClass()
+					out << textField(
+						name: attrs.name + '_' + it.name,
+						value: fieldValue,
+						rel: 'ontology-all-name',
+						size: 100
+					)
 					break
 				default:
 					// unsupported field type

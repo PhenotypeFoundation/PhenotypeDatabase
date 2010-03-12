@@ -17,7 +17,8 @@
 <wizard:pageContent>
 	<span class="info">
 		<span class="title">Add subjects to your study</span>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet leo nec leo vehicula quis scelerisque elit pulvinar. Vivamus arcu dui, adipiscing eu vestibulum id, consectetur et erat. Aenean risus mauris, placerat et lacinia vulputate, commodo eget ligula. Pellentesque ornare blandit metus ac dictum. Donec scelerisque feugiat quam, a congue ipsum malesuada nec. Donec vulputate, diam eget porta rhoncus, est mauris ullamcorper turpis, vitae dictum risus justo quis justo. Aenean blandit feugiat accumsan. Donec porttitor bibendum elementum.
+		In this screen you can add subjects to your study based on a given template. Note that the 'species' select will probably
+		move to the template as an ontology reference and will not be asked anymore.
 	</span>
 
 	<wizard:ajaxButton name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
@@ -54,5 +55,17 @@
 		</div>
 	</g:each>
 </g:if>
+
+	<span class="info">
+		<span class="title">Known issues</span>
+		<ul>
+			<li>autocomplete fields (like ontologies) deselect the selected rows and hence don't replicate</li>
+			<li>ontology fields should replicate value <i>and</i> hidden fields</li>
+			<li>no client-side validation is performed to check the type of an input field actually matched that of the datamodel</li>
+			<li>table columns are randomized on view as they are currently not sorted</li>
+			<li>ontology hidden fields should be processed by the back-end as well (not yet implemented)</li>
+			<li>ontology fields now show suggestions for <i>all</i> available ontologies. This has to be narrowed down in the future.</li>
+		</ul>
+	</span>
 
 </wizard:pageContent>

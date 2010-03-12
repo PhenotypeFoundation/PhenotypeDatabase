@@ -22,9 +22,9 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'swfobject.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'timepicker-0.2.1.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'wizard.js')}"></script>
-	<script type="text/javascript" src="http://bioportal.bioontology.org/javascripts/widgets/form_complete.js"></script>
 </head>
 <body>
 <g:render template="common/wizard"/>

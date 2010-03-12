@@ -37,12 +37,15 @@ function onWizardPage() {
     attachDatePickers();
     attachDateTimePickers();
 
-    // table handlers
+    // handle and initialize table(s)
     attachTableEvents();
     handleWizardTable();
     new TableEditor().init('div.table', 'div.row', 'div.column');
 
-    // accordeon(s)
+    // initialize the ontology chooser
+    new OntologyChooser().init();
+
+    // initialize accordeon(s)
     $("#accordion").accordion();
 }
 

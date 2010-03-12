@@ -182,9 +182,9 @@ class BootStrap {
 			.addToFields(new TemplateField(
 				name: 'Cage',type: TemplateFieldType.INTEGER))
 			.addToFields(new TemplateField(
-				name: 'Some double', type: TemplateFieldType.DOUBLE))
+				name: 'SomeDouble', type: TemplateFieldType.DOUBLE))
 			.addToFields(new TemplateField(
-				name: 'Some ontology', type: TemplateFieldType.ONTOLOGYTERM))
+				name: 'SomeOntology', type: TemplateFieldType.ONTOLOGYTERM))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Human template
