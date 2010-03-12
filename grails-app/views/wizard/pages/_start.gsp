@@ -15,11 +15,15 @@
  */
 %>
 <wizard:pageContent>
+
+	<img src="../images/wizard/wizard-chooser.png" />
+
 	<span class="info">
-		<span class="title">Create or Modify</span>
-		This page is still empty, but in the future you will be able to load a study to modify it, or choose
-		to create a new one. At this moment you will only be able to create a new study so please click 'next'
-		to continue
+		<span class="todo">TODO</span>
+		<ul>
+			<li>the buttons above actually do not yet work, it's just a mockup. In this prototype you can only create
+			    a study; modifying a study will be implemented later. Click 'next' to continue...</li>
+		</ul>
 	</span>
 
 	<span class="info">
