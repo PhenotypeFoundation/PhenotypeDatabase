@@ -19,8 +19,13 @@ import org.apache.poi.hssf.usermodel.*
 import org.apache.poi.poifs.filesystem.POIFSFileSystem
 import org.apache.poi.ss.usermodel.DataFormatter
 import org.apache.poi.hssf.usermodel.HSSFDateUtil
-import dbnp.importer.Column
 import dbnp.studycapturing.TemplateFieldType
+import dbnp.studycapturing.Study
+import dbnp.studycapturing.Subject
+import dbnp.studycapturing.Event
+import dbnp.studycapturing.Protocol
+import dbnp.studycapturing.Sample
+
 
 class ImporterService {
 
@@ -38,7 +43,7 @@ class ImporterService {
 
     /**
      * @param wb high level representation of the workbook
-     * @return header representation as a string array
+     * @return header representation as a MappingColumn array
      */
     def getHeader(HSSFWorkbook wb, int sheetindex){
 
@@ -93,11 +98,14 @@ class ImporterService {
 	def sheet = wb.getSheetAt(sheetindex)
 	def rows  = []
 	def df = new DataFormatter()
+	def datamatrix_start = 1
 
+	// walk through all rows
 	(count <= sheet.getLastRowNum()) ?
-	((1+sheet.getFirstRowNum())..count).each { rowindex ->
-
+	((datamatrix_start+sheet.getFirstRowNum())..count).each { rowindex ->
 	    def row = []
+
+	    // walk through every cell
 	    for (HSSFCell c: sheet.getRow(rowindex))
 		row.add(c)
 		//row.add(df.formatCellValue(c))
@@ -137,7 +145,6 @@ class ImporterService {
     * Method to read data from a workbook and to import data into the database
     * by using mapping information
     *
-    *
     * @param wb POI horrible spreadsheet formatted workbook object
     * @param mc array of MappingColumns
     * @param sheetindex sheet to use when using multiple sheets
@@ -145,23 +152,58 @@ class ImporterService {
     * 
     * @see dbnp.importer.MappingColumn
     */
-    def importdata(HSSFWorkbook wb, int sheetindex, int rowindex, MappingColumn[] mc) {
+    def importdata(HSSFWorkbook wb, int sheetindex, int rowindex, MappingColumn[] mcarray) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def rows  = []
+	def df = new DataFormatter()
 
-	(count <= sheet.getLastRowNum()) ?
-	(rowindex..count).each { i ->
+	// walk through all rows	
+	rowindex..sheet.getLastRowNum().each { i ->
+	    def record = [:]
 
-	    def row = []
-	    for (HSSFCell c: sheet.getRow(i))
-		//row.add(c)
-		//row.add(df.formatCellValue(c))
-		switch(mc[c.getColumnIndex()].celltype) {
-		    case 0  : break
-		    default : break
-		}
+	    // get the value of the cells in the row
+	    for (HSSFCell c: sheet.getRow(i))		
+		mc = mcarray[c.getColumnIndex()]		
+		record.add(createColumn(c, mc))
+	}
+    }
 
-		rows.add(row)
-	} : 0
+    /**
+    * This function creates a column based on the current cell and mapping
+    *
+    * @param cell POI cell read from Excel
+    * @param mc mapping column
+    * @return entity object
+    * 
+    */
+    def createColumn(HSSFCell cell, MappingColumn mc) {
+	def df = new DataFormatter()
+
+	// check the templatefield type of the cell
+	switch(mc.entity) {
+	    case Study	:   def st = new Study()
+			    st.setFieldValue(mc.name, df.formatCellValue(c))
+			    return st
+			    break
+	    case Subject:   def su = new Subject()
+			    su.setFieldValue(mc.name, df.formatCellValue(c))
+			    return su
+			    break
+	    case Event  :   def ev = new Event()
+			    ev.setFieldValue(mc.name, df.formatCellValue(c))
+			    return ev
+			    break
+	    case Protocol:  def pr = new Protocol()
+			    pr.setFieldValue(mc.name, df.formatCellValue(c))
+			    return pr
+			    break
+	    case Sample	:   def sa = new Sample()
+			    sa.setFieldValue(mc.name, df.formatCellValue(c))
+			    return sa
+			    break
+	    case Object :   break
+	    
+	}
+
     }
 }

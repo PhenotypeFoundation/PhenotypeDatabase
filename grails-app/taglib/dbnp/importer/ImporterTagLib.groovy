@@ -55,19 +55,6 @@ class ImporterTagLib {
 	out << render (template:"common/properties", model:[selectedentities:selectedentities, standardentities:standardentities, header:header])
     }
 
-    def createSelect(selected, String name, options, String customvalue) {
-	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
-
-	options.each { e ->
-	    res += "<option value=\"${customvalue}:${e}\""
-	    res += (e == selected) ? " selected" : ""
-	    res += ">${e}</option>"
-	}
-
-	res += "</select>"
-	return res
-    }
-
     /**
      * Possibly this will later on return an AJAX-like autocompletion chooser for the fields?
      * 
@@ -109,7 +96,16 @@ class ImporterTagLib {
 
 	res += "</select>"
 	return res
-    }    
+    }
+
+    /**
+    * @param selected selected TemplateFieldType
+    * @param custval custom value to be combined in the option(s) of the selector
+    * @param name name of the HTML select object
+    * @return HTML select object
+    *
+    * @see dbnp.studycapturing.TemplateFieldType
+    */
 
      def entitySelect = { attrs ->
 	def sel = (attrs['selected']==null) ? -1 : attrs['selected']
@@ -129,16 +125,17 @@ class ImporterTagLib {
     }
 
     /**
-    * @param selected selected celltype
+    * @param selected selected TemplateFieldType
+    * @param customvalue custom value to be combined in the option(s) of the selector
     * @param name name of the HTML select object
-    * @see org.apache.poi.ss.usermodel.Cell for the possible cell types
     * @return HTML select object
+    * 
+    * @see dbnp.studycapturing.TemplateFieldType
     */
     def templatefieldtypeSelect = { attrs ->
 	def selected = (attrs['selected']==null) ? -1 : attrs['selected']
 	def customvalue = (attrs['customvalue']==null) ? "" : attrs['customvalue']
-	def name = (attrs['name']==null) ? "" : attrs['name']
-	//out << createSelect(selected, attrs['name'], standardcelltypes, customvalue)
+	def name = (attrs['name']==null) ? "" : attrs['name']	
 
 	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
 
