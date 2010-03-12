@@ -29,6 +29,12 @@
     <div class="dialog">
 
 <% protocolList = dbnp.studycapturing.Protocol.list() %>
+<% def study_eventsDescription = [] %>
+<% study_eventsDescription = studyInstance.events.eventDescription.unique() %>
+<% study_eventsDescription.addAll(studyInstance.samplingEvents.eventDescription.unique()) %>
+<% def study_events = [] %>
+<% study_events = studyInstance.events.unique() %>
+<% study_events.addAll(studyInstance.samplingEvents.unique()) %>
 
       <div id="tabs">
         <ul>
@@ -48,48 +54,22 @@
           <b>Template </b>:<g:link controller="template" action="show" id="${studyInstance?.template?.id}">${studyInstance?.template?.encodeAsHTML()}</g:link><br>
           <b> Start </b>:<g:formatDate date="${studyInstance?.startDate}" /> <br>
           <b> Events </b>:
-<% def eventList = [] %>
-
-          <g:each in="${studyInstance.events}" var="s">
-<%  eventList.add(s.eventDescription) %>
-          </g:each>
-
-          <g:if test="${eventList.size()==0}">
-            -
-          </g:if>
-
-          <g:else>
-<% def sampEvent = eventList.get(0).name %>
-${sampEvent}
-            <g:each in="${eventList}" var="samplingEvent">
-              <g:if test="${(samplingEvent.name!=sampEvent)}">
-${samplingEvent.name}
-              </g:if>
-            </g:each>
-          </g:else>
+            <g:if test="${studyInstance.events.eventDescription.size()==0}">
+              -
+            </g:if>
+            <g:else>
+            ${studyInstance.events.eventDescription.unique().toString().replaceAll("]"," ").
+          substring(1,studyInstance.events.eventDescription.unique().toString().size())}
+            </g:else>
           <br>
-
-
           <b>Sampling Events </b>:
-<% def tmpList = [] %>
-
-          <g:each in="${studyInstance.samplingEvents}" var="s">
-<%  tmpList.add(s.eventDescription) %>
-          </g:each>
-
-          <g:if test="${tmpList.size()==0}">
-            -
-          </g:if>
-
-          <g:else>
-<% def sampEvent = tmpList.get(0).name %>
-${sampEvent}
-            <g:each in="${tmpList}" var="samplingEvent">
-              <g:if test="${(samplingEvent.name!=sampEvent)}">
-${samplingEvent.name}
-              </g:if>
-            </g:each>
-          </g:else>
+            <g:if test="${studyInstance.samplingEvents.eventDescription.size()==0}">
+             -
+            </g:if>
+            <g:else>
+             ${studyInstance.samplingEvents.eventDescription.unique().toString().replaceAll("]"," ").
+                 substring(1,studyInstance.samplingEvents.eventDescription.unique().toString().size())}
+            </g:else>
           <br>
           <b>Last Updated </b>:<g:formatDate date="${studyInstance?.lastUpdated}" /><br>
           <b>Readers </b>:
@@ -141,7 +121,7 @@ ${g}</b></td>
               </g:each>
               </tr>
 
-              <g:each in="${studyInstance.subjects.findAll { it.template == template}}" var="s">
+              <g:each in="${studyInstance.subjects.findAll {it.template == template}}" var="s">
                 <tr>
                   <td><g:link controller="subject" action="show" id="${s.id}">${s.id}</g:link></td>
                 <td>${s.species}</td>
@@ -171,40 +151,26 @@ ${g.name}
         </div>
 
         <div id="protocols">
-          <table>
+<% def protocol_list = [] %>
+<% protocol_list= studyInstance.events.eventDescription.protocol.unique() %>
+          <g:if test="${protocol_list.size()==0}">
+            No protocols in this study
+          </g:if>
+          <g:else>
+            <table>
             <tr>
               <td><b>Id </b></td>
               <td><b>Name</b></td>
               <td><b>Parameters</b></td>
               <td><b>Reference</b></td>
             </tr>
-
-<% def protocol_list = [] %>
-<% def tmp_protocol = studyInstance.events.eventDescription.protocol.get(0) %>
-<% def tmpBis_protocol = studyInstance.samplingEvents.eventDescription.protocol.get(0) %>
-<% protocol_list.add(tmp_protocol) %>
-<% protocol_list.add(tmpBis_protocol) %>
-
-            <g:each in="${studyInstance.events.eventDescription.protocol}" var="s">
-<% if (!(protocol_list.contains(s))) {%>
-  <% protocol_list.add(s) %>
-  <%}%>
-            </g:each>
-
-            <g:each in="${studyInstance.samplingEvents.eventDescription.protocol}" var="g">
-<% if (!(protocol_list.contains(g))) {  %>
-  <% protocol_list.add(g) %>
-  <%}%>
-            </g:each>
-
             <g:each in="${protocol_list}" var="protocol">
               <tr>
-                <td><g:link controller="protocol" action="show" id="${protocol.id}">${protocol.id}</g:link></td>
+              <td><g:link controller="protocol" action="show" id="${protocol.id}">${protocol.id}</g:link></td>
               <td>${protocol.name}</td>
               <td>
-              <g:each in="${protocol.parameters}" var="p"><ul><li>
+              <g:each in="${protocol.parameters}" var="p">
                   <g:link controller="protocolParameter" action="show" id="${p.id}">${p.name}</g:link>
-                  </li></ul>
               </g:each>
               </td>
               <td>${protocol.reference}</td>
@@ -212,12 +178,16 @@ ${g.name}
 
             </g:each>
           </table>
+          </g:else>
         </div>
 
         <div id="events">
+          <g:if test="${study_events.size()==0}">
+           No events in this study
+          </g:if>
+          <g:else>
           <table>
             <tr>
-
               <td><b>Subject</b></td>
               <td><b>Start Time</b></td>
               <td><b>Duration</b></td>
@@ -225,57 +195,47 @@ ${g.name}
               <td><b>Sampling Event</b></td>
               <td><b>Parameters</b></td>
             </tr>
-            <g:each in="${studyInstance.events}" var="e">
+            <g:each in="${study_events}" var="e">
               <tr>
                 <td>-</td>
                 <td>${e.getPrettyDuration(studyInstance.startDate,e.startTime)}</td>
                 <td>${e.getPrettyDuration()}</td>
                 <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>
-              <td><g:checkBox name="event" disabled="${true}" value="${false}"/></td>
-
               <td>
-              <g:if test="${e.parameterStringValues.size()>0}">
-${e.parameterStringValues}
+              <g:if test="${e instanceof dbnp.studycapturing.SamplingEvent}">
+                <g:checkBox name="samplingEvent" disabled="${true}" value="${true}"/>
               </g:if>
-              <g:elseif test="${e.parameterIntegerValues.size()>0}">
-${e.parameterIntegerValues}
-              </g:elseif>
-              <g:elseif test="${e.parameterFloatValues.size()>0}">
-${e.parameterFloatValues}
-              </g:elseif>
+              <g:else>
+                <g:checkBox name="event" disabled="${true}" value="${false}"/>
+              </g:else>
               </td>
-
-              </tr>
-            </g:each>
-
-            <g:each in="${studyInstance.samplingEvents}" var="e">
-              <tr>
-                <td>-</td>
-                <td>${e.getPrettyDuration(studyInstance.startDate,e.startTime)}</td>
-                <td>${e.getPrettyDuration()}</td>
-                <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>
-              <td><g:checkBox name="samplingEvent" disabled="${true}" value="${true}"/></td>
               <td>
-              <g:if test="${e.parameterStringValues.size()>0}">
-${e.parameterStringValues}
+             <g:if test="${e.parameterStringValues.size()>0}">
+<% def stringValues = e.parameterStringValues.toString().replaceAll("}"," ") %>
+<% print stringValues.substring(1,stringValues.size()) %>
               </g:if>
               <g:elseif test="${e.parameterIntegerValues.size()>0}">
-${e.parameterIntegerValues}
+<% def integerValues = e.parameterInteger.toString().replaceAll("}"," ") %>
+<% print integerValues.substring(1,integerValues.size()) %>
               </g:elseif>
               <g:elseif test="${e.parameterFloatValues.size()>0}">
-${e.parameterFloatValues}
+<% def floatValues = e.parameterFloatValues.toString().replaceAll("}"," ") %>
+<% print floatValues.substring(1,floatValues.size()) %>
               </g:elseif>
               </td>
               </tr>
             </g:each>
-
           </table>
+          </g:else>
         </div>
 
         <div id="event-description">
-          <table>
+          <g:if test="${study_eventsDescription.size()==0}">
+            No events description in this study
+          </g:if>
+          <g:else>
+            <table>
             <tr>
-
               <td><b>Event Name</b></td>
               <td><b>Parameters </b></td>
             </tr>
@@ -287,13 +247,11 @@ ${e.parameterFloatValues}
               <td><b>Reference</b></td>
               <td><b>Options</b></td>
               <td><b>Type</b></td>
-            </tr>
-            <g:each in="${dbnp.studycapturing.EventDescription.list()}" var="e">
-              <g:if test="${(studyInstance.events.eventDescription.contains(e))}" >
+           </tr>
+            <g:each in="${study_eventsDescription}" var="e">
                 <tr>
-                  <td>${e.name} </td></tr><tr>
+                  <td>${e.name} </td>
                 <g:each in="${e.protocol.parameters}" var="p">
-                  <td></td>
                   <td>${p.name}</td>
                   <td>${p.description}</td>
                   <td>${p.unit}</td>
@@ -302,60 +260,70 @@ ${e.parameterFloatValues}
                     <td>-</td>
                   </g:if>
                   <g:else>
-                    <td>${p.listEntries}</td>
+                    <td>${p.listEntries.toString().replaceAll("]"," ").substring(1,p.listEntries.toString().size())}</td>
                   </g:else>
                   <td>${p.type}</td>
                   </tr>
                 </g:each>
-              </g:if>
             </g:each>
-
-            <g:each in="${dbnp.studycapturing.EventDescription.list()}" var="e">
-              <g:if test="${(studyInstance.samplingEvents.eventDescription.contains(e))}" >
-                <tr>
-                  <td>${e.name} </td></tr><tr>
-                <g:each in="${e.protocol.parameters}" var="p">
-                  <td></td>
-                  <td>${p.name}</td>
-                  <td>${p.description}</td>
-                  <td>${p.unit}</td>
-                  <td>${p.reference}</td>
-                  <g:if test="${(p.listEntries.size()==0)}" >
-                    <td>-</td>
-                  </g:if>
-                  <g:else>
-                    <td>${p.listEntries}</td>
-                  </g:else>
-                  <td>${p.type}</td>
-                  </tr>
-                </g:each>
-              </g:if>
-            </g:each>
-
           </table>
 
           <g:form controller="eventDescription" action="create">
             <INPUT TYPE=submit name=submit Value="New Event Description">
           </g:form>
-
+</g:else>
         </div>
 
         <div id="event-group">
+          <g:if test="${studyInstance.eventGroups.size()==0}">
+            No event groups in this study
+          </g:if>
+          <g:else>
           <table>
             <tr>
               <td><b>Name</b></td>
-              <td><b>Events</b></td>
+              <td colspan="${study_eventsDescription.size()}"><b>Events</b></td>
               <td><b>Subjects</b></td>
             </tr>
+            <tr>
+              <td></td>
+                <g:each in="${study_eventsDescription}" var="list">
+              <td>
+                  <b>${list}</b>
+          </td>
+                </g:each>
+          </tr>
             <g:each in="${studyInstance.eventGroups}" var="eventGroup">
             <tr>
               <td>${eventGroup.name}</td>
-              <td>${eventGroup.events}</td>
-              <td>${eventGroup.subjects.name}</td>
+
+                <g:each in="${study_eventsDescription}" var="des">
+                  <td>
+              <g:each in="${eventGroup.events}" var="e">
+                 <g:if test="${e.eventDescription==des}">
+                   <g:if test="${e.parameterStringValues.size()>0}">
+<% def stringValues = e.parameterStringValues.toString().replaceAll("}"," ") %>
+<% print stringValues.substring(1,stringValues.size()) %>
+              </g:if>
+              <g:elseif test="${e.parameterIntegerValues.size()>0}">
+<% def integerValues = e.parameterInteger.toString().replaceAll("}"," ") %>
+<% print integerValues.substring(1,integerValues.size()) %>
+              </g:elseif>
+              <g:elseif test="${e.parameterFloatValues.size()>0}">
+<% def floatValues = e.parameterFloatValues.toString().replaceAll("}"," ") %>
+<% print floatValues.substring(1,floatValues.size()) %>
+              </g:elseif>
+                 </g:if>
+                </g:each>
+                 </td>
+              </g:each>
+
+              <td>${eventGroup.subjects.name.toString().replaceAll("]"," ").
+    substring(1,eventGroup.subjects.name.toString().size())}</td>
           </tr>
             </g:each>
           </table>
-
+          </g:else>
         </div>
 
         <div id="assays">
