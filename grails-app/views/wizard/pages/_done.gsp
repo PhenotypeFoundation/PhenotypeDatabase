@@ -17,5 +17,10 @@
 <wizard:pageContent>
 You are done!
 
-TODO: store data in database....
+	<span class="info">
+		<span class="todo">TODO</span>
+		<ul>
+			<li>persist the data to the database :) nothing is currently being saved...</li>
+		</ul>
+	</span>
 </wizard:pageContent>

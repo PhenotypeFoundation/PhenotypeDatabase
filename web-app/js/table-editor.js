@@ -152,9 +152,11 @@ TableEditor.prototype = {
         $('.ui-selected', t).each(function() {
             $(that.columnIdentifier + ':eq(' + columnNumber + ') ' + elementSelector, $(this)).each(function() {
                 var me = $(this)
-                var myVal = that.getValue(me);
-                if (myVal != v) {
-                    that.setValue(me, v);
+                if (me.attr('type') != "hidden") {
+                    var myVal = that.getValue(me);
+                    if (myVal != v) {
+                        that.setValue(me, v);
+                    }
                 }
             })
         })

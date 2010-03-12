@@ -138,10 +138,10 @@ OntologyChooser.prototype = {
         // got a text/hidden field in the DOM?
         if (searchElement.size() > 0) {
             // yeah, set it
-            searchElement[0].value = value;
+            $(searchElement[0]).val(value);
         } else {
             // no, dynamically insert it after the input elemtn
-            inputElement.after('<input type="hidden" name="' + elementName + '" value="' + value + '"/>');
+            inputElement.after('<input type="text" name="' + elementName + '" value="' + value + '"/>');
         }
     },
 

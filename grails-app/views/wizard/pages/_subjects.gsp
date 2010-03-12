@@ -57,7 +57,7 @@
 </g:if>
 
 	<span class="info">
-		<span class="title">Known issues</span>
+		<span class="known">Known issues</span>
 		<ul>
 			<li>autocomplete fields (like ontologies) deselect the selected rows and hence don't replicate</li>
 			<li>ontology fields should replicate value <i>and</i> hidden fields</li>
@@ -65,6 +65,7 @@
 			<li>table columns are randomized on view as they are currently not sorted</li>
 			<li>ontology hidden fields should be processed by the back-end as well (not yet implemented)</li>
 			<li>ontology fields now show suggestions for <i>all</i> available ontologies. This has to be narrowed down in the future.</li>
+			<li>ontology hidden fields should be handled by the taglibrary / controller as well</li>
 		</ul>
 	</span>
 

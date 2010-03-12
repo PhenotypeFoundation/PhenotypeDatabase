@@ -61,4 +61,11 @@
 	</g:each>
 	</div>
 </g:if>
+
+	<span class="info">
+		<span class="known">Known issues</span>
+		<ul>
+			<li>no protocol selection available yet</li>
+		</ul>
+	</span>
 </wizard:pageContent>

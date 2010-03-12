@@ -630,13 +630,22 @@ class WizardTagLib extends JavascriptTagLib {
 					break
 				case 'ONTOLOGYTERM':
 					// @see http://www.bioontology.org/wiki/index.php/NCBO_Widgets#Term-selection_field_on_a_form
-					// @see table-editor.js
+					// @see ontology-chooser.js, table-editor.js
 					//out << it.getClass()
 					out << textField(
 						name: attrs.name + '_' + it.name,
 						value: fieldValue,
 						rel: 'ontology-all-name',
 						size: 100
+					)
+					out << hiddenField(
+						name: attrs.name + '_' + it.name + '-concept_id'
+					)
+					out << hiddenField(
+						name: attrs.name + '_' + it.name + '-ontology_id'
+					)
+					out << hiddenField(
+						name: attrs.name + '_' + it.name + '-full_id'
 					)
 					break
 				default:
@@ -680,6 +689,25 @@ class WizardTagLib extends JavascriptTagLib {
 						} else {
 							out << '<span class="warning">no values!!</span>'
 						}
+						break
+					case 'ONTOLOGYTERM':
+						// @see http://www.bioontology.org/wiki/index.php/NCBO_Widgets#Term-selection_field_on_a_form
+						// @see ontology-chooser.js
+						out << textFieldElement(
+							name: it.name,
+							value: fieldValue,
+							rel: 'ontology-all-name',
+							size: 100
+						)
+						out << hiddenField(
+							name: it.name + '-concept_id'
+						)
+						out << hiddenField(
+							name: it.name + '-ontology_id'
+						)
+						out << hiddenField(
+							name: it.name + '-full_id'
+						)
 						break
 					case 'DATE':
 						out << dateElement(
