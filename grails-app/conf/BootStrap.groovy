@@ -21,7 +21,8 @@ class BootStrap {
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
-		if (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
+		// we could also check if we are in development by GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT
+		if (Study.count() == 0) {
 			printf("development bootstrapping....\n\n");
 
 			// ontologies
