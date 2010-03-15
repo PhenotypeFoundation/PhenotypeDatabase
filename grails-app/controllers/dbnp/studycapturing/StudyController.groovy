@@ -13,6 +13,11 @@ class StudyController {
         [studyInstanceList: Study.list(params), studyInstanceTotal: Study.count()]
     }
 
+    def list_extended = {
+        params.max = Math.min(params.max ? params.int('max') : 10, 100)
+        [studyList: Study.list(params), studyInstanceTotal: Study.count()]
+    }
+
     /*def create = {
         def studyInstance = new Study()
         studyInstance.properties = params
@@ -40,6 +45,7 @@ class StudyController {
             [studyInstance: studyInstance]
         }
     }
+
 
     /*def edit = {
         def studyInstance = Study.get(params.id)

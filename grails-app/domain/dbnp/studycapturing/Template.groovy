@@ -18,7 +18,10 @@ class Template implements Serializable {
 	static hasMany = [fields: TemplateField]
 
 	static constraints = {
-		name(unique:['entity'])
+
+		// outcommented for now due to bug in Grails / Hibernate
+		// see http://jira.codehaus.org/browse/GRAILS-6020
+		//	name(unique:['entity'])
 	}
 
 	/**
@@ -60,7 +63,7 @@ class Template implements Serializable {
 	 */
 	public static findAllByEntity(java.lang.Class entity) {
 		def results = []
-
+		println "Searching for" + entity
 		// 'this' should not work in static context, however it does so I'll keep
 		// this in for now :)
 		this.findAll().each() {

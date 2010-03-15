@@ -1,4 +1,3 @@
-
 <%@ page import="dbnp.studycapturing.Study" %>
 <html>
   <head>
@@ -7,7 +6,6 @@
   <g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}" />
   <title><g:message code="default.list.label" args="[entityName]" /></title>
 
-  <my:jqueryui/>
   <script type="text/javascript">
     $(function() {
             $("#tabs").tabs();
@@ -289,7 +287,7 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
           <g:each in="${stud.events}" var="e">
             <tr>
               <td><g:link controller="event" action="show" id="${e.id}">  ${e.eventDescription.name}</g:link></td>
-          <td>${e.subject.id}</td>
+          <td>?</td>
           <td>${e.getPrettyDuration(stud.startDate,e.startTime)}</td>
           <td>${e.getPrettyDuration()}</td>
            <td><g:checkBox name="event" disabled="${true}" value="${false}"/></td>
@@ -304,7 +302,7 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
           <g:each in="${stud.samplingEvents}" var="e">
           <tr>
           <td><g:link controller="event" action="show" id="${e.id}">${e.eventDescription.name}</g:link></td>
-          <td>${e.subject.id}</td>
+          <td>?</td>
           <td>${e.getPrettyDuration(stud.startDate,e.startTime)}</td>
           <td>${e.getPrettyDuration()}</td>
             <td><g:checkBox name="samplingEvent" disabled="${true}" value="${true}"/></td>

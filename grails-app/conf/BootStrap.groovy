@@ -160,30 +160,46 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def ageField = new TemplateField(
-				name: 'Age',type: TemplateFieldType.INTEGER)
+				name: 'Age (years)',type: TemplateFieldType.INTEGER,unit: 'years')
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Nutritional study template
 
+			println "Adding academic study template..."
 			def studyTemplate = new Template(
-				name: 'Nutritional study', entity: dbnp.studycapturing.Study
-			).addToFields(new TemplateField(
-				name: 'NuGO Code',type: TemplateFieldType.STRING)
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
+				name: 'Academic study', entity: dbnp.studycapturing.Study)
+			.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(name: 'Cohort name',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(name: 'Time zone',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(name: 'Responsible scientist',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(name: 'Lab code',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING))
+			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Mouse template
 			def mouseTemplate = new Template(
-				name: 'Mouse', entity: dbnp.studycapturing.Subject
-			).addToFields(new TemplateField(
-				name: 'Genotype',type: TemplateFieldType.STRINGLIST,
-				listEntries: [new TemplateFieldListItem(name:'C57/Bl6j'),new TemplateFieldListItem(name:'wild type')]))
+				name: 'Mouse', entity: dbnp.studycapturing.Subject)
+			.addToFields(new TemplateField(
+				name: 'Strain', type: TemplateFieldType.ONTOLOGYTERM))
+			.addToFields(new TemplateField(
+				name: 'Genotype', type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Genotype type',type: TemplateFieldType.STRINGLIST,
+				listEntries: [new TemplateFieldListItem(name:'transgenic'),new TemplateFieldListItem(name:'knock-out'),new TemplateFieldListItem(name:'knock-in')]))
 			.addToFields(genderField)
-			.addToFields(ageField)
 			.addToFields(new TemplateField(
-				name: 'Cage',type: TemplateFieldType.INTEGER))
+				name: 'Age (weeks)', type: TemplateFieldType.INTEGER, unit: 'weeks'))
 			.addToFields(new TemplateField(
-				name: 'SomeDouble', type: TemplateFieldType.DOUBLE))
+				name: 'Age type',type: TemplateFieldType.STRINGLIST,
+				listEntries: [new TemplateFieldListItem(name:'postnatal'),new TemplateFieldListItem(name:'embryonal')]))
+			.addToFields(new TemplateField(
+				name: 'Cage',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: '#Mice in cage',type: TemplateFieldType.INTEGER))
+			.addToFields(new TemplateField(
+				name: 'Litter size',type: TemplateFieldType.INTEGER))	
+			.addToFields(new TemplateField(
+				name: 'Weight (g)', type: TemplateFieldType.DOUBLE, unit: 'gram'))
 			.addToFields(new TemplateField(
 				name: 'SomeOntology', type: TemplateFieldType.ONTOLOGYTERM))
 			.with { if (!validate()) { errors.each { println it} } else save()}
@@ -196,11 +212,39 @@ class BootStrap {
 			.addToFields(new TemplateField(
 				name: 'DOB',type: TemplateFieldType.DATE))
 			.addToFields(new TemplateField(
-				name: 'Height',type: TemplateFieldType.DOUBLE))
+				name: 'Height',type: TemplateFieldType.DOUBLE, unit: 'm'))
 			.addToFields(new TemplateField(
-				name: 'Weight',type: TemplateFieldType.DOUBLE))
+				name: 'Weight (kg)',type: TemplateFieldType.DOUBLE, unit: 'kg'))
 			.addToFields(new TemplateField(
-				name: 'BMI',type: TemplateFieldType.DOUBLE))
+				name: 'BMI',type: TemplateFieldType.DOUBLE, unit: 'kg/m2'))
+			.addToFields(new TemplateField(
+				name: 'Race',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Waist circumvence',type: TemplateFieldType.FLOAT, unit: 'cm'))
+			.addToFields(new TemplateField(
+				name: 'Hip circumvence',type: TemplateFieldType.FLOAT, unit: 'cm'))
+			.addToFields(new TemplateField(
+				name: 'Systolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg'))
+			.addToFields(new TemplateField(
+				name: 'Diastolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg'))
+			.addToFields(new TemplateField(
+				name: 'Heart rate',type: TemplateFieldType.FLOAT, unit: 'beats/min'))
+			.addToFields(new TemplateField(
+				name: 'Run-in-food',type: TemplateFieldType.TEXT))
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+
+			// Human sample template
+			def humanSampleTemplate = new Template(
+				name: 'Human tissue sample', entity: dbnp.studycapturing.Sample)
+			.addToFields(new TemplateField(
+				name: 'Description',type: TemplateFieldType.TEXT))
+			.addToFields(new TemplateField(
+				name: 'SampleType',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'SampleProtocol',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Text on vial',type: TemplateFieldType.STRING))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			//events
@@ -390,8 +434,8 @@ class BootStrap {
 				)
 				.setFieldValue("Gender", "Male")
 				.setFieldValue("Genotype", "C57/Bl6j")
-				.setFieldValue("Age", 17)
-				.setFieldValue("Cage", (int)(x/2))
+				.setFieldValue("Age (weeks)", 17)
+				.setFieldValue("Cage", "" + (int)(x/2))
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				exampleStudy.addToSubjects(currentSubject)
@@ -455,7 +499,7 @@ class BootStrap {
               def currentSubject = new Subject(
                       name: "" + y++,
                       species: humanTerm,
-                      template: humanTemplate).setFieldValue("Gender", (boolean) (x / 2) ? "Male" : "Female").setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19" + (10 + (int) (Math.random() * 80)))).setFieldValue("Age", 30).setFieldValue("Height", Math.random() * 2F).setFieldValue("Weight", Math.random() * 150F).setFieldValue("BMI", 20 + Math.random() * 10F).with { if (!validate()) { errors.each { println it} } else save()}
+                      template: humanTemplate).setFieldValue("Gender", (boolean) (x / 2) ? "Male" : "Female").setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19" + (10 + (int) (Math.random() * 80)))).setFieldValue("Age (years)", 30).setFieldValue("Height", Math.random() * 2F).setFieldValue("Weight (kg)", Math.random() * 150F).setFieldValue("BMI", 20 + Math.random() * 10F).with { if (!validate()) { errors.each { println it} } else save()}
 
               rootGroup.addToSubjects currentSubject
               rootGroup.save()
