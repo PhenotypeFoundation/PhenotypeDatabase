@@ -17,11 +17,16 @@
 	  <g:each var="stdentity" in ="${standardentities}">
 	      <tr><td colspan="2"><h4>${stdentity.name}</h4></td></tr>
 	      <tr>
-		  <td>Columnname:</td><td>Property:</td>
+		  <td>Identifier:</td>
+		  <td>Columnname:</td>
+		  <td>Property:</td>
 	      </tr>	      
 		<g:each var="selentity" in="${selectedentities}">
 		    <g:if test="${selentity.type.toLong()==stdentity.type}">
 			<tr>
+			    <td width="12px">
+				<g:checkBox name="identifier"/>
+			    </td>
 			    <td class="header" width="200px">
 				<b>${header[selentity.columnindex.toInteger()].name}</b>
 			    </td>

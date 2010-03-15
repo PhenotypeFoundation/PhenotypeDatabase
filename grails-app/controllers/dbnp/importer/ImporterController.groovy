@@ -56,6 +56,7 @@ class ImporterController {
 
 	session.header = header
 	session.importtemplate_id = params.template_id
+	session.workbook = wb
 
         render (view:"step1", model:[header:header, datamatrix:datamatrix])
     }
@@ -144,9 +145,14 @@ class ImporterController {
 		session.header[temp[0].toInteger()].property = temp[1].toInteger()
 	}
 	
-	for (e in session.header) {
+	/*for (e in session.header) {
 	    println e
-	}
+	}*/
+
+	//import workbook
+	ImporterService.importdata(session.importtemplate_id, session.workbook, 0, 0, session.header)
+	//println session.header.dump()
+
 	render ("properties saved")
     }
 }

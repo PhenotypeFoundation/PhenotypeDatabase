@@ -20,6 +20,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem
 import org.apache.poi.ss.usermodel.DataFormatter
 import org.apache.poi.hssf.usermodel.HSSFDateUtil
 import dbnp.studycapturing.TemplateFieldType
+import dbnp.studycapturing.Template
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Subject
 import dbnp.studycapturing.Event
@@ -43,7 +44,7 @@ class ImporterService {
 
     /**
      * @param wb high level representation of the workbook
-     * @return header representation as a MappingColumn array
+     * @return header representation as a MappingColumn hashmap
      */
     def getHeader(HSSFWorkbook wb, int sheetindex){
 
@@ -67,7 +68,6 @@ class ImporterService {
 			    break
                     case HSSFCell.CELL_TYPE_NUMERIC:			
 			    if (HSSFDateUtil.isCellDateFormatted(c)) {
-				println("DATE")
 				header[c.getColumnIndex()] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.DATE)
 			    }
 			    else
@@ -145,14 +145,15 @@ class ImporterService {
     * Method to read data from a workbook and to import data into the database
     * by using mapping information
     *
+    * @param template_id template identifier to use fields from
     * @param wb POI horrible spreadsheet formatted workbook object
-    * @param mc array of MappingColumns
+    * @param mcmap linked hashmap (preserved order) of MappingColumns
     * @param sheetindex sheet to use when using multiple sheets
     * @param rowindex first row to start with reading the actual data (NOT the header)
     * 
     * @see dbnp.importer.MappingColumn
     */
-    def importdata(HSSFWorkbook wb, int sheetindex, int rowindex, MappingColumn[] mcarray) {
+    def importdata(template_id, HSSFWorkbook wb, int sheetindex, int rowindex, mcmap) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def rows  = []
 	def df = new DataFormatter()
@@ -162,48 +163,50 @@ class ImporterService {
 	    def record = [:]
 
 	    // get the value of the cells in the row
-	    for (HSSFCell c: sheet.getRow(i))		
-		mc = mcarray[c.getColumnIndex()]		
-		record.add(createColumn(c, mc))
+	    for (HSSFCell cell: sheet.getRow(i)) {
+		def mc = mcmap[cell.getColumnIndex()]
+		record.add(createColumn(template_id, cell, mc))
+	    }
 	}
+	println record
     }
 
     /**
     * This function creates a column based on the current cell and mapping
     *
+    * @param template_id template identifier to use fields from
     * @param cell POI cell read from Excel
     * @param mc mapping column
     * @return entity object
     * 
     */
-    def createColumn(HSSFCell cell, MappingColumn mc) {
+    def createColumn(template_id, HSSFCell cell, MappingColumn mc) {
 	def df = new DataFormatter()
+	def template = Template.get(template_id)
 
-	// check the templatefield type of the cell
+	// check the templatefield entity of the cell
 	switch(mc.entity) {
-	    case Study	:   def st = new Study()
-			    st.setFieldValue(mc.name, df.formatCellValue(c))
+	    case Study	:   def st = new Study(template:template)
+			    st.setFieldValue(mc.name, df.formatCellValue(cell))
 			    return st
 			    break
-	    case Subject:   def su = new Subject()
-			    su.setFieldValue(mc.name, df.formatCellValue(c))
+	    case Subject:   def su = new Subject(template:template)
+			    su.setFieldValue(mc.name, df.formatCellValue(cell))
 			    return su
 			    break
-	    case Event  :   def ev = new Event()
-			    ev.setFieldValue(mc.name, df.formatCellValue(c))
+	    case Event  :   def ev = new Event(template:template)
+			    ev.setFieldValue(mc.name, df.formatCellValue(cell))
 			    return ev
 			    break
-	    case Protocol:  def pr = new Protocol()
-			    pr.setFieldValue(mc.name, df.formatCellValue(c))
+	    case Protocol:  def pr = new Protocol(template:template)
+			    pr.setFieldValue(mc.name, df.formatCellValue(cell))
 			    return pr
 			    break
-	    case Sample	:   def sa = new Sample()
-			    sa.setFieldValue(mc.name, df.formatCellValue(c))
+	    case Sample	:   def sa = new Sample(template:template)
+			    sa.setFieldValue(mc.name, df.formatCellValue(cell))
 			    return sa
 			    break
-	    case Object :   break
-	    
+	    case Object :   break	    
 	}
-
     }
 }
