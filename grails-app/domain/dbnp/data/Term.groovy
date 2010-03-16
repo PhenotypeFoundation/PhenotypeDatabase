@@ -28,7 +28,7 @@ class Term implements Serializable {
 
 	// Covenenice method for delivering Terms.
 	// if the term is already defined, use it.
-	// otherwise, create it.
+	// otherwise, create it and return it.
 	// should be removed when ontologies work.
 	static getTerm( string ) {
 	    def term = Term.find("from Term as t where t.name = '${string}'")
@@ -36,11 +36,9 @@ class Term implements Serializable {
 		    term.name=string
 		    term.ontology = Ontology.find('from Ontology as o')
 		    term.accession = ''
-		    println string
-		    if( term.save(flush:true) ) { println "okay, saved" }
-		    else {
+		    if( !term.save(flush:true) )  {
 			    term.errors.each{ println it }
-			    println "not okay, not saved" }
+		    }
 	    }
 	    return term
 	}
