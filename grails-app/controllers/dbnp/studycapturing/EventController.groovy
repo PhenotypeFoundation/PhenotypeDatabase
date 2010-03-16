@@ -16,13 +16,6 @@ class EventController {
         [eventInstanceList: Event.list(params), eventInstanceTotal: Event.count()]
     }
 
-    def create = {
-        def eventInstance = new Event()
-        eventInstance.properties = params
-	//chain( view: "createForEventDescription", params:params )
-        return [eventInstance:eventInstance]
-    }
-
 
     def createForEventDescription = {
         if( params["id"]==null)
@@ -68,50 +61,143 @@ class EventController {
 
     def save = {
 
-        def event = Event.get(params["id"])
-
-	if( event==null ) {                                                        // this is an entirely new event
-            render(action: "list", total:Event.count() )
-	}
-
-	params["startTime"] = parseDate(params["startTime"])                       // parse the date strings
-	params["endTime"] = parseDate(params["endTime"])
-
-
-        // the Subject is automatically parsed
-	// update Event Description
-        def oldProtocol=event.eventDescription.protocol.id.toString()
-        def newProtocol=params["protocol.id"]
-	def protocolParameters = params["protocolParameter"]
-
-        println "\n\nparams"
         params.each{ println it }
 
-        if(oldProtocol<=>newProtocol) {                                            // protocol id changed
-            event.eventDescription=EventDescription.get(newProtocol)
-	    event.parameterStringValues.clear()                                    // this does not propagate orphened parameters
-	    def protocol=Protocol.get(newProtocol)
-	    protocolParameters.each{ key, value ->
-                 def parameter=ProtocolParameter.get(key).name
-		 event.parameterStringValues[parameter] = value
-	    }
-	    println event.parameterStringValues
-	    event.eventDescription.protocol=protocol
-	}
-        else                                                                       // protocol is the same, values changed
-        {
-       	    protocolParameters.each{ key, value ->
-                 def parameter=ProtocolParameter.get(key)
-		 event.parameterStringValues[parameter.name]=value                 // changed from key to id
+	if( params['id']==null ) {                                                        // this is an entirely new event
+
+            def description = new EventDescription()
+	    description.name = (params['name']==null || params['name'].replaceAll(/\w/,'').size()==0 ) ? '[no Name]' : params['name']
+	    description.description = (params['description']==null || params['description'].replaceAll(/\w/,'').size()==0 ) ? '[no description]' : params['description']
+	    description.protocol = Protocol.get( params['protocol'] )
+            description.isSamplingEvent = params['isSamplingEvent']=='on' ? true : false
+
+            if (description.save(flush: true)) {
+                flash.message = "${message(code: 'default.created.message', args: [message(code: 'description.label', default: 'Event'), description.id])}"
+            }
+	    else {
+		description.errors.each{ println it }
 	    }
 
+            def event = description.isSamplingEvent ? new SamplingEvent() : new Event();
+
+	    event.startTime = new Date(params["startTime"])                   // parse the date strings
+	    event.endTime = new Date(params["endTime"])                       // parse the date strings
+            event.parameterStringValues = new HashMap()
+            event.parameterFloatValues = new HashMap()
+            event.parameterIntegerValues = new HashMap()
+            event.parameterStringListValues = new HashMap()
+            event.eventDescription = description
+
+
+            if (event.save(flush:true, validate:false)) {
+                flash.message = "${message(code: 'default.created.message', args: [message(code: 'event.label', default: 'Event'), event.id])}"
+            }
+	    else {
+		    event.errors.each{ println it }
+	    }
+
+
+
+            // parse the parameter values
+	    // and read them into the event's maps
+	    params.each{ key,value ->
+		 def pattern =/(parameterValue\.)([\d]+)/
+                 def matcher = key=~pattern
+		 if(matcher) {
+		      def id = key.replaceAll(pattern,'$2')
+		      def parameter = ProtocolParameter.get(id)
+
+                      switch(parameter.type)
+                      {
+		            case dbnp.studycapturing.ProtocolParameterType.STRING:
+                                 event.parameterStringValues[parameter.name]=value
+			         break
+		            case dbnp.studycapturing.ProtocolParameterType.FLOAT:
+                                 event.parameterFloatValues[parameter.name]=value.toFloat()
+			         break
+		            case dbnp.studycapturing.ProtocolParameterType.INTEGER:
+                                 event.parameterFloatValues[parameter.name]=value.toInteger()
+			         break
+		            case dbnp.studycapturing.ProtocolParameterType.STRINGLIST:
+		                 def item = ParameterStringListItem.get(value)
+			         event.parameterStringListValues[''+parameter.id]=item
+                      }
+		 }
+            }
+
+            if (event.save(flush: true)) {
+                flash.message = "${message(code: 'default.created.message', args: [message(code: 'event.label', default: 'Event'), event.id])}"
+            }
+	    else {
+		    event.errors.each{ println it }
+	    }
+
+
+
+
+
+            // parse the samples added by the user
+	    // and add them to the sample list
+	    if( description.isSamplingEvent ) {
+	        def samples = []
+                params.each{ k,v ->
+                     def pattern = /^(sampleName)([\d]+)/
+		     def matcher =  k=~pattern
+		     if(matcher) {
+                         def id = k.replaceAll(pattern,'$2')
+		         def sample = new Sample()
+		         //sample.parentEvent = (SamplingEvent) event
+		         sample.parentSubject = null
+		         sample.name = v
+		         sample.material= Term.getTerm( params['sampleMaterial'+id] )
+		         samples.push(sample)
+	             }
+	        }
+
+                if (event.save(flush: true)) {
+                    flash.message = "${message(code: 'default.created.message', args: [message(code: 'event.label', default: 'Event'), event.id])}"
+                }
+	        else {
+		    event.errors.each{ println it }
+	        }
+	    }
+
+
 	}
 
 
-        if (event.save(flush: true)) {
-            flash.message = "${message(code: 'default.created.message', args: [message(code: 'event.label', default: 'Event'), event.id])}"
-            redirect(action: "show", id: event.id)
-        }
+
+	else {                                                                          // we only modify an element
+
+            def event = Event.get(params['id'])
+
+            // save basic changes in event and event description
+
+            def description = event.eventDescription
+
+	    description.name = (params['name']==null || params['name'].replaceAll(/\w/,'').size()==0 ) ? '[no Name]' : params['name']
+	    description.description = (params['description']==null || params['description'].replaceAll(/\w/,'').size()==0 ) ? '[no description]' : params['description']
+	    description.protocol = Protocol.get( params['protocol'] )
+            description.isSamplingEvent = params['isSamplingEvent']=='on' ? true : false
+
+	    event.startTime = new Date(params["startTime"])
+	    event.endTime = new Date(params["endTime"])
+            event.parameterStringValues = new HashMap()
+            event.parameterFloatValues = new HashMap()
+            event.parameterIntegerValues = new HashMap()
+            event.parameterStringListValues = new HashMap()
+
+            if (event.save(flush: true)) {
+                 flash.message = "${message(code: 'default.created.message', args: [message(code: 'event.label', default: 'Event'), event.id])}"
+            }
+	    else {
+		 event.errors.each{ println it }
+	    }
+
+
+	}
+
+
 
         render(action: "list", total:Event.count() )
     }
@@ -162,14 +248,15 @@ class EventController {
     // (6) A "create" should be added.
 
     def edit = {
+        println "sdfadfs" + params
 
         if( params["id"]==null)
 	{
             def eventInstance = new Event()
-	    def sDate = new Date( params["startTime"])
-	    def eDate = new Date( params["endTime"])
-	    def description = EventDescription.findById((params["eventDescription"])["id"])
-            return [eventInstance:eventInstance, testo:params.clone(), sDate:sDate, eDate:eDate, description:description ]
+	    def sDate = new Date()
+	    def eDate = new Date()
+	    def description = new EventDescription()
+            return [eventInstance:eventInstance, testo:params.clone(), sDate:sDate, eDate:eDate, description:description, showSample:true, samples:null, createNew:true ]
 	}
 	else
 	{
@@ -178,10 +265,28 @@ class EventController {
                 flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'event.label', default: 'Event'), params.id])}"
                 redirect(action: "list")
             }
-            return [eventInstance:eventInstance, testo:params.clone(), sDate:eventInstance.startTime, eDate:eventInstance.endTime, description:eventInstance.eventDescription]
+	    def samples = []
+	    def showSample = eventInstance.isSamplingEvent()
+	    if(showSample) { samples = ((SamplingEvent) eventInstance).getSamples() }
+            /*
+	    println "\n--------"
+	    samples.each{ println it.class }
+	    samples.each{ println it.name}
+	    println samples.class
+	    println "-------\n"
+	    */
+
+	    return [eventInstance:eventInstance, testo:params.clone(), sDate:eventInstance.startTime, eDate:eventInstance.endTime, description:eventInstance.eventDescription, showSample:showSample, samples:samples, createNew:false ]
         }
 
     }
+
+
+    def create = {
+        println("jhalkds;lasjf;ldjasdklfja;slkdfja;sdjfklasdj;flkasdf")
+        redirect(action:"edit")
+    }
+
 
 
 
@@ -233,20 +338,76 @@ class EventController {
     }
 
 
+
     def showSample = {
+
+	  println params
+	  println "\n\nin showSample"
+	  params.each{ x -> println x}
 	  def samples = null
           def event = Event.get(params.id)
+          if(event!=null)
+	  {
+	  def wantSample = params['wantSample']
                                               // user wants this Event to be a SamplingEvent?
-	  def wantSample = params.wantSample <=>'no'?true:false
-	  print wantSample
+          if( wantSample==null  &&  event.isSamplingEvent() )
+	  {
+                println "want sample is null"
+                wantSample = true
+          }	
+	  else {  println "want sample is " + params['wantSample']
+		  wantSample = params.wantSample <=>'no'?true:false }
+
+
+
 	  if( event.isSamplingEvent() ) {
-	      samples=event.samples
+              samples = Sample.findAll("from Sample as s where s.parentEvent.id = ${event.id}" )
+              samples.each{ println it.class }
+              samples.collect{ it.name }
 	      println "yes ${event.id}"
           }
 	  else    println "no ${event.id}"
 
-	  render( view:"showSample", model:[samples:samples,wantSample:wantSample] )
+
+	  render( view:"showSample", model:[samples:samples,wantSample:wantSample,id:event.id] )
+	  }
     }
 
-    
+
+   def deleteSample = {
+	  // saves the samples from the page, then repaint the samples
+	  println "in deleteSample"
+	  println params
+
+	  def event = Event.get(params['id'])
+
+	  redirect( action:showSample, samples:newSample, wantSample:true,id:params['id'] )
+   }
+
+
+   def showEventDescription = {
+         def event = Event.get( params['id'] )
+         def description = EventDescription.get( params['eventDescriptionId'] )
+	 render( view:"showEventDescription", model:[description:description] )
+   }
+
+
+   def deleteAllSamples = {
+        println "in deleteSamples"
+        println params
+	def event = Event.get(params['id'])
+        event.samples.each{ 
+            event.removeFromSamples(it)
+            it.delete()
+        }
+
+	redirect( action:showSample, id:params['id'] )
+   }
+
+
+   def combobox = {
+	def event = Event.get(1)
+	def parameters = event.parameterStringValues
+	render( view:"combobox", model:[event:event,parameters:parameters] )
+   }
 }
