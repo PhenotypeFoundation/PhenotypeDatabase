@@ -31,8 +31,7 @@
 			  <% if(  parameter.type==dbnp.studycapturing.ProtocolParameterType.STRING ) { value= event.parameterStringValues[parameter.name]  } %>
 			  <% if(  parameter.type==dbnp.studycapturing.ProtocolParameterType.INTEGER) { value= event.parameterIntegerValues[parameter.name] } %>
                           </g:if>
-                          <g:textField name="protocolParameter.${parameter.id}" value="${value}" />
-			  ...
+                          <g:textField name="parameterValue.${parameter.id}" value="${value}" />
                  </g:else>
                  </td>
 
@@ -51,12 +50,7 @@
                                     <label for="endTime"><g:message code="event.endTime.label" default="This is a sampling event" /></label>
                                 </td>
                                 <td valign="top" class="name">
-	                             <g:if test="${description.isSamplingEvent}">
-                                     yes
-	                             </g:if>
-                                     <g:else>
-				     no
-                                     </g:else>
+                                     <g:checkBox name="isSamplingEvent" value="${false}" />
                                 </td>
                             </tr>
 
