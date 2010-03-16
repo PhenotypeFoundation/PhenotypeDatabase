@@ -154,59 +154,55 @@ class ImporterService {
     * @see dbnp.importer.MappingColumn
     */
     def importdata(template_id, HSSFWorkbook wb, int sheetindex, int rowindex, mcmap) {
-	def sheet = wb.getSheetAt(sheetindex)
-	def rows  = []
-	def df = new DataFormatter()
+	def sheet = wb.getSheetAt(sheetindex)		
 
 	// walk through all rows	
 	rowindex..sheet.getLastRowNum().each { i ->
-	    def record = [:]
+	    def table = []
 
-	    // get the value of the cells in the row
-	    for (HSSFCell cell: sheet.getRow(i)) {
-		def mc = mcmap[cell.getColumnIndex()]
-		record.add(createColumn(template_id, cell, mc))
-	    }
-	}
-	println record
+	    table.add(createRecord(template_id, sheet.getRow(i), mcmap))
+	}	
     }
-
     /**
-    * This function creates a column based on the current cell and mapping
-    *
-    * @param template_id template identifier to use fields from
-    * @param cell POI cell read from Excel
-    * @param mc mapping column
-    * @return entity object
-    * 
-    */
-    def createColumn(template_id, HSSFCell cell, MappingColumn mc) {
+     * This method created a record (array) containing entities with values
+     */
+    def createRecord(template_id, HSSFRow excelrow, mcmap) {
 	def df = new DataFormatter()
 	def template = Template.get(template_id)
+	def record = []
 
-	// check the templatefield entity of the cell
-	switch(mc.entity) {
-	    case Study	:   def st = new Study(template:template)
-			    st.setFieldValue(mc.name, df.formatCellValue(cell))
-			    return st
-			    break
-	    case Subject:   def su = new Subject(template:template)
-			    su.setFieldValue(mc.name, df.formatCellValue(cell))
-			    return su
-			    break
-	    case Event  :   def ev = new Event(template:template)
-			    ev.setFieldValue(mc.name, df.formatCellValue(cell))
-			    return ev
-			    break
-	    case Protocol:  def pr = new Protocol(template:template)
-			    pr.setFieldValue(mc.name, df.formatCellValue(cell))
-			    return pr
-			    break
-	    case Sample	:   def sa = new Sample(template:template)
-			    sa.setFieldValue(mc.name, df.formatCellValue(cell))
-			    return sa
-			    break
-	    case Object :   break	    
-	}
+	def study = new Study(title:"New study", template:template)
+	def subject = new Subject(title:"New subject", template:template)
+	def event = new Event(title:"New event", template:template)
+	def protocol = new Protocol(title:"New protocol", template:template)
+	def sample = new Sample(title:"New sample", template:template)
+
+	record.add(study)
+	record.add(subject)
+	record.add(event)
+	record.add(protocol)
+	record.add(sample)
+
+	for (HSSFCell cell: excelrow) {
+	    def mc = mcmap[cell.getColumnIndex()]
+
+	    switch(mc.entity) {
+		case Study	:   study.setFieldValue(mc.property.name, df.formatCellValue(cell))
+				    break
+	        case Subject	:   subject.setFieldValue(mc.property.name, df.formatCellValue(cell))
+				    break
+		case Event	:   event.setFieldValue(mc.property.name, df.formatCellValue(cell))
+				    break
+		case Protocol	:   protocol.setFieldValue(mc.property.name, df.formatCellValue(cell))
+				    break
+		case Sample	:   sample.setFieldValue(mc.property.name, df.formatCellValue(cell))
+				    break
+		case Object	:   // don't import
+				    break
+	    } // end switch
+	} // end for
+	
+	return record
     }
+
 }

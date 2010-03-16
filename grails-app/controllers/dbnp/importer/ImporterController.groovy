@@ -28,6 +28,7 @@ import dbnp.studycapturing.Event
 import dbnp.studycapturing.Protocol
 import dbnp.studycapturing.Sample
 import dbnp.studycapturing.TemplateFieldType
+import dbnp.studycapturing.TemplateField
 
 class ImporterController {
     def ImporterService
@@ -142,7 +143,7 @@ class ImporterController {
 
 	columnproperties.each { cp ->
 		def temp = cp.split(":")
-		session.header[temp[0].toInteger()].property = temp[1].toInteger()
+		session.header[temp[0].toInteger()].property = TemplateField.get(temp[1].toInteger())
 	}
 	
 	/*for (e in session.header) {
