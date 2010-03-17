@@ -447,7 +447,7 @@ class WizardController {
 				try {
 					// save EventDescriptions
 					flow.eventDescriptions.each() {
-						if (!it.validate() || !it.save()) {
+						if (!it.save(flush:true)) {
 							this.appendErrors(it, flash.errors)
 							throw new Exception('error saving eventDescription')
 						}
@@ -456,7 +456,7 @@ class WizardController {
 
 					// save events
 					flow.events.each() {
-						if (!it.validate() || !it.save()) {
+						if (!it.save(flush:true)) {
 							this.appendErrors(it, flash.errors)
 							throw new Exception('error saving event')
 						}
@@ -472,7 +472,7 @@ class WizardController {
 
 					// save eventGroups
 					flow.eventGroups.each() {
-						if (!it.validate() || !it.save()) {
+						if (!it.save(flush:true)) {
 							this.appendErrors(it, flash.errors)
 							throw new Exception('error saving eventGroup')
 						}
@@ -484,7 +484,7 @@ class WizardController {
 					
 					// save subjects
 					flow.subjects.each() {
-						if (!it.validate() || !it.save()) {
+						if (!it.save(flush:true)) {
 							this.appendErrors(it, flash.errors)
 							throw new Exception('error saving subject')
 						}
@@ -495,7 +495,7 @@ class WizardController {
 					}
 
 					// save study
-					if (!flow.study.validate() || !flow.study.save()) {
+					if (!flow.study.save(flush:true)) {
 						this.appendErrors(flow.study, flash.errors)
 						throw new Exception('error saving study')
 					}
