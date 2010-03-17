@@ -154,14 +154,22 @@ class ImporterService {
     * @see dbnp.importer.MappingColumn
     */
     def importdata(template_id, HSSFWorkbook wb, int sheetindex, int rowindex, mcmap) {
-	def sheet = wb.getSheetAt(sheetindex)		
-
+	def sheet = wb.getSheetAt(sheetindex)
+	def table = []
+	
 	// walk through all rows	
-	rowindex..sheet.getLastRowNum().each { i ->
-	    def table = []
+	(rowindex..sheet.getLastRowNum()).each { i ->
+	    table.add(createRecord(template_id, sheet.getRow(i), mcmap))	    
+	}
 
-	    table.add(createRecord(template_id, sheet.getRow(i), mcmap))
-	}	
+	table.each {
+	    it.each { entity ->
+		entity.giveFields().each { field ->
+		    print field.name + ":" + entity.getFieldValue(field.name) + "/"
+		}
+		println
+	    }
+	}
     }
     /**
      * This method created a record (array) containing entities with values
@@ -177,32 +185,36 @@ class ImporterService {
 	def protocol = new Protocol(title:"New protocol", template:template)
 	def sample = new Sample(title:"New sample", template:template)
 
-	record.add(study)
+	/*record.add(study)
 	record.add(subject)
 	record.add(event)
 	record.add(protocol)
-	record.add(sample)
+	record.add(sample)*/
 
 	for (HSSFCell cell: excelrow) {
-	    def mc = mcmap[cell.getColumnIndex()]
+	    def mc = mcmap[cell.getColumnIndex()]	    
 
 	    switch(mc.entity) {
-		case Study	:   study.setFieldValue(mc.property.name, df.formatCellValue(cell))
+		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)
+				    study.setFieldValue(mc.property.name, df.formatCellValue(cell))
 				    break
-	        case Subject	:   subject.setFieldValue(mc.property.name, df.formatCellValue(cell))
+	        case Subject	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(subject)
+				    subject.setFieldValue(mc.property.name, df.formatCellValue(cell))
 				    break
-		case Event	:   event.setFieldValue(mc.property.name, df.formatCellValue(cell))
+		case Event	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(event)
+				    event.setFieldValue(mc.property.name, df.formatCellValue(cell))
 				    break
-		case Protocol	:   protocol.setFieldValue(mc.property.name, df.formatCellValue(cell))
+		case Protocol	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(protocol)
+				    protocol.setFieldValue(mc.property.name, df.formatCellValue(cell))
 				    break
-		case Sample	:   sample.setFieldValue(mc.property.name, df.formatCellValue(cell))
+		case Sample	:   (record.any {it.getClass()==mc.entity}) ? record.add(sample) : 0
+				    sample.setFieldValue(mc.property.name, df.formatCellValue(cell))
 				    break
 		case Object	:   // don't import
 				    break
 	    } // end switch
 	} // end for
-	
+
 	return record
     }
-
 }

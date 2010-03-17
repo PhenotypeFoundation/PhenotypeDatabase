@@ -151,7 +151,7 @@ class ImporterController {
 	}*/
 
 	//import workbook
-	ImporterService.importdata(session.importtemplate_id, session.workbook, 0, 0, session.header)
+	ImporterService.importdata(session.importtemplate_id, session.workbook, 0, 1, session.header)
 	//println session.header.dump()
 
 	render ("properties saved")
