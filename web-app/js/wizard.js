@@ -142,6 +142,8 @@ function onYouTubePlayerReady(playerId) {
 function attachDatePickers() {
     $('div#wizard').find("input[type=text][rel$='date']").each(function() {
         $(this).datepicker({
+            changeMonth : true,
+            changeYear  : true,
             dateFormat  : 'dd/mm/yy',
             altField    : '#' + $(this).attr('name') + 'Example',
             altFormat   : 'DD, d MM, yy'
@@ -153,6 +155,8 @@ function attachDatePickers() {
 function attachDateTimePickers() {
     $('div#wizard').find("input[type=text][rel$='datetime']").each(function() {
         $(this).datepicker({
+            changeMonth     : true,
+            changeYear      : true,
             dateFormat      : 'dd/mm/yy',
             altField        : '#' + $(this).attr('name') + 'Example',
             altTimeField    : '#' + $(this).attr('name') + 'Example2',

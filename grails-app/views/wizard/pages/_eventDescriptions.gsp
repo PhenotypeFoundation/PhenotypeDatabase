@@ -44,7 +44,6 @@
 			<div class="column">description</div>
 			<div class="column">protocol</div>
 			<div class="column">sampling event</div>
-			<div class="column">protocol</div>
 		</div>
 	<g:each var="eventDescription" status="i" in="${eventDescriptions}">
 		<div class="row">
@@ -56,7 +55,6 @@
 			<div class="column"><g:textField name="eventDescription_${i}_description" value="${eventDescription.description}" size="12" maxlength="12" /></div>
 			<div class="column"><wizard:protocolSelect name="eventDescription_${i}_protocol" value="${eventDescription.protocol}" /></div>
 			<div class="column"><g:checkBox name="eventDescription_${i}_isSamplingEvent" value="${eventDescription.isSamplingEvent}" /></div>
-			<div class="column"><g:if test="${eventDescription.protocol}">${eventDescription.protocol}</g:if><g:else>-</g:else></div>
 		</div>
 	</g:each>
 	</div>

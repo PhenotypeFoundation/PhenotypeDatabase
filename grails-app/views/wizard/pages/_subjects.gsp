@@ -18,7 +18,8 @@
 	<span class="info">
 		<span class="title">Add subjects to your study</span>
 		In this screen you can add subjects to your study based on a given template. Note that the 'species' select will probably
-		move to the template as an ontology reference and will not be asked anymore.
+		move to the template as an ontology reference and will not be asked anymore.<br/>
+		<i>Note that you can edit multiple subjects at once by selecting multpiple rows by either ctrl-clicking them or dragging a selection over them.</i>
 	</span>
 
 	<wizard:ajaxButton name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
@@ -35,13 +36,17 @@
 		<div class="table">
 			<div class="header">
 				<div class="firstColumn">#</div>
+				<div class="firstColumn"></div>
 				<div class="column">name</div>
 				<div class="column">species</div>
 				<wizard:templateColumnHeaders template="${subjectTemplate.getValue().template}" class="column" />
 			</div>	
 		<g:each var="subjectId" in="${subjectTemplate.getValue().subjects}">
 			<div class="row">
-				<div class="firstColumn">${subjectId}</div>
+				<div class="firstColumn">${subjectId + 1}</div>
+				<div class="firstColumn">
+					<wizard:ajaxButton name="delete" src="../images/icons/famfamfam/delete.png" alt="delete this subject" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${subjectId});" afterSuccess="onWizardPage()" />
+				</div>
 				<div class="column"><g:textField name="subject_${subjectId}_name" value="${subjects[ subjectId ].name}" size="12" maxlength="12" /></div>
 				<div class="column">
 					<wizard:speciesSelect value="${subjects[ subjectId ].species}" name="subject_${subjectId}_species" />

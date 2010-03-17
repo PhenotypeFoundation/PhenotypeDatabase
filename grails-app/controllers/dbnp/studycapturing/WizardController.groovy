@@ -10,6 +10,9 @@ import grails.converters.*
  * The wizard controller handles the handeling of pages and data flow
  * through the study capturing wizard.
  *
+ * TODO: refactor the 'handle*' methods to work as subflows instead
+ * 		 of methods outside of the flow
+ *
  * @author Jeroen Wesbeek
  * @since 20100107
  * @package studycapturing
@@ -159,7 +162,6 @@ class WizardController {
 				}
 			}.to "subjects"
 			on("next") {
-				println params
 				flash.errors = [:]
 
 				// check if we have at least one subject
@@ -174,6 +176,19 @@ class WizardController {
 					success()
 				}
 			}.to "eventDescriptions"
+			on("delete") {
+				flash.errors = [:]
+				def delete = params.get('do') as int;
+
+				// remove subject
+				if (flow.subjects[ delete ] && flow.subjects[ delete ] instanceof Subject) {
+					flow.subjectTemplates.each() { templateName, templateData ->
+						templateData.subjects.remove(delete)
+					}
+
+					flow.subjects.remove( delete )
+				}
+			}.to "subjects"
 			on("previous") {
 				flash.errors = [:]
 
@@ -305,7 +320,7 @@ class WizardController {
 				params.eventDescription = this.getObjectByName(params.get('eventDescription'), flow.eventDescriptions)
 
 				// instantiate Event with parameters
-				def event = new Event(params)
+				def event = (params.eventDescription.isSamplingEvent) ? new SamplingEvent(params) : new Event(params)
 
 				// handle event groupings
 				this.handleEventGrouping(flow, flash, params)
@@ -391,7 +406,6 @@ class WizardController {
 			}.to "eventDescriptions"
 			on("next") {
 				flash.values = params
-				
 				flash.errors = [:]
 
 				// handle event groupings
@@ -416,20 +430,109 @@ class WizardController {
 			on("toStudy").to "study"
 			on("toSubjects").to "subjects"
 			on("toEvents").to "events"
-			on("previous") {
-				// do nothing
-			}.to "events"
-			on("next") {
-				// store everything in the database!
+			on("previous").to "events"
+			on("next").to "save"
+		}
+
+		// store all study data
+		save {
+			action {
+				println "saving..."
+				flash.errors = [:]
+
+				// start transaction
+				def transaction = sessionFactory.getCurrentSession().beginTransaction()
+
+				// persist data to the database
+				try {
+					// save EventDescriptions
+					flow.eventDescriptions.each() {
+						if (!it.validate() || !it.save()) {
+							this.appendErrors(it, flash.errors)
+							throw new Exception('error saving eventDescription')
+						}
+						println "saved eventdescription "+it
+					}
+
+					// save events
+					flow.events.each() {
+						if (!it.validate() || !it.save()) {
+							this.appendErrors(it, flash.errors)
+							throw new Exception('error saving event')
+						}
+						println "saved event "+it
+
+						// add to study
+						if (it instanceof SamplingEvent) {
+							flow.study.addToSamplingEvents(it)
+						} else {
+							flow.study.addToEvents(it)
+						}
+					}
+
+					// save eventGroups
+					flow.eventGroups.each() {
+						if (!it.validate() || !it.save()) {
+							this.appendErrors(it, flash.errors)
+							throw new Exception('error saving eventGroup')
+						}
+						println "saved eventGroup "+it
+
+						// add to study
+						flow.study.addToEventGroups(it)
+					}
+					
+					// save subjects
+					flow.subjects.each() {
+						if (!it.validate() || !it.save()) {
+							this.appendErrors(it, flash.errors)
+							throw new Exception('error saving subject')
+						}
+						println "saved subject "+it
+
+						// add this subject to the study
+						flow.study.addToSubjects(it)
+					}
+
+					// save study
+					if (!flow.study.validate() || !flow.study.save()) {
+						this.appendErrors(flow.study, flash.errors)
+						throw new Exception('error saving study')
+					}
+					println "saved study "+flow.study+" (id: "+flow.study.id+")"
+
+				} catch (Exception e) {
+					// rollback
+					println "rollback"
+					transaction.rollback()
+					error()
+				}
+
+				// commit transaction
+				println "commit"
+				transaction.commit()
 				success()
-			}.to "confirm"
+			}
+			on("error").to "error"
+			on(Exception).to "error"
+			on("success").to "done"
+		}
+
+		// error storing data
+		error {
+			render(view: "_error")
+			onRender {
+				flow.page = 6
+			}
+			on("next").to "save"
+			on("previous").to "events"
 		}
 
 		// render page three
 		done {
 			render(view: "_done")
 			onRender {
-				flow.page = 6
+				flow.page = 7
 			}
 			on("previous") {
 				// TODO
