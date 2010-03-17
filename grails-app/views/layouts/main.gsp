@@ -24,8 +24,9 @@
 	<div id="content"><g:layoutBody/></div>
 	<div id="footer">
 		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NMC & NuGO. All rights reserved.
-		( style: <%=session.style%>,
-		<a href="?showSource=true">show page source</a>)</div>
+		( style: <%=session.style%> )
+	</div>
+	<g:render template="/common/feedback"/>
 </div>
 </body>
 </html>

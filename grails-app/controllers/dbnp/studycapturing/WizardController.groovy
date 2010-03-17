@@ -79,7 +79,13 @@ class WizardController {
 				flow.page = 1
 			}
 			on("next") {
-
+				// NOTE: this action is called by an Ajax
+				//       request rendered in the _start
+				//       template. So for the end user the
+				//       webflow actually starts in the
+				//       study logic...
+				//       This ajax call is required to make
+				//       the ajax flow work correctly
 			}.to "study"
 		}
 
