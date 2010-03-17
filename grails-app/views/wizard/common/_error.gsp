@@ -35,12 +35,14 @@ ${error.value['dynamic']}
 		</g:each>
 
 		// show error dialog
-		$("div#wizardError").dialog({
+		var we = $("div#wizardError");
+		we.dialog({
 			modal: true,
 			width: 600,
 			buttons: {
 				Ok: function() {
 					$(this).dialog('close');
+					we.remove();
 				}
 			}
 		});

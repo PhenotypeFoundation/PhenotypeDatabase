@@ -509,8 +509,8 @@ class WizardController {
 					// rollback
 					this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace' ], flash.errors)
 
-					// debug line
-					println e.printStackTrace()
+					// stacktrace in flash scope
+					flash.debug = e.getStackTrace()
 
 					println "rollback"
 					transaction.rollback()
