@@ -501,17 +501,21 @@ class WizardController {
 					}
 					println "saved study "+flow.study+" (id: "+flow.study.id+")"
 
+					// commit transaction
+					println "commit"
+					transaction.commit()
+					success()
 				} catch (Exception e) {
 					// rollback
+					this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace' ], flash.errors)
+
+					// debug line
+					println e.printStackTrace()
+
 					println "rollback"
 					transaction.rollback()
 					error()
 				}
-
-				// commit transaction
-				println "commit"
-				transaction.commit()
-				success()
 			}
 			on("error").to "error"
 			on(Exception).to "error"

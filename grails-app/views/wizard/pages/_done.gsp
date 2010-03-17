@@ -21,4 +21,9 @@
 		The study you have just created has been properly saved.
 	</span>
 
+	<script type="text/javascript">
+		// disable redirect warning
+		var warnOnRedirect = false;
+	</script>
+
 </wizard:pageContent>

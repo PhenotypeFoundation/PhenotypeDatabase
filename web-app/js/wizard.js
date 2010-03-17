@@ -12,6 +12,7 @@
  * $Author$
  * $Date$
  */
+var warnOnRedirect = true;
 $(document).ready(function() {
     // check if user is using Firefox 3.6 and warm the user
     // about the XMLHttpRequest bug that causes the wizard to break...
@@ -60,7 +61,11 @@ function insertOnRedirectWarning() {
         // bind to the anchor?
         if (!element.attr('href').match(/^#/gi) && !element.attr('href').match(/\/([^\/]+)\/wizard\/pages/gi)) {
             // bind a warning to the onclick event
-            element.bind('click',function() { return onDirectWarning(); });
+            element.bind('click',function() {
+                if (warnOnRedirect) {
+                    return onDirectWarning();
+                }
+            });
         }
     })
 }
