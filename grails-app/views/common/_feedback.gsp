@@ -11,11 +11,11 @@
 			f.find("input:[name='feedbackWindowWidth']").val(window.innerWidth);
 			f.find("input:[name='feedbackWindowHeight']").val(window.innerHeight);
 			f.find("input:[name='feedbackUserAgent']").val(navigator.userAgent);
-			f.show("slow");
+			f.toggle('slow');
 		});
 	});
 </script>
-	<img id="add_feedback" src="${resource(dir: 'images', file: 'icons/famfamfam/comment_add.png')}" />
+	<img id="add_feedback" src="${resource(dir: 'images', file: 'icons/famfamfam/comment_add.png')}" style="cursor: pointer;" alt="submit feedback for this page" />
 	<div class="feedback" id="feedback">
 	  <form>
 		<g:hiddenField name="feedbackUrl" />
@@ -32,7 +32,7 @@
 		</div>
 		<div class="element">
 			<div class="name"></div>
-			<div class="input"><g:submitToRemote url="[controller:'feedback',action:'add']" update="[success:'feedback']" value="submit" /></div>
+			<div class="input"><g:submitToRemote url="[controller:'feedback',action:'add']" update="[success:'feedback']" value="submit feedback" /></div>
 		</div>
 	  </form>
 	</div>
