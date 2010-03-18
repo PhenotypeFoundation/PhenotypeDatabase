@@ -145,15 +145,15 @@ class ImporterController {
 		def temp = cp.split(":")
 		session.header[temp[0].toInteger()].property = TemplateField.get(temp[1].toInteger())
 	}
-	
-	/*for (e in session.header) {
-	    println e
-	}*/
 
 	//import workbook
-	ImporterService.importdata(session.importtemplate_id, session.workbook, 0, 1, session.header)
-	//println session.header.dump()
+	session.importeddata = ImporterService.importdata(session.importtemplate_id, session.workbook, 0, 1, session.header)	
 
-	render ("properties saved")
+	render(view:"step3", model:[datamatrix:session.importeddata])
+    }
+
+    def savepostview = {
+	ImporterService.savedata(session.importeddata)
+	render(view:"step4")
     }
 }

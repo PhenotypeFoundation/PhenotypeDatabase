@@ -150,6 +150,7 @@ class ImporterService {
     * @param mcmap linked hashmap (preserved order) of MappingColumns
     * @param sheetindex sheet to use when using multiple sheets
     * @param rowindex first row to start with reading the actual data (NOT the header)
+    * @return two dimensional array containing records (with entities)
     * 
     * @see dbnp.importer.MappingColumn
     */
@@ -162,17 +163,58 @@ class ImporterService {
 	    table.add(createRecord(template_id, sheet.getRow(i), mcmap))	    
 	}
 
-	table.each {
+	/*table.each {
 	    it.each { entity ->
 		entity.giveFields().each { field ->
 		    print field.name + ":" + entity.getFieldValue(field.name) + "/"
 		}
 		println
 	    }
+	}*/
+
+	return table	
+    }
+    
+    /**
+     * @param datamatrix two dimensional array containing entities with values read from Excel file
+     */    
+    def savedata(datamatrix) {
+	datamatrix.each { record ->
+	    record.each { entity ->
+		switch (entity.getClass()) {
+		    case Study	 :  print "Persisting Study `" + entity.title + "`: "
+				    entity.save()
+				    println "OK"
+				    break
+		    case Subject :  print "Persisting Subject `" + entity.name + "`: "
+				    entity.save()
+				    println "OK"
+				    break
+		    case Event	 :  print "Persisting Event `" + entity.eventdescription + "`: "
+				    entity.save()
+				    println "OK"
+				    break
+		    case Protocol:  print "Persisting Protocol `" + entity.name + "`: "
+				    entity.save()
+				    println "OK"
+				    break
+		    case Sample  :  print "Persisting Sample `" + entity.name +"`: "
+				    entity.save()
+				    println "OK"
+				    break
+		    default	 :  println "Skipping persistance of `" + entity.getclass() +"`"
+				    break
+		}
+	    }
 	}
     }
+
     /**
      * This method created a record (array) containing entities with values
+     *
+     * @param template_id template identifier
+     * @param excelrow POI based Excel row containing the cells
+     * @param mcmap map containing MappingColumn objects
      */
     def createRecord(template_id, HSSFRow excelrow, mcmap) {
 	def df = new DataFormatter()
@@ -180,16 +222,10 @@ class ImporterService {
 	def record = []
 
 	def study = new Study(title:"New study", template:template)
-	def subject = new Subject(title:"New subject", template:template)
-	def event = new Event(title:"New event", template:template)
-	def protocol = new Protocol(title:"New protocol", template:template)
-	def sample = new Sample(title:"New sample", template:template)
-
-	/*record.add(study)
-	record.add(subject)
-	record.add(event)
-	record.add(protocol)
-	record.add(sample)*/
+	def subject = new Subject(name:"New subject", template:template)
+	def event = new Event(eventdescription:"New event", template:template)
+	def protocol = new Protocol(name:"New protocol", template:template)
+	def sample = new Sample(name:"New sample", template:template)
 
 	for (HSSFCell cell: excelrow) {
 	    def mc = mcmap[cell.getColumnIndex()]	    

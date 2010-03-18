@@ -35,6 +35,16 @@ class ImporterTagLib {
 	out << render (template:"common/preview", model:[header:header, datamatrix:datamatrix])
     }
 
+    /**
+     * @param datamatrix two dimensional array containing entities with read values
+     * @return postview of the imported data
+     */
+    def postview = { attrs ->
+	def datamatrix = attrs['datamatrix']
+
+	out << render (template:"common/postview", model:[datamatrix:datamatrix])
+    }
+
     def entity = { attrs ->
 	out << entities[attrs['index']].name
     }
