@@ -27,6 +27,9 @@ import dbnp.studycapturing.Event
 import dbnp.studycapturing.Protocol
 import dbnp.studycapturing.Sample
 
+import dbnp.data.Ontology
+import dbnp.data.Term
+
 
 class ImporterService {
 
@@ -183,34 +186,44 @@ class ImporterService {
 	    record.each { entity ->
 		switch (entity.getClass()) {
 		    case Study	 :  print "Persisting Study `" + entity.title + "`: "
-				    entity.save()
-				    println "OK"
+				    persistEntity(entity)
 				    break
 		    case Subject :  print "Persisting Subject `" + entity.name + "`: "
-				    entity.save()
-				    println "OK"
+				    persistEntity(entity)
 				    break
 		    case Event	 :  print "Persisting Event `" + entity.eventdescription + "`: "
-				    entity.save()
-				    println "OK"
+				    persistEntity(entity)
 				    break
 		    case Protocol:  print "Persisting Protocol `" + entity.name + "`: "
-				    entity.save()
-				    println "OK"
+				    persistEntity(entity)
 				    break
 		    case Sample  :  print "Persisting Sample `" + entity.name +"`: "
-				    entity.save()
-				    println "OK"
+				    persistEntity(entity)
 				    break
-		    default	 :  println "Skipping persistance of `" + entity.getclass() +"`"
+		    default	 :  println "Skipping persisting of `" + entity.getclass() +"`"
 				    break
 		}
 	    }
+	}	
+    }
+
+    /**
+     * Method to persist entities into the database
+     * 
+     * @param entity entity object like Study, Subject, Protocol et cetera
+     * 
+     */
+    def persistEntity(entity) {
+	println entity.dump()
+	if (entity.save(flush:true)) {  //.merge?
+	    println "OK"
+        } else entity.errors.allErrors.each {
+		println it
 	}
     }
 
     /**
-     * This method created a record (array) containing entities with values
+     * This method creates a record (array) containing entities with values
      *
      * @param template_id template identifier
      * @param excelrow POI based Excel row containing the cells
@@ -219,10 +232,10 @@ class ImporterService {
     def createRecord(template_id, HSSFRow excelrow, mcmap) {
 	def df = new DataFormatter()
 	def template = Template.get(template_id)
-	def record = []
-
+	def record = []	
+	
 	def study = new Study(title:"New study", template:template)
-	def subject = new Subject(name:"New subject", template:template)
+	def subject = new Subject(name:"New subject", species:Term.getTerm("Homo sapiens"), template:template)
 	def event = new Event(eventdescription:"New event", template:template)
 	def protocol = new Protocol(name:"New protocol", template:template)
 	def sample = new Sample(name:"New sample", template:template)
