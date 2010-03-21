@@ -12,4 +12,13 @@ class SamplingEvent extends Event {
 
     static constraints = {
     }
+
+    def getSamples() {
+
+        def samples = Sample.findAll("from Sample as s where s.parentEvent.id = ${this.id}" )
+	samples.collect{ it.class==SamplingEvent.class }
+	samples.collect{ it!=null }
+	return samples==null ? [] : samples
+    }
+
 }
