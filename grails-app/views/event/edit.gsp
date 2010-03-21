@@ -177,11 +177,31 @@
                             </tr>
 
 
-	                    <!-- this part changes dynamically on select -->
+
+
 
 	                    <tbody id="preview">
+
+	                        <!-- this part changes dynamically on select -->
 	                        <g:include action='showPartial' controller='eventDescription' params="[protocolid:protocols[0].id]" id="${eventInstance.id}" />
+
+
+	                        <!-- show checkbox when creating events -->
+                                <g:if test="${createNew}">
+                                <tr class="prop">
+                                <td valign="top" class="name">
+                                    <label for="endTime"><g:message code="event.endTime.label" default="This is a Sampling event" /></label>
+                                </td>
+                                <td valign="top" class="name">
+                                    <g:checkBox name="isSamplingEvent" value="${false}" />
+                                </td>
+                                </tr>
+	                        </g:if>
+
 	                    </tbody>
+
+
+
 
 
 

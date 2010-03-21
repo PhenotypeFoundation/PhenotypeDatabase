@@ -17,16 +17,6 @@ class EventDescriptionController {
     def create = {
         def eventDescriptionInstance = new EventDescription()
             render(view:'edit', model:[eventDescriptionInstance: eventDescriptionInstance] )
-
-		/*
-        if (!eventDescriptionInstance) {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventDescription.label', default: 'EventDescription'), params.id])}"
-            redirect(action: "list")
-        }
-        else {
-            render(view:'edit', model:[eventDescriptionInstance: eventDescriptionInstance] )
-        }
-	*/
     }
 
 
@@ -168,10 +158,10 @@ println "here 3"
 
 
 
+println "here 4"
 
            // STEP 4  - add new parameters
 
-println "here 4"
             // find new parameters, added by user
 	    // remove all other parameters from paramters list
 	    def newParameters = [:]
@@ -197,6 +187,17 @@ println "here 5"
 		         if(item==null) item = new ParameterStringListItem()
 		         item.name=name
                          parameter.addToListEntries(item)
+
+                         if (item.save(flush: true)) {
+                             flash.message = "${message(code: 'default.created.message', args: [message(code: 'item.label', default: 'EventDescription'), item.id])}"
+                             redirect(action: "show", id: item.id)
+                         }
+                         else {
+                             render(view: "create", model: [item:item])
+                         }
+
+
+
 		     }
                 }
                 description.addToListEntries(parameter)
@@ -225,9 +226,9 @@ println "here 6"
             render(view: "create", model: [description: description])
         }
 
-
         render( action: 'list' )
     }
+
 
 
     def show = {
@@ -260,8 +261,8 @@ println "here 6"
     def showMyProtocol = {
 	println "in showMyProtocol"
 	println params
+
         if( EventDescription.get(params.id)==null || EventDescription.get(params.id).protocol==null ) {
-	    println "in 1a"
             def protocol = Protocol.find("from Protocol p where id>=0")
 	    println "protocol: ${protocol}"
             //def description = EventDescription.find("from EventDescription e where id>=0")
@@ -273,6 +274,14 @@ println "here 6"
             def description = EventDescription.get(params.id)
 	    render( view: "showMyProtocolFilled", model:[protocol:description.protocol,description:description] )
         }
+    }
+
+
+
+    def showPartial = {
+        def description = EventDescription.get(params['protocolid'])
+	def event       = Event.get(params['id'])
+	render( view: "showPartial", model:[description:description,event:event] )    // error handling missing
     }
 
 

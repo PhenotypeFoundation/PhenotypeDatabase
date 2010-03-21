@@ -19,9 +19,11 @@ class Event implements Serializable {
 	Map parameterStringValues
 	Map parameterIntegerValues
 	Map parameterFloatValues
+        Map parameterStringListValues
 
 	static hasMany = [
-		parameterStringValues: String, // stores both STRING and STRINGLIST items (latter should be checked against the list)
+		parameterStringValues: String, // stores STRINGLIST items 
+		parameterStringListValues: ParameterStringListItem,
 		parameterIntegerValues: int,
 		parameterFloatValues: float,
 	]
@@ -99,4 +101,5 @@ class Event implements Serializable {
 	def String toString() {
 		return eventDescription ? eventDescription.name : ""
 	}
+
 }

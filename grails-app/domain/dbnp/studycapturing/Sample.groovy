@@ -16,6 +16,11 @@ class Sample extends TemplateEntity {
 	// a member that describes the quantity of the sample? --> should be in the templates
 
 	static constraints = {
+		parentSubject(nullable:true)
+	}
+
+	static getSamplesFor( event ) {
+            return  Sample.findAll( 'from Sample s where s.parentEvent =:event', [event:event] )
 	}
 
 }

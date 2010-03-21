@@ -44,20 +44,4 @@
 
 
 
-			    <% showSample=true %>
-                            <tr class="prop">
-                                <td valign="top" class="name">
-                                    <label for="endTime"><g:message code="event.endTime.label" default="This is a sampling event" /></label>
-                                </td>
-                                <td valign="top" class="name">
-                                     <g:checkBox name="isSamplingEvent" value="${false}" />
-                                </td>
-                            </tr>
-
-
-
-
-
-
-
 
