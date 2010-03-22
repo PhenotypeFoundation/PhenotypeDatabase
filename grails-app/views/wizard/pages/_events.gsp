@@ -81,12 +81,5 @@
 		<div class="slider"></div>
 	</div>
 </g:if>
-
-<span class="info">
-	<span class="todo">TODO</span>
-	<ul>
-		<li>parameter values should still be asked and implemented</li>
-	</ul>
-</span>
 	
 </wizard:pageContent>

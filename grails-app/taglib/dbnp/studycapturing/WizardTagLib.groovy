@@ -592,7 +592,7 @@ class WizardTagLib extends JavascriptTagLib {
 			switch (it.type.toString()) {
 				case ['STRING', 'TEXT', 'INTEGER', 'FLOAT', 'DOUBLE']:
 					out << textField(
-						name: attrs.name + '_' + it.name,
+						name: attrs.name + '_' + it.escapedName(),
 						value: fieldValue
 					)
 					break
@@ -600,7 +600,7 @@ class WizardTagLib extends JavascriptTagLib {
 					// render stringlist subjectfield
 					if (!it.listEntries.isEmpty()) {
 						out << select(
-							name: attrs.name + '_' + it.name,
+							name: attrs.name + '_' + it.escapedName(),
 							from: it.listEntries,
 							value: fieldValue
 						)
@@ -623,7 +623,7 @@ class WizardTagLib extends JavascriptTagLib {
 					// output a date field (not the 'rel' which makes the
 					// javascript front-end bind the jquery-ui datepicker)
 					out << textField(
-						name: attrs.name + '_' + it.name,
+						name: attrs.name + '_' + it.escapedName(),
 						value: fieldValue,
 						rel: 'date'
 					)
@@ -633,19 +633,19 @@ class WizardTagLib extends JavascriptTagLib {
 					// @see ontology-chooser.js, table-editor.js
 					//out << it.getClass()
 					out << textField(
-						name: attrs.name + '_' + it.name,
+						name: attrs.name + '_' + it.escapedName(),
 						value: fieldValue,
 						rel: 'ontology-all-name',
 						size: 100
 					)
 					out << hiddenField(
-						name: attrs.name + '_' + it.name + '-concept_id'
+						name: attrs.name + '_' + it.escapedName() + '-concept_id'
 					)
 					out << hiddenField(
-						name: attrs.name + '_' + it.name + '-ontology_id'
+						name: attrs.name + '_' + it.escapedName() + '-ontology_id'
 					)
 					out << hiddenField(
-						name: attrs.name + '_' + it.name + '-full_id'
+						name: attrs.name + '_' + it.escapedName() + '-full_id'
 					)
 					break
 				default:
@@ -671,20 +671,23 @@ class WizardTagLib extends JavascriptTagLib {
 		if (template) {
 			// render template fields
 			template.fields.each() {
+				def fieldValue = entity.getFieldValue(it.name)
+
 				switch (it.type.toString()) {
 					case ['STRING', 'TEXT', 'INTEGER', 'FLOAT', 'DOUBLE']:
 						out << textFieldElement(
 							description: it.name,
-							name: it.name
+							name: it.escapedName(),
+							value: fieldValue
 						)
 						break
 					case 'STRINGLIST':
 						if (!it.listEntries.isEmpty()) {
 							out << selectElement(
 								description: it.name,
-								name: it.name,
+								name: it.escapedName(),
 								from: it.listEntries,
-								value: attrs
+								value: fieldValue
 							)
 						} else {
 							out << '<span class="warning">no values!!</span>'
@@ -694,25 +697,29 @@ class WizardTagLib extends JavascriptTagLib {
 						// @see http://www.bioontology.org/wiki/index.php/NCBO_Widgets#Term-selection_field_on_a_form
 						// @see ontology-chooser.js
 						out << textFieldElement(
-							name: it.name,
+							name: it.escapedName(),
 							value: fieldValue,
 							rel: 'ontology-all-name',
 							size: 100
 						)
 						out << hiddenField(
-							name: it.name + '-concept_id'
+							name: it.name + '-concept_id',
+							value: fieldValue
 						)
 						out << hiddenField(
-							name: it.name + '-ontology_id'
+							name: it.escapedName() + '-ontology_id',
+							value: fieldValue
 						)
 						out << hiddenField(
-							name: it.name + '-full_id'
+							name: it.escapedName() + '-full_id',
+							value: fieldValue
 						)
 						break
 					case 'DATE':
 						out << dateElement(
 							description: it.name,
-							name: it.name
+							name: it.escapedName(),
+							value: fieldValue
 						)
 						break
 					default:

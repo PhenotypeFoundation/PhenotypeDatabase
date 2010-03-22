@@ -42,20 +42,12 @@
 	<wizard:dateElement name="startDate" description="Start date" error="startDate" value="${study?.startDate}">
 		The start date of the study
 	</wizard:dateElement>
-
-	<span class="info">
-		<span class="todo">TODO</span>
-		Below you will see the template fields of the study template selected above. These fields are not yet
-		properly handled so you can ignore them for now... To be completed at a later stage
-	</span>
-	
 	<wizard:templateElements entity="${study}" />
 
 	<span class="info">
 		<span class="known">Known issues</span>
 		<ul>
 			<li>the templated fields appear in random order</li>
-			<li>the templated fields are not yet handled / stored</li>
 		</ul>
 	</span>
 

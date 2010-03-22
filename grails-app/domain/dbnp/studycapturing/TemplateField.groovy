@@ -30,6 +30,15 @@ class TemplateField implements Serializable {
 		return name
 	}
 
+
+	/**
+	 * return an escaped name which can be used in business logic
+	 * @return String
+	 */
+	def String escapedName() {
+		return name.toLowerCase().replaceAll("([^a-zA-Z0-9])","_")
+	}
+
 	//TODO: make a convenience setter for a string array
 	/*def setListEntries(ArrayList entries) {
 		list=[]

@@ -63,7 +63,7 @@ class TemplateEntity implements Serializable {
 				return templateDoubleFields
 			case TemplateFieldType.ONTOLOGYTERM:
 				return templateTermFields
-		        default:
+		    default:
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}
 	}
@@ -138,8 +138,6 @@ class TemplateEntity implements Serializable {
 		}
 	}
 
-
-
 	def Set<TemplateField> giveFields() {
 		return this.template.fields;
 	}
@@ -172,4 +170,7 @@ class TemplateEntity implements Serializable {
 		}
 	}
 
+	def validate() {
+		return super.validate()
+	}
 }

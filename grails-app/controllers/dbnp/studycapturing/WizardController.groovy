@@ -460,6 +460,11 @@ class WizardController {
 						println "saved eventdescription "+it
 					}
 
+					// TODO: eventDescriptions that are not linked to an event are currently
+					//		 stored but end up in a black hole. We should either decide to
+					//		 NOT store these eventDescriptions, or add "hasmany eventDescriptions"
+					//		 to Study domain class
+
 					// save events
 					flow.events.each() {
 						if (!it.save(flush:true)) {
@@ -578,9 +583,18 @@ class WizardController {
 		}
 
 		// update study instance with parameters
-		params.each() {key, value ->
+		params.each() { key, value ->
 			if (flow.study.hasProperty(key)) {
 				flow.study.setProperty(key, value);
+			}
+		}
+
+		// walk through template fields
+		params.template.fields.each() { field ->
+			def value = params.get(field.escapedName())
+
+			if (value) {
+				flow.study.setFieldValue(field.name, value)
 			}
 		}
 
@@ -697,7 +711,7 @@ class WizardController {
 
 				// iterate through template fields
 				templateFields.each() { subjectField ->
-					def value = params.get('subject_' + subjectId + '_' + subjectField.name)
+					def value = params.get('subject_' + subjectId + '_' + subjectField.escapedName())
 
 					if (value) {
 						flow.subjects[ subjectId ].setFieldValue(subjectField.name, value)
