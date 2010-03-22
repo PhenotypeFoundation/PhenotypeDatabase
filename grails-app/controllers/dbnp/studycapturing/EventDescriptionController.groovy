@@ -20,60 +20,27 @@ class EventDescriptionController {
     }
 
 
-    def save = {
-        println "save"
-        println params
-        params.each { println it }
 
 
 
-        def description = null      // the variable to be updated
+    def collectParametersFromForm( params ) {
 
+            def parameters = [:]
+            def options    = [:]
 
-        /*  update an existing description */
-
-        if(params['id']!='')  {             
-
-
-            // STEP 0  - set variables
-
-            description = new EventDescription()
-            description.name=params['name']
-            // description.description=params['description']   // has to be a Term
-	    // description.classification=params['classification']  // has to be a Term
-	    description.isSamplingEvent= params['isSample']=='true'?true:false
-
-	    def protocol = Protocol.get(params['protocol'])   // the protocol
-
-            def parameters = [:]                   // parameters given by the user (in the view)
-	                                           // key: id (as string), value: non-persistant ProtocolParameter object
-
-            def options = [:]                      // store options, i.e. ParameterStringListItems given by the user
-                                                   // use ids of parameter as key, store hash of id and name
-
-
-
-
-            // STEP 1 parse params and fill hashes
-
-
-            // collect parameters from form
             params.each { key, value ->
                  if(key=~/row_(.*)__(.*)/) {
                       def matcher = (key=~/row_(.*?)__(.*?)$/)
-                      println matcher[0][1]+'  '+matcher[0][2]
                       def id = matcher[0][1]
 		      def member = matcher[0][2]
 
-                      println 'member: '+ member
 		      if(member=~/parameterStringValue__(.*?)$/) {
                           matcher = member=~/parameterStringValue__(.*?)$/
 		          def psv = matcher[0][1]
-		          println "${id}\t${psv}:\tvalue:${value}"
 			  if(options[id]==null) { options[id]=[:] }  // store paramter string value's id and value
                           (options[id])[psv]=value
                       }
-		      else if(member!='reference')  { 
+		      else if(member!='reference')  {
 		          if(parameters[id]==null) { parameters[id]=new ProtocolParameter() }
 
 		          if(member=~/^type.*/) {
@@ -83,82 +50,160 @@ class EventDescriptionController {
                           parameters[id].setProperty(member,value)
 		      }
 	         }
-	    }
+	   }
 
-println "here 1"
 
             // collect options (i.e., ParameterStringListItem from parameters)
-            parameters.each{ key, value ->
-                if(value.type==ProtocolParameterType.STRINGLIST) {
-                    def parameter = parameters[key]
-                    options[key].each{k,v-> println "k: ${k}\t v:${v}" } // debug
-                }
-            }
 
-println "here 2"
+           parameters.each{ key, value ->
+               if(value.type==ProtocolParameterType.STRINGLIST) {
+                    def parameter = parameters[key]
+               }
+           }
+
+
+	   return [parameters,options]
+    }
+
+
+
+    // convenience method for save()
+    def saveParameterStringListItem(item) {
+
+        if (item.save(flush: true)) {
+            flash.message = "${message(code: 'default.created.message', args: [message(code: 'description.label', default: 'Item'), item.id])}"
+        }
+	else {
+            item.errors.each { println it }
+	}
+
+    }
+
+
+    // convenience method for save()
+    def saveParameter(item) {
+
+        if (item.save(flush: true)) {
+            flash.message = "${message(code: 'default.created.message', args: [message(code: 'description.label', default: 'Parameter'), item.id])}"
+        }
+	else {
+            item.errors.each { println it }
+	}
+
+    }
+
+
+
+
+
+
+    def save = {
+        
+
+        def description = null      // the variable to be updated
+
+
+
+        // create a new event from scratch
+
+	if( !(params['id']=~/^[\d]+$/) ) {
+            description = new EventDescription()
+	}
+	else { 
+	    description = EventDescription.get(params['id'])
+	}
+
+            description.name=params['name']
+
+            // description.description=params['description']   // has to be a Term
+	    // description.classification=params['classification']  // has to be a Term
+	    description.isSamplingEvent= params['isSample']=='true'?true:false
+
+	    def protocol = Protocol.get(params['protocol'])   // the protocol
+
+
+
+
+            // STEP 1 parse params and fill hashes
+	    def para_opt = collectParametersFromForm(params)
+
+            def parameters = para_opt[0]      // parameters given by the user (in the view)
+                                              // key: id (as string), value: non-persistant ProtocolParameter object
+
+            def options = para_opt[1]         // store options, i.e. ParameterStringListItems given by the user.
+                                              // use ids of parameter as key, store hash of id and name.
+
+            def originalParameters
 
 
 
 
            // STEP 2  -  remove deleted parameters (from persistent protocol description)
-
-	   protocol.parameters.each{ 
-               if( parameters[it.id.toString()]==null  )
-	           { protocol.removeFromParameters(it.id) }
+	   protocol.parameters.each{
+               def toRemove = []
+               if( parameters[it.id.toString()]==null ) { toRemove.push(it) }
+               toRemove.each{ protocol.removeFromParameters(it) }
 	   }
 
-println "here 3"
 
 
            // STEP 3  -  update altered parameters
+	   protocol.parameters.each{ 
 
-	   protocol.parameters.each{ inDb ->
+               def inDb = ProtocolParameter.get(it.id)
+	       def originalListEntries = inDb.listEntries.collect{it}
+               def itemsToBeRemoved = []
 
-               def found = parameters[inDb.id.toString()]
-               //['name','type','description','reference','unit'].each {
-	       // debugging: ignoring the reference !!
-               ['name','type','description','unit'].each {
-		   inDb.setProperty(it,found.getProperty(it))
+               if(  parameters[inDb.id.toString()] != null )
+	       {
+                   def found = parameters[inDb.id.toString()]
+
+                   // update options (i.e. ParameterStringListItem objects) of parameter inDb
+       	           if(inDb.type==ProtocolParameterType.STRINGLIST ) {
+
+		           if(found.type==ProtocolParameterType.STRINGLIST ) {
+
+                                // add or modifiy options for existing parameters
+                                options[inDb.id.toString()].each{ id, name ->
+
+                                    def item = inDb.listEntries.find{ it.id.toString()==id }
+				    if(item==null) {  // add as new option to persistant parameter
+				        item = new ParameterStringListItem()
+				        item.name = name
+				        saveParameterStringListItem(item)
+				        inDb.addToListEntries(item)
+                                        inDb.save(flush: true)     // needed??
+				    }
+				    else {       // update persistant paramter
+                                        item.name = name
+				    }
+                                }
+
+		           }
+
+		           else {                                                       // remove all options because the parameter type has changed
+                               inDb.listEntries.each{ itemsToBeRemoved.push( it ) }
+		           }
+                   }
+
+
+                   ['name','type','description','unit' ].each {           // references are missing
+		       inDb.setProperty(it,found.getProperty(it))         // type has to be set after checking for
+	           }                                                      // STRINGLIST above.
+               }
+
+	       // delete all options removed by the user
+               originalListEntries.each { original ->
+		       // if the original is not found in the user's modifications
+                       def allOptionsForParameters = options[inDb.id.toString()]
+		       if( allOptionsForParameters==null || allOptionsForParameters[original.id.toString()]==null )
+		           { itemsToBeRemoved.push( original ) }
 	       }
+	       itemsToBeRemoved.each { 
+                   inDb.removeFromListEntries(it)
+	       }
+          }
 
-
-               // update options (i.e. ParameterStringListItem objects) of parameter inDb
-       	       if(inDb.type==ProtocolParameterType.STRINGLIST ) {
-
-		       if(found.type==ProtocolParameterType.STRINGLIST ) {
-
-                            // add or modifiy options for existing parameters
-                            options[inDb.id.toString()].each{ id, name ->
-                                def item = inDb.listEntries.find{ it.id.toString()==id }
-				if(!item) {  // add as new option to persistant parameter
-				    item = new ParameterStringListItem()
-				    item.name = name
-				    inDb.addToListEntries(item)
-				}
-				else {       // update persistant paramter
-                                    item.name = name
-				}
-                            }
-
-                            // remove options that have been deleted by the user
-			    def itemsToBeRemoved = []
-			    inDb.listEntries.each { item ->
-                                 if( ! ((options[inDb.id.toString()])[item.id.toString()]) )
-				     { itemsToBeRemoved.push item }
-                            }
-			    itemsToBeRemoved.each { inDb.removeFromListEntries(it) }
-		       }
-
-               }
-	       else { 
-                        inDb.listEntries.collect{it}.each{ inDb.removeFromListEntries(it) }
-               }
-
-	  }
-
-
-
-println "here 4"
 
            // STEP 4  - add new parameters
 
@@ -174,49 +219,31 @@ println "here 4"
 
 
 
-println "here 5"
+
             //  add new parameters (to persistent protocolDescription)
             parameters.each { id, parameter->
-                def newParameter = new ProtocolParameter()                           // update properties
-                ['name','type','description','unit'].each {
-                    newParameter.setProperty( it, parameter.getProperty(it) )
-	        }
+                if( id=~/new/ )
+		{
+                    def newParameter = new ProtocolParameter()                           // update properties
+                    ['name','type','description','unit'].each {
+                        newParameter.setProperty( it, parameter.getProperty(it) )
+	            }
 
-                if(parameter.type==ProtocolParameterType.STRINGLIST) {               // update options
-                     options[id].each { someKey, name ->
-		         if(item==null) item = new ParameterStringListItem()
-		         item.name=name
-                         parameter.addToListEntries(item)
-
-                         if (item.save(flush: true)) {
-                             flash.message = "${message(code: 'default.created.message', args: [message(code: 'item.label', default: 'EventDescription'), item.id])}"
-                             redirect(action: "show", id: item.id)
-                         }
-                         else {
-                             render(view: "create", model: [item:item])
-                         }
-
-
-
-		     }
-                }
-                description.addToListEntries(parameter)
+                    if(parameter.type==ProtocolParameterType.STRINGLIST) {               // update options
+                         options[id].each { someKey, name ->
+		             def item = new ParameterStringListItem()
+			     item.name=name
+                             parameter.addToListEntries(item)
+                             saveParameterStringListItem(item)
+		         }
+                    }
+		    saveParameter(newParameter)
+                    protocol.addToParameters(parameter)
+		}
 	    }
 
 
-
-println "here 6"
-
-           // STEP 5  - make changes persitant
-
-
-            // compare paramters for protocol
-            def parametersFromUser = []
-
-            // check whether all parameters are still part of the protocol
-            protocol.parameters
-
-	}
+        // make changes persitant
 
         if (description.save(flush: true)) {
             flash.message = "${message(code: 'default.created.message', args: [message(code: 'description.label', default: 'EventDescription'), description.id])}"
@@ -259,16 +286,10 @@ println "here 6"
 
 
     def showMyProtocol = {
-	println "in showMyProtocol"
-	println params
 
         if( EventDescription.get(params.id)==null || EventDescription.get(params.id).protocol==null ) {
-            def protocol = Protocol.find("from Protocol p where id>=0")
-	    println "protocol: ${protocol}"
-            //def description = EventDescription.find("from EventDescription e where id>=0")
-	    //println "description: ${description}"
 	    def description=new EventDescription();
-            render( view:"showMyProtocolFilled", model:[protocol:protocol,description:description] )
+            render( view:"showMyProtocolFilled", model:[protocol:null,description:description] )
         }
         else {
             def description = EventDescription.get(params.id)
@@ -285,13 +306,13 @@ println "here 6"
     }
 
 
+
+
     def showMyProtocolEmpty = {
-       println "in showMyProtocolEmpty"
     }
 
 
     def showMyProtocolFilled = {
-       println "in showMyProtocolFilled"
     }
 
 
@@ -300,41 +321,6 @@ println "here 6"
 
 
     def update = {
-        println "update"
-        print params
-
-        def eventDescriptionInstance = EventDescription.get(params.id)
-        if (eventDescriptionInstance) {
-            if (params.version) {
-                def version = params.version.toLong()
-                if (eventDescriptionInstance.version > version) {
-                    
-                    eventDescriptionInstance.errors.rejectValue("version", "default.optimistic.locking.failure", [message(code: 'eventDescription.label', default: 'EventDescription')] as Object[], "Another user has updated this EventDescription while you were editing")
-                    render(view: "edit", model: [eventDescriptionInstance: eventDescriptionInstance])
-                    return
-                }
-            }
-            eventDescriptionInstance.properties = params
-            if (!eventDescriptionInstance.hasErrors() && eventDescriptionInstance.save(flush: true)) {
-                flash.message = "${message(code: 'default.updated.message', args: [message(code: 'eventDescription.label', default: 'EventDescription'), eventDescriptionInstance.id])}"
-                redirect(action: "show", id: eventDescriptionInstance.id)
-            }
-            else {
-                render(view: "edit", model: [eventDescriptionInstance: eventDescriptionInstance])
-            }
-        }
-        else {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventDescription.label', default: 'EventDescription'), params.id])}"
-            redirect(action: "list")
-        }
-    }
-
-    def delete = {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventDescription.label', default: 'EventDescription'), params.id])}"
-            redirect(action: "list")
-
-/*
-        // old shit
         def eventDescriptionInstance = EventDescription.get(params.id)
         if (eventDescriptionInstance) {
             try {
@@ -351,22 +337,8 @@ println "here 6"
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventDescription.label', default: 'EventDescription'), params.id])}"
             redirect(action: "list")
         }
-	*/
     }
 
-
-    def test = { render(params) }
-
-    def test2 = {
-        def eventDescriptionInstance = EventDescription.get(params.id)
-        if (!eventDescriptionInstance) {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventDescription.label', default: 'EventDescription'), params.id])}"
-            redirect(action: "list")
-        }
-        else {
-            return [eventDescriptionInstance: eventDescriptionInstance]
-        }
-    }
 
 
     def addProtocolParameter = {
@@ -376,22 +348,18 @@ println "here 6"
 
     def showProtocolParameters = {
         def description = EventDescription.get(params.id)
-	def protocol = []
+	def protocol = null
         def list = []
 
         if(description!=null) {                           // editing an existing EventDescription
             protocol = description.protocol==null ? new Protocol() : description.protocol
-	}
-	else {                                            // creating a new EventDescription
-           protocol=Protocol.find("from Protocol p where id>=0")
-	}
-
-        protocol.parameters.each {
-	    list.add(it)
-            list.sort{ a,b -> a.name <=> b.name }
+                protocol.parameters.each {
+	            list.add(it)
+                    list.sort{ a,b -> a.name <=> b.name }
+		}
         }
 
-        render( view:"showProtocolParameters", model:[protocol:protocol,description:description,list:list] )
+        render( view:"showProtocolParameters", model:[protocol:null,description:description,list:list] )
     }
 
 }

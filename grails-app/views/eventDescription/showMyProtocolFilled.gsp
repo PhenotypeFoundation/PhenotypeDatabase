@@ -250,23 +250,25 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 <tr class="prop">
-    <td id='test'>  Protocol </td>
-    <td> <g:select name="protocol" from="${dbnp.studycapturing.Protocol.list()}" value="${protocol}" optionKey="id"   optionValue="name"
+    <td id='test'> Protocol </td>
+
+    <% def protocols = dbnp.studycapturing.Protocol.list() %>
+    <td>
+           <g:if test="${protocol==null}">
+               <g:select name="protocol" from="${protocols}" optionKey="id"   optionValue="name"  noSelection="['':'-- Select Protocol -- ']"
 		   onchange= "${remoteFunction( action:'showProtocolParameters', update:'showProtocolParameters', params:'\'id=\'+this.value' )}; deleteHiddenDialogs();" />
+	   </g:if>
+
+           <g:else>
+               <g:select name="protocol" from="${protocols}" optionKey="id"   optionValue="name" value='${protocol.id}'
+		   onchange= "${remoteFunction( action:'showProtocolParameters', update:'showProtocolParameters', params:'\'id=\'+this.value' )}; deleteHiddenDialogs();" />
+           </g:else>
     </td>
+
+
 </tr>
+
 
 
 <tr><td></td>
