@@ -197,7 +197,7 @@ class BootStrap {
 			.addToFields(new TemplateField(
 				name: '#Mice in cage',type: TemplateFieldType.INTEGER))
 			.addToFields(new TemplateField(
-				name: 'Litter size',type: TemplateFieldType.INTEGER))	
+				name: 'Litter size',type: TemplateFieldType.INTEGER))
 			.addToFields(new TemplateField(
 				name: 'Weight (g)', type: TemplateFieldType.DOUBLE, unit: 'gram'))
 			.addToFields(new TemplateField(
@@ -514,7 +514,9 @@ class BootStrap {
               humanStudy.addToSubjects(currentSubject).addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
           }
 
-          humanStudy.addToEventGroups rootGroup
+          humanStudy.addToEvents(fastingEvent)
+	  humanStudy.addToSamplingEvents(bloodSamplingEvent)
+	  humanStudy.addToEventGroups rootGroup
           humanStudy.save()
 
 			// Add clinical data

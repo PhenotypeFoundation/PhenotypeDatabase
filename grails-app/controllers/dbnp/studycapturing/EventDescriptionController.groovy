@@ -115,7 +115,7 @@ class EventDescriptionController {
 
             description.name=params['name']
 
-            // description.description=params['description']   // has to be a Term
+            description.description=params['description']
 	    // description.classification=params['classification']  // has to be a Term
 	    description.isSamplingEvent= params['isSample']=='true'?true:false
 
@@ -243,17 +243,42 @@ class EventDescriptionController {
 	    }
 
 
-        // make changes persitant
+	// Check for errors in protocol, and if none, persist it
+	protocol.validate()
+	if (protocol.hasErrors()) {
+		render "Errors during save of protool:\n"
+		for (e in description.errors) {
+			render e
+		}
+	}
+	else {
+		protocol.save(flush:true)
+	}
 
-        if (description.save(flush: true)) {
-            flash.message = "${message(code: 'default.created.message', args: [message(code: 'description.label', default: 'EventDescription'), description.id])}"
-            redirect(action: "show", id: description.id)
-        }
-        else {
-            render(view: "create", model: [description: description])
-        }
 
-        render( action: 'list' )
+	// Important: add protocol to EventDescription
+	description.protocol = protocol
+
+
+	// Check for errors in EventDescription, if no errors, persist the data
+	description.validate()
+	if (description.hasErrors()) {
+		render "Errors during save of event description:\n"
+		for (e in description.errors) {
+			render e
+		}
+	}
+	else {
+		if (description.save(flush: true)) {
+			flash.message = "${message(code: 'default.created.message', args: [message(code: 'description.label', default: 'EventDescription'), description.id])}"
+		    redirect(view: "show", id: description.id)
+
+		}
+		else {
+		    redirect(view: "create", model: [description: description])
+		}
+	}
+
     }
 
 
@@ -263,11 +288,13 @@ class EventDescriptionController {
         def eventDescriptionInstance = EventDescription.get(params.id)
         if (!eventDescriptionInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventDescription.label', default: 'EventDescription'), params.id])}"
-            redirect(action: "list")
+            redirect(view: "list")
         }
 
         else {
             [eventDescriptionInstance: eventDescriptionInstance, params:params]
+	    // Since show.gsp is not implemented yet, redirect to edit
+	    redirect(action:'edit',id:params.id)
         }
     }
 

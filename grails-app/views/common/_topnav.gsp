@@ -2,24 +2,32 @@
     <!-- TOPNAV //-->
     <ul class="topnav">
      <li><g:link url="/${meta(name: 'app.name')}/">Home</g:link></li>
-     <li>
+<n:isLoggedIn>
+     <li><g:link controller="study" action="list">My studies</g:link></li>
+</n:isLoggedIn>     <li>
       <a href="#">Studies</a>
       <ul class="subnav">
         <li><g:link controller="study" action="list">View studies</g:link></li>
         <li><g:link controller="wizard" action="index">Create study</g:link></li>
       </ul>
      </li>
-     <li><g:link controller="load" action="index">Loading data</g:link></li>
-     <li><g:link controller="query" action="index">Query database</g:link></li>
-<n:isLoggedIn>
-     <li><g:link controller="study" action="list">My studies</g:link></li>
-</n:isLoggedIn>
      <li>
+      <a href="#">Events</a>
+      <ul class="subnav">
+        <li><g:link controller="protocol" action="list">View protocols</g:link></li>
+        <li><g:link controller="eventDescription" action="list">View event descriptions</g:link></li>
+      </ul>
+     </li>
+	 <li><g:link controller="importer" action="index">Import data</g:link></li>
+    <g:if env="development">
+     <li><g:link controller="query" action="index">Query database</g:link></li>
+	 <li>
 	  <a href="#">Scaffolded controllers</a>
 	  <ul class="subnav"><g:each var="c" in="${grailsApplication.controllerClasses}">
 	   <li><g:link controller="${c.logicalPropertyName}">${c.fullName}</g:link></li></g:each>
 	  </ul>
      </li>
+	</g:if>
 <n:isAdministrator>
      <li>
 	  <a href="#">User administation</a>

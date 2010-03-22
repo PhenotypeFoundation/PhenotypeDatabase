@@ -254,6 +254,9 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
     <td id='test'> Protocol </td>
 
     <% def protocols = dbnp.studycapturing.Protocol.list() %>
+	<td>Name</td>
+</tr>
+<tr class="prop">
     <td>
            <g:if test="${protocol==null}">
                <g:select name="protocol" from="${protocols}" optionKey="id"   optionValue="name"  noSelection="['':'-- Select Protocol -- ']"

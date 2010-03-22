@@ -69,8 +69,8 @@ class TemplateEntity implements Serializable {
 	}
 
 	/**
-	 * Find a template field by its name and return its value for this subject
-	 * @param fieldName The name of the template subject field
+	 * Find a template field by its name and return its value for this entity
+	 * @param fieldName The name of the template field
 	 * @return the value of the field (class depends on the field type)
 	 * @throws NoSuchFieldException If the field is not found or the field type is not supported
 	 */
@@ -80,26 +80,37 @@ class TemplateEntity implements Serializable {
 		getStore(fieldType)[fieldName]
 	}
 
+	/**
+	 * Set a template/entity field value
+	 * @param fieldName The name of the template or entity field
+	 * @param value The value to be set, this should align with the (template) field type, but there are some convenience setters
+	 *
+	 */
 	def setFieldValue(String fieldName, value) {
+
+		// First, search if there is an entity property with the given name, and if so, set that
 		if (this.properties.containsKey(fieldName)) {
 			this[fieldName] = value
 		}
-		else
-		if (template == null) {
-			throw new NoSuchFieldException("Field ${fieldName} not found in class properties")
+		// If not the found, then it is a template field, so check if there is a template
+		else if (template == null) {
+			throw new NoSuchFieldException("Field ${fieldName} not found in class properties: template not set")
 		}
+		// If there is a template, check the template fields
 		else {
+			// Find the target template field, if not found, throw an error
 			TemplateField field = this.template.fields.find { it.name == fieldName}
 			if (field == null) {
 				throw new NoSuchFieldException("Field ${fieldName} not found in class properties or template fields")
 			}
+			// Set the value of the found template field
 			else {
+				// Convenience setter for template string list fields: find TemplateFieldListItem by name
 				if (field.type == TemplateFieldType.STRINGLIST && value.class == String) {
-					// Convenience setter: find template item by name
 					value = field.listEntries.find { it.name == value }
 				}
 
-				// handle string values for date fields
+				// Convenience setter for dates: handle string values for date fields
 				if (field.type == TemplateFieldType.DATE && value.class == String) {
 					// a string was given, attempt to transform it into a date instance
 					// and -for now- assume the dd/mm/yyyy format
@@ -118,8 +129,9 @@ class TemplateEntity implements Serializable {
 					}
 				}
 
-				// Caution: this assumes that all template...Field Maps are already initialized
-				// Otherwise, the results are pretty much unpredictable!
+				// Set the field value
+				// Caution: this assumes that all template...Field Maps are already initialized (as is done now above as [:])
+				// If that is ever changed, the results are pretty much unpredictable (random Java object pointers?)!
 				getStore(field.type)[fieldName] = value
 				return this
 			}
