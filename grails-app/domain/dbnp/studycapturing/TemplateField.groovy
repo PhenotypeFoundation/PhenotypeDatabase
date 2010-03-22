@@ -36,7 +36,7 @@ class TemplateField implements Serializable {
 	 * @return String
 	 */
 	def String escapedName() {
-		return name.toLowerCase().replaceAll("([^a-zA-Z0-9])","_")
+		return name.toLowerCase().replaceAll("([^a-z0-9])","_")
 	}
 
 	//TODO: make a convenience setter for a string array

@@ -6,8 +6,9 @@
  * no proper json service as it does not return proper json
  * objects (just a self designed string using | for value
  * breaks and ~!~ for line breaks. Also, their implementation
- * conflicts with the table editor. Therefore, I this cleaner
- * implementation using jquery-ui's autocomplete functionality.
+ * conflicts with the table editor. Therefore, I wrote this
+ * cleaner implementation using jquery-ui's autocomplete
+ * functionality.
  *
  * Usage:
  * ------
@@ -33,7 +34,8 @@
 function OntologyChooser() {
 }
 OntologyChooser.prototype = {
-    cache: [],
+    minLength   : 2,    // minimum input length before launching Ajax request
+    cache       : [],   // ontology cache
 
     /**
      * initialize object
@@ -64,7 +66,7 @@ OntologyChooser.prototype = {
 
         // http://bioportal.bioontology.org/search/json_search/?q=musculus
         inputElement.autocomplete({
-            minLenght: 2,
+            minLength: that.minLength,
             search: function(event, ui) {
                 selected = false;
             },
