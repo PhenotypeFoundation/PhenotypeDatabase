@@ -178,6 +178,26 @@ class ImporterService {
 	return table	
     }
     
+     /**
+                     // start transaction
+                        def transaction = sessionFactory.getCurrentSession().beginTransaction()
+                              // persist data to the database
+                                try {
+                                   // commit transaction
+                                        println "commit"
+                                        transaction.commit()
+                                        success()
+                                } catch (Exception e) {
+                                        // rollback
+                                        // stacktrace in flash scope
+                                        flash.debug = e.getStackTrace()
+
+                                        println "rollback"
+                                        transaction.rollback()
+                                        error()
+                                }
+      */
+
     /**
      * @param datamatrix two dimensional array containing entities with values read from Excel file
      */    
@@ -241,23 +261,24 @@ class ImporterService {
 	def sample = new Sample(name:"New sample", template:template)
 
 	for (HSSFCell cell: excelrow) {
-	    def mc = mcmap[cell.getColumnIndex()]	    
+	    def mc = mcmap[cell.getColumnIndex()]
+	    def value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
 
 	    switch(mc.entity) {
 		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)
-				    study.setFieldValue(mc.property.name, df.formatCellValue(cell))
+				    study.setFieldValue(mc.property.name, value)
 				    break
 	        case Subject	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(subject)
-				    subject.setFieldValue(mc.property.name, df.formatCellValue(cell))
+				    subject.setFieldValue(mc.property.name, value)
 				    break
 		case Event	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(event)
-				    event.setFieldValue(mc.property.name, df.formatCellValue(cell))
+				    event.setFieldValue(mc.property.name, value)
 				    break
 		case Protocol	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(protocol)
-				    protocol.setFieldValue(mc.property.name, df.formatCellValue(cell))
+				    protocol.setFieldValue(mc.property.name, value)
 				    break
 		case Sample	:   (record.any {it.getClass()==mc.entity}) ? record.add(sample) : 0
-				    sample.setFieldValue(mc.property.name, df.formatCellValue(cell))
+				    sample.setFieldValue(mc.property.name, value)
 				    break
 		case Object	:   // don't import
 				    break
@@ -265,5 +286,24 @@ class ImporterService {
 	} // end for
 
 	return record
+    }
+
+    /**
+    * Method to parse a value conform a specific type
+    * @param value string containing the value
+    * @return object corresponding to the TemplateFieldType
+    */
+    def formatValue(String value, TemplateFieldType type) {
+	switch (type) {
+	    case TemplateFieldType.STRING	:   return value
+	    case TemplateFieldType.TEXT		:   return value
+	    case TemplateFieldType.INTEGER	:   return Integer.valueOf(value.replaceAll("[^0-9]",""))
+	    case TemplateFieldType.FLOAT	:   return Float.valueOf(value.replace(",","."));
+	    case TemplateFieldType.DOUBLE	:   return Double.valueOf(value.replace(",","."));
+	    case TemplateFieldType.STRINGLIST	:   return value
+	    case TemplateFieldType.ONTOLOGYTERM	:   return value
+	    case TemplateFieldType.DATE		:   return value
+	    default				:   return value
+	}
     }
 }
