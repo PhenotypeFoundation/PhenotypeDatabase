@@ -1,7 +1,7 @@
 
     <!-- TOPNAV //-->
     <ul class="topnav">
-     <li><g:link url="/${meta(name: 'app.name')}/">Home</g:link></li>
+     <li><g:link controller="home" action="index">Home</g:link></li>
 <n:isLoggedIn>
      <li><g:link controller="study" action="list">My studies</g:link></li>
 </n:isLoggedIn>     <li>
