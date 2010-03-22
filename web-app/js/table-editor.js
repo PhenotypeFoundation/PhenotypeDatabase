@@ -51,15 +51,30 @@ TableEditor.prototype = {
 
         $(table).selectable({
             filter: this.rowIdentifier,
-            stop: function() {
-                // remember selected rows
-                that.selected = $('.ui-selected', table);
-
-                // bind on change to columns in rows
-                that.selected.each(function() {
-                    that.attachColumnHandlers(this,table);
-                })
+            selected: function(event, ui) {
+                that.attachColumnHandlers(ui.selected);
+            },
+            unselected: function(event, ui) {
+                that.deAttachColumnHandlers(ui.selected);
             }
+        });
+    },
+
+    /**
+     * de-attach input handlers for this row
+     * @param row
+     */
+    deAttachColumnHandlers: function(row) {
+        var that = this;
+
+        $(this.columnIdentifier, row).each(function() {
+            var input = $(':input', $(this));
+
+            // does this column contain an input field
+            if (input) {
+                // unbind table editor event handlers
+                $(input).unbind('.tableEditor');
+            }            
         });
     },
 
@@ -67,15 +82,16 @@ TableEditor.prototype = {
      * attach handlers to the input elements in a table row
      * @param row
      */
-    attachColumnHandlers: function(row,table) {
+    attachColumnHandlers: function(row) {
         var that = this;
         var count = 0;
 
         // define regular expressions
         var regAutoComplete = new RegExp("ui-autocomplete-input");
 
-        $(this.columnIdentifier, $(row)).each(function() {
+        $(this.columnIdentifier, row).each(function() {
             var input = $(':input', $(this));
+
             // does this column contain an input field
             if (input) {
                 var inputElement = $(input)
@@ -90,14 +106,14 @@ TableEditor.prototype = {
                         // if (inputElement.attr('rel') && regBp.test(inputElement.attr('rel'))) {
                         if (regAutoComplete.test(inputElement.attr('class'))) {
                             // this is a jquery-ui autocomplete field
-                            inputElement.bind('autocompleteclose', function() {
+                            inputElement.bind('autocompleteclose.tableEditor', function() {
                                 // TODO: autocompletion deselects rows... which is what we don't want
                                 //       to happen of course...
                                 that.updateSingleInputElements(input, columnNumber, 'input');
-                            })
+                            });
                         } else {
                             // regular text element
-                            inputElement.bind('keyup', function() {
+                            inputElement.bind('keyup.tableEditor', function() {
                                 that.updateSingleInputElements(input, columnNumber, 'input');
                             });
                         }
@@ -105,14 +121,14 @@ TableEditor.prototype = {
                     case 'select-one':
                         // single select
                         var columnNumber = count;
-                        inputElement.bind('change', function() {
+                        inputElement.bind('change.tableEditor', function() {
                             that.updateSingleInputElements(input, columnNumber, 'select');
                         });
                         break;
                     case 'checkbox':
                         // checkbox
                         var columnNumber = count;
-                        inputElement.bind('click', function() {
+                        inputElement.bind('click.tableEditor', function() {
                             that.updateSingleInputElements(input, columnNumber, 'input');
                         });
                         break;
