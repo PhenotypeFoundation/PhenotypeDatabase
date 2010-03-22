@@ -16,7 +16,7 @@
 %>
 <html>
 <head>
-	<meta name="layout" content="main"/><g:if env="development">
+	<meta name="layout" content="main"/><g:if env="production">
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'wizard.min.css')}"/>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'swfobject.min.js')}"></script>
