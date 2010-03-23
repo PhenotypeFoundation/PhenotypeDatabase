@@ -26,6 +26,14 @@ class Term implements Serializable {
 	}
 
 
+	/*
+	 * Very scary behaviour... commenting this code out. Refactor
+	 * your code that relies on this by using something like
+	 * Term.findByName( string ) instead...
+	 * 
+	 * Jeroen 20100323
+	 *
+
 	// Covenenice method for delivering Terms.
 	// if the term is already defined, use it.
 	// otherwise, create it and return it.
@@ -42,4 +50,7 @@ class Term implements Serializable {
 	    }
 	    return term
 	}
+
+	 *
+	 */
 }
