@@ -18,6 +18,11 @@ import dbnp.studycapturing.Template
 import dbnp.studycapturing.TemplateFieldType
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.ss.usermodel.DataFormatter
+import dbnp.studycapturing.Study
+import dbnp.studycapturing.Subject
+import dbnp.studycapturing.Event
+import dbnp.studycapturing.Protocol
+import dbnp.studycapturing.Sample
 
 class ImporterTagLib {
     static namespace = 'importer'
@@ -71,36 +76,30 @@ class ImporterTagLib {
      * Possibly this will later on return an AJAX-like autocompletion chooser for the fields?
      * 
      * @param importtemplate_id template identifier where fields are retrieved from
-     * @param columnindex column in the header we're talking about
+     * @param MappingColumn object containing all required information
      * @return chooser object
      * */
     def propertyChooser = { attrs ->
-	// TODO: this should be changed to retrieving fields per entity
-	def t = Template.get(session.importtemplate_id)
-	def columnindex = attrs['columnindex']
+	// TODO: this should be changed to retrieving fields per entity instead of from one template
+	//	 and session variables should not be used inside the service, migrate to controller
 
-	switch (attrs['entitytype']) {
-	    case 0  : createPropertySelect(attrs['name'], t.fields, columnindex)
-		      break
-	    case 1  : break
-	    case 2  : break
-	    case 3  : break
-	    default : out << createPropertySelect(attrs['name'], t.fields, columnindex)
-		     break
-	}
+	def t = Template.get(session.importtemplate_id)	
+	def mc = attrs['mappingcolumn']
+	
+	out << createPropertySelect(attrs['name'], t.fields.findAll { it.type == mc.templatefieldtype }, mc.index)
     }
 
     /**
      * @param name name of the HTML select object
-     * @param options list of options to be used
+     * @param options list of options (fields) to be used
      * @param columnIndex column identifier (corresponding to position in header of the Excel sheet)
      * @return HTML select object
      */
-    def createPropertySelect(String name, options, String columnIndex)
-    {
+    def createPropertySelect(String name, options, Integer columnIndex)
+    {	
 	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
 
-	options.each { f ->
+	options.each { f ->	    
 	    res += "<option value=\"${columnIndex}:${f.id}\""
 	    //res += (e.type.toInteger() == selected) ? " selected" : ""
 	    res += ">${f}</option>"

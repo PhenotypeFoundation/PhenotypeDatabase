@@ -15,6 +15,7 @@
 <g:form name="propertiesform" action="saveproperties">
     <table>
 	  <g:each var="stdentity" in ="${standardentities}">
+	      <% if (selectedentities.any { it.type.toInteger() ==stdentity.type.toInteger()} && stdentity.type.toInteger()!=-1) { %>
 	      <tr><td colspan="2"><h4>${stdentity.name}</h4></td></tr>
 	      <tr>
 		  <td>Identifier:</td>
@@ -31,7 +32,7 @@
 				<b>${header[selentity.columnindex.toInteger()].name}</b>
 			    </td>
 			    <td>				
-				<importer:propertyChooser name="columnproperty" entity="${selentity.type.toLong()}" columnindex="${selentity.columnindex}"/>
+				<importer:propertyChooser name="columnproperty" mappingcolumn="${header[selentity.columnindex.toInteger()]}"/>
 			    </td>
 			</tr>
 		    </g:if>
@@ -41,6 +42,7 @@
 		      <hr />
 		  </td>
 	      </tr>
+	  <% } %> <!-- end of JSP if-->
 	  </g:each>
 	<tr>
 	    <td>
