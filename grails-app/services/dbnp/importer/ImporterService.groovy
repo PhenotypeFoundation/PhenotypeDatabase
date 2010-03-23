@@ -30,7 +30,6 @@ import dbnp.studycapturing.Sample
 import dbnp.data.Ontology
 import dbnp.data.Term
 
-
 class ImporterService {
 
     boolean transactional = true
@@ -255,7 +254,7 @@ class ImporterService {
 	def record = []	
 	
 	def study = new Study(title:"New study", template:template)
-	def subject = new Subject(name:"New subject", species:Term.getTerm("Homo sapiens"), template:template)
+	def subject = new Subject(name:"New subject", species:Term.findByName("Homo sapiens"), template:template)
 	def event = new Event(eventdescription:"New event", template:template)
 	def protocol = new Protocol(name:"New protocol", template:template)
 	def sample = new Sample(name:"New sample", template:template)
