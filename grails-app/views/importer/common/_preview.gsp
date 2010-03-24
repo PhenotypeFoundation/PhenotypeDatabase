@@ -15,6 +15,15 @@
 <g:form name="previewform" action="savepreview">
     <table>
 	<tr>
+	    <td>Identifier:</td>
+		<g:each var="column" in="${header}">
+		    <td>
+			<g:radio name="identifier" value="${column.value.index}"/>
+		    </td>
+		</g:each>
+	    </td>
+	</tr>
+	<tr>
 	  <td>Columnname:</td>
 	  <g:each var="column" in="${header}">
 	      <td class="header">
