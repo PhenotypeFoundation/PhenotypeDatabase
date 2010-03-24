@@ -32,7 +32,6 @@
             </g:hasErrors>
 
 
-           <% println eventDescriptionInstance.toString() %>
             <g:form action="save" method="post" id="${eventDescriptionInstance.id}" onsubmit="addHiddenDialogsToForm();">
                 <g:hiddenField name="id" value="${eventDescriptionInstance?.id}" />
                 <g:hiddenField name="version" value="${eventDescriptionInstance?.version}" />
@@ -75,26 +74,24 @@
                             </tr>
 
 
-                            <tr class="prop">
-			    <g:if test="!editExisting">
-                                <td valign="top" class="name"> <label> This is a sampling event</label> </td>
-				<td>  <INPUT TYPE="checkbox" NAME="isSample" VALUE="true" <% if(eventDescriptionInstance==null) print 'disabled' %> > </td>
-			    </g:if>
-			    <g:else>
+
                             <tr class="prop">
                                 <td valign="top" class="name"> <label> This is a sampling event</label> </td>
-                                <td valign="top" class="value ${hasErrors(bean: eventDescriptionInstance, field: 'protocol', 'errors')}">
-                                <label for="protocol"><g:message code="${eventDescriptionInstance.isSamplingEvent?'yes':'no'}"  /></label>
-			    </g:else>
+				<td>  <INPUT TYPE="checkbox" NAME="isSample" VALUE="true" disabled> </td>
                             </tr>
 
 
 
 
                         </tbody>
+
+
+                            <g:include action="showMyProtocol" controller="eventDescription" id="${eventDescriptionInstance.id}" params="[editable:true]" />
+
                     </table>
                 </div>
-                                <g:include action="showMyProtocol" controller="eventDescription" id="${eventDescriptionInstance.id}" />
+
+
                 <div class="buttons">
                     <span class="button"><g:submitButton name="save" class="save" value="${message(code: 'default.save.label', default: 'Save')}" /></span>
                     <span class="button"><g:submitToRemote class="delete" action="list" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" /></span>

@@ -250,38 +250,41 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
 
 
 
-<tr class="prop">
-    <td id='test'> Protocol </td>
 
-    <% def protocols = dbnp.studycapturing.Protocol.list() %>
-	<td>Name</td>
-</tr>
-<tr class="prop">
+<g:if test="${editable}">
+<tbody name="protocolselector" >
+
+<tr>
+    <td>Protocol </td>
+
     <td>
+           <% def protocols = dbnp.studycapturing.Protocol.list() %>
            <g:if test="${protocol==null}">
                <g:select name="protocol" from="${protocols}" optionKey="id"   optionValue="name"  noSelection="['':'-- Select Protocol -- ']"
-		   onchange= "${remoteFunction( action:'showProtocolParameters', update:'showProtocolParameters', params:'\'id=\'+this.value' )}; deleteHiddenDialogs();" />
-	   </g:if>
+                   onchange= "${remoteFunction( action:'showProtocolParameters', update:'showProtocolParameters', params:'\'id=\'+this.value' )}; deleteHiddenDialogs();" />
+           </g:if>
 
            <g:else>
                <g:select name="protocol" from="${protocols}" optionKey="id"   optionValue="name" value='${protocol.id}'
-		   onchange= "${remoteFunction( action:'showProtocolParameters', update:'showProtocolParameters', params:'\'id=\'+this.value' )}; deleteHiddenDialogs();" />
+                   onchange= "${remoteFunction( action:'showProtocolParameters', update:'showProtocolParameters', params:'\'id=\'+this.value' )}; deleteHiddenDialogs();" />
            </g:else>
     </td>
-
-
 </tr>
 
 
-
-<tr><td></td>
-<td>
-
-<table id="someId" >
+</tbody> 
+</g:if>
 
 
-<thead>
-    <tr class="prop">
+
+
+
+
+<tr> <td colspan=2>
+
+    <table id="someId" >
+    <thead>
+        <tr class="prop">
 
          <th valign="top" class="name" width=200>
          <label for="protocolInstance">Name</label>
@@ -311,21 +314,27 @@ function addRow(id,newId,name,unit,type,reference,description,options) {
          <label for="protocolInstance">Delete </label>
          </th>
 
-    </tr>
-</thead>
+        </tr>
+    </thead>
 
 
 
-<tbody id="showProtocolParameters">
-    <g:include action="showProtocolParameters" controller="eventDescription" id="${description.id} params="[protocol:protocol]" />
-</tbody>
+    <tbody id="showProtocolParameters">
+         <g:include action="showProtocolParameters" controller="eventDescription" id="${description.id} params="[protocol:protocol]" />
+    </tbody>
 
 
-<tbody> <tr>
-<td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td> <input type="button" value="Add Parameter" onclick="addRowEmpty('showProtocolParameters')"/> </td>
-</tr> </tbody>
+    <g:if test="${editable}">
+    <tbody> 
+        <tr>
+             <td> </td> <td></td> <td></td> <td></td> <td></td> <td></td> 
+             <td> <input type="button" value="Add Parameter" onclick="addRowEmpty('showProtocolParameters')"/> </td>
+        </tr> 
+    </tbody>
+    </g:if>
 
-</table>
 
+
+    </table>
 
 </td> </tr>
