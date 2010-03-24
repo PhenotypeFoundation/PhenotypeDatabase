@@ -10,7 +10,7 @@ import dbnp.data.Term
  * $Author$
  * $Date$
  */
-class TemplateEntity implements Serializable {
+abstract class TemplateEntity implements Serializable {
 
 	Template template
 
@@ -63,7 +63,7 @@ class TemplateEntity implements Serializable {
 				return templateDoubleFields
 			case TemplateFieldType.ONTOLOGYTERM:
 				return templateTermFields
-		    default:
+		        default:
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}
 	}
@@ -138,10 +138,25 @@ class TemplateEntity implements Serializable {
 		}
 	}
 
+
+	/**
+	* Return all templated fields defined in the underlying template of this entity
+	*/
 	def Set<TemplateField> giveFields() {
 		return this.template.fields;
 	}
 
+	/**
+	 * Return all relevant 'built-in' domain fields of the super class
+	 * @return key-value pairs describing the built-in fields, with the names as keys and type (as TemplateFieldType) as values
+ 	 */
+	def giveDomainFields() {
+		def fieldSet = [:];
+		if (super.hasProperty('name')) {
+			fieldSet['name'] = TemplateFieldType.STRING;
+		}
+		return fieldSet;
+	}
 
 	// See revision 237 for ideas about initializing the different templateField Maps
 	// with tailored Maps that already contain the neccessary keys
