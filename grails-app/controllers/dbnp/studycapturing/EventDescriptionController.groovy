@@ -285,7 +285,7 @@ class EventDescriptionController {
 
     def show = {
 
-        def eventDescriptionInstance = EventDescription.get(params.id)
+        def eventDescriptionInstance = EventDescription.get(params['id'])
         if (!eventDescriptionInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventDescription.label', default: 'EventDescription'), params.id])}"
             redirect(view: "list")
@@ -294,9 +294,10 @@ class EventDescriptionController {
         else {
             [eventDescriptionInstance: eventDescriptionInstance, params:params]
 	    // Since show.gsp is not implemented yet, redirect to edit
-	    redirect(action:'edit',id:params.id)
+            return [eventDescriptionInstance: eventDescriptionInstance]
         }
     }
+
 
 
     def edit = {
@@ -313,14 +314,14 @@ class EventDescriptionController {
 
 
     def showMyProtocol = {
-
         if( EventDescription.get(params.id)==null || EventDescription.get(params.id).protocol==null ) {
 	    def description=new EventDescription();
             render( view:"showMyProtocolFilled", model:[protocol:null,description:description] )
         }
         else {
+            def isEditable = params['editable']
             def description = EventDescription.get(params.id)
-	    render( view: "showMyProtocolFilled", model:[protocol:description.protocol,description:description] )
+	    render( view: "showMyProtocolFilled", model:[protocol:description.protocol,description:description,editable:isEditable] )
         }
     }
 
