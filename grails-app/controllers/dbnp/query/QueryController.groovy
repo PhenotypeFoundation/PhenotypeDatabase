@@ -28,157 +28,94 @@ class QueryController {
 
     def searchableService
 
-    def selectsample = {
-
-
-            // produce error message here if studies don't contain samples!
-	    // redirect back or use error
-
-
-            println "in selectsample: "
-	    params.each{println it}
-
-            // prepare showing all studies selected in the previous view
-            def selectedStudies = []
-            def selectedStudyIds = params['selectedStudyIds']
-
-            if(selectedStudyIds!=null)
-	    {
-                 def list = selectedStudyIds.findAll(/(\d)+/)
-		 selectedStudies = list.collect{ dbnp.studycapturing.Study.get(it) }
-            }
-            else
-            {
-                 def tmpList = []
-                 def studyList = dbnp.studycapturing.Study.list()
-                 selectedStudyIds = []
-                 params.each{ key,values->
-                     if (values=="on")  tmpList.add(key)
-	         }
-
-                 for (i in studyList)
-                     if (tmpList.contains(i.getId().toString()))
-                     {
-                         selectedStudyIds.add(i.id)
-                         selectedStudies.add(i)
-                     }
-           }
-
-
-        // subgroups
-	// provide list of subgroups depending on the type of subgrouping
-	// selected by the user
-        def subgroups = []
-        def submitButton = params["submit"]  // this button's value determines the kind of subgrouping
-
-        switch(submitButton)
-	{
-	     case "Subject Groups":
-	          render(params)
-	          render("Subject Groups")
-                  def studyGroups = []
-		  if(selectedStudies!=null)
-		  {
-		     selectedStudies.each{ study ->
-		         study.groups.each{ group -> studyGroups.add[group] }
-		     }
-		     println "study groups: "
-		     studyGroups.each{x-> println x}
-		  }
-
-		  // testing:
-		  // there is a lack of data in the mockup (subject groups are still missing)
-		  // as long as there are no groups in the boot script,
-		  // we use this
-		  subgroups = studyGroups.size()<=0 ?
-		       ["subject group 1","subject group 2"] : studyGroups
-
-	          render(view:"selectsample",model:[selectedStudies:selectedStudies,selectedStudyIds:selectedStudyIds,subgroups:subgroups])
-	          break
-
-	     case "Event Groups":
-                  def eventGroups = []
-		  if(selectedStudies!=null)
-		  {
-		    selectedStudies.each{ study ->
-			 println study.id
-		         println study.samplingEvents.each{ eventGroups.add(it) }
-		    }
-		  }
-		  subgroups=eventGroups
-	          render(view:"selectsample",model:[selectedStudies:selectedStudies,selectedStudyIds:selectedStudyIds,subgroups:subgroups])
-	          break
-
-	     case "Starting Time Groups":
-
-                  def timeGroups = []
-		  if(selectedStudies!=null)
-		  {
-		    selectedStudies.each{ study ->
-		         println study.samplingEvents.each{
-                             def timeDiff = it.getPrettyDuration( study.startDate, it.startTime )
-			     if( !timeGroups.contains(timeDiff) ) timeGroups.add(timeDiff)
-			 }
-		    }
-		  }
-		  subgroups=timeGroups
-	          render("Starting Time Groups")
-	          render(view:"selectsample",model:[selectedStudies:selectedStudies,selectedStudyIds:selectedStudyIds,subgroups:subgroups])
-	          break
-
-             case ">> Execute and continue with biomarker selection":
-	          render("Starting Time Groups")
-	          break
-             case "<< Back to study selection":
-	          break
-	}
-	render(view:"selectsample",model:[selectedStudies:selectedStudies,selectedStudyIds:selectedStudyIds,subgroups:subgroups])
-    }
-
-
-
-    /**
-     * Index page with search form and results
-     */
-    def results = {
-        if (!params.q?.trim()) {
-            return [:]
-        }
-        try {
-            return [searchResult: searchableService.search(params.q, params)]
-        } catch (SearchEngineQueryParseException ex) {
-            return [parseException: true]
-        }
-    }
-
-
-    /**
-     * Index page with search form and results
-     */
     def index = {
+        redirect( action:'pages')
     }
 
+    def pagesFlow = {
+        
+        onStart {
+                println "starting"
+	}
 
-    /**
-     * Perform a bulk index of every searchable object in the database
-     */
-    def indexAll = {
-        Thread.start {
-            searchableService.index()
-        }
-        render("bulk index started in a background thread")
+
+	mainPage {
+
+             render( view:'/query/mainPage')
+
+
+             onRender {
+                println "done randering index"
+	     }
+
+
+             on("next") {
+                println "clicked next in sample"
+	     } .to 'study'
+
+	}	 
+
+
+        study {
+             render( view:'_study')
+
+             on("next") {
+                println "clicked next in sample"
+	     } .to 'sample'
+
+	}
+
+
+
+        sample {
+             render( view:'_sample')
+
+             on("next") {
+                println "clicked next in sample"
+	     } .to 'biomarker'
+
+	}
+
+
+
+        biomarker {
+             render( view:'_biomarker')
+
+             on("next") {
+                println "clicked next in sample"
+	     } .to 'group'
+
+	}
+
+
+        group {
+             render( view:'_group')
+
+             on("next") {
+                println "clicked next in sample"
+	     } .to 'result'
+
+	}
+
+
+
+        result {
+             render( view:'_result')
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
-
-    /**
-     * Perform a bulk index of every searchable object in the database
-     */
-    def unindexAll = {
-        searchableService.unindex()
-        render("unindexAll done")
-    }
-
-
-    def subjectGroups = { render ("hello") }
-
 
 }
