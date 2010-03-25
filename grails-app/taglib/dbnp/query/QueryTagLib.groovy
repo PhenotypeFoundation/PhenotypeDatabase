@@ -30,14 +30,14 @@ class QueryTagLib extends JavascriptTagLib {
 		setProvider([library: ajaxProvider])
 
 		// render new body content
-		/*
-		out << render(template: "/wizard/common/tabs")
+		
+		out << render(template: "/query/common/tabs")
 		out << '<div class="content">'
 		out << body()
 		out << '</div>'
-		out << render(template: "/wizard/common/navigation")
-		out << render(template: "/wizard/common/error")
-		*/
+		out << render(template: "/query/common/navigation")
+		out << render(template: "/query/common/error")
+		
 	}
 
 }

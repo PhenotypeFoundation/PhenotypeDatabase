@@ -35,14 +35,19 @@ class QueryController {
     def pagesFlow = {
         
         onStart {
-                println "starting"
+                flow.page = 0
+			flow.pages = [
+				[title: 'Study'],
+				[title: 'Samples'],
+				[title: 'Biomarkers'],
+				[title: 'Groups'],
+				[title: 'Done']
+			]
 	}
-
 
 	mainPage {
 
              render( view:'/query/mainPage')
-
 
              onRender {
                 println "done randering index"
@@ -75,7 +80,6 @@ class QueryController {
 	     } .to 'biomarker'
 
 	}
-
 
 
         biomarker {
