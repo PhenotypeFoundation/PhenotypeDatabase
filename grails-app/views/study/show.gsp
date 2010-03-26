@@ -370,6 +370,5 @@ ${assaySample.name}<br>
       </g:form>
     </div>
   </div>
-</div>
 </body>
 </html>

@@ -1,1 +1,4 @@
-group
+<wizard:pageContent>
+    Group
+</wizard:pageContent>
+

@@ -1,31 +1,25 @@
+
 <html>
-    <head>
-      <title>Generic Study Capture Framework - Query studies</title>
-      <meta name="layout" content="main" />
-      <script type="text/javascript">
-	$(function() {
-		$("#tabs").tabs();
-	});
-      </script>
-    </head>
-    <body>
-
-aaaaaaa
-
-
-
-<div id="wizard" class="wizard">
-	<h1>Create a new study</h1>
-	<g:form action="pages" name="wizardForm" id="wizardForm">
-	<g:hiddenField name="do" value="" />
-		<div id="wizardPage">
-			<wizard:ajaxFlowRedirect form="form#wizardForm" name="next" url="[controller:'query',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" />
-		</div>
-	</g:form>
-</div>
-
-
-
-
-  </body>
+<head>
+	<meta name="layout" content="main"/><g:if env="production">
+	<link rel="stylesheet" href="${resource(dir: 'css', file: 'wizard.min.css')}"/>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'swfobject.min.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.min.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.min.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'timepicker-0.2.1.min.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'wizard.min.js')}"></script>
+</g:if><g:else>
+	<link rel="stylesheet" href="${resource(dir: 'css', file: 'wizard.css')}"/>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'swfobject.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'timepicker-0.2.1.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'wizard.js')}"></script>
+</g:else>
+</head>
+<body>
+<g:render template="common/query"/>
+</body>
 </html>

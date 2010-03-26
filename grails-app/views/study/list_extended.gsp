@@ -44,7 +44,6 @@
 
     <% if (selectedStudies.size()>0) {%>
 
-
         <div id="tabs">
       <ul>
         <li><a href="#study">Study Information</a></li>
@@ -224,22 +223,8 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
           </tr>
 
           <% def protocol_list = [] %>
-          <% def tmp_protocol = stud.events.eventDescription.protocol.get(0) %>
-          <% def tmpBis_protocol = stud.samplingEvents.eventDescription.protocol.get(0) %>
-          <% protocol_list.add(tmp_protocol) %>
-          <% protocol_list.add(tmpBis_protocol) %>
-
-          <g:each in="${stud.events.eventDescription.protocol}" var="s">
-          <% if (tmp_protocol!=s) { %>
-            <% protocol_list.add(s) %>
-            <%}%>
-          </g:each>
-
- <g:each in="${stud.samplingEvents.eventDescription.protocol}" var="s">
-          <% if (tmpBis_protocol!=s) { %>
-            <% protocol_list.add(s) %>
-            <%}%>
-          </g:each>
+          <% protocol_list.add(stud.events.eventDescription.protocol.unique()) %>
+          <% protocol_list.addAll(stud.samplingEvents.eventDescription.protocol.unique()) %>
 
           <g:each in="${protocol_list}" var="protocol">
             <tr>
@@ -291,12 +276,8 @@ ${fieldValue(bean: studyIns, field: "id")}</g:link></td>
           <td>${e.getPrettyDuration(stud.startDate,e.startTime)}</td>
           <td>${e.getPrettyDuration()}</td>
            <td><g:checkBox name="event" disabled="${true}" value="${false}"/></td>
-          <g:each in="${e.eventDescription.protocol.parameters}" var="param">
-          <td>
-            ${param.name} : ${param.listEntries}
-          </td>
-            </g:each>
-            </tr>
+
+           </tr>
           </g:each>
 
           <g:each in="${stud.samplingEvents}" var="e">

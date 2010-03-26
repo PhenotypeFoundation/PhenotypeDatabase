@@ -1,3 +1,3 @@
 <wizard:pageContent>
-	hello world
+	Study
 </wizard:pageContent>

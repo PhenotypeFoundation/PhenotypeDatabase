@@ -1,1 +1,4 @@
-result
+<wizard:pageContent>
+	Results
+</wizard:pageContent>
+

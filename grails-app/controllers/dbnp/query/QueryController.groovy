@@ -32,11 +32,24 @@ class QueryController {
         redirect( action:'pages')
     }
 
+        def results= {
+          println('query controller')
+        if (!params.q?.trim()) {
+            return [:]
+        }
+        try {
+            return [searchResult: searchableService.search(params.q, params)]
+        } catch (SearchEngineQueryParseException ex) {
+            return [parseException: true]
+        }
+    }
+
     def pagesFlow = {
         
         onStart {
                 flow.page = 0
 			flow.pages = [
+                                [title: 'Query'],
 				[title: 'Study'],
 				[title: 'Samples'],
 				[title: 'Biomarkers'],
@@ -51,74 +64,73 @@ class QueryController {
 
              onRender {
                 println "done randering index"
+                flow.page=1
 	     }
-
-
              on("next") {
                 println "clicked next in sample"
-	     } .to 'study'
-
+	     } .to 'inputQuery'
 	}	 
 
+        inputQuery {
+            render(view:'_inputQuery')
+            onRender {
+                flow.page=1
+            }
+        }
 
         study {
              render( view:'_study')
-
+            onRender {
+                flow.page=2
+	     }
              on("next") {
                 println "clicked next in sample"
 	     } .to 'sample'
-
+             on("previous"){}.to 'inputQuery'
 	}
-
-
 
         sample {
              render( view:'_sample')
-
+            onRender {
+                flow.page=3
+	     }
              on("next") {
                 println "clicked next in sample"
 	     } .to 'biomarker'
-
+             on("previous"){}.to 'study'
 	}
 
 
         biomarker {
              render( view:'_biomarker')
-
+            onRender {
+                flow.page=4
+	     }
              on("next") {
                 println "clicked next in sample"
 	     } .to 'group'
-
+             on("previous"){}.to 'sample'
 	}
-
 
         group {
              render( view:'_group')
-
+            onRender {
+                flow.page=5
+	     }
              on("next") {
                 println "clicked next in sample"
 	     } .to 'result'
-
+             on("previous"){}.to 'biomarkers'
 	}
-
-
 
         result {
              render( view:'_result')
 
+            onRender {
+                flow.page=6
+	     }
+             on("previous"){}.to 'group'
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 
     }
 
