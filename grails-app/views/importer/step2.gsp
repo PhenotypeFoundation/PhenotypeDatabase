@@ -25,7 +25,6 @@
   <body>
     <h1>Step 2: import wizard entities/properties</h1>
     <p>Please choose the study you want to add the data to.</p>
-    <importer:
     <p>Below you see the entities and columns, assign properties to the columns.</p>
   <importer:properties entities="${entities}" header="${header}" templates="${templates}"/>
   </body>
