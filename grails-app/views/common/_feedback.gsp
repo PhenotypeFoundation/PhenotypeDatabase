@@ -23,12 +23,16 @@
 		<g:hiddenField name="feedbackWindowHeight" />
 		<g:hiddenField name="feedbackUserAgent" />
 		<div class="element">
+			<div class="name">Type of feedback</div>
+			<div class="input"><g:select name="feedbackType" from="${['bug','feature']}" /></div>
+		</div>
+		<div class="element">
 			<div class="name">Your name</div>
 			<div class="input"><g:textField name="feedbackName" /></div>
 		</div>
 		<div class="element">
 			<div class="name">Remark</div>
-			<div class="input"><g:textArea name="feedbackBody" rows="5" cols="40">this does not work yet so don't use it :)</g:textArea></div>
+			<div class="input"><g:textArea name="feedbackBody" rows="5" cols="40">detailed feedback description...</g:textArea></div>
 		</div>
 		<div class="element">
 			<div class="name"></div>

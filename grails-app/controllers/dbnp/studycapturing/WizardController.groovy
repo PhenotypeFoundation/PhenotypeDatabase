@@ -1,8 +1,6 @@
 package dbnp.studycapturing
 
-import dbnp.studycapturing.*
 import dbnp.data.*
-import grails.converters.*
 
 /**
  * Wizard Controler
