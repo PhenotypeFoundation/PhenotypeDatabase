@@ -11,3 +11,12 @@
     background-color: #CCDDCC;
 }
 
+.valueundefined
+{
+    border-collapse:collapse;
+    border-width: 1px;
+    border-color: red;
+    background-color: #DDDDDD;
+    color: gray;
+}
+

@@ -262,7 +262,7 @@ class ImporterService {
 
 	for (HSSFCell cell: excelrow) {
 	    def mc = mcmap[cell.getColumnIndex()]
-	    def value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
+	    def value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)	    
 
 	    switch(mc.entity) {
 		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)
@@ -271,7 +271,7 @@ class ImporterService {
 				    break
 	        case Subject	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(subject)
 				    if (mc.identifier) { subject.name = value; break }
-				    subject.setFieldValue(mc.property.name, value)
+				    subject.setFieldValue(mc.property.name, value)				    
 				    break
 		case Event	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(event)
 				    if (mc.identifier) { event.eventdescription = value; break }
