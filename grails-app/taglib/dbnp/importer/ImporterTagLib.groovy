@@ -85,8 +85,9 @@ class ImporterTagLib {
 
 	def t = Template.get(session.importtemplate_id)	
 	def mc = attrs['mappingcolumn']
-	
-	out << createPropertySelect(attrs['name'], t.fields.findAll { it.type == mc.templatefieldtype }, mc.index)
+
+	(mc.identifier) ? out << "<select style=\"font-size:10px\" name=\"\" disabled><option>Identifier</option></select>":
+	    out << createPropertySelect(attrs['name'], t.fields.findAll { it.type == mc.templatefieldtype }, mc.index)
     }
 
     /**

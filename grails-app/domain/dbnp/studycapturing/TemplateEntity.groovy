@@ -90,7 +90,7 @@ abstract class TemplateEntity implements Serializable {
 
 		// First, search if there is an entity property with the given name, and if so, set that
 		if (this.properties.containsKey(fieldName)) {
-			this[fieldName] = value
+			this[fieldName] = value			
 		}
 		// If not the found, then it is a template field, so check if there is a template
 		else if (template == null) {

@@ -33,7 +33,7 @@
 	</tr>
 
 	<tr>
-	    <td>Celltype:</td>
+	    <td>Fieldtype:</td>
 	    <g:each var="column" in="${header}">
 		<td class="header">
 		    <importer:templatefieldtypeSelect selected="${column.value.templatefieldtype}" name="templatefieldtype" customvalue="${column.key.toString()}"/>

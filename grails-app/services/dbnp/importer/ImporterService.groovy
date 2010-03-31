@@ -266,18 +266,23 @@ class ImporterService {
 
 	    switch(mc.entity) {
 		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)
+				    if (mc.identifier) { study.title = value; break }
 				    study.setFieldValue(mc.property.name, value)
 				    break
 	        case Subject	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(subject)
+				    if (mc.identifier) { subject.name = value; break }
 				    subject.setFieldValue(mc.property.name, value)
 				    break
 		case Event	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(event)
+				    if (mc.identifier) { event.eventdescription = value; break }
 				    event.setFieldValue(mc.property.name, value)
 				    break
 		case Protocol	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(protocol)
+				    if (mc.identifier) { protocol.name = value; break }
 				    protocol.setFieldValue(mc.property.name, value)
 				    break
 		case Sample	:   (record.any {it.getClass()==mc.entity}) ? record.add(sample) : 0
+				    if (mc.identifier) { sample.name = value; break }
 				    sample.setFieldValue(mc.property.name, value)
 				    break
 		case Object	:   // don't import

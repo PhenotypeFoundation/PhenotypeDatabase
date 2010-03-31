@@ -76,10 +76,11 @@ class ImporterController {
 	def tft = null
 	def entities  = request.getParameterValues("entity")
 	def templatefieldtypes = request.getParameterValues("templatefieldtype")
+	def identifiercolumnindex = params.identifier.toInteger()
 
-	templatefieldtypes.each { t ->
-	    def temp = t.split(":")
-	    def templatefieldtype = temp[1]	    
+	templatefieldtypes.each { t ->	    
+	    def columnindex = t.split(":")[0].toInteger()
+	    def templatefieldtype = t.split(":")[1]
 	    
 	    switch (templatefieldtype) {
 		case "STRING"	    : tft = TemplateFieldType.STRING
@@ -100,14 +101,15 @@ class ImporterController {
 				      break
 		default: break
 	    }
-	    session.header[temp[0].toInteger()].templatefieldtype = tft
+	    session.header[columnindex].templatefieldtype = tft
 	}
 
-	entities.each { e ->
-	    def temp = e.split(":")
+	entities.each { e ->	    	    
+	    def columnindex = e.split(":")[0].toInteger()
+	    def entitytype = e.split(":")[1].toInteger()
 	    Class clazz	    
 
-	    switch (temp[1].toInteger()) {
+	    switch (entitytype) {
 		case 0: clazz = Study
 			break
 		case 1: clazz = Subject
@@ -122,8 +124,9 @@ class ImporterController {
 			break
 	    }
 
-	    session.header[temp[0].toInteger()].index = temp[0].toInteger()
-	    session.header[temp[0].toInteger()].entity = clazz
+	    session.header[columnindex].identifier = (columnindex == identifiercolumnindex) ? true : false
+	    session.header[columnindex].index = columnindex
+	    session.header[columnindex].entity = clazz
 	}
 
 	// currently only one template is used for all entities
@@ -141,9 +144,10 @@ class ImporterController {
     def saveproperties = {
 	def columnproperties  = request.getParameterValues("columnproperty")
 
-	columnproperties.each { cp ->
-		def temp = cp.split(":")
-		session.header[temp[0].toInteger()].property = TemplateField.get(temp[1].toInteger())
+	columnproperties.each { cp ->		
+		def columnindex = cp.split(":")[0].toInteger()
+		def property_id = cp.split(":")[1].toInteger()
+		session.header[columnindex].property = TemplateField.get(property_id)		
 	}
 
 	//import workbook
