@@ -30,9 +30,16 @@ searchable {
      * Examples: "/home/app/compassindex", "ram://app-index" or null to use the default
      *
      * The default is "${user.home}/.grails/projects/${app.name}/searchable-index/${grails.env}"
+	 *
+	 * Checks if user.home points to /dev/null (which happens when deploying on tomcat) and set
+	 * it to /home/tomcat if it is the case. Otherwise just use the user.home
      */
     compassConnection = new File(
-        "${userHome}/.grails/projects/${appName}/searchable-index/${grailsEnv}"
+		sprintf("%s/.grails/projects/%s/searchable-index/%s",
+			((user.home == "/dev/null") ? "/home/tomcat" : user.home),
+			appName,
+			grailsEnv
+		)
     ).absolutePath
 
     /**
