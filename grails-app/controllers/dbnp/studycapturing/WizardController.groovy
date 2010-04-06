@@ -588,11 +588,13 @@ class WizardController {
 		}
 
 		// walk through template fields
-		params.template.fields.each() { field ->
-			def value = params.get(field.escapedName())
+		if (params.template) {
+			params.template.fields.each() {field ->
+				def value = params.get(field.escapedName())
 
-			if (value) {
-				flow.study.setFieldValue(field.name, value)
+				if (value) {
+					flow.study.setFieldValue(field.name, value)
+				}
 			}
 		}
 
