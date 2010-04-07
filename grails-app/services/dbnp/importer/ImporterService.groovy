@@ -199,9 +199,16 @@ class ImporterService {
       */
 
     /**
-     * @param datamatrix two dimensional array containing entities with values read from Excel file
+     * Method to store a matrix containing the entities in a record like structure. Every row in the table
+     * contains one or more entity objects (which contain fields with values). So actually a row represents
+     * a record with fields from one or more different entities.
+     *
+     * @param study entity Study
+     * @param datamatrix two dimensional array containing entities with values read from Excel file     *
      */    
-    def savedata(datamatrix) {
+    def savedata(Study study, datamatrix) {
+	study.refresh()
+	
 	datamatrix.each { record ->
 	    record.each { entity ->
 		switch (entity.getClass()) {
@@ -209,7 +216,8 @@ class ImporterService {
 				    persistEntity(entity)
 				    break
 		    case Subject :  print "Persisting Subject `" + entity.name + "`: "
-				    persistEntity(entity)
+				    persistEntity(entity)				    
+				    study.addToSubjects(entity)
 				    break
 		    case Event	 :  print "Persisting Event `" + entity.eventdescription + "`: "
 				    persistEntity(entity)
@@ -224,7 +232,7 @@ class ImporterService {
 				    break
 		}
 	    }
-	}	
+	}
     }
 
     /**
@@ -233,10 +241,8 @@ class ImporterService {
      * @param entity entity object like Study, Subject, Protocol et cetera
      * 
      */
-    def persistEntity(entity) {
-	println entity.dump()
-	if (entity.save(flush:true)) {  //.merge?
-	    println "OK"
+    def persistEntity(entity) {	
+	if (entity.save(flush:true)) {  //.merge?	    
         } else entity.errors.allErrors.each {
 		println it
 	}

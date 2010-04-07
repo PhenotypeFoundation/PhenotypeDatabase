@@ -13,6 +13,7 @@
 	 */
 %>
 <g:form name="propertiesform" action="saveproperties">
+    <p><g:select name="study.id" from="${dbnp.studycapturing.Study.list()}" optionKey="id" class="selectsmall"/></p>
     <table>
 	  <g:each var="stdentity" in ="${standardentities}">
 	      <% if (selectedentities.any { it.type.toInteger() ==stdentity.type.toInteger()} && stdentity.type.toInteger()!=-1) { %>

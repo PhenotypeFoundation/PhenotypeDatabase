@@ -83,7 +83,7 @@ class ImporterTagLib {
 	// TODO: this should be changed to retrieving fields per entity instead of from one template
 	//	 and session variables should not be used inside the service, migrate to controller
 
-	def t = Template.get(session.importtemplate_id)	
+	def t = Template.get(session.importer_template_id)
 	def mc = attrs['mappingcolumn']
 
 	(mc.identifier) ? out << "<select style=\"font-size:10px\" name=\"\" disabled><option>Identifier</option></select>":

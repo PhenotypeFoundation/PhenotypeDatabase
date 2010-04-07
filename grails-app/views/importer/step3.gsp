@@ -23,7 +23,7 @@
   </head>
   <body>
     <h1>Step 3: import wizard imported data postview</h1>
-    <p>Below you see how all data was imported.</p>
-  <importer:postview datamatrix="${datamatrix}"/>
+    <p>A total of ${datamatrix.size()} rows were imported, below an overview of the rows is shown.</span>
+    <importer:postview datamatrix="${datamatrix}"/>
   </body>
 </html>

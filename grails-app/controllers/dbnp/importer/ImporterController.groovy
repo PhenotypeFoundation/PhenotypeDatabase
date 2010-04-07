@@ -55,9 +55,9 @@ class ImporterController {
 	def header = ImporterService.getHeader(wb, 0)
 	def datamatrix= ImporterService.getDatamatrix(wb, 0, 5)
 
-	session.header = header
-	session.importtemplate_id = params.template_id
-	session.workbook = wb
+	session.importer_header = header
+	session.importer_template_id = params.template_id
+	session.importer_workbook = wb
 
         render (view:"step1", model:[header:header, datamatrix:datamatrix])
     }
@@ -76,7 +76,7 @@ class ImporterController {
 	def tft = null
 	def entities  = request.getParameterValues("entity")
 	def templatefieldtypes = request.getParameterValues("templatefieldtype")
-	def identifiercolumnindex = params.identifier.toInteger()
+	def identifiercolumnindex = (params.identifier!=null) ? params.identifier.toInteger() : -1
 
 	templatefieldtypes.each { t ->	    
 	    def columnindex = t.split(":")[0].toInteger()
@@ -101,7 +101,7 @@ class ImporterController {
 				      break
 		default: break
 	    }
-	    session.header[columnindex].templatefieldtype = tft
+	    session.importer_header[columnindex].templatefieldtype = tft
 	}
 
 	entities.each { e ->	    	    
@@ -124,17 +124,17 @@ class ImporterController {
 			break
 	    }
 
-	    session.header[columnindex].identifier = (columnindex == identifiercolumnindex) ? true : false
-	    session.header[columnindex].index = columnindex
-	    session.header[columnindex].entity = clazz
+	    session.importer_header[columnindex].identifier = (columnindex == identifiercolumnindex) ? true : false
+	    session.importer_header[columnindex].index = columnindex
+	    session.importer_header[columnindex].entity = clazz
 	}
 
 	// currently only one template is used for all entities
 	// TODO: show template fields per entity
 	
-	def templates = Template.get(session.importtemplate_id)
+	def templates = Template.get(session.importer_template_id)
 
-	render(view:"step2", model:[entities:entities, header:session.header, templates:templates])
+	render(view:"step2", model:[entities:entities, header:session.importer_header, templates:templates])
     }
 
     /**
@@ -142,22 +142,23 @@ class ImporterController {
     *
     */
     def saveproperties = {
-	def columnproperties  = request.getParameterValues("columnproperty")
+	def columnproperties  = request.getParameterValues("columnproperty")	
+	session.importer_study = Study.get(params.study.id.toInteger())
 
 	columnproperties.each { cp ->		
 		def columnindex = cp.split(":")[0].toInteger()
 		def property_id = cp.split(":")[1].toInteger()
-		session.header[columnindex].property = TemplateField.get(property_id)		
+		session.importer_header[columnindex].property = TemplateField.get(property_id)
 	}
 
 	//import workbook
-	session.importeddata = ImporterService.importdata(session.importtemplate_id, session.workbook, 0, 1, session.header)	
+	session.importer_importeddata = ImporterService.importdata(session.importer_template_id, session.importer_workbook, 0, 1, session.importer_header)
 
-	render(view:"step3", model:[datamatrix:session.importeddata])
+	render(view:"step3", model:[datamatrix:session.importer_importeddata])
     }
 
     def savepostview = {
-	ImporterService.savedata(session.importeddata)	
+	ImporterService.savedata(session.importer_study, session.importer_importeddata)
 	render(view:"step4")
     }
 }

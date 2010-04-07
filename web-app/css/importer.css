@@ -6,6 +6,10 @@
     background-color: #DDDDDD;
 }
 
+.selectsmall {
+    font-size: 10px;
+}
+
 .datamatrix
 {
     background-color: #CCDDCC;
