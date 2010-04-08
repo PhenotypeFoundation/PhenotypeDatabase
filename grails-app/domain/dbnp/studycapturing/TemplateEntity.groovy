@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import dbnp.data.Term
+import org.springframework.validation.FieldError
 
 /**
  * TemplateEntity Domain Class
@@ -11,9 +12,7 @@ import dbnp.data.Term
  * $Date$
  */
 abstract class TemplateEntity implements Serializable {
-
 	Template template
-
 	Map templateStringFields = [:]
 	Map templateTextFields = [:]
 	Map templateStringListFields = [:]
@@ -34,15 +33,179 @@ abstract class TemplateEntity implements Serializable {
 		templateTermFields: Term
 	]
 
-	static constraints = {
-		template(nullable: true, blank: true)
-
-	}
-
 	static mapping = {
 		tablePerHierarchy false
 
 		templateTextFields type: 'text'
+	}	
+
+	/**
+	 * Contraints
+	 *
+	 * All template fields have their own custom validator. Note that there
+	 * currently is a lot of code repitition. Ideally we don't want this, but
+	 * unfortunately due to scope issues we cannot re-use the code. So make sure
+	 * to replicate any changes to all pieces of logic!
+	 */
+	static constraints = {
+		template(nullable: true, blank: true)
+		templateStringFields(validator: { fields, obj, errors ->
+			def error = false
+
+			// iterate through fields
+			fields.each { key, value ->
+				// check if value is of proper type
+				if (value.class != String) {
+					// it's not, try to cast it to the proper type
+					try {
+						fields[key] = (value as String)
+					} catch (Exception e) {
+						// could not typecast properly, value is of inproper type
+						error = true
+						errors.rejectValue(
+							'templateStringFields',
+							'templateEntity.typeMismatch.string',
+							[key, value.class] as Object[],
+							'Property {0} must be of type String and is currently of type {1}'
+						)
+					}
+				}
+			}
+			return (!error)
+		})
+		templateTextFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value.class != String) {
+					try {
+						fields[key] = (value as String)
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateTextFields',
+							'templateEntity.typeMismatch.string',
+							[key, value.class] as Object[],
+							'Property {0} must be of type String and is currently of type {1}'
+						)
+					}
+				}
+			}
+			return (!error)
+		})
+		templateStringListFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value.class != TemplateFieldListItem) {
+					try {
+						fields[key] = (value as TemplateFieldListItem)
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateIntegerFields',
+							'templateEntity.typeMismatch.templateFieldListItem',
+							[key, value.class] as Object[],
+							'Property {0} must be of type TemplateFieldListItem and is currently of type {1}'
+						)
+					}
+				}
+			}
+			return (!error)
+		})
+		templateIntegerFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value.class != Integer) {
+					try {
+						fields[key] = (value as Integer)
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateIntegerFields',
+							'templateEntity.typeMismatch.integer',
+							[key, value.class] as Object[],
+							'Property {0} must be of type Integer and is currently of type {1}'
+						)
+					}
+				}
+			}
+			return (!error)
+		})
+		templateFloatFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value.class != Float) {
+					try {
+						fields[key] = (value as Float)
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateFloatFields',
+							'templateEntity.typeMismatch.float',
+							[key, value.class] as Object[],
+							'Property {0} must be of type Float and is currently of type {1}'
+						)
+					}
+				}
+			}
+			return (!error)
+		})
+		templateDoubleFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value.class != Double) {
+					try {
+						fields[key] = (value as Double)
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateDoubleFields',
+							'templateEntity.typeMismatch.double',
+							[key, value.class] as Object[],
+							'Property {0} must be of type Double and is currently of type {1}'
+						)
+					}
+				}
+			}
+			return (!error)
+		})
+		templateDateFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value.class != Date) {
+					try {
+						fields[key] = (value as Date)
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateDateFields',
+							'templateEntity.typeMismatch.date',
+							[key, value.class] as Object[],
+							'Property {0} must be of type Date and is currently of type {1}'
+						)
+					}
+				}
+			}
+			return (!error)
+		})
+		templateTermFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value.class != Term) {
+					try {
+						fields[key] = (value as Term)
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateTermFields',
+							'templateEntity.typeMismatch.term',
+							[key, value.class] as Object[],
+							'Property {0} must be of type Term and is currently of type {1}'
+						)
+					}
+				}
+			}
+			return (!error)
+		})
 	}
 
 	private Map getStore(TemplateFieldType fieldType) {
@@ -176,16 +339,10 @@ abstract class TemplateEntity implements Serializable {
 		def templates = giveTemplates(entityCollection);
 		if (templates.size() == 0) {
 			throw new NoSuchFieldException("No templates found in collection!")
-		}
-		else if (templates.size() == 1) {
+		} else if (templates.size() == 1) {
 			return templates[0];
-		}
-		else {
+		} else {
 			throw new NoSuchFieldException("Multiple templates found in collection!")
 		}
-	}
-
-	def validate() {
-		return super.validate()
 	}
 }

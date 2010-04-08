@@ -589,7 +589,7 @@ class WizardController {
 
 		// walk through template fields
 		if (params.template) {
-			params.template.fields.each() {field ->
+			params.template.fields.each() { field ->
 				def value = params.get(field.escapedName())
 
 				if (value) {
@@ -721,7 +721,7 @@ class WizardController {
 				// validate subject
 				if (!flow.subjects[ subjectId ].validate()) {
 					errors = true
-					this.appendErrors(flow.subjects[ subjectId ], flash.errors)
+					this.appendErrors(flow.subjects[ subjectId ], flash.errors, 'subject_' + subjectId + '_')
 				}
 			}
 		}
@@ -754,7 +754,6 @@ class WizardController {
 	 */
 	def getHumanReadableErrors(object) {
 		def errors = [:]
-
 		object.errors.getAllErrors().each() {
 			errors[it.getArguments()[0]] = it.getDefaultMessage()
 		}

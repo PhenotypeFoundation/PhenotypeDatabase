@@ -27,10 +27,11 @@ ${error.value['dynamic']}
 	<script type="text/javascript">
 		// mark error fields
 		<g:each in="${errors}" var="error">
+		var element = $("input:[name='${error.key}'], input:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], select:[name='${error.key}'], select:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}']");
 		<g:if test="${error.value['dynamic']}">
-		$("input:[name='${error.key}'], select:[name='${error.key}']").addClass('error');
+		element.addClass('error');
 		</g:if><g:else>
-		$("input:[name='${error.key}'], select:[name='${error.key}']").parent().parent().addClass('error');
+		element.parent().parent().addClass('error');
 		</g:else>
 		</g:each>
 
