@@ -216,6 +216,7 @@ class ImporterService {
 				    persistEntity(entity)
 				    break
 		    case Subject :  print "Persisting Subject `" + entity.name + "`: "
+				    println entity.dump()
 				    persistEntity(entity)				    
 				    study.addToSubjects(entity)
 				    break
@@ -304,15 +305,15 @@ class ImporterService {
     * @param value string containing the value
     * @return object corresponding to the TemplateFieldType
     */
-    def formatValue(String value, TemplateFieldType type) {
+    def formatValue(String value, TemplateFieldType type) {	
 	switch (type) {
-	    case TemplateFieldType.STRING	:   return value
-	    case TemplateFieldType.TEXT		:   return value
+	    case TemplateFieldType.STRING	:   return value.trim()
+	    case TemplateFieldType.TEXT		:   return value.trim()
 	    case TemplateFieldType.INTEGER	:   return Integer.valueOf(value.replaceAll("[^0-9]",""))
 	    case TemplateFieldType.FLOAT	:   return Float.valueOf(value.replace(",","."));
 	    case TemplateFieldType.DOUBLE	:   return Double.valueOf(value.replace(",","."));
-	    case TemplateFieldType.STRINGLIST	:   return value
-	    case TemplateFieldType.ONTOLOGYTERM	:   return value
+	    case TemplateFieldType.STRINGLIST	:   return value.trim()
+	    case TemplateFieldType.ONTOLOGYTERM	:   return value.trim()
 	    case TemplateFieldType.DATE		:   return value
 	    default				:   return value
 	}

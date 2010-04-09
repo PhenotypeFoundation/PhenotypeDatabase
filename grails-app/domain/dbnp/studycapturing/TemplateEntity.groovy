@@ -262,7 +262,7 @@ abstract class TemplateEntity implements Serializable {
 		// If there is a template, check the template fields
 		else {
 			// Find the target template field, if not found, throw an error
-			TemplateField field = this.template.fields.find { it.name == fieldName}
+			TemplateField field = this.template.fields.find { it.name == fieldName }
 			if (field == null) {
 				throw new NoSuchFieldException("Field ${fieldName} not found in class properties or template fields")
 			}
@@ -270,7 +270,7 @@ abstract class TemplateEntity implements Serializable {
 			else {
 				// Convenience setter for template string list fields: find TemplateFieldListItem by name
 				if (field.type == TemplateFieldType.STRINGLIST && value.class == String) {
-					value = field.listEntries.find { it.name == value }
+					value = field.listEntries.find { it.name ==~ /(?i)($value)/ }
 				}
 
 				// Convenience setter for dates: handle string values for date fields
