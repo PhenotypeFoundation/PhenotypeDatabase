@@ -215,8 +215,7 @@ class ImporterService {
 		    case Study	 :  print "Persisting Study `" + entity.title + "`: "
 				    persistEntity(entity)
 				    break
-		    case Subject :  print "Persisting Subject `" + entity.name + "`: "
-				    println entity.dump()
+		    case Subject :  print "Persisting Subject `" + entity.name + "`: "				    
 				    persistEntity(entity)				    
 				    study.addToSubjects(entity)
 				    break
