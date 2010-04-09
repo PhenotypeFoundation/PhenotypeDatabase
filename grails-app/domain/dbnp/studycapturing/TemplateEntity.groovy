@@ -313,12 +313,12 @@ abstract class TemplateEntity implements Serializable {
 				// If that is ever changed, the results are pretty much unpredictable (random Java object pointers?)!
 				def store = getStore(field.type)
 				if (!value && store[ fieldName ]) {
-					println "removing " + super.class + " template field: " + fieldName
+					println "removing " + ((super) ? super.class : '??') + " template field: " + fieldName
 
 					// remove the item from the Map (if present)
 					store.remove( fieldName )
-				} else {
-					println "setting " + super.class + " template field: " + fieldName + " ([" + value.toString() + "] of type [" + value.class + "])"
+				} else if (value) {
+					println "setting " + ((super) ? super.class : '??') + " template field: " + fieldName + " ([" + value.toString() + "] of type [" + value.class + "])"
 
 					// set value
 					store[ fieldName ] = value
