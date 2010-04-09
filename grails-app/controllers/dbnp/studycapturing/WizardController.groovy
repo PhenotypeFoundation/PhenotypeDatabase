@@ -590,11 +590,7 @@ class WizardController {
 		// walk through template fields
 		if (params.template) {
 			params.template.fields.each() { field ->
-				def value = params.get(field.escapedName())
-
-				if (value) {
-					flow.study.setFieldValue(field.name, value)
-				}
+				flow.study.setFieldValue(field.name, params.get(field.escapedName()))
 			}
 		}
 
@@ -711,11 +707,10 @@ class WizardController {
 
 				// iterate through template fields
 				templateFields.each() { subjectField ->
-					def value = params.get('subject_' + subjectId + '_' + subjectField.escapedName())
-
-					if (value) {
-						flow.subjects[ subjectId ].setFieldValue(subjectField.name, value)
-					}
+					flow.subjects[ subjectId ].setFieldValue(
+						subjectField.name,
+						params.get( 'subject_' + subjectId + '_' + subjectField.escapedName() )
+					)
 				}
 
 				// validate subject

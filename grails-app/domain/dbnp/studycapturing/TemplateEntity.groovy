@@ -40,27 +40,36 @@ abstract class TemplateEntity implements Serializable {
 	}	
 
 	/**
-	 * Contraints
+	 * Constraints
 	 *
 	 * All template fields have their own custom validator. Note that there
-	 * currently is a lot of code repitition. Ideally we don't want this, but
-	 * unfortunately due to scope issues we cannot re-use the code. So make sure
-	 * to replicate any changes to all pieces of logic!
+	 * currently is a lot of code repetition. Ideally we don't want this, but
+	 * unfortunately due to scope issues we cannot re-use the code. So make
+	 * sure to replicate any changes to all pieces of logic! Only commented
+	 * the first occurrence of the logic, please refer to the templateStringFields
+	 * validator if you require information about the validation logic...
 	 */
 	static constraints = {
 		template(nullable: true, blank: true)
 		templateStringFields(validator: { fields, obj, errors ->
+			// note that we only use 'fields' and 'errors', 'obj' is
+			// merely here because it's the way the closure is called
+			// by the validator...
+
+			// define a boolean
 			def error = false
 
 			// iterate through fields
 			fields.each { key, value ->
-				// check if value is of proper type
-				if (value.class != String) {
-					// it's not, try to cast it to the proper type
+				// check if the value is of proper type
+				if ( value && value.class != String ) {
+					// it's of some other type
 					try {
+						// try to cast it to the proper type
 						fields[key] = (value as String)
 					} catch (Exception e) {
-						// could not typecast properly, value is of inproper type
+						// could not typecast properly, value is of improper type
+						// add error message
 						error = true
 						errors.rejectValue(
 							'templateStringFields',
@@ -71,12 +80,14 @@ abstract class TemplateEntity implements Serializable {
 					}
 				}
 			}
+
+			// got an error, or not?
 			return (!error)
 		})
 		templateTextFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value.class != String) {
+				if ( value && value.class != String ) {
 					try {
 						fields[key] = (value as String)
 					} catch (Exception e) {
@@ -95,7 +106,7 @@ abstract class TemplateEntity implements Serializable {
 		templateStringListFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value.class != TemplateFieldListItem) {
+				if ( value && value.class != TemplateFieldListItem ) {
 					try {
 						fields[key] = (value as TemplateFieldListItem)
 					} catch (Exception e) {
@@ -114,7 +125,7 @@ abstract class TemplateEntity implements Serializable {
 		templateIntegerFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value.class != Integer) {
+				if (value && value.class != Integer ) {
 					try {
 						fields[key] = (value as Integer)
 					} catch (Exception e) {
@@ -133,7 +144,7 @@ abstract class TemplateEntity implements Serializable {
 		templateFloatFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value.class != Float) {
+				if ( value && value.class != Float ) {
 					try {
 						fields[key] = (value as Float)
 					} catch (Exception e) {
@@ -152,7 +163,7 @@ abstract class TemplateEntity implements Serializable {
 		templateDoubleFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value.class != Double) {
+				if ( value && value.class != Double ) {
 					try {
 						fields[key] = (value as Double)
 					} catch (Exception e) {
@@ -171,7 +182,7 @@ abstract class TemplateEntity implements Serializable {
 		templateDateFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value.class != Date) {
+				if ( value && value.class != Date ) {
 					try {
 						fields[key] = (value as Date)
 					} catch (Exception e) {
@@ -190,7 +201,7 @@ abstract class TemplateEntity implements Serializable {
 		templateTermFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value.class != Term) {
+				if ( value && value.class != Term ) {
 					try {
 						fields[key] = (value as Term)
 					} catch (Exception e) {
@@ -208,6 +219,13 @@ abstract class TemplateEntity implements Serializable {
 		})
 	}
 
+	/**
+	 * Get the proper templateFields Map for a specific field type
+	 * @param TemplateFieldType
+	 * @return pointer
+	 * @visibility private
+	 * @throws NoSuchFieldException
+	 */
 	private Map getStore(TemplateFieldType fieldType) {
 		switch(fieldType) {
 			case TemplateFieldType.STRING:
@@ -247,29 +265,27 @@ abstract class TemplateEntity implements Serializable {
 	 * Set a template/entity field value
 	 * @param fieldName The name of the template or entity field
 	 * @param value The value to be set, this should align with the (template) field type, but there are some convenience setters
-	 *
 	 */
 	def setFieldValue(String fieldName, value) {
-
 		// First, search if there is an entity property with the given name, and if so, set that
 		if (this.properties.containsKey(fieldName)) {
 			this[fieldName] = value			
-		}
-		// If not the found, then it is a template field, so check if there is a template
-		else if (template == null) {
+		} else if (template == null) {
+			// not the found, then it is a template field, so check if there is a template
 			throw new NoSuchFieldException("Field ${fieldName} not found in class properties: template not set")
-		}
-		// If there is a template, check the template fields
-		else {
+		} else {
+			// there is a template, check the template fields
 			// Find the target template field, if not found, throw an error
 			TemplateField field = this.template.fields.find { it.name == fieldName }
+
 			if (field == null) {
-				throw new NoSuchFieldException("Field ${fieldName} not found in class properties or template fields")
-			}
-			// Set the value of the found template field
-			else {
+				// no such field
+				throw new NoSuchFieldException("Field ${fieldName} not found in class template fields")
+			} else {
+				// Set the value of the found template field
 				// Convenience setter for template string list fields: find TemplateFieldListItem by name
 				if (field.type == TemplateFieldType.STRINGLIST && value.class == String) {
+					// Kees insensitive pattern matching ;)
 					value = field.listEntries.find { it.name ==~ /(?i)($value)/ }
 				}
 
@@ -295,12 +311,22 @@ abstract class TemplateEntity implements Serializable {
 				// Set the field value
 				// Caution: this assumes that all template...Field Maps are already initialized (as is done now above as [:])
 				// If that is ever changed, the results are pretty much unpredictable (random Java object pointers?)!
-				getStore(field.type)[fieldName] = value
+				def store = getStore(field.type)
+				if (!value && store[ fieldName ]) {
+					println "removing " + super.class + " template field: " + fieldName
+
+					// remove the item from the Map (if present)
+					store.remove( fieldName )
+				} else {
+					println "setting " + super.class + " template field: " + fieldName + " ([" + value.toString() + "] of type [" + value.class + "])"
+
+					// set value
+					store[ fieldName ] = value
+				}
 				return this
 			}
 		}
 	}
-
 
 	/**
 	* Return all templated fields defined in the underlying template of this entity
