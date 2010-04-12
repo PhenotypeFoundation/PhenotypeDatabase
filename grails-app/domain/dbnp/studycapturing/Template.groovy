@@ -14,7 +14,7 @@ class Template implements Serializable {
 	String name
 	Class entity
 	//nimble.User owner
-
+	List fields
 	static hasMany = [fields: TemplateField]
 
 	static constraints = {
