@@ -46,6 +46,8 @@ class SandboxController {
 		println "LDL feature value for two subjects: " + clinicalDataLayerService.getDataQuantitative('LDL',1,['A1_B','A3_B'] as String[])
 
 		// Specify which variables we want to be available in the controller (implicit return statement)
-		[fields: f, subjects: st.subjects, studyInstance: st]
+		[fields: f, subjects: st.subjects, studyInstance: st, subject: Subject.findByName('A1')]
 	}
+
+
 }

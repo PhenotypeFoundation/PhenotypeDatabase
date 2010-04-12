@@ -31,5 +31,28 @@
 </table>
 <h2>Events</h2>
 <% println studyInstance.events.eventDescription.protocol.name %>
+<h2>Subject Fields</h2>
+<table>
+	<tr>
+		<td>Source</td>
+		<td>Name</td>
+		<td>Type</td>
+	</tr>
+	<g:each in="${subject.giveDomainFields()}" var="field">
+	    <tr>
+		    <td>Domain field</td>
+			<td>${field.key}</td>
+			 <td>${field.value}</td>
+		</tr>
+	</g:each>
+	<g:each in="${subject.giveFields()}" var="field">
+	    <tr>
+			<td>Template field</td>
+		    <td>${field.name}</td>
+			 <td>${field.type}</td>
+		</tr>
+	</g:each>
+
+</table>
 </body>
 </html>

@@ -14,7 +14,8 @@ class TemplateField implements Serializable {
 	String unit
 	String comment // help string for the user interface
 
-    static hasMany = [listEntries : TemplateFieldListItem] // to store the entries to choose from when the type is 'item from predefined list'
+	List listEntries
+        static hasMany = [listEntries : TemplateFieldListItem] // to store the entries to choose from when the type is 'item from predefined list'
 
 	static constraints = {
 		name(unique: true)
