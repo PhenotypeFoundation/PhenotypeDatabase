@@ -38,6 +38,12 @@ class BootStrap {
 				url: 'http://bioportal.bioontology.org/ontologies/39966'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
+			def nciOntology = new Ontology(
+				name: 'NCI Thesaurus',
+				shortName: 'NCI',
+				url: 'http://bioportal.bioontology.org/ontologies/42331'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
 			// terms
 			def mouseTerm = new Term(
 				name: 'Mus musculus',
@@ -49,11 +55,22 @@ class BootStrap {
 				ontology: speciesOntology,
 				accession: '9606'
 			).with { if (!validate()) { errors.each { println it} } else save()}
-
+			def arabTerm = new Term(
+				name: 'Arabidopsis thaliana',
+				ontology: speciesOntology,
+				accession: '3702'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+			
 			def bloodTerm = new Term(
 				name: 'Portion of blood',
 				ontology: humanBodyOntology,
 				accession: '9670'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def c57bl6Term = new Term(
+				name: 'C57BL/6 Mouse',
+				ontology: nciOntology,
+				accession: 'C14424'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
 			def madmaxOntology = new Ontology(
@@ -163,6 +180,18 @@ class BootStrap {
 				name: 'Age (years)',type: TemplateFieldType.INTEGER,unit: 'years')
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
+			def genotypeField = new TemplateField(
+				name: 'Genotype', type: TemplateFieldType.ONTOLOGYTERM)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			def genotypeTypeField = new TemplateField(
+				name: 'Genotype type',type: TemplateFieldType.STRINGLIST,
+				listEntries: [new TemplateFieldListItem(name:'transgenic'),
+					new TemplateFieldListItem(name:'knock-out'),
+					new TemplateFieldListItem(name:'knock-in')])
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+
 			// Nutritional study template
 
 			println "Adding academic study template..."
@@ -174,7 +203,6 @@ class BootStrap {
 				.addToFields(new TemplateField(name: 'Responsible scientist',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Lab code',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING))
-				.addToFields(new TemplateField(name: 'Some Integer',type: TemplateFieldType.INTEGER))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Mouse template
@@ -182,11 +210,8 @@ class BootStrap {
 				name: 'Mouse', entity: dbnp.studycapturing.Subject)
 			.addToFields(new TemplateField(
 				name: 'Strain', type: TemplateFieldType.ONTOLOGYTERM))
-			.addToFields(new TemplateField(
-				name: 'Genotype', type: TemplateFieldType.STRING))
-			.addToFields(new TemplateField(
-				name: 'Genotype type',type: TemplateFieldType.STRINGLIST,
-				listEntries: [new TemplateFieldListItem(name:'transgenic'),new TemplateFieldListItem(name:'knock-out'),new TemplateFieldListItem(name:'knock-in')]))
+			.addToFields(genotypeField)
+			.addToFields(genotypeTypeField)
 			.addToFields(genderField)
 			.addToFields(new TemplateField(
 				name: 'Age (weeks)', type: TemplateFieldType.INTEGER, unit: 'weeks'))
@@ -201,8 +226,6 @@ class BootStrap {
 				name: 'Litter size',type: TemplateFieldType.INTEGER))
 			.addToFields(new TemplateField(
 				name: 'Weight (g)', type: TemplateFieldType.DOUBLE, unit: 'gram'))
-			.addToFields(new TemplateField(
-				name: 'SomeOntology', type: TemplateFieldType.ONTOLOGYTERM))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Human template
@@ -221,9 +244,9 @@ class BootStrap {
 			.addToFields(new TemplateField(
 				name: 'Race',type: TemplateFieldType.STRING))
 			.addToFields(new TemplateField(
-				name: 'Waist circumvence',type: TemplateFieldType.FLOAT, unit: 'cm'))
+				name: 'Waist circumference',type: TemplateFieldType.FLOAT, unit: 'cm'))
 			.addToFields(new TemplateField(
-				name: 'Hip circumvence',type: TemplateFieldType.FLOAT, unit: 'cm'))
+				name: 'Hip circumference',type: TemplateFieldType.FLOAT, unit: 'cm'))
 			.addToFields(new TemplateField(
 				name: 'Systolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg'))
 			.addToFields(new TemplateField(
@@ -235,18 +258,78 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 
+			def sampleDescriptionField = new TemplateField(
+				name: 'Description',type: TemplateFieldType.TEXT)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+			def sampleTypeField = new TemplateField(
+				name: 'SampleType',type: TemplateFieldType.STRING)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+			def sampleProtocolField = new TemplateField(
+				name: 'SampleProtocol',type: TemplateFieldType.STRING)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+			def sampleVialTextField = new TemplateField(
+				name: 'Text on vial',type: TemplateFieldType.STRING)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
 			// Human sample template
 			def humanSampleTemplate = new Template(
 				name: 'Human tissue sample', entity: dbnp.studycapturing.Sample)
-			.addToFields(new TemplateField(
-				name: 'Description',type: TemplateFieldType.TEXT))
-			.addToFields(new TemplateField(
-				name: 'SampleType',type: TemplateFieldType.STRING))
-			.addToFields(new TemplateField(
-				name: 'SampleProtocol',type: TemplateFieldType.STRING))
-			.addToFields(new TemplateField(
-				name: 'Text on vial',type: TemplateFieldType.STRING))
+			.addToFields(sampleDescriptionField)
+			.addToFields(sampleTypeField)
+			.addToFields(sampleProtocolField)
+			.addToFields(sampleVialTextField)
 			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			//Plant template
+			def plantTemplate = new Template(
+				name: 'Plant template', entity: dbnp.studycapturing.Subject)
+			.addToFields(new TemplateField(
+				name: 'Variety', type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Ecotype', type: TemplateFieldType.STRING))
+			.addToFields(genotypeField)
+			.addToFields(genotypeTypeField)
+			.addToFields(new TemplateField(
+				name: 'Growth location', type: TemplateFieldType.STRINGLIST,
+				listEntries: [new TemplateFieldListItem(name:'Greenhouse'),new TemplateFieldListItem(name: 'Field')]))
+			.addToFields(new TemplateField(
+				name: 'Room', type: TemplateFieldType.STRING,
+				comment: 'Chamber number in case of Greenhouse'))
+			.addToFields(new TemplateField(
+				name: 'Position X', type: TemplateFieldType.FLOAT))
+			.addToFields(new TemplateField(
+				name: 'Position Y', type: TemplateFieldType.FLOAT))
+			.addToFields(new TemplateField(
+				name: 'Block', type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Temperature at day', type: TemplateFieldType.FLOAT))
+			.addToFields(new TemplateField(
+				name: 'Temperature at night', type: TemplateFieldType.FLOAT))
+			.addToFields(new TemplateField(
+				name: 'Photo period', type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Light intensity', type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Start date', type: TemplateFieldType.DATE))
+			.addToFields(new TemplateField(
+				name: 'Harvest date', type: TemplateFieldType.DATE))
+			.addToFields(new TemplateField(
+				name: 'Growth type', type: TemplateFieldType.STRINGLIST,
+				listEntries: [new TemplateFieldListItem(name:'Standard'),new TemplateFieldListItem(name: 'Experimental')]))
+			.addToFields(new TemplateField(
+				name: 'Growth protocol', type: TemplateFieldType.TEXT))
+			.addToFields(new TemplateField(
+				name: 'Harvest delay', type: TemplateFieldType.TEXT))
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			def plantSampleTemplate = new Template(
+				name: 'Plant sample', entity: dbnp.studycapturing.Sample)
+			.addToFields(sampleDescriptionField)
+			.addToFields(sampleTypeField)
+			.addToFields(sampleProtocolField)
+			.addToFields(sampleVialTextField)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
 
 			//events
 			def eventDiet = new EventDescription(
@@ -444,7 +527,7 @@ class BootStrap {
 					template: mouseTemplate,
 				)
 				.setFieldValue("Gender", "Male")
-				.setFieldValue("Genotype", "C57/Bl6j")
+				.setFieldValue("Genotype", c57bl6Term)
 				.setFieldValue("Age (weeks)", 17)
 				.setFieldValue("Cage", "" + (int)(x/2))
 				.with { if (!validate()) { errors.each { println it} } else save()}

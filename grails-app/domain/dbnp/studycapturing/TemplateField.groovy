@@ -1,7 +1,7 @@
 package dbnp.studycapturing
 
 /**
- * This is the superclass for template fields. Normally, this class will not be instantiated.
+ * This is the class for template fields. These should be part of one or more templates via Template.fields
  *
  * Revision information:
  * $Rev$
