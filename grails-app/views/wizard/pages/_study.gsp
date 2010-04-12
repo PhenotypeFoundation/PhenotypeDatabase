@@ -44,11 +44,4 @@
 	</wizard:dateElement>
 	<wizard:templateElements entity="${study}" />
 
-	<span class="info">
-		<span class="known">Known issues</span>
-		<ul>
-			<li>the templated fields appear in random order</li>
-		</ul>
-	</span>
-
 </wizard:pageContent>
