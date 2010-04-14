@@ -435,6 +435,45 @@ class WizardTagLib extends JavascriptTagLib {
 		out << select(attrs)
 	}
 
+
+	/**
+	 * Study form element
+	 * @param Map attributes
+	 * @param Closure help content
+	 */
+	def studyElement = { attrs, body ->
+		// render study element
+		baseElement.call(
+			'studySelect',
+			attrs,
+			body
+		)
+	}
+
+
+	/**
+	 * render a study select element
+	 * @param Map attrs
+	 */
+	def studySelect = { attrs ->
+		// for now, just fetch all studies
+		attrs.from = Study.findAll()
+
+		// got a name?
+		if (!attrs.name) {
+			attrs.name = "study"
+		}
+
+		// got result?
+		if (attrs.from.size() > 0) {
+			out << select(attrs)
+		} else {
+			// no, return false to make sure this element
+			// is not rendered in the template
+			return false
+		}
+	}
+
 	/**
 	 * Template form element
 	 * @param Map attributes

@@ -16,15 +16,11 @@
 %>
 <wizard:pageContent>
 
-	<img src="../images/wizard/wizard-chooser.png" />
+	<span class="bigtext">What would you like to do?</span>
 
-	<span class="info">
-		<span class="todo">TODO</span>
-		<ul>
-			<li>the buttons above actually do not yet work, it's just a mockup. In this prototype you can only create
-			    a study; modifying a study will be implemented later. Click 'next' to continue...</li>
-		</ul>
-	</span>
+	<wizard:ajaxButton name="next" class="bigbutton" value="Create a new study" alt="Create a new study" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
+
+	<wizard:ajaxButton name="modify" class="bigbutton" value="Modify an existing study" alt="Modify an existing study" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
 
 	<span class="info">
 		<span class="known">Known issues</span>

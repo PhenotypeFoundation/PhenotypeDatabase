@@ -261,3 +261,26 @@
     color: #fff;
 }
 /* END :: TABLE */
+
+/* START :: BIG BUTTONS and BIG TEXT */
+.wizard .bigbutton {
+    background: url(../images/wizard/big-button.jpg) no-repeat left top;
+    border: 0px;
+    width: 454px;
+    height: 53px;
+    color: #fff;
+    font-size: 18pt;
+}
+.wizard .bigbutton:hover {
+    color: #000;
+}
+.wizard .bigtext {
+    color: #006dba;
+    font-weight: normal;
+    font-size: 24px;
+    margin: .8em 0 .3em 0;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+/* END :: BIG BUTTONS and BIG TEXT */

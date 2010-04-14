@@ -76,15 +76,28 @@ class WizardController {
 			onRender {
 				flow.page = 1
 			}
+			on("next").to "study"
+			on("modify").to "modify"
+		}
+
+		// load a study to modify
+		modify {
+			render(view: "_modify")
+			onRender {
+				flow.page = 1
+				flash.cancel = true
+			}
+			on("cancel").to "start"
 			on("next") {
-				// NOTE: this action is called by an Ajax
-				//       request rendered in the _start
-				//       template. So for the end user the
-				//       webflow actually starts in the
-				//       study logic...
-				//       This ajax call is required to make
-				//       the ajax flow work correctly
-			}.to "study"
+				// TODO: loading a study is not yet implemented
+				//       create a error stating this feature is
+				//       not yet implemented
+				flash.errors = [:]
+				this.appendErrorMap(
+					['study': 'Loading a study and modifying it has not yet been implemented. Please press \'cancel\' to go back to the initial page...'],
+					flash.errors
+				)
+			}.to "modify"
 		}
 
 		// render and handle the study page
