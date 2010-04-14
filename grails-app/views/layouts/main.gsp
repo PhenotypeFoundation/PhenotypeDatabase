@@ -25,7 +25,7 @@
 		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NMC & NuGO. All rights reserved.
 		( style: <%=session.style%> )
 	</div>
-	<g:render template="/common/feedback"/>
+	<g:if env="development"><g:render template="/common/feedback"/></g:if>
 </div>
 </body>
 </html>

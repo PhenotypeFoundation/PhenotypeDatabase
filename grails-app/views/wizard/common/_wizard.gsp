@@ -15,7 +15,7 @@
 	 */
 %>
 <div id="wizard" class="wizard">
-	<h1>Create a new study</h1>
+	<h1>Study capture wizard</h1>
 	<g:form action="pages" name="wizardForm" id="wizardForm">
 	<g:hiddenField name="do" value="" />
 		<div id="wizardPage">

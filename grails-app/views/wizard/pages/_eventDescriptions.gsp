@@ -60,7 +60,7 @@
 	</div>
 </g:if>
 
-
+<g:if env="development">
 <span class="info">
 	<span class="todo">TODO</span>
 	<ul>
@@ -74,5 +74,6 @@
 		<li>no protocol selection available yet</li>
 	</ul>
 </span>
+</g:if>
 
 </wizard:pageContent>

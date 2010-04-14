@@ -22,6 +22,7 @@
 
 	<wizard:ajaxButton name="modify" class="bigbutton" value="Modify an existing study" alt="Modify an existing study" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
 
+	<g:if env="development">
 	<span class="info">
 		<span class="known">Known issues</span>
 		<ul>
@@ -30,7 +31,7 @@
 				back / forward buttons</li>
 		</ul>
 	</span>
-
-	<!-- g:render template="pages/demo" //-->
+	<!--g:render template="pages/demo"//-->
+	</g:if>
 
 </wizard:pageContent>

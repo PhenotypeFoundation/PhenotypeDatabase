@@ -61,6 +61,7 @@
 	</g:each>
 </g:if>
 
+	<g:if env="development">
 	<span class="info">
 		<span class="known">Known issues</span>
 		<ul>
@@ -71,5 +72,6 @@
 			<li>ontology hidden fields should be handled by the taglibrary / controller as well</li>
 		</ul>
 	</span>
+	</g:if>
 
 </wizard:pageContent>

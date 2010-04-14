@@ -15,5 +15,13 @@
  */
 %>
 <div class="tabs">
-  <g:each status="i" var="item" in="${pages}"><div class="element<g:if test="${(i == (page-1))}"> active</g:if>">${i+1}. ${item.title}</div></g:each>
+ <ul>
+  <g:each status="i" var="item" in="${pages}">
+	  <li<g:if test="${(i == (page-1))}"> class="active"</g:if>>
+		<g:if test="${(i > 0)}"><img src="../images/wizard/arrowR.gif" align="absmiddle" class="arrow"></g:if><g:else>&nbsp;</g:else>
+		<span class="content">${i+1}. ${item.title}</span>
+		<g:if test="${(i < (pages.size() - 1))}"><img src="../images/wizard/arrowL.gif" align="absmiddle" class="arrow"></g:if><g:else>&nbsp;</g:else>
+	  </li>
+  </g:each>
+ </ul>
 </div>
