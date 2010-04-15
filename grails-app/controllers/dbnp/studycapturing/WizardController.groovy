@@ -87,7 +87,9 @@ class WizardController {
 				flow.page = 1
 				flash.cancel = true
 			}
-			on("cancel").to "start"
+			on("cancel") {
+				flow.study = null
+			}.to "start"
 			on("next") {
 				// TODO: loading a study is not yet implemented
 				//       create a error stating this feature is
@@ -118,11 +120,13 @@ class WizardController {
 			on("previous") {
 				flash.errors = [:]
 
-				if (this.handleStudy(flow, flash, params)) {
-					success()
-				} else {
-					error()
-				}
+				// handle the study
+				this.handleStudy(flow, flash, params)
+
+				// reset errors
+				flash.errors = [:]
+
+				success()
 			}.to "start"
 			on("next") {
 				flash.errors = [:]
