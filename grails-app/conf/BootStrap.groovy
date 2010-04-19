@@ -24,7 +24,23 @@ class BootStrap {
 		// we could also check if we are in development by GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT
 		if (Study.count() == 0) {
 			printf("development bootstrapping....\n\n");
- /*
+
+			// adding the academic
+			println "Adding academic study template..."
+			def studyTemplate = new Template(
+				name: 'Academic study', entity: dbnp.studycapturing.Study)
+				.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING))
+				.addToFields(new TemplateField(name: 'Cohort name',type: TemplateFieldType.STRING))
+				.addToFields(new TemplateField(name: 'Time zone',type: TemplateFieldType.STRING))
+				.addToFields(new TemplateField(name: 'Responsible scientist',type: TemplateFieldType.STRING))
+				.addToFields(new TemplateField(name: 'Lab code',type: TemplateFieldType.STRING))
+				.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING))
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+
+
+ /*   COMMENTED OUT BECAUSE IT BREAKS EVERYTHING AFTER REFACTORING THE DATAMODEL
+
 			// ontologies
 			def speciesOntology = new Ontology(
 				name: 'NCBI Taxonomy',
