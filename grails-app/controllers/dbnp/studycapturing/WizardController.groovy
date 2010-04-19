@@ -240,11 +240,14 @@ class WizardController {
 				// fetch classification by name (as posted by the form)
 				//params.classification = Term.findByName(params.classification)
 
+				/* TODO: rewrite to Event template
+
 				// fetch protocol by name (as posted by the form)
 				params.protocol = Protocol.findByName(params.protocol)
 
 				// transform checkbox form value to boolean
 				params.isSamplingEvent = (params.containsKey('isSamplingEvent'))
+
 
 				// instantiate EventDescription with parameters
 				def eventDescription = new EventDescription(params)
@@ -261,10 +264,14 @@ class WizardController {
 					this.appendErrors(eventDescription, flash.errors)
 					error()
 				}
+
+				*/
 			}.to "eventDescriptions"
 			on("delete") {
 				def delete = params.get('do') as int;
 
+				/* TODO: rewrite to Event template
+				
 				// handle form data
 				if (!this.handleEventDescriptions(flow, flash, params)) {
 					flash.values = params
@@ -284,6 +291,8 @@ class WizardController {
 
 					flow.eventDescriptions.remove(delete)
 				}
+
+				*/
 			}.to "eventDescriptions"
 			on("previous") {
 				flash.errors = [:]

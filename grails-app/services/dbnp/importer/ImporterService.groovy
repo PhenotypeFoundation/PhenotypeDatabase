@@ -18,16 +18,15 @@ package dbnp.importer
 import org.apache.poi.hssf.usermodel.*
 import org.apache.poi.poifs.filesystem.POIFSFileSystem
 import org.apache.poi.ss.usermodel.DataFormatter
-import org.apache.poi.hssf.usermodel.HSSFDateUtil
+
 import dbnp.studycapturing.TemplateFieldType
 import dbnp.studycapturing.Template
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Subject
 import dbnp.studycapturing.Event
-import dbnp.studycapturing.Protocol
+
 import dbnp.studycapturing.Sample
 
-import dbnp.data.Ontology
 import dbnp.data.Term
 
 class ImporterService {
@@ -222,9 +221,6 @@ class ImporterService {
 		    case Event	 :  print "Persisting Event `" + entity.eventdescription + "`: "
 				    persistEntity(entity)
 				    break
-		    case Protocol:  print "Persisting Protocol `" + entity.name + "`: "
-				    persistEntity(entity)
-				    break
 		    case Sample  :  print "Persisting Sample `" + entity.name +"`: "
 				    persistEntity(entity)
 				    break
@@ -263,7 +259,6 @@ class ImporterService {
 	def study = new Study(title:"New study", template:template)
 	def subject = new Subject(name:"New subject", species:Term.findByName("Homo sapiens"), template:template)
 	def event = new Event(eventdescription:"New event", template:template)
-	def protocol = new Protocol(name:"New protocol", template:template)
 	def sample = new Sample(name:"New sample", template:template)
 
 	for (HSSFCell cell: excelrow) {
@@ -282,10 +277,6 @@ class ImporterService {
 		case Event	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(event)
 				    if (mc.identifier) { event.eventdescription = value; break }
 				    event.setFieldValue(mc.property.name, value)
-				    break
-		case Protocol	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(protocol)
-				    if (mc.identifier) { protocol.name = value; break }
-				    protocol.setFieldValue(mc.property.name, value)
 				    break
 		case Sample	:   (record.any {it.getClass()==mc.entity}) ? record.add(sample) : 0
 				    if (mc.identifier) { sample.name = value; break }

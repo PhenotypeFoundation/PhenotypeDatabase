@@ -6,6 +6,7 @@ import dbnp.data.Ontology
  * The Term object describes a term in the ontology that is referred to in other entities such as events.
  * The Term object should point to an existing term in an online ontology, therefore instances of this class can also
  * be seen as a cache of elements of the external ontology.
+ * BioPortal example: Mus musculus: http://rest.bioontology.org/bioportal/concepts/38802/NCBITaxon:10090
  *
  * Revision information:
  * $Rev$
@@ -14,43 +15,17 @@ import dbnp.data.Ontology
  */
 class Term implements Serializable {
 	static searchable = true
-	String name
-	Ontology ontology
-	String accession
+
+	String name             // BioPortal: label (preferred name)
+	Ontology ontology       // Parent ontology
+	String accession        // BioPortal: fullId
 
 	static constraints = {
+		accession(unique: 'ontology')
 	}
 
 	def String toString() {
 		return name
 	}
 
-
-	/*
-	 * Very scary behaviour... commenting this code out. Refactor
-	 * your code that relies on this by using something like
-	 * Term.findByName( string ) instead...
-	 * 
-	 * Jeroen 20100323
-	 *
-
-	// Covenenice method for delivering Terms.
-	// if the term is already defined, use it.
-	// otherwise, create it and return it.
-	// should be removed when ontologies work.
-	static getTerm( string ) {
-	    def term = Term.find("from Term as t where t.name = '${string}'")
-	    if( term==null ) { term = new Term()
-		    term.name=string
-		    term.ontology = Ontology.find('from Ontology as o')
-		    term.accession = ''
-		    if( !term.save(flush:true) )  {
-			    term.errors.each{ println it }
-		    }
-	    }
-	    return term
-	}
-
-	 *
-	 */
 }
