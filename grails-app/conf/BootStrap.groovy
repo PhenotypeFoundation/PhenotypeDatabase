@@ -24,7 +24,7 @@ class BootStrap {
 		// we could also check if we are in development by GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT
 		if (Study.count() == 0) {
 			printf("development bootstrapping....\n\n");
-
+ /*
 			// ontologies
 			def speciesOntology = new Ontology(
 				name: 'NCBI Taxonomy',
@@ -160,7 +160,7 @@ class BootStrap {
 				unit: 'ml',
 				type: ProtocolParameterType.FLOAT))
 			.save()
-
+ */
 			// create system user
 
 			/*def systemUser = userService.createUser(InstanceGenerator.user(
@@ -170,7 +170,7 @@ class BootStrap {
 				enabled: true
 			))*/
 
-
+ /*
 			def genderField = new TemplateField(
 				name: 'Gender',type: TemplateFieldType.STRINGLIST,
 				listEntries: [new TemplateFieldListItem(name:'Male'),new TemplateFieldListItem(name: 'Female')])
@@ -683,7 +683,7 @@ class BootStrap {
 
 			humanStudy.addToAssays(lipidAssayRef);
 			humanStudy.save()
-
+*/
 		}
 	}
 
