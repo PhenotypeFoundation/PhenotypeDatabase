@@ -17,7 +17,7 @@ class EventController {
     }
 
 
-    def createForEventDescription = {
+    /*def createForEventDescription = {
         if( params["id"]==null)
 	{
             def eventInstance = new Event()
@@ -35,7 +35,7 @@ class EventController {
             }
             return [testo:params.clone(), sDate:eventInstance.startTime, eDate:eventInstance.endTime, description:eventInstance.eventDescription]
         }
-    }
+    }*/
 
 
     // Convert date strings to date strings grails can deal with.
@@ -203,6 +203,8 @@ class EventController {
 
 	if( !(params['id']=~/^[\d]+$/) ) {
 
+            /* Not needed anymore: replace by template check?
+
             def description = new EventDescription()
 	    description.name = (params['name']==null || params['name'].replaceAll(/\S/,'').size()==0 ) ? '[no Name]' : params['name']
 	    description.description = (params['description']==null || params['description'].replaceAll(/\w/,'').size()==0 ) ? '[no description]' : params['description']
@@ -214,7 +216,7 @@ class EventController {
             }
 	    else {
 		description.errors.each{ println it }
-	    }
+	    }*/
 
             def event = description.isSamplingEvent ? new SamplingEvent() : new Event();
 
@@ -258,6 +260,8 @@ class EventController {
 
             // save basic changes in event and event description
 
+	    /* Not needed anymore: replace by template check?
+
             def description = event.eventDescription
 	    def oldProtocol = description.protocol
 
@@ -265,8 +269,14 @@ class EventController {
 	    description.name = ( name==null || name.replaceAll(/\S/,'').size()==0 ) ? '[no Name]' : name
 	    description.description = (params['description']==null || params['description'].replaceAll(/\w/,'').size()==0 ) ? '[no description]' : params['description']
             description.isSamplingEvent = params['isSamplingEvent']=='on' ? true : false
+
+            */
+
 	    event.startTime = new Date(params["startTime"])
 	    event.endTime   = new Date(params["endTime"])
+
+
+	    /* Not needed anymore: replace by template check?
 
 
             // save changed parameters
@@ -289,7 +299,11 @@ class EventController {
 
                 // add all new parameter values
                 parseParamsForParameterValues( params, event )
+
+
             }
+
+            */
 
 
             // update samples
@@ -315,7 +329,7 @@ class EventController {
 
 	    }
 
-            ((Event)event).eventDescription=description
+            //((Event)event).eventDescription=description
 
 
             if (event.save(flush: true)) {
@@ -390,8 +404,10 @@ class EventController {
             def eventInstance = new Event()
 	    def sDate = new Date()
 	    def eDate = new Date()
-	    def description = new EventDescription()
-            return [eventInstance:eventInstance, testo:params.clone(), sDate:sDate, eDate:eDate, description:description, showSample:false, samples:null, createNew:true ]
+	    //def description = new EventDescription()
+            return [eventInstance:eventInstance, testo:params.clone(), sDate:sDate, eDate:eDate,
+	            //description:description,
+	    showSample:false, samples:null, createNew:true ]
 	}
 
 
@@ -412,7 +428,9 @@ class EventController {
 		// later, also check of eventInstance's study contains any subjects, if so, show them as list to chose from
 	    }
 
-	    return [eventInstance:eventInstance, testo:params.clone(), sDate:eventInstance.startTime, eDate:eventInstance.endTime, description:eventInstance.eventDescription, showSample:showSample, samples:samples, createNew:false ]
+	    return [eventInstance:eventInstance, testo:params.clone(), sDate:eventInstance.startTime, eDate:eventInstance.endTime,
+		    // description:eventInstance.eventDescription,
+	    showSample:showSample, samples:samples, createNew:false ]
         }
 
     }
