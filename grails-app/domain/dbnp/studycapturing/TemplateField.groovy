@@ -1,5 +1,7 @@
 package dbnp.studycapturing
 
+import dbnp.data.Ontology
+
 /**
  * This is the class for template fields. These should be part of one or more templates via Template.fields
  *
@@ -13,12 +15,13 @@ class TemplateField implements Serializable {
 	TemplateFieldType type
 	String unit
 	String comment // help string for the user interface
-
 	List listEntries
-        static hasMany = [listEntries : TemplateFieldListItem,
- // to store the entries to choose from when the type is 'item from predefined list'
-	   ontologies : Ontology // to store the ontologies to choose from when the type is 'ontology term'
-]
+
+    static hasMany = [listEntries : TemplateFieldListItem,
+ 		// to store the entries to choose from when the type is 'item from predefined list'
+	   	ontologies : Ontology // to store the ontologies to choose from when the type is 'ontology term'
+	]
+	
 	static constraints = {
 		name(unique: true)
 		unit(nullable: true, blank: true)

@@ -23,7 +23,7 @@
  * @since       20100312
  * @package     wizard
  * @requires    jquery, jquery-ui
- * @see         http://www.bioontology.org/wiki/index.php/NCBO_Widgets#Term-selection_field_on_a_form
+ * @see         http://bioportal.bioontology.org/ontologies/
  * @see         http://bioportal.bioontology.org/search/json_search/?q=musculus
  *
  * Revision information:
@@ -34,7 +34,7 @@
 function OntologyChooser() {
 }
 OntologyChooser.prototype = {
-    minLength   : 2,    // minimum input length before launching Ajax request
+    minLength   : 3,    // minimum input length before launching Ajax request
     cache       : [],   // ontology cache
 
     /**
@@ -67,6 +67,7 @@ OntologyChooser.prototype = {
         // http://bioportal.bioontology.org/search/json_search/?q=musculus
         inputElement.autocomplete({
             minLength: that.minLength,
+            delay: 300,
             search: function(event, ui) {
                 selected = false;
             },

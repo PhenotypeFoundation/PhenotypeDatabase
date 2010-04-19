@@ -211,6 +211,7 @@ class WizardTagLib extends JavascriptTagLib {
 		def description = attrs.remove('description')
 		def addExampleElement = attrs.remove('addExampleElement')
 		def addExample2Element = attrs.remove('addExample2Element')
+		def helpText = help().trim()
 
 		// got an ajax onchange action?
 		def ajaxOnChange = attrs.remove('ajaxOnChange')
@@ -242,7 +243,7 @@ class WizardTagLib extends JavascriptTagLib {
 		out << ' </div>'
 		out << ' <div class="input">'
 		out << renderedElement
-		if (help()) {
+		if (helpText.size() > 0) {
 			out << '	<div class="helpIcon"></div>'
 		}
 
@@ -271,13 +272,26 @@ class WizardTagLib extends JavascriptTagLib {
 		out << ' </div>'
 
 		// add help content if it is available
-		if (help()) {
+		if (helpText.size() > 0) {
 			out << '  <div class="helpContent">'
-			out << '    ' + help()
+			out << '    ' + helpText
 			out << '  </div>'
 		}
 
 		out << '</div>'
+	}
+
+	/**
+	 * render an ajaxButtonElement
+	 * @param Map attrs
+	 * @param Closure body  (help text)
+	 */
+	def ajaxButtonElement = { attrs, body ->
+		baseElement.call(
+			'ajaxButton',
+			attrs,
+			body
+		)
 	}
 
 	/**
@@ -435,6 +449,35 @@ class WizardTagLib extends JavascriptTagLib {
 		out << select(attrs)
 	}
 
+	/**
+	 * Ontology form element
+	 * @param Map attributes
+	 * @param Closure help content
+	 */
+	def ontologyElement = { attrs, body ->
+		// @see http://www.bioontology.org/wiki/index.php/NCBO_Widgets#Term-selection_field_on_a_form
+		// @see ontology-chooser.js, table-editor.js
+		baseElement.call(
+			'textField',
+			[
+			    name: attrs.name,
+				value: attrs.value,
+				description: attrs.description,
+				rel: 'ontology-' + ((attrs.ontology) ? attrs.ontology : 'all') + '-name',
+				size: 25
+			],
+			body
+		)
+		out << hiddenField(
+			name: attrs.name + '-concept_id'
+		)
+		out << hiddenField(
+			name: attrs.name + '-ontology_id'
+		)
+		out << hiddenField(
+			name: attrs.name + '-full_id'
+		)
+	}
 
 	/**
 	 * Study form element

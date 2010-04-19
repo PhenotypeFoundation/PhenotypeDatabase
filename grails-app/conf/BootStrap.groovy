@@ -26,7 +26,7 @@ class BootStrap {
 			printf("development bootstrapping....\n\n");
 
 			// adding the academic
-			println "Adding academic study template..."
+			println ".adding academic study template..."
 			def studyTemplate = new Template(
 				name: 'Academic study', entity: dbnp.studycapturing.Study)
 				.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING))
@@ -35,6 +35,60 @@ class BootStrap {
 				.addToFields(new TemplateField(name: 'Responsible scientist',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Lab code',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING))
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+ 			// Mouse template
+			println ".adding mouse subject template..."
+			def mouseTemplate = new Template(
+				name: 'Mouse', entity: dbnp.studycapturing.Subject)
+			.addToFields(new TemplateField(
+				name: 'Strain', type: TemplateFieldType.ONTOLOGYTERM))
+			//.addToFields(genotypeField)
+			//.addToFields(genotypeTypeField)
+			//.addToFields(genderField)
+			.addToFields(new TemplateField(
+				name: 'Age (weeks)', type: TemplateFieldType.INTEGER, unit: 'weeks'))
+			.addToFields(new TemplateField(
+				name: 'Age type',type: TemplateFieldType.STRINGLIST,
+				listEntries: [new TemplateFieldListItem(name:'postnatal'),new TemplateFieldListItem(name:'embryonal')]))
+			.addToFields(new TemplateField(
+				name: 'Cage',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: '#Mice in cage',type: TemplateFieldType.INTEGER))
+			.addToFields(new TemplateField(
+				name: 'Litter size',type: TemplateFieldType.INTEGER))
+			.addToFields(new TemplateField(
+				name: 'Weight (g)', type: TemplateFieldType.DOUBLE, unit: 'gram'))
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			// Human template
+			println ".adding human subject template..."
+			def humanTemplate = new Template(
+				name: 'Human', entity: dbnp.studycapturing.Subject)
+			//.addToFields(genderField)
+			//.addToFields(ageField)
+			.addToFields(new TemplateField(
+				name: 'DOB',type: TemplateFieldType.DATE))
+			.addToFields(new TemplateField(
+				name: 'Height',type: TemplateFieldType.DOUBLE, unit: 'm'))
+			.addToFields(new TemplateField(
+				name: 'Weight (kg)',type: TemplateFieldType.DOUBLE, unit: 'kg'))
+			.addToFields(new TemplateField(
+				name: 'BMI',type: TemplateFieldType.DOUBLE, unit: 'kg/m2'))
+			.addToFields(new TemplateField(
+				name: 'Race',type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Waist circumference',type: TemplateFieldType.FLOAT, unit: 'cm'))
+			.addToFields(new TemplateField(
+				name: 'Hip circumference',type: TemplateFieldType.FLOAT, unit: 'cm'))
+			.addToFields(new TemplateField(
+				name: 'Systolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg'))
+			.addToFields(new TemplateField(
+				name: 'Diastolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg'))
+			.addToFields(new TemplateField(
+				name: 'Heart rate',type: TemplateFieldType.FLOAT, unit: 'beats/min'))
+			.addToFields(new TemplateField(
+				name: 'Run-in-food',type: TemplateFieldType.TEXT))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 
