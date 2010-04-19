@@ -12,21 +12,9 @@ import groovy.time.*
  * $Author$
  * $Date$
  */
-class Event implements Serializable {
-	EventDescription eventDescription
+class Event extends TemplateEntity implements Serializable {
 	Date startTime
 	Date endTime
-	Map parameterStringValues
-	Map parameterIntegerValues
-	Map parameterFloatValues
-        Map parameterStringListValues
-
-	static hasMany = [
-		parameterStringValues: String, // stores STRINGLIST items 
-		parameterStringListValues: ParameterStringListItem,
-		parameterIntegerValues: int,
-		parameterFloatValues: float,
-	]
 
 	static constraints = {
 		startTime(nullable:false)

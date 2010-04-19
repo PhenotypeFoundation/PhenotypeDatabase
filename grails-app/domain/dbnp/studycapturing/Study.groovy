@@ -27,7 +27,6 @@ class Study extends TemplateEntity implements Serializable {
 		editors: nimble.User,
 		readers: nimble.User,
 		subjects: Subject,
-		groups: SubjectGroup,
 		events: Event,
 		samplingEvents: SamplingEvent,
 		eventGroups: EventGroup,
