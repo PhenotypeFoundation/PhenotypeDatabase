@@ -18,8 +18,10 @@
  <li>de mogelijkheid bieden om bovengenoemde ontologies toe te voegen als ze nog niet in ons datamodel bestaan (@see Ontology domain class)</li>
  <li>de mogelijkheid bieden terms toe te voegen uit boven genoemde ontologies (zie ook wizard:ontologyElement en ontology-chooser.js)</li>
  <li>na sluiten van de popup (zie wizard subject page):
- 	<li>óf de select dynamisch te updaten met toegevoegde velden</li>
- 	<li>óf de pagina te 'refreshen' --> overleg met Jeroen</li>
+	<ul>
+ 	<li>óf de select dynamisch te updaten met toegevoegde velden (mooi maar complex)</li>
+ 	<li>óf de pagina te 'refreshen' --> dit is momenteel geïmplementeerd in de 'create study' wizard</li>
+	</ul>
  </li>
  </ul>
 
