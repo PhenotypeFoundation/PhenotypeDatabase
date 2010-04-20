@@ -15,8 +15,8 @@
 
  Deze wizard moet dus:
  <ul>
- <li>de mogelijkheid bieden om ontologies toe te voegen (@see Ontology domain class)</li>
- <li>de mogelijkheid bieden terms toe te voegen uit bepaalde ontologies</li>
+ <li>de mogelijkheid bieden om bovengenoemde ontologies toe te voegen als ze nog niet in ons datamodel bestaan (@see Ontology domain class)</li>
+ <li>de mogelijkheid bieden terms toe te voegen uit boven genoemde ontologies (zie ook wizard:ontologyElement en ontology-chooser.js)</li>
  <li>na sluiten van de popup (zie wizard subject page):
  	<li>óf de select dynamisch te updaten met toegevoegde velden</li>
  	<li>óf de pagina te 'refreshen' --> overleg met Jeroen</li>
