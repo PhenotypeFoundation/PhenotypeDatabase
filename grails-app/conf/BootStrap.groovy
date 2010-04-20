@@ -23,7 +23,7 @@ class BootStrap {
 
 		// we could also check if we are in development by GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT
 		if (Study.count() == 0) {
-			printf("development bootstrapping....\n\n");
+			println ".development bootstrapping...";
 
 			// adding the academic
 			println ".adding academic study template..."
