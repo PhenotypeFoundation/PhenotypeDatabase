@@ -25,9 +25,6 @@
 	<wizard:textFieldElement name="addNumber" description="Number of subjects to add" error="addNumber" value="1" size="4" maxlength="4">
 		The number of subjects to add to your study
 	</wizard:textFieldElement>
-	<wizard:ontologyElement name="species" description="of species" value="" ontology="1132">
-		The species of the subjects you would like to add to your study
-	</wizard:ontologyElement>
 	<wizard:termElement name="species" description="of species" value="" ontology="1132">
 		The species of the subjects you would like to add to your study
 	</wizard:termElement>

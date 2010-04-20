@@ -461,6 +461,9 @@ class WizardTagLib extends JavascriptTagLib {
 			// define 'from'
 			attrs.from = from
 
+			// add 'rel' attribute
+			attrs.rel = 'term'
+
 			out << select(attrs)
 		} else {
 			out << "you should specify: <i>ontology=\"id\"</i> or <i>ontology=\"id1,id2,...,idN\"</i>"

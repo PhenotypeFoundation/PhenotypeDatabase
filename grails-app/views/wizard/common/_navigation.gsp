@@ -23,3 +23,9 @@
 	  </g:elseif>
 	  <g:if test="${page<pages.size}"><wizard:ajaxButton name="next" value="next &raquo;" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" class="prevnext" /></g:if>
     </div>
+
+<script type="text/javascript">
+function refreshWebFlow() {
+	<wizard:ajaxSubmitJs name="refresh" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" class="prevnext" />
+}
+</script>

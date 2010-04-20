@@ -150,6 +150,9 @@ class WizardController {
 					flow.subjectTemplates = [:]
 				}
 			}
+			on("refresh") {
+				flash.values = params
+			}.to "subjects"
 			on("add") {
 				println params
 				flash.values = params
