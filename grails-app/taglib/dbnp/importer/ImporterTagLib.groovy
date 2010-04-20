@@ -18,11 +18,6 @@ import dbnp.studycapturing.Template
 import dbnp.studycapturing.TemplateFieldType
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.ss.usermodel.DataFormatter
-import dbnp.studycapturing.Study
-import dbnp.studycapturing.Subject
-import dbnp.studycapturing.Event
-import dbnp.studycapturing.Protocol
-import dbnp.studycapturing.Sample
 
 class ImporterTagLib {
     static namespace = 'importer'

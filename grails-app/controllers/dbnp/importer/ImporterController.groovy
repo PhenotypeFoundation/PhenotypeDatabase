@@ -19,13 +19,12 @@
  */
 
 package dbnp.importer
-import org.apache.poi.hssf.usermodel.HSSFCell
-import org.apache.poi.ss.usermodel.DataFormatter
+
 import dbnp.studycapturing.Template
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Subject
 import dbnp.studycapturing.Event
-import dbnp.studycapturing.Protocol
+
 import dbnp.studycapturing.Sample
 import dbnp.studycapturing.TemplateFieldType
 import dbnp.studycapturing.TemplateField
