@@ -91,6 +91,30 @@ class BootStrap {
 				name: 'Run-in-food',type: TemplateFieldType.TEXT))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
+			// add NCBI species ontology
+			println ".adding NCBI species ontology"
+			def speciesOntology = new Ontology(
+				name: 'NCBI organismal classification',
+				description: 'A taxonomic classification of living organisms and associated artifacts for their controlled description within the context of databases.',
+				url: 'http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/',
+				versionNumber: '1.2',
+				ncboId: '1132',
+				ncboVersionedId: '38802'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			// add TERMS
+			println ".adding mouse term"
+			def mouseTerm = new Term(
+				name: 'Mus musculus',
+				ontology: speciesOntology,
+				accession: '10090'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+			println ".adding human term"
+			def humanTerm = new Term(
+				name: 'Homo sapiens',
+				ontology: speciesOntology,
+				accession: '9606'
+			).with { if (!validate()) { errors.each { println it} } else save()}
 
 
  /*   COMMENTED OUT BECAUSE IT BREAKS EVERYTHING AFTER REFACTORING THE DATAMODEL

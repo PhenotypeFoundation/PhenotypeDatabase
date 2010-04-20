@@ -18,7 +18,7 @@ class Term implements Serializable {
 
 	String name             // BioPortal: label (preferred name)
 	Ontology ontology       // Parent ontology
-	String accession        // BioPortal: fullId
+	String accession        // BioPortal: conceptId
 
 	static constraints = {
 		accession(unique: 'ontology')

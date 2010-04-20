@@ -400,20 +400,6 @@ class WizardTagLib extends JavascriptTagLib {
 	}
 
 	/**
-	 * Template form element
-	 * @param Map attributes
-	 * @param Closure help content
-	 */
-	def speciesElement = {attrs, body ->
-		// render template element
-		baseElement.call(
-			'speciesSelect',
-			attrs,
-			body
-		)
-	}
-
-	/**
 	 * Button form element
 	 * @param Map attributes
 	 * @param Closure help content
@@ -422,6 +408,74 @@ class WizardTagLib extends JavascriptTagLib {
 		// render template element
 		baseElement.call(
 			'ajaxButton',
+			attrs,
+			body
+		)
+	}
+
+
+	/**
+	 * Term form element
+	 * @param Map attributes
+	 * @param Closure help content
+	 */
+	def termElement = { attrs, body ->
+		// render term element
+		baseElement.call(
+			'termSelect',
+			attrs,
+			body
+		)
+	}
+
+	/**
+	 * Term select element
+	 * @param Map attributes
+	 */
+	def termSelect = { attrs ->
+		def from = []
+
+		// got ontologies?
+		if (attrs.ontology) {
+			attrs.ontology.split(/\,/).each() { ncboId ->
+				// trim the id
+				ncboId.trim()
+				
+				// fetch all terms for this ontology
+				def ontology = Ontology.findAllByNcboId(ncboId)
+
+				// does this ontology exist?
+				if (ontology) {
+					ontology.each() {
+						Term.findAllByOntology(it).each() {
+							// key = ncboId:concept-id
+							from[ from.size() ] = it.name
+						}
+					}
+				}
+			}
+
+			// sort alphabetically
+			from.sort()
+			
+			// define 'from'
+			attrs.from = from
+
+			out << select(attrs)
+		} else {
+			out << "you should specify: <i>ontology=\"id\"</i> or <i>ontology=\"id1,id2,...,idN\"</i>"
+		}
+	}
+
+	/**
+	 * Template form element
+	 * @param Map attributes
+	 * @param Closure help content
+	 */
+	def speciesElement = {attrs, body ->
+		// render template element
+		baseElement.call(
+			'speciesSelect',
 			attrs,
 			body
 		)
@@ -563,36 +617,6 @@ class WizardTagLib extends JavascriptTagLib {
 			// is not rendered in the template
 			return false
 		}
-	}
-
-	/**
-	 * Term form element
-	 * @param Map attributes
-	 * @param Closure help content
-	 */
-	def termElement = {attrs, body ->
-		// render term element
-		baseElement.call(
-			'termSelect',
-			attrs,
-			body
-		)
-	}
-
-	/**
-	 * render a term select element
-	 * @param Map attrs
-	 */
-	def termSelect = {attrs ->
-		// fetch all terms
-		attrs.from = Term.findAll()	// for now, all terms as we cannot identify terms as being treatment terms...
-
-		// got a name?
-		if (!attrs.name) {
-			attrs.name = 'term'
-		}
-
-		out << select(attrs)
 	}
 
 	/**

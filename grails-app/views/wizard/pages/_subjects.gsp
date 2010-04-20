@@ -28,6 +28,9 @@
 	<wizard:ontologyElement name="species" description="of species" value="" ontology="1132">
 		The species of the subjects you would like to add to your study
 	</wizard:ontologyElement>
+	<wizard:termElement name="species" description="of species" value="" ontology="1132">
+		The species of the subjects you would like to add to your study
+	</wizard:termElement>
 	<wizard:templateElement name="template" description="with template" value="" error="template" entity="${dbnp.studycapturing.Subject}" >
 		The template to use for this study
 	</wizard:templateElement>
