@@ -13,7 +13,7 @@ class Person {
     String phone
     String address
 
-    static hasMany = [roles : PersonRole, affiliations: PersonAffiliation]
+    static hasMany = [affiliations: PersonAffiliation]
 
     static constraints = {
         firstName(nullable:true,blank:true)

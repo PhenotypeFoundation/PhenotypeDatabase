@@ -18,6 +18,15 @@
         <li><g:link controller="eventDescription" action="list">View event descriptions</g:link></li>
       </ul>
      </li>
+     <li>
+      <a href="#">Contacts</a>
+      <ul class="subnav">
+        <li><g:link controller="person" action="list">View persons</g:link></li>
+        <li><g:link controller="personAffiliation" action="list">View affiliations</g:link></li>
+        <li><g:link controller="personRole" action="list">View roles</g:link></li>
+      </ul>
+     </li>
+
 	 <li><g:link controller="importer" action="index">Import data</g:link></li>
     <g:if env="development">
      <li><g:link controller="query" action="index">Query database</g:link></li>
