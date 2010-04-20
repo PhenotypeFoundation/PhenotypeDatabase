@@ -27,18 +27,6 @@
 	<wizard:textFieldElement name="title" description="Title" error="title" value="${study?.title}">
 		The title of the study you are creating
 	</wizard:textFieldElement>
-	<wizard:textFieldElement name="code" description="Code" error="code" value="${study?.code}">
-		A code to reference your study by
-	</wizard:textFieldElement>
-	<wizard:textFieldElement name="researchQuestion" description="Research Question" error="researchQuestion" value="${study?.researchQuestion}">
-		The research question
-	</wizard:textFieldElement>
-	<wizard:textFieldElement name="description" description="Description" error="description" value="${study?.description}">
-		A short description summarizing your study
-	</wizard:textFieldElement>
-	<wizard:textFieldElement name="ecCode" description="Ethical Committee Code" error="ecCode" value="${study?.ecCode}">
-		[youtube:irvC_1ujhKo]
-	</wizard:textFieldElement>
 	<wizard:dateElement name="startDate" description="Start date" error="startDate" value="${study?.startDate}">
 		The start date of the study
 	</wizard:dateElement>
