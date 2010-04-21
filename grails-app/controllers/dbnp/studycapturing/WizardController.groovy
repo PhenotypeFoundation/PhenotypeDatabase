@@ -110,7 +110,18 @@ class WizardController {
 			onRender {
 				flow.page = 2
 			}
+			on("refresh") {
+				flash.values = params
+
+				// handle study data
+				this.handleStudy(flow, flash, params)
+
+				// remove errors as we don't want any warnings now
+				flash.errors = [:]				
+			}.to "study"
 			on("switchTemplate") {
+				flash.values = params
+
 				// handle study data
 				this.handleStudy(flow, flash, params)
 
