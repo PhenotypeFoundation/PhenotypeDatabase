@@ -222,11 +222,14 @@ class BootStrap {
 			println ".adding academic study template..."
 			def studyTemplate = new Template(
 				name: 'Academic study', entity: dbnp.studycapturing.Study)
+				.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT))
+				.addToFields(new TemplateField(name: 'Study code',type: TemplateFieldType.STRING))
+				.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT))
 				.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Cohort name',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Time zone',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Responsible scientist',type: TemplateFieldType.STRING))
-				.addToFields(new TemplateField(name: 'Lab code',type: TemplateFieldType.STRING))
+				.addToFields(new TemplateField(name: 'Lab id',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
