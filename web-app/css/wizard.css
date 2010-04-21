@@ -306,14 +306,3 @@
     text-align: center;
 }
 /* END :: BIG BUTTONS and BIG TEXT */
-
-/* START :: ADD TERM (select) */
-.wizard option.addTerm {
-    background: url(../images/icons/famfamfam/add.png) no-repeat left top;
-    background-color: #666;
-    padding-left: 18px;
-    height: 16px;
-    color: #c9e39c;
-    font-weight: bold;
-}
-/* END :: ADD TERM */

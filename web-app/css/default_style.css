@@ -249,3 +249,21 @@ th.desc a {
     color: #666;
 }
 /* END :: ontology autocomplete */
+
+/* START :: special select option styles */
+option.addTerm {
+    background: url(../images/icons/famfamfam/add.png) no-repeat left top;
+    background-color: #333;
+    padding-left: 18px;
+    height: 16px;
+    color: #fff;
+    font-weight: bold;
+}
+option.locked {
+    background: url(../images/icons/famfamfam/lock.png) no-repeat left top;
+    padding-left: 18px;
+}
+option.unlocked {
+    padding-left: 18px;
+}
+/* END :: special select option styles */
