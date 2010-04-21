@@ -52,7 +52,7 @@ SelectAddMore.prototype = {
         that.vars = vars;
         that.onClose = onClose;
 
-        // find all term elements
+        // find all matching select elements
         $("select[rel*='" + that.rel + "']").each(function() {
             // add the magic option
             that.addTermEditorOption(this);
@@ -70,11 +70,11 @@ SelectAddMore.prototype = {
         // add a magic option to the end of the select element
         e.append('<option value="" class="addTerm">add more...</option>');
 
-        // and bind to the onChange event
+        // and bind and onChange event
         e.bind('change', function() {
             // was our magic option selected?
             if (this.selectedIndex == s) {
-                // yeah, launch the term / ontology editor dialog
+                // yeah, launch the dialog associated with this select
                 // note that HTML5 options are being used to make
                 // the dialog integrate with the application!
                 // @see http://www.w3schools.com/html5/tag_iframe.asp
