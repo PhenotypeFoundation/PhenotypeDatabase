@@ -54,7 +54,7 @@
 				</div>
 				<div class="column"><g:textField name="subject_${subjectId}_name" value="${subjects[ subjectId ].name}" size="12" maxlength="12" /></div>
 				<div class="column">
-					<wizard:speciesSelect value="${subjects[ subjectId ].species}" name="subject_${subjectId}_species" />
+					<wizard:termSelect value="${subjects[ subjectId ].species}" name="subject_${subjectId}_species" ontology="1132" />
 				</div>
 				<wizard:templateColumns id="${subjectId}" template="${subjects[ subjectId ].template}" name="subject_${subjectId}" class="column" subject="${subjects[ subjectId ]}" />				
 			</div>

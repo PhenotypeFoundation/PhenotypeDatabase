@@ -15,7 +15,7 @@
 		});
 	});
 </script>
-	<img id="add_feedback" src="${resource(dir: 'images', file: 'icons/famfamfam/comment_add.png')}" style="cursor: pointer;" alt="submit feedback for this page" />
+	<img id="add_feedback" src="${resource(dir: 'images', file: 'icons/famfamfam/bug_add.png')}" style="cursor: pointer;" alt="submit feedback for this page" />
 	<div class="feedback" id="feedback">
 	  <form>
 		<g:hiddenField name="feedbackUrl" />

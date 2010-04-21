@@ -154,13 +154,10 @@ class WizardController {
 				flash.values = params
 			}.to "subjects"
 			on("add") {
-				println params
 				flash.values = params
-/*
-				// fetch species by name (as posted by the form)
-				def speciesTerm = Term.findByName(params.addSpecies)
-				def subjectTemplateName = params.get('template')
-				def subjectTemplate	= Template.findByName(subjectTemplateName)
+				def speciesTerm = Term.findByName(params.species);
+				def subjectTemplateName = params.get('template');
+				def subjectTemplate = Template.findByName(subjectTemplateName);
 
 				// add this subject template to the subject template array
 				if (!flow.subjectTemplates[ subjectTemplateName ]) {
@@ -171,7 +168,7 @@ class WizardController {
 					]
 				}
 
-				// add x subject of species y
+				// add x subjects of species y
 				(params.addNumber as int).times {
 					def increment = flow.subjects.size()
 					def subject = new Subject(
@@ -187,7 +184,6 @@ class WizardController {
 					def subjectsSize = flow.subjectTemplates[ subjectTemplateName ]['subjects'].size()
 					flow.subjectTemplates[ subjectTemplateName ]['subjects'][ subjectsSize ] = increment
 				}
-*/
 			}.to "subjects"
 			on("next") {
 				flash.errors = [:]

@@ -471,42 +471,6 @@ class WizardTagLib extends JavascriptTagLib {
 	}
 
 	/**
-	 * Template form element
-	 * @param Map attributes
-	 * @param Closure help content
-	 */
-	def speciesElement = {attrs, body ->
-		// render template element
-		baseElement.call(
-			'speciesSelect',
-			attrs,
-			body
-		)
-	}
-
-	/**
-	 * render a species select element
-	 * @param Map attrs
-	 */
-	def speciesSelect = {attrs ->
-		// fetch the speciesOntology
-		// note that this is a bit nasty, probably the ontologyName should
-		// be configured in a configuration file... --> TODO: centralize species configuration
-		def speciesOntology = Ontology.findByName('NCBI Taxonomy')
-
-		// fetch all species
-		attrs.from = Term.findAllByOntology(speciesOntology)
-
-		// got a name?
-		if (!attrs.name) {
-			// nope, use a default name
-			attrs.name = 'species'
-		}
-
-		out << select(attrs)
-	}
-
-	/**
 	 * Ontology form element
 	 * @param Map attributes
 	 * @param Closure help content
@@ -550,7 +514,6 @@ class WizardTagLib extends JavascriptTagLib {
 		)
 	}
 
-
 	/**
 	 * render a study select element
 	 * @param Map attrs
@@ -580,6 +543,11 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Closure help content
 	 */
 	def templateElement = {attrs, body ->
+		// add a rel element if it does not exist
+		if (!attrs.rel) {
+			attrs.rel = 'template'
+		}
+		
 		// render template element
 		baseElement.call(
 			'templateSelect',

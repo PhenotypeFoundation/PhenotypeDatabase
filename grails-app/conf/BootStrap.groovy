@@ -302,6 +302,7 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Human sample template
+/* COMMENTED OUT AS IT BREAKS THE WHOLE LOT
 			def humanSampleTemplate = new Template(
 				name: 'Human tissue sample', entity: dbnp.studycapturing.Sample)
 			.addToFields(sampleDescriptionField)
@@ -361,7 +362,6 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 
-			/*
 			//events
 			def eventDiet = new EventDescription(
 				name: 'Diet treatment',
@@ -402,7 +402,7 @@ class BootStrap {
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
 			println('Adding PPS3 study...')
-                        */
+
 			// studies
 			def exampleStudy = new Study(
 				template: studyTemplate,
@@ -424,7 +424,7 @@ class BootStrap {
 				startDate: Date.parse('yyyy-MM-dd','2007-12-11')
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-			/*def evLF = new Event(
+			def evLF = new Event(
 				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
 				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
 				eventDescription: eventDiet,

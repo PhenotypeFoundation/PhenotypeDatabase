@@ -58,6 +58,17 @@ function onWizardPage() {
         }
     });
 
+    // handle template selects
+    new SelectAddMore().init({
+        rel     : 'template',
+        url     : '/gscf/templateEditor',
+        label   : 'add / modify..',
+        class   : 'modify',
+        onClose : function(scope) {
+            refreshWebFlow();
+        }
+    });
+
     // initialize accordeon(s)
     $("#accordion").accordion();
 }

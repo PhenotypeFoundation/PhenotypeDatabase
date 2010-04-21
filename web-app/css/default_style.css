@@ -259,6 +259,14 @@ option.addMore {
     color: #fff;
     font-weight: bold;
 }
+option.modify {
+    background: url(../images/icons/famfamfam/layout_add.png) no-repeat left top;
+    background-color: #333;
+    padding-left: 18px;
+    height: 16px;
+    color: #fff;
+    font-weight: bold;    
+}
 option.locked {
     background: url(../images/icons/famfamfam/lock.png) no-repeat left top;
     padding-left: 18px;
