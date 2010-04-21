@@ -47,7 +47,16 @@ function onWizardPage() {
     new OntologyChooser().init();
 
     // handle term selects
-    new SelectAddMore().init('term','/gscf/termEditor','ontology',function(scope) { refreshWebFlow(); });
+    new SelectAddMore().init({
+        rel     : 'term',
+        url     : '/gscf/termEditor',
+        vars    : 'ontology',
+        label   : 'add more...',
+        class   : 'addMore',
+        onClose : function(scope) {
+            refreshWebFlow();
+        }
+    });
 
     // initialize accordeon(s)
     $("#accordion").accordion();

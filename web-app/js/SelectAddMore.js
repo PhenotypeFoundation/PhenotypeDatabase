@@ -16,7 +16,15 @@
  *  <option value="carN">carN</option>
  * </select>
  * ...
- * new SelectAddMore().init('cars','http://my.site/addCars','myList',function(scope) { alert('cars closed : '+scope);});
+ * new SelectAddMore().init({
+ *      'rel'       : 'cars',
+ *      'url'       : 'http://my.site/modifyCars',
+ *      'label'     : 'modify cars...',
+ *      'class'     : 'myCSSClass',
+ *      'onClose'   : function(scope) {
+ *          alert('cars closed : ' + scope );
+ *      }
+ * });
  *
  * @author      Jeroen Wesbeek
  * @since       20100420
@@ -31,29 +39,33 @@
 function SelectAddMore() {
 }
 SelectAddMore.prototype = {
-    rel: 'myRel',
-    url: 'http://www.youtube.com/watch?v=2WNrx2jq184',
-    vars: 'myVar',
-    width: 800,
-    height: 500,
-    onClose: function(scope) {
-        alert('the dialog was closed! --> ' + scope)
+    // default options
+    options: {
+        rel     : 'addmore',
+        url     : 'http://www.youtube.com/watch?v=2WNrx2jq184',
+        vars    : 'vars',
+        label   : 'add more...',
+        class   : 'addmore',
+        width   : 800,
+        height  : 500,
+        onClose : function(scope) {
+            // onClose handler does nothing by default
+        }
     },
     
     /**
      * initialize object
      */
-    init: function(rel, url, vars, onClose) {
+    init: function(options) {
         var that = this;
 
         // set class parameters
-        that.rel = rel;
-        that.url = url;
-        that.vars = vars;
-        that.onClose = onClose;
+        $.each(options, function(key,value) {
+            that.options[key] = value;
+        });
 
         // find all matching select elements
-        $("select[rel*='" + that.rel + "']").each(function() {
+        $("select[rel*='" + this.options.rel + "']").each(function() {
             // add the magic option
             that.addTermEditorOption(this);
         });
@@ -68,7 +80,7 @@ SelectAddMore.prototype = {
         var s = e.children().size();
 
         // add a magic option to the end of the select element
-        e.append('<option value="" class="addTerm">add more...</option>');
+        e.append('<option value="" class="' + this.options.class + '">' + this.options.label + '</option>');
 
         // and bind and onChange event
         e.bind('change', function() {
@@ -78,16 +90,16 @@ SelectAddMore.prototype = {
                 // note that HTML5 options are being used to make
                 // the dialog integrate with the application!
                 // @see http://www.w3schools.com/html5/tag_iframe.asp
-                $('<iframe src="' + that.url + '?' + that.vars + '=' + e.attr(that.vars) + '" sanbox="allow-same-origin" seamless />').dialog({
-                    title: 'Add more...',
+                $('<iframe src="' + that.options.url + '?' + that.options.vars + '=' + e.attr(that.options.vars) + '" sanbox="allow-same-origin" seamless />').dialog({
+                    title: that.options.label,
                     autoOpen: true,
-                    width: that.width,
-                    height: that.height,
+                    width: that.options.width,
+                    height: that.options.height,
                     modal: true,
                     close: function() {
-                        that.onClose(this);
+                        that.options.onClose(this);
                     }
-                }).width(that.width - 10).height(that.height)
+                }).width(that.options.width - 10).height(that.options.height)
             }
         })
     }

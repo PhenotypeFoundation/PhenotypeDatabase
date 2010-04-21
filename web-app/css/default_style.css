@@ -251,7 +251,7 @@ th.desc a {
 /* END :: ontology autocomplete */
 
 /* START :: special select option styles */
-option.addTerm {
+option.addMore {
     background: url(../images/icons/famfamfam/add.png) no-repeat left top;
     background-color: #333;
     padding-left: 18px;
