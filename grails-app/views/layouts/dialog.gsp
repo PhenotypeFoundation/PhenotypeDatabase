@@ -4,6 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-EN" xml:lang="en-EN">
  <head>
   <title><g:layoutTitle default="Grails"/></title>
+  <link rel="stylesheet" href="${resource(dir: 'css', file: 'dialog.css')}"/>
   <g:javascript library="jquery"/>
   <script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8rc3.custom.min.js')}" type="text/javascript"></script>
   <link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8rc3.custom.css')}"/>

@@ -52,8 +52,8 @@ class TermEditorController {
 			}
 		}
 
-		// main template editor page
-		templates {
+		// main term editor page
+		terms {
 			render(view: "/termEditor/terms")
 			onRender {
 				println "renderderender!"

@@ -563,6 +563,14 @@ class WizardTagLib extends JavascriptTagLib {
 	def templateSelect = {attrs ->
 		def entity = attrs.remove('entity')
 
+		// add the entity class name to the element as
+		// a base64 encoded string.
+		// TODO: encrypt this, instead of using base64!
+		//       As this class is instantiated elsewhere
+		//       this is a security hazard!
+		//		 @see TemplateEditorController
+		attrs['entity'] = entity.toString().replaceAll(/^class /,'').bytes.encodeBase64()
+
 		// fetch templates
 		if (attrs.remove('addDummy')) {
 			attrs.from = ['']

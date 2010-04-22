@@ -62,6 +62,7 @@ function onWizardPage() {
     new SelectAddMore().init({
         rel     : 'template',
         url     : '/gscf/templateEditor',
+        vars    : 'entity',
         label   : 'add / modify..',
         class   : 'modify',
         onClose : function(scope) {

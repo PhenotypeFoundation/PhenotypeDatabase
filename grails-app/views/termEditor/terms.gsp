@@ -1,8 +1,26 @@
+<%
+	/**
+	 * Term Editor overview template
+	 *
+	 * @author Jeroen Wesbeek
+	 * @since 20100422
+	 * @package wizard
+	 * @see dbnp.studycapturing.TermEditorController
+	 *
+	 * Revision information:
+	 * $Rev$
+	 * $Author$
+	 * $Date$
+	 */
+%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
  <head>
-  <meta name="layout" content="dialog"/>
-  <title>my bla</title>
+  <meta name="layout" content="dialog"/><g:if env="production"></g:if>
+  <script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.min.js')}"></script>
+</g:if><g:else>
+  <script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
+</g:else>
  </head>
  <body>
  hoi, dit is <b>http://localhost:8080/gscf/termEditor</b> en ik heb deze ontology NCBO id's meegekregen:
