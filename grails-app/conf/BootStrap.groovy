@@ -47,6 +47,42 @@ class BootStrap {
 				accession: '9606'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
+                        // Create a few persons, roles and Affiliations
+                        println ".adding persons, roles and affiliations"
+                        def affiliation1 = new PersonAffiliation(
+                            name: "Science Institute NYC"
+                        ).save();
+                        def affiliation2 = new PersonAffiliation(
+                            name: "InfoStats GmbH, Hamburg"
+                        ).save();
+                        def role1 = new PersonRole(
+                            name: "Principal Investigator"
+                        ).save();
+                        def role2 = new PersonRole(
+                            name: "Statician"
+                        ).save();
+                        def person1 = new Person(
+                            lastName: "Scientist",
+                            firstName: "John",
+                            midInitials: "R",
+                            email: "john@scienceinstitute.com",
+                            phone: "1-555-3049",
+                            address: "First street 2,NYC"
+                        )
+                        .addToAffiliations( affiliation1 )
+                        .addToAffiliations( affiliation2 )
+                        .save();
+                        
+                        def person2 = new Person(
+                            lastName: "Statician",
+                            firstName: "Jane",
+                            midInitials: "W",
+                            email: "jane@statisticalcompany.de",
+                            phone: "49-555-8291",
+                            address: "Dritten strasse 38, Hamburg, Germany"
+                        )
+                        .addToAffiliations( affiliation2 )
+                        .save();
 
  /*   COMMENTED OUT BECAUSE IT BREAKS EVERYTHING AFTER REFACTORING THE DATAMODEL
 
@@ -222,7 +258,7 @@ class BootStrap {
 			println ".adding academic study template..."
 			def studyTemplate = new Template(
 				name: 'Academic study', entity: dbnp.studycapturing.Study)
-				.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT))
+				//.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT))
 				.addToFields(new TemplateField(name: 'Study code',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT))
 				.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING))
@@ -302,7 +338,6 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Human sample template
-/* COMMENTED OUT AS IT BREAKS THE WHOLE LOT
 			def humanSampleTemplate = new Template(
 				name: 'Human tissue sample', entity: dbnp.studycapturing.Sample)
 			.addToFields(sampleDescriptionField)
@@ -362,6 +397,22 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 
+			// Event template
+			def dietTreatmentTemplate = new Template(
+				name: 'Diet treatment ', entity: dbnp.studycapturing.Event)
+			.addToFields(sampleDescriptionField)
+			.addToFields(new TemplateField(
+				name: 'Diet', type: TemplateFieldType.STRING))
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			def boostTreatmentTemplate = new Template(
+				name: 'Boost treatment ', entity: dbnp.studycapturing.Event)
+			.addToFields(sampleDescriptionField)
+			.addToFields(new TemplateField(
+				name: 'Compound', type: TemplateFieldType.STRING))
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+			/*
 			//events
 			def eventDiet = new EventDescription(
 				name: 'Diet treatment',
@@ -402,56 +453,63 @@ class BootStrap {
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
 			println('Adding PPS3 study...')
-
+                        */
 			// studies
 			def exampleStudy = new Study(
 				template: studyTemplate,
 				title:"NuGO PPS3 mouse study leptin module",
 				code:"PPS3_leptin_module",
 				researchQuestion:"Leptin etc.",
-				description:"C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled.",
 				ecCode:"2007117.c",
 				startDate: Date.parse('yyyy-MM-dd','2007-12-11')
-			).with { if (!validate()) { errors.each { println it} } else save()}
+			)
+                        //.setFieldValue( 'Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
+                        .with { if (!validate()) { errors.each { println it} } else save()}
 
 			def exampleHumanStudy = new Study(
 				template: humanTemplate,
 				title:"Human example template",
 				code:"Human example code",
 				researchQuestion:"Leptin etc.",
-				description:"C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled.",
 				ecCode:"2007117.c",
 				startDate: Date.parse('yyyy-MM-dd','2007-12-11')
-			).with { if (!validate()) { errors.each { println it} } else save()}
+			)
+                        //.setFieldValue( 'Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
+                        .with { if (!validate()) { errors.each { println it} } else save()}
 
 			def evLF = new Event(
 				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
 				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-				eventDescription: eventDiet,
-				parameterStringValues: ['Diet':'10% fat (palm oil)']
-			).with { if (!validate()) { errors.each { println it} } else save()}
+				template: dietTreatmentTemplate
+			)
+                        .setFieldValue( 'Diet','10% fat (palm oil)' )
+                        .with { if (!validate()) { errors.each { println it} } else save()}
 
 			def evHF = new Event(
 				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
 				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-				eventDescription: eventDiet,
-				parameterStringValues: ['Diet':'45% fat (palm oil)']
-			).with { if (!validate()) { errors.each { println it} } else save()}
+				template: dietTreatmentTemplate
+			)
+                        .setFieldValue( 'Diet','45% fat (palm oil)' )
+                        .with { if (!validate()) { errors.each { println it} } else save()}
 
 			def evBV = new Event(
 				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
 				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-				eventDescription: eventBoost,
-				parameterStringValues: ['Compound':'Vehicle']
-			).with { if (!validate()) { errors.each { println it} } else save()}
+				template: boostTreatmentTemplate
+			)
+                        .setFieldValue( 'Compound','Vehicle' )
+                        .with { if (!validate()) { errors.each { println it} } else save()}
 
 			def evBL = new Event(
 				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
 				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-				eventDescription: eventBoost,
-				parameterStringValues: ['Compound':'Leptin']
-			).with { if (!validate()) { errors.each { println it} } else save()}
+				template: boostTreatmentTemplate
+			)
+                        .setFieldValue( 'Compound','Leptin' )
+                        .with { if (!validate()) { errors.each { println it} } else save()}
 
+                        /*
 			def evLF4 = new Event(
 				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
 				endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
@@ -493,6 +551,7 @@ class BootStrap {
 					eventDescription: samplingEvent,
 					parameterFloatValues: ['Sample weight':5F]
 			).with { if (!validate()) { errors.each { println it} } else save()}
+                        */
 
 			// Add events to study
 			exampleStudy
@@ -500,12 +559,14 @@ class BootStrap {
 			.addToEvents(evHF)
 			.addToEvents(evBV)
 			.addToEvents(evBL)
-			.addToEvents(evLF4)
+			/*
+                        .addToEvents(evLF4)
 			.addToEvents(evHF4)
 			.addToEvents(evBV4)
 			.addToEvents(evBL4)
 			.addToSamplingEvents(evS)
 			.addToSamplingEvents(evS4)
+                        */
 			.save()
 
 			def LFBV1 = new EventGroup(name:"10% fat + vehicle for 1 week")
@@ -528,6 +589,7 @@ class BootStrap {
 			.addToEvents(evBL)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
+                        /*
 			def LFBV4 = new EventGroup(name:"10% fat + vehicle for 4 weeks")
 			.addToEvents(evLF4)
 			.addToEvents(evBV4)
@@ -547,18 +609,19 @@ class BootStrap {
 			.addToEvents(evHF4)
 			.addToEvents(evBL4)
 			.with { if (!validate()) { errors.each { println it} } else save()}
+                        */
 
             // Add subjects and samples and compose EventGroups
 
 			def x=1
-			80.times {
+			40.times {
 				def currentSubject = new Subject(
 					name: "A" + x++,
 					species: mouseTerm,
 					template: mouseTemplate,
 				)
 				.setFieldValue("Gender", "Male")
-				.setFieldValue("Genotype", c57bl6Term)
+				//.setFieldValue("Genotype", c57bl6Term)
 				.setFieldValue("Age (weeks)", 17)
 				.setFieldValue("Cage", "" + (int)(x/2))
 				.with { if (!validate()) { errors.each { println it} } else save()}
@@ -567,7 +630,8 @@ class BootStrap {
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				// Add subject to appropriate EventGroup
-				if (x > 70) { HFBL4.addToSubjects(currentSubject).save() }
+				/*
+                                if (x > 70) { HFBL4.addToSubjects(currentSubject).save() }
 				else if (x > 60) { HFBV4.addToSubjects(currentSubject).save() }
 				else if (x > 50) { LFBL4.addToSubjects(currentSubject).save() }
 				else if (x > 40) { LFBV4.addToSubjects(currentSubject).save() }
@@ -575,8 +639,14 @@ class BootStrap {
 				else if (x > 20) { HFBV1.addToSubjects(currentSubject).save() }
 				else if (x > 10) { LFBL1.addToSubjects(currentSubject).save() }
 				else             { LFBV1.addToSubjects(currentSubject).save() }
+                                */
 
-			}
+				if (x > 30) { HFBL1.addToSubjects(currentSubject).save() }
+				else if (x > 20) { HFBV1.addToSubjects(currentSubject).save() }
+				else if (x > 10) { LFBL1.addToSubjects(currentSubject).save() }
+				else             { LFBV1.addToSubjects(currentSubject).save() }
+
+                        }
 
 			// Add EventGroups to study
 			exampleStudy
@@ -584,13 +654,22 @@ class BootStrap {
 			.addToEventGroups(LFBL1)
 			.addToEventGroups(HFBV1)
 			.addToEventGroups(HFBL1)
-			.addToEventGroups(LFBV4)
-			.addToEventGroups(LFBL4)
-			.addToEventGroups(HFBV4)
-			.addToEventGroups(HFBL4)
-			.save()
+			//.addToEventGroups(LFBV4)
+			//.addToEventGroups(LFBL4)
+			//.addToEventGroups(HFBV4)
+			//.addToEventGroups(HFBL4)
 
-			println 'Adding PPSH study'
+                        // Add persons to study
+                        def studyperson1 = new StudyPerson( person: person1, role: role1 ).save();
+                        def studyperson2 = new StudyPerson( person: person2, role: role2 ).save();
+
+                        exampleStudy
+                        .addToPersons( studyperson1 )
+                        .addToPersons( studyperson2 )
+                        .save()
+
+			/*
+                        println 'Adding PPSH study'
 
                         def humanStudy = new Study(
 	                        template: studyTemplate,

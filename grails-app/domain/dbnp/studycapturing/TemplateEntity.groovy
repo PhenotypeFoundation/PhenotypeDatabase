@@ -262,6 +262,23 @@ abstract class TemplateEntity implements Serializable {
 	}
 
 	/**
+	 * Check whether a given template field exists or not
+	 * @param fieldName The name of the template field
+	 * @return true if the given field exists and false otherwise
+	 */
+	def fieldExists(String fieldName) {
+		TemplateFieldType fieldType = template.getFieldType(fieldName)
+
+                // If the field is found, a TemplateFieldType is returned
+                // otherwise null
+                if (fieldType) {
+                    return true
+                } else {
+                    return false
+                }
+	}
+
+	/**
 	 * Set a template/entity field value
 	 * @param fieldName The name of the template or entity field
 	 * @param value The value to be set, this should align with the (template) field type, but there are some convenience setters

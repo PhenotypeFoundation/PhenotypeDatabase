@@ -70,12 +70,16 @@ ${fieldValue(bean: studyInstance, field: "owner")}</td>
 
 
         </tr>
+        <g:if test="${studyInstance.fieldExists( 'Description' )}">
         <tr>
           <td></td>
           <td colspan="3">
             <b>${message(code: 'study.description.label', default: 'Description')} </b>:
-${fieldValue(bean: studyInstance, field: "description")}</td>
+            ${studyInstance.getFieldValue( 'Description' )}
+            
+          </td>
         </tr>
+        </g:if>
         </table>
       </g:each>
    

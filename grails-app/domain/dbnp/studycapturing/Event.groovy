@@ -87,7 +87,7 @@ class Event extends TemplateEntity implements Serializable {
 	}
 
 	def String toString() {
-		return eventDescription ? eventDescription.name : ""
+		return fieldExists( 'Description' ) ? getFieldValue( 'Description') : ""
 	}
 
 }
