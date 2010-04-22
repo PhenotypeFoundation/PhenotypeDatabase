@@ -65,22 +65,29 @@ SelectAddMore.prototype = {
         });
 
         // find all matching select elements
-        $("select[rel*='" + this.options.rel + "']").each(function() {
+        $("select[rel*='" + that.options.rel + "']").each(function() {
             // add the magic option
-            that.addTermEditorOption(this);
+            that.addOpenDialogOption(this);
         });
     },
 
     /**
      * extend the select element
      */
-    addTermEditorOption: function(element) {
-        var that = this;
-        var e = $(element);
-        var s = e.children().size();
+    addOpenDialogOption: function(element) {
+        var that    = this;
+        var e       = $(element);
+        var s       = e.children().size();
+        var class   = that.options.class;
+        var label   = that.options.label;
+        var vars    = that.options.vars;
+        var url     = that.options.url;
+        var width   = that.options.width;
+        var height  = that.options.height;
+        var onClose = that.options.onClose;
 
         // add a magic option to the end of the select element
-        e.append('<option value="" class="' + this.options.class + '">' + this.options.label + '</option>');
+        e.append('<option value="" class="' + class + '">' + label + '</option>');
 
         // and bind and onChange event
         e.bind('change', function() {
@@ -90,16 +97,16 @@ SelectAddMore.prototype = {
                 // note that HTML5 options are being used to make
                 // the dialog integrate with the application!
                 // @see http://www.w3schools.com/html5/tag_iframe.asp
-                $('<iframe src="' + that.options.url + '?' + that.options.vars + '=' + e.attr(that.options.vars) + '" sanbox="allow-same-origin" seamless />').dialog({
-                    title: that.options.label,
+                $('<iframe src="' + url + '?' + vars + '=' + e.attr(vars) + '" sanbox="allow-same-origin" seamless />').dialog({
+                    title   : label,
                     autoOpen: true,
-                    width: that.options.width,
-                    height: that.options.height,
-                    modal: true,
-                    close: function() {
-                        that.options.onClose(this);
+                    width   : width,
+                    height  : height,
+                    modal   : true,
+                    close   : function() {
+                        onClose(this);
                     }
-                }).width(that.options.width - 10).height(that.options.height)
+                }).width(width - 10).height(height)
             }
         })
     }
