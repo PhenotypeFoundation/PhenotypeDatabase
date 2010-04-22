@@ -1,6 +1,6 @@
 <%
 	/**
-	 * Template Editor overview template
+	 * Template Editor error
 	 *
 	 * @author Jeroen Wesbeek
 	 * @since 20100422
@@ -17,18 +17,12 @@
 <html>
  <head>
   <meta name="layout" content="dialog"/>
-  <title>my bla</title>
+  <title>error</title>
  </head>
  <body>
- templates for entity: ${entity}<br/>
 
- <g:if test="${templates}">
-  <ul>
-  <g:each in="${templates}">
-     <li>${it}</li>
-  </g:each>
-  </ul>
- </g:if>
- 
+ <h1>ERRORRRRRR!!!!</h1>
+ <img src="http://www.walyou.com/img/microsoft_error_blue_screen_of_death.jpg"/>
+
  </body>
 </html>

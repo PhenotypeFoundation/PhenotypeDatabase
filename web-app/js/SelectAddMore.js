@@ -47,7 +47,8 @@ SelectAddMore.prototype = {
         label   : 'add more...',
         class   : 'addmore',
         width   : 800,
-        height  : 500,
+        height  : 400,
+        position: 'center',
         onClose : function(scope) {
             // onClose handler does nothing by default
         }
@@ -85,6 +86,7 @@ SelectAddMore.prototype = {
         var width   = that.options.width;
         var height  = that.options.height;
         var onClose = that.options.onClose;
+        var position= that.options.position;
 
         // add a magic option to the end of the select element
         e.append('<option value="" class="' + class + '">' + label + '</option>');
@@ -103,6 +105,7 @@ SelectAddMore.prototype = {
                     width   : width,
                     height  : height,
                     modal   : true,
+                    position: position,
                     buttons : {
                                 Ok  : function() { $(this).dialog('close'); }
                               },

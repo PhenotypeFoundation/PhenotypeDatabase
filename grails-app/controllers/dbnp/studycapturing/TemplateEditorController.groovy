@@ -37,26 +37,49 @@ class TemplateEditorController {
 	 */
 	def pagesFlow = {
 		// start the flow
-		onStart {
-			println params
-			if (params.entity) {
-				//def name = params.entity
-				//def name = "java.lang.Integer"
-				//println name.class
-				//def S = new dbnp.studycapturing.Study()
+		start {
+			action {
+				// define initial flow variables
+				flow.entity = null
+				flow.templates = []
 
-				//def name = "dbnp.studycapturing.Study" as Class
-				//println name.newInstance()
-				println Class.forName(new GString("dbnp.studycapturing.Study"))
-				//flow.entity = (name as Class).newInstance()
-				//flow.templates = Template.findAllByEntity(flow.entity)
-			} else {
-				// all templates for all entities; note that normally
-				// this shouldn't happen as this flow is designed to
-				// launch in a jquery dialog, passing an encoded entity
-				flow.templates = Template.findAll()
+				// define success variable
+				def errors = true
+
+				// got an entity parameter?
+				if (params.entity && params.entity instanceof String) {
+					// yes, try to dynamicall load the entity
+					try {
+						// dynamically load the entity
+						def entity = Class.forName(params.entity, true, this.getClass().getClassLoader())
+
+						// succes, is entity an instance of TemplateEntity?
+						if (entity.superclass =~ /TemplateEntity$/) {
+							errors = false
+
+							// yes, assign entity to the flow
+							flow.entity = entity
+
+							// fetch all templates to this entity
+							flow.templates = Template.findAllByEntity(entity)
+						}
+					} catch (Exception e) { }
+				}
+
+				// success?
+				if (errors) {
+					error()
+				} else {
+					success()
+				}
 			}
-			flow.templates = Template.findAll()
+			on("success").to "templates"
+			on("error").to "errorInvalidEntity"
+		}
+
+		// error dynamically loading entity
+		errorInvalidEntity {
+			render(view: "_errorInvalidEntity")
 		}
 
 		// main template editor page
