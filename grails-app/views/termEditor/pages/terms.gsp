@@ -16,7 +16,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
  <head>
-  <meta name="layout" content="dialog"/><g:if env="production"></g:if>
+  <meta name="layout" content="dialog"/><g:if env="production">
   <script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.min.js')}"></script>
 </g:if><g:else>
   <script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
@@ -26,9 +26,11 @@
  hoi, dit is <b>http://localhost:8080/gscf/termEditor</b> en ik heb deze ontology NCBO id's meegekregen:
 
  <ul>
- <g:each in="${ontologies}">
+ <g:if test="${ontologies}">
+  <g:each in="${ontologies}">
      <li>${it}</li>
- </g:each>
+  </g:each>
+ </g:if>
  </ul>
 
  Deze wizard moet dus:

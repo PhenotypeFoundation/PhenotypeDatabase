@@ -42,7 +42,7 @@ class TemplateEditorController {
 			}
 		}
 
-		// got with the flow!
+		// go with the flow!
     	redirect(action: 'pages', params:["entity":entity])
     }
 
@@ -91,14 +91,15 @@ class TemplateEditorController {
 			on("error").to "errorInvalidEntity"
 		}
 
-		// error dynamically loading entity
+		// could not dynamically load entity, possible hack
+		// or invalid entity specified in template field
 		errorInvalidEntity {
-			render(view: "_errorInvalidEntity")
+			render(view: "errorInvalidEntity")
 		}
 
 		// main template editor page
 		templates {
-			render(view: "/templateEditor/templates")
+			render(view: "templates")
 			onRender {
 				println "render templates"
 			}

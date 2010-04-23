@@ -54,7 +54,7 @@ class TermEditorController {
 
 		// main term editor page
 		terms {
-			render(view: "/termEditor/terms")
+			render(view: "terms")
 			onRender {
 				println "renderderender!"
 			}
