@@ -83,3 +83,8 @@ graphviz {
                 dot.executable = "/usr/bin/dot"
         }
 }
+
+// cryptography settings
+crypto {
+	shared.secret = "U73reG*mE^\$t@7s!e%"
+}

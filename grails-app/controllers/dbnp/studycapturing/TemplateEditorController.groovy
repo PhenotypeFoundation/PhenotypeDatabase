@@ -15,6 +15,7 @@
 package dbnp.studycapturing
 import dbnp.data.*
 import dbnp.studycapturing.*
+import cr.co.arquetipos.crypto.Blowfish
 
 class TemplateEditorController {
 	/**
@@ -25,7 +26,20 @@ class TemplateEditorController {
 		def entity = null
 		if (params.entity) {
 			// decode entity get parameter
-			entity = new String(params.entity.toString().decodeBase64())
+			if (grailsApplication.config.crypto) {
+				// generate a Blowfish encrypted and Base64 encoded string.
+				entity = Blowfish.decryptBase64(
+					params.entity,
+					grailsApplication.config.crypto.shared.secret
+				)
+			} else {
+				// base64 only; this is INSECURE! Even though it is not
+				// very likely, it is possible to exploit this and have
+				// Grails dynamically instantiate whatever class you like.
+				// If that constructor does something harmfull this could
+				// be dangerous. Hence, use encryption (above) instead...
+				entity = new String(params.entity.toString().decodeBase64())
+			}
 		}
 
 		// got with the flow!

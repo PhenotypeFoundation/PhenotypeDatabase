@@ -3,6 +3,7 @@ package dbnp.studycapturing
 import org.codehaus.groovy.grails.plugins.web.taglib.JavascriptTagLib
 import dbnp.studycapturing.*
 import dbnp.data.*
+import cr.co.arquetipos.crypto.Blowfish
 
 /**
  * Wizard tag library
@@ -563,13 +564,19 @@ class WizardTagLib extends JavascriptTagLib {
 	def templateSelect = {attrs ->
 		def entity = attrs.remove('entity')
 
-		// add the entity class name to the element as
-		// a base64 encoded string.
-		// TODO: encrypt this, instead of using base64!
-		//       As this class is instantiated elsewhere
-		//       this is a security hazard!
-		//		 @see TemplateEditorController
-		attrs['entity'] = entity.toString().replaceAll(/^class /,'').bytes.encodeBase64()
+		// add the entity class name to the element
+		// do we have crypto information available?
+		if (grailsApplication.config.crypto) {
+			// generate a Blowfish encrypted and Base64 encoded string.
+			attrs['entity'] = Blowfish.encryptBase64(
+				entity.toString().replaceAll(/^class /, ''),
+				grailsApplication.config.crypto.shared.secret
+			)
+		} else {
+			// base64 only; this is INSECURE! As this class
+			// is instantiated elsewehere. Possibly exploitable!
+			attrs['entity'] = entity.toString().replaceAll(/^class /, '').bytes.encodeBase64()
+		}
 
 		// fetch templates
 		if (attrs.remove('addDummy')) {
