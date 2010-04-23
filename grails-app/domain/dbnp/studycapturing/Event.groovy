@@ -25,6 +25,10 @@ class Event extends TemplateEntity implements Serializable {
        	})
 	}
 
+	Map giveDomainFields() {
+		return ['startTime':TemplateFieldType.DATE,'endTime':TemplateFieldType.DATE]
+	}
+
 	// time diff between end and start date
 	// thus, do this manually as follows
 

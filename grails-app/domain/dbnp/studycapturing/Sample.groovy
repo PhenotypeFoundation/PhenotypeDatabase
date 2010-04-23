@@ -15,6 +15,10 @@ class Sample extends TemplateEntity {
 	Term material
 	// a member that describes the quantity of the sample? --> should be in the templates
 
+	Map giveDomainFields() {
+		return ['name':TemplateFieldType.STRING,'material':TemplateFieldType.ONTOLOGYTERM]
+	}
+
 	static constraints = {
 		parentSubject(nullable:true)
 	}

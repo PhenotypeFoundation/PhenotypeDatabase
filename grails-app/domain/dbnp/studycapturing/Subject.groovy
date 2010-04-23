@@ -14,4 +14,8 @@ class Subject extends TemplateEntity implements Serializable {
 	static searchable = true
 	String name
 	Term species
+
+	Map giveDomainFields() {
+		return ['name':TemplateFieldType.STRING,'species':TemplateFieldType.ONTOLOGYTERM]
+	}
 }

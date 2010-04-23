@@ -247,7 +247,8 @@ class BootStrap {
 
 			def genotypeTypeField = new TemplateField(
 				name: 'Genotype type',type: TemplateFieldType.STRINGLIST,
-				listEntries: [new TemplateFieldListItem(name:'transgenic'),
+				listEntries: [new TemplateFieldListItem(name:'wildtype'),
+					new TemplateFieldListItem(name:'transgenic'),
 					new TemplateFieldListItem(name:'knock-out'),
 					new TemplateFieldListItem(name:'knock-in')])
 			.with { if (!validate()) { errors.each { println it} } else save()}
@@ -258,7 +259,7 @@ class BootStrap {
 			println ".adding academic study template..."
 			def studyTemplate = new Template(
 				name: 'Academic study', entity: dbnp.studycapturing.Study)
-				//.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT))
+				.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT))
 				.addToFields(new TemplateField(name: 'Study code',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT))
 				.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING))
@@ -338,6 +339,7 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Human sample template
+			println ".adding human sample template..."
 			def humanSampleTemplate = new Template(
 				name: 'Human tissue sample', entity: dbnp.studycapturing.Sample)
 			.addToFields(sampleDescriptionField)
@@ -347,6 +349,7 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			//Plant template
+			println ".adding plant template..."
 			def plantTemplate = new Template(
 				name: 'Plant template', entity: dbnp.studycapturing.Subject)
 			.addToFields(new TemplateField(
@@ -388,6 +391,7 @@ class BootStrap {
 				name: 'Harvest delay', type: TemplateFieldType.TEXT))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
+			println ".adding plant sample template..."
 			def plantSampleTemplate = new Template(
 				name: 'Plant sample', entity: dbnp.studycapturing.Sample)
 			.addToFields(sampleDescriptionField)
@@ -397,19 +401,22 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 
-			// Event template
+			// Event templates
+			println ".adding event templates..."
 			def dietTreatmentTemplate = new Template(
 				name: 'Diet treatment ', entity: dbnp.studycapturing.Event)
 			.addToFields(sampleDescriptionField)
 			.addToFields(new TemplateField(
-				name: 'Diet', type: TemplateFieldType.STRING))
+				name: 'Diet', type: TemplateFieldType.STRINGLIST,
+				listEntries: [new TemplateFieldListItem(name:'10% fat (palm oil)'),new TemplateFieldListItem(name: '45% fat (palm oil)')]))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def boostTreatmentTemplate = new Template(
 				name: 'Boost treatment ', entity: dbnp.studycapturing.Event)
 			.addToFields(sampleDescriptionField)
 			.addToFields(new TemplateField(
-				name: 'Compound', type: TemplateFieldType.STRING))
+				name: 'Compound', type: TemplateFieldType.STRING,
+				listEntries: [new TemplateFieldListItem(name:'Vehicle'),new TemplateFieldListItem(name: 'Leptin')]))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			/*
@@ -455,6 +462,7 @@ class BootStrap {
 			println('Adding PPS3 study...')
                         */
 			// studies
+			println ".adding NuGO PPS3 leptin example study..."
 			def exampleStudy = new Study(
 				template: studyTemplate,
 				title:"NuGO PPS3 mouse study leptin module",
@@ -463,27 +471,34 @@ class BootStrap {
 				ecCode:"2007117.c",
 				startDate: Date.parse('yyyy-MM-dd','2007-12-11')
 			)
-                        //.setFieldValue( 'Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
                         .with { if (!validate()) { errors.each { println it} } else save()}
 
+			exampleStudy.setFieldValue( 'Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
+			exampleStudy.save()
+
+			println ".adding NuGO PPSH example study..."
 			def exampleHumanStudy = new Study(
-				template: humanTemplate,
+				template: studyTemplate,
 				title:"Human example template",
 				code:"Human example code",
 				researchQuestion:"Leptin etc.",
 				ecCode:"2007117.c",
 				startDate: Date.parse('yyyy-MM-dd','2007-12-11')
 			)
-                        //.setFieldValue( 'Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
                         .with { if (!validate()) { errors.each { println it} } else save()}
+
+			exampleHumanStudy.setFieldValue( 'Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
+			exampleHumanStudy.save()
 
 			def evLF = new Event(
 				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
 				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
 				template: dietTreatmentTemplate
 			)
-                        .setFieldValue( 'Diet','10% fat (palm oil)' )
                         .with { if (!validate()) { errors.each { println it} } else save()}
+                        evLF.setFieldValue( 'Diet','10% fat (palm oil)' )
+	                evLF.save(flush:true)
+			// TODO: find out why Diet is not set and Compound is
 
 			def evHF = new Event(
 				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
@@ -624,7 +639,7 @@ class BootStrap {
 				//.setFieldValue("Genotype", c57bl6Term)
 				.setFieldValue("Age (weeks)", 17)
 				.setFieldValue("Cage", "" + (int)(x/2))
-				.with { if (!validate()) { errors.each { println it} } else save()}
+				.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 				exampleStudy.addToSubjects(currentSubject)
 				.with { if (!validate()) { errors.each { println it} } else save()}

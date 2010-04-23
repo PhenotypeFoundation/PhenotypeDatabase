@@ -17,13 +17,13 @@ class TemplateField implements Serializable {
 	String comment // help string for the user interface
 	List listEntries
 
-    static hasMany = [listEntries : TemplateFieldListItem,
- 		// to store the entries to choose from when the type is 'item from predefined list'
+    static hasMany = [listEntries :
+                TemplateFieldListItem, // to store the entries to choose from when the type is 'item from predefined list'
 	   	ontologies : Ontology // to store the ontologies to choose from when the type is 'ontology term'
 	]
 	
 	static constraints = {
-		name(unique: true)
+		// TODO: verify that TemplateField names are unique within templates of each super entity
 		unit(nullable: true, blank: true)
 		comment(nullable:true, blank: true)
 	}

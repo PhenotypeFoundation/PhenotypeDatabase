@@ -22,6 +22,9 @@ class Study extends TemplateEntity implements Serializable {
 	//String description
 	//String ecCode
 
+	Map giveDomainFields() {
+		return ['title':TemplateFieldType.STRING,'startDate':TemplateFieldType.DATE]
+	}
 
 	static hasMany = [
 		editors: nimble.User,

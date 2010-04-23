@@ -356,13 +356,14 @@ abstract class TemplateEntity implements Serializable {
 	 * Return all relevant 'built-in' domain fields of the super class
 	 * @return key-value pairs describing the built-in fields, with the names as keys and type (as TemplateFieldType) as values
  	 */
-	def giveDomainFields() {
+	abstract Map giveDomainFields()
+	/*def giveDomainFields() {
 		def fieldSet = [:];
 		if (super.hasProperty('name')) {
 			fieldSet['name'] = TemplateFieldType.STRING;
 		}
 		return fieldSet;
-	}
+	}*/
 
 	// See revision 237 for ideas about initializing the different templateField Maps
 	// with tailored Maps that already contain the neccessary keys

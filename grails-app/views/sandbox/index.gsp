@@ -29,8 +29,6 @@
 	</g:each>
 </tr>
 </table>
-<h2>Events</h2>
-<% println studyInstance.events.eventDescription.protocol.name %>
 <h2>Subject Fields</h2>
 <table>
 	<tr>
