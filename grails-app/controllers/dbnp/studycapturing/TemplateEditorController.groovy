@@ -76,6 +76,11 @@ class TemplateEditorController {
 
 							// fetch all templates to this entity
 							flow.templates = Template.findAllByEntity(entity)
+
+							// find all template fields for this particular entity
+							// for now, all
+							// TODO: limit for this entity only
+							flow.allTemplateFields = TemplateField.findAll().sort{ it.name }
 						}
 					} catch (Exception e) { }
 				}
@@ -101,7 +106,30 @@ class TemplateEditorController {
 		templates {
 			render(view: "templates")
 			onRender {
-				println "render templates"
+				// template parameter given?
+				if (params.template) {
+					// yes, find template by name
+					flow.template = Template.findByName(params.template)
+					flow.templateFields = flow.allTemplateFields
+
+					flow.template.fields.each() {
+						println it
+						flow.templateFields.remove(it)
+						
+					}
+					println "count: "+flow.template.fields.size()
+
+					println "---"
+					flow.allTemplateFields.each() {
+						println it
+					}
+					println "count: "+flow.allTemplateFields.size()
+					println "---"
+
+					println flow.allTemplateFields.class
+					println flow.template.fields.class
+					println "---"
+				}
 			}
 			on("next").to "start"
 		}

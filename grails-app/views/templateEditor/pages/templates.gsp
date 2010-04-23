@@ -17,18 +17,31 @@
 <html>
  <head>
   <meta name="layout" content="dialog"/>
-  <title>my bla</title>
+  <title>template editor</title>
  </head>
  <body>
- templates for entity: ${entity}<br/>
 
- <g:if test="${templates}">
-  <ul>
-  <g:each in="${templates}">
-     <li>${it}</li>
-  </g:each>
+  <script type="text/javascript">
+	 $(function() {
+		 $("#sortable").sortable({
+			 placeholder: 'ui-state-highlight'
+		 });
+		 $("#sortable").disableSelection();
+	 });
+  </script>
+
+ <g:form action="pages" name="wizardForm" id="wizardForm">
+  <wizard:templateSelect name="template" description="Template" value="${template}" entity="${dbnp.studycapturing.Study}" addDummy="true" onChange="this.form.submit();" />
+ </g:form>
+
+ <g:if test="${template}">
+  <ul id="sortable">
+  <g:render template="elements/all" collection="${template.fields}" />
   </ul>
  </g:if>
+
+ add a new field:
+ <g:select from="${templateFields}" />
  
  </body>
 </html>
