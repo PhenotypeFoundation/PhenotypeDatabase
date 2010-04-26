@@ -8,10 +8,6 @@
         <title><g:message code="default.create.label" args="['Affiliation']" /></title>
     </head>
     <body>
-        <div class="nav">
-            <span class="menuButton"><a class="home" href="${createLink(uri: '/')}">Home</a></span>
-            <span class="menuButton"><g:link class="list" action="list"><g:message code="default.list.label" args="['Affiliation']" /></g:link></span>
-        </div>
         <div class="body">
             <h1><g:message code="default.create.label" args="['Affiliation']" /></h1>
             <g:if test="${flash.message}">
@@ -40,7 +36,8 @@
                     </table>
                 </div>
                 <div class="buttons">
-                    <span class="button"><g:submitButton name="create" class="save" value="${message(code: 'default.button.create.label', default: 'Create')}" /></span>
+                   <span class="button"><g:submitButton name="create" class="save" value="${message(code: 'default.button.create.label', default: 'Create')}" /></span>
+                   <span class="button"><g:link class="cancel" action="list">Cancel</g:link></span>
                 </div>
             </g:form>
         </div>

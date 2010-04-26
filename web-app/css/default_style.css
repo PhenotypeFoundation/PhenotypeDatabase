@@ -121,6 +121,17 @@ html ul.topnav li ul.subnav li a:hover { /*--Hover effect for subnav links--*/
     margin-bottom: 10px;
     height: 120px;
 }
+
+#content .message { 
+    border: 1px solid #ccc; /* #006dba; */
+    margin-bottom: 10px;
+    margin-top: 10px;
+
+    background: #f7f7f7 url(../images/icons/famfamfam/information.png) 10px 10px no-repeat;
+    padding: 10px 10px 10px 33px;
+
+}
+
 /** END :: content **/
 /** START :: footer **/
 #footer {
@@ -199,6 +210,28 @@ th.desc a {
 /** END :: LIST **/
 
 /** START :: buttons **/
+.buttons {
+    margin-top: 10px;
+    font-size: 10px;
+    clear: both;
+}
+
+/* Hides the default navigation bar that is added by the Grails scaffolding */
+/* .nav { display: none; } */
+
+/* Links in the buttons section should look just like buttons in the
+   same section */
+#content .button a {
+    color: #333;
+}
+.button a {
+    font-size: 10px;
+    font-weight: bold;
+    margin-left: 3px;
+    margin-right: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
 .buttons input {
     background: #fff;
     border: 0;
@@ -207,34 +240,70 @@ th.desc a {
     font-size: 10px;
     font-weight: bold;
     margin-left: 3px;
+    margin-right: 3px;
     overflow: visible;
     padding: 2px 6px;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
 }
-.buttons input.delete {
-    background: transparent url(../images/obsolete/default_style/database_delete.png) 5px 50% no-repeat;
-    padding-left: 28px;
-}
-.buttons input.edit {
-    background: transparent url(../images/obsolete/default_style/database_edit.png) 5px 50% no-repeat;
-    padding-left: 28px;
-}
-.buttons input.save {
-    background: transparent url(../images/obsolete/default_style/database_save.png) 5px 50% no-repeat;
-    padding-left: 28px;
-}
-.buttons input.delete {
+
+.buttons input.delete, .buttons a.delete {
 	background: transparent url(../images/icons/famfamfam/delete.png) 5px 50% no-repeat;
 	padding-left: 28px;
 }
-.buttons input.edit {
+.buttons input.edit, .buttons a.edit  {
 	background: transparent url(../images/icons/famfamfam/application_edit.png) 5px 50% no-repeat;
 	padding-left: 28px;
 }
-.buttons input.save {
+.buttons input.save, .buttons a.save {
 	background: transparent url(../images/icons/famfamfam/accept.png) 5px 50% no-repeat;
 	padding-left: 28px;
 }
+.buttons input.create, .buttons a.create {
+	background: transparent url(../images/icons/famfamfam/add.png) 5px 50% no-repeat;
+	padding-left: 28px;
+}
+.buttons input.backToList, .buttons a.backToList {
+	background: transparent url(../images/icons/famfamfam/application.png) 5px 50% no-repeat;
+	padding-left: 28px;
+}
+.buttons input.cancel, .buttons a.cancel {
+	background: transparent url(../images/icons/famfamfam/delete.png) 5px 50% no-repeat;
+	padding-left: 28px;
+        font-weight: normal;
+}
+
+/* Reset the font weight for buttons occurring within the table */
+td.buttons input { font-weight: normal; }
+
 /** END :: buttons **/
+
+/** START :: pagination buttons **/
+.paginateButtons {
+    margin-top: 10px;
+    overflow: auto;
+    width: 100%;
+}
+
+.paginateButtons a,
+.paginateButtons span.currentStep {
+    border:solid 1px #ccc;
+    margin-right:2px;
+    display:block;
+    float:left;
+    padding:1px 6px;
+    text-decoration:none;
+}
+
+.paginateButtons a {
+    color:#0e509e;
+}
+
+.paginateButtons span.currentStep {
+    background:#2e6ab1;
+    color:#FFFFFF;
+}
+
+/** END :: pagination buttons **/
 
 /* START :: ontology autocomplete */
 .ui-autocomplete .ui-menu-item {

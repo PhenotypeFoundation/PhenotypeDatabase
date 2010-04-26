@@ -8,10 +8,6 @@
         <title><g:message code="default.list.label" args="['Affiliation']" /></title>
     </head>
     <body>
-        <div class="nav">
-            <span class="menuButton"><a class="home" href="${createLink(uri: '/')}">Home</a></span>
-            <span class="menuButton"><g:link class="create" action="create"><g:message code="default.new.label" args="['Affiliation']" /></g:link></span>
-        </div>
         <div class="body">
             <h1><g:message code="default.list.label" args="['Affiliation']" /></h1>
             <g:if test="${flash.message}">
@@ -39,6 +35,10 @@
             </div>
             <div class="paginateButtons">
                 <g:paginate total="${personAffiliationInstanceTotal}" />
+            </div>
+            <br clear="all" />
+            <div class="buttons">
+                <span class="button"><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></span>
             </div>
         </div>
     </body>

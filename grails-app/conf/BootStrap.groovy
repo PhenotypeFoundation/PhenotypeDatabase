@@ -61,6 +61,12 @@ class BootStrap {
                         def role2 = new PersonRole(
                             name: "Statician"
                         ).save();
+
+                        // Create 30 roles to test pagination
+                        def roleCounter = 1;
+                        30.times { new PersonRole( name: "Rol #${roleCounter++}" ).save() }
+
+                        // Create persons
                         def person1 = new Person(
                             lastName: "Scientist",
                             firstName: "John",
@@ -83,6 +89,10 @@ class BootStrap {
                         )
                         .addToAffiliations( affiliation2 )
                         .save();
+
+                        // Create 30 persons to test pagination
+                        def personCounter = 1;
+                        30.times { new Person( firstName: "Person #${roleCounter}", lastName: "Testperson", email: "email${roleCounter++}@testdomain.com" ).save() }
 
  /*   COMMENTED OUT BECAUSE IT BREAKS EVERYTHING AFTER REFACTORING THE DATAMODEL
 

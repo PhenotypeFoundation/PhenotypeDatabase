@@ -23,7 +23,8 @@ class PersonRoleController {
         def personRoleInstance = new PersonRole(params)
         if (personRoleInstance.save(flush: true)) {
             flash.message = "${message(code: 'default.created.message', args: [message(code: 'personRole.label', default: 'Role'), personRoleInstance.name])}"
-            redirect(action: "show", id: personRoleInstance.id)
+            //redirect(action: "show", id: personRoleInstance.id)
+            redirect(action: "list")
         }
         else {
             render(view: "create", model: [personRoleInstance: personRoleInstance])
@@ -67,7 +68,9 @@ class PersonRoleController {
             personRoleInstance.properties = params
             if (!personRoleInstance.hasErrors() && personRoleInstance.save(flush: true)) {
                 flash.message = "${message(code: 'default.updated.message', args: [message(code: 'personRole.label', default: 'Role'), personRoleInstance.name])}"
-                redirect(action: "show", id: personRoleInstance.id)
+                //redirect(action: "show", id: personRoleInstance.id)
+                redirect(action: "list")
+
             }
             else {
                 render(view: "edit", model: [personRoleInstance: personRoleInstance])
@@ -91,7 +94,8 @@ class PersonRoleController {
             }
             catch (org.springframework.dao.DataIntegrityViolationException e) {
                 flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'personRole.label', default: 'Role'), roleName])}"
-                redirect(action: "show", id: params.id)
+                // redirect(action: "show", id: params.id)
+                redirect(action: "list")
             }
         }
         else {
