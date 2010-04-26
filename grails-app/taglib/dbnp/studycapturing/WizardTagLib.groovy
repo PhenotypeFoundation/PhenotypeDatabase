@@ -208,6 +208,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Closure help content
 	 */
 	def baseElement = {inputElement, attrs, help ->
+println "rendering " + inputElement + " with name " + attrs.get('name')
 		// work variables
 		def description = attrs.remove('description')
 		def addExampleElement = attrs.remove('addExampleElement')
@@ -660,94 +661,16 @@ class WizardTagLib extends JavascriptTagLib {
 		}
 	}
 
-	/**
-	 * render table input elements for all subjectFields in a template
-	 * @param Map attributes
-	 */
-	def templateColumns = {attrs, body ->
-		def subject = attrs.remove('subject')
-		def subjectId = attrs.remove('id')
-		def template = attrs.remove('template')
-		def intFields = subject.templateIntegerFields
-		def stringFields = subject.templateStringFields
-		def floatFields = subject.templateFloatFields
-		def termFields = subject.templateTermFields
+	def templateColumns = { attrs ->
+		// render template fields as columns
+		attrs.renderType = 'column'
+		out << renderTemplateFields(attrs)
+	}
 
-		// output columns for these subjectFields
-		template.fields.each() {
-			def fieldValue = subject.getFieldValue(it.name)
-
-			// output div
-			out << '<div class="' + attrs.get('class') + '">'
-
-			// handle field types
-			switch (it.type.toString()) {
-				case ['STRING', 'TEXT', 'INTEGER', 'FLOAT', 'DOUBLE']:
-					out << textField(
-						name: attrs.name + '_' + it.escapedName(),
-						value: fieldValue
-					)
-					break
-				case 'STRINGLIST':
-					// render stringlist subjectfield
-					if (!it.listEntries.isEmpty()) {
-						out << select(
-							name: attrs.name + '_' + it.escapedName(),
-							from: it.listEntries,
-							value: fieldValue
-						)
-					} else {
-						out << '<span class="warning">no values!!</span>'
-					}
-					break
-				case 'DATE':
-					// transform value?
-					if (fieldValue instanceof Date) {
-						if (fieldValue.getHours() == 0 && fieldValue.getMinutes() == 0) {
-							// transform date instance to formatted string (dd/mm/yyyy)
-							fieldValue = String.format('%td/%<tm/%<tY', fieldValue)
-						} else {
-							// transform to date + time
-							fieldValue = String.format('%td/%<tm/%<tY %<tH:%<tM', fieldValue)
-						}
-					}
-
-					// output a date field (not the 'rel' which makes the
-					// javascript front-end bind the jquery-ui datepicker)
-					out << textField(
-						name: attrs.name + '_' + it.escapedName(),
-						value: fieldValue,
-						rel: 'date'
-					)
-					break
-				case 'ONTOLOGYTERM':
-					// @see http://www.bioontology.org/wiki/index.php/NCBO_Widgets#Term-selection_field_on_a_form
-					// @see ontology-chooser.js, table-editor.js
-					//out << it.getClass()
-					out << textField(
-						name: attrs.name + '_' + it.escapedName(),
-						value: fieldValue,
-						rel: 'ontology-all-name',
-						size: 100
-					)
-					out << hiddenField(
-						name: attrs.name + '_' + it.escapedName() + '-concept_id'
-					)
-					out << hiddenField(
-						name: attrs.name + '_' + it.escapedName() + '-ontology_id'
-					)
-					out << hiddenField(
-						name: attrs.name + '_' + it.escapedName() + '-full_id'
-					)
-					break
-				default:
-					// unsupported field type
-					out << '<span class="warning">!' + it.type + '</span>'
-					break
-			}
-
-			out << '</div>'
-		}
+	def templateElements = { attrs ->
+		// render template fields as form elements
+		attrs.renderType = 'element'
+		out << renderTemplateFields(attrs)
 	}
 
 	/**
@@ -755,9 +678,11 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attributes
 	 * @param String body
 	 */
-	def templateElements = {attrs ->
-		def entity = (attrs.get('entity'))
-		def template = (entity && entity instanceof TemplateEntity) ? entity.template : null
+	def renderTemplateFields = { attrs ->
+		def renderType	= attrs.remove('renderType')
+		def entity		= (attrs.get('entity'))
+		def template	= (entity && entity instanceof TemplateEntity) ? entity.template : null
+		def inputElement= null
 
 		// got a template?
 		if (template) {
@@ -765,17 +690,24 @@ class WizardTagLib extends JavascriptTagLib {
 			template.fields.each() {
 				def fieldValue = entity.getFieldValue(it.name)
 
+				// output column opening element?
+				if (renderType == 'column') {
+					out << '<div class="' + attrs.get('class') + '">'
+				}
+
 				switch (it.type.toString()) {
 					case ['STRING', 'TEXT', 'INTEGER', 'FLOAT', 'DOUBLE']:
-						out << textFieldElement(
+						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
+						out << "$inputElement"(
 							description: it.name,
 							name: it.escapedName(),
 							value: fieldValue
 						)
 						break
 					case 'STRINGLIST':
+						inputElement = (renderType == 'element') ? 'selectElement' : 'select'
 						if (!it.listEntries.isEmpty()) {
-							out << selectElement(
+							out << "$inputElement"(
 								description: it.name,
 								name: it.escapedName(),
 								from: it.listEntries,
@@ -788,7 +720,8 @@ class WizardTagLib extends JavascriptTagLib {
 					case 'ONTOLOGYTERM':
 						// @see http://www.bioontology.org/wiki/index.php/NCBO_Widgets#Term-selection_field_on_a_form
 						// @see ontology-chooser.js
-						out << textFieldElement(
+						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
+						out << "$inputElement"(
 							name: it.escapedName(),
 							value: fieldValue,
 							rel: 'ontology-all-name',
@@ -808,15 +741,36 @@ class WizardTagLib extends JavascriptTagLib {
 						)
 						break
 					case 'DATE':
-						out << dateElement(
+						inputElement = (renderType == 'element') ? 'dateElement' : 'textField'
+
+						// transform value?
+						if (fieldValue instanceof Date) {
+							if (fieldValue.getHours() == 0 && fieldValue.getMinutes() == 0) {
+								// transform date instance to formatted string (dd/mm/yyyy)
+								fieldValue = String.format('%td/%<tm/%<tY', fieldValue)
+							} else {
+								// transform to date + time
+								fieldValue = String.format('%td/%<tm/%<tY %<tH:%<tM', fieldValue)
+							}
+						}
+
+						// render element
+						out << "$inputElement"(
 							description: it.name,
 							name: it.escapedName(),
-							value: fieldValue
+							value: fieldValue,
+							rel: 'date'
 						)
 						break
 					default:
-						out << "unkown field type '" + it.type + "'<br/>"
+						// unsupported field type
+						out << '<span class="warning">!' + it.type + '</span>'
 						break
+				}
+
+				// output column closing element?
+				if (renderType == 'column') {
+					out << '</div>'
 				}
 			}
 		}

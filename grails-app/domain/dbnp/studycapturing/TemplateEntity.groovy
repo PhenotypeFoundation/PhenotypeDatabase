@@ -301,7 +301,7 @@ abstract class TemplateEntity implements Serializable {
 			} else {
 				// Set the value of the found template field
 				// Convenience setter for template string list fields: find TemplateFieldListItem by name
-				if (field.type == TemplateFieldType.STRINGLIST && value.class == String) {
+				if (field.type == TemplateFieldType.STRINGLIST && value && value.class == String) {
 					// Kees insensitive pattern matching ;)
 					value = field.listEntries.find { it.name ==~ /(?i)($value)/ }
 				}

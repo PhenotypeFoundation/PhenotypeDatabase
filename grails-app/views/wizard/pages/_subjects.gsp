@@ -56,7 +56,7 @@
 				<div class="column">
 					<wizard:termSelect value="${subjects[ subjectId ].species}" name="subject_${subjectId}_species" ontology="1132" />
 				</div>
-				<wizard:templateColumns id="${subjectId}" template="${subjects[ subjectId ].template}" name="subject_${subjectId}" class="column" subject="${subjects[ subjectId ]}" />				
+				<wizard:templateColumns id="${subjectId}" entity="${subjects[ subjectId ]}" template="${subjects[ subjectId ].template}" name="subject_${subjectId}" class="column" subject="${subjects[ subjectId ]}" />				
 			</div>
 		</g:each>
 		</div>
