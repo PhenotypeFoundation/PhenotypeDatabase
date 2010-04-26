@@ -51,7 +51,6 @@ class WizardController {
 				[title: 'Start'],				// load or create a study
 				[title: 'Study'],				// study
 				[title: 'Subjects'],			// subjects
-				[title: 'Event Descriptions'],	// event descriptions
 				[title: 'Events'],				// events and event grouping
 				[title: 'Confirmation'],		// confirmation page
 				[title: 'Done']					// finish page
@@ -210,7 +209,7 @@ class WizardController {
 				} else {
 					success()
 				}
-			}.to "eventDescriptions"
+			}.to "events"
 			on("delete") {
 				flash.errors = [:]
 				def delete = params.get('do') as int;
@@ -236,109 +235,11 @@ class WizardController {
 			}.to "study"
 		}
 
-		// render page three
-		eventDescriptions {
-			render(view: "_eventDescriptions")
-			onRender {
-				flow.page = 4
-
-				if (!flow.eventDescriptions) {
-					flow.eventDescriptions = []
-				}
-			}
-			on("add") {
-				// fetch classification by name (as posted by the form)
-				//params.classification = Term.findByName(params.classification)
-
-				/* TODO: rewrite to Event template
-
-				// fetch protocol by name (as posted by the form)
-				params.protocol = Protocol.findByName(params.protocol)
-
-				// transform checkbox form value to boolean
-				params.isSamplingEvent = (params.containsKey('isSamplingEvent'))
-
-
-				// instantiate EventDescription with parameters
-				def eventDescription = new EventDescription(params)
-
-				// validate
-				if (eventDescription.validate()) {
-					def increment = flow.eventDescriptions.size()
-					flow.eventDescriptions[increment] = eventDescription
-					success()
-				} else {
-					// validation failed, feedback errors
-					flash.errors = [:]
-					flash.values = params
-					this.appendErrors(eventDescription, flash.errors)
-					error()
-				}
-
-				*/
-			}.to "eventDescriptions"
-			on("delete") {
-				def delete = params.get('do') as int;
-
-				/* TODO: rewrite to Event template
-				
-				// handle form data
-				if (!this.handleEventDescriptions(flow, flash, params)) {
-					flash.values = params
-					error()
-				} else {
-					success()
-				}
-
-				// remove eventDescription
-				if (flow.eventDescriptions[ delete ] && flow.eventDescriptions[ delete ] instanceof EventDescription) {
-					// remove all events based on this eventDescription
-					for ( i in flow.events.size()..0 ) {
-						if (flow.events[ i ] && flow.events[ i ].eventDescription == flow.eventDescriptions[ delete ]) {
-							flow.events.remove(i)
-						}
-					}
-
-					flow.eventDescriptions.remove(delete)
-				}
-
-				*/
-			}.to "eventDescriptions"
-			on("previous") {
-				flash.errors = [:]
-
-				// handle form data
-				if (!this.handleEventDescriptions(flow, flash, params)) {
-					flash.values = params
-					error()
-				} else {
-					success()
-				}
-			}.to "subjects"
-			on("next") {
-				flash.errors = [:]
-
-				// check if we have at least one subject
-				// and check form data
-				if (flow.eventDescriptions.size() < 1) {
-					// append error map
-					flash.values = params
-					this.appendErrorMap(['eventDescriptions': 'You need at least to create one eventDescription for your study'], flash.errors)
-					error()
-				} else if (!this.handleEventDescriptions(flow, flash, params)) {
-					flash.values = params
-					error()
-				} else {
-					success()
-				}
-			}.to "events"
-		}
-
 		// render events page
 		events {
 			render(view: "_events")
 			onRender {
-				flow.page = 5
+				flow.page = 4
 
 				if (!flow.events) {
 					flow.events = []
@@ -348,42 +249,49 @@ class WizardController {
 					flow.eventGroups = []
 					flow.eventGroups[0] = new EventGroup(name: 'Group 1')	// 1 group by default
 				}
+println flow.events
 			}
 			on("add") {
-				// create date instances from date string?
-				// @see WizardTagLibrary::timeElement{...}
-				if (params.get('startTime')) {
-					params.startTime = new Date().parse("d/M/yyyy HH:mm", params.get('startTime').toString())
+				def startTime	= (params.get('startTime')) ? params.startTime = new Date().parse("d/M/yyyy HH:mm", params.get('startTime').toString()) : null
+				def endTime		= (params.get('endTime')) ? new Date().parse("d/M/yyyy HH:mm", params.get('endTime').toString()) : null
+				def template	= params.get('template')
+
+				// handle template
+				if (template instanceof String && template.size() > 0) {
+					template = Template.findByName(template)
+				} else if (!template instanceof Template) {
+					template = null
 				}
-				if (params.get('endTime')) {
-					params.get('endTime').toString()
-					params.endTime = new Date().parse("d/M/yyyy HH:mm", params.get('endTime').toString())
-				}
 
-				// get eventDescription instance by name
-				params.eventDescription = this.getObjectByName(params.get('eventDescription'), flow.eventDescriptions)
+				// handle data
+				if (template && startTime && endTime) {
+					// add an event instance
+					def event = new Event(
+						template	: template,
+						startTime	: startTime,
+						endTime		: endTime
+					)
 
-				// instantiate Event with parameters
-				def event = (params.eventDescription.isSamplingEvent) ? new SamplingEvent(params) : new Event(params)
-
-				// handle event groupings
-				this.handleEventGrouping(flow, flash, params)
-
-				// validate event
-				if (event.validate()) {
-					def increment = flow.events.size()
-					flow.events[increment] = event
-					success()
+					// validate event
+					if (event.validate()) {
+						// add event to event list
+						flow.events[ flow.events.size() ] = event
+						success()
+					} else {
+						// validation failed, feedback errors
+						flash.errors = [:]
+						flash.values = params
+						this.appendErrors(event, flash.errors)
+						error()
+					}
 				} else {
 					// validation failed, feedback errors
-					flash.errors = [:]
-					flash.values = params
-					this.appendErrors(event, flash.errors)
+					flash.errors	= [:]
+					flash.values	= params
 
-					flash.startTime = params.startTime
-					flash.endTime = params.endTime
-					flash.eventDescription = params.eventDescription
-
+					if (!template)	this.appendErrorMap(['template': 'You need to select an event template'], flash.errors)
+					if (!startTime) this.appendErrorMap(['startTime': 'You need to define the start time of your study event'], flash.errors)
+					if (!endTime)	this.appendErrorMap(['endTime': 'You need to define the end time of your study event'], flash.errors)
 					error()
 				}
 			}.to "events"
@@ -447,7 +355,7 @@ class WizardController {
 			on("previous") {
 				// handle event groupings
 				this.handleEventGrouping(flow, flash, params)
-			}.to "eventDescriptions"
+			}.to "subjects"
 			on("next") {
 				flash.values = params
 				flash.errors = [:]
@@ -469,7 +377,7 @@ class WizardController {
 		confirm {
 			render(view: "_confirmation")
 			onRender {
-				flow.page = 6
+				flow.page = 5
 			}
 			on("toStudy").to "study"
 			on("toSubjects").to "subjects"

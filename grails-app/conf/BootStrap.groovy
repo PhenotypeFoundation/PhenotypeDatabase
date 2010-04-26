@@ -416,7 +416,7 @@ class BootStrap {
 			// Event templates
 			println ".adding event templates..."
 			def dietTreatmentTemplate = new Template(
-				name: 'Diet treatment ', entity: dbnp.studycapturing.Event)
+				name: 'Diet treatment', entity: dbnp.studycapturing.Event)
 			.addToFields(sampleDescriptionField)
 			.addToFields(new TemplateField(
 				name: 'Diet', type: TemplateFieldType.STRINGLIST,
@@ -424,7 +424,7 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def boostTreatmentTemplate = new Template(
-				name: 'Boost treatment ', entity: dbnp.studycapturing.Event)
+				name: 'Boost treatment', entity: dbnp.studycapturing.Event)
 			.addToFields(sampleDescriptionField)
 			.addToFields(new TemplateField(
 				name: 'Compound', type: TemplateFieldType.STRING,

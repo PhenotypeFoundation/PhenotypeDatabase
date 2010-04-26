@@ -45,7 +45,7 @@
 				<div class="column">name</div>
 				<div class="column">species</div>
 				<wizard:templateColumnHeaders template="${subjectTemplate.getValue().template}" class="column" />
-			</div>	
+			</div>
 		<g:each var="subjectId" in="${subjectTemplate.getValue().subjects}">
 			<div class="row">
 				<div class="firstColumn">${subjectId + 1}</div>

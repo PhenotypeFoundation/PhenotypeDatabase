@@ -20,7 +20,6 @@
 			<p>
 				<g:if test="${!e}"><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span></g:if>
 				${error.value['key']} &rarr; ${error.value['value']}
-${error.value['dynamic']}
 			</p>
 		</g:each>
 	</div>
@@ -28,11 +27,11 @@ ${error.value['dynamic']}
 		// mark error fields
 		<g:each in="${errors}" var="error">
 		var element = $("input:[name='${error.key}'], input:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], select:[name='${error.key}'], select:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}']");
-		<g:if test="${error.value['dynamic']}">
+		 <g:if test="${error.value['dynamic']}">
 		element.addClass('error');
-		</g:if><g:else>
+		 </g:if><g:else>
 		element.parent().parent().addClass('error');
-		</g:else>
+		 </g:else>
 		</g:each>
 
 		// show error dialog
