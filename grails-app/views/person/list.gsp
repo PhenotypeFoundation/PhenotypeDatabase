@@ -20,11 +20,11 @@
                         
                             <g:sortableColumn property="firstName" title="${message(code: 'person.firstName.label', default: 'First Name')}" />
                         
-                            <g:sortableColumn property="midInitials" title="${message(code: 'person.midInitials.label', default: 'Mid Initials')}" />
+                            <g:sortableColumn property="prefix" title="${message(code: 'person.prefix.label', default: 'Prefix')}" />
                         
                             <g:sortableColumn property="lastName" title="${message(code: 'person.lasttName.label', default: 'Last Name')}" />
 
-                            <g:sortableColumn property="phone" title="${message(code: 'person.phone.label', default: 'Phone')}" />
+                            <g:sortableColumn property="phone" title="${message(code: 'person.phone.label', default: 'Work Phone')}" />
                         
                             <g:sortableColumn property="email" title="${message(code: 'person.email.label', default: 'Email')}" />
 
@@ -35,9 +35,9 @@
                     <g:each in="${personInstanceList}" status="i" var="personInstance">
                         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                         
-                            <td><g:link action="show" id="${personInstance.id}">${fieldValue(bean: personInstance, field: "firstName")}</g:link></td>
+                            <td>${fieldValue(bean: personInstance, field: "firstName")}</td>
                         
-                            <td>${fieldValue(bean: personInstance, field: "midInitials")}</td>
+                            <td>${fieldValue(bean: personInstance, field: "prefix")}</td>
                         
                             <td><g:link action="show" id="${personInstance.id}">${fieldValue(bean: personInstance, field: "lastName")}</g:link></td>
 
@@ -57,11 +57,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="paginateButtons">
-                <g:paginate total="${personInstanceTotal}" />
-            </div>
             <div class="buttons">
                 <span class="button"><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></span>
+            </div>
+            <div class="paginateButtons">
+                <g:paginate total="${personInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next" />
             </div>
 
         </div>

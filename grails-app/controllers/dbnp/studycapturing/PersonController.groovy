@@ -3,6 +3,7 @@ package dbnp.studycapturing
 class PersonController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
+    def possibleGenders = [ 'Male', 'Female' ]
 
     def index = {
         redirect(action: "list", params: params)
@@ -16,13 +17,13 @@ class PersonController {
     def create = {
         def personInstance = new Person()
         personInstance.properties = params
-        return [personInstance: personInstance]
+        return [personInstance: personInstance, possibleGenders:possibleGenders]
     }
 
     def save = {
         def personInstance = new Person(params)
         if (personInstance.save(flush: true)) {
-            flash.message = "${message(code: 'default.created.message', args: [message(code: 'person.label', default: 'Person'), ( personInstance.firstName ? personInstance.firstName : "" ) + " " + ( personInstance.midInitials ? personInstance.midInitials : "" ) + " " + ( personInstance.lastName ? personInstance.lastName : "" )])}"
+            flash.message = "${message(code: 'default.created.message', args: [message(code: 'person.label', default: 'Person'), ( personInstance.firstName ? personInstance.firstName : "" ) + " " + ( personInstance.prefix ? personInstance.prefix : "" ) + " " + ( personInstance.lastName ? personInstance.lastName : "" )])}"
             redirect(action: "show", id: personInstance.id)
         }
         else {
@@ -48,7 +49,7 @@ class PersonController {
             redirect(action: "list")
         }
         else {
-            return [personInstance: personInstance]
+            return [personInstance: personInstance,possibleGenders:possibleGenders]
         }
     }
 
@@ -66,7 +67,7 @@ class PersonController {
             }
             personInstance.properties = params
             if (!personInstance.hasErrors() && personInstance.save(flush: true)) {
-                flash.message = "${message(code: 'default.updated.message', args: [message(code: 'person.label', default: 'Person'), ( personInstance.firstName ? personInstance.firstName : "" ) + " " + ( personInstance.midInitials ? personInstance.midInitials : "" ) + " " + ( personInstance.lastName ? personInstance.lastName : "" )])}"
+                flash.message = "${message(code: 'default.updated.message', args: [message(code: 'person.label', default: 'Person'), ( personInstance.firstName ? personInstance.firstName : "" ) + " " + ( personInstance.prefix ? personInstance.prefix : "" ) + " " + ( personInstance.lastName ? personInstance.lastName : "" )])}"
                 redirect(action: "show", id: personInstance.id)
             }
             else {
@@ -83,7 +84,7 @@ class PersonController {
         def personInstance = Person.get(params.id)
 
         if (personInstance) {
-            def personName = ( personInstance.firstName ? personInstance.firstName : "" ) + " " + ( personInstance.midInitials ? personInstance.midInitials : "" ) + " " + ( personInstance.lastName ? personInstance.lastName : "" );
+            def personName = ( personInstance.firstName ? personInstance.firstName : "" ) + " " + ( personInstance.prefix ? personInstance.prefix : "" ) + " " + ( personInstance.lastName ? personInstance.lastName : "" );
             try {
                 personInstance.delete(flush: true)
                 flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'person.label', default: 'Person'), personName])}"

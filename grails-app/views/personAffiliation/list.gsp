@@ -33,12 +33,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="paginateButtons">
-                <g:paginate total="${personAffiliationInstanceTotal}" />
-            </div>
-            <br clear="all" />
             <div class="buttons">
                 <span class="button"><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></span>
+            </div>
+            <div class="paginateButtons">
+                <g:paginate total="${personAffiliationInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next" />
             </div>
         </div>
     </body>

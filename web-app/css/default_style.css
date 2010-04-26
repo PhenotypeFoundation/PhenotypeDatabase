@@ -211,9 +211,8 @@ th.desc a {
 
 /** START :: buttons **/
 .buttons {
-    margin-top: 10px;
+    margin-top: 15px;
     font-size: 10px;
-    clear: both;
 }
 
 /* Hides the default navigation bar that is added by the Grails scaffolding */
@@ -279,7 +278,7 @@ td.buttons input { font-weight: normal; }
 
 /** START :: pagination buttons **/
 .paginateButtons {
-    margin-top: 10px;
+    margin-top: 15px;
     overflow: auto;
     width: 100%;
 }

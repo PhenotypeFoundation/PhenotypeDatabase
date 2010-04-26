@@ -17,7 +17,18 @@
                 <table>
                     <tbody>
 
-                    
+                        <tr class="prop">
+                            <td valign="top" class="name"><g:message code="person.title.label" default="Title" /></td>
+
+                            <td valign="top" class="value">${fieldValue(bean: personInstance, field: "title")}</td>
+
+                        </tr>
+                        <tr class="prop">
+                            <td valign="top" class="name"><g:message code="person.gender.label" default="Gender" /></td>
+
+                            <td valign="top" class="value">${fieldValue(bean: personInstance, field: "gender")}</td>
+
+                        </tr>
                         <tr class="prop">
                             <td valign="top" class="name"><g:message code="person.firstName.label" default="First Name" /></td>
                             
@@ -26,12 +37,18 @@
                         </tr>
                     
                         <tr class="prop">
-                            <td valign="top" class="name"><g:message code="person.midInitials.label" default="Mid Initials" /></td>
+                            <td valign="top" class="name"><g:message code="person.initials.label" default="Initials" /></td>
                             
-                            <td valign="top" class="value">${fieldValue(bean: personInstance, field: "midInitials")}</td>
+                            <td valign="top" class="value">${fieldValue(bean: personInstance, field: "initials")}</td>
                             
                         </tr>
-                    
+
+                        <tr class="prop">
+                            <td valign="top" class="name"><g:message code="person.prefix.label" default="Prefx" /></td>
+
+                            <td valign="top" class="value">${fieldValue(bean: personInstance, field: "prefix")}</td>
+
+                        </tr>
                         <tr class="prop">
                             <td valign="top" class="name"><g:message code="person.lastName.label" default="Last Name" /></td>
 
@@ -45,12 +62,18 @@
                             <td valign="top" class="value">${fieldValue(bean: personInstance, field: "address")}</td>
 
                         </tr>
-                    
+  
                         <tr class="prop">
-                            <td valign="top" class="name"><g:message code="person.phone.label" default="Phone" /></td>
+                            <td valign="top" class="name"><g:message code="person.phone.label" default="Work Phone" /></td>
                             
                             <td valign="top" class="value">${fieldValue(bean: personInstance, field: "phone")}</td>
                             
+                        </tr>
+                        <tr class="prop">
+                            <td valign="top" class="name"><g:message code="person.mobile.label" default="Mobile Phone" /></td>
+
+                            <td valign="top" class="value">${fieldValue(bean: personInstance, field: "mobile")}</td>
+
                         </tr>
                     
                         <tr class="prop">

@@ -24,7 +24,25 @@
                 <div class="dialog">
                     <table>
                         <tbody>
-                        
+
+                            <tr class="prop">
+                                <td valign="top" class="name">
+                                  <label for="title"><g:message code="person.title.label" default="Title" /></label>
+                                </td>
+                                <td valign="top" class="value ${hasErrors(bean: personInstance, field: 'title', 'errors')}">
+                                    <g:textField name="title" value="${personInstance?.title}" />
+                                </td>
+                            </tr>
+
+                            <tr class="prop">
+                                <td valign="top" class="name">
+                                    <label for="gender"><g:message code="person.gender.label" default="Gender" /></label>
+                                </td>
+                                <td valign="top" class="value ${hasErrors(bean: personInstance, field: 'gender', 'errors')}">
+                                  <g:select name="gender" from="${possibleGenders}" noSelection="['' : 'Not specified']" value="${personInstance?.gender}" />
+                                </td>
+                            </tr>
+                            
                             <tr class="prop">
                                 <td valign="top" class="name">
                                   <label for="firstName"><g:message code="person.firstName.label" default="First Name" /></label>
@@ -36,10 +54,19 @@
                         
                             <tr class="prop">
                                 <td valign="top" class="name">
-                                  <label for="midInitials"><g:message code="person.midInitials.label" default="Mid Initials" /></label>
+                                  <label for="initials"><g:message code="person.initials.label" default="Initials" /></label>
                                 </td>
-                                <td valign="top" class="value ${hasErrors(bean: personInstance, field: 'midInitials', 'errors')}">
-                                    <g:textField name="midInitials" value="${personInstance?.midInitials}" />
+                                <td valign="top" class="value ${hasErrors(bean: personInstance, field: 'initials', 'errors')}">
+                                    <g:textField name="initials" value="${personInstance?.initials}" />
+                                </td>
+                            </tr>
+
+                            <tr class="prop">
+                                <td valign="top" class="name">
+                                    <label for="prefix"><g:message code="person.prefix.label" default="Prefix" /></label>
+                                </td>
+                                <td valign="top" class="value ${hasErrors(bean: personInstance, field: 'prefix', 'errors')}">
+                                    <g:textField name="prefix" value="${personInstance?.prefix}" />
                                 </td>
                             </tr>
                         
@@ -64,12 +91,22 @@
 
                             <tr class="prop">
                                 <td valign="top" class="name">
-                                  <label for="phone"><g:message code="person.phone.label" default="Phone" /></label>
+                                    <label for="phone"><g:message code="person.phone.label" default="Work Phone" /></label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean: personInstance, field: 'phone', 'errors')}">
                                     <g:textField name="phone" value="${personInstance?.phone}" />
                                 </td>
                             </tr>
+
+                            <tr class="prop">
+                                <td valign="top" class="name">
+                                    <label for="mobile"><g:message code="person.mobile.label" default="Mobile Phone" /></label>
+                                </td>
+                                <td valign="top" class="value ${hasErrors(bean: personInstance, field: 'mobile', 'errors')}">
+                                    <g:textField name="mobile" value="${personInstance?.phone}" />
+                                </td>
+                            </tr>
+
                         
                             <tr class="prop">
                                 <td valign="top" class="name">

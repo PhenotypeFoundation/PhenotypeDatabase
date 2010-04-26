@@ -70,7 +70,8 @@ class BootStrap {
                         def person1 = new Person(
                             lastName: "Scientist",
                             firstName: "John",
-                            midInitials: "R",
+                            gender: "Male",
+                            initials: "J.R.",
                             email: "john@scienceinstitute.com",
                             phone: "1-555-3049",
                             address: "First street 2,NYC"
@@ -82,7 +83,8 @@ class BootStrap {
                         def person2 = new Person(
                             lastName: "Statician",
                             firstName: "Jane",
-                            midInitials: "W",
+                            gender: "Female",
+                            initials: "W.J.",
                             email: "jane@statisticalcompany.de",
                             phone: "49-555-8291",
                             address: "Dritten strasse 38, Hamburg, Germany"
@@ -92,7 +94,7 @@ class BootStrap {
 
                         // Create 30 persons to test pagination
                         def personCounter = 1;
-                        30.times { new Person( firstName: "Person #${roleCounter}", lastName: "Testperson", email: "email${roleCounter++}@testdomain.com" ).save() }
+                        30.times { new Person( firstName: "Person #${personCounter}", lastName: "Testperson", email: "email${personCounter++}@testdomain.com" ).save() }
 
  /*   COMMENTED OUT BECAUSE IT BREAKS EVERYTHING AFTER REFACTORING THE DATAMODEL
 
@@ -692,7 +694,7 @@ class BootStrap {
                         .addToPersons( studyperson1 )
                         .addToPersons( studyperson2 )
                         .save()
-
+                       
 			/*
                         println 'Adding PPSH study'
 
