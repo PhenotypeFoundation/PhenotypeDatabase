@@ -13,16 +13,37 @@ import groovy.time.*
  * $Date$
  */
 class Event extends TemplateEntity implements Serializable {
-	Date startTime
-	Date endTime
 
 	static constraints = {
-		startTime(nullable:false)
+		startTime(nullable: true)
+		endTime(nullable: true)
 		endTime(validator: {val, obj ->
            if (val && val.before(obj.startTime)) {
                 return 'endTimeshouldbegreater'
            }
        	})
+	}
+	
+	Date getStartTime() {
+		getFieldValue('Start time')
+	}
+
+	def setStartTime(Date value) {
+		if (value != null) {
+			setFieldValue('Start time',value)
+		}
+		return this
+	}
+
+	Date getEndTime() {
+		getFieldValue('End time')
+	}
+
+	def setEndTime(Date value) {
+		if (value != null) {
+			setFieldValue('End time',value)
+		}
+		return this
 	}
 
 	Map giveDomainFields() {
@@ -32,7 +53,7 @@ class Event extends TemplateEntity implements Serializable {
 	// time diff between end and start date
 	// thus, do this manually as follows
 
-	def getDuration(date1, date2) {
+	static def getDuration(date1, date2) {
 		def timeMillis = (date2.getTime() - date1.getTime()).abs()
 		def days = (timeMillis / (1000 * 60 * 60 * 24)).toInteger()
 		def hours = (timeMillis / (1000 * 60 * 60)).toInteger()
@@ -51,7 +72,7 @@ class Event extends TemplateEntity implements Serializable {
 	// the largest date unit (sec, min, h, day, week, month, or year)
 	// is output
 
-	def getPrettyDuration(duration) {
+	static def getPrettyDuration(duration) {
 		def handleNumerus = {number, string ->
 			return number.toString() + (number == 1 ? string : string + 's')
 		}
@@ -69,7 +90,7 @@ class Event extends TemplateEntity implements Serializable {
 	}
 
 	// convenience method. gives formatted string output for a duration
-	def getPrettyDuration(date1, date2) {
+	static def getPrettyDuration(date1, date2) {
 		return getPrettyDuration(getDuration(date1, date2))
 	}
 

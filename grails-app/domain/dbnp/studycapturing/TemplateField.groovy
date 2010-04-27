@@ -16,6 +16,7 @@ class TemplateField implements Serializable {
 	String unit
 	String comment // help string for the user interface
 	List listEntries
+	boolean required
 
     static hasMany = [listEntries :
                 TemplateFieldListItem, // to store the entries to choose from when the type is 'item from predefined list'
@@ -26,6 +27,7 @@ class TemplateField implements Serializable {
 		// TODO: verify that TemplateField names are unique within templates of each super entity
 		unit(nullable: true, blank: true)
 		comment(nullable:true, blank: true)
+		required(default: false)
 	}
 
 	static mapping = {

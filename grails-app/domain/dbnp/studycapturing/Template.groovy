@@ -24,6 +24,24 @@ class Template implements Serializable {
 		//	name(unique:['entity'])
 	}
 
+	// As the entity is not known at the time the constructor is called,
+	// we add the system fields for a new template object at the time the entity is set
+	void setEntity(Class value) {
+		this.entity = value
+		if (value != null) {
+			if (fields == null) {
+				if (entity.systemFields) {
+					println "adding default template fields for " + entity.systemFields
+					entity.systemFields.each {
+						this.addToFields(it)
+					}
+				}
+			}
+			println "" + value + "this template has now fields " + fields
+		}
+
+	}
+
 	/**
 	 * overloaded toString method
 	 * @return String
@@ -57,15 +75,26 @@ class Template implements Serializable {
 	}
 
 	/**
+	 * get all required fields
+	 * @param	Class	fieldType
+	 * @return	Set<TemplateField>
+	 */
+	def getRequiredFields() {
+		def result = fields.findAll {
+			it.required == true
+		}
+		return result;
+	}
+
+	/**
 	 * overloading the findAllByEntity method to make it function as expected
 	 * @param	Class		entity (for example: dbnp.studycapturing.Subject)
 	 * @return	ArrayList
 	 */
 	public static findAllByEntity(java.lang.Class entity) {
 		def results = []
-		// 'this' should not work in static context, however it does so I'll keep
-		// this in for now :)
-		this.findAll().each() {
+		// 'this' should not work in static context, so taking Template instead of this
+		Template.findAll().each() {
 			if (entity.equals(it.entity)) {
 				results[ results.size() ] = it
 			}

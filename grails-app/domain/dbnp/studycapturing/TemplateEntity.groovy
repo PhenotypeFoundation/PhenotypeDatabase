@@ -13,6 +13,7 @@ import org.springframework.validation.FieldError
  */
 abstract class TemplateEntity implements Serializable {
 	Template template
+	static List systemFields
 	Map templateStringFields = [:]
 	Map templateTextFields = [:]
 	Map templateStringListFields = [:]
@@ -30,7 +31,8 @@ abstract class TemplateEntity implements Serializable {
 		templateFloatFields: float,
 		templateDoubleFields: double,
 		templateDateFields: Date,
-		templateTermFields: Term
+		templateTermFields: Term,
+		systemFields: TemplateField
 	]
 
 	static mapping = {
@@ -351,6 +353,11 @@ abstract class TemplateEntity implements Serializable {
 	def List<TemplateField> giveFields() {
 		return this.template.fields;
 	}
+
+	def List<TemplateField> giveSystemFields() {
+		return systemFields;
+	}
+	
 
 	/**
 	 * Return all relevant 'built-in' domain fields of the super class
