@@ -36,13 +36,6 @@
 		<td>Name</td>
 		<td>Type</td>
 	</tr>
-	<g:each in="${subject.giveDomainFields()}" var="field">
-	    <tr>
-		    <td>Domain field</td>
-			<td>${field.key}</td>
-			 <td>${field.value}</td>
-		</tr>
-	</g:each>
 	<g:each in="${subject.giveFields()}" var="field">
 	    <tr>
 			<td>Template field</td>

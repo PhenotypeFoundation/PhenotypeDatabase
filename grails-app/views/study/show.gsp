@@ -48,7 +48,7 @@
               -
             </g:if>
             <g:else>
-             ${studyInstance.giveEventTemplates().name}
+              ${studyInstance.giveEventTemplates().name}
             </g:else>
           <br>
           <b>Sampling Events </b>:

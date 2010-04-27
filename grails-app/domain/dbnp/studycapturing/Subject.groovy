@@ -15,7 +15,12 @@ class Subject extends TemplateEntity implements Serializable {
 	String name
 	Term species
 
-	Map giveDomainFields() {
-		return ['name':TemplateFieldType.STRING,'species':TemplateFieldType.ONTOLOGYTERM]
+	List<DomainTemplateField> giveDomainFields() {
+		[ new DomainTemplateField(
+                            name: 'name',
+                            type: TemplateFieldType.STRING),
+                        new DomainTemplateField(
+                            name: 'species',
+                            type: TemplateFieldType.ONTOLOGYTERM) ];
 	}
 }
