@@ -29,10 +29,10 @@ class Event extends TemplateEntity implements Serializable {
 	
 
 	List<DomainTemplateField> giveDomainFields() {
-		[ new DomainTemplateField( 
+		[ new TemplateField( 
                             name: 'startDate',
                             type: TemplateFieldType.DATE),
-                        new DomainTemplateField( 
+                        new TemplateField( 
                             name: 'endDate',
                             type: TemplateFieldType.DATE) ];
 	}

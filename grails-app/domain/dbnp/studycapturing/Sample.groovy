@@ -16,10 +16,10 @@ class Sample extends TemplateEntity {
 	// a member that describes the quantity of the sample? --> should be in the templates
 
 	List<DomainTemplateField> giveDomainFields() {
-		[ new DomainTemplateField(
+		[ new TemplateField(
                             name: 'name',
                             type: TemplateFieldType.STRING),
-                        new DomainTemplateField(
+                        new TemplateField(
                             name: 'material',
                             type: TemplateFieldType.ONTOLOGYTERM) ];
 	}

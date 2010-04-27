@@ -16,10 +16,10 @@ class Subject extends TemplateEntity implements Serializable {
 	Term species
 
 	List<DomainTemplateField> giveDomainFields() {
-		[ new DomainTemplateField(
+		[ new TemplateField(
                             name: 'name',
                             type: TemplateFieldType.STRING),
-                        new DomainTemplateField(
+                        new TemplateField(
                             name: 'species',
                             type: TemplateFieldType.ONTOLOGYTERM) ];
 	}
