@@ -31,7 +31,7 @@
   </script>
 
  <g:form action="pages" name="wizardForm" id="wizardForm">
-  <wizard:templateSelect name="template" description="Template" value="${template}" entity="${dbnp.studycapturing.Study}" addDummy="true" onChange="this.form.submit();" />
+  <wizard:templateSelect name="template" description="Template" value="${template}" entity="${entity}" addDummy="true" onChange="this.form.submit();" />
  </g:form>
 
  <g:if test="${template}">

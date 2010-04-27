@@ -76,7 +76,7 @@ class TemplateEditorController {
 
 							// fetch all templates to this entity
 							flow.templates = Template.findAllByEntity(entity)
-
+							
 							// find all template fields for this particular entity
 							// for now, all
 							// TODO: limit for this entity only
