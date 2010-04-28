@@ -30,6 +30,5 @@
 	<wizard:dateElement name="startDate" description="Start date" error="startDate" value="${study?.startDate}">
 		The start date of the study
 	</wizard:dateElement>
-	<wizard:templateElements entity="${study}" />
-
+	<g:if test="${study}"><wizard:templateElements entity="${study}" /></g:if>
 </wizard:pageContent>

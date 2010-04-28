@@ -241,17 +241,24 @@ class WizardController {
 			onRender {
 				flow.page = 4
 
-				if (!flow.events) {
-					flow.events = []
-				}
-
+				if (!flow.event) flow.event = new Event()
+				if (!flow.events) flow.events = []
 				if (!flow.eventGroups) {
 					flow.eventGroups = []
 					flow.eventGroups[0] = new EventGroup(name: 'Group 1')	// 1 group by default
 				}
-println flow.events
 			}
+			on("switchTemplate") {
+				flash.values = params
+
+				// handle study data
+				this.handleEvents(flow, flash, params)
+
+				// remove errors as we don't want any warnings now
+				flash.errors = [:]
+			}.to "events"
 			on("add") {
+				/*
 				def startTime	= (params.get('startTime')) ? params.startTime = new Date().parse("d/M/yyyy HH:mm", params.get('startTime').toString()) : null
 				def endTime		= (params.get('endTime')) ? new Date().parse("d/M/yyyy HH:mm", params.get('endTime').toString()) : null
 				def template	= params.get('template')
@@ -292,6 +299,21 @@ println flow.events
 					if (!template)	this.appendErrorMap(['template': 'You need to select an event template'], flash.errors)
 					if (!startTime) this.appendErrorMap(['startTime': 'You need to define the start time of your study event'], flash.errors)
 					if (!endTime)	this.appendErrorMap(['endTime': 'You need to define the end time of your study event'], flash.errors)
+					error()
+				}
+				*/
+				flash.values = params
+
+				// handle study data
+				this.handleEvents(flow, flash, params)
+
+				// validate event object
+				if (flow.event.validate()) {
+					//flow.events[ flow.events.size() ] = flow.event
+					success()
+				} else {
+					flash.errors = [:]
+					this.appendErrors(flow.event, flash.errors)
 					error()
 				}
 			}.to "events"
@@ -498,6 +520,50 @@ println flow.events
 			on("previous") {
 				// TODO
 			}.to "confirm"
+		}
+	}
+
+
+	/**
+	 * re-usable code for handling event form data in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handleEvents(flow, flash, params) {
+		// got an event in the flash scope?
+		if (!flow.event) flow.event = new Event()
+
+		// if a template is selected, get template instance
+		def template = params.remove('template')
+		if (template instanceof String && template.size() > 0) {
+			params.template = Template.findByName(template)
+		} else if (template instanceof Template) {
+			params.template = template
+		} else {
+			params.template = null
+		}
+
+		// set template
+		if (params.template) flow.event.template = params.template
+println flow.event.template
+println params
+		
+		// update event instance with parameters
+		params.each() { key, value ->
+			try {
+				flow.event.setFieldValue(key, value)
+				println "has "+key
+			} catch (Exception e) {
+				println "does NOT have "+key
+			}
+			/*
+			if (flow.event.hasProperty(key)) {
+println "has property " +  key
+				flow.event.setProperty(key, value);
+			}
+			*/
 		}
 	}
 

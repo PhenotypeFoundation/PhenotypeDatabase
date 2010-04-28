@@ -208,7 +208,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Closure help content
 	 */
 	def baseElement = {inputElement, attrs, help ->
-println ".rendering " + inputElement + " with name " + attrs.get('name')
+println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "] and value [" + ((attrs.value) ? attrs.get('value').toString() : "-") + "]"
 		// work variables
 		def description = attrs.remove('description')
 		def addExampleElement = attrs.remove('addExampleElement')
@@ -598,6 +598,13 @@ println ".rendering " + inputElement + " with name " + attrs.get('name')
 
 		// got result?
 		if (attrs.from.size() > 0) {
+			// transform all values into strings
+			def from = []
+			attrs.from.each { from[ from.size() ] = it.toString() }
+			attrs.from = from
+			attrs.value = (attrs.value) ? attrs.value.toString() : ''
+
+			// output select element
 			out << select(attrs)
 		} else {
 			// no, return false to make sure this element
@@ -681,6 +688,9 @@ println ".rendering " + inputElement + " with name " + attrs.get('name')
 	def renderTemplateFields = { attrs ->
 		def renderType	= attrs.remove('renderType')
 		def entity		= (attrs.get('entity'))
+		println entity
+		println entity.class
+		println entity instanceof TemplateEntity
 		def template	= (entity && entity instanceof TemplateEntity) ? entity.template : null
 		def inputElement= null
 

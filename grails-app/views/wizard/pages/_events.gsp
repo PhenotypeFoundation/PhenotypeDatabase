@@ -16,34 +16,23 @@
 %>
 <wizard:pageContent>
 	<span class="info">
-		<span class="title">Define all events and their duration that occur in your study</span>
-		In the previous screen you defined the unique event types, in this screen you need to define
-		all events of a specific event type that occur in time. Select the type of event, and the
-		start and stop time of an event. As it is frequently the case that <i>sets</i> of events act
-		upon (groups of) subjects, you can define event groups, and add events to a particular group.<br/>
-		<i>Note that you can edit multiple events at once by selecting multpiple rows by either
-		ctrl-clicking them or dragging a selection over them.</i>
+		<span class="title">Define all events that occur in your study</span>
+		Bla bla bla we need a good help text here ;)
 	</span>
 
-	<wizard:templateElement name="template" description="Template" value="${values?.template}" entity="${dbnp.studycapturing.Event}" addDummy="true" >
+	<wizard:templateElement name="template" description="Template" value="${event?.template}" entity="${dbnp.studycapturing.Event}" addDummy="true" ajaxOnChange="switchTemplate" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" >
 		The template to use for this study
 	</wizard:templateElement>
-	<wizard:timeElement name="startTime" description="Start Time" error="startTime" value="${values?.startTime}">
-		The start time of the study
-	</wizard:timeElement>
-	<wizard:timeElement name="endTime" description="End time" error="endTimee" value="${values?.endTime}">
-		The end time of the study
-	</wizard:timeElement>	
-	<wizard:buttonElement name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()"/>
+	<g:if test="${event?.template}"><wizard:templateElements entity="${event}" /></g:if>
+	<g:if test="${event?.template}"><wizard:buttonElement name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()"/></g:if>
+<% /*
 <g:if test="${events}">
 	<g:each var="event" status="i" in="${events}">
 	<div class="table">
 		<div class="header">
 			<div class="firstColumn">#</div>
 			<div class="firstColumn"></div>
-			<div class="column">start</div>
-			<div class="column">end</div>
-			<div class="column">duration</div>
+			<div class="column">Template</div>
 			<wizard:templateColumnHeaders template="${event.template}" class="column" />
 			<g:if test="${eventGroups}"><g:each var="eventGroup" status="g" in="${eventGroups}">
 			<div class="column">
@@ -60,9 +49,7 @@
 			<div class="firstColumn">
 				<wizard:ajaxButton name="delete" src="../images/icons/famfamfam/delete.png" alt="delete this event" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${i});" afterSuccess="onWizardPage()" />
 			</div>
-			<div class="column"><g:formatDate format="dd/MM/yyyy hh:mm" date="${event.startTime}" /></div>
-			<div class="column"><g:formatDate format="dd/MM/yyyy hh:mm" date="${event.endTime}" /></div>
-			<div class="column">${event.getShortDuration()}</div>
+			<div class="column">${event.template}</div>
 			<wizard:templateColumns id="${i}" entity="${event}" template="${event.template}" name="event${i}" class="column" />
 			<g:if test="${eventGroups}"><g:each var="eventGroup" status="j" in="${eventGroups}">
 			<div class="column">
@@ -77,6 +64,7 @@
 		</div>
 	</div>
 	</g:each>
+*/ %>
 <% /*
 	<div class="table">
 		<div class="header">
@@ -122,7 +110,7 @@
 	<div class="sliderContainer">
 		<div class="slider"></div>
 	</div>
- */ %>
 </g:if>
+ */ %>
 	
 </wizard:pageContent>

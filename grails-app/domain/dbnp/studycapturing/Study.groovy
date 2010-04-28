@@ -22,13 +22,8 @@ class Study extends TemplateEntity implements Serializable {
 	//String description
 	//String ecCode
 
-	List<DomainTemplateField> giveDomainFields() {
-		[ new TemplateField( 
-                            name: 'title - niet opslaan!',
-                            type: TemplateFieldType.STRING),
-                        new TemplateField( 
-                            name: 'startDate', 
-                            type: TemplateFieldType.DATE) ];
+	Map giveDomainFields() {
+		return ['title':TemplateFieldType.STRING,'startDate':TemplateFieldType.DATE]
 	}
 
 	static hasMany = [
