@@ -241,11 +241,21 @@ class WizardController {
 			onRender {
 				flow.page = 4
 
+				/*
 				if (!flow.event) flow.event = new Event()
 				if (!flow.events) flow.events = []
 				if (!flow.eventGroups) {
 					flow.eventGroups = []
 					flow.eventGroups[0] = new EventGroup(name: 'Group 1')	// 1 group by default
+				}
+				*/
+
+				if (!flow.event) {
+					flow.event			= new Event()
+					flow.events			= []
+					flow.eventGroups	= []
+					flow.eventGroups[0]	= new EventGroup(name: 'Group 1')	// 1 group by default
+					flow.eventTemplates	= [:]
 				}
 			}
 			on("switchTemplate") {
@@ -302,16 +312,45 @@ class WizardController {
 					error()
 				}
 				*/
-				flash.values = params
+				flash.values			= params
+				def eventTemplateName	= params.get('template')
+				def eventTemplate		= Template.findByName(eventTemplateName)
+
+				// add this event template to the event template array
+				if (!flow.eventTemplates[ eventTemplateName ]) {
+					flow.eventTemplates[ eventTemplateName ] = [
+						name: eventTemplateName,
+						template: eventTemplate,
+						events: []
+					]
+				}
 
 				// handle study data
 				this.handleEvents(flow, flash, params)
 
 				// validate event object
 				if (flow.event.validate()) {
-					//flow.events[ flow.events.size() ] = flow.event
+
+flow.event.template.fields.each() {
+	println "["+it.name+"] = "+flow.event.getFieldValue(it.name)	
+}
+					// it validated! Duplicate the event object...
+					def newEvent	= flow.event
+					def increment	= flow.events.size()
+
+					// ...store it in the events map in the flow scope...
+					flow.events[ increment ] = newEvent
+
+					// ...and 'reset' the event object in the flow scope
+					flow.event = new Event(template: newEvent.template)
+					
+					// remember the event id with the template
+					def eventSize = flow.eventTemplates[ eventTemplateName ]['events'].size()
+					flow.eventTemplates[ eventTemplateName ]['events'][ eventSize ] = increment
+
 					success()
 				} else {
+					// it does not validate, show error feedback
 					flash.errors = [:]
 					this.appendErrors(flow.event, flash.errors)
 					error()
@@ -381,6 +420,7 @@ class WizardController {
 			on("next") {
 				flash.values = params
 				flash.errors = [:]
+				/*
 
 				// handle event groupings
 				this.handleEventGrouping(flow, flash, params)
@@ -393,7 +433,8 @@ class WizardController {
 					this.appendErrorMap(['events': 'You need at least to create one event for your study'], flash.errors)
 					error()
 				}
-			}.to "confirm"
+				*/
+			}.to "events"
 		}
 
 		confirm {
@@ -523,50 +564,6 @@ class WizardController {
 		}
 	}
 
-
-	/**
-	 * re-usable code for handling event form data in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
-	 */
-	def handleEvents(flow, flash, params) {
-		// got an event in the flash scope?
-		if (!flow.event) flow.event = new Event()
-
-		// if a template is selected, get template instance
-		def template = params.remove('template')
-		if (template instanceof String && template.size() > 0) {
-			params.template = Template.findByName(template)
-		} else if (template instanceof Template) {
-			params.template = template
-		} else {
-			params.template = null
-		}
-
-		// set template
-		if (params.template) flow.event.template = params.template
-println flow.event.template
-println params
-		
-		// update event instance with parameters
-		params.each() { key, value ->
-			try {
-				flow.event.setFieldValue(key, value)
-				println "has "+key
-			} catch (Exception e) {
-				println "does NOT have "+key
-			}
-			/*
-			if (flow.event.hasProperty(key)) {
-println "has property " +  key
-				flow.event.setProperty(key, value);
-			}
-			*/
-		}
-	}
-
 	/**
 	 * re-usable code for handling study form data in a web flow
 	 * @param Map LocalAttributeMap (the flow scope)
@@ -616,65 +613,6 @@ println "has property " +  key
 			flash.errors = [:]
 			this.appendErrors(flow.study, flash.errors)
 			return false
-		}
-	}
-
-	/**
-	 * re-usable code for handling eventDescription form data in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
-	 */
-	def handleEventDescriptions(flow, flash, params) {
-		def names = [:]
-		def errors = false
-		def id = 0
-
-		flow.eventDescriptions.each() {
-			it.name = params.get('eventDescription_' + id + '_name')
-			it.description = params.get('eventDescription_' + id + '_description')
-			it.protocol = Protocol.findByName(params.get('eventDescription_' + id + '_protocol'))
-			//it.classification = Term.findByName(params.get('eventDescription_' + id + '_classification'))
-			it.isSamplingEvent = (params.containsKey('eventDescription_' + id + '_isSamplingEvent'))
-
-			// validate eventDescription
-			if (!it.validate()) {
-				errors = true
-				this.appendErrors(it, flash.errors, 'eventDescription_' + id + '_')
-			}
-
-			id++
-		}
-
-		return !errors
-	}
-
-	/**
-	 * re-usable code for handling event grouping in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
-	 */
-	def handleEventGrouping(flow, flash, params) {
-		// walk through eventGroups
-		def g = 0
-		flow.eventGroups.each() {
-			def e = 0
-			def eventGroup = it
-
-			// reset events
-			eventGroup.events = new HashSet()
-
-			// walk through events
-			flow.events.each() {
-				if (params.get('event_' + e + '_group_' + g) == 'on') {
-					eventGroup.addToEvents(it)
-				}
-				e++
-			}
-			g++
 		}
 	}
 
@@ -736,6 +674,101 @@ println "has property " +  key
 		}
 
 		return !errors
+	}
+
+	/**
+	 * re-usable code for handling event form data in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handleEvents(flow, flash, params) {
+		// got an event in the flash scope?
+		if (!flow.event) flow.event = new Event()
+
+		// if a template is selected, get template instance
+		def template = params.remove('template')
+		if (template instanceof String && template.size() > 0) {
+			params.template = Template.findByName(template)
+		} else if (template instanceof Template) {
+			params.template = template
+		} else {
+			params.template = null
+		}
+
+		// set template
+		if (params.template) flow.event.template = params.template
+
+		// update event instance with parameters
+		params.each() { key, value ->
+			// does this event have such a property or (if
+			// a template is set) such a template field?
+			if (flow.event.fieldExists(key)) {
+				// yes, set it
+				flow.event.setFieldValue(key, value)
+			}
+		}
+
+		// handle event objects
+		flow.eventTemplates.each() {
+			def eventTemplate	= it.getValue().template
+			def templateFields	= eventTemplate.fields
+
+			// iterate through events
+			it.getValue().events.each() { eventId ->
+				// iterate through template fields
+				templateFields.each() { eventField ->
+					flow.events[ eventId ].setFieldValue(
+						eventField.name,
+						params.get( 'event_' + eventId + '_' + eventField.escapedName() )
+					)
+				}
+
+				// validate event
+				if (!flow.events[ eventId ].validate()) {
+					errors = true
+					this.appendErrors(flow.events[ eventId ], flash.errors, 'event_' + eventId + '_')
+				}
+
+
+			}
+		}
+
+		// handle event grouping
+		handleEventGrouping(flow, flash, params)
+
+		println flow.event
+
+		return !errors
+	}
+
+	/**
+	 * re-usable code for handling event grouping in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handleEventGrouping(flow, flash, params) {
+		// walk through eventGroups
+		def g = 0
+		flow.eventGroups.each() {
+			def e = 0
+			def eventGroup = it
+
+			// reset events
+			eventGroup.events = new HashSet()
+
+			// walk through events
+			flow.events.each() {
+				if (params.get('event_' + e + '_group_' + g) == 'on') {
+					eventGroup.addToEvents(it)
+				}
+				e++
+			}
+			g++
+		}
 	}
 
 	/**

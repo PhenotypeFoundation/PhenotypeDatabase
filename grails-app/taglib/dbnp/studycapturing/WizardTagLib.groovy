@@ -688,9 +688,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	def renderTemplateFields = { attrs ->
 		def renderType	= attrs.remove('renderType')
 		def entity		= (attrs.get('entity'))
-		println entity
-		println entity.class
-		println entity instanceof TemplateEntity
+		def prependName	= (attrs.get('name')) ? attrs.remove('name')+'_' : ''
 		def template	= (entity && entity instanceof TemplateEntity) ? entity.template : null
 		def inputElement= null
 
@@ -710,7 +708,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
 						out << "$inputElement"(
 							description: it.name,
-							name: it.escapedName(),
+							name: prependName + it.escapedName(),
 							value: fieldValue
 						)
 						break
@@ -719,7 +717,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 						if (!it.listEntries.isEmpty()) {
 							out << "$inputElement"(
 								description: it.name,
-								name: it.escapedName(),
+								name: prependName + it.escapedName(),
 								from: it.listEntries,
 								value: fieldValue
 							)
@@ -732,21 +730,21 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 						// @see ontology-chooser.js
 						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
 						out << "$inputElement"(
-							name: it.escapedName(),
+							name: prependName + it.escapedName(),
 							value: fieldValue,
 							rel: 'ontology-all-name',
 							size: 100
 						)
 						out << hiddenField(
-							name: it.name + '-concept_id',
+							name: prependName + it.name + '-concept_id',
 							value: fieldValue
 						)
 						out << hiddenField(
-							name: it.escapedName() + '-ontology_id',
+							name: prependName + it.escapedName() + '-ontology_id',
 							value: fieldValue
 						)
 						out << hiddenField(
-							name: it.escapedName() + '-full_id',
+							name: prependName + it.escapedName() + '-full_id',
 							value: fieldValue
 						)
 						break
@@ -767,7 +765,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 						// render element
 						out << "$inputElement"(
 							description: it.name,
-							name: it.escapedName(),
+							name: prependName + it.escapedName(),
 							value: fieldValue,
 							rel: 'date'
 						)

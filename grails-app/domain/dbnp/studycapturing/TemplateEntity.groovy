@@ -269,15 +269,33 @@ abstract class TemplateEntity implements Serializable {
 	 * @return true if the given field exists and false otherwise
 	 */
 	def fieldExists(String fieldName) {
-		TemplateFieldType fieldType = template.getFieldType(fieldName)
+		// escape the fieldName for easy matching
+		// (such escaped names are commonly used
+		// in the HTTP forms of this application)
+		def escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])","_")
 
-                // If the field is found, a TemplateFieldType is returned
-                // otherwise null
-                if (fieldType) {
-                    return true
-                } else {
-                    return false
-                }
+		// check if this domain class has got this property
+		if (this.properties.containsKey(fieldName)) {
+			// domain class contains this property
+			return true
+		} else if (template == null) {
+			// no, and we haven't got a template set either
+			return false
+		} else {
+			// the domain class doesn't have this property but
+			// it has a template defined. Check the template
+			// fields to see if such a template field exists
+			TemplateField field = this.template.fields.find { it.name.toLowerCase().replaceAll("([^a-z0-9])","_") == escapedLowerCaseFieldName }
+
+			// does the template field exist?
+			if (field == null) {
+				// no such template field
+				return false
+			} else {
+				// found!
+				return true
+			}
+		}
 	}
 
 	/**
@@ -286,6 +304,11 @@ abstract class TemplateEntity implements Serializable {
 	 * @param value The value to be set, this should align with the (template) field type, but there are some convenience setters
 	 */
 	def setFieldValue(String fieldName, value) {
+		// escape the fieldName for easy matching
+		// (such escaped names are commonly used
+		// in the HTTP forms of this application)
+		def escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])","_")
+
 		// First, search if there is an entity property with the given name, and if so, set that
 		if (this.properties.containsKey(fieldName)) {
 			this[fieldName] = value			
@@ -295,7 +318,7 @@ abstract class TemplateEntity implements Serializable {
 		} else {
 			// there is a template, check the template fields
 			// Find the target template field, if not found, throw an error
-			TemplateField field = this.template.fields.find { it.name == fieldName }
+			TemplateField field = this.template.fields.find { it.name.toLowerCase().replaceAll("([^a-z0-9])","_") == escapedLowerCaseFieldName }
 
 			if (field == null) {
 				// no such field
@@ -305,7 +328,10 @@ abstract class TemplateEntity implements Serializable {
 				// Convenience setter for template string list fields: find TemplateFieldListItem by name
 				if (field.type == TemplateFieldType.STRINGLIST && value && value.class == String) {
 					// Kees insensitive pattern matching ;)
-					value = field.listEntries.find { it.name ==~ /(?i)($value)/ }
+					def escapedLowerCaseValue = value.toLowerCase().replaceAll("([^a-z0-9])","_")
+					value = field.listEntries.find {
+						it.name.toLowerCase().replaceAll("([^a-z0-9])","_") == escapedLowerCaseValue
+					}
 				}
 
 				// Convenience setter for dates: handle string values for date fields
