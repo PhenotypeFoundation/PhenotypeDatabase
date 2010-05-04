@@ -33,6 +33,16 @@ class BootStrap {
 				ncboVersionedId: '38802'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
+			println ".adding BRENDA source material ontology"
+			def brendaOntology = new Ontology(
+				name: 'BRENDA tissue / enzyme source',
+				description: 'A structured controlled vocabulary for the source of an enzyme. It comprises terms for tissues, cell lines, cell types and cell cultures from uni- and multicellular organisms.',
+				url: 'http://www.brenda-enzymes.info',
+				versionNumber: '1.3',
+				ncboId: '1005',
+				ncboVersionedId: '40643'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
 			// add TERMS
 			println ".adding mouse term"
 			def mouseTerm = new Term(

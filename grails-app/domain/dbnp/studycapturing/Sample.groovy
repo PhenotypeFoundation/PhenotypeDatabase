@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import dbnp.data.Term
+import dbnp.data.Ontology
 
 /**
  * The Sample class describes an actual sample which results from a SamplingEvent.
@@ -21,7 +22,9 @@ class Sample extends TemplateEntity {
                             type: TemplateFieldType.STRING),
                         new TemplateField(
                             name: 'material',
-                            type: TemplateFieldType.ONTOLOGYTERM) ];
+                            type: TemplateFieldType.ONTOLOGYTERM,
+		            ontologies: [Ontology.findByNcboId(1005)])
+		];
 	}
 
 	static constraints = {

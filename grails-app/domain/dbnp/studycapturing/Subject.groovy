@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import dbnp.data.Term
+import dbnp.data.Ontology
 
 /**
  * This domain class describes the subjects in a study.
@@ -21,6 +22,7 @@ class Subject extends TemplateEntity implements Serializable {
                             type: TemplateFieldType.STRING),
                         new TemplateField(
                             name: 'species',
-                            type: TemplateFieldType.ONTOLOGYTERM) ];
+                            type: TemplateFieldType.ONTOLOGYTERM,
+                            ontologies: [Ontology.findByNcboId(1132)]) ];
 	}
 }
