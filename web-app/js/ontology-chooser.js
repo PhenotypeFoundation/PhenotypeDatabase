@@ -143,7 +143,7 @@ OntologyChooser.prototype = {
             // yeah, set it
             $(searchElement[0]).val(value);
         } else {
-            // no, dynamically insert it after the input elemtn
+            // no, dynamically insert it after the input element
             inputElement.after('<input type="hidden" name="' + elementName + '" value="' + value + '"/>');
         }
     },
