@@ -486,7 +486,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 			    name: attrs.name,
 				value: attrs.value,
 				description: attrs.description,
-				rel: 'ontology-' + ((attrs.ontology) ? attrs.ontology : 'all') + '-name',
+				rel: 'ontology-' + ((attrs.ontology) ? attrs.ontology : 'all'),
 				size: 25
 			],
 			body
@@ -732,7 +732,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 						out << "$inputElement"(
 							name: prependName + it.escapedName(),
 							value: fieldValue,
-							rel: 'ontology-all-name',
+							rel: 'ontology-all',
 							size: 100
 						)
 						out << hiddenField(
