@@ -414,18 +414,6 @@ class BootStrap {
 
 
 			// Event templates
-			println ".adding event templates..."
-
-			def startDateField = new TemplateField(
-				name: 'Start time', type: TemplateFieldType.DATE
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			def endDateField = new TemplateField(
-				name: 'End time', type: TemplateFieldType.DATE
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			Event.systemFields = [startDateField,endDateField]
-
 			def dietTreatmentTemplate = new Template(
 				name: 'Diet treatment', entity: dbnp.studycapturing.Event)
 			.addToFields(sampleDescriptionField)
@@ -514,40 +502,35 @@ class BootStrap {
 			exampleHumanStudy.save()
 
 			def evLF = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
 				template: dietTreatmentTemplate
 			)
                         .with { if (!validate()) { errors.each { println it} } else save()}
-
-			evLF.setStartTime(Date.parse('yyyy-MM-dd','2008-01-07'))
-			evLF.setEndTime(Date.parse('yyyy-MM-dd','2008-01-14'))
-
 			evLF.setFieldValue( 'Diet','10% fat (palm oil)' )
 	                evLF.save(flush:true)
 
-			println "Saved diet treatment"
-			// TODO: find out why Diet is not set and Compound is
-
 			def evHF = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
 				template: dietTreatmentTemplate
 			)
-			.setStartTime( Date.parse('yyyy-MM-dd','2008-01-07'))
-			.setEndTime( Date.parse('yyyy-MM-dd','2008-01-14'))
                         .setFieldValue( 'Diet','45% fat (palm oil)' )
                         .with { if (!validate()) { errors.each { println it} } else save()}
 
 			def evBV = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
 				template: boostTreatmentTemplate
 			)
-			.setStartTime( Date.parse('yyyy-MM-dd','2008-01-07'))
-			.setEndTime( Date.parse('yyyy-MM-dd','2008-01-14'))
                         .setFieldValue( 'Compound','Vehicle' )
                         .with { if (!validate()) { errors.each { println it} } else save()}
 
 			def evBL = new Event(
+				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
 				template: boostTreatmentTemplate
 			)
-			.setStartTime( Date.parse('yyyy-MM-dd','2008-01-07'))
-			.setEndTime( Date.parse('yyyy-MM-dd','2008-01-14'))
                         .setFieldValue( 'Compound','Leptin' )
                         .with { if (!validate()) { errors.each { println it} } else save()}
 

@@ -13,7 +13,6 @@ import org.springframework.validation.FieldError
  */
 abstract class TemplateEntity implements Serializable {
 	Template template
-	static List systemFields
 	Map templateStringFields = [:]
 	Map templateTextFields = [:]
 	Map templateStringListFields = [:]
@@ -252,15 +251,20 @@ abstract class TemplateEntity implements Serializable {
 	}
 
 	/**
-	 * Find a template field by its name and return its value for this entity
-	 * @param fieldName The name of the template field
+	 * Find a domain or template field by its name and return its value for this entity
+	 * @param fieldName The name of the domain or template field
 	 * @return the value of the field (class depends on the field type)
 	 * @throws NoSuchFieldException If the field is not found or the field type is not supported
 	 */
 	def getFieldValue(String fieldName) {
-		TemplateFieldType fieldType = template.getFieldType(fieldName)
-		if (!fieldType) throw new NoSuchFieldException("Field name ${fieldName} not recognized")
-		getStore(fieldType)[fieldName]
+		if (this.properties.containsKey(fieldName)) {
+			return this[fieldName]
+		}
+		else {
+			TemplateFieldType fieldType = template.getFieldType(fieldName)
+			if (!fieldType) throw new NoSuchFieldException("Field name ${fieldName} not recognized")
+			return getStore(fieldType)[fieldName]
+		}
 	}
 
 	/**
@@ -374,22 +378,27 @@ abstract class TemplateEntity implements Serializable {
 	}
 
 	/**
-	* Return all templated fields defined in the underlying template of this entity
+	* Return all fields defined in the underlying template and the built-in
+        * domain fields of this entity
 	*/
 	def List<TemplateField> giveFields() {
+		return this.giveDomainFields() + this.giveTemplateFields();
+	}
+
+	/**
+	* Return all templated fields defined in the underlying template of this entity
+	*/
+	def List<TemplateField> giveTemplateFields() {
 		return this.template.fields;
 	}
 
-	def List<TemplateField> giveSystemFields() {
-		return systemFields;
-	}
-	
-
 	/**
 	 * Return all relevant 'built-in' domain fields of the super class
-	 * @return key-value pairs describing the built-in fields, with the names as keys and type (as TemplateFieldType) as values
+	 * @return List with DomainTemplateFields
+         * @see TemplateField
  	 */
-	abstract Map giveDomainFields()
+	abstract List<TemplateField> giveDomainFields()
+
 	/*def giveDomainFields() {
 		def fieldSet = [:];
 		if (super.hasProperty('name')) {

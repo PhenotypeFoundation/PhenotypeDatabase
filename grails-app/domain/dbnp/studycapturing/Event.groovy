@@ -14,9 +14,10 @@ import groovy.time.*
  */
 class Event extends TemplateEntity implements Serializable {
 
+        Date startTime
+        Date endTime
+        
 	static constraints = {
-		startTime(nullable: true)
-		endTime(nullable: true)
 		endTime(validator: {val, obj ->
            if (val && val.before(obj.startTime)) {
                 return 'endTimeshouldbegreater'
@@ -24,30 +25,14 @@ class Event extends TemplateEntity implements Serializable {
        	})
 	}
 	
-	Date getStartTime() {
-		getFieldValue('Start time')
-	}
 
-	def setStartTime(Date value) {
-		if (value != null) {
-			setFieldValue('Start time',value)
-		}
-		return this
-	}
-
-	Date getEndTime() {
-		getFieldValue('End time')
-	}
-
-	def setEndTime(Date value) {
-		if (value != null) {
-			setFieldValue('End time',value)
-		}
-		return this
-	}
-
-	Map giveDomainFields() {
-		return ['startTime':TemplateFieldType.DATE,'endTime':TemplateFieldType.DATE]
+	List<TemplateField> giveDomainFields() {
+		[ new TemplateField( 
+                            name: 'startTime',
+                            type: TemplateFieldType.DATE),
+                        new TemplateField( 
+                            name: 'endTime',
+                            type: TemplateFieldType.DATE) ];
 	}
 
 	// time diff between end and start date

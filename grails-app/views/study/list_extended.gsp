@@ -453,7 +453,7 @@ ${studyInse?.template?.encodeAsHTML()}</g:link></td>
                     </tr>
                     <g:each in="${study.persons}" var="studyperson">
                       <tr>
-                        <td>${studyperson.person.firstName} ${studyperson.person.midInitials} ${studyperson.person.lastName}</td>
+                        <td>${studyperson.person.firstName} ${studyperson.person.prefix} ${studyperson.person.lastName}</td>
                         <td>
                           ${studyperson.person.affiliations.name.join(', ')}
                         </td>

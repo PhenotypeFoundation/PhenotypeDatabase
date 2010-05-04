@@ -24,24 +24,6 @@ class Template implements Serializable {
 		//	name(unique:['entity'])
 	}
 
-	// As the entity is not known at the time the constructor is called,
-	// we add the system fields for a new template object at the time the entity is set
-	void setEntity(Class value) {
-		this.entity = value
-		if (value != null) {
-			if (fields == null) {
-				if (entity.systemFields) {
-					println "adding default template fields for " + entity.systemFields
-					entity.systemFields.each {
-						this.addToFields(it)
-					}
-				}
-			}
-			println "" + value + "this template has now fields " + fields
-		}
-
-	}
-
 	/**
 	 * overloaded toString method
 	 * @return String
