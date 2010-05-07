@@ -22,10 +22,4 @@ public enum AssayType {
 	static list() {
 		[TRANSCRIPTOMICS, METABOLOMICS, CLINICAL_DATA]
 	}
-
-	/*
-	def String toString() {
-		return this.name
-	}
-	*/
 }

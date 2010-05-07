@@ -8,23 +8,26 @@ import dbnp.data.Ontology
  */
 class Sample extends TemplateEntity {
 	static searchable = true
-
 	Subject parentSubject
 	SamplingEvent parentEvent
 
-	String name      // should be unique with respect to the parent study (which can be inferred)
-	Term material
-	// a member that describes the quantity of the sample? --> should be in the templates
+	//String name	// should be unique with respect to the parent study (which can be inferred)
+	//Term material	// a member that describes the quantity of the sample? --> should be in the templates
 
+	/**
+	 * return the domain fields for this domain class
+	 * @return List
+	 */
 	List<TemplateField> giveDomainFields() {
-		[ new TemplateField(
-                            name: 'name',
-                            type: TemplateFieldType.STRING),
-                        new TemplateField(
-                            name: 'material',
-                            type: TemplateFieldType.ONTOLOGYTERM,
-		            ontologies: [Ontology.findByNcboId(1005)])
-		];
+		[
+			new TemplateField(
+				name: 'name',
+				type: TemplateFieldType.STRING),
+			new TemplateField(
+				name: 'material',
+				type: TemplateFieldType.ONTOLOGYTERM,
+				ontologies: [Ontology.findByNcboId(1005)])
+		]
 	}
 
 	static constraints = {

@@ -375,16 +375,16 @@ abstract class TemplateEntity implements Serializable {
 	}
 
 	/**
-	* Return all fields defined in the underlying template and the built-in
-        * domain fields of this entity
-	*/
+	 * Return all fields defined in the underlying template and the built-in
+     * domain fields of this entity
+	 */
 	def List<TemplateField> giveFields() {
 		return this.giveDomainFields() + this.giveTemplateFields();
 	}
 
 	/**
-	* Return all templated fields defined in the underlying template of this entity
-	*/
+	 * Return all templated fields defined in the underlying template of this entity
+	 */
 	def List<TemplateField> giveTemplateFields() {
 		return this.template.fields;
 	}
@@ -392,20 +392,10 @@ abstract class TemplateEntity implements Serializable {
 	/**
 	 * Return all relevant 'built-in' domain fields of the super class
 	 * @return List with DomainTemplateFields
-         * @see TemplateField
+     * @see TemplateField
  	 */
 	abstract List<TemplateField> giveDomainFields()
 
-	/*def giveDomainFields() {
-		def fieldSet = [:];
-		if (super.hasProperty('name')) {
-			fieldSet['name'] = TemplateFieldType.STRING;
-		}
-		return fieldSet;
-	}*/
-
-	// See revision 237 for ideas about initializing the different templateField Maps
-	// with tailored Maps that already contain the neccessary keys
 	/**
 	 * Convenience method. Returns all unique templates used within a collection of TemplateEntities.
 	 */

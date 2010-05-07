@@ -241,15 +241,6 @@ class WizardController {
 			onRender {
 				flow.page = 4
 
-				/*
-				if (!flow.event) flow.event = new Event()
-				if (!flow.events) flow.events = []
-				if (!flow.eventGroups) {
-					flow.eventGroups = []
-					flow.eventGroups[0] = new EventGroup(name: 'Group 1')	// 1 group by default
-				}
-				*/
-
 				if (!flow.event) {
 					flow.event			= new Event()
 					flow.events			= []
@@ -591,33 +582,13 @@ flow.event.template.fields.each() {
 			flow.study.template = template
 		}
 
-//println flow.study.giveFields()
-/*
-		// update study instance with parameters
-		params.each() { key, value ->
-			if (flow.study.hasProperty(key)) {
-println ".set property ["+key+"] with value ["+value+"]"
-				flow.study.setProperty(key, value);
-			}
-		}
-
-		// walk through template fields
-		if (params.template) {
-			params.template.fields.each() { field ->
-println ".set field ["+field.name+"] with value ["+params.get(field.escapedName())+"]"
-				flow.study.setFieldValue(field.name, params.get(field.escapedName()))
-			}
-		}
-*/
 		// iterate through fields
 		if (flow.study.template) {
 			flow.study.giveFields().each() {
 				flow.study.setFieldValue(it.name, params.get(it.escapedName()))
 			}
 		}
-println "study = " + flow.study
-println flow.study.templateDateFields
-		
+
 		// validate study
 		if (flow.study.validate()) {
 			return true
@@ -648,29 +619,7 @@ println flow.study.templateDateFields
 
 			// iterate through subjects
 			it.getValue().subjects.each() { subjectId ->
-				/*
-				flow.subjects[ subjectId ].name = params.get('subject_' + subjectId + '_name')
-				flow.subjects[ subjectId ].species = Term.findByName(params.get('subject_' + subjectId + '_species'))
-
-				// remember name and check for duplicates
-				if (!names[ flow.subjects[ subjectId ].name ]) {
-					names[ flow.subjects[ subjectId ].name ] = [count: 1, first: 'subject_' + subjectId + '_name', firstId: subjectId]
-				} else {
-					// duplicate name found, set error flag
-					names[ flow.subjects[ subjectId ].name ]['count']++
-
-					// second occurence?
-					if (names[ flow.subjects[ subjectId ].name ]['count'] == 2) {
-						// yeah, also mention the first
-						// occurrence in the error message
-						this.appendErrorMap(name: 'The subject name needs to be unique!', flash.errors, 'subject_' + names[ flow.subjects[ subjectId ].name ]['firstId'] + '_')
-					}
-
-					// add to error map
-					this.appendErrorMap([name: 'The subject name needs to be unique!'], flash.errors, 'subject_' + subjectId + '_')
-					errors = true
-				}
-				*/
+				// TODO: name uniqueness check has been removed to 'templated domain fields' changes...
 
 				// iterate through template fields
 				//templateFields.each() { subjectField ->
@@ -753,8 +702,6 @@ println flow.study.templateDateFields
 
 		// handle event grouping
 		handleEventGrouping(flow, flash, params)
-
-println flow.event
 
 		return !errors
 	}

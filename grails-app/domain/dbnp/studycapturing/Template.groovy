@@ -18,7 +18,6 @@ class Template implements Serializable {
 	static hasMany = [fields: TemplateField]
 
 	static constraints = {
-
 		// outcommented for now due to bug in Grails / Hibernate
 		// see http://jira.codehaus.org/browse/GRAILS-6020
 		//	name(unique:['entity'])

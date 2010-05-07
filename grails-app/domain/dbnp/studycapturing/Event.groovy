@@ -13,31 +13,38 @@ import groovy.time.*
  * $Date$
  */
 class Event extends TemplateEntity implements Serializable {
+//	Date startTime
+//	Date endTime
 
-        Date startTime
-        Date endTime
-        
 	static constraints = {
+/*
 		endTime(validator: {val, obj ->
-           if (val && val.before(obj.startTime)) {
-                return 'endTimeshouldbegreater'
-           }
-       	})
+			if (val && val.before(obj.startTime)) {
+				return 'endTimeshouldbegreater'
+			}
+		})
+*/
 	}
-	
 
+	/**
+	 * return the domain fields for this domain class
+	 * @return List
+	 */
 	List<TemplateField> giveDomainFields() {
-		[ new TemplateField( 
-                            name: 'startTime',
-                            type: TemplateFieldType.DATE),
-                        new TemplateField( 
-                            name: 'endTime',
-                            type: TemplateFieldType.DATE) ];
+		[
+			new TemplateField(
+				name: 'startTime',
+				type: TemplateFieldType.DATE),
+			new TemplateField(
+				name: 'endTime',
+				type: TemplateFieldType.DATE)
+		]
 	}
 
-	// time diff between end and start date
-	// thus, do this manually as follows
-
+	/**
+	 * get the event duration
+	 * @return Duration
+	 */
 	static def getDuration(date1, date2) {
 		def timeMillis = (date2.getTime() - date1.getTime()).abs()
 		def days = (timeMillis / (1000 * 60 * 60 * 24)).toInteger()
@@ -53,10 +60,10 @@ class Event extends TemplateEntity implements Serializable {
 		return getDuration(startTime, endTime)
 	}
 
-	// return a string that prints the duration sensibly.
-	// the largest date unit (sec, min, h, day, week, month, or year)
-	// is output
-
+	/**
+	 * get a prettified duration
+	 * @return String
+	 */
 	static def getPrettyDuration(duration) {
 		def handleNumerus = {number, string ->
 			return number.toString() + (number == 1 ? string : string + 's')
@@ -69,12 +76,10 @@ class Event extends TemplateEntity implements Serializable {
 		return handleNumerus(duration.getSeconds(), " second")
 	}
 
-	// convenience method. gives formatted string output for a duration
 	def getPrettyDuration() {
 		getPrettyDuration(getDuration())
 	}
 
-	// convenience method. gives formatted string output for a duration
 	static def getPrettyDuration(date1, date2) {
 		return getPrettyDuration(getDuration(date1, date2))
 	}
@@ -97,7 +102,6 @@ class Event extends TemplateEntity implements Serializable {
 	}
 
 	def String toString() {
-		return fieldExists( 'Description' ) ? getFieldValue( 'Description') : ""
+		return fieldExists('Description') ? getFieldValue('Description') : ""
 	}
-
 }

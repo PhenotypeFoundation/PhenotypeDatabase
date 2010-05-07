@@ -18,9 +18,9 @@ class TemplateField implements Serializable {
 	List listEntries
 	boolean required
 
-    static hasMany = [listEntries :
-                TemplateFieldListItem, // to store the entries to choose from when the type is 'item from predefined list'
-	   	ontologies : Ontology // to store the ontologies to choose from when the type is 'ontology term'
+    static hasMany = [
+		listEntries	: TemplateFieldListItem,	// to store the entries to choose from when the type is 'item from predefined list'
+	   	ontologies	: Ontology					// to store the ontologies to choose from when the type is 'ontology term'
 	]
 	
 	static constraints = {
@@ -38,7 +38,6 @@ class TemplateField implements Serializable {
 		return name
 	}
 
-
 	/**
 	 * return an escaped name which can be used in business logic
 	 * @return String
@@ -46,14 +45,4 @@ class TemplateField implements Serializable {
 	def String escapedName() {
 		return name.toLowerCase().replaceAll("([^a-z0-9])","_")
 	}
-
-	//TODO: make a convenience setter for a string array
-	/*def setListEntries(ArrayList entries) {
-		list=[]
-		entries.each {
-			list.add(new TemplateFieldListItem(name: it))
-		}
-		this
-	}*/
-
 }

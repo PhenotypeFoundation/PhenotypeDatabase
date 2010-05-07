@@ -16,14 +16,17 @@ class Study extends TemplateEntity implements Serializable {
 
 	/**
 	 * return the domain fields for this domain class
+	 * @return List
 	 */
 	List<TemplateField> giveDomainFields() {
-		[ new TemplateField( 
-                            name: 'title',
-                            type: TemplateFieldType.STRING),
-                        new TemplateField( 
-                            name: 'startDate', 
-                            type: TemplateFieldType.DATE) ];
+		[
+			new TemplateField(
+				name: 'title',
+				type: TemplateFieldType.STRING),
+			new TemplateField(
+				name: 'startDate',
+				type: TemplateFieldType.DATE)
+		]
 	}
 
 	static hasMany = [
@@ -50,6 +53,9 @@ class Study extends TemplateEntity implements Serializable {
 		autoTimestamp true
 	}
 
+	/**
+	 * return the title of this study
+	 */
 	def String toString() {
 		//return title;
 		def title = this.giveDomainFields().find { it.name == 'title' }

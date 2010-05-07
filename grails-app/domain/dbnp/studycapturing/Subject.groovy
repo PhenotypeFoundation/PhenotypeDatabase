@@ -14,13 +14,19 @@ import dbnp.data.Ontology
 class Subject extends TemplateEntity implements Serializable {
 	static searchable = true
 
+	/**
+	 * return the domain fields for this domain class
+	 * @return List
+	 */
 	List<TemplateField> giveDomainFields() {
-		[ new TemplateField(
-                            name: 'name',
-                            type: TemplateFieldType.STRING),
-                        new TemplateField(
-                            name: 'species',
-                            type: TemplateFieldType.ONTOLOGYTERM,
-                            ontologies: [Ontology.findByNcboId(1132)]) ];
+		[
+			new TemplateField(
+				name: 'name',
+				type: TemplateFieldType.STRING),
+			new TemplateField(
+				name: 'species',
+				type: TemplateFieldType.ONTOLOGYTERM,
+				ontologies: [Ontology.findByNcboId(1132)])
+		]
 	}
 }
