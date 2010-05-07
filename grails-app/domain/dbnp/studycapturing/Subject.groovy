@@ -13,8 +13,6 @@ import dbnp.data.Ontology
  */
 class Subject extends TemplateEntity implements Serializable {
 	static searchable = true
-	String name
-	Term species
 
 	List<TemplateField> giveDomainFields() {
 		[ new TemplateField(

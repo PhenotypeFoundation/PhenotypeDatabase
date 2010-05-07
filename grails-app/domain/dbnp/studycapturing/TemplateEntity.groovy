@@ -257,13 +257,20 @@ abstract class TemplateEntity implements Serializable {
 	 * @throws NoSuchFieldException If the field is not found or the field type is not supported
 	 */
 	def getFieldValue(String fieldName) {
-		if (this.properties.containsKey(fieldName)) {
-			return this[fieldName]
-		}
-		else {
-			TemplateFieldType fieldType = template.getFieldType(fieldName)
-			if (!fieldType) throw new NoSuchFieldException("Field name ${fieldName} not recognized")
-			return getStore(fieldType)[fieldName]
+		// escape the fieldName for easy matching
+		// (such escaped names are commonly used
+		// in the HTTP forms of this application)
+		def escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])","_")
+
+		// Find the target template field, if not found, throw an error
+		TemplateField field = this.giveFields().find { it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseFieldName }
+
+		// field found?
+		if (field == null) {
+			// no such field
+			throw new NoSuchFieldException("Field ${fieldName} not recognized")
+		} else {
+			return getStore(field.type)[fieldName]
 		}
 	}
 
@@ -313,68 +320,58 @@ abstract class TemplateEntity implements Serializable {
 		// in the HTTP forms of this application)
 		def escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])","_")
 
-		// First, search if there is an entity property with the given name, and if so, set that
-		if (this.properties.containsKey(fieldName)) {
-			this[fieldName] = value			
-		} else if (template == null) {
-			// not the found, then it is a template field, so check if there is a template
-			throw new NoSuchFieldException("Field ${fieldName} not found in class properties: template not set")
+		// Find the target template field, if not found, throw an error
+		TemplateField field = this.giveFields().find { it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseFieldName }
+
+		// field found?
+		if (field == null) {
+			// no such field
+			throw new NoSuchFieldException("Field ${fieldName} not found in class template fields")
 		} else {
-			// there is a template, check the template fields
-			// Find the target template field, if not found, throw an error
-			TemplateField field = this.template.fields.find { it.name.toLowerCase().replaceAll("([^a-z0-9])","_") == escapedLowerCaseFieldName }
+			// Set the value of the found template field
+			// Convenience setter for template string list fields: find TemplateFieldListItem by name
+			if (field.type == TemplateFieldType.STRINGLIST && value && value.class == String) {
+				// Kees insensitive pattern matching ;)
+				def escapedLowerCaseValue = value.toLowerCase().replaceAll("([^a-z0-9])", "_")
+				value = field.listEntries.find {
+					it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseValue
+				}
+			}
 
-			if (field == null) {
-				// no such field
-				throw new NoSuchFieldException("Field ${fieldName} not found in class template fields")
-			} else {
-				// Set the value of the found template field
-				// Convenience setter for template string list fields: find TemplateFieldListItem by name
-				if (field.type == TemplateFieldType.STRINGLIST && value && value.class == String) {
-					// Kees insensitive pattern matching ;)
-					def escapedLowerCaseValue = value.toLowerCase().replaceAll("([^a-z0-9])","_")
-					value = field.listEntries.find {
-						it.name.toLowerCase().replaceAll("([^a-z0-9])","_") == escapedLowerCaseValue
+			// Convenience setter for dates: handle string values for date fields
+			if (field.type == TemplateFieldType.DATE && value && value.class == String) {
+				// a string was given, attempt to transform it into a date instance
+				// and -for now- assume the dd/mm/yyyy format
+				def dateMatch = value =~ /^([0-9]{1,})([^0-9]{1,})([0-9]{1,})([^0-9]{1,})([0-9]{1,})((([^0-9]{1,})([0-9]{1,2}):([0-9]{1,2})){0,})/
+				if (dateMatch.matches()) {
+					// create limited 'autosensing' datetime parser
+					// assume dd mm yyyy  or dd mm yy
+					def parser = 'd' + dateMatch[0][2] + 'M' + dateMatch[0][4] + (((dateMatch[0][5] as int) > 999) ? 'yyyy' : 'yy')
+
+					// add time as well?
+					if (dateMatch[0][7] != null) {
+						parser += dateMatch[0][6] + 'HH:mm'
 					}
+
+					value = new Date().parse(parser, value)
 				}
+			}
 
-				// Convenience setter for dates: handle string values for date fields
-				if (field.type == TemplateFieldType.DATE && value.class == String) {
-					// a string was given, attempt to transform it into a date instance
-					// and -for now- assume the dd/mm/yyyy format
-					def dateMatch = value =~ /^([0-9]{1,})([^0-9]{1,})([0-9]{1,})([^0-9]{1,})([0-9]{1,})((([^0-9]{1,})([0-9]{1,2}):([0-9]{1,2})){0,})/
-					if (dateMatch.matches()) {
-						// create limited 'autosensing' datetime parser
-						// assume dd mm yyyy  or dd mm yy
-						def parser = 'd' + dateMatch[0][2] + 'M' + dateMatch[0][4] + (((dateMatch[0][5] as int) > 999) ? 'yyyy' : 'yy')
+			// Set the field value
+			def store = getStore(field.type)
+			if (!value && store[fieldName]) {
+				println "removing " + ((super) ? super.class : '??') + " template field: " + fieldName
 
-						// add time as well?
-						if (dateMatch[0][7] != null) {
-							parser += dateMatch[0][6] + 'HH:mm'
-						}
+				// remove the item from the Map (if present)
+				store.remove(fieldName)
+			} else if (value) {
+				println "setting " + ((super) ? super.class : '??') + " template field: " + fieldName + " ([" + value.toString() + "] of type [" + value.class + "])"
 
-						value = new Date().parse(parser, value)
-					}
-				}
-
-				// Set the field value
-				// Caution: this assumes that all template...Field Maps are already initialized (as is done now above as [:])
-				// If that is ever changed, the results are pretty much unpredictable (random Java object pointers?)!
-				def store = getStore(field.type)
-				if (!value && store[ fieldName ]) {
-					println "removing " + ((super) ? super.class : '??') + " template field: " + fieldName
-
-					// remove the item from the Map (if present)
-					store.remove( fieldName )
-				} else if (value) {
-					println "setting " + ((super) ? super.class : '??') + " template field: " + fieldName + " ([" + value.toString() + "] of type [" + value.class + "])"
-
-					// set value
-					store[ fieldName ] = value
-				}
-				return this
+				// set value
+				store[fieldName] = value
 			}
 		}
+		return this
 	}
 
 	/**

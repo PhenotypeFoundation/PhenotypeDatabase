@@ -586,14 +586,17 @@ flow.event.template.fields.each() {
 		// if a template is selected, get template instance
 		def template = params.remove('template')
 		if (template instanceof String && template.size() > 0) {
-			params.template = Template.findByName(template)
+			flow.study.template = Template.findByName(template)
 		} else if (template instanceof Template) {
-			params.template = template
+			flow.study.template = template
 		}
 
+//println flow.study.giveFields()
+/*
 		// update study instance with parameters
 		params.each() { key, value ->
 			if (flow.study.hasProperty(key)) {
+println ".set property ["+key+"] with value ["+value+"]"
 				flow.study.setProperty(key, value);
 			}
 		}
@@ -601,10 +604,20 @@ flow.event.template.fields.each() {
 		// walk through template fields
 		if (params.template) {
 			params.template.fields.each() { field ->
+println ".set field ["+field.name+"] with value ["+params.get(field.escapedName())+"]"
 				flow.study.setFieldValue(field.name, params.get(field.escapedName()))
 			}
 		}
-
+*/
+		// iterate through fields
+		if (flow.study.template) {
+			flow.study.giveFields().each() {
+				flow.study.setFieldValue(it.name, params.get(it.escapedName()))
+			}
+		}
+println "study = " + flow.study
+println flow.study.templateDateFields
+		
 		// validate study
 		if (flow.study.validate()) {
 			return true
@@ -635,6 +648,7 @@ flow.event.template.fields.each() {
 
 			// iterate through subjects
 			it.getValue().subjects.each() { subjectId ->
+				/*
 				flow.subjects[ subjectId ].name = params.get('subject_' + subjectId + '_name')
 				flow.subjects[ subjectId ].species = Term.findByName(params.get('subject_' + subjectId + '_species'))
 
@@ -656,9 +670,11 @@ flow.event.template.fields.each() {
 					this.appendErrorMap([name: 'The subject name needs to be unique!'], flash.errors, 'subject_' + subjectId + '_')
 					errors = true
 				}
+				*/
 
 				// iterate through template fields
-				templateFields.each() { subjectField ->
+				//templateFields.each() { subjectField ->
+				flow.subjects[ subjectId ].giveFields().each() { subjectField ->
 					flow.subjects[ subjectId ].setFieldValue(
 						subjectField.name,
 						params.get( 'subject_' + subjectId + '_' + subjectField.escapedName() )
@@ -738,7 +754,7 @@ flow.event.template.fields.each() {
 		// handle event grouping
 		handleEventGrouping(flow, flash, params)
 
-		println flow.event
+println flow.event
 
 		return !errors
 	}

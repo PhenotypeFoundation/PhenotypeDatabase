@@ -37,26 +37,24 @@
 
 <g:if test="${subjects}">
 	<g:each var="subjectTemplate" in="${subjectTemplates}">
+		<g:set var="showHeader" value="${true}" />
 		<h1>${subjectTemplate.getValue().name} template</h1>
 		<div class="table">
+		<g:each var="subjectId" in="${subjectTemplate.getValue().subjects}">
+		  	<g:if test="${showHeader}">
+			<g:set var="showHeader" value="${false}" />
 			<div class="header">
 				<div class="firstColumn">#</div>
 				<div class="firstColumn"></div>
-				<div class="column">name</div>
-				<div class="column">species</div>
-				<wizard:templateColumnHeaders template="${subjectTemplate.getValue().template}" class="column" />
+				<wizard:templateColumnHeaders entity="${subjects[ subjectId ]}" class="column" />				
 			</div>
-		<g:each var="subjectId" in="${subjectTemplate.getValue().subjects}">
+			</g:if>
 			<div class="row">
 				<div class="firstColumn">${subjectId + 1}</div>
 				<div class="firstColumn">
 					<wizard:ajaxButton name="delete" src="../images/icons/famfamfam/delete.png" alt="delete this subject" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${subjectId});" afterSuccess="onWizardPage()" />
 				</div>
-				<div class="column"><g:textField name="subject_${subjectId}_name" value="${subjects[ subjectId ].name}" size="12" maxlength="12" /></div>
-				<div class="column">
-					<wizard:termSelect value="${subjects[ subjectId ].species}" name="subject_${subjectId}_species" ontology="1132" />
-				</div>
-				<wizard:templateColumns id="${subjectId}" entity="${subjects[ subjectId ]}" template="${subjects[ subjectId ].template}" name="subject_${subjectId}" class="column" subject="${subjects[ subjectId ]}" />				
+				<wizard:templateColumns id="${subjectId}" entity="${subjects[ subjectId ]}" template="${subjects[ subjectId ].template}" name="subject_${subjectId}" class="column" subject="${subjects[ subjectId ]}" />
 			</div>
 		</g:each>
 		</div>

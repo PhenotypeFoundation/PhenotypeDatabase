@@ -659,12 +659,16 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * render table headers for all subjectFields in a template
 	 * @param Map attributes
 	 */
-	def templateColumnHeaders = {attrs ->
-		def template = attrs.remove('template')
+	def templateColumnHeaders = { attrs ->
+		def entity		= (attrs.get('entity'))
+		def template	= (entity && entity instanceof TemplateEntity) ? entity.template : null
 
-		// output table headers for template fields
-		template.fields.each() {
-			out << '<div class="' + attrs.get('class') + '">' + it + '</div>'
+		// got a template?
+		if (template) {
+			// render template fields
+			entity.giveFields().each() {
+				out << '<div class="' + attrs.get('class') + '">' + it.name + '</div>'
+			}
 		}
 	}
 
@@ -695,7 +699,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		// got a template?
 		if (template) {
 			// render template fields
-			template.fields.each() {
+			entity.giveFields().each() {
 				def fieldValue = entity.getFieldValue(it.name)
 
 				// output column opening element?

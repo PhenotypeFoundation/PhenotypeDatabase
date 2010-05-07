@@ -24,11 +24,5 @@
 	<wizard:templateElement name="template" description="Template" value="${study?.template}" entity="${dbnp.studycapturing.Study}" addDummy="true" ajaxOnChange="switchTemplate" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" >
 		The template to use for this study
 	</wizard:templateElement>
-	<wizard:textFieldElement name="title" description="Title" error="title" value="${study?.title}">
-		The title of the study you are creating
-	</wizard:textFieldElement>
-	<wizard:dateElement name="startDate" description="Start date" error="startDate" value="${study?.startDate}">
-		The start date of the study
-	</wizard:dateElement>
 	<g:if test="${study}"><wizard:templateElements entity="${study}" /></g:if>
 </wizard:pageContent>

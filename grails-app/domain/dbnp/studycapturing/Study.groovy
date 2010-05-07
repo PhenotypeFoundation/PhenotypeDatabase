@@ -11,17 +11,12 @@ package dbnp.studycapturing
 class Study extends TemplateEntity implements Serializable {
 	static searchable = true
 	nimble.User owner
-	String title
 	Date dateCreated
 	Date lastUpdated
-	Date startDate
 
-	// TODO: The following 4 fields should be moved into templates
-	//String code
-	//String researchQuestion
-	//String description
-	//String ecCode
-
+	/**
+	 * return the domain fields for this domain class
+	 */
 	List<TemplateField> giveDomainFields() {
 		[ new TemplateField( 
                             name: 'title',
@@ -46,7 +41,6 @@ class Study extends TemplateEntity implements Serializable {
 
 	static constraints = {
 		owner(nullable: true, blank: true)
-		title(nullable: false, blank: false)
 		template(nullable: false, blank: false)
 	}
 
@@ -57,7 +51,10 @@ class Study extends TemplateEntity implements Serializable {
 	}
 
 	def String toString() {
-		return title;
+		//return title;
+		def title = this.giveDomainFields().find { it.name == 'title' }
+
+		return title.toString()
 	}
 
 	/**
@@ -80,15 +77,6 @@ class Study extends TemplateEntity implements Serializable {
 	def Set<Template> giveSamplingEventTemplates() {
 		TemplateEntity.giveTemplates(events);
 	}
-        
-	/**
-	 * Returns the template of all subjects in the study
-	 * Throws an error if there are no or multiple subject templates
-	 */
-	// outcommented, we shouldn't make it too easy for ourselves by introducing uncertain assumptions (1 distinct template)
-	//def Template giveSubjectTemplate() {
-	//	TemplateEntity.giveTemplate(subjects);
-	//}
 
 	/**
 	 * Returns the unique Sample templates that are used in the study
