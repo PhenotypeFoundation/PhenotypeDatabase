@@ -18,4 +18,25 @@ class Ontology implements Serializable {
 	String versionNumber    // BioPortal: versionNumber
 	int ncboId              // BioPortal: ontologyId
 	int ncboVersionedId     // BioPortal: id
+
+	/**
+	 * Find child terms
+	 * @return A set containing all terms that reside under this ontology
+	 */
+	Set<Term> giveTerms() {
+		Term.findAllByOntology(this)
+	}
+
+	Object giveTermByName(String name) {
+		giveTerms().find {
+			it.name == name
+		}
+
+		/* TODO: find out why the following doesn't work (probably more efficient):
+		Term.find {
+			it.name == name
+			it.ontology == this
+		}
+		}*/
+	}
 }

@@ -17,11 +17,12 @@ class Term implements Serializable {
 	static searchable = true
 
 	String name             // BioPortal: label (preferred name)
-	Ontology ontology       // Parent ontology
+	Ontology ontology       // Parent ontology. To enable the unique constraints, we describe the Ontology-Term relation here
 	String accession        // BioPortal: conceptId
 
 	static constraints = {
-		accession(unique: 'ontology')
+		accession(unique: 'ontology')   // Accession should be unique within an ontology
+		name(unique: 'ontology')        // Preferred name should be unique within an ontology
 	}
 
 	def String toString() {
