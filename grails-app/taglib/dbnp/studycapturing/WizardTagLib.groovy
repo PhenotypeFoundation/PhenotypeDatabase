@@ -438,22 +438,40 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		def from = []
 
 		// got ontologies?
-		if (attrs.ontology) {
-			attrs.ontology.split(/\,/).each() { ncboId ->
-				// trim the id
-				ncboId.trim()
-				
-				// fetch all terms for this ontology
-				def ontology = Ontology.findAllByNcboId(ncboId)
+		if (attrs.ontologies) {
+			// are the ontologies a string?
+			if (attrs.ontologies instanceof String) {
+				attrs.ontologies.split(/\,/).each() { ncboId ->
+					// trim the id
+					ncboId.trim()
 
-				// does this ontology exist?
-				if (ontology) {
-					ontology.each() {
-						Term.findAllByOntology(it).each() {
-							// key = ncboId:concept-id
-							from[ from.size() ] = it.name
+					// fetch all terms for this ontology
+					def ontology = Ontology.findAllByNcboId(ncboId)
+
+					// does this ontology exist?
+					if (ontology) {
+						ontology.each() {
+							Term.findAllByOntology(it).each() {
+								// key = ncboId:concept-id
+								from[ from.size() ] = it.name
+							}
 						}
 					}
+				}
+			} else if (attrs.ontologies instanceof Set) {
+				// are they a set instead?
+				def ontologyList = ""
+
+				// iterate through set
+				attrs.ontologies.each() { ontology ->
+					ontologyList += ontology.ncboId + ","
+
+					Term.findAllByOntology(ontology).each() {
+						from[ from.size() ] = it.name
+					}
+
+					// strip trailing comma
+					attrs.ontologies = ontologyList[0..-2]
 				}
 			}
 
@@ -468,7 +486,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 
 			out << select(attrs)
 		} else {
-			out << "you should specify: <i>ontology=\"id\"</i> or <i>ontology=\"id1,id2,...,idN\"</i>"
+			out << "<b>ontologies missing!</b>"
 		}
 	}
 
@@ -730,6 +748,26 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 						}
 						break
 					case 'ONTOLOGYTERM':
+						// @see http://www.bioontology.org/wiki/index.php/NCBO_Widgets#Term-selection_field_on_a_form
+						// @see ontology-chooser.js
+						inputElement = (renderType == 'element') ? 'termElement' : 'termSelect'
+
+						if (it.ontologies) {
+							out << "$inputElement"(
+								description	: it.name,
+								name		: prependName + it.escapedName(),
+								value		: fieldValue,
+								ontologies	: it.ontologies
+							)
+						} else {
+							out << "$inputElement"(
+								description	: it.name,
+								name		: prependName + it.escapedName(),
+								value		: fieldValue
+							)
+						}
+						break
+					case 'ONTOLOGYTERM-old':
 						// @see http://www.bioontology.org/wiki/index.php/NCBO_Widgets#Term-selection_field_on_a_form
 						// @see ontology-chooser.js
 						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'

@@ -50,7 +50,7 @@ function onWizardPage() {
     new SelectAddMore().init({
         rel     : 'term',
         url     : '/gscf/termEditor',
-        vars    : 'ontology',
+        vars    : 'ontologies',
         label   : 'add more...',
         class   : 'addMore',
         onClose : function(scope) {

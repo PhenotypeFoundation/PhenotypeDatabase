@@ -25,7 +25,7 @@
 	<wizard:textFieldElement name="addNumber" description="Number of subjects to add" error="addNumber" value="1" size="4" maxlength="4">
 		The number of subjects to add to your study
 	</wizard:textFieldElement>
-	<wizard:termElement name="species" description="of species" value="" ontology="1132">
+	<wizard:termElement name="species" description="of species" value="" ontologies="1132">
 		The species of the subjects you would like to add to your study
 	</wizard:termElement>
 	<wizard:templateElement name="template" description="with template" value="" error="template" entity="${dbnp.studycapturing.Subject}" >
