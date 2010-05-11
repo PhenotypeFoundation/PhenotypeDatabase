@@ -25,6 +25,9 @@ class SubjectTests extends GrailsUnitTestCase {
 	final String testSubjectSpeciesTerm = "Homo sapiens"
 	final String testSubjectBMITemplateFieldName = "BMI"
 	final double testSubjectBMI = 25.32
+	final String testSubjectGenderTemplateFieldName = "Gender"
+	final String testSubjectGender = "female"
+	final String testSubjectGenderDBName = "Female"
 
 	/**
 	 * Set up test: create test subject to use in the tests, thereby test creation
@@ -97,9 +100,17 @@ class SubjectTests extends GrailsUnitTestCase {
 		// Get domain fields and make sure they are name and species
 		def domainFields = subject.giveDomainFields()
 		assert domainFields
-		println domainFields[0]
 		assert domainFields[0].name == 'name'
 		assert domainFields[1].name == 'species'
+
+		// Also, make sure isDomainField() says the same
+		assert subject.isDomainField(domainFields[0])
+		assert subject.isDomainField(domainFields[1])
+		assert subject.isDomainField('name')
+		assert subject.isDomainField('species')
+		// To be sure it just doesn't always return true :-)
+		assert !subject.isDomainField('123~!name')
+		assert !subject.isDomainField(testSubjectBMITemplateFieldName)
 
 		// Get the ontologies from species and make sure this is 1 ontology with NCBO ID 1132
 		def speciesOntologies = domainFields[1].ontologies
@@ -122,6 +133,9 @@ class SubjectTests extends GrailsUnitTestCase {
 
 		// Assign species, subject should now validate and save
 		subject.setFieldValue('species',humanTerm)
+		if (!subject.validate()) {
+			subject.errors.each { println it}
+		}
 		assert subject.validate()
 		assert subject.save(flush:true)
 
@@ -138,7 +152,6 @@ class SubjectTests extends GrailsUnitTestCase {
 
 		def subjectDB = Subject.findByName(testSubjectName)
 		assert subjectDB
-
 		assert subjectDB.getFieldValue('name').equals(testSubjectName)
 		assert subjectDB.getFieldValue('species') == Term.findByName(testSubjectSpeciesTerm)
 	}
@@ -189,6 +202,26 @@ class SubjectTests extends GrailsUnitTestCase {
 			assert fields[i++].name.equals(it.name)
 		}
 
+	}
+
+	void testSetGender() {
+		def subject = Subject.findByName(testSubjectName)
+		assert subject
+
+		// Set gender
+		subject.setFieldValue(testSubjectGenderTemplateFieldName,testSubjectGender)
+
+		// Test if gender is set properly (to its canonical database name) via getFieldValue()
+		assert subject.getFieldValue(testSubjectGenderTemplateFieldName).name == testSubjectGenderDBName
+
+		// Try to save object
+		assert subject.validate()
+		assert subject.save(flush: true)
+
+		// Try to retrieve the subject and make sure the Gender was stored properly
+		def subjectDB = Subject.findByName(testSubjectName)
+		assert subjectDB
+		assert subjectDB.getFieldValue(testSubjectGenderTemplateFieldName).name == testSubjectGenderDBName
 	}
 
 	protected void tearDown() {

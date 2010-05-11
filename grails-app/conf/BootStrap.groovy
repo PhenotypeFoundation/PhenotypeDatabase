@@ -2,6 +2,7 @@ import dbnp.studycapturing.*
 
 import dbnp.data.Ontology
 import dbnp.data.Term
+import org.codehaus.groovy.grails.commons.GrailsApplication
 
 /**
  * Application Bootstrapper
@@ -483,352 +484,355 @@ class BootStrap {
 			println('Adding PPS3 study...')
                         */
 			// studies
-			println ".adding NuGO PPS3 leptin example study..."
-			def exampleStudy = new Study(
-				template: studyTemplate,
-				title:"NuGO PPS3 mouse study leptin module",
-				code:"PPS3_leptin_module",
-				researchQuestion:"Leptin etc.",
-				ecCode:"2007117.c",
-				startDate: Date.parse('yyyy-MM-dd','2007-12-11')
-			)
-                        .with { if (!validate()) { errors.each { println it} } else save()}
-
-			exampleStudy.setFieldValue( 'Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
-			exampleStudy.save()
-
-			println ".adding NuGO PPSH example study..."
-			def exampleHumanStudy = new Study(
-				template: studyTemplate,
-				title:"Human example template",
-				code:"Human example code",
-				researchQuestion:"Leptin etc.",
-				ecCode:"2007117.c",
-				startDate: Date.parse('yyyy-MM-dd','2007-12-11')
-			)
-                        .with { if (!validate()) { errors.each { println it} } else save()}
-
-			exampleHumanStudy.setFieldValue( 'Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
-			exampleHumanStudy.save()
-
-			def evLF = new Event(
-				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-				template: dietTreatmentTemplate
-			)
-                        .with { if (!validate()) { errors.each { println it} } else save()}
-			evLF.setFieldValue( 'Diet','10% fat (palm oil)' )
-	                evLF.save(flush:true)
-
-			def evHF = new Event(
-				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-				template: dietTreatmentTemplate
-			)
-                        .setFieldValue( 'Diet','45% fat (palm oil)' )
-                        .with { if (!validate()) { errors.each { println it} } else save()}
-
-			def evBV = new Event(
-				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-				template: boostTreatmentTemplate
-			)
-                        .setFieldValue( 'Compound','Vehicle' )
-                        .with { if (!validate()) { errors.each { println it} } else save()}
-
-			def evBL = new Event(
-				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-				endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-				template: boostTreatmentTemplate
-			)
-                        .setFieldValue( 'Compound','Leptin' )
-                        .with { if (!validate()) { errors.each { println it} } else save()}
-
-                        /*
-			def evLF4 = new Event(
-				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-				endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
-				eventDescription: eventDiet,
-				parameterStringValues: ['Diet':'10% fat (palm oil)']
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			def evHF4 = new Event(
-				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-				endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
-				eventDescription: eventDiet,
-				parameterStringValues: ['Diet':'45% fat (palm oil)']
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			def evBV4 = new Event(
-				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-				endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
-				eventDescription: eventBoost,
-				parameterStringValues: ['Compound':'Vehicle']
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			def evBL4 = new Event(
-				startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-				endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
-				eventDescription: eventBoost,
-				parameterStringValues: ['Compound':'Leptin']
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			def evS = new SamplingEvent(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					eventDescription: samplingEvent,
-					parameterFloatValues: ['Sample weight':5F]
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			def evS4 = new SamplingEvent(
-					startTime: Date.parse('yyyy-MM-dd','2008-02-04'),
-					endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
-					eventDescription: samplingEvent,
-					parameterFloatValues: ['Sample weight':5F]
-			).with { if (!validate()) { errors.each { println it} } else save()}
-                        */
-
-			// Add events to study
-			exampleStudy
-			.addToEvents(evLF)
-			.addToEvents(evHF)
-			.addToEvents(evBV)
-			.addToEvents(evBL)
-			/*
-                        .addToEvents(evLF4)
-			.addToEvents(evHF4)
-			.addToEvents(evBV4)
-			.addToEvents(evBL4)
-			.addToSamplingEvents(evS)
-			.addToSamplingEvents(evS4)
-                        */
-			.save()
-
-			def LFBV1 = new EventGroup(name:"10% fat + vehicle for 1 week")
-			.addToEvents(evLF)
-			.addToEvents(evBV)
-			.with { if (!validate()) { errors.each { println it} } else save()}
-
-			def LFBL1 = new EventGroup(name:"10% fat + leptin for 1 week")
-			.addToEvents(evLF)
-			.addToEvents(evBL)
-			.with { if (!validate()) { errors.each { println it} } else save()}
-
-			def HFBV1 = new EventGroup(name:"45% fat + vehicle for 1 week")
-			.addToEvents(evHF)
-			.addToEvents(evBV)
-			.with { if (!validate()) { errors.each { println it} } else save()}
-
-			def HFBL1 = new EventGroup(name:"45% fat + leptin for 1 week")
-			.addToEvents(evHF)
-			.addToEvents(evBL)
-			.with { if (!validate()) { errors.each { println it} } else save()}
-
-                        /*
-			def LFBV4 = new EventGroup(name:"10% fat + vehicle for 4 weeks")
-			.addToEvents(evLF4)
-			.addToEvents(evBV4)
-			.with { if (!validate()) { errors.each { println it} } else save()}
-
-			def LFBL4 = new EventGroup(name:"10% fat + leptin for 4 weeks")
-			.addToEvents(evLF4)
-			.addToEvents(evBL4)
-			.with { if (!validate()) { errors.each { println it} } else save()}
-
-			def HFBV4 = new EventGroup(name:"45% fat + vehicle for 4 weeks")
-			.addToEvents(evHF4)
-			.addToEvents(evBV4)
-			.with { if (!validate()) { errors.each { println it} } else save()}
-
-			def HFBL4 = new EventGroup(name:"45% fat + leptin for 4 weeks")
-			.addToEvents(evHF4)
-			.addToEvents(evBL4)
-			.with { if (!validate()) { errors.each { println it} } else save()}
-                        */
-
-            // Add subjects and samples and compose EventGroups
-
-			def x=1
-			40.times {
-				def currentSubject = new Subject(
-					name: "A" + x++,
-					species: mouseTerm,
-					template: mouseTemplate,
+			if (!(grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST)) {
+				println ".adding NuGO PPS3 leptin example study..."
+				def exampleStudy = new Study(
+					template: studyTemplate,
+					title:"NuGO PPS3 mouse study leptin module",
+					code:"PPS3_leptin_module",
+					researchQuestion:"Leptin etc.",
+					ecCode:"2007117.c",
+					startDate: Date.parse('yyyy-MM-dd','2007-12-11')
 				)
-				.setFieldValue("Gender", "Male")
-				//.setFieldValue("Genotype", c57bl6Term)
-				.setFieldValue("Age (weeks)", 17)
-				.setFieldValue("Cage", "" + (int)(x/2))
-				.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
-
-				exampleStudy.addToSubjects(currentSubject)
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
-				// Add subject to appropriate EventGroup
+				exampleStudy.setFieldValue( 'Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
+				exampleStudy.save()
+
+				println ".adding NuGO PPSH example study..."
+				def exampleHumanStudy = new Study(
+					template: studyTemplate,
+					title:"Human example template",
+					code:"Human example code",
+					researchQuestion:"Leptin etc.",
+					ecCode:"2007117.c",
+					startDate: Date.parse('yyyy-MM-dd','2007-12-11')
+				)
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				exampleHumanStudy.setFieldValue( 'Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet. After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
+				exampleHumanStudy.save()
+
+				def evLF = new Event(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					template: dietTreatmentTemplate
+				)
+				.with { if (!validate()) { errors.each { println it} } else save()}
+				evLF.setFieldValue( 'Diet','10% fat (palm oil)' )
+				evLF.save(flush:true)
+
+				def evHF = new Event(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					template: dietTreatmentTemplate
+				)
+				.setFieldValue( 'Diet','45% fat (palm oil)' )
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				def evBV = new Event(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					template: boostTreatmentTemplate
+				)
+				.setFieldValue( 'Compound','Vehicle' )
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				def evBL = new Event(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					template: boostTreatmentTemplate
+				)
+				.setFieldValue( 'Compound','Leptin' )
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
 				/*
-                                if (x > 70) { HFBL4.addToSubjects(currentSubject).save() }
-				else if (x > 60) { HFBV4.addToSubjects(currentSubject).save() }
-				else if (x > 50) { LFBL4.addToSubjects(currentSubject).save() }
-				else if (x > 40) { LFBV4.addToSubjects(currentSubject).save() }
-				else if (x > 30) { HFBL1.addToSubjects(currentSubject).save() }
-				else if (x > 20) { HFBV1.addToSubjects(currentSubject).save() }
-				else if (x > 10) { LFBL1.addToSubjects(currentSubject).save() }
-				else             { LFBV1.addToSubjects(currentSubject).save() }
-                                */
-
-				if (x > 30) { HFBL1.addToSubjects(currentSubject).save() }
-				else if (x > 20) { HFBV1.addToSubjects(currentSubject).save() }
-				else if (x > 10) { LFBL1.addToSubjects(currentSubject).save() }
-				else             { LFBV1.addToSubjects(currentSubject).save() }
-
-                        }
-
-			// Add EventGroups to study
-			exampleStudy
-			.addToEventGroups(LFBV1)
-			.addToEventGroups(LFBL1)
-			.addToEventGroups(HFBV1)
-			.addToEventGroups(HFBL1)
-			//.addToEventGroups(LFBV4)
-			//.addToEventGroups(LFBL4)
-			//.addToEventGroups(HFBV4)
-			//.addToEventGroups(HFBL4)
-
-                        // Add persons to study
-                        def studyperson1 = new StudyPerson( person: person1, role: role1 ).save();
-                        def studyperson2 = new StudyPerson( person: person2, role: role2 ).save();
-
-                        exampleStudy
-                        .addToPersons( studyperson1 )
-                        .addToPersons( studyperson2 )
-                        .save()
-                       
-			/*
-                        println 'Adding PPSH study'
-
-                        def humanStudy = new Study(
-	                        template: studyTemplate,
-				title:"NuGO PPS human study",
-				code:"PPSH",
-				researchQuestion:"How much are fasting plasma and urine metabolite levels affected by prolonged fasting ?",
-				description:"Human study",
-				ecCode:"unknown",
-				startDate: Date.parse('yyyy-MM-dd','2009-01-01')
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			def fastingEvent = new Event(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					eventDescription: fastingTreatment,
-					parameterStringValues: ['Fasting period':'8h']);
-
-			def bloodSamplingEvent = new SamplingEvent(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					eventDescription: bloodSamplingEventDescription,
-					parameterFloatValues: ['Sample volume':4.5F]);
-
-			def rootGroup = new EventGroup(name: 'Root group');
-			rootGroup.addToEvents fastingEvent
-			rootGroup.addToEvents bloodSamplingEvent
-			rootGroup.save()
-
-            def y = 1
-            11.times {
-              def currentSubject = new Subject(
-                      name: "" + y++,
-                      species: humanTerm,
-                      template: humanTemplate).setFieldValue("Gender", (boolean) (x / 2) ? "Male" : "Female").setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19" + (10 + (int) (Math.random() * 80)))).setFieldValue("Age (years)", 30).setFieldValue("Height", Math.random() * 2F).setFieldValue("Weight (kg)", Math.random() * 150F).setFieldValue("BMI", 20 + Math.random() * 10F).with { if (!validate()) { errors.each { println it} } else save()}
-
-              rootGroup.addToSubjects currentSubject
-              rootGroup.save()
-
-              def currentSample = new Sample(
-                      name: currentSubject.name + '_B',
-                      material: bloodTerm,
-                      parentSubject: currentSubject,
-                      parentEvent: bloodSamplingEvent);
-
-
-              humanStudy.addToSubjects(currentSubject).addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
-          }
-
-          humanStudy.addToEvents(fastingEvent)
-	  humanStudy.addToSamplingEvents(bloodSamplingEvent)
-	  humanStudy.addToEventGroups rootGroup
-          humanStudy.save()
-
-			// Add clinical data
-
-			def lipidAssay = new dbnp.clinicaldata.ClinicalAssay(
-				name: 'Lipid profile',
-				approved: true
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			def ldlMeasurement = new dbnp.clinicaldata.ClinicalMeasurement(
-				name: 'LDL',
-				unit: 'mg/dL',
-				type: dbnp.data.FeatureType.QUANTITATIVE,
-				referenceValues: '100 mg/dL',
-				detectableLimit: 250,
-				isDrug: false, isIntake: true, inSerum: true
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			def hdlMeasurement = new dbnp.clinicaldata.ClinicalMeasurement(
-				name: 'HDL',
-				unit: 'mg/dL',
-				type: dbnp.data.FeatureType.QUANTITATIVE,
-				referenceValues: '50 mg/dL',
-				detectableLimit: 100,
-				isDrug: false, isIntake: true, inSerum: true
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			lipidAssay.addToMeasurements ldlMeasurement
-			lipidAssay.addToMeasurements hdlMeasurement
-
-			def lipidAssayInstance = new dbnp.clinicaldata.ClinicalAssayInstance(
-				assay: lipidAssay
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			humanStudy.samples*.each {
-				new dbnp.clinicaldata.ClinicalFloatData(
-					assay: lipidAssayInstance,
-					measurement: ldlMeasurement,
-					sample: it.name,
-					value: Math.round(Math.random()*ldlMeasurement.detectableLimit)
+				def evLF4 = new Event(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+					endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+					eventDescription: eventDiet,
+					parameterStringValues: ['Diet':'10% fat (palm oil)']
 				).with { if (!validate()) { errors.each { println it} } else save()}
 
-				new dbnp.clinicaldata.ClinicalFloatData(
-					assay: lipidAssayInstance,
-					measurement: hdlMeasurement,
-					sample: it.name,
-					value: Math.round(Math.random()*hdlMeasurement.detectableLimit)
+				def evHF4 = new Event(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+					endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+					eventDescription: eventDiet,
+					parameterStringValues: ['Diet':'45% fat (palm oil)']
 				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				def evBV4 = new Event(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+					endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+					eventDescription: eventBoost,
+					parameterStringValues: ['Compound':'Vehicle']
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				def evBL4 = new Event(
+					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
+					endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+					eventDescription: eventBoost,
+					parameterStringValues: ['Compound':'Leptin']
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				def evS = new SamplingEvent(
+						startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+						endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+						eventDescription: samplingEvent,
+						parameterFloatValues: ['Sample weight':5F]
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				def evS4 = new SamplingEvent(
+						startTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+						endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+						eventDescription: samplingEvent,
+						parameterFloatValues: ['Sample weight':5F]
+				).with { if (!validate()) { errors.each { println it} } else save()}
+				*/
+
+				// Add events to study
+				exampleStudy
+				.addToEvents(evLF)
+				.addToEvents(evHF)
+				.addToEvents(evBV)
+				.addToEvents(evBL)
+				/*
+				.addToEvents(evLF4)
+				.addToEvents(evHF4)
+				.addToEvents(evBV4)
+				.addToEvents(evBL4)
+				.addToSamplingEvents(evS)
+				.addToSamplingEvents(evS4)
+				*/
+				.save()
+
+				def LFBV1 = new EventGroup(name:"10% fat + vehicle for 1 week")
+				.addToEvents(evLF)
+				.addToEvents(evBV)
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				def LFBL1 = new EventGroup(name:"10% fat + leptin for 1 week")
+				.addToEvents(evLF)
+				.addToEvents(evBL)
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				def HFBV1 = new EventGroup(name:"45% fat + vehicle for 1 week")
+				.addToEvents(evHF)
+				.addToEvents(evBV)
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				def HFBL1 = new EventGroup(name:"45% fat + leptin for 1 week")
+				.addToEvents(evHF)
+				.addToEvents(evBL)
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				/*
+				def LFBV4 = new EventGroup(name:"10% fat + vehicle for 4 weeks")
+				.addToEvents(evLF4)
+				.addToEvents(evBV4)
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				def LFBL4 = new EventGroup(name:"10% fat + leptin for 4 weeks")
+				.addToEvents(evLF4)
+				.addToEvents(evBL4)
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				def HFBV4 = new EventGroup(name:"45% fat + vehicle for 4 weeks")
+				.addToEvents(evHF4)
+				.addToEvents(evBV4)
+				.with { if (!validate()) { errors.each { println it} } else save()}
+
+				def HFBL4 = new EventGroup(name:"45% fat + leptin for 4 weeks")
+				.addToEvents(evHF4)
+				.addToEvents(evBL4)
+				.with { if (!validate()) { errors.each { println it} } else save()}
+				*/
+
+		    // Add subjects and samples and compose EventGroups
+
+				def x=1
+				40.times {
+					def currentSubject = new Subject(
+						name: "A" + x++,
+						species: mouseTerm,
+						template: mouseTemplate,
+					)
+					.setFieldValue("Gender", "Male")
+					//.setFieldValue("Genotype", c57bl6Term)
+					.setFieldValue("Age (weeks)", 17)
+					.setFieldValue("Cage", "" + (int)(x/2))
+					.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+
+					exampleStudy.addToSubjects(currentSubject)
+					.with { if (!validate()) { errors.each { println it} } else save()}
+
+					// Add subject to appropriate EventGroup
+					/*
+					if (x > 70) { HFBL4.addToSubjects(currentSubject).save() }
+					else if (x > 60) { HFBV4.addToSubjects(currentSubject).save() }
+					else if (x > 50) { LFBL4.addToSubjects(currentSubject).save() }
+					else if (x > 40) { LFBV4.addToSubjects(currentSubject).save() }
+					else if (x > 30) { HFBL1.addToSubjects(currentSubject).save() }
+					else if (x > 20) { HFBV1.addToSubjects(currentSubject).save() }
+					else if (x > 10) { LFBL1.addToSubjects(currentSubject).save() }
+					else             { LFBV1.addToSubjects(currentSubject).save() }
+					*/
+
+					if (x > 30) { HFBL1.addToSubjects(currentSubject).save() }
+					else if (x > 20) { HFBV1.addToSubjects(currentSubject).save() }
+					else if (x > 10) { LFBL1.addToSubjects(currentSubject).save() }
+					else             { LFBV1.addToSubjects(currentSubject).save() }
+
+				}
+
+				// Add EventGroups to study
+				exampleStudy
+				.addToEventGroups(LFBV1)
+				.addToEventGroups(LFBL1)
+				.addToEventGroups(HFBV1)
+				.addToEventGroups(HFBL1)
+				//.addToEventGroups(LFBV4)
+				//.addToEventGroups(LFBL4)
+				//.addToEventGroups(HFBV4)
+				//.addToEventGroups(HFBL4)
+
+				// Add persons to study
+				def studyperson1 = new StudyPerson( person: person1, role: role1 ).save();
+				def studyperson2 = new StudyPerson( person: person2, role: role2 ).save();
+
+				exampleStudy
+				.addToPersons( studyperson1 )
+				.addToPersons( studyperson2 )
+				.save()
+
+
+				/*
+				println 'Adding PPSH study'
+
+				def humanStudy = new Study(
+					template: studyTemplate,
+					title:"NuGO PPS human study",
+					code:"PPSH",
+					researchQuestion:"How much are fasting plasma and urine metabolite levels affected by prolonged fasting ?",
+					description:"Human study",
+					ecCode:"unknown",
+					startDate: Date.parse('yyyy-MM-dd','2009-01-01')
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				def fastingEvent = new Event(
+						startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+						endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+						eventDescription: fastingTreatment,
+						parameterStringValues: ['Fasting period':'8h']);
+
+				def bloodSamplingEvent = new SamplingEvent(
+						startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+						endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+						eventDescription: bloodSamplingEventDescription,
+						parameterFloatValues: ['Sample volume':4.5F]);
+
+				def rootGroup = new EventGroup(name: 'Root group');
+				rootGroup.addToEvents fastingEvent
+				rootGroup.addToEvents bloodSamplingEvent
+				rootGroup.save()
+
+		    def y = 1
+		    11.times {
+		      def currentSubject = new Subject(
+			      name: "" + y++,
+			      species: humanTerm,
+			      template: humanTemplate).setFieldValue("Gender", (boolean) (x / 2) ? "Male" : "Female").setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19" + (10 + (int) (Math.random() * 80)))).setFieldValue("Age (years)", 30).setFieldValue("Height", Math.random() * 2F).setFieldValue("Weight (kg)", Math.random() * 150F).setFieldValue("BMI", 20 + Math.random() * 10F).with { if (!validate()) { errors.each { println it} } else save()}
+
+		      rootGroup.addToSubjects currentSubject
+		      rootGroup.save()
+
+		      def currentSample = new Sample(
+			      name: currentSubject.name + '_B',
+			      material: bloodTerm,
+			      parentSubject: currentSubject,
+			      parentEvent: bloodSamplingEvent);
+
+
+		      humanStudy.addToSubjects(currentSubject).addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
+		  }
+
+		  humanStudy.addToEvents(fastingEvent)
+		  humanStudy.addToSamplingEvents(bloodSamplingEvent)
+		  humanStudy.addToEventGroups rootGroup
+		  humanStudy.save()
+
+				// Add clinical data
+
+				def lipidAssay = new dbnp.clinicaldata.ClinicalAssay(
+					name: 'Lipid profile',
+					approved: true
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				def ldlMeasurement = new dbnp.clinicaldata.ClinicalMeasurement(
+					name: 'LDL',
+					unit: 'mg/dL',
+					type: dbnp.data.FeatureType.QUANTITATIVE,
+					referenceValues: '100 mg/dL',
+					detectableLimit: 250,
+					isDrug: false, isIntake: true, inSerum: true
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				def hdlMeasurement = new dbnp.clinicaldata.ClinicalMeasurement(
+					name: 'HDL',
+					unit: 'mg/dL',
+					type: dbnp.data.FeatureType.QUANTITATIVE,
+					referenceValues: '50 mg/dL',
+					detectableLimit: 100,
+					isDrug: false, isIntake: true, inSerum: true
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				lipidAssay.addToMeasurements ldlMeasurement
+				lipidAssay.addToMeasurements hdlMeasurement
+
+				def lipidAssayInstance = new dbnp.clinicaldata.ClinicalAssayInstance(
+					assay: lipidAssay
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				humanStudy.samples*.each {
+					new dbnp.clinicaldata.ClinicalFloatData(
+						assay: lipidAssayInstance,
+						measurement: ldlMeasurement,
+						sample: it.name,
+						value: Math.round(Math.random()*ldlMeasurement.detectableLimit)
+					).with { if (!validate()) { errors.each { println it} } else save()}
+
+					new dbnp.clinicaldata.ClinicalFloatData(
+						assay: lipidAssayInstance,
+						measurement: hdlMeasurement,
+						sample: it.name,
+						value: Math.round(Math.random()*hdlMeasurement.detectableLimit)
+					).with { if (!validate()) { errors.each { println it} } else save()}
+				}
+
+				// Add assay to study capture module
+
+				def clinicalModule = new AssayModule(
+					name: 'Clinical data',
+					type: AssayType.CLINICAL_DATA,
+					platform: 'clinical measurements',
+					url: 'http://localhost:8080/gscf'
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				def lipidAssayRef = new Assay(
+					name: 'Lipid profiling',
+					module: clinicalModule,
+					externalAssayId: lipidAssayInstance.id
+				).with { if (!validate()) { errors.each { println it} } else save()}
+
+				humanStudy.samples*.each {
+					lipidAssayRef.addToSamples(it)
+				}
+				lipidAssayRef.save()
+
+				humanStudy.addToAssays(lipidAssayRef);
+				humanStudy.save()
+				*/
 			}
-
-			// Add assay to study capture module
-
-			def clinicalModule = new AssayModule(
-				name: 'Clinical data',
-				type: AssayType.CLINICAL_DATA,
-				platform: 'clinical measurements',
-				url: 'http://localhost:8080/gscf'
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			def lipidAssayRef = new Assay(
-				name: 'Lipid profiling',
-				module: clinicalModule,
-				externalAssayId: lipidAssayInstance.id
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			humanStudy.samples*.each {
-				lipidAssayRef.addToSamples(it)
-			}
-			lipidAssayRef.save()
-
-			humanStudy.addToAssays(lipidAssayRef);
-			humanStudy.save()
-*/
 		}
 	}
 

@@ -251,25 +251,41 @@ abstract class TemplateEntity implements Serializable {
 	}
 
 	/**
+	 * Find a field domain or template field by its name and return its description
+	 * @param fieldsCollection the set of fields to search in, usually something like this.giveFields()
+	 * @param fieldName The name of the domain or template field
+	 * @return the TemplateField description of the field
+	 * @throws NoSuchFieldException If the field is not found or the field type is not supported
+	 */
+	private static def getField(Collection fieldsCollection, String fieldName) {
+		// escape the fieldName for easy matching
+		// (such escaped names are commonly used
+		// in the HTTP forms of this application)
+		String escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])","_")
+
+		// Find the target template field, if not found, throw an error
+		def field = fieldsCollection.find { it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseFieldName }
+
+		if (field) {
+			return field
+		}
+		else {
+			throw new NoSuchFieldException("Field ${fieldName} not recognized")
+		}
+	}
+
+	/**
 	 * Find a domain or template field by its name and return its value for this entity
 	 * @param fieldName The name of the domain or template field
 	 * @return the value of the field (class depends on the field type)
 	 * @throws NoSuchFieldException If the field is not found or the field type is not supported
 	 */
 	def getFieldValue(String fieldName) {
-		// escape the fieldName for easy matching
-		// (such escaped names are commonly used
-		// in the HTTP forms of this application)
-		def escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])","_")
-
-		// Find the target template field, if not found, throw an error
-		TemplateField field = this.giveFields().find { it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseFieldName }
-
-		// field found?
-		if (field == null) {
-			// no such field
-			throw new NoSuchFieldException("Field ${fieldName} not recognized")
-		} else {
+		TemplateField field = getField(this.giveFields(),fieldName)
+		if (isDomainField(field)) {
+			return this[field.name]
+		}
+		else {
 			return getStore(field.type)[fieldName]
 		}
 	}
@@ -279,33 +295,21 @@ abstract class TemplateEntity implements Serializable {
 	 * @param fieldName The name of the template field
 	 * @return true if the given field exists and false otherwise
 	 */
-	def fieldExists(String fieldName) {
-		// escape the fieldName for easy matching
-		// (such escaped names are commonly used
-		// in the HTTP forms of this application)
-		def escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])","_")
-
-		// check if this domain class has got this property
-		if (this.properties.containsKey(fieldName)) {
-			// domain class contains this property
-			return true
-		} else if (template == null) {
-			// no, and we haven't got a template set either
+	boolean fieldExists(String fieldName) {
+		// getField should throw a NoSuchFieldException if the field does not exist
+		try {
+			TemplateField field = getField(this.giveFields(),fieldName)
+		}
+		// so return false in that case
+		catch(NoSuchFieldException e) {
 			return false
-		} else {
-			// the domain class doesn't have this property but
-			// it has a template defined. Check the template
-			// fields to see if such a template field exists
-			TemplateField field = this.template.fields.find { it.name.toLowerCase().replaceAll("([^a-z0-9])","_") == escapedLowerCaseFieldName }
-
-			// does the template field exist?
-			if (field == null) {
-				// no such template field
-				return false
-			} else {
-				// found!
-				return true
-			}
+		}
+		// otherwise, return true (but double check if field really is not null)
+		if (field) {
+			return true
+		}
+		else {
+			return false
 		}
 	}
 
@@ -315,49 +319,41 @@ abstract class TemplateEntity implements Serializable {
 	 * @param value The value to be set, this should align with the (template) field type, but there are some convenience setters
 	 */
 	def setFieldValue(String fieldName, value) {
-		// escape the fieldName for easy matching
-		// (such escaped names are commonly used
-		// in the HTTP forms of this application)
-		def escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])","_")
 
-		// Find the target template field, if not found, throw an error
-		TemplateField field = this.giveFields().find { it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseFieldName }
+		TemplateField field = getField(this.giveFields(),fieldName)
 
-		// field found?
-		if (field == null) {
-			// no such field
-			throw new NoSuchFieldException("Field ${fieldName} not found in class template fields")
-		} else {
-			// Set the value of the found template field
-			// Convenience setter for template string list fields: find TemplateFieldListItem by name
-			if (field.type == TemplateFieldType.STRINGLIST && value && value.class == String) {
-				// Kees insensitive pattern matching ;)
-				def escapedLowerCaseValue = value.toLowerCase().replaceAll("([^a-z0-9])", "_")
-				value = field.listEntries.find {
-					it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseValue
+		// Convenience setter for template string list fields: find TemplateFieldListItem by name
+		if (field.type == TemplateFieldType.STRINGLIST && value && value.class == String) {
+			value = getField(field.listEntries,value).name
+			println value
+		}
+
+		// Convenience setter for dates: handle string values for date fields
+		if (field.type == TemplateFieldType.DATE && value && value.class == String) {
+			// a string was given, attempt to transform it into a date instance
+			// and -for now- assume the dd/mm/yyyy format
+			def dateMatch = value =~ /^([0-9]{1,})([^0-9]{1,})([0-9]{1,})([^0-9]{1,})([0-9]{1,})((([^0-9]{1,})([0-9]{1,2}):([0-9]{1,2})){0,})/
+			if (dateMatch.matches()) {
+				// create limited 'autosensing' datetime parser
+				// assume dd mm yyyy  or dd mm yy
+				def parser = 'd' + dateMatch[0][2] + 'M' + dateMatch[0][4] + (((dateMatch[0][5] as int) > 999) ? 'yyyy' : 'yy')
+
+				// add time as well?
+				if (dateMatch[0][7] != null) {
+					parser += dateMatch[0][6] + 'HH:mm'
 				}
+
+				value = new Date().parse(parser, value)
 			}
+		}
 
-			// Convenience setter for dates: handle string values for date fields
-			if (field.type == TemplateFieldType.DATE && value && value.class == String) {
-				// a string was given, attempt to transform it into a date instance
-				// and -for now- assume the dd/mm/yyyy format
-				def dateMatch = value =~ /^([0-9]{1,})([^0-9]{1,})([0-9]{1,})([^0-9]{1,})([0-9]{1,})((([^0-9]{1,})([0-9]{1,2}):([0-9]{1,2})){0,})/
-				if (dateMatch.matches()) {
-					// create limited 'autosensing' datetime parser
-					// assume dd mm yyyy  or dd mm yy
-					def parser = 'd' + dateMatch[0][2] + 'M' + dateMatch[0][4] + (((dateMatch[0][5] as int) > 999) ? 'yyyy' : 'yy')
-
-					// add time as well?
-					if (dateMatch[0][7] != null) {
-						parser += dateMatch[0][6] + 'HH:mm'
-					}
-
-					value = new Date().parse(parser, value)
-				}
-			}
-
-			// Set the field value
+		// Set the field value
+		if (isDomainField(field)) {
+			this[field.name] = value
+		}
+		else {
+			// Caution: this assumes that all template...Field Maps are already initialized (as is done now above as [:])
+			// If that is ever changed, the results are pretty much unpredictable (random Java object pointers?)!
 			def store = getStore(field.type)
 			if (!value && store[fieldName]) {
 				println "removing " + ((super) ? super.class : '??') + " template field: " + fieldName
@@ -371,7 +367,16 @@ abstract class TemplateEntity implements Serializable {
 				store[fieldName] = value
 			}
 		}
+
 		return this
+	}
+
+	boolean isDomainField(TemplateField field) {
+		return this.giveDomainFields()*.name.contains(field.name)
+	}
+
+	boolean isDomainField(String fieldName) {
+		return this.giveDomainFields()*.name.contains(fieldName)
 	}
 
 	/**
