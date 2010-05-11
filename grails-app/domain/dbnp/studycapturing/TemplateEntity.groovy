@@ -257,14 +257,14 @@ abstract class TemplateEntity implements Serializable {
 	 * @return the TemplateField description of the field
 	 * @throws NoSuchFieldException If the field is not found or the field type is not supported
 	 */
-	private static def getField(Collection fieldsCollection, String fieldName) {
+	private static TemplateField getField(List<TemplateField> fieldsCollection, String fieldName) {
 		// escape the fieldName for easy matching
 		// (such escaped names are commonly used
 		// in the HTTP forms of this application)
 		String escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])","_")
 
 		// Find the target template field, if not found, throw an error
-		def field = fieldsCollection.find { it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseFieldName }
+		TemplateField field = fieldsCollection.find { it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseFieldName }
 
 		if (field) {
 			return field
@@ -324,8 +324,11 @@ abstract class TemplateEntity implements Serializable {
 
 		// Convenience setter for template string list fields: find TemplateFieldListItem by name
 		if (field.type == TemplateFieldType.STRINGLIST && value && value.class == String) {
-			value = getField(field.listEntries,value).name
-			println value
+			// Kees insensitive pattern matching ;)
+			def escapedLowerCaseValue = value.toLowerCase().replaceAll("([^a-z0-9])", "_")
+			value = field.listEntries.find {
+				it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseValue
+			}
 		}
 
 		// Convenience setter for dates: handle string values for date fields
