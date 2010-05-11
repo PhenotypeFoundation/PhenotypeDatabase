@@ -19,8 +19,8 @@ $(document).ready(function() {
     re = /Firefox\/3\.6/gi;
     if (navigator.userAgent.match(re)) {
         // http://code.google.com/p/fbug/issues/detail?id=1899
-        var wizard = $('div#wizard')
-        if (wizard.find("#warning").length == 0) {
+        var wizard = $('div#wizard');
+        if (wizard.find("#warning").length === 0) {
             wizard.html('<span id="warning" style="color:red;font-size:8px;">Firefox 3.6 contains <a href="http://code.google.com/p/fbug/issues/detail?id=2746" target="_new">a bug</a> in combination with Firebug\'s XMLHttpRequest spy which causes the wizard to not function anymore. Please make sure you have Firebug\'s XMLHttpRequest spy disabled or use Firefox 3.5.7 instead...</span>' + wizard.html())
         }
     }
@@ -79,7 +79,7 @@ function onWizardPage() {
 function insertOnRedirectWarning() {
     // find all anchors that lie outside the wizard
     $('a').each(function() {
-        var element = $(this)
+        var element = $(this);
         var re = /^#/gi;
 
         // bind to the anchor?
@@ -91,7 +91,7 @@ function insertOnRedirectWarning() {
                 }
             });
         }
-    })
+    });
 }
 
 function onDirectWarning() {
@@ -102,13 +102,13 @@ function onDirectWarning() {
 function attachHelpTooltips() {
     // attach help action on all wizard help icons
     $('div#wizard').find('div.helpIcon').each(function() {
-        helpIcon = $(this)
-        helpContent = helpIcon.parent().parent().find('div.helpContent')
+        helpIcon = $(this);
+        helpContent = helpIcon.parent().parent().find('div.helpContent');
 
         // handle special content
         var html = (helpContent.html()) ? helpContent.html() : '';
         if (html) {
-            var specialContent = html.match(/\[([^:]+)\:([^\]]+)\]/)
+            var specialContent = html.match(/\[([^:]+)\:([^\]]+)\]/);
             if (specialContent) {
                 // replace content by calling a helper function
                 eval(specialContent[1] + "('" + specialContent[2] + "',helpContent)");
@@ -141,7 +141,7 @@ function attachHelpTooltips() {
                         // not used at this moment
                     }
                 }
-            })
+            });
 
             // remove helpcontent div as we don't need it anymore
             helpContent.remove();
@@ -152,13 +152,13 @@ function attachHelpTooltips() {
 // insert a youtube player in a certain element
 function youtube(video, element) {
     // insert a div we will replace with a youtube player
-    element.html("<div id='" + video + "'></div>")
+    element.html("<div id='" + video + "'></div>");
 
     // insert youtube player
     var params = { allowScriptAccess: "always" };
     var atts = { id: 'myytplayer_' + video };
     swfobject.embedSWF("http://www.youtube.com/v/" + video + "?enablejsapi=1&playerapiid=ytplayer_" + video,
-            video, "200", "150", "8", null, null, params, atts)
+            video, "200", "150", "8", null, null, params, atts);
 }
 
 // when a youtube player is ready, play the video
@@ -177,7 +177,7 @@ function attachDatePickers() {
             altField    : '#' + $(this).attr('name') + 'Example',
             altFormat   : 'DD, d MM, yy'
         });
-    })
+    });
 }
 
 // add datetimepickers to date fields
@@ -193,7 +193,7 @@ function attachDateTimePickers() {
             showTime        : true,
             time24h         : true
         });
-    })
+    });
 }
 
 // attach subject events
@@ -206,7 +206,7 @@ function attachTableEvents() {
                 function() {
                     $(this).removeClass('highlight');
                 }
-                )
+        );
     });
 }
 
