@@ -57,6 +57,24 @@ class StudyTests extends GrailsUnitTestCase {
 		assert studyDB.title.equals(testStudyName)
 		assert studyDB.template.name.equals(testStudyTemplateName)
 		assert studyDB.startDate.equals(testStudyStartDate)
+
+		// A study without a title should not be saveable
+		studyDB.title = null
+		assert !studyDB.validate()
+	}
+
+	void testDomainFields() {
+		def study = Study.findByTitle(testStudyName)
+		assert study
+
+		// Make sure the domain fields exist
+		assert study.fieldExists('title')
+		assert study.fieldExists('startDate')
+
+		// Make sure they are domain fields
+		assert study.isDomainField('title')
+		assert study.isDomainField('startDate')
+		
 	}
 
 	void testSetDate() {
