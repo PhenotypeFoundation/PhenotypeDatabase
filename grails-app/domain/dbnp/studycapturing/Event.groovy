@@ -13,17 +13,15 @@ import groovy.time.*
  * $Date$
  */
 class Event extends TemplateEntity implements Serializable {
-//	Date startTime
-//	Date endTime
+	Date startTime
+	Date endTime
 
 	static constraints = {
-/*
 		endTime(validator: {val, obj ->
 			if (val && val.before(obj.startTime)) {
 				return 'endTimeshouldbegreater'
 			}
 		})
-*/
 	}
 
 	/**

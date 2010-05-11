@@ -11,8 +11,10 @@ package dbnp.studycapturing
 class Study extends TemplateEntity implements Serializable {
 	static searchable = true
 	nimble.User owner
+	String title
 	Date dateCreated
 	Date lastUpdated
+	Date startDate
 
 	/**
 	 * return the domain fields for this domain class
@@ -44,7 +46,6 @@ class Study extends TemplateEntity implements Serializable {
 
 	static constraints = {
 		owner(nullable: true, blank: true)
-		template(nullable: false, blank: false)
 	}
 
 	static mapping = {
@@ -57,10 +58,7 @@ class Study extends TemplateEntity implements Serializable {
 	 * return the title of this study
 	 */
 	def String toString() {
-		//return title;
-		def title = this.giveDomainFields().find { it.name == 'title' }
-
-		return title.toString()
+		return title;
 	}
 
 	/**

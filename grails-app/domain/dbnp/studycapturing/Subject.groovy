@@ -13,7 +13,9 @@ import dbnp.data.Ontology
  */
 class Subject extends TemplateEntity implements Serializable {
 	static searchable = true
-
+	String name
+	Term species
+	
 	/**
 	 * return the domain fields for this domain class
 	 * @return List
@@ -22,7 +24,8 @@ class Subject extends TemplateEntity implements Serializable {
 		[
 			new TemplateField(
 				name: 'name',
-				type: TemplateFieldType.STRING),
+				type: TemplateFieldType.STRING,
+				preferredIdentifier: true),
 			new TemplateField(
 				name: 'species',
 				type: TemplateFieldType.ONTOLOGYTERM,

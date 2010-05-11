@@ -283,7 +283,7 @@ class BootStrap {
 			def studyTemplate = new Template(
 				name: 'Academic study', entity: dbnp.studycapturing.Study)
 				.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT))
-				.addToFields(new TemplateField(name: 'Study code',type: TemplateFieldType.STRING))
+				.addToFields(new TemplateField(name: 'Study code',type: TemplateFieldType.STRING, preferredIdentifier:true))
 				.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT))
 				.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING))
 				.addToFields(new TemplateField(name: 'Cohort name',type: TemplateFieldType.STRING))

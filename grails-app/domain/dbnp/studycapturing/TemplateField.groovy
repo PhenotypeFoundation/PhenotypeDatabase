@@ -17,6 +17,7 @@ class TemplateField implements Serializable {
 	String comment // help string for the user interface
 	List listEntries
 	boolean required
+	boolean preferredIdentifier
 
     static hasMany = [
 		listEntries	: TemplateFieldListItem,	// to store the entries to choose from when the type is 'item from predefined list'
@@ -28,6 +29,7 @@ class TemplateField implements Serializable {
 		unit(nullable: true, blank: true)
 		comment(nullable:true, blank: true)
 		required(default: false)
+		preferredIdentifier(default: false)
 	}
 
 	static mapping = {
