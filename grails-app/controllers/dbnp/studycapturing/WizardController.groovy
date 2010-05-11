@@ -678,37 +678,30 @@ flow.event.template.fields.each() {
 		if (params.template) flow.event.template = params.template
 
 		// update event instance with parameters
-		params.each() { key, value ->
-			// does this event have such a property or (if
-			// a template is set) such a template field?
-			if (flow.event.fieldExists(key)) {
-				// yes, set it
-				flow.event.setFieldValue(key, value)
-			}
+		flow.event.giveFields().each() { eventField ->
+			flow.event.setFieldValue(eventField.name, params[ eventField.escapedName() ])	
 		}
 
 		// handle event objects
-		flow.eventTemplates.each() {
-			def eventTemplate	= it.getValue().template
-			def templateFields	= eventTemplate.fields
-
+		flow.eventTemplates.each() { eventTemplate ->
 			// iterate through events
-			it.getValue().events.each() { eventId ->
+			eventTemplate.getValue().events.each() { event ->
+				println eventTemplate
+				println event.class
+				//println event.template
+
 				// iterate through template fields
-				templateFields.each() { eventField ->
-					flow.events[ eventId ].setFieldValue(
-						eventField.name,
-						params.get( 'event_' + eventId + '_' + eventField.escapedName() )
-					)
+				/*
+				event.giveFields().each() { eventField ->
+					event.setFieldValue(eventField.name, params.get( 'event_' + event + '_' + eventField.escapedName() ) )
 				}
 
 				// validate event
-				if (!flow.events[ eventId ].validate()) {
+				if (!flow.events[ event ].validate()) {
 					errors = true
 					this.appendErrors(flow.events[ eventId ], flash.errors, 'event_' + eventId + '_')
 				}
-
-
+				*/
 			}
 		}
 
