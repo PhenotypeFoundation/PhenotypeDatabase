@@ -613,17 +613,12 @@ flow.event.template.fields.each() {
 		def id = 0;
 
 		// iterate through subject templates
-		flow.subjectTemplates.each() {
-			def subjectTemplate = it.getValue().template
-			def templateFields	= subjectTemplate.fields
-
+		flow.subjectTemplates.each() { subjectTemplate ->
 			// iterate through subjects
-			it.getValue().subjects.each() { subjectId ->
-				// TODO: name uniqueness check has been removed to 'templated domain fields' changes...
-
-				// iterate through template fields
-				//templateFields.each() { subjectField ->
+			subjectTemplate.getValue().subjects.each() { subjectId ->
+				// iterate through fields (= template fields and domain properties)
 				flow.subjects[ subjectId ].giveFields().each() { subjectField ->
+					// set the field
 					flow.subjects[ subjectId ].setFieldValue(
 						subjectField.name,
 						params.get( 'subject_' + subjectId + '_' + subjectField.escapedName() )
