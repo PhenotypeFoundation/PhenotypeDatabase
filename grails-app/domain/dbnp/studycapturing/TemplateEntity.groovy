@@ -299,16 +299,16 @@ abstract class TemplateEntity implements Serializable {
 		// getField should throw a NoSuchFieldException if the field does not exist
 		try {
 			TemplateField field = getField(this.giveFields(),fieldName)
+			// return true if exception is not thrown (but double check if field really is not null)
+			if (field) {
+				return true
+			}
+			else {
+				return false
+			}
 		}
-		// so return false in that case
+		// if exception is thrown, return false
 		catch(NoSuchFieldException e) {
-			return false
-		}
-		// otherwise, return true (but double check if field really is not null)
-		if (field) {
-			return true
-		}
-		else {
 			return false
 		}
 	}
