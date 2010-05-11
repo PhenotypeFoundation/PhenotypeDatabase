@@ -72,9 +72,9 @@ class SubjectTests extends GrailsUnitTestCase {
 		subject.species = Term.findByName(testSubjectSpeciesTerm)
 		assert subject.validate()
 
-		// Change name to already existing name, should fail
-		subject.name = testSubjectName
-		assert !subject.validate()
+		// TODO: Set study and change name to already existing name, should fail within one study
+		// subject.name = testSubjectName
+		// assert !subject.validate()
 	}
 
 	/**
@@ -105,7 +105,6 @@ class SubjectTests extends GrailsUnitTestCase {
 		def speciesOntologies = domainFields[1].ontologies
 		assert speciesOntologies.size() == 1
 
-		println speciesOntologies.class
 		// Getting the only element in a set is hard in Grails...
 		Ontology speciesOntology = speciesOntologies.asList().first()
 		assert speciesOntology.ncboId == 1132
@@ -126,9 +125,9 @@ class SubjectTests extends GrailsUnitTestCase {
 		assert subject.validate()
 		assert subject.save(flush:true)
 
-		assert subjectDB.getFieldValue('species') == humanTerm
-		assert subjectDB.getFieldValue('name').equals(testSubjectName)
-		assert subjectDB.getFieldValue('species') == humanTerm
+		assert subject.getFieldValue('species') == humanTerm
+		assert subject.getFieldValue('name').equals(testSubjectName)
+		assert subject.getFieldValue('species') == humanTerm
 
 	}
 
@@ -145,7 +144,8 @@ class SubjectTests extends GrailsUnitTestCase {
 	}
 
 	/**
-	 * Test setFieldValue() for template fields
+	 * Test setFieldValue() and getFieldValue() for template fields
+     * This cannot be done in separate tests, as the database state is reset in between
 	 */
 	void testTemplateFieldSetters() {
 
@@ -160,14 +160,6 @@ class SubjectTests extends GrailsUnitTestCase {
 
 		// Save subject
 		assert subject.save(flush: true)
-
-
-	}
-
-	/**
-	* Test getFieldValue() for template fields
-	*/
-	void testTemplateFieldGetters() {
 
 		// Try to retrieve the subject and make sure the BMI was stored
 		def subjectDB = Subject.findByName(testSubjectName)
