@@ -352,19 +352,28 @@ abstract class TemplateEntity implements Serializable {
 
 		// Set the field value
 		if (isDomainField(field)) {
-			this[field.name] = value
-		}
-		else {
+			if (!value) {
+				println "removing [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "]"
+
+				// remove value
+				this[field.name] = null
+			} else {
+				println "setting [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
+
+				// set value
+				this[field.name] = value
+			}
+		} else {
 			// Caution: this assumes that all template...Field Maps are already initialized (as is done now above as [:])
 			// If that is ever changed, the results are pretty much unpredictable (random Java object pointers?)!
 			def store = getStore(field.type)
 			if (!value && store[fieldName]) {
-				println "removing " + ((super) ? super.class : '??') + " template field: " + fieldName
+				println "removing [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "]"
 
 				// remove the item from the Map (if present)
 				store.remove(fieldName)
 			} else if (value) {
-				println "setting " + ((super) ? super.class : '??') + " template field: " + fieldName + " ([" + value.toString() + "] of type [" + value.class + "])"
+				println "setting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
 
 				// set value
 				store[fieldName] = value
@@ -374,6 +383,11 @@ abstract class TemplateEntity implements Serializable {
 		return this
 	}
 
+	/**
+	 * Check if a given field is a domain field
+	 * @param field
+	 * @return boolean
+	 */
 	boolean isDomainField(TemplateField field) {
 		return this.giveDomainFields()*.name.contains(field.name)
 	}
