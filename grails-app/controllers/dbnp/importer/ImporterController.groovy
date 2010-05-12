@@ -35,8 +35,16 @@ class ImporterController {
     /**
      * Default page
      **/
-    def index = { 
-	[templates:Template.list()]
+    def index = { 	
+    }
+
+    def simplewizard = {
+	def entities = ["Subject", "Event", "Sample"]
+	render(view:"index_simple", model:[studies:Study.list(), entities:entities])
+    }
+
+    def advancedwizard = {
+	render(view:"index_advanced", model:[templates:Template.list()])
     }
 
     /**
