@@ -618,27 +618,10 @@ flow.event.template.fields.each() {
 			subjectTemplate.getValue().subjects.each() { subjectId ->
 				// iterate through fields (= template fields and domain properties)
 				flow.subjects[ subjectId ].giveFields().each() { subjectField ->
-					def value = params.get( 'subject_' + subjectId + '_' + subjectField.escapedName() )
-
-/*** THIS SHOULD PROBABLY MOVE INTO TEMPLATE ENTITY ***/
-					// handle ontology terms
-					if (value instanceof String && subjectField.type.toString() == "ONTOLOGYTERM") {
-						// iterate through ontologies and find term
-						subjectField.ontologies.each() { ontology ->
-							def term = ontology.giveTermByName( value )
-
-							// found a term?
-							if (term) {
-								value = term
-							}
-						}
-					}
-/*** END ***/
-
 					// set the field
 					flow.subjects[ subjectId ].setFieldValue(
 						subjectField.name,
-						value
+						params.get( 'subject_' + subjectId + '_' + subjectField.escapedName() )
 					)
 				}
 

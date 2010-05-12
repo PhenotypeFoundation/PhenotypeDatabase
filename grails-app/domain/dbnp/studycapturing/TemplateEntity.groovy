@@ -319,7 +319,7 @@ abstract class TemplateEntity implements Serializable {
 	 * @param value The value to be set, this should align with the (template) field type, but there are some convenience setters
 	 */
 	def setFieldValue(String fieldName, value) {
-
+		// get the template field
 		TemplateField field = getField(this.giveFields(),fieldName)
 
 		// Convenience setter for template string list fields: find TemplateFieldListItem by name
@@ -331,7 +331,7 @@ abstract class TemplateEntity implements Serializable {
 			}
 		}
 
-		// Convenience setter for dates: handle string values for date fields
+		// Magic setter for dates: handle string values for date fields
 		if (field.type == TemplateFieldType.DATE && value && value.class == String) {
 			// a string was given, attempt to transform it into a date instance
 			// and -for now- assume the dd/mm/yyyy format
@@ -350,18 +350,32 @@ abstract class TemplateEntity implements Serializable {
 			}
 		}
 
+		// Magic setter for ontology terms: handle string values
+		if (field.type == TemplateFieldType.ONTOLOGYTERM && value && value.class == String) {
+			// iterate through ontologies and find term
+			field.ontologies.each() { ontology ->
+				def term = ontology.giveTermByName(value)
+
+				// found a term?
+				if (term) {
+					value = term
+				}
+			}
+		}
+
 		// Set the field value
 		if (isDomainField(field)) {
-			if (!value) {
-				println "removing [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "]"
-
-				// remove value
-				this[field.name] = null
-			} else {
+			// got a value?
+			if (value) {
 				println "setting [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
 
 				// set value
 				this[field.name] = value
+			} else {
+				println "removing [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "]"
+
+				// remove value
+				this[field.name] = null
 			}
 		} else {
 			// Caution: this assumes that all template...Field Maps are already initialized (as is done now above as [:])
@@ -385,14 +399,18 @@ abstract class TemplateEntity implements Serializable {
 
 	/**
 	 * Check if a given field is a domain field
-	 * @param field
+	 * @param TemplateField		field instance
 	 * @return boolean
 	 */
 	boolean isDomainField(TemplateField field) {
 		return this.giveDomainFields()*.name.contains(field.name)
 	}
 
-	boolean isDomainField(String fieldName) {
+	/**
+	 * Check if a given field is a domain field
+	 * @param String	field name
+	 * @return boolean
+	 */	boolean isDomainField(String fieldName) {
 		return this.giveDomainFields()*.name.contains(fieldName)
 	}
 
