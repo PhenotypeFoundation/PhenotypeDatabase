@@ -16,11 +16,25 @@ class Event extends TemplateEntity implements Serializable {
 	Date startTime
 	Date endTime
 
+	/**
+	 * Constraints
+	 */
 	static constraints = {
-		endTime(validator: {val, obj ->
-			if (val && val.before(obj.startTime)) {
-				return 'endTimeshouldbegreater'
+		endTime(validator: { fields, obj, errors ->
+			def error = false
+
+			// endTime must be >= the startTime
+			if ( fields && fields.compareTo(obj.startTime) < 0 ) {
+				error = true
+				errors.rejectValue(
+					'endTime',
+					'event.endTime.greaterThanStartTime',
+					['endTime', fields] as Object[],
+					'End time should be greater than or equal to the Start Time'
+				)
 			}
+
+			return (!error)
 		})
 	}
 

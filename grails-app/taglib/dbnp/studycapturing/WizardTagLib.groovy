@@ -619,6 +619,11 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 			// transform all values into strings
 			def from = []
 			attrs.from.each { from[ from.size() ] = it.toString() }
+
+			// sort alphabetically
+			from.sort()
+
+			// set attributes
 			attrs.from = from
 			attrs.value = (attrs.value) ? attrs.value.toString() : ''
 

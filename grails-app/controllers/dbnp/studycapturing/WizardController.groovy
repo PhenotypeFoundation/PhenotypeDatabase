@@ -259,50 +259,6 @@ class WizardController {
 				flash.errors = [:]
 			}.to "events"
 			on("add") {
-				/*
-				def startTime	= (params.get('startTime')) ? params.startTime = new Date().parse("d/M/yyyy HH:mm", params.get('startTime').toString()) : null
-				def endTime		= (params.get('endTime')) ? new Date().parse("d/M/yyyy HH:mm", params.get('endTime').toString()) : null
-				def template	= params.get('template')
-
-				// handle template
-				if (template instanceof String && template.size() > 0) {
-					template = Template.findByName(template)
-				} else if (!template instanceof Template) {
-					template = null
-				}
-
-				// handle data
-				if (template && startTime && endTime) {
-					// add an event instance
-					def event = new Event(
-						template	: template,
-						startTime	: startTime,
-						endTime		: endTime
-					)
-
-					// validate event
-					if (event.validate()) {
-						// add event to event list
-						flow.events[ flow.events.size() ] = event
-						success()
-					} else {
-						// validation failed, feedback errors
-						flash.errors = [:]
-						flash.values = params
-						this.appendErrors(event, flash.errors)
-						error()
-					}
-				} else {
-					// validation failed, feedback errors
-					flash.errors	= [:]
-					flash.values	= params
-
-					if (!template)	this.appendErrorMap(['template': 'You need to select an event template'], flash.errors)
-					if (!startTime) this.appendErrorMap(['startTime': 'You need to define the start time of your study event'], flash.errors)
-					if (!endTime)	this.appendErrorMap(['endTime': 'You need to define the end time of your study event'], flash.errors)
-					error()
-				}
-				*/
 				flash.values			= params
 				def eventTemplateName	= params.get('template')
 				def eventTemplate		= Template.findByName(eventTemplateName)
@@ -321,10 +277,6 @@ class WizardController {
 
 				// validate event object
 				if (flow.event.validate()) {
-
-flow.event.template.fields.each() {
-	println "["+it.name+"] = "+flow.event.getFieldValue(it.name)	
-}
 					// it validated! Duplicate the event object...
 					def newEvent	= flow.event
 					def increment	= flow.events.size()
@@ -411,20 +363,18 @@ flow.event.template.fields.each() {
 			on("next") {
 				flash.values = params
 				flash.errors = [:]
-				/*
 
-				// handle event groupings
-				this.handleEventGrouping(flow, flash, params)
-
-				// check if we have at least one subject
-				// and check form data
+				// handle study data
 				if (flow.events.size() < 1) {
 					// append error map
 					flash.values = params
 					this.appendErrorMap(['events': 'You need at least to create one event for your study'], flash.errors)
+					error()						
+				} else if (this.handleEvents(flow, flash, params)) {
+					success()
+				} else {
 					error()
 				}
-				*/
 			}.to "events"
 		}
 
@@ -644,6 +594,8 @@ flow.event.template.fields.each() {
 	 * @returns boolean
 	 */
 	def handleEvents(flow, flash, params) {
+		def errors = false
+		
 		// got an event in the flash scope?
 		if (!flow.event) flow.event = new Event()
 
@@ -668,23 +620,17 @@ flow.event.template.fields.each() {
 		// handle event objects
 		flow.eventTemplates.each() { eventTemplate ->
 			// iterate through events
-			eventTemplate.getValue().events.each() { event ->
-				println eventTemplate
-				println event.class
-				//println event.template
-
+			eventTemplate.getValue().events.each() { eventId ->
 				// iterate through template fields
-				/*
-				event.giveFields().each() { eventField ->
-					event.setFieldValue(eventField.name, params.get( 'event_' + event + '_' + eventField.escapedName() ) )
+				flow.events[ eventId ].giveFields().each() { eventField ->
+					flow.events[ eventId ].setFieldValue(eventField.name, params.get( 'event_' + eventId + '_' + eventField.escapedName() ) )
 				}
 
 				// validate event
-				if (!flow.events[ event ].validate()) {
+				if (!flow.events[ eventId ].validate()) {
 					errors = true
 					this.appendErrors(flow.events[ eventId ], flash.errors, 'event_' + eventId + '_')
 				}
-				*/
 			}
 		}
 

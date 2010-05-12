@@ -28,23 +28,27 @@
 
 <g:if test="${events}">
 	<g:each var="eventTemplate" in="${eventTemplates}">
+		<g:set var="showHeader" value="${true}" />
 		<h1>${eventTemplate.getValue().name} template</h1>
 	<div class="table">
-		<div class="header">
-			<div class="firstColumn">#</div>
-			<div class="firstColumn"></div>
-			<wizard:templateColumnHeaders template="${eventTemplate.getValue().template}" class="column"/>
-			<g:if test="${eventGroups}"><g:each var="eventGroup" status="g" in="${eventGroups}">
-			<div class="column">
-				<g:textField name="eventGroup_${g}_name" value="${eventGroup.name}" />
-				<wizard:ajaxButton name="deleteEventGroup" src="../images/icons/famfamfam/delete.png" alt="delete this eventgroup" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${g});" afterSuccess="onWizardPage()" />
-			</div>
-			</g:each></g:if>
-			<div class="column">
-				<wizard:ajaxButton name="addEventGroup" src="../images/icons/famfamfam/add.png" alt="add a new eventgroup" class="famfamfam" value="+" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
-			</div>
-		</div>
 		<g:each var="eventId" in="${eventTemplate.getValue().events}">
+			<g:if test="${showHeader}">
+		  	<g:set var="showHeader" value="${false}" />
+			<div class="header">
+				<div class="firstColumn">#</div>
+				<div class="firstColumn"></div>
+				<wizard:templateColumnHeaders entity="${events[ eventId ]}" class="column"/>
+				<g:if test="${eventGroups}"><g:each var="eventGroup" status="g" in="${eventGroups}">
+				<div class="column">
+					<g:textField name="eventGroup_${g}_name" value="${eventGroup.name}" />
+					<wizard:ajaxButton name="deleteEventGroup" src="../images/icons/famfamfam/delete.png" alt="delete this eventgroup" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${g});" afterSuccess="onWizardPage()" />
+				</div>
+				</g:each></g:if>
+				<div class="column">
+					<wizard:ajaxButton name="addEventGroup" src="../images/icons/famfamfam/add.png" alt="add a new eventgroup" class="famfamfam" value="+" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
+				</div>
+			</div>
+			</g:if>
 			<div class="row">
 				<div class="firstColumn">${eventId + 1}</div>
 				<div class="firstColumn">
