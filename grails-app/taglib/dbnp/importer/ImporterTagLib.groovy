@@ -52,15 +52,14 @@ class ImporterTagLib {
     }
 
     /**
-     * @param entities array in the format of columnindex:entitytype format
+     * @param entities array
      */
     def properties = { attrs ->
 	def selectedentities = []
 	def header = attrs['header']
 
-	attrs['entities'].each { se ->
-	    def temp = se.split(":")
-	    def entity = [type:temp[1],columnindex:temp[0]]
+	attrs['entities'].index.each { columnindex, entitytype ->
+	    def entity = [type:entitytype,columnindex:columnindex.toInteger()]
 	    selectedentities.add(entity)
 	}
 
@@ -69,7 +68,8 @@ class ImporterTagLib {
 
     /**
      * Possibly this will later on return an AJAX-like autocompletion chooser for the fields?
-     * 
+     *
+     * @param name name for the property chooser element
      * @param importtemplate_id template identifier where fields are retrieved from
      * @param MappingColumn object containing all required information
      * @return chooser object
@@ -86,6 +86,8 @@ class ImporterTagLib {
     }
 
     /**
+     * Create the property chooser select element
+     *
      * @param name name of the HTML select object
      * @param options list of options (fields) to be used
      * @param columnIndex column identifier (corresponding to position in header of the Excel sheet)
@@ -93,10 +95,10 @@ class ImporterTagLib {
      */
     def createPropertySelect(String name, options, Integer columnIndex)
     {	
-	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
+	def res = "<select style=\"font-size:10px\" name=\"${name}.index.${columnIndex}\">"
 
 	options.each { f ->	    
-	    res += "<option value=\"${columnIndex}:${f.id}\""
+	    res += "<option value=\"${f.id}\""
 	    //res += (e.type.toInteger() == selected) ? " selected" : ""
 	    res += ">${f}</option>"
 	}
@@ -119,10 +121,10 @@ class ImporterTagLib {
 	def custval = (attrs['customvalue']==null) ? "" : attrs['customvalue']
 	def name = (attrs['name']==null) ? -1 : attrs['name']
 
-	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
+	def res = "<select style=\"font-size:10px\" name=\"${name}.index.${custval}\">"
 
 	standardentities.each { e ->
-	    res += "<option value=\"${custval}:${e.type}\""
+	    res += "<option value=\"${e.type}\""
 	    res += (e.type == sel) ? " selected" : ""
 	    res += ">${e.name}</option>"
 	}
@@ -132,6 +134,8 @@ class ImporterTagLib {
     }
 
     /**
+     * Create a templatefieldtype selector
+     *
     * @param selected selected TemplateFieldType
     * @param customvalue custom value to be combined in the option(s) of the selector
     * @param name name of the HTML select object
@@ -141,13 +145,13 @@ class ImporterTagLib {
     */
     def templatefieldtypeSelect = { attrs ->
 	def selected = (attrs['selected']==null) ? -1 : attrs['selected']
-	def customvalue = (attrs['customvalue']==null) ? "" : attrs['customvalue']
+	def custval = (attrs['customvalue']==null) ? "" : attrs['customvalue']
 	def name = (attrs['name']==null) ? "" : attrs['name']	
 
-	def res = "<select style=\"font-size:10px\" name=\"${name}\">"
+	def res = "<select style=\"font-size:10px\" name=\"${name}.index.${custval}\">"
 
 	TemplateFieldType.list().each { e ->
-	    res += "<option value=\"${customvalue}:${e}\""
+	    res += "<option value=\"${e}\""
 	    res += (e == selected) ? " selected" : ""
 	    res += ">${e}</option>"
 	}

@@ -72,16 +72,11 @@ class ImporterController {
     * @see celltype: http://poi.apache.org/apidocs/org/apache/poi/ss/usermodel/Cell.html
     */
     def savepreview = {
-	def tft = null
-	def entities  = request.getParameterValues("entity")
-	def templatefieldtypes = request.getParameterValues("templatefieldtype")
+	def tft = null	
 	def identifiercolumnindex = (params.identifier!=null) ? params.identifier.toInteger() : -1
 
-	templatefieldtypes.each { t ->	    
-	    def columnindex = t.split(":")[0].toInteger()
-	    def templatefieldtype = t.split(":")[1]
-	    
-	    switch (templatefieldtype) {
+	params.templatefieldtype.index.each { columnindex, _templatefieldtype ->
+	    switch (_templatefieldtype) {
 		case "STRING"	    : tft = TemplateFieldType.STRING
 				      break
 		case "TEXT"	    : tft = TemplateFieldType.TEXT
@@ -100,15 +95,14 @@ class ImporterController {
 				      break
 		default: break
 	    }
-	    session.importer_header[columnindex].templatefieldtype = tft
+	    
+	    session.importer_header[columnindex.toInteger()].templatefieldtype = tft
 	}
 
-	entities.each { e ->	    	    
-	    def columnindex = e.split(":")[0].toInteger()
-	    def entitytype = e.split(":")[1].toInteger()
-	    Class clazz	    
+	params.entity.index.each { columnindex, entitytype ->
+	    Class clazz
 
-	    switch (entitytype) {
+	    switch (entitytype.toInteger()) {
 		case 0: clazz = Study
 			break
 		case 1: clazz = Subject
@@ -123,9 +117,9 @@ class ImporterController {
 			break
 	    }
 
-	    session.importer_header[columnindex].identifier = (columnindex == identifiercolumnindex) ? true : false
-	    session.importer_header[columnindex].index = columnindex
-	    session.importer_header[columnindex].entity = clazz
+	    session.importer_header[columnindex.toInteger()].identifier = (columnindex.toInteger() == identifiercolumnindex) ? true : false
+	    session.importer_header[columnindex.toInteger()].index = columnindex.toInteger()
+	    session.importer_header[columnindex.toInteger()].entity = clazz
 	}
 
 	// currently only one template is used for all entities
@@ -133,21 +127,18 @@ class ImporterController {
 	
 	def templates = Template.get(session.importer_template_id)
 
-	render(view:"step2", model:[entities:entities, header:session.importer_header, templates:templates])
+	render(view:"step2", model:[entities:params.entity, header:session.importer_header, templates:templates])
     }
 
     /**
-    * @param columnproperty array of columns and the assigned property in `column:property_id` format
+    * @param columnproperty array of columns containing index and property_id
     *
     */
-    def saveproperties = {
-	def columnproperties  = request.getParameterValues("columnproperty")	
+    def saveproperties = {	
 	session.importer_study = Study.get(params.study.id.toInteger())
 
-	columnproperties.each { cp ->		
-		def columnindex = cp.split(":")[0].toInteger()
-		def property_id = cp.split(":")[1].toInteger()
-		session.importer_header[columnindex].property = TemplateField.get(property_id)
+	params.columnproperty.index.each { columnindex, property_id ->
+		session.importer_header[columnindex.toInteger()].property = TemplateField.get(property_id.toInteger())
 	}
 
 	//import workbook
@@ -157,7 +148,7 @@ class ImporterController {
     }
 
     def savepostview = {
-	ImporterService.savedata(session.importer_study, session.importer_importeddata)
+	ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
 	render(view:"step4")
     }
 }

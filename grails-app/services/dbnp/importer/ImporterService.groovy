@@ -205,7 +205,7 @@ class ImporterService {
      * @param study entity Study
      * @param datamatrix two dimensional array containing entities with values read from Excel file     *
      */    
-    def savedata(Study study, datamatrix) {
+    def saveDatamatrix(Study study, datamatrix) {
 	study.refresh()
 	
 	datamatrix.each { record ->
@@ -214,8 +214,8 @@ class ImporterService {
 		    case Study	 :  print "Persisting Study `" + entity.title + "`: "
 				    persistEntity(entity)
 				    break
-		    case Subject :  print "Persisting Subject `" + entity.name + "`: "				    
-				    persistEntity(entity)				    
+		    case Subject :  print "Persisting Subject `" + entity.name + "`: "
+				    persistEntity(entity)
 				    study.addToSubjects(entity)
 				    break
 		    case Event	 :  print "Persisting Event `" + entity.eventdescription + "`: "
@@ -233,6 +233,7 @@ class ImporterService {
 
     /**
      * Method to persist entities into the database
+     * Checks whether entity already exists (based on identifier column 'name')
      * 
      * @param entity entity object like Study, Subject, Protocol et cetera
      * 
@@ -278,7 +279,7 @@ class ImporterService {
 				    if (mc.identifier) { event.eventdescription = value; break }
 				    event.setFieldValue(mc.property.name, value)
 				    break
-		case Sample	:   (record.any {it.getClass()==mc.entity}) ? record.add(sample) : 0
+		case Sample	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(sample)
 				    if (mc.identifier) { sample.name = value; break }
 				    sample.setFieldValue(mc.property.name, value)
 				    break
