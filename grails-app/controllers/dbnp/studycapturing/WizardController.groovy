@@ -156,7 +156,7 @@ class WizardController {
 				flow.page = 3
 
 				if (!flow.subjects) {
-					flow.subjects = []
+					flow.subjects = [:]
 					flow.subjectTemplates = [:]
 				}
 			}
@@ -340,7 +340,7 @@ class WizardController {
 					nameExists = !(count == flow.eventGroups.size())
 				}
 
-				flow.eventGroups[increment] = new EventGroup(name: groupName)
+				flow.eventGroups[increment] = new EventGroup( name: groupName )
 			}.to "events"
 			on("deleteEventGroup") {
 				flash.values = params
@@ -650,14 +650,14 @@ class WizardController {
 	def handleEventGrouping(flow, flash, params) {
 		// walk through eventGroups
 		def g = 0
-		flow.eventGroups.each() {
+
+		flow.eventGroups.each() { eventGroup ->
 			def e = 0
-			def eventGroup = it
 
 			// reset events
 			eventGroup.events = new HashSet()
 
-			// walk through events
+			// iterate through events
 			flow.events.each() {
 				if (params.get('event_' + e + '_group_' + g) == 'on') {
 					eventGroup.addToEvents(it)

@@ -52,12 +52,12 @@
 			<div class="row">
 				<div class="firstColumn">${eventId + 1}</div>
 				<div class="firstColumn">
-					<wizard:ajaxButton name="delete" src="../images/icons/famfamfam/delete.png" alt="delete this subject" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${eventId});" afterSuccess="onWizardPage()"/>
+					<wizard:ajaxButton name="deleteEvent" src="../images/icons/famfamfam/delete.png" alt="delete this subject" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${eventId});" afterSuccess="onWizardPage()"/>
 				</div>
 				<wizard:templateColumns id="${eventId}" entity="${events[ eventId ]}" template="${events[ eventId ].template}" name="event_${eventId}" class="column" />
 				<g:if test="${eventGroups}"><g:each var="eventGroup" status="j" in="${eventGroups}">
 				<div class="column">
-					<g:if test="${eventGroup.events.find{ it == event} }">
+					<g:if test="${eventGroup.events.find{ it == events[ eventId ] } }">
 						<input type="checkbox" name="event_${eventId}_group_${j}" checked="checked" />
 					</g:if><g:else>
 						<input type="checkbox" name="event_${eventId}_group_${j}"/>
