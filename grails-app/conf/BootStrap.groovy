@@ -598,7 +598,7 @@ class BootStrap {
 					      name: "" + y++,
 					      species: humanTerm,
 					      template: humanTemplate)
-					.setFieldValue("Gender", (boolean) (x / 2) ? "Male" : "Female")
+					//.setFieldValue("Gender", ( (boolean) (y / 2) ? "Male" : "Female") )
 					.setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19" + (10 + (int) (Math.random() * 80))))
 					.setFieldValue("Age (years)", 30)
 					.setFieldValue("Height", Math.random() * 2F)
