@@ -439,7 +439,7 @@ abstract class TemplateEntity implements Serializable {
 	/**
 	 * Convenience method. Returns all unique templates used within a collection of TemplateEntities.
 	 */
-	static List<Template> giveTemplates(Set<TemplateEntity> entityCollection) {
+	static Set<Template> giveTemplates(Set<TemplateEntity> entityCollection) {
 		return entityCollection*.template.unique();
 	}
 

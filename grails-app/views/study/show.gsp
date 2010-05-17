@@ -146,7 +146,7 @@ ${g}</b></td>
                   <td><b>Parameters</b></td>
                 </tr>
 
-                <g:each in="${studyInstance.events}" var="event">
+                <g:each in="${studyInstance.events + studyInstance.samplingEvents}" var="event">
                   <tr>
                     <td><g:link controller="event" action="show" id="${event.id}">${event.id}</g:link></td>
                     <td>${event.getPrettyDuration(studyInstance.startDate,event.startTime)}</td>
@@ -186,12 +186,12 @@ ${g}</b></td>
             <table>
               <tr>
                 <td><b>Name</b></td>
-                <td colspan="${studyInstance.giveEventTemplates().size()}"><b>Events</b></td>
+                <td colspan="${studyInstance.giveAllEventTemplates().size()}"><b>Events</b></td>
                 <td><b>Subjects</b></td>
               </tr>
               <tr>
                 <td></td>
-                <g:each in="${studyInstance.giveEventTemplates()}" var="eventTemplate">
+                <g:each in="${studyInstance.giveAllEventTemplates()}" var="eventTemplate">
                   <td><b>${eventTemplate.name}</b></td>
                 </g:each>
                 <td></td>
@@ -200,7 +200,7 @@ ${g}</b></td>
                 <tr>
                   <td>${eventGroup.name}</td>
 
-                  <g:each in="${studyInstance.giveEventTemplates()}" var="currentEventTemplate">
+                  <g:each in="${studyInstance.giveAllEventTemplates()}" var="currentEventTemplate">
                     <td>
                       <g:each in="${eventGroup.events}" var="event">
                         <g:if test="${event.template.name==currentEventTemplate.name}">

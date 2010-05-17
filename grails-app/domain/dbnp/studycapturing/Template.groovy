@@ -12,12 +12,14 @@ package dbnp.studycapturing
  */
 class Template implements Serializable {
 	String name
+	String description
 	Class entity
 	//nimble.User owner
 	List fields
 	static hasMany = [fields: TemplateField]
 
 	static constraints = {
+		description(nullable: true, blank: true)
 		// outcommented for now due to bug in Grails / Hibernate
 		// see http://jira.codehaus.org/browse/GRAILS-6020
 		//	name(unique:['entity'])

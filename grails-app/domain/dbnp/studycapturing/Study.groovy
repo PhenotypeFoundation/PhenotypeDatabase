@@ -69,29 +69,40 @@ class Study extends TemplateEntity implements Serializable {
 	}
 
 	/**
+	 * Return the unique Event and SamplingEvent templates that are used in this study
+	 */
+	Set<Template> giveAllEventTemplates() {
+		// For some reason, giveAllEventTemplates() + giveAllSamplingEventTemplates()
+		// gives trouble when asking .size() to the result
+		// So we also use giveTemplates here
+		TemplateEntity.giveTemplates(events + samplingEvents);
+	}
+
+
+	/**
 	 * Return the unique Event templates that are used in this study
 	 */
-	def Set<Template> giveEventTemplates() {
+	Set<Template> giveEventTemplates() {
 		TemplateEntity.giveTemplates(events);
 	}
 
 	/**
 	 * Return the unique SamplingEvent templates that are used in this study
 	 */
-	def Set<Template> giveSamplingEventTemplates() {
-		TemplateEntity.giveTemplates(events);
+	Set<Template> giveSamplingEventTemplates() {
+		TemplateEntity.giveTemplates(samplingEvents);
 	}
 
 	/**
 	 * Returns the unique Sample templates that are used in the study
 	 */
-	def Template giveSampleTemplates() {
+	Set<Template> giveSampleTemplates() {
 		TemplateEntity.giveTemplates(samples);
 	}
 	/**
 	 * Returns the template of the study
 	 */
-	def Template giveStudyTemplate() {
+	Template giveStudyTemplate() {
 		return this.template;
 	}
 }
