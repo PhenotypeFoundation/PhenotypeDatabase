@@ -694,6 +694,12 @@ class WizardController {
 	def getHumanReadableErrors(object) {
 		def errors = [:]
 		object.errors.getAllErrors().each() {
+println it
+println it.getDefaultMessage()
+println it.toString()
+println it.toString().indexOf(';')
+			def message = it.toString()
+			println message.substring(0..message.indexOf(';'))
 			errors[it.getArguments()[0]] = it.getDefaultMessage()
 		}
 
