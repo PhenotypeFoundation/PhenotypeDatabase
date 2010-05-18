@@ -41,7 +41,7 @@
  </g:if>
 
  add a new field:
- <g:select from="${templateFields}" />
+ <!-- g:select from="${templateFields}" //-->
  
  </body>
 </html>

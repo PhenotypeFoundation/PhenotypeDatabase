@@ -27,7 +27,7 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'wizard.min.js')}"></script>
 </g:if><g:else>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'wizard.css')}"/>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'swfobject.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
