@@ -52,7 +52,7 @@ class WizardController {
 				[title: 'Study'],				// study
 				[title: 'Subjects'],			// subjects
 				[title: 'Events'],				// events and event grouping
-				[title: 'Samples'],				// samples
+				[title: 'Groups'],				// groups
 				[title: 'Confirmation'],		// confirmation page
 				[title: 'Done']					// finish page
 			]
@@ -252,7 +252,6 @@ class WizardController {
 					// set flash.values.templateType based on the event instance
 					flash.values = [:]
 					flash.values.templateType = (flow.event instanceof Event) ? 'event' : 'sample'
-println "aapjes --> " + flash.values
 				}
 			}
 			on("switchTemplate") {
@@ -266,29 +265,23 @@ println "aapjes --> " + flash.values
 			}.to "events"
 			on("add") {
 				flash.values			= params
-println params
-println params.get('eventType')
-println params.get('eventTemplate')
-println params.get('sampleTemplate')
-
 				def eventTemplateName	= (params.get('eventType') == 'event') ? params.get('eventTemplate') : params.get('sampleTemplate')
 				def eventTemplate		= Template.findByName(eventTemplateName)
-println "test: "+ eventTemplateName + ", " + eventTemplate
-
-				// add this event template to the event template array
-				if (!flow.eventTemplates[ eventTemplateName ]) {
-					flow.eventTemplates[ eventTemplateName ] = [
-						name: eventTemplateName,
-						template: eventTemplate,
-						events: []
-					]
-				}
 
 				// handle study data
 				this.handleEvents(flow, flash, params)
 
 				// validate event object
 				if (flow.event.validate()) {
+					// add this event template to the event template array
+					if (!flow.eventTemplates[ eventTemplateName ]) {
+						flow.eventTemplates[ eventTemplateName ] = [
+							name: eventTemplateName,
+							template: eventTemplate,
+							events: []
+						]
+					}
+
 					// it validated! Duplicate the event object...
 					def newEvent	= flow.event
 					def increment	= flow.events.size()
@@ -387,17 +380,17 @@ println "test: "+ eventTemplateName + ", " + eventTemplate
 				} else {
 					error()
 				}
-			}.to "samples"
+			}.to "groups"
 		}
 
-		// samples page
-		samples {
-			render(view: "_samples")
+		// groups page
+		groups {
+			render(view: "_groups")
 			onRender {
 				flow.page = 5
 			}
 			on("previous").to "events"
-			on("next").to "samples"
+			on("next").to "groups"
 		}
 
 		// confirmation
@@ -409,8 +402,8 @@ println "test: "+ eventTemplateName + ", " + eventTemplate
 			on("toStudy").to "study"
 			on("toSubjects").to "subjects"
 			on("toEvents").to "events"
-			on("toSamples").to "samples"
-			on("previous").to "samples"
+			on("toGroups").to "groups"
+			on("previous").to "groups"
 			on("next").to "save"
 		}
 
