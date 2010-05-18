@@ -426,7 +426,7 @@ abstract class TemplateEntity implements Serializable {
 	 * Return all templated fields defined in the underlying template of this entity
 	 */
 	def List<TemplateField> giveTemplateFields() {
-		return this.template.fields;
+		return (this.template) ? this.template.fields : []
 	}
 
 	/**
