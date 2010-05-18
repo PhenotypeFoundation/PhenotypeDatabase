@@ -20,10 +20,10 @@ class TermEditorController {
 	 */
     def index = {
 		// got a ontology get parameter?
-		def ontology = (params.ontology) ? params.ontology : null
+		def ontologies = (params.ontologies) ? params.ontologies : null
 
 		// enter the flow!
-    	redirect(action: 'pages', params:["ontology":ontology])
+    	redirect(action: 'pages', params:["ontologies":ontologies])
     }
 
 	/**
@@ -34,9 +34,9 @@ class TermEditorController {
 		onStart {
 			println "start term / ontology editor flow"
 
-			if (params.ontology) {
+			if (params.ontologies) {
 				flow.ontologies = []
-				params.ontology.split(/\,/).each() { ncboId ->
+				params.ontologies.split(/\,/).each() { ncboId ->
 					// trim the id
 					ncboId.trim()
 
