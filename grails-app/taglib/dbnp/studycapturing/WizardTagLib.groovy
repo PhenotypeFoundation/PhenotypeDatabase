@@ -239,7 +239,11 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		if (!renderedElement) return false
 
 		// render a form element
-		out << '<div class="element">'
+		if (attrs.get('elementId')) {
+		out << '<div class="element" id="'+ attrs.remove('elementId') +'">'
+		} else {
+			out << '<div class="element">'
+		}
 		out << ' <div class="description">'
 		out << description
 		out << ' </div>'
@@ -343,6 +347,38 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 			attrs,
 			body
 		)
+	}
+
+	/**
+	 * render a set of radio form elements
+	 * @param Map attrs
+	 * @param Closure body  (help text)
+	 */
+	def radioElement = { attrs, body ->
+		baseElement.call(
+			'radioList',
+			attrs,
+			body
+		)
+	}
+
+	/**
+	 * render a set of radio elements
+	 * @param Map attrs
+	 * @param Closure body  (help text)
+	 */
+	def radioList = { attrs ->
+		def checked = true
+
+		attrs.elements.each {
+			out << radio(
+				name: attrs.name,
+				value: it,
+				checked: (attrs.value == it || (!attrs.value && checked))
+			)
+			out << it
+			checked = false
+		}
 	}
 
 	/**

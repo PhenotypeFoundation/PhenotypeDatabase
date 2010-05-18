@@ -52,6 +52,7 @@ class WizardController {
 				[title: 'Study'],				// study
 				[title: 'Subjects'],			// subjects
 				[title: 'Events'],				// events and event grouping
+				[title: 'Samples'],				// samples
 				[title: 'Confirmation'],		// confirmation page
 				[title: 'Done']					// finish page
 			]
@@ -247,6 +248,11 @@ class WizardController {
 					flow.eventGroups	= []
 					flow.eventGroups[0]	= new EventGroup(name: 'Group 1')	// 1 group by default
 					flow.eventTemplates	= [:]
+				} else if (!flash.values) {
+					// set flash.values.templateType based on the event instance
+					flash.values = [:]
+					flash.values.templateType = (flow.event instanceof Event) ? 'event' : 'sample'
+println "aapjes --> " + flash.values
 				}
 			}
 			on("switchTemplate") {
@@ -260,8 +266,14 @@ class WizardController {
 			}.to "events"
 			on("add") {
 				flash.values			= params
-				def eventTemplateName	= params.get('template')
+println params
+println params.get('eventType')
+println params.get('eventTemplate')
+println params.get('sampleTemplate')
+
+				def eventTemplateName	= (params.get('eventType') == 'event') ? params.get('eventTemplate') : params.get('sampleTemplate')
 				def eventTemplate		= Template.findByName(eventTemplateName)
+println "test: "+ eventTemplateName + ", " + eventTemplate
 
 				// add this event template to the event template array
 				if (!flow.eventTemplates[ eventTemplateName ]) {
@@ -344,7 +356,7 @@ class WizardController {
 			}.to "events"
 			on("deleteEventGroup") {
 				flash.values = params
-				
+
 				def delete = params.get('do') as int;
 
 				// handle event groupings
@@ -361,13 +373,13 @@ class WizardController {
 				this.handleEventGrouping(flow, flash, params)
 			}.to "subjects"
 			on("next") {
+				println params
 				flash.values = params
 				flash.errors = [:]
 
 				// handle study data
 				if (flow.events.size() < 1) {
 					// append error map
-					flash.values = params
 					this.appendErrorMap(['events': 'You need at least to create one event for your study'], flash.errors)
 					error()						
 				} else if (this.handleEvents(flow, flash, params)) {
@@ -375,18 +387,30 @@ class WizardController {
 				} else {
 					error()
 				}
-			}.to "events"
+			}.to "samples"
 		}
 
+		// samples page
+		samples {
+			render(view: "_samples")
+			onRender {
+				flow.page = 5
+			}
+			on("previous").to "events"
+			on("next").to "samples"
+		}
+
+		// confirmation
 		confirm {
 			render(view: "_confirmation")
 			onRender {
-				flow.page = 5
+				flow.page = 6
 			}
 			on("toStudy").to "study"
 			on("toSubjects").to "subjects"
 			on("toEvents").to "events"
-			on("previous").to "events"
+			on("toSamples").to "samples"
+			on("previous").to "samples"
 			on("next").to "save"
 		}
 
@@ -490,7 +514,7 @@ class WizardController {
 				flow.page = 6
 			}
 			on("next").to "save"
-			on("previous").to "events"
+			on("previous").to "samples"
 		}
 
 		// render page three
@@ -595,12 +619,21 @@ class WizardController {
 	 */
 	def handleEvents(flow, flash, params) {
 		def errors = false
-		
-		// got an event in the flash scope?
-		if (!flow.event) flow.event = new Event()
+		def template = null
+
+		// handle the type of event
+		if (params.eventType == 'event') {
+			flow.event = new Event();
+			template = params.remove('eventTemplate')
+		} else if (params.eventType == 'sample') {
+			flow.event = new SamplingEvent();
+			template = params.remove('sampleTemplate')
+		}
+
+		// got an event in the flow scope?
+		//if (!flow.event) flow.event = new Event()
 
 		// if a template is selected, get template instance
-		def template = params.remove('template')
 		if (template instanceof String && template.size() > 0) {
 			params.template = Template.findByName(template)
 		} else if (template instanceof Template) {
