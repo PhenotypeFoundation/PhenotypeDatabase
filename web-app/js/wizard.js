@@ -171,6 +171,8 @@ function onYouTubePlayerReady(playerId) {
 function attachDatePickers() {
     $('div#wizard').find("input[type=text][rel$='date']").each(function() {
         $(this).datepicker({
+            numberOfMonths: 3,
+            showButtonPanel: true,
             changeMonth : true,
             changeYear  : true,
             dateFormat  : 'dd/mm/yy',
