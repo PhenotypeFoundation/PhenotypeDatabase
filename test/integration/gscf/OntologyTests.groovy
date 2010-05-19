@@ -3,6 +3,7 @@ package gscf
 import grails.test.*
 import dbnp.data.*
 
+import uk.ac.ebi.ontocat.*
 
 /**
  * OntologyTests Test
@@ -67,9 +68,8 @@ class OntologyTests extends GrailsUnitTestCase {
 
 	}
 
-
 	/**
-	* Test saving and retrieving a term within the ontology and test giveTermByName(name)
+	* Test saving and retrieving a term within the ontology and test giveTermByName(name) and giveTerms()
 	*/
 	void testTermSave() {
 
@@ -92,49 +92,107 @@ class OntologyTests extends GrailsUnitTestCase {
 		assert termDB.name.equals(testTermName)
 		assert termDB.accession.equals(testAccession)
 		assert termDB.ontology == testOntology
-	}
 
-
-	/**
-	* Test giveTerms() method
-	*/
-	void testGiveTerms() {
-
-		// Find created ontology
-		def testOntology = Ontology.findByName(testOntologyName)
-		assert testOntology
-
+		// Test giveTerms() and make sure the term is in there
 		def terms = testOntology.giveTerms()
 		assert terms
 		assert terms.size() == 1
 		assert terms.asList().first().name.equals(testTermName)
 	}
 
-
 	/**
- 	* Ontocat test (Ontocat example 1)
- 	*
-	* Shows how to list all the available ontologies in OLS
- 	*
+ 	* Ontocat test for debug purposes: show all properties of a certain ontology
  	*/
-	void testOntocat() {
+	private void testOntocatBioPortalDebug() {
 		// Instantiate OLS service
 		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.bioportal.BioportalOntologyService()
-		// For all ontologies in OLS print their
-		// full label and abbreviation
+
+		// Find ontology by ncboId
 		uk.ac.ebi.ontocat.Ontology o = os.getOntology("1005")
-			StringBuilder sb = new StringBuilder();
-			sb.append(o.getAbbreviation());
-			sb.append("\t");
-			sb.append(o.getLabel());
-			sb.append("\t");
-			sb.append(o.getOntologyAccession());
-			sb.append("\t");
-			o.getVersionNumber() + o.getMetaPropertyValues().each {
-				sb.append(it.dump())
+		StringBuilder sb = new StringBuilder();
+		def bean = os.getOntologyBean()
+		String codingScheme = bean.codingScheme
+		sb.append("OntologyBean:\n")
+		sb.append("property codingScheme="+codingScheme+"\n")
+		sb.append("Bean.properties:\n")
+		bean.properties.each {
+			sb.append(it.key + "=" + it.value+"\n")
+		}
+		sb.append "Bean:\t" + bean.dump()
+		sb.append(bean.properties['codingScheme'])
+		sb.append("\t");
+		sb.append(o.getAbbreviation());
+		sb.append("\t");
+		sb.append(o.getLabel());
+		sb.append("\t");
+		sb.append(o.getOntologyAccession());
+		sb.append("\t");
+		sb.append("Ontology meta properties:\n")
+		o.getVersionNumber() + o.getMetaPropertyValues().each {
+			sb.append(it.name + "=" + it.value+"\n")
+		}
+		sb.append("Ontology properties:\n");
+		o.getProperties().each {
+			sb.append(it.key + "=" + it.value+"\n")
+		}
+		sb.append("Ontology root terms:\n");
+		os.getRootTerms(o).each {
+			sb.append("Term ${os.makeLookupHyperlink(it.properties.get('accession'))} properties:\n")
+			it.properties.each {
+				sb.append it.key + "=" + it.value + "\n"
 			}
-			System.out.println(sb.toString());
-		
+		}
+		System.out.println(sb.toString());
 	}
 
+	/**
+	 * Add all OLS ontologies to the database via the Ontocat framework
+	 */
+	void testOntocatOLSOntologies() {
+		// Instantiate EBI OLS service
+		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.ols.OlsOntologyService()
+		addOntologies(os)
+	}
+
+	/**
+	 * Add all BioPortal ontologies to the database via the Ontocat framework
+	 */
+	void testOntocatBioPortalOntologies() {
+		// Instantiate BioPortal service
+		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.bioportal.BioportalOntologyService()
+		addOntologies(os)
+	}
+
+	private void addOntologies(uk.ac.ebi.ontocat.OntologyService os) {
+
+		// Iterate over all ontologies in OLS
+		os.getOntologies().each {
+
+			// Get bean and extract versionedId
+			def bean = os.ontologyBean
+			def matcher = bean.codingScheme =~ "/(\\d{5})/"
+			assert matcher
+			assert matcher.size() == 1
+			assert matcher[0].size() == 2
+			def versionedId = matcher[0][1]
+
+			// Instantiate ontology
+			def ontology = new Ontology(
+					name: o.label,
+					description: o.description,
+					url: bean.properties['homepage'],
+					//url: 'http://bioportal.bioontology.org/ontologies/' + versionedId,
+					versionNumber: o.versionNumber,
+					ncboId: o.ontologyAccession,
+					ncboVersionedId: versionedId
+			);
+
+			// Validate and save ontology
+			assert ontology.validate()
+			assert ontology.save(flush:true)
+
+			//println ontology.dump()
+			}
+		}
+	}
 }
