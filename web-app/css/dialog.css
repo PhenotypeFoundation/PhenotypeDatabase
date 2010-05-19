@@ -7,3 +7,17 @@ body {
 #sortable li { margin: 0 5px 5px 5px; padding: 5px; font-size: 1em; }
 html>body #sortable li { height: 1.5em; line-height: 1.2em; }
 .ui-state-highlight { height: 1.5em; line-height: 1.2em; }
+
+/* START :: ontology autocomplete */
+.ui-autocomplete .ui-menu-item {
+    font-size: 10px;
+}
+.ui-autocomplete .about {
+    font-size: 8px;
+    color: #006DBA;
+}
+.ui-autocomplete .from {
+    font-size: 8px;
+    color: #666;
+}
+/* END :: ontology autocomplete */

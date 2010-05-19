@@ -107,7 +107,7 @@ SelectAddMore.prototype = {
                     modal   : true,
                     position: position,
                     buttons : {
-                                Ok  : function() { $(this).dialog('close'); }
+                                Close  : function() { $(this).dialog('close'); }
                               },
                     close   : function() {
                         onClose(this);
