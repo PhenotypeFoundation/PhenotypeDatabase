@@ -34,17 +34,17 @@ class OntologyTests extends GrailsUnitTestCase {
 		super.setUp()
 
 		def ontology = new Ontology(
-				name: testOntologyName,
-				description: testOntologyDescription,
-				url: testOntologyUrl,
-				versionNumber: testOntologyVersionNumber,
-				ncboId: testOntologyNcboId,
-				ncboVersionedId: testOntologyNcboVersionedId
+		    name: testOntologyName,
+		    description: testOntologyDescription,
+		    url: testOntologyUrl,
+		    versionNumber: testOntologyVersionNumber,
+		    ncboId: testOntologyNcboId,
+		    ncboVersionedId: testOntologyNcboVersionedId
 		);
 
 		// Validate and save ontology
 		assert ontology.validate()
-		assert ontology.save(flush:true)
+		assert ontology.save(flush: true)
 	}
 
 	protected void tearDown() {
@@ -54,7 +54,7 @@ class OntologyTests extends GrailsUnitTestCase {
 	/**
 	 * Test if ontology was properly saved
 	 */
-	void testSave () {
+	void testSave() {
 
 		// Try to retrieve the ontology and make sure it's the same
 		def ontologyDB = Ontology.findByName(testOntologyName)
@@ -69,8 +69,8 @@ class OntologyTests extends GrailsUnitTestCase {
 	}
 
 	/**
-	* Test saving and retrieving a term within the ontology and test giveTermByName(name) and giveTerms()
-	*/
+	 * Test saving and retrieving a term within the ontology and test giveTermByName(name) and giveTerms()
+	 */
 	void testTermSave() {
 
 		// Find created ontology
@@ -79,13 +79,13 @@ class OntologyTests extends GrailsUnitTestCase {
 
 		// Create a new term
 		def term = new Term(
-			name: testTermName,
-			accession: testAccession,
-			ontology: testOntology
+		    name: testTermName,
+		    accession: testAccession,
+		    ontology: testOntology
 		)
 
 		assert term.validate()
-		assert term.save(flush:true)
+		assert term.save(flush: true)
 
 		// Try to retrieve the term from the ontology and make sure it's the same
 		def termDB = testOntology.giveTermByName(testTermName)
@@ -101,8 +101,8 @@ class OntologyTests extends GrailsUnitTestCase {
 	}
 
 	/**
- 	* Ontocat test for debug purposes: show all properties of a certain ontology
- 	*/
+	 * Ontocat test for debug purposes: show all properties of a certain ontology
+	 */
 	private void testOntocatBioPortalDebug() {
 		// Instantiate OLS service
 		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.bioportal.BioportalOntologyService()
@@ -113,10 +113,10 @@ class OntologyTests extends GrailsUnitTestCase {
 		def bean = os.getOntologyBean()
 		String codingScheme = bean.codingScheme
 		sb.append("OntologyBean:\n")
-		sb.append("property codingScheme="+codingScheme+"\n")
+		sb.append("property codingScheme=" + codingScheme + "\n")
 		sb.append("Bean.properties:\n")
 		bean.properties.each {
-			sb.append(it.key + "=" + it.value+"\n")
+			sb.append(it.key + "=" + it.value + "\n")
 		}
 		sb.append "Bean:\t" + bean.dump()
 		sb.append(bean.properties['codingScheme'])
@@ -129,11 +129,11 @@ class OntologyTests extends GrailsUnitTestCase {
 		sb.append("\t");
 		sb.append("Ontology meta properties:\n")
 		o.getVersionNumber() + o.getMetaPropertyValues().each {
-			sb.append(it.name + "=" + it.value+"\n")
+			sb.append(it.name + "=" + it.value + "\n")
 		}
 		sb.append("Ontology properties:\n");
 		o.getProperties().each {
-			sb.append(it.key + "=" + it.value+"\n")
+			sb.append(it.key + "=" + it.value + "\n")
 		}
 		sb.append("Ontology root terms:\n");
 		os.getRootTerms(o).each {
@@ -178,21 +178,20 @@ class OntologyTests extends GrailsUnitTestCase {
 
 			// Instantiate ontology
 			def ontology = new Ontology(
-					name: o.label,
-					description: o.description,
-					url: bean.properties['homepage'],
-					//url: 'http://bioportal.bioontology.org/ontologies/' + versionedId,
-					versionNumber: o.versionNumber,
-					ncboId: o.ontologyAccession,
-					ncboVersionedId: versionedId
+			    name: o.label,
+			    description: o.description,
+			    url: bean.properties['homepage'],
+			    //url: 'http://bioportal.bioontology.org/ontologies/' + versionedId,
+			    versionNumber: o.versionNumber,
+			    ncboId: o.ontologyAccession,
+			    ncboVersionedId: versionedId
 			);
 
 			// Validate and save ontology
 			assert ontology.validate()
-			assert ontology.save(flush:true)
+			assert ontology.save(flush: true)
 
 			//println ontology.dump()
-			}
 		}
 	}
 }
