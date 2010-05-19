@@ -18,12 +18,18 @@
                     <tbody>
 
                         <tr class="prop">
-                            <td valign="top" class="name"><g:message code="personAffiliation.name.label" default="Name" /></td>
+                            <td valign="top" class="name"><g:message code="personAffiliation.institute.label" default="Institute" /></td>
                             
-                            <td valign="top" class="value">${fieldValue(bean: personAffiliationInstance, field: "name")}</td>
+                            <td valign="top" class="value">${fieldValue(bean: personAffiliationInstance, field: "institute")}</td>
                             
                         </tr>
                     
+                        <tr class="prop">
+                            <td valign="top" class="name"><g:message code="personAffiliation.department.label" default="Department" /></td>
+
+                            <td valign="top" class="value">${fieldValue(bean: personAffiliationInstance, field: "department")}</td>
+
+                        </tr>
                     </tbody>
                 </table>
             </div>

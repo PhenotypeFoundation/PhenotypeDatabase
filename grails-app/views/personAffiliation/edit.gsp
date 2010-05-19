@@ -27,13 +27,20 @@
                         
                             <tr class="prop">
                                 <td valign="top" class="name">
-                                  <label for="name"><g:message code="personAffiliation.name.label" default="Name" /></label>
+                                  <label for="name"><g:message code="personAffiliation.institute.label" default="Institute" /></label>
                                 </td>
-                                <td valign="top" class="value ${hasErrors(bean: personAffiliationInstance, field: 'name', 'errors')}">
-                                    <g:textField name="name" value="${personAffiliationInstance?.name}" />
+                                <td valign="top" class="value ${hasErrors(bean: personAffiliationInstance, field: 'institute', 'errors')}">
+                                    <g:textField name="institute" value="${personAffiliationInstance?.institute}" />
                                 </td>
                             </tr>
-                        
+                            <tr class="prop">
+                                <td valign="top" class="name">
+                                  <label for="name"><g:message code="personAffiliation.department.label" default="Department" /></label>
+                                </td>
+                                <td valign="top" class="value ${hasErrors(bean: personAffiliationInstance, field: 'department', 'errors')}">
+                                    <g:textField name="department" value="${personAffiliationInstance?.department}" />
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

@@ -65,7 +65,7 @@ class PersonAffiliationController {
     def save = {
         def personAffiliationInstance = new PersonAffiliation(params)
         if (personAffiliationInstance.save(flush: true)) {
-            flash.message = "${message(code: 'default.created.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), personAffiliationInstance.name])}"
+            flash.message = "${message(code: 'default.created.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), personAffiliationInstance])}"
             redirect(action: "show", id: personAffiliationInstance.id)
         }
         else {
@@ -109,7 +109,7 @@ class PersonAffiliationController {
             }
             personAffiliationInstance.properties = params
             if (!personAffiliationInstance.hasErrors() && personAffiliationInstance.save(flush: true)) {
-                flash.message = "${message(code: 'default.updated.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), personAffiliationInstance.name])}"
+                flash.message = "${message(code: 'default.updated.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), personAffiliationInstance])}"
                 redirect(action: "show", id: personAffiliationInstance.id)
             }
             else {
@@ -125,7 +125,7 @@ class PersonAffiliationController {
     def delete = {
         def personAffiliationInstance = PersonAffiliation.get(params.id)
         if (personAffiliationInstance) {
-            def affiliationName = personAffiliationInstance.name
+            def affiliationName = personAffiliationInstance.toString()
             try {
                 personAffiliationInstance.delete(flush: true)
                 flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), affiliationName])}"

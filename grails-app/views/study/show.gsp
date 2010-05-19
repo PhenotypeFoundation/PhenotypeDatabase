@@ -15,12 +15,6 @@
 </head>
 <body>
 
-  <div class="nav">
-    <span class="menuButton"><a class="home" href="${createLink(uri: '/')}">Home</a></span>
-    <span class="menuButton"><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></span>
-    <span class="menuButton"><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></span>
-  </div>
-
   <div class="body">
     <h1><g:message code="default.show.label" args="[entityName]" /></h1>
     <g:if test="${flash.message}">
@@ -36,90 +30,104 @@
           <li><a href="#event-group">Event Groups</a></li>
           <li><a href="#assays">Assays</a></li>
           <li><a href="#persons">Persons</a></li>
+          <li><a href="#publications">Publications</a></li>
         </ul>
 
         <div id="study">
 
-          <b> Id </b>: ${fieldValue(bean: studyInstance, field: "id")} <br>
-          <b>Template </b>:<g:link controller="template" action="show" id="${studyInstance?.template?.id}">${studyInstance?.template?.encodeAsHTML()}</g:link><br>
-          <b> Start </b>:<g:formatDate date="${studyInstance?.startDate}" /> <br>
-          <b> Events </b>:
-            <g:if test="${studyInstance.giveEventTemplates().size()==0}">
-              -
-            </g:if>
-            <g:else>
-             ${studyInstance.giveEventTemplates().name}
-            </g:else>
-          <br>
-          <b>Sampling Events </b>:
-            <g:if test="${studyInstance.giveSamplingEventTemplates().size()==0}">
-             -
-            </g:if>
-            <g:else>
-              ${studyInstance.giveSamplingEventTemplates().name}
-            </g:else>
-          <br>
-          <b>Last Updated </b>:<g:formatDate date="${studyInstance?.lastUpdated}" /><br>
-          <b>Readers </b>:
+          <table>
+            <!-- Show all template and domain fields, if filled -->
+            <g:each in="${studyInstance.giveFields()}" var="field">
+              <g:if test="${studyInstance.getFieldValue(field.name)}">
+                <tr>
+                  <td>${field}</td>
+                  <td>${studyInstance.getFieldValue(field.name)}</td>
+                </tr>
+              </g:if>
+            </g:each>
 
-          <g:if test="${studyInstance.readers.size()==0}">
-            -
-          </g:if>
-          <g:else>
-            <ul>
-              <g:each in="${studyInstance.readers}" var="r">
-                <li><g:link controller="user" action="show" id="${r.id}">${r?.encodeAsHTML()}</g:link></li>
-              </g:each>
-            </ul>
-          </g:else>
-          <br>
+            <!-- Add some extra fields -->
+            <tr>
+              <td>Events</td>
+              <td>
+                <g:if test="${studyInstance.giveEventTemplates().size()==0}">
+                  -
+                </g:if>
+                <g:else>
+                 ${studyInstance.giveEventTemplates().name.join(", ")}
+                </g:else>
+              </td>
+            </tr>
+            <tr>
+              <td>Sampling events</td>
+              <td>
+                <g:if test="${studyInstance.giveSamplingEventTemplates().size()==0}">
+                  -
+                </g:if>
+                <g:else>
+                 ${studyInstance.giveSamplingEventTemplates().name.join(", ")}
+                </g:else>
+              </td>
+            </tr>
+            <tr>
+              <td>Readers</td>
+              <td>
+                <g:if test="${studyInstance.readers.size()==0}">
+                  -
+                </g:if>
+                <g:else>
+                  <g:each in="${studyInstance.readers}" var="r" status="i">
+                    <g:if test="${i > 0}">, </g:if>
+                    <g:link controller="user" action="show" id="${r.id}">${r?.encodeAsHTML()}</g:link>
+                  </g:each>
+                </g:else>
+              </td>
+            </tr>
+            <tr>
+              <td>Editors</td>
+              <td>
+                <g:if test="${studyInstance.editors.size()==0}">
+                  -
+                </g:if>
+                <g:else>
+                  <g:each in="${studyInstance.editors}" var="r" status="i">
+                    <g:if test="${i > 0}">, </g:if>
+                    <g:link controller="user" action="show" id="${r.id}">${r?.encodeAsHTML()}</g:link>
+                  </g:each>
+                </g:else>
+              </td>
+            </tr>
 
-          <!-- All template fields -->
-          <g:each in="${studyInstance.giveFields()}" var="field">
-            <b>${field.name}</b>: ${studyInstance.getFieldValue(field.name)}<br />
-          </g:each>
-
-          <b>Editors </b>:
-          <g:if test="${studyInstance.editors.size()==0}">
-            -
-          </g:if>
-          <g:else>
-            <ul>
-              <g:each in="${studyInstance.editors}" var="e">
-                <li><g:link controller="user" action="show" id="${e.id}">${e?.encodeAsHTML()}</g:link></li>
-              </g:each>
-            </ul>
-          </g:else>
-          <br>
-          <b>Title </b>: ${fieldValue(bean: studyInstance, field: "title")} <br>
-          <b>Owner </b>:<g:link controller="user" action="show" id="${studyInstance?.owner?.id}">${studyInstance?.owner?.encodeAsHTML()}</g:link> <br>
-          <b>Date Created </b>:<g:formatDate date="${studyInstance?.dateCreated}" /> <br>
+          </table>
         </div>
 
         <div id="subjects">
           <g:each in="${studyInstance.giveSubjectTemplates()}" var="template">
             <table>
-              <tr>
-                <td><b>Id </b></td>
-                <td><b>Species</b></td>
-                <td><b>Name</b></td>
-              <g:each in="${template.fields}" var="g">
-                <td><b>
-                    <g:link controller="templateField" action="show" id="${g.id}">
-${g}</b></td>
-                </g:link>
-              </g:each>
-              </tr>
-
-              <g:each in="${studyInstance.subjects.findAll {it.template == template}}" var="s">
+              <thead>
                 <tr>
-                  <td><g:link controller="subject" action="show" id="${s.id}">${s.id}</g:link></td>
-                <td>${s.species}</td>
-                <td>${s.name}</td>
-                <g:each in="${template.fields}" var="g">
-                  <td>
-                  <% print s.getFieldValue(g.toString())  %>
-                  </td>
+                  <g:each in="${new dbnp.studycapturing.Subject().giveDomainFields()}" var="field">
+                    <th>${field}</th>
+                  </g:each>
+                  <g:each in="${template.fields}" var="field">
+                    <th>${field}</th>
+                  </g:each>
+                </tr>
+              </thead>
+              
+              <%
+                subjects = studyInstance.subjects.findAll {it.template == template};
+                sortedSubjects = subjects.sort( { a, b -> a.name <=> b.name } as Comparator )
+              %>
+              <g:each in="${sortedSubjects}" var="s" status="i">
+                <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+                  <g:each in="${s.giveDomainFields()}" var="field">
+                    <td>${s.getFieldValue(field.name)}</td>
+                  </g:each>
+                  <g:each in="${template.fields}" var="field">
+                    <td>
+                      ${s.getFieldValue(field.name)}
+                    </td>
                 </g:each>
                 </tr>
               </g:each>
@@ -129,7 +137,6 @@ ${g}</b></td>
           </g:each>
         </div>
 
-
         <div id="events">
           <g:if test="${studyInstance.events.size()==0}">
             No events in this study
@@ -137,18 +144,28 @@ ${g}</b></td>
           <g:else>
 
               <table>
-                <tr>
-                  <td><b>Id </b></td>
-                  <td><b>Start time</b></td>
-                  <td><b>Duration</b></td>
-                  <td><b>Type</b></td>
-                  <td><b>Sampling event</b></td>
-                  <td><b>Parameters</b></td>
-                </tr>
-
-                <g:each in="${studyInstance.events + studyInstance.samplingEvents}" var="event">
+                <thead>
                   <tr>
-                    <td><g:link controller="event" action="show" id="${event.id}">${event.id}</g:link></td>
+                    <th>Start time</th>
+                    <th>Duration</th>
+                    <th>Type</th>
+                    <th>Sampling event</th>
+                    <th>Parameters</th>
+                  </tr>
+                </thead>
+
+              <%
+                // Sort events by starttime and duration
+                events = studyInstance.events + studyInstance.samplingEvents;
+                sortedEvents = events.sort( { a, b ->
+                      a.startTime == b.startTime ?
+                        a.getDuration().toMilliseconds() <=> b.getDuration().toMilliseconds() :
+                        a.startTime <=> b.startTime
+                  } as Comparator )
+              %>
+
+                <g:each in="${sortedEvents}" var="event" status="i">
+                  <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                     <td>${event.getPrettyDuration(studyInstance.startDate,event.startTime)}</td>
                     <td>${event.getPrettyDuration()}</td>
                     <td>${event.template.name}</td>
@@ -162,7 +179,7 @@ ${g}</b></td>
                     </td>
                     <td>
                       <g:set var="fieldCounter" value="${1}" />
-                      <g:each in="${event.giveFields()}" var="field">
+                      <g:each in="${event.giveTemplateFields()}" var="field">
                         <g:if test="${event.getFieldValue(field.name)}">
                           <g:if test="${fieldCounter > 1}">, </g:if>
                             ${field.name} = ${event.getFieldValue( field.name )}
@@ -206,7 +223,7 @@ ${g}</b></td>
                         <g:if test="${event.template.name==currentEventTemplate.name}">
 
                           <g:set var="fieldCounter" value="${1}" />
-                          <g:each in="${event.giveFields()}" var="field">
+                          <g:each in="${event.giveTemplateFields()}" var="field">
                             <g:if test="${event.getFieldValue(field.name)}">
                               <g:if test="${fieldCounter > 1}">, </g:if>
                                 ${field.name} = ${event.getFieldValue( field.name )}
@@ -217,7 +234,10 @@ ${g}</b></td>
                       </g:each>
                      </td>
                   </g:each>
-                  <td>${eventGroup.subjects.name.join( ', ' )}</td>
+                  <td>
+                    <% sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
+                    ${sortedGroupSubjects.name.join( ', ' )}
+                  </td>
                 </tr>
               </g:each>
             </table>
@@ -230,26 +250,27 @@ ${g}</b></td>
           </g:if>
           <g:else>
             <table>
-              <tr>
-                <td width="100"><b>Assay Name</b></td>
-                <td width="100"><b>Module</b></td>
-                <td><b>Type</b></td>
-                <td width="150"><b>Platform</b></td>
-                <td><b>Url</b></td>
-                <td><b>Samples</b></td>
-              </tr>
-              <g:each in="${studyInstance.assays}" var="assay">
+              <thead>
                 <tr>
+                  <th width="100">Assay Name</th>
+                  <th width="100">Module</th>
+                  <th>Type</th>
+                  <th width="150">Platform</th>
+                  <th>Url</th>
+                  <th>Samples</th>
+                </tr>
+              </thead>
+              <g:each in="${studyInstance.assays}" var="assay" status="i">
+                <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                   <td>${assay.name}</td>
                   <td>${assay.module.name}</td>
                   <td>${assay.module.type}</td>
                   <td>${assay.module.platform}</td>
                   <td>${assay.module.url}</td>
                   <td>
-                <g:each in="${assay.samples}" var="assaySample">
-${assaySample.name}<br>
-                </g:each>
-                </td>
+                    <% sortedAssaySamples = assay.samples.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
+                    ${sortedAssaySamples.name.join( ', ' )}
+                  </td>
                 </tr>
               </g:each>
 
@@ -264,17 +285,19 @@ ${assaySample.name}<br>
           <g:else>
             <table>
               <tr>
-                  <td><b>Name</b></td>
-                  <td><b>Affiliations</b></td>
-                  <td><b>Role</b></td>
-                  <td><b>Phone</b></td>
-                  <td><b>Email</b></td>
+                <thead>
+                  <th>Name</th>
+                  <th>Affiliations</th>
+                  <th>Role</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                </thead>
               </tr>
-              <g:each in="${studyInstance.persons}" var="studyperson">
-                <tr>
+              <g:each in="${studyInstance.persons}" var="studyperson" status="i">
+                <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                   <td>${studyperson.person.firstName} ${studyperson.person.prefix} ${studyperson.person.lastName}</td>
                   <td>
-                    ${studyperson.person.affiliations.name.join(', ')}
+                    ${studyperson.person.affiliations.join(', ')}
                   </td>
                   <td>${studyperson.role.name}</td>
                   <td>${studyperson.person.phone}</td>
@@ -284,6 +307,33 @@ ${assaySample.name}<br>
             </table>
           </g:else>
         </div>
+
+        <div id="publications">
+          <g:if test="${studyInstance.publications.size()==0}">
+            No publications attached to this study
+          </g:if>
+          <g:else>
+            <table>
+              <tr>
+                <thead>
+                  <th>Title</th>
+                  <th>Authors</th>
+                  <th>Comments</th>
+                </thead>
+              </tr>
+              <g:each in="${studyInstance.publications}" var="publication" status="i">
+                <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+                  <td>${publication.title}</td>
+                  <td>
+                    ${publication.authorlist}
+                  </td>
+                  <td>${publication.comment}</td>
+                </tr>
+              </g:each>
+            </table>
+          </g:else>
+        </div>
+
       </div>
     </div>
     <br>
@@ -292,6 +342,7 @@ ${assaySample.name}<br>
         <g:hiddenField name="id" value="${studyInstance?.id}" />
         <span class="button"><g:actionSubmit class="edit" action="edit" value="${message(code: 'default.button.edit.label', default: 'Edit')}" /></span>
         <span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" /></span>
+        <span class="button"><g:link class="backToList" action="list">Back to list</g:link></span>
       </g:form>
     </div>
   </div>

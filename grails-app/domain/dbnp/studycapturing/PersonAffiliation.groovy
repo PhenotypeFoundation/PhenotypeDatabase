@@ -47,7 +47,10 @@ package dbnp.studycapturing
 
 class PersonAffiliation {
 
-    String name
+    String institute
+    String department
+
+    String toString() { "${institute} / ${department}" }
 
     static constraints = {
     }

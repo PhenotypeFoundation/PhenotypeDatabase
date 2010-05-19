@@ -89,10 +89,12 @@ class BootStrap {
 			// Create a few persons, roles and Affiliations
 			println ".adding persons, roles and affiliations"
 			def affiliation1 = new PersonAffiliation(
-			    name: "Science Institute NYC"
+			    institute: "Science Institute NYC",
+                            department: "Department of Mathematics"
 			).save();
 			def affiliation2 = new PersonAffiliation(
-			    name: "InfoStats GmbH, Hamburg"
+			    institute: "InfoStats GmbH, Hamburg",
+                            department: "Life Sciences"
 			).save();
 			def role1 = new PersonRole(
 			    name: "Principal Investigator"
@@ -513,7 +515,7 @@ class BootStrap {
 
 		                // Add subjects and samples and compose EventGroups
 				def x=1
-				80.times {
+				20.times {
 					def currentSubject = new Subject(
 						name: "A" + x++,
 						species: mouseTerm,
@@ -671,7 +673,7 @@ class BootStrap {
 						value: Math.round(Math.random()*hdlMeasurement.detectableLimit)
 					).with { if (!validate()) { errors.each { println it} } else save()}
 				}
-
+                                */
 				// Add assay to study capture module
 
 				def clinicalModule = new AssayModule(
@@ -684,7 +686,7 @@ class BootStrap {
 				def lipidAssayRef = new Assay(
 					name: 'Lipid profiling',
 					module: clinicalModule,
-					externalAssayId: lipidAssayInstance.id
+					externalAssayId: 0
 				).with { if (!validate()) { errors.each { println it} } else save()}
 
 				humanStudy.samples*.each {
@@ -694,7 +696,6 @@ class BootStrap {
 
 				humanStudy.addToAssays(lipidAssayRef);
 				humanStudy.save()
-				*/
 				
 			}
 		}

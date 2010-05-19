@@ -48,7 +48,7 @@
                             <td>
                               <g:each in="${personInstance.affiliations}" var="affiliation" status="affiliationNr">
                                 <g:if test="${affiliationNr>0}">,</g:if>
-                                ${affiliation.name}
+                                ${affiliation}
                               </g:each>
                             </td>
                         

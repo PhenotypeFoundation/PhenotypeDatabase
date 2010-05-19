@@ -131,7 +131,7 @@
                                   <label for="affiliations"><g:message code="person.affiliations.label" default="Affiliations" /></label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean: personInstance, field: 'affiliations', 'errors')}">
-                                    <g:select name="affiliations" from="${dbnp.studycapturing.PersonAffiliation.list()}" multiple="yes" optionKey="id" optionValue="name" size="5" value="${personInstance?.affiliations}" />
+                                    <g:select name="affiliations" from="${dbnp.studycapturing.PersonAffiliation.list()}" multiple="yes" optionKey="id" size="5" value="${personInstance?.affiliations}" />
                                 </td>
                             </tr>
                         
