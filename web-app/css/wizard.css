@@ -148,6 +148,13 @@
 
 .wizard .element .input {
     display: inline;
+    font-size: 11px;
+    word-wrap: break-word;
+}
+
+.wizard .element .input input[type="radio"] {
+    margin-top: 10px;
+    margin-right: 5px;
 }
 
 .wizard .error {

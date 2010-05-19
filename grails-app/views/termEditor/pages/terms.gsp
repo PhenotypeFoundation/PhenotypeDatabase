@@ -23,6 +23,7 @@
 </g:else>
  </head>
  <body>
+
  hoi, dit is <b>http://localhost:8080/gscf/termEditor</b> en ik heb deze ontology NCBO id's meegekregen:
 
  <ul>
