@@ -99,6 +99,7 @@
 .wizard .tabs .active {
     background-color: #006DBA !important;
     color: #fff !important;
+    text-shadow: 0px 0px 1px #333;
 }
 .wizard .tabs .arrow {
 		position:inherit;
