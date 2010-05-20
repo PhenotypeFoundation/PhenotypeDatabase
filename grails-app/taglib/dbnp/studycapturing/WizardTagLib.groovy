@@ -760,6 +760,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 			// render template fields
 			entity.giveFields().each() {
 				def fieldValue = entity.getFieldValue(it.name)
+println it.name + " = " + fieldValue + " ("+it.type.toString()+")"
 
 				// output column opening element?
 				if (renderType == 'column') {
@@ -797,14 +798,14 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 							out << "$inputElement"(
 								description	: it.name,
 								name		: prependName + it.escapedName(),
-								value		: fieldValue,
+								value		: fieldValue.toString(),
 								ontologies	: it.ontologies
 							)
 						} else {
 							out << "$inputElement"(
 								description	: it.name,
 								name		: prependName + it.escapedName(),
-								value		: fieldValue
+								value		: fieldValue.toString()
 							)
 						}
 						break
