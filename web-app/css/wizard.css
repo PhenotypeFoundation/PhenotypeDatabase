@@ -222,6 +222,7 @@
     width: auto;
     height: 32px;
     line-height: 32px;
+    text-shadow: 0px 0px 1px #333;
 }
 
 .wizard .column {
@@ -313,3 +314,17 @@
     text-align: center;
 }
 /* END :: BIG BUTTONS and BIG TEXT */
+
+.vertical {
+	writing-mode:tb-rl;
+	-webkit-transform:rotate(90deg);
+	-moz-transform:rotate(90deg);
+	-o-transform: rotate(90deg);
+	white-space:nowrap;
+	display:block;
+	bottom:0;
+	width:20px;
+	height:100px;
+	text-shadow: 0px 0px 1px #333;
+    border: 1px solid red;
+}

@@ -80,7 +80,7 @@
 					<wizard:ajaxButton name="deleteEventGroup" src="../images/icons/famfamfam/delete.png" alt="delete this eventgroup" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${g});" afterSuccess="onWizardPage()" />
 				</div>
 				</g:each></g:if>
-				<div class="column">
+				<div class="firstColumn">
 					<wizard:ajaxButton name="addEventGroup" src="../images/icons/famfamfam/add.png" alt="add a new eventgroup" class="famfamfam" value="+" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
 				</div>
 				<wizard:templateColumnHeaders entity="${events[ eventId ]}" class="column"/>
@@ -100,7 +100,7 @@
 					</g:else>
 				</div>
 				</g:each></g:if>
-				<div class="column"></div>
+				<div class="firstColumn"></div>
 				<wizard:templateColumns id="${eventId}" entity="${events[ eventId ]}" template="${events[ eventId ].template}" name="event_${eventId}" class="column" />
 			</div>
 		</g:each>
