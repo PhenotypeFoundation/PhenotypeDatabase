@@ -760,7 +760,6 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 			// render template fields
 			entity.giveFields().each() {
 				def fieldValue = entity.getFieldValue(it.name)
-println it.name + " = " + fieldValue + " ("+it.type.toString()+")"
 
 				// output column opening element?
 				if (renderType == 'column') {
