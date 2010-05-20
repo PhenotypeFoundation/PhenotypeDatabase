@@ -85,6 +85,44 @@ graphviz {
 }
 
 // cryptography settings
+// @see WizardTaglib.groovy (encrypt)
+// @see TemplateEditorController.groovy (decrypt)
 crypto {
 	shared.secret = "U73reG*mE^\$t@7s!e%"
+}
+
+// GSCF specific configuration
+//    use: grailsApplication.config.gscf.domain.entitites
+gscf {
+	domain = [
+		entities: [
+			// dbnp.data
+			'dbnp.data.FeatureBase',
+			'dbnp.data.FeatureType',
+			'dbnp.data.Ontology',
+			'dbnp.data.Term',
+
+			// dbnp.studycapturing
+			'dbnp.studycapturing.Assay',
+			'dbnp.studycapturing.AssayModule',
+			'dbnp.studycapturing.AssayType',
+			'dbnp.studycapturing.Compound',
+			'dbnp.studycapturing.Event',
+			'dbnp.studycapturing.EventGroup',
+			'dbnp.studycapturing.Person',
+			'dbnp.studycapturing.PersonAffilitation',
+			'dbnp.studycapturing.PersonRole',
+			'dbnp.studycapturing.Publication',
+			'dbnp.studycapturing.Sample',
+			'dbnp.studycapturing.SamplingEvent',
+			'dbnp.studycapturing.Study',
+			'dbnp.studycapturing.StudyPerson',
+			'dbnp.studycapturing.Subject',
+			'dbnp.studycapturing.Template',
+			'dbnp.studycapturing.TemplateEntity',
+			'dbnp.studycapturing.TemplateField',
+			'dbnp.studycapturing.TemplateFieldListItem',
+			'dbnp.studycapturing.TemplateFieldType'
+		]
+	]
 }
