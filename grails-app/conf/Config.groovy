@@ -1,3 +1,15 @@
+/**
+ * Application Configuration
+ *
+ * @author  Jeroen Wesbeek
+ * @since	20100520
+ *
+ * Revision information:
+ * $Rev$
+ * $Author:$
+ * $Date$
+ */
+
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
 
@@ -92,9 +104,10 @@ crypto {
 }
 
 // GSCF specific configuration
-//    use: grailsApplication.config.gscf.domain.entitites
 gscf {
 	domain = [
+		// importable entities
+		// use: grailsApplication.config.gscf.domain.entities
 		entities: [
 			// dbnp.data
 			'dbnp.data.FeatureBase',
@@ -123,6 +136,15 @@ gscf {
 			'dbnp.studycapturing.TemplateField',
 			'dbnp.studycapturing.TemplateFieldListItem',
 			'dbnp.studycapturing.TemplateFieldType'
+		],
+
+		// importable entities
+		// use: grailsApplication.config.gscf.domain.importableEntities
+		// @see ImporterController
+		importableEntities: [
+		    study	: [name: 'Study', entity: 'dbnp.studycapturing.Study'],
+			subject	: [name: 'Subject', entity: 'dbnp.studycapturing.Subject'],
+			sample	: [name: 'Sample', entity: 'dbnp.studycapturing.Sample']
 		]
 	]
 }
