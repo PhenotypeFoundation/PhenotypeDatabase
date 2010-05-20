@@ -28,9 +28,10 @@ import dbnp.studycapturing.Event
 import dbnp.studycapturing.Sample
 import dbnp.studycapturing.TemplateFieldType
 import dbnp.studycapturing.TemplateField
+import grails.converters.JSON
 
 class ImporterController {
-    def ImporterService
+    def ImporterService    
 
     /**
      * Default page
@@ -39,8 +40,7 @@ class ImporterController {
     }
 
     def simplewizard = {
-	def entities = ["Subject", "Event", "Sample"]
-	render(view:"index_simple", model:[studies:Study.list(), entities:entities])
+	render(view:"index_simple", model:[studies:Study.list(), entities: grailsApplication.config.gscf.domain.importableEntities])
     }
 
     def advancedwizard = {
@@ -158,5 +158,23 @@ class ImporterController {
     def savepostview = {
 	ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
 	render(view:"step4")
+    }
+
+    /**
+    * Return templates which belong to a certain entity type
+    * 
+    * @param entity entity name string (Sample, Subject, Study et cetera)
+    * @return JSON object containing the found templates
+    */
+    def ajaxGetTemplatesByEntity = {
+	def entityClass = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
+
+        // fetch all templates for a specific entity
+        def templates = Template.findAllByEntity(Class.forName(entityClass, true, this.getClass().getClassLoader()))
+
+	println templates
+	
+	// render as JSON
+        render templates as JSON
     }
 }
