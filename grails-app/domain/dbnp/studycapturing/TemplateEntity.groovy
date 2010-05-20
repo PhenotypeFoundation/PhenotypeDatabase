@@ -281,13 +281,15 @@ abstract class TemplateEntity implements Serializable {
 	 * @throws NoSuchFieldException If the field is not found or the field type is not supported
 	 */
 	def getFieldValue(String fieldName) {
-		TemplateField field = getField(this.giveFields(),fieldName)
-		if (isDomainField(field)) {
-			return this[field.name]
+
+		if (isDomainField(fieldName)) {
+                    return this[fieldName]
 		}
 		else {
-			return getStore(field.type)[fieldName]
+                    TemplateField field = getField(this.giveTemplateFields(),fieldName)
+                    return getStore(field.type)[fieldName]
 		}
+
 	}
 
 	/**
@@ -403,17 +405,18 @@ abstract class TemplateEntity implements Serializable {
 	 * @return boolean
 	 */
 	boolean isDomainField(TemplateField field) {
-		return this.giveDomainFields()*.name.contains(field.name)
+            return isDomainField( field.name )
 	}
 
 	/**
 	 * Check if a given field is a domain field
 	 * @param String	field name
 	 * @return boolean
-	 */	boolean isDomainField(String fieldName) {
-		return this.giveDomainFields()*.name.contains(fieldName)
-	}
-
+	 */
+        boolean isDomainField(String fieldName) {
+            return this.giveDomainFields()*.name.contains(fieldName)
+        }
+        
 	/**
 	 * Return all fields defined in the underlying template and the built-in
      * domain fields of this entity

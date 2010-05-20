@@ -56,9 +56,16 @@ class StudyController {
         [studyInstanceList: Study.list(params), studyInstanceTotal: Study.count()]
     }
 
+    /**
+     * Shows a comparison of multiple studies using the show view
+     *
+     * 
+     */
     def list_extended = {
+        
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
-        [studyList: Study.list(params), studyInstanceTotal: Study.count()]
+        
+        render(view:'show',model:[studyList: Study.list(params), studyInstanceTotal: Study.count() ] )
     }
 
     /*def create = {
@@ -79,13 +86,17 @@ class StudyController {
     }*/
 
     def show = {
+
         def studyInstance = Study.get(params.id)
         if (!studyInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
             redirect(action: "list")
         }
         else {
-            [studyInstance: studyInstance]
+            // The study instance is packed into an array, to be able to
+            // use the same view for showing the study and comparing multiple
+            // studies
+            [studyList: [ studyInstance ] ]
         }
     }
 

@@ -103,10 +103,6 @@ class BootStrap {
 			    name: "Statician"
 			).save();
 
-			// Create 30 roles to test pagination
-			def roleCounter = 1;
-			30.times { new PersonRole( name: "Rol #${roleCounter++}" ).save() }
-
 			// Create persons
 			def person1 = new Person(
 			    lastName: "Scientist",
@@ -137,7 +133,27 @@ class BootStrap {
 			def personCounter = 1;
 			30.times { new Person( firstName: "Person #${personCounter}", lastName: "Testperson", email: "email${personCounter++}@testdomain.com" ).save() }
 
-			// Create templates
+			// Create a few publications
+			println ".adding publications"
+			def publication1 = new Publication(
+                            title: "Postnatal development of hypothalamic leptin receptors",
+			    authorsList: "Cottrell EC, Mercer JG, Ozanne SE.",
+			    pubMedID: "20472140",
+			    comments: "Not published yet",
+			    DOI: "unknown"
+			)
+			.save();
+
+			def publication2 = new Publication(
+                            title: "Induction of regulatory T cells decreases adipose inflammation and alleviates insulin resistance in ob/ob mice",
+			    authorsList: "Ilan Y, Maron R, Tukpah AM, Maioli TU, Murugaiyan G, Yang K, Wu HY, Weiner HL.",
+			    pubMedID: "20445103",
+			    comments: "",
+			    DOI: ""
+			)
+			.save();
+
+            // Create templates
 
 			def genderField = new TemplateField(
 				name: 'Gender',type: TemplateFieldType.STRINGLIST,
@@ -553,13 +569,15 @@ class BootStrap {
 				.addToEventGroups(HFBV4)
 				.addToEventGroups(HFBL4)
 
-				// Add persons to study
+				// Add persons and publications to study
 				def studyperson1 = new StudyPerson( person: person1, role: role1 ).save();
 				def studyperson2 = new StudyPerson( person: person2, role: role2 ).save();
 
 				mouseStudy
 				.addToPersons( studyperson1 )
 				.addToPersons( studyperson2 )
+                                .addToPublications( publication1 )
+                                .addToPublications( publication2 )
 				.save()
 
 				println ".adding NuGO PPSH example study..."
@@ -623,7 +641,15 @@ class BootStrap {
 				humanStudy.addToEvents(fastingEvent)
 				humanStudy.addToSamplingEvents(bloodSamplingEvent)
 				humanStudy.addToEventGroups rootGroup
-				humanStudy.save()
+
+
+				// Add persons to study
+				def studyperson3 = new StudyPerson( person: person1, role: role2 ).save();
+
+				humanStudy
+				.addToPersons( studyperson3 )
+                                .addToPublications( publication2 )
+				.save()
 
 				/*
 				// Add clinical data
@@ -696,7 +722,10 @@ class BootStrap {
 
 				humanStudy.addToAssays(lipidAssayRef);
 				humanStudy.save()
-				
+
+       				mouseStudy.addToAssays(lipidAssayRef);
+				mouseStudy.save()
+
 			}
 		}
 	}

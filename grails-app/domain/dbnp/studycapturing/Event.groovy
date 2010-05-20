@@ -42,7 +42,8 @@ class Event extends TemplateEntity implements Serializable {
 	 * return the domain fields for this domain class
 	 * @return List
 	 */
-	List<TemplateField> giveDomainFields() {
+	List<TemplateField> giveDomainFields() { return Event.domainFields }
+        static final List<TemplateField> domainFields = 
 		[
 			new TemplateField(
 				name: 'startTime',
@@ -51,7 +52,6 @@ class Event extends TemplateEntity implements Serializable {
 				name: 'endTime',
 				type: TemplateFieldType.DATE)
 		]
-	}
 
 	/**
 	 * get the event duration

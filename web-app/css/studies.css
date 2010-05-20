@@ -1,0 +1,25 @@
+/* 
+    Document   : studies
+    Created on : 20-mei-2010, 9:45:57
+    Author     : Robert
+    Description:
+        Styling of the study detail page including tabs
+*/
+
+/* Removing background */
+/*
+#studies .ui-widget-content { background-color: transparent; background-image: none; }
+#studies .ui-widget-header { background-color: transparent; background-image: none; }
+*/
+
+/* Resetting font-size of tab buttons */
+#studies .ui-widget { font-size: 0.8em; }
+
+/*
+    Put layout on the table of comparing different studies
+    See for rotation: http://snook.ca/archives/html_and_css/css-text-rotation
+
+*/
+.studytitle {
+    vertical-align: center;
+}
