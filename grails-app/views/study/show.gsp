@@ -38,7 +38,7 @@
 
           <table>
             <!-- only show the head section if there are multiple studies -->
-            <g:if test="${studyList.size()>1}">
+            <g:if test="${multipleStudies}">
               <thead>
                 <tr>
                   <th></th>
@@ -143,7 +143,9 @@
             <table>
               <thead>
                 <tr>
-                  <th></th>
+                  <g:if test="${multipleStudies}">
+                    <th></th>
+                  </g:if>
                   <g:each in="${new dbnp.studycapturing.Subject().giveDomainFields()}" var="field">
                     <th>${field}</th>
                   </g:each>
@@ -186,7 +188,6 @@
                         }
                       }
                     }
-                     
                   %>
 
                   <g:each in="${showSubjectFields}" var="field">
@@ -207,7 +208,7 @@
 
                 <g:each in="${sortedSubjects}" var="subject" status="j">
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-                    <g:if test="${j==0}">
+                    <g:if test="${multipleStudies && j==0}">
                       <td class="studytitle" rowspan="${sortedSubjects.size()}">
                         ${studyInstance.title}
                       </td>
@@ -244,7 +245,9 @@
               <table>
                 <thead>
                   <tr>
-                    <th></th>
+                    <g:if test="${multipleStudies}">
+                      <th></th>
+                    </g:if>
                     <th>Start time</th>
                     <th>Duration</th>
                     <th>Type</th>
@@ -268,7 +271,7 @@
 
                   <g:each in="${sortedEvents}" var="event" status="j">
                     <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-                      <g:if test="${j==0}">
+                      <g:if test="${multipleStudies && j==0}">
                         <td class="studytitle" rowspan="${sortedEvents.size()}">
                           ${studyInstance.title}
                         </td>
@@ -320,13 +323,17 @@
             <table>
               <thead>
                 <tr>
-                  <th></th>
+                  <g:if test="${multipleStudies}">
+                    <th></th>
+                  </g:if>
                   <th>Name</th>
                   <th colspan="${groupTemplates.size()}">Events</th>
                   <th>Subjects</th>
                 </tr>
                 <tr>
-                  <th></th>
+                  <g:if test="${multipleStudies}">
+                    <th></th>
+                  </g:if>
                   <th></th>
                   <g:each in="${groupTemplates}" var="eventTemplate">
                     <th>${eventTemplate.name}</th>
@@ -341,7 +348,7 @@
 
                 <g:each in="${studyInstance.eventGroups}" var="eventGroup" status="j">
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-                    <g:if test="${j==0}">
+                    <g:if test="${multipleStudies && j==0}">
                       <td class="studytitle" rowspan="${studyInstance.eventGroups.size()}">
                         ${studyInstance.title}
                       </td>
@@ -388,7 +395,9 @@
             <table>
               <thead>
                 <tr>
-                  <th></th>
+                  <g:if test="${multipleStudies}">
+                    <th></th>
+                  </g:if>
                   <th width="100">Assay Name</th>
                   <th width="100">Module</th>
                   <th>Type</th>
@@ -402,7 +411,7 @@
               <g:each in="${studyList}" var="studyInstance">
                 <g:each in="${studyInstance.assays}" var="assay" status="j">
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-                    <g:if test="${j==0}">
+                    <g:if test="${multipleStudies && j==0}">
                       <td class="studytitle" rowspan="${studyInstance.assays.size()}">
                         ${studyInstance.title}
                       </td>
@@ -441,9 +450,14 @@
                   <th>Affiliations</th>
                   <th>Phone</th>
                   <th>Email</th>
-                  <g:each in="${studyList}" var="studyInstance">
-                    <th>${studyInstance.title}</th>
-                  </g:each>
+                  <g:if test="${multipleStudies}">
+                    <g:each in="${studyList}" var="studyInstance">
+                      <th>${studyInstance.title}</th>
+                    </g:each>
+                  </g:if>
+                  <g:else>
+                    <th>Role</th>
+                  </g:else>
                 </thead>
               </tr>
               <g:each in="${allPersons}" var="person" status="i">
@@ -486,9 +500,12 @@
                   <th>Title</th>
                   <th>Authors</th>
                   <th>Comments</th>
-                  <g:each in="${studyList}" var="studyInstance">
-                    <th>${studyInstance.title}</th>
-                  </g:each>
+
+                  <g:if test="${multipleStudies}">
+                    <g:each in="${studyList}" var="studyInstance">
+                      <th>${studyInstance.title}</th>
+                    </g:each>
+                  </g:if>
                 </thead>
               </tr>
               <g:each in="${allPublications}" var="publication" status="i">
@@ -498,13 +515,15 @@
                     ${publication.authorsList}
                   </td>
                   <td>${publication.comments}</td>
-                  <g:each in="${studyList}" var="studyInstance">
-                    <td>
-                      <g:if test="${publication in studyInstance.publications}">
-                        x
-                      </g:if>
-                    </td>
-                  </g:each>
+                  <g:if test="${multipleStudies}">
+                    <g:each in="${studyList}" var="studyInstance">
+                      <td>
+                        <g:if test="${publication in studyInstance.publications}">
+                          x
+                        </g:if>
+                      </td>
+                    </g:each>
+                  </g:if>
                 </tr>
               </g:each>
             </table>

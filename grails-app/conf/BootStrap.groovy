@@ -19,6 +19,11 @@ class BootStrap {
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
+		// Ontologies must be connected to the templatefields in runtime
+                // because the Ontology.findByNcboId is not available otherwise
+                TemplateEntity.getField( Subject.domainFields, 'species' ).ontologies = [Ontology.findByNcboId(1132)]
+                TemplateEntity.getField( Sample.domainFields, 'material' ).ontologies = [Ontology.findByNcboId(1005)]
+
 		// we could also check if we are in development by GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT
 		if (Study.count() == 0) {
 			println ".development bootstrapping...";

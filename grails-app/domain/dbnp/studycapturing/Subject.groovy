@@ -20,7 +20,8 @@ class Subject extends TemplateEntity implements Serializable {
 	 * return the domain fields for this domain class
 	 * @return List
 	 */
-	List<TemplateField> giveDomainFields() {
+	List<TemplateField> giveDomainFields() { return Subject.domainFields }
+        static List<TemplateField> domainFields =
 		[
 			new TemplateField(
 				name: 'name',
@@ -28,8 +29,6 @@ class Subject extends TemplateEntity implements Serializable {
 				preferredIdentifier: true),
 			new TemplateField(
 				name: 'species',
-				type: TemplateFieldType.ONTOLOGYTERM,
-				ontologies: [Ontology.findByNcboId(1132)])
+				type: TemplateFieldType.ONTOLOGYTERM)
 		]
-	}
 }

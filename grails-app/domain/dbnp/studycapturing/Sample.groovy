@@ -18,7 +18,8 @@ class Sample extends TemplateEntity {
 	 * return the domain fields for this domain class
 	 * @return List
 	 */
-	List<TemplateField> giveDomainFields() {
+	List<TemplateField> giveDomainFields() { return Sample.domainFields }
+        static List<TemplateField> domainFields =
 		[
 			new TemplateField(
 				name: 'name',
@@ -26,10 +27,8 @@ class Sample extends TemplateEntity {
 				preferredIdentifier: true),
 			new TemplateField(
 				name: 'material',
-				type: TemplateFieldType.ONTOLOGYTERM,
-				ontologies: [Ontology.findByNcboId(1005)])
+				type: TemplateFieldType.ONTOLOGYTERM )
 		]
-	}
 
 	static constraints = {
 		parentSubject(nullable:true)
