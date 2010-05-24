@@ -17,9 +17,11 @@
 <wizard:pageContent>
 	<span class="info">
 		<span class="title">Add subjects to your study</span>
-		In this screen you can add subjects to your study based on a given template. Note that the 'species' select will probably
-		move to the template as an ontology reference and will not be asked anymore.<br/>
-		<i>Note that you can edit multiple subjects at once by selecting multpiple rows by either ctrl-clicking them or dragging a selection over them.</i>
+		Describe the subjects studied with all details available. Use the template that contains the necessary fields. New templates can be defined (based on existing templates).
+		To add subjects to the study, select the correct species and template, input the number of subjects you want to add, and click 'Add'. They will appear below the 'Add' button.
+		As multiple species may be studied within one study, there is no hard link between the template and the species.
+		<br/><i>Note that you can edit multiple subjects at once by selecting multiple rows by either ctrl-clicking them or dragging a selection over them in the space between the fields.</i>
+		<br/><i>Note that depending on the size of your browser window and the template, additional fields can be reached by the slider at the bottom of the page.</i>		
 	</span>
 
 	<wizard:textFieldElement name="addNumber" description="Number of subjects to add" error="addNumber" value="1" size="4" maxlength="4">
@@ -29,7 +31,7 @@
 		The species of the subjects you would like to add to your study
 	</wizard:termElement>
 	<wizard:templateElement name="template" description="with template" value="" error="template" entity="${dbnp.studycapturing.Subject}" >
-		The template to use for this study
+		The template to use for these subjects
 	</wizard:templateElement>
 	<wizard:ajaxButtonElement name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()">
 	</wizard:ajaxButtonElement>

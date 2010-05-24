@@ -17,7 +17,7 @@
 <wizard:pageContent>
 	<span class="info">
 		<span class="title">Define all events that occur in your study</span>
-		Bla bla bla we need a good help text here ;)
+		An event is any change ‘forced’ upon a subject, such as treatment, challenge, sampling. Choose an event type an define the different parameters of the event.		
 	</span>
 
 	<wizard:radioElement name="eventType" description="Type" elements="['event','sample']" value="${values?.eventType}">

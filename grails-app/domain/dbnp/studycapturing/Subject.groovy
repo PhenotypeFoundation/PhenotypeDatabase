@@ -20,15 +20,18 @@ class Subject extends TemplateEntity implements Serializable {
 	 * return the domain fields for this domain class
 	 * @return List
 	 */
-	List<TemplateField> giveDomainFields() { return Subject.domainFields }
-        static List<TemplateField> domainFields =
+	List<TemplateField> giveDomainFields() {
 		[
 			new TemplateField(
 				name: 'name',
 				type: TemplateFieldType.STRING,
-				preferredIdentifier: true),
+				preferredIdentifier: true,
+				comment: 'Use the local subject name or the pre-defined name'),
 			new TemplateField(
 				name: 'species',
-				type: TemplateFieldType.ONTOLOGYTERM)
+				type: TemplateFieldType.ONTOLOGYTERM,
+				ontologies: [Ontology.findByNcboId(1132)],
+				comment: "The species name is based on the NEWT ontology; if a species is missing, please add it to the ontology using 'add more'")
 		]
+	}
 }

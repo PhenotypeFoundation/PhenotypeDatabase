@@ -29,7 +29,8 @@ class Study extends TemplateEntity implements Serializable {
 				type: TemplateFieldType.STRING),
 			new TemplateField(
 				name: 'startDate',
-				type: TemplateFieldType.DATE)
+				type: TemplateFieldType.DATE,
+				comment: 'Fill out the official start date or date of first action')
 		]
 
 	static hasMany = [

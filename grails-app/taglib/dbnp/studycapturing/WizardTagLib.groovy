@@ -726,7 +726,12 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		if (template) {
 			// render template fields
 			entity.giveFields().each() {
-				out << '<div class="' + attrs.get('class') + '">' + it.name + '</div>'
+				out << '<div class="' + attrs.get('class') + '">' + it.name + (it.unit ? " (${it.unit})" : '')
+				if (it.comment) {
+					out << '<div class="helpIcon"></div>'
+					out << '<div class="helpContent">' + it.comment + '</div>'
+				}
+				out << '</div>'
 			}
 		}
 	}
@@ -755,11 +760,14 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		def template	= (entity && entity instanceof TemplateEntity) ? entity.template : null
 		def inputElement= null
 
+		String helpText
+
 		// got a template?
 		if (template) {
 			// render template fields
 			entity.giveFields().each() {
 				def fieldValue = entity.getFieldValue(it.name)
+				helpText = (it.comment && renderType == 'element') ? it.comment : ''
 
 				// output column opening element?
 				if (renderType == 'column') {
@@ -773,7 +781,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 							description: it.name,
 							name: prependName + it.escapedName(),
 							value: fieldValue
-						)
+						){helpText}
 						break
 					case 'STRINGLIST':
 						inputElement = (renderType == 'element') ? 'selectElement' : 'select'
@@ -783,7 +791,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 								name: prependName + it.escapedName(),
 								from: it.listEntries,
 								value: fieldValue
-							)
+							){helpText}
 						} else {
 							out << '<span class="warning">no values!!</span>'
 						}
@@ -799,13 +807,13 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 								name		: prependName + it.escapedName(),
 								value		: fieldValue.toString(),
 								ontologies	: it.ontologies
-							)
+							){helpText}
 						} else {
 							out << "$inputElement"(
 								description	: it.name,
 								name		: prependName + it.escapedName(),
 								value		: fieldValue.toString()
-							)
+							){helpText}
 						}
 						break
 					case 'ONTOLOGYTERM-old':
@@ -851,13 +859,18 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 							name: prependName + it.escapedName(),
 							value: fieldValue,
 							rel: 'date'
-						)
+						){helpText}
 						break
 					default:
 						// unsupported field type
 						out << '<span class="warning">!' + it.type + '</span>'
 						break
 				}
+
+				// Render comment, if any
+				//if (it.comment) {
+				//	out << {"$helpText"}
+				//}
 
 				// output column closing element?
 				if (renderType == 'column') {

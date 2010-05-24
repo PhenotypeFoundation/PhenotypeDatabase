@@ -21,7 +21,7 @@ class BootStrap {
 
 		// Ontologies must be connected to the templatefields in runtime
                 // because the Ontology.findByNcboId is not available otherwise
-                TemplateEntity.getField( Subject.domainFields, 'species' ).ontologies = [Ontology.findByNcboId(1132)]
+                //TemplateEntity.getField( Subject.domainFields, 'species' ).ontologies = [Ontology.findByNcboId(1132)]
                 TemplateEntity.getField( Sample.domainFields, 'material' ).ontologies = [Ontology.findByNcboId(1005)]
 
 		// we could also check if we are in development by GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT
@@ -162,15 +162,16 @@ class BootStrap {
 
 			def genderField = new TemplateField(
 				name: 'Gender',type: TemplateFieldType.STRINGLIST,
-				listEntries: [new TemplateFieldListItem(name:'Male'),new TemplateFieldListItem(name: 'Female')])
+				listEntries: [new TemplateFieldListItem(name:'Male'),new TemplateFieldListItem(name: 'Female'),new TemplateFieldListItem(name: 'Unknown')])
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def ageField = new TemplateField(
-				name: 'Age (years)',type: TemplateFieldType.INTEGER,unit: 'years')
+				name: 'Age',type: TemplateFieldType.INTEGER,unit: 'years',comment: 'Either include age at the start of the study or date of birth (if known)')
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def genotypeField = new TemplateField(
-				name: 'Genotype', type: TemplateFieldType.ONTOLOGYTERM)
+				name: 'Genotype', type: TemplateFieldType.ONTOLOGYTERM,
+				comment: 'If present, indicate the genetic variance of the subject (the gene knock-out/in or transgene)')
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def genotypeTypeField = new TemplateField(
@@ -178,7 +179,8 @@ class BootStrap {
 				listEntries: [new TemplateFieldListItem(name:'wildtype'),
 					new TemplateFieldListItem(name:'transgenic'),
 					new TemplateFieldListItem(name:'knock-out'),
-					new TemplateFieldListItem(name:'knock-in')])
+					new TemplateFieldListItem(name:'knock-in')],
+				comment: 'If a genotype was specified, please indicate here the type of the genotype')	
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 
@@ -187,15 +189,19 @@ class BootStrap {
 			println ".adding academic study template..."
 			def studyTemplate = new Template(
 				name: 'Academic study', entity: dbnp.studycapturing.Study)
-				.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT))
-				.addToFields(new TemplateField(name: 'Study code',type: TemplateFieldType.STRING, preferredIdentifier:true))
-				.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT))
-				.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING))
-				.addToFields(new TemplateField(name: 'Cohort name',type: TemplateFieldType.STRING))
-				.addToFields(new TemplateField(name: 'Time zone',type: TemplateFieldType.STRING))
-				.addToFields(new TemplateField(name: 'Responsible scientist',type: TemplateFieldType.STRING))
-				.addToFields(new TemplateField(name: 'Lab id',type: TemplateFieldType.STRING))
-				.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING))
+				.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT,comment:'Describe here the type of subjects and the treatment, challenges and sampling.'))
+				.addToFields(new TemplateField(
+					name: 'Study code',
+					type: TemplateFieldType.STRING,
+					preferredIdentifier:true,
+					comment: 'Fill out the code by which many people will recognize your study'))
+				.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT,comment:'Fill out the aim or questions of the study'))
+				.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING,comment:'If the study was performed within a consortium (e.g. NMC, NuGO), you can indicate this here'))
+				.addToFields(new TemplateField(name: 'Cohort name',type: TemplateFieldType.STRING,comment:'If a cohort was used the name or code of the cohort can be define here (define a cohort template)'))
+				//.addToFields(new TemplateField(name: 'Time zone',type: TemplateFieldType.STRING,comment:'In the database the local time will be stored. This field is essential to be able to generalize time.'))
+				.addToFields(new TemplateField(name: 'Responsible scientist',type: TemplateFieldType.STRING,comment:'Fill out the project leader of principle investigator of the study. (soon to be replaced with persons input)'))
+				.addToFields(new TemplateField(name: 'Lab id',type: TemplateFieldType.STRING,comment:'In which lab was the study performed; indicate the roomnumber.'))
+				.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING,comment:'In which institute was the study performed; indicate the full address information (to be replaced by persons-affiliations?)'))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Mouse template
@@ -203,23 +209,23 @@ class BootStrap {
 			def mouseTemplate = new Template(
 				name: 'Mouse', entity: dbnp.studycapturing.Subject)
 			.addToFields(new TemplateField(
-				name: 'Strain', type: TemplateFieldType.ONTOLOGYTERM))
+				name: 'Strain', type: TemplateFieldType.ONTOLOGYTERM, ontologies: [nciOntology], comment: "This is an ontology term, if the right strain is not in the list please add it with 'add more'"))
 			.addToFields(genotypeField)
 			.addToFields(genotypeTypeField)
 			.addToFields(genderField)
 			.addToFields(new TemplateField(
-				name: 'Age (weeks)', type: TemplateFieldType.INTEGER, unit: 'weeks'))
+				name: 'Age', type: TemplateFieldType.INTEGER, unit: 'weeks', comment: 'Age at start of study'))
 			.addToFields(new TemplateField(
 				name: 'Age type',type: TemplateFieldType.STRINGLIST,
 				listEntries: [new TemplateFieldListItem(name:'postnatal'),new TemplateFieldListItem(name:'embryonal')]))
 			.addToFields(new TemplateField(
-				name: 'Cage',type: TemplateFieldType.STRING))
+				name: 'Cage',type: TemplateFieldType.STRING,comment:'Indicate the cage used for housing (type and/or size)'))
 			.addToFields(new TemplateField(
-				name: '#Mice in cage',type: TemplateFieldType.INTEGER))
+				name: '#Mice in cage',type: TemplateFieldType.INTEGER,comment:'If known, indicate the number of mice per cage'))
 			.addToFields(new TemplateField(
-				name: 'Litter size',type: TemplateFieldType.INTEGER))
+				name: 'Litter size',type: TemplateFieldType.INTEGER,comment:'If known, indicate the litter size of the litter from which the subject originates'))
 			.addToFields(new TemplateField(
-				name: 'Weight (g)', type: TemplateFieldType.DOUBLE, unit: 'gram'))
+				name: 'Weight', type: TemplateFieldType.DOUBLE, unit: 'gram',comment:'If known indicate the weight of the subject in grams at the start of the study'))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Human template
@@ -229,27 +235,27 @@ class BootStrap {
 			.addToFields(genderField)
 			.addToFields(ageField)
 			.addToFields(new TemplateField(
-				name: 'DOB',type: TemplateFieldType.DATE))
+				name: 'DOB',type: TemplateFieldType.DATE,comment:'Date of birth'))
 			.addToFields(new TemplateField(
 				name: 'Height',type: TemplateFieldType.DOUBLE, unit: 'm'))
 			.addToFields(new TemplateField(
-				name: 'Weight (kg)',type: TemplateFieldType.DOUBLE, unit: 'kg'))
+				name: 'Weight',type: TemplateFieldType.DOUBLE, unit: 'kg'))
 			.addToFields(new TemplateField(
-				name: 'BMI',type: TemplateFieldType.DOUBLE, unit: 'kg/m2'))
+				name: 'BMI',type: TemplateFieldType.DOUBLE, unit: 'kg/m2',comment:'Body-mass-index'))
 			.addToFields(new TemplateField(
-				name: 'Race',type: TemplateFieldType.STRING))
+				name: 'Race',type: TemplateFieldType.STRING,comment:'If known and of interest the ethnic group can be indicated'))
 			.addToFields(new TemplateField(
-				name: 'Waist circumference',type: TemplateFieldType.FLOAT, unit: 'cm'))
+				name: 'Waist circumference',type: TemplateFieldType.FLOAT, unit: 'cm',comment:'The waist circumference is measured just above the hip bone. Indicate the measure at the start of the study.'))
 			.addToFields(new TemplateField(
-				name: 'Hip circumference',type: TemplateFieldType.FLOAT, unit: 'cm'))
+				name: 'Hip circumference',type: TemplateFieldType.FLOAT, unit: 'cm',comment:'The hip circumference is measured at the level of the two bony prominences front of the hips. Indicate the measure at the start of the study.'))
 			.addToFields(new TemplateField(
-				name: 'Systolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg'))
+				name: 'Systolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg',comment:'Indicate the levels at the start of the study in mmHG'))
 			.addToFields(new TemplateField(
-				name: 'Diastolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg'))
+				name: 'Diastolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg',comment:'Indicate the levels at the start of the study in mmHG'))
 			.addToFields(new TemplateField(
-				name: 'Heart rate',type: TemplateFieldType.FLOAT, unit: 'beats/min'))
+				name: 'Heart rate',type: TemplateFieldType.FLOAT, unit: 'beats/min',comment:'Indicate the heart rate at the start of in study in beats per minute'))
 			.addToFields(new TemplateField(
-				name: 'Run-in-food',type: TemplateFieldType.TEXT))
+				name: 'Run-in-food',type: TemplateFieldType.TEXT,comment:'If defined, give a short description of the food used before the measurements'))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 
@@ -544,7 +550,7 @@ class BootStrap {
 					)
 					.setFieldValue("Gender", "Male")
 					.setFieldValue("Genotype", c57bl6Term)
-					.setFieldValue("Age (weeks)", 17)
+					.setFieldValue("Age", 17)
 					.setFieldValue("Cage", "" + (int)(x/2))
 					.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
@@ -625,9 +631,9 @@ class BootStrap {
 					      template: humanTemplate)
 					.setFieldValue("Gender", (Math.random() > 0.5) ? "Male" : "Female")
 					.setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19" + (10 + (int) (Math.random() * 80))))
-					.setFieldValue("Age (years)", 30)
+					.setFieldValue("Age", 30)
 					.setFieldValue("Height", Math.random() * 2F)
-					.setFieldValue("Weight (kg)", Math.random() * 150F)
+					.setFieldValue("Weight", Math.random() * 150F)
 					.setFieldValue("BMI", 20 + Math.random() * 10F)
 					.with { if (!validate()) { errors.each { println it} } else save()}
 

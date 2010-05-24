@@ -226,6 +226,14 @@
     text-shadow: 0px 0px 1px #333;
 }
 
+.wizard .header .helpIcon {
+    display: inline-block;
+    margin-top: 4px;
+    background: url(../images/icons/famfamfam/help.png) no-repeat left top;
+    width: 16px;
+    height: 16px;
+}
+
 .wizard .column {
     display: inline-block;
     padding: 2px 4px;
