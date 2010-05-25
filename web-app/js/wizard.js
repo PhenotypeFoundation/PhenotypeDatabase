@@ -103,7 +103,10 @@ function attachHelpTooltips() {
     // attach help action on all wizard help icons
     $('div#wizard').find('div.helpIcon').each(function() {
         helpIcon = $(this);
-        helpContent = helpIcon.parent().parent().find('div.helpContent');
+        helpContent = helpIcon.parent().find('div.helpContent');
+        if (!helpContent.html()) {
+            helpContent = helpIcon.parent().parent().find('div.helpContent');
+        }
 
         // handle special content
         var html = (helpContent.html()) ? helpContent.html() : '';
