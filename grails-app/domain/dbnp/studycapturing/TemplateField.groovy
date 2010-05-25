@@ -19,7 +19,7 @@ class TemplateField implements Serializable {
 	boolean required
 	boolean preferredIdentifier
 
-    static hasMany = [
+    static hasMany = [                                                                      ve
 		listEntries	: TemplateFieldListItem,	// to store the entries to choose from when the type is 'item from predefined list'
 	   	ontologies	: Ontology					// to store the ontologies to choose from when the type is 'ontology term'
 	]
@@ -33,6 +33,7 @@ class TemplateField implements Serializable {
 	}
 
 	static mapping = {
+        // TODO: this doesn't seem to work in Postgres
 		comment type: 'text'
 	}
 
