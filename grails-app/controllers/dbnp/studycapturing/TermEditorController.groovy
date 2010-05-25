@@ -60,8 +60,7 @@ class TermEditorController {
 		terms {
 			render(view: "terms")
 			onRender {
-				println "renderderender!"
-				render('henkie')
+				println "Rendering term selection popup"
 			}
 			on("add") {
 				println params
@@ -69,10 +68,8 @@ class TermEditorController {
 
 				// do we have an ontology?
 				if (!ontology) {
-					// maak eerst deze ontology aan. Er zijn web services beschikbaar om
-					// de Ontology properties op te halen.... mag jij maken, leuk he!
-					println "neeeeee geen ontology!"
-					println "ik moet ff deze ontology aanmaken in onze database!"
+					// TODO: if ontology is missing, create it
+                    // pending possible addition to OntoCAT BioportalOntologyService API of search by versioned Ontology Id
 				}
 
 				// instantiate term with parameters
@@ -84,17 +81,19 @@ class TermEditorController {
 
 				// validate term
 				if (term.validate()) {
-					println "jaaaa het was kei goed!"
+					println "Term validated correctly"
 					term.save()
 					success()
+                    flash.message = "Term addition succeeded"
 				} else {
-					println "klopt voor geen meter!"
+					println "Term validation failed"
 					println "errors:"
 					term.errors.getAllErrors().each() {
 						println it
 					}
 					flash.errors = term.errors
 					error()
+                    flash.message = "Term addition failed"
 				}
 			}.to "terms"
 		}

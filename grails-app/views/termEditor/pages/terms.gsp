@@ -26,10 +26,11 @@
 
  <g:form action="pages" name="wizardForm" id="wizardForm">
  <g:textField name="term" rel="ontology-${ontologies}" />
- <g:submitButton name="add" value="go go goooooo!" />
+ <g:submitButton name="add" value="Add term" />
  </g:form>
 
  ${errors}
+ ${message}
 
  <script type="text/javascript">
 	$(document).ready(function() {
