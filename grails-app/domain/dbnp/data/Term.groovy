@@ -23,6 +23,7 @@ class Term implements Serializable {
 	static constraints = {
 		accession(unique: 'ontology')   // Accession should be unique within an ontology
 		name(unique: 'ontology')        // Preferred name should be unique within an ontology
+        name(size: 1..255)              // Name should be a non-empty string
 	}
 
 	def String toString() {

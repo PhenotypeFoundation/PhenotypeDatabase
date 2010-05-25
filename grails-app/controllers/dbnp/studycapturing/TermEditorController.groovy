@@ -65,16 +65,18 @@ class TermEditorController {
 			on("add") {
 				println params
 				def ontology = Ontology.findByNcboVersionedId( params.get('term-ontology_id') as int )
+                def strTerm = params.get('term')
 
 				// do we have an ontology?
 				if (!ontology) {
 					// TODO: if ontology is missing, create it
                     // pending possible addition to OntoCAT BioportalOntologyService API of search by versioned Ontology Id
+                    println "Ontology is empty"
 				}
 
 				// instantiate term with parameters
 				def term = new Term(
-					name: params.get('term'),
+					name: strTerm,
 					ontology: ontology,
 					accession: params.get('term-concept_id')
 				)
@@ -91,7 +93,6 @@ class TermEditorController {
 					term.errors.getAllErrors().each() {
 						println it
 					}
-					flash.errors = term.errors
 					error()
                     flash.message = "Term addition failed"
 				}
