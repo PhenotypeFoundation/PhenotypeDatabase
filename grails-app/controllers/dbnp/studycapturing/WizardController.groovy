@@ -165,6 +165,10 @@ class WizardController {
 				flash.values = params
 			}.to "subjects"
 			on("add") {
+				// handle subjects
+				this.handleSubjects(flow, flash, params)
+
+				flash.errors = [:]
 				flash.values = params
 				def speciesTerm = Term.findByName(params.species);
 				def subjectTemplateName = params.get('template');
@@ -212,6 +216,9 @@ class WizardController {
 				}
 			}.to "events"
 			on("delete") {
+				// handle subjects
+				this.handleSubjects(flow, flash, params)
+
 				flash.errors = [:]
 				def delete = params.get('do') as int;
 
