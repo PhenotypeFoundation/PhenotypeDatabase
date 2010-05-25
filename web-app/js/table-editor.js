@@ -91,12 +91,11 @@ TableEditor.prototype = {
 
         $(this.columnIdentifier, row).each(function() {
             var input = $(':input', $(this));
+            var inputElement = $(input)
+            var type = inputElement.attr('type');
 
             // does this column contain an input field
-            if (input) {
-                var inputElement = $(input)
-                var type = inputElement.attr('type');
-
+            if (input && type) {
                 switch (type) {
                     case 'text':
                         // text input
