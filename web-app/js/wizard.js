@@ -225,7 +225,7 @@ function handleWizardTable() {
     wizardTables.each(function() {
         var wizardTable = $(this);
         var sliderContainer = (wizardTable.next().attr('class') == 'sliderContainer') ? wizardTable.next() : null;
-        var header = wizardTable.find('div.header')
+        var header = wizardTable.find('div.header');
         var width = 20;
 
         // calculate total width of elements in header
