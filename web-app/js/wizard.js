@@ -49,7 +49,7 @@ function onWizardPage() {
     // handle term selects
     new SelectAddMore().init({
         rel     : 'term',
-        url     : '/gscf/termEditor',
+        url     : baseUrl + '/termEditor',
         vars    : 'ontologies',
         label   : 'add more...',
         style   : 'addMore',
@@ -61,7 +61,7 @@ function onWizardPage() {
     // handle template selects
     new SelectAddMore().init({
         rel     : 'template',
-        url     : '/gscf/templateEditor',
+        url     : baseUrl + '/templateEditor',
         vars    : 'entity',
         label   : 'add / modify..',
         style   : 'modify',
