@@ -45,7 +45,7 @@ SelectAddMore.prototype = {
         url     : 'http://www.youtube.com/watch?v=2WNrx2jq184',
         vars    : 'vars',
         label   : 'add more...',
-        class   : 'addmore',
+        style   : 'addmore',
         width   : 800,
         height  : 400,
         position: 'center',
@@ -79,7 +79,7 @@ SelectAddMore.prototype = {
         var that    = this;
         var e       = $(element);
         var s       = e.children().size();
-        var class   = that.options.class;
+        var style   = that.options.cssClass;
         var label   = that.options.label;
         var vars    = that.options.vars;
         var url     = that.options.url;
@@ -89,7 +89,7 @@ SelectAddMore.prototype = {
         var position= that.options.position;
 
         // add a magic option to the end of the select element
-        e.append('<option value="" class="' + class + '">' + label + '</option>');
+        e.append('<option value="" class="' + style + '">' + label + '</option>');
 
         // and bind and onChange event
         e.bind('change', function() {

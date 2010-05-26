@@ -52,7 +52,7 @@ function onWizardPage() {
         url     : '/gscf/termEditor',
         vars    : 'ontologies',
         label   : 'add more...',
-        class   : 'addMore',
+        style   : 'addMore',
         onClose : function(scope) {
             refreshWebFlow();
         }
@@ -64,7 +64,7 @@ function onWizardPage() {
         url     : '/gscf/templateEditor',
         vars    : 'entity',
         label   : 'add / modify..',
-        class   : 'modify',
+        style   : 'modify',
         onClose : function(scope) {
             refreshWebFlow();
         }
