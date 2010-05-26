@@ -232,10 +232,15 @@ function handleWizardTable() {
         header.children().each(function() {
             // calculate width per column
             var c = $(this);
-            var columnWidth = c.width();
-            columnWidth += parseInt(c.css("padding-left"), 10) + parseInt(c.css("padding-right"), 10);          // padding width
-            columnWidth += parseInt(c.css("margin-left"), 10) + parseInt(c.css("margin-right"), 10);            // margin width
-            columnWidth += parseInt(c.css("borderLeftWidth"), 10) + parseInt(c.css("borderRightWidth"), 10);    // border width
+            var columnWidth     = c.width();
+            var paddingWidth    = parseInt(c.css("padding-left"), 10) + parseInt(c.css("padding-right"), 10);
+            var marginWidth     = parseInt(c.css("margin-left"), 10) + parseInt(c.css("margin-right"), 10);
+            var borderWidth     = parseInt(c.css("borderLeftWidth"), 10) + parseInt(c.css("borderRightWidth"), 10);
+
+            // add width...
+            if (paddingWidth) columnWidth += paddingWidth;
+            if (marginWidth) columnWidth += marginWidth;
+            if (borderWidth) columnWidth += borderWidth;
             width += columnWidth;
         });
 
