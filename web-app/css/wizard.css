@@ -176,6 +176,8 @@
 /** START ::  HELP **/
 .wizard .element .helpIcon {
     display: inline-block;
+    zoom: 1;
+    *display: inline; /* This hack is used to put the question mark on the right place in IE7 */
     margin-top: 4px;
     background: url(../images/icons/famfamfam/help.png) no-repeat left top;
     width: 16px;
