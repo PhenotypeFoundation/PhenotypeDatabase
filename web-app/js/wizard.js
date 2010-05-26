@@ -227,6 +227,8 @@ function handleWizardTable() {
         var sliderContainer = (wizardTable.next().attr('class') == 'sliderContainer') ? wizardTable.next() : null;
         var header = wizardTable.find('div.header');
         var width = 20;
+        var column = 0;
+        var columns = [];
 
         // calculate total width of elements in header
         header.children().each(function() {
@@ -242,6 +244,10 @@ function handleWizardTable() {
             if (marginWidth) columnWidth += marginWidth;
             if (borderWidth) columnWidth += borderWidth;
             width += columnWidth;
+
+            // remember column
+            columns[ column ] = c.width();
+            column++;
         });
 
         // resize the header
@@ -250,7 +256,13 @@ function handleWizardTable() {
         // set table row width and assume column widths are
         // identical to those in the header (css!)
         wizardTable.find('div.row').each(function() {
-            $(this).css({ width: width + 'px' });
+            var row = $(this);
+            var column = 0;
+            row.children().each(function() {
+                $(this).css({ width: columns[ column] + 'px' });
+                column++;
+            });
+            row.css({ width: width + 'px' });
         });
 
         // got a slider for this table?

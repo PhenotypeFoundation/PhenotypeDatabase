@@ -245,7 +245,7 @@
 .wizard .column {
     display: inline-block;
     padding: 2px 4px;
-    width: 120px;
+    min-width: 120px;
     zoom: 1; /* IE 6 & 7 hack */
     *display: inline; /* IE 6 & 7 hack */
 }
