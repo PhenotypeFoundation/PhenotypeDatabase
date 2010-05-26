@@ -49,7 +49,13 @@
                         <tr class="prop">
                             <td valign="top" class="name"><g:message code="publication.DOI.label" default="DOI" /></td>
 
-                            <td valign="top" class="value">${fieldValue(bean: publicationInstance, field: "DOI")}</td>
+                            <td valign="top" class="value">
+                              <g:if test="${publicationInstance.DOI}">
+                                <a href="http://dx.doi.org/${fieldValue(bean: publicationInstance, field: "DOI")}">
+                                  ${fieldValue(bean: publicationInstance, field: "DOI")}
+                                </a>
+                              </g:if>
+                            </td>
 
                         </tr>
                     </tbody>

@@ -15,6 +15,44 @@ class PublicationController {
         redirect(action: "list", params: params)
     }
 
+    /**
+     * Shows a form to add a new publication by searching pubmed
+     */
+    def add = {}
+
+    /**
+     * Adds publication selected from pubmed
+     */
+    def createFromPubmed = {
+        // instantiate term with parameters
+        def publication = new Publication(
+            title: params.get( 'publication-title' ),
+            authorsList: params.get( 'publication-authorsList' ),
+            pubMedID: params.get( 'publication-pubMedID' ),
+            DOI: params.get( 'publication-doi' )
+        )
+
+        def message;
+        def errors = '';
+
+        // validate term
+        if (publication.validate()) {
+            println "Publication validated correctly"
+            publication.save()
+            message = "Publication added to the system"
+        } else {
+            println "Publication validation failed"
+            println "errors:"
+            publication.errors.getAllErrors().each() {
+                println it
+            }
+            errors = publications.errors.getAllErrors.join( ', ' );
+            message = "Publication addition failed"
+        }
+
+        render( 'view': 'add', model:[ message: message, errors: errors ] );
+    }
+
     def list = {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
         [publicationInstanceList: Publication.list(params), publicationInstanceTotal: Publication.count()]
