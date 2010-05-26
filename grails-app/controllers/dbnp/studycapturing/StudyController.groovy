@@ -53,7 +53,7 @@ class StudyController {
     def show = {
         def startTime = System.currentTimeMillis()
 
-        def studyInstance = Study.get( params.id )
+        def studyInstance = Study.get( params.long( "id" ) )
         if (!studyInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
             redirect(action: "list")
