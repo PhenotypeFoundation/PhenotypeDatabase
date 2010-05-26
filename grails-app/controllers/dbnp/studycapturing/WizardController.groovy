@@ -199,8 +199,6 @@ class WizardController {
 					def subjectsSize = (flow.subjectTemplates[ subjectTemplateName ].subjects.size()) ? (flow.subjectTemplates[ subjectTemplateName ].subjects.keySet().max() + 1) : 0
 					flow.subjectTemplates[ subjectTemplateName ].subjects[ subjectsSize ] = increment
 				}
-println flow.subjects
-println flow.subjectTemplates
 			}.to "subjects"
 			on("next") {
 				flash.errors = [:]
@@ -223,20 +221,16 @@ println flow.subjectTemplates
 
 				flash.errors = [:]
 				def delete = params.get('do') as int;
-println "delete: "+delete
 
 				// remove subject
 				if (flow.subjects[ delete ] && flow.subjects[ delete ] instanceof Subject) {
 					// remove subject from templates
 					flow.subjectTemplates.each() { templateName, templateData ->
 						templateData.subjects.remove( delete )
-println flow.subjectTemplates
-println "max: "+templateData.subjects.keySet().max()
 					}
 
 					// remove subject altogether
 					flow.subjects.remove( delete )
-println flow.subjects
 				}
 			}.to "subjects"
 			on("previous") {
@@ -381,7 +375,6 @@ println flow.subjects
 				this.handleEventGrouping(flow, flash, params)
 			}.to "subjects"
 			on("next") {
-				println params
 				flash.values = params
 				flash.errors = [:]
 
