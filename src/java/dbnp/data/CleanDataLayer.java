@@ -7,6 +7,9 @@ import java.util.Map;
  */
 public interface CleanDataLayer {
 
+
+        /* Methods for retrieving data from a module */
+
         /**
          * Get the names of all quantitative features that are available for a certain assay
          * @param assayID the module internal ID for the assay
@@ -23,4 +26,6 @@ public interface CleanDataLayer {
          */
         public Map getDataQuantitative(String feature, long assayID, String[] sampleIDs);
 
+         
+        /* Methods to store data in a module */
 }
