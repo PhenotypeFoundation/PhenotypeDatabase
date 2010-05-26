@@ -1,4 +1,7 @@
 package dbnp.studycapturing
+
+import grails.converters.*
+
 /**
  * Controller class for studies
  */
@@ -44,10 +47,13 @@ class StudyController {
         }
     }*/
 
+    /**
+     * Shows one or more studies
+     */
     def show = {
         def startTime = System.currentTimeMillis()
 
-        def studyInstance = Study.get(params.id)
+        def studyInstance = Study.get( params.id )
         if (!studyInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
             redirect(action: "list")
@@ -60,6 +66,54 @@ class StudyController {
         }
     }
 
+    /**
+     * Gives the events for one eventgroup in JSON format
+     *
+     */
+    def events = {
+        def eventGroup = EventGroup.get(params.id)
+        def startDate  = params.startDate
+
+        if (!eventGroup) {
+            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventgroup.label', default: 'Eventgroup'), params.id])}"
+            redirect(action: "list")
+        }
+        else {
+
+            // Create JSON object
+            def json = [ 'dateTimeFormat': 'iso8601', events: [] ];
+
+            // Add the start of the study as event
+            /*
+            json.events << [
+                'start':    startDate,
+                'durationEvent': false,
+                'title': "Start date study",
+                'color': 'red'
+            ]
+            */
+           
+            // Add all other events
+            for( event in eventGroup.events ) {
+                def parameters = []
+                for( templateField in event.giveTemplateFields() ) {
+                    def value = event.getFieldValue( templateField.name );
+                    if( value ) {
+                        parameters << templateField.name + " = " + value;
+                    }
+                }
+
+                json.events << [
+                    'start':    event.startTime,
+                    'end':      event.endTime,
+                    'durationEvent': !event.isSamplingEvent(),
+                    'title': event.template.name + " (" + parameters.join( ', ' ) + ")",
+                    'description': parameters
+                ]
+            }
+            render json as JSON
+        }
+    }
 
     /*def edit = {
         def studyInstance = Study.get(params.id)

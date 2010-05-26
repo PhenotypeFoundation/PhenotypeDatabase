@@ -4,15 +4,135 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="main" />
-  <g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}" />
-  <title><g:message code="default.show.label" args="[entityName]" /></title>
-  <script type="text/javascript">
-    $(function() {
-            $("#tabs").tabs();
-    });
-  </script>
-  <link rel="stylesheet" href="${resource(dir: 'css', file: 'studies.css')}"/>
+    <g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}" />
+    <title><g:message code="default.show.label" args="[entityName]" /></title>
+    <script type="text/javascript">
+      // Flag whether the timelines have been loaded
+      var timelineloaded = false;
+      
+      // Number of timelines that should be loaded
+      var numTimelines = ${studyList.size()};
+      
+      // This method is called on the event body.onLoad
+      $(function() {
+              $("#tabs").tabs({
+                show: function(event, ui) {
+                  // If the events tab is shown, the timeline should be redrawn
+                  if( ui.tab.hash == '#events' && !timelineloaded ) {
+                    loadTimeline( 'eventstimeline', 'eventtitles', 0 );
+                    timelineloaded = true;
+                  }
+                }
+              });
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'studies.css')}"/>
 
+    <!-- Include scripts for the SIMILE timeline. See http://simile-widgets.org/wiki/ -->
+    <script type="text/javascript">
+      Timeline_ajax_url="${resource(dir: 'js', file: 'timeline-simile/timeline_ajax/simile-ajax-api.js')}";
+      Timeline_urlPrefix='${resource(dir: 'js', file: 'timeline-simile/')}';
+      Timeline_parameters='bundle=true';
+    </script>
+    <script src="${resource(dir: 'js', file: 'timeline-simile/timeline-api.js')}" type="text/javascript"></script>
+    <script src="${resource(dir: 'js', file: 'timeline-simile/custom-timeline.js')}" type="text/javascript"></script>
+    <script src="${resource(dir: 'js', file: 'jquery-callback-1.2.js')}" type="text/javascript"></script>
+
+    <!-- Create the JSON objects for the timeline with events -->
+    <script type="text/javascript">
+         /*
+          * Creates timeline bands for displaying different timelines
+          *
+          * @returns array with BandInfo objects, as described on http://simile-widgets.org/wiki/Timeline_GettingStarted
+          */
+        function createTimelineBands( timelineNr ) {
+          var bandInfos = [];
+          var eventSources = [];
+          var overviewEventSource = new Timeline.DefaultEventSource();
+
+          // The way the timeline should look. See http://www.linuxjournal.com/article/9301
+          var theme = Timeline.ClassicTheme.create();
+          var emptyEtherPainter = new Timeline.EmptyEtherPainter( { theme: theme } )
+
+          // Now create the bands for all studies, and add them to one timeline
+          // Multiple timeline on one page do not seem to work
+          <g:set var="bandNr" value="${0}" />
+          <g:each in="${studyList}" var="study" status="timelineNr">
+              // The date that the timeline should start on
+              var dateStr = "<g:formatDate format="yyyy/MM/dd HH:mm:ss" date="${study.startDate}"/>";
+              firstDate = new Date ( dateStr );
+
+              //------------- Eventgroup overview ---------------
+
+              <g:set var="datesBandNr" value="${bandNr}" />
+              // Add an empty band to show the dates
+              bandInfos[${bandNr}] =
+                     Timeline.createBandInfo({
+                        width:          40,
+                        intervalUnit:   Timeline.DateTime.DAY,
+                        intervalPixels: 40,
+                        showEventText:  false,
+                        date:           firstDate,
+                        timeZone:       +1,
+                        layout:         'original',
+                        theme:          theme
+                     });
+              bandTitleInfo[ timelineNr ][ ${bandNr} ] = {
+                title: "${study.title}",
+                subjects: "",
+                className: "studytitle"
+              };
+
+              <g:set var="bandNr" value="${bandNr+1}" />
+
+              <g:each in="${study.eventGroups}" var="eventGroup" status="i">
+
+                //------------- Eventgroup ${bandNr} ---------------
+
+                // Create an eventsource for all events
+                eventSources[${bandNr}] = new Timeline.DefaultEventSource();
+
+                // Load events for this eventsource (using jquery)
+                var event_url = '${createLink(controller:'study', action:'events', id:eventGroup.id, params: [startDate: study.startDate])}';
+                $.getJSON(event_url, $.callback( _loadJSONEvents, [0, ${bandNr}, eventSources[${bandNr}], overviewEventSource, event_url] ) );
+
+                // Create a new timeline band
+                bandInfos[${bandNr}] =
+                       Timeline.createBandInfo({
+                           eventSource:    eventSources[${bandNr}],
+                           width:          30,
+                           intervalUnit:   Timeline.DateTime.DAY,
+                           intervalPixels: 40,
+                           date:           firstDate,
+                           timeZone:       +1,
+                           syncWith:       1,
+                           layout:         'original',
+                           theme:          theme
+                       });
+
+                // Make sure the date isn't printed by using the empty ether painter
+                bandInfos[${bandNr}].etherPainter = emptyEtherPainter;
+
+                // Add a title to the bandinfo
+                <% sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
+                bandTitleInfo[ timelineNr ][ ${bandNr} ] = {
+                  title: "${eventGroup.name}",
+                  subjects: "${sortedGroupSubjects.name.join( ', ' )}"
+                };
+
+                <g:set var="bandNr" value="${bandNr+1}" />
+              </g:each>
+
+              // Synchronize all bands
+              <g:each in="${study.eventGroups}" var="eventGroup" status="i">
+                bandInfos[${i + datesBandNr +1}].syncWith = ${datesBandNr};
+              </g:each>
+
+          </g:each>
+
+          return bandInfos;
+        }
+     </script>
 </head>
 <body>
 
@@ -22,7 +142,6 @@
       <div class="message">${flash.message}</div>
     </g:if>
     <div class="dialog">
-
       <div id="tabs">
         <ul>
           <li><a href="#study">Study Information</a></li>
@@ -35,7 +154,6 @@
         </ul>
 
         <div id="study">
-
           <table>
             <!-- only show the head section if there are multiple studies -->
             <g:if test="${multipleStudies}">
@@ -241,7 +359,13 @@
             No events in these studies
           </g:if>
           <g:else>
-
+            <g:each in="${studyList}" var="study" status="i">
+              <div style="margin: 10px; ">
+                <div class="eventtitles" id="eventtitles-${i}"></div>
+                <div class="eventstimeline" id="eventstimeline-${i}"></div>
+              </div>
+            </g:each>
+            <noscript>
               <table>
                 <thead>
                   <tr>
@@ -303,6 +427,8 @@
                   </g:each>
                 </g:each>
               </table>
+
+            </noscript>
 
           </g:else>
         </div>
