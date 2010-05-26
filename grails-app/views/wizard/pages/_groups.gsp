@@ -24,14 +24,16 @@
 		<div class="column">${eventGroup.name}</div>
 		</g:each></g:if>
 	</div>
-<g:each var="subjectTemplate" in="${subjectTemplates}">
+<g:each var="sTemplate" in="${subjectTemplates}">
+  <g:set var="subjectTemplate" value="${sTemplate.getValue()}" />
   <g:set var="showHeader" value="${true}" />
-  <g:each var="subjectId" in="${subjectTemplate.getValue().subjects}">
+  <g:each var="sId" in="${subjectTemplate.subjects}">
+	<g:set var="subjectId" value="${sId.getValue()}" />
 	<div class="row">
 		<div class="column">
 			<g:if test="${showHeader}">
 				<g:set var="showHeader" value="${false}" />
-				${subjectTemplate.getValue().name} template
+				${subjectTemplate.name} template
 			</g:if>
 		</div>
 		<div class="column">${subjects[ subjectId ].name}</div>

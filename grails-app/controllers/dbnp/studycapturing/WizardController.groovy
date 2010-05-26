@@ -179,13 +179,13 @@ class WizardController {
 					flow.subjectTemplates[ subjectTemplateName ] = [
 						name: subjectTemplateName,
 						template: subjectTemplate,
-						subjects: []
+						subjects: [:]
 					]
 				}
 
 				// add x subjects of species y
 				(params.addNumber as int).times {
-					def increment = flow.subjects.size()
+					def increment = (flow.subjects.size()) ? (flow.subjects.keySet().max() + 1) : 0
 					def subject = new Subject(
 						name: 'Subject ' + (increment + 1),
 						species: speciesTerm,
@@ -196,9 +196,11 @@ class WizardController {
 					flow.subjects[ increment ] = subject
 
 					// and remember the subject id with the template
-					def subjectsSize = flow.subjectTemplates[ subjectTemplateName ]['subjects'].size()
-					flow.subjectTemplates[ subjectTemplateName ]['subjects'][ subjectsSize ] = increment
+					def subjectsSize = (flow.subjectTemplates[ subjectTemplateName ].subjects.size()) ? (flow.subjectTemplates[ subjectTemplateName ].subjects.keySet().max() + 1) : 0
+					flow.subjectTemplates[ subjectTemplateName ].subjects[ subjectsSize ] = increment
 				}
+println flow.subjects
+println flow.subjectTemplates
 			}.to "subjects"
 			on("next") {
 				flash.errors = [:]
@@ -221,14 +223,20 @@ class WizardController {
 
 				flash.errors = [:]
 				def delete = params.get('do') as int;
+println "delete: "+delete
 
 				// remove subject
 				if (flow.subjects[ delete ] && flow.subjects[ delete ] instanceof Subject) {
+					// remove subject from templates
 					flow.subjectTemplates.each() { templateName, templateData ->
-						templateData.subjects.remove(delete)
+						templateData.subjects.remove( delete )
+println flow.subjectTemplates
+println "max: "+templateData.subjects.keySet().max()
 					}
 
+					// remove subject altogether
 					flow.subjects.remove( delete )
+println flow.subjects
 				}
 			}.to "subjects"
 			on("previous") {
@@ -589,7 +597,7 @@ class WizardController {
 		// iterate through subject templates
 		flow.subjectTemplates.each() { subjectTemplate ->
 			// iterate through subjects
-			subjectTemplate.getValue().subjects.each() { subjectId ->
+			subjectTemplate.getValue().subjects.each() { subjectIncrement, subjectId ->
 				// iterate through fields (= template fields and domain properties)
 				flow.subjects[ subjectId ].giveFields().each() { subjectField ->
 					// set the field

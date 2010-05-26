@@ -38,11 +38,14 @@
 
 
 <g:if test="${subjects}">
-	<g:each var="subjectTemplate" in="${subjectTemplates}">
+	<g:each var="sTemplate" in="${subjectTemplates}">
 		<g:set var="showHeader" value="${true}" />
-		<h1>${subjectTemplate.getValue().name} template</h1>
+		<g:set var="subjectTemplate" value="${sTemplate.getValue()}" />
+		<h1>${subjectTemplate.name} template</h1>
 		<div class="table">
-		<g:each var="subjectId" in="${subjectTemplate.getValue().subjects}">
+		<g:each status="i" var="sId" in="${subjectTemplate.subjects}">
+		  <g:set var="subjectId" value="${sId.getValue()}" />
+		  <g:if test="${subjects[ subjectId ]}">
 		  	<g:if test="${showHeader}">
 			<g:set var="showHeader" value="${false}" />
 			<div class="header">
@@ -58,6 +61,7 @@
 				</div>
 				<wizard:templateColumns id="${subjectId}" entity="${subjects[ subjectId ]}" template="${subjects[ subjectId ].template}" name="subject_${subjectId}" class="column" subject="${subjects[ subjectId ]}" />
 			</div>
+		  </g:if>
 		</g:each>
 		</div>
 		<div class="sliderContainer">
