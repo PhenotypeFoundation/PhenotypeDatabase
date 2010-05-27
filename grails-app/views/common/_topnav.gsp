@@ -12,13 +12,6 @@
       </ul>
      </li>
      <li>
-      <a href="#">Events</a>
-      <ul class="subnav">
-        <li><g:link controller="protocol" action="list">View protocols</g:link></li>
-        <li><g:link controller="eventDescription" action="list">View event descriptions</g:link></li>
-      </ul>
-     </li>
-     <li>
       <a href="#">Contacts</a>
       <ul class="subnav">
         <li><g:link controller="person" action="list">View persons</g:link></li>
@@ -26,7 +19,13 @@
         <li><g:link controller="personRole" action="list">View roles</g:link></li>
       </ul>
      </li>
-
+    <li>
+    <a href="#">Publications</a>
+    <ul class="subnav">
+      <li><g:link controller="publication" action="list">View publications</g:link></li>
+      <li><g:link controller="publication" action="add">Add publication</g:link></li>
+    </ul>
+   </li>
 	 <li><g:link controller="importer" action="index">Import data</g:link></li>
     <g:if env="development">
      <li><g:link controller="query" action="index">Query database</g:link></li>

@@ -2,8 +2,6 @@ package dbnp.query
 
 import org.compass.core.engine.SearchEngineQueryParseException
 
-import mytest.MyManager 
-
 /*
  * Copyright 2007 the original author or authors.
  *
