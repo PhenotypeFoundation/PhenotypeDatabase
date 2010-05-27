@@ -47,12 +47,6 @@ class TermEditorController {
 					// and add to the flow scope
 					flow.ontologiesList[ flow.ontologies.size() ] = ncboId
 				}
-
-				/*** EXAMPLE OF HOW TO FETCH ONTOLOGY INSTANCES
-				 * ontologies.each() {
-				 * 	 println Ontology.findAllByNcboId( it )
-				 * }
-				 */
 			}
 		}
 
@@ -60,10 +54,9 @@ class TermEditorController {
 		terms {
 			render(view: "terms")
 			onRender {
-				println "Rendering term selection popup"
+				println ".rendering term selection popup"
 			}
 			on("add") {
-				println params
 				def ontology = Ontology.findByNcboVersionedId( params.get('term-ontology_id') as int )
                 def strTerm = params.get('term')
 
@@ -71,7 +64,6 @@ class TermEditorController {
 				if (!ontology) {
 					// TODO: if ontology is missing, create it
                     // pending possible addition to OntoCAT BioportalOntologyService API of search by versioned Ontology Id
-                    println "Ontology is empty"
 				}
 
 				// instantiate term with parameters
@@ -83,22 +75,18 @@ class TermEditorController {
 
 				// validate term
 				if (term.validate()) {
-					println "Term validated correctly"
+					// save the term to the database
 					if (term.save(flush:true)) {
-						println ".term save ok"
+						flash.message = "Term addition succeeded"
+						success()
 					} else {
-						println ".term save failed?"
+						flash.message = "Oops, we encountered a problem while storing the selected term. Please try again."
+						error()
 					}
-					success()
-                    flash.message = "Term addition succeeded"
 				} else {
-					println "Term validation failed"
-					println "errors:"
-					term.errors.getAllErrors().each() {
-						println it
-					}
+					// term did not validate properly
+					flash.message = "Oops, we encountered a problem while storing the selected term. Please try again."
 					error()
-                    flash.message = "Term addition failed"
 				}
 			}.to "terms"
 		}

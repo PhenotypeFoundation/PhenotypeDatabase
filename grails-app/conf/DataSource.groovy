@@ -63,7 +63,15 @@ environments {
 			driverClassName = "org.postgresql.Driver"
 			url = "jdbc:postgresql://localhost:5432/gscf"
 			dialect = org.hibernate.dialect.PostgreSQLDialect
-			logSql = true
+			logSql = true	// enable logging while not yet final
+
+			/* Apparently Hibernate performs two queries on inserting, one before
+			 * to generate the unique id, and then the insert itself. In PostgreSQL
+			 * > 8.2 this behaviour has changed, however hibernate has not implemented
+			 * this change. In case we might optimize in the future, more info is here:
+			 * http://blog.wolfman.com/articles/2009/11/11/using-postgresql-with-grails
+			 * - Jeroen
+			 */
 
 			// MySQL
 			//driverClassName = "com.mysql.jdbc.Driver"
