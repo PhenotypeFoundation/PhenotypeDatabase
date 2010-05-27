@@ -20,25 +20,26 @@
   <meta name="layout" content="dialog"/>
   <script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.js')}"></script>
   <script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.pubmed.js')}"></script>
+  <script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.programminglanguages.js')}"></script>
 
  </head>
  <body>
 
  <g:form action="createFromPubmed">
-  <g:textField name="publication" rel="publication-pubmed" />
+  <g:textField name="publication" rel="publication-pubmed" style="width:300px;"/>
   <g:submitButton name="add" value="Add publication" />
  </g:form>
- 
+
+
+
  ${errors}
  ${message}
 
  <script type="text/javascript">
-	$(document).ready(function() {
-          // initialize the ontology chooser
-          var chooser = new PublicationChooser();
-
-          chooser.init();
-	});
+$(document).ready(function() {
+  // initialize the ontology chooser
+  PublicationChooser.init();
+});
  </script>
  </body>
 </html>

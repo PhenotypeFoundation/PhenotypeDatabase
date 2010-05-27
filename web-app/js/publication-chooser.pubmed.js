@@ -26,7 +26,7 @@ sourcePubMed = function( chooserObject, searchterm, response ) {
                         var parsedData = parsePubmedData( summaryResponse )
                         
                         // Save in cache
-                        chooserObject.cache[ searchterm ] = parsedData;
+                        chooserObject.cache[ chooserObject.database ][ searchterm ] = parsedData;
 
                         // Return it to jquery
                         response( parsedData );
@@ -36,6 +36,37 @@ sourcePubMed = function( chooserObject, searchterm, response ) {
     })
 
 };
+
+selectPubMed = function( chooserObject, inputElement, event, ui ) {
+
+    // option selected, set hidden fields
+    var element = inputElement;
+
+    // set hidden fields
+    chooserObject.setInputValue(element, 'title', ui.item.title);
+    chooserObject.setInputValue(element, 'authorsList', ui.item.authors.join( ', ' ));
+    chooserObject.setInputValue(element, 'pubMedID', ui.item.id);
+    chooserObject.setInputValue(element, 'doi', ui.item.doi);
+
+    // remove error class (if present)
+    element.removeClass('error');
+};
+closePubMed  = function( chooserObject, inputElement, event, ui ) {
+    // no he didn't, clear the field(s)
+    var element = inputElement;
+
+    // set fields
+    inputElement.val('');
+    chooserObject.setInputValue(element, 'title', '');
+    chooserObject.setInputValue(element, 'authorsList', '');
+    chooserObject.setInputValue(element, 'pubMedID', '');
+    chooserObject.setInputValue(element, 'doi', '');
+
+    // add error class
+    element.addClass('error');
+};
+
+//renderPubMed = function( chooserObject, ul, item ) {};
 
 /**
  * Parse the result data from pubmed
@@ -84,4 +115,8 @@ function buildAuthorList( xmlAuthors ) {
     return authorList;
 }
 
-PublicationChooser.prototype.availableDBs[ "pubmed" ] = sourcePubMed;
+PublicationChooser.prototype.availableDBs[ "pubmed" ] = { 
+    'source': sourcePubMed,
+    'select': selectPubMed,
+    'close':  closePubMed
+};
