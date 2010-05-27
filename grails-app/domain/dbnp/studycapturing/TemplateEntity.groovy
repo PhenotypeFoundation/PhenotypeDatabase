@@ -20,6 +20,7 @@ abstract class TemplateEntity implements Serializable {
 	Map templateFloatFields = [:]
 	Map templateDoubleFields = [:]
 	Map templateDateFields = [:]
+        Map templateRelTimeFields = [:] // Contains relative times in seconds
 	Map templateTermFields = [:]
 
 	static hasMany = [
@@ -31,6 +32,7 @@ abstract class TemplateEntity implements Serializable {
 		templateDoubleFields: double,
 		templateDateFields: Date,
 		templateTermFields: Term,
+                templateRelTimeFields: long,
 		systemFields: TemplateField
 	]
 
@@ -199,6 +201,25 @@ abstract class TemplateEntity implements Serializable {
 			}
 			return (!error)
 		})
+		templateRelTimeFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if ( value && value.class != long ) {
+					try {
+						fields[key] = (value as long)
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateRelTimeFields',
+							'templateEntity.typeMismatch.reltime',
+							[key, value.class] as Object[],
+							'Property {0} must be of type long and is currently of type {1}'
+						)
+					}
+				}
+			}
+			return (!error)
+		})
 		templateTermFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
@@ -227,7 +248,7 @@ abstract class TemplateEntity implements Serializable {
 	 * @visibility private
 	 * @throws NoSuchFieldException
 	 */
-	private Map getStore(TemplateFieldType fieldType) {
+	public Map getStore(TemplateFieldType fieldType) {
 		switch(fieldType) {
 			case TemplateFieldType.STRING:
 				return templateStringFields
@@ -239,6 +260,8 @@ abstract class TemplateEntity implements Serializable {
 				return templateIntegerFields
 			case TemplateFieldType.DATE:
 				return templateDateFields
+			case TemplateFieldType.RELTIME:
+				return templateRelTimeFields
 			case TemplateFieldType.FLOAT:
 				return templateFloatFields
 			case TemplateFieldType.DOUBLE:
@@ -352,6 +375,93 @@ abstract class TemplateEntity implements Serializable {
 			}
 		}
 
+		// Magic setter for relative times: handle string values for relTime fields
+                //
+                // The relative time may be set as a string, using the following format
+                //
+                //    #w #d #h #m #s
+                //
+                // Where w = weeks, d = days, h = hours, m = minutes, s = seconds
+                //
+                // The spaces between the values are optional. Every timespan
+                // (w, d, h, m, s) must appear at most once. You can also omit
+                // timespans if needed or use a different order.
+                // Other characters are disregarded, allthough results may not
+                // always be as expected.
+                //  
+                // If an incorrect format is used, which can't be parsed
+                // an IllegalArgumentException is thrown.
+                //
+                // An empty span is treated as zero seconds.
+                //
+                // Examples:
+                // ---------
+                //    5d 3h 20m     // 5 days, 3 hours and 20 minutes
+                //    6h 2d         // 2 days, 6 hours
+                //    10m 200s      // 13 minutes, 20 seconds (200s == 3m + 20s)
+                //    5w4h15m       // 5 weeks, 4 hours, 15 minutes
+                //
+                //    16x14w10d     // Incorrect. 16x is disregarded, so the
+                //                  // result is 15 weeks, 3 days
+                //    13days        // Incorrect: days should be d, but this is
+                //                  // parsed as 13d, 0 seconds
+                //
+		if (field.type == TemplateFieldType.RELTIME && value.class == String) {
+			// A string was given, attempt to transform it into a timespan
+
+                        // An empty string should be parsed as 0
+                        if( value.trim() == "" ) {
+                            value = 0;
+                        } else {
+                            // Find all parts that contain numbers with
+                            // a character w, d, h, m or s after it
+                            def periodMatch = value =~ /([0-9]+)([wdhms])/
+                            if (periodMatch.size() > 0 ) {
+                                    def seconds = 0L;
+
+                                    // Now check if every part contains data for
+                                    // the time interval
+                                    periodMatch.each {
+                                        def partValue
+
+                                        println it
+
+                                        if( it[1].isLong() ) {
+                                            partValue = Long.parseLong( it[1] );
+                                        } else {
+                                            partValue = 0;
+                                        }
+
+                                        switch( it[ 2 ] ) {
+                                            case 'w':
+                                                seconds += 7L * 24 * 60 * 60 * partValue;
+                                                break;
+                                            case 'd':
+                                                seconds += 24L * 60 * 60 * partValue;
+                                                break;
+                                            case 'h':
+                                                seconds += 60L * 60 * partValue;
+                                                break;
+                                            case 'm':
+                                                seconds += 60L * partValue;
+                                                break;
+                                            case 's':
+                                                seconds += partValue;
+                                                break;
+                                            default:
+                                                adf.error.warn( 'Parsing relative time: ' + it[0] + it[1] + ' is not understood and disregarded' );
+                                                break;
+                                        }
+                                    }
+
+                                    // Continue with the computed value
+                                    value = seconds;
+                            } else {
+                                throw new IllegalArgumentException( "String " + value + " cannot be parsed as a relative time. Use format #w #d #h #m #s." );
+                            }
+                        }
+		}
+
 		// Magic setter for ontology terms: handle string values
 		if (field.type == TemplateFieldType.ONTOLOGYTERM && value && value.class == String) {
 			// iterate through ontologies and find term
@@ -383,17 +493,21 @@ abstract class TemplateEntity implements Serializable {
 			// Caution: this assumes that all template...Field Maps are already initialized (as is done now above as [:])
 			// If that is ever changed, the results are pretty much unpredictable (random Java object pointers?)!
 			def store = getStore(field.type)
-			if (!value && store[fieldName]) {
-				println ".unsetting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "]"
 
-				// remove the item from the Map (if present)
-				store.remove(fieldName)
-			} else if (value) {
-				println ".setting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
+                        // If some value is entered (or 0), then save the value
+                        // otherwise, it should not be present in the store, so
+                        // it is unset if it is.
+                        if ( value || value == 0 ) {
+                            println ".setting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
 
-				// set value
-				store[fieldName] = value
-			}
+                            // set value
+                            store[fieldName] = value
+			} else if ( store[fieldName] ) {
+                            println ".unsetting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "]"
+
+                            // remove the item from the Map (if present)
+                            store.remove(fieldName)
+                        }
 		}
 
 		return this
@@ -419,7 +533,7 @@ abstract class TemplateEntity implements Serializable {
         
 	/**
 	 * Return all fields defined in the underlying template and the built-in
-     * domain fields of this entity
+         * domain fields of this entity
 	 */
 	def List<TemplateField> giveFields() {
 		return this.giveDomainFields() + this.giveTemplateFields();

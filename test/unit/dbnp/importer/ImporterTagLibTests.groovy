@@ -1,8 +1,8 @@
-package dbnp.studycapturing
+package dbnp.importer
 
 import grails.test.*
 
-class TemplateSubjectFieldControllerTests extends ControllerUnitTestCase {
+class ImporterTagLibTests extends TagLibUnitTestCase {
     protected void setUp() {
         super.setUp()
     }

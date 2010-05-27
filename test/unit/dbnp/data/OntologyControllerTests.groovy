@@ -1,6 +1,8 @@
+package dbnp.data
+
 import grails.test.*
 
-class ProtocolParameterControllerTests extends ControllerUnitTestCase {
+class OntologyControllerTests extends ControllerUnitTestCase {
     protected void setUp() {
         super.setUp()
     }

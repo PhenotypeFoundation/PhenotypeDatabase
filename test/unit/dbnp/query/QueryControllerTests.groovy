@@ -1,6 +1,7 @@
+package dbnp.query
 import grails.test.*
 
-class TermControllerTests extends ControllerUnitTestCase {
+class QueryControllerTests extends ControllerUnitTestCase {
     protected void setUp() {
         super.setUp()
     }

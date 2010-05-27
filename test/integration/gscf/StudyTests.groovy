@@ -22,7 +22,7 @@ class StudyTests extends GrailsUnitTestCase {
 	final String testStudyTemplateName = "Academic study"
 	final Date testStudyStartDate = Date.parse('yyyy-MM-dd','2007-12-11')
 	final Date testStudyStartDate2 = Date.parse('yyyy-MM-dd','2008-05-11')
-	final String testStudyStartDateString2 = "11-5-2010"
+	final String testStudyStartDateString2 = "11-5-2008"
 	// The following dates do net yet work:
 	//final String testStudyStartDateString2 = "11-05-2010"
 	//final String testStudyStartDateString2 = "Tue Dec 13 00:00:00 EST 2008"

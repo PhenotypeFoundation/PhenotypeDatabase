@@ -1,6 +1,7 @@
+package dbnp.studycapturing
 import grails.test.*
 
-class TemplateControllerTests extends ControllerUnitTestCase {
+class StudyControllerTests extends ControllerUnitTestCase {
     protected void setUp() {
         super.setUp()
     }
