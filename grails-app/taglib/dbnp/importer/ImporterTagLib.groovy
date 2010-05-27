@@ -21,8 +21,6 @@ import org.apache.poi.ss.usermodel.DataFormatter
 
 class ImporterTagLib {
     static namespace = 'importer'
-    def standardentities = [[type:-1, name:"Don't import"], [type:0, name:"Study"], [type:1, name:"Subject"], [type:2, name:"Event"],
-			[type:3, name:"Protocol"], [type:4, name:"Sample"]]
 
     /**
     * @param header string array containing header
@@ -52,18 +50,16 @@ class ImporterTagLib {
     }
 
     /**
-     * @param entities array
+     * @param entities array containing selected entities
      */
     def properties = { attrs ->
-	def selectedentities = []
 	def header = attrs['header']
+	def entities = attrs['entities']
 
-	attrs['entities'].index.each { columnindex, entitytype ->
-	    def entity = [type:entitytype,columnindex:columnindex.toInteger()]
-	    selectedentities.add(entity)
-	}
-
-	out << render (template:"common/properties", model:[selectedentities:selectedentities, standardentities:standardentities, header:header])
+	out << render (	template:"common/properties",
+			model:[selectedentities:entities,
+			standardentities:grailsApplication.config.gscf.domain.importableEntities,
+			header:header])
     }
 
     /**
@@ -123,10 +119,10 @@ class ImporterTagLib {
 
 	def res = "<select style=\"font-size:10px\" name=\"${name}.index.${custval}\">"
 
-	standardentities.each { e ->
-	    res += "<option value=\"${e.type}\""
-	    res += (e.type == sel) ? " selected" : ""
-	    res += ">${e.name}</option>"
+	grailsApplication.config.gscf.domain.importableEntities.each { e ->
+	    res += "<option value=\"${e.value.name}\""
+	    res += (e.value.type == sel) ? " selected" : ""
+	    res += ">${e.value.name}</option>"
 	}
 
 	res += "</select>"

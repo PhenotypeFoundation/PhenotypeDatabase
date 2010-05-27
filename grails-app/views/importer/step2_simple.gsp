@@ -20,12 +20,12 @@
   <head>
     <meta name="layout" content="main"/>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'importer.css')}"/>
-    <title>Step 2: import wizard entities/properties</title>
+    <title>Step 2: import wizard properties/columns</title>
   </head>
   <body>
-    <h1>Step 2: import wizard entities/properties</h1>    
-    <p>First select the study you want to add the data to. The next step is to assign properties to the columns. Below you see the entities and columns, please make your
-    selections.</p>
+    <h1>Step 2: import wizard properties/columns</h1>
+    <p>The next step is to assign properties to the columns. Below you see the columns, please assign every column to
+    a property.</p>
   <importer:properties entities="${entities}" header="${header}" templates="${templates}"/>
   </body>
 </html>

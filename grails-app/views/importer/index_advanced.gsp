@@ -13,7 +13,7 @@
   <body>
     <h1>Importer wizard (advanced)</h1>
     <p>You can import your Excel data to the server by choosing a file from your local harddisk in the form below.</p>
-	<g:form controller="importer" method="post" action="upload" enctype="multipart/form-data">
+	<g:form controller="importer" method="post" action="upload_advanced" enctype="multipart/form-data">
 	<table border="0">
     	<tr>
 	    <td width="100px">

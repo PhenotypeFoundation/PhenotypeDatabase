@@ -16,14 +16,14 @@
     <p><g:select name="study.id" from="${dbnp.studycapturing.Study.list()}" optionKey="id" class="selectsmall"/></p>
     <table>
 	  <g:each var="stdentity" in ="${standardentities}">
-	      <% if (selectedentities.any { it.type.toInteger() ==stdentity.type.toInteger()} && stdentity.type.toInteger()!=-1) { %>
-	      <tr><td colspan="2"><h4>${stdentity.name}</h4></td></tr>
+	      <% if (selectedentities.any { it.name == stdentity.value.name } && stdentity.value.name!="") { %>
+	      <tr><td colspan="2"><h4>${stdentity.value.name}</h4></td></tr>
 	      <tr>		  
 		  <td>Columnname:</td>
 		  <td>Property:</td>
 	      </tr>	      
 		<g:each var="selentity" in="${selectedentities}">
-		    <g:if test="${selentity.type.toLong()==stdentity.type}">
+		    <g:if test="${selentity.name==stdentity.value.name}">
 			<tr>			    
 			    <td class="header" width="200px">
 				<b>${header[selentity.columnindex.toInteger()].name}</b>

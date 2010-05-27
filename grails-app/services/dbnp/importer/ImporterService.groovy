@@ -45,16 +45,17 @@ class ImporterService {
 
     /**
      * @param wb high level representation of the workbook
+     * @param sheetindex sheet to use within the workbook
      * @return header representation as a MappingColumn hashmap
      */
-    def getHeader(HSSFWorkbook wb, int sheetindex){
+    def getHeader(HSSFWorkbook wb, int sheetindex, theEntity=0){
 
 	def sheet = wb.getSheetAt(sheetindex)
 	def datamatrix_start = sheet.getFirstRowNum() + 1
 	//def header = []
 	def header = [:]
         def df = new DataFormatter()
-
+	def property = new dbnp.studycapturing.TemplateField()
 
 	for (HSSFCell c: sheet.getRow(datamatrix_start)) {
 	    def index	=   c.getColumnIndex()
@@ -66,20 +67,20 @@ class ImporterService {
 	        
 	    switch (datamatrix_celltype) {
                     case HSSFCell.CELL_TYPE_STRING:
-			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING, index:index);
+			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING, index:index, entity:theEntity, property:property);
 			    break
                     case HSSFCell.CELL_TYPE_NUMERIC:			
 			    if (HSSFDateUtil.isCellDateFormatted(c)) {
-				header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.DATE, index:index)
+				header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.DATE, index:index, entity:theEntity, property:property)
 			    }
 			    else
-				header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.INTEGER,index:index);
+				header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.INTEGER,index:index, entity:theEntity, property:property);
 			    break
 		    case HSSFCell.CELL_TYPE_BLANK:
-			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING, index:index);
+			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING, index:index, entity:theEntity, property:property);
 			    break
                     default:
-			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING,index:index);
+			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING,index:index, entity:theEntity, property:property);
 			    break
             }
 	}
@@ -159,10 +160,11 @@ class ImporterService {
     def importdata(template_id, HSSFWorkbook wb, int sheetindex, int rowindex, mcmap) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def table = []
+
 	
 	// walk through all rows	
 	(rowindex..sheet.getLastRowNum()).each { i ->
-	    table.add(createRecord(template_id, sheet.getRow(i), mcmap))	    
+	    table.add(createRecord(template_id, sheet.getRow(i), mcmap))
 	}
 
 	/*table.each {
@@ -262,9 +264,9 @@ class ImporterService {
 	def event = new Event(eventdescription:"New event", template:template)
 	def sample = new Sample(name:"New sample", template:template)
 
-	for (HSSFCell cell: excelrow) {
+	for (HSSFCell cell: excelrow) {	    
 	    def mc = mcmap[cell.getColumnIndex()]
-	    def value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)	    
+	    def value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
 
 	    switch(mc.entity) {
 		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)

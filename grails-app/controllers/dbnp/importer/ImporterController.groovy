@@ -29,6 +29,7 @@ import dbnp.studycapturing.Sample
 import dbnp.studycapturing.TemplateFieldType
 import dbnp.studycapturing.TemplateField
 import grails.converters.JSON
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
 
 class ImporterController {
     def ImporterService    
@@ -52,28 +53,64 @@ class ImporterController {
     * and the first n rows to the preview
     * @param importfile uploaded file to import
     */
-    def upload = {
-	def downloadedfile = request.getFile('importfile');
-        def tempfile = new File(System.getProperty('java.io.tmpdir') + File.separatorChar + System.currentTimeMillis() + ".nmcdsp")
-        downloadedfile.transferTo(tempfile)
+    def upload_advanced = {
+	def wb = handleUpload('importfile')
         
-	def wb = ImporterService.getWorkbook(new FileInputStream(tempfile))
-        
-	def header = ImporterService.getHeader(wb, 0)
-	def datamatrix= ImporterService.getDatamatrix(wb, 0, 5)
-
-	session.importer_header = header
+	session.importer_header = ImporterService.getHeader(wb, 0)
 	session.importer_template_id = params.template_id
 	session.importer_workbook = wb
 
-        render (view:"step1", model:[header:header, datamatrix:datamatrix])
+        render (view:"step1_advanced", model:[header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, 0, 5)])
+    }
+
+    /**
+    * This method will move the uploaded file to a temporary path and send the header
+    * and the rows to the postview
+    *
+    * @param importfile uploaded file to import
+    * @param entity string representation of the entity chosen
+    */
+    def upload_simple = {
+	def wb = handleUpload('importfile')
+	def entity = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
+	def entityClass = Class.forName(entity, true, this.getClass().getClassLoader())	
+
+	session.importer_header = ImporterService.getHeader(wb, 0, entityClass)
+	session.importer_template_id = params.template_id
+	session.importer_workbook = wb
+
+	//import workbook
+	//session.importer_importeddata = ImporterService.importdata(session.importer_template_id, session.importer_workbook, 0, 1, session.importer_header)
+
+	//println "DAS" + session.importer_header
+
+	//render(view:"step2_simple", model:[datamatrix:session.importer_importeddata])
+	def templates = Template.get(session.importer_template_id)
+	
+	render(view:"step2", model:[entities:entities, header:session.importer_header, templates:templates])
+    }
+
+    /**
+     * This method handles a file being uploaded and storing it in a temporary directory
+     * and returning a workbook
+     *
+     * @param formfilename name used for the file field in the form
+     * @return workbook object reference
+     */
+    private HSSFWorkbook handleUpload(formfilename) {
+
+	def downloadedfile = request.getFile(formfilename);
+        def tempfile = new File(System.getProperty('java.io.tmpdir') + File.separatorChar + System.currentTimeMillis() + ".nmcdsp")
+        downloadedfile.transferTo(tempfile)
+
+	return ImporterService.getWorkbook(new FileInputStream(tempfile))
     }
 
     /**
     * User has assigned all entities and templatefieldtypes to the columns and continues to the next step (assigning properties to columns)
     * All information of the columns is stored in a session as MappingColumn object
     *
-    * @param entity list of entities and columns it has been assigned to (columnindex:entitytype format)
+    * @param entities list of entities and columns it has been assigned to (columnindex.entitytype)
     * @param templatefieldtype list of celltypes and columns it has been assigned to (columnindex:templatefieldtype format)
     * @return properties page
     *
@@ -82,6 +119,14 @@ class ImporterController {
     def savepreview = {
 	def tft = null	
 	def identifiercolumnindex = (params.identifier!=null) ? params.identifier.toInteger() : -1
+	def selectedentities = []
+
+	// loop all entities and see which column has been assigned which entitytype
+	// and build an array containing the selected entities
+	params.entity.index.each { columnindex, entityname ->
+	    def _entity = [name:entityname,columnindex:columnindex.toInteger()]
+	    selectedentities.add(_entity)
+	}
 
 	params.templatefieldtype.index.each { columnindex, _templatefieldtype ->
 	    switch (_templatefieldtype) {
@@ -107,19 +152,19 @@ class ImporterController {
 	    session.importer_header[columnindex.toInteger()].templatefieldtype = tft
 	}
 
-	params.entity.index.each { columnindex, entitytype ->
+	params.entity.index.each { columnindex, entityname ->
 	    Class clazz
 
-	    switch (entitytype.toInteger()) {
-		case 0: clazz = Study
+	    switch (entityname) {
+		case "Study"	: clazz = Study
 			break
-		case 1: clazz = Subject
+		case "Subject"	: clazz = Subject
 			break
-		case 2: clazz = Event
+		case "Event"	: clazz = Event
 			break
-		case 3: clazz = Protocol
+		case "Protocol" : clazz = Protocol
 			break
-		case 4: clazz = Sample
+		case "Sample"	: clazz = Sample
 			break
 		default: clazz = Object
 			break
@@ -135,7 +180,7 @@ class ImporterController {
 	
 	def templates = Template.get(session.importer_template_id)
 
-	render(view:"step2", model:[entities:params.entity, header:session.importer_header, templates:templates])
+	render(view:"step2", model:[entities:selectedentities, header:session.importer_header, templates:templates])
     }
 
     /**
