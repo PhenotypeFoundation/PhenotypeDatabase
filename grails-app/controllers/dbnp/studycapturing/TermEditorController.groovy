@@ -84,7 +84,11 @@ class TermEditorController {
 				// validate term
 				if (term.validate()) {
 					println "Term validated correctly"
-					term.save()
+					if (term.save(flush:true)) {
+						println ".term save ok"
+					} else {
+						println ".term save failed?"
+					}
 					success()
                     flash.message = "Term addition succeeded"
 				} else {

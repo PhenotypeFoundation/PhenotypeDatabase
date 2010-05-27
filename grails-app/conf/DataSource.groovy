@@ -63,6 +63,7 @@ environments {
 			driverClassName = "org.postgresql.Driver"
 			url = "jdbc:postgresql://localhost:5432/gscf"
 			dialect = org.hibernate.dialect.PostgreSQLDialect
+			logSql = true
 
 			// MySQL
 			//driverClassName = "com.mysql.jdbc.Driver"
