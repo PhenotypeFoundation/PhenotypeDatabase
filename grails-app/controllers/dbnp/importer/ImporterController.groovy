@@ -72,12 +72,17 @@ class ImporterController {
     */
     def upload_simple = {
 	def wb = handleUpload('importfile')
+	def selectedentities = []
 	def entity = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
-	def entityClass = Class.forName(entity, true, this.getClass().getClassLoader())	
+	def entityClass = Class.forName(entity, true, this.getClass().getClassLoader())
 
 	session.importer_header = ImporterService.getHeader(wb, 0, entityClass)
 	session.importer_template_id = params.template_id
 	session.importer_workbook = wb
+
+	session.importer_header.each {	    
+	    selectedentities.add([name:params.entity, columnindex:it.key.toInteger()])
+	}
 
 	//import workbook
 	//session.importer_importeddata = ImporterService.importdata(session.importer_template_id, session.importer_workbook, 0, 1, session.importer_header)
@@ -87,7 +92,7 @@ class ImporterController {
 	//render(view:"step2_simple", model:[datamatrix:session.importer_importeddata])
 	def templates = Template.get(session.importer_template_id)
 	
-	render(view:"step2", model:[entities:entities, header:session.importer_header, templates:templates])
+	render(view:"step2", model:[entities: selectedentities, header:session.importer_header, templates:templates])
     }
 
     /**

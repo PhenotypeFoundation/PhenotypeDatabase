@@ -67,20 +67,40 @@ class ImporterService {
 	        
 	    switch (datamatrix_celltype) {
                     case HSSFCell.CELL_TYPE_STRING:
-			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING, index:index, entity:theEntity, property:property);
+			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+									    templatefieldtype:TemplateFieldType.STRING,
+									    index:index,
+									    entity:theEntity,
+									    property:property);
 			    break
                     case HSSFCell.CELL_TYPE_NUMERIC:			
 			    if (HSSFDateUtil.isCellDateFormatted(c)) {
-				header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.DATE, index:index, entity:theEntity, property:property)
+				header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+										templatefieldtype:TemplateFieldType.DATE,
+										index:index,
+										entity:theEntity,
+										property:property)
 			    }
 			    else
-				header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.INTEGER,index:index, entity:theEntity, property:property);
+				header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+										templatefieldtype:TemplateFieldType.INTEGER,
+										index:index,
+										entity:theEntity,
+										property:property);
 			    break
 		    case HSSFCell.CELL_TYPE_BLANK:
-			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING, index:index, entity:theEntity, property:property);
+			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+									    templatefieldtype:TemplateFieldType.STRING,
+									    index:index,
+									    entity:theEntity,
+									    property:property);
 			    break
                     default:
-			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell), templatefieldtype:TemplateFieldType.STRING,index:index, entity:theEntity, property:property);
+			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+									    templatefieldtype:TemplateFieldType.STRING,
+									    index:index,
+									    entity:theEntity,
+									    property:property);
 			    break
             }
 	}

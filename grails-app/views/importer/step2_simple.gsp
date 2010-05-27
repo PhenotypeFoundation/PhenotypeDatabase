@@ -26,6 +26,6 @@
     <h1>Step 2: import wizard properties/columns</h1>
     <p>The next step is to assign properties to the columns. Below you see the columns, please assign every column to
     a property.</p>
-  <importer:properties entities="${entities}" header="${header}" templates="${templates}"/>
+  <importer:properties entities="${entities}" header="${header}" templates="${templates}" allfieldtypes="true"/>
   </body>
 </html>

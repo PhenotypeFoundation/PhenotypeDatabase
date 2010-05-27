@@ -55,11 +55,15 @@ class ImporterTagLib {
     def properties = { attrs ->
 	def header = attrs['header']
 	def entities = attrs['entities']
+	def allfieldtypes = (attrs['allfieldtypes']==null) ? "false" : "true"
+	println attrs['allfieldtypes']
 
 	out << render (	template:"common/properties",
 			model:[selectedentities:entities,
 			standardentities:grailsApplication.config.gscf.domain.importableEntities,
-			header:header])
+			header:header,
+			allfieldtypes:allfieldtypes]
+			)
     }
 
     /**
@@ -68,6 +72,7 @@ class ImporterTagLib {
      * @param name name for the property chooser element
      * @param importtemplate_id template identifier where fields are retrieved from
      * @param MappingColumn object containing all required information
+     * @param allfieldtypes boolean true if all templatefields should be listed, otherwise only show filtered templatefields
      * @return chooser object
      * */
     def propertyChooser = { attrs ->
@@ -76,9 +81,12 @@ class ImporterTagLib {
 
 	def t = Template.get(session.importer_template_id)
 	def mc = attrs['mappingcolumn']
+	def allfieldtypes = attrs['allfieldtypes']
+
+	def templatefields = (allfieldtypes=="true") ? t.fields.list() : t.fields.findAll { it.type == mc.templatefieldtype }
 
 	(mc.identifier) ? out << "<select style=\"font-size:10px\" name=\"\" disabled><option>Identifier</option></select>":
-	    out << createPropertySelect(attrs['name'], t.fields.findAll { it.type == mc.templatefieldtype }, mc.index)
+	    out << createPropertySelect(attrs['name'], templatefields, mc.index)
     }
 
     /**
