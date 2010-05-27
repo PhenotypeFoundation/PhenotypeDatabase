@@ -189,25 +189,6 @@
 .wizard .element .helpContent {
     display: none;
 }
-
-.wizard .element .help {
-    vertical-align: top;
-    display: inline-block;
-    zoom: 1; /* IE 6 & 7 hack */
-    *display: inline; /* IE 6 & 7 hack */
-}
-
-.wizard .element .help .icon {
-    margin-top: 4px;
-    background: url(../images/icons/famfamfam/help.png) no-repeat left top;
-    width: 16px;
-    height: 16px;
-}
-
-.wizard .element .help .content {
-    display: none;
-}
-
 /** END :: HELP **/
 
 /* START ::  TABLE */
@@ -221,6 +202,11 @@
     white-space: nowrap;
 }
 
+.wizard .table b {
+    color: #006dba;
+    font-weight: bold;
+}
+
 .wizard .table .header {
     display: block;
     background-color: #006DBA;
@@ -232,7 +218,7 @@
     text-shadow: 0px 0px 1px #333;
 }
 
-.wizard .header .helpIcon {
+.wizard .column .helpIcon {
     display: inline-block;
     margin-top: 4px;
     background: url(../images/icons/famfamfam/help.png) no-repeat left top;
@@ -302,7 +288,7 @@
     width: 75px;
 }
 
-.wizard .table .highlight, .wizard .table .highlight input, .wizard .table .highlight select {
+.wizard .table .highlight, .wizard .table .highlight input, .wizard .table .highlight select, .wizard .table .highlight b {
     background-color: #006DBA;
     color: #fff;
 }

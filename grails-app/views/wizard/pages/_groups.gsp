@@ -18,10 +18,22 @@
 
 <div class="table">
 	<div class="header">
-		<div class="column"></div>
-		<div class="column"></div>
+		<div class="column">Template</div>
+		<div class="column">Subjects</div>
 		<g:if test="${eventGroups}"><g:each var="eventGroup" status="g" in="${eventGroups}">
-		<div class="column">${eventGroup.name}</div>
+		<div class="column">
+			${eventGroup.name}
+			<div class="helpIcon"></div>
+			<div class="helpContent">
+				<h1>${eventGroup.name}</h1>
+				<g:each var="event" status="e" in="${eventGroup.events}">
+					<h2>${event.template}</h2>
+					<g:each var="field" status="f" in="${event.giveFields()}">
+						${field.name}: ${event.getFieldValue(field.name)}<br/>
+					</g:each>
+				</g:each>
+			</div>
+		</div>
 		</g:each></g:if>
 	</div>
 <g:each var="sTemplate" in="${subjectTemplates}">
@@ -33,7 +45,14 @@
 		<div class="column">
 			<g:if test="${showHeader}">
 				<g:set var="showHeader" value="${false}" />
-				${subjectTemplate.name} template
+				${subjectTemplate.name}
+				<div class="helpIcon"></div>
+				<div class="helpContent">
+					<h2>Template Fields:</h2>
+					<g:each var="field" status="f" in="${subjects[ subjectId ].giveFields()}">
+						${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
+					</g:each>
+				</div>
 			</g:if>
 		</div>
 		<div class="column">${subjects[ subjectId ].name}</div>

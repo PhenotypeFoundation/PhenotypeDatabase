@@ -726,7 +726,9 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		if (template) {
 			// render template fields
 			entity.giveFields().each() {
-				out << '<div class="' + attrs.get('class') + '">' + it.name + (it.unit ? " (${it.unit})" : '')
+				def ucName		= it.name[0].toUpperCase() + it.name.substring(1)
+
+				out << '<div class="' + attrs.get('class') + '">' + ucName + (it.unit ? " (${it.unit})" : '')
 				if (it.comment) {
 					out << '<div class="helpIcon"></div>'
 					out << '<div class="helpContent">' + it.comment + '</div>'
@@ -766,6 +768,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 			entity.giveFields().each() {
 				def fieldValue	= entity.getFieldValue(it.name)
 				def helpText	= (it.comment && renderType == 'element') ? it.comment : ''
+				def ucName		= it.name[0].toUpperCase() + it.name.substring(1)
 
 				// output column opening element?
 				if (renderType == 'column') {
@@ -776,7 +779,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 					case ['STRING', 'TEXT', 'INTEGER', 'FLOAT', 'DOUBLE']:
 						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
 						out << "$inputElement"(
-							description: it.name,
+							description: ucName,
 							name: prependName + it.escapedName(),
 							value: fieldValue
 						){helpText}
@@ -785,7 +788,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 						inputElement = (renderType == 'element') ? 'selectElement' : 'select'
 						if (!it.listEntries.isEmpty()) {
 							out << "$inputElement"(
-								description: it.name,
+								description: ucName,
 								name: prependName + it.escapedName(),
 								from: it.listEntries,
 								value: fieldValue
@@ -801,14 +804,14 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 
 						if (it.ontologies) {
 							out << "$inputElement"(
-								description	: it.name,
+								description	: ucName,
 								name		: prependName + it.escapedName(),
 								value		: fieldValue.toString(),
 								ontologies	: it.ontologies
 							){helpText}
 						} else {
 							out << "$inputElement"(
-								description	: it.name,
+								description	: ucName,
 								name		: prependName + it.escapedName(),
 								value		: fieldValue.toString()
 							){helpText}
@@ -853,7 +856,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 
 						// render element
 						out << "$inputElement"(
-							description: it.name,
+							description: ucName,
 							name: prependName + it.escapedName(),
 							value: fieldValue,
 							rel: 'date'
