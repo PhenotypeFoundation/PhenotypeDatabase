@@ -25,8 +25,8 @@ class TemplateFieldTests extends GrailsUnitTestCase {
 
         this.testEvent = new Event(
                 template: testTemplate,
-                startTime: Date.parse('yyyy-MM-dd','2008-01-02'),
-                endTime: Date.parse('yyyy-MM-dd','2008-01-05')
+                startTime: 3600,
+                endTime: 7200
         )
     }
 

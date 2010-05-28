@@ -350,6 +350,23 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		)
 	}
 
+ 	/**
+	 * render a textAreaElement
+	 * @param Map attrs
+	 * @param Closure body  (help text)
+	 */
+	def textAreaElement = {attrs, body ->
+		// set default size, or scale to max length if it is less than the default size
+
+		// render template element
+		baseElement.call(
+			'textArea',
+			attrs,
+			body
+		)
+	}
+
+
 	/**
 	 * render a select form element
 	 * @param Map attrs
@@ -803,8 +820,16 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 				}
 
 				switch (it.type.toString()) {
-					case ['STRING', 'TEXT', 'INTEGER', 'FLOAT', 'DOUBLE']:
+					case ['STRING', 'INTEGER', 'FLOAT', 'DOUBLE']:
 						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
+						out << "$inputElement"(
+							description: ucName,
+							name: prependName + it.escapedName(),
+							value: fieldValue
+						){helpText}
+						break
+					case 'TEXT':
+						inputElement = (renderType == 'element') ? 'textAreaElement' : 'textField'
 						out << "$inputElement"(
 							description: ucName,
 							name: prependName + it.escapedName(),
@@ -887,6 +912,14 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 							name: prependName + it.escapedName(),
 							value: fieldValue,
 							rel: 'date'
+						){helpText}
+						break
+					case ['RELTIME']:
+						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
+						out << "$inputElement"(
+							description: ucName,
+							name: prependName + it.escapedName(),
+							value: new RelTime( fieldValue ).toString()
 						){helpText}
 						break
 					default:

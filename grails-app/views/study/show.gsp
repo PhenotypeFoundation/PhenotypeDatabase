@@ -1,5 +1,6 @@
 
 <%@ page import="dbnp.studycapturing.Study" %>
+<%@ page import="dbnp.studycapturing.RelTime" %>
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -93,7 +94,7 @@
                 eventSources[${bandNr}] = new Timeline.DefaultEventSource();
 
                 // Load events for this eventsource (using jquery)
-                var event_url = '${createLink(controller:'study', action:'events', id:eventGroup.id, params: [startDate: study.startDate])}';
+                var event_url = '${createLink(controller:'study', action:'events', id:eventGroup.id, params: [startDate: study.startDate.getTime() ])}';
                 $.getJSON(event_url, $.callback( _loadJSONEvents, [0, ${bandNr}, eventSources[${bandNr}], overviewEventSource, event_url] ) );
 
                 // Create a new timeline band
@@ -388,7 +389,7 @@
                     events = studyInstance.events + studyInstance.samplingEvents;
                     sortedEvents = events.sort( { a, b ->
                           a.startTime == b.startTime ?
-                            a.getDuration().toMilliseconds() <=> b.getDuration().toMilliseconds() :
+                            a.getDuration().getValue() <=> b.getDuration().getValue() :
                             a.startTime <=> b.startTime
                       } as Comparator )
                   %>
@@ -400,7 +401,7 @@
                           ${studyInstance.title}
                         </td>
                       </g:if>
-                      <td>${event.getPrettyDuration(studyInstance.startDate,event.startTime)}</td>
+                      <td>${new RelTime(event.startTime).toPrettyString()}</td>
                       <td>${event.getPrettyDuration()}</td>
                       <td>${event.template.name}</td>
                       <td>

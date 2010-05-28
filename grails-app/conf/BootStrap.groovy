@@ -406,79 +406,79 @@ class BootStrap {
 				mouseStudy.save()
 
 				def evLF = new Event(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					startTime: 3600,
+					endTime: 3600 +7 * 24 * 3600,
 					template: dietTreatmentTemplate
 				)
 				.setFieldValue( 'Diet','10% fat (palm oil)')
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evHF = new Event(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					startTime: 3600,
+					endTime: 3600 +7 * 24 * 3600,
 					template: dietTreatmentTemplate
 				)
 				.setFieldValue( 'Diet','45% fat (palm oil)' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evBV = new Event(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					startTime: 3600,
+					endTime: 3600 +7 * 24 * 3600,
 					template: boostTreatmentTemplate
 				)
 				.setFieldValue( 'Compound','Vehicle' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evBL = new Event(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					startTime: 3600,
+					endTime: 3600 +7 * 24 * 3600,
 					template: boostTreatmentTemplate
 				)
 				.setFieldValue( 'Compound','Leptin' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evLF4 = new Event(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-					endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+					startTime: 3600,
+					endTime: 3600 + 4 * 7 * 24 * 3600,
 					template: dietTreatmentTemplate
 				)
 				.setFieldValue( 'Diet','10% fat (palm oil)')
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evHF4 = new Event(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-					endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+					startTime: 3600,
+					endTime: 3600 + 4 * 7 * 24 * 3600,
 					template: dietTreatmentTemplate
 				)
 				.setFieldValue( 'Diet','45% fat (palm oil)' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evBV4 = new Event(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-					endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+					startTime: 3600,
+					endTime: 3600 + 4 * 7 * 24 * 3600,
 					template: boostTreatmentTemplate
 				)
 				.setFieldValue( 'Compound','Vehicle' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evBL4 = new Event(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-07'),
-					endTime: Date.parse('yyyy-MM-dd','2008-02-04'),
+					startTime: 3600,
+					endTime: 3600 + 4 * 7 * 24 * 3600,
 					template: boostTreatmentTemplate
 				)
 				.setFieldValue( 'Compound','Leptin' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evS = new SamplingEvent(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					startTime: 3600 +7 * 24 * 3600,
+					endTime: 3600 +7 * 24 * 3600,
 					template: liverSamplingEventTemplate)
 				.setFieldValue('Sample weight',5F)
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evS4 = new SamplingEvent(
-					startTime: Date.parse('yyyy-MM-dd','2008-01-14'),
-					endTime: Date.parse('yyyy-MM-dd','2008-01-14'),
+					startTime: 3600 +7 * 24 * 3600,
+					endTime: 3600 +7 * 24 * 3600,
 					template: liverSamplingEventTemplate)
 				.setFieldValue('Sample weight',5F)
 				.with { if (!validate()) { errors.each { println it} } else save()}
@@ -612,15 +612,15 @@ class BootStrap {
 				def rootGroup = new EventGroup(name: 'Root group');
 
 				def fastingEvent = new Event(
-					startTime: Date.parse('yyyy-MM-dd HH:mm','2008-01-14 22:00'),
-					endTime: Date.parse('yyyy-MM-dd HH:mm','2008-01-15 08:00'),
+					startTime: 3 * 24 * 3600 + 22 * 3600,
+					endTime: 3 * 24 * 3600 + 30 * 3600,
 					template: fastingTreatment)
 				.setFieldValue('Fasting period','8h');
 
 
 				def bloodSamplingEvent = new SamplingEvent(
-					startTime: Date.parse('yyyy-MM-dd HH:mm','2008-01-15 08:00'),
-					endTime: Date.parse('yyyy-MM-dd HH:mm','2008-01-15 08:00'),
+					startTime: 3 * 24 * 3600 + 30 * 3600,
+					endTime: 3 * 24 * 3600 + 30 * 3600,
 					template: bloodSamplingEventTemplate)
 				.setFieldValue('Sample volume',4.5F);
 

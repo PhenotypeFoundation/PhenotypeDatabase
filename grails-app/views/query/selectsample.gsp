@@ -67,7 +67,7 @@
                  <td> ${sample.name}</td>
                  <td> ${sample.material}</td>
 
-                 <td> ${event.getPrettyDuration( studyIns.startDate, event.startTime)} </td>
+                 <td> ${event.getPrettyDuration(event.startTime)} </td>
 
                  <td>
                  <g:if test="${showSubgroups}">

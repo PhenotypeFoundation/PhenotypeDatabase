@@ -377,89 +377,9 @@ abstract class TemplateEntity implements Serializable {
 
 		// Magic setter for relative times: handle string values for relTime fields
                 //
-                // The relative time may be set as a string, using the following format
-                //
-                //    #w #d #h #m #s
-                //
-                // Where w = weeks, d = days, h = hours, m = minutes, s = seconds
-                //
-                // The spaces between the values are optional. Every timespan
-                // (w, d, h, m, s) must appear at most once. You can also omit
-                // timespans if needed or use a different order.
-                // Other characters are disregarded, allthough results may not
-                // always be as expected.
-                //  
-                // If an incorrect format is used, which can't be parsed
-                // an IllegalArgumentException is thrown.
-                //
-                // An empty span is treated as zero seconds.
-                //
-                // Examples:
-                // ---------
-                //    5d 3h 20m     // 5 days, 3 hours and 20 minutes
-                //    6h 2d         // 2 days, 6 hours
-                //    10m 200s      // 13 minutes, 20 seconds (200s == 3m + 20s)
-                //    5w4h15m       // 5 weeks, 4 hours, 15 minutes
-                //
-                //    16x14w10d     // Incorrect. 16x is disregarded, so the
-                //                  // result is 15 weeks, 3 days
-                //    13days        // Incorrect: days should be d, but this is
-                //                  // parsed as 13d, 0 seconds
-                //
-		if (field.type == TemplateFieldType.RELTIME && value.class == String) {
-			// A string was given, attempt to transform it into a timespan
-
-                        // An empty string should be parsed as 0
-                        if( value.trim() == "" ) {
-                            value = 0;
-                        } else {
-                            // Find all parts that contain numbers with
-                            // a character w, d, h, m or s after it
-                            def periodMatch = value =~ /([0-9]+)([wdhms])/
-                            if (periodMatch.size() > 0 ) {
-                                    def seconds = 0L;
-
-                                    // Now check if every part contains data for
-                                    // the time interval
-                                    periodMatch.each {
-                                        def partValue
-
-                                        println it
-
-                                        if( it[1].isLong() ) {
-                                            partValue = Long.parseLong( it[1] );
-                                        } else {
-                                            partValue = 0;
-                                        }
-
-                                        switch( it[ 2 ] ) {
-                                            case 'w':
-                                                seconds += 7L * 24 * 60 * 60 * partValue;
-                                                break;
-                                            case 'd':
-                                                seconds += 24L * 60 * 60 * partValue;
-                                                break;
-                                            case 'h':
-                                                seconds += 60L * 60 * partValue;
-                                                break;
-                                            case 'm':
-                                                seconds += 60L * partValue;
-                                                break;
-                                            case 's':
-                                                seconds += partValue;
-                                                break;
-                                            default:
-                                                adf.error.warn( 'Parsing relative time: ' + it[0] + it[1] + ' is not understood and disregarded' );
-                                                break;
-                                        }
-                                    }
-
-                                    // Continue with the computed value
-                                    value = seconds;
-                            } else {
-                                throw new IllegalArgumentException( "String " + value + " cannot be parsed as a relative time. Use format #w #d #h #m #s." );
-                            }
-                        }
+		if (field.type == TemplateFieldType.RELTIME && value != null && value.class == String) {
+                    // A string was given, attempt to transform it into a timespan
+                    value = RelTime.parseRelTime( value ).getValue();
 		}
 
 		// Magic setter for ontology terms: handle string values
@@ -486,8 +406,15 @@ abstract class TemplateEntity implements Serializable {
 			} else {
 				println ".unsetting [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "]"
 
-				// remove value
-				this[field.name] = null
+				// remove value. For numbers, this is done by setting
+                                // the value to 0, otherwise, setting it to NULL
+                                switch( field.type.toString() ) {
+                                    case ['INTEGER', 'FLOAT', 'DOUBLE', 'RELTIME']:
+                                        this[field.name] = 0;
+                                        break;
+                                    default:
+        				this[field.name] = null
+                                }
 			}
 		} else {
 			// Caution: this assumes that all template...Field Maps are already initialized (as is done now above as [:])

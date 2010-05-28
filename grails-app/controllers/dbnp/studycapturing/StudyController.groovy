@@ -72,8 +72,11 @@ class StudyController {
      */
     def events = {
         def eventGroup = EventGroup.get(params.id)
-        def startDate  = params.startDate
 
+        // This parameter should give the startdate of the study in milliseconds
+        // since 1-1-1970
+        long startDate  = Long.parseLong( params.startDate )
+        
         if (!eventGroup) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventgroup.label', default: 'Eventgroup'), params.id])}"
             redirect(action: "list")
@@ -103,9 +106,9 @@ class StudyController {
                     }
                 }
 
-                json.events << [
-                    'start':    event.startTime,
-                    'end':      event.endTime,
+                 json.events << [
+                    'start':    new Date( startDate + event.startTime * 1000 ),
+                    'end':      new Date( startDate + event.endTime * 1000 ),
                     'durationEvent': !event.isSamplingEvent(),
                     'title': event.template.name + " (" + parameters.join( ', ' ) + ")",
                     'description': parameters
