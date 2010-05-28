@@ -75,11 +75,15 @@ class CCMCommunicationManager implements CleanDataLayer {
     }
 
 
-    public void getMeasurementsResource() {
+    public Object getMeasurementsResource( String keyword ) {
+        def url = new URL( ServerURL + "/" + getSearchable(keyword) )
+        return  JSON.parse( url.newReader() )
     }
+
 
     public void getMeasurementsForValueResource() {
     }
+
 
     public void getMeasurementsForRangeResource() {
     }
@@ -88,5 +92,16 @@ class CCMCommunicationManager implements CleanDataLayer {
     public void getDataSimple() {
     }
 
+
+    /** Send a request for the REST resource to the server and deliver the 
+     *  resulting JSON object.
+     *
+     *  @param resource: the name of the resource including parameters
+     *  @return JSON object
+     */
+    private Object requesService( String resource ) { 
+        def url = new URL( ServerURL + "/" + resource );
+        return  JSON.parse( url.newReader() );
+    }
 
 }
