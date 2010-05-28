@@ -130,7 +130,7 @@ class WizardTagLib extends JavascriptTagLib {
 		def button = this.ajaxButton(attrs, body)
 
 		// strip the button part to only leave the Ajax call
-		button = button.replaceFirst(/<[^\"]*\"jQuery.ajax/, 'jQuery.ajax')
+		button = button.replaceFirst(/<[^\"]*onclick=\"/, '')
 		button = button.replaceFirst(/return false.*/, '')
 
 		// change form if a form attribute is present
@@ -193,6 +193,10 @@ class WizardTagLib extends JavascriptTagLib {
 		setProvider([library: ajaxProvider])
 
 		// render new body content
+		//	- this JavaScript variable is used by baseElement to workaround an IE
+		//	  specific issue (double submit on onchange events). The hell with IE!
+		//	  @see baseElement
+		out << '<script type="text/javascript">var lastRequestTime = 0;</script>'
 		out << render(template: "/wizard/common/tabs")
 		out << '<div class="content">'
 		out << body()
@@ -210,6 +214,7 @@ class WizardTagLib extends JavascriptTagLib {
 	def baseElement = {inputElement, attrs, help ->
 println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "] and value [" + ((attrs.value) ? attrs.get('value').toString() : "-") + "]"
 		// work variables
+		def internetExplorer = (request.getHeader("User-Agent") =~ /MSIE/)
 		def description = attrs.remove('description')
 		def addExampleElement = attrs.remove('addExampleElement')
 		def addExample2Element = attrs.remove('addExample2Element')
@@ -221,15 +226,37 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 			if (!attrs.onChange) attrs.onChange = ''
 
 			// add onChange AjaxSubmit javascript
-			attrs.onChange += ajaxSubmitJs(
-				[
-					functionName: ajaxOnChange,
-					url: attrs.get('url'),
-					update: attrs.get('update'),
-					afterSuccess: attrs.get('afterSuccess')
-				],
-				''
-			)
+			if (internetExplorer) {
+				// 		- somehow IE submits these onchanges twice which messes up some parts of the wizard
+				//		  (especially the events page). In order to bypass this issue I have introduced an
+				//		  if statement utilizing the 'before' and 'after' functionality of the submitToRemote
+				//		  function. This check expects lastRequestTime to be in the global Javascript scope,
+				//		  (@see pageContent) and calculates the time difference in miliseconds between two
+				//		  onChange executions. If this is more than 100 miliseconds the request is executed,
+				//		  otherwise it will be ignored... --> 20100527 - Jeroen Wesbeek
+				attrs.onChange += ajaxSubmitJs(
+					[
+						before: "var execute=true;try { var currentTime=new Date().getTime();execute = ((currentTime-lastRequestTime) > 100);lastRequestTime=currentTime;  } catch (e) {};if (execute) { 1",
+						after: "}",
+						functionName: ajaxOnChange,
+						url: attrs.get('url'),
+						update: attrs.get('update'),
+						afterSuccess: attrs.get('afterSuccess')
+					],
+					''
+				)
+			} else {
+				// this another W3C browser that actually behaves as expected... damn you IE, DAMN YOU!
+				attrs.onChange += ajaxSubmitJs(
+					[
+						functionName: ajaxOnChange,
+						url: attrs.get('url'),
+						update: attrs.get('update'),
+						afterSuccess: attrs.get('afterSuccess')
+					],
+					''
+				)
+			}
 		}
 
 		// execute inputElement call
