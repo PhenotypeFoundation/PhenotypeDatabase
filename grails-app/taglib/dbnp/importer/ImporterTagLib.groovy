@@ -56,7 +56,7 @@ class ImporterTagLib {
 	def header = attrs['header']
 	def entities = attrs['entities']
 	def allfieldtypes = (attrs['allfieldtypes']==null) ? "false" : "true"
-	println attrs['allfieldtypes']
+	
 
 	out << render (	template:"common/properties",
 			model:[selectedentities:entities,
@@ -83,7 +83,7 @@ class ImporterTagLib {
 	def mc = attrs['mappingcolumn']
 	def allfieldtypes = attrs['allfieldtypes']
 
-	def templatefields = (allfieldtypes=="true") ? t.fields.list() : t.fields.findAll { it.type == mc.templatefieldtype }
+	def templatefields = (allfieldtypes=="true") ? t.fields : t.fields.findAll { it.type == mc.templatefieldtype }
 
 	(mc.identifier) ? out << "<select style=\"font-size:10px\" name=\"\" disabled><option>Identifier</option></select>":
 	    out << createPropertySelect(attrs['name'], templatefields, mc.index)

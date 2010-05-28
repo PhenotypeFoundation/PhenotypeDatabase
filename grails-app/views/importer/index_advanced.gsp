@@ -12,7 +12,8 @@
   </head>
   <body>
     <h1>Importer wizard (advanced)</h1>
-    <p>You can import your Excel data to the server by choosing a file from your local harddisk in the form below.</p>
+    <p>You can import your Excel data to the server by choosing a file from your local harddisk in the form below.
+    Then choose the template you want to use and finally the study you want to import the data to.</p>
 	<g:form controller="importer" method="post" action="upload_advanced" enctype="multipart/form-data">
 	<table border="0">
     	<tr>
@@ -29,6 +30,14 @@
 	    </td>
 	    <td>
 		<g:select name="template_id" from="${templates}" optionKey="id"/>
+	    </td>
+	</tr>	
+	<tr>
+	    <td>
+		Study
+	    </td>
+	    <td>
+		<g:select name="study.id" from="${dbnp.studycapturing.Study.list()}" optionKey="id" class="selectsmall"/>
 	    </td>
 	</tr>
 	<tr>

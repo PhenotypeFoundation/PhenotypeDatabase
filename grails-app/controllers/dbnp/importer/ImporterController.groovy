@@ -52,12 +52,15 @@ class ImporterController {
     * This method will move the uploaded file to a temporary path and send the header
     * and the first n rows to the preview
     * @param importfile uploaded file to import
+    * @param study.id study identifier
     */
     def upload_advanced = {
 	def wb = handleUpload('importfile')
+
         
 	session.importer_header = ImporterService.getHeader(wb, 0)
 	session.importer_template_id = params.template_id
+	session.importer_study = Study.get(params.study.id.toInteger())
 	session.importer_workbook = wb
 
         render (view:"step1_advanced", model:[header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, 0, 5)])
@@ -92,7 +95,7 @@ class ImporterController {
 	//render(view:"step2_simple", model:[datamatrix:session.importer_importeddata])
 	def templates = Template.get(session.importer_template_id)
 	
-	render(view:"step2", model:[entities: selectedentities, header:session.importer_header, templates:templates])
+	render(view:"step2_simple", model:[entities: selectedentities, header:session.importer_header, templates:templates])
     }
 
     /**
@@ -193,7 +196,6 @@ class ImporterController {
     *
     */
     def saveproperties = {	
-	session.importer_study = Study.get(params.study.id.toInteger())
 
 	params.columnproperty.index.each { columnindex, property_id ->
 		session.importer_header[columnindex.toInteger()].property = TemplateField.get(property_id.toInteger())
