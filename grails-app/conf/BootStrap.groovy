@@ -254,28 +254,36 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 
-			def sampleDescriptionField = new TemplateField(
-				name: 'Description',type: TemplateFieldType.TEXT)
-			.with { if (!validate()) { errors.each { println it} } else save()}
-			def sampleTypeField = new TemplateField(
-				name: 'SampleType',type: TemplateFieldType.STRING)
-			.with { if (!validate()) { errors.each { println it} } else save()}
-			def sampleProtocolField = new TemplateField(
-				name: 'SampleProtocol',type: TemplateFieldType.STRING)
+			def sampleRemarksField = new TemplateField(
+				name: 'Remarks',type: TemplateFieldType.TEXT)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 			def sampleVialTextField = new TemplateField(
 				name: 'Text on vial',type: TemplateFieldType.STRING)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
-			// Human sample template
+			// Human tissue sample template
 			println ".adding human sample template..."
 			def humanSampleTemplate = new Template(
 				name: 'Human tissue sample', entity: dbnp.studycapturing.Sample)
-			.addToFields(sampleDescriptionField)
-			.addToFields(sampleTypeField)
-			.addToFields(sampleProtocolField)
+			.addToFields(sampleRemarksField)
 			.addToFields(sampleVialTextField)
+            .addToFields(new TemplateField(
+                name: 'Sample measured weight',
+                unit: 'mg',
+                type: TemplateFieldType.FLOAT))
 			.with { if (!validate()) { errors.each { println it} } else save()}
+
+            // Human blood sample template
+            println ".adding human sample template..."
+            def humanBloodSampleTemplate = new Template(
+                name: 'Human blood sample', entity: dbnp.studycapturing.Sample)
+            .addToFields(sampleRemarksField)
+            .addToFields(sampleVialTextField)
+            .addToFields(new TemplateField(
+                name: 'Sample measured volume',
+                unit: 'ml',
+                type: TemplateFieldType.FLOAT))
+            .with { if (!validate()) { errors.each { println it} } else save()}
 
 			//Plant template
 			println ".adding plant template..."
@@ -323,45 +331,45 @@ class BootStrap {
 			println ".adding plant sample template..."
 			def plantSampleTemplate = new Template(
 				name: 'Plant sample', entity: dbnp.studycapturing.Sample)
-			.addToFields(sampleDescriptionField)
-			.addToFields(sampleTypeField)
-			.addToFields(sampleProtocolField)
+			.addToFields(sampleRemarksField)
 			.addToFields(sampleVialTextField)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
-
-			// Event templates
 			def dietTreatmentTemplate = new Template(
-				name: 'Diet treatment', entity: dbnp.studycapturing.Event)
-			.addToFields(sampleDescriptionField)
+				name: 'Diet treatment HF45/LF10', entity: dbnp.studycapturing.Event)
 			.addToFields(new TemplateField(
 				name: 'Diet', type: TemplateFieldType.STRINGLIST,
 				listEntries: [new TemplateFieldListItem(name:'10% fat (palm oil)'),new TemplateFieldListItem(name: '45% fat (palm oil)')]))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def boostTreatmentTemplate = new Template(
-				name: 'Boost treatment', entity: dbnp.studycapturing.Event)
-			.addToFields(sampleDescriptionField)
+				name: 'Leptin treatment', entity: dbnp.studycapturing.Event)
 			.addToFields(new TemplateField(
-				name: 'Compound', type: TemplateFieldType.STRING,
+				name: 'Compound', type: TemplateFieldType.STRINGLIST,
 				listEntries: [new TemplateFieldListItem(name:'Vehicle'),new TemplateFieldListItem(name: 'Leptin')]))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def fastingTreatment = new Template(
-				 name: 'Fasting treatment',
-				 description: 'Fasting Protocol NuGO PPSH',
-				 entity: dbnp.studycapturing.Event)
-			 .addToFields(new TemplateField(
-				 name: 'Fasting period',
-				 type: TemplateFieldType.STRING))
+                                name: 'Fasting treatment',
+                                description: 'Fasting Protocol NuGO PPSH',
+                                entity: dbnp.studycapturing.Event)
+                        .addToFields(new TemplateField(
+                                name: 'Fasting period',
+                                type: TemplateFieldType.STRING))
 			 .with { if (!validate()) { errors.each { println it} } else save()}
 
 			// SamplingEvent templates
 
+                        def samplingProtocolField = new TemplateField(
+                        name: 'SampleProtocol',type: TemplateFieldType.STRING)
+                        .with { if (!validate()) { errors.each { println it} } else save()}
+
 			def liverSamplingEventTemplate = new Template(
 				name: 'Liver extraction',
 				description: 'Liver sampling for transcriptomics arrays',
-				entity: dbnp.studycapturing.SamplingEvent)
+				entity: dbnp.studycapturing.SamplingEvent,
+                                sampleTemplates: [humanSampleTemplate])
+                        .addToFields(samplingProtocolField)
 			.addToFields(new TemplateField(
 				name: 'Sample weight',
 				unit: 'mg',
@@ -371,7 +379,9 @@ class BootStrap {
 			def bloodSamplingEventTemplate = new Template(
 				name: 'Blood extraction',
 				description: 'Blood extraction targeted at lipid assays',
-				entity: dbnp.studycapturing.SamplingEvent)
+	    		        entity: dbnp.studycapturing.SamplingEvent,
+                                 sampleTemplates: [humanBloodSampleTemplate])
+                        .addToFields(samplingProtocolField)
 			.addToFields(new TemplateField(
 				name: 'Sample volume',
 				unit: 'ml',
@@ -535,7 +545,7 @@ class BootStrap {
 				.addToEvents(evS4)
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
-		                // Add subjects and samples and compose EventGroups
+                // Add subjects and samples and compose EventGroups
 				def x=1
 				20.times {
 					def currentSubject = new Subject(
@@ -639,7 +649,8 @@ class BootStrap {
 					      name: currentSubject.name + '_B',
 					      material: bloodTerm,
 					      parentSubject: currentSubject,
-					      parentEvent: bloodSamplingEvent);
+					      parentEvent: bloodSamplingEvent,
+                          template: humanBloodSampleTemplate);
 
 				        humanStudy.addToSubjects(currentSubject).addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
 				}

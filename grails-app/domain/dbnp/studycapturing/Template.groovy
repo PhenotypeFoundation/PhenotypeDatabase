@@ -16,7 +16,9 @@ class Template implements Serializable {
 	Class entity
 	//nimble.User owner
 	List fields
-	static hasMany = [fields: TemplateField]
+	static hasMany = [fields: TemplateField,
+        sampleTemplates: Template] // only applicable when entity=SamplingEvent,
+        // for storing which Sample (template)s result from a SamplingEvent (template)
 
 	static constraints = {
 		description(nullable: true, blank: true)
