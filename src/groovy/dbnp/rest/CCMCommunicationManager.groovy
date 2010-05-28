@@ -12,7 +12,8 @@ import dbnp.data.CleanDataLayer
 
 class CCMCommunicationManager implements CleanDataLayer {
 
-    def static ServerURL = "http://localhost:8080/gscf/rest";
+    //def static ServerURL = "http://localhost:8080/gscf/rest";
+    def static ServerURL = "http://nbx5.nugo.org:8182/ClinicalChemistry/rest";
 
 
     /* Methods implemented for CleanDataLayer */
