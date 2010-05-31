@@ -285,3 +285,25 @@ function handleWizardTable() {
         }
     });
 }
+
+// Show example of parsed data next to RelTime fields
+function showExampleReltime(inputfield) {
+    var fieldName = inputfield.name;
+
+    var successFunc = function(data, textStatus, request) {
+        if( request.status == 200 ) {
+            document.getElementById( fieldName + "Example" ).value = data;
+        }
+    };
+
+    var errorFunc = function( request, textStatus, errorThrown ) {
+        // On error, clear the example field
+        document.getElementById( fieldName + "Example" ).value = "";
+    };
+        
+    $.ajax({
+        url     : baseUrl + '/wizard/ajaxParseRelTime?reltime=' + inputfield.value,
+        success : successFunc,
+        error   : errorFunc
+    });
+}

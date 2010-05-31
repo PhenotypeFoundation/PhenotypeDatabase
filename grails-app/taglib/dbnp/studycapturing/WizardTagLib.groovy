@@ -919,7 +919,9 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 						out << "$inputElement"(
 							description: ucName,
 							name: prependName + it.escapedName(),
-							value: new RelTime( fieldValue ).toString()
+							value: new RelTime( fieldValue ).toString(),
+                                                        addExampleElement: true,
+                                                        onBlur: 'showExampleReltime(this)'
 						){helpText}
 						break
 					default:

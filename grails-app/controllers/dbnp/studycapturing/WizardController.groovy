@@ -2,6 +2,10 @@ package dbnp.studycapturing
 
 import dbnp.data.*
 
+// Grails convertors is imported in order to create JSON objects
+import grails.converters.*
+
+
 /**
  * Wizard Controler
  *
@@ -768,4 +772,24 @@ class WizardController {
 			mapToExtend[prepend + key] = ['key': key, 'value': value, 'dynamic': true]
 		}
 	}
+
+        /**
+         * Parses a RelTime string and returns a nice human readable string
+         *
+         * @returns Human Readable string or a HTTP response code 400 on error
+         */
+        def ajaxParseRelTime = {
+            if( params.reltime == null ) {
+                response.status = 400;
+                render( 'reltime parameter is expected' );
+            }
+
+            try {
+                def reltime = RelTime.parseRelTime( params.reltime );
+                render reltime.toPrettyString();
+            } catch( IllegalArgumentException e ) {
+                response.status = 400;
+                render( e.getMessage() );
+            }
+        }
 }
