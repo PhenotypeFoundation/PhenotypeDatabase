@@ -164,7 +164,7 @@
     background: url(../images/icons/famfamfam/exclamation.png) no-repeat 230px 4px;
 }
 
-.wizard .element .input input {
+.wizard .element .input input, textarea {
     vertical-align: top;
     border: 1px solid #CCC;
     margin: 2px 0;
