@@ -33,23 +33,9 @@ class SimpleQueryController {
 			]
 	    }
 
-        simpleQuery {
-          render(view: "/simpleQuery/mainPage")
-          onRender {
-              println "Rendering simpleQuery interface"
-          }
-
-          on ("submit") {
-                println "Submitted query string"
-	      } .to 'results'
-        }
-
-        results {
-          render(view: "simpleQuery/results")
-          onRender {
-              println "Rendering results"
-          }
-        }
     }
 
+    query {
+      render(view: "simpleuery")
+    }
 }

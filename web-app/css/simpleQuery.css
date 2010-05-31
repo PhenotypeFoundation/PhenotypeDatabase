@@ -1,0 +1,30 @@
+.simplequery .content {
+    padding: 0px 10px 0px 10px;
+    display: inline;
+    border: 0px;
+}
+
+.simplequery .element {
+    display: block;
+}
+
+.simplequery .element .description {
+    margin: 10px;
+    display: inline-block;
+    font-size: 11px;
+    width: 250px;
+    word-wrap: break-word;
+}
+
+.simplequery .element .input {
+    display: inline;
+    font-size: 11px;
+    word-wrap: break-word;
+}
+
+.simplequery .element .input input {
+    vertical-align: top;
+    border: 1px solid #CCC;
+    margin: 2px 0;
+    padding: 2px 4px;
+}
