@@ -57,6 +57,7 @@ class WizardController {
 				[title: 'Subjects'],			// subjects
 				[title: 'Events'],				// events and event grouping
 				[title: 'Groups'],				// groups
+				[title: 'Samples'],				// samples
 				[title: 'Confirmation'],		// confirmation page
 				[title: 'Done']					// finish page
 			]
@@ -401,15 +402,31 @@ class WizardController {
 			onRender {
 				flow.page = 5
 			}
-			on("previous").to "events"
-			on("next").to "groups"
+			on("previous") {
+				this.handleSubjectGrouping(flow, flash, params)
+			}.to "events"
+			on("next") {
+				this.handleSubjectGrouping(flow, flash, params)
+			}.to "samples"
+		}
+
+		// samples page
+		samples {
+			render(view: "_samples")
+			onRender {
+				flow.page = 6
+			}
+			on("previous") {
+			}.to "groups"
+			on("next") {
+			}.to "samples"
 		}
 
 		// confirmation
 		confirm {
 			render(view: "_confirmation")
 			onRender {
-				flow.page = 6
+				flow.page = 7
 			}
 			on("toStudy").to "study"
 			on("toSubjects").to "subjects"
@@ -516,7 +533,7 @@ class WizardController {
 		error {
 			render(view: "_error")
 			onRender {
-				flow.page = 6
+				flow.page = 7
 			}
 			on("next").to "save"
 			on("previous").to "samples"
@@ -526,7 +543,7 @@ class WizardController {
 		done {
 			render(view: "_done")
 			onRender {
-				flow.page = 7
+				flow.page = 8
 			}
 			on("previous") {
 				// TODO
@@ -688,7 +705,6 @@ class WizardController {
 	def handleEventGrouping(flow, flash, params) {
 		// walk through eventGroups
 		def g = 0
-
 		flow.eventGroups.each() { eventGroup ->
 			def e = 0
 
@@ -702,6 +718,36 @@ class WizardController {
 				}
 				e++
 			}
+			g++
+		}
+	}
+
+	/**
+	 * re-usable code for handling subject grouping in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handleSubjectGrouping(flow, flash, params) {
+		println params
+
+		// iterate through event groups
+		def g = 0
+		flow.eventGroups.each() { eventGroup ->
+			// reset subjects
+			eventGroup.subjects = new HashSet()
+
+			// iterate through subjects
+			flow.subjects.each() { subjectId, subject ->
+				// is this combination set?
+				if (params.get('subject_' + subjectId + '_group_' + g) != null) {
+					eventGroup.addToSubjects(subject)
+				}
+			}
+
+			println g+" : "+eventGroup.subjects
+
 			g++
 		}
 	}
@@ -773,23 +819,23 @@ class WizardController {
 		}
 	}
 
-        /**
-         * Parses a RelTime string and returns a nice human readable string
-         *
-         * @returns Human Readable string or a HTTP response code 400 on error
-         */
-        def ajaxParseRelTime = {
-            if( params.reltime == null ) {
-                response.status = 400;
-                render( 'reltime parameter is expected' );
-            }
+	/**
+	 * Parses a RelTime string and returns a nice human readable string
+	 *
+	 * @returns Human Readable string or a HTTP response code 400 on error
+	 */
+	def ajaxParseRelTime = {
+		if (params.reltime == null) {
+			response.status = 400;
+			render('reltime parameter is expected');
+		}
 
-            try {
-                def reltime = RelTime.parseRelTime( params.reltime );
-                render reltime.toPrettyString();
-            } catch( IllegalArgumentException e ) {
-                response.status = 400;
-                render( e.getMessage() );
-            }
-        }
+		try {
+			def reltime = RelTime.parseRelTime(params.reltime);
+			render reltime.toPrettyString();
+		} catch (IllegalArgumentException e) {
+			response.status = 400;
+			render(e.getMessage());
+		}
+	}
 }
