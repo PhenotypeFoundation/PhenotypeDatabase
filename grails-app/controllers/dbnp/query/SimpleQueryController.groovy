@@ -33,9 +33,8 @@ class SimpleQueryController {
 			]
 	    }
 
-    }
-
-    query {
-      render(view: "simpleuery")
+		query {
+			render(view: "simpleuery")
+		}
     }
 }
