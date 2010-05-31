@@ -20,7 +20,7 @@ abstract class TemplateEntity implements Serializable {
 	Map templateFloatFields = [:]
 	Map templateDoubleFields = [:]
 	Map templateDateFields = [:]
-        Map templateRelTimeFields = [:] // Contains relative times in seconds
+	Map templateRelTimeFields = [:] // Contains relative times in seconds
 	Map templateTermFields = [:]
 
 	static hasMany = [
@@ -32,7 +32,7 @@ abstract class TemplateEntity implements Serializable {
 		templateDoubleFields: double,
 		templateDateFields: Date,
 		templateTermFields: Term,
-                templateRelTimeFields: long,
+		templateRelTimeFields: long,
 		systemFields: TemplateField
 	]
 
@@ -40,7 +40,7 @@ abstract class TemplateEntity implements Serializable {
 		tablePerHierarchy false
 
 		templateTextFields type: 'text'
-	}	
+	}
 
 	/**
 	 * Constraints
@@ -65,7 +65,7 @@ abstract class TemplateEntity implements Serializable {
 			// iterate through fields
 			fields.each { key, value ->
 				// check if the value is of proper type
-				if ( value && value.class != String ) {
+				if (value && value.class != String) {
 					// it's of some other type
 					try {
 						// try to cast it to the proper type
@@ -90,7 +90,7 @@ abstract class TemplateEntity implements Serializable {
 		templateTextFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if ( value && value.class != String ) {
+				if (value && value.class != String) {
 					try {
 						fields[key] = (value as String)
 					} catch (Exception e) {
@@ -109,7 +109,7 @@ abstract class TemplateEntity implements Serializable {
 		templateStringListFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if ( value && value.class != TemplateFieldListItem ) {
+				if (value && value.class != TemplateFieldListItem) {
 					try {
 						fields[key] = (value as TemplateFieldListItem)
 					} catch (Exception e) {
@@ -128,7 +128,7 @@ abstract class TemplateEntity implements Serializable {
 		templateIntegerFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value && value.class != Integer ) {
+				if (value && value.class != Integer) {
 					try {
 						fields[key] = (value as Integer)
 					} catch (Exception e) {
@@ -147,7 +147,7 @@ abstract class TemplateEntity implements Serializable {
 		templateFloatFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if ( value && value.class != Float ) {
+				if (value && value.class != Float) {
 					try {
 						fields[key] = (value as Float)
 					} catch (Exception e) {
@@ -166,7 +166,7 @@ abstract class TemplateEntity implements Serializable {
 		templateDoubleFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if ( value && value.class != Double ) {
+				if (value && value.class != Double) {
 					try {
 						fields[key] = (value as Double)
 					} catch (Exception e) {
@@ -185,7 +185,7 @@ abstract class TemplateEntity implements Serializable {
 		templateDateFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if ( value && value.class != Date ) {
+				if (value && value.class != Date) {
 					try {
 						fields[key] = (value as Date)
 					} catch (Exception e) {
@@ -204,7 +204,7 @@ abstract class TemplateEntity implements Serializable {
 		templateRelTimeFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if ( value && value.class != long ) {
+				if (value && value.class != long) {
 					try {
 						fields[key] = (value as long)
 					} catch (Exception e) {
@@ -223,7 +223,7 @@ abstract class TemplateEntity implements Serializable {
 		templateTermFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if ( value && value.class != Term ) {
+				if (value && value.class != Term) {
 					try {
 						fields[key] = (value as Term)
 					} catch (Exception e) {
@@ -249,7 +249,7 @@ abstract class TemplateEntity implements Serializable {
 	 * @throws NoSuchFieldException
 	 */
 	public Map getStore(TemplateFieldType fieldType) {
-		switch(fieldType) {
+		switch (fieldType) {
 			case TemplateFieldType.STRING:
 				return templateStringFields
 			case TemplateFieldType.TEXT:
@@ -268,7 +268,7 @@ abstract class TemplateEntity implements Serializable {
 				return templateDoubleFields
 			case TemplateFieldType.ONTOLOGYTERM:
 				return templateTermFields
-		        default:
+			default:
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}
 	}
@@ -284,7 +284,7 @@ abstract class TemplateEntity implements Serializable {
 		// escape the fieldName for easy matching
 		// (such escaped names are commonly used
 		// in the HTTP forms of this application)
-		String escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])","_")
+		String escapedLowerCaseFieldName = fieldName.toLowerCase().replaceAll("([^a-z0-9])", "_")
 
 		// Find the target template field, if not found, throw an error
 		TemplateField field = fieldsCollection.find { it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseFieldName }
@@ -306,11 +306,11 @@ abstract class TemplateEntity implements Serializable {
 	def getFieldValue(String fieldName) {
 
 		if (isDomainField(fieldName)) {
-                    return this[fieldName]
+			return this[fieldName]
 		}
 		else {
-                    TemplateField field = getField(this.giveTemplateFields(),fieldName)
-                    return getStore(field.type)[fieldName]
+			TemplateField field = getField(this.giveTemplateFields(), fieldName)
+			return getStore(field.type)[fieldName]
 		}
 
 	}
@@ -323,7 +323,7 @@ abstract class TemplateEntity implements Serializable {
 	boolean fieldExists(String fieldName) {
 		// getField should throw a NoSuchFieldException if the field does not exist
 		try {
-			TemplateField field = getField(this.giveFields(),fieldName)
+			TemplateField field = getField(this.giveFields(), fieldName)
 			// return true if exception is not thrown (but double check if field really is not null)
 			if (field) {
 				return true
@@ -333,7 +333,7 @@ abstract class TemplateEntity implements Serializable {
 			}
 		}
 		// if exception is thrown, return false
-		catch(NoSuchFieldException e) {
+		catch (NoSuchFieldException e) {
 			return false
 		}
 	}
@@ -345,7 +345,7 @@ abstract class TemplateEntity implements Serializable {
 	 */
 	def setFieldValue(String fieldName, value) {
 		// get the template field
-		TemplateField field = getField(this.giveFields(),fieldName)
+		TemplateField field = getField(this.giveFields(), fieldName)
 
 		// Convenience setter for template string list fields: find TemplateFieldListItem by name
 		if (field.type == TemplateFieldType.STRINGLIST && value && value.class == String) {
@@ -376,10 +376,10 @@ abstract class TemplateEntity implements Serializable {
 		}
 
 		// Magic setter for relative times: handle string values for relTime fields
-                //
+		//
 		if (field.type == TemplateFieldType.RELTIME && value != null && value.class == String) {
-                    // A string was given, attempt to transform it into a timespan
-                    value = RelTime.parseRelTime( value ).getValue();
+			// A string was given, attempt to transform it into a timespan
+			value = RelTime.parseRelTime(value).getValue();
 		}
 
 		// Magic setter for ontology terms: handle string values
@@ -407,34 +407,34 @@ abstract class TemplateEntity implements Serializable {
 				println ".unsetting [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "]"
 
 				// remove value. For numbers, this is done by setting
-                                // the value to 0, otherwise, setting it to NULL
-                                switch( field.type.toString() ) {
-                                    case ['INTEGER', 'FLOAT', 'DOUBLE', 'RELTIME']:
-                                        this[field.name] = 0;
-                                        break;
-                                    default:
-        				this[field.name] = null
-                                }
+				// the value to 0, otherwise, setting it to NULL
+				switch (field.type.toString()) {
+					case ['INTEGER', 'FLOAT', 'DOUBLE', 'RELTIME']:
+						this[field.name] = 0;
+						break;
+					default:
+						this[field.name] = null
+				}
 			}
 		} else {
 			// Caution: this assumes that all template...Field Maps are already initialized (as is done now above as [:])
 			// If that is ever changed, the results are pretty much unpredictable (random Java object pointers?)!
 			def store = getStore(field.type)
 
-                        // If some value is entered (or 0), then save the value
-                        // otherwise, it should not be present in the store, so
-                        // it is unset if it is.
-                        if ( value || value == 0 ) {
-                            println ".setting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
+			// If some value is entered (or 0), then save the value
+			// otherwise, it should not be present in the store, so
+			// it is unset if it is.
+			if (value || value == 0) {
+				println ".setting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
 
-                            // set value
-                            store[fieldName] = value
-			} else if ( store[fieldName] ) {
-                            println ".unsetting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "]"
+				// set value
+				store[fieldName] = value
+			} else if (store[fieldName]) {
+				println ".unsetting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "]"
 
-                            // remove the item from the Map (if present)
-                            store.remove(fieldName)
-                        }
+				// remove the item from the Map (if present)
+				store.remove(fieldName)
+			}
 		}
 
 		return this
@@ -442,25 +442,25 @@ abstract class TemplateEntity implements Serializable {
 
 	/**
 	 * Check if a given field is a domain field
-	 * @param TemplateField		field instance
+	 * @param TemplateField field instance
 	 * @return boolean
 	 */
 	boolean isDomainField(TemplateField field) {
-            return isDomainField( field.name )
+		return isDomainField(field.name)
 	}
 
 	/**
 	 * Check if a given field is a domain field
-	 * @param String	field name
+	 * @param String field name
 	 * @return boolean
 	 */
-        boolean isDomainField(String fieldName) {
-            return this.giveDomainFields()*.name.contains(fieldName)
-        }
-        
+	boolean isDomainField(String fieldName) {
+		return this.giveDomainFields()*.name.contains(fieldName)
+	}
+
 	/**
 	 * Return all fields defined in the underlying template and the built-in
-         * domain fields of this entity
+	 * domain fields of this entity
 	 */
 	def List<TemplateField> giveFields() {
 		return this.giveDomainFields() + this.giveTemplateFields();
@@ -476,8 +476,8 @@ abstract class TemplateEntity implements Serializable {
 	/**
 	 * Return all relevant 'built-in' domain fields of the super class
 	 * @return List with DomainTemplateFields
-     * @see TemplateField
- 	 */
+	 * @see TemplateField
+	 */
 	abstract List<TemplateField> giveDomainFields()
 
 	/**
