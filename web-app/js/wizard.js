@@ -307,3 +307,46 @@ function showExampleReltime(inputfield) {
         error   : errorFunc
     });
 }
+
+// Create a file upload field
+function fileUploadField(field_id) {
+	/* example 2 */
+	new AjaxUpload('#upload_button_' + field_id, {
+		//action: 'upload.php',
+		action: baseUrl + '/file/upload', // I disabled uploads in this example for security reaaons
+		data : {},
+                name : field_id,
+                autoSubmit: true,
+		onChange : function(file, ext){
+                    oldFile = $('#' + field_id).val();
+                    if( oldFile != '' ) {
+                        if( !confirm( 'The old file is deleted when uploading a new file. Do you want to continue?') ) {
+                            return false;
+                        }
+                    }
+
+                    this.setData({
+                            'field':   field_id,
+                            'oldFile': oldFile
+                    });
+
+                    // Give feedback to the user
+                    $('#' + field_id + 'Example').html('Uploading ' + createFileHTML( file ));
+
+
+		},
+		onComplete : function(file, response){
+                    if( response == "" ) {
+                        $('#' + field_id).val( '' );
+                        $('#' + field_id + 'Example').html('<span class="error">Error uploading ' + createFileHTML( file ) + '</span>' );
+                    } else {
+                        $('#' + field_id).val( response );
+                        $('#' + field_id + 'Example').html('Uploaded ' + createFileHTML( file ) );
+                    }
+		}
+	});
+}
+
+function createFileHTML( filename ) {
+    return '<a target="_blank" href="' + baseUrl + '/file/get/' + filename + '">' + filename + '</a>';
+}

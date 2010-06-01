@@ -19,6 +19,10 @@ class TemplateFieldTests extends GrailsUnitTestCase {
                     new TemplateField(
                         name: 'testRelTime',
                         type: TemplateFieldType.RELTIME
+                    ),
+                    new TemplateField(
+                        name: 'testFile',
+                        type: TemplateFieldType.FILE
                     )
                 ]
             );

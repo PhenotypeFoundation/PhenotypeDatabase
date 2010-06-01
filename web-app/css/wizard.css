@@ -335,3 +335,16 @@
 	text-shadow: 0px 0px 1px #333;
     border: 1px solid red;
 }
+
+.wizard .upload_button {
+    display: inline; border: 1px solid #006dba; padding: 4px 8px; cursor: pointer; line-height: 26px;
+}
+
+.wizard .upload_info {
+    display: inline; color: #006dba;
+    margin-left: 5px; 
+}
+.wizard .upload_info .error {
+    color: red;
+}
+}

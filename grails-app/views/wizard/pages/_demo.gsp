@@ -15,6 +15,9 @@
  */
 %>
 
+<g:if test="${demoElement}">
+    <wizard:templateElements entity="${demoElement}" />
+</g:if>
 <span class="info">
 	<span class="title">Ontology chooser</span>
 	The ontology box below fetched suggestions from the NCBO webservice

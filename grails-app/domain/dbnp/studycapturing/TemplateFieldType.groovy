@@ -16,7 +16,8 @@ public enum TemplateFieldType implements Serializable  {
 	STRINGLIST('List of items'),
 	ONTOLOGYTERM('Ontology Reference'),
 	DATE('Date'),
-	RELTIME('Relative time') // relative date, e.g. days since start of study
+	RELTIME('Relative time'), // relative date, e.g. days since start of study
+        FILE('File')
 
 	String name
 
@@ -25,7 +26,7 @@ public enum TemplateFieldType implements Serializable  {
 	}
 
 	static list() {
-		[STRING, TEXT, INTEGER, FLOAT, DOUBLE, STRINGLIST, ONTOLOGYTERM, DATE, RELTIME]
+		[STRING, TEXT, INTEGER, FLOAT, DOUBLE, STRINGLIST, ONTOLOGYTERM, DATE, RELTIME, FILE]
 	}
 
 	def getDefaultValue() {
@@ -46,6 +47,8 @@ public enum TemplateFieldType implements Serializable  {
 				return null
 			case RELTIME:
 				return null
+                        case FILE:
+                                return ""
 			default:
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}

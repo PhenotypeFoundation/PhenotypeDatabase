@@ -511,6 +511,42 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	}
 
 	/**
+	 * File form element
+	 * @param Map attributes
+	 * @param Closure help content
+	 */
+	def fileFieldElement = { attrs, body ->
+		// render term element
+		baseElement.call(
+			'fileField',
+			attrs,
+			body
+		)
+	}
+
+        def fileField = { attrs ->
+            /*
+            out << '<input type="file" name="' + attrs.name + '"/>'
+            if( attrs.value ) {
+                out << '<a href="' + resource(dir: '') + '/file/get/' + attrs.value + '" class="isExample">Now contains: ' + attrs.value + '</a>'
+            }
+            */
+
+            out << '<div id="upload_button_' + attrs.name + '" class="upload_button">Upload</div>';
+            out << '<input type="hidden" name="' + attrs.name + '" id="' + attrs.name + '" value="' + attrs.value + '">';
+            out << '<div id="' + attrs.name + 'Example" class="upload_info"></div>';
+            out << '<script type="text/javascript">';
+            out << '  $(document).ready( function() { ';
+            out << '    var filename = "' + attrs.value + '";';
+            out << '    fileUploadField( "' + attrs.name + '" );';
+            out << '    if( filename != "" ) {';
+            out << '      $("#' + attrs.name + 'Example").html("Current file: " + createFileHTML( filename ) )';
+            out << '    }';
+            out << '  } );';
+            out << "</script>\n";
+        }
+
+	/**
 	 * Term select element
 	 * @param Map attributes
 	 */
@@ -922,6 +958,15 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 							value: new RelTime( fieldValue ).toString(),
                                                         addExampleElement: true,
                                                         onBlur: 'showExampleReltime(this)'
+						){helpText}
+						break
+					case ['FILE']:
+						inputElement = (renderType == 'element') ? 'fileFieldElement' : 'fileField'
+						out << "$inputElement"(
+							description: ucName,
+							name: prependName + it.escapedName(),
+							value: fieldValue ? fieldValue : "",
+                                                        addExampleElement: true
 						){helpText}
 						break
 					default:

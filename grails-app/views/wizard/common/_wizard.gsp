@@ -16,7 +16,7 @@
 %>
 <div id="wizard" class="wizard">
 	<h1>Study wizard</h1>
-	<g:form action="pages" name="wizardForm" id="wizardForm">
+	<g:form action="pages" name="wizardForm" id="wizardForm" enctype="multipart/form-data">
 	<g:hiddenField name="do" value="" />
 		<div id="wizardPage">
 			<wizard:ajaxFlowRedirect form="form#wizardForm" name="next" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />

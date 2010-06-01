@@ -21,6 +21,7 @@ abstract class TemplateEntity implements Serializable {
 	Map templateDoubleFields = [:]
 	Map templateDateFields = [:]
 	Map templateRelTimeFields = [:] // Contains relative times in seconds
+	Map templateFileFields = [:] // Contains filenames
 	Map templateTermFields = [:]
 
 	static hasMany = [
@@ -33,6 +34,7 @@ abstract class TemplateEntity implements Serializable {
 		templateDateFields: Date,
 		templateTermFields: Term,
 		templateRelTimeFields: long,
+                templateFileFields: String,
 		systemFields: TemplateField
 	]
 
@@ -41,6 +43,8 @@ abstract class TemplateEntity implements Serializable {
 
 		templateTextFields type: 'text'
 	}
+
+        def fileService
 
 	/**
 	 * Constraints
@@ -239,6 +243,44 @@ abstract class TemplateEntity implements Serializable {
 			}
 			return (!error)
 		})
+		templateFileFields(validator: { fields, obj, errors ->
+			// note that we only use 'fields' and 'errors', 'obj' is
+			// merely here because it's the way the closure is called
+			// by the validator...
+
+			// define a boolean
+			def error = false
+
+			// iterate through fields
+			fields.each { key, value ->
+				// check if the value is of proper type
+				if (value && value.class != String) {
+					// it's of some other type
+					try {
+						// try to cast it to the proper type
+						fields[key] = (value as String)
+
+                                                // Find the file on the system
+                                                // if it does not exist, the filename can
+                                                // not be entered
+                                                
+					} catch (Exception e) {
+						// could not typecast properly, value is of improper type
+						// add error message
+						error = true
+						errors.rejectValue(
+							'templateFileFields',
+							'templateEntity.typeMismatch.string',
+							[key, value.class] as Object[],
+							'Property {0} must be of type String and is currently of type {1}'
+						)
+					}
+				}
+			}
+
+			// got an error, or not?
+			return (!error)
+		})
 	}
 
 	/**
@@ -262,6 +304,8 @@ abstract class TemplateEntity implements Serializable {
 				return templateDateFields
 			case TemplateFieldType.RELTIME:
 				return templateRelTimeFields
+			case TemplateFieldType.FILE:
+				return templateFileFields
 			case TemplateFieldType.FLOAT:
 				return templateFloatFields
 			case TemplateFieldType.DOUBLE:
@@ -381,6 +425,64 @@ abstract class TemplateEntity implements Serializable {
 			// A string was given, attempt to transform it into a timespan
 			value = RelTime.parseRelTime(value).getValue();
 		}
+
+                // Sometimes the fileService is not created yet
+                if( !fileService ) {
+                    fileService = new FileService();
+                }
+
+		// Magic setter for files: handle values for file fields
+                //
+                // If NULL is given, the field value is emptied and the old file is removed
+                // If an empty string is given, the field value is kept as was
+                // If a file is given, it is moved to the right directory. Old files are deleted. If
+                //   the file does not exist, the field is kept
+                // If a string is given, it is supposed to be a file in the upload directory. If
+                //   it is different from the old one, the old one is deleted. If the file does not
+                //   exist, the old one is kept.
+		if (field.type == TemplateFieldType.FILE) {
+                    def currentFile = getFieldValue( field.name );
+
+                    if( value == null ) {
+                        // If NULL is given, the field value is emptied and the old file is removed
+                        value = "";
+                        if( currentFile )
+                        {
+                            fileService.delete( currentFile )
+                        }                        
+                    } else if( value.class == File ) {
+                        // a file was given. Attempt to move it to the upload directory, and
+                        // afterwards, store the filename. If the file doesn't exist
+                        // or can't be moved, "" is returned
+                        value = fileService.moveFileToUploadDir( value );
+
+                        if( value ) {
+                            if( currentFile )
+                            {
+                                fileService.delete( currentFile )
+                            }
+                        } else {
+                            value = currentFile;
+                        }
+                    } else if ( value == "" ) {
+                        value = currentFile;
+                    } else {
+                        if( value != currentFile ) {
+                            if( fileService.fileExists( value ) ) {
+                                // When a FILE field is filled, and a new file is set
+                                // the existing file should be deleted
+                                if( currentFile )
+                                {
+                                    fileService.delete( currentFile )
+                                }
+                            } else {
+                                // If the file does not exist, the field is kept
+                                value = currentFile;
+                            }
+                        }
+                    }
+		}
+
 
 		// Magic setter for ontology terms: handle string values
 		if (field.type == TemplateFieldType.ONTOLOGYTERM && value && value.class == String) {
