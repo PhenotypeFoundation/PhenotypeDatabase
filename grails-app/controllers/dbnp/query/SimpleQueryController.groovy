@@ -34,7 +34,7 @@ class SimpleQueryController {
 	    }
 
 		query {
-			render(view: "simplequery")
+			render(view: "/simpleQuery/mainPage")
 		}
     }
 }
