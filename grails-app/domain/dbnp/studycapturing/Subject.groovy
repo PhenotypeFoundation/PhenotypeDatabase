@@ -20,7 +20,7 @@ class Subject extends TemplateEntity implements Serializable {
 	 * return the domain fields for this domain class
 	 * @return List
 	 */
-	List<TemplateField> giveDomainFields() { return Subject.domainFields; }
+	static List<TemplateField> giveDomainFields() { return Subject.domainFields; }
 
         static List<TemplateField> domainFields =
 		[

@@ -474,7 +474,7 @@ abstract class TemplateEntity implements Serializable {
 	}
 
 	/**
-	 * Return all relevant 'built-in' domain fields of the super class
+	 * Return all relevant 'built-in' domain fields of the super class. Should be implemented by a static method
 	 * @return List with DomainTemplateFields
 	 * @see TemplateField
 	 */

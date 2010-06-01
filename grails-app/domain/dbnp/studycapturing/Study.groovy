@@ -20,7 +20,7 @@ class Study extends TemplateEntity implements Serializable {
 	 * return the domain fields for this domain class
 	 * @return List
 	 */
-        List<TemplateField> giveDomainFields() { return Study.domainFields }
+        static List<TemplateField> giveDomainFields() { return Study.domainFields }
 
         static final List<TemplateField> domainFields =
 		[

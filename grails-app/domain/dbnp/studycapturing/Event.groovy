@@ -42,7 +42,7 @@ class Event extends TemplateEntity implements Serializable {
 	 * return the domain fields for this domain class
 	 * @return List
 	 */
-	List<TemplateField> giveDomainFields() { return Event.domainFields }
+	static List<TemplateField> giveDomainFields() { return Event.domainFields }
         static final List<TemplateField> domainFields = 
 		[
 			new TemplateField(

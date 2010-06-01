@@ -18,7 +18,7 @@ class Sample extends TemplateEntity {
 	 * return the domain fields for this domain class
 	 * @return List
 	 */
-	List<TemplateField> giveDomainFields() { return Sample.domainFields }
+	static List<TemplateField> giveDomainFields() { return Sample.domainFields }
         static List<TemplateField> domainFields =
 		[
 			new TemplateField(
