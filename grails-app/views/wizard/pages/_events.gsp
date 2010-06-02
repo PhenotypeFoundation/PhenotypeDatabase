@@ -66,7 +66,7 @@
 	<g:if test="${events}">
 	<g:each var="eventTemplate" in="${eventTemplates}">
 		<g:set var="showHeader" value="${true}" />
-		<h1>${eventTemplate.getValue().name} template</h1>
+		<h1>${eventTemplate.getValue().name}</h1>
 	<div class="table">
 		<g:each var="eventId" in="${eventTemplate.getValue().events}">
 			<g:if test="${showHeader}">

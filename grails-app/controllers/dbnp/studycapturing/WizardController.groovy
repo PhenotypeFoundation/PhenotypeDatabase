@@ -496,50 +496,26 @@ class WizardController {
 				try {
 					println ".saving wizard data..."
 
-					// save events
-					println ".saving events"
+					// add events to study
+					println ".add events to study"
 					flow.events.each() { event ->
-						if (!event.save(flush:true)) {
-							this.appendErrors(event, flash.errors)
-							throw new Exception('error saving event')
-						}
-
-						// add to study
 						if (event instanceof SamplingEvent) {
 							flow.study.addToSamplingEvents(event)
 						} else {
 							flow.study.addToEvents(event)
 						}
-						
-						println ".saved event ["+event+"] of type ["+event.getClass()+"] (id: "+event.id+")"
 					}
 
-					// save subjects
-					println ".saving subjects"
+					// add subjects to study
+					println ".add subjects to study"
 					flow.subjects.each() { subjectId, subject ->
-						if (!subject.save(flush:true)) {
-							this.appendErrors(subject.value, flash.errors)
-							throw new Exception('error saving subject')
-						}
-
-						// add this subject to the study
 						flow.study.addToSubjects(subject)
-
-						println ".saved subject "+subject+" (id: "+subject.id+")"
 					}
 
-					// save eventGroups
-					println ".saving eventGroups"
+					// add eventGroups to study
+					println ".add eventGroups to study"
 					flow.eventGroups.each() { eventGroup ->
-						if (!eventGroup.save(flush:true)) {
-							this.appendErrors(eventGroup, flash.errors)
-							throw new Exception('error saving eventGroup')
-						}
-
-						// add to study
 						flow.study.addToEventGroups(eventGroup)
-
-						println ".saved eventGroup ["+eventGroup+"] (id: "+eventGroup.id+")"
 					}
 
 					// save study

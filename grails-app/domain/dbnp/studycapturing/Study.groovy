@@ -20,18 +20,18 @@ class Study extends TemplateEntity implements Serializable {
 	 * return the domain fields for this domain class
 	 * @return List
 	 */
-        static List<TemplateField> giveDomainFields() { return Study.domainFields }
+	static List<TemplateField> giveDomainFields() { return Study.domainFields }
 
-        static final List<TemplateField> domainFields =
-		[
-			new TemplateField(
-				name: 'title',
-				type: TemplateFieldType.STRING),
-			new TemplateField(
-				name: 'startDate',
-				type: TemplateFieldType.DATE,
-				comment: 'Fill out the official start date or date of first action')
-		]
+	static final List<TemplateField> domainFields =
+	[
+		new TemplateField(
+			name: 'title',
+			type: TemplateFieldType.STRING),
+		new TemplateField(
+			name: 'startDate',
+			type: TemplateFieldType.DATE,
+			comment: 'Fill out the official start date or date of first action')
+	]
 
 	static hasMany = [
 		editors: nimble.User,
@@ -79,7 +79,6 @@ class Study extends TemplateEntity implements Serializable {
 		// So we also use giveTemplates here
 		TemplateEntity.giveTemplates(events + samplingEvents);
 	}
-
 
 	/**
 	 * Return the unique Event templates that are used in this study
