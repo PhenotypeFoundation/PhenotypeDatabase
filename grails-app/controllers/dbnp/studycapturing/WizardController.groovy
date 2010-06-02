@@ -12,9 +12,6 @@ import grails.converters.*
  * The wizard controller handles the handeling of pages and data flow
  * through the study capturing wizard.
  *
- * TODO: refactor the 'handle*' methods to work as subflows instead
- * 		 of methods outside of the flow
- *
  * @author Jeroen Wesbeek
  * @since 20100107
  * @package studycapturing
@@ -483,6 +480,14 @@ class WizardController {
 			on("toEvents").to "events"
 			on("toGroups").to "groups"
 			on("previous").to "samples"
+			on("next").to "waitForSave"
+		}
+
+		waitForSave {
+			render(view: "_wait")
+			onRender {
+				flow.page = 8
+			}
 			on("next").to "save"
 		}
 
