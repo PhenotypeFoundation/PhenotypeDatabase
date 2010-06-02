@@ -15,6 +15,7 @@ class Study extends TemplateEntity implements Serializable {
 	Date dateCreated
 	Date lastUpdated
 	Date startDate
+        long externalStudyID   // enables referring to studies outside of GSCF, e.g., in the Simple Assay Module 
 
 	/**
 	 * return the domain fields for this domain class
@@ -48,6 +49,7 @@ class Study extends TemplateEntity implements Serializable {
 
 	static constraints = {
 		owner(nullable: true, blank: true)
+		externalStudyID(nullable:true, blank:true) 
 	}
 
 	static mapping = {
