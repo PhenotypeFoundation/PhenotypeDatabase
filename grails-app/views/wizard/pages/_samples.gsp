@@ -17,9 +17,10 @@
 <wizard:pageContent>
 
 	<span class="info">
-		<span class="title">Samples bla bla</span>
-		bla bla bla samples blah di bla blah...
+		<span class="title">Samples</span>
+		blah blah blaaa....
 	</span>
 	
-	todo...
+
+
 </wizard:pageContent>

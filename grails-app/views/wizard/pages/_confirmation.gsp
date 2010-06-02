@@ -28,20 +28,14 @@
 	<div>
 		<p>
 		You are about to create a study containing ${subjects.size()} subjects,
-		${eventDescriptions.size()} event descriptions and ${events.size()} events grouped into
-		${eventGroups.size()} event groups.
+		${events.size()} events grouped into ${eventGroups.size()} event groups.
 		</p>
 	</div>
 	<h3><a href="#">Study</a></h3>
 	<div>
 		<p>
 		  <ul>
-		<li>title: ${study?.title}</li>
-		<li>description: ${study?.description}</li>
-		<li>research question: ${study?.researchQuestion}</li>
-		<li>code: ${study?.code}</li>
-		<li>EC code: ${study?.ecCode}</li>
-		<g:each var="field" in="${study.template.fields}">
+		<g:each var="field" in="${study.giveFields()}">
 			<li>${field.name} - ${study.getFieldValue(field.name)}</li>
 		</g:each>
 		  </ul>

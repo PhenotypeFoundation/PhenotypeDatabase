@@ -61,6 +61,7 @@ class WizardController {
 				[title: 'Confirmation'],		// confirmation page
 				[title: 'Done']					// finish page
 			]
+			success()
 		}
 
 		// render the main wizard page which immediately
@@ -71,6 +72,7 @@ class WizardController {
 			render(view: "/wizard/index")
 			onRender {
 				flow.page = 1
+				success()
 			}
 			on("next").to "start"
 		}
@@ -80,6 +82,7 @@ class WizardController {
 			render(view: "_start")
 			onRender {
 				flow.page = 1
+				success()
 			}
 			on("next").to "study"
 			on("modify").to "modify"
@@ -91,9 +94,12 @@ class WizardController {
 			onRender {
 				flow.page = 1
 				flash.cancel = true
+				success()
 			}
 			on("cancel") {
 				flow.study = null
+
+				success()
 			}.to "start"
 			on("next") {
 				// TODO: loading a study is not yet implemented
@@ -104,6 +110,8 @@ class WizardController {
 					['study': 'Loading a study and modifying it has not yet been implemented. Please press \'cancel\' to go back to the initial page...'],
 					flash.errors
 				)
+
+				error()
 			}.to "modify"
 		}
 
@@ -114,6 +122,7 @@ class WizardController {
 			render(view: "_study")
 			onRender {
 				flow.page = 2
+				success()
 			}
 			on("refresh") {
 				flash.values = params
@@ -122,7 +131,9 @@ class WizardController {
 				this.handleStudy(flow, flash, params)
 
 				// remove errors as we don't want any warnings now
-				flash.errors = [:]				
+				flash.errors = [:]
+
+				success()
 			}.to "study"
 			on("switchTemplate") {
 				flash.values = params
@@ -132,6 +143,8 @@ class WizardController {
 
 				// remove errors as we don't want any warnings now
 				flash.errors = [:]
+
+				success()
 			}.to "study"
 			on("previous") {
 				flash.errors = [:]
@@ -165,9 +178,11 @@ class WizardController {
 					flow.subjects = [:]
 					flow.subjectTemplates = [:]
 				}
+				success()
 			}
 			on("refresh") {
 				flash.values = params
+				success()
 			}.to "subjects"
 			on("add") {
 				// handle subjects
@@ -204,6 +219,8 @@ class WizardController {
 					def subjectsSize = (flow.subjectTemplates[ subjectTemplateName ].subjects.size()) ? (flow.subjectTemplates[ subjectTemplateName ].subjects.keySet().max() + 1) : 0
 					flow.subjectTemplates[ subjectTemplateName ].subjects[ subjectsSize ] = increment
 				}
+
+				success()
 			}.to "subjects"
 			on("next") {
 				flash.errors = [:]
@@ -267,6 +284,7 @@ class WizardController {
 					flash.values = [:]
 					flash.values.templateType = (flow.event instanceof Event) ? 'event' : 'sample'
 				}
+				success()
 			}
 			on("switchTemplate") {
 				flash.values = params
@@ -329,10 +347,15 @@ class WizardController {
 				if (flow.events[ delete ] && flow.events[ delete ] instanceof Event) {
 					flow.events.remove(delete)
 				}
+
+				success()
 			}.to "events"
 			on("addEventGroup") {
 				flash.values = params
 				
+				// handle study data
+				this.handleEvents(flow, flash, params)
+
 				// handle event groupings
 				this.handleEventGrouping(flow, flash, params)
 
@@ -360,10 +383,11 @@ class WizardController {
 				}
 
 				flow.eventGroups[increment] = new EventGroup( name: groupName )
+
+				success()
 			}.to "events"
 			on("deleteEventGroup") {
 				flash.values = params
-
 				def delete = params.get('do') as int;
 
 				// handle event groupings
@@ -374,6 +398,8 @@ class WizardController {
 					// remove this eventGroup
 					flow.eventGroups.remove(delete)
 				}
+
+				success()
 			}.to "events"
 			on("previous") {
 				// handle event groupings
@@ -401,12 +427,15 @@ class WizardController {
 			render(view: "_groups")
 			onRender {
 				flow.page = 5
+				success()
 			}
 			on("previous") {
 				this.handleSubjectGrouping(flow, flash, params)
+				success()
 			}.to "events"
 			on("next") {
 				this.handleSubjectGrouping(flow, flash, params)
+				success()
 			}.to "samples"
 		}
 
@@ -415,11 +444,32 @@ class WizardController {
 			render(view: "_samples")
 			onRender {
 				flow.page = 6
+				flow.bla = "samples"
+
+				// iterate through subjects
+				flow.subjects.each() { subject ->
+					println subject.value.name
+
+					// iterate through events
+					flow.events.each() { event ->
+						println "bla"
+						if (event instanceof SamplingEvent) {
+							//println event.getFieldValue('name')
+							println event.startTime
+							println event.endTime
+						}
+
+					}
+				}
+
+				success()
 			}
 			on("previous") {
+				success()
 			}.to "groups"
 			on("next") {
-			}.to "samples"
+				success()
+			}.to "confirm"
 		}
 
 		// confirmation
@@ -432,7 +482,7 @@ class WizardController {
 			on("toSubjects").to "subjects"
 			on("toEvents").to "events"
 			on("toGroups").to "groups"
-			on("previous").to "groups"
+			on("previous").to "samples"
 			on("next").to "save"
 		}
 
@@ -442,75 +492,64 @@ class WizardController {
 				println "saving..."
 				flash.errors = [:]
 
-				// start transaction
-				def transaction = sessionFactory.getCurrentSession().beginTransaction()
-
 				// persist data to the database
 				try {
-					// save EventDescriptions
-					flow.eventDescriptions.each() {
-						if (!it.save(flush:true)) {
-							this.appendErrors(it, flash.errors)
-							throw new Exception('error saving eventDescription')
-						}
-						println "saved eventdescription "+it
-					}
-
-					// TODO: eventDescriptions that are not linked to an event are currently
-					//		 stored but end up in a black hole. We should either decide to
-					//		 NOT store these eventDescriptions, or add "hasmany eventDescriptions"
-					//		 to Study domain class
+					println ".saving wizard data..."
 
 					// save events
-					flow.events.each() {
-						if (!it.save(flush:true)) {
-							this.appendErrors(it, flash.errors)
+					println ".saving events"
+					flow.events.each() { event ->
+						if (!event.save(flush:true)) {
+							this.appendErrors(event, flash.errors)
 							throw new Exception('error saving event')
 						}
-						println "saved event "+it
 
 						// add to study
-						if (it instanceof SamplingEvent) {
-							flow.study.addToSamplingEvents(it)
+						if (event instanceof SamplingEvent) {
+							flow.study.addToSamplingEvents(event)
 						} else {
-							flow.study.addToEvents(it)
+							flow.study.addToEvents(event)
 						}
+						
+						println ".saved event ["+event+"] of type ["+event.getClass()+"] (id: "+event.id+")"
+					}
+
+					// save subjects
+					println ".saving subjects"
+					flow.subjects.each() { subjectId, subject ->
+						if (!subject.save(flush:true)) {
+							this.appendErrors(subject.value, flash.errors)
+							throw new Exception('error saving subject')
+						}
+
+						// add this subject to the study
+						flow.study.addToSubjects(subject)
+
+						println ".saved subject "+subject+" (id: "+subject.id+")"
 					}
 
 					// save eventGroups
-					flow.eventGroups.each() {
-						if (!it.save(flush:true)) {
-							this.appendErrors(it, flash.errors)
+					println ".saving eventGroups"
+					flow.eventGroups.each() { eventGroup ->
+						if (!eventGroup.save(flush:true)) {
+							this.appendErrors(eventGroup, flash.errors)
 							throw new Exception('error saving eventGroup')
 						}
-						println "saved eventGroup "+it
 
 						// add to study
-						flow.study.addToEventGroups(it)
-					}
-					
-					// save subjects
-					flow.subjects.each() {
-						if (!it.save(flush:true)) {
-							this.appendErrors(it, flash.errors)
-							throw new Exception('error saving subject')
-						}
-						println "saved subject "+it
+						flow.study.addToEventGroups(eventGroup)
 
-						// add this subject to the study
-						flow.study.addToSubjects(it)
+						println ".saved eventGroup ["+eventGroup+"] (id: "+eventGroup.id+")"
 					}
 
 					// save study
+					println ".saving study"
 					if (!flow.study.save(flush:true)) {
 						this.appendErrors(flow.study, flash.errors)
 						throw new Exception('error saving study')
 					}
-					println "saved study "+flow.study+" (id: "+flow.study.id+")"
+					println ".saved study "+flow.study+" (id: "+flow.study.id+")"
 
-					// commit transaction
-					println "commit"
-					transaction.commit()
 					success()
 				} catch (Exception e) {
 					// rollback
@@ -519,8 +558,6 @@ class WizardController {
 					// stacktrace in flash scope
 					flash.debug = e.getStackTrace()
 
-					println "rollback"
-					transaction.rollback()
 					error()
 				}
 			}
@@ -652,9 +689,6 @@ class WizardController {
 			template = params.remove('sampleTemplate')
 		}
 
-		// got an event in the flow scope?
-		//if (!flow.event) flow.event = new Event()
-
 		// if a template is selected, get template instance
 		if (template instanceof String && template.size() > 0) {
 			params.template = Template.findByName(template)
@@ -730,8 +764,6 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def handleSubjectGrouping(flow, flash, params) {
-		println params
-
 		// iterate through event groups
 		def g = 0
 		flow.eventGroups.each() { eventGroup ->
@@ -745,8 +777,6 @@ class WizardController {
 					eventGroup.addToSubjects(subject)
 				}
 			}
-
-			println g+" : "+eventGroup.subjects
 
 			g++
 		}

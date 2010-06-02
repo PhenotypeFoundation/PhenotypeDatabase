@@ -63,7 +63,7 @@ environments {
 			driverClassName = "org.postgresql.Driver"
 			url = "jdbc:postgresql://localhost:5432/gscf"
 			dialect = org.hibernate.dialect.PostgreSQLDialect
-			logSql = true	// enable logging while not yet final
+			//logSql = true	// enable logging while not yet final
 
 			/* Apparently Hibernate performs two queries on inserting, one before
 			 * to generate the unique id, and then the insert itself. In PostgreSQL
