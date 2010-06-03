@@ -397,7 +397,8 @@ class BootStrap {
 					code:"PPS3_leptin_module",
 					researchQuestion:"Leptin etc.",
 					ecCode:"2007117.c",
-					startDate: Date.parse('yyyy-MM-dd','2008-01-02')
+					startDate: Date.parse('yyyy-MM-dd','2008-01-02'),
+					externalStudyID: 1
 				)
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
@@ -604,7 +605,9 @@ class BootStrap {
 					researchQuestion:"How much are fasting plasma and urine metabolite levels affected by prolonged fasting ?",
 					description:"Human study",
 					ecCode:"unknown",
-					startDate: Date.parse('yyyy-MM-dd','2008-01-14'))
+					startDate: Date.parse('yyyy-MM-dd','2008-01-14'),
+					externalStudyID: 2
+				)
 				.setFieldValue( 'Description', "Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U." )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
