@@ -151,8 +151,8 @@ function addTitles( timelineNr ) {
                 if( bandTitleInfo[ timelineNr ][ i ].className ) {
                     E.className += " " + bandTitleInfo[ timelineNr ][ i ].className;
                 }
-                E.style.top = top + "px";
-                E.style.height = height + "px";
+                E.style.top = Math.round( top ) + "px";
+                E.style.height = Math.round( height ) + "px";
                 E.appendChild( document.createTextNode( bandTitleInfo[ timelineNr ][i].title ) );
 
                 var subjects = document.createElement( "div" );

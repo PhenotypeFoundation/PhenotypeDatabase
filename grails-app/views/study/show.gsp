@@ -115,10 +115,47 @@
                 bandInfos[${bandNr}].etherPainter = emptyEtherPainter;
 
                 // Add a title to the bandinfo
-                <% sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
+                <% 
+                  sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator );
+                  def simpleSubjects = sortedGroupSubjects.name.join( ', ' );
+
+                  // We can only show appr. 30 characters per line and as many lines as there are events
+                  def charsPerLine = 30;
+                  def numEvents = eventGroup.events.size();
+                  def maxChars = numEvents * charsPerLine;
+
+                  // If the subjects will fit, show them all
+                  if( simpleSubjects.size() < maxChars ) {
+                    showSubjects = simpleSubjects;
+                  } else {
+                    // Always add the first name
+                    def subjectNames = sortedGroupSubjects[0]?.name;
+
+                    // Continue adding names until the length is to long
+                    id = 0;
+                    sortedGroupSubjects.each { subject ->
+                      if( id > 0 ) {
+                        println( "ID: " + id + " - " + subjectNames.size() + " - " + subject.name.size() + " - " + maxChars );
+                        if( subjectNames.size() + subject.name.size() < maxChars - 15 ) {
+                          subjectNames += ", " + subject.name;
+                        } else {
+                          return;
+                        }
+                      }
+                      id++;
+                    }
+
+                    // Add a postfix
+                    subjectNames += " and " + ( sortedGroupSubjects.size() - id ) + " more";
+
+                    showSubjects = subjectNames;
+                  }
+
+
+                %>
                 bandTitleInfo[ timelineNr ][ ${bandNr} ] = {
                   title: "${eventGroup.name}",
-                  subjects: "${sortedGroupSubjects.name.join( ', ' )}"
+                  subjects: "${showSubjects}"
                 };
 
                 <g:set var="bandNr" value="${bandNr+1}" />

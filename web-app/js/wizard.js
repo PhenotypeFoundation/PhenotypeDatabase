@@ -414,23 +414,22 @@ function getPublicationIds( element_id ) {
 
 function showPublication( element_id, id, title, authors, nr ) {
     var deletebutton = document.createElement( 'img' );
-    deletebutton.setAttribute( 'class', 'famfamfam delete_button' );
+    deletebutton.className = 'famfamfam delete_button';
     deletebutton.setAttribute( 'alt', 'remove this publication' );
     deletebutton.setAttribute( 'src', baseUrl + '/images/icons/famfamfam/delete.png' );
-    deletebutton.setAttribute( 'onClick', 'removePublication( "' + element_id + '", ' + id + ' ); return false;' );
-    deletebutton.setAttribute( 'style', 'cursor: pointer;' );
+    deletebutton.onclick = function() { removePublication(  element_id, id ); return false; };
 
     var titleDiv = document.createElement( 'div' );
-    titleDiv.setAttribute( 'class', 'title' );
+    titleDiv.className = 'title' ;
     titleDiv.appendChild( document.createTextNode( title ) );
 
     var authorsDiv = document.createElement( 'div' );
-    authorsDiv.setAttribute( 'class', 'authors' );
+    authorsDiv.className = 'authors';
     authorsDiv.appendChild( document.createTextNode( authors ) );
 
     var li = document.createElement( 'li' );
     li.setAttribute( 'id', element_id + '_item_' + id );
-    li.setAttribute( 'class', nr % 2 == 0 ? 'even' : 'odd' );
+    li.className = nr % 2 == 0 ? 'even' : 'odd';
     li.appendChild( deletebutton );
     li.appendChild( titleDiv );
     li.appendChild( authorsDiv );
