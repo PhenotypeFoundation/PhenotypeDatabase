@@ -197,6 +197,7 @@ class BootStrap {
 				.addToFields(new TemplateField(name: 'Responsible scientist',type: TemplateFieldType.STRING,comment:'Fill out the project leader of principle investigator of the study. (soon to be replaced with persons input)'))
 				.addToFields(new TemplateField(name: 'Lab id',type: TemplateFieldType.STRING,comment:'In which lab was the study performed; indicate the roomnumber.'))
 				.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING,comment:'In which institute was the study performed; indicate the full address information (to be replaced by persons-affiliations?)'))
+                                //commented out because of bug #84:.addToFields(new TemplateField(name: 'Study protocol',type: TemplateFieldType.FILE,comment:'Optionally attach a file in which the protocol in the study is described'))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Mouse template
@@ -367,8 +368,7 @@ class BootStrap {
 			def liverSamplingEventTemplate = new Template(
 				name: 'Liver extraction',
 				description: 'Liver sampling for transcriptomics arrays',
-				entity: dbnp.studycapturing.SamplingEvent,
-                                sampleTemplates: [humanSampleTemplate])
+				entity: dbnp.studycapturing.SamplingEvent)
                         .addToFields(samplingProtocolField)
 			.addToFields(new TemplateField(
 				name: 'Sample weight',
@@ -379,8 +379,7 @@ class BootStrap {
 			def bloodSamplingEventTemplate = new Template(
 				name: 'Blood extraction',
 				description: 'Blood extraction targeted at lipid assays',
-	    		        entity: dbnp.studycapturing.SamplingEvent,
-                                 sampleTemplates: [humanBloodSampleTemplate])
+	    		        entity: dbnp.studycapturing.SamplingEvent)
                         .addToFields(samplingProtocolField)
 			.addToFields(new TemplateField(
 				name: 'Sample volume',
@@ -649,8 +648,7 @@ class BootStrap {
 					      name: currentSubject.name + '_B',
 					      material: bloodTerm,
 					      parentSubject: currentSubject,
-					      parentEvent: bloodSamplingEvent,
-                          template: humanBloodSampleTemplate);
+					      parentEvent: bloodSamplingEvent);
 
 				        humanStudy.addToSubjects(currentSubject).addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
 				}
