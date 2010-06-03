@@ -347,4 +347,24 @@
 .wizard .upload_info .error {
     color: red;
 }
+
+.wizard ul.publication_list {
+    list-style-type: none;
+    margin: -10px 0 0 255px;
+    padding: 0;
 }
+
+.wizard ul.publication_list li {
+    margin-left: 0px;
+    padding: 4px 6px;
+}
+
+.wizard ul.publication_list li.even {
+    background-color: #F0F0F0;
+}
+.wizard ul.publication_list li.odd {
+    background-color: #F8F8F8;
+}
+
+.wizard ul.publication_list li .delete_button { float: right; margin-left: 10px; }
+.wizard ul.publication_list li .authors { font-size: 10px; margin-top: 3px; color: #333; }

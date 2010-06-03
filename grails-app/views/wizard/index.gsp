@@ -22,6 +22,8 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'swfobject.min.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.min.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.min.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.pubmed.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.min.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'timepicker-0.2.1.min.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'wizard.min.js')}"></script>
@@ -32,6 +34,8 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'swfobject.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.pubmed.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'timepicker-0.2.1.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'wizard.js')}"></script>

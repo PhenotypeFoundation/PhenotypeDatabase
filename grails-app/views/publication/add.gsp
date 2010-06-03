@@ -21,16 +21,19 @@
   <script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.js')}"></script>
   <script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.pubmed.js')}"></script>
   <script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.programminglanguages.js')}"></script>
-
+  <script type="text/javascript">
+    PublicationChooser.prototype.availableDBs[ "pubmed" ].select = selectPubMedAdd;
+    PublicationChooser.prototype.availableDBs[ "pubmed" ].close  = closePubMedAdd;
+</script>
  </head>
  <body>
-
- <g:form action="createFromPubmed">
-  <g:textField name="publication" rel="publication-pubmed" style="width:300px;"/>
-  <g:submitButton name="add" value="Add publication" />
- </g:form>
-
-
+   <p>
+     Search for a publication on pubmed. You can search on a part of the title or authors.
+   </p>
+   <g:form action="createFromPubmed">
+    <g:textField name="publication" rel="publication-pubmed" style="width:500px;"/>
+    <!-- <g:submitButton name="add" value="Add publication" /> -->
+   </g:form>
 
  ${errors}
  ${message}

@@ -148,38 +148,71 @@ function PublicationChooser() {
 /**
  * initialize object
  */
-PublicationChooser.init = function() {
+PublicationChooser.init = function( events ) {
     // find all ontology elements
     $("input[rel*='publication']").each(function() {
-        new PublicationChooser().initAutocomplete(this);
+        new PublicationChooser().initAutocomplete( this, events );
     });
 };
 
 PublicationChooser.prototype = {
     minLength       : 3,        // minimum input length before launching Ajax request
     cache           : [],       // ontology cache
-    maxResults      : 10,       // Max number of results retrieved
+    maxResults      : 8,        // Max number of results retrieved
     database        : '',       // Default database to be used. As for now, also the only possible database
     availableDBs    : {},       // Available databases, filled by extensions. Key is databasename and value is reference to method to be called
+    events          : {},       // Stores the events to fire
     
     /**
      * initialize the ontology autocompleter
      * @param element
      */
-    initAutocomplete: function(element) {
+    initAutocomplete: function( element, customEvents ) {
         var that = this
         var inputElement = $(element);
         var selected = false;
 
+        // Add spinner element
+        if( !baseUrl ) {
+            var baseUrl = '..';
+        }
+        var imgEl = document.createElement( 'img' );
+        imgEl.setAttribute( 'id', inputElement.attr( 'id' ) + '_spinner' );
+        imgEl.setAttribute( 'src', baseUrl + '/images/spinner.gif' );
+        imgEl.setAttribute( 'style', 'margin-left: 5px;');
+
+        // Add the element next to the input box
+        inputElement.after( imgEl );
+        $( imgEl ).hide();
+
         // determine what database to use
         var values = inputElement.attr('rel').split("-");
+
+        // Check which database the user wants
         if( values.length > 1 ) {
             // check for supported databases
             if( this.availableDBs[ values[ 1 ] ] ) {
                 this.database = values[1];
+                this.events = this.availableDBs[ this.database ];
             } else {
-                alert( 'Database ' + values[1] + ' not supported. Using default: ' + this.database );
+                this.database = values[1] + " (custom)";
+                this.events = {};
             }
+        } else {
+            this.database = "(custom)";
+            this.events = {};
+        }
+
+        // Add custom events to this object
+        if( customEvents ) {
+            $.each( customEvents, function( id, func ) {
+                that.events[ id ] = func;
+            })
+        }
+        
+        // If no 'source' function is defined, nothing can be searched for
+        if( !this.events[ 'source' ]) {
+            alert( 'Database ' + this.database + ' not supported. Using none.' );
         }
 
         // Initialize cache for this element
@@ -188,7 +221,7 @@ PublicationChooser.prototype = {
         // Put the autocomplete function on the input field. See jquery-ui
         inputElement.autocomplete({
             minLength: that.minLength,
-            delay: 400,
+            delay: 300,
 
             source: function(request, response) {
                 var q = $.trim(request.term);
@@ -198,26 +231,34 @@ PublicationChooser.prototype = {
                     // yeah, lucky us! ;-P
                     response(that.cache[ that.database ][ q ]);
                 } else {
-                    if( that.database != "" && that.availableDBs[ that.database ] && that.availableDBs[ that.database ][ 'source' ] ) {
-                        that.availableDBs[ that.database ][ 'source' ]( that, q, response );
+                    if( that.database != "" && that.events[ 'source' ] ) {
+                       that.events[ 'source' ]( that, q, response );
                     }
                 }
             },
             search: function(event, ui ) {
                 that.selected = false;
+                $( '#' + inputElement.attr( 'id' ) + '_spinner' ).show();
+            },
+            open: function(event, ui ) {
+                $( '#' + inputElement.attr( 'id' ) + '_spinner' ).hide();
             },
             select: function(event, ui) {
                 // mark that the user selected a suggestion
                 that.selected = true;
 
-                if( that.database != "" && that.availableDBs[ that.database ] && that.availableDBs[ that.database ][ 'select' ] ) {
-                    that.availableDBs[ that.database ][ 'select' ]( that, inputElement, event, ui );
+                if( that.database != "" && that.events[ 'select' ] ) {
+                    that.events[ 'select' ]( that, inputElement, event, ui );
                 }
             },
             close: function(event, ui) {
                 if( !that.selected ) {
-                    if( that.database != "" && that.availableDBs[ that.database ] && that.availableDBs[ that.database ][ 'close' ] ) {
-                        that.availableDBs[ that.database ][ 'close' ]( that, inputElement, event, ui );
+                    if( that.database != "" && that.events[ 'close' ] ) {
+                        that.events[ 'close' ]( that, inputElement, event, ui );
+                    }
+
+                    if( inputElement.closePublication ) {
+                        inputElement.closePublication( that, event, ui );
                     }
                 }
             }

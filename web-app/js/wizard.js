@@ -350,3 +350,90 @@ function fileUploadField(field_id) {
 function createFileHTML( filename ) {
     return '<a target="_blank" href="' + baseUrl + '/file/get/' + filename + '">' + filename + '</a>';
 }
+
+function addPublication( element_id ) {
+  /* Find publication ID and add to form */
+  jQuery.ajax({
+    type:"GET",
+    url: baseUrl + "/publication/getID?" +  $("#" + element_id + "_form").serialize(),
+    success: function(data,textStatus){
+        var id = parseInt( data );
+
+        // Put the ID in the array, but only if it does not yet exist
+        var ids = getPublicationIds( element_id );
+
+        if( $.inArray(id, ids ) == -1 ) {
+            ids[ ids.length ] = id;
+            $( '#' + element_id + '_ids' ).val( ids.join( ',' ) );
+
+            // Show the title and a remove button
+            showPublication( element_id, id, $("#" + element_id + "_form").find( '[name=publication-title]' ).val(), $("#" + element_id + "_form").find( '[name=publication-authorsList]' ).val(), ids.length - 1 );
+
+            // Hide the 'none box'
+            $( '#' + element_id + '_none' ).css( 'display', 'none' );
+        }
+    },
+    error:function(XMLHttpRequest,textStatus,errorThrown){ alert( "Publication could not be added." ) }
+  }); return false;
+}
+
+function removePublication( element_id, id ) {
+    var ids = getPublicationIds( element_id );
+    if( $.inArray(id, ids ) != -1 ) {
+        // Remove the ID
+        ids.splice($.inArray(id, ids ), 1);
+        $( '#' + element_id + '_ids' ).val( ids.join( ',' ) );
+
+        // Remove the title from the list
+        var li = $( "#" + element_id + '_item_' + id );
+        if( li ) {
+            li.remove();
+        }
+
+        // Show the 'none box' if needed
+        if( ids.length == 0 ) {
+            $( '#' + element_id + '_none' ).css( 'display', 'inline' );
+        }
+
+    }
+}
+
+function getPublicationIds( element_id ) {
+    var ids = $( '#' + element_id + '_ids' ).val();
+    if( ids == "" ) {
+        return new Array();
+    } else {
+        ids_array = ids.split( ',' );
+        for( var i = 0; i < ids_array.length; i++ ) {
+            ids_array[ i ] = parseInt( ids_array[ i ] );
+        }
+
+        return ids_array;
+    }
+}
+
+function showPublication( element_id, id, title, authors, nr ) {
+    var deletebutton = document.createElement( 'img' );
+    deletebutton.setAttribute( 'class', 'famfamfam delete_button' );
+    deletebutton.setAttribute( 'alt', 'remove this publication' );
+    deletebutton.setAttribute( 'src', baseUrl + '/images/icons/famfamfam/delete.png' );
+    deletebutton.setAttribute( 'onClick', 'removePublication( "' + element_id + '", ' + id + ' ); return false;' );
+    deletebutton.setAttribute( 'style', 'cursor: pointer;' );
+
+    var titleDiv = document.createElement( 'div' );
+    titleDiv.setAttribute( 'class', 'title' );
+    titleDiv.appendChild( document.createTextNode( title ) );
+
+    var authorsDiv = document.createElement( 'div' );
+    authorsDiv.setAttribute( 'class', 'authors' );
+    authorsDiv.appendChild( document.createTextNode( authors ) );
+
+    var li = document.createElement( 'li' );
+    li.setAttribute( 'id', element_id + '_item_' + id );
+    li.setAttribute( 'class', nr % 2 == 0 ? 'even' : 'odd' );
+    li.appendChild( deletebutton );
+    li.appendChild( titleDiv );
+    li.appendChild( authorsDiv );
+
+    $( '#' + element_id + '_list' ).append( li );
+}

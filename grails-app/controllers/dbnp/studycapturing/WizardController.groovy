@@ -132,7 +132,7 @@ class WizardController {
 
 				success()
 			}.to "study"
-			on("switchTemplate") {
+                        on("switchTemplate") {
 				flash.values = params
 
 				// handle study data
@@ -603,6 +603,9 @@ class WizardController {
 			}
 		}
 
+                // handle Publications
+                handlePublications(flow, flash, params)
+
 		// validate study
 		if (flow.study.validate()) {
 			return true
@@ -613,6 +616,50 @@ class WizardController {
 			return false
 		}
 	}
+
+	/**
+	 * re-usable code for handling publications form data in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handlePublications(flow, flash, params) {
+		// create study instance if we have none
+		if (!flow.study) flow.study = new Study();
+		if (!flow.study.publications ) flow.study.publications = [];
+
+                // Check the ids of the pubblications that should be attached
+                // to this study. If they are already attached, keep 'm. If
+                // studies are attached that are not in the selected (i.e. the
+                // user deleted them), remove them
+                def publicationIDs = params.get( 'publication_ids' );
+                if( publicationIDs ) {
+                    // Find the individual IDs and make integers
+                    publicationIDs = publicationIDs.split(',').collect { Integer.parseInt( it, 10 ) };
+
+                    // First remove the publication that are not present in the array
+                    flow.study.publications.removeAll { publication -> !publicationIDs.find { id -> id == publication.id } }
+
+                    // Add those publications not yet present in the database
+                    publicationIDs.each { id ->
+                        if( !flow.study.publications.find { publication -> id == publication.id } ) {
+                            def publication = Publication.get( id );
+                            if( publication ) {
+                                flow.study.addToPublications( publication );
+                            } else {
+                                println( 'Publication with ID ' + id + ' not found in database.' );
+                            }
+                        }
+                    }
+
+                } else {
+                    println( 'No publications selected.')
+                    flow.study.publications.clear();
+                }
+
+	}
+
 
 	/**
 	 * re-usable code for handling subject form data in a web flow

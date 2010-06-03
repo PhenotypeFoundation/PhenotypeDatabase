@@ -982,4 +982,118 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 			}
 		}
 	}
+
+        def PublicationSelectElement = { attrs, body ->
+
+            attrs.description = 'Publications';
+            // render list with publications currently available
+            baseElement.call(
+                    '_publicationList',
+                    attrs,
+                    body
+            )
+
+            attrs.description = '';
+
+            // render 'Add publication button'
+            baseElement.call(
+                    '_publicationAddButton',
+                    attrs,
+                    body
+            )
+        }
+
+        /**
+         * Renders a input box for publications
+         */
+        def publicationSelect = { attrs, body ->
+                if( attrs.get( 'value' ) == null ) {
+                    attrs.value = [];
+                }
+                if( attrs.get( 'description' ) == null ) {
+                    attrs.description = '';
+                }
+                out << '<form id="' + attrs.name + '_form">';
+                out << textField(
+                            name: attrs.get( "name" ),
+                            value: '',
+                            rel: 'publication-pubmed',
+                            style: 'width: 400px;'
+		);
+                out << '</form>';
+                out << '<script type="text/javascript">';
+                out << '  iField = $( "#' + attrs.get( 'name' ) + '" );';
+                out << '  new PublicationChooser().initAutocomplete( iField );';
+                out << '</script>';
+        }
+
+        def _publicationList = { attrs, body ->
+           def display_none = 'none';
+           if( !attrs.get( 'value' ) || attrs.get( 'value' ).size() == 0 ) {
+                display_none =  'inline';
+           }
+           
+            // Add a unordered list
+            out << '<ul class="publication_list" id="' + attrs.name + '_list">';
+
+            out << '<li>';
+            out << '<span class="publication_none" id="' + attrs.name + '_none" style="display: ' + display_none + ';">';
+            out << 'No publications selected';
+            out << '</span>';
+            out << '</li>';
+
+            out << '</ul>';
+
+           // Add the publications using javascript
+           out << '<script type="text/javascript">'
+           if( attrs.get( 'value' ) && attrs.get( 'value' ).size() > 0 ) {
+               def i = 0;
+               attrs.get( 'value' ).each {
+                    out << 'showPublication( ';
+                    out << '  "' + attrs.name + '",';
+                    out << '  ' + it.id + ',';
+                    out << '  "' + it.title + '",';
+                    out << '  "' + it.authorsList + '",';
+                    out << '  ' + i++;
+                    out << ');';
+                }
+            }
+            out << '</script>';
+
+            def ids;
+            if( attrs.get( 'value' ) && attrs.get( 'value' ).size() > 0 ) {
+                ids = attrs.get( 'value' ).id.join( ',' )
+            } else {
+                ids = '';
+            }
+            out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids" value="' + ids + '">';
+        }
+
+        def _publicationAddButton = { attrs, body ->
+
+            // Output the dialog for the publications
+            out << '<div id="' + attrs.name + '_dialog">';
+            out << publicationSelect( attrs, body );
+            out << '</div>';
+            out << '<script type="text/javascript">';
+            out << '     $("#' + attrs.name + '_dialog").dialog({';
+            out << '         title   : "Add publication",';
+            out << '         autoOpen: false,';
+            out << '         width   : 800,';
+            out << '         height  : 400,';
+            out << '         modal   : true,';
+            out << '         position: "center",';
+            out << '         buttons : {';
+            out << '            Add  : function() { addPublication( "' + attrs.name + '" ); $(this).dialog("close"); },';
+            out << '            Close  : function() { $(this).dialog("close"); }';
+            out << '         },';
+            out << '         close   : function() {';
+            out << '             /* closeFunc(this); */';
+            out << '         }';
+            out << '     }).width(790).height(400);';
+            out << '</script>';
+
+            out << '<input type="button" onClick="var field = $( \'#' + attrs.name + '\' ); field.autocomplete( \'close\' ); field.val( \'\' );$( \'#' + attrs.name + '_dialog\' ).dialog( \'open\' ); field.focus();" value="Add Publication">';
+        }
+
 }

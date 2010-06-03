@@ -143,4 +143,30 @@ class PublicationController {
             redirect(action: "list")
         }
     }
+
+    /**
+     * Searches for an ID in the current database, based on the pubMedID
+     * If the publication is not found in the database, it is added
+     */
+    def getID = {
+        // Find the ID
+        def pubMedID = params.get( 'publication-pubMedID' );
+        if( pubMedID ) {
+            def publication = Publication.findByPubMedID( pubMedID );
+            if( !publication ) {
+                publication = new Publication(
+                    title: params.get( 'publication-title' ),
+                    authorsList: params.get( 'publication-authorsList' ),
+                    pubMedID: params.get( 'publication-pubMedID' ),
+                    DOI: params.get( 'publication-doi' )
+                ).save(flush:true);
+            }
+
+            // Return the ID
+            render publication.id;
+        } else {
+            response.status = 500;
+            render "No pubMedID found in request";
+        }
+    }
 }

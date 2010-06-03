@@ -3,7 +3,7 @@ sourcePubMed = function( chooserObject, searchterm, response ) {
     var searchFor = [];
     var terms = searchterm.split( " " );
     for( var i = 0; i < terms.length; i++ ) {
-        searchFor[ searchFor.length ] = "(" + terms[i].trim() + "[title]" + " OR " + terms[i].trim() + "[author]" + ")";
+        searchFor[ searchFor.length ] = "(" + $.trim( terms[i] ) + "[title]" + " OR " + $.trim( terms[i] ) + "[author]" + ")";
     }
 
     var url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=" + searchFor.join( " AND " ) + "&usehistory=y";
@@ -37,7 +37,8 @@ sourcePubMed = function( chooserObject, searchterm, response ) {
 
 };
 
-selectPubMed = function( chooserObject, inputElement, event, ui ) {
+// Handler that handles the select of a publication
+selectPubMedAdd = function( chooserObject, inputElement, event, ui ) {
 
     // option selected, set hidden fields
     var element = inputElement;
@@ -51,7 +52,9 @@ selectPubMed = function( chooserObject, inputElement, event, ui ) {
     // remove error class (if present)
     element.removeClass('error');
 };
-closePubMed  = function( chooserObject, inputElement, event, ui ) {
+
+// Handler that handles the closing of the autocomplete
+closePubMedAdd  = function( chooserObject, inputElement, event, ui ) {
     // no he didn't, clear the field(s)
     var element = inputElement;
 
@@ -115,8 +118,13 @@ function buildAuthorList( xmlAuthors ) {
     return authorList;
 }
 
+// Only the source method should be used for all pubmed autocompletes
+// The select and close handlers that are defined here, should only be used
+// on the add publication page. They can be overridden in the initialization
+// of the publication chooser class
 PublicationChooser.prototype.availableDBs[ "pubmed" ] = { 
     'source': sourcePubMed,
-    'select': selectPubMed,
-    'close':  closePubMed
+    'select': selectPubMedAdd,
+    'close':  closePubMedAdd
 };
+

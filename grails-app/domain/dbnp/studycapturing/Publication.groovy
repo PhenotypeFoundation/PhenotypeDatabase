@@ -45,7 +45,7 @@ package dbnp.studycapturing
  *       agreed upon hundreds of times!!!!
  */
 
-class Publication {
+class Publication implements Serializable {
 
     String title
     String pubMedID
