@@ -10,10 +10,27 @@ import dbnp.data.CleanDataLayer
 
 
 
+
+/**  CCMCommunicationManager 
+ *
+ *   This class implements a REST client to fetch data from the Clinical Chemistry Module (CCM).
+ *   The communicatino manager provides methods for accessing each resources.
+ *   Every REST resource corresponds to exactly one method in this class that makes
+ *   the communication with the resource available. 
+ *
+ *   For instance, the getSearchable() method calls the getMeasurements resource of the CCM
+ *   by passing arguments to it and returning the result of the calling that resource. 
+ */
+
+
 class CCMCommunicationManager implements CleanDataLayer {
 
-    //def static ServerURL = "http://localhost:8080/gscf/rest";
+    
+    /** ServerULR contains a string that represents the URL of the 
+     *  rest resources that this communication manager connects to.
+     */ 
     def static ServerURL = "http://nbx5.nugo.org:8182/ClinicalChemistry/rest";
+    //def static ServerURL = "http://localhost:8080/gscf/rest";
 
 
     /* Methods implemented for CleanDataLayer */
@@ -42,39 +59,47 @@ class CCMCommunicationManager implements CleanDataLayer {
     }
 
 
-
-
-
     /**
      * Testing REST. Remove when connection to nbx5 is established.
      *
      * @return list of ClinicalFloatData
      */
     public Object getFeatures() {
-        def url = new URL( ServerURL + "/features" )
-        return  JSON.parse(url.newReader())
+    //    return  request( "features" ) 
+        return  getStudiesForKeyword("ldl")
     }
 
 
     /**
-     * Testing REST. Remove when connection to nbx5 is established.
+     * For a string for the searchable plugin.
+     * This works for one keyeword, but protection should be built in using 
+     * the methods that searchable uses for building query strings. 
      *
      * @return list of ClinicalFloatData
      */
     private String getSearchable( keyword ) {
-        return "submit=Query&q=" + keyword 
+        return  "?submit=Query&q=" + keyword 
     }
 
 
     /**
-     * Testing REST. Remove when connection to nbx5 is established.
+     * Get all meassurements that contain a given keyword as feature.
      *
+     * @param  keyword, the keyword used
      * @return list of ClinicalFloatData
      */
     public String getStudiesForKeyword( String keyword ) {
+        def resource = "getMeasurementsForValue"
+        request( resource + getSearchable(keyword) )
     }
 
 
+    /**
+     * Get all meassurements that contain a given keyword as feature.
+     *
+     * @param  keyword, the keyword used
+     * @return list of ClinicalFloatData
+     */
     public Object getMeasurementsResource( String keyword ) {
         def url = new URL( ServerURL + "/" + getSearchable(keyword) )
         return  JSON.parse( url.newReader() )
@@ -93,15 +118,23 @@ class CCMCommunicationManager implements CleanDataLayer {
     }
 
 
+
+
+
+
     /** Send a request for the REST resource to the server and deliver the 
-     *  resulting JSON object.
+     *  resulting JSON object. (This is just a convenience method.)
      *
      *  @param resource: the name of the resource including parameters
      *  @return JSON object
      */
-    private Object requesService( String resource ) { 
+    private Object request( String resource ) { 
         def url = new URL( ServerURL + "/" + resource );
         return  JSON.parse( url.newReader() );
     }
+
+
+
+
 
 }
