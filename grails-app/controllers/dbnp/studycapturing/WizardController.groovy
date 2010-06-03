@@ -553,7 +553,7 @@ class WizardController {
 			onRender {
 				flow.page = 7
 			}
-			on("next").to "save"
+			on("next").to "waitForSave"
 			on("previous").to "samples"
 		}
 
