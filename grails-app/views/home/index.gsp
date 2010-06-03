@@ -4,7 +4,7 @@
       <meta name="layout" content="main" />
     </head>
     <body>
-		Welcome to the first prototype of GSCF, version <b>${meta(name: 'app.version')}</b>. At this moment, there are ${studyCount} studies in the database.
+		Welcome GSCF prototype version <b>${meta(name: 'app.version')}</b>. At this moment, there are ${studyCount} studies in the database.
 	<p>
         This application will facilitate systems biological research and collaboration between researchers at various locations. This application is a combined effort of NuGO (Nutritional Phenotype Database; van Ommen et al, 2010, Genes and Nutrition) and NMC (Data Support Platform), Eurreca, TNO and NBIC. This study capturing module can be easily linked to assay specific modules and therefore can be reused for new technologies.
 		This application is built for the easy input/storage and retrieval of studies. Studies can be stored with high detail and the type for information being stored can be field (e.g. human, mouse, plant) specific. Complex designs like studies with multiple doses, sampling time points and challenge tests, can be stored in this system.
