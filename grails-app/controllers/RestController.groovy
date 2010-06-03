@@ -49,6 +49,26 @@ class RestController {
 
 	/**
 	* REST resource for the Simple Assay Module.
+	* Provide a list of all subjects belonging to a study. 
+	*
+	* Examlpe call of the getAssays REST resource: http://localhost:8080/gscf/rest/getSubjects/json?externalStudyID=1
+	*
+	* @param  externalStudyID
+	* @return as JSON object list of subject names 
+	*/
+	def getSubjects = {
+                List subjects = [] 
+		if( params.externalStudyID ) {
+                        def id = Long.parseLong(params.externalStudyID)
+ 			def study = Study.find( "from Study as s where s.externalStudyID=?", [id])
+ 			study.subjects.each { subjects.push it.name }
+                }
+                render subjects as JSON 
+	}
+
+
+	/**
+	* REST resource for the Simple Assay Module.
 	* Provide a list of all assays for a given study
         *
         * Example for calling this resource: http://localhost:8080/gscf/rest/getAssays/json?externalStudyID=2
