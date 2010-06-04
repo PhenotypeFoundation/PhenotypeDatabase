@@ -70,6 +70,30 @@ function onWizardPage() {
         }
     });
 
+    // Handle person selects
+    new SelectAddMore().init({
+        rel     : 'person',
+        url     : baseUrl + '/person/list?dialog=true',
+        vars    : 'person',
+        label   : 'add / modify persons...',
+        style   : 'modify',
+        onClose : function(scope) {
+            refreshWebFlow();
+        }
+    });
+
+    // Handle persoRole selects
+    new SelectAddMore().init({
+        rel     : 'role',
+        url     : baseUrl + '/personRole/list?dialog=true',
+        vars    : 'role',
+        label   : 'add / modify roles...',
+        style   : 'modify',
+        onClose : function(scope) {
+            refreshWebFlow();
+        }
+    });
+
     // initialize accordeon(s)
     $("#accordion").accordion();
 }
@@ -286,6 +310,13 @@ function handleWizardTable() {
     });
 }
 
+
+/*************************************************
+ *
+ * Functions for RelTime fields
+ *
+ ************************************************/
+
 // Show example of parsed data next to RelTime fields
 function showExampleReltime(inputfield) {
     var fieldName = inputfield.name;
@@ -307,6 +338,12 @@ function showExampleReltime(inputfield) {
         error   : errorFunc
     });
 }
+
+/*************************************************
+ *
+ * Functions for file upload fields
+ *
+ ************************************************/
 
 // Create a file upload field
 function fileUploadField(field_id) {
@@ -351,6 +388,17 @@ function createFileHTML( filename ) {
     return '<a target="_blank" href="' + baseUrl + '/file/get/' + filename + '">' + filename + '</a>';
 }
 
+
+/*************************************************
+ *
+ * Functions for adding publications to the study
+ *
+ ************************************************/
+
+/**
+ * Adds a publication to the study using javascript
+ * N.B. The publication must be added in grails when the form is submitted
+ */
 function addPublication( element_id ) {
   /* Find publication ID and add to form */
   jQuery.ajax({
@@ -377,6 +425,10 @@ function addPublication( element_id ) {
   }); return false;
 }
 
+/**
+ * Removes a publication from the study using javascript
+ * N.B. The deletion must be handled in grails when the form is submitted
+ */
 function removePublication( element_id, id ) {
     var ids = getPublicationIds( element_id );
     if( $.inArray(id, ids ) != -1 ) {
@@ -398,6 +450,10 @@ function removePublication( element_id, id ) {
     }
 }
 
+/**
+ * Returns an array of publications IDs currently attached to the study
+ * The array contains integers
+ */
 function getPublicationIds( element_id ) {
     var ids = $( '#' + element_id + '_ids' ).val();
     if( ids == "" ) {
@@ -412,6 +468,9 @@ function getPublicationIds( element_id ) {
     }
 }
 
+/**
+ * Shows a publication on the screen
+ */
 function showPublication( element_id, id, title, authors, nr ) {
     var deletebutton = document.createElement( 'img' );
     deletebutton.className = 'famfamfam delete_button';
@@ -436,3 +495,188 @@ function showPublication( element_id, id, title, authors, nr ) {
 
     $( '#' + element_id + '_list' ).append( li );
 }
+
+/**
+ * Creates the dialog for searching a publication
+ */
+function createPublicationDialog( element_id ) {
+    /* Because of the AJAX loading of this page, the dialog will be created
+     * again, when the page is reloaded. This raises problems when reading the
+     * values of the selected publication. For that reason we check whether the
+     * dialog already exists
+     */
+    if( $( "." + element_id + "_publication_dialog" ).length == 0 ) {
+        $("#" + element_id + "_dialog").dialog({
+            title   : "Add publication",
+            autoOpen: false,
+            width   : 800,
+            height  : 400,
+            modal   : true,
+            dialogClass : element_id + "_publication_dialog",
+            position: "center",
+            buttons : {
+               Add  : function() { addPublication( element_id ); $(this).dialog("close"); },
+               Close  : function() { $(this).dialog("close"); }
+            },
+            close   : function() {
+                /* closeFunc(this); */
+            }
+        }).width(790).height(400);
+    } else {
+       /* If a dialog already exists, remove the new div */
+       $("#" + element_id + "_dialog").remove();
+    }
+}
+
+/**
+ * Opens the dialog for searching a publication
+ */
+function openPublicationDialog( element_id ) {
+    // Empty input field
+    var field = $( '#' + element_id );
+    field.autocomplete( 'close' );
+    field.val( '' );
+
+    // Show the dialog
+    $( '#' + element_id + '_dialog' ).dialog( 'open' );
+    field.focus();
+
+    // Disable 'Add' button
+    enableButton( '.' + element_id + '_publication_dialog', 'Add', false );
+}
+
+/**
+ * Finds a button in a jquery dialog by name
+ */
+function getDialogButton( dialog_selector, button_name )
+{
+  var buttons = $( dialog_selector + ' .ui-dialog-buttonpane button' );
+  for ( var i = 0; i < buttons.length; ++i )
+  {
+     var jButton = $( buttons[i] );
+     if ( jButton.text() == button_name )
+     {
+         return jButton;
+     }
+  }
+
+  return null;
+}
+
+/**
+ * Enables or disables a button in a selected dialog
+ */
+function enableButton(dialog_selector, button_name, enable)
+{
+    var dlgButton = getDialogButton( dialog_selector, button_name );
+
+    if( dlgButton ) {
+        if (enable) {
+            dlgButton.attr('disabled', '');
+            dlgButton.removeClass('ui-state-disabled');
+        } else {
+            dlgButton.attr('disabled', 'disabled');
+            dlgButton.addClass('ui-state-disabled');
+        }
+    }
+}
+
+/*************************************************
+ *
+ * Functions for adding contacts to the study
+ *
+ ************************************************/
+
+/**
+ * Adds a contact to the study using javascript
+ * N.B. The contact must be added in grails when the form is submitted
+ */
+function addContact( element_id ) {
+  // FInd person and role IDs
+  var person_id = $( '#' + element_id + '_person' ).val();
+  var role_id = $( '#' + element_id + '_role' ).val();
+
+  var combination = person_id + '-' + role_id;
+
+    // Put the ID in the array, but only if it does not yet exist
+    var ids = getContactIds( element_id );
+    if( $.inArray(combination, ids ) == -1 ) {
+        ids[ ids.length ] = combination;
+        $( '#' + element_id + '_ids' ).val( ids.join( ',' ) );
+        
+        // Show the title and a remove button
+        showContact( element_id, combination, $("#" + element_id + "_person  :selected").text(), $("#" + element_id + "_role :selected").text(), ids.length - 1 );
+
+        // Hide the 'none box'
+        $( '#' + element_id + '_none' ).css( 'display', 'none' );
+    }
+}
+
+/**
+ * Removes a contact from the study using javascript
+ * N.B. The deletion must be handled in grails when the form is submitted
+ */
+function removeContact( element_id, combination ) {
+    var ids = getContactIds( element_id );
+    if( $.inArray(combination, ids ) != -1 ) {
+        // Remove the ID
+        ids.splice($.inArray(combination, ids ), 1);
+        $( '#' + element_id + '_ids' ).val( ids.join( ',' ) );
+
+        // Remove the title from the list
+        var li = $( "#" + element_id + '_item_' + combination );
+        if( li ) {
+            li.remove();
+        }
+
+        // Show the 'none box' if needed
+        if( ids.length == 0 ) {
+            $( '#' + element_id + '_none' ).css( 'display', 'inline' );
+        }
+
+    }
+}
+
+/**
+ * Returns an array of studyperson IDs currently attached to the study.
+ * The array contains string formatted like '[person_id]-[role_id]'
+ */
+function getContactIds( element_id ) {
+    var ids = $( '#' + element_id + '_ids' ).val();
+    if( ids == "" ) {
+        return new Array();
+    } else {
+        ids_array = ids.split( ',' );
+
+        return ids_array;
+    }
+}
+
+/**
+ * Shows a contact on the screen
+ */
+function showContact( element_id, id, fullName, role, nr ) {
+    var deletebutton = document.createElement( 'img' );
+    deletebutton.className = 'famfamfam delete_button';
+    deletebutton.setAttribute( 'alt', 'remove this person' );
+    deletebutton.setAttribute( 'src', baseUrl + '/images/icons/famfamfam/delete.png' );
+    deletebutton.onclick = function() { removeContact(  element_id, id ); return false; };
+
+    var titleDiv = document.createElement( 'div' );
+    titleDiv.className = 'person' ;
+    titleDiv.appendChild( document.createTextNode( fullName ) );
+
+    var authorsDiv = document.createElement( 'div' );
+    authorsDiv.className = 'role';
+    authorsDiv.appendChild( document.createTextNode( role ) );
+    
+    var li = document.createElement( 'li' );
+    li.setAttribute( 'id', element_id + '_item_' + id );
+    li.className = nr % 2 == 0 ? 'even' : 'odd';
+    li.appendChild( deletebutton );
+    li.appendChild( titleDiv );
+    li.appendChild( authorsDiv );
+
+    $( '#' + element_id + '_list' ).append( li );
+}
+

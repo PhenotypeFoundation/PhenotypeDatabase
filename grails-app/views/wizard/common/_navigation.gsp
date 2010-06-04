@@ -27,6 +27,6 @@
 <script type="text/javascript">
 // scriptable webflow action
 function refreshWebFlow() {
-	<wizard:ajaxSubmitJs name="refresh" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" class="prevnext" />
+	<wizard:ajaxSubmitJs form="#wizardForm" name="refresh" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" class="prevnext" />
 }
 </script>

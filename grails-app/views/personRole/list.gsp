@@ -3,7 +3,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="layout" content="main" />
+        <meta name="layout" content="${layout}" />
         <g:set var="entityName" value="${message(code: 'personRole.label', default: 'PersonRole')}" />
         <title><g:message code="default.list.label" args="['Role']" /></title>
     </head>
@@ -29,6 +29,9 @@
                             <td>${fieldValue(bean: personRoleInstance, field: "name")}</td>
                             <td class="buttons">
                               <g:form>
+                                 <g:each in="${extraparams}" var="param">
+                                   <input type="hidden" name="${param.key}" value="${param.value}">
+                                 </g:each>
                                   <g:hiddenField name="id" value="${personRoleInstance?.id}" />
                                   <span class="button"><g:actionSubmit class="edit" action="edit" value="${message(code: 'default.button.edit.label', default: 'Edit')}" /></span>
                                   <span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" /></span>
@@ -40,10 +43,10 @@
                 </table>
             </div>
             <div class="buttons">
-                <span class="button"><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></span>
+                <span class="button"><g:link params="${extraparams}" class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></span>
             </div>
             <div class="paginateButtons">
-                <g:paginate total="${personRoleInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next" />
+                <g:paginate total="${personRoleInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next" params="${extraparams}" />
             </div>
         </div>
     </body>

@@ -45,7 +45,7 @@ package dbnp.studycapturing
  *       agreed upon hundreds of times!!!!
  */
 
-class PersonRole {
+class PersonRole implements java.io.Serializable {
 
     String name
 

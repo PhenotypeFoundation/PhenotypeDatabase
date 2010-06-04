@@ -3,7 +3,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="layout" content="main" />
+        <meta name="layout" content="${layout}" />
         <g:set var="entityName" value="${message(code: 'personRole.label', default: 'PersonRole')}" />
         <title><g:message code="default.edit.label" args="['Role']" /></title>
     </head>
@@ -39,6 +39,9 @@
                     </table>
                 </div>
                 <div class="buttons">
+                     <g:each in="${extraparams}" var="param">
+                       <input type="hidden" name="${param.key}" value="${param.value}">
+                     </g:each>
                     <span class="button"><g:actionSubmit class="save" action="update" value="${message(code: 'default.button.update.label', default: 'Update')}" /></span>
                     <span class="button"><g:actionSubmit class="cancel" action="list" value="Cancel" /></span>
                 </div>

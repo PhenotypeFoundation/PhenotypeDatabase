@@ -348,23 +348,27 @@
     color: red;
 }
 
-.wizard ul.publication_list {
+.wizard ul.publication_list, .wizard ul.contact_list {
     list-style-type: none;
     margin: -10px 0 0 255px;
     padding: 0;
 }
 
-.wizard ul.publication_list li {
+.wizard ul.publication_list li, .wizard ul.contact_list li {
     margin-left: 0px;
     padding: 4px 6px;
 }
 
-.wizard ul.publication_list li.even {
-    background-color: #F0F0F0;
+.wizard li.even {
+    background-color: #F3F3F3;
 }
-.wizard ul.publication_list li.odd {
-    background-color: #F8F8F8;
+.wizard li.odd {
+    background-color: #FAFAFA;
 }
 
-.wizard ul.publication_list li .delete_button { float: right; margin-left: 10px; cursor: pointer; }
+.wizard li .delete_button { float: right; margin-left: 10px; cursor: pointer; }
 .wizard ul.publication_list li .authors { font-size: 10px; margin-top: 3px; color: #333; }
+.wizard ul.contact_list li .person { display: inline; }
+.wizard ul.contact_list li .role { color: #000099; display: inline; margin-left: 5px; }
+.wizard ul.contact_list li .role:before { content: ' / '; color: #000099; }
+.wizard .contacts_dialog { margin: 5px 0; }

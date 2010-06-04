@@ -45,7 +45,7 @@ package dbnp.studycapturing
  *       agreed upon hundreds of times!!!!
  */
 
-class PersonAffiliation {
+class PersonAffiliation implements java.io.Serializable {
 
     String institute
     String department

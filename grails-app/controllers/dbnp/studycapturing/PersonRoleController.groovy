@@ -47,6 +47,21 @@ class PersonRoleController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
+    /**
+     * Fires after every action and determines the layout of the page
+     */
+    def afterInterceptor = { model, modelAndView ->
+      println( params );
+
+      if ( params['dialog'] ) {
+        model.layout = 'dialog';
+        model.extraparams = [ 'dialog': 'true' ] ;
+      } else {
+        model.layout = 'main';
+        model.extraparams = [] ;
+      }
+    }
+
     def index = {
         redirect(action: "list", params: params)
     }
@@ -64,10 +79,16 @@ class PersonRoleController {
 
     def save = {
         def personRoleInstance = new PersonRole(params)
+        def extraparams = new LinkedHashMap();
+
+        if( params[ 'dialog' ] ) {
+          extraparams[ 'dialog' ] = params[ 'dialog' ]
+        }
+
         if (personRoleInstance.save(flush: true)) {
             flash.message = "${message(code: 'default.created.message', args: [message(code: 'personRole.label', default: 'Role'), personRoleInstance.name])}"
             //redirect(action: "show", id: personRoleInstance.id)
-            redirect(action: "list")
+            redirect(action: "list", params: extraparams)
         }
         else {
             render(view: "create", model: [personRoleInstance: personRoleInstance])
@@ -98,6 +119,12 @@ class PersonRoleController {
 
     def update = {
         def personRoleInstance = PersonRole.get(params.id)
+        def extraparams = new LinkedHashMap();
+
+        if( params[ 'dialog' ] ) {
+          extraparams[ 'dialog' ] = params[ 'dialog' ]
+        }
+
         if (personRoleInstance) {
             if (params.version) {
                 def version = params.version.toLong()
@@ -112,7 +139,7 @@ class PersonRoleController {
             if (!personRoleInstance.hasErrors() && personRoleInstance.save(flush: true)) {
                 flash.message = "${message(code: 'default.updated.message', args: [message(code: 'personRole.label', default: 'Role'), personRoleInstance.name])}"
                 //redirect(action: "show", id: personRoleInstance.id)
-                redirect(action: "list")
+                redirect(action: "list", params: extraparams)
 
             }
             else {
@@ -121,29 +148,35 @@ class PersonRoleController {
         }
         else {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'personRole.label', default: 'Role'), params.id])}"
-            redirect(action: "list")
+            redirect(action: "list", params: extraparams)
         }
     }
 
     def delete = {
         def personRoleInstance = PersonRole.get(params.id)
+        def extraparams = new LinkedHashMap();
+
+        if( params[ 'dialog' ] ) {
+          extraparams[ 'dialog' ] = params[ 'dialog' ]
+        }
+
 
         if (personRoleInstance) {
             def roleName = personRoleInstance.name
             try {
                 personRoleInstance.delete(flush: true)
                 flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'personRole.label', default: 'Role'), roleName])}"
-                redirect(action: "list")
+                redirect(action: "list", params: extraparams)
             }
             catch (org.springframework.dao.DataIntegrityViolationException e) {
                 flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'personRole.label', default: 'Role'), roleName])}"
                 // redirect(action: "show", id: params.id)
-                redirect(action: "list")
+                redirect(action: "list", params: extraparams)
             }
         }
         else {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'personRole.label', default: 'Role'), params.id])}"
-            redirect(action: "list")
+            redirect(action: "list", params: extraparams)
         }
     }
 }

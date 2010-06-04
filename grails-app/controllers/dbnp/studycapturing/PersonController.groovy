@@ -48,6 +48,21 @@ class PersonController {
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
     def possibleGenders = [ 'Male', 'Female' ]
 
+    /**
+     * Fires after every action and determines the layout of the page
+     */
+    def afterInterceptor = { model, modelAndView ->
+      println( params );
+      
+      if ( params['dialog'] ) {
+        model.layout = 'dialog';
+        model.extraparams = [ 'dialog': 'true' ] ;
+      } else {
+        model.layout = 'main';
+        model.extraparams = [] ;
+      }
+    }
+
     def index = {
         redirect(action: "list", params: params)
     }
@@ -65,9 +80,16 @@ class PersonController {
 
     def save = {
         def personInstance = new Person(params)
+        def extraparams = new LinkedHashMap();
+
+        if( params[ 'dialog' ] ) {
+          extraparams[ 'dialog' ] = params[ 'dialog' ]
+        }
+
         if (personInstance.save(flush: true)) {
             flash.message = "${message(code: 'default.created.message', args: [message(code: 'person.label', default: 'Person'), ( personInstance.firstName ? personInstance.firstName : "" ) + " " + ( personInstance.prefix ? personInstance.prefix : "" ) + " " + ( personInstance.lastName ? personInstance.lastName : "" )])}"
-            redirect(action: "show", id: personInstance.id)
+            
+            redirect(action: "show", id: personInstance.id, params: extraparams )
         }
         else {
             render(view: "create", model: [personInstance: personInstance])
@@ -98,6 +120,13 @@ class PersonController {
 
     def update = {
         def personInstance = Person.get(params.id)
+
+        def extraparams = new LinkedHashMap();
+
+        if( params[ 'dialog' ] ) {
+          extraparams[ 'dialog' ] = params[ 'dialog' ]
+        }
+
         if (personInstance) {
             if (params.version) {
                 def version = params.version.toLong()
@@ -111,7 +140,7 @@ class PersonController {
             personInstance.properties = params
             if (!personInstance.hasErrors() && personInstance.save(flush: true)) {
                 flash.message = "${message(code: 'default.updated.message', args: [message(code: 'person.label', default: 'Person'), ( personInstance.firstName ? personInstance.firstName : "" ) + " " + ( personInstance.prefix ? personInstance.prefix : "" ) + " " + ( personInstance.lastName ? personInstance.lastName : "" )])}"
-                redirect(action: "show", id: personInstance.id)
+                redirect(action: "show", id: personInstance.id, params: extraparams)
             }
             else {
                 render(view: "edit", model: [personInstance: personInstance])
@@ -119,28 +148,34 @@ class PersonController {
         }
         else {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'person.label', default: 'Person'), params.id])}"
-            redirect(action: "list")
+            redirect(action: "list", params: extraparams)
         }
     }
 
     def delete = {
         def personInstance = Person.get(params.id)
 
+        def extraparams = new LinkedHashMap();
+
+        if( params[ 'dialog' ] ) {
+          extraparams[ 'dialog' ] = params[ 'dialog' ]
+        }
+
         if (personInstance) {
             def personName = ( personInstance.firstName ? personInstance.firstName : "" ) + " " + ( personInstance.prefix ? personInstance.prefix : "" ) + " " + ( personInstance.lastName ? personInstance.lastName : "" );
             try {
                 personInstance.delete(flush: true)
                 flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'person.label', default: 'Person'), personName])}"
-                redirect(action: "list")
+                redirect(action: "list", params: extraparams)
             }
             catch (org.springframework.dao.DataIntegrityViolationException e) {
                 flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'person.label', default: 'Person'), personName])}"
-                redirect(action: "show", id: params.id)
+                redirect(action: "show", id: params.id, params: extraparams)
             }
         }
         else {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'person.label', default: 'Person'), params.id])}"
-            redirect(action: "list")
+            redirect(action: "list", params: extraparams)
         }
     }
 }

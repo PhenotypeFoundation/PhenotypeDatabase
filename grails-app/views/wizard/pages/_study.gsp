@@ -29,5 +29,6 @@
 	<g:if test="${study}"><wizard:templateElements entity="${study}" /></g:if>
 
 	<wizard:publicationSelectElement name="publication" value="${study?.publications}" />
+	<wizard:contactSelectElement name="contacts" value="${study?.persons}" />
 
 </wizard:pageContent>

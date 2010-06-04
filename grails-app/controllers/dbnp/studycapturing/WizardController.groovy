@@ -681,8 +681,9 @@ class WizardController {
 			}
 		}
 
-                // handle Publications
+                // handle Publications and Contacts
                 handlePublications(flow, flash, params)
+                handleContacts(flow, flash, params)
 
 		// validate study
 		if (flow.study.validate()) {
@@ -738,7 +739,70 @@ class WizardController {
 
 	}
 
+	/**
+	 * re-usable code for handling contacts form data in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handleContacts(flow, flash, params) {
+		// create study instance if we have none
+		if (!flow.study) flow.study = new Study();
+		if (!flow.study.persons ) flow.study.persons = [];
 
+                // Check the ids of the contacts that should be attached
+                // to this study. If they are already attached, keep 'm. If
+                // studies are attached that are not in the selected (i.e. the
+                // user deleted them), remove them
+
+                // Contacts are saved as [person_id]-[role_id]
+                println( params );
+                def contactIDs = params.get( 'contacts_ids' );
+                println( contactIDs );
+                if( contactIDs ) {
+                    // Find the individual IDs and make integers
+                    contactIDs = contactIDs.split(',').collect {
+                        def parts = it.split( '-' );
+                        return [ person: Integer.parseInt( parts[0] ), role: Integer.parseInt( parts[1] ) ];
+                    };
+
+                    // First remove the contacts that are not present in the array
+                    flow.study.persons.removeAll {
+                        studyperson -> !contactIDs.find { ids -> ( ids.person == studyperson.person.id ) && ( ids.role == studyperson.role.id ) }
+                    };
+
+                    // Add those contacts not yet present in the database
+                    contactIDs.each { ids ->
+                        if( !flow.study.persons.find { studyperson -> ( ids.person == studyperson.person.id ) && ( ids.role == studyperson.role.id ) } ) {
+                            def person = Person.get( ids.person );
+                            def role = PersonRole.get( ids.role );
+                            if( person && role ) {
+                                // Find a studyperson object with these parameters
+                                def studyPerson = StudyPerson.findAll().find { studyperson -> studyperson.person.id == person.id && studyperson.role.id == role.id };
+
+                                // If if does not yet exist, save the example
+                                if( !studyPerson ) {
+                                    studyPerson = new StudyPerson(
+                                        person: person,
+                                        role: role
+                                    );
+                                    studyPerson.save( flush: true );
+                                }
+
+                                flow.study.addToPersons( studyPerson );
+                            } else {
+                                println( 'Person ' + ids.person + ' or Role ' + ids.role + ' not found in database.' );
+                            }
+                        }
+                    }
+
+                } else {
+                    println( 'No persons selected.')
+                    flow.study.persons.clear();
+                }
+
+	}
 	/**
 	 * re-usable code for handling subject form data in a web flow
 	 * @param Map LocalAttributeMap (the flow scope)

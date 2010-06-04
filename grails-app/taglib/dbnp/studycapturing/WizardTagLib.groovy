@@ -135,8 +135,15 @@ class WizardTagLib extends JavascriptTagLib {
 
 		// change form if a form attribute is present
 		if (attrs.get('form')) {
-			button = button.replaceFirst(/this\.form/,
+			// Old way
+                        /*
+                        button = button.replaceFirst(/this\.form/,
 				"\\\$('" + attrs.get('form') + "')"
+			)
+                        */
+
+                        button = button.replace("jQuery(this).parents('form:first')",
+				"\$('" + attrs.get('form') + "')"
 			)
 		}
 
@@ -1022,8 +1029,9 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		);
                 out << '</form>';
                 out << '<script type="text/javascript">';
+                out << '  var onSelect = function( chooserObject, inputElement, event, ui ) { selectPubMedAdd( chooserObject, inputElement, event, ui ); enableButton( ".'+ attrs.name + '_publication_dialog", "Add", true ); };'
                 out << '  iField = $( "#' + attrs.get( 'name' ) + '" );';
-                out << '  new PublicationChooser().initAutocomplete( iField );';
+                out << '  new PublicationChooser().initAutocomplete( iField, { "select" : onSelect } );';
                 out << '</script>';
         }
 
@@ -1066,7 +1074,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
             } else {
                 ids = '';
             }
-            out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids" value="' + ids + '">';
+            out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
         }
 
         def _publicationAddButton = { attrs, body ->
@@ -1077,24 +1085,140 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
             out << publicationSelect( attrs, body );
             out << '</div>';
             out << '<script type="text/javascript">';
-            out << '     $("#' + attrs.name + '_dialog").dialog({';
-            out << '         title   : "Add publication",';
-            out << '         autoOpen: false,';
-            out << '         width   : 800,';
-            out << '         height  : 400,';
-            out << '         modal   : true,';
-            out << '         position: "center",';
-            out << '         buttons : {';
-            out << '            Add  : function() { addPublication( "' + attrs.name + '" ); $(this).dialog("close"); },';
-            out << '            Close  : function() { $(this).dialog("close"); }';
-            out << '         },';
-            out << '         close   : function() {';
-            out << '             /* closeFunc(this); */';
-            out << '         }';
-            out << '     }).width(790).height(400);';
+            out << '  createPublicationDialog( "' + attrs.name + '" );'
             out << '</script>';
 
-            out << '<input type="button" onClick="var field = $( \'#' + attrs.name + '\' ); field.autocomplete( \'close\' ); field.val( \'\' );$( \'#' + attrs.name + '_dialog\' ).dialog( \'open\' ); field.focus();" value="Add Publication">';
+            out << '<input type="button" onClick="openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">';
         }
 
+        def ContactSelectElement = { attrs, body ->
+
+            attrs.description = 'Contacts';
+            // render list with publications currently available
+            baseElement.call(
+                    '_contactList',
+                    attrs,
+                    body
+            )
+
+            attrs.description = '';
+
+            // render 'publications list'
+            out << '<div id="' + attrs.name + '_dialog" class="contacts_dialog" style="display: none;">'
+            baseElement.call(
+                    '_personSelect',
+                    attrs,
+                    body
+            )
+            baseElement.call(
+                    '_roleSelect',
+                    attrs,
+                    body
+            )
+            baseElement.call(
+                    '_contactAddButtonAddition',
+                    attrs,
+                    body
+            )
+            out << '</div>';
+
+            // render 'Add contact button'
+            baseElement.call(
+                    '_contactAddDialogButton',
+                    attrs,
+                    body
+            )
+        }
+
+        def _contactList = { attrs, body ->
+           def display_none = 'none';
+           if( !attrs.get( 'value' ) || attrs.get( 'value' ).size() == 0 ) {
+                display_none =  'inline';
+           }
+
+            // Add a unordered list
+            out << '<ul class="contact_list" id="' + attrs.name + '_list">';
+
+            out << '<li>';
+            out << '<span class="contacts_none" id="' + attrs.name + '_none" style="display: ' + display_none + ';">';
+            out << 'No contacts selected';
+            out << '</span>';
+            out << '</li>';
+
+            out << '</ul>';
+
+           // Add the contacts using javascript
+           out << '<script type="text/javascript">'
+           if( attrs.get( 'value' ) && attrs.get( 'value' ).size() > 0 ) {
+               def i = 0;
+               attrs.get( 'value' ).each {
+                    out << 'showContact( ';
+                    out << '  "' + attrs.name + '",';
+                    out << '  "' + it.person.id + '-' + it.role.id + '",';
+                    out << '  "' + it.person.lastName + ', ' + it.person.firstName + ( it.person.prefix  ? ' ' + it.person.prefix : '' ) + '",';
+                    out << '  "' + it.role.name + '",';
+                    out << '  ' + i++;
+                    out << ');';
+                }
+            }
+            out << '</script>';
+
+            def ids = '';
+            if( attrs.get( 'value' ) && attrs.get( 'value' ).size() > 0 ) {
+                ids = attrs.get( 'value' ).collect { it.person.id + '-' + it.role.id }
+                ids = ids.join( ',' );
+            }
+            out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
+        }
+
+        def _contactAddSelect = { attrs, body ->
+            out << _personSelect( attrs ) + _roleSelect( attrs );
+        }
+
+        def _contactAddButtonAddition = { attrs, body ->
+            out << '<input type="button" onClick="addContact ( \'' + attrs.name + '\' ); $(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show();" value="Add">';
+            out << '<input type="button" onClick="$(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show();" value="Close">';
+        }
+        
+        def _contactAddDialogButton = { attrs, body ->
+            out << '<input type="button" onClick="$( \'#' + attrs.name + '_dialog\' ).show(); $(this).hide();" id="' + attrs.name + '_dialogButton" value="Add Contact">';
+        }
+	/**
+	 * Person select element
+	 * @param Map attributes
+	 */
+	def _personSelect = { attrs ->
+            def selectAttrs = new LinkedHashMap();
+
+            // define 'from'
+            def persons = Person.findAll().sort( { a, b -> a.lastName == b.lastName ? ( a.firstName <=> b.firstName ) : ( a.lastName <=> b.lastName ) } as Comparator );
+            selectAttrs.from = persons.collect { it.lastName + ', ' + it.firstName + ( it.prefix ? ' ' + it.prefix : '' ) }
+            selectAttrs.keys = persons.id;
+
+            // add 'rel' attribute
+            selectAttrs.rel = 'person'
+            selectAttrs.name = attrs.name + '_person';
+
+            out << "Person: " + select(selectAttrs)
+ 	}
+
+	/**
+	 * Role select element
+	 * @param Map attributes
+	 */
+	def _roleSelect = { attrs ->
+            println( attrs );
+            def selectAttrs = new LinkedHashMap();
+
+            // define 'from'
+            def roles = PersonRole.findAll();
+            selectAttrs.from = roles.collect { it.name };
+            selectAttrs.keys = roles.id;
+            
+            // add 'rel' attribute
+            selectAttrs.rel = 'role'
+            selectAttrs.name = attrs.name + '_role';
+
+            out << "Role: " + select(selectAttrs)
+ 	}
 }

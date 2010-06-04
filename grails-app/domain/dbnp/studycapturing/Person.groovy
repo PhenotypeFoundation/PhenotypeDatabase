@@ -45,7 +45,7 @@ package dbnp.studycapturing
  *       agreed upon hundreds of times!!!!
  */
 
-class Person {
+class Person implements java.io.Serializable {
 
     String title
     String gender

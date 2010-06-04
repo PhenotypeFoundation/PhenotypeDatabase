@@ -24,7 +24,7 @@ sourcePubMed = function( chooserObject, searchterm, response ) {
                     success: function(summaryResponse) {
                         // Parse the response
                         var parsedData = parsePubmedData( summaryResponse )
-                        
+
                         // Save in cache
                         chooserObject.cache[ chooserObject.database ][ searchterm ] = parsedData;
 
@@ -81,7 +81,8 @@ closePubMedAdd  = function( chooserObject, inputElement, event, ui ) {
  * @return array
  */
 function parsePubmedData(responseData) {
-    var data = $("DocSum", responseData).map(function() {
+    var data = [];
+    data = $("DocSum", responseData).map(function() {
             var title = $("Item[Name=Title]", this).text();
             var authors = buildAuthorList( $("Item[Name=AuthorList]", this ) );
 

@@ -176,14 +176,30 @@ PublicationChooser.prototype = {
         if( !baseUrl ) {
             var baseUrl = '..';
         }
-        var imgEl = document.createElement( 'img' );
-        imgEl.setAttribute( 'id', inputElement.attr( 'id' ) + '_spinner' );
-        imgEl.setAttribute( 'src', baseUrl + '/images/spinner.gif' );
-        imgEl.setAttribute( 'style', 'margin-left: 5px;');
+        var spinnerEl = document.createElement( 'img' );
+        spinnerEl.setAttribute( 'id', inputElement.attr( 'id' ) + '_spinner' );
+        spinnerEl.setAttribute( 'src', baseUrl + '/images/spinner.gif' );
+        spinnerEl.setAttribute( 'style', 'margin-left: 5px;');
 
         // Add the element next to the input box
-        inputElement.after( imgEl );
-        $( imgEl ).hide();
+        inputElement.after( spinnerEl );
+        $( spinnerEl ).hide();
+
+        // Also add a 'not found' message
+        var notfoundSpan = document.createElement( 'span' );
+        notfoundSpan.setAttribute( 'id', inputElement.attr( 'id' ) + '_notfound' );
+        
+        var imgEl = document.createElement( 'img' );
+        imgEl.setAttribute( 'id', inputElement.attr( 'id' ) + '_delete' );
+        imgEl.setAttribute( 'src', baseUrl + '/images/icons/famfamfam/delete.png' );
+        imgEl.setAttribute( 'style', 'margin-left: 5px; margin-right: 5px; ');
+
+        notfoundSpan.appendChild( imgEl );
+        notfoundSpan.appendChild( document.createTextNode( "No publications found." ) );
+        
+        // Add the element next to the spinner image
+        $( spinnerEl ).after( notfoundSpan );
+        $( notfoundSpan ).hide();
 
         // determine what database to use
         var values = inputElement.attr('rel').split("-");
@@ -224,24 +240,37 @@ PublicationChooser.prototype = {
             delay: 300,
 
             source: function(request, response) {
+                // Before the response function is executed, we have to 
+                // check whether there are results or nog
+                var improvedResponse = function( objects ) {
+                    if( objects.length == 0 ) {
+                        $( '#' + inputElement.attr( 'id' ) + '_spinner' ).hide();
+                        $( '#' + inputElement.attr( 'id' ) + '_notfound' ).show();
+                    }
+                    
+                    response( objects );
+                }
+
                 var q = $.trim(request.term);
 
                 // Check the cache first
                 if ( that.cache[ that.database ][ q ]) {
                     // yeah, lucky us! ;-P
-                    response(that.cache[ that.database ][ q ]);
+                    improvedResponse(that.cache[ that.database ][ q ]);
                 } else {
                     if( that.database != "" && that.events[ 'source' ] ) {
-                       that.events[ 'source' ]( that, q, response );
+                       that.events[ 'source' ]( that, q, improvedResponse );
                     }
                 }
             },
             search: function(event, ui ) {
                 that.selected = false;
                 $( '#' + inputElement.attr( 'id' ) + '_spinner' ).show();
+                $( '#' + inputElement.attr( 'id' ) + '_notfound' ).hide();
             },
             open: function(event, ui ) {
                 $( '#' + inputElement.attr( 'id' ) + '_spinner' ).hide();
+                $( '#' + inputElement.attr( 'id' ) + '_notfound' ).hide();
             },
             select: function(event, ui) {
                 // mark that the user selected a suggestion
