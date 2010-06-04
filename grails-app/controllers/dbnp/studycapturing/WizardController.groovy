@@ -95,6 +95,16 @@ class WizardController {
 				flow.quickSave = false
 			}.to "study"
 			on("modify").to "modify"
+			on("import").to "redirectToImport"
+		}
+
+		// redirect to the import wizard
+		redirectToImport {
+			render(view: "_redirect")
+			onRender {
+				flash.uri = "/importer/index"
+			}
+			on("next").to "start"
 		}
 
 		// load a study to modify

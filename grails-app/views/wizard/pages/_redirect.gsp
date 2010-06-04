@@ -1,6 +1,6 @@
 <%
 /**
- * Assays page
+ * Redirect page
  *
  * @author  Jeroen Wesbeek
  * @since   20100212
@@ -15,5 +15,10 @@
  */
 %>
 <wizard:pageContent>
-todo...
+	<script type="text/javascript">
+		$(document).ready(function() {
+			window.location = "/${meta(name: 'app.name')}${uri}";
+		});
+	</script>
+	
 </wizard:pageContent>

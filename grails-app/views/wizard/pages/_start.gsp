@@ -22,6 +22,8 @@
 
 	<wizard:ajaxButton name="modify" class="bigbutton" value="Edit an existing study" alt="Edit an existing study" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
 
+	<wizard:ajaxButton name="import" class="bigbutton" value="Import a study" alt="Import a study" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
+
 	<span class="info">
 		<span class="title">Create a new study via the step-by-step interface</span>
 		This web interface will guide you through the total incorporation of your study in several steps:
@@ -39,16 +41,6 @@
 		Only study owners can modify a their own studies. This part of the application can be used to extend the study information, for instance with new measurements.
 	</span>
 
-	<g:if env="development">
-	<span class="info">
-		<span class="known">Known issues</span>
-		<ul>
-			<li>navigating away from the wizard will result in loss of work. While you are currently warned when
-			    clicking links outside of the wizard, this problem still exists when clicking 'refresh' or the
-				back / forward buttons</li>
-		</ul>
-	</span>
-	<!--g:render template="pages/demo"//-->
-	</g:if>
+	<g:if env="development"><!--g:render template="pages/demo"//--></g:if>
 
 </wizard:pageContent>
