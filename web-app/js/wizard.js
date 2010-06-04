@@ -82,7 +82,7 @@ function onWizardPage() {
         }
     });
 
-    // Handle persoRole selects
+    // Handle personRole selects
     new SelectAddMore().init({
         rel     : 'role',
         url     : baseUrl + '/personRole/list?dialog=true',

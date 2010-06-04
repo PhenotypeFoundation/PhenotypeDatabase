@@ -184,6 +184,9 @@ class WizardController {
 
 					success()
 				} catch (Exception e) {
+					// rollback
+					this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace' ], flash.errors)
+
 					error()
 				}
 			}.to "study"
