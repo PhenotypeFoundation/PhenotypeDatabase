@@ -19,9 +19,7 @@
 		<span class="title">Define the basic properties of your study</span>
 		In this step of the step-by-step study capturing tool all the basic information of a study can be filled out.
 		Keep in mind that the more and the more specific the information that is filled out, the more valuable the system will be.
-		Only the fields with an asterisks are obligatory.
-		Pick the study template of choice (currently a fixed set) and define your study values. In this prototype the
-		templated fields (below the 'note' box) are not yet handled so you can leave them empty for now.
+		Only the fields with an asterisks are obligatory. Pick the study template of choice (currently a fixed set) and define your study values.
 	</span>
 	
 	<wizard:templateElement name="template" description="Template" value="${study?.template}" entity="${dbnp.studycapturing.Study}" addDummy="true" ajaxOnChange="switchTemplate" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" >

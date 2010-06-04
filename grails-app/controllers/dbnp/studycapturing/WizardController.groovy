@@ -81,7 +81,16 @@ class WizardController {
 				flow.page = 1
 				success()
 			}
-			on("next").to "study"
+			on("next") {
+				// clean the flow scope
+				flow.remove('study')
+				flow.remove('subjects')
+				flow.remove('subjectTemplates')
+				flow.remove('event')
+				flow.remove('events')
+				flow.remove('eventGroups')
+				flow.remove('eventTemplates')
+			}.to "study"
 			on("modify").to "modify"
 		}
 
@@ -99,17 +108,85 @@ class WizardController {
 				success()
 			}.to "start"
 			on("next") {
-				// TODO: loading a study is not yet implemented
-				//       create a error stating this feature is
-				//       not yet implemented
-				flash.errors = [:]
-				this.appendErrorMap(
-					['study': 'Loading a study and modifying it has not yet been implemented. Please press \'cancel\' to go back to the initial page...'],
-					flash.errors
-				)
+				// load study
+				try {
+					flow.study = Study.findByTitle(params.study)
 
-				error()
-			}.to "modify"
+					// recreate subjects
+					flow.subjects = [:]
+					flow.subjectTemplates = [:]
+					flow.study.subjects.each() { subject ->
+						def subjectIncrement = flow.subjects.size()
+						flow.subjects[ subjectIncrement ] = subject
+
+						// add subject template?
+						if (!flow.subjectTemplates[ subject.template.name ]) {
+							flow.subjectTemplates[ subject.template.name ] = [
+								name: subject.template.name,
+								template: subject.template,
+								subjects: [:]
+							]
+						}
+
+						// reference subject in template
+						flow.subjectTemplates[ subject.template.name ].subjects[ flow.subjectTemplates[ subject.template.name ].subjects.size() ] = subjectIncrement
+					}
+
+					// recreate events
+					flow.events = []
+					flow.eventGroups = []
+					flow.eventTemplates	= [:]
+					flow.study.events.each() { event ->
+						def eventIncrement = flow.events.size()
+						flow.events[ eventIncrement ] = event
+
+						// add event template?
+						if (!flow.eventTemplates[ event.template.name ]) {
+							flow.eventTemplates[ event.template.name ] = [
+								name: event.template.name,
+								template: event.template,
+								events: new ArrayList()
+							]
+						}
+
+						// reference event in template
+						flow.eventTemplates[ event.template.name ].events[ flow.eventTemplates[ event.template.name ].events.size() ] = eventIncrement
+
+						// set dummy event
+						flow.event = event
+					}
+
+					// recreate sample events
+					flow.study.samplingEvents.each() { event ->
+						def eventIncrement = flow.events.size()
+						flow.events[ eventIncrement ] = event
+
+						// add event template?
+						if (!flow.eventTemplates[ event.template.name ]) {
+							flow.eventTemplates[ event.template.name ] = [
+								name: event.template.name,
+								template: event.template,
+								events: new ArrayList()
+							]
+						}
+
+						// reference event in template
+						flow.eventTemplates[ event.template.name ].events[ flow.eventTemplates[ event.template.name ].events.size() ] = eventIncrement
+
+						// set dummy event
+						flow.event = event
+					}
+
+					// recreate eventGroups
+					flow.study.eventGroups.each() { eventGroup ->
+						flow.eventGroups[ flow.eventGroups.size() ] = eventGroup
+					}
+
+					success()
+				} catch (Exception e) {
+					error()
+				}
+			}.to "study"
 		}
 
 		// render and handle the study page
@@ -175,6 +252,7 @@ class WizardController {
 					flow.subjects = [:]
 					flow.subjectTemplates = [:]
 				}
+
 				success()
 			}
 			on("refresh") {
@@ -669,14 +747,15 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def handleSubjects(flow, flash, params) {
-		def names = [:];
-		def errors = false;
-		def id = 0;
+		def names = [:]
+		def errors = false
+		def id = 0
 
+println flow.subjects
 		// iterate through subject templates
 		flow.subjectTemplates.each() { subjectTemplate ->
 			// iterate through subjects
-			subjectTemplate.getValue().subjects.each() { subjectIncrement, subjectId ->
+			subjectTemplate.value.subjects.each() { subjectIncrement, subjectId ->
 				// iterate through fields (= template fields and domain properties)
 				flow.subjects[ subjectId ].giveFields().each() { subjectField ->
 					// set the field
