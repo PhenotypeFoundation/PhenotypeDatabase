@@ -71,7 +71,7 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
 		Choose your study:
 	    </td>
 	    <td>
-		<g:select name="study_id" from="${studies}" optionKey="id"/>
+		<g:select name="study.id" from="${studies}" optionKey="id"/>
 	    </td>
 	</tr>
 	<tr>

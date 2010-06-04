@@ -55,7 +55,7 @@ class ImporterService {
 	//def header = []
 	def header = [:]
         def df = new DataFormatter()
-	def property = new dbnp.studycapturing.TemplateField()
+	def property = new String()
 
 	for (HSSFCell c: sheet.getRow(datamatrix_start)) {
 	    def index	=   c.getColumnIndex()
@@ -67,8 +67,20 @@ class ImporterService {
 	        
 	    switch (datamatrix_celltype) {
                     case HSSFCell.CELL_TYPE_STRING:
+			    //parse cell value as double
+			    def parsable = true
+			    def templatefieldtype = TemplateFieldType.STRING
+
+			    // is this string perhaps a double?
+			    try {
+				formatValue(c.getStringCellValue(), TemplateFieldType.DOUBLE)
+			    } catch (NumberFormatException nfe) { parsable = false }
+			    finally {
+				if (parsable) templatefieldtype = TemplateFieldType.DOUBLE
+			    }
+
 			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
-									    templatefieldtype:TemplateFieldType.STRING,
+									    templatefieldtype:templatefieldtype,
 									    index:index,
 									    entity:theEntity,
 									    property:property);
@@ -289,21 +301,17 @@ class ImporterService {
 	    def value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
 
 	    switch(mc.entity) {
-		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)
-				    if (mc.identifier) { study.title = value; break }
-				    study.setFieldValue(mc.property.name, value)
+		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)				    
+				    study.setFieldValue(mc.property, value)
 				    break
-	        case Subject	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(subject)
-				    if (mc.identifier) { subject.name = value; break }
-				    subject.setFieldValue(mc.property.name, value)				    
+	        case Subject	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(subject)				    
+				    subject.setFieldValue(mc.property, value)				    
 				    break
-		case Event	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(event)
-				    if (mc.identifier) { event.eventdescription = value; break }
-				    event.setFieldValue(mc.property.name, value)
+		case Event	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(event)				    
+				    event.setFieldValue(mc.property, value)
 				    break
-		case Sample	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(sample)
-				    if (mc.identifier) { sample.name = value; break }
-				    sample.setFieldValue(mc.property.name, value)
+		case Sample	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(sample)				    
+				    sample.setFieldValue(mc.property, value)
 				    break
 		case Object	:   // don't import
 				    break
@@ -318,17 +326,17 @@ class ImporterService {
     * @param value string containing the value
     * @return object corresponding to the TemplateFieldType
     */
-    def formatValue(String value, TemplateFieldType type) {	
-	switch (type) {
-	    case TemplateFieldType.STRING	:   return value.trim()
-	    case TemplateFieldType.TEXT		:   return value.trim()
-	    case TemplateFieldType.INTEGER	:   return Integer.valueOf(value.replaceAll("[^0-9]",""))
-	    case TemplateFieldType.FLOAT	:   return Float.valueOf(value.replace(",","."));
-	    case TemplateFieldType.DOUBLE	:   return Double.valueOf(value.replace(",","."));
-	    case TemplateFieldType.STRINGLIST	:   return value.trim()
-	    case TemplateFieldType.ONTOLOGYTERM	:   return value.trim()
-	    case TemplateFieldType.DATE		:   return value
-	    default				:   return value
-	}
+    def formatValue(String value, TemplateFieldType type) throws NumberFormatException {
+	    switch (type) {
+		case TemplateFieldType.STRING	    :   return value.trim()
+		case TemplateFieldType.TEXT	    :   return value.trim()
+		case TemplateFieldType.INTEGER	    :   return Integer.valueOf(value.replaceAll("[^0-9]",""))
+		case TemplateFieldType.FLOAT	    :   return Float.valueOf(value.replace(",","."));
+		case TemplateFieldType.DOUBLE	    :   return Double.valueOf(value.replace(",","."));
+		case TemplateFieldType.STRINGLIST   :   return value.trim()
+		case TemplateFieldType.ONTOLOGYTERM :   return value.trim()
+		case TemplateFieldType.DATE	    :   return value
+		default				    :   return value
+	    }
     }
 }

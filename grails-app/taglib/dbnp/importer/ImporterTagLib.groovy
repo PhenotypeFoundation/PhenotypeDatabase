@@ -83,7 +83,10 @@ class ImporterTagLib {
 	def mc = attrs['mappingcolumn']
 	def allfieldtypes = attrs['allfieldtypes']
 
-	def templatefields = (allfieldtypes=="true") ? t.fields : t.fields.findAll { it.type == mc.templatefieldtype }
+	//def templatefields = (allfieldtypes=="true") ? t.fields : t.fields.findAll { it.type == mc.templatefieldtype }
+	def templatefields = (allfieldtypes=="true") ? 
+	    t.fields + mc.entity.giveDomainFields() :
+	    t.fields.findAll { it.type == mc.templatefieldtype } + mc.entity.giveDomainFields()
 
 	(mc.identifier) ? out << "<select style=\"font-size:10px\" name=\"\" disabled><option>Identifier</option></select>":
 	    out << createPropertySelect(attrs['name'], templatefields, mc.index)
@@ -101,10 +104,12 @@ class ImporterTagLib {
     {	
 	def res = "<select style=\"font-size:10px\" name=\"${name}.index.${columnIndex}\">"
 
-	options.each { f ->	    
-	    res += "<option value=\"${f.id}\""
-	    //res += (e.type.toInteger() == selected) ? " selected" : ""
-	    res += ">${f}</option>"
+	options.each { f ->
+	    res+= "<option value=\"${f.name}\">"
+	    
+	    res+= (f.preferredIdentifier) ? 
+		    "${f.name} (IDENTIFIER)</option>" :
+		    "${f.name}</option>"
 	}
 
 	res += "</select>"

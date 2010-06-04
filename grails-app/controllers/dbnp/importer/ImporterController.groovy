@@ -59,8 +59,8 @@ class ImporterController {
 
         
 	session.importer_header = ImporterService.getHeader(wb, 0)
-	session.importer_template_id = params.template_id
 	session.importer_study = Study.get(params.study.id.toInteger())
+	session.importer_template_id = params.template_id
 	session.importer_workbook = wb
 
         render (view:"step1_advanced", model:[header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, 0, 5)])
@@ -80,6 +80,7 @@ class ImporterController {
 	def entityClass = Class.forName(entity, true, this.getClass().getClassLoader())
 
 	session.importer_header = ImporterService.getHeader(wb, 0, entityClass)
+	session.importer_study = Study.get(params.study.id.toInteger())
 	session.importer_template_id = params.template_id
 	session.importer_workbook = wb
 
@@ -192,13 +193,24 @@ class ImporterController {
     }
 
     /**
-    * @param columnproperty array of columns containing index and property_id
+    * @param columnproperty array of columns containing index and property (represented as a String)
     *
     */
     def saveproperties = {	
 
-	params.columnproperty.index.each { columnindex, property_id ->
-		session.importer_header[columnindex.toInteger()].property = TemplateField.get(property_id.toInteger())
+	params.columnproperty.index.each { columnindex, property ->
+		def template = Template.get(session.imported_template_id)
+
+		def entityClass = Class.forName(session.importer_header[columnindex.toInteger()].entity.getName(), true, this.getClass().getClassLoader())
+		def entityObj = entityClass.newInstance(template:template)		
+
+		
+		session.importer_header[columnindex.toInteger()].property = property
+		
+		//if it's an identifier set the mapping column true or false		
+		entityObj.giveFields().each {
+		    (it.preferredIdentifier && (it.name==property)) ? session.importer_header[columnindex.toInteger()].identifier = true : false
+		}
 	}
 
 	//import workbook

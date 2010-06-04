@@ -2,8 +2,8 @@ package dbnp.importer
 import dbnp.studycapturing.TemplateField
 
 /**
-* name: column name
-* type: GCSF field type
+* name: column name (in Excel)
+* templatefieldtype: GSCF field type
 * entity: GSCF entity class
 * property: GSCF template field
 * index: column index
@@ -15,7 +15,7 @@ class MappingColumn {
 	String name
 	dbnp.studycapturing.TemplateFieldType templatefieldtype
 	Class entity
-	TemplateField property
+	String property
 	Integer index
 	String value
 	Boolean identifier
