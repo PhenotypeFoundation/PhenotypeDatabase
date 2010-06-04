@@ -362,7 +362,7 @@ class BootStrap {
 			// SamplingEvent templates
 
                         def samplingProtocolField = new TemplateField(
-                        name: 'SampleProtocol',type: TemplateFieldType.STRING)
+                        name: 'Sample Protocol',type: TemplateFieldType.STRING)
                         .with { if (!validate()) { errors.each { println it} } else save()}
 
 			def liverSamplingEventTemplate = new Template(
