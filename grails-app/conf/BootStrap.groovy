@@ -68,11 +68,25 @@ class BootStrap {
 				ontology: speciesOntology,
 				accession: '9606'
 			).with { if (!validate()) { errors.each { println it} } else save()}
-			def arabTerm = new Term(
+
+                        def arabTerm = new Term(
 				name: 'Arabidopsis thaliana',
 				ontology: speciesOntology,
 				accession: '3702'
 			).with { if (!validate()) { errors.each { println it} } else save()}
+
+                        def tomatoTerm = new Term(
+				name: 'Solanum lycopersicum',
+				ontology: speciesOntology,
+				accession: '4081'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+                        def potatoTerm = new Term(
+				name: 'Solanum tuberosum',
+				ontology: speciesOntology,
+				accession: '0000'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
 
 			def bloodTerm = new Term(
 				name: 'blood plasma',
@@ -166,10 +180,10 @@ class BootStrap {
 
 			def genotypeField = new TemplateField(
 				name: 'Genotype', type: TemplateFieldType.STRING,
-				comment: 'If present, indicate the genetic variance of the subject (the gene knock-out/in or transgene)')
+				comment: 'If present, indicate the genetic variance of the subject (e.g., mutagenized populations,knock-out/in,transgene etc)')
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
-			def genotypeTypeField = new TemplateField(
+                        def genotypeTypeField = new TemplateField(
 				name: 'Genotype type',type: TemplateFieldType.STRINGLIST,
 				listEntries: [new TemplateFieldListItem(name:'wildtype'),
 					new TemplateFieldListItem(name:'transgenic'),
@@ -178,8 +192,18 @@ class BootStrap {
 				comment: 'If a genotype was specified, please indicate here the type of the genotype')	
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
+                        def varietyField = new TemplateField(
+			        name: 'Variety', type: TemplateFieldType.STRING,
+                                comment: 'taxonomic category consisting of members of a species that differ from others of the same species in minor but heritable characteristics')
+			.with { if (!validate()) { errors.each { println it} } else save()}
 
-			// Nutritional study template
+			def ecotypeField = new TemplateField(
+                                name: 'Ecotype', type: TemplateFieldType.STRING,
+                                comment: 'a type or subspecies of life that is especially well adapted to a certain environment')
+                        .with { if (!validate()) { errors.each { println it} } else save()}
+
+
+                        // Nutritional study template
 
 			println ".adding academic study template..."
 			def studyTemplate = new Template(
@@ -286,28 +310,120 @@ class BootStrap {
                 type: TemplateFieldType.FLOAT))
             .with { if (!validate()) { errors.each { println it} } else save()}
 
-			//Plant template
+        /*
+            def GrowthTreatmentTemplate = new Template(
+				name: 'Growth treatment', entity: dbnp.studycapturing.Event)
+		//	.addToFields(sampleDescriptionField)
+			.addToFields(new TemplateField(name: 'position X',type: TemplateFieldType.STRING))
+                        .addToFields(new TemplateField(name: 'position Y',type: TemplateFieldType.STRING))
+                        .addToFields(new TemplateField(name: 'Block',type: TemplateFieldType.STRING))
+                        .addToFields(new TemplateField(name: 'Temparature Day',type: TemplateFieldType.STRING))
+                        .addToFields(new TemplateField(name: 'Temparature Night',type: TemplateFieldType.STRING))
+                        .addToFields(new TemplateField(name: 'Light Intensity',type: TemplateFieldType.STRING))
+                        .addToFields(new TemplateField(name: 'Harvest Delay',type: TemplateFieldType.STRING))
+                        .with { if (!validate()) { errors.each { println it} } else save()}
+         */
+
+		//Plant template
 			println ".adding plant template..."
-			def plantTemplate = new Template(
-				name: 'Plant template', entity: dbnp.studycapturing.Subject)
+			def greenHouseTemplate = new Template(
+				name: 'Plant-green house ', entity: dbnp.studycapturing.Subject)
+			
+			.addToFields(varietyField)
+                        .addToFields(ecotypeField)
+                        .addToFields(genotypeField)
+                        
+	//		.addToFields(genotypeTypeField)
+	//		.addToFields(new TemplateField(
+	//			name: 'Growth location', type: TemplateFieldType.STRINGLIST,
+	//			listEntries: [new TemplateFieldListItem(name:'Greenhouse'),new TemplateFieldListItem(name: 'Field')]))
+	//		.addToFields(new TemplateField(
+	//			name: 'Room', type: TemplateFieldType.STRING,
+	//			comment: 'Chamber number in case of Greenhouse'))
+
+                        .addToFields(new TemplateField(
+				name: 'Chamber no.', type: TemplateFieldType.STRING,
+				comment: 'Chamber number in the Greenhouse'))
+                        .addToFields(new TemplateField(
+				name: 'Growth type', type: TemplateFieldType.STRINGLIST,
+				listEntries: [new TemplateFieldListItem(name:'Standard'),
+                                              new TemplateFieldListItem(name: 'Experimental'),
+                                              new TemplateFieldListItem(name: 'Unknown')]))
 			.addToFields(new TemplateField(
-				name: 'Variety', type: TemplateFieldType.STRING))
-			.addToFields(new TemplateField(
-				name: 'Ecotype', type: TemplateFieldType.STRING))
-			.addToFields(genotypeField)
-			.addToFields(genotypeTypeField)
-			.addToFields(new TemplateField(
-				name: 'Growth location', type: TemplateFieldType.STRINGLIST,
-				listEntries: [new TemplateFieldListItem(name:'Greenhouse'),new TemplateFieldListItem(name: 'Field')]))
-			.addToFields(new TemplateField(
-				name: 'Room', type: TemplateFieldType.STRING,
-				comment: 'Chamber number in case of Greenhouse'))
-			.addToFields(new TemplateField(
+				name: 'Growth protocol', type: TemplateFieldType.TEXT))
+                        .addToFields(new TemplateField(
 				name: 'Position X', type: TemplateFieldType.FLOAT))
 			.addToFields(new TemplateField(
 				name: 'Position Y', type: TemplateFieldType.FLOAT))
 			.addToFields(new TemplateField(
 				name: 'Block', type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Temperature at day', type: TemplateFieldType.FLOAT))
+			.addToFields(new TemplateField(
+				name: 'Temperature at night', type: TemplateFieldType.FLOAT))
+			.addToFields(new TemplateField(
+				name: 'Photo period', type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Light intensity', type: TemplateFieldType.STRING))
+			.addToFields(new TemplateField(
+				name: 'Start date', type: TemplateFieldType.DATE))
+			.addToFields(new TemplateField(
+				name: 'Harvest date', type: TemplateFieldType.DATE))
+			.addToFields(new TemplateField(
+				name: 'Harvest delay', type: TemplateFieldType.TEXT))
+                        .addToFields(new TemplateField(
+				name: 'Additional info', type: TemplateFieldType.TEXT))
+	                .with { if (!validate()) { errors.each { println it} } else save()}
+
+                        println ".adding plant template..."
+			def FieldTemplate = new Template(
+				name: 'Plant-open field', entity: dbnp.studycapturing.Subject)
+			.addToFields(varietyField)
+			.addToFields(ecotypeField)
+			.addToFields(genotypeField)
+
+                        .addToFields(new TemplateField(
+				name: 'Start date', type: TemplateFieldType.DATE))
+			.addToFields(new TemplateField(
+				name: 'Harvest date', type: TemplateFieldType.DATE))
+			.addToFields(new TemplateField(
+				name: 'Growth type', type: TemplateFieldType.STRINGLIST,
+				listEntries: [new TemplateFieldListItem(name:'Standard'),new TemplateFieldListItem(name: 'Experimental')]))
+			.addToFields(new TemplateField(
+				name: 'Growth protocol', type: TemplateFieldType.TEXT))
+			.addToFields(new TemplateField(
+				name: 'Harvest delay', type: TemplateFieldType.TEXT))
+	                .with { if (!validate()) { errors.each { println it} } else save()}
+
+                        //Plant template
+			println ".adding plant template..."
+			def chamberTemplate = new Template(
+				name: 'Plant-chamber', entity: dbnp.studycapturing.Subject)
+			
+			.addToFields(varietyField)
+                        .addToFields(ecotypeField)
+                        .addToFields(genotypeField)
+
+	//		.addToFields(genotypeTypeField)
+	//		.addToFields(new TemplateField(
+	//			name: 'Growth location', type: TemplateFieldType.STRINGLIST,
+	//			listEntries: [new TemplateFieldListItem(name:'Greenhouse'),new TemplateFieldListItem(name: 'Field')]))
+			.addToFields(new TemplateField(
+				name: 'Room', type: TemplateFieldType.STRING,
+				comment: 'room number'))
+
+                        .addToFields(new TemplateField(
+				name: 'Chamber no.', type: TemplateFieldType.STRING,
+				comment: 'Chamber number'))
+
+                        .addToFields(new TemplateField(
+				name: 'Block', type: TemplateFieldType.STRING))
+
+                        .addToFields(new TemplateField(
+				name: 'Position X', type: TemplateFieldType.FLOAT))
+			.addToFields(new TemplateField(
+				name: 'Position Y', type: TemplateFieldType.FLOAT))
+			
 			.addToFields(new TemplateField(
 				name: 'Temperature at day', type: TemplateFieldType.FLOAT))
 			.addToFields(new TemplateField(
@@ -327,7 +443,8 @@ class BootStrap {
 				name: 'Growth protocol', type: TemplateFieldType.TEXT))
 			.addToFields(new TemplateField(
 				name: 'Harvest delay', type: TemplateFieldType.TEXT))
-			.with { if (!validate()) { errors.each { println it} } else save()}
+	                .with { if (!validate()) { errors.each { println it} } else save()}
+
 
 			println ".adding plant sample template..."
 			def plantSampleTemplate = new Template(
@@ -336,7 +453,32 @@ class BootStrap {
 			.addToFields(sampleVialTextField)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
-			def dietTreatmentTemplate = new Template(
+
+                        def meterialPrepTemplate = new Template(
+				name: 'Plant-material preparation',
+                                description: 'material preparation',
+                                entity: dbnp.studycapturing.Event)
+			.addToFields(new TemplateField(
+			 name: 'Tissue', type: TemplateFieldType.STRING,
+                         comment: 'organ/ fraction of culture/ plant part'))
+                        
+                         .addToFields(new TemplateField(
+			 name: 'Grinding', type: TemplateFieldType.STRINGLIST,
+                 	 listEntries: [new TemplateFieldListItem(name:'yes'),
+                                       new TemplateFieldListItem(name: 'no'),
+                                       new TemplateFieldListItem(name: 'unknown')]))
+
+                         .addToFields(new TemplateField(
+			 name: 'Storage location', type: TemplateFieldType.STRING))
+
+                         .addToFields(new TemplateField(
+			 name: 'protocol reference', type: TemplateFieldType.STRING))
+
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+
+
+                        def dietTreatmentTemplate = new Template(
 				name: 'Diet treatment HF45/LF10', entity: dbnp.studycapturing.Event)
 			.addToFields(new TemplateField(
 				name: 'Diet', type: TemplateFieldType.STRINGLIST,
@@ -392,6 +534,46 @@ class BootStrap {
 				type: TemplateFieldType.FLOAT))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
+                        def plantSamplingextractEventTemplate = new Template(
+				name: 'Plant -sample extraction',
+				description: 'sample extraction',
+				entity: dbnp.studycapturing.SamplingEvent,
+                                sampleTemplates: [plantSampleTemplate])
+                        .addToFields(samplingProtocolField)
+			.addToFields(new TemplateField(
+				name: 'Sample weight',
+				unit: 'ul',
+				type: TemplateFieldType.FLOAT))
+
+                         .addToFields(new TemplateField(
+			 name: 'Sample when measured', type: TemplateFieldType.STRINGLIST,
+                 	 listEntries: [new TemplateFieldListItem(name:'Dried'),
+                                       new TemplateFieldListItem(name: 'Fresh'),
+                                       new TemplateFieldListItem(name: 'Unknown')]))
+
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
+                        def plantSamplingEventTemplate = new Template(
+				name: 'Plant-sample ',
+				description: 'plant sample ',
+				entity: dbnp.studycapturing.SamplingEvent,
+                                sampleTemplates: [plantSampleTemplate])
+              //          .addToFields(samplingProtocolField)
+			.addToFields(new TemplateField(
+				name: 'material',
+                                comment: 'physical charecteristic. e.g, grounded powder of tomato seed or liquid',
+				type: TemplateFieldType.STRING))
+                        .addToFields(new TemplateField(
+				name: 'Desription',
+				type: TemplateFieldType.STRING))
+                        .addToFields(new TemplateField(
+				name: 'extracted material',
+				comment: 'substance to be extracted. e.g., lipids, volatiles, primary metabolites etc',
+				type: TemplateFieldType.STRING))
+                        .addToFields(new TemplateField(
+				name: 'Text on vial',
+				type: TemplateFieldType.STRING))
+			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Add example studies
 			if (!(grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST)) {
