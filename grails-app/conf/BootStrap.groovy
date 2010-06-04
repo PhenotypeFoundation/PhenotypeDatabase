@@ -351,19 +351,24 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def fastingTreatment = new Template(
-                                name: 'Fasting treatment',
-                                description: 'Fasting Protocol NuGO PPSH',
-                                entity: dbnp.studycapturing.Event)
-                        .addToFields(new TemplateField(
-                                name: 'Fasting period',
-                                type: TemplateFieldType.STRING))
-			 .with { if (!validate()) { errors.each { println it} } else save()}
+				name: 'Fasting treatment',
+				description: 'Fasting Protocol NuGO PPSH',
+				entity: dbnp.studycapturing.Event
+			)
+            .addToFields(
+				new TemplateField(
+					name: 'Fasting period',
+					type: TemplateFieldType.STRING
+				)
+			)
+			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// SamplingEvent templates
-
-                        def samplingProtocolField = new TemplateField(
-                        name: 'Sample Protocol',type: TemplateFieldType.STRING)
-                        .with { if (!validate()) { errors.each { println it} } else save()}
+            def samplingProtocolField = new TemplateField(
+            	name: 'Sample Protocol',
+				type: TemplateFieldType.STRING
+			)
+            .with { if (!validate()) { errors.each { println it} } else save()}
 
 			def liverSamplingEventTemplate = new Template(
 				name: 'Liver extraction',
@@ -592,8 +597,8 @@ class BootStrap {
 				mouseStudy
 				.addToPersons( studyperson1 )
 				.addToPersons( studyperson2 )
-                                .addToPublications( publication1 )
-                                .addToPublications( publication2 )
+                .addToPublications( publication1 )
+                .addToPublications( publication2 )
 				.save()
 
 				println ".adding NuGO PPSH example study..."
@@ -632,10 +637,11 @@ class BootStrap {
 
 				def y = 1
 				11.times {
-				        def currentSubject = new Subject(
-					      name: "" + y++,
-					      species: humanTerm,
-					      template: humanTemplate)
+					def currentSubject = new Subject(
+						name: "" + y++,
+						species: humanTerm,
+						template: humanTemplate
+					)
 					.setFieldValue("Gender", (Math.random() > 0.5) ? "Male" : "Female")
 					.setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19" + (10 + (int) (Math.random() * 80))))
 					.setFieldValue("Age", 30)
@@ -644,16 +650,17 @@ class BootStrap {
 					.setFieldValue("BMI", 20 + Math.random() * 10F)
 					.with { if (!validate()) { errors.each { println it} } else save()}
 
-				        rootGroup.addToSubjects currentSubject
-				        rootGroup.save()
+					rootGroup.addToSubjects currentSubject
+				 	rootGroup.save()
 
-				        def currentSample = new Sample(
-					      name: currentSubject.name + '_B',
-					      material: bloodTerm,
-					      parentSubject: currentSubject,
-					      parentEvent: bloodSamplingEvent);
+					def currentSample = new Sample(
+						name: currentSubject.name + '_B',
+						material: bloodTerm,
+						parentSubject: currentSubject,
+						parentEvent: bloodSamplingEvent
+					);
 
-				        humanStudy.addToSubjects(currentSubject).addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
+					humanStudy.addToSubjects(currentSubject).addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
 				}
 
 				humanStudy.addToEvents(fastingEvent)
@@ -741,16 +748,16 @@ class BootStrap {
 				humanStudy.addToAssays(lipidAssayRef);
 				humanStudy.save()
 
-       				mouseStudy.addToAssays(lipidAssayRef);
+       			mouseStudy.addToAssays(lipidAssayRef);
 				mouseStudy.save()
 
 			}
 		}
 
 		// Ontologies must be connected to the templatefields in runtime
-                // because the Ontology.findByNcboId is not available otherwise
-                TemplateEntity.getField( Subject.domainFields, 'species' ).ontologies = [Ontology.findByNcboId(1132)]
-                TemplateEntity.getField( Sample.domainFields, 'material' ).ontologies = [Ontology.findByNcboId(1005)]
+		// because the Ontology.findByNcboId is not available otherwise
+		TemplateEntity.getField(Subject.domainFields, 'species').ontologies = [Ontology.findByNcboId(1132)]
+		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [Ontology.findByNcboId(1005)]
 
 	}
 
