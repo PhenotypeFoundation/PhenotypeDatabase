@@ -90,6 +90,9 @@ class WizardController {
 				flow.remove('events')
 				flow.remove('eventGroups')
 				flow.remove('eventTemplates')
+
+				// set 'quicksave' variable
+				flow.quickSave = false
 			}.to "study"
 			on("modify").to "modify"
 		}
@@ -110,6 +113,7 @@ class WizardController {
 			on("next") {
 				// load study
 				try {
+					// load study
 					flow.study = Study.findByTitle(params.study)
 
 					// recreate subjects
@@ -182,6 +186,9 @@ class WizardController {
 						flow.eventGroups[ flow.eventGroups.size() ] = eventGroup
 					}
 
+					// set 'quicksave' variable
+					flow.quickSave = true
+
 					success()
 				} catch (Exception e) {
 					// rollback
@@ -241,6 +248,15 @@ class WizardController {
 					error()
 				}
 			}.to "subjects"
+			on("quickSave") {
+				flash.errors = [:]
+
+				if (this.handleStudy(flow, flash, params)) {
+					success()
+				} else {
+					error()
+				}
+			}.to "waitForSave"
 		}
 
 		// render and handle subjects page
@@ -298,21 +314,6 @@ class WizardController {
 
 				success()
 			}.to "subjects"
-			on("next") {
-				flash.errors = [:]
-
-				// check if we have at least one subject
-				// and check form data
-				if (flow.subjects.size() < 1) {
-					// append error map
-					this.appendErrorMap(['subjects': 'You need at least to create one subject for your study'], flash.errors)
-					error()
-				} else if (!this.handleSubjects(flow, flash, params)) {
-					error()
-				} else {
-					success()
-				}
-			}.to "events"
 			on("delete") {
 				// handle subjects
 				this.handleSubjects(flow, flash, params)
@@ -341,6 +342,36 @@ class WizardController {
 					success()
 				}
 			}.to "study"
+			on("next") {
+				flash.errors = [:]
+
+				// check if we have at least one subject
+				// and check form data
+				if (flow.subjects.size() < 1) {
+					// append error map
+					this.appendErrorMap(['subjects': 'You need at least to create one subject for your study'], flash.errors)
+					error()
+				} else if (!this.handleSubjects(flow, flash, params)) {
+					error()
+				} else {
+					success()
+				}
+			}.to "events"
+			on("quickSave") {				
+				flash.errors = [:]
+
+				// check if we have at least one subject
+				// and check form data
+				if (flow.subjects.size() < 1) {
+					// append error map
+					this.appendErrorMap(['subjects': 'You need at least to create one subject for your study'], flash.errors)
+					error()
+				} else if (!this.handleSubjects(flow, flash, params)) {
+					error()
+				} else {
+					success()
+				}
+			}.to "waitForSave"
 		}
 
 		// render events page
@@ -496,6 +527,21 @@ class WizardController {
 					error()
 				}
 			}.to "groups"
+			on("quickSave") {
+				flash.values = params
+				flash.errors = [:]
+
+				// handle study data
+				if (flow.events.size() < 1) {
+					// append error map
+					this.appendErrorMap(['events': 'You need at least to create one event for your study'], flash.errors)
+					error()
+				} else if (this.handleEvents(flow, flash, params)) {
+					success()
+				} else {
+					error()
+				}
+			}.to "waitForSave"
 		}
 
 		// groups page
@@ -513,6 +559,10 @@ class WizardController {
 				this.handleSubjectGrouping(flow, flash, params)
 				success()
 			}.to "samples"
+			on("quickSave") {
+				this.handleSubjectGrouping(flow, flash, params)
+				success()
+			}.to "waitForSave"
 		}
 
 		// samples page
@@ -546,6 +596,9 @@ class WizardController {
 			on("next") {
 				success()
 			}.to "confirm"
+			on("quickSave") {
+				success()
+			}.to "waitForSave"
 		}
 
 		// confirmation

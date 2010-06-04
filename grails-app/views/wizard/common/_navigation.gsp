@@ -18,6 +18,9 @@
 	  <g:if test="${cancel}">
 		[ <wizard:ajaxButton name="cancel" value="cancel" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" class="prevnext" /> ]
 	  </g:if>
+	  <g:if test="${quickSave && page<pages.size}">
+		  [ <wizard:ajaxButton name="quickSave" value="quick save" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" class="prevnext" /> ]		  
+	  </g:if>
       <g:elseif test="${page>1 && page<pages.size}">
 		  |		  
 	  </g:elseif>
