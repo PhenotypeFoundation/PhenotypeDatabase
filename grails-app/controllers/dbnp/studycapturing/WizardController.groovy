@@ -193,8 +193,6 @@ class WizardController {
 		}
 
 		// render and handle the study page
-		// TODO: make sure both template as well as logic will
-		//       handle Study templates as well!!!
 		study {
 			render(view: "_study")
 			onRender {
@@ -638,15 +636,12 @@ class WizardController {
 			on("previous").to "samples"
 		}
 
-		// render page three
+		// render finish page
 		done {
 			render(view: "_done")
 			onRender {
 				flow.page = 8
 			}
-			on("previous") {
-				// TODO
-			}.to "confirm"
 		}
 	}
 
@@ -818,7 +813,6 @@ class WizardController {
 		def errors = false
 		def id = 0
 
-println flow.subjects
 		// iterate through subject templates
 		flow.subjectTemplates.each() { subjectTemplate ->
 			// iterate through subjects
