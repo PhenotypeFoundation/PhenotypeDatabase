@@ -30,23 +30,6 @@ class StudyController {
         render(view:'show',model:[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ) ] )
     }
 
-    /*def create = {
-        def studyInstance = new Study()
-        studyInstance.properties = params
-        return [studyInstance: studyInstance]
-    }
-
-    def save = {
-        def studyInstance = new Study(params)
-        if (studyInstance.save(flush: true)) {
-            flash.message = "${message(code: 'default.created.message', args: [message(code: 'study.label', default: 'Study'), studyInstance.id])}"
-            redirect(action: "show", id: studyInstance.id)
-        }
-        else {
-            render(view: "create", model: [studyInstance: studyInstance])
-        }
-    }*/
-
     /**
      * Shows one or more studies
      */
@@ -71,51 +54,58 @@ class StudyController {
      *
      */
     def events = {
-        def eventGroup = EventGroup.get(params.id)
+        def eventGroupId = Integer.parseInt( params.id );
+        def studyId      = Integer.parseInt( params.study );
+        def eventGroup;
+
+        // eventGroupId == -1 means that the orphaned events should be given
+        if( eventGroupId == -1 ) {
+            def studyInstance = Study.get( studyId )
+            
+            if (studyInstance == null) {
+                flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), studyId])}"
+                redirect(action: "list");
+                return;
+            }
+
+            events = studyInstance.getOrphanEvents();
+        } else {
+            eventGroup = EventGroup.get(params.id)
+
+            if (eventGroup == null) {
+                flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventgroup.label', default: 'Eventgroup'), params.id])}"
+                redirect(action: "list");
+                return;
+            }
+            events = eventGroup?.events;
+        }
 
         // This parameter should give the startdate of the study in milliseconds
         // since 1-1-1970
         long startDate  = Long.parseLong( params.startDate )
-        
-        if (!eventGroup) {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventgroup.label', default: 'Eventgroup'), params.id])}"
-            redirect(action: "list")
-        }
-        else {
 
-            // Create JSON object
-            def json = [ 'dateTimeFormat': 'iso8601', events: [] ];
+        // Create JSON object
+        def json = [ 'dateTimeFormat': 'iso8601', events: [] ];
 
-            // Add the start of the study as event
-            /*
-            json.events << [
-                'start':    startDate,
-                'durationEvent': false,
-                'title': "Start date study",
-                'color': 'red'
-            ]
-            */
-           
-            // Add all other events
-            for( event in eventGroup.events ) {
-                def parameters = []
-                for( templateField in event.giveTemplateFields() ) {
-                    def value = event.getFieldValue( templateField.name );
-                    if( value ) {
-                        parameters << templateField.name + " = " + value;
-                    }
+        // Add all other events
+        for( event in events ) {
+            def parameters = []
+            for( templateField in event.giveTemplateFields() ) {
+                def value = event.getFieldValue( templateField.name );
+                if( value ) {
+                    parameters << templateField.name + " = " + value;
                 }
-
-                 json.events << [
-                    'start':    new Date( startDate + event.startTime * 1000 ),
-                    'end':      new Date( startDate + event.endTime * 1000 ),
-                    'durationEvent': !event.isSamplingEvent(),
-                    'title': event.template.name + " (" + parameters.join( ', ' ) + ")",
-                    'description': parameters
-                ]
             }
-            render json as JSON
+
+             json.events << [
+                'start':    new Date( startDate + event.startTime * 1000 ),
+                'end':      new Date( startDate + event.endTime * 1000 ),
+                'durationEvent': !event.isSamplingEvent(),
+                'title': event.template.name + " (" + parameters.join( ', ' ) + ")",
+                'description': parameters
+            ]
         }
+        render json as JSON
     }
 
     /*def edit = {

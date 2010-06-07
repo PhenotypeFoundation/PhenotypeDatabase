@@ -65,6 +65,17 @@ class Study extends TemplateEntity implements Serializable {
 		return title;
 	}
 
+        /**
+         * returns all events and sampling events that do not belong to a group
+         */
+        def Set<Event> getOrphanEvents() {
+            def orphans =
+                events.findAll{ event -> !event.belongsToGroup( eventGroups ) } +
+                samplingEvents.findAll { event -> !event.belongsToGroup( eventGroups ) };
+
+            return orphans;
+        }
+
 	/**
 	 * Return the unique Subject templates that are used in this study
 	 */

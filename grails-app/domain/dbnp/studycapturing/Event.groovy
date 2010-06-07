@@ -83,6 +83,18 @@ class Event extends TemplateEntity implements Serializable {
 		return (this instanceof SamplingEvent)
 	}
 
+        def belongsToGroup( Set<EventGroup> groups ){
+            def eventFound = false;
+            def that = this;
+            groups.each{ eventgroup ->
+                if( !eventFound ) {
+                    eventFound = ( that.id in eventgroup.events.id );
+                }
+            }
+
+            return eventFound;
+        }
+
 	def String toString() {
 		return fieldExists('Description') ? getFieldValue('Description') : ""
 	}

@@ -584,9 +584,16 @@ abstract class TemplateEntity implements Serializable {
 
 	/**
 	 * Convenience method. Returns all unique templates used within a collection of TemplateEntities.
+         *
+         * If the collection is empty, an empty set is returned. If none of the entities contains
+         * a template, also an empty set is returned.
 	 */
 	static Set<Template> giveTemplates(Set<TemplateEntity> entityCollection) {
-		return entityCollection*.template.unique();
+            def set = entityCollection*.template.unique();
+
+            // If one or more entities does not have a template, the resulting
+            // set contains null. That is not what is meant.
+            return set.findAll { it != null };
 	}
 
 	/**

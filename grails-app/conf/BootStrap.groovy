@@ -959,9 +959,11 @@ class BootStrap {
 					def currentSample = new Sample(
 						name: currentSubject.name + '_B',
 						material: bloodTerm,
+                                                template: humanBloodSampleTemplate,
 						parentSubject: currentSubject,
 						parentEvent: bloodSamplingEvent
 					);
+                                        currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
 
 					humanStudy.addToSubjects(currentSubject).addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
 				}

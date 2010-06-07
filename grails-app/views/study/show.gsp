@@ -1,5 +1,6 @@
 
 <%@ page import="dbnp.studycapturing.Study" %>
+<%@ page import="dbnp.studycapturing.EventGroup" %>
 <%@ page import="dbnp.studycapturing.RelTime" %>
 <html>
   <head>
@@ -19,7 +20,7 @@
               $("#tabs").tabs({
                 show: function(event, ui) {
                   // If the events tab is shown, the timeline should be redrawn
-                  if( ui.tab.hash == '#events' && !timelineloaded ) {
+                  if( ui.tab.hash == '#events-timeline' && !timelineloaded ) {
                     loadTimeline( 'eventstimeline', 'eventtitles', 0 );
                     timelineloaded = true;
                   }
@@ -85,8 +86,23 @@
               };
 
               <g:set var="bandNr" value="${bandNr+1}" />
+              <% 
+                def sortedEventGroups = study.eventGroups.sort( { a, b ->
+                    return a.name <=> b.name;
+                }  as Comparator );
 
-              <g:each in="${study.eventGroups}" var="eventGroup" status="i">
+                def orphans = study.getOrphanEvents();
+                if( orphans.size() > 0 ) {
+                  sortedEventGroups.add( new EventGroup(
+                    id: -1,
+                    name: 'No group',
+                    events: orphans,
+                    subjects: []
+                  ));
+                }
+
+              %>
+              <g:each in="${sortedEventGroups}" var="eventGroup" status="i">
 
                 //------------- Eventgroup ${bandNr} ---------------
 
@@ -94,7 +110,7 @@
                 eventSources[${bandNr}] = new Timeline.DefaultEventSource();
 
                 // Load events for this eventsource (using jquery)
-                var event_url = '${createLink(controller:'study', action:'events', id:eventGroup.id, params: [startDate: study.startDate.getTime() ])}';
+                var event_url = '${createLink(controller:'study', action:'events', id:( eventGroup.id ? eventGroup.id : -1 ), params: [ startDate: study.startDate.getTime(), study: study.id ])}';
                 $.getJSON(event_url, $.callback( _loadJSONEvents, [0, ${bandNr}, eventSources[${bandNr}], overviewEventSource, event_url] ) );
 
                 // Create a new timeline band
@@ -155,6 +171,7 @@
                 %>
                 bandTitleInfo[ timelineNr ][ ${bandNr} ] = {
                   title: "${eventGroup.name}",
+                  className: "<g:if test="${ eventGroup.id == -1 || !eventGroup.id  }">no_group</g:if>",
                   subjects: "${showSubjects}"
                 };
 
@@ -162,7 +179,7 @@
               </g:each>
 
               // Synchronize all bands
-              <g:each in="${study.eventGroups}" var="eventGroup" status="i">
+              <g:each in="${sortedEventGroups}" var="eventGroup" status="i">
                 bandInfos[${i + datesBandNr +1}].syncWith = ${datesBandNr};
               </g:each>
 
@@ -184,9 +201,10 @@
         <ul>
           <li><a href="#study">Study Information</a></li>
           <li><a href="#subjects">Subjects</a></li>
-          <li><a href="#events">Events</a></li>
-          <li><a href="#event-group">Event Groups</a></li>
+          <li><a href="#events-timeline">Events timeline</a></li>
+          <li><a href="#events-table">Events table</a></li>
           <li><a href="#assays">Assays</a></li>
+          <li><a href="#samples">Samples</a></li>
           <li><a href="#persons">Persons</a></li>
           <li><a href="#publications">Publications</a></li>
         </ul>
@@ -312,11 +330,17 @@
                     // We want every field to appear just once,
                     // so the list is filtered for unique values
                     subjectTemplates = studyList*.giveSubjectTemplates().flatten().unique()
-                    subjectFields = subjectTemplates*.fields.flatten().unique()
+                    if( !subjectTemplates ) {
+                      subjectTemplates = [];
+                      subjectFields = [];
+                    } else {
+                      subjectFields = subjectTemplates*.fields.flatten().unique()
+                      if( !subjectFields ) {
+                        subjectFields = [];
+                      }
+                    }
 
-                    showSubjectFields = subjectFields
-
-                    /* 
+                    /*
                      * These lines are rewritten because
                      * performance sucked
                      *
@@ -392,7 +416,7 @@
           </g:else>
         </div>
 
-        <div id="events">
+        <div id="events-timeline">
           <g:if test="${studyList*.events.flatten().size()==0 && studyInstance*.samplingEvents.flatten().size()==0 }">
             No events in these studies
           </g:if>
@@ -471,7 +495,7 @@
           </g:else>
         </div>
 
-        <div id="event-group">
+        <div id="events-table">
           <g:if test="${studyList*.eventGroups.flatten().size()==0}">
             No event groups in this study
           </g:if>
@@ -509,11 +533,26 @@
               <g:set var="i" value="${1}" />
 
               <g:each in="${studyList}" var="studyInstance">
+                <%
+                  def sortedEventGroups = studyInstance.eventGroups.sort( { a, b ->
+                      return a.name <=> b.name;
+                  }  as Comparator );
 
-                <g:each in="${studyInstance.eventGroups}" var="eventGroup" status="j">
+                  def orphans = studyInstance.getOrphanEvents();
+                  if( orphans.size() > 0 ) {
+                    sortedEventGroups.add( new EventGroup(
+                      id: -1,
+                      name: 'No group',
+                      events: orphans,
+                      subjects: []
+                    ));
+                  }
+
+                %>
+                <g:each in="${sortedEventGroups}" var="eventGroup" status="j">
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                     <g:if test="${multipleStudies && j==0}">
-                      <td class="studytitle" rowspan="${studyInstance.eventGroups.size()}">
+                      <td class="studytitle" rowspan="${sortedEventGroups.size()}">
                         ${studyInstance.title}
                       </td>
                     </g:if>
@@ -594,6 +633,106 @@
 
                 </g:each>
               </g:each>
+            </table>
+          </g:else>
+        </div>
+
+        <div id="samples">
+
+          <g:if test="${studyList*.samples.flatten().size()==0}">
+            No samples in the selected studies
+          </g:if>
+          <g:else>
+            <table>
+              <thead>
+                <tr>
+                  <g:if test="${multipleStudies}">
+                    <th></th>
+                  </g:if>
+                  <g:each in="${new dbnp.studycapturing.Sample().giveDomainFields()}" var="field">
+                    <th>${field}</th>
+                  </g:each>
+
+                  <%
+                    // Determine a union of the fields for all different
+                    // samples in all studies. In order to show a proper list.
+                    // We want every field to appear just once,
+                    // so the list is filtered for unique values
+                    sampleTemplates = studyList*.giveSampleTemplates().flatten().unique()
+
+                    if( !sampleTemplates ) {
+                      sampleTemplates = [];
+                      sampleFields = [];
+                      showSampleFields = [];
+                    } else {
+                      sampleFields = sampleTemplates*.fields.flatten().unique()
+                      if( !sampleFields ) {
+                        sampleFields = [];
+                        showSampleFields = [];
+                      } else {
+                        // Filter out all fields that are left blank for all samples
+                        allSamples = studyList*.samples.flatten()
+
+                        showSampleFields = [];
+                        sampleFields.each { sampleField ->
+                          for( sample in allSamples )
+                          {
+                            // If the field is filled for this subject, we have to
+                            // show the field and should not check any other
+                            // samples (hence the break)
+                            if( sample.fieldExists( sampleField.name ) && sample.getFieldValue( sampleField.name ) ) {
+                              showSampleFields << sampleField;
+                              break;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  %>
+
+                  <g:each in="${showSampleFields}" var="field">
+                    <th>${field}</th>
+                  </g:each>
+
+                </tr>
+              </thead>
+
+              <g:set var="i" value="${1}" />
+
+              <g:each in="${studyList}" var="studyInstance">
+                <%
+                  // Sort samples by name
+                  samples = studyInstance.samples;
+                  sortedSamples = samples.sort( { a, b -> a.name <=> b.name } as Comparator )
+                %>
+
+                <g:each in="${sortedSamples}" var="sample" status="j">
+                  <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+                    <g:if test="${multipleStudies && j==0}">
+                      <td class="studytitle" rowspan="${sortedSamples.size()}">
+                        ${studyInstance.title}
+                      </td>
+                    </g:if>
+                    <g:each in="${sample.giveDomainFields()}" var="field">
+                      <td>${sample.getFieldValue(field.name)}</td>
+                    </g:each>
+
+                    <g:each in="${showSampleFields}" var="field">
+                      <td>
+                        <g:if test="${sample.fieldExists(field.name)}">
+                          ${sample.getFieldValue(field.name)}
+                        </g:if>
+                        <g:else>
+                          N/A
+                        </g:else>
+                      </td>
+                    </g:each>
+
+                  </tr>
+                  <g:set var="i" value="${i + 1}" />
+                </g:each>
+              </g:each>
+
             </table>
           </g:else>
         </div>
