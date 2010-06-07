@@ -1,0 +1,21 @@
+#templateFields {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 400px;
+}
+#templateFields li { 
+    margin: 0 5px 5px 5px; padding: 5px;
+}
+html>body #templateFields li { 
+    line-height: 16px; vertical-align: center;
+}
+.ui-state-highlight { 
+    height: 1.5em; line-height: 1.2em;
+}
+#templateFields .ui-icon { 
+    display: inline-block; 
+}
+
+.templateField_form { display: none; }
+.templateField_form label { width: 100px; float: left; display: block; }

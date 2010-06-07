@@ -20,7 +20,11 @@ abstract class TemplateEntity implements Serializable {
 	Map templateFloatFields = [:]
 	Map templateDoubleFields = [:]
 	Map templateDateFields = [:]
-	Map templateRelTimeFields = [:] // Contains relative times in seconds
+
+
+        // N.B. If you try to set Long.MIN_VALUE for a reltime field, an error will occur
+        // However, this will never occur in practice: this value represents 3 bilion centuries
+        Map templateRelTimeFields = [:] // Contains relative times in seconds
 	Map templateFileFields = [:] // Contains filenames
 	Map templateTermFields = [:]
 
@@ -208,7 +212,15 @@ abstract class TemplateEntity implements Serializable {
 		templateRelTimeFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value && value.class != long) {
+                                if( value && value == Long.MIN_VALUE ) {
+                                    error = true
+                                    errors.rejectValue(
+                                            'templateRelTimeFields',
+                                            'templateEntity.typeMismatch.reltime',
+                                            [key, value] as Object[],
+                                            'Value cannot be parsed for property {0}'
+                                    )
+                                } else if (value && value.class != long) {
 					try {
 						fields[key] = (value as long)
 					} catch (Exception e) {
@@ -422,8 +434,17 @@ abstract class TemplateEntity implements Serializable {
 		// Magic setter for relative times: handle string values for relTime fields
 		//
 		if (field.type == TemplateFieldType.RELTIME && value != null && value.class == String) {
-			// A string was given, attempt to transform it into a timespan
-			value = RelTime.parseRelTime(value).getValue();
+                    // A string was given, attempt to transform it into a timespan
+                    // If it cannot be parsed, set the lowest possible value of Long.
+                    // The validator method will raise an error
+                    //
+                    // N.B. If you try to set Long.MIN_VALUE itself, an error will occur
+                    // However, this will never occur: this value represents 3 bilion centuries
+                    try {
+                        value = RelTime.parseRelTime(value).getValue();
+                    } catch( IllegalArgumentException e ) {
+                        value = Long.MIN_VALUE;
+                    }
 		}
 
                 // Sometimes the fileService is not created yet

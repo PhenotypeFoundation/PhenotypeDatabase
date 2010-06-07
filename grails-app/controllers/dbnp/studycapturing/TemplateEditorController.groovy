@@ -18,120 +18,181 @@ import dbnp.studycapturing.*
 import cr.co.arquetipos.crypto.Blowfish
 
 class TemplateEditorController {
-	/**
-	 * index closure
-	 */
-    def index = {
-		// got a entity get parameter?
-		def entity = null
-		if (params.entity) {
-			// decode entity get parameter
-			if (grailsApplication.config.crypto) {
-				// generate a Blowfish encrypted and Base64 encoded string.
-				entity = Blowfish.decryptBase64(
-					params.entity,
-					grailsApplication.config.crypto.shared.secret
-				)
-			} else {
-				// base64 only; this is INSECURE! Even though it is not
-				// very likely, it is possible to exploit this and have
-				// Grails dynamically instantiate whatever class you like.
-				// If that constructor does something harmfull this could
-				// be dangerous. Hence, use encryption (above) instead...
-				entity = new String(params.entity.toString().decodeBase64())
-			}
-		}
+    def entityName;
+    def entity;
 
-		// go with the flow!
-    	redirect(action: 'pages', params:["entity":entity])
+    /**
+     * index closure
+     */
+    def index = {
+        // Check whether a right entity is given
+        _checkEntity();
+
+        // fetch all templates for this entity
+        def templates = Template.findAllByEntity(entity)
+
+        // Check whether a template is already selected
+        def selectedTemplate = params.template;
+        def template = null;
+
+        if( selectedTemplate ) {
+            template = Template.get( selectedTemplate );
+        }
+
+        return [
+            entity: entity,
+            templates: templates,
+            encryptedEntity: params.entity,
+            fieldTypes: TemplateFieldType.list(),
+            
+            template: template
+        ];
     }
 
-	/**
-	 * Webflow
-	 */
-	def pagesFlow = {
-		// start the flow
-		start {
-			action {
-				// define initial flow variables
-				flow.entity = null
-				flow.templates = []
+    /**
+     * Updates a selected template field using a AJAX call
+     */
+    def update = {
+        // Search for the template field
+        def templateField = TemplateField.get( params.id );
+        if( !templateField ) {
+            response.status = 404;
+            render 'TemplateField not found';
+            return;
+        }
 
-				// define success variable
-				def errors = true
+        // Update the field if it is not updated in between
+        if (params.version) {
+            def version = params.version.toLong()
+            if (templateField.version > version) {
+                response.status = 500;
+                render 'TemplateField was updated while you were working on it. Please reload and try again.';
+                return
+            }
+        }
+        templateField.properties = params
+        if (!templateField.hasErrors() && templateField.save(flush: true)) {
+            render '';
+        } else {
+            response.status = 500;
+            render 'TemplateField was not updated because errors occurred.';
+            return
+        }
+    }
 
-				// got an entity parameter?
-				if (params.entity && params.entity instanceof String) {
-					// yes, try to dynamicall load the entity
-					try {
-						// dynamically load the entity
-						def entity = Class.forName(params.entity, true, this.getClass().getClassLoader())
+    /**
+     * Shows an error page
+     * 
+     * TODO: improve the error page
+     */
+    def error = {
+        render( 'view': 'error' );
+    }
 
-						// succes, is entity an instance of TemplateEntity?
-						if (entity.superclass =~ /TemplateEntity$/) {
-							errors = false
+    /**
+     * Moves a template field using a AJAX call
+     *
+     * 
+     */
+    def move = {
+        // Search for the template
+        def template = Template.get( params.template );
 
-							// yes, assign entity to the flow
-							flow.entity = entity
+        if( !template ) {
+            response.status = 404;
+            render 'Template not found';
+            return;
+        }
 
-							// fetch all templates to this entity
-							flow.templates = Template.findAllByEntity(entity)
-							
-							// find all template fields for this particular entity
-							// for now, all
-							// TODO: limit for this entity only
-							flow.allTemplateFields = TemplateField.findAll().sort{ it.name }
-						}
-					} catch (Exception e) { }
-				}
+        // Search for the template field
+        def  templateField = TemplateField.get( params.templateField );
+        if( !templateField ) {
+            response.status = 404;
+            render 'TemplateField not found';
+            return;
+        }
 
-				// success?
-				if (errors) {
-					error()
-				} else {
-					success()
-				}
-			}
-			on("success").to "templates"
-			on("error").to "errorInvalidEntity"
-		}
+        // The template field should exist within the template
+        if( !template.fields.contains( templateField ) ) {
+            response.status = 404;
+            render 'TemplateField not found within template';
+            return;
+        }
 
-		// could not dynamically load entity, possible hack
-		// or invalid entity specified in template field
-		errorInvalidEntity {
-			render(view: "errorInvalidEntity")
-		}
+        // Move the item
+        def currentIndex = template.fields.indexOf( templateField );
+        def moveField = template.fields.remove( currentIndex );
+        template.fields.add( Integer.parseInt( params.position ), moveField );
 
-		// main template editor page
-		templates {
-			render(view: "templates")
-			onRender {
-				// template parameter given?
-				if (params.template) {
-					// yes, find template by name
-					flow.template = Template.findByName(params.template)
-					flow.templateFields = flow.allTemplateFields
+        render "";
+    }
 
-					flow.template.fields.each() {
-						println it
-						flow.templateFields.remove(it)
-						
-					}
-					println "count: "+flow.template.fields.size()
+    /**
+     * Checks whether a correct entity is given
+     */
+    def _checkEntity = {
+        // got a entity get parameter?
+        entityName = _parseEntityType();
 
-					println "---"
-					flow.allTemplateFields.each() {
-						println it
-					}
-					println "count: "+flow.allTemplateFields.size()
-					println "---"
+        if( !entityName ) {
+            error();
+            return;
+        }
 
-					println flow.allTemplateFields.class
-					println flow.template.fields.class
-					println "---"
-				}
-			}
-			on("next").to "start"
-		}
-	}
+        // Create an object of this type
+        entity = _getEntity( entityName );
+
+        if( !entity ) {
+            error();
+            return;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Checks whether the entity type is given and can be parsed
+     */
+    def _parseEntityType() {
+        def entityName;
+        if (params.entity) {
+            // decode entity get parameter
+            if (grailsApplication.config.crypto) {
+                    // generate a Blowfish encrypted and Base64 encoded string.
+                    entityName = Blowfish.decryptBase64(
+                            params.entity,
+                            grailsApplication.config.crypto.shared.secret
+                    )
+            } else {
+                    // base64 only; this is INSECURE! Even though it is not
+                    // very likely, it is possible to exploit this and have
+                    // Grails dynamically instantiate whatever class you like.
+                    // If that constructor does something harmfull this could
+                    // be dangerous. Hence, use encryption (above) instead...
+                    entityName = new String(params.entity.toString().decodeBase64())
+            }
+
+            return entityName;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Creates an object of the given entity. Returns false is the entity
+     *   is not a subclass of TemplateEntity
+     */
+    def _getEntity( entityName ) {
+        // Find the templates
+        def entity = Class.forName(entityName, true, this.getClass().getClassLoader())
+
+        // succes, is entity an instance of TemplateEntity?
+        if (entity.superclass =~ /TemplateEntity$/) {
+            return entity;
+        } else {
+            return false;
+        }
+
+    }
 }
