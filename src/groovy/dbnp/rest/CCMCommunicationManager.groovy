@@ -1,12 +1,14 @@
 package dbnp.rest
 
-import java.util.Map; 
-import java.util.HashMap; 
+import java.util.Map 
+import java.util.List
+import java.util.HashMap
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.*
 import dbnp.studycapturing.TemplateFieldListItem
 import dbnp.studycapturing.Template
 import dbnp.data.CleanDataLayer
+import dbnp.studycapturing.Study 
 
 
 
@@ -135,6 +137,17 @@ class CCMCommunicationManager implements CleanDataLayer {
 
 
 
+    /** Send a request for the REST resource to SAM and deliver the 
+     *  results for the Query controller.
+     *
+     *  @param  compound	a SAM compound, e.g., "ldl" or "weight"
+     *  @param  value		a SAM value of a measurement, e.g. "20" (without unit, please)
+     *  @param  opperator	a SAM operator, i.e., "=", "<", or ">"
+     *  @return List of matching studies
+     */
+    public List<Study> getSAMStudies( String compound, String value, String opperator ) {
+         return [] 
+    }
 
 
 }
