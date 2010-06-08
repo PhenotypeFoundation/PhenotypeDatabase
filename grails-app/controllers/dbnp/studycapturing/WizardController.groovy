@@ -597,12 +597,6 @@ class WizardController {
 							}
 						}
 					}
-
-					/*
-					println it
-					println it.events
-					println it.subjects
-					*/
 				}
 
 				success()
@@ -812,7 +806,7 @@ class WizardController {
 	 * @param Map LocalAttributeMap (the flow scope)
 	 * @param Map localAttributeMap (the flash scope)
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
+	 * @return boolean
 	 */
 	def handleContacts(flow, flash, params) {
 		// create study instance if we have none
@@ -874,7 +868,7 @@ class WizardController {
 	 * @param Map LocalAttributeMap (the flow scope)
 	 * @param Map localAttributeMap (the flash scope)
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
+	 * @return boolean
 	 */
 	def handleSubjects(flow, flash, params) {
 		def names = [:]
@@ -910,7 +904,7 @@ class WizardController {
 	 * @param Map LocalAttributeMap (the flow scope)
 	 * @param Map localAttributeMap (the flash scope)
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
+	 * @return boolean
 	 */
 	def handleEvents(flow, flash, params) {
 		def errors = false
@@ -970,7 +964,7 @@ class WizardController {
 	 * @param Map LocalAttributeMap (the flow scope)
 	 * @param Map localAttributeMap (the flash scope)
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
+	 * @return boolean
 	 */
 	def handleEventGrouping(flow, flash, params) {
 		// walk through eventGroups
@@ -997,7 +991,7 @@ class WizardController {
 	 * @param Map LocalAttributeMap (the flow scope)
 	 * @param Map localAttributeMap (the flash scope)
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
+	 * @return boolean
 	 */
 	def handleSubjectGrouping(flow, flash, params) {
 		// iterate through event groups
@@ -1062,7 +1056,7 @@ class WizardController {
 	 * transform domain class validation errors into a human readable
 	 * linked hash map
 	 * @param object validated domain class
-	 * @returns object  linkedHashMap
+	 * @return object  linkedHashMap
 	 */
 	def getHumanReadableErrors(object) {
 		def errors = [:]
@@ -1111,7 +1105,7 @@ class WizardController {
 	/**
 	 * Parses a RelTime string and returns a nice human readable string
 	 *
-	 * @returns Human Readable string or a HTTP response code 400 on error
+	 * @return Human Readable string or a HTTP response code 400 on error
 	 */
 	def ajaxParseRelTime = {
 		if (params.reltime == null) {

@@ -24,7 +24,7 @@ class Event extends TemplateEntity implements Serializable {
 			def error = false
 
 			// endTime must be >= the startTime
-			if ( fields && fields.compareTo(obj.startTime) < 0 ) {
+			if (fields && fields.compareTo(obj.startTime) < 0) {
 				error = true
 				errors.rejectValue(
 					'endTime',
@@ -43,6 +43,8 @@ class Event extends TemplateEntity implements Serializable {
 	 * @return List
 	 */
 	static List<TemplateField> giveDomainFields() { return Event.domainFields }
+
+	// TODO: Kees start documenting your code
 	static final List<TemplateField> domainFields = [
 		new TemplateField(
 			name: 'startTime',
@@ -61,39 +63,45 @@ class Event extends TemplateEntity implements Serializable {
 	 * @return String
 	 */
 	static def getPrettyDuration(RelTime duration) {
-            return duration.toPrettyRoundedString();
+		return duration.toPrettyRoundedString();
 	}
 
+	// TODO: Kees start documenting your code
 	def getPrettyDuration() {
-            getPrettyDuration(getDuration())
+		getPrettyDuration(getDuration())
 	}
 
+	// TODO: Kees start documenting your code
 	def getDurationString() {
-            def d = getDuration()
-            return getDuration().toPrettyString();
+		def d = getDuration()
+		return getDuration().toPrettyString();
 	}
 
+	// TODO: Kees start documenting your code
 	def getShortDuration() {
-            def d = getDuration()
-            return getDuration().toString();
+		def d = getDuration()
+		return getDuration().toString();
 	}
 
+	// TODO: Kees start documenting your code
 	def isSamplingEvent() {
 		return (this instanceof SamplingEvent)
 	}
 
-        def belongsToGroup( Set<EventGroup> groups ){
-            def eventFound = false;
-            def that = this;
-            groups.each{ eventgroup ->
-                if( !eventFound ) {
-                    eventFound = ( that.id in eventgroup.events.id );
-                }
-            }
+	// TODO: Kees start documenting your code
+	def belongsToGroup(Set<EventGroup> groups) {
+		def eventFound = false;
+		def that = this;
+		groups.each { eventgroup ->
+			if (!eventFound) {
+				eventFound = (that.id in eventgroup.events.id);
+			}
+		}
 
-            return eventFound;
-        }
+		return eventFound;
+	}
 
+	// TODO: Kees start documenting your code
 	def String toString() {
 		return fieldExists('Description') ? getFieldValue('Description') : ""
 	}
