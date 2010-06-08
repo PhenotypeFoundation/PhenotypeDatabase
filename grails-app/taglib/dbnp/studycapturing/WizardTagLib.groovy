@@ -990,235 +990,235 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		}
 	}
 
-        def PublicationSelectElement = { attrs, body ->
+	def PublicationSelectElement = { attrs, body ->
 
-            attrs.description = 'Publications';
-            // render list with publications currently available
-            baseElement.call(
-                    '_publicationList',
-                    attrs,
-                    body
-            )
+		attrs.description = 'Publications';
+		// render list with publications currently available
+		baseElement.call(
+			'_publicationList',
+			attrs,
+			body
+		)
 
-            attrs.description = '';
+		attrs.description = '';
 
-            // render 'Add publication button'
-            baseElement.call(
-                    '_publicationAddButton',
-                    attrs,
-                    body
-            )
-        }
+		// render 'Add publication button'
+		baseElement.call(
+			'_publicationAddButton',
+			attrs,
+			body
+		)
+	}
 
-        /**
-         * Renders a input box for publications
-         */
-        def publicationSelect = { attrs, body ->
-                if( attrs.get( 'value' ) == null ) {
-                    attrs.value = [];
-                }
-                if( attrs.get( 'description' ) == null ) {
-                    attrs.description = '';
-                }
-                out << '<form id="' + attrs.name + '_form">';
-                out << textField(
-                            name: attrs.get( "name" ),
-                            value: '',
-                            rel: 'publication-pubmed',
-                            style: 'width: 400px;'
+	/**
+	 * Renders a input box for publications
+	 */
+	def publicationSelect = { attrs, body ->
+		if (attrs.get('value') == null) {
+			attrs.value = [];
+		}
+		if (attrs.get('description') == null) {
+			attrs.description = '';
+		}
+		out << '<form id="' + attrs.name + '_form">';
+		out << textField(
+			name: attrs.get("name"),
+			value: '',
+			rel: 'publication-pubmed',
+			style: 'width: 400px;'
 		);
-                out << '</form>';
-                out << '<script type="text/javascript">';
-                out << '  var onSelect = function( chooserObject, inputElement, event, ui ) { selectPubMedAdd( chooserObject, inputElement, event, ui ); enableButton( ".'+ attrs.name + '_publication_dialog", "Add", true ); };'
-                out << '  iField = $( "#' + attrs.get( 'name' ) + '" );';
-                out << '  new PublicationChooser().initAutocomplete( iField, { "select" : onSelect } );';
-                out << '</script>';
-        }
+		out << '</form>';
+		out << '<script type="text/javascript">';
+		out << '  var onSelect = function( chooserObject, inputElement, event, ui ) { selectPubMedAdd( chooserObject, inputElement, event, ui ); enableButton( ".' + attrs.name + '_publication_dialog", "Add", true ); };'
+		out << '  iField = $( "#' + attrs.get('name') + '" );';
+		out << '  new PublicationChooser().initAutocomplete( iField, { "select" : onSelect } );';
+		out << '</script>';
+	}
 
-        def _publicationList = { attrs, body ->
-           def display_none = 'none';
-           if( !attrs.get( 'value' ) || attrs.get( 'value' ).size() == 0 ) {
-                display_none =  'inline';
-           }
-           
-            // Add a unordered list
-            out << '<ul class="publication_list" id="' + attrs.name + '_list">';
+	def _publicationList = { attrs, body ->
+		def display_none = 'none';
+		if (!attrs.get('value') || attrs.get('value').size() == 0) {
+			display_none = 'inline';
+		}
 
-            out << '<li>';
-            out << '<span class="publication_none" id="' + attrs.name + '_none" style="display: ' + display_none + ';">';
-            out << 'No publications selected';
-            out << '</span>';
-            out << '</li>';
+		// Add a unordered list
+		out << '<ul class="publication_list" id="' + attrs.name + '_list">';
 
-            out << '</ul>';
+		out << '<li>';
+		out << '<span class="publication_none" id="' + attrs.name + '_none" style="display: ' + display_none + ';">';
+		out << 'No publications selected';
+		out << '</span>';
+		out << '</li>';
 
-           // Add the publications using javascript
-           out << '<script type="text/javascript">'
-           if( attrs.get( 'value' ) && attrs.get( 'value' ).size() > 0 ) {
-               def i = 0;
-               attrs.get( 'value' ).each {
-                    out << 'showPublication( ';
-                    out << '  "' + attrs.name + '",';
-                    out << '  ' + it.id + ',';
-                    out << '  "' + it.title + '",';
-                    out << '  "' + it.authorsList + '",';
-                    out << '  ' + i++;
-                    out << ');';
-                }
-            }
-            out << '</script>';
+		out << '</ul>';
 
-            def ids;
-            if( attrs.get( 'value' ) && attrs.get( 'value' ).size() > 0 ) {
-                ids = attrs.get( 'value' ).id.join( ',' )
-            } else {
-                ids = '';
-            }
-            out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
-        }
+		// Add the publications using javascript
+		out << '<script type="text/javascript">'
+		if (attrs.get('value') && attrs.get('value').size() > 0) {
+			def i = 0;
+			attrs.get('value').each {
+				out << 'showPublication( ';
+				out << '  "' + attrs.name + '",';
+				out << '  ' + it.id + ',';
+				out << '  "' + it.title + '",';
+				out << '  "' + it.authorsList + '",';
+				out << '  ' + i++;
+				out << ');';
+			}
+		}
+		out << '</script>';
 
-        def _publicationAddButton = { attrs, body ->
+		def ids;
+		if (attrs.get('value') && attrs.get('value').size() > 0) {
+			ids = attrs.get('value').id.join(',')
+		} else {
+			ids = '';
+		}
+		out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
+	}
 
-            // Output the dialog for the publications
-            out << '<div id="' + attrs.name + '_dialog">';
-            out << '<p>Search for a publication on pubmed. You can search on a part of the title or authors. </p>';
-            out << publicationSelect( attrs, body );
-            out << '</div>';
-            out << '<script type="text/javascript">';
-            out << '  createPublicationDialog( "' + attrs.name + '" );'
-            out << '</script>';
+	def _publicationAddButton = { attrs, body ->
 
-            out << '<input type="button" onClick="openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">';
-        }
+		// Output the dialog for the publications
+		out << '<div id="' + attrs.name + '_dialog">';
+		out << '<p>Search for a publication on pubmed. You can search on a part of the title or authors. </p>';
+		out << publicationSelect(attrs, body);
+		out << '</div>';
+		out << '<script type="text/javascript">';
+		out << '  createPublicationDialog( "' + attrs.name + '" );'
+		out << '</script>';
 
-        def ContactSelectElement = { attrs, body ->
+		out << '<input type="button" onClick="openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">';
+	}
 
-            attrs.description = 'Contacts';
-            // render list with publications currently available
-            baseElement.call(
-                    '_contactList',
-                    attrs,
-                    body
-            )
+	def ContactSelectElement = { attrs, body ->
 
-            attrs.description = '';
+		attrs.description = 'Contacts';
+		// render list with publications currently available
+		baseElement.call(
+			'_contactList',
+			attrs,
+			body
+		)
 
-            // render 'publications list'
-            out << '<div id="' + attrs.name + '_dialog" class="contacts_dialog" style="display: none;">'
-            baseElement.call(
-                    '_personSelect',
-                    attrs,
-                    body
-            )
-            baseElement.call(
-                    '_roleSelect',
-                    attrs,
-                    body
-            )
-            baseElement.call(
-                    '_contactAddButtonAddition',
-                    attrs,
-                    body
-            )
-            out << '</div>';
+		attrs.description = '';
 
-            // render 'Add contact button'
-            baseElement.call(
-                    '_contactAddDialogButton',
-                    attrs,
-                    body
-            )
-        }
+		// render 'publications list'
+		out << '<div id="' + attrs.name + '_dialog" class="contacts_dialog" style="display: none;">'
+		baseElement.call(
+			'_personSelect',
+			attrs,
+			body
+		)
+		baseElement.call(
+			'_roleSelect',
+			attrs,
+			body
+		)
+		baseElement.call(
+			'_contactAddButtonAddition',
+			attrs,
+			body
+		)
+		out << '</div>';
 
-        def _contactList = { attrs, body ->
-           def display_none = 'none';
-           if( !attrs.get( 'value' ) || attrs.get( 'value' ).size() == 0 ) {
-                display_none =  'inline';
-           }
+		// render 'Add contact button'
+		baseElement.call(
+			'_contactAddDialogButton',
+			attrs,
+			body
+		)
+	}
 
-            // Add a unordered list
-            out << '<ul class="contact_list" id="' + attrs.name + '_list">';
+	def _contactList = { attrs, body ->
+		def display_none = 'none';
+		if (!attrs.get('value') || attrs.get('value').size() == 0) {
+			display_none = 'inline';
+		}
 
-            out << '<li>';
-            out << '<span class="contacts_none" id="' + attrs.name + '_none" style="display: ' + display_none + ';">';
-            out << 'No contacts selected';
-            out << '</span>';
-            out << '</li>';
+		// Add a unordered list
+		out << '<ul class="contact_list" id="' + attrs.name + '_list">';
 
-            out << '</ul>';
+		out << '<li>';
+		out << '<span class="contacts_none" id="' + attrs.name + '_none" style="display: ' + display_none + ';">';
+		out << 'No contacts selected';
+		out << '</span>';
+		out << '</li>';
 
-           // Add the contacts using javascript
-           out << '<script type="text/javascript">'
-           if( attrs.get( 'value' ) && attrs.get( 'value' ).size() > 0 ) {
-               def i = 0;
-               attrs.get( 'value' ).each {
-                    out << 'showContact( ';
-                    out << '  "' + attrs.name + '",';
-                    out << '  "' + it.person.id + '-' + it.role.id + '",';
-                    out << '  "' + it.person.lastName + ', ' + it.person.firstName + ( it.person.prefix  ? ' ' + it.person.prefix : '' ) + '",';
-                    out << '  "' + it.role.name + '",';
-                    out << '  ' + i++;
-                    out << ');';
-                }
-            }
-            out << '</script>';
+		out << '</ul>';
 
-            def ids = '';
-            if( attrs.get( 'value' ) && attrs.get( 'value' ).size() > 0 ) {
-                ids = attrs.get( 'value' ).collect { it.person.id + '-' + it.role.id }
-                ids = ids.join( ',' );
-            }
-            out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
-        }
+		// Add the contacts using javascript
+		out << '<script type="text/javascript">'
+		if (attrs.get('value') && attrs.get('value').size() > 0) {
+			def i = 0;
+			attrs.get('value').each {
+				out << 'showContact( ';
+				out << '  "' + attrs.name + '",';
+				out << '  "' + it.person.id + '-' + it.role.id + '",';
+				out << '  "' + it.person.lastName + ', ' + it.person.firstName + (it.person.prefix ? ' ' + it.person.prefix : '') + '",';
+				out << '  "' + it.role.name + '",';
+				out << '  ' + i++;
+				out << ');';
+			}
+		}
+		out << '</script>';
 
-        def _contactAddSelect = { attrs, body ->
-            out << _personSelect( attrs ) + _roleSelect( attrs );
-        }
+		def ids = '';
+		if (attrs.get('value') && attrs.get('value').size() > 0) {
+			ids = attrs.get('value').collect { it.person.id + '-' + it.role.id }
+			ids = ids.join(',');
+		}
+		out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
+	}
 
-        def _contactAddButtonAddition = { attrs, body ->
-            out << '<input type="button" onClick="addContact ( \'' + attrs.name + '\' ); $(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show();" value="Add">';
-            out << '<input type="button" onClick="$(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show();" value="Close">';
-        }
-        
-        def _contactAddDialogButton = { attrs, body ->
-            out << '<input type="button" onClick="$( \'#' + attrs.name + '_dialog\' ).show(); $(this).hide();" id="' + attrs.name + '_dialogButton" value="Add Contact">';
-        }
+	def _contactAddSelect = { attrs, body ->
+		out << _personSelect(attrs) + _roleSelect(attrs);
+	}
+
+	def _contactAddButtonAddition = { attrs, body ->
+		out << '<input type="button" onClick="addContact ( \'' + attrs.name + '\' ); $(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show();" value="Add">';
+		out << '<input type="button" onClick="$(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show();" value="Close">';
+	}
+
+	def _contactAddDialogButton = { attrs, body ->
+		out << '<input type="button" onClick="$( \'#' + attrs.name + '_dialog\' ).show(); $(this).hide();" id="' + attrs.name + '_dialogButton" value="Add Contact">';
+	}
 	/**
 	 * Person select element
 	 * @param Map attributes
 	 */
 	def _personSelect = { attrs ->
-            def selectAttrs = new LinkedHashMap();
+		def selectAttrs = new LinkedHashMap();
 
-            // define 'from'
-            def persons = Person.findAll().sort( { a, b -> a.lastName == b.lastName ? ( a.firstName <=> b.firstName ) : ( a.lastName <=> b.lastName ) } as Comparator );
-            selectAttrs.from = persons.collect { it.lastName + ', ' + it.firstName + ( it.prefix ? ' ' + it.prefix : '' ) }
-            selectAttrs.keys = persons.id;
+		// define 'from'
+		def persons = Person.findAll().sort({ a, b -> a.lastName == b.lastName ? (a.firstName <=> b.firstName) : (a.lastName <=> b.lastName) } as Comparator);
+		selectAttrs.from = persons.collect { it.lastName + ', ' + it.firstName + (it.prefix ? ' ' + it.prefix : '') }
+		selectAttrs.keys = persons.id;
 
-            // add 'rel' attribute
-            selectAttrs.rel = 'person'
-            selectAttrs.name = attrs.name + '_person';
+		// add 'rel' attribute
+		selectAttrs.rel = 'person'
+		selectAttrs.name = attrs.name + '_person';
 
-            out << "Person: " + select(selectAttrs)
- 	}
+		out << "Person: " + select(selectAttrs)
+	}
 
 	/**
 	 * Role select element
 	 * @param Map attributes
 	 */
 	def _roleSelect = { attrs ->
-            println( attrs );
-            def selectAttrs = new LinkedHashMap();
+		println(attrs);
+		def selectAttrs = new LinkedHashMap();
 
-            // define 'from'
-            def roles = PersonRole.findAll();
-            selectAttrs.from = roles.collect { it.name };
-            selectAttrs.keys = roles.id;
-            
-            // add 'rel' attribute
-            selectAttrs.rel = 'role'
-            selectAttrs.name = attrs.name + '_role';
+		// define 'from'
+		def roles = PersonRole.findAll();
+		selectAttrs.from = roles.collect { it.name };
+		selectAttrs.keys = roles.id;
 
-            out << "Role: " + select(selectAttrs)
- 	}
+		// add 'rel' attribute
+		selectAttrs.rel = 'role'
+		selectAttrs.name = attrs.name + '_role';
+
+		out << "Role: " + select(selectAttrs)
+	}
 }

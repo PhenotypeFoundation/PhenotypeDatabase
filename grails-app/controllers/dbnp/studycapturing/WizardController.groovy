@@ -292,9 +292,9 @@ class WizardController {
 
 				flash.errors = [:]
 				flash.values = params
-				def speciesTerm = Term.findByName(params.species);
-				def subjectTemplateName = params.get('template');
-				def subjectTemplate = Template.findByName(subjectTemplateName);
+				def speciesTerm = Term.findByName(params.species)
+				def subjectTemplateName = params.get('template')
+				def subjectTemplate = Template.findByName(subjectTemplateName)
 
 				// add this subject template to the subject template array
 				if (!flow.subjectTemplates[ subjectTemplateName ]) {
@@ -329,7 +329,7 @@ class WizardController {
 				this.handleSubjects(flow, flash, params)
 
 				flash.errors = [:]
-				def delete = params.get('do') as int;
+				def delete = params.get('do') as int
 
 				// remove subject
 				if (flow.subjects[ delete ] && flow.subjects[ delete ] instanceof Subject) {
@@ -455,7 +455,7 @@ class WizardController {
 			}.to "events"
 			on("deleteEvent") {
 				flash.values = params
-				def delete = params.get('do') as int;
+				def delete = params.get('do') as int
 
 				// handle event groupings
 				this.handleEventGrouping(flow, flash, params)
@@ -505,7 +505,7 @@ class WizardController {
 			}.to "events"
 			on("deleteEventGroup") {
 				flash.values = params
-				def delete = params.get('do') as int;
+				def delete = params.get('do') as int
 
 				// handle event groupings
 				this.handleEventGrouping(flow, flash, params)
@@ -588,13 +588,14 @@ class WizardController {
 
 					// iterate through events
 					flow.events.each() { event ->
-						println "bla"
 						if (event instanceof SamplingEvent) {
-							//println event.getFieldValue('name')
+							println event.template.name
 							println event.startTime
 							println event.endTime
+							def sampleName = (this.ucwords(subject.value.name) + '_' + this.ucwords(event.template.name) + ((event.startTime) ? '_' + event.startTime : '')).replaceAll("([ ]{1,})", "")
+								//.replaceAll("([^A-Za-z0-9_])", "")
+							println sampleName
 						}
-
 					}
 				}
 
@@ -717,7 +718,7 @@ class WizardController {
 	 */
 	def handleStudy(flow, flash, params) {
 		// create study instance if we have none
-		if (!flow.study) flow.study = new Study();
+		if (!flow.study) flow.study = new Study()
 
 		// create date instance from date string?
 		// @see WizardTagLibrary::dateElement{...}
@@ -742,9 +743,9 @@ class WizardController {
 			}
 		}
 
-                // handle Publications and Contacts
-                handlePublications(flow, flash, params)
-                handleContacts(flow, flash, params)
+		// handle Publications and Contacts
+		handlePublications(flow, flash, params)
+		handleContacts(flow, flash, params)
 
 		// validate study
 		if (flow.study.validate()) {
@@ -766,37 +767,37 @@ class WizardController {
 	 */
 	def handlePublications(flow, flash, params) {
 		// create study instance if we have none
-		if (!flow.study) flow.study = new Study();
-		if (!flow.study.publications ) flow.study.publications = [];
+		if (!flow.study) flow.study = new Study()
+		if (!flow.study.publications) flow.study.publications = []
 
-                // Check the ids of the pubblications that should be attached
-                // to this study. If they are already attached, keep 'm. If
-                // studies are attached that are not in the selected (i.e. the
-                // user deleted them), remove them
-                def publicationIDs = params.get( 'publication_ids' );
-                if( publicationIDs ) {
-                    // Find the individual IDs and make integers
-                    publicationIDs = publicationIDs.split(',').collect { Integer.parseInt( it, 10 ) };
+		// Check the ids of the pubblications that should be attached
+		// to this study. If they are already attached, keep 'm. If
+		// studies are attached that are not in the selected (i.e. the
+		// user deleted them), remove them
+		def publicationIDs = params.get('publication_ids')
+		if (publicationIDs) {
+			// Find the individual IDs and make integers
+			publicationIDs = publicationIDs.split(',').collect { Integer.parseInt(it, 10) }
 
-                    // First remove the publication that are not present in the array
-                    flow.study.publications.removeAll { publication -> !publicationIDs.find { id -> id == publication.id } }
+			// First remove the publication that are not present in the array
+			flow.study.publications.removeAll { publication -> !publicationIDs.find { id -> id == publication.id } }
 
-                    // Add those publications not yet present in the database
-                    publicationIDs.each { id ->
-                        if( !flow.study.publications.find { publication -> id == publication.id } ) {
-                            def publication = Publication.get( id );
-                            if( publication ) {
-                                flow.study.addToPublications( publication );
-                            } else {
-                                println( 'Publication with ID ' + id + ' not found in database.' );
-                            }
-                        }
-                    }
+			// Add those publications not yet present in the database
+			publicationIDs.each { id ->
+				if (!flow.study.publications.find { publication -> id == publication.id }) {
+					def publication = Publication.get(id)
+					if (publication) {
+						flow.study.addToPublications(publication)
+					} else {
+						println('.publication with ID ' + id + ' not found in database.')
+					}
+				}
+			}
 
-                } else {
-                    println( 'No publications selected.')
-                    flow.study.publications.clear();
-                }
+		} else {
+			println('.no publications selected.')
+			flow.study.publications.clear()
+		}
 
 	}
 
@@ -809,61 +810,59 @@ class WizardController {
 	 */
 	def handleContacts(flow, flash, params) {
 		// create study instance if we have none
-		if (!flow.study) flow.study = new Study();
-		if (!flow.study.persons ) flow.study.persons = [];
+		if (!flow.study) flow.study = new Study()
+		if (!flow.study.persons) flow.study.persons = []
 
-                // Check the ids of the contacts that should be attached
-                // to this study. If they are already attached, keep 'm. If
-                // studies are attached that are not in the selected (i.e. the
-                // user deleted them), remove them
+		// Check the ids of the contacts that should be attached
+		// to this study. If they are already attached, keep 'm. If
+		// studies are attached that are not in the selected (i.e. the
+		// user deleted them), remove them
 
-                // Contacts are saved as [person_id]-[role_id]
-                println( params );
-                def contactIDs = params.get( 'contacts_ids' );
-                println( contactIDs );
-                if( contactIDs ) {
-                    // Find the individual IDs and make integers
-                    contactIDs = contactIDs.split(',').collect {
-                        def parts = it.split( '-' );
-                        return [ person: Integer.parseInt( parts[0] ), role: Integer.parseInt( parts[1] ) ];
-                    };
+		// Contacts are saved as [person_id]-[role_id]
+		def contactIDs = params.get('contacts_ids')
+		if (contactIDs) {
+			// Find the individual IDs and make integers
+			contactIDs = contactIDs.split(',').collect {
+				def parts = it.split('-')
+				return [person: Integer.parseInt(parts[0]), role: Integer.parseInt(parts[1])]
+			}
 
-                    // First remove the contacts that are not present in the array
-                    flow.study.persons.removeAll {
-                        studyperson -> !contactIDs.find { ids -> ( ids.person == studyperson.person.id ) && ( ids.role == studyperson.role.id ) }
-                    };
+			// First remove the contacts that are not present in the array
+			flow.study.persons.removeAll {
+				studyperson -> !contactIDs.find { ids -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }
+			}
 
-                    // Add those contacts not yet present in the database
-                    contactIDs.each { ids ->
-                        if( !flow.study.persons.find { studyperson -> ( ids.person == studyperson.person.id ) && ( ids.role == studyperson.role.id ) } ) {
-                            def person = Person.get( ids.person );
-                            def role = PersonRole.get( ids.role );
-                            if( person && role ) {
-                                // Find a studyperson object with these parameters
-                                def studyPerson = StudyPerson.findAll().find { studyperson -> studyperson.person.id == person.id && studyperson.role.id == role.id };
+			// Add those contacts not yet present in the database
+			contactIDs.each { ids ->
+				if (!flow.study.persons.find { studyperson -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }) {
+					def person = Person.get(ids.person)
+					def role = PersonRole.get(ids.role)
+					if (person && role) {
+						// Find a studyperson object with these parameters
+						def studyPerson = StudyPerson.findAll().find { studyperson -> studyperson.person.id == person.id && studyperson.role.id == role.id }
 
-                                // If if does not yet exist, save the example
-                                if( !studyPerson ) {
-                                    studyPerson = new StudyPerson(
-                                        person: person,
-                                        role: role
-                                    );
-                                    studyPerson.save( flush: true );
-                                }
+						// If if does not yet exist, save the example
+						if (!studyPerson) {
+							studyPerson = new StudyPerson(
+								person: person,
+								role: role
+							)
+							studyPerson.save(flush: true)
+						}
 
-                                flow.study.addToPersons( studyPerson );
-                            } else {
-                                println( 'Person ' + ids.person + ' or Role ' + ids.role + ' not found in database.' );
-                            }
-                        }
-                    }
-
-                } else {
-                    println( 'No persons selected.')
-                    flow.study.persons.clear();
-                }
+						flow.study.addToPersons(studyPerson)
+					} else {
+						println('.person ' + ids.person + ' or Role ' + ids.role + ' not found in database.')
+					}
+				}
+			}
+		} else {
+			println('.no persons selected.')
+			flow.study.persons.clear()
+		}
 
 	}
+
 	/**
 	 * re-usable code for handling subject form data in a web flow
 	 * @param Map LocalAttributeMap (the flow scope)
@@ -913,10 +912,10 @@ class WizardController {
 
 		// handle the type of event
 		if (params.eventType == 'event') {
-			flow.event = new Event();
+			flow.event = new Event()
 			template = params.remove('eventTemplate')
 		} else if (params.eventType == 'sample') {
-			flow.event = new SamplingEvent();
+			flow.event = new SamplingEvent()
 			template = params.remove('sampleTemplate')
 		}
 
@@ -1013,6 +1012,29 @@ class WizardController {
 		}
 	}
 
+
+	/**
+	 * groovy / java equivalent of php's ucwords function
+	 *
+	 * Capitalize all first letters of seperate words
+	 *
+	 * @param String
+	 * @return String
+	 */
+	def ucwords(String text) {
+		def newText = ''
+
+		// change case to lowercase
+		text = text.toLowerCase()
+
+		// iterate through words
+		text.split(" ").each() {
+			newText += it[0].toUpperCase() + it.substring(1) + " "
+		}
+
+		return newText.substring(0, newText.size()-1)
+	}
+
 	/**
 	 * return the object from a map of objects by searching for a name
 	 * @param String name
@@ -1087,16 +1109,16 @@ class WizardController {
 	 */
 	def ajaxParseRelTime = {
 		if (params.reltime == null) {
-			response.status = 400;
-			render('reltime parameter is expected');
+			response.status = 400
+			render('reltime parameter is expected')
 		}
 
 		try {
-			def reltime = RelTime.parseRelTime(params.reltime);
-			render reltime.toPrettyString();
+			def reltime = RelTime.parseRelTime(params.reltime)
+			render reltime.toPrettyString()
 		} catch (IllegalArgumentException e) {
-			response.status = 400;
-			render(e.getMessage());
+			response.status = 400
+			render(e.getMessage())
 		}
 	}
 }

@@ -14,18 +14,6 @@
  */
 var warnOnRedirect = true;
 $(document).ready(function() {
-    // check if user is using Firefox 3.6 and warm the user
-    // about the XMLHttpRequest bug that causes the wizard to break...
-    re = /Firefox\/3\.6/gi;
-    if (navigator.userAgent.match(re)) {
-        // http://code.google.com/p/fbug/issues/detail?id=1899
-        var wizard = $('div#wizard');
-        if (wizard.find("#warning").length === 0) {
-            wizard.html('<span id="warning" style="color:red;font-size:8px;">Firefox 3.6 contains <a href="http://code.google.com/p/fbug/issues/detail?id=2746" target="_new">a bug</a> in combination with Firebug\'s XMLHttpRequest spy which causes the wizard to not function anymore. Please make sure you have Firebug\'s XMLHttpRequest spy disabled or use Firefox 3.5.7 instead...</span>' + wizard.html())
-        }
-    }
-
-    // attach Tooltips
     insertOnRedirectWarning();
     onWizardPage();
 });
