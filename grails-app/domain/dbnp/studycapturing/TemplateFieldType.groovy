@@ -7,7 +7,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-public enum TemplateFieldType implements Serializable  {
+public enum TemplateFieldType implements Serializable {
 	STRING('String'),
 	TEXT('Long string'),
 	INTEGER('Integer number'),
@@ -17,7 +17,7 @@ public enum TemplateFieldType implements Serializable  {
 	ONTOLOGYTERM('Ontology Reference'),
 	DATE('Date'),
 	RELTIME('Relative time'), // relative date, e.g. days since start of study
-        FILE('File')
+	FILE('File')
 
 	String name
 
@@ -47,8 +47,8 @@ public enum TemplateFieldType implements Serializable  {
 				return null
 			case RELTIME:
 				return null
-                        case FILE:
-                                return ""
+			case FILE:
+				return ""
 			default:
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}

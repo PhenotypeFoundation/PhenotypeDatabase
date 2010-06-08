@@ -963,8 +963,8 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 							description: ucName,
 							name: prependName + it.escapedName(),
 							value: new RelTime( fieldValue ).toString(),
-                                                        addExampleElement: true,
-                                                        onBlur: 'showExampleReltime(this)'
+                            addExampleElement: true,
+                            onBlur: 'showExampleReltime(this)'
 						){helpText}
 						break
 					case ['FILE']:
@@ -973,7 +973,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 							description: ucName,
 							name: prependName + it.escapedName(),
 							value: fieldValue ? fieldValue : "",
-                                                        addExampleElement: true
+                            addExampleElement: true
 						){helpText}
 						break
 					default:

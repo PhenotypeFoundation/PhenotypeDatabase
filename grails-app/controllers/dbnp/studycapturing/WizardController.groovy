@@ -227,7 +227,7 @@ class WizardController {
 
 				success()
 			}.to "study"
-                        on("switchTemplate") {
+            on("switchTemplate") {
 				flash.values = params
 
 				// handle study data
@@ -582,21 +582,27 @@ class WizardController {
 				flow.page = 6
 				flow.bla = "samples"
 
-				// iterate through subjects
-				flow.subjects.each() { subject ->
-					println subject.value.name
-
+				// iterate through eventGroups
+				flow.eventGroups.each() { eventGroup ->
 					// iterate through events
-					flow.events.each() { event ->
-						if (event instanceof SamplingEvent) {
-							println event.template.name
-							println event.startTime
-							println event.endTime
-							def sampleName = (this.ucwords(subject.value.name) + '_' + this.ucwords(event.template.name) + ((event.startTime) ? '_' + event.startTime : '')).replaceAll("([ ]{1,})", "")
-								//.replaceAll("([^A-Za-z0-9_])", "")
-							println sampleName
+					eventGroup.events.each() { event ->
+						if (event.isSamplingEvent()) {
+							def eventName = this.ucwords(event.template.name)
+
+							// iterate through subjects
+							eventGroup.subjects.each() { subject ->
+								def sampleName = (this.ucwords(subject.name) + '_' + eventName + '_' + new RelTime( event.startTime ).toString()).replaceAll("([ ]{1,})", "")
+
+								println sampleName
+							}
 						}
 					}
+
+					/*
+					println it
+					println it.events
+					println it.subjects
+					*/
 				}
 
 				success()

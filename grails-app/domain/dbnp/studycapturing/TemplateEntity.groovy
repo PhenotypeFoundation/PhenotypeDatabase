@@ -21,10 +21,9 @@ abstract class TemplateEntity implements Serializable {
 	Map templateDoubleFields = [:]
 	Map templateDateFields = [:]
 
-
-        // N.B. If you try to set Long.MIN_VALUE for a reltime field, an error will occur
-        // However, this will never occur in practice: this value represents 3 bilion centuries
-        Map templateRelTimeFields = [:] // Contains relative times in seconds
+	// N.B. If you try to set Long.MIN_VALUE for a reltime field, an error will occur
+	// However, this will never occur in practice: this value represents 3 bilion centuries
+	Map templateRelTimeFields = [:] // Contains relative times in seconds
 	Map templateFileFields = [:] // Contains filenames
 	Map templateTermFields = [:]
 
@@ -38,7 +37,7 @@ abstract class TemplateEntity implements Serializable {
 		templateDateFields: Date,
 		templateTermFields: Term,
 		templateRelTimeFields: long,
-                templateFileFields: String,
+		templateFileFields: String,
 		systemFields: TemplateField
 	]
 
@@ -48,7 +47,7 @@ abstract class TemplateEntity implements Serializable {
 		templateTextFields type: 'text'
 	}
 
-        def fileService
+	def fileService
 
 	/**
 	 * Constraints
@@ -212,15 +211,15 @@ abstract class TemplateEntity implements Serializable {
 		templateRelTimeFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-                                if( value && value == Long.MIN_VALUE ) {
-                                    error = true
-                                    errors.rejectValue(
-                                            'templateRelTimeFields',
-                                            'templateEntity.typeMismatch.reltime',
-                                            [key, value] as Object[],
-                                            'Value cannot be parsed for property {0}'
-                                    )
-                                } else if (value && value.class != long) {
+				if (value && value == Long.MIN_VALUE) {
+					error = true
+					errors.rejectValue(
+						'templateRelTimeFields',
+						'templateEntity.typeMismatch.reltime',
+						[key, value] as Object[],
+						'Value cannot be parsed for property {0}'
+					)
+				} else if (value && value.class != long) {
 					try {
 						fields[key] = (value as long)
 					} catch (Exception e) {
@@ -272,10 +271,10 @@ abstract class TemplateEntity implements Serializable {
 						// try to cast it to the proper type
 						fields[key] = (value as String)
 
-                                                // Find the file on the system
-                                                // if it does not exist, the filename can
-                                                // not be entered
-                                                
+						// Find the file on the system
+						// if it does not exist, the filename can
+						// not be entered
+
 					} catch (Exception e) {
 						// could not typecast properly, value is of improper type
 						// add error message
@@ -434,76 +433,72 @@ abstract class TemplateEntity implements Serializable {
 		// Magic setter for relative times: handle string values for relTime fields
 		//
 		if (field.type == TemplateFieldType.RELTIME && value != null && value.class == String) {
-                    // A string was given, attempt to transform it into a timespan
-                    // If it cannot be parsed, set the lowest possible value of Long.
-                    // The validator method will raise an error
-                    //
-                    // N.B. If you try to set Long.MIN_VALUE itself, an error will occur
-                    // However, this will never occur: this value represents 3 bilion centuries
-                    try {
-                        value = RelTime.parseRelTime(value).getValue();
-                    } catch( IllegalArgumentException e ) {
-                        value = Long.MIN_VALUE;
-                    }
+			// A string was given, attempt to transform it into a timespan
+			// If it cannot be parsed, set the lowest possible value of Long.
+			// The validator method will raise an error
+			//
+			// N.B. If you try to set Long.MIN_VALUE itself, an error will occur
+			// However, this will never occur: this value represents 3 bilion centuries
+			try {
+				value = RelTime.parseRelTime(value).getValue();
+			} catch (IllegalArgumentException e) {
+				value = Long.MIN_VALUE;
+			}
 		}
 
-                // Sometimes the fileService is not created yet
-                if( !fileService ) {
-                    fileService = new FileService();
-                }
+		// Sometimes the fileService is not created yet
+		if (!fileService) {
+			fileService = new FileService();
+		}
 
 		// Magic setter for files: handle values for file fields
-                //
-                // If NULL is given, the field value is emptied and the old file is removed
-                // If an empty string is given, the field value is kept as was
-                // If a file is given, it is moved to the right directory. Old files are deleted. If
-                //   the file does not exist, the field is kept
-                // If a string is given, it is supposed to be a file in the upload directory. If
-                //   it is different from the old one, the old one is deleted. If the file does not
-                //   exist, the old one is kept.
+		//
+		// If NULL is given, the field value is emptied and the old file is removed
+		// If an empty string is given, the field value is kept as was
+		// If a file is given, it is moved to the right directory. Old files are deleted. If
+		//   the file does not exist, the field is kept
+		// If a string is given, it is supposed to be a file in the upload directory. If
+		//   it is different from the old one, the old one is deleted. If the file does not
+		//   exist, the old one is kept.
 		if (field.type == TemplateFieldType.FILE) {
-                    def currentFile = getFieldValue( field.name );
+			def currentFile = getFieldValue(field.name);
 
-                    if( value == null ) {
-                        // If NULL is given, the field value is emptied and the old file is removed
-                        value = "";
-                        if( currentFile )
-                        {
-                            fileService.delete( currentFile )
-                        }                        
-                    } else if( value.class == File ) {
-                        // a file was given. Attempt to move it to the upload directory, and
-                        // afterwards, store the filename. If the file doesn't exist
-                        // or can't be moved, "" is returned
-                        value = fileService.moveFileToUploadDir( value );
+			if (value == null) {
+				// If NULL is given, the field value is emptied and the old file is removed
+				value = "";
+				if (currentFile) {
+					fileService.delete(currentFile)
+				}
+			} else if (value.class == File) {
+				// a file was given. Attempt to move it to the upload directory, and
+				// afterwards, store the filename. If the file doesn't exist
+				// or can't be moved, "" is returned
+				value = fileService.moveFileToUploadDir(value);
 
-                        if( value ) {
-                            if( currentFile )
-                            {
-                                fileService.delete( currentFile )
-                            }
-                        } else {
-                            value = currentFile;
-                        }
-                    } else if ( value == "" ) {
-                        value = currentFile;
-                    } else {
-                        if( value != currentFile ) {
-                            if( fileService.fileExists( value ) ) {
-                                // When a FILE field is filled, and a new file is set
-                                // the existing file should be deleted
-                                if( currentFile )
-                                {
-                                    fileService.delete( currentFile )
-                                }
-                            } else {
-                                // If the file does not exist, the field is kept
-                                value = currentFile;
-                            }
-                        }
-                    }
+				if (value) {
+					if (currentFile) {
+						fileService.delete(currentFile)
+					}
+				} else {
+					value = currentFile;
+				}
+			} else if (value == "") {
+				value = currentFile;
+			} else {
+				if (value != currentFile) {
+					if (fileService.fileExists(value)) {
+						// When a FILE field is filled, and a new file is set
+						// the existing file should be deleted
+						if (currentFile) {
+							fileService.delete(currentFile)
+						}
+					} else {
+						// If the file does not exist, the field is kept
+						value = currentFile;
+					}
+				}
+			}
 		}
-
 
 		// Magic setter for ontology terms: handle string values
 		if (field.type == TemplateFieldType.ONTOLOGYTERM && value && value.class == String) {
@@ -605,16 +600,16 @@ abstract class TemplateEntity implements Serializable {
 
 	/**
 	 * Convenience method. Returns all unique templates used within a collection of TemplateEntities.
-         *
-         * If the collection is empty, an empty set is returned. If none of the entities contains
-         * a template, also an empty set is returned.
+	 *
+	 * If the collection is empty, an empty set is returned. If none of the entities contains
+	 * a template, also an empty set is returned.
 	 */
 	static Set<Template> giveTemplates(Set<TemplateEntity> entityCollection) {
-            def set = entityCollection*.template.unique();
+		def set = entityCollection*.template.unique();
 
-            // If one or more entities does not have a template, the resulting
-            // set contains null. That is not what is meant.
-            return set.findAll { it != null };
+		// If one or more entities does not have a template, the resulting
+		// set contains null. That is not what is meant.
+		return set.findAll { it != null };
 	}
 
 	/**

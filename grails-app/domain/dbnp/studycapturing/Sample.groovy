@@ -11,7 +11,7 @@ class Sample extends TemplateEntity {
 	Subject parentSubject
 	SamplingEvent parentEvent
 
-	String name	// should be unique with respect to the parent study (which can be inferred)
+	String name		// should be unique with respect to the parent study (which can be inferred)
 	Term material	// a member that describes the quantity of the sample? --> should be in the templates
 
 	/**
@@ -19,23 +19,23 @@ class Sample extends TemplateEntity {
 	 * @return List
 	 */
 	static List<TemplateField> giveDomainFields() { return Sample.domainFields }
-        static List<TemplateField> domainFields =
-		[
-			new TemplateField(
-				name: 'name',
-				type: TemplateFieldType.STRING,
-				preferredIdentifier: true),
-			new TemplateField(
-				name: 'material',
-				type: TemplateFieldType.ONTOLOGYTERM )
-		]
+	static List<TemplateField> domainFields = [
+		new TemplateField(
+			name: 'name',
+			type: TemplateFieldType.STRING,
+			preferredIdentifier: true
+		),
+		new TemplateField(
+			name: 'material',
+			type: TemplateFieldType.ONTOLOGYTERM
+		)
+	]
 
 	static constraints = {
 		parentSubject(nullable:true)
 	}
 
 	static getSamplesFor( event ) {
-            return  Sample.findAll( 'from Sample s where s.parentEvent =:event', [event:event] )
+		return  Sample.findAll( 'from Sample s where s.parentEvent =:event', [event:event] )
 	}
-
 }

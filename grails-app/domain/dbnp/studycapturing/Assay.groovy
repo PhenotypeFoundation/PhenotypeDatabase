@@ -6,7 +6,6 @@ package dbnp.studycapturing
  * this data can be found.
  */
 class Assay {
-
     String name
     AssayModule module
     long externalAssayID // the assay ID the assay has in the external module

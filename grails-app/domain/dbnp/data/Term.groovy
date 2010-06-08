@@ -29,5 +29,4 @@ class Term implements Serializable {
 	def String toString() {
 		return name
 	}
-
 }

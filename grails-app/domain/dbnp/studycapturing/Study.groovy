@@ -15,7 +15,7 @@ class Study extends TemplateEntity implements Serializable {
 	Date dateCreated
 	Date lastUpdated
 	Date startDate
-        long externalStudyID   // enables referring to studies outside of GSCF, e.g., in the Simple Assay Module 
+    long externalStudyID   // enables referring to studies outside of GSCF, e.g., in the Simple Assay Module
 
 	/**
 	 * return the domain fields for this domain class
@@ -23,8 +23,7 @@ class Study extends TemplateEntity implements Serializable {
 	 */
 	static List<TemplateField> giveDomainFields() { return Study.domainFields }
 
-	static final List<TemplateField> domainFields =
-	[
+	static final List<TemplateField> domainFields = [
 		new TemplateField(
 			name: 'title',
 			type: TemplateFieldType.STRING),
@@ -62,25 +61,24 @@ class Study extends TemplateEntity implements Serializable {
 	 * return the title of this study
 	 */
 	def String toString() {
-		return title;
+		return title
 	}
 
-        /**
-         * returns all events and sampling events that do not belong to a group
-         */
-        def Set<Event> getOrphanEvents() {
-            def orphans =
-                events.findAll{ event -> !event.belongsToGroup( eventGroups ) } +
-                samplingEvents.findAll { event -> !event.belongsToGroup( eventGroups ) };
+	/**
+	 * returns all events and sampling events that do not belong to a group
+	 */
+	def Set<Event> getOrphanEvents() {
+		def orphans =	events.findAll { event -> !event.belongsToGroup(eventGroups) } +
+						samplingEvents.findAll { event -> !event.belongsToGroup(eventGroups) }
 
-            return orphans;
-        }
+		return orphans
+	}
 
 	/**
 	 * Return the unique Subject templates that are used in this study
 	 */
 	def Set<Template> giveSubjectTemplates() {
-		TemplateEntity.giveTemplates(subjects);
+		TemplateEntity.giveTemplates(subjects)
 	}
 
 	/**
@@ -90,33 +88,33 @@ class Study extends TemplateEntity implements Serializable {
 		// For some reason, giveAllEventTemplates() + giveAllSamplingEventTemplates()
 		// gives trouble when asking .size() to the result
 		// So we also use giveTemplates here
-		TemplateEntity.giveTemplates(events + samplingEvents);
+		TemplateEntity.giveTemplates(events + samplingEvents)
 	}
 
 	/**
 	 * Return the unique Event templates that are used in this study
 	 */
 	Set<Template> giveEventTemplates() {
-		TemplateEntity.giveTemplates(events);
+		TemplateEntity.giveTemplates(events)
 	}
 
 	/**
 	 * Return the unique SamplingEvent templates that are used in this study
 	 */
 	Set<Template> giveSamplingEventTemplates() {
-		TemplateEntity.giveTemplates(samplingEvents);
+		TemplateEntity.giveTemplates(samplingEvents)
 	}
 
 	/**
 	 * Returns the unique Sample templates that are used in the study
 	 */
 	Set<Template> giveSampleTemplates() {
-		TemplateEntity.giveTemplates(samples);
+		TemplateEntity.giveTemplates(samples)
 	}
 	/**
 	 * Returns the template of the study
 	 */
 	Template giveStudyTemplate() {
-		return this.template;
+		return this.template
 	}
 }

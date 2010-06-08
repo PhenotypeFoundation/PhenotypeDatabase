@@ -19,21 +19,21 @@ class TemplateField implements Serializable {
 	boolean required
 	boolean preferredIdentifier
 
-    static hasMany = [
-		listEntries	: TemplateFieldListItem,	// to store the entries to choose from when the type is 'item from predefined list'
-	   	ontologies	: Ontology					// to store the ontologies to choose from when the type is 'ontology term'
+	static hasMany = [
+		listEntries: TemplateFieldListItem,	// to store the entries to choose from when the type is 'item from predefined list'
+		ontologies: Ontology					// to store the ontologies to choose from when the type is 'ontology term'
 	]
-	
+
 	static constraints = {
 		// TODO: verify that TemplateField names are unique within templates of each super entity
 		unit(nullable: true, blank: true)
-		comment(nullable:true, blank: true)
+		comment(nullable: true, blank: true)
 		required(default: false)
 		preferredIdentifier(default: false)
 	}
 
 	static mapping = {
-        // TODO: this doesn't seem to work in Postgres
+		// TODO: this doesn't seem to work in Postgres
 		comment type: 'text'
 	}
 
@@ -46,6 +46,6 @@ class TemplateField implements Serializable {
 	 * @return String
 	 */
 	def String escapedName() {
-		return name.toLowerCase().replaceAll("([^a-z0-9])","_")
+		return name.toLowerCase().replaceAll("([^a-z0-9])", "_")
 	}
 }

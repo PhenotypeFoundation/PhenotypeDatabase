@@ -43,15 +43,14 @@ class Event extends TemplateEntity implements Serializable {
 	 * @return List
 	 */
 	static List<TemplateField> giveDomainFields() { return Event.domainFields }
-        static final List<TemplateField> domainFields = 
-		[
-			new TemplateField(
-				name: 'startTime',
-				type: TemplateFieldType.RELTIME),
-			new TemplateField(
-				name: 'endTime',
-				type: TemplateFieldType.RELTIME)
-		]
+	static final List<TemplateField> domainFields = [
+		new TemplateField(
+			name: 'startTime',
+			type: TemplateFieldType.RELTIME),
+		new TemplateField(
+			name: 'endTime',
+			type: TemplateFieldType.RELTIME)
+	]
 
 	def getDuration() {
 		return new RelTime(startTime, endTime);

@@ -45,8 +45,7 @@ import dbnp.data.Term
  * TODO: add PROPER class and method documentation, just like have
  *       agreed upon hundreds of times!!!!
  */
-class Compound {
-
+class Compound implements Serializable {
     String name
     Term compound
     float dose

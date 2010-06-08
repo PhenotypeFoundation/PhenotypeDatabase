@@ -45,13 +45,12 @@ package dbnp.studycapturing
  *       agreed upon hundreds of times!!!!
  */
 
-class PersonAffiliation implements java.io.Serializable {
+class PersonAffiliation implements Serializable {
+	String institute
+	String department
 
-    String institute
-    String department
+	String toString() { "${institute} / ${department}" }
 
-    String toString() { "${institute} / ${department}" }
-
-    static constraints = {
-    }
+	static constraints = {
+	}
 }

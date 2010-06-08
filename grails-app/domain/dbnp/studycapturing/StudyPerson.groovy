@@ -48,7 +48,7 @@ package dbnp.studycapturing
 /**
  * Link table which couples studies with persons and the role they have within the study
  */
-class StudyPerson implements java.io.Serializable {
+class StudyPerson implements Serializable {
     Person person
     PersonRole role
 

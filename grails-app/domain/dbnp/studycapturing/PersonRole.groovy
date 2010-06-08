@@ -45,10 +45,9 @@ package dbnp.studycapturing
  *       agreed upon hundreds of times!!!!
  */
 
-class PersonRole implements java.io.Serializable {
+class PersonRole implements Serializable {
+	String name
 
-    String name
-
-    static constraints = {
-    }
+	static constraints = {
+	}
 }
