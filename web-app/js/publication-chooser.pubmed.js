@@ -1,3 +1,6 @@
+function _createURL( utility, params ) {
+	return baseUrl + "/wizard/entrezProxy?_utility=" + utility + "&" + params;
+}
 sourcePubMed = function( chooserObject, searchterm, response ) {
     // Search for every term in both title and author fields
     var searchFor = [];
@@ -6,7 +9,11 @@ sourcePubMed = function( chooserObject, searchterm, response ) {
         searchFor[ searchFor.length ] = "(" + $.trim( terms[i] ) + "[title]" + " OR " + $.trim( terms[i] ) + "[author]" + ")";
     }
 
-    var url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=" + searchFor.join( " AND " ) + "&usehistory=y";
+    // The fetching of the data is done using a proxy, because in IE it is not allowed to retrieve
+    // XML data from another domain.
+    var utility = 'esearch.fcgi';
+    var params = "db=pubmed&term=" + searchFor.join( " AND " ) + "&usehistory=y";
+    var url = _createURL( utility, params );
 
     // Fetch it from Pubmed
     // This has to be done in two steps: first find IDs, and second, find information
@@ -18,8 +25,12 @@ sourcePubMed = function( chooserObject, searchterm, response ) {
                 var WebEnv = $("WebEnv", xmlDoc ).text();
                 var query_key = $("QueryKey", xmlDoc ).text();
 
+                var utility = 'esummary.fcgi';
+                var params = "db=pubmed&retmax=" + chooserObject.maxResults + "&query_key=" + query_key + "&WebEnv=" + WebEnv;
+                var url = _createURL( utility, params );
+
                 $.ajax({
-                    url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmax=" + chooserObject.maxResults + "&query_key=" + query_key + "&WebEnv=" + WebEnv,
+                    url: url,
                     dataType: "xml",
                     success: function(summaryResponse) {
                         // Parse the response
@@ -30,8 +41,14 @@ sourcePubMed = function( chooserObject, searchterm, response ) {
 
                         // Return it to jquery
                         response( parsedData );
+                    },
+                    error: function() {
+                            response( null );
                     }
                 })
+            },
+            error: function() {
+                response( null );
             }
     })
 

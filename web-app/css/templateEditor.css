@@ -17,5 +17,34 @@ html>body #templateFields li {
     display: inline-block; 
 }
 
-.templateField_form { display: none; }
+#templateFields .empty { opacity: 0.6; padding: 5px 25px; }
+
+.templateField_form { display: none; margin: 5px; padding-top: 8px; border-top: 1px solid #BBD; }
+.templateField_form .templateFieldButtons { margin-top: 8px; padding-top: 8px; border-top: 1px solid #BBD; }
 .templateField_form label { width: 100px; float: left; display: block; }
+.templateField_form textarea {width: 240px; height: 100px;  }
+
+#addNew {
+	width: 388px;
+	line-height: 16px;
+	background-color: #EBF9D7;
+	border:1px solid #D0EAAE;
+	color:#79AA27;
+	font-weight:bold;
+
+	margin: 10px 5px;
+	padding: 0px;
+}
+
+#addNew.ui-state-disabled { opacity:0.35; }
+#addNew a {
+	display: block;
+	padding: 7px 25px;
+	cursor: pointer;
+	color:#79AA27;
+	text-decoration: none;
+}
+
+#addNew form{
+	margin-left: 10px; margin-right: 10px;
+}

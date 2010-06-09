@@ -243,7 +243,10 @@ PublicationChooser.prototype = {
                 // Before the response function is executed, we have to 
                 // check whether there are results or nog
                 var improvedResponse = function( objects ) {
-                    if( objects.length == 0 ) {
+                    if( objects == null ) {
+						objects = new Array();
+					}
+					if( objects.length == 0 ) {
                         $( '#' + inputElement.attr( 'id' ) + '_spinner' ).hide();
                         $( '#' + inputElement.attr( 'id' ) + '_notfound' ).show();
                     }

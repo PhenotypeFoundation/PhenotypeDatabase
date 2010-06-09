@@ -1121,4 +1121,35 @@ class WizardController {
 			render(e.getMessage())
 		}
 	}
+
+	/**
+	 * Proxy for searching PubMed articles (or other articles from the Entrez DB).
+	 *
+	 * This proxy is needed because it is not allowed to fetch XML directly from a different
+	 * domain using javascript. So we have the javascript call a function on our own domain
+	 * and the proxy will fetch the data from Entrez
+	 *
+	 * @since	20100609
+	 * @param	_utility	The name of the utility, without the complete path. Example: 'esearch.fcgi'
+	 * @return	XML
+	 */
+	def entrezProxy = {
+		// Remove unnecessary parameters
+		params.remove( "action" )
+		params.remove( "controller" )
+
+		def url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
+		def util = params.remove( "_utility" )
+		def paramString = params.collect { k, v -> k + '=' + v.encodeAsURL() }.join( '&' );
+
+		def fullUrl = url + '/' + util + '?' + paramString;
+
+		// Return the output of the request
+		// render fullUrl;
+		render(
+                    text:           new URL( fullUrl ).getText(),
+                    contentType:    "text/xml",
+                    encoding:       "UTF-8"
+                );
+	}
 }
