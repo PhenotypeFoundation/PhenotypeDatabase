@@ -28,3 +28,13 @@
     margin: 2px 0;
     padding: 2px 4px;
 }
+
+.table {
+    display: block;
+    border: 1px solid #575a5d;
+    background-color: #ebf7fc;
+    margin-top: 10px;
+    font-size: 11px;
+    overflow: hidden;
+    white-space: nowrap;
+}
