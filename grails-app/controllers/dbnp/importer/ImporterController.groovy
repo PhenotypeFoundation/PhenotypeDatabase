@@ -57,11 +57,12 @@ class ImporterController {
     def upload_advanced = {
 	def wb = handleUpload('importfile')
 
-        
 	session.importer_header = ImporterService.getHeader(wb, 0)
 	session.importer_study = Study.get(params.study.id.toInteger())
 	session.importer_template_id = params.template_id
 	session.importer_workbook = wb
+
+	
 
         render (view:"step1_advanced", model:[header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, 0, 5)])
     }
@@ -162,18 +163,18 @@ class ImporterController {
 	}
 
 	params.entity.index.each { columnindex, entityname ->
-	    Class clazz
+	    Class clazz	= null
 
 	    switch (entityname) {
-		case "Study"	: clazz = Study
+		case "Study"	: clazz = dbnp.studycapturing.Study
 			break
-		case "Subject"	: clazz = Subject
+		case "Subject"	: clazz = dbnp.studycapturing.Subject
 			break
-		case "Event"	: clazz = Event
+		case "Event"	: clazz = dbnp.studycapturing.Event
 			break
-		case "Protocol" : clazz = Protocol
+		case "Protocol" : clazz = dbnp.studycapturing.Protocol
 			break
-		case "Sample"	: clazz = Sample
+		case "Sample"	: clazz = dbnp.studycapturing.Sample
 			break
 		default: clazz = Object
 			break

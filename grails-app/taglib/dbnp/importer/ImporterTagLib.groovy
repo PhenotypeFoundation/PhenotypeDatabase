@@ -82,13 +82,18 @@ class ImporterTagLib {
 	def t = Template.get(session.importer_template_id)
 	def mc = attrs['mappingcolumn']
 	def allfieldtypes = attrs['allfieldtypes']
+	def domainfields = mc.entity.giveDomainFields().findAll { it.type == mc.templatefieldtype }
+	    domainfields = domainfields.findAll { it.preferredIdentifier != mc.identifier}
 
 	//def templatefields = (allfieldtypes=="true") ? t.fields : t.fields.findAll { it.type == mc.templatefieldtype }
 	def templatefields = (allfieldtypes=="true") ? 
 	    t.fields + mc.entity.giveDomainFields() :
-	    t.fields.findAll { it.type == mc.templatefieldtype } + mc.entity.giveDomainFields()
+	    t.fields.findAll { it.type == mc.templatefieldtype } + domainfields
 
-	(mc.identifier) ? out << "<select style=\"font-size:10px\" name=\"\" disabled><option>Identifier</option></select>":
+	// map identifier to preferred column
+	def prefcolumn = mc.entity.giveDomainFields().findAll { it.preferredIdentifier == true }
+
+	(mc.identifier) ? out << createPropertySelect(attrs['name'], prefcolumn, mc.index) :
 	    out << createPropertySelect(attrs['name'], templatefields, mc.index)
     }
 

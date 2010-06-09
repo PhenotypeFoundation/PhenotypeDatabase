@@ -48,7 +48,7 @@ class ImporterService {
      * @param sheetindex sheet to use within the workbook
      * @return header representation as a MappingColumn hashmap
      */
-    def getHeader(HSSFWorkbook wb, int sheetindex, theEntity=0){
+    def getHeader(HSSFWorkbook wb, int sheetindex, theEntity=null){
 
 	def sheet = wb.getSheetAt(sheetindex)
 	def datamatrix_start = sheet.getFirstRowNum() + 1
@@ -61,7 +61,9 @@ class ImporterService {
 	    def index	=   c.getColumnIndex()
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(index).getCellType()
 	    def headercell = sheet.getRow(sheet.getFirstRowNum()).getCell(index)
+	    def tft = TemplateFieldType.STRING //default templatefield type
 
+	    
             // Check for every celltype, currently redundant code, but possibly this will be 
 	    // a piece of custom code for every cell type like specific formatting
 	        
@@ -69,21 +71,22 @@ class ImporterService {
                     case HSSFCell.CELL_TYPE_STRING:
 			    //parse cell value as double
 			    def parsable = true
-			    def templatefieldtype = TemplateFieldType.STRING
+			    def fieldtype = TemplateFieldType.STRING
 
 			    // is this string perhaps a double?
 			    try {
 				formatValue(c.getStringCellValue(), TemplateFieldType.DOUBLE)
 			    } catch (NumberFormatException nfe) { parsable = false }
 			    finally {
-				if (parsable) templatefieldtype = TemplateFieldType.DOUBLE
+				if (parsable) fieldtype = TemplateFieldType.DOUBLE
 			    }
 
 			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
-									    templatefieldtype:templatefieldtype,
+									    templatefieldtype:fieldtype,
 									    index:index,
 									    entity:theEntity,
 									    property:property);
+
 			    break
                     case HSSFCell.CELL_TYPE_NUMERIC:			
 			    if (HSSFDateUtil.isCellDateFormatted(c)) {
@@ -114,8 +117,8 @@ class ImporterService {
 									    entity:theEntity,
 									    property:property);
 			    break
-            }
-	}
+            } // end of switch
+	} // end of cell loop
         return header
     }
 
@@ -304,7 +307,8 @@ class ImporterService {
 		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)				    
 				    study.setFieldValue(mc.property, value)
 				    break
-	        case Subject	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(subject)				    
+	        case Subject	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(subject)
+				    println "TOT HIER" + mc.property + "/ " + value
 				    subject.setFieldValue(mc.property, value)				    
 				    break
 		case Event	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(event)				    
