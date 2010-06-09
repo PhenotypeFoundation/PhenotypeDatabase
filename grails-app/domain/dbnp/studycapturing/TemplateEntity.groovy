@@ -517,12 +517,12 @@ abstract class TemplateEntity implements Serializable {
 		if (isDomainField(field)) {
 			// got a value?
 			if (value) {
-				println ".setting [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
+				//debug message: println ".setting [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
 
 				// set value
 				this[field.name] = value
 			} else {
-				println ".unsetting [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "]"
+				//debug message: println ".unsetting [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "]"
 
 				// remove value. For numbers, this is done by setting
 				// the value to 0, otherwise, setting it to NULL

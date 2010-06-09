@@ -18,8 +18,10 @@ public enum TemplateFieldType implements Serializable {
 	DATE('Date'),
 	RELTIME('Relative time'), // relative date, e.g. days since start of study
 	FILE('File')
+    // TODO: add a timezone-aware date type to use for study start date
+    // TODO: add a BOOLEAN type (checkbox)
 
-	String name
+    String name
 
 	TemplateFieldType(String name) {
 		this.name = name

@@ -13,6 +13,7 @@ import dbnp.data.Ontology
 class TemplateField implements Serializable {
 	String name
 	TemplateFieldType type
+    Class entity
 	String unit
 	String comment // help string for the user interface
 	List listEntries
@@ -26,6 +27,9 @@ class TemplateField implements Serializable {
 
 	static constraints = {
 		// TODO: verify that TemplateField names are unique within templates of each super entity
+		name(nullable: false, blank: false)
+		type(nullable: false, blank: false)
+		entity(nullable: false, blank: false)
 		unit(nullable: true, blank: true)
 		comment(nullable: true, blank: true)
 		required(default: false)

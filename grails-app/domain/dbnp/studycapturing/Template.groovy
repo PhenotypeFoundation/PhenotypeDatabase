@@ -20,6 +20,31 @@ class Template implements Serializable {
 
 	static constraints = {
 		description(nullable: true, blank: true)
+
+		fields(validator: { fields, obj, errors ->
+			// 'obj' refers to the actual Template object
+
+			// define a boolean
+			def error = false
+
+			// iterate through fields
+			fields.each { field ->
+				// check if the field entity is the same as the template entity
+				if (!field.entity.equals(obj.entity)) {
+					error = true
+					errors.rejectValue(
+						'fields',
+						'templateEntity.entityMismatch',
+						[field.name, obj.entity, field.entity] as Object[],
+						'Template field {0} must be of entity {1} and is currently of entity {2}'
+						)
+				}
+			}
+
+			// got an error, or not?
+			return (!error)
+		})
+
 		// outcommented for now due to bug in Grails / Hibernate
 		// see http://jira.codehaus.org/browse/GRAILS-6020
 		//	name(unique:['entity'])

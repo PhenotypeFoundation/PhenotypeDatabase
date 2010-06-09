@@ -3,6 +3,7 @@ import dbnp.studycapturing.*
 import dbnp.data.Ontology
 import dbnp.data.Term
 import org.codehaus.groovy.grails.commons.GrailsApplication
+import grails.util.GrailsUtil
 
 /**
  * Application Bootstrapper
@@ -144,8 +145,10 @@ class BootStrap {
 			.save();
 
 			// Create 30 persons to test pagination
-			def personCounter = 1;
-			30.times { new Person( firstName: "Person #${personCounter}", lastName: "Testperson", email: "email${personCounter++}@testdomain.com" ).save() }
+			if (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
+                                def personCounter = 1;
+                                30.times { new Person( firstName: "Person #${personCounter}", lastName: "Testperson", email: "email${personCounter++}@testdomain.com" ).save() }
+                        }
 
 			// Create a few publications
 			println ".adding publications"
@@ -170,21 +173,21 @@ class BootStrap {
             // Create templates
 
 			def genderField = new TemplateField(
-				name: 'Gender',type: TemplateFieldType.STRINGLIST,
+				name: 'Gender',type: TemplateFieldType.STRINGLIST, entity: Subject,
 				listEntries: [new TemplateFieldListItem(name:'Male'),new TemplateFieldListItem(name: 'Female'),new TemplateFieldListItem(name: 'Unknown')])
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def ageField = new TemplateField(
-				name: 'Age',type: TemplateFieldType.INTEGER,unit: 'years',comment: 'Either include age at the start of the study or date of birth (if known)')
+				name: 'Age',type: TemplateFieldType.INTEGER,entity: Subject,unit: 'years',comment: 'Either include age at the start of the study or date of birth (if known)')
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def genotypeField = new TemplateField(
-				name: 'Genotype', type: TemplateFieldType.STRING,
+				name: 'Genotype', type: TemplateFieldType.STRING,entity: Subject,
 				comment: 'If present, indicate the genetic variance of the subject (e.g., mutagenized populations,knock-out/in,transgene etc)')
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
      		def genotypeTypeField = new TemplateField(
-				name: 'Genotype type',type: TemplateFieldType.STRINGLIST,
+				name: 'Genotype type',type: TemplateFieldType.STRINGLIST,entity: Subject,
 				listEntries: [new TemplateFieldListItem(name:'wildtype'),
 					new TemplateFieldListItem(name:'transgenic'),
 					new TemplateFieldListItem(name:'knock-out'),
@@ -193,12 +196,12 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
         	def varietyField = new TemplateField(
-				name: 'Variety', type: TemplateFieldType.STRING,
+				name: 'Variety', type: TemplateFieldType.STRING,entity: Subject,
         		comment: 'taxonomic category consisting of members of a species that differ from others of the same species in minor but heritable characteristics')
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			def ecotypeField = new TemplateField(
-        		name: 'Ecotype', type: TemplateFieldType.STRING,
+        		name: 'Ecotype', type: TemplateFieldType.STRING,entity: Subject,
          		comment: 'a type or subspecies of life that is especially well adapted to a certain environment'
 			)
          	.with { if (!validate()) { errors.each { println it} } else save()}
@@ -210,21 +213,20 @@ class BootStrap {
 				name: 'Academic study',
 				entity: dbnp.studycapturing.Study
 			)
-			.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT,comment:'Describe here the type of subjects and the treatment, challenges and sampling.'))
+			.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT, entity: Study,comment:'Describe here the type of subjects and the treatment, challenges and sampling.'))
 			.addToFields(new TemplateField(
 				name: 'Study code',
 				type: TemplateFieldType.STRING,
+                entity: Study,
 				preferredIdentifier:true,
 				comment: 'Fill out the code by which many people will recognize your study')
 			)
-			.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT,comment:'Fill out the aim or questions of the study'))
-			.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING,comment:'If the study was performed within a consortium (e.g. NMC, NuGO), you can indicate this here'))
-			.addToFields(new TemplateField(name: 'Cohort name',type: TemplateFieldType.STRING,comment:'If a cohort was used the name or code of the cohort can be define here (define a cohort template)'))
-			//.addToFields(new TemplateField(name: 'Time zone',type: TemplateFieldType.STRING,comment:'In the database the local time will be stored. This field is essential to be able to generalize time.'))
-			.addToFields(new TemplateField(name: 'Responsible scientist',type: TemplateFieldType.STRING,comment:'Fill out the project leader of principle investigator of the study. (soon to be replaced with persons input)'))
-			.addToFields(new TemplateField(name: 'Lab id',type: TemplateFieldType.STRING,comment:'In which lab was the study performed; indicate the roomnumber.'))
-			.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING,comment:'In which institute was the study performed; indicate the full address information (to be replaced by persons-affiliations?)'))
-			//commented out because of bug #84:.addToFields(new TemplateField(name: 'Study protocol',type: TemplateFieldType.FILE,comment:'Optionally attach a file in which the protocol in the study is described'))
+			.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT,entity: Study,comment:'Fill out the aim or questions of the study'))
+			.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING,entity: Study,comment:'If the study was performed within a consortium (e.g. NMC, NuGO), you can indicate this here'))
+			.addToFields(new TemplateField(name: 'Cohort name',type: TemplateFieldType.STRING,entity: Study,comment:'If a cohort was used the name or code of the cohort can be define here (define a cohort template)'))
+			.addToFields(new TemplateField(name: 'Lab id',type: TemplateFieldType.STRING,entity: Study,comment:'In which lab was the study performed; indicate the roomnumber.'))
+			.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING,entity: Study,comment:'In which institute was the study performed; indicate the full address information (to be replaced by persons-affiliations?)'))
+			.addToFields(new TemplateField(name: 'Study protocol',type: TemplateFieldType.FILE,entity: Study,comment:'Optionally attach a file in which the protocol in the study is described'))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Mouse template
@@ -232,23 +234,23 @@ class BootStrap {
 			def mouseTemplate = new Template(
 				name: 'Mouse', entity: dbnp.studycapturing.Subject)
 			.addToFields(new TemplateField(
-				name: 'Strain', type: TemplateFieldType.ONTOLOGYTERM, ontologies: [nciOntology], comment: "This is an ontology term, if the right strain is not in the list please add it with 'add more'"))
+				name: 'Strain', type: TemplateFieldType.ONTOLOGYTERM, ontologies: [nciOntology], entity: Subject, comment: "This is an ontology term, if the right strain is not in the list please add it with 'add more'"))
 			.addToFields(genotypeField)
 			.addToFields(genotypeTypeField)
 			.addToFields(genderField)
 			.addToFields(new TemplateField(
-				name: 'Age', type: TemplateFieldType.INTEGER, unit: 'weeks', comment: 'Age at start of study'))
+				name: 'Age', type: TemplateFieldType.INTEGER, entity: Subject, unit: 'weeks', comment: 'Age at start of study'))
 			.addToFields(new TemplateField(
-				name: 'Age type',type: TemplateFieldType.STRINGLIST,
+				name: 'Age type',type: TemplateFieldType.STRINGLIST,entity: Subject,
 				listEntries: [new TemplateFieldListItem(name:'postnatal'),new TemplateFieldListItem(name:'embryonal')]))
 			.addToFields(new TemplateField(
-				name: 'Cage',type: TemplateFieldType.STRING,comment:'Indicate the cage used for housing (type and/or size)'))
+				name: 'Cage',type: TemplateFieldType.STRING,entity: Subject,comment:'Indicate the cage used for housing (type and/or size)'))
 			.addToFields(new TemplateField(
-				name: '#Mice in cage',type: TemplateFieldType.INTEGER,comment:'If known, indicate the number of mice per cage'))
+				name: '#Mice in cage',type: TemplateFieldType.INTEGER,entity: Subject,comment:'If known, indicate the number of mice per cage'))
 			.addToFields(new TemplateField(
-				name: 'Litter size',type: TemplateFieldType.INTEGER,comment:'If known, indicate the litter size of the litter from which the subject originates'))
+				name: 'Litter size',type: TemplateFieldType.INTEGER,entity: Subject,comment:'If known, indicate the litter size of the litter from which the subject originates'))
 			.addToFields(new TemplateField(
-				name: 'Weight', type: TemplateFieldType.DOUBLE, unit: 'gram',comment:'If known indicate the weight of the subject in grams at the start of the study'))
+				name: 'Weight', type: TemplateFieldType.DOUBLE, unit: 'gram',entity: Subject,comment:'If known indicate the weight of the subject in grams at the start of the study'))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Human template
@@ -258,40 +260,42 @@ class BootStrap {
 			.addToFields(genderField)
 			.addToFields(ageField)
 			.addToFields(new TemplateField(
-				name: 'DOB',type: TemplateFieldType.DATE,comment:'Date of birth'))
+				name: 'DOB',type: TemplateFieldType.DATE,entity: Subject,comment:'Date of birth'))
 			.addToFields(new TemplateField(
-				name: 'Height',type: TemplateFieldType.DOUBLE, unit: 'm'))
+				name: 'Height',type: TemplateFieldType.DOUBLE, entity: Subject, unit: 'm'))
 			.addToFields(new TemplateField(
-				name: 'Weight',type: TemplateFieldType.DOUBLE, unit: 'kg'))
+				name: 'Weight',type: TemplateFieldType.DOUBLE, entity: Subject, unit: 'kg'))
 			.addToFields(new TemplateField(
-				name: 'BMI',type: TemplateFieldType.DOUBLE, unit: 'kg/m2',comment:'Body-mass-index'))
+				name: 'BMI',type: TemplateFieldType.DOUBLE, entity: Subject, unit: 'kg/m2',comment:'Body-mass-index'))
 			.addToFields(new TemplateField(
-				name: 'Race',type: TemplateFieldType.STRING,comment:'If known and of interest the ethnic group can be indicated'))
+				name: 'Race',type: TemplateFieldType.STRING,entity: Subject, comment:'If known and of interest the ethnic group can be indicated'))
 			.addToFields(new TemplateField(
-				name: 'Waist circumference',type: TemplateFieldType.FLOAT, unit: 'cm',comment:'The waist circumference is measured just above the hip bone. Indicate the measure at the start of the study.'))
+				name: 'Waist circumference',type: TemplateFieldType.FLOAT, unit: 'cm',entity: Subject, comment:'The waist circumference is measured just above the hip bone. Indicate the measure at the start of the study.'))
 			.addToFields(new TemplateField(
-				name: 'Hip circumference',type: TemplateFieldType.FLOAT, unit: 'cm',comment:'The hip circumference is measured at the level of the two bony prominences front of the hips. Indicate the measure at the start of the study.'))
+				name: 'Hip circumference',type: TemplateFieldType.FLOAT, unit: 'cm',entity: Subject, comment:'The hip circumference is measured at the level of the two bony prominences front of the hips. Indicate the measure at the start of the study.'))
 			.addToFields(new TemplateField(
-				name: 'Systolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg',comment:'Indicate the levels at the start of the study in mmHG'))
+				name: 'Systolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg',entity: Subject, comment:'Indicate the levels at the start of the study in mmHG'))
 			.addToFields(new TemplateField(
-				name: 'Diastolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg',comment:'Indicate the levels at the start of the study in mmHG'))
+				name: 'Diastolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg',entity: Subject, comment:'Indicate the levels at the start of the study in mmHG'))
 			.addToFields(new TemplateField(
-				name: 'Heart rate',type: TemplateFieldType.FLOAT, unit: 'beats/min',comment:'Indicate the heart rate at the start of in study in beats per minute'))
+				name: 'Heart rate',type: TemplateFieldType.FLOAT, unit: 'beats/min',entity: Subject, comment:'Indicate the heart rate at the start of in study in beats per minute'))
 			.addToFields(new TemplateField(
-				name: 'Run-in-food',type: TemplateFieldType.TEXT,comment:'If defined, give a short description of the food used before the measurements'))
+				name: 'Run-in-food',type: TemplateFieldType.TEXT,entity: Subject, comment:'If defined, give a short description of the food used before the measurements'))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			println ".adding sample remarks field"
 			def sampleRemarksField = new TemplateField(
 				name: 'Remarks',
-				type: TemplateFieldType.TEXT
+				type: TemplateFieldType.TEXT,
+                entity: Sample
 			)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			println ".adding sample vial textfield"
 			def sampleVialTextField = new TemplateField(
 				name: 'Text on vial',
-				type: TemplateFieldType.STRING
+				type: TemplateFieldType.STRING,
+                entity: Sample
 			)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
@@ -307,7 +311,8 @@ class BootStrap {
 				new TemplateField(
                 	name: 'Sample measured weight',
                 	unit: 'mg',
-                	type: TemplateFieldType.FLOAT
+                	type: TemplateFieldType.FLOAT,
+                    entity: Sample
 				)
 			)
 			.with { if (!validate()) { errors.each { println it} } else save()}
@@ -324,7 +329,8 @@ class BootStrap {
 				new TemplateField(
                 	name: 'Sample measured volume',
                 	unit: 'ml',
-                	type: TemplateFieldType.FLOAT
+                	type: TemplateFieldType.FLOAT,
+					entity: Sample
 				)
 			)
             .with { if (!validate()) { errors.each { println it} } else save()}
@@ -376,12 +382,14 @@ class BootStrap {
 				new TemplateField(
 					name: 'Chamber no.',
 					type: TemplateFieldType.STRING,
+					entity: Subject,
 					comment: 'Chamber number in the Greenhouse'
 				)
 			)
         	.addToFields(
 				new TemplateField(
 					name: 'Growth type',
+					entity: Subject,
 					type: TemplateFieldType.STRINGLIST,
 					listEntries: [
 						new TemplateFieldListItem(name:'Standard'),
@@ -391,29 +399,29 @@ class BootStrap {
 				)
 			)
 			.addToFields(new TemplateField(
-				name: 'Growth protocol', type: TemplateFieldType.TEXT))
+				name: 'Growth protocol', entity: Subject, type: TemplateFieldType.TEXT))
         	.addToFields(new TemplateField(
-				name: 'Position X', type: TemplateFieldType.FLOAT))
+				name: 'Position X', entity: Subject, type: TemplateFieldType.FLOAT))
 			.addToFields(new TemplateField(
-				name: 'Position Y', type: TemplateFieldType.FLOAT))
+				name: 'Position Y', entity: Subject, type: TemplateFieldType.FLOAT))
 			.addToFields(new TemplateField(
-				name: 'Block', type: TemplateFieldType.STRING))
+				name: 'Block', entity: Subject, type: TemplateFieldType.STRING))
 			.addToFields(new TemplateField(
-				name: 'Temperature at day', type: TemplateFieldType.FLOAT))
+				name: 'Temperature at day', entity: Subject, type: TemplateFieldType.FLOAT))
 			.addToFields(new TemplateField(
-				name: 'Temperature at night', type: TemplateFieldType.FLOAT))
+				name: 'Temperature at night', entity: Subject, type: TemplateFieldType.FLOAT))
 			.addToFields(new TemplateField(
-				name: 'Photo period', type: TemplateFieldType.STRING))
+				name: 'Photo period', entity: Subject, type: TemplateFieldType.STRING))
 			.addToFields(new TemplateField(
-				name: 'Light intensity', type: TemplateFieldType.STRING))
+				name: 'Light intensity', entity: Subject, type: TemplateFieldType.STRING))
 			.addToFields(new TemplateField(
-				name: 'Start date', type: TemplateFieldType.DATE))
+				name: 'Start date', entity: Subject, type: TemplateFieldType.DATE))
 			.addToFields(new TemplateField(
-				name: 'Harvest date', type: TemplateFieldType.DATE))
+				name: 'Harvest date', entity: Subject, type: TemplateFieldType.DATE))
 			.addToFields(new TemplateField(
-				name: 'Harvest delay', type: TemplateFieldType.TEXT))
+				name: 'Harvest delay', entity: Subject, type: TemplateFieldType.TEXT))
 			.addToFields(new TemplateField(
-				name: 'Additional info', type: TemplateFieldType.TEXT))
+				name: 'Additional info', entity: Subject, type: TemplateFieldType.TEXT))
 	        .with { if (!validate()) { errors.each { println it} } else save()}
 
             println ".adding open-field plant template..."
@@ -425,16 +433,16 @@ class BootStrap {
 			.addToFields(ecotypeField)
 			.addToFields(genotypeField)
             .addToFields(new TemplateField(
-				name: 'Start date', type: TemplateFieldType.DATE))
+				name: 'Start date', entity: Subject, type: TemplateFieldType.DATE))
 			.addToFields(new TemplateField(
-				name: 'Harvest date', type: TemplateFieldType.DATE))
+				name: 'Harvest date', entity: Subject, type: TemplateFieldType.DATE))
 			.addToFields(new TemplateField(
-				name: 'Growth type', type: TemplateFieldType.STRINGLIST,
+				name: 'Growth type', entity: Subject, type: TemplateFieldType.STRINGLIST,
 				listEntries: [new TemplateFieldListItem(name:'Standard'),new TemplateFieldListItem(name: 'Experimental')]))
 			.addToFields(new TemplateField(
-				name: 'Growth protocol', type: TemplateFieldType.TEXT))
+				name: 'Growth protocol', entity: Subject, type: TemplateFieldType.TEXT))
 			.addToFields(new TemplateField(
-				name: 'Harvest delay', type: TemplateFieldType.TEXT))
+				name: 'Harvest delay', entity: Subject, type: TemplateFieldType.TEXT))
 	        .with { if (!validate()) { errors.each { println it} } else save()}
 
             //Plant template
@@ -460,36 +468,36 @@ class BootStrap {
 			)
 			*/
 			.addToFields(new TemplateField(
-				name: 'Room', type: TemplateFieldType.STRING,
+				name: 'Room', type: TemplateFieldType.STRING, entity: Subject,
 				comment: 'room number'))
 			.addToFields(new TemplateField(
-				name: 'Chamber no.', type: TemplateFieldType.STRING,
+				name: 'Chamber no.', type: TemplateFieldType.STRING, entity: Subject,
 				comment: 'Chamber number'))
 			.addToFields(new TemplateField(
-				name: 'Block', type: TemplateFieldType.STRING))
+				name: 'Block', type: TemplateFieldType.STRING, entity: Subject))
 			.addToFields(new TemplateField(
-				name: 'Position X', type: TemplateFieldType.FLOAT))
+				name: 'Position X', type: TemplateFieldType.FLOAT, entity: Subject))
 			.addToFields(new TemplateField(
-				name: 'Position Y', type: TemplateFieldType.FLOAT))
+				name: 'Position Y', type: TemplateFieldType.FLOAT, entity: Subject))
 			.addToFields(new TemplateField(
-				name: 'Temperature at day', type: TemplateFieldType.FLOAT))
+				name: 'Temperature at day', type: TemplateFieldType.FLOAT, entity: Subject))
 			.addToFields(new TemplateField(
-				name: 'Temperature at night', type: TemplateFieldType.FLOAT))
+				name: 'Temperature at night', type: TemplateFieldType.FLOAT, entity: Subject))
 			.addToFields(new TemplateField(
-				name: 'Photo period', type: TemplateFieldType.STRING))
+				name: 'Photo period', type: TemplateFieldType.STRING, entity: Subject))
 			.addToFields(new TemplateField(
-				name: 'Light intensity', type: TemplateFieldType.STRING))
+				name: 'Light intensity', type: TemplateFieldType.STRING, entity: Subject))
 			.addToFields(new TemplateField(
-				name: 'Start date', type: TemplateFieldType.DATE))
+				name: 'Start date', type: TemplateFieldType.DATE, entity: Subject))
 			.addToFields(new TemplateField(
-				name: 'Harvest date', type: TemplateFieldType.DATE))
+				name: 'Harvest date', type: TemplateFieldType.DATE, entity: Subject))
 			.addToFields(new TemplateField(
-				name: 'Growth type', type: TemplateFieldType.STRINGLIST,
+				name: 'Growth type', type: TemplateFieldType.STRINGLIST, entity: Subject,
 				listEntries: [new TemplateFieldListItem(name:'Standard'),new TemplateFieldListItem(name: 'Experimental')]))
 			.addToFields(new TemplateField(
-				name: 'Growth protocol', type: TemplateFieldType.TEXT))
+				name: 'Growth protocol', type: TemplateFieldType.TEXT, entity: Subject))
 			.addToFields(new TemplateField(
-				name: 'Harvest delay', type: TemplateFieldType.TEXT))
+				name: 'Harvest delay', type: TemplateFieldType.TEXT, entity: Subject))
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			println ".adding plant sample template..."
@@ -510,12 +518,14 @@ class BootStrap {
 			.addToFields(new TemplateField(
 			 	name: 'Tissue',
 				type: TemplateFieldType.STRING,
+				entity: Event,
                 comment: 'organ/ fraction of culture/ plant part')
 			)
             .addToFields(
 				new TemplateField(
 			 		name: 'Grinding',
 					type: TemplateFieldType.STRINGLIST,
+					entity: Event,
                 	listEntries: [
 						new TemplateFieldListItem(name:'yes'),
                 	    new TemplateFieldListItem(name: 'no'),
@@ -526,13 +536,15 @@ class BootStrap {
 			.addToFields(
 				new TemplateField(
 					name: 'Storage location',
-					type: TemplateFieldType.STRING
+					type: TemplateFieldType.STRING,
+					entity: Event
 				)
 			)
 			.addToFields(
 				new TemplateField(
 					name: 'protocol reference',
-					type: TemplateFieldType.STRING
+					type: TemplateFieldType.STRING,
+					entity: Event
 				)
 			)
 			.with { if (!validate()) { errors.each { println it} } else save()}
@@ -540,13 +552,14 @@ class BootStrap {
 			// diet treatment template
 			println ".adding diet treatement template"
 			def dietTreatmentTemplate = new Template(
-				name: 'Diet treatment HF45/LF10',
+				name: 'Diet treatment',
 				entity: dbnp.studycapturing.Event
 			)
 			.addToFields(
 				new TemplateField(
 					name: 'Diet',
 					type: TemplateFieldType.STRINGLIST,
+					entity: Event,
 					listEntries: [
 						new TemplateFieldListItem(name:'10% fat (palm oil)'),
 						new TemplateFieldListItem(name: '45% fat (palm oil)')
@@ -565,6 +578,7 @@ class BootStrap {
 				new TemplateField(
 					name: 'Compound',
 					type: TemplateFieldType.STRINGLIST,
+					entity: Event,
 					listEntries: [
 						new TemplateFieldListItem(name:'Vehicle'),
 						new TemplateFieldListItem(name: 'Leptin')
@@ -583,7 +597,8 @@ class BootStrap {
             .addToFields(
 				new TemplateField(
 					name: 'Fasting period',
-					type: TemplateFieldType.STRING
+					type: TemplateFieldType.STRING,
+					entity: Event
 				)
 			)
 			.with { if (!validate()) { errors.each { println it} } else save()}
@@ -592,6 +607,7 @@ class BootStrap {
 			println ".adding sampling protocol template field"
             def samplingProtocolField = new TemplateField(
             	name: 'Sample Protocol',
+	            entity: SamplingEvent,
 				type: TemplateFieldType.STRING
 			)
             .with { if (!validate()) { errors.each { println it} } else save()}
@@ -608,6 +624,7 @@ class BootStrap {
 				new TemplateField(
 					name: 'Sample weight',
 					unit: 'mg',
+					entity: SamplingEvent,
 					type: TemplateFieldType.FLOAT
 				)
 			)
@@ -624,6 +641,7 @@ class BootStrap {
 			.addToFields(
 				new TemplateField(
 					name: 'Sample volume',
+					entity: SamplingEvent,
 					unit: 'ml',
 					type: TemplateFieldType.FLOAT
 				)
@@ -643,6 +661,7 @@ class BootStrap {
 				new TemplateField(
 					name: 'Sample weight',
 					unit: 'ul',
+					entity: SamplingEvent,
 					type: TemplateFieldType.FLOAT
 				)
 			)
@@ -650,6 +669,7 @@ class BootStrap {
 				new TemplateField(
 					name: 'Sample when measured',
 					type: TemplateFieldType.STRINGLIST,
+					entity: SamplingEvent,
                  	listEntries: [
 						 new TemplateFieldListItem(name:'Dried'),
                          new TemplateFieldListItem(name: 'Fresh'),
@@ -672,25 +692,29 @@ class BootStrap {
 				new TemplateField(
 					name: 'material',
                 	comment: 'physical charecteristic. e.g, grounded powder of tomato seed or liquid',
+					entity: SamplingEvent,
 					type: TemplateFieldType.STRING
 				)
 			)
             .addToFields(
 				new TemplateField(
 					name: 'Desription',
-					type: TemplateFieldType.STRING
+					type: TemplateFieldType.STRING,
+					entity: SamplingEvent
 				)
 			)
             .addToFields(
 				new TemplateField(
 					name: 'extracted material',
 					comment: 'substance to be extracted. e.g., lipids, volatiles, primary metabolites etc',
-					type: TemplateFieldType.STRING
+					type: TemplateFieldType.STRING,
+					entity: SamplingEvent
 				)
 			)
             .addToFields(
 				new TemplateField(
 					name: 'Text on vial',
+					entity: SamplingEvent,
 					type: TemplateFieldType.STRING
 				)
 			)

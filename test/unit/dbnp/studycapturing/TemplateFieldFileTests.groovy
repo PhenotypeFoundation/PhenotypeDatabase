@@ -15,7 +15,7 @@ class TemplateFieldFileTests extends GrailsUnitTestCase {
         // Override uploadDir method because the applicationContext is not
         // available in testcases
         fileService.metaClass.getUploadDir = {
-            return new File( 'D:/isdat/dbNP/Sources/gscf mei/web-app/fileuploads' );
+            return new File( System.properties['base.dir'] + File.separator + 'web-app' + File.separator + 'fileuploads' );
         }
         
         // Create the template itself
@@ -25,7 +25,8 @@ class TemplateFieldFileTests extends GrailsUnitTestCase {
                 fields: [
                     new TemplateField(
                         name: 'testRelTime',
-                        type: TemplateFieldType.RELTIME
+                        type: TemplateFieldType.RELTIME,
+	                    entity: Event
                     ),
                     new TemplateField(
                         name: 'testFile',
