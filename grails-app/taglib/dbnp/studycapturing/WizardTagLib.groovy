@@ -1020,7 +1020,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		if (attrs.get('description') == null) {
 			attrs.description = '';
 		}
-		out << '<form id="' + attrs.name + '_form">';
+		out << '<form id="' + attrs.name + '_form" onSubmit="return false;">';
 		out << textField(
 			name: attrs.get("name"),
 			value: '',
