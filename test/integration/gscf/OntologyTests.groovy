@@ -102,6 +102,7 @@ class OntologyTests extends GrailsUnitTestCase {
 
 	/**
 	 * Ontocat test for debug purposes: show all properties of a certain ontology
+	* Make this method private in order to run it
 	 */
 	private void testOntocatBioPortalDebug() {
 		// Instantiate OLS service
@@ -110,6 +111,7 @@ class OntologyTests extends GrailsUnitTestCase {
 		// Find ontology by ncboId
 		uk.ac.ebi.ontocat.Ontology o = os.getOntology("1005")
 		StringBuilder sb = new StringBuilder();
+		// This is of course a very scary way to getting more information on 'o', but it seems to be the only way to reach codingScheme
 		def bean = os.getOntologyBean()
 		String codingScheme = bean.codingScheme
 		sb.append("OntologyBean:\n")
@@ -119,6 +121,7 @@ class OntologyTests extends GrailsUnitTestCase {
 			sb.append(it.key + "=" + it.value + "\n")
 		}
 		sb.append "Bean:\t" + bean.dump()
+		sb.append("Coding scheme: ")
 		sb.append(bean.properties['codingScheme'])
 		sb.append("\t");
 		sb.append(o.getAbbreviation());
@@ -166,25 +169,17 @@ class OntologyTests extends GrailsUnitTestCase {
 	private void addOntologies(uk.ac.ebi.ontocat.OntologyService os) {
 
 		// Iterate over all ontologies in OLS
-		os.getOntologies().each {
-
-			// Get bean and extract versionedId
-			def bean = os.ontologyBean
-			def matcher = bean.codingScheme =~ "/(\\d{5})/"
-			assert matcher
-			assert matcher.size() == 1
-			assert matcher[0].size() == 2
-			def versionedId = matcher[0][1]
+		os.getOntologies().each { o ->
 
 			// Instantiate ontology
 			def ontology = new Ontology(
 			    name: o.label,
 			    description: o.description,
-			    url: bean.properties['homepage'],
+			    url: o.properties['homepage'],
 			    //url: 'http://bioportal.bioontology.org/ontologies/' + versionedId,
 			    versionNumber: o.versionNumber,
 			    ncboId: o.ontologyAccession,
-			    ncboVersionedId: versionedId
+			    ncboVersionedId: o.id
 			);
 
 			// Validate and save ontology
@@ -193,5 +188,15 @@ class OntologyTests extends GrailsUnitTestCase {
 
 			//println ontology.dump()
 		}
+
+	}
+
+	public void testAddBioPortalOntology() {
+		def ontology = dbnp.data.Ontology.getBioPortalOntology("1005")			
+		// Validate and save ontology
+		if (!ontology.validate()) { ontology.errors.each { println it} }
+		assert ontology.validate()
+		assert ontology.save(flush: true)
+		assert Ontology.findByNcboId(1005).name.equals(ontology.name)
 	}
 }
