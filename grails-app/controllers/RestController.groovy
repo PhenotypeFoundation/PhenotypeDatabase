@@ -61,7 +61,7 @@ class RestController {
 		if( params.externalStudyID ) {
                         def id = Long.parseLong(params.externalStudyID)
  			def study = Study.find( "from Study as s where s.externalStudyID=?", [id])
- 			study.subjects.each { subjects.push it.name }
+			if(study) study.subjects.each { subjects.push it.name }
                 }
                 render subjects as JSON 
 	}
@@ -81,7 +81,7 @@ class RestController {
 		if( params.externalStudyID ) {
                         def id = Long.parseLong(params.externalStudyID)
  			def study = Study.find( "from Study as s where s.externalStudyID=?", [id])
-                        study.assays.each{ assay -> assays.push assay.externalAssayID }
+                        if(study) study.assays.each{ assay -> assays.push assay.externalAssayID }
  		}
                 render assays as JSON 
 	}
