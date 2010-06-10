@@ -27,28 +27,70 @@ class TemplateEditorController {
      */
     def index = {
         // Check whether a right entity is given
-        _checkEntity();
+        if( !_checkEntity() ) {
+			return
+		}
 
         // fetch all templates for this entity
         def templates = Template.findAllByEntity(entity)
 
-        // Check whether a template is already selected
+		// Generate a human readable entity name
+		def parts = entityName.tokenize( '.' );
+		def humanReadableEntity = parts[ parts.size() - 1 ];
+
+        return [
+            entity: entity,
+            templates: templates,
+            encryptedEntity: params.entity,
+            humanReadableEntity: humanReadableEntity,
+        ];
+    }
+
+	/**
+	 * Shows the editing of a template
+	 */
+	def template = {
+        // Check whether a right entity is given
+        if( !_checkEntity() ) {
+			return
+		}
+
+        // Check whether a template is selected. If not, redirect the user to the index
         def selectedTemplate = params.template;
         def template = null;
 
         if( selectedTemplate ) {
             template = Template.get( selectedTemplate );
-        }
+        } else {
+			redirect(action:"index",params:[entity:params.entity])
+			return;
+		}
+
+        // fetch all templates for this entity
+        def templates = Template.findAllByEntity(entity)
+
+		// Generate a human readable entity name
+		def parts = entityName.tokenize( '.' );
+		def humanReadableEntity = parts[ parts.size() - 1 ];
+
+
+
+		// Find all available fields
+		def allFields = TemplateField.findAllByEntity( entity ).sort { a, b -> a.name <=> b.name }
 
         return [
             entity: entity,
             templates: templates,
             encryptedEntity: params.entity,
             fieldTypes: TemplateFieldType.list(),
-            
-            template: template
+            humanReadableEntity: humanReadableEntity,
+
+            template: template,
+			allFields: allFields
         ];
-    }
+
+	}
+
 
     /**
      * Shows an error page
@@ -60,7 +102,114 @@ class TemplateEditorController {
     }
 
     /**
-     * Adds a new template field using a AJAX call
+     * Creates a new template using a AJAX call
+	 *
+	 * @return			JSON object with two entries:
+	 *						id: [id of this object]
+	 *						html: HTML to replace the contents of the LI-item that was updated.
+	 *					On error the method gives a HTTP response status 500 and the error
+     */
+    def createTemplate = {
+		// Decode the entity
+        if( !_checkEntity() ) {
+			response.status = 500;
+			render "Incorrect entity given";
+			return;
+		}
+
+		params.entity = entity;
+
+		// Create the template field and add it to the template
+		def template = new Template( params );
+        if (template.save(flush: true)) {
+
+			def html = g.render( template: 'elements/liTemplateEditable', model: [template: template] );
+			def output = [ id: template.id, html: html ];
+			render output as JSON;
+
+            //render '';
+        } else {
+            response.status = 500;
+            render 'Template could not be created because errors occurred.';
+            return
+        }
+    }
+
+    /**
+     * Updates a selected template using a AJAX call
+	 *
+	 * @param id	ID of the template to update
+	 * @return		JSON object with two entries:
+	 *					id: [id of this object]
+	 *					html: HTML to replace the contents of the LI-item that was updated.
+	 *				On error the method gives a HTTP response status 500 and the error
+     */
+    def updateTemplate = {
+        // Search for the template field
+        def template = Template.get( params.id );
+        if( !template ) {
+            response.status = 404;
+            render 'Template not found';
+            return;
+        }
+
+        // Update the field if it is not updated in between
+        if (params.version) {
+            def version = params.version.toLong()
+            if (template.version > version) {
+                response.status = 500;
+                render 'Template was updated while you were working on it. Please reload and try again.';
+                return
+            }
+        }
+
+        template.properties = params
+        if (!template.hasErrors() && template.save(flush: true)) {
+			def html = g.render( template: 'elements/liTemplateEditable', model: [template: template] );
+			def output = [ id: template.id, html: html ];
+			render output as JSON;
+        } else {
+            response.status = 500;
+            render 'Template was not updated because errors occurred.';
+            return
+        }
+    }
+
+    /**
+     * Deletes a template using a AJAX call
+     *
+	 * @param template		ID of the template to move
+	 * @return				JSON object with one entry:
+	 *							id: [id of this object]
+	 *						On error the method gives a HTTP response status 500 and the error
+     */
+    def deleteTemplate = {
+        // Search for the template field
+        def  template = Template.get( params.template );
+        if( !template ) {
+            response.status = 404;
+            render 'Template not found';
+            return;
+        }
+
+        // Delete the template field
+		try {
+			template.delete(flush: true)
+
+			def output = [ id: template.id ];
+			render output as JSON;
+		}
+		catch (org.springframework.dao.DataIntegrityViolationException e) {
+            response.status = 500;
+            render 'Template could not be deleted: ' + e.getMessage();
+		}
+    }
+
+
+
+
+    /**
+     * Creates a new template field using a AJAX call
 	 *
 	 * @param template	ID of the template to add a field to
 	 * @return			JSON object with two entries:
@@ -68,7 +217,7 @@ class TemplateEditorController {
 	 *						html: HTML to replace the contents of the LI-item that was updated.
 	 *					On error the method gives a HTTP response status 500 and the error
      */
-    def addField = {
+    def createField = {
         // Search for the template
         def template = Template.get( params.template );
 
@@ -78,19 +227,36 @@ class TemplateEditorController {
             return;
         }
 
+		// Decode the entity, in order to set a good property
+        if( !_checkEntity() ) {
+			response.status = 500;
+			render "Incorrect entity given";
+			return;
+		}
+
+		params.entity = entity;
+
+		// See whether this field already exists. It is checked by name, type and unit and entity
+		// The search is done using search by example (see http://grails.org/DomainClass+Dynamic+Methods, method find)
+		def uniqueParams = [ name: params.name, type: params.type, unit: params.unit, entity: params.entity ];
+		if( TemplateField.find( new TemplateField( uniqueParams ) ) ) {
+			response.status = 500;
+			render "A field with this name, type and unit already exists.";
+			return;
+		}
+
 		// Create the template field and add it to the template
 		def templateField = new TemplateField( params );
         if (templateField.save(flush: true)) {
-			template.fields.add( templateField );
 
-			def html = g.render( template: 'elements/liContent', model: [templateField: templateField, fieldTypes: TemplateFieldType.list()] );
+			def html = g.render( template: 'elements/liFieldNotInUse', model: [templateField: templateField, fieldTypes: TemplateFieldType.list()] );
 			def output = [ id: templateField.id, html: html ];
 			render output as JSON;
 
             //render '';
         } else {
             response.status = 500;
-            render 'TemplateField could not be added because errors occurred.';
+            render 'TemplateField could not be created because errors occurred.';
             return
         }
     }
@@ -104,7 +270,7 @@ class TemplateEditorController {
 	 *					html: HTML to replace the contents of the LI-item that was updated.
 	 *				On error the method gives a HTTP response status 500 and the error
      */
-    def update = {
+    def updateField = {
         // Search for the template field
         def templateField = TemplateField.get( params.id );
         if( !templateField ) {
@@ -124,7 +290,7 @@ class TemplateEditorController {
         }
         templateField.properties = params
         if (!templateField.hasErrors() && templateField.save(flush: true)) {
-			def html = g.render( template: 'elements/liContent', model: [templateField: templateField, fieldTypes: TemplateFieldType.list()] );
+			def html = g.render( template: 'elements/liField', model: [templateField: templateField, fieldTypes: TemplateFieldType.list()] );
 			def output = [ id: templateField.id, html: html ];
 			render output as JSON;
         } else {
@@ -135,13 +301,91 @@ class TemplateEditorController {
     }
 
     /**
-     * Deletes a selected template field from the template using a AJAX call
+     * Deletes a template field using a AJAX call
+     *
+	 * @param templateField	ID of the templatefield to move
+	 * @return				JSON object with one entry:
+	 *							id: [id of this object]
+	 *						On error the method gives a HTTP response status 500 and the error
+     */
+    def deleteField = {
+        // Search for the template field
+        def  templateField = TemplateField.get( params.templateField );
+        if( !templateField ) {
+            response.status = 404;
+            render 'TemplateField not found';
+            return;
+        }
+
+        // Delete the template field
+		try {
+			templateField.delete(flush: true)
+
+			def output = [ id: templateField.id ];
+			render output as JSON;
+		}
+		catch (org.springframework.dao.DataIntegrityViolationException e) {
+            response.status = 500;
+            render 'TemplateField could not be deleted: ' + e.getMessage();
+		}
+    }
+
+    /**
+     * Adds a new template field to a template using a AJAX call
+	 *
+	 * @param template	ID of the template to add a field to
+	 * @return			JSON object with two entries:
+	 *						id: [id of this object]
+	 *						html: HTML to replace the contents of the LI-item that was updated.
+	 *					On error the method gives a HTTP response status 404 or 500 and the error
+     */
+    def addField = {
+        // Search for the template
+        def template = Template.get( params.template );
+
+        if( !template ) {
+            response.status = 404;
+            render 'Template not found';
+            return;
+        }
+
+        // Search for the template field
+        def templateField = TemplateField.get( params.templateField );
+        if( !templateField ) {
+            response.status = 404;
+            render 'TemplateField does not exist';
+            return;
+        }
+
+        // The template field should exist within the template
+        if( template.fields.contains( templateField ) ) {
+            response.status = 500;
+            render 'TemplateField is already found within template';
+            return;
+        }
+		if( !params.position || Integer.parseInt( params.position ) == -1) {
+			template.fields.add( templateField )
+		} else {
+			template.fields.add( Integer.parseInt( params.position ), templateField )
+		}
+
+		def html = g.render( template: 'elements/liFieldSelected', model: [templateField: templateField, template: template, fieldTypes: TemplateFieldType.list()] );
+		def output = [ id: templateField.id, html: html ];
+		render output as JSON;
+    }
+
+
+    /**
+     * Removes a selected template field from the template using a AJAX call
 	 *
 	 * @param templateField	ID of the field to update
 	 * @param template		ID of the template for which the field should be removed
-	 * @return				Status code 200 on success, 500 otherwise
+	 * @return				JSON object with two entries:
+	 *							id: [id of this object]
+	 *							html: HTML to replace the contents of the LI-item that was updated.
+	 *						On error the method gives a HTTP response status 404 or 500 and the error
      */
-    def delete = {
+    def removeField = {
         // Search for the template
         def template = Template.get( params.template );
 
@@ -170,19 +414,11 @@ class TemplateEditorController {
         def currentIndex = template.fields.indexOf( templateField );
         template.fields.remove( currentIndex );
 		template.save();
-		render '';
 
-		/*
-		 *try {
-			templateField.delete(flush: true)
-			render "";
-			return;
-		} catch (org.springframework.dao.DataIntegrityViolationException e) {
-			response.status = 500;
-			render "Templatefield not deleted: " + e.getMessage();
-			return;
-		}
-		*/
+
+		def html = g.render( template: 'elements/liField', model: [templateField: templateField, fieldTypes: TemplateFieldType.list()] );
+		def output = [ id: templateField.id, html: html ];
+		render output as JSON;
     }
 
     /**
@@ -196,7 +432,7 @@ class TemplateEditorController {
 	 *							html: HTML to replace the contents of the LI-item that was updated.
 	 *						On error the method gives a HTTP response status 500 and the error
      */
-    def move = {
+    def moveField = {
         // Search for the template
         def template = Template.get( params.template );
 
@@ -226,10 +462,28 @@ class TemplateEditorController {
         def moveField = template.fields.remove( currentIndex );
         template.fields.add( Integer.parseInt( params.position ), moveField );
 
-		def html = g.render( template: 'elements/liContent', model: [templateField: templateField, fieldTypes: TemplateFieldType.list()] );
+		def html = g.render( template: 'elements/liFieldSelected', model: [templateField: templateField, template: template, fieldTypes: TemplateFieldType.list()] );
 		def output = [ id: templateField.id, html: html ];
 		render output as JSON;
     }
+
+	/**
+	 * Checks how many template use a specific template field
+	 *
+	 * @param	id	ID of the template field
+	 * @return	int	Number of uses
+	 */
+	def numFieldUses = {
+        // Search for the template field
+        def  templateField = TemplateField.get( params.id );
+        if( !templateField ) {
+            response.status = 404;
+            render 'TemplateField not found';
+            return;
+        }
+
+		render templateField.numUses();
+	}
 
     /**
      * Checks whether a correct entity is given
@@ -251,7 +505,7 @@ class TemplateEditorController {
 
         if( !entity ) {
             error();
-            retur; false
+            return false
         }
 
         return true;

@@ -23,56 +23,45 @@
 	</head>
 	<body>
 
-		<script type="text/javascript">
-			$(function() {
-				$("#templateFields").sortable({
-					placeholder: 'ui-state-highlight',
-					cancel: '.empty',
+		<div class="templateEditorStep" id="step1_template">
+			<h3>Select template</h3>
+			<p>Showing templates for <b>${humanReadableEntity}</b>.</p>
+			<p>Please select a template to edit or create a new template</p>
 
-					update: updateTemplateFieldPosition
-				});
-				$("#templateFields").disableSelection();
-				//$('#templateFields li').bind('dblclick', showTemplateFormEvent);
-			});
-		</script>
-
-		<p>Please select a template to edit or create a new template</p>
-		<g:form action="index" name="templateChoice">
-			<g:hiddenField name="entity" value="${encryptedEntity}" />
-			<select name="template" id="templateSelect" onChange="this.form.submit();">
-				<option value=""></option>
+			<ul id="templates">
+				<li class="empty ui-state-default" <g:if test="${templates.size() > 0 }">style='display: none;'</g:if>>There are no templates for ${humanReadableEntity}. Use the 'Add template' button to add fields.</li>
 				<g:each in="${templates}" var="currentTemplate">
-					<g:if test="${currentTemplate.id==template?.id}">
-						<option selected value="${currentTemplate.id}">${currentTemplate.name}</option>
-					</g:if>
-					<g:else>
-						<option value="${currentTemplate.id}">${currentTemplate.name}</option>
-					</g:else>
+					<li id="template_${currentTemplate.id}"class="ui-state-default">
+					  <g:if test="${currentTemplate.inUse()}">
+						<g:render template="elements/liTemplateNonEditable" model="['template': currentTemplate]"/>
+					  </g:if>
+					  <g:else>
+						<g:render template="elements/liTemplateEditable" model="['template': currentTemplate]"/>
+					  </g:else>
+					</li>
 				</g:each>
-			</select>
-		</g:form>
-
-		<g:if test="${template}">
-			<p>Currently, this template contains the following fields. Drag fields to reorder and double click fields to edit.</p>
-			<ul id="templateFields">
-				<li class="empty ui-state-default" <g:if test="${template.fields?.size() > 0 }">style='display: none;'</g:if>>This template does not yet contain any fields. Use the 'Add new field' button to add fields.</li>
-				<g:render template="elements/all" collection="${template.fields}" />
 			</ul>
 
 			<div id="addNew">
-				<a href="#" onClick="showTemplateFieldForm( 'templateField_new' ); this.blur(); return false;">
-					<b>Add new field</b>
+				<a href="#" onClick="editTemplate( 'new' ); this.blur(); return false;">
+					<b>Create new template</b>
 				</a>
 
-				<form class="templateField_form" id="templateField_new_form" action="addField">
-					<g:render template="elements/fieldForm" model="['templateField': null, 'fieldTypes': fieldTypes]"/>
+				<form class="templateField_form" id="template_new_form" action="createTemplate">
+					<g:hiddenField name="entity" value="${encryptedEntity}" />
+					<g:render template="elements/templateForm" model="['template': null]"/>
 					<div class="templateFieldButtons">
-						<input type="button" value="Save" onClick="addTemplateField( 'new' );">
-						<input type="button" value="Cancel" onClick="hideTemplateFieldForm( 'new' );">
+						<input type="button" value="Save" onClick="createTemplate( 'new' );">
+						<input type="button" value="Cancel" onClick="hideTemplateForm( 'new' );">
 					</div>
 				</form>
 			</div>
-		</g:if>
+
+			<g:form action="template" name="templateChoice" method="GET">
+				<g:hiddenField name="entity" value="${encryptedEntity}" />
+				<input type="hidden" name="template" id="templateSelect" value="${template?.id}">
+			</g:form>
+		</div>
 
 	</body>
 </html>

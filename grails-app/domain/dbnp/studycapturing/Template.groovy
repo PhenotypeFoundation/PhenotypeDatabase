@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import java.lang.reflect.Method
 
 /**
  * The Template class describes a study template, which is basically an extension of the study capture entities
@@ -92,6 +93,42 @@ class Template implements Serializable {
 			it.required == true
 		}
 		return result;
+	}
+
+	/**
+	 * Checks whether this template is used by any object
+	 *
+	 * @returns		true iff this template is used by any object, false otherwise
+	 */
+	def inUse() {
+		return (numUses() > 0 );
+	}
+
+	/**
+	 * The number of objects that use this template
+	 *
+	 * @returns		the number of objects that use this template.
+	 */
+	def numUses() {
+		// This template can only be used in objects of the right entity. Find objects of that
+		// entity and see whether they use this method.
+		//
+		// Unfortunately, due to the grails way of creating classes, we can not use reflection for this
+		def elements;
+		switch( this.entity ) {
+			case Event:
+				elements = Event.findAllByTemplate( this ); break;
+			case Sample:
+				elements = Sample.findAllByTemplate( this ); break;
+			case Study:
+				elements = Study.findAllByTemplate( this ); break;
+			case Subject:
+				elements = Subject.findAllByTemplate( this ); break;
+			default:
+				return 0;
+		}
+
+		return elements.size();
 	}
 
 	/**

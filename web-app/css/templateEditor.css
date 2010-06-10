@@ -1,31 +1,56 @@
-#templateFields {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    width: 400px;
-}
-#templateFields li { 
-    margin: 0 5px 5px 5px; padding: 5px;
-}
-html>body #templateFields li { 
-    line-height: 16px; vertical-align: center;
-}
-.ui-state-highlight { 
-    height: 1.5em; line-height: 1.2em;
-}
-#templateFields .ui-icon { 
-    display: inline-block; 
-}
+/**
+ * Formatting the template editor with two columns
+ */
+.templateEditorStep { float: left; padding: 10px 0px; margin: 0 10px; }
+.templateEditorStep h3 { margin: 0 0 10px 0; padding-bottom: 10px; border-bottom: 1px solid #BBD; }
+#step2_selectedFields p, #step3_availableFields p { height: 42px; }
 
-#templateFields .empty { opacity: 0.6; padding: 5px 25px; }
+#step1_template { width:340px; }
+#step2_selectedFields { width: 340px; margin-right: 20px; }
+#step3_availableFields { width: 340px; }
 
+/**
+ * Formatting the template list and the forms to add/edit them
+ */
+
+#templates  { list-style-type: none; margin: 0; padding: 0; width: 330px; }
+#templates li { margin: 0 5px 5px 5px; padding: 5px; color: #2779AA; }
+html>body #templates li { line-height: 16px; vertical-align: center; }
+
+/* Butons within a list item */
+.listButtons { display: block; float: right; }
+.listButtons img { margin: 0 3px; cursor: pointer; }
+.listButtons img.disabled { cursor: default; opacity: 0.3; }
+
+/**
+ * Formatting of the template fields and the forms to edit/add them
+ */
+.templateFields { list-style-type: none;  margin: 0; padding: 0; width: 330px; }
+.templateFields li { margin: 0 5px 3px 5px; padding: 3px 5px; }
+html>body .templateFields li { line-height: 16px; vertical-align: center; }
+.ui-state-highlight { height: 17px; }
+.templateFields .ui-icon { display: inline-block; height: 13px; }
+
+.templateName { color: #2779AA; }
+a.switch { font-size: small; color: #68BFEF; text-decoration: none; }
+
+/* Box to show a list is empty */
+.templateFields .empty { opacity: 0.6; padding: 5px 25px; }
+
+/* The position where an item can be dropped in the available list will be red */
+#availableTemplateFields .ui-state-highlight { background: #FFD6D6; border-color: #EAAEAE; }
+
+/* Form to edit or add a template field, but also for editing a template itself */
 .templateField_form { display: none; margin: 5px; padding-top: 8px; border-top: 1px solid #BBD; }
 .templateField_form .templateFieldButtons { margin-top: 8px; padding-top: 8px; border-top: 1px solid #BBD; }
-.templateField_form label { width: 100px; float: left; display: block; }
-.templateField_form textarea {width: 240px; height: 100px;  }
+.templateField_form label { width: 80px; float: left; display: block; }
+.templateField_form textarea {width: 145px; height: 100px;  }
+.templateField_form input[type=text],
+.templateField_form select {width: 145px; }
 
+/* Add new form */
 #addNew {
-	width: 388px;
+	width: 318px;
 	line-height: 16px;
 	background-color: #EBF9D7;
 	border:1px solid #D0EAAE;
@@ -39,7 +64,7 @@ html>body #templateFields li {
 #addNew.ui-state-disabled { opacity:0.35; }
 #addNew a {
 	display: block;
-	padding: 7px 25px;
+	padding: 7px 7px;
 	cursor: pointer;
 	color:#79AA27;
 	text-decoration: none;

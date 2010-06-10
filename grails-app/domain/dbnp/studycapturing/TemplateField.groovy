@@ -52,4 +52,49 @@ class TemplateField implements Serializable {
 	def String escapedName() {
 		return name.toLowerCase().replaceAll("([^a-z0-9])", "_")
 	}
+
+	/**
+	 * overloading the findAllByEntity method to make it function as expected
+	 * @param Class entity (for example: dbnp.studycapturing.Subject)
+	 * @return ArrayList
+	 */
+	public static findAllByEntity(java.lang.Class entity) {
+		def results = []
+		// 'this' should not work in static context, so taking Template instead of this
+		TemplateField.findAll().each() {
+			if (entity.equals(it.entity)) {
+				results[results.size()] = it
+			}
+		}
+
+		return results
+	}
+
+	/**
+	 * Checks whether this template field is used in a template
+	 *
+	 * @returns		true iff this template field is used in a template (even if the template is never used), false otherwise
+	 */
+	def inUse() {
+		return numUses() > 0;
+	}
+
+	/**
+	 * The number of templates that use this template
+	 *
+	 * @returns		the number of templates that use this template.
+	 */
+	def numUses() {
+		def templates = Template.findAll();
+		def elements;
+		if( templates && templates.size() > 0 ) {
+			elements = templates.findAll { template -> template.fields.contains( this ) };
+		} else {
+			return 0;
+		}
+
+		return elements.size();
+	}
+
+
 }

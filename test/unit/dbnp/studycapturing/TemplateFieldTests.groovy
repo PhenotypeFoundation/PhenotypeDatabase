@@ -27,16 +27,60 @@ class TemplateFieldTests extends GrailsUnitTestCase {
                 ]
             );
 
+		// Add static methods to Template
+		mockDomain( Template, [testTemplate] );
+		mockDomain( TemplateField, testTemplate.fields );
+
         this.testEvent = new Event(
                 template: testTemplate,
                 startTime: 3600,
                 endTime: 7200
-        )
+        );
+
+		mockDomain( Event, [testEvent] );
+		this.testEvent.save();
     }
 
     protected void tearDown() {
         super.tearDown()
     }
+
+	void testInUse() {
+		
+		// All template fields in the testTemplate are in use (even in use on a object)
+		assert testEvent.template.fields.size() == 3;
+		testEvent.template.fields.each {
+			if( it != null ) {
+				assert it.inUse();
+			}
+		}
+
+		// Create 2 template fields and use the first in a template, the second is not used
+		TemplateField t1 = new TemplateField(
+								name: 'test1',
+								type: TemplateFieldType.DATE,
+								entity: dbnp.studycapturing.Event
+							).save();
+		TemplateField t2 = new TemplateField(
+								name: 'test2',
+								type: TemplateFieldType.DATE,
+								entity: dbnp.studycapturing.Event
+							).save();
+
+		mockDomain( TemplateField, [t1, t2] );
+
+        def template1 = new Template(
+                name: 'Template for testing inUse',
+                entity: dbnp.studycapturing.Event,
+                fields: [
+					t1
+                ]
+            ).save();
+
+		assert t1.inUse();
+		assert !t2.inUse();
+
+	}
 
     void testRelTimeFieldCreation() {
         def RelTimeField = new TemplateField(
