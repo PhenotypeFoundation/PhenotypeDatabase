@@ -12,10 +12,11 @@ class Study extends TemplateEntity implements Serializable {
 	static searchable = true
 	nimble.User owner
 	String title
+	String code 		// also enables referencing to studies from the Simple Assay Module
 	Date dateCreated
 	Date lastUpdated
 	Date startDate
-    long externalStudyID   // enables referring to studies outside of GSCF, e.g., in the Simple Assay Module
+    
 
 	/**
 	 * return the domain fields for this domain class
@@ -27,6 +28,11 @@ class Study extends TemplateEntity implements Serializable {
 		new TemplateField(
 			name: 'title',
 			type: TemplateFieldType.STRING),
+		new TemplateField(
+			name: 'code',
+			type: TemplateFieldType.STRING,
+			preferredIdentifier:true,
+			comment: 'Fill out the code by which many people will recognize your study'),
 		new TemplateField(
 			name: 'startDate',
 			type: TemplateFieldType.DATE,
@@ -48,7 +54,7 @@ class Study extends TemplateEntity implements Serializable {
 
 	static constraints = {
 		owner(nullable: true, blank: true)
-		externalStudyID(nullable:true, blank:true) 
+		code(nullable:false, blank:true,unique:true) 
 	}
 
 	static mapping = {

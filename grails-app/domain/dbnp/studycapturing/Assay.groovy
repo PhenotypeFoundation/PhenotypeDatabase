@@ -9,7 +9,7 @@ class Assay {
     String name
     AssayModule module
     long externalAssayID // the assay ID the assay has in the external module
-
+        
     static hasMany = [samples : Sample]
 
     static constraints = {

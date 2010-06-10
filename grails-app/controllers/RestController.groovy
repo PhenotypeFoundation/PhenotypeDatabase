@@ -1,5 +1,5 @@
 /**
- * ModuleCommunicationController Controler
+ * RestControler
  *
  * This controler provides a REST service.
  * The names of the RESET resources are the same as the names of this
@@ -41,7 +41,7 @@ class RestController {
 	def getStudies = {
                 List studies = [] 
 		Study.list().each { study ->
-                    studies.push( [ 'externalStudyID': study.externalStudyID, 'name':study.title ] )
+                    studies.push( [ 'externalStudyID': study.code, 'name':study.title ] )
                 }
                 render studies as JSON 
 	}
@@ -60,7 +60,7 @@ class RestController {
                 List subjects = [] 
 		if( params.externalStudyID ) {
                         def id = Long.parseLong(params.externalStudyID)
- 			def study = Study.find( "from Study as s where s.externalStudyID=?", [id])
+ 			def study = Study.find( "from Study as s where s.code=?", [id])
 			if(study) study.subjects.each { subjects.push it.name }
                 }
                 render subjects as JSON 
@@ -80,7 +80,7 @@ class RestController {
                 List assays = [] 
 		if( params.externalStudyID ) {
                         def id = Long.parseLong(params.externalStudyID)
- 			def study = Study.find( "from Study as s where s.externalStudyID=?", [id])
+ 			def study = Study.find( "from Study as s where s.code=?", [id])
                         if(study) study.assays.each{ assay -> assays.push assay.externalAssayID }
  		}
                 render assays as JSON 
