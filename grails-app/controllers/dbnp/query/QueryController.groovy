@@ -29,9 +29,16 @@ class QueryController {
     def searchableService
 
     def index = {
+        render( view:'index' )
+    }
+
+
+    def success = {
             try {
-            searchableService.search("Mouse")
-            } catch( Exception e) { render e }
+            	println params
+            	render searchableService.search(params['bla'], type:"Term" )
+            } catch( SearchEngineQueryParseException e) { println "SEQPE: " + e }
+            catch( Exception e) { println e }
             render "test"  
     }
 

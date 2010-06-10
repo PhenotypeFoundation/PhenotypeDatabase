@@ -13,19 +13,19 @@ import dbnp.studycapturing.Study
 
 
 
-/**  CCMCommunicationManager 
+/**  CommunicationManager 
  *
- *   This class implements a REST client to fetch data from the Clinical Chemistry Module (CCM).
+ *   This class implements a REST client to fetch data from the Simple Assay Module (SAM).
  *   The communicatino manager provides methods for accessing each resources.
  *   Every REST resource corresponds to exactly one method in this class that makes
  *   the communication with the resource available. 
  *
- *   For instance, the getSearchable() method calls the getMeasurements resource of the CCM
+ *   For instance, the getSearchable() method calls the getMeasurements resource of the SAM 
  *   by passing arguments to it and returning the result of the calling that resource. 
  */
 
 
-class CCMCommunicationManager implements CleanDataLayer {
+class CommunicationManager implements CleanDataLayer {
 
     
     /** ServerULR contains a string that represents the URL of the 
@@ -108,21 +108,6 @@ class CCMCommunicationManager implements CleanDataLayer {
     }
 
 
-    public void getMeasurementsForValueResource() {
-    }
-
-
-    public void getMeasurementsForRangeResource() {
-    }
-
-
-    public void getDataSimple() {
-    }
-
-
-
-
-
 
     /** Send a request for the REST resource to the server and deliver the 
      *  resulting JSON object. (This is just a convenience method.)
@@ -142,12 +127,35 @@ class CCMCommunicationManager implements CleanDataLayer {
      *
      *  @param  compound	a SAM compound, e.g., "ldl" or "weight"
      *  @param  value		a SAM value of a measurement, e.g. "20" (without unit, please)
-     *  @param  opperator	a SAM operator, i.e., "=", "<", or ">"
+     *  @param  opperator	a SAM operator, i.e., "", "=", "<", or ">"
      *  @return List of matching studies
      */
     public List<Study> getSAMStudies( String compound, String value, String opperator ) {
          return [] 
     }
+
+
+
+
+
+
+
+
+    /*  To Do for querying
+    public void getMeasurementsForValueResource() {
+    }
+
+
+    public void getMeasurementsForRangeResource() {
+    }
+
+
+    public void getDataSimple() {
+    }
+    */
+
+
+
 
 
 }
