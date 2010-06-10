@@ -9,28 +9,28 @@
 	<h1>Simple Query</h1>
 
     <g:form action="pages" name="simpleQueryForm" id="simpleQueryForm">
+    <g:if test="${term}"><g:set var="preterm" value="${term}" /></g:if>
     <div class="content">
       <div class="element">
         <div class="description">Search term (e.g. 'paracetamol')</div>
-        <div class="input"><g:textField name="term" value="" /></div>
+        <div class="input"><g:textField name="term" value="${preterm}" /></div>
       </div>
       <div class="element">
         <div class="description">Species (e.g. 'rattus norvegicus')</div>
-        <div class="input"><g:select name="species" from="" value="${species}" noSelection="['':'--- select a species ---']"/></div>
+        <div class="input"><g:select name="species" from="${species}" value="" noSelection="['':'--- select a species ---']"/></div>
       </div>
       <div class="element">
         <div class="description">Organ (e.g. 'liver')</div>
         <div class="input"><g:select name="organ" from="" value="${organ}" noSelection="['':'--- select organ/tissue ---']"/></div>
       </div>
     </div>
-    <g:submitButton name="search" value="Search" />
+    <g:submitButton name="search" value="Search" /> <g:if test="${term}"><g:submitButton name="reset" value="Clear" /></g:if>
     </g:form>
 
     <br><br>
-  
 
     <div id="accordion">
-      <h3><a href="#">Clinical Data</a></h3>
+      <h3><a href="#">Simple Assays</a></h3>
       <div class="element">
         <g:form action="pages" name="addCompound" id="addCompound">
         <div class="description">Compound (e.g. 'glucose')</div>
@@ -57,16 +57,27 @@
     <br><br>
 
     <g:if test="${term}">
-        <div class="table">
-          Search results for term ${term}
+        <h1><g:message code="Search results for term ${term}"/></h1>
 
-        <g:each var="tmpStudy" in="${studies}">
-            <g:set var="study" value="${tmpStudy.getValue()}" />
-            <div class="row">
-              study x
-            </div>
-        </g:each>
-        </div>
+        <g:if test="${listStudies}">
+          <div class="list">
+            <table>
+                <thead>
+                    <tr>
+                        <g:sortableColumn property="title" title="${message(code: 'study.title.label', default: 'Study')}" />
+                    </tr>
+                </thead>
+                <tbody>
+                <g:each in="${listStudies}" var="Study" status="i" >
+                  <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+                    <td><g:link action="show" id="${Study.id}">${fieldValue(bean: Study, field: "title")}</g:link></td>
+                  </tr>
+                </g:each>
+                </tbody>
+            </table>
+          </div>
+
+        </g:if>
     </g:if>
 
 </div>

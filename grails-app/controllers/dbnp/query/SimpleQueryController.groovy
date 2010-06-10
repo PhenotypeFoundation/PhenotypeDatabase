@@ -32,6 +32,7 @@ class SimpleQueryController {
 
         onStart {
             println "Starting webflow simpleQuery"
+            flow.term = null
             flow.page = 0
 			flow.pages = [
                 [title: 'Query'],
@@ -39,10 +40,13 @@ class SimpleQueryController {
 			]
 	    }
 
+        // Render the query page and handle its actions
 		query {
 			render(view: "/simpleQuery/mainPage")
             onRender {
               println "Rendering mainPage"
+              flow.species = Term.findAll()
+              flow.page = 1
             }
             on("addCompound") {
                 println "addCompound"              
@@ -58,41 +62,68 @@ class SimpleQueryController {
               if (!params.term.trim()) {
                 return [:]
               }
-              
+
               flow.term = params.term
-            }.to "results"
+            }.to "searching"
 
             on("refresh").to "query"
 		}
 
-        results {
-            def results
 
+        // Searching for results
+        searching {
+           action {
+              // Searchable plugin not yielding results yet
+              /*
+              try {
+                println searchableService.countHits("mouse")
+              } catch (SearchEngineQueryParseException ex) {
+                //return [parseException: true]
+                println ex
+              }
+              */
+
+              // Search for the term in Terms
+              // results = searchableService.search(flow.term, type:"Term")
+
+              // Map the Terms to Studies
+              // ...
+
+              // Save the results in the flow
+              // flow.studies = results
+
+
+
+              // As a usable result set we will use all studies for now
+              flow.listStudies = Study.findAll()
+
+           }
+
+          on("error").to "query"
+          on("success").to "results"
+        }
+
+
+        // Render result page including search options
+        results {
             render(view: "/simpleQuery/mainPage")
+
             onRender {
               println "Rendering resultPage"
+              flow.page = 2
               println flow.term
-
-
-
-              Study.findAll().each() {
-                println it
-              }
             }
+
+            on("reset") {
+              flow.term = null
+              flow.studies = null
+              println "Resetting query flow"
+            }.to "query"
 
             on("search").to "searching"
             on("refresh").to "results"
         }
 
-        searching {
-           action {
-              try {
-                println searchableService.search(params.q)
-              } catch (SearchEngineQueryParseException ex) {
-                return [parseException: true]
-              }
-           } on("success").to ("query")
-        }
     }
   
 
