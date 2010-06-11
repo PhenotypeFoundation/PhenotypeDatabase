@@ -217,10 +217,16 @@ class WizardController {
 				success()
 			}
 			on("refresh") {
+				println ".refreshing...."
 				flash.values = params
 
 				// handle study data
 				this.handleStudy(flow, flash, params)
+
+				// force refresh of the template
+				if (flow.study.template) {
+					flow.study.template.refresh()
+				}
 
 				// remove errors as we don't want any warnings now
 				flash.errors = [:]
@@ -232,6 +238,11 @@ class WizardController {
 
 				// handle study data
 				this.handleStudy(flow, flash, params)
+
+				// force refresh of the template
+				if (flow.study.template) {
+					flow.study.template.refresh()
+				}
 
 				// remove errors as we don't want any warnings now
 				flash.errors = [:]
@@ -284,6 +295,12 @@ class WizardController {
 			}
 			on("refresh") {
 				flash.values = params
+
+				// refresh templates
+				flow.subjectTemplates.each() {
+					it.value.template.refresh()
+				}
+
 				success()
 			}.to "subjects"
 			on("add") {
@@ -408,6 +425,31 @@ class WizardController {
 
 				// handle study data
 				this.handleEvents(flow, flash, params)
+
+				// refresh event templates
+				flow.eventTemplates.each() {
+					it.value.template.refresh()
+				}
+
+				// refresh flow template
+				if (flow.event.template) flow.event.template.refresh()
+
+				// remove errors as we don't want any warnings now
+				flash.errors = [:]
+			}.to "events"
+			on("refresh") {
+				flash.values = params
+
+				// handle study data
+				this.handleEvents(flow, flash, params)
+
+				// refresh templates
+				flow.eventTemplates.each() {
+					it.value.template.refresh()
+				}
+
+				// refresh flow template
+				if (flow.event.template) flow.event.template.refresh()
 
 				// remove errors as we don't want any warnings now
 				flash.errors = [:]
@@ -580,7 +622,8 @@ class WizardController {
 			render(view: "_samples")
 			onRender {
 				flow.page = 6
-				flow.bla = "samples"
+
+				flow.samples = []
 
 				// iterate through eventGroups
 				flow.eventGroups.each() { eventGroup ->
@@ -594,10 +637,23 @@ class WizardController {
 								def sampleName = (this.ucwords(subject.name) + '_' + eventName + '_' + new RelTime( event.startTime ).toString()).replaceAll("([ ]{1,})", "")
 
 								println sampleName
+								flow.samples[ flow.samples.size() ] = [
+									sample		: new Sample(
+										parentSubject: subject,
+										parentEvent: event,
+										name: sampleName
+									),
+								    name		: sampleName,
+									eventGroup	: eventGroup,
+									event		: event,
+									subject		: subject
+								]
 							}
 						}
 					}
 				}
+
+				println flow.samples
 
 				success()
 			}
@@ -606,7 +662,7 @@ class WizardController {
 			}.to "groups"
 			on("next") {
 				success()
-			}.to "confirm"
+			}.to "samples"
 			on("quickSave") {
 				success()
 			}.to "waitForSave"
@@ -1011,7 +1067,6 @@ class WizardController {
 			g++
 		}
 	}
-
 
 	/**
 	 * groovy / java equivalent of php's ucwords function

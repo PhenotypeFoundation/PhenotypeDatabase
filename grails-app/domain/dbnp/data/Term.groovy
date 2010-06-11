@@ -29,4 +29,49 @@ class Term implements Serializable {
 	def String toString() {
 		return name
 	}
+
+	/**
+	 * Return all terms for a string of comma separated ontology ncboId's.
+	 * @see Ontology.groovy
+	 * @param ontologies
+	 * @return
+	 */
+	def giveAllByOntologies( ontologies ) {
+		// this method does not seem to work (see taglibrary:termSelect)
+		// i'll try to get it working later, or delete this altogether
+		// - Jeroen
+		def data = []
+		def terms = []
+
+		// got a string?
+		if (ontologies instanceof String) {
+			// split the ontologies string
+			ontologies.split(/\,/).each() { ncboId ->
+				// trim the id
+				ncboId.trim()
+
+				// fetch all terms for this ontology
+				def ontology = Ontology.findAllByNcboId(ncboId)
+
+				// does this ontology exist?
+				if (ontology) {
+					ontology.each() {
+						data[ data.size() ] = it
+					}
+				}
+			}
+
+			ontologies = data
+		}
+
+		// iterate through ontologies
+		ontologies.each() { ontology ->
+			Term.findAllByOntology( ontology ).each() { term ->
+				terms[ terms.size() ] = term
+			}
+		}
+
+		// sort alphabetically
+		terms.sort()
+	}
 }

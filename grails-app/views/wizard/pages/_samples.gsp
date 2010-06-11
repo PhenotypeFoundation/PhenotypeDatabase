@@ -21,7 +21,16 @@
 		blah blah blaaa....
 	</span>
 
-	
-
+	<g:if test="${samples}">
+		<div class="table">
+		<g:each var="sampleData" in="${samples}">
+			${sampleData}
+			<div class="row">
+				<!-- wizard:templateColumns class="column" id="1" entity="${sampleData['sample']}" //-->
+				<!-- div class="column"><wizard:templateSelect entity="${sampleData.sample}" /></div //-->
+			</div>
+		</g:each>
+		</div>
+	</g:if>
 
 </wizard:pageContent>

@@ -600,7 +600,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 
 			// sort alphabetically
 			from.sort()
-			
+
 			// define 'from'
 			attrs.from = from
 
