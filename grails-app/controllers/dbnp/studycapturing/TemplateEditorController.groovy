@@ -17,6 +17,7 @@ import dbnp.data.*
 import dbnp.studycapturing.*
 import cr.co.arquetipos.crypto.Blowfish
 import grails.converters.*
+import java.lang.reflect.*;
 
 class TemplateEditorController {
     def entityName;
@@ -58,9 +59,15 @@ class TemplateEditorController {
         // Check whether a template is selected. If not, redirect the user to the index
         def selectedTemplate = params.template;
         def template = null;
+		def domainFields = null;
 
         if( selectedTemplate ) {
             template = Template.get( selectedTemplate );
+
+			// Find the domain classes for this template/entity
+			// See http://www.javaworld.com/javaworld/javaqa/1999-07/06-qa-invoke.html
+			Method m = template.entity.getDeclaredMethod("giveDomainFields", null);
+			domainFields = m.invoke( null, null );
         } else {
 			redirect(action:"index",params:[entity:params.entity])
 			return;
@@ -83,10 +90,12 @@ class TemplateEditorController {
             templates: templates,
             encryptedEntity: params.entity,
             fieldTypes: TemplateFieldType.list(),
+			ontologies: Ontology.list(),
             humanReadableEntity: humanReadableEntity,
 
             template: template,
-			allFields: allFields
+			allFields: allFields,
+			domainFields: domainFields
         ];
 
 	}
@@ -123,7 +132,7 @@ class TemplateEditorController {
 		def template = new Template( params );
         if (template.save(flush: true)) {
 
-			def html = g.render( template: 'elements/liTemplateEditable', model: [template: template] );
+			def html = g.render( template: 'elements/liTemplate', model: [template: template] );
 			def output = [ id: template.id, html: html ];
 			render output as JSON;
 
@@ -165,7 +174,7 @@ class TemplateEditorController {
 
         template.properties = params
         if (!template.hasErrors() && template.save(flush: true)) {
-			def html = g.render( template: 'elements/liTemplateEditable', model: [template: template] );
+			def html = g.render( template: 'elements/liTemplate', model: [template: template] );
 			def output = [ id: template.id, html: html ];
 			render output as JSON;
         } else {
@@ -205,9 +214,6 @@ class TemplateEditorController {
 		}
     }
 
-
-
-
     /**
      * Creates a new template field using a AJAX call
 	 *
@@ -245,11 +251,44 @@ class TemplateEditorController {
 			return;
 		}
 
+		// See whether this exists as domain field. If it does, raise an error
+		Method m = template.entity.getDeclaredMethod("giveDomainFields", null);
+		def domainFields = m.invoke( null, null );
+		if( domainFields.find { it.name.toLowerCase() == params.name.toLowerCase() } ) {
+			response.status = 500;
+			render "All templates for entity " + template.entity + " contain a domain field with name " + params.name + ". You can not create a field with this name.";;
+			return;
+		}
+
+		// If this field is type stringlist, we have to prepare the parameters
+		if( params.type.toString() == 'STRINGLIST' ) {
+			def listEntries = [];
+			params.listEntries.eachLine {
+				// Search whether a listitem with this name already exists.
+				// if it does, use that one to prevent pollution of the database
+				def name = it.trim();
+				def listitem = TemplateFieldListItem.findByName( name );7
+				if( !listitem ) {
+					listitem = new TemplateFieldListItem( name: name )
+				}
+				listEntries.add( listitem );
+			}
+
+			params.listEntries = listEntries;
+		} else {
+			params.remove( 'listEntries' );
+		}
+
+		// If this field isnot a ontologyterm, we should remove the ontologies
+		if( params.type.toString() != 'ONTOLOGYTERM' ) {
+			params.remove( 'ontologies' );
+		}
+
 		// Create the template field and add it to the template
 		def templateField = new TemplateField( params );
         if (templateField.save(flush: true)) {
 
-			def html = g.render( template: 'elements/liFieldNotInUse', model: [templateField: templateField, fieldTypes: TemplateFieldType.list()] );
+			def html = g.render( template: 'elements/available', model: [templateField: templateField, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list()] );
 			def output = [ id: templateField.id, html: html ];
 			render output as JSON;
 
@@ -288,9 +327,37 @@ class TemplateEditorController {
                 return
             }
         }
-        templateField.properties = params
+
+		// If this field is type stringlist or ontology, we have to prepare the parameters
+		if( params.type.toString() == 'STRINGLIST' ) {
+			def listEntries = [];
+			params.listEntries.eachLine {
+				// Search whether a listitem with this name already exists.
+				// if it does, use that one to prevent pollution of the database
+				def name = it.trim();
+				def listitem = TemplateFieldListItem.findByName( name );7
+				if( !listitem ) {
+					listitem = new TemplateFieldListItem( name: name )
+				}
+				listEntries.add( listitem );
+			}
+
+			params.listEntries = listEntries;
+		} else {
+			params.remove( 'listEntries' );
+		}
+
+		// If this field is a ontologyterm, we add ontology objects
+		if( params.type.toString() == 'ONTOLOGYTERM' && params.ontologies ) {
+			params.ontologies = Ontology.getAll( params.ontologies.collect { Integer.parseInt( it ) } );
+		} else {
+			params.remove( 'ontologies' );
+		}
+
+		// Set all parameters
+		templateField.properties = params
         if (!templateField.hasErrors() && templateField.save(flush: true)) {
-			def html = g.render( template: 'elements/liField', model: [templateField: templateField, fieldTypes: TemplateFieldType.list()] );
+			def html = g.render( template: 'elements/available', model: [templateField: templateField, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list()] );
 			def output = [ id: templateField.id, html: html ];
 			render output as JSON;
         } else {
@@ -363,17 +430,32 @@ class TemplateEditorController {
             render 'TemplateField is already found within template';
             return;
         }
+
+		// If the template is in use, only non-required fields can be added
+		if( template.inUse() && templateField.required ) {
+			response.status = 500;
+			render 'Only non-required fields can be added to templates that are in use.'
+			return;
+		}
+
+		// All field names within a template should be unique
+		if( template.fields.find { it.name.toLowerCase() == templateField.name.toLowerCase() } ) {
+			response.status = 500;
+			render 'This template already contains a field with name ' + templateField.name + '. Field names should be unique within a template.'
+			return;
+		}
+
 		if( !params.position || Integer.parseInt( params.position ) == -1) {
 			template.fields.add( templateField )
 		} else {
 			template.fields.add( Integer.parseInt( params.position ), templateField )
 		}
+		template.save(flush:true);
 
-		def html = g.render( template: 'elements/liFieldSelected', model: [templateField: templateField, template: template, fieldTypes: TemplateFieldType.list()] );
+		def html = g.render( template: 'elements/selected', model: [templateField: templateField, template: template, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list()] );
 		def output = [ id: templateField.id, html: html ];
 		render output as JSON;
     }
-
 
     /**
      * Removes a selected template field from the template using a AJAX call
@@ -410,13 +492,20 @@ class TemplateEditorController {
             return;
         }
 
+		// If the template is in use, field can not be removed
+		if( template.inUse() ) {
+			response.status = 500;
+			render 'No fields can be removed from templates that are in use.'
+			return;
+		}
+
 		// Delete the field from this template
         def currentIndex = template.fields.indexOf( templateField );
         template.fields.remove( currentIndex );
-		template.save();
+		template.save(flush:true);
 
 
-		def html = g.render( template: 'elements/liField', model: [templateField: templateField, fieldTypes: TemplateFieldType.list()] );
+		def html = g.render( template: 'elements/available', model: [templateField: templateField, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list()] );
 		def output = [ id: templateField.id, html: html ];
 		render output as JSON;
     }
@@ -461,8 +550,9 @@ class TemplateEditorController {
         def currentIndex = template.fields.indexOf( templateField );
         def moveField = template.fields.remove( currentIndex );
         template.fields.add( Integer.parseInt( params.position ), moveField );
+		template.save(flush:true);
 
-		def html = g.render( template: 'elements/liFieldSelected', model: [templateField: templateField, template: template, fieldTypes: TemplateFieldType.list()] );
+		def html = g.render( template: 'elements/selected', model: [templateField: templateField, template: template, fieldTypes: TemplateFieldType.list()] );
 		def output = [ id: templateField.id, html: html ];
 		render output as JSON;
     }
@@ -484,6 +574,99 @@ class TemplateEditorController {
 
 		render templateField.numUses();
 	}
+
+	/**
+	 * Adds a ontolgy based on the ID given
+	 *
+	 * @param	ncboID
+	 * @return	JSON	Ontology object
+	 */
+	def addOntologyById = {
+		def id = params.ncboID;
+
+		if( !id ) {
+			response.status = 500;
+			render 'No ID given'
+			return;
+		}
+
+		if( Ontology.findByNcboId( Integer.parseInt(  id ) ) ) {
+			response.status = 500;
+			render 'This ontology was already added to the system';
+			return;
+		}
+
+		def ontology = null;
+
+		try {
+			ontology = dbnp.data.Ontology.getBioPortalOntology( id );
+		} catch( Exception e ) {
+			response.status = 500;
+			render e.getMessage();
+			return;
+		}
+
+		if( !ontology ) {
+			response.status = 404;
+			render 'Ontology with ID ' + id + ' not found';
+			return;
+		}
+
+		// Validate ontology
+		if (!ontology.validate()) {
+			response.status = 500;
+			render ontology.errors.join( '; ' );
+			return;
+		}
+
+		// Save ontology and render the object as JSON
+		ontology.save(flush: true)
+		render ontology as JSON
+	}
+
+	/**
+	 * Adds a ontolgy based on the ID given
+	 *
+	 * @param	ncboID
+	 * @return	JSON	Ontology object
+	 */
+	def addOntologyByTerm = {
+		def id = params.termID;
+
+		if( !id ) {
+			response.status = 500;
+			render 'No ID given'
+			return;
+		}
+
+		def ontology = null;
+
+		try {
+			ontology = dbnp.data.Ontology.getBioPortalOntologyByTerm( id );
+		} catch( Exception e ) {
+			response.status = 500;
+			render e.getMessage();
+			return;
+		}
+
+		if( !ontology ) {
+			response.status = 404;
+			render 'Ontology form term ' + id + ' not found';
+			return;
+		}
+
+		// Validate ontology
+		if (!ontology.validate()) {
+			response.status = 500;
+			render ontology.errors.join( '; ' );
+			return;
+		}
+
+		// Save ontology and render the object as JSON
+		ontology.save(flush: true)
+		render ontology as JSON
+	}
+
 
     /**
      * Checks whether a correct entity is given

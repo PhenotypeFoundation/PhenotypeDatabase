@@ -31,14 +31,7 @@
 			<ul id="templates">
 				<li class="empty ui-state-default" <g:if test="${templates.size() > 0 }">style='display: none;'</g:if>>There are no templates for ${humanReadableEntity}. Use the 'Add template' button to add fields.</li>
 				<g:each in="${templates}" var="currentTemplate">
-					<li id="template_${currentTemplate.id}"class="ui-state-default">
-					  <g:if test="${currentTemplate.inUse()}">
-						<g:render template="elements/liTemplateNonEditable" model="['template': currentTemplate]"/>
-					  </g:if>
-					  <g:else>
-						<g:render template="elements/liTemplateEditable" model="['template': currentTemplate]"/>
-					  </g:else>
-					</li>
+				  <g:render template="elements/liTemplate" model="['template': currentTemplate]"/>
 				</g:each>
 			</ul>
 

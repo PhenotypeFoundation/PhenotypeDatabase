@@ -56,4 +56,24 @@ class Ontology implements Serializable {
 			ncboVersionedId: o.id
 		);
 	}
+
+	static Ontology getBioPortalOntologyByTerm(String termId) {
+		// Get ontology from BioPortal via Ontocat
+		// TODO: maybe make a static OntologyService instance to be more efficient, and decorate it with caching?
+		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.bioportal.BioportalOntologyService()
+		uk.ac.ebi.ontocat.OntologyTerm term = os.getTerm( termId );
+		println( term );
+		uk.ac.ebi.ontocat.Ontology o = os.getOntology( term.getOntologyAccession() );
+		println( o );
+
+		// Instantiate and return Ontology object
+		new dbnp.data.Ontology(
+			name: o.label,
+			description: o.description,
+			url: o.properties['homepage'] ?: "http://bioportal.bioontology.org/ontologies/${o.id}",
+			versionNumber: o.versionNumber,
+			ncboId: o.ontologyAccession,
+			ncboVersionedId: o.id
+		);
+	}
 }

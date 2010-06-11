@@ -12,7 +12,11 @@
  * $Date$
  */
 
+// Flag to keep track of whether a form is opened or not
 var formOpened = false;
+
+// Contains information about the original position of an item, when it is being dragged
+var currentSort = null;
 
 /*************************************
  *
@@ -120,12 +124,7 @@ function deleteTemplate( id ) {
 // Adds a new listitem when a field has been added
 function addTemplateListItem( id, newHTML ) {
 	// Create a new listitem
-	var li = $( '<li></li>' );
-	li.attr( 'id', 'template_' + id );
-	li.addClass( "ui-state-default" );
-
-	// Insert the right HTML
-	li.html( newHTML );
+	var li = $( newHTML );
 
 	// Append the listitem to the list
 	$( '#templates li:last').after( li );
@@ -137,7 +136,7 @@ function addTemplateListItem( id, newHTML ) {
 // Updates the contents of the listitem when something has changed
 function updateTemplateListItem( id, newHTML ) {
 	var li = $( '#template_' + id );
-	li.html( newHTML );
+	li.replaceWith( newHTML );
 }
 
 // Removes a listitem when the template field has been deleted
@@ -196,8 +195,6 @@ function hideTemplateFieldForm( id ) {
     formOpened = false;
 }
 
-
-
 /**
  * Adds a new template field using AJAX
  */
@@ -244,6 +241,29 @@ function updateTemplateField( id ) {
 }
 
 /**
+ * Deletes a template field using AJAX
+ */
+function deleteTemplateField( id ) {
+    // Delete the field
+    $.ajax({
+        url:        baseUrl + '/templateEditor/deleteField',
+        data:       'templateField=' + id,
+        type:       "POST",
+        success:    function(data, textStatus, request) {
+			// Put the new HTML into the list item
+			deleteFieldListItem( id );
+
+			showHideEmpty( '#availableTemplateFields' );
+        },
+        error:      function( request ) {
+            alert( "Could not delete template field: " + request.responseText );
+        }
+    });
+
+	return true;
+}
+
+/**
  * Is triggered when an item from the templatefields has been moved and
  * shoule be updated
  */
@@ -287,7 +307,8 @@ function updateTemplateFieldPosition( event, ui ) {
             $( '#templateFields' ).sortable( 'enable' );
         },
         error: function( request ) {
-            alert( "Could not move template field: " + request.responseText );
+			undoMove();
+			alert( "Could not move template field: " + request.responseText );
         }
     });
 }
@@ -312,10 +333,15 @@ function addTemplateFieldEvent( event, ui ) {
 /**
  * Adds a new template field to the template using AJAX
  */
-function addTemplateField( id, newposition ) {
+function addTemplateField( id, newposition, moveAfterwards ) {
 	if( newposition == null ) {
 		newposition = -1;
 	}
+
+	if( moveAfterwards == null ) {
+		moveAfterwards = false;
+	}
+
 	var templateId = $('#templateSelect').val();
 
     // Update the field
@@ -328,13 +354,24 @@ function addTemplateField( id, newposition ) {
 			// Put the new HTML into the list item
 			updateFieldListItem( id, data.html );
 
+			if( moveAfterwards ) {
+				moveFieldListItem( id, '#selectedTemplateFields' );
+			}
+
 			showHideEmpty( '#selectedTemplateFields' );
 			showHideEmpty( '#availableTemplateFields' );
         },
         error:      function( request ) {
+			// Send the item back (if it has been moved )
+			if( !moveAfterwards ) {
+				undoMove();
+			}
+
             alert( "Could not add template field: " + request.responseText );
         }
     });
+
+	return true;
 }
 
 
@@ -345,20 +382,18 @@ function removeTemplateFieldEvent( event, ui ) {
     var item_id = ui.item.context.id;
     var id = item_id.substring( item_id.lastIndexOf( '_' ) + 1 );
 
-	// The field should only be removed when the study is not in use
-	// If field is used, the li has class 'inUse'
-	if( !ui.item.hasClass( 'inUse' ) ) {
-		return removeTemplateField( id );
-	} else {
-		alert( "Field can not be removed, because the template is in use." );
-		return false;
-	}
+	return removeTemplateField( id );
 }
 
 /**
  * Removes a template field from a template using AJAX
  */
-function removeTemplateField( id ) {
+function removeTemplateField( id, moveAfterwards ) {
+
+	if( moveAfterwards == null ) {
+		moveAfterwards = false;
+	}
+
 	var templateId = $('#templateSelect').val();
 
     // Update the field
@@ -370,50 +405,31 @@ function removeTemplateField( id ) {
 			// Put the new HTML into the list item
 			updateFieldListItem( id, data.html );
 
+			if( moveAfterwards ) {
+				moveFieldListItem( id, '#availableTemplateFields' );
+			}
+
 			showHideEmpty( '#selectedTemplateFields' );
 			showHideEmpty( '#availableTemplateFields' );
 
         },
         error:      function( request ) {
-            alert( "Could not delete template field: " + request.responseText );
+			if( !moveAfterwards ) {
+				undoMove();
+			}
+
+			alert( "Could not delete template field: " + request.responseText );
         }
     });
 
 	return true;
 }
 
-/**
- * Deletes a template field using AJAX
- */
-function deleteTemplateField( id ) {
-    // Delete the field
-    $.ajax({
-        url:        baseUrl + '/templateEditor/deleteField',
-        data:       'templateField=' + id,
-        type:       "POST",
-        success:    function(data, textStatus, request) {
-			// Put the new HTML into the list item
-			deleteFieldListItem( id );
-
-			showHideEmpty( '#availableTemplateFields' );
-        },
-        error:      function( request ) {
-            alert( "Could not delete template field: " + request.responseText );
-        }
-    });
-
-	return true;
-}
 
 // Adds a new listitem when a field has been added
 function addFieldListItem( id, newHTML ) {
 	// Create a new listitem
-	var li = $( '<li></li>' );
-	li.attr( 'id', 'templateField_' + id );
-	li.addClass( "ui-state-default" );
-	
-	// Insert the right HTML
-	li.html( newHTML );
+	var li = $( newHTML );
 
 	// Append the listitem to the list
 	$( '#availableTemplateFields li:last').after( li );
@@ -425,7 +441,7 @@ function addFieldListItem( id, newHTML ) {
 // Updates the contents of the listitem when something has changed
 function updateFieldListItem( id, newHTML ) {
 	var li = $( '#templateField_' + id );
-	li.html( newHTML );
+	li.replaceWith( newHTML );
 }
 
 // Removes a listitem when the template field has been deleted
@@ -445,6 +461,47 @@ function moveFieldListItem( id, toSelector ) {
 	$( toSelector ).append( li );
 }
 
+/**
+ * Saves the original position of a sortable LI, in order to be able to undo the move event later on
+ * This function is called on start event of the sortable lists
+ */
+function savePosition( event, ui ) {
+	currentSort = {
+		id:   ui.item.attr( 'id' ),
+		parent: ui.item.context.parentNode,
+		previous: ui.item.context.previousElementSibling,
+		index: ui.item.index()
+	}
+}
+
+/**
+ * Undoes the move of an item, when an ajax call has failed
+ */
+function undoMove() {
+	if( currentSort ) {
+		var item = $( '#' + currentSort.id );
+		item.remove();
+		item.insertAfter( currentSort.previous );
+	}
+}
+
+/**
+ * Shows and hides the right 'extra' divs in the field form.
+ *
+ * These fields show extra input fields for stringlist and ontology fields
+ *
+ * @param	id	ID of the templateField
+ */
+function showExtraFields( id ) {
+	// Find the current selected fieldtype
+	var fieldType = $( '#templateField_' + id + '_form select[name=type]' ).val();
+
+	// Hide all extra forms, and show the right one
+	$( '#templateField_' + id + '_form .extra' ).hide();
+	$( '#templateField_' + id + '_form .' + fieldType.toLowerCase() + '_options' ).show();
+}
+
+
 /** 
  * Shows or hides the list item, indicating that a list is empty
  */
@@ -455,4 +512,55 @@ function showHideEmpty( selector ) {
 	} else {
 		$( selector + ' .empty' ).hide();
 	}
+}
+
+/************************************
+ *
+ * Functions for selecting ontologies
+ *
+ */
+
+function openOntologyDialog() {
+	$('#ontologyDialog').dialog('open');
+}
+
+function addOntology() {
+	// Add ontology using AJAX
+	var url; var data;
+
+    // Create a URL to call and call it
+	if( $( '#ncboID' ).val() ) {
+	    url = baseUrl + '/templateEditor/addOntologyById';
+		data = 'ncboID=' + $( '#ncboID' ).val();
+		$( '#ncbo_spinner' ).show();
+	} else {
+	    url = baseUrl + '/templateEditor/addOntologyByTerm';
+		data = 'termID=' + $( '#termID' ).val();
+		$( '#term_spinner' ).show();
+	}
+
+    // Move the item
+    $.ajax({
+        url: url,
+		data: data,
+		dataType: 'json',
+		type: 'POST',
+        success: function(data, textStatus, request) {
+			updateOntologyLists( data )
+			$( '#term_spinner' ).hide();
+			$( '#ncbo_spinner' ).hide();
+
+			$('#ontologyDialog').dialog('close');
+        },
+        error: function( request ) {
+			alert( "Could not add ontology: " + request.responseText );
+			$( '#term_spinner' ).hide();
+			$( '#ncbo_spinner' ).hide();
+			$('#ontologyDialog').dialog('close');
+        }
+    });
+}
+
+function updateOntologyLists( newObject ) {
+	$( '.ontologySelect' ).append( '<option value="' + newObject.id + '">' + newObject.name + '</option>');
 }
