@@ -976,6 +976,14 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
                             addExampleElement: true
 						){helpText}
 						break
+					case ['BOOLEAN']:
+						inputElement = (renderType == 'element') ? 'checkBoxElement' : 'checkBox'
+						out << "$inputElement"(
+							description: ucName,
+							name: prependName + it.escapedName(),
+							value: fieldValue
+						){helpText}
+						break
 					default:
 						// unsupported field type
 						out << '<span class="warning">!' + it.type + '</span>'

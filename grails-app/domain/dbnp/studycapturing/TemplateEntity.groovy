@@ -20,6 +20,7 @@ abstract class TemplateEntity implements Serializable {
 	Map templateFloatFields = [:]
 	Map templateDoubleFields = [:]
 	Map templateDateFields = [:]
+	Map templateBooleanFields = [:]
 
 	// N.B. If you try to set Long.MIN_VALUE for a reltime field, an error will occur
 	// However, this will never occur in practice: this value represents 3 bilion centuries
@@ -38,6 +39,7 @@ abstract class TemplateEntity implements Serializable {
 		templateTermFields: Term,
 		templateRelTimeFields: long,
 		templateFileFields: String,
+		templateBooleanFields: boolean,
 		systemFields: TemplateField
 	]
 
@@ -292,6 +294,17 @@ abstract class TemplateEntity implements Serializable {
 			// got an error, or not?
 			return (!error)
 		})
+		templateBooleanFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value) {
+					fields[key] = true;
+				} else {
+					fields[key] = false;
+				}
+			}
+			return (!error)
+		})
 	}
 
 	/**
@@ -323,6 +336,8 @@ abstract class TemplateEntity implements Serializable {
 				return templateDoubleFields
 			case TemplateFieldType.ONTOLOGYTERM:
 				return templateTermFields
+			case TemplateFieldType.BOOLEAN:
+				return templateBooleanFields
 			default:
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}
@@ -401,6 +416,10 @@ abstract class TemplateEntity implements Serializable {
 	def setFieldValue(String fieldName, value) {
 		// get the template field
 		TemplateField field = getField(this.giveFields(), fieldName)
+
+		if( field.type == TemplateFieldType.BOOLEAN ) {
+			println( 'Boolean: ' + fieldName + " - " + value );
+		}
 
 		// Convenience setter for template string list fields: find TemplateFieldListItem by name
 		if (field.type == TemplateFieldType.STRINGLIST && value && value.class == String) {
@@ -529,6 +548,9 @@ abstract class TemplateEntity implements Serializable {
 				switch (field.type.toString()) {
 					case ['INTEGER', 'FLOAT', 'DOUBLE', 'RELTIME']:
 						this[field.name] = 0;
+						break;
+					case [ 'BOOLEAN' ]:
+						this[field.name] = false;
 						break;
 					default:
 						this[field.name] = null

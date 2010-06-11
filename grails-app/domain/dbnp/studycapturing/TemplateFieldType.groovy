@@ -17,7 +17,8 @@ public enum TemplateFieldType implements Serializable {
 	ONTOLOGYTERM('Ontology Reference'),
 	DATE('Date'),
 	RELTIME('Relative time'), // relative date, e.g. days since start of study
-	FILE('File')
+	FILE('File'),
+	BOOLEAN('Boolean')
     // TODO: add a timezone-aware date type to use for study start date
     // TODO: add a BOOLEAN type (checkbox)
 
@@ -28,7 +29,7 @@ public enum TemplateFieldType implements Serializable {
 	}
 
 	static list() {
-		[STRING, TEXT, INTEGER, FLOAT, DOUBLE, STRINGLIST, ONTOLOGYTERM, DATE, RELTIME, FILE]
+		[STRING, TEXT, INTEGER, FLOAT, DOUBLE, STRINGLIST, ONTOLOGYTERM, DATE, RELTIME, FILE, BOOLEAN]
 	}
 
 	def getDefaultValue() {
@@ -51,6 +52,8 @@ public enum TemplateFieldType implements Serializable {
 				return null
 			case FILE:
 				return ""
+			case BOOLEAN:
+				return false;
 			default:
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}
