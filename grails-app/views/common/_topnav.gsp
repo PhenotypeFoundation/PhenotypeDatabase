@@ -8,8 +8,8 @@
       <a href="#">Studies</a>
       <ul class="subnav">
         <li><g:link controller="study" action="list">View studies</g:link></li>
-		  <li><g:link controller="wizard" action="index">Create study</g:link></li>
-		  <li><g:link controller="wizard" action="index">Edit study</g:link></li>
+		  <li><g:link controller="wizard" action="index">Create/edit study</g:link></li>
+		  <li><g:link controller="importer" action="index">Import study data</g:link></li>
       </ul>
      </li>
      <li>
@@ -27,7 +27,6 @@
       <li><g:link controller="publication" action="add">Add publication</g:link></li>
     </ul>
    </li>
-	 <li><g:link controller="importer" action="index">Import data</g:link></li>
     <g:if env="development">
      <li><g:link controller="query" action="index">Query database</g:link></li>
 	 <li>

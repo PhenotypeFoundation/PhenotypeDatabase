@@ -417,13 +417,21 @@ abstract class TemplateEntity implements Serializable {
 		// get the template field
 		TemplateField field = getField(this.giveFields(), fieldName)
 
-		if( field.type == TemplateFieldType.BOOLEAN ) {
-			println( 'Boolean: ' + fieldName + " - " + value );
+		// Convenience setter for boolean fields
+		if( field.type == TemplateFieldType.BOOLEAN && value && value.class == String ) {
+			if (value.equals("true")) {
+				value = true
+			}
+			else if (value.equals("false")) {
+				value = false
+			}
+			else {
+				throw new IllegalArgumentException("Boolean string not recognized: ${value} when setting field ${fieldName}")
+			}
 		}
 
 		// Convenience setter for template string list fields: find TemplateFieldListItem by name
 		if (field.type == TemplateFieldType.STRINGLIST && value && value.class == String) {
-			// Kees insensitive pattern matching ;)
 			def escapedLowerCaseValue = value.toLowerCase().replaceAll("([^a-z0-9])", "_")
 			value = field.listEntries.find {
 				it.name.toLowerCase().replaceAll("([^a-z0-9])", "_") == escapedLowerCaseValue
@@ -561,10 +569,10 @@ abstract class TemplateEntity implements Serializable {
 			// If that is ever changed, the results are pretty much unpredictable (random Java object pointers?)!
 			def store = getStore(field.type)
 
-			// If some value is entered (or 0), then save the value
+			// If some value is entered (or 0 or BOOLEAN false), then save the value
 			// otherwise, it should not be present in the store, so
 			// it is unset if it is.
-			if (value || value == 0) {
+			if (value || value == 0 || ( field.type == TemplateFieldType.BOOLEAN && value == false)) {
 				println ".setting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
 
 				// set value

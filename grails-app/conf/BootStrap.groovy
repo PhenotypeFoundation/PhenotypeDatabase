@@ -55,7 +55,17 @@ class BootStrap {
 				ncboId: '1032',
 				ncboVersionedId: '42693'
 			).with { if (!validate()) { errors.each { println it} } else save()}
-			
+
+			// add CHEBI ontology which is used in Mouse genotype template field
+			def chebiOntology = new Ontology(
+				name: 'Chemical entities of biological interest',
+				description: 'A structured classification of chemical compounds of biological relevance.',
+				url: 'http://www.ebi.ac.uk/chebi',
+				versionNumber: '1.68',
+				ncboId: '1007',
+				ncboVersionedId: '42878'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
 			// add Terms
 			println ".adding mouse term"
 			def mouseTerm = new Term(
@@ -99,6 +109,12 @@ class BootStrap {
 				name: 'C57BL/6 Mouse',
 				ontology: nciOntology,
 				accession: 'C14424'
+			).with { if (!validate()) { errors.each { println it} } else save()}
+
+			def glucoseTerm = new Term(
+				name: 'Glucose',
+				ontology: chebiOntology,
+				accession: 'CHEBI:17234'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Create a few persons, roles and Affiliations
@@ -551,6 +567,14 @@ class BootStrap {
 			)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
+			def protocolField = new TemplateField(
+				name: 'Protocol',
+				type: TemplateFieldType.FILE,
+				entity: Event,
+				comment: 'You can upload a protocol here which describes the procedure which was used when carrying out the event'
+			)
+			.with { if (!validate()) { errors.each { println it} } else save()}
+
 			// diet treatment template
 			println ".adding diet treatement template"
 			def dietTreatmentTemplate = new Template(
@@ -563,43 +587,49 @@ class BootStrap {
 					type: TemplateFieldType.STRINGLIST,
 					entity: Event,
 					listEntries: [
-						new TemplateFieldListItem(name:'10% fat (palm oil)'),
-						new TemplateFieldListItem(name: '45% fat (palm oil)')
+						new TemplateFieldListItem(name:'low fat'),
+						new TemplateFieldListItem(name: 'high fat')
 					]
 				)
 			)
+			.addToFields(protocolField)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// boost treatment template
 			println ".adding boost treatment template"
 			def boostTreatmentTemplate = new Template(
-				name: 'Leptin treatment',
+				name: 'Compound challenge',
 				entity: dbnp.studycapturing.Event
 			)
 			.addToFields(
 				new TemplateField(
 					name: 'Compound',
-					type: TemplateFieldType.STRINGLIST,
+					type: TemplateFieldType.ONTOLOGYTERM,
 					entity: Event,
-					listEntries: [
-						new TemplateFieldListItem(name:'Vehicle'),
-						new TemplateFieldListItem(name: 'Leptin')
-					]
+					ontologies: [chebiOntology]
 				)
 			)
+			.addToFields(
+				new TemplateField(
+					name: 'Control',
+					type: TemplateFieldType.BOOLEAN,
+					entity: Event
+				)
+			)
+			.addToFields(protocolField)
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// fasting treatment template
 			println ".adding fasting treatment template"
 			def fastingTreatment = new Template(
 				name: 'Fasting treatment',
-				description: 'Fasting Protocol NuGO PPSH',
+				description: 'Fasting for a specific amount of time',
 				entity: dbnp.studycapturing.Event
 			)
             .addToFields(
 				new TemplateField(
 					name: 'Fasting period',
-					type: TemplateFieldType.STRING,
+					type: TemplateFieldType.RELTIME,
 					entity: Event
 				)
 			)
@@ -610,7 +640,8 @@ class BootStrap {
             def samplingProtocolField = new TemplateField(
             	name: 'Sample Protocol',
 	            entity: SamplingEvent,
-				type: TemplateFieldType.STRING
+				type: TemplateFieldType.FILE,
+				comment: 'You can upload a protocol here which describes the procedure which was used when carrying out the sampling event'
 			)
             .with { if (!validate()) { errors.each { println it} } else save()}
 
@@ -700,7 +731,7 @@ class BootStrap {
 			)
             .addToFields(
 				new TemplateField(
-					name: 'Desription',
+					name: 'Description',
 					type: TemplateFieldType.STRING,
 					entity: SamplingEvent
 				)
@@ -723,7 +754,7 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Add example studies
-			if (!(grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST)) {
+			if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
 				println ".adding NuGO PPS3 leptin example study..."
 				def mouseStudy = new Study(
 					template: studyTemplate,
@@ -743,7 +774,7 @@ class BootStrap {
 					endTime: 3600 +7 * 24 * 3600,
 					template: dietTreatmentTemplate
 				)
-				.setFieldValue( 'Diet','10% fat (palm oil)')
+				.setFieldValue( 'Diet','low fat')
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evHF = new Event(
@@ -751,7 +782,7 @@ class BootStrap {
 					endTime: 3600 +7 * 24 * 3600,
 					template: dietTreatmentTemplate
 				)
-				.setFieldValue( 'Diet','45% fat (palm oil)' )
+				.setFieldValue( 'Diet','high fat' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evBV = new Event(
@@ -759,7 +790,7 @@ class BootStrap {
 					endTime: 3600 +7 * 24 * 3600,
 					template: boostTreatmentTemplate
 				)
-				.setFieldValue( 'Compound','Vehicle' )
+				.setFieldValue( 'Control','true' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evBL = new Event(
@@ -767,7 +798,7 @@ class BootStrap {
 					endTime: 3600 +7 * 24 * 3600,
 					template: boostTreatmentTemplate
 				)
-				.setFieldValue( 'Compound','Leptin' )
+				.setFieldValue( 'Control','false' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evLF4 = new Event(
@@ -775,7 +806,7 @@ class BootStrap {
 					endTime: 3600 + 4 * 7 * 24 * 3600,
 					template: dietTreatmentTemplate
 				)
-				.setFieldValue( 'Diet','10% fat (palm oil)')
+				.setFieldValue( 'Diet','low fat')
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evHF4 = new Event(
@@ -783,7 +814,7 @@ class BootStrap {
 					endTime: 3600 + 4 * 7 * 24 * 3600,
 					template: dietTreatmentTemplate
 				)
-				.setFieldValue( 'Diet','45% fat (palm oil)' )
+				.setFieldValue( 'Diet','high fat' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evBV4 = new Event(
@@ -791,7 +822,7 @@ class BootStrap {
 					endTime: 3600 + 4 * 7 * 24 * 3600,
 					template: boostTreatmentTemplate
 				)
-				.setFieldValue( 'Compound','Vehicle' )
+				.setFieldValue( 'Control','true' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evBL4 = new Event(
@@ -799,7 +830,7 @@ class BootStrap {
 					endTime: 3600 + 4 * 7 * 24 * 3600,
 					template: boostTreatmentTemplate
 				)
-				.setFieldValue( 'Compound','Leptin' )
+				.setFieldValue( 'Control','false' )
 				.with { if (!validate()) { errors.each { println it} } else save()}
 
 				def evS = new SamplingEvent(
