@@ -166,6 +166,15 @@ class RelTime {
 		parse(value);
 	}
 
+
+
+	 /**
+	  * Return a sentence that may be used in interfaces to give the user an instruction on how to enter RelTimes in string format
+	 */
+	public static final String getHelpText() {
+		return "Use the first letter of weeks/days/hours/minutes/seconds, e.g. '1w 2d' for 1 week + 2 days or '10m30s for 10 minutes and 30 seconds.";
+	}
+
 	/**
 	 * Parses a string into a RelTime long
 	 *

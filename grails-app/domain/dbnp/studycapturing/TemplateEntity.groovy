@@ -419,10 +419,10 @@ abstract class TemplateEntity implements Serializable {
 
 		// Convenience setter for boolean fields
 		if( field.type == TemplateFieldType.BOOLEAN && value && value.class == String ) {
-			if (value.equals("true")) {
+			if (value.equals("true") || value.equals("on")) {
 				value = true
 			}
-			else if (value.equals("false")) {
+			else if (value.equals("false") || value.equals("off")) {
 				value = false
 			}
 			else {

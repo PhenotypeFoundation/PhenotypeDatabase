@@ -44,16 +44,18 @@ class Event extends TemplateEntity implements Serializable {
 	 */
 	static List<TemplateField> giveDomainFields() { return Event.domainFields }
 
-	// TODO: Kees start documenting your code
 	static final List<TemplateField> domainFields = [
 		new TemplateField(
 			name: 'startTime',
-			type: TemplateFieldType.RELTIME),
+			type: TemplateFieldType.RELTIME,
+			comment: "Please enter the start time as a relative time from study start date. "+RelTime.getHelpText()),
 		new TemplateField(
 			name: 'endTime',
-			type: TemplateFieldType.RELTIME)
+			type: TemplateFieldType.RELTIME,
+			comment: "Please enter the end time as a relative time from study start date. "+RelTime.getHelpText())
 	]
 
+	// TODO: Jahn, could you indicate in a comment why these different duration functions exist?
 	def getDuration() {
 		return new RelTime(startTime, endTime);
 	}
@@ -66,29 +68,28 @@ class Event extends TemplateEntity implements Serializable {
 		return duration.toPrettyRoundedString();
 	}
 
-	// TODO: Kees start documenting your code
 	def getPrettyDuration() {
 		getPrettyDuration(getDuration())
 	}
 
-	// TODO: Kees start documenting your code
 	def getDurationString() {
 		def d = getDuration()
 		return getDuration().toPrettyString();
 	}
 
-	// TODO: Kees start documenting your code
 	def getShortDuration() {
 		def d = getDuration()
 		return getDuration().toString();
 	}
 
-	// TODO: Kees start documenting your code
+	/**
+	 *    Return whether this is SamplingEvent
+	 * @return    boolean
+	 */
 	def isSamplingEvent() {
 		return (this instanceof SamplingEvent)
 	}
 
-	// TODO: Kees start documenting your code
 	def belongsToGroup(Set<EventGroup> groups) {
 		def eventFound = false;
 		def that = this;
@@ -101,7 +102,6 @@ class Event extends TemplateEntity implements Serializable {
 		return eventFound;
 	}
 
-	// TODO: Kees start documenting your code
 	def String toString() {
 		return fieldExists('Description') ? getFieldValue('Description') : ""
 	}

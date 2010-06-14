@@ -67,13 +67,13 @@ class BootStrap {
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
 			// add Terms
-			println ".adding mouse term"
+			println ".adding terms"
 			def mouseTerm = new Term(
 				name: 'Mus musculus',
 				ontology: speciesOntology,
 				accession: '10090'
 			).with { if (!validate()) { errors.each { println it} } else save()}
-			println ".adding human term"
+
 			def humanTerm = new Term(
 				name: 'Homo sapiens',
 				ontology: speciesOntology,
@@ -98,7 +98,6 @@ class BootStrap {
 				accession: '0000'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-
 			def bloodTerm = new Term(
 				name: 'blood plasma',
 				ontology: brendaOntology,
@@ -117,77 +116,9 @@ class BootStrap {
 				accession: 'CHEBI:17234'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-			if (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
-
-				// Create a few persons, roles and Affiliations
-				println ".adding persons, roles and affiliations"
-				def affiliation1 = new PersonAffiliation(
-					institute: "Science Institute NYC",
-					department: "Department of Mathematics"
-				).save();
-				def affiliation2 = new PersonAffiliation(
-					institute: "InfoStats GmbH, Hamburg",
-					department: "Life Sciences"
-				).save();
-				def role1 = new PersonRole(
-					name: "Principal Investigator"
-				).save();
-				def role2 = new PersonRole(
-					name: "Statician"
-				).save();
-
-				// Create persons
-				def person1 = new Person(
-					lastName: "Scientist",
-					firstName: "John",
-					gender: "Male",
-					initials: "J.R.",
-					email: "john@scienceinstitute.com",
-					phone: "1-555-3049",
-					address: "First street 2,NYC"
-				)
-				.addToAffiliations( affiliation1 )
-				.addToAffiliations( affiliation2 )
-				.save();
-
-				def person2 = new Person(
-					lastName: "Statician",
-					firstName: "Jane",
-					gender: "Female",
-					initials: "W.J.",
-					email: "jane@statisticalcompany.de",
-					phone: "49-555-8291",
-					address: "Dritten strasse 38, Hamburg, Germany"
-				)
-				.addToAffiliations( affiliation2 )
-				.save();
-
-				// Create 30 persons to test pagination
-				def personCounter = 1;
-				30.times { new Person( firstName: "Person #${personCounter}", lastName: "Testperson", email: "email${personCounter++}@testdomain.com" ).save() }
-
-				// Create a few publications
-				println ".adding publications"
-				def publication1 = new Publication(
-					title: "Postnatal development of hypothalamic leptin receptors",
-					authorsList: "Cottrell EC, Mercer JG, Ozanne SE.",
-					pubMedID: "20472140",
-					comments: "Not published yet",
-					DOI: "unknown"
-				)
-				.save();
-
-				def publication2 = new Publication(
-					title: "Induction of regulatory T cells decreases adipose inflammation and alleviates insulin resistance in ob/ob mice",
-					authorsList: "Ilan Y, Maron R, Tukpah AM, Maioli TU, Murugaiyan G, Yang K, Wu HY, Weiner HL.",
-					pubMedID: "20445103",
-					comments: "",
-					DOI: ""
-				)
-				.save();
-			}
 
             // Create templates
+			println ".adding templates"
 
 			def genderField = new TemplateField(
 				name: 'Gender',type: TemplateFieldType.STRINGLIST, entity: Subject,
@@ -231,15 +162,6 @@ class BootStrap {
 				entity: dbnp.studycapturing.Study
 			)
 			.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT, entity: Study,comment:'Describe here the type of subjects and the treatment, challenges and sampling.'))
-/*
-			.addToFields(new TemplateField(
-				name: 'Study code',
-				type: TemplateFieldType.STRING,
-                entity: Study,
-				preferredIdentifier:true,
-				comment: 'Fill out the code by which many people will recognize your study')
-			)
-*/
 			.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT,entity: Study,comment:'Fill out the aim or questions of the study'))
 			.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING,entity: Study,comment:'If the study was performed within a consortium (e.g. NMC, NuGO), you can indicate this here'))
 			.addToFields(new TemplateField(name: 'Cohort name',type: TemplateFieldType.STRING,entity: Study,comment:'If a cohort was used the name or code of the cohort can be define here (define a cohort template)'))
@@ -756,6 +678,75 @@ class BootStrap {
 
 			// Add example studies
 			if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
+
+				// Create a few persons, roles and Affiliations
+				println ".adding persons, roles and affiliations"
+				def affiliation1 = new PersonAffiliation(
+					institute: "Science Institute NYC",
+					department: "Department of Mathematics"
+				).save();
+				def affiliation2 = new PersonAffiliation(
+					institute: "InfoStats GmbH, Hamburg",
+					department: "Life Sciences"
+				).save();
+				def role1 = new PersonRole(
+					name: "Principal Investigator"
+				).save();
+				def role2 = new PersonRole(
+					name: "Statician"
+				).save();
+
+				// Create persons
+				def person1 = new Person(
+					lastName: "Scientist",
+					firstName: "John",
+					gender: "Male",
+					initials: "J.R.",
+					email: "john@scienceinstitute.com",
+					phone: "1-555-3049",
+					address: "First street 2,NYC"
+				)
+				.addToAffiliations( affiliation1 )
+				.addToAffiliations( affiliation2 )
+				.save();
+
+				def person2 = new Person(
+					lastName: "Statician",
+					firstName: "Jane",
+					gender: "Female",
+					initials: "W.J.",
+					email: "jane@statisticalcompany.de",
+					phone: "49-555-8291",
+					address: "Dritten strasse 38, Hamburg, Germany"
+				)
+				.addToAffiliations( affiliation2 )
+				.save();
+
+				// Create 30 persons to test pagination
+				def personCounter = 1;
+				30.times { new Person( firstName: "Person #${personCounter}", lastName: "Testperson", email: "email${personCounter++}@testdomain.com" ).save() }
+
+				// Create a few publications
+				println ".adding publications"
+				def publication1 = new Publication(
+					title: "Postnatal development of hypothalamic leptin receptors",
+					authorsList: "Cottrell EC, Mercer JG, Ozanne SE.",
+					pubMedID: "20472140",
+					comments: "Not published yet",
+					DOI: "unknown"
+				)
+				.save();
+
+				def publication2 = new Publication(
+					title: "Induction of regulatory T cells decreases adipose inflammation and alleviates insulin resistance in ob/ob mice",
+					authorsList: "Ilan Y, Maron R, Tukpah AM, Maioli TU, Murugaiyan G, Yang K, Wu HY, Weiner HL.",
+					pubMedID: "20445103",
+					comments: "",
+					DOI: ""
+				)
+				.save();
+
+				// Add example mouse study
 				println ".adding NuGO PPS3 leptin example study..."
 				def mouseStudy = new Study(
 					template: studyTemplate,
@@ -961,6 +952,7 @@ class BootStrap {
                 .addToPublications( publication2 )
 				.save()
 
+				// Add example human study
 				println ".adding NuGO PPSH example study..."
 
 				def humanStudy = new Study(
