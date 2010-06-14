@@ -117,74 +117,75 @@ class BootStrap {
 				accession: 'CHEBI:17234'
 			).with { if (!validate()) { errors.each { println it} } else save()}
 
-			// Create a few persons, roles and Affiliations
-			println ".adding persons, roles and affiliations"
-			def affiliation1 = new PersonAffiliation(
-			    institute: "Science Institute NYC",
-         		department: "Department of Mathematics"
-			).save();
-			def affiliation2 = new PersonAffiliation(
-			    institute: "InfoStats GmbH, Hamburg",
-     			department: "Life Sciences"
-			).save();
-			def role1 = new PersonRole(
-			    name: "Principal Investigator"
-			).save();
-			def role2 = new PersonRole(
-			    name: "Statician"
-			).save();
-
-			// Create persons
-			def person1 = new Person(
-			    lastName: "Scientist",
-			    firstName: "John",
-			    gender: "Male",
-			    initials: "J.R.",
-			    email: "john@scienceinstitute.com",
-			    phone: "1-555-3049",
-			    address: "First street 2,NYC"
-			)
-			.addToAffiliations( affiliation1 )
-			.addToAffiliations( affiliation2 )
-			.save();
-
-			def person2 = new Person(
-			    lastName: "Statician",
-			    firstName: "Jane",
-			    gender: "Female",
-			    initials: "W.J.",
-			    email: "jane@statisticalcompany.de",
-			    phone: "49-555-8291",
-			    address: "Dritten strasse 38, Hamburg, Germany"
-			)
-			.addToAffiliations( affiliation2 )
-			.save();
-
-			// Create 30 persons to test pagination
 			if (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
-                                def personCounter = 1;
-                                30.times { new Person( firstName: "Person #${personCounter}", lastName: "Testperson", email: "email${personCounter++}@testdomain.com" ).save() }
-                        }
 
-			// Create a few publications
-			println ".adding publications"
-			def publication1 = new Publication(
-     			title: "Postnatal development of hypothalamic leptin receptors",
-			    authorsList: "Cottrell EC, Mercer JG, Ozanne SE.",
-			    pubMedID: "20472140",
-			    comments: "Not published yet",
-			    DOI: "unknown"
-			)
-			.save();
+				// Create a few persons, roles and Affiliations
+				println ".adding persons, roles and affiliations"
+				def affiliation1 = new PersonAffiliation(
+					institute: "Science Institute NYC",
+					department: "Department of Mathematics"
+				).save();
+				def affiliation2 = new PersonAffiliation(
+					institute: "InfoStats GmbH, Hamburg",
+					department: "Life Sciences"
+				).save();
+				def role1 = new PersonRole(
+					name: "Principal Investigator"
+				).save();
+				def role2 = new PersonRole(
+					name: "Statician"
+				).save();
 
-			def publication2 = new Publication(
-     			title: "Induction of regulatory T cells decreases adipose inflammation and alleviates insulin resistance in ob/ob mice",
-			    authorsList: "Ilan Y, Maron R, Tukpah AM, Maioli TU, Murugaiyan G, Yang K, Wu HY, Weiner HL.",
-			    pubMedID: "20445103",
-			    comments: "",
-			    DOI: ""
-			)
-			.save();
+				// Create persons
+				def person1 = new Person(
+					lastName: "Scientist",
+					firstName: "John",
+					gender: "Male",
+					initials: "J.R.",
+					email: "john@scienceinstitute.com",
+					phone: "1-555-3049",
+					address: "First street 2,NYC"
+				)
+				.addToAffiliations( affiliation1 )
+				.addToAffiliations( affiliation2 )
+				.save();
+
+				def person2 = new Person(
+					lastName: "Statician",
+					firstName: "Jane",
+					gender: "Female",
+					initials: "W.J.",
+					email: "jane@statisticalcompany.de",
+					phone: "49-555-8291",
+					address: "Dritten strasse 38, Hamburg, Germany"
+				)
+				.addToAffiliations( affiliation2 )
+				.save();
+
+				// Create 30 persons to test pagination
+				def personCounter = 1;
+				30.times { new Person( firstName: "Person #${personCounter}", lastName: "Testperson", email: "email${personCounter++}@testdomain.com" ).save() }
+
+				// Create a few publications
+				println ".adding publications"
+				def publication1 = new Publication(
+					title: "Postnatal development of hypothalamic leptin receptors",
+					authorsList: "Cottrell EC, Mercer JG, Ozanne SE.",
+					pubMedID: "20472140",
+					comments: "Not published yet",
+					DOI: "unknown"
+				)
+				.save();
+
+				def publication2 = new Publication(
+					title: "Induction of regulatory T cells decreases adipose inflammation and alleviates insulin resistance in ob/ob mice",
+					authorsList: "Ilan Y, Maron R, Tukpah AM, Maioli TU, Murugaiyan G, Yang K, Wu HY, Weiner HL.",
+					pubMedID: "20445103",
+					comments: "",
+					DOI: ""
+				)
+				.save();
+			}
 
             // Create templates
 
@@ -754,7 +755,7 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Add example studies
-			if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
+			if (grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST) {
 				println ".adding NuGO PPS3 leptin example study..."
 				def mouseStudy = new Study(
 					template: studyTemplate,

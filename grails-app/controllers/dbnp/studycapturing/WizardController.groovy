@@ -372,13 +372,8 @@ class WizardController {
 			on("next") {
 				flash.errors = [:]
 
-				// check if we have at least one subject
-				// and check form data
-				if (flow.subjects.size() < 1) {
-					// append error map
-					this.appendErrorMap(['subjects': 'You need at least to create one subject for your study'], flash.errors)
-					error()
-				} else if (!this.handleSubjects(flow, flash, params)) {
+				// check form data
+				if (!this.handleSubjects(flow, flash, params)) {
 					error()
 				} else {
 					success()
@@ -387,13 +382,8 @@ class WizardController {
 			on("quickSave") {				
 				flash.errors = [:]
 
-				// check if we have at least one subject
-				// and check form data
-				if (flow.subjects.size() < 1) {
-					// append error map
-					this.appendErrorMap(['subjects': 'You need at least to create one subject for your study'], flash.errors)
-					error()
-				} else if (!this.handleSubjects(flow, flash, params)) {
+				// check form data
+				if (!this.handleSubjects(flow, flash, params)) {
 					error()
 				} else {
 					success()
@@ -662,7 +652,7 @@ class WizardController {
 			}.to "groups"
 			on("next") {
 				success()
-			}.to "samples"
+			}.to "confirm"
 			on("quickSave") {
 				success()
 			}.to "waitForSave"
