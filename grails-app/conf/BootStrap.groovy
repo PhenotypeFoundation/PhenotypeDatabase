@@ -755,7 +755,7 @@ class BootStrap {
 			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Add example studies
-			if (grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST) {
+			if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
 				println ".adding NuGO PPS3 leptin example study..."
 				def mouseStudy = new Study(
 					template: studyTemplate,
