@@ -59,7 +59,7 @@ class RestController {
 	def getSubjects = {
                 List subjects = [] 
 		if( params.externalStudyID ) {
-                        def id = Long.parseLong(params.externalStudyID)
+                        def id = params.externalStudyID
  			def study = Study.find( "from Study as s where s.code=?", [id])
 			if(study) study.subjects.each { subjects.push it.name }
                 }
