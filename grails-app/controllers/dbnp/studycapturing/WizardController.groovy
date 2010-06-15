@@ -291,6 +291,8 @@ class WizardController {
 					flow.subjectTemplates = [:]
 				}
 
+				if (!flash.values) flash.values = [addNumber:1]
+
 				success()
 			}
 			on("refresh") {
@@ -304,42 +306,54 @@ class WizardController {
 				success()
 			}.to "subjects"
 			on("add") {
+				flash.errors = [:]
+
 				// handle subjects
 				this.handleSubjects(flow, flash, params)
 
 				flash.errors = [:]
 				flash.values = params
+
 				def speciesTerm = Term.findByName(params.species)
 				def subjectTemplateName = params.get('template')
 				def subjectTemplate = Template.findByName(subjectTemplateName)
 
-				// add this subject template to the subject template array
-				if (!flow.subjectTemplates[ subjectTemplateName ]) {
-					flow.subjectTemplates[ subjectTemplateName ] = [
-						name: subjectTemplateName,
-						template: subjectTemplate,
-						subjects: [:]
-					]
+				// got a species and a subjectTemplate?
+				if (speciesTerm && subjectTemplate) {
+					// add this subject template to the subject template array
+					if (!flow.subjectTemplates[subjectTemplateName]) {
+						flow.subjectTemplates[subjectTemplateName] = [
+							name: subjectTemplateName,
+							template: subjectTemplate,
+							subjects: [:]
+						]
+					}
+
+					// add x subjects of species y
+					(params.addNumber as int).times {
+						def increment = (flow.subjects.size()) ? (flow.subjects.keySet().max() + 1) : 0
+						def subject = new Subject(
+							name: 'Subject ' + (increment + 1),
+							species: speciesTerm,
+							template: subjectTemplate
+						)
+
+						// instantiate a new Subject
+						flow.subjects[increment] = subject
+
+						// and remember the subject id with the template
+						def subjectsSize = (flow.subjectTemplates[subjectTemplateName].subjects.size()) ? (flow.subjectTemplates[subjectTemplateName].subjects.keySet().max() + 1) : 0
+						flow.subjectTemplates[subjectTemplateName].subjects[subjectsSize] = increment
+					}
+
+					success()
+				} else {
+					// add feedback
+					if (!speciesTerm) this.appendErrorMap(['species': 'You need to select a species, or add one if it is not yet present'], flash.errors)
+					if (!subjectTemplate) this.appendErrorMap(['template': 'You need to select a template, or add one if it is not yet present'], flash.errors)
+
+					error()
 				}
-
-				// add x subjects of species y
-				(params.addNumber as int).times {
-					def increment = (flow.subjects.size()) ? (flow.subjects.keySet().max() + 1) : 0
-					def subject = new Subject(
-						name: 'Subject ' + (increment + 1),
-						species: speciesTerm,
-						template: subjectTemplate
-					)
-
-					// instantiate a new Subject
-					flow.subjects[ increment ] = subject
-
-					// and remember the subject id with the template
-					def subjectsSize = (flow.subjectTemplates[ subjectTemplateName ].subjects.size()) ? (flow.subjectTemplates[ subjectTemplateName ].subjects.keySet().max() + 1) : 0
-					flow.subjectTemplates[ subjectTemplateName ].subjects[ subjectsSize ] = increment
-				}
-
-				success()
 			}.to "subjects"
 			on("delete") {
 				// handle subjects
@@ -937,6 +951,9 @@ class WizardController {
 				// validate subject
 				if (!flow.subjects[ subjectId ].validate()) {
 					errors = true
+println flow.subjects[ subjectId ]
+println flash.errors
+println 'subject_' + subjectId + '_'
 					this.appendErrors(flow.subjects[ subjectId ], flash.errors, 'subject_' + subjectId + '_')
 				}
 			}

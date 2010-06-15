@@ -76,4 +76,45 @@ class Ontology implements Serializable {
 			ncboVersionedId: o.id
 		);
 	}
+
+	/**
+	 * Instantiate Ontotology class by searching the web service for (versioned)id.
+	 * @param	ontologyId (bioportal versionedId)
+	 * @return	ontology instance
+	 */
+	static Ontology getBioPortalOntologyByVersionedId(String ncboVersionedId) {
+		try {
+			// use the NCBO REST service to fetch ontology information
+			def url = "http://rest.bioontology.org/bioportal/ontologies/" + ncboVersionedId
+			def xml = new URL(url).getText()
+			def data = new XmlParser().parseText(xml)
+			def bean = data.data.ontologyBean
+
+			// instantiate Ontology with the proper values
+			def ontology = new dbnp.data.Ontology(
+				name: bean.displayLabel.text(),
+				description: bean.description.text(),
+				url: bean.homepage.text(),
+				versionNumber: bean.versionNumber.text(),
+				ncboId: bean.ontologyId.text() as int,
+				ncboVersionedId: bean.id.text() as int
+			)
+
+			// validate ontology
+			if (ontology.validate()) {
+				// proper instance
+				return ontology
+			} else {
+				// it does not validate
+				println ".encountered errors instantiating Ontology by versionedId [" + ncboVersionedId + "] :"
+				ontology.errors.each() {
+					println "  -" + it
+				}
+				throw new Exception("instantiating Ontology by (versioned) id [" + ncboVersionedId + "] failed")
+			}
+		} catch (Exception e) {
+			// whoops?!
+			return false
+		}
+	}
 }

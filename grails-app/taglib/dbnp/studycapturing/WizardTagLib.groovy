@@ -518,42 +518,6 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	}
 
 	/**
-	 * File form element
-	 * @param Map attributes
-	 * @param Closure help content
-	 */
-	def fileFieldElement = { attrs, body ->
-		// render term element
-		baseElement.call(
-			'fileField',
-			attrs,
-			body
-		)
-	}
-
-        def fileField = { attrs ->
-            /*
-            out << '<input type="file" name="' + attrs.name + '"/>'
-            if( attrs.value ) {
-                out << '<a href="' + resource(dir: '') + '/file/get/' + attrs.value + '" class="isExample">Now contains: ' + attrs.value + '</a>'
-            }
-            */
-
-            out << '<div id="upload_button_' + attrs.name + '" class="upload_button">Upload</div>';
-            out << '<input type="hidden" name="' + attrs.name + '" id="' + attrs.name + '" value="' + attrs.value + '">';
-            out << '<div id="' + attrs.name + 'Example" class="upload_info"></div>';
-            out << '<script type="text/javascript">';
-            out << '  $(document).ready( function() { ';
-            out << '    var filename = "' + attrs.value + '";';
-            out << '    fileUploadField( "' + attrs.name + '" );';
-            out << '    if( filename != "" ) {';
-            out << '      $("#' + attrs.name + 'Example").html("Current file: " + createFileHTML( filename ) )';
-            out << '    }';
-            out << '  } );';
-            out << "</script>\n";
-        }
-
-	/**
 	 * Term select element
 	 * @param Map attributes
 	 */
@@ -587,19 +551,26 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 
 				// iterate through set
 				attrs.ontologies.each() { ontology ->
-					ontologyList += ontology.ncboId + ","
+					if (ontology) {
+						ontologyList += ontology.ncboId + ","
 
-					Term.findAllByOntology(ontology).each() {
-						from[ from.size() ] = it.name
+						Term.findAllByOntology(ontology).each() {
+							from[ from.size() ] = it.name
+						}
+
+						// strip trailing comma
+						attrs.ontologies = ontologyList[0..-2]
 					}
-
-					// strip trailing comma
-					attrs.ontologies = ontologyList[0..-2]
 				}
 			}
 
 			// sort alphabetically
 			from.sort()
+
+			// add a dummy field?
+			if (attrs.remove('addDummy')) {
+				from.add(0,'')
+			}
 
 			// define 'from'
 			attrs.from = from
@@ -721,16 +692,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		}
 
 		// fetch templates
-		if (attrs.remove('addDummy')) {
-			attrs.from = ['']
-			if (entity && entity instanceof Class) {
-				Template.findAllByEntity(entity).each() {
-					attrs.from[attrs.from.size()] = it
-				}
-			}
-		} else {
-			attrs.from = (entity) ? Template.findAllByEntity(entity) : Template.findAll()
-		}
+		attrs.from = (entity) ? Template.findAllByEntity(entity) : Template.findAll()
 
 		// got a name?
 		if (!attrs.name) {
@@ -738,13 +700,18 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		}
 
 		// got result?
-		if (attrs.from.size() > 0) {
+		if (attrs.from.size() > 0 || attrs.get('addDummy')) {
 			// transform all values into strings
 			def from = []
 			attrs.from.each { from[ from.size() ] = it.toString() }
 
 			// sort alphabetically
 			from.sort()
+
+			// add a dummy field?
+			if (attrs.remove('addDummy')) {
+				from.add(0,'')
+			}
 
 			// set attributes
 			attrs.from = from
@@ -757,6 +724,47 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 			// is not rendered in the template
 			return false
 		}
+	}
+
+
+	/**
+	 * File form element
+	 * @param Map attributes
+	 * @param Closure help content
+	 */
+	def fileFieldElement = { attrs, body ->
+		// render term element
+		baseElement.call(
+			'fileField',
+			attrs,
+			body
+		)
+	}
+
+	/**
+	 * file field.
+	 * @param attributes
+	 */
+	def fileField = { attrs ->
+		/*
+		out << '<input type="file" name="' + attrs.name + '"/>'
+		if( attrs.value ) {
+			out << '<a href="' + resource(dir: '') + '/file/get/' + attrs.value + '" class="isExample">Now contains: ' + attrs.value + '</a>'
+		}
+		*/
+
+		out << '<div id="upload_button_' + attrs.name + '" class="upload_button">Upload</div>';
+		out << '<input type="hidden" name="' + attrs.name + '" id="' + attrs.name + '" value="' + attrs.value + '">';
+		out << '<div id="' + attrs.name + 'Example" class="upload_info"></div>';
+		out << '<script type="text/javascript">';
+		out << '  $(document).ready( function() { ';
+		out << '    var filename = "' + attrs.value + '";';
+		out << '    fileUploadField( "' + attrs.name + '" );';
+		out << '    if( filename != "" ) {';
+		out << '      $("#' + attrs.name + 'Example").html("Current file: " + createFileHTML( filename ) )';
+		out << '    }';
+		out << '  } );';
+		out << "</script>\n";
 	}
 
 	/**
@@ -848,6 +856,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		def prependName	= (attrs.get('name')) ? attrs.remove('name')+'_' : ''
 		def template	= (entity && entity instanceof TemplateEntity) ? entity.template : null
 		def inputElement= null
+		def addDummy	= (attrs.get('addDummy')) ? true : false
 
 		// got a template?
 		if (template) {
@@ -861,6 +870,9 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 				if (renderType == 'column') {
 					out << '<div class="' + attrs.get('class') + '">'
 				}
+
+println ".SHOWING "+it.type.toString()
+println it.ontologies
 
 				switch (it.type.toString()) {
 					case ['STRING', 'INTEGER', 'FLOAT', 'DOUBLE']:
@@ -902,13 +914,15 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 								description	: ucName,
 								name		: prependName + it.escapedName(),
 								value		: fieldValue.toString(),
-								ontologies	: it.ontologies
+								ontologies	: it.ontologies,
+								addDummy	: addDummy
 							){helpText}
 						} else {
 							out << "$inputElement"(
 								description	: ucName,
 								name		: prependName + it.escapedName(),
-								value		: fieldValue.toString()
+								value		: fieldValue.toString(),
+								addDummy	: addDummy
 							){helpText}
 						}
 						break
@@ -999,7 +1013,6 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	}
 
 	def PublicationSelectElement = { attrs, body ->
-
 		attrs.description = 'Publications';
 		// render list with publications currently available
 		baseElement.call(
