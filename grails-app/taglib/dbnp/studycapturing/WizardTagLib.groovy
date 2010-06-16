@@ -521,7 +521,6 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 */
 	def termSelect = { attrs ->
 		def from = []
-println "termSelect --> " + attrs
 
 		// got ontologies?
 		if (attrs.ontologies) {
@@ -680,16 +679,18 @@ println "termSelect --> " + attrs
 		// do we have crypto information available?
 		if (grailsApplication.config.crypto) {
 			// generate a Blowfish encrypted and Base64 encoded string.
-			attrs['entity'] = Blowfish.encryptBase64(
-				entity.toString().replaceAll(/^class /, ''),
-				grailsApplication.config.crypto.shared.secret
+			attrs['entity'] = URLEncoder.encode(
+				Blowfish.encryptBase64(
+					entity.toString().replaceAll(/^class /, ''),
+					grailsApplication.config.crypto.shared.secret
+				)
 			)
 		} else {
 			// base64 only; this is INSECURE! As this class
 			// is instantiated elsewehere. Possibly exploitable!
-			attrs['entity'] = entity.toString().replaceAll(/^class /, '').bytes.encodeBase64()
+			attrs['entity'] = URLEncoder.encode(entity.toString().replaceAll(/^class /, '').bytes.encodeBase64())
 		}
-
+		
 		// fetch templates
 		attrs.from = (entity) ? Template.findAllByEntity(entity) : Template.findAll()
 
@@ -869,8 +870,6 @@ println "termSelect --> " + attrs
 				if (renderType == 'column') {
 					out << '<div class="' + attrs.get('class') + '">'
 				}
-
-println ".SHOWING "+it.type.toString()
 
 				switch (it.type.toString()) {
 					case ['STRING', 'INTEGER', 'FLOAT', 'DOUBLE']:

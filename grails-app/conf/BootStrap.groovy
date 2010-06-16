@@ -1107,9 +1107,12 @@ class BootStrap {
 			}
 		}
 
-		// attach ontologies in runtime
-		// @see dbnp.studycapturing.Subject
-		// @See dbnp.studycapturing.Sample
+		/**
+		 * attach ontologies in runtime. Possible problem is that you need
+		 * an internet connection when bootstrapping though.
+		 * @see dbnp.studycapturing.Subject
+		 * @see dbnp.studycapturing.Sample
+		 */
 		TemplateEntity.getField(Subject.domainFields, 'species').ontologies = [Ontology.getOrCreateOntologyByNcboId(1132)]
 		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [Ontology.getOrCreateOntologyByNcboId(1005)]
 	}

@@ -706,9 +706,9 @@ class TemplateEditorController {
             if (grailsApplication.config.crypto) {
                     // generate a Blowfish encrypted and Base64 encoded string.
                     entityName = Blowfish.decryptBase64(
-                            params.entity,
-                            grailsApplication.config.crypto.shared.secret
-                    )
+                    	params.entity,
+                    	grailsApplication.config.crypto.shared.secret
+					)
             } else {
                     // base64 only; this is INSECURE! Even though it is not
                     // very likely, it is possible to exploit this and have
@@ -734,7 +734,7 @@ class TemplateEditorController {
         def entity = Class.forName(entityName, true, this.getClass().getClassLoader())
 
         // succes, is entity an instance of TemplateEntity?
-        if (entity.superclass =~ /TemplateEntity$/) {
+        if (entity.superclass =~ /TemplateEntity$/ || entity.superclass.superclass =~ /TemplateEntity$/) {
             return entity;
         } else {
             return false;
