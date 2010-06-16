@@ -42,6 +42,7 @@
 
 				<form class="templateField_form" id="template_new_form" action="createTemplate">
 					<g:hiddenField name="entity" value="${encryptedEntity}" />
+					<g:hiddenField name="ontologies" value="${ontologies}" />
 					<g:render template="elements/templateForm" model="['template': null]"/>
 					<div class="templateFieldButtons">
 						<input type="button" value="Save" onClick="createTemplate( 'new' );">
@@ -52,6 +53,7 @@
 
 			<g:form action="template" name="templateChoice" method="GET">
 				<g:hiddenField name="entity" value="${encryptedEntity}" />
+				<g:hiddenField name="ontologies" value="${ontologies}" />
 				<input type="hidden" name="template" id="templateSelect" value="${template?.id}">
 			</g:form>
 		</div>

@@ -30,7 +30,7 @@
 	<wizard:termElement name="species" description="of species" value="${values.species}" ontologies="1132" addDummy="true">
 		The species of the subjects you would like to add to your study
 	</wizard:termElement>
-	<wizard:templateElement name="template" description="with template" value="${values.template}" error="template" entity="${dbnp.studycapturing.Subject}" addDummy="true">
+	<wizard:templateElement name="template" description="with template" value="${values.template}" error="template" entity="${dbnp.studycapturing.Subject}" ontologies="1132" addDummy="true">
 		The template to use for these subjects
 	</wizard:templateElement>
 	<wizard:ajaxButtonElement name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()">

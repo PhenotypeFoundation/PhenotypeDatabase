@@ -50,7 +50,7 @@ function onWizardPage() {
     new SelectAddMore().init({
         rel     : 'template',
         url     : baseUrl + '/templateEditor',
-        vars    : 'entity',
+        vars    : 'entity,ontologies',
         label   : 'add / modify..',
         style   : 'modify',
         onClose : function(scope) {

@@ -46,7 +46,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attributes
 	 * @param Closure body
 	 */
-	def ajaxButton = {attrs, body ->
+	def ajaxButton = { attrs, body ->
 		// get the jQuery version
 		def jQueryVersion = grailsApplication.getMetadata()['plugins.jquery']
 
@@ -116,7 +116,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @see WizardTagLib::ajaxFlowRedirect
 	 * @see WizardTagLib::baseElement (ajaxSubmitOnChange)
 	 */
-	def ajaxSubmitJs = {attrs, body ->
+	def ajaxSubmitJs = { attrs, body ->
 		// define AJAX provider
 		setProvider([library: ajaxProvider])
 
@@ -135,14 +135,8 @@ class WizardTagLib extends JavascriptTagLib {
 
 		// change form if a form attribute is present
 		if (attrs.get('form')) {
-			// Old way
-                        /*
-                        button = button.replaceFirst(/this\.form/,
-				"\\\$('" + attrs.get('form') + "')"
-			)
-                        */
-
-                        button = button.replace("jQuery(this).parents('form:first')",
+            button = button.replace(
+				"jQuery(this).parents('form:first')",
 				"\$('" + attrs.get('form') + "')"
 			)
 		}
@@ -173,15 +167,19 @@ class WizardTagLib extends JavascriptTagLib {
 	 *
 	 * Example initial webflow action to work with this javascript:
 	 * ...
-	 * mainPage {* 	render(view: "/wizard/index")
-	 * 	onRender {* 		flow.page = 1
-	 *}* 	on("next").to "pageOne"
-	 *}* ...
+	 * mainPage {
+	 * 	render(view: "/wizard/index")
+	 * 	onRender {
+	 * 		flow.page = 1
+	 *  }
+	 * 	on("next").to "pageOne"
+	 * }
+	 * ...
 	 *
 	 * @param Map attributes
 	 * @param Closure body
 	 */
-	def ajaxFlowRedirect = {attrs, body ->
+	def ajaxFlowRedirect = { attrs, body ->
 		// generate javascript
 		out << '<script type="text/javascript">'
 		out << '$(document).ready(function() {'
@@ -195,7 +193,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def pageContent = {attrs, body ->
+	def pageContent = { attrs, body ->
 		// define AJAX provider
 		setProvider([library: ajaxProvider])
 
@@ -218,7 +216,7 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attributes
 	 * @param Closure help content
 	 */
-	def baseElement = {inputElement, attrs, help ->
+	def baseElement = { inputElement, attrs, help ->
 println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "] and value [" + ((attrs.value) ? attrs.get('value').toString() : "-") + "]"
 		// work variables
 		def internetExplorer = (request.getHeader("User-Agent") =~ /MSIE/)
@@ -339,7 +337,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def textFieldElement = {attrs, body ->
+	def textFieldElement = { attrs, body ->
 		// set default size, or scale to max length if it is less than the default size
 		if (!attrs.get("size")) {
 			if (attrs.get("maxlength")) {
@@ -362,7 +360,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def textAreaElement = {attrs, body ->
+	def textAreaElement = { attrs, body ->
 		// set default size, or scale to max length if it is less than the default size
 
 		// render template element
@@ -379,7 +377,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def selectElement = {attrs, body ->
+	def selectElement = { attrs, body ->
 		baseElement.call(
 			'select',
 			attrs,
@@ -392,7 +390,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def checkBoxElement = {attrs, body ->
+	def checkBoxElement = { attrs, body ->
 		baseElement.call(
 			'checkBox',
 			attrs,
@@ -438,7 +436,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def dateElement = {attrs, body ->
+	def dateElement = { attrs, body ->
 		// transform value?
 		if (attrs.value instanceof Date) {
 			// transform date instance to formatted string (dd/mm/yyyy)
@@ -466,7 +464,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attrs
 	 * @param Closure body  (help text)
 	 */
-	def timeElement = {attrs, body ->
+	def timeElement = { attrs, body ->
 		// transform value?
 		if (attrs.value instanceof Date) {
 			// transform date instance to formatted string (dd/mm/yyyy)
@@ -493,7 +491,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attributes
 	 * @param Closure help content
 	 */
-	def buttonElement = {attrs, body ->
+	def buttonElement = { attrs, body ->
 		// render template element
 		baseElement.call(
 			'ajaxButton',
@@ -523,6 +521,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 */
 	def termSelect = { attrs ->
 		def from = []
+println "termSelect --> " + attrs
 
 		// got ontologies?
 		if (attrs.ontologies) {
@@ -656,7 +655,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attributes
 	 * @param Closure help content
 	 */
-	def templateElement = {attrs, body ->
+	def templateElement = { attrs, body ->
 		// add a rel element if it does not exist
 		if (!attrs.rel) {
 			attrs.rel = 'template'
@@ -674,7 +673,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * render a template select element
 	 * @param Map attrs
 	 */
-	def templateSelect = {attrs ->
+	def templateSelect = { attrs ->
 		def entity = attrs.remove('entity')
 
 		// add the entity class name to the element
@@ -772,7 +771,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attributes
 	 * @param Closure help content
 	 */
-	def protocolElement = {attrs, body ->
+	def protocolElement = { attrs, body ->
 		// render protocol element
 		baseElement.call(
 			'protocolSelect',
@@ -785,7 +784,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * render a protocol select element
 	 * @param Map attrs
 	 */
-	def protocolSelect = {attrs ->
+	def protocolSelect = { attrs ->
 		// fetch all protocold
 		attrs.from = Protocol.findAll()	// for now, all protocols
 
@@ -797,7 +796,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		out << select(attrs)
 	}
 
-	def show = {attrs ->
+	def show = { attrs ->
 		// is object parameter set?
 		def o = attrs.object
 
@@ -872,7 +871,6 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 				}
 
 println ".SHOWING "+it.type.toString()
-println it.ontologies
 
 				switch (it.type.toString()) {
 					case ['STRING', 'INTEGER', 'FLOAT', 'DOUBLE']:

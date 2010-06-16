@@ -99,7 +99,14 @@ SelectAddMore.prototype = {
                 // note that HTML5 options are being used to make
                 // the dialog integrate with the application!
                 // @see http://www.w3schools.com/html5/tag_iframe.asp
-                $('<iframe frameborder="0" src="' + url + '?' + vars + '=' + e.attr(vars) + '" sanbox="allow-same-origin" seamless />').dialog({
+                var arrVars = vars.split(",");
+                var uri = url + '?'
+                for (var v in arrVars) {
+                    var val = e.attr(arrVars[v]);
+                    uri += arrVars[v] + '=' + ((val) ? val : '') + '&';
+                }
+
+                $('<iframe frameborder="0" src="' + uri + '" sanbox="allow-same-origin" seamless />').dialog({
                     title   : label,
                     autoOpen: true,
                     width   : width,

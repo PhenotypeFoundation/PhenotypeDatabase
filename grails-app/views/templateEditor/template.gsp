@@ -73,6 +73,7 @@
 		
 		<g:form action="template" name="templateChoice">
 			<g:hiddenField name="entity" value="${encryptedEntity}" />
+			<g:hiddenField name="ontologies" value="${ontologies}" />
 			<input type="hidden" name="template" id="templateSelect" value="${template?.id}">
 		</g:form>
 
