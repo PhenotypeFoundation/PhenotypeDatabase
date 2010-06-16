@@ -687,6 +687,7 @@ class WizardController {
 			on("toGroups").to "groups"
 			on("previous").to "samples"
 			on("next").to "waitForSave"
+			on("quickSave").to "waitForSave"
 		}
 
 		waitForSave {
@@ -711,22 +712,35 @@ class WizardController {
 					println ".add events to study"
 					flow.events.each() { event ->
 						if (event instanceof SamplingEvent) {
-							flow.study.addToSamplingEvents(event)
+							// only add this sampling event if it is not yet
+							// linked to this study
+							if (!flow.study.samplingEvents.find { e -> (e == event) }) {
+								flow.study.addToSamplingEvents(event)
+							}
 						} else {
-							flow.study.addToEvents(event)
+							// only add it if it does not yet exist
+							if (!flow.study.events.find { e -> (e == event) }) {
+								flow.study.addToEvents(event)
+							}
 						}
 					}
 
 					// add subjects to study
 					println ".add subjects to study"
 					flow.subjects.each() { subjectId, subject ->
-						flow.study.addToSubjects(subject)
+						// add subject to study if it is not yet in this study
+						if (!flow.study.subjects.find { s -> (s == subject) }) {
+							flow.study.addToSubjects(subject)
+						}
 					}
 
 					// add eventGroups to study
 					println ".add eventGroups to study"
 					flow.eventGroups.each() { eventGroup ->
-						flow.study.addToEventGroups(eventGroup)
+						// only add the eventGroup if it is not yet linked
+						if (!flow.study.eventGroups.find { e -> (e == eventGroup) }) {
+							flow.study.addToEventGroups(eventGroup)
+						}
 					}
 
 					// save study
@@ -954,9 +968,6 @@ class WizardController {
 				// validate subject
 				if (!flow.subjects[ subjectId ].validate()) {
 					errors = true
-println flow.subjects[ subjectId ]
-println flash.errors
-println 'subject_' + subjectId + '_'
 					this.appendErrors(flow.subjects[ subjectId ], flash.errors, 'subject_' + subjectId + '_')
 				}
 			}
