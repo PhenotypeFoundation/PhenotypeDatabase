@@ -25,34 +25,38 @@
       </div>
     </div>
     <g:submitButton name="search" value="Search" /> <g:if test="${term}"><g:submitButton name="reset" value="Clear" /></g:if>
-    </g:form>
 
     <br><br>
 
     <div id="accordion">
       <h3><a href="#">Simple Assays</a></h3>
       <div class="element">
-        <g:form action="pages" name="addCompound" id="addCompound">
-        <div class="description">Compound (e.g. 'glucose')</div>
-        <div class="input"><g:textField name="compound" value="" /></div>
-        <div class="description">Value</div>
-        <div class="input"><g:textField name="compound_value" value="" /></div>
-        <g:submitButton id="addCompound" name="addCompound" value="Add compound" />
-        </g:form>
+        <div id="compoundGroup">
+          <div id="compoundRow1">
+            <div class="description">Compound (e.g. 'glucose')</div>
+            <div class="input"><g:textField name="compound" value="" id="compound1" /></div>
+            <div class="description">Value</div>
+            <div class="input"><g:textField name="compound_value" value="" id="compoundValue1" /></div>
+          </div>
+        </div>
+        <div id="addCompound">Add compound</div>
       </div>
 
       <h3><a href="#">Transcriptomics</a></h3>
 
       <div class="element">
-        <g:form action="pages" name="addTransciptome" id="addTransciptome">
-        <div class="description">List of Gene IDs or pathway IDs</div>
-        <div class="input"><g:textField name="genepath" value="" /></div>
-        <div class="description">Type of regulations</div>
-        <div class="input"><g:select name="regulation" from="" value="${regulation}" noSelection="['':'--- select regulation ---']"/></div>
-        <g:submitButton id="addTransciptome" name="addTransciptome" value="Add transciptome" />
-        </g:form>
+        <div id="transcriptomeGroup">
+          <div id="transcriptomeRow1">
+            <div class="description">List of Gene IDs or pathway IDs</div>
+            <div class="input"><g:textField name="genepath" value="" /></div>
+            <div class="description">Type of regulations</div>
+            <div class="input"><g:select name="regulation" from="" value="${regulation}" noSelection="['':'--- select regulation ---']"/></div>
+          </div>
+        </div>
+        <div id="addTranscriptome">Add transciptome</div>
       </div>
     </div>
+    </g:form>
 
     <br><br>
 
