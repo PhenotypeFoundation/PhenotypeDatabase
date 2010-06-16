@@ -64,11 +64,7 @@ class TemplateEditorController {
 
         if( selectedTemplate ) {
             template = Template.get( selectedTemplate );
-
-			// Find the domain classes for this template/entity
-			// See http://www.javaworld.com/javaworld/javaqa/1999-07/06-qa-invoke.html
-			Method m = template.entity.getDeclaredMethod("giveDomainFields", null);
-			domainFields = m.invoke( null, null );
+			domainFields = template.entity.giveDomainFields();
         } else {
 			redirect(action:"index",params:[entity:params.entity])
 			return;
@@ -251,8 +247,7 @@ class TemplateEditorController {
 		}
 
 		// See whether this exists as domain field. If it does, raise an error
-		Method m = template.entity.getDeclaredMethod("giveDomainFields", null);
-		def domainFields = m.invoke( null, null );
+		def domainFields = template.entity.giveDomainFields()
 		if( domainFields.find { it.name.toLowerCase() == params.name.toLowerCase() } ) {
 			response.status = 500;
 			render "All templates for entity " + template.entity + " contain a domain field with name " + params.name + ". You can not create a field with this name.";;
