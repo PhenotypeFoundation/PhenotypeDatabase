@@ -66,19 +66,24 @@ class TermEditorController {
 					println ".ontology missing, first fetch ontology information"
 
 					// use the NCBO REST service to fetch ontology information
-					def url = "http://rest.bioontology.org/bioportal/ontologies/" + params.get('term-ontology_id')
-					def xml = new URL( url ).getText()
-					def data = new XmlParser().parseText( xml )
-					def bean = data.data.ontologyBean
+					try {
+						def url = "http://rest.bioontology.org/bioportal/ontologies/" + params.get('term-ontology_id')
+						def xml = new URL( url ).getText()
+						def data = new XmlParser().parseText( xml )
+						def bean = data.data.ontologyBean
 
-					// instantiate Ontology with the proper values
-					ontology = Ontology.getBioPortalOntologyByVersionedId( params.get('term-ontology_id') ).save(flush:true)
-					println ontology
+						// instantiate Ontology with the proper values
+						ontology = Ontology.getBioPortalOntologyByVersionedId( params.get('term-ontology_id') ).save(flush:true)
+						println ontology
 
-					if (ontology.validate()) {
-						ontology.save(flush:true)
+						if (ontology.validate()) {
+							ontology.save(flush:true)
+						}
+					} catch (Exception e) {
+						// something went wrong, probably the
+						// ontology-id is invalid (hence, the term
+						// is invalid)
 					}
-					println ontology
 				}
 
 				// instantiate term with parameters
