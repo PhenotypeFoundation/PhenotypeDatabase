@@ -1218,6 +1218,9 @@ println ".SHOWING "+it.type.toString()
 		selectAttrs.rel = 'person'
 		selectAttrs.name = attrs.name + '_person';
 
+		// add a dummy field
+		selectAttrs.from.add(0,'')
+
 		out << "Person: " + select(selectAttrs)
 	}
 
@@ -1237,6 +1240,9 @@ println ".SHOWING "+it.type.toString()
 		// add 'rel' attribute
 		selectAttrs.rel = 'role'
 		selectAttrs.name = attrs.name + '_role';
+
+		// add a dummy field
+		selectAttrs.from.add(0,'')
 
 		out << "Role: " + select(selectAttrs)
 	}
