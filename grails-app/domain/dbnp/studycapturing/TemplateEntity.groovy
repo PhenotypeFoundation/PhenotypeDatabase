@@ -634,7 +634,7 @@ abstract class TemplateEntity implements Serializable {
 	 * If the collection is empty, an empty set is returned. If none of the entities contains
 	 * a template, also an empty set is returned.
 	 */
-	static Set<Template> giveTemplates(Set<TemplateEntity> entityCollection) {
+	static Collection<Template> giveTemplates(Collection<TemplateEntity> entityCollection) {
 		def set = entityCollection*.template.unique();
 
 		// If one or more entities does not have a template, the resulting
@@ -647,7 +647,7 @@ abstract class TemplateEntity implements Serializable {
 	 * @throws NoSuchFieldException when 0 or multiple templates are used in the collection
 	 * @return The template used by all members of a collection
 	 */
-	static Template giveSingleTemplate(Set<TemplateEntity> entityCollection) {
+	static Template giveSingleTemplate(Collection<TemplateEntity> entityCollection) {
 		def templates = giveTemplates(entityCollection);
 		if (templates.size() == 0) {
 			throw new NoSuchFieldException("No templates found in collection!")

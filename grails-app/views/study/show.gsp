@@ -506,7 +506,6 @@
               // We want every field to appear just once,
               // so the list is filtered for unique values
               groupTemplates = studyList*.giveAllEventTemplates().flatten().unique()
-              subjectFields = subjectTemplates*.fields.flatten().unique()
             %>
             <table>
               <thead>

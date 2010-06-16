@@ -90,7 +90,7 @@ class Event extends TemplateEntity implements Serializable {
 		return (this instanceof SamplingEvent)
 	}
 
-	def belongsToGroup(Set<EventGroup> groups) {
+	def belongsToGroup(Collection<EventGroup> groups) {
 		def eventFound = false;
 		def that = this;
 		groups.each { eventgroup ->
