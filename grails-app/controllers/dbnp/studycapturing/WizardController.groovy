@@ -509,6 +509,9 @@ class WizardController {
 				// remove event
 				if (flow.events[ delete ] && flow.events[ delete ] instanceof Event) {
 					flow.events.remove(delete)
+					flow.eventTemplates.each() { eventTemplate ->
+						eventTemplate.value.events = eventTemplate.value.events.minus(delete)
+					}
 				}
 
 				success()
