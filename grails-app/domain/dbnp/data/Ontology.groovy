@@ -57,6 +57,31 @@ class Ontology implements Serializable {
 		);
 	}
 
+
+	/**
+	 * Return the Ontology by ncboId, or create it if nonexistent.
+	 * @param ncboId
+	 * @return Ontology
+	 */
+	static Ontology getOrCreateOntologyByNcboId( Integer ncboId ) {
+		return getOrCreateOntologyByNcboId( ncboId as String )
+	}
+	static Ontology getOrCreateOntologyByNcboId( String ncboId ) {
+		def ontology = findByNcboId( ncboId )
+
+		// got an ontology?
+		if (!ontology) {
+			// no, fetch it from the webservice
+			ontology = getBioPortalOntology( ncboId )
+
+			if (ontology && ontology.validate() && ontology.save(flush:true)) {
+				ontology.refresh()
+			}
+		}
+
+		return ontology
+	}
+
 	static Ontology getBioPortalOntologyByTerm(String termId) {
 		// Get ontology from BioPortal via Ontocat
 		// TODO: maybe make a static OntologyService instance to be more efficient, and decorate it with caching?

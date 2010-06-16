@@ -130,61 +130,12 @@ class TemplateEditorController {
 		// set entity
 		params.entity = entity;
 
-		// got ontologies?
-		if (params.ontologies) {
-			// fetch the ontologies
-			def ontologies = []
-			params.ontologies.split(/\,/).each() { ncboId ->
-				// trim ncboId
-				ncboId = ncboId.trim()
-
-				// find ontology
-				def ontology = Ontology.findAllByNcboId( ncboId )
-
-				// got the ontology?
-				if (ontology) {
-					ontology.each() {
-						ontologies[ ontologies.size() ] = it
-					}
-				} else {
-					// no, fetch it from the bioportal
-					ontology = Ontology.getBioPortalOntology( ncboId )
-
-					// does it validate?
-					if (ontology.validate()) {
-						// yeah, add it!
-						ontology.save(flush:true)
-						ontology.refresh()
-						ontologies[ ontologies.size() ] = ontology
-					}
-				}
-			}
-
-			// and set it as parameter again
-			params.ontologies = ontologies
-		} else {
-			params.remove('ontologies')
-		}
-println params
-
-		// Create the template field and add it to the template
+		// Create the template fields and add it to the template
 		def template = new Template( params );
-//TemplateEntity.getField(entity.domainFields, 'species').ontologies = [Ontology.findByNcboId(1132)]
-TemplateEntity.getField(entity.domainFields, 'species').ontologies = params.ontologies
-
         if (template.validate() && template.save(flush: true)) {
-println template
-println template.fields
-println template.getRequiredFields()
-println template.findAllByEntity( entity )
-
-
-
 			def html = g.render( template: 'elements/liTemplate', model: [template: template] );
 			def output = [ id: template.id, html: html ];
 			render output as JSON;
-
-            //render '';
         } else {
             response.status = 500;
             render 'Template could not be created because errors occurred.';

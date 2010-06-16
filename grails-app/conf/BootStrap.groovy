@@ -1105,12 +1105,13 @@ class BootStrap {
 				mouseStudy.save()
 
 			}
-
-			// Ontologies must be connected to the templatefields in runtime
-			// because the Ontology.findByNcboId is not available otherwise
-			TemplateEntity.getField(Subject.domainFields, 'species').ontologies = [Ontology.findByNcboId(1132)]
-			TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [Ontology.findByNcboId(1005)]
 		}
+
+		// attach ontologies in runtime
+		// @see dbnp.studycapturing.Subject
+		// @See dbnp.studycapturing.Sample
+		TemplateEntity.getField(Subject.domainFields, 'species').ontologies = [Ontology.getOrCreateOntologyByNcboId(1132)]
+		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [Ontology.getOrCreateOntologyByNcboId(1005)]
 	}
 
 	def destroy = {
