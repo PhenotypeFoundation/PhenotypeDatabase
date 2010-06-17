@@ -85,6 +85,8 @@ class RelTime {
 		if (minutes > 0) { stringValue += minutes + "m "; }
 		if (seconds > 0) { stringValue += seconds + "s "; }
 
+		if (reltime == 0) stringValue = "0s";
+
 		return stringValue.trim();
 	}
 
@@ -114,6 +116,8 @@ class RelTime {
 		if (minutes > 0) { values << handleNumerus(minutes, " minute") }
 		if (seconds > 0) { values << handleNumerus(seconds, " second") }
 
+		if (reltime == 0) values << "0 seconds";
+
 		return stringValue + values.join(', ').trim();
 	}
 
@@ -141,6 +145,8 @@ class RelTime {
 		if (hours > 0) { return stringValue + handleNumerus(hours, " hour") }
 		if (minutes > 0) { return stringValue + handleNumerus(minutes, " minute") }
 		if (seconds > 0) { return stringValue + handleNumerus(seconds, " second") }
+
+		if (reltime == 0) values << "0 seconds";
 
 		return "";
 	}
@@ -172,7 +178,7 @@ class RelTime {
 	  * Return a sentence that may be used in interfaces to give the user an instruction on how to enter RelTimes in string format
 	 */
 	public static final String getHelpText() {
-		return "Use the first letter of weeks/days/hours/minutes/seconds, e.g. '1w 2d' for 1 week + 2 days or '10m30s for 10 minutes and 30 seconds.";
+		return "Use the first letter of weeks/days/hours/minutes/seconds, e.g. '1w 2d' for 1 week + 2 days or '10m30s' for 10 minutes and 30 seconds.";
 	}
 
 	/**
