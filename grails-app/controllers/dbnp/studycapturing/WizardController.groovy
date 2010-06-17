@@ -27,6 +27,32 @@ class WizardController {
 	 * @void
 	 */
 	def index = {
+		def jump = [:]
+
+		// allow quickjumps to:
+		//	edit a study	: /wizard?jump=edit&id=1
+		//	create a study	: /wizard?jump=create
+		if (params.get('jump')) {
+			switch (params.get('jump')) {
+				case 'create':
+					jump = [
+					    action: 'create'
+					]
+					break
+				case 'edit':
+					jump = [
+					    action	: 'edit',
+						id		: params.get('id')
+					]
+					break
+				default:
+					break
+			}
+		}
+
+		// store in session
+		session.jump = jump
+
 		/**
 		 * Do you believe it in your head?
 		 * I can go with the flow
@@ -58,6 +84,7 @@ class WizardController {
 				[title: 'Confirmation'],		// confirmation page
 				[title: 'Done']					// finish page
 			]
+			flow.jump = session.jump
 			success()
 		}
 
@@ -71,7 +98,33 @@ class WizardController {
 				flow.page = 1
 				success()
 			}
-			on("next").to "start"
+			on("next").to "handleJump"
+		}
+
+		// handle the jump parameter
+		//
+		// I came to get down [2x]
+		// So get out your seats and jump around
+		// Jump around [3x]
+		// Jump up Jump up and get down
+		// Jump [18x]
+		handleJump {
+			action {
+				if (flow.jump && flow.jump.action == 'edit' && flow.jump.id) {
+					// load study
+					if (this.loadStudy(flow, flash, [studyid:flow.jump.id])) {
+						toStudyPage()
+					} else {
+						toStartPage()
+					}
+				} else if (flow.jump && flow.jump.action == 'create') {
+					toStudyPage()
+				} else {
+					toStartPage()
+				}
+			}
+			on("toStartPage").to "start"
+			on("toStudyPage").to "study"
 		}
 
 		// create or modify a study
@@ -90,6 +143,7 @@ class WizardController {
 				flow.remove('events')
 				flow.remove('eventGroups')
 				flow.remove('eventTemplates')
+				println flow
 
 				// set 'quicksave' variable
 				flow.quickSave = false
@@ -122,88 +176,9 @@ class WizardController {
 			}.to "start"
 			on("next") {
 				// load study
-				try {
-					// load study
-					flow.study = Study.findByTitle(params.study)
-
-					// recreate subjects
-					flow.subjects = [:]
-					flow.subjectTemplates = [:]
-					flow.study.subjects.each() { subject ->
-						def subjectIncrement = flow.subjects.size()
-						flow.subjects[ subjectIncrement ] = subject
-
-						// add subject template?
-						if (!flow.subjectTemplates[ subject.template.name ]) {
-							flow.subjectTemplates[ subject.template.name ] = [
-								name: subject.template.name,
-								template: subject.template,
-								subjects: [:]
-							]
-						}
-
-						// reference subject in template
-						flow.subjectTemplates[ subject.template.name ].subjects[ flow.subjectTemplates[ subject.template.name ].subjects.size() ] = subjectIncrement
-					}
-
-					// recreate events
-					flow.events = []
-					flow.eventGroups = []
-					flow.eventTemplates	= [:]
-					flow.study.events.each() { event ->
-						def eventIncrement = flow.events.size()
-						flow.events[ eventIncrement ] = event
-
-						// add event template?
-						if (!flow.eventTemplates[ event.template.name ]) {
-							flow.eventTemplates[ event.template.name ] = [
-								name: event.template.name,
-								template: event.template,
-								events: new ArrayList()
-							]
-						}
-
-						// reference event in template
-						flow.eventTemplates[ event.template.name ].events[ flow.eventTemplates[ event.template.name ].events.size() ] = eventIncrement
-
-						// set dummy event
-						flow.event = event
-					}
-
-					// recreate sample events
-					flow.study.samplingEvents.each() { event ->
-						def eventIncrement = flow.events.size()
-						flow.events[ eventIncrement ] = event
-
-						// add event template?
-						if (!flow.eventTemplates[ event.template.name ]) {
-							flow.eventTemplates[ event.template.name ] = [
-								name: event.template.name,
-								template: event.template,
-								events: new ArrayList()
-							]
-						}
-
-						// reference event in template
-						flow.eventTemplates[ event.template.name ].events[ flow.eventTemplates[ event.template.name ].events.size() ] = eventIncrement
-
-						// set dummy event
-						flow.event = event
-					}
-
-					// recreate eventGroups
-					flow.study.eventGroups.each() { eventGroup ->
-						flow.eventGroups[ flow.eventGroups.size() ] = eventGroup
-					}
-
-					// set 'quicksave' variable
-					flow.quickSave = true
-
+				if (this.loadStudy(flow, flash, params)) {
 					success()
-				} catch (Exception e) {
-					// rollback
-					this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace' ], flash.errors)
-
+				} else {
 					error()
 				}
 			}.to "study"
@@ -783,6 +758,105 @@ class WizardController {
 			onRender {
 				flow.page = 8
 			}
+			onEnd {
+				// clean flow scope
+				flow.clear()
+			}
+		}
+	}
+
+	/**
+	 * load a study
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def loadStudy(flow, flash, params) {
+		// load study
+		try {
+			// load study
+			flow.study = (params.studyid) ? Study.findById( params.studyid ) : Study.findByTitle( params.study )
+
+			// recreate subjects
+			flow.subjects = [:]
+			flow.subjectTemplates = [:]
+			flow.study.subjects.each() { subject ->
+				def subjectIncrement = flow.subjects.size()
+				flow.subjects[subjectIncrement] = subject
+
+				// add subject template?
+				if (!flow.subjectTemplates[subject.template.name]) {
+					flow.subjectTemplates[subject.template.name] = [
+						name: subject.template.name,
+						template: subject.template,
+						subjects: [:]
+					]
+				}
+
+				// reference subject in template
+				flow.subjectTemplates[subject.template.name].subjects[flow.subjectTemplates[subject.template.name].subjects.size()] = subjectIncrement
+			}
+
+			// recreate events
+			flow.events = []
+			flow.eventGroups = []
+			flow.eventTemplates = [:]
+			flow.study.events.each() { event ->
+				def eventIncrement = flow.events.size()
+				flow.events[eventIncrement] = event
+
+				// add event template?
+				if (!flow.eventTemplates[event.template.name]) {
+					flow.eventTemplates[event.template.name] = [
+						name: event.template.name,
+						template: event.template,
+						events: new ArrayList()
+					]
+				}
+
+				// reference event in template
+				flow.eventTemplates[event.template.name].events[flow.eventTemplates[event.template.name].events.size()] = eventIncrement
+
+				// set dummy event
+				flow.event = event
+			}
+
+			// recreate sample events
+			flow.study.samplingEvents.each() { event ->
+				def eventIncrement = flow.events.size()
+				flow.events[eventIncrement] = event
+
+				// add event template?
+				if (!flow.eventTemplates[event.template.name]) {
+					flow.eventTemplates[event.template.name] = [
+						name: event.template.name,
+						template: event.template,
+						events: new ArrayList()
+					]
+				}
+
+				// reference event in template
+				flow.eventTemplates[event.template.name].events[flow.eventTemplates[event.template.name].events.size()] = eventIncrement
+
+				// set dummy event
+				flow.event = event
+			}
+
+			// recreate eventGroups
+			flow.study.eventGroups.each() { eventGroup ->
+				flow.eventGroups[flow.eventGroups.size()] = eventGroup
+			}
+
+			// set 'quicksave' variable
+			flow.quickSave = true
+
+			return true
+		} catch (Exception e) {
+			// rollback
+			this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace'], flash.errors)
+
+			return false
 		}
 	}
 

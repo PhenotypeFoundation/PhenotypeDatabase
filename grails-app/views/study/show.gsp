@@ -840,7 +840,7 @@
         <g:if test="${studyList.size() == 1}">
           <g:set var="studyInstance" value="${studyList[0]}" />
           <g:hiddenField name="id" value="${studyInstance?.id}" />
-          <span class="button"><g:actionSubmit class="edit" action="edit" value="${message(code: 'default.button.edit.label', default: 'Edit')}" /></span>
+          <span class="button"><g:link class="edit" controller="wizard" params="[jump:'edit']" id="${studyInstance?.id}">${message(code: 'default.button.edit.label', default: 'Edit')}</g:link></span>
           <span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" /></span>
         </g:if>
         <span class="button"><g:link class="backToList" action="list">Back to list</g:link></span>
