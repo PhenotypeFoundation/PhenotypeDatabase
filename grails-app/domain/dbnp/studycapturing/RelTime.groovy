@@ -146,7 +146,7 @@ class RelTime {
 		if (minutes > 0) { return stringValue + handleNumerus(minutes, " minute") }
 		if (seconds > 0) { return stringValue + handleNumerus(seconds, " second") }
 
-		if (reltime == 0) values << "0 seconds";
+		if (reltime == 0) return "0 seconds";
 
 		return "";
 	}
