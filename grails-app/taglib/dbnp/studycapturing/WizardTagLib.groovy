@@ -1219,6 +1219,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 
 		// add a dummy field
 		selectAttrs.from.add(0,'')
+		selectAttrs.keys.add(0,'')
 
 		out << "Person: " + select(selectAttrs)
 	}
@@ -1228,7 +1229,6 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attributes
 	 */
 	def _roleSelect = { attrs ->
-		println(attrs);
 		def selectAttrs = new LinkedHashMap();
 
 		// define 'from'
@@ -1242,6 +1242,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 
 		// add a dummy field
 		selectAttrs.from.add(0,'')
+		selectAttrs.keys.add(0,'')
 
 		out << "Role: " + select(selectAttrs)
 	}

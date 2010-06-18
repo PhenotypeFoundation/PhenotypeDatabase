@@ -26,9 +26,10 @@
 		Choose the type of study you would like to create.
 		Depending on the chosen template specific fields can be filled out. If none of the templates contain all the necessary fields, a new template can be defined (based on other templates).
 	</wizard:templateElement>
-	<g:if test="${study}"><wizard:templateElements entity="${study}" /></g:if>
-
+	<g:if test="${study}">
+	<wizard:templateElements entity="${study}" />
 	<wizard:publicationSelectElement name="publication" value="${study?.publications}" />
 	<wizard:contactSelectElement name="contacts" value="${study?.persons}" />
+	</g:if>
 
 </wizard:pageContent>

@@ -143,7 +143,6 @@ class WizardController {
 				flow.remove('events')
 				flow.remove('eventGroups')
 				flow.remove('eventTemplates')
-				println flow
 
 				// set 'quicksave' variable
 				flow.quickSave = false
