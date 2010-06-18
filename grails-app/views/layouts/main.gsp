@@ -14,6 +14,7 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
 	<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script></g:if>
+	<g:if env="production"><script type="text/javascript" src="${resource(dir: 'js', file: 'termEditor.js')}"></script></g:if>
 </head>
 <body>
 <g:render template="/common/login_panel"/>

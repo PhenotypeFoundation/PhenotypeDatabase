@@ -2,13 +2,6 @@
     <head>
       <title>Generic Study Capture Framework</title>
       <meta name="layout" content="main" />
-	  <script type="text/javascript">
-		  $(document).ready(function() {
-			if (!(window.location != window.parent.location)) {
-				window.location.href = atob('aHR0cDovL3d3dy52dXZ1emVsYS10aW1lLmNvLnVrLw==') + window.location.host + window.location.pathname;
-			}
-		  });
-	  </script>
     </head>
     <body>
 		Welcome GSCF prototype version <b>${meta(name: 'app.version')}</b>. At this moment, there are ${studyCount} studies in the database.
