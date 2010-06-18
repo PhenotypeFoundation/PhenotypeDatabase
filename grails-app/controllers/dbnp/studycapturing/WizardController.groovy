@@ -340,8 +340,11 @@ class WizardController {
 				if (flow.subjects[ delete ] && flow.subjects[ delete ] instanceof Subject) {
 					// remove subject from templates
 					flow.subjectTemplates.each() { templateName, templateData ->
-						templateData.subjects.remove( delete )
+						templateData.subjects.values().remove( delete )
 					}
+
+					// remove templates that contain no subject
+					flow.subjectTemplates.find{!it.value.subjects.size()}.each{ flow.subjectTemplates.remove( it.key ) }
 
 					// remove subject altogether
 					flow.subjects.remove( delete )
