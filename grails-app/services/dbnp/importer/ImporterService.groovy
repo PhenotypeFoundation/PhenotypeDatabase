@@ -308,7 +308,6 @@ class ImporterService {
 				    study.setFieldValue(mc.property, value)
 				    break
 	        case Subject	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(subject)
-				    println "TOT HIER" + mc.property + "/ " + value
 				    subject.setFieldValue(mc.property, value)				    
 				    break
 		case Event	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(event)				    
