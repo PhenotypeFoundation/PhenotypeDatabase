@@ -20,6 +20,7 @@
   <style type="text/css">
 #termForm {
 	display: block;
+	vertical-align: top;
 }
 #termForm #label {
     color:#006DBA;
@@ -72,8 +73,8 @@
  	<div id="termForm">
  	<g:form action="pages" name="wizardForm" id="wizardForm">
 		<div id="label">search term: </div>
-		<div id="term"><g:textField name="term" rel="ontology-${ontologies}" /></div>
- 		<div id="button" style="inline-block;"><g:submitButton name="add" value="Add term" /></div>
+		<div id="term"><g:textField name="term" rel="ontology-${ontologies}" size="40" /></div>
+ 		<div id="button"><g:submitButton name="add" value="Add term" /></div>
  	</g:form>
 	</div>
 

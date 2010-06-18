@@ -4,9 +4,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-EN" xml:lang="en-EN">
  <head>
   <title><g:layoutTitle default="Grails"/></title><g:if env="production">
-  <link rel="stylesheet" href="${resource(dir: 'css', file: 'dialog.css')}"/>
+  <link rel="stylesheet" href="${resource(dir: 'css', file: 'dialog.min.css')}"/>
   </g:if><g:else>
-  <link rel="stylesheet" href="${resource(dir: 'css', file: 'dialog.min.css')}"/>	 
+  <link rel="stylesheet" href="${resource(dir: 'css', file: 'dialog.css')}"/>	 
   </g:else>
   <g:javascript library="jquery"/>
   <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>

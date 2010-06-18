@@ -324,3 +324,19 @@ option.unlocked {
 }
 
 /* END : info boxes */
+
+/* START : input element styles */
+
+input, textarea {
+    border: 1px solid #CCC;
+    margin: 2px 0;
+    padding: 2px 4px;
+    background-color: #fff;
+}
+
+input:focus, select:focus, textarea:focus {
+    border: 1px solid #B2D1FF;
+    background-color: #fff;
+}
+
+/* END : input element styles */
