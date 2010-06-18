@@ -35,7 +35,7 @@ class TermEditorController {
 	def pagesFlow = {
 		// start the flow
 		onStart {
-			println "start term / ontology editor flow"
+			println ".start term / ontology editor flow"
 
 			if (params.ontologies) {
 				flow.ontologies		= params.ontologies
@@ -62,7 +62,7 @@ class TermEditorController {
                 def strTerm = params.get('term')
 
 				// do we have an ontology?
-				if (!ontology) {
+				if (!ontology && params.get('term-ontology_id')) {
 					println ".ontology missing, first fetch ontology information"
 
 					// use the NCBO REST service to fetch ontology information
@@ -74,7 +74,6 @@ class TermEditorController {
 
 						// instantiate Ontology with the proper values
 						ontology = Ontology.getBioPortalOntologyByVersionedId( params.get('term-ontology_id') ).save(flush:true)
-						println ontology
 
 						if (ontology.validate()) {
 							ontology.save(flush:true)
@@ -83,6 +82,7 @@ class TermEditorController {
 						// something went wrong, probably the
 						// ontology-id is invalid (hence, the term
 						// is invalid)
+						flash.errors = ["We could not add the ontology for this term, please try again"]
 					}
 				}
 
@@ -97,17 +97,22 @@ class TermEditorController {
 				if (term.validate()) {
 					// save the term to the database
 					if (term.save(flush:true)) {
-						flash.message = "Term addition succeeded"
+						flash.message = "'" + params.get('term') + "' was successfully added, either search for another term to add or close this window"
 						success()
 					} else {
-						flash.message = "Oops, we encountered a problem while storing the selected term. Please try again."
+						flash.errors = ["We encountered a problem while storing the selected term. Please try again."]
 						term.errors.each() { println it }
 						error()
 					}
 				} else {
 					// term did not validate properly
-					flash.message = "Oops, we encountered a problem while storing the selected term. Please try again."
 					term.errors.each() { println it }
+					if (term.errors =~ 'unique') {
+						flash.errors = ["'" + params.get('term') + "' already exists, either search for another term or close this window"]
+					} else {
+						flash.errors = ["We encountered a problem while storing the selected term. Please try again."]						
+					}
+					
 					error()
 				}
 			}.to "terms"

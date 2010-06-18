@@ -34,14 +34,30 @@
 function OntologyChooser() {
 }
 OntologyChooser.prototype = {
-    minLength   : 3,    // minimum input length before launching Ajax request
-    cache       : [],   // ontology cache
+    cache   : [],           // ontology cache
+    options : {
+        minLength   : 3,    // minimum input length before launching Ajax request
+        showHide    : null, // show / hide this DOM element on select/deselect autocomplete results
+        spinner     : '../../images/spinner.gif'
+    },
 
     /**
      * initialize object
      */
-    init: function() {
+    init: function(options) {
         var that = this;
+
+        // set class parameters
+        if (options) {
+            $.each(options, function(key,value) {
+                that.options[key] = value;
+            });
+        }
+
+        // hide showHide div?
+        if (this.options.showHide) {
+            this.options.showHide.hide();
+        }
 
         // find all ontology elements
         $("input[rel*='ontology']").each(function() {
@@ -66,9 +82,12 @@ OntologyChooser.prototype = {
 
         // http://bioportal.bioontology.org/search/json_search/?q=musculus
         inputElement.autocomplete({
-            minLength: that.minLength,
+            minLength: that.options.minLength,
             delay: 300,
             search: function(event, ui) {
+                if (that.options.spinner) {
+                    inputElement.css({ 'background': 'url(' + that.options.spinner + ') no-repeat right top' });
+                }
                 selected = false;
             },
             source: function(request, response) {
@@ -77,6 +96,9 @@ OntologyChooser.prototype = {
 
                 // got cache?
                 if (that.cache[ q ]) {
+                    // hide spinner
+                    inputElement.css({ 'background': 'none' });
+
                     // yeah, lucky us! ;-P
                     response(that.cache[ q ]);
                 } else {
@@ -87,6 +109,9 @@ OntologyChooser.prototype = {
 
                         // cache results
                         that.cache[ q ] = result;
+
+                        // hide spinner
+                        inputElement.css({ 'background': 'none' });
 
                         // response callback
                         response(that.parseData(data.data));
@@ -107,6 +132,11 @@ OntologyChooser.prototype = {
 
                 // remove error class (if present)
                 element.removeClass('error');
+
+                // show showHide element if set
+                if (that.options.showHide) {
+                    that.options.showHide.show();
+                }
             },
             close: function(event, ui) {
                 // check if the user picked something from the ontology suggestions

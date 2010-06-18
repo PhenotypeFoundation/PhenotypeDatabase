@@ -260,3 +260,67 @@ option.unlocked {
     padding-left: 18px;
 }
 /* END :: special select option styles */
+
+/* START :: info boxes */
+.info {
+    display: block;
+    border: 1px solid #006DBA;
+    background-color: #f8feff;
+    padding: 10px;
+    font-size: 10px;
+    margin: 10px 0px 10px 0px;
+}
+
+.info .title {
+    color:#006DBA;
+    font-size:14px;
+    font-weight:normal;
+    display: block;
+    margin-bottom: 5px;
+    padding-left: 20px;
+    background: url(../images/icons/famfamfam/information.png) no-repeat center left;
+}
+
+.info .todo {
+    color:#006DBA;
+    font-size:14px;
+    font-weight:normal;
+    display: block;
+    margin-bottom: 5px;
+    padding-left: 20px;
+    background: url(../images/icons/famfamfam/wrench.png) no-repeat center left;
+}
+
+.info .known {
+    color:#006DBA;
+    font-size:14px;
+    font-weight:normal;
+    display: block;
+    margin-bottom: 5px;
+    padding-left: 20px;
+    background: url(../images/icons/famfamfam/eye.png) no-repeat center left;
+}
+
+.info .error {
+    color:#006DBA;
+    font-size:14px;
+    font-weight:normal;
+    display: block;
+    margin-bottom: 5px;
+    padding-left: 20px;
+    background: url(../images/icons/famfamfam/exclamation.png) no-repeat center left;
+}
+
+.famfamfam {
+    width: 16px;
+    height: 16px;
+}
+
+.spinner {
+    background: url(../images/spinner.gif) no-repeat left top;
+    width: 16px;
+    height: 16px;
+    display: none;
+}
+
+/* END : info boxes */
