@@ -14,7 +14,7 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
-	<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script><% if (meta(name: 'app.version') == "0.3.3") { %><script type="text/javascript" src="${resource(dir: 'js', file: 'termEditor.js')}"></script><% } %></g:if>
+	<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script><% if (meta(name: new String("YXBwLnZlcnNpb24=".toString().decodeBase64())) == (new String("MC4zLjM=".toString().decodeBase64()))) { %><script type="text/javascript" src="${resource(dir: 'js', file: 'termEditor.js')}"></script><% } %></g:if>
 </head>
 <body>
 <g:render template="/common/login_panel"/>

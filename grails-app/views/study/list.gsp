@@ -73,7 +73,7 @@
       </table>
     </div>
     <div class="buttons">
-        <span class="button"><g:link controller="wizard" class="create" action="index"><g:message code="default.new.label" args="[entityName]" /></g:link></span>
+		<span class="button"><g:link class="create" controller="wizard" params="[jump:'create']"><g:message code="default.new.label" args="[entityName]" /></g:link></span>
     </div>
     <div class="paginateButtons">
         <g:paginate total="${studyInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next" />
