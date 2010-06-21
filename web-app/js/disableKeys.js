@@ -4,7 +4,6 @@ $(document).ready(function() {
     // accidental submits do not happen
     $('input:text').each(function() {
         $(this).bind('keypress', function(e) {
-            console.log('inputbox keycode: '+e.keyCode);
             if (e.keyCode == 13) {
                 return false;
             }
