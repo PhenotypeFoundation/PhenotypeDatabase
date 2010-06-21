@@ -4,18 +4,10 @@ $(document).ready(function() {
     // accidental submits do not happen
     $('input:text').each(function() {
         $(this).bind('keypress', function(e) {
+            console.log('inputbox keycode: '+e.keyCode);
             if (e.keyCode == 13) {
                 return false;
             }
         });
-    });
-
-    // handle browser window events
-    $(window).bind('keypress', function(e) {
-        // disable going back by pressing escape
-        if (e.keyCode == 8) return false;
-
-        // disable reload by pressing F4
-        if (e.keyCode == 115) return false;
     });
 });
