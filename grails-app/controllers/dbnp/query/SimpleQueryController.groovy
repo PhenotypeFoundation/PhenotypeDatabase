@@ -32,7 +32,7 @@ class SimpleQueryController {
 
         onStart {
             println "Starting webflow simpleQuery"
-            flow.term = null
+            flow.search_term            = null
             flow.page = 0
 			flow.pages = [
                 [title: 'Query'],
@@ -48,22 +48,12 @@ class SimpleQueryController {
               flow.species = Term.findAll()
               flow.page = 1
             }
-            on("addCompound") {
-                println "addCompound"              
-            }.to "query"
-
-            on("addTransciptome") {
-              println "addTransciptome"
-            }.to "query"
 
             on("search") {
               println "Search!"
-              println params
-              if (!params.term.trim()) {
+              if (!params.search_term.trim()) {
                 return [:]
               }
-
-              flow.term = params.term
             }.to "searching"
 
             on("refresh").to "query"
@@ -73,6 +63,16 @@ class SimpleQueryController {
         // Searching for results
         searching {
            action {
+
+              println "Searching"
+              println params
+             
+              flow.search_term            = params.search_term
+              flow.search_sa_compounds    = params.sa_compound
+              flow.search_sa_values       = params.sa_value
+              flow.search_tt_genepaths    = params.sa_genepath
+              flow.search_tt_regulations  = params.sa_regulation
+
               // Searchable plugin not yielding results yet
               /*
               try {
@@ -84,7 +84,7 @@ class SimpleQueryController {
               */
 
               // Search for the term in Terms
-              // results = searchableService.search(flow.term, type:"Term")
+              // results = searchableService.search(flow.search_term, type:"Term")
 
               // Map the Terms to Studies
               // ...
@@ -111,12 +111,25 @@ class SimpleQueryController {
             onRender {
               println "Rendering resultPage"
               flow.page = 2
-              println flow.term
+
+              if (flow.search_sa_compounds) {
+                if (flow.search_sa_compounds.class.getName() == "java.lang.String") {
+                  flow.resultString = true
+                } else {
+                  flow.resultString = false
+                }
+              }
+
+              println flow.search_sa_compounds.getClass()
             }
 
             on("reset") {
-              flow.term = null
-              flow.studies = null
+              flow.search_term            = null
+              flow.studies                = null
+              flow.search_sa_compounds    = null
+              flow.search_sa_values       = null
+              flow.search_tt_genepaths    = null
+              flow.search_tt_regulations  = null
               println "Resetting query flow"
             }.to "query"
 
@@ -125,9 +138,4 @@ class SimpleQueryController {
         }
 
     }
-  
-
-
-
-
 }

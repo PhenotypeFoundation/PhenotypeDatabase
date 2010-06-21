@@ -22,11 +22,28 @@
 
     $('#addCompound').click(function() {
         var compoundGroup = document.getElementById('compoundGroup');
-
         var newCompoundDiv = document.createElement('div');
         newCompoundDiv.setAttribute('id', 'compoundRow' + compoundCounter);
 
-        newCompoundDiv.innerHTML = '<div class="description">Compound</div> <div class="input"><input type="text" name="compound" value=""></div> <div class="description">Value</div> <div class="input"><input id="compoundValue' + compoundCounter + '" type="text"></div>';
+        var newCompoundRowDiv1 = document.createElement('div');
+        newCompoundRowDiv1.setAttribute('class', 'description');
+        newCompoundRowDiv1.innerHTML = "Compound";
+        newCompoundDiv.appendChild(newCompoundRowDiv1);
+
+        var newCompoundRowDiv2 = document.createElement('div');
+        newCompoundRowDiv2.setAttribute('class', 'input');
+        newCompoundRowDiv2.innerHTML = '<input type="text" name="sa_compound" value="">';
+        newCompoundDiv.appendChild(newCompoundRowDiv2);
+
+        var newCompoundRowDiv3 = document.createElement('div');
+        newCompoundRowDiv3.setAttribute('class', 'description');
+        newCompoundRowDiv3.innerHTML = "Value";
+        newCompoundDiv.appendChild(newCompoundRowDiv3);
+
+        var newCompoundRowDiv4 = document.createElement('div');
+        newCompoundRowDiv4.setAttribute('class', 'input');
+        newCompoundRowDiv4.innerHTML = "<input type='text' name='sa_value' value=''>";
+        newCompoundDiv.appendChild(newCompoundRowDiv4);
 
         compoundGroup.appendChild(newCompoundDiv);
 
@@ -38,7 +55,6 @@
       $('#addTranscriptome').click(function() {
           var transcriptomeGroup = document.getElementById('transcriptomeGroup');
           var newTranscriptomeDiv = document.createElement('div');
-
           newTranscriptomeDiv.setAttribute('id', 'transcriptomeRow' + transcriptomeCounter);
 
           var newTranscriptomeRowDiv1 = document.createElement('div');
@@ -58,7 +74,7 @@
 
           var newTranscriptomeRowDiv4 = document.createElement('div');
           newTranscriptomeRowDiv4.setAttribute('class', 'input');
-          var newSelectBox = document.getElementById('regulation');
+          var newSelectBox = document.getElementById('regulationInput');
           newTranscriptomeRowDiv4 = newSelectBox.cloneNode(true);
           newTranscriptomeRowDiv4.setAttribute('id', 'regulation' + transcriptomeCounter);
           newTranscriptomeDiv.appendChild(newTranscriptomeRowDiv4);
