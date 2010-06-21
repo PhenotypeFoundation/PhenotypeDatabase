@@ -66,7 +66,7 @@ OntologyChooser.prototype = {
     },
 
     /**
-     * initialize the ontology autocompleter
+     * initialize the ontology autocomplete
      * @param element
      */
     initAutocomplete: function(element) {
@@ -79,6 +79,12 @@ OntologyChooser.prototype = {
         var ontology_id = values[1];
         var target_property = values[2];
         if (ontology_id == "all") { ontology_id = ""; }
+
+        // ignore ENTER key in inputElement so the form cannot
+        // be submitted by pressing the ENTER key
+        inputElement.bind('keypress', function(e) {
+            if (e.keyCode == 13) return false;
+        });
 
         // http://bioportal.bioontology.org/search/json_search/?q=musculus
         inputElement.autocomplete({
@@ -112,6 +118,11 @@ OntologyChooser.prototype = {
 
                         // hide spinner
                         inputElement.css({ 'background': 'none' });
+
+                        // hide button?
+                        if (!data.data && that.options.showHide) {
+                            that.options.showHide.hide();    
+                        }
 
                         // response callback
                         response(that.parseData(data.data));
