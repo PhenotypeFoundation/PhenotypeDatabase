@@ -80,10 +80,15 @@ OntologyChooser.prototype = {
         var target_property = values[2];
         if (ontology_id == "all") { ontology_id = ""; }
 
-        // ignore ENTER key in inputElement so the form cannot
-        // be submitted by pressing the ENTER key
+        // handle keypresses
         inputElement.bind('keypress', function(e) {
+            // ignore ENTER key in inputElement so the form cannot
+            // be submitted by pressing the ENTER key
             if (e.keyCode == 13) return false;
+
+            // when a user uses the backspace the showHide element
+            // (normally the button) gets hidden
+            if (e.keyCode == 8 && that.options.showHide) that.options.showHide.hide();
         });
 
         // http://bioportal.bioontology.org/search/json_search/?q=musculus
