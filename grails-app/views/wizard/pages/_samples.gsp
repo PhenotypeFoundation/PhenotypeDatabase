@@ -24,10 +24,14 @@
 	<g:if test="${samples}">
 		<div class="table">
 		<g:each var="sampleData" in="${samples}">
-			${sampleData}
 			<div class="row">
-				<!-- wizard:templateColumns class="column" id="1" entity="${sampleData['sample']}" //-->
-				<!-- div class="column"><wizard:templateSelect entity="${sampleData.sample}" /></div //-->
+				${sampleData}<br/>
+				<wizard:templateColumns class="column" id="1" entity="${sampleData['sample']}"/>
+				<% /*
+					${sampleData}
+					<!-- wizard:templateColumns class="column" id="1" entity="${sampleData['sample']}" //-->
+					<!-- div class="column"><wizard:templateSelect entity="${sampleData.sample}" /></div //-->
+					*/ %>
 			</div>
 		</g:each>
 		</div>

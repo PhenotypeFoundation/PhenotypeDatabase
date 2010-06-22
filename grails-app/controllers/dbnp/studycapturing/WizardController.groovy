@@ -144,7 +144,7 @@ class WizardController {
 				flow.remove('eventGroups')
 				flow.remove('eventTemplates')
 
-				// set 'quicksave' variable
+				// set 'quicksave' variable to false
 				flow.quickSave = false
 			}.to "study"
 			on("modify").to "modify"
@@ -646,7 +646,7 @@ class WizardController {
 			}.to "groups"
 			on("next") {
 				success()
-			}.to "confirm"
+			}.to "samples"
 			on("quickSave") {
 				success()
 			}.to "waitForSave"
