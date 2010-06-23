@@ -70,8 +70,8 @@ class RestController {
 	/**
 	* REST resource for the Simple Assay Module.
 	* Provide a list of all assays for a given study
-        *
-        * Example for calling this resource: http://localhost:8080/gscf/rest/getAssays/json?externalStudyID=2
+	*
+	* Example for calling this resource: http://localhost:8080/gscf/rest/getAssays/json?externalStudyID=2
 	*
 	* @param  externalStudyID 
 	* @return list of assays as JSON object 
@@ -106,7 +106,7 @@ class RestController {
 					'material'	: sample.material.name,
 					'subject'	: sample.parentSubject.name,
 					'event'		: sample.parentEvent.template.name,  // get the freaking name 
-					'startTime'	: sample.parentEvent.startTime
+					'startTime'	: sample.parentEvent.getDurationString()
 				] 
 				items.push item 
 			}

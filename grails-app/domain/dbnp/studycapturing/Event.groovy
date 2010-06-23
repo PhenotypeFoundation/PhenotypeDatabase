@@ -55,32 +55,31 @@ class Event extends TemplateEntity implements Serializable {
 			comment: "Please enter the end time as a relative time from study start date. "+RelTime.getHelpText())
 	]
 
-	// TODO: Jahn, could you indicate in a comment why these different duration functions exist?
-	def getDuration() {
-		return new RelTime(startTime, endTime);
-	}
 
 	/**
-	 * get a prettified duration
+	 * Get extended, human readable string representing the duration between startTime and endTime 
+     *
 	 * @return String
 	 */
-	static def getPrettyDuration(RelTime duration) {
-		return duration.toPrettyRoundedString();
-	}
-
-	def getPrettyDuration() {
-		getPrettyDuration(getDuration())
-	}
-
 	def getDurationString() {
-		def d = getDuration()
-		return getDuration().toPrettyString();
+		return new RelTime(startTime, endTime).toPrettyRoundedString();
 	}
 
+
+
+	/**
+	 * Get short, human readable string representing the duration between startTime and endTime 
+     *
+	 * @return String
+	 */
 	def getShortDuration() {
-		def d = getDuration()
-		return getDuration().toString();
+		return new RelTime(startTime, endTime).toPrettyRoundedString();
 	}
+
+
+
+
+
 
 	/**
 	 *    Return whether this is SamplingEvent
