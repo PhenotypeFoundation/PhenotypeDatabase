@@ -39,11 +39,11 @@ class RestController {
 	* @return as JSON object list of members externalStudyID, and title for all studies
 	*/
 	def getStudies = {
-                List studies = [] 
+		List studies = [] 
 		Study.list().each { study ->
-                    studies.push( [ 'externalStudyID': study.code, 'name':study.title ] )
-                }
-                render studies as JSON 
+			studies.push( [ 'externalStudyID': study.code, 'name':study.title ] )
+		}
+ 		render studies as JSON 
 	}
 
 
@@ -57,13 +57,13 @@ class RestController {
 	* @return as JSON object list of subject names 
 	*/
 	def getSubjects = {
-                List subjects = [] 
+		List subjects = [] 
 		if( params.externalStudyID ) {
-                        def id = params.externalStudyID
+			def id = params.externalStudyID
  			def study = Study.find( "from Study as s where s.code=?", [id])
 			if(study) study.subjects.each { subjects.push it.name }
-                }
-                render subjects as JSON 
+		}
+		render subjects as JSON 
 	}
 
 
@@ -77,13 +77,13 @@ class RestController {
 	* @return list of assays as JSON object 
 	*/
 	def getAssays = {
-                List assays = [] 
+		List assays = [] 
 		if( params.externalStudyID ) {
-                        def id = Long.parseLong(params.externalStudyID)
+			def id = Long.parseLong(params.externalStudyID)
  			def study = Study.find( "from Study as s where s.code=?", [id])
-                        if(study) study.assays.each{ assay -> assays.push assay.externalAssayID }
+			if(study) study.assays.each{ assay -> assays.push assay.externalAssayID }
  		}
-                render assays as JSON 
+		render assays as JSON 
 	}
 
 
@@ -91,27 +91,27 @@ class RestController {
 	* REST resource for the Simple Assay Module.
 	* Provide all samples of a given Assay. The result is an enriched list with additional informatin on a sample. 
 	*
-        * Example for calling this resource: http://localhost:8080/gscf/rest/getAssays/json?externalStudyID=2
-        *
+	* Example for calling this resource: http://localhost:8080/gscf/rest/getAssays/json?externalStudyID=2
+	*
 	* @param  assayID (externalAssayID of some Assay in GSCF)
 	* @return list of element of  Sample.name x Sample.material x Sample.subject.name x Sample.Event.name x Sample.Event.time
 	*/
 	def getSamples = {
-                def items = []
+		def items = []
 		if( params.externalAssayID ) {
-                        def id = Long.parseLong(params.externalAssayID)
+			def id = Long.parseLong(params.externalAssayID)
  			Assay.find( "from Assay as a where externalAssayID=?",[id]).getSamples().each { sample ->
 				def item = [ 
-					'name'            : sample.name,
-					'material'        : sample.material.name,
-					'subject'         : sample.parentSubject.name,
-					//'event'         : sample.parentEvent.name,  // get the freaking name 
-					'startTime'       : sample.parentEvent.startTime
+					'name'		: sample.name,
+					'material'	: sample.material.name,
+					'subject'	: sample.parentSubject.name,
+					'event'		: sample.parentEvent.template.name,  // get the freaking name 
+					'startTime'	: sample.parentEvent.startTime
 				] 
 				items.push item 
-                        }
+			}
  		}
-                render items as JSON
+		render items as JSON
 	}
 
 }
