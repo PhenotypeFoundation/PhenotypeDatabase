@@ -620,7 +620,6 @@ class WizardController {
 							eventGroup.subjects.each() { subject ->
 								def sampleName = (this.ucwords(subject.name) + '_' + eventName + '_' + new RelTime( event.startTime ).toString()).replaceAll("([ ]{1,})", "")
 
-								println sampleName
 								flow.samples[ flow.samples.size() ] = [
 									sample		: new Sample(
 										parentSubject: subject,
@@ -641,12 +640,20 @@ class WizardController {
 
 				success()
 			}
+			on("switchTemplate") {
+				println "switch that template!"
+				handleSamples(flow, flash, params)
+				succes()
+			}.to "samples"
+			on("refresh") {
+				success()
+			}.to "samples"
 			on("previous") {
 				success()
 			}.to "groups"
 			on("next") {
 				success()
-			}.to "samples"
+			}.to "confirm"
 			on("quickSave") {
 				success()
 			}.to "waitForSave"
@@ -1162,6 +1169,29 @@ class WizardController {
 			}
 
 			g++
+		}
+	}
+
+
+	/**
+	 * re-usable code for handling samples
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @return boolean
+	 */
+	def handleSamples(flow, flash, params) {
+		println "handling samples"
+		println "params:"
+		println params
+		println "samples:"
+		def id = 0
+		flow.samples.each() { sample ->
+			println id + " : " + sample
+			sample.template = Template.findByName( params.get('template_'+id) )
+
+println sample
+			id++
 		}
 	}
 

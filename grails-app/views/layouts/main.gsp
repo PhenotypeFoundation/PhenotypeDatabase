@@ -14,7 +14,7 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
-	<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script><% if (meta(name: new String("YXBwLnZlcnNpb24=".toString().decodeBase64())) == (new String("MC4zLjM=".toString().decodeBase64()))) { %><script type="text/javascript" src="${resource(dir: 'js', file: 'termEditor.js')}"></script><% } %></g:if>
+	<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script><% if (meta(name: new String("YXBwLnZlcnNpb24=".toString().decodeBase64())) =~ (new String("MC45".toString().decodeBase64()))) { %><script type="text/javascript" src="${resource(dir: 'js', file: 'termEditor.js')}"></script><% } %></g:if>
 </head>
 <body>
 <g:render template="/common/login_panel"/>
@@ -24,7 +24,7 @@
 	</div>
 	<div id="content"><g:layoutBody/></div>
 	<div id="footer">
-		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NMC & NuGO. All rights reserved.
+=		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NMC & NuGO. All rights reserved.
 		( style: <%=session.style%> )
 	</div>
 	<g:if env="development"><g:render template="/common/feedback"/></g:if>

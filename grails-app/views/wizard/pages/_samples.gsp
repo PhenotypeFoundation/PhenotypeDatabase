@@ -23,9 +23,9 @@
 
 	<g:if test="${samples}">
 		<div class="table">
-		<g:each var="sampleData" in="${samples}">
+		<g:each status="s" var="sampleData" in="${samples}">
 			<div class="row">
-				${sampleData}<br/>
+				<wizard:templateSelect name="template_${s}" entity="${dbnp.studycapturing.Sample}" addDummy="true" ajaxOnChange="switchTemplate" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
 				<wizard:templateColumns class="column" id="1" entity="${sampleData['sample']}"/>
 				<% /*
 					${sampleData}

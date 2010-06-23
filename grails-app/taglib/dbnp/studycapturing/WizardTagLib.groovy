@@ -219,50 +219,10 @@ class WizardTagLib extends JavascriptTagLib {
 	def baseElement = { inputElement, attrs, help ->
 println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "] and value [" + ((attrs.value) ? attrs.get('value').toString() : "-") + "]"
 		// work variables
-		def internetExplorer = (request.getHeader("User-Agent") =~ /MSIE/)
 		def description = attrs.remove('description')
 		def addExampleElement = attrs.remove('addExampleElement')
 		def addExample2Element = attrs.remove('addExample2Element')
 		def helpText = help().trim()
-
-		// got an ajax onchange action?
-		def ajaxOnChange = attrs.remove('ajaxOnChange')
-		if (ajaxOnChange) {
-			if (!attrs.onChange) attrs.onChange = ''
-
-			// add onChange AjaxSubmit javascript
-			if (internetExplorer) {
-				// 		- somehow IE submits these onchanges twice which messes up some parts of the wizard
-				//		  (especially the events page). In order to bypass this issue I have introduced an
-				//		  if statement utilizing the 'before' and 'after' functionality of the submitToRemote
-				//		  function. This check expects lastRequestTime to be in the global Javascript scope,
-				//		  (@see pageContent) and calculates the time difference in miliseconds between two
-				//		  onChange executions. If this is more than 100 miliseconds the request is executed,
-				//		  otherwise it will be ignored... --> 20100527 - Jeroen Wesbeek
-				attrs.onChange += ajaxSubmitJs(
-					[
-						before: "var execute=true;try { var currentTime=new Date().getTime();execute = ((currentTime-lastRequestTime) > 100);lastRequestTime=currentTime;  } catch (e) {};if (execute) { 1",
-						after: "}",
-						functionName: ajaxOnChange,
-						url: attrs.get('url'),
-						update: attrs.get('update'),
-						afterSuccess: attrs.get('afterSuccess')
-					],
-					''
-				)
-			} else {
-				// this another W3C browser that actually behaves as expected... damn you IE, DAMN YOU!
-				attrs.onChange += ajaxSubmitJs(
-					[
-						functionName: ajaxOnChange,
-						url: attrs.get('url'),
-						update: attrs.get('update'),
-						afterSuccess: attrs.get('afterSuccess')
-					],
-					''
-				)
-			}
-		}
 
 		// execute inputElement call
 		def renderedElement = "$inputElement"(attrs)
@@ -317,6 +277,57 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		}
 
 		out << '</div>'
+	}
+
+	/**
+	 * bind an ajax submit to an onChange event
+	 * @param attrs
+	 * @return attrs
+	 */
+	private getAjaxOnChange = { attrs ->
+		// work variables
+		def internetExplorer = (request.getHeader("User-Agent") =~ /MSIE/)
+		def ajaxOnChange = attrs.remove('ajaxOnChange')
+
+		// is ajaxOnChange defined
+		if ( ajaxOnChange ) {
+			if (!attrs.onChange) attrs.onChange = ''
+
+			// add onChange AjaxSubmit javascript
+			if (internetExplorer) {
+				// 		- somehow IE submits these onchanges twice which messes up some parts of the wizard
+				//		  (especially the events page). In order to bypass this issue I have introduced an
+				//		  if statement utilizing the 'before' and 'after' functionality of the submitToRemote
+				//		  function. This check expects lastRequestTime to be in the global Javascript scope,
+				//		  (@see pageContent) and calculates the time difference in miliseconds between two
+				//		  onChange executions. If this is more than 100 miliseconds the request is executed,
+				//		  otherwise it will be ignored... --> 20100527 - Jeroen Wesbeek
+				attrs.onChange += ajaxSubmitJs(
+					[
+						before: "var execute=true;try { var currentTime=new Date().getTime();execute = ((currentTime-lastRequestTime) > 100);lastRequestTime=currentTime;  } catch (e) {};if (execute) { 1",
+						after: "}",
+						functionName: ajaxOnChange,
+						url: attrs.get('url'),
+						update: attrs.get('update'),
+						afterSuccess: attrs.get('afterSuccess')
+					],
+					''
+				)
+			} else {
+				// this another W3C browser that actually behaves as expected... damn you IE, DAMN YOU!
+				attrs.onChange += ajaxSubmitJs(
+					[
+						functionName: ajaxOnChange,
+						url: attrs.get('url'),
+						update: attrs.get('update'),
+						afterSuccess: attrs.get('afterSuccess')
+					],
+					''
+				)
+			}
+		}
+
+		return attrs
 	}
 
 	/**
@@ -576,6 +587,11 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 			// add 'rel' attribute
 			attrs.rel = 'term'
 
+			// got an ajaxOnChange defined?
+			attrs = getAjaxOnChange.call(
+				attrs
+			)
+
 			out << select(attrs)
 		} else {
 			out << "<b>ontologies missing!</b>"
@@ -655,11 +671,6 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Closure help content
 	 */
 	def templateElement = { attrs, body ->
-		// add a rel element if it does not exist
-		if (!attrs.rel) {
-			attrs.rel = 'template'
-		}
-		
 		// render template element
 		baseElement.call(
 			'templateSelect',
@@ -698,6 +709,16 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		if (!attrs.name) {
 			attrs.name = 'template'
 		}
+
+		// add a rel element if it does not exist
+		if (!attrs.rel) {
+			attrs.rel = 'template'
+		}
+
+		// got an ajaxOnChange defined?
+		attrs = getAjaxOnChange.call(
+			attrs
+		)
 
 		// got result?
 		if (attrs.from.size() > 0 || attrs.get('addDummy')) {
@@ -857,6 +878,8 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		def template	= (entity && entity instanceof TemplateEntity) ? entity.template : null
 		def inputElement= null
 		def addDummy	= (attrs.get('addDummy')) ? true : false
+println "template: "
+println template
 
 		// got a template?
 		if (template) {
