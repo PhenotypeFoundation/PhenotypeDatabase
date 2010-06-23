@@ -1,6 +1,9 @@
 package dbnp.query
 
 import org.compass.core.engine.SearchEngineQueryParseException
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 
 /*
  * Copyright 2007 the original author or authors.
@@ -36,9 +39,14 @@ class QueryController {
     def success = {
             try {
             	println params
-            	render searchableService.search(params['bla'], type:"Term" )
-            } catch( SearchEngineQueryParseException e) { println "SEQPE: " + e }
-            catch( Exception e) { println e }
+            	render searchableService.search(params['bla'])
+            } catch( SearchEngineQueryParseException e) { println "SEQPE: " + e.printStackTrace }
+            catch( Exception ex) { 
+				StringWriter sw = new StringWriter();
+				ex.printStackTrace(new PrintWriter(sw));
+				String stacktrace = sw.toString();
+				System.out.println("stacktrace = " + stacktrace);
+			}
             render "test"  
     }
 
