@@ -143,6 +143,8 @@ class WizardController {
 				flow.remove('events')
 				flow.remove('eventGroups')
 				flow.remove('eventTemplates')
+				flow.remove('samples')
+				flow.remove('sampleTemplates')
 
 				// set 'quicksave' variable to false
 				flow.quickSave = false
@@ -607,55 +609,85 @@ class WizardController {
 			onRender {
 				flow.page = 6
 
-				flow.samples = []
-
 				// iterate through eventGroups
-				flow.eventGroups.each() { eventGroup ->
-					// iterate through events
-					eventGroup.events.each() { event ->
-						if (event.isSamplingEvent()) {
-							def eventName = this.ucwords(event.template.name)
+				if (!flow.samples) {
+					flow.samples = []
+					flow.sampleTemplates = [:]
+					flow.eventGroups.each() { eventGroup ->
+						// iterate through events
+						eventGroup.events.each() { event ->
+							if (event.isSamplingEvent()) {
+								def eventName = this.ucwords(event.template.name)
 
-							// iterate through subjects
-							eventGroup.subjects.each() { subject ->
-								def sampleName = (this.ucwords(subject.name) + '_' + eventName + '_' + new RelTime( event.startTime ).toString()).replaceAll("([ ]{1,})", "")
+								// iterate through subjects
+								eventGroup.subjects.each() { subject ->
+									def sampleName = (this.ucwords(subject.name) + '_' + eventName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
 
-								flow.samples[ flow.samples.size() ] = [
-									sample		: new Sample(
-										parentSubject: subject,
-										parentEvent: event,
-										name: sampleName
-									),
-								    name		: sampleName,
-									eventGroup	: eventGroup,
-									event		: event,
-									subject		: subject
-								]
+									flow.samples[flow.samples.size()] = [
+										sample: new Sample(
+											parentSubject: subject,
+											parentEvent: event,
+											name: sampleName
+										),
+										name: sampleName,
+										eventGroup: eventGroup,
+										event: event,
+										subject: subject
+									]
+								}
 							}
 						}
 					}
 				}
 
-				println flow.samples
-
 				success()
 			}
 			on("switchTemplate") {
-				println "switch that template!"
 				handleSamples(flow, flash, params)
 				succes()
 			}.to "samples"
 			on("refresh") {
+				println ".refresh sample templates"
+
+				// refresh templates
+				flow.sampleTemplates.each() {
+					println ".refresh template ["+it.value.name+"]"
+					it.value.template.refresh()
+					println "  --> fields: "+it.value.template.fields
+				}
+
+				// handle samples
+				handleSamples(flow, flash, params)
+
+				success()
+			}.to "samples"
+			on("regenerate") {
+				println ".removing 'samples' and 'sampleTemplates' from the flowscope, triggering regeneration of the samples..."
+				flow.remove('samples')
+				flow.remove('sampleTemplates')
 				success()
 			}.to "samples"
 			on("previous") {
+				// handle samples
+				handleSamples(flow, flash, params)
+
 				success()
 			}.to "groups"
 			on("next") {
-				success()
+				// handle samples
+				if (handleSamples(flow, flash, params)) {
+					success()
+				} else {
+					error()
+				}
 			}.to "confirm"
 			on("quickSave") {
-				success()
+				// handle samples
+				if (handleSamples(flow, flash, params)) {
+					success()
+				} else {
+					error()
+				}
 			}.to "waitForSave"
 		}
 
@@ -1181,16 +1213,26 @@ class WizardController {
 	 * @return boolean
 	 */
 	def handleSamples(flow, flash, params) {
-		println "handling samples"
-		println "params:"
-		println params
-		println "samples:"
 		def id = 0
-		flow.samples.each() { sample ->
-			println id + " : " + sample
-			sample.template = Template.findByName( params.get('template_'+id) )
+		flow.sampleTemplates = [:]
+		flow.samples.each() { sampleData ->
+			def sample = sampleData.sample
+			def sampleTemplateName = params.get('template_'+id)
 
-println sample
+			// set template for this sample?
+			if (sampleTemplateName && sampleTemplateName.size() > 0) {
+				// remember templatename
+				if (!flow.sampleTemplates[ sampleTemplateName ]) {
+					flow.sampleTemplates[ sampleTemplateName ] = [
+						name		: sampleTemplateName,
+						template	: Template.findByName( sampleTemplateName )
+					]
+				}
+
+				if (sample.template.toString() != sampleTemplateName ) {
+					sampleData.sample.template = flow.sampleTemplates[ sampleTemplateName ].template
+				}
+			}
 			id++
 		}
 	}
