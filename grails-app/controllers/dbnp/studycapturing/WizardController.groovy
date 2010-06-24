@@ -647,7 +647,7 @@ class WizardController {
 				succes()
 			}.to "samples"
 			on("refresh") {
-				println ".refresh sample templates"
+				println ".refresh ${flow.sampleTemplates.size()} sample templates (${flow.samples.size()} samples present)"
 
 				// refresh templates
 				flow.sampleTemplates.each() {
@@ -1214,15 +1214,19 @@ class WizardController {
 	 */
 	def handleSamples(flow, flash, params) {
 		def id = 0
-		flow.sampleTemplates = [:]
+		// TODO: Jeroen: why do you do this if you change the templates based on the name anyway in this function?
+		// It causes somehow also the template_<number> param to disappear, and that is a problem
+		//flow.sampleTemplates = [:]
+		println ".handling ${flow.samples.size()} samples:"
 		flow.samples.each() { sampleData ->
 			def sample = sampleData.sample
 			def sampleTemplateName = params.get('template_'+id)
-
+			println "..this sample '${sampleData.name}' has template '${sampleTemplateName}' according to params and '${sampleData.sample.template.toString()}' according to sample.template"
 			// set template for this sample?
 			if (sampleTemplateName && sampleTemplateName.size() > 0) {
 				// remember templatename
 				if (!flow.sampleTemplates[ sampleTemplateName ]) {
+					println "...adding again template '${sampleTemplateName}' to flow.sampleTemplates"
 					flow.sampleTemplates[ sampleTemplateName ] = [
 						name		: sampleTemplateName,
 						template	: Template.findByName( sampleTemplateName )
@@ -1230,6 +1234,7 @@ class WizardController {
 				}
 
 				if (sample.template.toString() != sampleTemplateName ) {
+					println "...changing from sample.template' ${sample.template.toString()}' to '${sampleTemplateName}' with fields [${flow.sampleTemplates[ sampleTemplateName ].template.fields}]"
 					sampleData.sample.template = flow.sampleTemplates[ sampleTemplateName ].template
 				}
 			}
