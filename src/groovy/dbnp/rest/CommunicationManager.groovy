@@ -3,6 +3,7 @@ package dbnp.rest
 import java.util.Map 
 import java.util.List
 import java.util.HashMap
+import java.net.URLEncoder
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.*
 import dbnp.studycapturing.TemplateFieldListItem
@@ -36,10 +37,10 @@ class CommunicationManager implements CleanDataLayer {
     //def static ServerURL = "http://localhost:8182/ClinicalChemistry"
     def static ServerURL = "http://nbx5.nugo.org/sam"
     def static RestServerURL = ServerURL + "/rest"
+    def static Encoding = "UTF-8" 
 
 
     /* Methods implemented for CleanDataLayer */
-
 
 
 
@@ -72,7 +73,7 @@ class CommunicationManager implements CleanDataLayer {
      * @return list of ClinicalFloatData
      */
     public Object getFeatures() {
-    //    return  request( "features" ) 
+        //    return  request( "features" ) 
         return  getStudiesForKeyword("ldl")
     }
 
@@ -149,7 +150,9 @@ class CommunicationManager implements CleanDataLayer {
 
 
     /**
-     * Convenience method for constructing URLs for SAM that need parameters 
+     * Convenience method for constructing URLs for SAM that need parameters.
+     * Note that parameters are first convereted to strings by calling their toString() method
+     * and then Encoded to protect special characters.
      *
      * @params String resource The name of the resource, e.g. importer/pages 
      * @params Map params      A Map of parmater names and values., e.g. ['externalAssayID':12]
@@ -160,11 +163,11 @@ class CommunicationManager implements CleanDataLayer {
 		def first = true
 		params.each { name, value ->
 			if(first) {
-				first = false                                     // this needs to be protected, otherwise might break url
-				url += '/nil?' + name + "='" + value.toString() + "'"    
+				first = false
+				url += '/nil?' + name + "=" + URLEncoder.encode( value.toString(), Encoding )
 			}
 			else { 
-				url += '&' + name + "='" + value.toString() + "'"    
+				url += '&' + name + "=" + URLEncoder.encode( value.toString(), Encoding  )
 			}
 		}
 		return new URL( url )
@@ -222,6 +225,5 @@ class CommunicationManager implements CleanDataLayer {
 		def params = ['externalStudyID':study.code] 
         return getSAMURL( 'simpleAssayMeasurementType/list', params )
     }
-
 
 }
