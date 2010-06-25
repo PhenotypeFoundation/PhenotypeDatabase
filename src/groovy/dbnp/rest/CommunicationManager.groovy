@@ -146,15 +146,42 @@ class CommunicationManager implements CleanDataLayer {
     /* Methods for accessing URLs in SAM */
 
 
+
+
+    /**
+     * Convenience method for constructing URLs for SAM that need parameters 
+     *
+     * @params String resource The name of the resource, e.g. importer/pages 
+     * @params Map params      A Map of parmater names and values., e.g. ['externalAssayID':12]
+     * @return String url   
+     */
+    private URL getSAMURL( resource, params ) {
+        def url = ServerURL + '/' + resource
+		def first = true
+		params.each { name, value ->
+			if(first) {
+				first = false                                     // this needs to be protected, otherwise might break url
+				url += '/nil?' + name + "='" + value.toString() + "'"    
+			}
+			else { 
+				url += '&' + name + "='" + value.toString() + "'"    
+			}
+		}
+		return new URL( url )
+    }
+
+
     /**
      * Get the URL for importing an assay from SAM. 
      * This is not a REST method! It only creates a rest resource and returns it's url.
      *
-     * @params assay 
+     * @params Study
+     * @params Assay
      * @return URL 
      */
-    public Object getAssayImportURL( assay ) {
-        return new URL( ServerURL + '/importer/pages/assay?externalAssayID=' + assay.externalAssayID )
+    public URL getAssayImportURL( study, assay ) {
+		def params = ['externalAssayID':assay.externalAssayID, 'externalStudyID':study.code ] 
+        return getSAMURL( 'importer/pages', params )
     }
 
 
@@ -162,11 +189,12 @@ class CommunicationManager implements CleanDataLayer {
      * Get the URL for showing an assay in SAM. 
      * This is not a REST method! It only creates a rest resource and returns it's url.
      *
-     * @params assay 
+     * @params Assay 
      * @return URL 
      */
-    public Object getAssayShowURL( assay ) {
-        return new URL( ServerURL + '/simpleAssay/show/assay?externalAssayID=' + assay.externalAssayID )
+    public URL getAssayShowURL( assay ) {
+		def params = ['externalAssayID':assay.externalAssayID ] 
+        return getSAMURL( 'simpleAssay/show', params )
     }
 
 
@@ -174,11 +202,12 @@ class CommunicationManager implements CleanDataLayer {
      * Get the URL for editing an assay in SAM. 
      * This is not a REST method! It only creates a rest resource and returns it's url.
      *
-     * @params assay 
+     * @params Assay 
      * @return URL 
      */
-    public Object getAssayEditURL( assay ) {
-        return new URL( ServerURL + '/simpleAssay/edit/assay?externalAssayID=' + assay.externalAssayID )
+    public URL getAssayEditURL( assay ) {
+		def params = ['externalAssayID':assay.externalAssayID ] 
+        return getSAMURL( 'simpleAssay/edit', params )
     }
 
 
@@ -186,11 +215,12 @@ class CommunicationManager implements CleanDataLayer {
      * Get the URL for showing a measurement in SAM. 
      * This is not a REST method! It only creates a rest resource and returns it's url.
      *
-     * @params URL 
+     * @params study 
      * @return list of ClinicalFloatData
      */
-    public Object getMeasurementTypesURL() {
-        return new URL( ServerURL + '/simpleAssayMeasurementType/list/nil?externalAssayID=' + assay.externalAssayID )
+    public URL getMeasurementTypesURL( study ) {
+		def params = ['externalStudyID':study.code] 
+        return getSAMURL( 'simpleAssayMeasurementType/list', params )
     }
 
 
