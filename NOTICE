@@ -1,0 +1,17 @@
+About GSCF
+
+GSCF is a web application aimed at the storage and querying of metadata about biological studies. It also can connect to modules that contain any kind of 'omics' data and implements the CleanDataLayer interface (dbnp.data.CleanDataLayer, see also dbnp.rest.CommunicationManager).
+
+GSCF is developed within the DbNP project (Nutritional Phenotype Database) which is initated by the European Nutrigenomics Organisation. This software is currently developed further in a joint effort of the European Nutrigenomics Organisation (www.nugo.org), the Netherlands Metabolomics Centre (www.metabolomicscentre.nl) and the Netherlands Bioinformatics Centre (www.nbic.nl).
+
+This software is licensed under the Apache License 2.0.
+Open source components contained therein may have different (but generally compatible) licenses like Apache License 1.1.
+Also, we use a set of Silk Icons from www.famfamfam.com, which are licensed under the Creative Commons Attribution 2.5 License.
+
+If you find any bugs, please report them in the bugtracker at https://gforge.nbic.nl/tracker/?atid=270&group_id=53&func=browse.
+The feature request tracker is at https://gforge.nbic.nl/tracker/?group_id=53&atid=273.
+
+Project contact person: Kees van Bochove - mail to business <at> keesvanbochove.nl
+Project website: www.dbnp.org
+Demo website: demo.dbnp.org
+Project hosting, sources and trackers: https://gforge.nbic.nl/projects/gscf
