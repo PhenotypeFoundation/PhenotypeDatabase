@@ -9,6 +9,7 @@ import dbnp.studycapturing.TemplateFieldListItem
 import dbnp.studycapturing.Template
 import dbnp.data.CleanDataLayer
 import dbnp.studycapturing.Study 
+import dbnp.studycapturing.Assay
 
 
 
@@ -31,11 +32,15 @@ class CommunicationManager implements CleanDataLayer {
     /** ServerULR contains a string that represents the URL of the 
      *  rest resources that this communication manager connects to.
      */ 
-    def static ServerURL = "http://nbx5.nugo.org:8182/ClinicalChemistry/rest";
-    //def static ServerURL = "http://localhost:8080/gscf/rest";
+
+    def static ServerURL = "http://localhost:8182/ClinicalChemistry"
+    //def static ServerURL = "http://nbx5.nugo.org:8182/ClinicalChemistry"
+    def static RestServerURL = ServerURL + "/rest"
 
 
     /* Methods implemented for CleanDataLayer */
+
+
 
 
     /**
@@ -44,7 +49,7 @@ class CommunicationManager implements CleanDataLayer {
      * @return
      */
     public String[] getFeaturesQuantitative(long assayID) {
-         return new String [20];
+         return new String [20]
     }
    
 
@@ -57,7 +62,7 @@ class CommunicationManager implements CleanDataLayer {
      * @return Map
      */
     public Map getDataQuantitative(String feature, long assayID, String[] sampleIDs) {
-         return new HashMap(); 
+         return new HashMap() 
     }
 
 
@@ -103,7 +108,7 @@ class CommunicationManager implements CleanDataLayer {
      * @return list of ClinicalFloatData
      */
     public Object getMeasurementsResource( String keyword ) {
-        def url = new URL( ServerURL + "/" + getSearchable(keyword) )
+        def url = new URL( RestServerURL + "/" + getSearchable(keyword) )
         return  JSON.parse( url.newReader() )
     }
 
@@ -116,8 +121,8 @@ class CommunicationManager implements CleanDataLayer {
      *  @return JSON object
      */
     private Object request( String resource ) { 
-        def url = new URL( ServerURL + "/" + resource );
-        return  JSON.parse( url.newReader() );
+        def url = new URL( RestServerURL + "/" + resource )
+        return  JSON.parse( url.newReader() )
     }
 
 
@@ -137,25 +142,57 @@ class CommunicationManager implements CleanDataLayer {
 
 
 
-
-
-
-
-    /*  To Do for querying
-    public void getMeasurementsForValueResource() {
+    /**
+     * Get the URL for importing an assay within the GSCF. 
+     * This is not a REST method! It only creates a rest resource and returns it's url.
+     *
+     * @params assay 
+     * @return list of ClinicalFloatData
+     */
+    public Object getAssayImportURL( assay ) {
+        return new URL( ServerURL + '/importer/test?externalAssayID=' + assay.externalAssayID )
     }
 
 
-    public void getMeasurementsForRangeResource() {
+
+
+    /* Methods for acessing URLs in SAM */
+
+
+    /**
+     * Get the URL for importing an assay within the GSCF. 
+     * This is not a REST method! It only creates a rest resource and returns it's url.
+     *
+     * @params assay 
+     * @return URL 
+     */
+    public Object getAssayShowURL( assay ) {
+        return new URL( ServerURL + '/simpleAssay/show/assay?externalAssayID=' + assay.externalAssayID )
     }
 
 
-    public void getDataSimple() {
+    /**
+     * Get the URL for importing an assay within the GSCF. 
+     * This is not a REST method! It only creates a rest resource and returns it's url.
+     *
+     * @params assay 
+     * @return URL 
+     */
+    public Object getAssayEditURL( assay ) {
+        return new URL( ServerURL + '/simpleAssay/edit/assay?externalAssayID=' + assay.externalAssayID )
     }
-    */
 
 
-
+    /**
+     * Get the URL for importing an assay within the GSCF. 
+     * This is not a REST method! It only creates a rest resource and returns it's url.
+     *
+     * @params URL 
+     * @return list of ClinicalFloatData
+     */
+    public Object getMeasurementTypesURL() {
+        return new URL( ServerURL + '/simpleAssayMeasurementType/list/nil?externalAssayID=' + assay.externalAssayID )
+    }
 
 
 }
