@@ -1,10 +1,10 @@
 <!-- LOGIN PANEL -->
-  <div id="toppanel">
+  <div id="toppanel" class="toppanel">
 	<div id="panel">
 		<div class="content clearfix">
 			<div class="left">
 				<h1>Welcome to the Generic Study Capture Framework</h1>
-				<h2>pre-alpha version</h2>
+				<h2>version <b>${meta(name: 'app.version')}</b></h2>
 				<p class="grey">Please use the forms on the right to either log in if you already have an account, or sign up if you think this data support platform suits your needs.</p>
 				<p class="grey">Note that <span class="red">registration</span> and <span class="red">password reminders</span> are not yet implemented and hence <span class="red">do not work</span> at this moment!</p>
 				<g:if test="${flash.message}"><p class="red">${flash.message}</p></g:if>

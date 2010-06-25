@@ -12,20 +12,20 @@ Version: 1.0
 */ 
 
 /***** clearfix *****/
-.clear {clear: both;height: 0;line-height: 0;}
-.clearfix:after {content: ".";display: block;height: 0;clear: both;visibility: hidden;}
-.clearfix {display: inline-block;}
+.toppanel .clear {clear: both;height: 0;line-height: 0;}
+.toppanel .clearfix:after {content: ".";display: block;height: 0;clear: both;visibility: hidden;}
+.toppanel .clearfix {display: inline-block;}
 /* Hides from IE-mac \*/
 * html .clearfix {height: 1%;}
-.clearfix {display: block;}
+.toppanel .clearfix {display: block;}
 /* End hide from IE-mac */
-.clearfix {height: 1%;}
-.clearfix {display: block;}
+.toppanel .clearfix {height: 1%;}
+.toppanel .clearfix {display: block;}
 
-.red { color: red; }
+.toppanel .red { color: red; }
 
 /* Panel Tab/button */
-.tab {
+.toppanel .tab {
   	background: url(../images/default_style/login_panel/tab_b.png) repeat-x 0 0;
 	height: 42px;
 	position: relative;
@@ -33,7 +33,7 @@ Version: 1.0
     z-index: 999;
 }
 
-.tab ul.login {
+.toppanel .tab ul.login {
 	display: block;
 	position: relative;
   	float: right;
@@ -49,7 +49,7 @@ Version: 1.0
 	text-align: center;
 }
 
-.tab ul.login li.left {
+.toppanel .tab ul.login li.left {
   	background: url(../images/default_style/login_panel/tab_l.png) no-repeat left 0;
   	height: 42px;
 	width: 30px;
@@ -59,7 +59,7 @@ Version: 1.0
 	float: left;
 }
 
-.tab ul.login li.right {
+.toppanel .tab ul.login li.right {
   	background: url(../images/default_style/login_panel/tab_r.png) no-repeat left 0;
   	height: 42px;
 	width: 30px;
@@ -69,7 +69,7 @@ Version: 1.0
 	float: left;
 }
 
-.tab ul.login li {
+.toppanel .tab ul.login li {
  	text-align: left;
   	padding: 0 6px;
 	display: block;
@@ -78,17 +78,17 @@ Version: 1.0
   	background: url(../images/default_style/login_panel/tab_m.png) repeat-x 0 0;
 }
 
-.tab ul.login li a {
+.toppanel .tab ul.login li a {
 	color: #15ADFF;
 }
 
-.tab ul.login li a:hover {
+.toppanel .tab ul.login li a:hover {
 	color: white;
 }
 
-.tab .sep {color:#414141}
+.toppanel .tab .sep {color:#414141}
 
-.tab a.open, .tab a.close {
+.toppanel .tab a.open, .tab a.close {
 	height: 20px;
 	line-height: 20px !important;
 	padding-left: 30px !important;
@@ -99,10 +99,10 @@ Version: 1.0
 	top: 11px;
 }
 
-.tab a.open {background: url(../images/default_style/login_panel/bt_open.png) no-repeat left 0;}
-.tab a.close {background: url(../images/default_style/login_panel/bt_close.png) no-repeat left 0;}
-.tab a:hover.open {background: url(../images/default_style/login_panel/bt_open.png) no-repeat left -19px;}
-.tab a:hover.close {background: url(../images/default_style/login_panel/bt_close.png) no-repeat left -19px;}
+.toppanel .tab a.open {background: url(../images/default_style/login_panel/bt_open.png) no-repeat left 0;}
+.toppanel .tab a.close {background: url(../images/default_style/login_panel/bt_close.png) no-repeat left 0;}
+.toppanel .tab a:hover.open {background: url(../images/default_style/login_panel/bt_open.png) no-repeat left -19px;}
+.toppanel .tab a:hover.close {background: url(../images/default_style/login_panel/bt_close.png) no-repeat left -19px;}
 
 /* sliding panel */
 #toppanel {
@@ -114,6 +114,7 @@ Version: 1.0
     text-align: center;
     margin-left: auto;
     margin-right: auto;
+    font: 130%/130% arial,helvetica,sans-serif
 }
 
 #panel {
