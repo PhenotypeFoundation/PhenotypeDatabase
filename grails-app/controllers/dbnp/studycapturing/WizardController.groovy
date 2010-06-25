@@ -1229,17 +1229,30 @@ class WizardController {
 					println "...adding again template '${sampleTemplateName}' to flow.sampleTemplates"
 					flow.sampleTemplates[ sampleTemplateName ] = [
 						name		: sampleTemplateName,
-						template	: Template.findByName( sampleTemplateName )
+						template	: Template.findByName( sampleTemplateName ),
+						count		: 1
 					]
 				}
 
 				if (sample.template.toString() != sampleTemplateName ) {
 					println "...changing from sample.template' ${sample.template.toString()}' to '${sampleTemplateName}' with fields [${flow.sampleTemplates[ sampleTemplateName ].template.fields}]"
+					// change template
 					sampleData.sample.template = flow.sampleTemplates[ sampleTemplateName ].template
+
+					// decrease previous template use count
+					if (flow.sampleTemplates[ sample.template.toString() ]) {
+						flow.sampleTemplates[ sample.template.toString() ].count--
+					}
+
+					// increase template use count
+					flow.sampleTemplates[ sampleTemplateName ].count++
 				}
 			}
 			id++
 		}
+
+		// find and remove sampleTemplates which are not used by any samples
+		// TODO
 	}
 
 	/**
