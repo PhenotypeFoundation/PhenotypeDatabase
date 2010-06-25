@@ -878,10 +878,6 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		def template	= (entity && entity instanceof TemplateEntity) ? entity.template : null
 		def inputElement= null
 		def addDummy	= (attrs.get('addDummy')) ? true : false
-println "template: "
-println template
-println entity
-println entity.template
 
 		// got a template?
 		if (template) {

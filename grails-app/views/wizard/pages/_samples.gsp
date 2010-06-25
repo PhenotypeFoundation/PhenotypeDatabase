@@ -69,7 +69,6 @@
 			<g:each status="s" var="sampleData" in="${samples}">
 				<g:if test="${sampleData.sample.template.toString() == sampleTemplateName.value.name}">
 					<g:if test="${showHeader}">
-debug: fields for this template are: ${sampleData.sample.giveFields()}
 						<g:set var="showHeader" value="${false}" />
 						<div class="header">
 							<div class="firstColumn">#</div>

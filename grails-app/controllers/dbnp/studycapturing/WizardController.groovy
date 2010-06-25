@@ -1250,9 +1250,6 @@ class WizardController {
 			}
 			id++
 		}
-
-		// find and remove sampleTemplates which are not used by any samples
-		// TODO
 	}
 
 	/**
