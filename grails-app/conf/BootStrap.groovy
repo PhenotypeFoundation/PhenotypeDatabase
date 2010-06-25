@@ -16,13 +16,20 @@ import grails.util.GrailsUtil
  * $Date$
  */
 class BootStrap {
-	def init = {servletContext ->
+	def init = { servletContext ->
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
-		// we could also check if we are in development by GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT
-		if (Study.count() == 0 && false) {
-			println ".development bootstrapping...";
+		// production bootstrapping
+		if (GrailsUtil.environment == "production" && Template.count() == 0) {
+			println ".production bootstrapping..."
+
+			// TODO, initial application templates, terms and ontologies
+		}
+
+		// development bootstrapping
+		if (GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT && Study.count() == 0 && false) {
+			println ".development bootstrapping..."
 
 			// add Subject>species ontology
 			println ".adding NCBI species ontology"
