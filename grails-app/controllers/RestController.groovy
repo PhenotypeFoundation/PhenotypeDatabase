@@ -79,8 +79,7 @@ class RestController {
 	def getAssays = {
 		List assays = [] 
 		if( params.externalStudyID ) {
-			def id = Long.parseLong(params.externalStudyID)
- 			def study = Study.find( "from Study as s where s.code=?", [id])
+ 			def study = Study.find( "from Study as s where s.code=?", [params.externalStudyID])
 			if(study) study.assays.each{ assay -> assays.push assay.externalAssayID }
  		}
 		render assays as JSON 
