@@ -33,8 +33,8 @@ class CommunicationManager implements CleanDataLayer {
      *  rest resources that this communication manager connects to.
      */ 
 
-    def static ServerURL = "http://localhost:8182/ClinicalChemistry"
-    //def static ServerURL = "http://nbx5.nugo.org:8182/ClinicalChemistry"
+    //def static ServerURL = "http://localhost:8182/ClinicalChemistry"
+    def static ServerURL = "http://nbx5.nugo.org/sam"
     def static RestServerURL = ServerURL + "/rest"
 
 
@@ -142,25 +142,24 @@ class CommunicationManager implements CleanDataLayer {
 
 
 
+
+    /* Methods for accessing URLs in SAM */
+
+
     /**
-     * Get the URL for importing an assay within the GSCF. 
+     * Get the URL for importing an assay from SAM. 
      * This is not a REST method! It only creates a rest resource and returns it's url.
      *
      * @params assay 
-     * @return list of ClinicalFloatData
+     * @return URL 
      */
     public Object getAssayImportURL( assay ) {
-        return new URL( ServerURL + '/importer/test?externalAssayID=' + assay.externalAssayID )
+        return new URL( ServerURL + '/importer/pages/assay?externalAssayID=' + assay.externalAssayID )
     }
 
 
-
-
-    /* Methods for acessing URLs in SAM */
-
-
     /**
-     * Get the URL for importing an assay within the GSCF. 
+     * Get the URL for showing an assay in SAM. 
      * This is not a REST method! It only creates a rest resource and returns it's url.
      *
      * @params assay 
@@ -172,7 +171,7 @@ class CommunicationManager implements CleanDataLayer {
 
 
     /**
-     * Get the URL for importing an assay within the GSCF. 
+     * Get the URL for editing an assay in SAM. 
      * This is not a REST method! It only creates a rest resource and returns it's url.
      *
      * @params assay 
@@ -184,7 +183,7 @@ class CommunicationManager implements CleanDataLayer {
 
 
     /**
-     * Get the URL for importing an assay within the GSCF. 
+     * Get the URL for showing a measurement in SAM. 
      * This is not a REST method! It only creates a rest resource and returns it's url.
      *
      * @params URL 
