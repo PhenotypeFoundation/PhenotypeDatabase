@@ -24,8 +24,8 @@
 	</div>
 	<div id="content"><g:layoutBody/></div>
 	<div id="footer">
-=		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NMC & NuGO. All rights reserved.
-		( style: <%=session.style%> )
+		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NMC & NuGO. All rights reserved.
+		<g:if env="development">( style: <%=session.style%> )</g:if>
 	</div>
 	<g:if env="development"><g:render template="/common/feedback"/></g:if>
 </div>
