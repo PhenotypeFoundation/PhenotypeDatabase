@@ -40,6 +40,9 @@ class Ontology implements Serializable {
 		}*/
 	}
 
+	static Ontology getBioPortalOntology(int ncboId) {
+		getBioPortalOntology(ncboId as String)
+	}
 	static Ontology getBioPortalOntology(String ncboId) {
 		// Get ontology from BioPortal via Ontocat
 		// TODO: maybe make a static OntologyService instance to be more efficient, and decorate it with caching?
@@ -63,11 +66,12 @@ class Ontology implements Serializable {
 	 * @param ncboId
 	 * @return Ontology
 	 */
-	static Ontology getOrCreateOntologyByNcboId( Integer ncboId ) {
-		return getOrCreateOntologyByNcboId( ncboId as String )
-	}
 	static Ontology getOrCreateOntologyByNcboId( String ncboId ) {
-		def ontology = findByNcboId( ncboId )
+		return getOrCreateOntologyByNcboId( ncboId as int )
+	}
+	static Ontology getOrCreateOntologyByNcboId( int ncboId ) {
+		println "find ${ncboId} in ${list()*.ncboId}"
+		def ontology = findByNcboId( ncboId as String )
 
 		// got an ontology?
 		if (!ontology) {
