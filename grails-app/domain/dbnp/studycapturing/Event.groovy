@@ -55,6 +55,13 @@ class Event extends TemplateEntity implements Serializable {
 			comment: "Please enter the end time as a relative time from study start date. "+RelTime.getHelpText())
 	]
 
+	/**
+	 * get the duration
+	 * @return RelTime
+	 */
+	def getDuration() {
+		return new RelTime(startTime, endTime)
+	}
 
 	/**
 	 * Get extended, human readable string representing the duration between startTime and endTime 
@@ -65,7 +72,17 @@ class Event extends TemplateEntity implements Serializable {
 		return new RelTime(startTime, endTime).toPrettyRoundedString();
 	}
 
+	/**
+	 * get a prettified duration
+	 * @return String
+	 */
+	static def getPrettyDuration(RelTime duration) {
+		return duration.toPrettyRoundedString();
+	}
 
+	def getPrettyDuration() {
+		getPrettyDuration(getDuration())
+	}
 
 	/**
 	 * Get short, human readable string representing the duration between startTime and endTime 
@@ -75,11 +92,6 @@ class Event extends TemplateEntity implements Serializable {
 	def getShortDuration() {
 		return new RelTime(startTime, endTime).toPrettyRoundedString();
 	}
-
-
-
-
-
 
 	/**
 	 *    Return whether this is SamplingEvent

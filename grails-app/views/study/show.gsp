@@ -13,7 +13,7 @@
       var timelineloaded = false;
       
       // Number of timelines that should be loaded
-      var numTimelines = ${studyList.size()};
+      var numTimelines = ${studyList?.size()};
       
       // This method is called on the event body.onLoad
       $(function() {
@@ -92,7 +92,7 @@
                 }  as Comparator );
 
                 def orphans = study.getOrphanEvents();
-                if( orphans.size() > 0 ) {
+                if( orphans?.size() > 0 ) {
                   sortedEventGroups.add( new EventGroup(
                     id: -1,
                     name: 'No group',
@@ -137,11 +137,11 @@
 
                   // We can only show appr. 30 characters per line and as many lines as there are events
                   def charsPerLine = 30;
-                  def numEvents = eventGroup.events.size();
+                  def numEvents = eventGroup.events?.size();
                   def maxChars = numEvents * charsPerLine;
 
                   // If the subjects will fit, show them all
-                  if( simpleSubjects.size() < maxChars ) {
+                  if( simpleSubjects?.size() < maxChars ) {
                     showSubjects = simpleSubjects;
                   } else {
                     // Always add the first name
@@ -151,8 +151,8 @@
                     id = 0;
                     sortedGroupSubjects.each { subject ->
                       if( id > 0 ) {
-                        println( "ID: " + id + " - " + subjectNames.size() + " - " + subject.name.size() + " - " + maxChars );
-                        if( subjectNames.size() + subject.name.size() < maxChars - 15 ) {
+                        println( "ID: " + id + " - " + subjectNames?.size() + " - " + subject.name?.size() + " - " + maxChars );
+                        if( subjectNames?.size() + subject.name?.size() < maxChars - 15 ) {
                           subjectNames += ", " + subject.name;
                         } else {
                           return;
@@ -162,7 +162,7 @@
                     }
 
                     // Add a postfix
-                    subjectNames += " and " + ( sortedGroupSubjects.size() - id ) + " more";
+                    subjectNames += " and " + ( sortedGroupSubjects?.size() - id ) + " more";
 
                     showSubjects = subjectNames;
                   }
@@ -226,14 +226,14 @@
               // Determine a union of the fields from all studies, in order
               // to show a proper list. We want every field to appear just once,
               // so the list is filtered for unique values
-              studyFields = studyList[0].giveDomainFields() + studyList*.giveTemplateFields().flatten().unique()
+              studyFields = studyList[0].giveDomainFields() + studyList*.giveTemplateFields()?.flatten().unique()
             %>
             <!-- Show all template and domain fields, if filled -->
             <g:each in="${studyFields}" var="field">
               <%
                 // If a value is not set for any of the selected studies, the
                 // field should not appear in the list
-                showField = true in studyList.collect { it.fieldExists( field.name ) && it.getFieldValue( field.name ) != null }.flatten()
+                showField = true in studyList.collect { it.fieldExists( field.name ) && it.getFieldValue( field.name ) != null }?.flatten()
               %>
               <g:if test="${showField}">
                 <tr>
@@ -250,7 +250,7 @@
               <td>Events</td>
               <g:each in="${studyList}" var="studyInstance">
                 <td>
-                  <g:if test="${studyInstance.giveEventTemplates().size()==0}">
+                  <g:if test="${studyInstance.giveEventTemplates()?.size()==0}">
                     -
                   </g:if>
                   <g:else>
@@ -263,7 +263,7 @@
               <td>Sampling events</td>
               <g:each in="${studyList}" var="studyInstance">
                 <td>
-                  <g:if test="${studyInstance.giveSamplingEventTemplates().size()==0}">
+                  <g:if test="${studyInstance.giveSamplingEventTemplates()?.size()==0}">
                     -
                   </g:if>
                   <g:else>
@@ -276,7 +276,7 @@
               <td>Readers</td>
               <g:each in="${studyList}" var="studyInstance">
                 <td>
-                  <g:if test="${studyInstance.readers.size()==0}">
+                  <g:if test="${studyInstance.readers?.size()==0}">
                     -
                   </g:if>
                   <g:else>
@@ -292,7 +292,7 @@
               <td>Editors</td>
               <g:each in="${studyList}" var="studyInstance">
                 <td>
-                  <g:if test="${studyInstance.editors.size()==0}">
+                  <g:if test="${studyInstance.editors?.size()==0}">
                     -
                   </g:if>
                   <g:else>
@@ -310,7 +310,7 @@
 
         <div id="subjects">
 
-          <g:if test="${studyList*.subjects.flatten().size()==0}">
+          <g:if test="${studyList*.subjects?.flatten()?.size()==0}">
             No subjects in the selected studies
           </g:if>
           <g:else>
@@ -329,12 +329,12 @@
                     // subjects in all studies. In order to show a proper list. 
                     // We want every field to appear just once,
                     // so the list is filtered for unique values
-                    subjectTemplates = studyList*.giveSubjectTemplates().flatten().unique()
+                    subjectTemplates = studyList*.giveSubjectTemplates()?.flatten().unique()
                     if( !subjectTemplates ) {
                       subjectTemplates = [];
                       subjectFields = [];
                     } else {
-                      subjectFields = subjectTemplates*.fields.flatten().unique()
+                      subjectFields = subjectTemplates*.fields?.flatten().unique()
                       if( !subjectFields ) {
                         subjectFields = [];
                       }
@@ -345,7 +345,7 @@
                      * performance sucked
                      *
                      *   // These took about 9 seconds (for 31 subjects and
-                     *   allSubjects = studyList*.subjects.flatten()
+                     *   allSubjects = studyList*.subjects?.flatten()
                      *
                      *   subjectFields = subjectFields.findAll { subjectField ->
                      *     ( true in allSubjects.collect { subject -> subject.fieldExists( subjectField.name ) && subject.getFieldValue( subjectField.name ) != null }.flatten() )
@@ -353,7 +353,7 @@
                      */
 
                     // Filter out all fields that are left blank for all subjects
-                    allSubjects = studyList*.subjects.flatten()
+                    allSubjects = studyList*.subjects?.flatten()
 
                     showSubjectFields = []
                     subjectFields.each { subjectField ->
@@ -389,7 +389,7 @@
                 <g:each in="${sortedSubjects}" var="subject" status="j">
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                     <g:if test="${multipleStudies && j==0}">
-                      <td class="studytitle" rowspan="${sortedSubjects.size()}">
+                      <td class="studytitle" rowspan="${sortedSubjects?.size()}">
                         ${studyInstance.title}
                       </td>
                     </g:if>
@@ -417,7 +417,7 @@
         </div>
 
         <div id="events-timeline">
-          <g:if test="${studyList*.events.flatten().size()==0 && studyInstance*.samplingEvents.flatten().size()==0 }">
+          <g:if test="${studyList*.events?.flatten()?.size()==0 && studyInstance*.samplingEvents?.flatten()?.size()==0 }">
             No events in these studies
           </g:if>
           <g:else>
@@ -458,7 +458,7 @@
                   <g:each in="${sortedEvents}" var="event" status="j">
                     <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                       <g:if test="${multipleStudies && j==0}">
-                        <td class="studytitle" rowspan="${sortedEvents.size()}">
+                        <td class="studytitle" rowspan="${sortedEvents?.size()}">
                           ${studyInstance.title}
                         </td>
                       </g:if>
@@ -496,7 +496,7 @@
         </div>
 
         <div id="events-table">
-          <g:if test="${studyList*.eventGroups.flatten().size()==0}">
+          <g:if test="${studyList*.eventGroups?.flatten()?.size()==0}">
             No event groups in this study
           </g:if>
           <g:else>
@@ -505,7 +505,7 @@
               // eventgroups in all studies, in order to show a proper list.
               // We want every field to appear just once,
               // so the list is filtered for unique values
-              groupTemplates = studyList*.giveAllEventTemplates().flatten().unique()
+              groupTemplates = studyList*.giveAllEventTemplates()?.flatten().unique()
             %>
             <table>
               <thead>
@@ -514,7 +514,7 @@
                     <th></th>
                   </g:if>
                   <th>Name</th>
-                  <th colspan="${groupTemplates.size()}">Events</th>
+                  <th colspan="${groupTemplates?.size()}">Events</th>
                   <th>Subjects</th>
                 </tr>
                 <tr>
@@ -538,7 +538,7 @@
                   }  as Comparator );
 
                   def orphans = studyInstance.getOrphanEvents();
-                  if( orphans.size() > 0 ) {
+                  if( orphans?.size() > 0 ) {
                     sortedEventGroups.add( new EventGroup(
                       id: -1,
                       name: 'No group',
@@ -551,7 +551,7 @@
                 <g:each in="${sortedEventGroups}" var="eventGroup" status="j">
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                     <g:if test="${multipleStudies && j==0}">
-                      <td class="studytitle" rowspan="${sortedEventGroups.size()}">
+                      <td class="studytitle" rowspan="${sortedEventGroups?.size()}">
                         ${studyInstance.title}
                       </td>
                     </g:if>
@@ -590,7 +590,7 @@
         </div>
 
         <div id="assays">
-          <g:if test="${studyList*.assays.flatten().size()==0}">
+          <g:if test="${studyList*.assays?.flatten()?.size()==0}">
             No assays in these studies
           </g:if>
           <g:else>
@@ -614,7 +614,7 @@
                 <g:each in="${studyInstance.assays}" var="assay" status="j">
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                     <g:if test="${multipleStudies && j==0}">
-                      <td class="studytitle" rowspan="${studyInstance.assays.size()}">
+                      <td class="studytitle" rowspan="${studyInstance.assays?.size()}">
                         ${studyInstance.title}
                       </td>
                     </g:if>
@@ -638,7 +638,7 @@
 
         <div id="samples">
 
-          <g:if test="${studyList*.samples.flatten().size()==0}">
+          <g:if test="${studyList*.samples.flatten()?.size()==0}">
             No samples in the selected studies
           </g:if>
           <g:else>
@@ -708,7 +708,7 @@
                 <g:each in="${sortedSamples}" var="sample" status="j">
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                     <g:if test="${multipleStudies && j==0}">
-                      <td class="studytitle" rowspan="${sortedSamples.size()}">
+                      <td class="studytitle" rowspan="${sortedSamples?.size()}">
                         ${studyInstance.title}
                       </td>
                     </g:if>
@@ -741,7 +741,7 @@
             // Determine a list of all persons
             allPersons = studyList*.persons*.person.flatten().unique()
           %>
-          <g:if test="${allPersons.size()==0}">
+          <g:if test="${allPersons?.size()==0}">
             No persons involved in these studies
           </g:if>
           <g:else>
@@ -792,7 +792,7 @@
             // Determine a list of all persons
             allPublications = studyList*.publications.flatten().unique()
           %>
-          <g:if test="${allPublications.size()==0}">
+          <g:if test="${allPublications?.size()==0}">
             No publications attached to these studies
           </g:if>
           <g:else>
@@ -837,7 +837,7 @@
     <br>
     <div class="buttons">
       <g:form>
-        <g:if test="${studyList.size() == 1}">
+        <g:if test="${studyList?.size() == 1}">
           <g:set var="studyInstance" value="${studyList[0]}" />
           <g:hiddenField name="id" value="${studyInstance?.id}" />
           <span class="button"><g:link class="edit" controller="wizard" params="[jump:'edit']" id="${studyInstance?.id}">${message(code: 'default.button.edit.label', default: 'Edit')}</g:link></span>

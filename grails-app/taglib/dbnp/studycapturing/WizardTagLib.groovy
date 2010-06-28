@@ -927,6 +927,9 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 						// @see ontology-chooser.js
 						inputElement = (renderType == 'element') ? 'termElement' : 'termSelect'
 
+						// override addDummy to always add the dummy...
+						addDummy = true
+
 						if (it.ontologies) {
 							out << "$inputElement"(
 								description	: ucName,
