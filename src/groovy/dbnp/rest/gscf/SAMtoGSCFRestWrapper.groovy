@@ -1,5 +1,6 @@
-package dbnp.rest
+package dbnp.rest.gscf
 
+import dbnp.rest.common.CommunicationManager
 import java.util.Map 
 import java.util.List
 import java.util.HashMap
@@ -15,67 +16,28 @@ import dbnp.studycapturing.Assay
 
 
 
-/**  CommunicationManager 
+/**  SAMtoGSCFRestWrapper 
  *
- *   This class implements a REST client to fetch data from the Simple Assay Module (SAM).
- *   The communicatino manager provides methods for accessing each resources.
- *   Every REST resource corresponds to exactly one method in this class that makes
- *   the communication with the resource available. 
+ *   @author Jahn
  *
- *   For instance, the getSearchable() method calls the getMeasurements resource of the SAM 
- *   by passing arguments to it and returning the result of the calling that resource. 
+ *   This class defines methods for accessing (1) Rest resources provided by the Simple Assay Module (SAM), and
+ *   (2) URL that SAM exposes to be rendered by the GSCF. 
+.*   Each method corresponds to exactly one Rest resoruce on the GSCF side and acts as a wrapper 
+ *   around the dbnp.rest.common.CommunicationManager. The CommunicationManager actually connects to the GSCF.
+ *   Use the CommunicationManager in order to add new wrapper methods.
  */
 
 
-class CommunicationManager implements CleanDataLayer {
 
+class SAMtoGSCFRestWrapper {
     
     /** ServerULR contains a string that represents the URL of the 
      *  rest resources that this communication manager connects to.
      */ 
 
-    //def static ServerURL = "http://localhost:8182/ClinicalChemistry"
-    def static ServerURL = "http://nbx5.nugo.org/sam"
+    //def static ServerURL = "http://nbx5.nugo.org/sam"
+    def static ServerURL = "http://localhost:8182/sam"
     def static RestServerURL = ServerURL + "/rest"
-    def static Encoding = "UTF-8" 
-
-
-    /* Methods implemented for CleanDataLayer */
-
-
-
-    /**
-     * Get the names of all quantitative features that are available for a certain assay
-     * @param assayID the module internal ID for the assay
-     * @return
-     */
-    public String[] getFeaturesQuantitative(long assayID) {
-         return new String [20]
-    }
-   
-
-
-    /**
-     * Get the data for a quantitative feature for a certain assay for a certain set of samples
-     * @param feature
-     * @param assayID
-     * @param sampleIDs
-     * @return Map
-     */
-    public Map getDataQuantitative(String feature, long assayID, String[] sampleIDs) {
-         return new HashMap() 
-    }
-
-
-    /**
-     * Testing REST. Remove when connection to nbx5 is established.
-     *
-     * @return list of ClinicalFloatData
-     */
-    public Object getFeatures() {
-        //    return  request( "features" ) 
-        return  getStudiesForKeyword("ldl")
-    }
 
 
     /**
@@ -147,33 +109,6 @@ class CommunicationManager implements CleanDataLayer {
     /* Methods for accessing URLs in SAM */
 
 
-
-
-    /**
-     * Convenience method for constructing URLs for SAM that need parameters.
-     * Note that parameters are first convereted to strings by calling their toString() method
-     * and then Encoded to protect special characters.
-     *
-     * @params String resource The name of the resource, e.g. importer/pages 
-     * @params Map params      A Map of parmater names and values., e.g. ['externalAssayID':12]
-     * @return String url   
-     */
-    private URL getSAMURL( resource, params ) {
-        def url = ServerURL + '/' + resource
-		def first = true
-		params.each { name, value ->
-			if(first) {
-				first = false
-				url += '/nil?' + name + "=" + URLEncoder.encode( value.toString(), Encoding )
-			}
-			else { 
-				url += '&' + name + "=" + URLEncoder.encode( value.toString(), Encoding  )
-			}
-		}
-		return new URL( url )
-    }
-
-
     /**
      * Get the URL for importing an assay from SAM. 
      * This is not a REST method! It only creates a rest resource and returns it's url.
@@ -184,7 +119,7 @@ class CommunicationManager implements CleanDataLayer {
      */
     public URL getAssayImportURL( study, assay ) {
 		def params = ['externalAssayID':assay.externalAssayID, 'externalStudyID':study.code ] 
-        return getSAMURL( 'importer/pages', params )
+        return getRestURL( 'importer/pages', params )
     }
 
 
@@ -197,7 +132,7 @@ class CommunicationManager implements CleanDataLayer {
      */
     public URL getAssayShowURL( assay ) {
 		def params = ['externalAssayID':assay.externalAssayID ] 
-        return getSAMURL( 'simpleAssay/show', params )
+        return getRestURL( 'simpleAssay/show', params )
     }
 
 
@@ -210,7 +145,7 @@ class CommunicationManager implements CleanDataLayer {
      */
     public URL getAssayEditURL( assay ) {
 		def params = ['externalAssayID':assay.externalAssayID ] 
-        return getSAMURL( 'simpleAssay/edit', params )
+        return getRestURL( 'simpleAssay/edit', params )
     }
 
 
@@ -223,7 +158,20 @@ class CommunicationManager implements CleanDataLayer {
      */
     public URL getMeasurementTypesURL( study ) {
 		def params = ['externalStudyID':study.code] 
-        return getSAMURL( 'simpleAssayMeasurementType/list', params )
+        return getRestURL( 'simpleAssayMeasurementType/list', params )
+    }
+
+
+    /**
+     * Get the results of provided by a rest Rest resource.
+     *
+     * @params String resource The name of the resource, e.g. importer/pages 
+     * @params Map params      A Map of parmater names and values., e.g. ['externalAssayID':12]
+     * @return String url   
+     */
+    public static Object getRestURL( resource, params ) {
+		def url = CommunicationManager.getRestURL( RestServerURL, resource, params )
+		return  JSON.parse( url.newReader() )
     }
 
 }

@@ -51,8 +51,6 @@ class RestController {
 	* REST resource for the Simple Assay Module.
 	* Provide a list of all subjects belonging to a study. 
 	*
-	* Examlpe call of the getAssays REST resource: http://localhost:8080/gscf/rest/getSubjects/json?externalStudyID=1
-	*
 	* @param  externalStudyID
 	* @return as JSON object list of subject names 
 	*/
@@ -71,8 +69,6 @@ class RestController {
 	* REST resource for the Simple Assay Module.
 	* Provide a list of all assays for a given study
 	*
-	* Example for calling this resource: http://localhost:8080/gscf/rest/getAssays/json?externalStudyID=2
-	*
 	* @param  externalStudyID 
 	* @return list of assays as JSON object 
 	*/
@@ -90,8 +86,6 @@ class RestController {
 	* REST resource for the Simple Assay Module.
 	* Provide all samples of a given Assay. The result is an enriched list with additional informatin on a sample. 
 	*
-	* Example for calling this resource: http://localhost:8080/gscf/rest/getAssays/json?externalStudyID=2
-	*
 	* @param  assayID (externalAssayID of some Assay in GSCF)
 	* @return list of element of  Sample.name x Sample.material x Sample.subject.name x Sample.Event.name x Sample.Event.time
 	*/
@@ -99,12 +93,13 @@ class RestController {
 		def items = []
 		if( params.externalAssayID ) {
 			def id = Long.parseLong(params.externalAssayID)
+			Assay.findAll().each{ println it }
  			Assay.find( "from Assay as a where externalAssayID=?",[id]).getSamples().each { sample ->
 				def item = [ 
 					'name'		: sample.name,
 					'material'	: sample.material.name,
 					'subject'	: sample.parentSubject.name,
-					'event'		: sample.parentEvent.template.name,  // get the freaking name 
+					'event'		: sample.parentEvent.template.name,
 					'startTime'	: sample.parentEvent.getDurationString()
 				] 
 				items.push item 
