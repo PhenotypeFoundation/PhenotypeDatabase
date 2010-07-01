@@ -40,11 +40,11 @@ class ImporterController {
     def index = { 	
     }
 
-    def simplewizard = {
+    def simpleWizard = {
 	render(view:"index_simple", model:[studies:Study.list(), entities: grailsApplication.config.gscf.domain.importableEntities])
     }
 
-    def advancedwizard = {
+    def advancedWizard = {
 	render(view:"index_advanced", model:[templates:Template.list()])
     }
 
@@ -61,8 +61,6 @@ class ImporterController {
 	session.importer_study = Study.get(params.study.id.toInteger())
 	session.importer_template_id = params.template_id
 	session.importer_workbook = wb
-
-	
 
         render (view:"step1_advanced", model:[header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, 0, 5)])
     }
@@ -89,15 +87,9 @@ class ImporterController {
 	    selectedentities.add([name:params.entity, columnindex:it.key.toInteger()])
 	}
 
-	//import workbook
-	//session.importer_importeddata = ImporterService.importdata(session.importer_template_id, session.importer_workbook, 0, 1, session.importer_header)
-
-	//println "DAS" + session.importer_header
-
-	//render(view:"step2_simple", model:[datamatrix:session.importer_importeddata])
 	def templates = Template.get(session.importer_template_id)
 	
-	render(view:"step2_simple", model:[entities: selectedentities, header:session.importer_header, templates:templates])
+	render(view:"step2_simple", model:[entities: selectedentities, header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, 0, 5), templates:templates])
     }
 
     /**
@@ -117,6 +109,26 @@ class ImporterController {
     }
 
     /**
+     * @param entity entity class we are using (dbnp.studycapturing.Subject etc.)
+     */
+
+    def saveMissingProperties = {
+	println params.entity
+	
+	session.importer_importeddata.each { table ->
+	    table.each { entity ->
+		entity.giveFields().each { field ->
+		    print ":" + params["entity_" + entity.hashCode() + "_" + field.escapedName()]
+		    entity.setFieldValue (field.toString(), params["entity_" + entity.hashCode() + "_" + field.escapedName()])
+		}		
+	    }
+	}
+
+	render(view:"step3", model:[datamatrix:session.importer_importeddata])
+	//render("Succesful")
+    }
+
+    /**
     * User has assigned all entities and templatefieldtypes to the columns and continues to the next step (assigning properties to columns)
     * All information of the columns is stored in a session as MappingColumn object
     *
@@ -126,7 +138,7 @@ class ImporterController {
     *
     * @see celltype: http://poi.apache.org/apidocs/org/apache/poi/ss/usermodel/Cell.html
     */
-    def savepreview = {
+    def savePreview = {
 	def tft = null	
 	def identifiercolumnindex = (params.identifier!=null) ? params.identifier.toInteger() : -1
 	def selectedentities = []
@@ -197,14 +209,13 @@ class ImporterController {
     * @param columnproperty array of columns containing index and property (represented as a String)
     *
     */
-    def saveproperties = {	
+    def saveProperties = {
 
 	params.columnproperty.index.each { columnindex, property ->
 		def template = Template.get(session.imported_template_id)
 
 		def entityClass = Class.forName(session.importer_header[columnindex.toInteger()].entity.getName(), true, this.getClass().getClassLoader())
-		def entityObj = entityClass.newInstance(template:template)		
-
+		def entityObj = entityClass.newInstance(template:template)
 		
 		session.importer_header[columnindex.toInteger()].property = property
 		
@@ -217,10 +228,13 @@ class ImporterController {
 	//import workbook
 	session.importer_importeddata = ImporterService.importdata(session.importer_template_id, session.importer_workbook, 0, 1, session.importer_header)
 
-	render(view:"step3", model:[datamatrix:session.importer_importeddata])
+	if (params.layout=="horizontal")
+	    render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
+	else if (params.layout=="vertical")
+	    render(view:"step3", model:[datamatrix:session.importer_importeddata])
     }
 
-    def savepostview = {
+    def savePostview = {
 	ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
 	render(view:"step4")
     }
@@ -233,9 +247,13 @@ class ImporterController {
     */
     def ajaxGetTemplatesByEntity = {
 	def entityClass = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
+	
 
         // fetch all templates for a specific entity
-        def templates = Template.findAllByEntity(Class.forName(entityClass, true, this.getClass().getClassLoader()))
+        //def templates = Template.findAllByEntity(Class.forName(entityClass, true, this.getClass().getClassLoader()))
+	def templates = Template.list()
+
+	println templates.dump()
 
 	// render as JSON
         render templates as JSON

@@ -16,10 +16,10 @@
 
     <ol>
 	<li>
-	    <g:link controller="importer" action="simplewizard">Simple wizard</g:link>
+	    <g:link controller="importer" action="simpleWizard">Simple wizard</g:link>
 	</li>
 	<li>
-	    <g:link controller="importer" action="advancedwizard">Advanced wizard</g:link>
+	    <g:link controller="importer" action="advancedWizard">Advanced wizard</g:link>
 	</li>
     </ol>
 

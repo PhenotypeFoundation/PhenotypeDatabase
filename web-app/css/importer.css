@@ -24,3 +24,14 @@
     color: gray;
 }
 
+.importer .table {
+    color:green;
+}
+
+.importer .tr {
+    color:red;
+}
+
+.importer .td {
+    color:blue;
+}

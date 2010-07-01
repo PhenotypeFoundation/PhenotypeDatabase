@@ -4,12 +4,13 @@
 -->
 
 <%@ page contentType="text/html;charset=UTF-8" %>
-<g:setProvider library="jquery"/>
 
 <html>
   <head>
     <meta name="layout" content="main"/>
     <title>Importer wizard (simple)</title>
+
+<g:javascript library="jquery"/>
 
 <g:javascript>
 /**

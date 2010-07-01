@@ -27,6 +27,6 @@
     <p>The next step is to assign properties to the columns. Below you see the entities and columns, please make your
     selections.</p>
     
-  <importer:properties entities="${entities}" header="${header}" templates="${templates}"/>
+  <importer:properties entities="${entities}" header="${header}" templates="${templates}" layout="vertical"/>
   </body>
 </html>

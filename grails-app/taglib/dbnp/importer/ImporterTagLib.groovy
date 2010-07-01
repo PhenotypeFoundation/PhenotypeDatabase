@@ -49,20 +49,40 @@ class ImporterTagLib {
 	out << entities[attrs['index']].name
     }
 
+    def datapreview = { attrs ->
+	def datamatrix = attrs['datamatrix']
+	out << render (template:"common/datapreview", model:[datamatrix:datamatrix])
+    }
+
+    /**
+     * Show missing properties
+     */
+    def missingProperties = { attrs ->
+	def datamatrix = attrs['datamatrix']	
+	out << render (template:"common/missingproperties", model:[datamatrix:datamatrix])
+    }
+
     /**
      * @param entities array containing selected entities
+     * @param header array containing mappingcolumn objects
+     * @param allfieldtypes if set, show all fields
+     * @param layout constant value: "horizontal" or "vertical"
      */
     def properties = { attrs ->
 	def header = attrs['header']
 	def entities = attrs['entities']
 	def allfieldtypes = (attrs['allfieldtypes']==null) ? "false" : "true"
-	
+	def layout = (attrs['layout']==null) ? "vertical" : attrs['layout']
 
-	out << render (	template:"common/properties",
+	//choose template for vertical layout (default) or horizontal layout
+	def template = (layout == "vertical") ? "common/properties_vertical" : "common/properties_horizontal"
+	
+	out << render (	template:template,
 			model:[selectedentities:entities,
 			standardentities:grailsApplication.config.gscf.domain.importableEntities,
 			header:header,
-			allfieldtypes:allfieldtypes]
+			allfieldtypes:allfieldtypes,
+			layout:layout]
 			)
     }
 

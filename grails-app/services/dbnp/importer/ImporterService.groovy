@@ -62,7 +62,6 @@ class ImporterService {
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(index).getCellType()
 	    def headercell = sheet.getRow(sheet.getFirstRowNum()).getCell(index)
 	    def tft = TemplateFieldType.STRING //default templatefield type
-
 	    
             // Check for every celltype, currently redundant code, but possibly this will be 
 	    // a piece of custom code for every cell type like specific formatting
@@ -294,10 +293,10 @@ class ImporterService {
 	def template = Template.get(template_id)
 	def record = []	
 	
-	def study = new Study(title:"New study", template:template)
-	def subject = new Subject(name:"New subject", species:Term.findByName("Homo sapiens"), template:template)
-	def event = new Event(eventdescription:"New event", template:template)
-	def sample = new Sample(name:"New sample", template:template)
+	def study = new Study(template:template)
+	def subject = new Subject(template:template)
+	def event = new Event(template:template)
+	def sample = new Sample(template:template)
 
 	for (HSSFCell cell: excelrow) {	    
 	    def mc = mcmap[cell.getColumnIndex()]
