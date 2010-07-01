@@ -2,6 +2,7 @@ import dbnp.studycapturing.*
 
 import dbnp.data.Ontology
 import dbnp.data.Term
+import dbnp.rest.common.CommunicationManager
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
 
@@ -40,6 +41,11 @@ class BootStrap {
 		 */
 		TemplateEntity.getField(Subject.domainFields, 'species').ontologies = [Ontology.getOrCreateOntologyByNcboId(1132)]
 		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [Ontology.getOrCreateOntologyByNcboId(1005)]
+
+		// register methods for accessing SAM's Rest services 
+		CommunicationManager.setSAMServerURL = 'nbx5.nugo.org/sam'
+    	CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
+    	CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
 	}
 
 	def destroy = {
