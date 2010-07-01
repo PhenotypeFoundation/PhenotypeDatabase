@@ -45,7 +45,6 @@ class BootStrap {
 		// register methods for accessing SAM's Rest services 
 		CommunicationManager.SAMServerURL = 'nbx5.nugo.org/sam'
     	CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
-    	CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
 	}
 
 	def destroy = {
