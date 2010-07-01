@@ -43,7 +43,7 @@ class BootStrap {
 		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [Ontology.getOrCreateOntologyByNcboId(1005)]
 
 		// register methods for accessing SAM's Rest services 
-		CommunicationManager.setSAMServerURL = 'nbx5.nugo.org/sam'
+		CommunicationManager.SAMServerURL = 'nbx5.nugo.org/sam'
     	CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
     	CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
 	}
