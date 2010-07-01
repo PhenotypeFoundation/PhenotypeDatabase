@@ -24,9 +24,12 @@
 
 		function handleDots() {
 			var dots = $('#dots');
-			var html = dots.html();
-			dots.html( ((html.length) < 5) ? html+"." : "")
-			setTimeout("handleDots();", 1000);
+
+			if (dots[0]) {
+				var html = dots.html();
+				dots.html( ((html.length) < 5) ? html+"." : "")
+				setTimeout("handleDots();", 1000);
+			}
 		}
 
 		function goToSave() {

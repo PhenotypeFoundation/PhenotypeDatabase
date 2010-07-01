@@ -15,6 +15,12 @@
  */
 %>
 <wizard:pageContent>
+	<g:if env="development">
+		<wizard:ajaxButtonElement description="Development feature (clear events)" name="clear" value="clear events" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()">
+			This functionality is only available in development mode for debugging purposes and will not show in test and production environments
+		</wizard:ajaxButtonElement>
+	</g:if>
+
 	<span class="info">
 		<span class="title">Define all events that occur in your study</span>
 		An event is any change ‘forced’ upon a subject, such as treatment, challenge, sampling. Choose an event type an define the different parameters of the event.		
@@ -101,7 +107,9 @@
 				</div>
 				</g:each></g:if>
 				<div class="firstColumn"></div>
+<% /*
 				<wizard:templateColumns id="${eventId}" entity="${events[ eventId ]}" template="${events[ eventId ].template}" name="event_${eventId}" class="column" />
+   */ %>
 			</div>
 		</g:each>
 	</div>

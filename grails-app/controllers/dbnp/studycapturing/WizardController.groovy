@@ -392,9 +392,8 @@ class WizardController {
 
 				if (!flow.event) {
 					flow.event			= new Event()
-					flow.events			= []
-					flow.eventGroups	= []
-					flow.eventGroups[0]	= new EventGroup(name: 'Group 1')	// 1 group by default
+					flow.events			= [:]
+					flow.eventGroups	= [ new EventGroup(name: 'Group 1') ]
 					flow.eventTemplates	= [:]
 				} else if (!flash.values) {
 					// set flash.values.templateType based on the event instance
@@ -403,6 +402,10 @@ class WizardController {
 				}
 				success()
 			}
+			on("clear") {
+				flow.remove('event')
+				success()
+			}.to "events"
 			on("switchTemplate") {
 				flash.values = params
 
@@ -491,6 +494,14 @@ class WizardController {
 					flow.eventTemplates.each() { eventTemplate ->
 						eventTemplate.value.events = eventTemplate.value.events.minus(delete)
 					}
+
+					// find eventTemplates without events
+			        flow.eventTemplates.find { eventTemplate ->
+						eventTemplate.value.events.size() < 1
+					}.each() {
+						// remove eventTemplate
+						flow.eventTemplates.remove( it.value.name )
+					}
 				}
 
 				success()
@@ -555,9 +566,9 @@ class WizardController {
 				flash.errors = [:]
 
 				// handle study data
-				if (flow.events.size() < 1) {
+				if (!flow.eventTemplates.find { eventTemplate -> eventTemplate.value.template.entity == SamplingEvent }) {
 					// append error map
-					this.appendErrorMap(['events': 'You need at least to create one event for your study'], flash.errors)
+					this.appendErrorMap(['events': 'You need to create at least one sampling event for your study'], flash.errors)
 					error()						
 				} else if (this.handleEvents(flow, flash, params)) {
 					success()
@@ -570,9 +581,9 @@ class WizardController {
 				flash.errors = [:]
 
 				// handle study data
-				if (flow.events.size() < 1) {
+				if (!flow.eventTemplates.find { eventTemplate -> eventTemplate.value.template.entity == SamplingEvent }) {
 					// append error map
-					this.appendErrorMap(['events': 'You need at least to create one event for your study'], flash.errors)
+					this.appendErrorMap(['events': 'You need to create at least one sampling event for your study'], flash.errors)
 					error()
 				} else if (this.handleEvents(flow, flash, params)) {
 					success()
@@ -595,12 +606,23 @@ class WizardController {
 			}.to "events"
 			on("next") {
 				this.handleSubjectGrouping(flow, flash, params)
+				flash.check = true
 				success()
 			}.to "samples"
 			on("quickSave") {
 				this.handleSubjectGrouping(flow, flash, params)
 				success()
 			}.to "waitForSave"
+		}
+
+		// sample 'previous' page with warning
+		samplePrevious {
+			render(view: "_samples_previous_warning")
+			onRender {
+				flow.page = 6
+			}
+			on("next").to "samples"
+			on("previous").to "groups"
 		}
 
 		// samples page
@@ -611,6 +633,7 @@ class WizardController {
 
 				// iterate through eventGroups
 				if (!flow.samples) {
+					flow.samplesWithTemplate = 0
 					flow.samples = []
 					flow.sampleTemplates = [:]
 					flow.eventGroups.each() { eventGroup ->
@@ -638,12 +661,23 @@ class WizardController {
 							}
 						}
 					}
+				} else if (flash.check) {
+					println "CHECKING SAMPLE CONSISTENCY"
+					// check the consistency of the samples
+					flow.samples.each() { sampleData ->
+						println sampleData
+						println sampleData.event.template
+					}
 				}
 
 				success()
 			}
 			on("switchTemplate") {
 				handleSamples(flow, flash, params)
+
+				// ignore errors
+				flash.errors = [:]
+				
 				succes()
 			}.to "samples"
 			on("refresh") {
@@ -659,6 +693,9 @@ class WizardController {
 				// handle samples
 				handleSamples(flow, flash, params)
 
+				// ignore errors
+				flash.errors = [:]
+
 				success()
 			}.to "samples"
 			on("regenerate") {
@@ -671,11 +708,28 @@ class WizardController {
 				// handle samples
 				handleSamples(flow, flash, params)
 
+				// ignore errors
+				flash.errors = [:]
+
 				success()
-			}.to "groups"
+			}.to "samplePrevious"
 			on("next") {
-				// handle samples
-				if (handleSamples(flow, flash, params)) {
+				flash.values = params
+				flash.errors = [:]
+
+				// do all samples have a template assigned?
+				if (flow.samplesWithTemplate < flow.samples.size()) {
+					// handle samples
+					this.handleSamples(flow, flash, params)
+
+					// ignore errors
+					flash.errors = [:]
+					
+					// add error
+					this.appendErrorMap(['samples': 'you need to select a template for each sample'], flash.errors)
+
+					error()
+				} else if (this.handleSamples(flow, flash, params)) {
 					success()
 				} else {
 					error()
@@ -1134,7 +1188,9 @@ class WizardController {
 			eventTemplate.getValue().events.each() { eventId ->
 				// iterate through template fields
 				flow.events[ eventId ].giveFields().each() { eventField ->
-					flow.events[ eventId ].setFieldValue(eventField.name, params.get( 'event_' + eventId + '_' + eventField.escapedName() ) )
+					if ( params.containsKey( 'event_' + eventId + '_' + eventField.escapedName() ) ) {
+						flow.events[ eventId ].setFieldValue(eventField.name, params.get( 'event_' + eventId + '_' + eventField.escapedName() ) )
+					}
 				}
 
 				// validate event
@@ -1213,43 +1269,68 @@ class WizardController {
 	 * @return boolean
 	 */
 	def handleSamples(flow, flash, params) {
+		flash.errors = [:]
+		def errors = false		
 		def id = 0
-		// TODO: Jeroen: why do you do this if you change the templates based on the name anyway in this function?
-		// It causes somehow also the template_<number> param to disappear, and that is a problem
-		//flow.sampleTemplates = [:]
-		println ".handling ${flow.samples.size()} samples:"
+
+		// iterate through samples
 		flow.samples.each() { sampleData ->
 			def sample = sampleData.sample
 			def sampleTemplateName = params.get('template_'+id)
-			println "..this sample '${sampleData.name}' has template '${sampleTemplateName}' according to params and '${sampleData.sample.template.toString()}' according to sample.template"
-			// set template for this sample?
-			if (sampleTemplateName && sampleTemplateName.size() > 0) {
-				// remember templatename
+			def oldSampleTemplateName = sampleData.sample.template.toString()
+
+			// has the sample template for this sample changed
+			if (sampleTemplateName && sampleTemplateName.size() > 0 && oldSampleTemplateName != sampleTemplateName) {
+				// yes, has the template changed?
+				println ".changing template for sample ${id} to ${sampleTemplateName}"
+
+				// decrease previous template count
+				if (oldSampleTemplateName && flow.sampleTemplates[ oldSampleTemplateName ]) {
+					flow.sampleTemplates[ oldSampleTemplateName ].count--
+
+					if (flow.sampleTemplates[ oldSampleTemplateName ].count < 1) {
+						// no samples left, remove template altogether
+						flow.sampleTemplates.remove( oldSampleTemplateName )
+					}
+				} else {
+					// increate main template counter?
+					flow.samplesWithTemplate++
+				}
+
+				// increase current template count
 				if (!flow.sampleTemplates[ sampleTemplateName ]) {
-					println "...adding again template '${sampleTemplateName}' to flow.sampleTemplates"
 					flow.sampleTemplates[ sampleTemplateName ] = [
 						name		: sampleTemplateName,
 						template	: Template.findByName( sampleTemplateName ),
 						count		: 1
 					]
-				}
-
-				if (sample.template.toString() != sampleTemplateName ) {
-					println "...changing from sample.template' ${sample.template.toString()}' to '${sampleTemplateName}' with fields [${flow.sampleTemplates[ sampleTemplateName ].template.fields}]"
-					// change template
-					sampleData.sample.template = flow.sampleTemplates[ sampleTemplateName ].template
-
-					// decrease previous template use count
-					if (flow.sampleTemplates[ sample.template.toString() ]) {
-						flow.sampleTemplates[ sample.template.toString() ].count--
-					}
-
-					// increase template use count
+				} else {
+					// increase count
 					flow.sampleTemplates[ sampleTemplateName ].count++
 				}
+
+				// change template
+				sampleData.sample.template = flow.sampleTemplates[ sampleTemplateName ].template
 			}
+
+			// handle values
+			sampleData.sample.giveFields().each() { sampleField ->
+				if ( params.containsKey( 'sample_'+id+'_'+sampleField.escapedName() ) ) {
+					sampleData.sample.setFieldValue( sampleField.name, params.get( 'sample_'+id+'_'+sampleField.escapedName() ) )
+				}
+			}
+
+			// validate sample
+			if (!sampleData.sample.validate()) {
+				errors = true
+				this.appendErrors(sampleData.sample, flash.errors, 'sample_' + id + '_' )
+			}
+
+			// increase counter
 			id++
 		}
+
+		return !errors
 	}
 
 	/**

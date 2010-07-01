@@ -29,6 +29,16 @@
     display: block;
     margin-bottom: 5px;
     padding-left: 20px;
+    background: url(../images/icons/famfamfam/error.png) no-repeat center left;
+}
+
+.wizard .info .warning {
+    color:#006DBA;
+    font-size:14px;
+    font-weight:normal;
+    display: block;
+    margin-bottom: 5px;
+    padding-left: 20px;
     background: url(../images/icons/famfamfam/exclamation.png) no-repeat center left;
 }
 
