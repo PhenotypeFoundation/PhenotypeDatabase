@@ -60,24 +60,25 @@ class ImporterService {
 	for (HSSFCell c: sheet.getRow(datamatrix_start)) {
 	    def index	=   c.getColumnIndex()
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(index).getCellType()
+	    def datamatrix_celldata = df.formatCellValue(sheet.getRow(datamatrix_start).getCell(index))
 	    def headercell = sheet.getRow(sheet.getFirstRowNum()).getCell(index)
 	    def tft = TemplateFieldType.STRING //default templatefield type
-	    
+
             // Check for every celltype, currently redundant code, but possibly this will be 
 	    // a piece of custom code for every cell type like specific formatting
 	        
 	    switch (datamatrix_celltype) {
                     case HSSFCell.CELL_TYPE_STRING:
 			    //parse cell value as double
-			    def parsable = true
+			    def doubleBoolean = true
 			    def fieldtype = TemplateFieldType.STRING
 
 			    // is this string perhaps a double?
-			    try {
-				formatValue(c.getStringCellValue(), TemplateFieldType.DOUBLE)
-			    } catch (NumberFormatException nfe) { parsable = false }
-			    finally {
-				if (parsable) fieldtype = TemplateFieldType.DOUBLE
+			    try {				
+				formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
+			    } catch (NumberFormatException nfe) { doubleBoolean = false }
+			    finally {				
+				if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
 			    }
 
 			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
@@ -87,20 +88,35 @@ class ImporterService {
 									    property:property);
 
 			    break
-                    case HSSFCell.CELL_TYPE_NUMERIC:			
-			    if (HSSFDateUtil.isCellDateFormatted(c)) {
-				header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
-										templatefieldtype:TemplateFieldType.DATE,
-										index:index,
-										entity:theEntity,
-										property:property)
+                    case HSSFCell.CELL_TYPE_NUMERIC:
+			    def fieldtype = TemplateFieldType.INTEGER
+			    def doubleBoolean = true
+			    def integerBoolean = true
+
+			    // is this cell really an integer?
+			    try {				
+				Integer.valueOf(datamatrix_celldata)
+			    } catch (NumberFormatException nfe) { integerBoolean = false }
+			    finally {				
+				if (integerBoolean) fieldtype = TemplateFieldType.INTEGER
 			    }
-			    else
-				header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
-										templatefieldtype:TemplateFieldType.INTEGER,
-										index:index,
-										entity:theEntity,
-										property:property);
+
+			    // it's not an integer, perhaps a double?
+			    if (!integerBoolean)
+				try {
+				    formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
+				} catch (NumberFormatException nfe) { doubleBoolean = false }
+				finally {
+				    if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
+				}
+
+			    if (HSSFDateUtil.isCellDateFormatted(c)) fieldtype = TemplateFieldType.DATE
+			    
+			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+									    templatefieldtype:fieldtype,
+									    index:index,
+									    entity:theEntity,
+									    property:property);
 			    break
 		    case HSSFCell.CELL_TYPE_BLANK:
 			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
@@ -332,7 +348,7 @@ class ImporterService {
 	    switch (type) {
 		case TemplateFieldType.STRING	    :   return value.trim()
 		case TemplateFieldType.TEXT	    :   return value.trim()
-		case TemplateFieldType.INTEGER	    :   return Integer.valueOf(value.replaceAll("[^0-9]",""))
+		case TemplateFieldType.INTEGER	    :   return Integer.valueOf(value)
 		case TemplateFieldType.FLOAT	    :   return Float.valueOf(value.replace(",","."));
 		case TemplateFieldType.DOUBLE	    :   return Double.valueOf(value.replace(",","."));
 		case TemplateFieldType.STRINGLIST   :   return value.trim()
