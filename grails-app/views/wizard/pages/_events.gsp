@@ -107,9 +107,7 @@
 				</div>
 				</g:each></g:if>
 				<div class="firstColumn"></div>
-<% /*
 				<wizard:templateColumns id="${eventId}" entity="${events[ eventId ]}" template="${events[ eventId ].template}" name="event_${eventId}" class="column" />
-   */ %>
 			</div>
 		</g:each>
 	</div>
