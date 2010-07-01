@@ -12,7 +12,7 @@
 	 * $Date$
 	 */
 %>
-<g:form name="postviewform" action="savepostview">
+<g:form name="postviewform" action="savePostview">
     <table>	
 	<tr>	  
 	    <g:each var="table" in="${datamatrix}">
