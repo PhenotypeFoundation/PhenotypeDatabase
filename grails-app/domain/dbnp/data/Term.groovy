@@ -14,9 +14,7 @@ import dbnp.data.Ontology
  * $Date$
  */
 class Term implements Serializable {
-    static searchable = {
-           [only: ['name']]
-    }
+    //static searchable = { [only: ['ontology']] }
 
 	String name             // BioPortal: label (preferred name)
 	Ontology ontology       // Parent ontology. To enable the unique constraints, we describe the Ontology-Term relation here

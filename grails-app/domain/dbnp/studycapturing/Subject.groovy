@@ -12,9 +12,8 @@ import dbnp.data.Ontology
  * $Date$
  */
 class Subject extends TemplateEntity implements Serializable {
-    static searchable = {
-           [only: ['name']]
-    }
+
+    static searchable = { [only: ['name']] }
 	String name
 	Term species
 
