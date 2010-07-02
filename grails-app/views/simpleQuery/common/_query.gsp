@@ -24,7 +24,10 @@
         <div class="input"><g:select name="organ" from="" value="${organ}" noSelection="['':'--- select organ/tissue ---']"/></div>
       </div>
     </div>
-    <g:submitButton name="search" value="Search" /> <g:if test="${search_term}"><g:submitButton name="reset" value="Clear" /></g:if>
+
+    <br>
+
+    <g:submitButton name="search" value="Search"  /> <g:if test="${search_term}"><g:submitButton name="reset" value="Clear" /></g:if>
 
     <br><br>
 
@@ -32,26 +35,32 @@
       <h3><a href="#">Simple Assays</a></h3>
       <div class="element">
         <div id="compoundGroup">
-          <g:if test="${resultString}">
+
+          <g:if test="${showFirstRowCompounds}">
           <div id="compoundRow1">
-            <div class="description">Compound (e.g. 'glucose')</div>
+            <div class="descriptionSA">Compound</div>
             <div class="input"><g:textField name="sa_compound" value="${search_sa_compounds}"/></div>
-            <div class="description">Value</div>
+            <div class="descriptionSA">Operator</div>
+            <div class="input" id="operatorInput"><g:select name="operator" from="${operators}" value="="/></div>
+            <div class="descriptionSA">Value</div>
             <div class="input"><g:textField name="sa_value" value="${search_sa_values}"/></div>
           </div>
           </g:if>
+
           <g:else>
             <g:each status="i" in="${search_sa_compounds}" var="compound">
             <div id="compoundRow${i}">
-              <div class="description">Compound (e.g. 'glucose')</div>
+              <div class="descriptionSA">Compound (e.g. 'glucose')</div>
               <div class="input"><g:textField name="sa_compound" value="${compound}"/></div>
-              <div class="description">Value</div>
+              <div class="descriptionSA">Type of regulations</div>
+              <div class="input"><g:select name="operator" from="${operators}" value="="/></div>
+              <div class="descriptionSA">Value</div>
               <div class="input"><g:textField name="sa_value" value="${search_sa_values[i]}"/></div>
             </div>
             </g:each>
           </g:else>
         </div>
-        <div id="addCompound">Add compound</div>
+        <div id="addCompound" class="submit">Add compound</div>
       </div>
 
       <h3><a href="#">Transcriptomics</a></h3>

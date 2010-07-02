@@ -26,7 +26,7 @@
         newCompoundDiv.setAttribute('id', 'compoundRow' + compoundCounter);
 
         var newCompoundRowDiv1 = document.createElement('div');
-        newCompoundRowDiv1.setAttribute('class', 'description');
+        newCompoundRowDiv1.setAttribute('class', 'descriptionSA');
         newCompoundRowDiv1.innerHTML = "Compound";
         newCompoundDiv.appendChild(newCompoundRowDiv1);
 
@@ -36,15 +36,25 @@
         newCompoundDiv.appendChild(newCompoundRowDiv2);
 
         var newCompoundRowDiv3 = document.createElement('div');
-        newCompoundRowDiv3.setAttribute('class', 'description');
-        newCompoundRowDiv3.innerHTML = "Value";
+        newCompoundRowDiv3.setAttribute('class', 'descriptionSA');
+        newCompoundRowDiv3.innerHTML = "Operator";
         newCompoundDiv.appendChild(newCompoundRowDiv3);
 
         var newCompoundRowDiv4 = document.createElement('div');
         newCompoundRowDiv4.setAttribute('class', 'input');
-        newCompoundRowDiv4.innerHTML = "<input type='text' name='sa_value' value=''>";
+        var newSelectBox = document.getElementById('operatorInput');
+        newCompoundRowDiv4 = newSelectBox.cloneNode(true);
         newCompoundDiv.appendChild(newCompoundRowDiv4);
 
+        var newCompoundRowDiv5 = document.createElement('div');
+        newCompoundRowDiv5.setAttribute('class', 'descriptionSA');
+        newCompoundRowDiv5.innerHTML = "Value";
+        newCompoundDiv.appendChild(newCompoundRowDiv5);
+
+        var newCompoundRowDiv6 = document.createElement('div');
+        newCompoundRowDiv6.setAttribute('class', 'input');
+        newCompoundRowDiv6.innerHTML = "<input type='text' name='sa_value' value=''>";
+        newCompoundDiv.appendChild(newCompoundRowDiv6); 
         compoundGroup.appendChild(newCompoundDiv);
 
         compoundCounter++;

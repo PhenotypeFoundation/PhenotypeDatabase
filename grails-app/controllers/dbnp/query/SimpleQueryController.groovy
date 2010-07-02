@@ -17,6 +17,7 @@ package dbnp.query
 import dbnp.data.*
 import dbnp.studycapturing.Study
 import org.compass.core.engine.SearchEngineQueryParseException
+import dbnp.rest.common.CommunicationManager
 
 class SimpleQueryController {
 	/**
@@ -30,10 +31,11 @@ class SimpleQueryController {
 
     def pagesFlow = {
 
+        // Starting simpleQuery flow, initialize variables
         onStart {
             println "Starting webflow simpleQuery"
             flow.search_term            = null
-            flow.page = 0
+            flow.page                   = 0
 			flow.pages = [
                 [title: 'Query'],
 				[title: 'Results']
@@ -43,8 +45,11 @@ class SimpleQueryController {
         // Render the query page and handle its actions
 		query {
 			render(view: "/simpleQuery/mainPage")
+
             onRender {
               println "Rendering mainPage"
+              flow.operators              = ['>', '=', '<']
+              flow.showFirstRowCompounds  = true
               flow.species = Term.findAll()
               flow.page = 1
             }
@@ -63,39 +68,69 @@ class SimpleQueryController {
         // Searching for results
         searching {
            action {
+              println "Starting search..."
+              def searchResult
+              def searchGscfResult
+              def searchSamResult
 
-              println "Searching"
-              println params
-             
+              // TODO: walk parameters, remove empty entries
+
+              // Map parameters
               flow.search_term            = params.search_term
               flow.search_sa_compounds    = params.sa_compound
+              flow.search_sa_operators    = params.sa_operator
               flow.search_sa_values       = params.sa_value
               flow.search_tt_genepaths    = params.sa_genepath
               flow.search_tt_regulations  = params.sa_regulation
 
-              // Searchable plugin not yielding results yet
-              /*
-              try {
-                println searchableService.countHits("mouse")
-              } catch (SearchEngineQueryParseException ex) {
-                //return [parseException: true]
-                println ex
+              // Check to see how parameters are being handled
+              if (flow.search_sa_compounds.class.getName() == "java.lang.String") {
+                println "string"
+              } else {
+                println "array of size " + flow.search_sa_compounds.length
               }
-              */
 
-              // Search for the term in Terms
-              // results = searchableService.search(flow.search_term, type:"Term")
+              // Search the keyword with the Searchable plugin
+              try {
+                searchGscfResult = searchableService.search(flow.search_term)
+              } catch (SearchEngineQueryParseException ex) {
+                println ex
+                return [parseException: true]
+              }
 
-              // Map the Terms to Studies
-              // ...
+              // Map non-study objects to Studies
+              // ... todo when the plugin works and I can see the output
 
-              // Save the results in the flow
-              // flow.studies = results
+              // Search in the SAM module
+              println "checking compounds"
+              if (flow.search_sa_compounds) {
+                objComs = new CommunicationManager()
+
+                if (flow.search_sa_compounds.class.getName() == "java.lang.String") {
+                  searchSamResult = objComs.getSAMStudies(flow.search_sa_compounds, flow.search_sa_values, flow.search_sa_operators)
+                } else {
+                  def tmpSamResult
+                  flow.search_sa_compounds.each {
+                    obj, i -> println " ${i}: ${obj}" // objComs.getSAMStudies()
+                    tmpSamResult = objComs.getSAMStudies(flow.search_sa_compounds[i], flow.search_sa_values[i], flow.search_sa_operators[i])
+
+                    // Combine each search
+                    // searchSamResult = Merge(searchSamResult, tmpSamResult)
+                    searchSamResult = tmpSamResult
+                  };
+                }
+              }
+
+             // Merge the results of all searches
+             /*
+             if (searchGscfResult.size() > 0) {
+                searchResult = Merge(searchSamResult, searchGscfResult)
+             }             
+             */
 
 
-
-              // As a usable result set we will use all studies for now
-              flow.listStudies = Study.findAll()
+             // Save the results in the flow
+             flow.listStudies = searchGscfResult.results
 
            }
 
@@ -112,6 +147,7 @@ class SimpleQueryController {
               println "Rendering resultPage"
               flow.page = 2
 
+              // TODO: Fix the showing of entered data, broke with plugin develeopment
               if (flow.search_sa_compounds) {
                 if (flow.search_sa_compounds.class.getName() == "java.lang.String") {
                   flow.resultString = true
@@ -119,8 +155,6 @@ class SimpleQueryController {
                   flow.resultString = false
                 }
               }
-
-              println flow.search_sa_compounds.getClass()
             }
 
             on("reset") {
