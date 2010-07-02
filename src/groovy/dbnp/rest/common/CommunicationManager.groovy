@@ -3,9 +3,9 @@ package dbnp.rest.common
 import grails.converters.JSON
 import java.net.URLEncoder
 import org.codehaus.groovy.grails.web.json.*
+import dbnp.studycapturing.Study
 
-
-/**  CommunicationManager 
+/**  CommunicationManager
  *
  *   @author Jahn
  *
@@ -180,5 +180,20 @@ class CommunicationManager {
         // parameters: externalAssayID
 		addViewWrapper( 'getMeasurementTypesURL', url, 'simpleAssayMeasurementType/list', ['externalStudyID'] )
     }
+
+
+  
+    /** Send a request for the REST resource to SAM and deliver the
+     *  results for the Query controller.
+     *
+     *  @param  compound	a SAM compound, e.g., "ldl" or "weight"
+     *  @param  value		a SAM value of a measurement, e.g. "20" (without unit, please)
+     *  @param  opperator	a SAM operator, i.e., "", "=", "<", or ">"
+     *  @return List of matching studies
+     */
+    public List<Study> getSAMStudies( String compound, String value, String opperator ) {
+         return []
+    }
+
 
 }
