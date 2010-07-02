@@ -9,7 +9,10 @@ package dbnp.studycapturing
  * $Date$
  */
 class Study extends TemplateEntity implements Serializable {
-	static searchable = true
+	static searchable = {
+           [only: ['title', 'Description']]
+    }
+
 	nimble.User owner
 	String title
 	String code 		// also enables referencing to studies from the Simple Assay Module
