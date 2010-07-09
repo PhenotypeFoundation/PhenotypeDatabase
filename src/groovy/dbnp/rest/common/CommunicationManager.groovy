@@ -25,9 +25,9 @@ import dbnp.studycapturing.Study
 
 class CommunicationManager {
 
-    def static Encoding     = "UTF-8" 
-    def public static SAMServerURL = "localhost:8182/sam"
-    def public static GSCFServerURL = "localhost:8080/gscf"
+    def        static Encoding      = "UTF-8" 
+    def public static SAMServerURL  = "http://localhost:8182/sam"
+    def public static GSCFServerURL = "http://localhost:8080/gscf"
 
      
 
@@ -56,6 +56,7 @@ class CommunicationManager {
     public static URL getRestURL( RestServerURL, resource, params ) {
         def url = RestServerURL + '/' + resource
 		def first = true
+		println "url: " + url
 		params.each { name, value ->
 			if(first) {
 				first = false
@@ -104,7 +105,7 @@ class CommunicationManager {
      * 
      */
 
-    public static addRestWrapper( serverURL, restName, params = [] ) {
+    public static addRestWrapper( serverURL, restName, params = [], closure = { return it } ) {
 		CommunicationManager.metaClass.registerStaticMethod( restName ) { Object [] strangeGroovyArgs ->
 			def map = [:]
 		    def args = strangeGroovyArgs[0]        // groovy nests the parameters of the methods in some other array
@@ -112,9 +113,12 @@ class CommunicationManager {
 				def param = params[i]
 			    map[param] = args[i]
 			}
-			return getRestResource( serverURL, restName, map )
+			return closure( getRestResource( serverURL, restName, map ) )
 		}
-    }
+        println "registered + ${restName}"
+	}
+
+
 
 
 
@@ -162,7 +166,7 @@ class CommunicationManager {
      *  This method should be called in grails-app/conf/BootStrap.groovy in the GSCF module.
      */ 
     public static registerRestWrapperMethodsSAMtoGSCF() {
-		def url = SAMServerURL 
+		def url = SAMServerURL
 
 		// register method that links to the SAM view for importing a SimpleAssay. 
         // parameters: externalAssayID, an externalAssayID 
@@ -179,6 +183,33 @@ class CommunicationManager {
    		// register method that links to the SAM view for editing a SimpleAssay 
         // parameters: externalAssayID
 		addViewWrapper( 'getMeasurementTypesURL', url, 'simpleAssayMeasurementType/list', ['externalStudyID'] )
+
+   		// register rest resource that returns the results of a full text query on SAM 
+        // parameters:   query. A string for fulltext search on SAM
+        // return value: results map. It contains two keys 'studyIds', and 'assays'. 'studyIds' 
+		//               key maps to a list of Study domain objects of GSCF. 'assays' map to a
+		//               list of pairs. Each pair consists of an Assay domain object of GSCF and
+		//               additional assay information from SAM provided as a map.
+		// Example of a returned map: 
+		//               [studyIds:[PPSH], 
+		//				 assays:[[isIntake:false, isDrug:false, correctionMethod:test Correction Method 1, 
+		//				 detectableLimit:1, isNew:false, class:data.SimpleAssay, externalAssayID:1, id:1, 
+		//				 measurements:null, unit:Insulin, inSerum:false, name:test Simple Assay 1, 
+		//				 referenceValues:test Reference Values 1]]]
+		def closure = { map -> 
+		    def studies = [] 	
+		    def assays  = [] 	
+			map['studyIds'].each { studies.add( dbnp.studycapturing.Study.find("from dbnp.studycapturing.Study as s where s.code=?",[it]) ) }
+			map['assays'].each { samAssay ->
+				def assayID = samAssay['externalAssayID']
+				def assay = dbnp.studycapturing.Assay.find("from dbnp.studycapturing.Assay as a where a.externalAssayID='${assayID}'")
+				assays.add( [samAssay,assay] )
+			} 
+			return [studies:studies, assays:assays] 
+		}
+
+		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'], closure )
+		
     }
 
 
