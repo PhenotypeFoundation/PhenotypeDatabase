@@ -3,7 +3,6 @@ package dbnp.rest.common
 import grails.converters.JSON
 import java.net.URLEncoder
 import org.codehaus.groovy.grails.web.json.*
-import dbnp.studycapturing.Study
 
 /**  CommunicationManager
  *
@@ -115,7 +114,6 @@ class CommunicationManager {
 			}
 			return closure( getRestResource( serverURL, restName, map ) )
 		}
-        println "registered + ${restName}"
 	}
 
 
@@ -199,10 +197,12 @@ class CommunicationManager {
 		def closure = { map -> 
 		    def studies = [] 	
 		    def assays  = [] 	
-			map['studyIds'].each { studies.add( dbnp.studycapturing.Study.find("from dbnp.studycapturing.Study as s where s.code=?",[it]) ) }
+			def studiesHQ = "from dbnp.studycapturing.Study as s where s.code=?"
+			map['studyIds'].each { studies.add( dbnp.studycapturing.Study.find(studiesHQ,[it]) ) }
 			map['assays'].each { samAssay ->
 				def assayID = samAssay['externalAssayID']
-				def assay = dbnp.studycapturing.Assay.find("from dbnp.studycapturing.Assay as a where a.externalAssayID='${assayID}'")
+			    def assayHQ = "from dbnp.studycapturing.Assay as a where a.externalAssayID='${assayID}'"
+				def assay = dbnp.studycapturing.Assay.find(assayHQ)
 				assays.add( [samAssay,assay] )
 			} 
 			return [studies:studies, assays:assays] 
@@ -210,20 +210,6 @@ class CommunicationManager {
 
 		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'], closure )
 		
-    }
-
-
-  
-    /** Send a request for the REST resource to SAM and deliver the
-     *  results for the Query controller.
-     *
-     *  @param  compound	a SAM compound, e.g., "ldl" or "weight"
-     *  @param  value		a SAM value of a measurement, e.g. "20" (without unit, please)
-     *  @param  opperator	a SAM operator, i.e., "", "=", "<", or ">"
-     *  @return List of matching studies
-     */
-    public List<Study> getSAMStudies( String compound, String value, String opperator ) {
-         return []
     }
 
 
