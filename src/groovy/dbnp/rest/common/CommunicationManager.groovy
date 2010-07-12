@@ -151,7 +151,7 @@ class CommunicationManager {
      *  This method should be called in grails-app/conf/BootStrap.groovy in the SAM module.
      */ 
     public static registerRestWrapperMethodsGSCFtoSAM() {
-    	def url = GSCFServerURL
+    	def url = GSCFServerURL + '/rest'
 		addRestWrapper( url , 'getStudies' )
 		addRestWrapper( url , 'getSubjects', ['externalStudyID'] )
 		addRestWrapper( url , 'getAssays',   ['externalStudyID'] )
