@@ -54,3 +54,11 @@
     overflow: hidden;
     white-space: nowrap;
 }
+
+.simplequery h1 {
+    padding: 0px 0px 12px 0px;
+}
+
+.simplequery #accordion {
+    margin-bottom: 20px;
+}

@@ -18,7 +18,7 @@
 
     $("#accordion").accordion({collapsible: true,
         autoHeight: false,
-        active: false});
+        active: 0});
 
     $('#addCompound').click(function() {
         var compoundGroup = document.getElementById('compoundGroup');
