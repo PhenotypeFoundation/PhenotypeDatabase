@@ -189,11 +189,10 @@ class CommunicationManager {
 		//               list of pairs. Each pair consists of an Assay domain object of GSCF and
 		//               additional assay information from SAM provided as a map.
 		// Example of a returned map: 
-		//               [studyIds:[PPSH], 
-		//				 assays:[[isIntake:false, isDrug:false, correctionMethod:test Correction Method 1, 
-		//				 detectableLimit:1, isNew:false, class:data.SimpleAssay, externalAssayID:1, id:1, 
-		//				 measurements:null, unit:Insulin, inSerum:false, name:test Simple Assay 1, 
-		//				 referenceValues:test Reference Values 1]]]
+		//				 ["studies":[NuGO PPS human study], 
+		//               "assays":[[["isIntake":false, "isDrug":false, "correctionMethod":"test Correction Method 1", "detectableLimit":1, "isNew":false, 
+		//               "class":"data.SimpleAssay", "externalAssayID":"1", "id":1, "measurements":null, "unit":"Insulin", "inSerum":false, 
+        //				 "name":"test Simple Assay 1", "referenceValues":"test Reference Values 1"], dbnp.studycapturing.Assay : 1]]]
 		def closure = { map -> 
 		    def studies = [] 	
 		    def assays  = [] 	
@@ -209,7 +208,6 @@ class CommunicationManager {
 		}
 
 		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'], closure )
-		
     }
 
 
