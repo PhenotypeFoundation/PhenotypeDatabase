@@ -55,6 +55,11 @@
         newCompoundRowDiv6.setAttribute('class', 'input');
         newCompoundRowDiv6.innerHTML = "<input type='text' name='sa_value' value=''>";
         newCompoundDiv.appendChild(newCompoundRowDiv6); 
+
+        //var newCompoundRowDiv7 = document.createElement('div');
+        //newCompoundRowDiv7.setAttribute('class', 'delete');
+        //newCompoundRowDiv7.innerHTML = "delete";
+        //newCompoundDiv.appendChild(newCompoundRowDiv7);
         compoundGroup.appendChild(newCompoundDiv);
 
         compoundCounter++;

@@ -25,24 +25,22 @@
 }
 
 .simplequery .submit {
-    padding: 5px;
-    display: inline;
+    margin-top: 15px;
+    padding: 2px;
     font-size: 11px;
-    word-wrap: break-word;
+    border: 3px outset lightblue;
+    width: 100px;
+    text-align: center;
 }
 
 .simplequery .element .input {
     display: inline;
-    margin-right: 10px;
     font-size: 11px;
-    word-wrap: break-word;
 }
 
 .simplequery .element .input input {
     vertical-align: top;
     border: 1px solid #CCC;
-    margin: 2px 0;
-    padding: 2px 4px;
 }
 
 .simplequery .table {

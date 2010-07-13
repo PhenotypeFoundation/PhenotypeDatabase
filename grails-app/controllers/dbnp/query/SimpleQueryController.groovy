@@ -35,6 +35,9 @@ class SimpleQueryController {
         onStart {
             println "Starting webflow simpleQuery"
             flow.search_term            = null
+            flow.search_sa_compounds    = []
+            flow.search_sa_operators    = []
+            flow.search_sa_values       = []
             flow.page                   = 0
 			flow.pages = [
                 [title: 'Query'],
@@ -49,7 +52,15 @@ class SimpleQueryController {
             onRender {
               println "Rendering mainPage"
               flow.operators              = ['>', '=', '<']
-              flow.showFirstRowCompounds  = true
+
+              if (flow.search_sa_compounds.size() == 0) {
+                flow.showFirstRowCompounds  = true
+                println "showRow true"
+              } else {
+                flow.showFirstRowCompounds  = false
+                println "showRow false"
+              }
+
               flow.species = Term.findAll()
               flow.page = 1
             }
@@ -68,26 +79,30 @@ class SimpleQueryController {
         // Searching for results
         searching {
            action {
-              println "Starting search..."
+              println "Starting simpleQuery search..."
               def searchResult
               def searchGscfResult
-              def searchSamResult
+              def searchSamResult   = []
 
               // TODO: walk parameters, remove empty entries
 
-              // Map parameters
-              flow.search_term            = params.search_term
-              flow.search_sa_compounds    = params.sa_compound
-              flow.search_sa_operators    = params.sa_operator
-              flow.search_sa_values       = params.sa_value
-              flow.search_tt_genepaths    = params.sa_genepath
-              flow.search_tt_regulations  = params.sa_regulation
+              // Map GSCF parameters
+              flow.search_term            = params.search_term        // String
 
-              // Check to see how parameters are being handled
-              if (flow.search_sa_compounds.class.getName() == "java.lang.String") {
-                println "string"
+              // Map SAM parameters
+              if (params.sa_compound instanceof String) {
+                //flow.search_sam = [:]
+                flow.search_sa_compounds = []
+                flow.search_sa_operators = []
+                flow.search_sa_values    = []
+
+                flow.search_sa_compounds.add(params.sa_compound)
+                flow.search_sa_operators.add(params.sa_operator)
+                flow.search_sa_values.add(params.sa_value)
               } else {
-                println "array of size " + flow.search_sa_compounds.length
+                flow.search_sa_compounds  = params.sa_compound as List
+                flow.search_sa_operators  = params.sa_operator as List
+                flow.search_sa_values     = params.sa_value as List
               }
 
               // Search the keyword with the Searchable plugin
@@ -101,36 +116,25 @@ class SimpleQueryController {
               // Map non-study objects to Studies
               // ... todo when the plugin works and I can see the output
 
-              // Search in the SAM module
-              println "checking compounds"
-              if (flow.search_sa_compounds) {
-                objComs = new CommunicationManager()
-
-                if (flow.search_sa_compounds.class.getName() == "java.lang.String") {
-                  searchSamResult = objComs.getSAMStudies(flow.search_sa_compounds, flow.search_sa_values, flow.search_sa_operators)
-                } else {
-                  def tmpSamResult
-                  flow.search_sa_compounds.each {
-                    obj, i -> println " ${i}: ${obj}" // objComs.getSAMStudies()
-                    tmpSamResult = objComs.getSAMStudies(flow.search_sa_compounds[i], flow.search_sa_values[i], flow.search_sa_operators[i])
-
-                    // Combine each search
-                    // searchSamResult = Merge(searchSamResult, tmpSamResult)
-                    searchSamResult = tmpSamResult
-                  };
-                }
+              // Search in the SAM module when a compound is entered
+              // Todo: check whether the module is active and to be used
+              // ...
+              if (flow.search_sa_compounds.size() > 0) {
+                def resultSAM = []
+                resultSAM = this.searchSAM(flow.search_sa_compounds)
+                println "Sam result: " + resultSAM
               }
-
+                                         
              // Merge the results of all searches
-             /*
              if (searchGscfResult.size() > 0) {
-                searchResult = Merge(searchSamResult, searchGscfResult)
+               
+                searchResult = searchSamResult + searchGscfResult
              }             
-             */
 
 
              // Save the results in the flow
              flow.listStudies = searchGscfResult.results
+             println flow.listStudies
 
            }
 
@@ -147,14 +151,7 @@ class SimpleQueryController {
               println "Rendering resultPage"
               flow.page = 2
 
-              // TODO: Fix the showing of entered data, broke with plugin develeopment
-              if (flow.search_sa_compounds) {
-                if (flow.search_sa_compounds.class.getName() == "java.lang.String") {
-                  flow.resultString = true
-                } else {
-                  flow.resultString = false
-                }
-              }
+              flow.showFirstRowCompounds  = false
             }
 
             on("reset") {
@@ -172,4 +169,43 @@ class SimpleQueryController {
         }
 
     }
+
+
+   static List searchSAM (List compounds) {
+     if (compounds.size() == 1) {
+       println "Single SAM call"
+       def mapSamResult
+       mapSamResult = CommunicationManager.getQueryResult(compounds.get(0))
+       
+       return mapSamResult.studies
+
+     } else {
+       println "Multiple SAM calls"
+       def tmpSamResult
+       def i = 0
+
+       compounds.each() {
+         println compounds.get(i)
+
+         println "set tmpSamResult"
+
+         // Combine each search
+         // searchSamResult = Merge(searchSamResult, tmpSamResult)
+         // searchSamResult += tmpSamResult
+         i++
+       };
+     }
+
+   }
+
+
+
+   static List merge (List list1, List list2) {
+
+     def resultList = []
+     resultList = list1.intersect(list2)
+
+     return resultList
+   }
+
 }
