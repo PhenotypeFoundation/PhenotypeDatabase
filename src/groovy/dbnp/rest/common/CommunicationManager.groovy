@@ -27,6 +27,7 @@ class CommunicationManager {
     def        static Encoding      = "UTF-8" 
     def public static SAMServerURL  = "http://localhost:8182/sam"
     def public static GSCFServerURL = "http://localhost:8080/gscf"
+    def public static DSPServerURL  = "http://localhost:8080/gscf"
 
      
 
@@ -193,9 +194,9 @@ class CommunicationManager {
 		//               "assays":[[["isIntake":false, "isDrug":false, "correctionMethod":"test Correction Method 1", "detectableLimit":1, "isNew":false, 
 		//               "class":"data.SimpleAssay", "externalAssayID":"1", "id":1, "measurements":null, "unit":"Insulin", "inSerum":false, 
         //				 "name":"test Simple Assay 1", "referenceValues":"test Reference Values 1"], dbnp.studycapturing.Assay : 1]]]
-		def closure = { map -> 
-		    def studies = [] 	
-		    def assays  = [] 	
+		def closure = { map ->
+		    def studies = []
+		    def assays  = []
 			def studiesHQ = "from dbnp.studycapturing.Study as s where s.code=?"
 			map['studyIds'].each { studies.add( dbnp.studycapturing.Study.find(studiesHQ,[it]) ) }
 			map['assays'].each { samAssay ->
@@ -209,6 +210,22 @@ class CommunicationManager {
 
 		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'], closure )
     }
+
+
+    /**
+     *  This method creates on run time new methods for accessing Grails views that SAM provides for GSCF.
+     *  This method should be called in grails-app/conf/BootStrap.groovy in the GSCF module.
+     */ 
+    public static registerRestWrapperMethodsGSCFtoDSP() {
+		def url = DSPServerURL
+		addRestWrapper( url, 'isUser',  ['username','password'] )
+		addRestWrapper( url, 'listStudies',  ['username','password'] )
+		addRestWrapper( url, 'listStudySamples',  ['username','password','study_token'] )
+		addRestWrapper( url, 'getStudy',  ['username','password','study_token'] )
+		addRestWrapper( url, 'getStudySample',  ['username','password','study_token','sample_token'] )
+		addRestWrapper( url, 'isUser',  ['username','password'] )
+    }
+
 
 
 }

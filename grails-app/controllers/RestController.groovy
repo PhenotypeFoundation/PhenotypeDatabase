@@ -10,7 +10,7 @@
  * convention for describing parameters ("@param"), but actually we mean
  * key-value pairs in the params object of each Grails action we comment on.
  * 
- * @author	Jahn 
+ * @author	Jahn-Takeshi Saito
  * @since	20100601
  *
  */
@@ -26,7 +26,11 @@ import org.codehaus.groovy.grails.web.json.*
 class RestController {
 
 
-        /* REST resources for Simple Assay Module (SAM) */ 
+
+       /**************************************************/
+      /** Rest resources for Simple Assay Module (SAM) **/
+     /**************************************************/
+    
 
 
 	/**
@@ -108,4 +112,202 @@ class RestController {
 		render items as JSON
 	}
 
+
+
+
+
+       /****************************/
+      /** Rest resources for DSP **/
+     /****************************/
+    
+	
+	/* still not complete!! */
+
+	/**
+	* REST resource for DSP.
+	* call: gscf/rest/isUser/?username=username&password=password
+	*
+	* @param  String username   
+	* @param  String password
+	* @return bool
+	*/
+	def isUser= {
+		def isUser = isVerifiedUser( params )
+		render isUser as JSON
+	}
+
+
+	/* still not complete!! */
+	/**
+	* REST resource for DSP.
+	* call: gscf/rest/listStudies/?username=username&password=password 
+	*
+	* @param  String username
+	* @param  String password
+	* @return list of studies 
+	*/
+	def listStudies = {
+
+		if( !isVerifiedUser( params ) ) {
+			render [:] as JSON
+			return
+		}
+
+		List studies = [] 
+
+		// add code for filtering studies that belong to given user 
+		// (use Study.findAll( ... )  
+		// ... 
+		Study.list().each { 
+			def map = ["study_token":it.code, "name":it.name]
+			studies.add( map )
+		}
+		
+		render studies as JSON
+	}
+
+
+
+	/* still not complete!! */
+	/**
+	* REST resource for DSP.
+	* call: gscf/rest/getStudy/?username=username&password=password&study_token=studytoken
+	*
+	* @param  String username
+	* @param  String password
+	* @param  String study_token 
+	* @return list of studies 
+	*/
+	def getStudy = {
+
+		if( !isVerifiedUser( params ) ) {
+			render [:] as JSON
+			return
+		}
+
+		List studyResult = [:] 
+		def code   = params.study_token
+
+		def query = "from Study as s where s.code = ?"
+		def study = Study.find( query, code )
+		studyResult = [ 'study_token' : study.code, 'name' : study.name ]
+			/*  still not complete!! 
+				Add features
+					... study_token:”GHyJeR#g”, 
+					... created: “20/06/2010 22:34:52”,
+					... meta: [
+					... greenhouse_id: “GH010938.AB.5”,
+					... greenhouse_type: “lean-to, detached, and ridge and gutter connected” ]
+			*/
+		
+		render studyResult as JSON
+	}
+
+
+
+
+	/* still not complete!! */
+	/**
+	* REST resource for DSP.
+	* call: gscf/rest/listStudySamples/?username=username&password=password&study_token=studytoken
+	*
+	* @param  String user name
+	* @param  String password 
+	* @param  String a valid GSCF Study.code
+	* @return List of pairs; each pair is a map with keys sample_token and name and values Study.code and Sample.name.
+	*/
+	def listStudySamples = {
+
+		if( !isVerifiedUser( params ) ) {
+			render [:] as JSON
+			return
+		}
+
+		List samples = [:] 
+		def code = params.study_token
+		def query = "from Samples as s where s.study = ?"
+		def study = Study.find( query, code )
+		if(study) study.samples.each { sample ->
+			def map = [ sample_token:code, name:sample.name ]
+			samples.add( map )
+		}
+		
+		render samples as JSON
+	}
+
+
+
+	/* still not complete!! */
+	/**
+	* REST resource for DSP.
+	* call: getStudySample/?username=me&password=123&study_token=GHyJeR#g&sample_name=”AHVJwR”)
+	*
+	* @param  String username
+	* @param  String password
+	* @param  String study_token 
+	* @param  String sample_name 
+	* @return list of studies 
+	*/
+	def getStudySample = {
+
+		if( !isVerifiedUser( params ) ) {
+			render [:] as JSON
+			return
+		}
+
+		List sample = [:] 
+		def code = params.study_token
+		def name = params.sample_name
+
+		def query = "from Sample as s where s.name = ? AND s.parentStudy "
+		def study = Sample.find( query, name )
+		sample = [ 'study_token' : sample.code, 'name' : sample.name ]
+		// samples will have unique identifier strings
+		/*  still not complete!! 
+				Add features
+				[ 
+					study_token:”GHyJeR#g”, 
+					sample_token:”AHVJwR”, 
+					name: “Sample SMPL002”,
+					created: “25/06/2010 09:14:32”,
+					meta: [ subject: “SUB000294-34942.A”, subject_bmi: “29.3”, ... study_token:”GHyJeR#g”, 
+					... created: “20/06/2010 22:34:52”, greenhouse_id: “GH010938.AB.5”,
+					greenhouse_type: “lean-to, detached, and ridge and gutter connected” 
+				]
+			*/
+		render sample as JSON
+	}
+
+
+
+
+	/* still not complete!! */
+	/** Convenience method for isUser and listStudies.
+	*   Verify user and password.
+	*   @param  params object with two map keys: (1) 'username', (2) 'password'
+	*   @param  String password
+	*   @return bool
+	*/
+	private isVerifiedUser( params ) {
+		def isVerified = false 
+		def user = params?.username
+		def pass = params?.password
+
+		if( user && pass ) {
+			// insert code for verification of user and 
+			// ... 
+			isVerified = true
+ 		}
+		return isVerified
+	}
+
+
+
+    /* this is just for testing! */
+    def test = {
+		def result = dbnp.rest.common.CommunicationManager.getQueryResult("Insulin")
+		render result 
+		render result["studies"]
+		render result["studies"].get(0).class
+    }
 }
