@@ -51,21 +51,26 @@ class ImporterService {
     def getHeader(HSSFWorkbook wb, int sheetindex, theEntity=null){
 
 	def sheet = wb.getSheetAt(sheetindex)
-	def datamatrix_start = sheet.getFirstRowNum() + 1
+	def datamatrix_start = sheet.getFirstRowNum() + 2
+	def sheetrow = sheet.getRow(datamatrix_start)
 	//def header = []
 	def header = [:]
         def df = new DataFormatter()
 	def property = new String()
 
-	for (HSSFCell c: sheet.getRow(datamatrix_start)) {
-	    def index	=   c.getColumnIndex()
-	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(index).getCellType()
-	    def datamatrix_celldata = df.formatCellValue(sheet.getRow(datamatrix_start).getCell(index))
-	    def headercell = sheet.getRow(sheet.getFirstRowNum()).getCell(index)
+	//for (HSSFCell c: sheet.getRow(datamatrix_start)) {
+
+	(0..sheetrow.getLastCellNum() -1 ).each { columnindex ->
+
+	    //def index	=   c.getColumnIndex()
+	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(columnindex, org.apache.poi.ss.usermodel.Row.CREATE_NULL_AS_BLANK).getCellType()
+	    def datamatrix_celldata = df.formatCellValue(sheet.getRow(datamatrix_start).getCell(columnindex))
+	    def datamatrix_cell	    = sheet.getRow(datamatrix_start).getCell(columnindex)
+	    def headercell = sheet.getRow(sheet.getFirstRowNum()).getCell(columnindex)
 	    def tft = TemplateFieldType.STRING //default templatefield type
 
             // Check for every celltype, currently redundant code, but possibly this will be 
-	    // a piece of custom code for every cell type like specific formatting
+	    // a piece of custom code for every cell type like specific formatting	    
 	        
 	    switch (datamatrix_celltype) {
                     case HSSFCell.CELL_TYPE_STRING:
@@ -81,9 +86,9 @@ class ImporterService {
 				if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
 			    }
 
-			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+			    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
 									    templatefieldtype:fieldtype,
-									    index:index,
+									    index:columnindex,
 									    entity:theEntity,
 									    property:property);
 
@@ -110,25 +115,25 @@ class ImporterService {
 				    if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
 				}
 
-			    if (HSSFDateUtil.isCellDateFormatted(c)) fieldtype = TemplateFieldType.DATE
+			    if (HSSFDateUtil.isCellDateFormatted(datamatrix_cell)) fieldtype = TemplateFieldType.DATE
 			    
-			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+			    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
 									    templatefieldtype:fieldtype,
-									    index:index,
+									    index:columnindex,
 									    entity:theEntity,
 									    property:property);
 			    break
 		    case HSSFCell.CELL_TYPE_BLANK:
-			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+			    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
 									    templatefieldtype:TemplateFieldType.STRING,
-									    index:index,
+									    index:columnindex,
 									    entity:theEntity,
 									    property:property);
 			    break
                     default:
-			    header[index] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+			    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
 									    templatefieldtype:TemplateFieldType.STRING,
-									    index:index,
+									    index:columnindex,
 									    entity:theEntity,
 									    property:property);
 			    break
@@ -147,7 +152,7 @@ class ImporterService {
      * @return two dimensional array (matrix) of HSSFCell objects
      */
 
-    HSSFCell[][] getDatamatrix(HSSFWorkbook wb, int sheetindex, int count) {
+    HSSFCell[][] getDatamatrix(HSSFWorkbook wb, header, int sheetindex, int count) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def rows  = []
 	def df = new DataFormatter()
@@ -159,8 +164,16 @@ class ImporterService {
 	    def row = []
 
 	    // walk through every cell
-	    for (HSSFCell c: sheet.getRow(rowindex))
+	    /*for (HSSFCell c: sheet.getRow(rowindex)) {
 		row.add(c)
+		println c.getColumnIndex() + "=" +c
+	    }*/
+	    
+	    (0..header.size()-1).each { columnindex ->
+		def c = sheet.getRow(rowindex).getCell(columnindex, org.apache.poi.ss.usermodel.Row.CREATE_NULL_AS_BLANK)
+		println "DAS " + columnindex + ":" + c
+		row.add(c)
+	    }
 		//row.add(df.formatCellValue(c))
 	    rows.add(row)
 	} : 0

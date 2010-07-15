@@ -62,7 +62,7 @@ class ImporterController {
 	session.importer_template_id = params.template_id
 	session.importer_workbook = wb
 
-        render (view:"step1_advanced", model:[header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, 0, 5)])
+        render (view:"step1_advanced", model:[header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, session.importer_header, 0, 5)])
     }
 
     /**
@@ -89,7 +89,7 @@ class ImporterController {
 
 	def templates = Template.get(session.importer_template_id)
 	
-	render(view:"step2_simple", model:[entities: selectedentities, header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, 0, 5), templates:templates])
+	render(view:"step2_simple", model:[entities: selectedentities, header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, session.importer_header, 0, 5), templates:templates])
     }
 
     /**
@@ -124,8 +124,7 @@ class ImporterController {
 	    }
 	}
 
-	render(view:"step3", model:[datamatrix:session.importer_importeddata])
-	//render("Succesful")
+	render(view:"step3", model:[datamatrix:session.importer_importeddata])	
     }
 
     /**
