@@ -12,9 +12,15 @@ class Sample extends TemplateEntity {
 	Subject parentSubject
 	SamplingEvent parentEvent
 
-	String name		        // should be unique with respect to the parent study (which can be inferred)
-	Term material	        // a member that describes the quantity of the sample? --> should be in the templates
-	String externalSampleId // should be unique with respect to the parent study (which can be inferred)
+	String name             // should be unique with respect to the parent study (which can be inferred)
+	Term material	        // material of the sample (should normally be bound to the BRENDA ontology)
+
+	def getExternalSampleId() { name }
+
+	// TODO: Write a validation method that checks if the externalSampleId (currently defined as name)
+	// is really unique within each parent study of this sample.
+	// Maybe this could also be a constraint, but we might run into trouble creating new Sample objects in e.g. the create wizard.
+	// To be checked.
 
 	/**
 	 * return the domain fields for this domain class
@@ -35,7 +41,6 @@ class Sample extends TemplateEntity {
 
 	static constraints = {
 		parentSubject(nullable:true)
-		externalSampleId(nullable:true) 
 	}
 
 	static getSamplesFor( event ) {
