@@ -20,6 +20,7 @@ class StudyTests extends GrailsUnitTestCase {
 
 	final String testStudyName = "Test study"
 	final String testStudyTemplateName = "Academic study"
+	final String testStudyCode = "AAA-Test"
 	final Date testStudyStartDate = Date.parse('yyyy-MM-dd','2007-12-11')
 	final Date testStudyStartDate2 = Date.parse('yyyy-MM-dd','2008-05-11')
 	final String testStudyStartDateString2 = "11-5-2008"
@@ -35,9 +36,10 @@ class StudyTests extends GrailsUnitTestCase {
 		assert studyTemplate
 
 		def study = new Study(
-		    title: testStudyName,
-		    template: studyTemplate,
-		    startDate: testStudyStartDate
+			title: testStudyName,
+			template: studyTemplate,
+			startDate: testStudyStartDate,
+			code: testStudyCode
 		)
 
 		if (!study.validate()) {
@@ -52,9 +54,10 @@ class StudyTests extends GrailsUnitTestCase {
 
 	void testSave() {
 		// Try to retrieve the study and make sure it's the same
-		def studyDB = Study.findByTitle(testStudyName)
+		def studyDB = Study.findByCode(testStudyCode)
 		assert studyDB
 		assert studyDB.title.equals(testStudyName)
+		assert studyDB.code.equals(testStudyCode)
 		assert studyDB.template.name.equals(testStudyTemplateName)
 		assert studyDB.startDate.equals(testStudyStartDate)
 
@@ -64,21 +67,24 @@ class StudyTests extends GrailsUnitTestCase {
 	}
 
 	void testDomainFields() {
-		def study = Study.findByTitle(testStudyName)
+		def study = Study.findByCode(testStudyCode)
 		assert study
 
 		// Make sure the domain fields exist
 		assert study.fieldExists('title')
 		assert study.fieldExists('startDate')
+		assert study.fieldExists('code')
+
 
 		// Make sure they are domain fields
 		assert study.isDomainField('title')
 		assert study.isDomainField('startDate')
+		assert study.isDomainField('code')
 		
 	}
 
 	void testSetDate() {
-		def study = Study.findByTitle(testStudyName)
+		def study = Study.findByCode(testStudyCode)
 		assert study
 
 		// Set a new date, using a string, and check whether that is stored correctly
@@ -90,6 +96,14 @@ class StudyTests extends GrailsUnitTestCase {
 	}
 
 	protected void tearDown() {
+
+		// Delete the created study
+		def study = Study.findByCode(testStudyCode)
+		assert study
+
+		study.delete()
+		assert Study.findByCode(testStudyCode) == null
+
 		super.tearDown()
 	}
 
