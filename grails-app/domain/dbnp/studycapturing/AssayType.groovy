@@ -11,7 +11,7 @@ package dbnp.studycapturing
 public enum AssayType {
 	TRANSCRIPTOMICS('Transcriptomics'),
 	METABOLOMICS('Metabolomics'),
-	CLINICAL_DATA('Clinical data')
+	SIMPLE_ASSAY('Simple Assay')
 
 	String name
 
@@ -20,6 +20,6 @@ public enum AssayType {
 	}
 
 	static list() {
-		[TRANSCRIPTOMICS, METABOLOMICS, CLINICAL_DATA]
+		[TRANSCRIPTOMICS, METABOLOMICS, SIMPLE_ASSAY]
 	}
 }

@@ -98,12 +98,12 @@ class StudyTests extends GrailsUnitTestCase {
 	protected void tearDown() {
 
 		// Delete the created study
-		def study = Study.findByCode(testStudyCode)
+		/*def study = Study.findByCode(testStudyCode)
 		assert study
 
 		study.delete()
 		assert Study.findByCode(testStudyCode) == null
-
+                */
 		super.tearDown()
 	}
 

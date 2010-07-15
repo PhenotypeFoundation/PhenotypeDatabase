@@ -16,6 +16,8 @@ class Event extends TemplateEntity implements Serializable {
 	long startTime
 	long endTime
 
+	// TODO: assure the Event has a parent study in validate()
+
 	/**
 	 * Constraints
 	 */

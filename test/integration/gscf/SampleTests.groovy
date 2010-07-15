@@ -54,6 +54,7 @@ class SampleTests extends StudyTests {
 		}
 		assert samplingEvent.validate()
 
+		assert samplingEvent.save(flush:true)
 
 		// Look up sample template
 		def sampleTemplate = Template.findByName(testSampleTemplateName)
@@ -108,16 +109,47 @@ class SampleTests extends StudyTests {
 		def study = Study.findByTitle(testStudyName)
 		assert study
 
-		// Test giveSamplingEventTemplates
-		def templates = study.giveSamplingEventTemplates()
+		// Test giveSampleTemplates
+		def templates = study.giveSampleTemplates()
 		assert templates
 		assert templates.size() == 1
-		assert templates
+		assert templates.asList().first().name == testSampleTemplateName
 
 		// Test if the sample is in the samples collection
 		assert study.samples
 		assert study.samples.size() == 1
 		assert study.samples.first().name == testSampleName
+	}
+
+
+	void testParentStudy() {
+		def sample = Sample.findByName(testSampleName)
+		assert sample
+
+		assert sample.parent
+		assert sample.parent.code == testStudyCode
+	}
+
+	void testSampleUniqueNameConstraint() {
+		def sample = Sample.findByName(testSampleName)
+		assert sample
+
+		def study = sample.parent
+		assert study
+
+		def sample2 = new Sample(
+		    name: testSampleName,
+		    template: sampleTemplate,
+		    parentEvent: samplingEvent
+		)
+
+		// Add the sample to the retrieved parent study
+		study.addToSamples(sample2)
+
+		// At this point, the sample should not validate or save, because there is already a sample with that name in the study
+		assert !sample2.validate()
+		assert !sample2.save(flush:true)
+
 	}
 
 	void testFindViaSamplingEvent() {
@@ -133,7 +165,7 @@ class SampleTests extends StudyTests {
 	}
 
 	void testDomainFields() {
-		def sample = Sample.findByName(testStudyName)
+		def sample = Sample.findByName(testSampleName)
 		assert sample
 
 		// Make sure the domain fields exist
