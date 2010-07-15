@@ -12,8 +12,9 @@ class Sample extends TemplateEntity {
 	Subject parentSubject
 	SamplingEvent parentEvent
 
-	String name		// should be unique with respect to the parent study (which can be inferred)
-	Term material	// a member that describes the quantity of the sample? --> should be in the templates
+	String name		        // should be unique with respect to the parent study (which can be inferred)
+	Term material	        // a member that describes the quantity of the sample? --> should be in the templates
+	String externalSampleId // should be unique with respect to the parent study (which can be inferred)
 
 	/**
 	 * return the domain fields for this domain class
@@ -34,9 +35,11 @@ class Sample extends TemplateEntity {
 
 	static constraints = {
 		parentSubject(nullable:true)
+		externalSampleId(nullable:true) 
 	}
 
 	static getSamplesFor( event ) {
 		return  Sample.findAll( 'from Sample s where s.parentEvent =:event', [event:event] )
 	}
+
 }
