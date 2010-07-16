@@ -185,27 +185,25 @@ class CommunicationManager {
 
    		// register rest resource that returns the results of a full text query on SAM 
         // parameters:   query. A string for fulltext search on SAM
-        // return value: results map. It contains two keys 'studyIds', and 'assays'. 'studyIds' 
-		//               key maps to a list of Study domain objects of GSCF. 'assays' map to a
-		//               list of pairs. Each pair consists of an Assay domain object of GSCF and
-		//               additional assay information from SAM provided as a map.
+        // return value: results map. It contains two keys 'studyIds', and 'samples'. 'studyIds' 
+		//               key maps to a list of Study domain objects of GSCF. 'samples' maps to a
+		//               list of pairs. Each pair consists of a Sample domain object of GSCF and
+		//               additional sample information from SAM provided as a map.
 		// Example of a returned map: 
 		//				 ["studies":[NuGO PPS human study], 
-		//               "assays":[[["isIntake":false, "isDrug":false, "correctionMethod":"test Correction Method 1", "detectableLimit":1, "isNew":false, 
-		//               "class":"data.SimpleAssay", "externalAssayID":"1", "id":1, "measurements":null, "unit":"Insulin", "inSerum":false, 
-        //				 "name":"test Simple Assay 1", "referenceValues":"test Reference Values 1"], dbnp.studycapturing.Assay : 1]]]
+		//               "samples":[[ [...], dbnp.studycapturing.Sample: 1]]]
 		def closure = { map ->
 		    def studies = []
-		    def assays  = []
+		    def samples = []
 			def studiesHQ = "from dbnp.studycapturing.Study as s where s.code=?"
 			map['studyIds'].each { studies.add( dbnp.studycapturing.Study.find(studiesHQ,[it]) ) }
-			map['assays'].each { samAssay ->
-				def assayID = samAssay['externalAssayID']
-			    def assayHQ = "from dbnp.studycapturing.Assay as a where a.externalAssayID='${assayID}'"
-				def assay = dbnp.studycapturing.Assay.find(assayHQ)
-				assays.add( [samAssay,assay] )
+			map['Samples'].each { samSample ->
+				def sampleID = samSample['externalSampleID']
+			    def sampleHQ = "from dbnp.studycapturing.Sample as a where a.externalSampleID='${sampleID}'"
+				def sample = dbnp.studycapturing.Sample.find(sampleHQ)
+				samples.add( [samSample,sample] )
 			} 
-			return [studies:studies, assays:assays] 
+			return [studies:studies, samples:samples] 
 		}
 
 		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'], closure )
