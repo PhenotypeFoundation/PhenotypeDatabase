@@ -676,6 +676,7 @@ class WizardController {
 
 									flow.samples[ incrementor ] = [
 										sample: new Sample(
+											parent: flow.study,
 											parentSubject: subject,
 											parentEvent: event,
 											name: sampleName
@@ -731,8 +732,12 @@ class WizardController {
 			}.to "samples"
 			on("regenerate") {
 				println ".removing 'samples' and 'sampleTemplates' from the flowscope, triggering regeneration of the samples..."
+				flow.samples.each() {
+					flow.study.removeFromSamples( it.sample )
+				}
 				flow.remove('samples')
 				flow.remove('sampleTemplates')
+				println flow.study.samples
 				success()
 			}.to "samples"
 			on("previous") {
@@ -807,48 +812,9 @@ class WizardController {
 
 				// persist data to the database
 				try {
-					println ".saving wizard data..."
-
-					// add events to study
-					/*
-					println ".add events to study"
-					flow.events.each() { event ->
-						if (event instanceof SamplingEvent) {
-							// only add this sampling event if it is not yet
-							// linked to this study
-							if (!flow.study.samplingEvents.find { e -> (e == event) }) {
-								flow.study.addToSamplingEvents( event.value )
-							}
-						} else {
-							// only add it if it does not yet exist
-							if (!flow.study.events.find { e -> (e == event) }) {
-								flow.study.addToEvents( event.value )
-							}
-						}
-					}
-
-					// add subjects to study
-					println ".add subjects to study"
-					flow.subjects.each() { subjectId, subject ->
-						// add subject to study if it is not yet in this study
-						if (!flow.study.subjects.find { s -> (s == subject) }) {
-							flow.study.addToSubjects(subject)
-						}
-					}
-
-					// add eventGroups to study
-					println ".add eventGroups to study"
-					flow.eventGroups.each() { eventGroup ->
-						// only add the eventGroup if it is not yet linked
-						if (!flow.study.eventGroups.find { e -> (e == eventGroup) }) {
-							flow.study.addToEventGroups(eventGroup)
-						}
-					}
-					*/
-
 					// save study
 					println ".saving study"
-					if (!flow.study.save(flush:true)) {
+					if (!flow.study.save()) {
 						this.appendErrors(flow.study, flash.errors)
 						throw new Exception('error saving study')
 					}
