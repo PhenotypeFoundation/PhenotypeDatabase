@@ -210,15 +210,22 @@ class ImporterController {
     */
     def saveProperties = {
 
-	params.columnproperty.index.each { columnindex, property ->
-		def template = Template.get(session.imported_template_id)
+	// Find actual Template object from the chosen template name
+	def template = Template.get(session.imported_template_id)
 
+	params.columnproperty.index.each { columnindex, property ->
+
+		// Create an actual class instance of the selected entity with the selected template
+		// This should be inside the closure because in some cases in the advanced importer, the fields can have different target entities
 		def entityClass = Class.forName(session.importer_header[columnindex.toInteger()].entity.getName(), true, this.getClass().getClassLoader())
 		def entityObj = entityClass.newInstance(template:template)
-		
+
+		// Store the selected property for this column into the column map for the ImporterService
 		session.importer_header[columnindex.toInteger()].property = property
-		
-		//if it's an identifier set the mapping column true or false		
+		// Look up the template field type of the target TemplateField and store it also in the map
+		session.importer_header[columnindex.toInteger()].templatefieldtype = entityObj.giveFields()[property].type
+
+		//if it's an identifier set the mapping column true or false
 		entityObj.giveFields().each {
 		    (it.preferredIdentifier && (it.name==property)) ? session.importer_header[columnindex.toInteger()].identifier = true : false
 		}
