@@ -98,17 +98,21 @@ class RestController {
 		if( params.externalAssayID ) {
 			def id = Long.parseLong(params.externalAssayID)
 			Assay.findAll().each{ println it }
- 			Assay.find( "from Assay as a where externalAssayID=?",[id]).getSamples().each { sample ->
+ 			def assay = Assay.find( "from Assay as a where externalAssayID=?",[id])
+			println "Assay: " + assay
+			assay.getSamples().each { sample ->
 				def item = [ 
-					'name'		: sample.name,
-					'material'	: sample.material.name,
-					'subject'	: sample.parentSubject.name,
-					'event'		: sample.parentEvent.template.name,
-					'startTime'	: sample.parentEvent.getDurationString()
+					'name'		      : sample.name,
+					'material'	      : sample.material.name,
+					'subject'	      : sample.parentSubject.name,
+					'event'		      : sample.parentEvent.template.name,
+					'startTime'	      : sample.parentEvent.getDurationString(),
+					'externalSampleId': sample.externalSampleId
 				] 
 				items.push item 
 			}
  		}
+		println "done"
 		render items as JSON
 	}
 
