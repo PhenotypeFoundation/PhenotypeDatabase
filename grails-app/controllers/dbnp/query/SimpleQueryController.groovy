@@ -108,6 +108,7 @@ class SimpleQueryController {
               // Search the keyword with the Searchable plugin
               try {
                 searchGscfResult = searchableService.search(flow.search_term)
+                println "RESULT: " + searchGscfResult
               } catch (SearchEngineQueryParseException ex) {
                 println ex
                 return [parseException: true]
@@ -170,30 +171,44 @@ class SimpleQueryController {
 
     }
 
-
-   static List searchSAM (List compounds) {
+  
+   static Map searchSAM (List compounds) {
      if (compounds.size() == 1) {
        println "Single SAM call"
        def mapSamResult
        mapSamResult = CommunicationManager.getQueryResult(compounds.get(0))
-       
-       return mapSamResult.studies
+       println "CommMngr result: " + mapSamResult.assays.size()
+
+       mapSamResult.assays.each {
+         simpleAssay -> println simpleAssay.id
+          
+       }
+
+       return mapSamResult
 
      } else {
        println "Multiple SAM calls"
-       def tmpSamResult
+       def tmpSamResult = [:]
+       def mapSamResult = [studies:[], assays:[]]
        def i = 0
 
-       compounds.each() {
-         println compounds.get(i)
+       compounds.each { compound ->
+         println "SAM Search with " + compound
+         tmpSamResult = CommunicationManager.getQueryResult(compound)
+         println tmpSamResult.assays.size() + " results " + compound
 
-         println "set tmpSamResult"
+         if (i == 0) {
+           mapSamResult.assays = tmpSamResult.assays
+           mapSamResult.studies = tmpSamResult.studies
+         } else {
+           mapSamResult.assays = mapSamResult.assays.intersect(tmpSamResult.assays)
+           mapSamResult.studies = mapSamResult.studies.intersect(tmpSamResult.studies)
+         }
 
-         // Combine each search
-         // searchSamResult = Merge(searchSamResult, tmpSamResult)
-         // searchSamResult += tmpSamResult
          i++
-       };
+       }
+
+       return mapSamResult
      }
 
    }
