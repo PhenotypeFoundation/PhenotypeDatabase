@@ -317,6 +317,9 @@ class WizardController {
 						// instantiate a new Subject
 						flow.subjects[increment] = subject
 
+						// add the subject to the study
+						flow.study.addToSubjects( subject )
+
 						// and remember the subject id with the template
 						def subjectsSize = (flow.subjectTemplates[subjectTemplateName].subjects.size()) ? (flow.subjectTemplates[subjectTemplateName].subjects.keySet().max() + 1) : 0
 						flow.subjectTemplates[subjectTemplateName].subjects[subjectsSize] = increment
@@ -340,6 +343,9 @@ class WizardController {
 
 				// remove subject
 				if (flow.subjects[ delete ] && flow.subjects[ delete ] instanceof Subject) {
+					// from study as well
+					flow.study.removeFromSubjects( flow.subjects[ delete ] )
+
 					// remove subject from templates
 					flow.subjectTemplates.each() { templateName, templateData ->
 						templateData.subjects.values().remove( delete )
@@ -395,6 +401,9 @@ class WizardController {
 					flow.events			= [:]
 					flow.eventGroups	= [ new EventGroup(name: 'Group 1') ]
 					flow.eventTemplates	= [:]
+
+					// add initial eventGroup to study
+					flow.study.addToEventGroups( flow.eventGroups[ 0 ] )
 				} else if (!flash.values) {
 					// set flash.values.templateType based on the event instance
 					flash.values = [:]
@@ -466,6 +475,13 @@ class WizardController {
 					// ...store it in the events map in the flow scope...
 					flow.events[ increment ] = newEvent
 
+					// ...add it to the study...
+					if (newEvent instanceof SamplingEvent) {
+						flow.study.addToSamplingEvents( newEvent )
+					} else {
+						flow.study.addToEvents( newEvent )
+					}
+
 					// ...and 'reset' the event object in the flow scope
 					flow.event = new Event(template: newEvent.template)
 					
@@ -490,6 +506,10 @@ class WizardController {
 
 				// remove event
 				if (flow.events[ delete ] && flow.events[ delete ] instanceof Event) {
+					// remove it from the study
+					flow.study.removeFromEvents( flow.events[ delete ] )
+
+					// remove it from the map
 					flow.events.remove(delete)
 					flow.eventTemplates.each() { eventTemplate ->
 						eventTemplate.value.events = eventTemplate.value.events.minus(delete)
@@ -538,7 +558,11 @@ class WizardController {
 					nameExists = !(count == flow.eventGroups.size())
 				}
 
-				flow.eventGroups[increment] = new EventGroup( name: groupName )
+				// remember eventGroup
+				flow.eventGroups[ increment ] = new EventGroup( name: groupName )
+
+				// and add the group to the study
+				flow.study.addToEventGroups( flow.eventGroups[ increment ] )
 
 				success()
 			}.to "events"
@@ -551,6 +575,9 @@ class WizardController {
 
 				// remove the group with this specific id
 				if (flow.eventGroups[delete] && flow.eventGroups[delete] instanceof EventGroup) {
+					// remove the eventGroup from the study
+					flow.study.removeFromEventGroups( flow.eventGroups[ delete ] )
+
 					// remove this eventGroup
 					flow.eventGroups.remove(delete)
 				}
@@ -645,8 +672,9 @@ class WizardController {
 								// iterate through subjects
 								eventGroup.subjects.each() { subject ->
 									def sampleName = (this.ucwords(subject.name) + '_' + eventName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
+									def incrementor = flow.samples.size()
 
-									flow.samples[flow.samples.size()] = [
+									flow.samples[ incrementor ] = [
 										sample: new Sample(
 											parentSubject: subject,
 											parentEvent: event,
@@ -657,6 +685,9 @@ class WizardController {
 										event: event,
 										subject: subject
 									]
+
+									// and add this sample to the study
+									flow.study.addToSamples( flow.samples[ incrementor ].sample )
 								}
 							}
 						}
@@ -779,18 +810,19 @@ class WizardController {
 					println ".saving wizard data..."
 
 					// add events to study
+					/*
 					println ".add events to study"
 					flow.events.each() { event ->
 						if (event instanceof SamplingEvent) {
 							// only add this sampling event if it is not yet
 							// linked to this study
 							if (!flow.study.samplingEvents.find { e -> (e == event) }) {
-								flow.study.addToSamplingEvents(event)
+								flow.study.addToSamplingEvents( event.value )
 							}
 						} else {
 							// only add it if it does not yet exist
 							if (!flow.study.events.find { e -> (e == event) }) {
-								flow.study.addToEvents(event)
+								flow.study.addToEvents( event.value )
 							}
 						}
 					}
@@ -812,6 +844,7 @@ class WizardController {
 							flow.study.addToEventGroups(eventGroup)
 						}
 					}
+					*/
 
 					// save study
 					println ".saving study"
@@ -1226,7 +1259,7 @@ class WizardController {
 			// iterate through events
 			flow.events.each() {
 				if (params.get('event_' + e + '_group_' + g) == 'on') {
-					eventGroup.addToEvents(it)
+					eventGroup.addToEvents(it.value)
 				}
 				e++
 			}
