@@ -329,7 +329,13 @@ class ImporterService {
 
 	for (HSSFCell cell: excelrow) {	    
 	    def mc = mcmap[cell.getColumnIndex()]
-	    def value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
+	    def value
+
+	    try {
+		 value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
+	    } catch (NumberFormatException nfe) {
+		 value = ""
+	    }
 
 	    switch(mc.entity) {
 		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)				    
