@@ -140,8 +140,8 @@ class SampleTests extends StudyTests {
 
 		def sample2 = new Sample(
 		    name: testSampleName,
-		    template: sampleTemplate,
-		    parentEvent: samplingEvent
+		    template: sample.template,
+		    parentEvent: sample.parentEvent
 		)
 
 		// Add the sample to the retrieved parent study
