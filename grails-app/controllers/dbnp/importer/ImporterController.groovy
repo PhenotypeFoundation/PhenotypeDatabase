@@ -211,7 +211,7 @@ class ImporterController {
     def saveProperties = {
 
 	// Find actual Template object from the chosen template name
-	def template = Template.get(session.imported_template_id)
+	def template = Template.get(session.importer_template_id)
 
 	params.columnproperty.index.each { columnindex, property ->
 
@@ -223,7 +223,7 @@ class ImporterController {
 		// Store the selected property for this column into the column map for the ImporterService
 		session.importer_header[columnindex.toInteger()].property = property
 		// Look up the template field type of the target TemplateField and store it also in the map
-		session.importer_header[columnindex.toInteger()].templatefieldtype = entityObj.giveFields()[property].type
+		session.importer_header[columnindex.toInteger()].templatefieldtype = entityObj.getFieldType(property)
 
 		//if it's an identifier set the mapping column true or false
 		entityObj.giveFields().each {

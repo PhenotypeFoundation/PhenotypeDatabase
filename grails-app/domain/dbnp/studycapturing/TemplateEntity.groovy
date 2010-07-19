@@ -657,4 +657,16 @@ abstract class TemplateEntity implements Serializable {
 			throw new NoSuchFieldException("Multiple templates found in collection!")
 		}
 	}
+
+		    /**
+	 * Look up the type of a certain template subject field
+	 * @param String fieldName The name of the template field
+	 * @return String	The type (static member of TemplateFieldType) of the field, or null of the field does not exist
+	 */
+	def TemplateFieldType getFieldType(String fieldName) {
+		def field = this.giveFields().find {
+			it.name == fieldName
+		}
+		field?.type
+	}
 }
