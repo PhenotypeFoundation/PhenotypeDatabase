@@ -13,6 +13,60 @@ import dbnp.data.Ontology
 
 class BootStrapTemplates {
 
+	/**
+	 * Add the ontologies that are necessary for the templates below manually
+	 * This function can be called to avoid the HTTP requests to BioPortal each time
+	 * (e.g. in development or automated test environments)
+	 */
+	public static void initTemplateOntologies() {
+
+		// add Subject>species ontology
+		println ".adding NCBI species ontology"
+		def speciesOntology = new Ontology(
+			name: 'NCBI organismal classification',
+			description: 'A taxonomic classification of living organisms and associated artifacts for their controlled description within the context of databases.',
+			url: 'http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/',
+			versionNumber: '1.2',
+			ncboId: '1132',
+			ncboVersionedId: '38802'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		// add Sample>material ontology
+		println ".adding BRENDA source material ontology"
+		def brendaOntology = new Ontology(
+			name: 'BRENDA tissue / enzyme source',
+			description: 'A structured controlled vocabulary for the source of an enzyme. It comprises terms for tissues, cell lines, cell types and cell cultures from uni- and multicellular organisms.',
+			url: 'http://www.brenda-enzymes.info',
+			versionNumber: '1.3',
+			ncboId: '1005',
+			ncboVersionedId: '40643'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		// add NCI ontology which is used in Mouse genotype template field
+		def nciOntology = new Ontology(
+			name: 'NCI Thesaurus',
+			description: 'A vocabulary for clinical care, translational and basic research, and public information and administrative activities.',
+			url: 'http://ncicb.nci.nih.gov/core/EVS',
+			versionNumber: '10.01',
+			ncboId: '1032',
+			ncboVersionedId: '42693'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		// add CHEBI ontology which is used in Mouse genotype template field
+		def chebiOntology = new Ontology(
+			name: 'Chemical entities of biological interest',
+			description: 'A structured classification of chemical compounds of biological relevance.',
+			url: 'http://www.ebi.ac.uk/chebi',
+			versionNumber: '1.68',
+			ncboId: '1007',
+			ncboVersionedId: '42878'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+		
+	}
+
+	/**
+	 * Add example templates, this function would normally be called on an empty database
+	 */
 	public static void initTemplates() {
 
 		// Create templates

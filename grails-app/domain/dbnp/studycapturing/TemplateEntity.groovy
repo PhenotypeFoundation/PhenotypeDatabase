@@ -622,6 +622,18 @@ abstract class TemplateEntity implements Serializable {
 	}
 
 	/**
+	 * Look up the type of a certain template field
+	 * @param String fieldName The name of the template field
+	 * @return String The type (static member of TemplateFieldType) of the field, or null of the field does not exist
+	 */
+	TemplateFieldType giveFieldType(String fieldName) {
+		def field = giveFields().find {
+			it.name == fieldName
+		}
+		field?.type
+	}
+
+	/**
 	 * Return all relevant 'built-in' domain fields of the super class. Should be implemented by a static method
 	 * @return List with DomainTemplateFields
 	 * @see TemplateField
@@ -658,15 +670,4 @@ abstract class TemplateEntity implements Serializable {
 		}
 	}
 
-		    /**
-	 * Look up the type of a certain template subject field
-	 * @param String fieldName The name of the template field
-	 * @return String	The type (static member of TemplateFieldType) of the field, or null of the field does not exist
-	 */
-	def TemplateFieldType getFieldType(String fieldName) {
-		def field = this.giveFields().find {
-			it.name == fieldName
-		}
-		field?.type
-	}
 }

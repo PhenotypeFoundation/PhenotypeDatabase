@@ -5,6 +5,7 @@ import dbnp.studycapturing.Template
 import grails.test.GrailsUnitTestCase
 import dbnp.studycapturing.SamplingEvent
 import dbnp.studycapturing.Sample
+import dbnp.studycapturing.TemplateFieldType
 
 /**
  * Test the creation of a Sample and its TemplateEntity functionality on data model level
@@ -175,6 +176,10 @@ class SampleTests extends StudyTests {
 		// Make sure they are domain fields
 		assert sample.isDomainField('name')
 		assert sample.isDomainField('material')
+
+		// Make sure that they have the right type
+		assert sample.giveFieldType('name') == TemplateFieldType.STRING
+		assert sample.giveFieldType('material') == TemplateFieldType.ONTOLOGYTERM
 
 	}
 

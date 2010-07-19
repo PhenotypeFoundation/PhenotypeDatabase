@@ -21,15 +21,23 @@ class BootStrap {
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
+		// If there are no templates yet in the database
 		if (Template.count() == 0) {
 			println "No templates in the current database.";
+
+			// If in development or test mode, add the ontologies manually to the database
+			// without contacting the BioPortal website, to avoid annoying hiccups when the server is busy
+			if (grails.util.GrailsUtil.environment != GrailsApplication.ENV_PRODUCTION) {
+				println "Adding ontology descriptors"
+				BootStrapTemplates.initTemplateOntologies()
+			}
+
 			// Add example study, subject, event etc. templates
 			BootStrapTemplates.initTemplates()
 
-			// Add example studies
+			// If in development mode and no studies are present, add example studies
 			if (Study.count() == 0 && grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
-
-				// When the code is properly refactored, BootStrapStudies.addExampleStudies() may be called here
+				BootStrapStudies.addExampleStudies()
 			}
 		}
 
@@ -44,7 +52,7 @@ class BootStrap {
 
 		// register methods for accessing SAM's Rest services 
 		CommunicationManager.SAMServerURL = 'nbx5.nugo.org/sam'
-    	CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
+		CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
 	}
 
 	def destroy = {

@@ -9,16 +9,87 @@
  */
 
 import dbnp.studycapturing.*
+import dbnp.data.Term
+import dbnp.data.Ontology
 
 class BootStrapStudies {
 
+	/**
+	 * Add example studies. This function is meant to be called only in development mode
+	 */
+
 	public static void addExampleStudies() {
 
-		// TODO: Strip this code from all references to template and term objects
-		// which now are not there anymore because this code was separated from the template bootstrapping
-		// and because terms should be dynamically added
+		// Look up the used ontologies which should be in the database by now
+		def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
+		def brendaOntology = Ontology.getOrCreateOntologyByNcboId(1005)
+		def nciOntology = Ontology.getOrCreateOntologyByNcboId(1032)
+		def chebiOntology = Ontology.getOrCreateOntologyByNcboId(1007)
 
-		/*
+		// Look up the used templates which should also be in the database by now
+		def studyTemplate = Template.findByName("Academic study")
+		def mouseTemplate = Template.findByName("Mouse")
+		def humanTemplate = Template.findByName("Human")
+		def dietTreatmentTemplate = Template.findByName("Diet treatment")
+		def boostTreatmentTemplate = Template.findByName("Compound challenge")
+		def liverSamplingEventTemplate = Template.findByName("Liver extraction")
+		def fastingTreatmentTemplate = Template.findByName("Fasting treatment")
+		def bloodSamplingEventTemplate = Template.findByName("Blood extraction")
+		def humanBloodSampleTemplate = Template.findByName("Human blood sample")
+		
+
+		// Add terms manually, to avoid having to do many HTTP requests to the BioPortal website
+		println ".adding terms"
+
+
+		def mouseTerm = new Term(
+			name: 'Mus musculus',
+			ontology: speciesOntology,
+			accession: '10090'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		def humanTerm = new Term(
+			name: 'Homo sapiens',
+			ontology: speciesOntology,
+			accession: '9606'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		def arabTerm = new Term(
+			name: 'Arabidopsis thaliana',
+			ontology: speciesOntology,
+			accession: '3702'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		def tomatoTerm = new Term(
+			name: 'Solanum lycopersicum',
+			ontology: speciesOntology,
+			accession: '4081'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		def potatoTerm = new Term(
+			name: 'Solanum tuberosum',
+			ontology: speciesOntology,
+			accession: '0000'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		def bloodTerm = new Term(
+			name: 'blood plasma',
+			ontology: brendaOntology,
+			accession: 'BTO:0000131'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		def c57bl6Term = new Term(
+			name: 'C57BL/6 Mouse',
+			ontology: nciOntology,
+			accession: 'C14424'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		def glucoseTerm = new Term(
+			name: 'Glucose',
+			ontology: chebiOntology,
+			accession: 'CHEBI:17234'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
 		// Create a few persons, roles and Affiliations
 		println ".adding persons, roles and affiliations"
 		def affiliation1 = new PersonAffiliation(
@@ -312,7 +383,7 @@ class BootStrapStudies {
 		def fastingEvent = new Event(
 			startTime: 3 * 24 * 3600 + 22 * 3600,
 			endTime: 3 * 24 * 3600 + 30 * 3600,
-			template: fastingTreatment)
+			template: fastingTreatmentTemplate)
 		.setFieldValue('Fasting period','8h');
 
 
@@ -420,10 +491,10 @@ class BootStrapStudies {
 		// Add assay to study capture module
 
 		def clinicalModule = new AssayModule(
-			name: 'Clinical data',
-			type: AssayType.CLINICAL_DATA,
+			name: 'SAM module for clinical data',
+			type: AssayType.SIMPLE_ASSAY,
 			platform: 'clinical measurements',
-			url: 'http://localhost:8080/gscf'
+			url: 'http://sam.dbnp.org'
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		def lipidAssayRef = new Assay(
@@ -440,9 +511,8 @@ class BootStrapStudies {
 		humanStudy.addToAssays(lipidAssayRef);
 		humanStudy.save()
 
-	       mouseStudy.addToAssays(lipidAssayRef);
+	        mouseStudy.addToAssays(lipidAssayRef);
 		mouseStudy.save()
-		*/
 	}
 
 }
