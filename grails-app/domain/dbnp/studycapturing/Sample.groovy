@@ -7,7 +7,9 @@ import dbnp.data.Ontology
  * The Sample class describes an actual sample which results from a SamplingEvent.
  */
 class Sample extends TemplateEntity {
-        static searchable = { [only: ['name']] }
+	// uncommented due to searchable issue
+	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
+	//static searchable = { [only: ['name']] }
 
 	static belongsTo = [ parent : Study]
 

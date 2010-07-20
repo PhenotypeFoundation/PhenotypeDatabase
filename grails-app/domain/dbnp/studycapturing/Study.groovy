@@ -10,7 +10,7 @@ package dbnp.studycapturing
  */
 class Study extends TemplateEntity implements Serializable {
 	static searchable = {
-           [only: ['title', 'Description']]
+    	[only: ['title', 'Description']]
     }
 
 	nimble.User owner
