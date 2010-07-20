@@ -19,9 +19,11 @@ class MappingColumn {
 	Integer index
 	String value
 	Boolean identifier
+	Boolean dontimport
 
     static constraints = {
 	    name(unique: true)
+	    dontimport(default:false)
     }
 
     String toString() {

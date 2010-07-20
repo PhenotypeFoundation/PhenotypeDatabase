@@ -170,9 +170,10 @@ class ImporterService {
 	    }*/
 	    
 	    (0..header.size()-1).each { columnindex ->
-		def c = sheet.getRow(rowindex).getCell(columnindex, org.apache.poi.ss.usermodel.Row.CREATE_NULL_AS_BLANK)
-		println "DAS " + columnindex + ":" + c
+		def c = sheet.getRow(rowindex).getCell(columnindex, org.apache.poi.ss.usermodel.Row.CREATE_NULL_AS_BLANK)		
 		row.add(c)
+		//if (c.getCellType() == c.CELL_TYPE_STRING) println "STR"+c.getStringCellValue()
+		//if (c.getCellType() == c.CELL_TYPE_NUMERIC) println "INT" +c.getNumericCellValue()
 	    }
 		//row.add(df.formatCellValue(c))
 	    rows.add(row)
@@ -223,7 +224,6 @@ class ImporterService {
     def importdata(template_id, HSSFWorkbook wb, int sheetindex, int rowindex, mcmap) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def table = []
-
 	
 	// walk through all rows	
 	(rowindex..sheet.getLastRowNum()).each { i ->
@@ -241,27 +241,7 @@ class ImporterService {
 
 	return table	
     }
-    
-     /**
-                     // start transaction
-                        def transaction = sessionFactory.getCurrentSession().beginTransaction()
-                              // persist data to the database
-                                try {
-                                   // commit transaction
-                                        println "commit"
-                                        transaction.commit()
-                                        success()
-                                } catch (Exception e) {
-                                        // rollback
-                                        // stacktrace in flash scope
-                                        flash.debug = e.getStackTrace()
-
-                                        println "rollback"
-                                        transaction.rollback()
-                                        error()
-                                }
-      */
-
+   
     /**
      * Method to store a matrix containing the entities in a record like structure. Every row in the table
      * contains one or more entity objects (which contain fields with values). So actually a row represents
@@ -331,11 +311,13 @@ class ImporterService {
 	    def mc = mcmap[cell.getColumnIndex()]
 	    def value
 
-	    try {
-		 value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
-	    } catch (NumberFormatException nfe) {
-		 value = ""
-	    }
+	    if (!mc.dontimport) {
+		/*try {
+    		 value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
+		} catch (NumberFormatException nfe) {
+    		 value = ""
+		}*/
+	    value = df.formatCellValue(cell)
 
 	    switch(mc.entity) {
 		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)				    
@@ -353,7 +335,8 @@ class ImporterService {
 		case Object	:   // don't import
 				    break
 	    } // end switch
-	} // end for
+	} // end 
+    } // end for
 
 	return record
     }

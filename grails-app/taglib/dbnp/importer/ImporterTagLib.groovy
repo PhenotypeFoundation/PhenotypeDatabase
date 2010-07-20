@@ -15,6 +15,7 @@
 
 package dbnp.importer
 import dbnp.studycapturing.Template
+import dbnp.studycapturing.TemplateField
 import dbnp.studycapturing.TemplateFieldType
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.ss.usermodel.DataFormatter
@@ -128,6 +129,8 @@ class ImporterTagLib {
     def createPropertySelect(String name, options, Integer columnIndex)
     {	
 	def res = "<select style=\"font-size:10px\" name=\"${name}.index.${columnIndex}\">"
+
+	res += "<option value=\"dontimport\" selected>Don't import</option>"
 
 	options.each { f ->
 	    res+= "<option value=\"${f.name}\">"

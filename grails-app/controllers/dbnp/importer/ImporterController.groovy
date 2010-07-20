@@ -118,7 +118,7 @@ class ImporterController {
 	session.importer_importeddata.each { table ->
 	    table.each { entity ->
 		entity.giveFields().each { field ->
-		    print ":" + params["entity_" + entity.hashCode() + "_" + field.escapedName()]
+		    //print ":" + params["entity_" + entity.hashCode() + "_" + field.escapedName()]
 		    entity.setFieldValue (field.toString(), params["entity_" + entity.hashCode() + "_" + field.escapedName()])
 		}		
 	    }
@@ -222,8 +222,12 @@ class ImporterController {
 
 		// Store the selected property for this column into the column map for the ImporterService
 		session.importer_header[columnindex.toInteger()].property = property
+
 		// Look up the template field type of the target TemplateField and store it also in the map
-		session.importer_header[columnindex.toInteger()].templatefieldtype = entityObj.getFieldType(property)
+		session.importer_header[columnindex.toInteger()].templatefieldtype = entityObj.giveFieldType(property)
+
+		// Is a "Don't import" property assigned to the column?
+		session.importer_header[columnindex.toInteger()].dontimport = (property=="dontimport") ? true : false
 
 		//if it's an identifier set the mapping column true or false
 		entityObj.giveFields().each {
