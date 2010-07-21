@@ -10,7 +10,7 @@
     <meta name="layout" content="main"/>
     <title>Importer wizard (simple)</title>
 
-<g:javascript library="jquery"/>
+<g:javascript library="jquery" plugin="jquery"/>
 
 <g:javascript>
 /**
