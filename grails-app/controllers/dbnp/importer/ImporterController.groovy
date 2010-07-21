@@ -260,10 +260,7 @@ class ImporterController {
 	
 
         // fetch all templates for a specific entity
-        //def templates = Template.findAllByEntity(Class.forName(entityClass, true, this.getClass().getClassLoader()))
-	def templates = Template.list()
-
-	println templates.dump()
+        def templates = Template.findAllByEntity(Class.forName(entityClass, true, this.getClass().getClassLoader()))	
 
 	// render as JSON
         render templates as JSON
