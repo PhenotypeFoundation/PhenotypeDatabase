@@ -151,3 +151,6 @@ gscf {
 		]
 	]
 }
+
+// jquery plugin
+grails.views.javascript.library="jquery"
