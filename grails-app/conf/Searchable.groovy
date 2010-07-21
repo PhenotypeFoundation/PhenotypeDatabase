@@ -32,7 +32,7 @@ searchable {
      * The default is "${user.home}/.grails/projects/${app.name}/searchable-index/${grails.env}"
      */
     compassConnection = new File(
-		((new File("/home/tomcat").exists()) ? "/home/tomcat/gscf/compassindex" : "/tmp/gscf/compassindex")
+		((new File("/home/tomcat").exists()) ? "/home/tomcat/searchable/gscf/compassindex" : "/tmp/searchable/gscf/compassindex")
     ).absolutePath
 
     /**
