@@ -143,8 +143,7 @@ gscf {
 		// @see ImporterController
 		importableEntities: [
 			none	: [name: 'None', entity:'', type:-1],
-			event	: [name: 'Event', entity:'dbnp.studycapturing.Event', type:2],
-			protocol: [name: 'Protocol', entity:'dbnp.studycapturing.Protocol', type:3],
+			event	: [name: 'Event', entity:'dbnp.studycapturing.Event', type:2],			
 			sample	: [name: 'Sample', entity: 'dbnp.studycapturing.Sample', type:4],
 			study	: [name: 'Study', entity: 'dbnp.studycapturing.Study', type:0],
 			subject	: [name: 'Subject', entity: 'dbnp.studycapturing.Subject', type:1]
