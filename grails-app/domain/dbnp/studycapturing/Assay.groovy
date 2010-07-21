@@ -6,13 +6,19 @@ package dbnp.studycapturing
  * this data can be found.
  */
 class Assay {
-    String name
-    AssayModule module
-    long externalAssayID // the assay ID the assay has in the external module
-        
-    static hasMany = [samples : Sample]
+	String name
+	AssayModule module
+	long externalAssayID // the assay ID the assay has in the external module
 
-    static constraints = {
-        externalAssayID( nullable:true )
-    }
+	static belongsTo = [parent: Study]
+
+	static hasMany = [samples: Sample]
+
+	static constraints = {
+		externalAssayID(unique: true)
+	}
+
+	def String toString() {
+		return name;
+	}
 }

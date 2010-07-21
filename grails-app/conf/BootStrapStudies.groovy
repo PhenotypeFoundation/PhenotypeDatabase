@@ -494,14 +494,14 @@ class BootStrapStudies {
 			name: 'SAM module for clinical data',
 			type: AssayType.SIMPLE_ASSAY,
 			platform: 'clinical measurements',
-			url: 'http://sam.dbnp.org'
+			url: 'http://localhost:8182/sam'
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		def lipidAssayRef = new Assay(
 			name: 'Lipid profiling',
 			module: clinicalModule,
 			externalAssayId: 0
-		).with { if (!validate()) { errors.each { println it} } else save()}
+		)
 
 		humanStudy.samples*.each {
 			lipidAssayRef.addToSamples(it)
@@ -513,6 +513,9 @@ class BootStrapStudies {
 
 	        mouseStudy.addToAssays(lipidAssayRef);
 		mouseStudy.save()
+
+		lipidAssayRef.with { if (!validate()) { errors.each { println it} } else save()}
+
 	}
 
 }
