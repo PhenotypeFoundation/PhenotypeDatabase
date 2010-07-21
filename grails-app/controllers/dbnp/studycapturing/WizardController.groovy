@@ -893,7 +893,7 @@ class WizardController {
 			}
 
 			// recreate events
-			flow.events = []
+			flow.events = [:]
 			flow.eventGroups = []
 			flow.eventTemplates = [:]
 			flow.study.events.each() { event ->
