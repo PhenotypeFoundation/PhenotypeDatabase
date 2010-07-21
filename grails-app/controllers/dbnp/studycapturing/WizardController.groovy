@@ -659,6 +659,7 @@ class WizardController {
 				flow.page = 6
 
 // for now, development only!
+// bla
 if (grails.util.GrailsUtil.environment == "development") {
 				// iterate through eventGroups
 				if (!flow.samples) {
