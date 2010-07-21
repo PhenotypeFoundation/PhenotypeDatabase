@@ -23,6 +23,6 @@
   </head>
   <body>
     <h1>Step 3: import wizard finished</h1>
-    <p>All data has been imported.</p>
+    <p>${validatedSuccesfully} of ${totalrows} rows were imported succesfully.</p>
   </body>
 </html>
