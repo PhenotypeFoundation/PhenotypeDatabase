@@ -8,7 +8,7 @@
   </g:if><g:else>
   <link rel="stylesheet" href="${resource(dir: 'css', file: 'dialog.css')}"/>	 
   </g:else>
-  <g:javascript library="jquery"/>
+  <g:javascript library="jquery" plugin="jquery"/>
   <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
   <script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.2.custom.min.js')}" type="text/javascript"></script>
   <script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.js')}"></script>

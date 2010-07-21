@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.css')}"/>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'login_panel.css')}"/>
 	<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
-	<g:javascript library="jquery"/>
+	<g:javascript library="jquery" plugin="jquery"/>
 	<script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.2.custom.min.js')}" type="text/javascript"></script>
 	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.2.custom.css')}"/>
