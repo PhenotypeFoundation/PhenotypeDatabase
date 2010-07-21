@@ -252,29 +252,34 @@ class ImporterService {
      * @param datamatrix two dimensional array containing entities with values read from Excel file     *
      */    
     def saveDatamatrix(Study study, datamatrix) {
+	def validatedSuccesfully = 0
 	study.refresh()
 	
 	datamatrix.each { record ->
 	    record.each { entity ->
-		switch (entity.getClass()) {
-		    case Study	 :  print "Persisting Study `" + entity.title + "`: "
-				    persistEntity(entity)
-				    break
-		    case Subject :  print "Persisting Subject `" + entity.name + "`: "
-				    persistEntity(entity)
-				    study.addToSubjects(entity)
-				    break
-		    case Event	 :  print "Persisting Event `" + entity.eventdescription + "`: "
-				    persistEntity(entity)
-				    break
-		    case Sample  :  print "Persisting Sample `" + entity.name +"`: "
-				    persistEntity(entity)
-				    break
-		    default	 :  println "Skipping persisting of `" + entity.getclass() +"`"
-				    break
-		}
-	    }
-	}
+		if(entity.validate()) {
+		    switch (entity.getClass()) {
+			case Study	 :  print "Persisting Study `" + entity + "`: "
+					    persistEntity(entity)
+					    break
+			case Subject	 :  print "Persisting Subject `" + entity + "`: "
+					    persistEntity(entity)
+					    study.addToSubjects(entity)
+					    break
+			case Event	 :  print "Persisting Event `" + entity + "`: "
+					    persistEntity(entity)
+					    break
+			case Sample	 :  print "Persisting Sample `" + entity +"`: "
+					    persistEntity(entity)
+					    break
+			default		 :  println "Skipping persisting of `" + entity.getclass() +"`"
+					    break
+		    } // end switch
+		    validatedSuccesfully++
+		} // end if
+	    } // end record
+	} // end datamatrix
+	return validatedSuccesfully
     }
 
     /**
@@ -285,10 +290,10 @@ class ImporterService {
      * 
      */
     def persistEntity(entity) {	
-	if (entity.save(flush:true)) {  //.merge?	    
-        } else entity.errors.allErrors.each {
-		println it
-	}
+	 if (!entity.save()) //.merge?
+	    entity.errors.allErrors.each {
+	    println it
+	 }
     }
 
     /**

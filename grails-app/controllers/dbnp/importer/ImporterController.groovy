@@ -245,8 +245,8 @@ class ImporterController {
     }
 
     def savePostview = {
-	ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
-	render(view:"step4")
+	def validatedSuccesfully = ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
+	render(view:"step4", model:[validatedSuccesfully:validatedSuccesfully, totalrows:session.importer_importeddata.size])
     }
 
     /**
