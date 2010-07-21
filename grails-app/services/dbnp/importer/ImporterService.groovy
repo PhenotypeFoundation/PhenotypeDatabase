@@ -171,6 +171,7 @@ class ImporterService {
 	    
 	    (0..header.size()-1).each { columnindex ->
 		def c = sheet.getRow(rowindex).getCell(columnindex, org.apache.poi.ss.usermodel.Row.CREATE_NULL_AS_BLANK)		
+		//row.add(df.formatCellValue(c))
 		row.add(c)
 		//if (c.getCellType() == c.CELL_TYPE_STRING) println "STR"+c.getStringCellValue()
 		//if (c.getCellType() == c.CELL_TYPE_NUMERIC) println "INT" +c.getNumericCellValue()
@@ -209,8 +210,8 @@ class ImporterService {
 	}
 
     /**
-    * Method to read data from a workbook and to import data into the database
-    * by using mapping information
+    * Method to read data from a workbook and to import data into a two dimensional
+    * array
     *
     * @param template_id template identifier to use fields from
     * @param wb POI horrible spreadsheet formatted workbook object
@@ -311,13 +312,13 @@ class ImporterService {
 	    def mc = mcmap[cell.getColumnIndex()]
 	    def value
 
+	    // Check if column must be imported
 	    if (!mc.dontimport) {
-		/*try {
-    		 value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
+		try {
+		    value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
 		} catch (NumberFormatException nfe) {
     		 value = ""
-		}*/
-	    value = df.formatCellValue(cell)
+		}
 
 	    switch(mc.entity) {
 		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)				    
@@ -350,7 +351,7 @@ class ImporterService {
 	    switch (type) {
 		case TemplateFieldType.STRING	    :   return value.trim()
 		case TemplateFieldType.TEXT	    :   return value.trim()
-		case TemplateFieldType.INTEGER	    :   return Integer.valueOf(value)
+		case TemplateFieldType.INTEGER	    :   return (int) Double.valueOf(value)
 		case TemplateFieldType.FLOAT	    :   return Float.valueOf(value.replace(",","."));
 		case TemplateFieldType.DOUBLE	    :   return Double.valueOf(value.replace(",","."));
 		case TemplateFieldType.STRINGLIST   :   return value.trim()
@@ -359,4 +360,5 @@ class ImporterService {
 		default				    :   return value
 	    }
     }
+
 }
