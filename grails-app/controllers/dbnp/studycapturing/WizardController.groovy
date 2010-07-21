@@ -658,6 +658,8 @@ class WizardController {
 			onRender {
 				flow.page = 6
 
+// for now, development only!
+if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
 				// iterate through eventGroups
 				if (!flow.samples) {
 					flow.samplesWithTemplate = 0
@@ -701,6 +703,7 @@ class WizardController {
 						println sampleData.event.template
 					}
 				}
+}
 
 				success()
 			}
@@ -753,6 +756,8 @@ class WizardController {
 				flash.values = params
 				flash.errors = [:]
 
+// for now, development only!
+if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
 				// do all samples have a template assigned?
 				if (flow.samplesWithTemplate < flow.samples.size()) {
 					// handle samples
@@ -770,6 +775,9 @@ class WizardController {
 				} else {
 					error()
 				}
+} else {
+	success()
+}
 			}.to "confirm"
 			on("quickSave") {
 				// handle samples
