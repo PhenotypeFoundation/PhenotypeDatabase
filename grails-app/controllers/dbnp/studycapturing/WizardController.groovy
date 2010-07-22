@@ -647,6 +647,19 @@ class WizardController {
 			render(view: "_samples_previous_warning")
 			onRender {
 				flow.page = 6
+
+				// TEMPORARY FIX TO REMOVE ALL SAMPLES AND REGENERATE THEM
+				// THEN USER BROWSED BACK
+				println ".removing samples from study"
+
+				// remove samples from study
+				flow.samples.each() {
+					flow.study.removeFromSamples(it.sample)
+				}
+
+				// remove samples from flow
+				flow.remove('samples')
+				// END FIX
 			}
 			on("next").to "samples"
 			on("previous").to "groups"
@@ -658,10 +671,9 @@ class WizardController {
 			onRender {
 				flow.page = 6
 
-// for now, development only!
-if (grails.util.GrailsUtil.environment == "development") {
 				// iterate through eventGroups
 				if (!flow.samples) {
+					println ".generating samples"
 					flow.samplesWithTemplate = 0
 					flow.samples = []
 					flow.sampleTemplates = [:]
@@ -703,7 +715,6 @@ if (grails.util.GrailsUtil.environment == "development") {
 						println sampleData.event.template
 					}
 				}
-}
 
 				success()
 			}

@@ -16,17 +16,6 @@
 %>
 <wizard:pageContent>
 
-<g:if env="production">
-
-	<span class="info">
-		<span class="title">Samples</span>
-		The sample input page is still under development and is not yet
-		production ready... We appologize for the inconvenience.
-	</span>
-
-</g:if><g:else>
-
-
 	<g:if env="development">
 		<wizard:ajaxButtonElement description="Development feature (regenerate samples)" name="regenerate" value="regenerate new samples" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()">
 			This functionality is only available in development mode for debugging purposes and will not show in test and production environments
@@ -96,8 +85,5 @@
 				<div class="slider" ></div>
 			</div>
 		</g:each>
-	</g:if>
-
-</g:else>
-	
+	</g:if>	
 </wizard:pageContent>
