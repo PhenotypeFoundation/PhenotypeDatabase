@@ -80,7 +80,10 @@ class RestController {
 		List assays = [] 
 		if( params.externalStudyID ) {
  			def study = Study.find( "from Study as s where s.code=?", [params.externalStudyID])
-			if(study) study.assays.each{ assay -> assays.push assay.externalAssayID }
+			if(study) study.assays.each{ assay -> 
+			    def map = ['name':assay.name, 'externalAssayID':assay.externalAssayID]
+				assays.push( map )
+			}
  		}
 		render assays as JSON 
 	}
@@ -97,9 +100,7 @@ class RestController {
 		def items = []
 		if( params.externalAssayID ) {
 			def id = Long.parseLong(params.externalAssayID)
-			Assay.findAll().each{ println it }
  			def assay = Assay.find( "from Assay as a where externalAssayID=?",[id])
-			println "Assay: " + assay
 			assay.getSamples().each { sample ->
 				def item = [ 
 					'name'		      : sample.name,
@@ -112,7 +113,6 @@ class RestController {
 				items.push item 
 			}
  		}
-		println "done"
 		render items as JSON
 	}
 
