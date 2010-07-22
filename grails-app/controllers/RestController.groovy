@@ -107,7 +107,7 @@ class RestController {
 					'material'	      : sample.material.name,
 					'subject'	      : sample.parentSubject.name,
 					'event'		      : sample.parentEvent.template.name,
-					'startTime'	      : sample.parentEvent.getDurationString(),
+					'startTime'	      : sample.parentEvent.getStartTimeString(),
 					'externalSampleId': sample.externalSampleId
 				] 
 				items.push item 

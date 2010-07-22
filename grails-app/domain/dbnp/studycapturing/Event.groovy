@@ -13,8 +13,8 @@ import groovy.time.*
  * $Date$
  */
 class Event extends TemplateEntity implements Serializable {
-	long startTime
-	long endTime
+	long startTime  // start time of the event, relative to the start time of the study
+	long endTime    // end time of the event, relative to the start time of the study
 
 	// TODO: assure the Event has a parent study in validate()
 
@@ -63,6 +63,15 @@ class Event extends TemplateEntity implements Serializable {
 	 */
 	def getDuration() {
 		return new RelTime(startTime, endTime)
+	}
+
+
+	 /**
+	  * Return the start time of the event, which should be relative to the start of the study
+	  * @return String a human readable representation of the start time of the event
+	 */
+	def getStartTimeString() {
+		return new RelTime(startTime).toPrettyRoundedString();
 	}
 
 	/**
