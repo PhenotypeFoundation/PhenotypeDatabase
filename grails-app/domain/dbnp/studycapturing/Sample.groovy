@@ -51,4 +51,7 @@ class Sample extends TemplateEntity {
 		return  Sample.findAll( 'from Sample s where s.parentEvent =:event', [event:event] )
 	}
 
+	def String toString() {
+		return name
+	}
 }
