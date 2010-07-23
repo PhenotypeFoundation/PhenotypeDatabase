@@ -339,6 +339,17 @@ class BootStrapStudies {
 			else if (x > 10) { LFBL1.addToSubjects(currentSubject).save() }
 			else             { LFBV1.addToSubjects(currentSubject).save() }
 
+			// Create sample
+			def currentSample = new Sample(
+				name: currentSubject.name + '_B',
+				material: bloodTerm,
+                                        template: humanBloodSampleTemplate,
+				parentSubject: currentSubject,
+				parentEvent: x > 40 ? evS4 : evS
+			);
+                        currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
+
+			mouseStudy.addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
 		}
 
 		// Add EventGroups to study
@@ -500,21 +511,41 @@ class BootStrapStudies {
 		def lipidAssayRef = new Assay(
 			name: 'Lipid profiling',
 			module: clinicalModule,
-			externalAssayId: 0
+			externalAssayID: 1
 		)
 
-		humanStudy.samples*.each {
+		mouseStudy.samples*.each {
 			lipidAssayRef.addToSamples(it)
 		}
-		lipidAssayRef.save()
-
-		humanStudy.addToAssays(lipidAssayRef);
-		humanStudy.save()
 
 	        mouseStudy.addToAssays(lipidAssayRef);
 		mouseStudy.save()
 
 		lipidAssayRef.with { if (!validate()) { errors.each { println it} } else save()}
+
+		def  glucoseAssay2Ref = new Assay(
+			name: 'Glucose assay 2',
+			module: clinicalModule,
+			externalAssayID: 2
+		)
+
+		def  glucoseAssay3Ref = new Assay(
+			name: 'Glucose assay 3',
+			module: clinicalModule,
+			externalAssayID: 3
+		)
+
+		humanStudy.addToAssays(glucoseAssay2Ref)
+		humanStudy.addToAssays(glucoseAssay3Ref)
+		humanStudy.save()
+
+		humanStudy.samples*.each {
+			glucoseAssay2Ref.addToSamples(it)
+			glucoseAssay3Ref.addToSamples(it)
+		}
+
+		glucoseAssay2Ref.with { if (!validate()) { errors.each { println it} } else save()}
+		glucoseAssay3Ref.with { if (!validate()) { errors.each { println it} } else save()}
 
 	}
 
