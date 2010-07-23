@@ -71,7 +71,7 @@ class Event extends TemplateEntity implements Serializable {
 	  * @return String a human readable representation of the start time of the event
 	 */
 	def getStartTimeString() {
-		return new RelTime(startTime).toPrettyRoundedString();
+		return new RelTime(startTime).toPrettyString();
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Event extends TemplateEntity implements Serializable {
 	 * @return String
 	 */
 	def getDurationString() {
-		return new RelTime(startTime, endTime).toPrettyRoundedString();
+		return new RelTime(startTime, endTime).toPrettyString();
 	}
 
 	/**
@@ -88,7 +88,7 @@ class Event extends TemplateEntity implements Serializable {
 	 * @return String
 	 */
 	static def getPrettyDuration(RelTime duration) {
-		return duration.toPrettyRoundedString();
+		return duration.toPrettyString();
 	}
 
 	def getPrettyDuration() {
@@ -96,11 +96,11 @@ class Event extends TemplateEntity implements Serializable {
 	}
 
 	/**
-	 * Get short, human readable string representing the duration between startTime and endTime 
+	 * Get human readable string representing the duration between startTime and endTime, rounded to one unit (weeks/days/hours etc.) 
      *
 	 * @return String
 	 */
-	def getShortDuration() {
+	def getRoundedDuration() {
 		return new RelTime(startTime, endTime).toPrettyRoundedString();
 	}
 
