@@ -22,7 +22,8 @@
           <thead>
               <tr>
                   <th></th>
-                  <g:sortableColumn property="title" title="${message(code: 'study.title.label', default: 'Title')}" />
+                  <g:sortableColumn property="code" title="${message(code: 'study.code.label', default: 'Code')}" />
+	              <th>Title</th>
                   <th>Subjects</th>
                   <th>Events</th>
                   <th>Assays</th>
@@ -34,8 +35,10 @@
 
                   <td><input type="checkbox" name="${studyInstance.title}" id="${studyInstance.title}"></td>
 
-                  <td><g:link action="show" id="${studyInstance.id}">${fieldValue(bean: studyInstance, field: "title")}</g:link></td>
-
+                  <td><g:link action="show" id="${studyInstance.id}">${fieldValue(bean: studyInstance, field: "code")}</g:link></td>
+	              <td>
+		              ${fieldValue(bean: studyInstance, field: "title")}
+	              </td>
                   <td>
                     <g:if test="${studyInstance.subjects.species.size()==0}">
                       -
