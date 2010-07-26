@@ -22,6 +22,64 @@ import java.lang.reflect.*;
 class TemplateEditorController {
     def entityName;
     def entity;
+ 
+	/**
+    * Study template editor page
+	*/
+	def study = {
+	    showEntity('dbnp.studycapturing.Study')
+    }
+
+	/**
+    * Subject template editor page
+	*/
+	def subject = {
+	    showEntity('dbnp.studycapturing.Subject')
+    }
+
+	/**
+    * Event template editor page
+	*/
+	def event = {
+	    showEntity('dbnp.studycapturing.Event')
+    }
+
+	/**
+    * Sampling Event template editor page
+	*/
+	def samplingEvent = {
+	    showEntity('dbnp.studycapturing.SamplingEvent')
+    }
+
+	/**
+    * Event template editor page
+	*/
+	def sample = {
+	    showEntity('dbnp.studycapturing.Sample')
+    }
+
+	/**
+	 * Show the template editor page for a particular entity
+	 * @param targetEntity The full class name of the target entity
+	 */
+	private void showEntity(String targetEntity) {
+		String resultEntity
+		if (grailsApplication.config.crypto) {
+			// if a shared secret is defined, encrypt using that
+			resultEntity = Blowfish.encryptBase64(
+					targetEntity.toString(),
+					grailsApplication.config.crypto.shared.secret
+				)
+		}
+		else {
+			// otherwise use standard encoding
+			resultEntity = targetEntity.toString().bytes.encodeBase64()
+		}
+
+		// redirect to template editor page of the specified entity
+		redirect(action: "index",params:[entity: resultEntity])
+	}
+
 
     /**
      * index closure
