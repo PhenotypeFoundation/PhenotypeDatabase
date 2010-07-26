@@ -69,7 +69,7 @@ class ImporterService {
 	    def headercell = sheet.getRow(sheet.getFirstRowNum()).getCell(columnindex)
 	    def tft = TemplateFieldType.STRING //default templatefield type
 
-            // Check for every celltype, currently redundant code, but possibly this will be 
+            // Check for every celltype, currently redundant code, but possibly this will be
 	    // a piece of custom code for every cell type like specific formatting	    
 	        
 	    switch (datamatrix_celltype) {
@@ -79,10 +79,10 @@ class ImporterService {
 			    def fieldtype = TemplateFieldType.STRING
 
 			    // is this string perhaps a double?
-			    try {				
+			    try {
 				formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
 			    } catch (NumberFormatException nfe) { doubleBoolean = false }
-			    finally {				
+			    finally {
 				if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
 			    }
 
@@ -99,10 +99,10 @@ class ImporterService {
 			    def integerBoolean = true
 
 			    // is this cell really an integer?
-			    try {				
+			    try {
 				Integer.valueOf(datamatrix_celldata)
 			    } catch (NumberFormatException nfe) { integerBoolean = false }
-			    finally {				
+			    finally {
 				if (integerBoolean) fieldtype = TemplateFieldType.INTEGER
 			    }
 
@@ -116,7 +116,7 @@ class ImporterService {
 				}
 
 			    if (HSSFDateUtil.isCellDateFormatted(datamatrix_cell)) fieldtype = TemplateFieldType.DATE
-			    
+
 			    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
 									    templatefieldtype:fieldtype,
 									    index:columnindex,
@@ -268,9 +268,11 @@ class ImporterService {
 					    break
 			case Event	 :  print "Persisting Event `" + entity + "`: "
 					    persistEntity(entity)
+					    study.addToEvents(entity)
 					    break
 			case Sample	 :  print "Persisting Sample `" + entity +"`: "
 					    persistEntity(entity)
+					    study.addToSamples(entity)
 					    break
 			default		 :  println "Skipping persisting of `" + entity.getclass() +"`"
 					    break
