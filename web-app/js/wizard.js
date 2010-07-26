@@ -282,7 +282,7 @@ function handleWizardTable() {
             // handle slider
             if (header.width() < wizardTable.width()) {
                 // no, so hide it
-                sliderContainer.css({ 'display': 'none '});
+                sliderContainer.hide();
             } else {
                 sliderContainer.slider({
                     value   : 1,
