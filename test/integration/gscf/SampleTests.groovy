@@ -24,7 +24,7 @@ class SampleTests extends StudyTests {
 
 	// This test extends StudyTests, so that we have a test study to assign as a parent study
 
-	final String testSampleName = "Test sample"
+	final String testSampleName = "Test sample @XYZ!"
 	final String testSampleTemplateName = "Human blood sample"
 
 	final String testSamplingEventName = "Test sampling event"
@@ -103,6 +103,28 @@ class SampleTests extends StudyTests {
 		sampleDB.name = testSampleName
 		sampleDB.parentEvent = null
 		assert !sampleDB.validate()
+	}
+
+	void testDelete() {
+		def sampleDB = Sample.findByName(testSampleName)
+		sampleDB.delete()
+		try {
+			sampleDB.save()
+			assert false // The save should not succeed since the sample is referenced by a study
+		}
+		catch(org.springframework.dao.InvalidDataAccessApiUsageException e) {
+			sampleDB.discard()
+			assert true // OK, correct exception (at least for the in-mem db, for PostgreSQL it's probably a different one...)
+		}
+
+		// Now, delete the sample from the study samples collection, and then the delete action should be cascaded to the sample itself
+		def study = Study.findByTitle(testStudyName)
+		assert study
+		study.removeFromSamples sampleDB
+
+		// Make sure the sample doesn't exist anymore at this point
+		assert !Sample.findByName(testSampleName)
+		assert study.samples.size() == 0
 	}
 
 	void testStudyRelation() {
