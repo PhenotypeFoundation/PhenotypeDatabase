@@ -78,19 +78,33 @@ class ImporterController {
 	def entity = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
 	def entityClass = Class.forName(entity, true, this.getClass().getClassLoader())
 
-	session.importer_header = ImporterService.getHeader(wb, 0, entityClass)
+	session.importer_workbook = wb
 	session.importer_study = Study.get(params.study.id.toInteger())
 	session.importer_template_id = params.template_id
-	session.importer_sheet = params.sheet.toInteger() -1 // 0 == first sheet
-	session.importer_workbook = wb
+	session.importer_sheetindex = params.sheetindex.toInteger() -1 // 0 == first sheet
+	session.importer_datamatrix_start = params.datamatrix_start.toInteger() -1 // 0 == first row
+	session.importer_headerrow = params.headerrow.toInteger()
 
+	session.importer_header = ImporterService.getHeader(wb,
+							    session.importer_sheetindex,
+							    session.importer_headerrow,
+							    session.importer_datamatrix_start,
+							    entityClass)
+	
 	session.importer_header.each {	    
 	    selectedentities.add([name:params.entity, columnindex:it.key.toInteger()])
 	}
 
 	def templates = Template.get(session.importer_template_id)
 	
-	render(view:"step2_simple", model:[entities: selectedentities, header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, session.importer_header, session.importer_sheet, 5), templates:templates])
+	render(view:"step2_simple", model:[entities: selectedentities,
+					   header:session.importer_header,
+					   datamatrix:ImporterService.getDatamatrix(
+					       wb, session.importer_header,
+					       session.importer_sheet,
+					       session.importer_datamatrix_start,
+					       5),
+					   templates:templates])
     }
 
     /**

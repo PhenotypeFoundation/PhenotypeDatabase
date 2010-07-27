@@ -48,10 +48,9 @@ class ImporterService {
      * @param sheetindex sheet to use within the workbook
      * @return header representation as a MappingColumn hashmap
      */
-    def getHeader(HSSFWorkbook wb, int sheetindex, theEntity=null){
+    def getHeader(HSSFWorkbook wb, int sheetindex, int headerrow, int datamatrix_start, theEntity=null){
 
-	def sheet = wb.getSheetAt(sheetindex)
-	def datamatrix_start = sheet.getFirstRowNum() + 2
+	def sheet = wb.getSheetAt(sheetindex)	
 	def sheetrow = sheet.getRow(datamatrix_start)
 	//def header = []
 	def header = [:]
@@ -152,11 +151,10 @@ class ImporterService {
      * @return two dimensional array (matrix) of HSSFCell objects
      */
 
-    HSSFCell[][] getDatamatrix(HSSFWorkbook wb, header, int sheetindex, int count) {
+    HSSFCell[][] getDatamatrix(HSSFWorkbook wb, header, int sheetindex, int datamatrix_start, int count) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def rows  = []
-	def df = new DataFormatter()
-	def datamatrix_start = 1
+	def df = new DataFormatter()	
 
 	// walk through all rows
 	(count <= sheet.getLastRowNum()) ?

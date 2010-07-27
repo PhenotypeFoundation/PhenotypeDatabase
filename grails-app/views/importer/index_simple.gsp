@@ -68,6 +68,30 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
 	    </td>
 	</tr>
 	<tr>
+	    <td width="100px">
+		Use data from sheet:
+	    </td>
+	    <td width="100px">
+		<g:select name="sheetindex" from="${1..10}"/>
+	    </td>
+	</tr>
+	<tr>
+	    <td width="100px">
+		Columnheader starts at row:
+	    </td>
+	    <td width="100px">
+		<g:select name="headerrow" from="${1..10}"/>
+	    </td>
+	</tr>
+	<tr>
+	    <td width="100px">
+		Data starts at row:
+	    </td>
+	    <td width="100px">
+		<g:select name="datamatrix_start" from="${2..10}"/>
+	    </td>
+	</tr>
+	<tr>
 	    <td>
 		Choose your study:
 	    </td>
