@@ -96,6 +96,7 @@ TableEditor.prototype = {
 
             // does this column contain an input field
             if (input && type) {
+                // check field type
                 switch (type) {
                     case 'text':
                         // text input
@@ -122,6 +123,10 @@ TableEditor.prototype = {
                         var columnNumber = count;
                         inputElement.bind('change.tableEditor', function() {
                             that.updateSingleInputElements(input, columnNumber, 'select');
+
+                            // probably we want to bind these extra event handlers
+                            // separately, but for now this will suffice :)
+                            that.handleExtraEvents( inputElement );
                         });
                         break;
                     case 'checkbox':
@@ -209,6 +214,26 @@ TableEditor.prototype = {
             default:
                 return i.val(value);
                 break;
+        }
+    },
+
+    /**
+     * execute extra functions when binding to a particular event. The extra change
+     * handlers are called after replicating template fields
+     * example: <select ... tableEditorChangeEvent="console.log(element);" ... />
+     * @param element
+     */
+    handleExtraEvents: function( element ) {
+        // define parameters
+        var events = ['change'];
+
+        // check if we need to execute some more event handlers
+        for ( var i=0; i < events.length; i++ ) {
+            var call = element.attr('tableEditor' + events[ i ].substr(0, 1).toUpperCase() + events[ i ].substr(1).toLowerCase() + 'Event');
+            if ( call ) {
+                // yes, execute!
+                eval( call );
+            }
         }
     }
 }

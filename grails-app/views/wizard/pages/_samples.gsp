@@ -28,6 +28,12 @@
 		you have specified in the previous screens.<br/>
 	</span>
 
+	<script type="text/javascript">
+		function switchTemplate( element ) {
+			<wizard:ajaxSubmitJs functionName="switchTemplate" this="element" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()"/>
+		}
+	</script>
+
 	<g:if test="${samples}">
 		<g:if test="${samples.size() > samplesWithTemplate}">
 			<g:set var="showHeader" value="${true}" />
@@ -45,7 +51,7 @@
 					<div class="row">
 						<div class="firstColumn">${s+1}</div>
 						<div class="column">
-							<wizard:templateSelect name="template_${s}" entity="${dbnp.studycapturing.Sample}" value="${sampleData['sample'].template}" addDummy="true" ajaxOnChange="switchTemplate" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
+							<wizard:templateSelect name="template_${s}" entity="${dbnp.studycapturing.Sample}" value="${sampleData['sample'].template}" addDummy="true" tableEditorChangeEvent="switchTemplate(element);" />
 						</div>
 						<wizard:templateColumns name="sample_${s}" class="column" id="1" entity="${sampleData.sample}"/>
 					</div>
@@ -74,7 +80,7 @@
 					<div class="row">
 						<div class="firstColumn">${s+1}</div>
 						<div class="column">
-							<wizard:templateSelect name="template_${s}" entity="${dbnp.studycapturing.Sample}" value="${sampleData['sample'].template}" addDummy="true" ajaxOnChange="switchTemplate" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
+							<wizard:templateSelect name="template_${s}" entity="${dbnp.studycapturing.Sample}" value="${sampleData['sample'].template}" addDummy="true" tableEditorChangeEvent="switchTemplate(element);" />
 						</div>
 						<wizard:templateColumns name="sample_${s}" class="column" id="1" entity="${sampleData.sample}"/>
 					</div>

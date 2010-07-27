@@ -141,6 +141,11 @@ class WizardTagLib extends JavascriptTagLib {
 			)
 		}
 
+		// change 'this' if a this attribute is preset
+		if (attrs.get('this')) {
+			button = button.replace('this', attrs.get('this'))
+		}
+
 		out << button
 	}
 
