@@ -81,6 +81,7 @@ class ImporterController {
 	session.importer_header = ImporterService.getHeader(wb, 0, entityClass)
 	session.importer_study = Study.get(params.study.id.toInteger())
 	session.importer_template_id = params.template_id
+	session.importer_sheet = params.sheet.toInteger() -1 // 0 == first sheet
 	session.importer_workbook = wb
 
 	session.importer_header.each {	    
@@ -89,7 +90,7 @@ class ImporterController {
 
 	def templates = Template.get(session.importer_template_id)
 	
-	render(view:"step2_simple", model:[entities: selectedentities, header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, session.importer_header, 0, 5), templates:templates])
+	render(view:"step2_simple", model:[entities: selectedentities, header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, session.importer_header, session.importer_sheet, 5), templates:templates])
     }
 
     /**
@@ -113,7 +114,6 @@ class ImporterController {
      */
 
     def saveMissingProperties = {
-	println params.entity
 	
 	session.importer_importeddata.each { table ->
 	    table.each { entity ->
