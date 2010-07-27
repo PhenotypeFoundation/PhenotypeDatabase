@@ -21,14 +21,13 @@ import org.apache.poi.ss.usermodel.DataFormatter
 
 import dbnp.studycapturing.TemplateFieldType
 import dbnp.studycapturing.Template
+import dbnp.studycapturing.SamplingEvent
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Subject
 import dbnp.studycapturing.Event
-
 import dbnp.studycapturing.Sample
 
 import dbnp.data.Term
-import dbnp.studycapturing.SamplingEvent
 
 class ImporterService {
 
@@ -314,6 +313,7 @@ class ImporterService {
 		def df = new DataFormatter()
 		def template = Template.get(template_id)
 		def record = []
+	def samplingevent = new SamplingEvent(template:template)
 
 		def study = new Study(template: template)
 		def subject = new Subject(template: template)
