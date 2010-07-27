@@ -78,6 +78,7 @@ class ImporterController {
 	def entity = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
 	def entityClass = Class.forName(entity, true, this.getClass().getClassLoader())
 
+	// Initialize some session variables
 	session.importer_workbook = wb
 	session.importer_study = Study.get(params.study.id.toInteger())
 	session.importer_template_id = params.template_id
@@ -85,13 +86,15 @@ class ImporterController {
 	session.importer_datamatrix_start = params.datamatrix_start.toInteger() -1 // 0 == first row
 	session.importer_headerrow = params.headerrow.toInteger()
 
+	// Get the header from the Excel file using the arguments given in the first step of the wizard
 	session.importer_header = ImporterService.getHeader(wb,
 							    session.importer_sheetindex,
 							    session.importer_headerrow,
 							    session.importer_datamatrix_start,
 							    entityClass)
 	
-	session.importer_header.each {	    
+	// Initialize 'selected entities', used to show entities above the columns
+	session.importer_header.each {
 	    selectedentities.add([name:params.entity, columnindex:it.key.toInteger()])
 	}
 
@@ -124,11 +127,12 @@ class ImporterController {
     }
 
     /**
+     * Method to save the missing properties
      * @param entity entity class we are using (dbnp.studycapturing.Subject etc.)
      */
 
     def saveMissingProperties = {
-	
+
 	session.importer_importeddata.each { table ->
 	    table.each { entity ->
 		entity.giveFields().each { field ->
@@ -184,9 +188,11 @@ class ImporterController {
 		default: break
 	    }
 	    
+	    // Set the templatefield type for this column
 	    session.importer_header[columnindex.toInteger()].templatefieldtype = tft
 	}
 
+	// Detect the entity type
 	params.entity.index.each { columnindex, entityname ->
 	    Class clazz	= null
 
@@ -205,6 +211,7 @@ class ImporterController {
 			break
 	    }
 
+	    // Store properties for this column
 	    session.importer_header[columnindex.toInteger()].identifier = (columnindex.toInteger() == identifiercolumnindex) ? true : false
 	    session.importer_header[columnindex.toInteger()].index = columnindex.toInteger()
 	    session.importer_header[columnindex.toInteger()].entity = clazz
@@ -258,6 +265,9 @@ class ImporterController {
 	    render(view:"step3", model:[datamatrix:session.importer_importeddata])
     }
 
+    /**
+     * Method which saves the data matrix to the database
+     */
     def savePostview = {
 	def validatedSuccesfully = ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
 	render(view:"step4", model:[validatedSuccesfully:validatedSuccesfully, totalrows:session.importer_importeddata.size])

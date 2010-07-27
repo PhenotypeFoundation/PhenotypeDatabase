@@ -224,20 +224,10 @@ class ImporterService {
 	def sheet = wb.getSheetAt(sheetindex)
 	def table = []
 	
-	// walk through all rows	
+	// walk through all rows and fill the table with records
 	(rowindex..sheet.getLastRowNum()).each { i ->
 	    table.add(createRecord(template_id, sheet.getRow(i), mcmap))
 	}
-
-	/*table.each {
-	    it.each { entity ->
-		entity.giveFields().each { field ->
-		    print field.name + ":" + entity.getFieldValue(field.name) + "/"
-		}
-		println
-	    }
-	}*/
-
 	return table	
     }
    
@@ -253,6 +243,7 @@ class ImporterService {
 	def validatedSuccesfully = 0
 	study.refresh()
 	
+	// go through the data matrix, read every record and validate the entity and try to persist it
 	datamatrix.each { record ->
 	    record.each { entity ->
 		if(entity.validate()) {
@@ -311,15 +302,17 @@ class ImporterService {
 		def df = new DataFormatter()
 		def template = Template.get(template_id)
 		def record = []
-	def samplingevent = new SamplingEvent(template:template)
 
+		// Initialize all possible entities with the chosen template
 		def study = new Study(template: template)
 		def subject = new Subject(template: template)
 		def samplingEvent = new SamplingEvent(template: template)
 		def event = new Event(template: template)
 		def sample = new Sample(template: template)
 
+		// Go through the Excel row cell by cell
 		for (HSSFCell cell: excelrow) {
+			// get the MappingColumn information of the current cell
 			def mc = mcmap[cell.getColumnIndex()]
 			def value
 
@@ -331,6 +324,7 @@ class ImporterService {
 					value = ""
 				}
 
+				// which entity does the current cell (field) belong to?
 				switch (mc.entity) {
 					case Study: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)
 						study.setFieldValue(mc.property, value)
