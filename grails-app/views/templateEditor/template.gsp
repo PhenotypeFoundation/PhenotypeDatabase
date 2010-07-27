@@ -79,7 +79,7 @@
 
 		<g:if test="${template}">
 			<div class="templateEditorStep" id="step2_selectedFields">
-				<h3 class="templateName">${template.name} (<a class="switch" href="${createLink(action:'index')}?entity=${encryptedEntity}">switch</a>)</h3>
+				<h3 class="templateName">${template.name} (<a class="switch" href="${createLink(action:'index')}?entity=${encryptedEntity.encodeAsURL()}">switch</a>)</h3>
 
 				<p>Currently, this template contains the following fields. Drag fields to reorder. Drag fields to the list of available fields to remove the field from the template.</p>
 				<ol id="domainFields" class="templateFields <g:if test="${template.inUse()}">inUse</g:if>">
