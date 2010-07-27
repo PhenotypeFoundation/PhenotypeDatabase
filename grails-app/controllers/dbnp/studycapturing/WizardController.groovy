@@ -611,11 +611,14 @@ class WizardController {
 				flash.errors = [:]
 
 				// handle study data
+				/* turned off by request of Kees / Leny / Jildau
 				if (!flow.eventTemplates.find { eventTemplate -> eventTemplate.value.template.entity == SamplingEvent }) {
 					// append error map
 					this.appendErrorMap(['events': 'You need to create at least one sampling event for your study'], flash.errors)
 					error()
-				} else if (this.handleEvents(flow, flash, params)) {
+				} else
+				*/
+				if (this.handleEvents(flow, flash, params)) {
 					success()
 				} else {
 					error()
