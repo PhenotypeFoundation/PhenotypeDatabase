@@ -507,7 +507,11 @@ class WizardController {
 				// remove event
 				if (flow.events[ delete ] && flow.events[ delete ] instanceof Event) {
 					// remove it from the study
-					flow.study.removeFromEvents( flow.events[ delete ] )
+					if ( flow.events[ delete ] instanceof SamplingEvent ) {
+						flow.study.removeFromSamplingEvents( flow.events[ delete ] )
+					} else {
+						flow.study.removeFromEvents( flow.events[ delete ] )
+					}
 
 					// remove it from the map
 					flow.events.remove(delete)
