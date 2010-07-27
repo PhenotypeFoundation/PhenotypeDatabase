@@ -146,7 +146,8 @@ gscf {
 			event	: [name: 'Event', entity:'dbnp.studycapturing.Event', type:2],			
 			sample	: [name: 'Sample', entity: 'dbnp.studycapturing.Sample', type:4],
 			study	: [name: 'Study', entity: 'dbnp.studycapturing.Study', type:0],
-			subject	: [name: 'Subject', entity: 'dbnp.studycapturing.Subject', type:1]
+			subject	: [name: 'Subject', entity: 'dbnp.studycapturing.Subject', type:1],
+			samplingevent : [name: 'SamplingEvent', entity: 'dbnp.studycapturing.SamplingEvent', type:3]
 
 		]
 	]

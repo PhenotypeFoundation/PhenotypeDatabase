@@ -274,6 +274,9 @@ class ImporterService {
 					    persistEntity(entity)
 					    study.addToSamples(entity)
 					    break
+			case SamplingEvent: print "Persisting SamplingEvent `" + entity + "`: "
+					    persistEntity(entity)
+					    study.addToSamplingEvents(entity)
 			default		 :  println "Skipping persisting of `" + entity.getclass() +"`"
 					    break
 		    } // end switch
