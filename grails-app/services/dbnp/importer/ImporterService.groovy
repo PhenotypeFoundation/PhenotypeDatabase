@@ -28,6 +28,7 @@ import dbnp.studycapturing.Event
 import dbnp.studycapturing.Sample
 
 import dbnp.data.Term
+import dbnp.studycapturing.SamplingEvent
 
 class ImporterService {
 
@@ -302,53 +303,57 @@ class ImporterService {
 	 }
     }
 
-    /**
-     * This method creates a record (array) containing entities with values
-     *
-     * @param template_id template identifier
-     * @param excelrow POI based Excel row containing the cells
-     * @param mcmap map containing MappingColumn objects
-     */
-    def createRecord(template_id, HSSFRow excelrow, mcmap) {
-	def df = new DataFormatter()
-	def template = Template.get(template_id)
-	def record = []	
-	
-	def study = new Study(template:template)
-	def subject = new Subject(template:template)
-	def event = new Event(template:template)
-	def sample = new Sample(template:template)
+	/**
+	 * This method creates a record (array) containing entities with values
+	 *
+	 * @param template_id template identifier
+	 * @param excelrow POI based Excel row containing the cells
+	 * @param mcmap map containing MappingColumn objects
+	 */
+	def createRecord(template_id, HSSFRow excelrow, mcmap) {
+		def df = new DataFormatter()
+		def template = Template.get(template_id)
+		def record = []
 
-	for (HSSFCell cell: excelrow) {	    
-	    def mc = mcmap[cell.getColumnIndex()]
-	    def value
+		def study = new Study(template: template)
+		def subject = new Subject(template: template)
+		def samplingEvent = new SamplingEvent(template: template)
+		def event = new Event(template: template)
+		def sample = new Sample(template: template)
 
-	    // Check if column must be imported
-	    if (!mc.dontimport) {
-		try {
-		    value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
-		} catch (NumberFormatException nfe) {
-    		 value = ""
-		}
+		for (HSSFCell cell: excelrow) {
+			def mc = mcmap[cell.getColumnIndex()]
+			def value
 
-	    switch(mc.entity) {
-		case Study	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(study)				    
-				    study.setFieldValue(mc.property, value)
-				    break
-	        case Subject	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(subject)
-				    subject.setFieldValue(mc.property, value)				    
-				    break
-		case Event	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(event)				    
-				    event.setFieldValue(mc.property, value)
-				    break
-		case Sample	:   (record.any {it.getClass()==mc.entity}) ? 0 : record.add(sample)				    
-				    sample.setFieldValue(mc.property, value)
-				    break
-		case Object	:   // don't import
-				    break
-	    } // end switch
-	} // end 
-    } // end for
+			// Check if column must be imported
+			if (!mc.dontimport) {
+				try {
+					value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
+				} catch (NumberFormatException nfe) {
+					value = ""
+				}
+
+				switch (mc.entity) {
+					case Study: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)
+						study.setFieldValue(mc.property, value)
+						break
+					case Subject: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(subject)
+						subject.setFieldValue(mc.property, value)
+						break
+					case SamplingEvent: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(samplingEvent)
+						samplingEvent.setFieldValue(mc.property, value)
+						break
+					case Event: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(event)
+						event.setFieldValue(mc.property, value)
+						break
+					case Sample: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(sample)
+						sample.setFieldValue(mc.property, value)
+						break
+					case Object:   // don't import
+						break
+				} // end switch
+			} // end
+		} // end for
 
 	return record
     }

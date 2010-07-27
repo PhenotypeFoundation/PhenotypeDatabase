@@ -419,10 +419,11 @@ abstract class TemplateEntity implements Serializable {
 
 		// Convenience setter for boolean fields
 		if( field.type == TemplateFieldType.BOOLEAN && value && value.class == String ) {
-			if (value.equals("true") || value.equals("on")) {
+			def lower = value.toLowerCase()
+			if (lower.equals("true") || lower.equals("on") || lower.equals("x")) {
 				value = true
 			}
-			else if (value.equals("false") || value.equals("off")) {
+			else if (lower.equals("false") || lower.equals("off") || lower.equals("")) {
 				value = false
 			}
 			else {
