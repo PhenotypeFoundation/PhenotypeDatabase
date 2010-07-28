@@ -19,10 +19,10 @@
   <head>
     <meta name="layout" content="main"/>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'importer.css')}"/>
-    <title>Step 4: import wizard finished</title>
+    <title>Step 5: import wizard finished</title>
   </head>
   <body>
-    <h1>Step 3: import wizard finished</h1>
+    <h1>Step 5: import wizard finished</h1>
     <p>${validatedSuccesfully} of ${totalrows} rows were imported succesfully.</p>
   </body>
 </html>

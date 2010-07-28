@@ -91,7 +91,7 @@ $(document).ready(function() {
 		Use data from sheet:
 	    </td>
 	    <td width="100px">
-		<g:select name="sheetindex" from="${1..10}"/>
+		<g:select name="sheetindex" from="${1..25}"/>
 	    </td>
 	</tr>
 	<tr>

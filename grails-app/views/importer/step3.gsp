@@ -19,10 +19,10 @@
   <head>
     <meta name="layout" content="main"/>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'importer.css')}"/>
-    <title>Step 3: import wizard imported data postview</title>
+    <title>Step 4: import wizard imported data postview</title>
   </head>
   <body>
-    <h1>Step 3: import wizard imported data postview</h1>
+    <h1>Step 4: import wizard imported data postview</h1>
     <p>A total of ${datamatrix.size()} rows were imported, below an overview of the rows is shown.</span>
     <importer:postview datamatrix="${datamatrix}"/>
   </body>
