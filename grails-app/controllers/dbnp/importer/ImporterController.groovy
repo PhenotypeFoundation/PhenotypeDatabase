@@ -104,7 +104,7 @@ class ImporterController {
 					   header:session.importer_header,
 					   datamatrix:ImporterService.getDatamatrix(
 					       wb, session.importer_header,
-					       session.importer_sheet,
+					       session.importer_sheetindex,
 					       session.importer_datamatrix_start,
 					       5),
 					   templates:templates])
