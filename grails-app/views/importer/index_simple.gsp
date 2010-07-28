@@ -9,6 +9,7 @@
   <head>
     <meta name="layout" content="main"/>
     <title>Importer wizard (simple)</title>
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'importer.css')}"/>
 
 <g:javascript library="jquery" plugin="jquery"/>
 
@@ -52,19 +53,37 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
         });
     }
 }
+
+$(document).ready(function() {
+    
+    $('#simplewizardform').submit(function() {
+	if ($('#file').val() == "") {
+	    alert ("Please choose your Excel file to import.");
+	    return false
+	} else
+	if ($('#entity').val() == "") {
+	    $('#datatemplate').addClass("validationfail");
+	    return false
+	} else
+	    $('#simplewizardform').submit();
+
+	return false;
+    });
+});
+
 </g:javascript>
 </head>
   <body>
     <h1>Importer wizard (simple)</h1>
     <p>You can import your Excel data to the server by choosing a file from your local harddisk in the form below.</p>
-	<g:form controller="importer" method="post" action="upload_simple" enctype="multipart/form-data">
+	<form id="simplewizardform" controller="importer" method="post" action="upload_simple" enctype="multipart/form-data">
 	<table border="0">
     	<tr>
 	    <td width="100px">
 		Choose your Excel file to import:
 	    </td>
 	    <td width="100px">
-		<input type="file" name="importfile"/>
+		<input id="file" type="file" name="importfile"/>
 	    </td>
 	</tr>
 	<tr>
@@ -106,6 +125,7 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
 	    <td>
 		<g:select
 		name="entity"
+		id="entity"
 		from="${entities}"		
 		optionValue="${{it.value.name}}"
 		optionKey="key"
@@ -118,7 +138,7 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
 	</tr>
 	<tr>
 	    <td>
-		Choose type of data template:
+		<div id="datatemplate">Choose type of data template:</div>
 	    </td>
 	    <td>
 		<g:select name="template_id" optionKey="id" optionValue="name" from="[]" />
@@ -132,7 +152,7 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
 	    </td>
 	</tr>
         </table>
-	</g:form>
+	</form>
 
   </body>
 </html>

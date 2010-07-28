@@ -35,3 +35,7 @@
 .importer .td {
     color:blue;
 }
+
+.validationfail {        
+    color: red;
+}
