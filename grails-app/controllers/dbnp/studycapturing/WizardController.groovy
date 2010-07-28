@@ -842,6 +842,13 @@ if (grails.util.GrailsUtil.environment == "development") {
 
 				// persist data to the database
 				try {
+					// user modifying?
+					if (flow.quickSave && grails.util.GrailsUtil.environment == 'production') {
+						// yes, not allowed on production as this results in data inconsistency
+						println ".saving is not allowed in study edit wizard"
+						throw new Exception("Saving is not allowed in the edit study wizard because this leads to data inconsistency in the database!")
+					}
+
 					// save study
 					println ".saving study"
 					if (!flow.study.save()) {
