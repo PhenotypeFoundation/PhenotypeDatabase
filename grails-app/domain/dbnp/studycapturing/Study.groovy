@@ -8,14 +8,14 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class Study extends TemplateEntity implements Serializable {
+class Study extends TemplateEntity {
 	static searchable = {
     	[only: ['title', 'Description']]
     }
 
-	nimble.User owner
-	String title
-	String code 		// also enables referencing to studies from the Simple Assay Module
+	nimble.User owner   // The owner of the study. A new study is automatically owned by its creator.
+	String title        // The title of the study
+	String code 		// currently used as the external study ID, e.g. to reference a study in a SAM module
 	Date dateCreated
 	Date lastUpdated
 	Date startDate
@@ -27,11 +27,11 @@ class Study extends TemplateEntity implements Serializable {
 	List assays
 
 	static hasMany = [
-		editors: nimble.User,
-		readers: nimble.User,
+		editors: nimble.User,   // Users with read/write access to the study
+		readers: nimble.User,   // Users with only read access to the study
 		subjects: Subject,
-		events: Event,
 		samplingEvents: SamplingEvent,
+		events: Event,
 		eventGroups: EventGroup,
 		samples: Sample,
 		assays: Assay,
@@ -49,6 +49,10 @@ class Study extends TemplateEntity implements Serializable {
 		description type: 'text'
 		autoTimestamp true
 	}
+
+	// The external study ID is currently defined as the code of the study.
+	// It is used from within dbNP submodules to refer to particular study in this GSCF instance.
+	def getExternalStudyId() { code }
 
 	/**
 	 * return the domain fields for this domain class

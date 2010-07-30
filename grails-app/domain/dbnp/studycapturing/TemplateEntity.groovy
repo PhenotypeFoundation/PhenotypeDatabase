@@ -4,7 +4,12 @@ import dbnp.data.Term
 import org.springframework.validation.FieldError
 
 /**
- * TemplateEntity Domain Class
+ * The TemplateEntity domain Class is a superclass for all template-enabled study capture entities, including
+ * Study, Subject, Sample and Event. This class provides functionality for storing the different TemplateField
+ * values and returning the combined list of 'domain fields' and 'template fields' of a TemplateEntity.
+ * For an explanation of those terms, see the Template class.
+ *
+ * @see dbnp.studycapturing.Template
  *
  * Revision information:
  * $Rev$
@@ -12,7 +17,11 @@ import org.springframework.validation.FieldError
  * $Date$
  */
 abstract class TemplateEntity implements Serializable {
+
+	/** The actual template of this TemplateEntity instance */
 	Template template
+
+	// Maps for storing the different template field values
 	Map templateStringFields = [:]
 	Map templateTextFields = [:]
 	Map templateStringListFields = [:]
@@ -44,11 +53,20 @@ abstract class TemplateEntity implements Serializable {
 	]
 
 	static mapping = {
+
+		// Specify that each TemplateEntity-subclassing entity should have its own tables to store TemplateField values.
+		// This results in a lot of tables, but performance is presumably better because in most queries, only values of
+		// one specific entity will be retrieved. Also, because of the generic nature of these tables, they can end up
+		// containing a lot of records (there is a record for each entity instance for each property, instead of a record
+		// for each instance as is the case with 'normal' straightforward database tables. Therefore, it's better to split
+		// out the data to many tables.
 		tablePerHierarchy false
 
+		// Make sure that the text fields are really stored as TEXT, so that those Strings can have an arbitrary length.
 		templateTextFields type: 'text'
 	}
 
+	// Inject the service for storing files (for TemplateFields of TemplateFieldType FILE).
 	def fileService
 
 	/**

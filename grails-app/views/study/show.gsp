@@ -449,9 +449,9 @@
                     // Sort events by starttime and duration
                     events = studyInstance.events + studyInstance.samplingEvents;
                     sortedEvents = events.sort( { a, b ->
-                          a.startTime == b.startTime ?
-                            a.getDuration().getValue() <=> b.getDuration().getValue() :
-                            a.startTime <=> b.startTime
+                          //a.startTime == b.startTime ?
+                            //a.getDuration().getValue() <=> b.getDuration().getValue() :
+                          a.startTime <=> b.startTime
                       } as Comparator )
                   %>
 
@@ -462,8 +462,8 @@
                           ${studyInstance.title}
                         </td>
                       </g:if>
-                      <td>${new RelTime(event.startTime).toPrettyString()}</td>
-                      <td>${event.getPrettyDuration()}</td>
+                      <td>${event.getStartTimeString()}</td>
+                      <td>${event.getDurationString()}</td>
                       <td>${event.template.name}</td>
                       <td>
                         <g:if test="${event instanceof dbnp.studycapturing.SamplingEvent}">

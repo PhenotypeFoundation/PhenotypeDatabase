@@ -1,14 +1,14 @@
 package dbnp.studycapturing
 
 /**
- * Enum describing the different assay types (aka omics submodules).
+ * Enum describing the different assay types (aka known dbNP submodules).
  *
  * Revision information:
  * $Rev$
  * $Author$
  * $Date$
  */
-public enum AssayType {
+public enum AssayType implements Serializable {
 	TRANSCRIPTOMICS('Transcriptomics'),
 	METABOLOMICS('Metabolomics'),
 	SIMPLE_ASSAY('Simple Assay')

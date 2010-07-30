@@ -1,7 +1,13 @@
 /**
  * RelTime Domain Class
  *
- * Contains useful functions for the RelTime templatefield
+ * A RelTime is a TemplateFieldType that specifies a relative time aka timespan.
+ * The timespan is saved as a long value representing the number of seconds in the timespan.
+ * A human-readable representation of this number is generated, which renders e.g. '4d 2h' for 4 days 2 hours.
+ * Also, a parser is implemented which can interpret such entries when they are entered by the user.
+ *
+ * This class is purely a helper class to manipulate long fields that represent relative times.
+ * There will be no data in the database in the table that is created for this class (probably named rel_time).
  *
  * @author Robert Horlings
  * @since 20100529

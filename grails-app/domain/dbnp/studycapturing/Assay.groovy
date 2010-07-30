@@ -5,13 +5,24 @@ package dbnp.studycapturing
  * The actual data of these measurements are described in submodules of dbNP. The type property describes in which module
  * this data can be found.
  */
-class Assay {
-	String name
-	AssayModule module
-	long externalAssayID // the assay ID the assay has in the external module
+class Assay implements Serializable {
 
+	/** The name of the assay, which should indicate the measurements represented in this assay to the user. */
+	String name
+
+	/** The dbNP module in which the assay omics data can be found. */
+	AssayModule module
+
+	/**
+		The assay ID which is used in the dbNP submodule which contains the actual omics data of this assay.
+		This ID is generated in GSCF, but is used in the submodules to refer to this particular Assay.
+	 */
+	long externalAssayID
+
+	// An Assay always belongs to one study.
 	static belongsTo = [parent: Study]
 
+	// An Assay can have many samples on which it is performed, but all samples should be within the 'parent' Study.
 	static hasMany = [samples: Sample]
 
 	static constraints = {

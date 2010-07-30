@@ -1,10 +1,15 @@
 package dbnp.studycapturing
-import java.lang.reflect.Method
 
 /**
- * The Template class describes a study template, which is basically an extension of the study capture entities
- * in terms of extra fields (described by classes that extend the TemplateField class).
- * At this moment, only extension of the study and subject entities is implemented.
+ * The Template class describes a TemplateEntity template, which is basically an extension of the study capture entities
+ * in terms of extra fields (which are described by classes that extend the TemplateField class).
+ * Study, Subject, Sample and Event are all TemplateEntities.
+ *
+ * Within a Template, we have two different types of fields: 'domain fields' and 'template fields'.
+ * The domain fields are TemplateFields which are given by the TemplateEntity itself and therefore always present
+ * in any instance of that TemplateEntity. They are specified by implementing TemplateEntity.giveDomainFields()
+ * The template fields are TemplateFields which are added specifically by the Template. They are specified
+ * in the fields property of the Template object which is referenced by the TemplateEntity.template property.
  *
  * Revision information:
  * $Rev$
@@ -12,14 +17,26 @@ import java.lang.reflect.Method
  * $Date$
  */
 class Template implements Serializable {
+
+	/** The name of the template */
 	String name
+
+	/** A string describing the template to other users */
 	String description
+
+	/** The target TemplateEntity for this template */
 	Class entity
-	//nimble.User owner
+
+	/** The owner of the template. If the owner is not defined, it is a shared/public template */
+	nimble.User owner
+
+	/** The template fields which are the members of this template. This is a List to preserve the field order */
 	List fields
 	static hasMany = [fields: TemplateField]
 
 	static constraints = {
+
+		owner(nullable: true, blank: true)
 		description(nullable: true, blank: true)
 
 		fields(validator: { fields, obj, errors ->
@@ -48,6 +65,9 @@ class Template implements Serializable {
 
 		// outcommented for now due to bug in Grails / Hibernate
 		// see http://jira.codehaus.org/browse/GRAILS-6020
+		// This is to verify that the template name is unique with respect to the parent entity.
+		// TODO: this probably has to change in the case of private templates of different users,
+		// which can co-exist with the same name. See also TemplateField
 		//	name(unique:['entity'])
 	}
 

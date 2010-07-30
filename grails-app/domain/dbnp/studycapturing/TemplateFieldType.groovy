@@ -1,7 +1,7 @@
 package dbnp.studycapturing
 
 /**
- * Enum describing the type of a templated field.
+ * Enum describing the type of a TemplateField.
  * Revision information:
  * $Rev$
  * $Author$
@@ -20,7 +20,6 @@ public enum TemplateFieldType implements Serializable {
 	FILE('File'),
 	BOOLEAN('Boolean')
     // TODO: add a timezone-aware date type to use for study start date
-    // TODO: add a BOOLEAN type (checkbox)
 
     String name
 

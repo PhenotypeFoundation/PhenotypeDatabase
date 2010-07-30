@@ -1,7 +1,7 @@
 package dbnp.studycapturing
 
 /**
- * TemplateFieldListItem Domain Class
+ * TemplateFieldListItem Domain Class. Used to represent the list items in a STRINGLIST TemplateField.
  *
  * Revision information:
  * $Rev$
@@ -9,6 +9,11 @@ package dbnp.studycapturing
  * $Date$
  */
 class TemplateFieldListItem implements Serializable {
+
+	// A TemplateFieldListItem always belongs to one TemplateField of TemplateFieldType STRINGLIST
+	static belongsTo = [parent : TemplateField]
+
+	/** The caption of the list item */
 	String name
 
 	static constraints = {

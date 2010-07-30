@@ -11,13 +11,25 @@ import dbnp.data.Ontology
  * $Author$
  * $Date$
  */
-class Subject extends TemplateEntity implements Serializable {
+class Subject extends TemplateEntity {
 	// uncommented due to searchable issue
 	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
 	//static searchable = { [only: ['name']] }
 
+	// A Subject always belongs to one Study
+	static belongsTo = [parent : Study]
+
+	/** The name of the subject, which should be unique within the study */
 	String name
+
+	/** The species of the subject. In the domainFields property, the ontologies from which this term may come are specified. */
 	Term species
+
+	static constraints = {
+		// Ensure that the subject name is unique within the study
+		name(unique:['parent'])
+	}
+
 
 	/**
 	 * return the domain fields for this domain class
@@ -25,6 +37,8 @@ class Subject extends TemplateEntity implements Serializable {
 	 */
 	static List<TemplateField> giveDomainFields() { return Subject.domainFields; }
 
+	// We have to specify an ontology list for the species property. However, at compile time, this ontology does of course not exist.
+	// Therefore, the ontology is added at runtime in the bootstrap, possibly downloading the ontology properties if it is not present in the database yet.
 	static List<TemplateField> domainFields = [
 		new TemplateField(
 			name: 'name',

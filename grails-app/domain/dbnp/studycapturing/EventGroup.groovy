@@ -9,11 +9,15 @@ package dbnp.studycapturing
  * $Date$
  */
 class EventGroup implements Serializable {
+
+	static belongsTo = [parent : Study]
+
 	String name
 
 	static hasMany = [
 		subjects: Subject,
-		events: Event
+		events: Event,
+		samplingEvents: SamplingEvent
 	]
 
 	static constraints = {

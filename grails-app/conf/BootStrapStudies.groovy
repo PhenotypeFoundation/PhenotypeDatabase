@@ -166,8 +166,7 @@ class BootStrapStudies {
 			researchQuestion:"Leptin etc.",
 			ecCode:"2007117.c",
 			startDate: Date.parse('yyyy-MM-dd','2008-01-02'),
-		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		mouseStudy.setFieldValue('Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet.");// After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
 		mouseStudy.save()
@@ -178,7 +177,6 @@ class BootStrapStudies {
 			template: dietTreatmentTemplate
 		)
 		.setFieldValue( 'Diet','low fat')
-		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def evHF = new Event(
 			startTime: 3600,
@@ -186,7 +184,6 @@ class BootStrapStudies {
 			template: dietTreatmentTemplate
 		)
 		.setFieldValue( 'Diet','high fat' )
-		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def evBV = new Event(
 			startTime: 3600,
@@ -194,7 +191,6 @@ class BootStrapStudies {
 			template: boostTreatmentTemplate
 		)
 		.setFieldValue( 'Control','true' )
-		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def evBL = new Event(
 			startTime: 3600,
@@ -202,7 +198,6 @@ class BootStrapStudies {
 			template: boostTreatmentTemplate
 		)
 		.setFieldValue( 'Control','false' )
-		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def evLF4 = new Event(
 			startTime: 3600,
@@ -210,7 +205,6 @@ class BootStrapStudies {
 			template: dietTreatmentTemplate
 		)
 		.setFieldValue( 'Diet','low fat')
-		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def evHF4 = new Event(
 			startTime: 3600,
@@ -218,7 +212,6 @@ class BootStrapStudies {
 			template: dietTreatmentTemplate
 		)
 		.setFieldValue( 'Diet','high fat' )
-		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def evBV4 = new Event(
 			startTime: 3600,
@@ -226,7 +219,6 @@ class BootStrapStudies {
 			template: boostTreatmentTemplate
 		)
 		.setFieldValue( 'Control','true' )
-		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def evBL4 = new Event(
 			startTime: 3600,
@@ -234,21 +226,18 @@ class BootStrapStudies {
 			template: boostTreatmentTemplate
 		)
 		.setFieldValue( 'Control','false' )
-		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def evS = new SamplingEvent(
 			startTime: 3600 +7 * 24 * 3600,
 			endTime: 3600 +7 * 24 * 3600,
 			template: liverSamplingEventTemplate)
 		.setFieldValue('Sample weight',5F)
-		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def evS4 = new SamplingEvent(
 			startTime: 3600 +7 * 24 * 3600,
 			endTime: 3600 +7 * 24 * 3600,
 			template: liverSamplingEventTemplate)
 		.setFieldValue('Sample weight',5F)
-		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add events to study
 		mouseStudy
@@ -262,59 +251,55 @@ class BootStrapStudies {
 		.addToEvents(evBL4)
 		.addToSamplingEvents(evS)
 		.addToSamplingEvents(evS4)
-		.save()
+		.with { if (!validate()) { errors.each { println it} } else save()}
+
+		// Extra check if the SamplingEvents are saved correctly
+		evS.with { if (!validate()) { errors.each { println it} } else save()}
+		evS4.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def LFBV1 = new EventGroup(name:"10% fat + vehicle for 1 week")
 		.addToEvents(evLF)
 		.addToEvents(evBV)
-		.addToEvents(evS)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.addToSamplingEvents(evS)
 
 		def LFBL1 = new EventGroup(name:"10% fat + leptin for 1 week")
 		.addToEvents(evLF)
 		.addToEvents(evBL)
-		.addToEvents(evS)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.addToSamplingEvents(evS)
 
 		def HFBV1 = new EventGroup(name:"45% fat + vehicle for 1 week")
 		.addToEvents(evHF)
 		.addToEvents(evBV)
-		.addToEvents(evS)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.addToSamplingEvents(evS)
 
 		def HFBL1 = new EventGroup(name:"45% fat + leptin for 1 week")
 		.addToEvents(evHF)
 		.addToEvents(evBL)
-		.addToEvents(evS)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.addToSamplingEvents(evS)
 
 		def LFBV4 = new EventGroup(name:"10% fat + vehicle for 4 weeks")
 		.addToEvents(evLF4)
 		.addToEvents(evBV4)
-		.addToEvents(evS4)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.addToSamplingEvents(evS4)
 
 		def LFBL4 = new EventGroup(name:"10% fat + leptin for 4 weeks")
 		.addToEvents(evLF4)
 		.addToEvents(evBL4)
-		.addToEvents(evS4)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.addToSamplingEvents(evS4)
 
 		def HFBV4 = new EventGroup(name:"45% fat + vehicle for 4 weeks")
 		.addToEvents(evHF4)
 		.addToEvents(evBV4)
-		.addToEvents(evS4)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.addToSamplingEvents(evS4)
 
 		def HFBL4 = new EventGroup(name:"45% fat + leptin for 4 weeks")
 		.addToEvents(evHF4)
 		.addToEvents(evBL4)
-		.addToEvents(evS4)
-		.with { if (!validate()) { errors.each { println it} } else save()}
-
+		.addToSamplingEvents(evS4)
+		
         // Add subjects and samples and compose EventGroups
 		def x=1
-		20.times {
+		80.times {
 			def currentSubject = new Subject(
 				name: "A" + x++,
 				species: mouseTerm,
@@ -324,7 +309,6 @@ class BootStrapStudies {
 			.setFieldValue("Genotype", c57bl6Term)
 			.setFieldValue("Age", 17)
 			.setFieldValue("Cage", "" + (int)(x/2))
-			.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 			mouseStudy.addToSubjects(currentSubject)
 			.with { if (!validate()) { errors.each { println it} } else save()}
@@ -343,12 +327,11 @@ class BootStrapStudies {
 			def currentSample = new Sample(
 				name: currentSubject.name + '_B',
 				material: bloodTerm,
-                                        template: humanBloodSampleTemplate,
+				template: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
 				parentEvent: x > 40 ? evS4 : evS
 			);
-                        currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
-
+			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
 			mouseStudy.addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
 		}
 
@@ -362,17 +345,18 @@ class BootStrapStudies {
 		.addToEventGroups(LFBL4)
 		.addToEventGroups(HFBV4)
 		.addToEventGroups(HFBL4)
+		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add persons and publications to study
-		def studyperson1 = new StudyPerson( person: person1, role: role1 ).save();
-		def studyperson2 = new StudyPerson( person: person2, role: role2 ).save();
+		def studyperson1 = new StudyPerson( person: person1, role: role1 )
+		def studyperson2 = new StudyPerson( person: person2, role: role2 )
 
 		mouseStudy
 		.addToPersons( studyperson1 )
 		.addToPersons( studyperson2 )
         .addToPublications( publication1 )
         .addToPublications( publication2 )
-		.save()
+		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add example human study
 		println ".adding NuGO PPSH example study..."
@@ -405,7 +389,7 @@ class BootStrapStudies {
 		.setFieldValue('Sample volume',4.5F);
 
 		rootGroup.addToEvents fastingEvent
-		rootGroup.addToEvents bloodSamplingEvent
+		rootGroup.addToSamplingEvents bloodSamplingEvent
 		rootGroup.save()
 
 		def y = 1
@@ -421,21 +405,21 @@ class BootStrapStudies {
 			.setFieldValue("Height", Math.random() * 2F)
 			.setFieldValue("Weight", Math.random() * 150F)
 			.setFieldValue("BMI", 20 + Math.random() * 10F)
-			.with { if (!validate()) { errors.each { println it} } else save()}
 
 			rootGroup.addToSubjects currentSubject
-			 rootGroup.save()
+			rootGroup.save()
 
 			def currentSample = new Sample(
 				name: currentSubject.name + '_B',
 				material: bloodTerm,
-                                        template: humanBloodSampleTemplate,
+				template: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
 				parentEvent: bloodSamplingEvent
 			);
-                                currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
+			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
 
-			humanStudy.addToSubjects(currentSubject).addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
+			humanStudy.addToSubjects(currentSubject).addToSamples(currentSample)
+			.with { if (!validate()) { errors.each { println it} } else save()}
 		}
 
 		humanStudy.addToEvents(fastingEvent)
@@ -444,12 +428,12 @@ class BootStrapStudies {
 
 
 		// Add persons to study
-		def studyperson3 = new StudyPerson( person: person1, role: role2 ).save();
+		def studyperson3 = new StudyPerson( person: person1, role: role2 )
 
 		humanStudy
 		.addToPersons( studyperson3 )
-                        .addToPublications( publication2 )
-		.save()
+		.addToPublications( publication2 )
+		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add clinical data       ==> to be moved to SAM
 
@@ -518,7 +502,7 @@ class BootStrapStudies {
 			lipidAssayRef.addToSamples(it)
 		}
 
-	        mouseStudy.addToAssays(lipidAssayRef);
+		mouseStudy.addToAssays(lipidAssayRef);
 		mouseStudy.save()
 
 		lipidAssayRef.with { if (!validate()) { errors.each { println it} } else save()}

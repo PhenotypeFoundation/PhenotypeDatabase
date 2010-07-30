@@ -1,7 +1,5 @@
 package dbnp.studycapturing
 
-import groovy.time.*
-
 /**
  * The Event class describes an actual event, as it has happened to a certain subject. Often, the same event occurs
  * to multiple subjects at the same time. That is why the actual description of the event is factored out into a more
@@ -12,11 +10,14 @@ import groovy.time.*
  * $Author$
  * $Date$
  */
-class Event extends TemplateEntity implements Serializable {
-	long startTime  // start time of the event, relative to the start time of the study
-	long endTime    // end time of the event, relative to the start time of the study
+class Event extends TemplateEntity {
 
-	// TODO: assure the Event has a parent study in validate()
+	static belongsTo = [parent : Study]	
+
+	/** Start time of the event, relative to the start time of the study */
+	long startTime
+	/** end time of the event, relative to the start time of the study */
+	long endTime
 
 	/**
 	 * Constraints
@@ -40,12 +41,20 @@ class Event extends TemplateEntity implements Serializable {
 		})
 	}
 
+	static mapping = {
+
+		// Specify that subclasses for Event should have their own database table.
+		// This is done because otherwise we run into troubles with the SamplingEvent references from Study.
+		tablePerHierarchy false
+	}
+
 	/**
 	 * return the domain fields for this domain class
-	 * @return List
+	 * @return List<TemplateField>
 	 */
 	static List<TemplateField> giveDomainFields() { return Event.domainFields }
 
+	// To improve performance, the domain fields list is stored as a static final variable in the class.
 	static final List<TemplateField> domainFields = [
 		new TemplateField(
 			name: 'startTime',
@@ -58,13 +67,12 @@ class Event extends TemplateEntity implements Serializable {
 	]
 
 	/**
-	 * get the duration
+	 * Get the duration of the event as RelTime
 	 * @return RelTime
 	 */
 	def getDuration() {
 		return new RelTime(startTime, endTime)
 	}
-
 
 	 /**
 	  * Return the start time of the event, which should be relative to the start of the study
@@ -84,18 +92,6 @@ class Event extends TemplateEntity implements Serializable {
 	}
 
 	/**
-	 * get a prettified duration
-	 * @return String
-	 */
-	static def getPrettyDuration(RelTime duration) {
-		return duration.toPrettyString();
-	}
-
-	def getPrettyDuration() {
-		getPrettyDuration(getDuration())
-	}
-
-	/**
 	 * Get human readable string representing the duration between startTime and endTime, rounded to one unit (weeks/days/hours etc.) 
      *
 	 * @return String
@@ -112,6 +108,11 @@ class Event extends TemplateEntity implements Serializable {
 		return (this instanceof SamplingEvent)
 	}
 
+	/**
+	 * Checks whether this Event is part of one or more of the given EventGroups
+	 * @param groups
+	 * @return
+	 */
 	def belongsToGroup(Collection<EventGroup> groups) {
 		def eventFound = false;
 		def that = this;
