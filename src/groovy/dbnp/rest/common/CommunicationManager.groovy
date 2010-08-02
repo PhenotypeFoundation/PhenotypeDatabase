@@ -202,8 +202,8 @@ class CommunicationManager {
 			    def sampleHQ = "from dbnp.studycapturing.Sample as a where a.externalSampleID='${sampleID}'"
 				def sample = dbnp.studycapturing.Sample.find(sampleHQ)
 				samples.add( [samSample,sample] )
-			} 
-			return [studies:studies, samples:samples] 
+			}
+			return [studies:studies, samples:samples]
 		}
 
 		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'], closure )
