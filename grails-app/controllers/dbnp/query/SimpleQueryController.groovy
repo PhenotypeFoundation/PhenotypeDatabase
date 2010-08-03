@@ -152,7 +152,11 @@ class SimpleQueryController {
                listStudies = listGscfStudies.intersect(listSamStudies)
                println "Combined: " + listStudies
              } else {
-               listStudies = listGscfStudies
+               if (!flow.search_sa_compounds) {
+                listStudies = listGscfStudies
+               } else {
+                listStudies = []
+               }
              }
 
              def listObjStudies = []
@@ -242,24 +246,34 @@ class SimpleQueryController {
      } else {
        println "Multiple SAM calls"
        def tmpSamResult = [:]
-       def mapSamResult = [studies:[], assays:[]]
+       def mapSamResult = [assays:[]]
        def i = 0
 
        compounds.each { compound ->
          println "SAM Search with " + compound
+         CommunicationManager.addRestWrapper( 'http://localhost:8182/sam/rest', 'getQueryResult', ['query'] )
          tmpSamResult = CommunicationManager.getQueryResult(compound)
-         println tmpSamResult.assays.size() + " results " + compound
+         println "tmpsamres: " + tmpSamResult
 
          if (i == 0) {
            mapSamResult.assays = tmpSamResult.assays
-           mapSamResult.studies = tmpSamResult.studies
          } else {
-           mapSamResult.assays = mapSamResult.assays.intersect(tmpSamResult.assays)
-           mapSamResult.studies = mapSamResult.studies.intersect(tmpSamResult.studies)
+           if (mapSamResult.assays) {
+             mapSamResult.assays = mapSamResult.assays.intersect(tmpSamResult.assays)
+           }
          }
 
          i++
        }
+
+       def listStudies = []
+
+       for (j in mapSamResult.assays) {
+         def objAssay = Assay.get(j)
+         listStudies.add(objAssay.parent.id)
+       }
+
+       mapSamResult.put("studies", listStudies)
 
        return mapSamResult
      }
