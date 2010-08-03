@@ -457,6 +457,13 @@ class WizardController {
 				// handle study data
 				this.handleEvents(flow, flash, params)
 
+				// add event to study
+				if (flow.event instanceof SamplingEvent) {
+					flow.study.addToSamplingEvents( flow.event )
+				} else {
+					flow.study.addToEvents( flow.event )
+				}
+
 				// validate event object
 				if (flow.event.validate()) {
 					// add this event template to the event template array
@@ -468,22 +475,21 @@ class WizardController {
 						]
 					}
 
-					// it validated! Duplicate the event object...
-					def newEvent	= flow.event
-					def increment	= flow.events.size()
-
 					// ...store it in the events map in the flow scope...
-					flow.events[ increment ] = newEvent
+					def increment	= flow.events.size()
+					flow.events[ increment ] = flow.event
 
 					// ...add it to the study...
+					/*
 					if (newEvent instanceof SamplingEvent) {
 						flow.study.addToSamplingEvents( newEvent )
 					} else {
 						flow.study.addToEvents( newEvent )
 					}
+					*/
 
 					// ...and 'reset' the event object in the flow scope
-					flow.event = new Event(template: newEvent.template)
+					flow.event = new Event(template: flow.event.template)
 					
 					// remember the event id with the template
 					def eventSize = flow.eventTemplates[ eventTemplateName ]['events'].size()
@@ -491,7 +497,14 @@ class WizardController {
 
 					success()
 				} else {
-					// it does not validate, show error feedback
+					// it does not validate, remove event from study
+					if (flow.event instanceof SamplingEvent) {
+						flow.study.removeFromSamplingEvents(flow.event)
+					} else {
+						flow.study.removeFromEvents(flow.event)
+					}
+					
+					// show error feedback
 					flash.errors = [:]
 					this.appendErrors(flow.event, flash.errors)
 					error()
@@ -689,31 +702,29 @@ class WizardController {
 					flow.sampleTemplates = [:]
 					flow.eventGroups.each() { eventGroup ->
 						// iterate through events
-						eventGroup.events.each() { event ->
-							if (event.isSamplingEvent()) {
-								def eventName = this.ucwords(event.template.name)
+						eventGroup.samplingEvents.each() { samplingEvent ->
+							def samplingEventName = this.ucwords(samplingEvent.template.name)
 
-								// iterate through subjects
-								eventGroup.subjects.each() { subject ->
-									def sampleName = (this.ucwords(subject.name) + '_' + eventName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
-									def incrementor = flow.samples.size()
+							// iterate through subjects
+							eventGroup.subjects.each() { subject ->
+								def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
+								def increment = flow.samples.size()
 
-									flow.samples[ incrementor ] = [
-										sample: new Sample(
-											parent: flow.study,
-											parentSubject: subject,
-											parentEvent: event,
-											name: sampleName
-										),
-										name: sampleName,
-										eventGroup: eventGroup,
-										event: event,
-										subject: subject
-									]
+								flow.samples[increment] = [
+									sample: new Sample(
+										parent: flow.study,
+										parentSubject: subject,
+										parentEvent: samplingEvent,
+										name: sampleName
+									),
+									name: sampleName,
+									eventGroup: eventGroup,
+									event: samplingEvent,
+									subject: subject
+								]
 
-									// and add this sample to the study
-									flow.study.addToSamples( flow.samples[ incrementor ].sample )
-								}
+								// and add this sample to the study
+								flow.study.addToSamples(flow.samples[increment].sample)
 							}
 						}
 					}
@@ -1253,7 +1264,7 @@ if (grails.util.GrailsUtil.environment == "development") {
 	def handleEventGrouping(flow, flash, params) {
 		// walk through eventGroups
 		def g = 0
-		flow.eventGroups.each() { eventGroup ->
+    		flow.eventGroups.each() { eventGroup ->
 			def e = 0
 
 			// reset events
@@ -1262,7 +1273,12 @@ if (grails.util.GrailsUtil.environment == "development") {
 			// iterate through events
 			flow.events.each() {
 				if (params.get('event_' + e + '_group_' + g) == 'on') {
-					eventGroup.addToEvents(it.value)
+					// add event to eventgroup
+					if (it.value instanceof SamplingEvent) {
+						eventGroup.addToSamplingEvents(it.value)
+					} else {
+						eventGroup.addToEvents(it.value)
+					}
 				}
 				e++
 			}
