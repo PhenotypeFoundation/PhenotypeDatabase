@@ -1,6 +1,6 @@
 /*
  *  Nimble, an extensive application base for Grails
- *  Copyright (C) 2009 Intient Pty Ltd
+ *  Copyright (C) 2010 Bradley Beddoes
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  *  limitations under the License.
  */
 
+// change the JavaScript library that grails & nimble use by adjusting this value
+// valid values: jquery, mootools prototype
+grails.views.javascript.library='jquery'
+
 nimble {
-    layout {
-	application = "main"
-	administration = "nimble"
-    }
     organization {
         name = ""
         displayname = ""
@@ -27,6 +27,16 @@ nimble {
         logo = ""
         logosmall = ""
         url = ""
+    }
+
+	layout {
+        application = 'app'
+        administration = 'admin'
+		login = 'app'
+    }
+
+    resources {
+        jslibrary = grails.views.javascript.library
     }
 
     localusers {
@@ -56,6 +66,8 @@ nimble {
     }
 
     messaging {
+		enabled = false
+		
         registration {
             subject = "Your new account is ready!"
         }
@@ -97,6 +109,12 @@ environments {
                 // Include the noscript tags in the generated captcha
                 noscript = true
             }
+
+            resources {
+                jslibrary = grails.views.javascript.library
+                usejsdev = true
+                usecssdev = true
+            }
         }
     }
     production {
@@ -111,6 +129,12 @@ environments {
 
                 // Include the noscript tags in the generated captcha
                 noscript = true
+            }
+
+            resources {
+                jslibrary = grails.views.javascript.library
+                usejsdev = false
+                usecssdev = false
             }
         }
     }
