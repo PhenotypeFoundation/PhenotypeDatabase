@@ -56,7 +56,6 @@ class CommunicationManager {
     public static URL getRestURL( RestServerURL, resource, params ) {
         def url = RestServerURL + '/' + resource
 		def first = true
-		println "url: " + url
 		params.each { name, value ->
 			if(first) {
 				first = false
@@ -192,7 +191,7 @@ class CommunicationManager {
 		// Example of a returned map: 
 		//				 ["studies":[NuGO PPS human study], 
 		//               "samples":[[ [...], dbnp.studycapturing.Sample: 1]]]
-		def closure = { map ->
+		def closure1 = { map ->
 		    def studies = []
 		    def samples = []
 			def studiesHQ = "from dbnp.studycapturing.Study as s where s.code=?"
@@ -206,7 +205,41 @@ class CommunicationManager {
 			return [studies:studies, samples:samples]
 		}
 
-		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'], closure )
+		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'], closure1 )
+
+
+   		// Rest resource: getQueryResultWithOperator 
+		//
+   		// register rest resource that returns the results of a simple query with measurement value on SAM 
+        // parameters:   query. A keyword to match a measurement type on SAM. 
+        //               operator. One of '=','<', or '>' that serves for selecting measurements.
+        //               value. A double value for the measurement. 
+		//
+        // return value: results list of maps. each map contains an assay, a sample, the value found, 
+        //               a unit (as String), and a type (as String).
+		//
+		// Example of a returned list of maps: 
+		//				 [["type":"Glucose", "unit":"g", "value":"201.0", "assay":Lipid profiling, 
+		//				   "sample":A10_B], ["type":"Glucose", "unit":"g", "value":"101.0", 
+		//				   "assay":Lipid profiling, "sample":A1_B], ["type":"Insulin", "unit":"g", "value":"202.0", 
+		//				   "assay":Lipid profiling, "sample":A10_B], ["type":"Insulin", "unit":"g", "value":"102.0", 
+		//				   "assay":Lipid profiling, "sample":A1_B]]
+		//             
+		def closure2 = { listOfMaps ->
+			def results = []
+			listOfMaps.each{ map ->	
+				def result = [ type:map['type'], unit:map['unit'], value:map['value'] ]
+				def assayId = map['externalAssayId'].toLong()
+				def assay  = dbnp.studycapturing.Assay.find( "from dbnp.studycapturing.Assay as a where a.externalAssayID= ?", [assayId] ) 
+				def sample = dbnp.studycapturing.Sample.find( "from dbnp.studycapturing.Sample as s where s.name = ?", [map['externalSampleId']] ) 
+				result['assay']=assay
+				result['sample']=sample
+				results.add( result )
+			}
+			return results
+		}
+
+		addRestWrapper( url+'/rest', 'getQueryResultWithOperator',  ['query','operator','value'], closure2 )
     }
 
 

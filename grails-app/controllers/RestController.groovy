@@ -309,9 +309,6 @@ class RestController {
 
     /* this is just for testing! */
     def test = {
-		def result = dbnp.rest.common.CommunicationManager.getQueryResult("Insulin")
-		render result 
-		render result["studies"]
-		render result["studies"].get(0).class
+		render( dbnp.rest.common.CommunicationManager.getQueryResultWithOperator("Insulin",">",200) )
     }
 }
