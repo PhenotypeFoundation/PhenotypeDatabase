@@ -135,4 +135,39 @@ class Study extends TemplateEntity {
 	Template giveStudyTemplate() {
 		return this.template
 	}
+
+
+	 /**
+	* Delete a specific subject from this study, including all its relations
+	* @param subject The subject to be deleted
+	* @return A String which contains a (user-readable) message describing the changes to the database
+	*/
+	String deleteSubject(Subject subject) {
+
+		String msg = "Subject ${subject.name} was deleted"
+
+		// Delete the subject from the event groups it was referenced in
+		this.eventGroups.each {
+			if (it.subjects.contains(subject)) {
+				it.removeFromSubjects(subject)
+				msg += ", deleted from event group '${it.name}'"
+			}
+		}
+
+		// Delete the samples that have this subject as parent
+		this.samples.findAll { it.parentSubject.equals(subject) }.each {
+			// This should remove the sample itself too, because of the cascading belongsTo relation
+			this.removeFromSamples(it)
+			// But apparently it needs an explicit delete() too
+			it.delete()
+			msg += ", sample '${it.name}' was deleted"
+		}
+
+		// This should remove the subject itself too, because of the cascading belongsTo relation
+		this.removeFromSubjects(subject)
+		// But apparently it needs an explicit delete() too
+		subject.delete()
+
+		return msg
+	}
 }

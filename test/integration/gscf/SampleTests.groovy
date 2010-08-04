@@ -6,6 +6,7 @@ import grails.test.GrailsUnitTestCase
 import dbnp.studycapturing.SamplingEvent
 import dbnp.studycapturing.Sample
 import dbnp.studycapturing.TemplateFieldType
+import dbnp.studycapturing.Subject
 
 /**
  * Test the creation of a Sample and its TemplateEntity functionality on data model level
@@ -53,8 +54,12 @@ class SampleTests extends StudyTests {
 		if (!samplingEvent.validate()) {
 			samplingEvent.errors.each { println it}
 		}
-		assert samplingEvent.validate()
+		// The SamplingEvent should not validate at this point because it doesn't have a parent study
+		assert !samplingEvent.validate()
 
+		study.addToSamplingEvents(samplingEvent)
+		// It should do fine now
+		assert samplingEvent.validate()
 		assert samplingEvent.save(flush:true)
 
 		// Look up sample template
@@ -124,7 +129,39 @@ class SampleTests extends StudyTests {
 
 		// Make sure the sample doesn't exist anymore at this point
 		assert !Sample.findByName(testSampleName)
+		assert Sample.count() == 0
 		assert study.samples.size() == 0
+	}
+
+	void testDeleteViaParentSubject() {
+
+		def sampleDB = Sample.findByName(testSampleName)
+		assert sampleDB
+
+		// Retrieve the parent study
+		def study = Study.findByTitle(testStudyName)
+		assert study
+
+		def subject = SubjectTests.createSubject(study)
+		assert subject
+
+		sampleDB.parentSubject = subject
+		assert sampleDB.validate()
+		assert sampleDB.save()
+
+		// Use the deleteSubject method
+		def msg = study.deleteSubject(subject)
+		println msg
+		assert study.save()
+
+		assert !study.subjects.contains(subject)
+
+		assert !Subject.findByName(testSampleName)
+		assert !Sample.findByName(testSampleName)
+
+		assert Subject.count() == 0
+		assert Sample.count() == 0
+
 	}
 
 	void testStudyRelation() {

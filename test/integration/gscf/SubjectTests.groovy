@@ -18,16 +18,16 @@ import dbnp.data.*
  * $Author$
  * $Date$
  */
-class SubjectTests extends GrailsUnitTestCase {
+class SubjectTests extends StudyTests {
 
-	final String testSubjectName = "Test subject"
-	final String testSubjectTemplateName = "Human"
-	final String testSubjectSpeciesTerm = "Homo sapiens"
-	final String testSubjectBMITemplateFieldName = "BMI"
-	final double testSubjectBMI = 25.32
-	final String testSubjectGenderTemplateFieldName = "Gender"
-	final String testSubjectGender = "female"
-	final String testSubjectGenderDBName = "Female"
+	static final String testSubjectName = "Test subject"
+	static final String testSubjectTemplateName = "Human"
+	static final String testSubjectSpeciesTerm = "Homo sapiens"
+	static final String testSubjectBMITemplateFieldName = "BMI"
+	static final double testSubjectBMI = 25.32
+	static final String testSubjectGenderTemplateFieldName = "Gender"
+	static final String testSubjectGender = "female"
+	static final String testSubjectGenderDBName = "Female"
 
 	/**
 	 * Set up test: create test subject to use in the tests, thereby test creation
@@ -35,11 +35,27 @@ class SubjectTests extends GrailsUnitTestCase {
 	protected void setUp() {
 		super.setUp()
 
+		// Retrieve the study that should have been created in StudyTests
+		def study = Study.findByTitle(testStudyName)
+		assert study
+
+		createSubject(study)
+	}
+
+	public static Subject createSubject(Study parentStudy) {
+
 		// Look up human template
 		def humanTemplate = Template.findByName(testSubjectTemplateName)
 		assert humanTemplate
 
-		def humanTerm = Term.findByName(testSubjectSpeciesTerm)
+		def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
+		def humanTerm = new Term(
+			name: 'Homo sapiens',
+			ontology: speciesOntology,
+			accession: '9606')
+
+		assert humanTerm.validate()
+		assert humanTerm.save(flush:true)
 		assert humanTerm
 
 		def subject = new Subject(
@@ -48,7 +64,24 @@ class SubjectTests extends GrailsUnitTestCase {
 			species: humanTerm
 		)
 
-		assert subject.save(flush:true)
+		// At this point, the sample should not validate, because it doesn't have a parent study assigned
+		assert !subject.validate()
+
+		// Add the subject to the retrieved parent study
+		parentStudy.addToSubjects(subject)
+		assert parentStudy.subjects.find { it.name == subject.name}
+
+		// Now, the subject should validate
+		if (!subject.validate()) {
+			subject.errors.each { println it}
+		}
+		assert subject.validate()
+
+		// Make sure the subject is saved to the database
+		assert subject.save(flush: true)
+
+		return subject
+
 	}
 
 	void testSave() {
@@ -59,6 +92,30 @@ class SubjectTests extends GrailsUnitTestCase {
 		assert subjectDB.template.name.equals(testSubjectTemplateName)
 		assert subjectDB.species.name.equals(testSubjectSpeciesTerm)
 	}
+
+	void testDelete() {
+		def subjectDB = Subject.findByName(testSubjectName)
+		subjectDB.delete()
+		try {
+			subjectDB.save()
+			assert false // The save should not succeed since the subject is referenced by a study
+		}
+		catch(org.springframework.dao.InvalidDataAccessApiUsageException e) {
+			subjectDB.discard()
+			assert true // OK, correct exception (at least for the in-mem db, for PostgreSQL it's probably a different one...)
+		}
+
+		// Now, delete the subject from the study subjects collection, and then the delete action should be cascaded to the subject itself
+		def study = Study.findByTitle(testStudyName)
+		assert study
+		study.removeFromSubjects subjectDB
+
+		// Make sure the subject doesn't exist anymore at this point
+		assert !Subject.findByName(testSubjectName)
+		assert Subject.count() == 0
+		assert study.subjects.size() == 0
+	}
+
 
 	void testValidators() {
 
@@ -73,11 +130,21 @@ class SubjectTests extends GrailsUnitTestCase {
 		assert !subject.validate()
 
 		subject.species = Term.findByName(testSubjectSpeciesTerm)
-		assert subject.validate()
+		// Still, no parent study assigned
+		assert !subject.validate()
 
-		// TODO: Set study and change name to already existing name, should fail within one study
-		// subject.name = testSubjectName
-		// assert !subject.validate()
+		def study = Study.findByTitle(testStudyName)
+		assert study
+		study.addToSubjects subject
+
+		// Now, the new subject should validate
+		assert subject.validate()
+		assert subject.save()
+
+		// If the subject has the same name as another subject within the same study, it should not validate or save
+		subject.name = testSubjectName
+		assert !subject.validate()
+		assert !subject.save()
 	}
 
 	/**

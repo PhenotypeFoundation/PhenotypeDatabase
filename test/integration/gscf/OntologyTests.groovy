@@ -151,7 +151,7 @@ class OntologyTests extends GrailsUnitTestCase {
 	/**
 	 * Add all OLS ontologies to the database via the Ontocat framework
 	 */
-	void testOntocatOLSOntologies() {
+	private void testOntocatOLSOntologies() {
 		// Instantiate EBI OLS service
 		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.ols.OlsOntologyService()
 		addOntologies(os)
@@ -160,7 +160,7 @@ class OntologyTests extends GrailsUnitTestCase {
 	/**
 	 * Add all BioPortal ontologies to the database via the Ontocat framework
 	 */
-	void testOntocatBioPortalOntologies() {
+	private void testOntocatBioPortalOntologies() {
 		// Instantiate BioPortal service
 		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.bioportal.BioportalOntologyService()
 		addOntologies(os)
