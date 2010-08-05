@@ -3,9 +3,9 @@
  * @Since Jun 25, 2010
  *
  * Revision information:
- * $Rev: $
- * $Author: $
- * $Date: $
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 
 import dbnp.studycapturing.*
