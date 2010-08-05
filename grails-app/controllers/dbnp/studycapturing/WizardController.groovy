@@ -137,14 +137,6 @@ class WizardController {
 			on("next") {
 				// clean the flow scope
 				flow.remove('study')
-				flow.remove('subjects')
-				flow.remove('subjectTemplates')
-				flow.remove('event')
-				flow.remove('events')
-				flow.remove('eventGroups')
-				flow.remove('eventTemplates')
-				flow.remove('samples')
-				flow.remove('sampleTemplates')
 
 				// set 'quicksave' variable to false
 				flow.quickSave = false
@@ -171,7 +163,7 @@ class WizardController {
 				success()
 			}
 			on("cancel") {
-				flow.study = null
+				flow.remove('study')
 
 				success()
 			}.to "start"
@@ -193,66 +185,39 @@ class WizardController {
 				success()
 			}
 			on("refresh") {
-				println ".refreshing...."
-				flash.values = params
-
-				// handle study data
-				this.handleStudy(flow, flash, params)
+				// handle form data
+				studyPage(flow, flash, params)
 
 				// force refresh of the template
-				if (flow.study.template) {
+				if (flow.study.template && flow.study.template instanceof Template) {
 					flow.study.template.refresh()
 				}
-
-				// remove errors as we don't want any warnings now
-				flash.errors = [:]
-
-				success()
-			}.to "study"
-            on("switchTemplate") {
-				flash.values = params
-
-				// handle study data
-				this.handleStudy(flow, flash, params)
-
-				// force refresh of the template
-				if (flow.study.template) {
-					flow.study.template.refresh()
-				}
-
-				// remove errors as we don't want any warnings now
-				flash.errors = [:]
-
-				success()
-			}.to "study"
-			on("previous") {
-				flash.errors = [:]
-
-				// handle the study
-				this.handleStudy(flow, flash, params)
 
 				// reset errors
 				flash.errors = [:]
+				success()
+			}.to "study"
+            on("switchTemplate") {
+				// handle form data
+				studyPage(flow, flash, params)
 
+				// reset errors
+				flash.errors = [:]
+				success()
+			}.to "study"
+			on("previous") {
+				// handle form data
+				studyPage(flow, flash, params)
+
+				// reset errors
+				flash.errors = [:]
 				success()
 			}.to "start"
 			on("next") {
-				flash.errors = [:]
-
-				if (this.handleStudy(flow, flash, params)) {
-					success()
-				} else {
-					error()
-				}
+				studyPage(flow, flash, params) ? success() : error()
 			}.to "subjects"
 			on("quickSave") {
-				flash.errors = [:]
-
-				if (this.handleStudy(flow, flash, params)) {
-					success()
-				} else {
-					error()
-				}
+				studyPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
 		}
 
@@ -262,131 +227,53 @@ class WizardController {
 			onRender {
 				flow.page = 3
 
-				if (!flow.subjects) {
-					flow.subjects = [:]
-					flow.subjectTemplates = [:]
-				}
-
-				if (!flash.values) flash.values = [addNumber:1]
+				if (!flash.values || !flash.values.addNumber) flash.values = [addNumber:1]
 
 				success()
 			}
 			on("refresh") {
+				// remember the params in the flash scope
 				flash.values = params
 
 				// refresh templates
-				flow.subjectTemplates.each() {
-					it.value.template.refresh()
+				flow.study.giveSubjectTemplates().each() {
+					it.refresh()
 				}
 
 				success()
 			}.to "subjects"
 			on("add") {
-				flash.errors = [:]
-
-				// handle subjects
-				this.handleSubjects(flow, flash, params)
-
-				flash.errors = [:]
-				flash.values = params
-
-				def speciesTerm = Term.findByName(params.species)
-				def subjectTemplateName = params.get('template')
-				def subjectTemplate = Template.findByName(subjectTemplateName)
-
-				// got a species and a subjectTemplate?
-				if (speciesTerm && subjectTemplate) {
-					// add this subject template to the subject template array
-					if (!flow.subjectTemplates[subjectTemplateName]) {
-						flow.subjectTemplates[subjectTemplateName] = [
-							name: subjectTemplateName,
-							template: subjectTemplate,
-							subjects: [:]
-						]
-					}
-
-					// add x subjects of species y
-					(params.addNumber as int).times {
-						def increment = (flow.subjects.size()) ? (flow.subjects.keySet().max() + 1) : 0
-						def subject = new Subject(
-							name: 'Subject ' + (increment + 1),
-							species: speciesTerm,
-							template: subjectTemplate
-						)
-
-						// instantiate a new Subject
-						flow.subjects[increment] = subject
-
-						// add the subject to the study
-						flow.study.addToSubjects( subject )
-
-						// and remember the subject id with the template
-						def subjectsSize = (flow.subjectTemplates[subjectTemplateName].subjects.size()) ? (flow.subjectTemplates[subjectTemplateName].subjects.keySet().max() + 1) : 0
-						flow.subjectTemplates[subjectTemplateName].subjects[subjectsSize] = increment
-					}
-
-					success()
-				} else {
-					// add feedback
-					if (!speciesTerm) this.appendErrorMap(['species': 'You need to select a species, or add one if it is not yet present'], flash.errors)
-					if (!subjectTemplate) this.appendErrorMap(['template': 'You need to select a template, or add one if it is not yet present'], flash.errors)
-
-					error()
-				}
+				// handle form data
+				addSubjects(flow, flash, params) ? success() : error()
 			}.to "subjects"
 			on("delete") {
-				// handle subjects
-				this.handleSubjects(flow, flash, params)
+				// handle form data
+				subjectPage(flow, flash, params)
 
+				// reset errors
 				flash.errors = [:]
-				def delete = params.get('do') as int
 
 				// remove subject
-				if (flow.subjects[ delete ] && flow.subjects[ delete ] instanceof Subject) {
-					// from study as well
-					flow.study.removeFromSubjects( flow.subjects[ delete ] )
-
-					// remove subject from templates
-					flow.subjectTemplates.each() { templateName, templateData ->
-						templateData.subjects.values().remove( delete )
-					}
-
-					// remove templates that contain no subject
-					flow.subjectTemplates.find{!it.value.subjects.size()}.each{ flow.subjectTemplates.remove( it.key ) }
-
-					// remove subject altogether
-					flow.subjects.remove( delete )
+				def subjectToRemove = flow.study.subjects.find { it.identifier == (params.get('do') as int) }
+				if (subjectToRemove) {
+					flow.study.deleteSubject( subjectToRemove )
 				}
 			}.to "subjects"
 			on("previous") {
-				flash.errors = [:]
-
 				// handle form data
-				if (!this.handleSubjects(flow, flash, params)) {
-					error()
-				} else {
-					success()
-				}
+				subjectPage(flow, flash, params)
+
+				// reset errors
+				flash.errors = [:]
+				success()
 			}.to "study"
 			on("next") {
-				flash.errors = [:]
-
-				// check form data
-				if (!this.handleSubjects(flow, flash, params)) {
-					error()
-				} else {
-					success()
-				}
+				// handle form data
+				subjectPage(flow, flash, params) ? success() : error()
 			}.to "events"
 			on("quickSave") {				
-				flash.errors = [:]
-
-				// check form data
-				if (!this.handleSubjects(flow, flash, params)) {
-					error()
-				} else {
-					success()
-				}
+				// handle form data
+				subjectPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
 		}
 
@@ -396,250 +283,161 @@ class WizardController {
 			onRender {
 				flow.page = 4
 
-				if (!flow.event) {
-					flow.event			= new Event()
-					flow.events			= [:]
-					flow.eventGroups	= [ new EventGroup(name: 'Group 1') ]
-					flow.eventTemplates	= [:]
-
-					// add initial eventGroup to study
-					flow.study.addToEventGroups( flow.eventGroups[ 0 ] )
-				} else if (!flash.values) {
-					// set flash.values.templateType based on the event instance
-					flash.values = [:]
-					flash.values.templateType = (flow.event instanceof Event) ? 'event' : 'sample'
+				// add initial eventGroup to study
+				if (!flow.study.eventGroups?.size()) {
+					flow.study.addToEventGroups(
+						new EventGroup(name: 'Group 1')
+					)
 				}
+
 				success()
 			}
 			on("clear") {
-				flow.remove('event')
+				// remove all events
+				(flow.study.events + flow.study.samplingEvents).each() { event ->
+					if (event instanceof SamplingEvent) {
+						flow.study.deleteSamplingEvent( event )
+					} else {
+						flow.study.deleteEvent( event )
+					}
+				}
+
 				success()
 			}.to "events"
 			on("switchTemplate") {
-				flash.values = params
+				// handle form data
+				eventPage(flow, flash, params)
 
-				// handle study data
-				this.handleEvents(flow, flash, params)
+				// get template
+				def type	= params.get('eventType')
+				def template= Template.findByName( params.get( type + 'Template' ) )
 
-				// refresh event templates
-				flow.eventTemplates.each() {
-					it.value.template.refresh()
+				// change template and/or instance?
+				if (!flow.event || (flow.event instanceof Event && type == "sample") || (flow.event instanceof SamplingEvent && type == "event")) {
+					// create new instance
+					flow.event = (type == "event") ? new Event(template: template, parent: flow.study) : new SamplingEvent(template: template, parent: flow.study)
+				} else {
+					flow.event.template = template
 				}
 
-				// refresh flow template
-				if (flow.event.template) flow.event.template.refresh()
-
-				// remove errors as we don't want any warnings now
+				// reset errors
 				flash.errors = [:]
+				success()
+
 			}.to "events"
 			on("refresh") {
-				flash.values = params
-
-				// handle study data
-				this.handleEvents(flow, flash, params)
+				// handle form data
+				eventPage(flow, flash, params)
 
 				// refresh templates
-				flow.eventTemplates.each() {
-					it.value.template.refresh()
+				flow.study.giveEventTemplates().each() {
+					it.refresh()
 				}
 
-				// refresh flow template
-				if (flow.event.template) flow.event.template.refresh()
+				// refresh event template
+				if (flow.event?.template) flow.event.template.refresh()
 
-				// remove errors as we don't want any warnings now
+				// reset errors
 				flash.errors = [:]
+				success()
 			}.to "events"
 			on("add") {
-				flash.values			= params
-				def eventTemplateName	= (params.get('eventType') == 'event') ? params.get('eventTemplate') : params.get('sampleTemplate')
-				def eventTemplate		= Template.findByName(eventTemplateName)
+				// handle form data
+				eventPage(flow, flash, params)
 
-				// handle study data
-				this.handleEvents(flow, flash, params)
+				// reset errors
+				flash.errors = [:]
 
-				// add event to study
-				if (flow.event instanceof SamplingEvent) {
-					flow.study.addToSamplingEvents( flow.event )
-				} else {
-					flow.study.addToEvents( flow.event )
-				}
-
-				// validate event object
+				// validate event
 				if (flow.event.validate()) {
-					// add this event template to the event template array
-					if (!flow.eventTemplates[ eventTemplateName ]) {
-						flow.eventTemplates[ eventTemplateName ] = [
-							name: eventTemplateName,
-							template: eventTemplate,
-							events: []
-						]
-					}
-
-					// ...store it in the events map in the flow scope...
-					def increment	= flow.events.size()
-					flow.events[ increment ] = flow.event
-
-					// ...add it to the study...
-					/*
-					if (newEvent instanceof SamplingEvent) {
-						flow.study.addToSamplingEvents( newEvent )
+					// validates properly
+					if (flow.event instanceof SamplingEvent) {
+						flow.study.addToSamplingEvents( flow.event )
 					} else {
-						flow.study.addToEvents( newEvent )
+						flow.study.addToEvents( flow.event )
 					}
-					*/
 
-					// ...and 'reset' the event object in the flow scope
-					flow.event = new Event(template: flow.event.template)
+					// remove event from the flowscope
+					flow.remove('event')
 					
-					// remember the event id with the template
-					def eventSize = flow.eventTemplates[ eventTemplateName ]['events'].size()
-					flow.eventTemplates[ eventTemplateName ]['events'][ eventSize ] = increment
-
 					success()
 				} else {
-					// it does not validate, remove event from study
-					if (flow.event instanceof SamplingEvent) {
-						flow.study.removeFromSamplingEvents(flow.event)
-					} else {
-						flow.study.removeFromEvents(flow.event)
-					}
-					
-					// show error feedback
-					flash.errors = [:]
+					// event does not validate
 					this.appendErrors(flow.event, flash.errors)
 					error()
 				}
 			}.to "events"
 			on("deleteEvent") {
-				flash.values = params
-				def delete = params.get('do') as int
+				// handle form data
+				eventPage(flow, flash, params)
 
-				// handle event groupings
-				this.handleEventGrouping(flow, flash, params)
+				// reset errors
+				flash.errors = [:]
 
-				// remove event
-				if (flow.events[ delete ] && flow.events[ delete ] instanceof Event) {
-					// remove it from the study
-					if ( flow.events[ delete ] instanceof SamplingEvent ) {
-						flow.study.removeFromSamplingEvents( flow.events[ delete ] )
-					} else {
-						flow.study.removeFromEvents( flow.events[ delete ] )
-					}
+				// find matching (sampling) event
+				def event 			= flow.study.events.find { it.getIdentifier() == (params.get('do') as int) }
+				def samplingEvent	= flow.study.samplingEvents.find { it.getIdentifier() == (params.get('do') as int) }
 
-					// remove it from the map
-					flow.events.remove(delete)
-					flow.eventTemplates.each() { eventTemplate ->
-						eventTemplate.value.events = eventTemplate.value.events.minus(delete)
-					}
-
-					// find eventTemplates without events
-			        flow.eventTemplates.find { eventTemplate ->
-						eventTemplate.value.events.size() < 1
-					}.each() {
-						// remove eventTemplate
-						flow.eventTemplates.remove( it.value.name )
-					}
-				}
-
-				success()
+				// perform delete
+				if (event) flow.study.deleteEvent( event )
+				if (samplingEvent) flow.study.deleteSamplingEvent( samplingEvent )
 			}.to "events"
 			on("addEventGroup") {
-				flash.values = params
-				
-				// handle study data
-				this.handleEvents(flow, flash, params)
+				// handle form data
+				eventPage(flow, flash, params)
 
-				// handle event groupings
-				this.handleEventGrouping(flow, flash, params)
-
-				def increment = flow.eventGroups.size()
-				def groupName = "Group " + (increment + 1)
-
-				// check if group name exists
-				def nameExists = true
-				def u = 0
-
-				// make sure a unique name is generated
-				while (nameExists) {
-					u++
-					def count = 0
-					
-					flow.eventGroups.each() {
-						if (it.name == groupName) {
-							groupName = "Group " + (increment + 1) + "," + u
-						} else {
-							count++
+				// first find the current maximum default name "Subject xxxx"
+				def eventGroupNo = 0
+				def eventGroupMax = 0
+				flow.study.eventGroups.each() {
+					it.name.trim().eachMatch(/(\d+)$/){
+						eventGroupNo = it[1] as int
+						if (eventGroupNo > eventGroupMax) {
+							eventGroupMax = eventGroupNo
 						}
 					}
-
-					nameExists = !(count == flow.eventGroups.size())
 				}
 
-				// remember eventGroup
-				flow.eventGroups[ increment ] = new EventGroup( name: groupName )
+				// add a new eventGroup
+				flow.study.addToEventGroups(
+					new EventGroup(
+						name	: 'Group ' + (eventGroupMax+1),
+						parent	: flow.study
+					)
+				)
 
-				// and add the group to the study
-				flow.study.addToEventGroups( flow.eventGroups[ increment ] )
-
+				// reset errors
+				flash.errors = [:]
 				success()
 			}.to "events"
 			on("deleteEventGroup") {
-				flash.values = params
-				def delete = params.get('do') as int
+				// handle form data
+				eventPage(flow, flash, params)
 
-				// handle event groupings
-				this.handleEventGrouping(flow, flash, params)
+				// reset errors
+				flash.errors = [:]
 
-				// remove the group with this specific id
-				if (flow.eventGroups[delete] && flow.eventGroups[delete] instanceof EventGroup) {
-					// remove the eventGroup from the study
-					flow.study.removeFromEventGroups( flow.eventGroups[ delete ] )
-
-					// remove this eventGroup
-					flow.eventGroups.remove(delete)
+				// remove eventGroup
+				def eventGroupToRemove = flow.study.eventGroups.find { it.getIdentifier() == (params.get('do') as int) }
+				if (eventGroupToRemove) {
+					flow.study.deleteEventGroup( eventGroupToRemove )
 				}
-
-				success()
 			}.to "events"
 			on("previous") {
-				// handle event groupings
-				this.handleEventGrouping(flow, flash, params)
+				// handle form data
+				eventPage(flow, flash, params)
+
+				// reset errors
+				flash.errors = [:]
+				success()
 			}.to "subjects"
 			on("next") {
-				flash.values = params
-				flash.errors = [:]
-
-				// handle study data
-				/* turned off by request of Kees / Leny / Jildau
-				if (!flow.eventTemplates.find { eventTemplate -> eventTemplate.value.template.entity == SamplingEvent }) {
-					// append error map
-					this.appendErrorMap(['events': 'You need to create at least one sampling event for your study'], flash.errors)
-					error()						
-				} else
-				*/
-				if (this.handleEvents(flow, flash, params)) {
-					success()
-				} else {
-					error()
-				}
+				// handle form data
+				eventPage(flow, flash, params) ? success() : error()
 			}.to "groups"
 			on("quickSave") {
-				flash.values = params
-				flash.errors = [:]
-
-				// handle study data
-				/* turned off by request of Kees / Leny / Jildau
-				if (!flow.eventTemplates.find { eventTemplate -> eventTemplate.value.template.entity == SamplingEvent }) {
-					// append error map
-					this.appendErrorMap(['events': 'You need to create at least one sampling event for your study'], flash.errors)
-					error()
-				} else
-				*/
-				if (this.handleEvents(flow, flash, params)) {
-					success()
-				} else {
-					error()
-				}
+				// handle form data
+				eventPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
 		}
 
@@ -651,17 +449,16 @@ class WizardController {
 				success()
 			}
 			on("previous") {
-				this.handleSubjectGrouping(flow, flash, params)
-				success()
+				// handle form data
+				groupPage(flow, flash, params) ? success() : error()
 			}.to "events"
 			on("next") {
-				this.handleSubjectGrouping(flow, flash, params)
-				flash.check = true
-				success()
-			}.to "samples"
+				// handle form data
+				groupPage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
 			on("quickSave") {
-				this.handleSubjectGrouping(flow, flash, params)
-				success()
+				// handle form data
+				groupPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
 		}
 
@@ -693,7 +490,7 @@ class WizardController {
 			render(view: "_samples")
 			onRender {
 				flow.page = 6
-
+				/*
 				// iterate through eventGroups
 				if (!flow.samples) {
 					println ".generating samples"
@@ -738,6 +535,7 @@ class WizardController {
 				}
 
 				success()
+				*/
 			}
 			on("switchTemplate") {
 				//println params
@@ -853,13 +651,6 @@ if (grails.util.GrailsUtil.environment == "development") {
 
 				// persist data to the database
 				try {
-					// user modifying?
-					if (flow.quickSave && grails.util.GrailsUtil.environment == 'production') {
-						// yes, not allowed on production as this results in data inconsistency
-						println ".saving is not allowed in study edit wizard"
-						throw new Exception("Saving is not allowed in the edit study wizard because this leads to data inconsistency in the database!")
-					}
-
 					// save study
 					println ".saving study"
 					if (!flow.study.save()) {
@@ -920,76 +711,6 @@ if (grails.util.GrailsUtil.environment == "development") {
 			// load study
 			flow.study = (params.studyid) ? Study.findById( params.studyid ) : Study.findByTitle( params.study )
 
-			// recreate subjects
-			flow.subjects = [:]
-			flow.subjectTemplates = [:]
-			flow.study.subjects.each() { subject ->
-				def subjectIncrement = flow.subjects.size()
-				flow.subjects[subjectIncrement] = subject
-
-				// add subject template?
-				if (!flow.subjectTemplates[subject.template.name]) {
-					flow.subjectTemplates[subject.template.name] = [
-						name: subject.template.name,
-						template: subject.template,
-						subjects: [:]
-					]
-				}
-
-				// reference subject in template
-				flow.subjectTemplates[subject.template.name].subjects[flow.subjectTemplates[subject.template.name].subjects.size()] = subjectIncrement
-			}
-
-			// recreate events
-			flow.events = [:]
-			flow.eventGroups = []
-			flow.eventTemplates = [:]
-			flow.study.events.each() { event ->
-				def eventIncrement = flow.events.size()
-				flow.events[eventIncrement] = event
-
-				// add event template?
-				if (!flow.eventTemplates[event.template.name]) {
-					flow.eventTemplates[event.template.name] = [
-						name: event.template.name,
-						template: event.template,
-						events: new ArrayList()
-					]
-				}
-
-				// reference event in template
-				flow.eventTemplates[event.template.name].events[flow.eventTemplates[event.template.name].events.size()] = eventIncrement
-
-				// set dummy event
-				flow.event = event
-			}
-
-			// recreate sample events
-			flow.study.samplingEvents.each() { event ->
-				def eventIncrement = flow.events.size()
-				flow.events[eventIncrement] = event
-
-				// add event template?
-				if (!flow.eventTemplates[event.template.name]) {
-					flow.eventTemplates[event.template.name] = [
-						name: event.template.name,
-						template: event.template,
-						events: new ArrayList()
-					]
-				}
-
-				// reference event in template
-				flow.eventTemplates[event.template.name].events[flow.eventTemplates[event.template.name].events.size()] = eventIncrement
-
-				// set dummy event
-				flow.event = event
-			}
-
-			// recreate eventGroups
-			flow.study.eventGroups.each() { eventGroup ->
-				flow.eventGroups[flow.eventGroups.size()] = eventGroup
-			}
-
 			// set 'quicksave' variable
 			flow.quickSave = true
 
@@ -1001,317 +722,6 @@ if (grails.util.GrailsUtil.environment == "development") {
 			return false
 		}
 	}
-
-	/**
-	 * re-usable code for handling study form data in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
-	 */
-	def handleStudy(flow, flash, params) {
-		// create study instance if we have none
-		if (!flow.study) flow.study = new Study()
-
-		// create date instance from date string?
-		// @see WizardTagLibrary::dateElement{...}
-		if (params.get('startDate')) {
-			params.startDate = new Date().parse("d/M/yyyy", params.get('startDate').toString())
-		} else {
-			params.remove('startDate')
-		}
-
-		// if a template is selected, get template instance
-		def template = params.remove('template')
-		if (template instanceof String && template.size() > 0) {
-			flow.study.template = Template.findByName(template)
-		} else if (template instanceof Template) {
-			flow.study.template = template
-		}
-
-		// iterate through fields
-		if (flow.study.template) {
-			flow.study.giveFields().each() {
-				flow.study.setFieldValue(it.name, params.get(it.escapedName()))
-			}
-		}
-
-		// handle Publications and Contacts
-		handlePublications(flow, flash, params)
-		handleContacts(flow, flash, params)
-
-		// validate study
-		if (flow.study.validate()) {
-			return true
-		} else {
-			// validation failed, feedback errors
-			flash.errors = [:]
-			this.appendErrors(flow.study, flash.errors)
-			return false
-		}
-	}
-
-	/**
-	 * re-usable code for handling publications form data in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @returns boolean
-	 */
-	def handlePublications(flow, flash, params) {
-		// create study instance if we have none
-		if (!flow.study) flow.study = new Study()
-		if (!flow.study.publications) flow.study.publications = []
-
-		// Check the ids of the pubblications that should be attached
-		// to this study. If they are already attached, keep 'm. If
-		// studies are attached that are not in the selected (i.e. the
-		// user deleted them), remove them
-		def publicationIDs = params.get('publication_ids')
-		if (publicationIDs) {
-			// Find the individual IDs and make integers
-			publicationIDs = publicationIDs.split(',').collect { Integer.parseInt(it, 10) }
-
-			// First remove the publication that are not present in the array
-			flow.study.publications.removeAll { publication -> !publicationIDs.find { id -> id == publication.id } }
-
-			// Add those publications not yet present in the database
-			publicationIDs.each { id ->
-				if (!flow.study.publications.find { publication -> id == publication.id }) {
-					def publication = Publication.get(id)
-					if (publication) {
-						flow.study.addToPublications(publication)
-					} else {
-						println('.publication with ID ' + id + ' not found in database.')
-					}
-				}
-			}
-
-		} else {
-			println('.no publications selected.')
-			flow.study.publications.clear()
-		}
-
-	}
-
-	/**
-	 * re-usable code for handling contacts form data in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @return boolean
-	 */
-	def handleContacts(flow, flash, params) {
-		// create study instance if we have none
-		if (!flow.study) flow.study = new Study()
-		if (!flow.study.persons) flow.study.persons = []
-
-		// Check the ids of the contacts that should be attached
-		// to this study. If they are already attached, keep 'm. If
-		// studies are attached that are not in the selected (i.e. the
-		// user deleted them), remove them
-
-		// Contacts are saved as [person_id]-[role_id]
-		def contactIDs = params.get('contacts_ids')
-		if (contactIDs) {
-			// Find the individual IDs and make integers
-			contactIDs = contactIDs.split(',').collect {
-				def parts = it.split('-')
-				return [person: Integer.parseInt(parts[0]), role: Integer.parseInt(parts[1])]
-			}
-
-			// First remove the contacts that are not present in the array
-			flow.study.persons.removeAll {
-				studyperson -> !contactIDs.find { ids -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }
-			}
-
-			// Add those contacts not yet present in the database
-			contactIDs.each { ids ->
-				if (!flow.study.persons.find { studyperson -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }) {
-					def person = Person.get(ids.person)
-					def role = PersonRole.get(ids.role)
-					if (person && role) {
-						// Find a studyperson object with these parameters
-						def studyPerson = StudyPerson.findAll().find { studyperson -> studyperson.person.id == person.id && studyperson.role.id == role.id }
-
-						// If if does not yet exist, save the example
-						if (!studyPerson) {
-							studyPerson = new StudyPerson(
-								person: person,
-								role: role
-							)
-							studyPerson.save(flush: true)
-						}
-
-						flow.study.addToPersons(studyPerson)
-					} else {
-						println('.person ' + ids.person + ' or Role ' + ids.role + ' not found in database.')
-					}
-				}
-			}
-		} else {
-			println('.no persons selected.')
-			flow.study.persons.clear()
-		}
-
-	}
-
-	/**
-	 * re-usable code for handling subject form data in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @return boolean
-	 */
-	def handleSubjects(flow, flash, params) {
-		def names = [:]
-		def errors = false
-		def id = 0
-
-		// iterate through subject templates
-		flow.subjectTemplates.each() { subjectTemplate ->
-			// iterate through subjects
-			subjectTemplate.value.subjects.each() { subjectIncrement, subjectId ->
-				// iterate through fields (= template fields and domain properties)
-				flow.subjects[ subjectId ].giveFields().each() { subjectField ->
-					// set the field
-					flow.subjects[ subjectId ].setFieldValue(
-						subjectField.name,
-						params.get( 'subject_' + subjectId + '_' + subjectField.escapedName() )
-					)
-				}
-
-				// validate subject
-				if (!flow.subjects[ subjectId ].validate()) {
-					errors = true
-					this.appendErrors(flow.subjects[ subjectId ], flash.errors, 'subject_' + subjectId + '_')
-				}
-			}
-		}
-
-		return !errors
-	}
-
-	/**
-	 * re-usable code for handling event form data in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @return boolean
-	 */
-	def handleEvents(flow, flash, params) {
-		def errors = false
-		def template = null
-
-		// handle the type of event
-		if (params.eventType == 'event') {
-			flow.event = new Event()
-			template = params.remove('eventTemplate')
-		} else if (params.eventType == 'sample') {
-			flow.event = new SamplingEvent()
-			template = params.remove('sampleTemplate')
-		}
-
-		// if a template is selected, get template instance
-		if (template instanceof String && template.size() > 0) {
-			params.template = Template.findByName(template)
-		} else if (template instanceof Template) {
-			params.template = template
-		} else {
-			params.template = null
-		}
-
-		// set template
-		if (params.template) flow.event.template = params.template
-
-		// update event instance with parameters
-		flow.event.giveFields().each() { eventField ->
-			flow.event.setFieldValue(eventField.name, params[ eventField.escapedName() ])	
-		}
-
-		// handle event objects
-		flow.eventTemplates.each() { eventTemplate ->
-			// iterate through events
-			eventTemplate.getValue().events.each() { eventId ->
-				// iterate through template fields
-				flow.events[ eventId ].giveFields().each() { eventField ->
-					if ( params.containsKey( 'event_' + eventId + '_' + eventField.escapedName() ) ) {
-						flow.events[ eventId ].setFieldValue(eventField.name, params.get( 'event_' + eventId + '_' + eventField.escapedName() ) )
-					}
-				}
-
-				// validate event
-				if (!flow.events[ eventId ].validate()) {
-					errors = true
-					this.appendErrors(flow.events[ eventId ], flash.errors, 'event_' + eventId + '_')
-				}
-			}
-		}
-
-		// handle event grouping
-		handleEventGrouping(flow, flash, params)
-
-		return !errors
-	}
-
-	/**
-	 * re-usable code for handling event grouping in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @return boolean
-	 */
-	def handleEventGrouping(flow, flash, params) {
-		// walk through eventGroups
-		def g = 0
-    		flow.eventGroups.each() { eventGroup ->
-			def e = 0
-
-			// reset events
-			eventGroup.events = new HashSet()
-
-			// iterate through events
-			flow.events.each() {
-				if (params.get('event_' + e + '_group_' + g) == 'on') {
-					// add event to eventgroup
-					if (it.value instanceof SamplingEvent) {
-						eventGroup.addToSamplingEvents(it.value)
-					} else {
-						eventGroup.addToEvents(it.value)
-					}
-				}
-				e++
-			}
-			g++
-		}
-	}
-
-	/**
-	 * re-usable code for handling subject grouping in a web flow
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @return boolean
-	 */
-	def handleSubjectGrouping(flow, flash, params) {
-		// iterate through event groups
-		def g = 0
-		flow.eventGroups.each() { eventGroup ->
-			// reset subjects
-			eventGroup.subjects = new HashSet()
-
-			// iterate through subjects
-			flow.subjects.each() { subjectId, subject ->
-				// is this combination set?
-				if (params.get('subject_' + subjectId + '_group_' + g) != null) {
-					eventGroup.addToSubjects(subject)
-				}
-			}
-
-			g++
-		}
-	}
-
 
 	/**
 	 * re-usable code for handling samples
@@ -1523,5 +933,417 @@ if (grails.util.GrailsUtil.environment == "development") {
                     contentType:    "text/xml",
                     encoding:       "UTF-8"
                 );
+	}
+
+
+	/****** REFACTORED METHODS OVER HERE! ******/
+
+	/**
+	 * Handle the wizard study page
+	 * 
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def studyPage(flow, flash, params) {
+		// remember the params in the flash scope
+		flash.values = params
+		
+		// instantiate study of it is not yet present
+		if (!flow.study) flow.study = new Study()
+
+		// did the study template change?
+		if (params.get('template').size() && flow.study.template?.name != params.get('template')) {
+			println ".change study template!"
+
+			// yes, was the template already set?
+			if (flow.study.template instanceof Template) {
+				// yes, first make sure all values are unset?
+				println "!!! check the database fields if data of a previous template remains in the database or is deleted by GORM!"
+			}
+
+			// set the template
+			flow.study.template = Template.findByName(params.remove('template'))
+		}
+
+		// does the study have a template set?
+		if (flow.study.template && flow.study.template instanceof Template) {
+			// yes, iterate through template fields
+			flow.study.giveFields().each() {
+				// and set their values
+				flow.study.setFieldValue(it.name, params.get(it.escapedName()))
+			}
+		}
+
+		// handle publications
+		handlePublications(flow, flash, params)
+
+		// handle contacts
+		handleContacts(flow, flash, params)
+
+		// validate the study
+		if (flow.study.validate()) {
+			// instance is okay
+			return true
+		} else {
+			// validation failed
+			flash.errors = [:]
+			this.appendErrors(flow.study, flash.errors)
+			return false
+		}
+	}
+
+	/**
+	 * re-usable code for handling publications form data in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def handlePublications(flow, flash, params) {
+		if (!flow.study.publications) flow.study.publications = []
+
+		// Check the ids of the pubblications that should be attached
+		// to this study. If they are already attached, keep 'm. If
+		// studies are attached that are not in the selected (i.e. the
+		// user deleted them), remove them
+		def publicationIDs = params.get('publication_ids')
+		if (publicationIDs) {
+			// Find the individual IDs and make integers
+			publicationIDs = publicationIDs.split(',').collect { Integer.parseInt(it, 10) }
+
+			// First remove the publication that are not present in the array
+			flow.study.publications.removeAll { publication -> !publicationIDs.find { id -> id == publication.id } }
+
+			// Add those publications not yet present in the database
+			publicationIDs.each { id ->
+				if (!flow.study.publications.find { publication -> id == publication.id }) {
+					def publication = Publication.get(id)
+					if (publication) {
+						flow.study.addToPublications(publication)
+					} else {
+						println('.publication with ID ' + id + ' not found in database.')
+					}
+				}
+			}
+
+		} else {
+			println('.no publications selected.')
+			flow.study.publications.clear()
+		}
+
+	}
+
+	/**
+	 * re-usable code for handling contacts form data in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @return boolean
+	 */
+	def handleContacts(flow, flash, params) {
+		if (!flow.study.persons) flow.study.persons = []
+
+		// Check the ids of the contacts that should be attached
+		// to this study. If they are already attached, keep 'm. If
+		// studies are attached that are not in the selected (i.e. the
+		// user deleted them), remove them
+
+		// Contacts are saved as [person_id]-[role_id]
+		def contactIDs = params.get('contacts_ids')
+		if (contactIDs) {
+			// Find the individual IDs and make integers
+			contactIDs = contactIDs.split(',').collect {
+				def parts = it.split('-')
+				return [person: Integer.parseInt(parts[0]), role: Integer.parseInt(parts[1])]
+			}
+
+			// First remove the contacts that are not present in the array
+			flow.study.persons.removeAll {
+				studyperson -> !contactIDs.find { ids -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }
+			}
+
+			// Add those contacts not yet present in the database
+			contactIDs.each { ids ->
+				if (!flow.study.persons.find { studyperson -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }) {
+					def person = Person.get(ids.person)
+					def role = PersonRole.get(ids.role)
+					if (person && role) {
+						// Find a studyperson object with these parameters
+						def studyPerson = StudyPerson.findAll().find { studyperson -> studyperson.person.id == person.id && studyperson.role.id == role.id }
+
+						// If if does not yet exist, save the example
+						if (!studyPerson) {
+							studyPerson = new StudyPerson(
+								person: person,
+								role: role
+							)
+							studyPerson.save(flush: true)
+						}
+
+						flow.study.addToPersons(studyPerson)
+					} else {
+						println('.person ' + ids.person + ' or Role ' + ids.role + ' not found in database.')
+					}
+				}
+			}
+		} else {
+			println('.no persons selected.')
+			flow.study.persons.clear()
+		}
+
+	}
+
+	/**
+	 * Handle the wizard subject page
+	 *
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def subjectPage(flow, flash, params) {
+		def errors = false
+		flash.errors = [:]
+
+		// remember the params in the flash scope
+		flash.values = params
+
+		// iterate through subjects
+		flow.study.subjects.each() { subject ->
+			// iterate through (template and domain) fields
+			subject.giveFields().each() { field ->
+				// set field
+				subject.setFieldValue(
+					field.name,
+					params.get('subject_' + subject.getIdentifier() + '_' + field.escapedName())
+				)
+			}
+
+			// validate subject
+			if (!subject.validate()) {
+				errors = true
+				this.appendErrors(subject, flash.errors, 'subject_' + subject.getIdentifier() + '_')
+			}
+		}
+
+		return !errors
+	}
+
+	/**
+	 * Add a number of subjects to a study
+	 *
+	 * required params entities:
+	 * -addNumber (int)
+	 * -species   (string)
+	 * -template  (string)
+	 *
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def addSubjects(flow, flash, params) {
+		// remember the params in the flash scope
+		flash.values = params
+
+		// handle the subject page
+		subjectPage(flow, flash, params)
+
+		// (re)set error message
+		flash.errors = [:]
+
+		// set work variables
+		def errors		= false
+		def number		= params.get('addNumber') as int
+		def species		= Term.findByName(params.get('species'))
+		def template	= Template.findByName(params.get('template'))
+		def subjectNo	= 0
+		def subjectMax	= 0
+
+		// can we add subjects?
+		if (number > 0 && species && template) {
+			// first find the current maximum default name "Subject xxxx"
+			flow.study.subjects.each() {
+				it.name.trim().eachMatch(/(\d+)$/){
+					subjectNo = it[1] as int
+					if (subjectNo > subjectMax) {
+						subjectMax = subjectNo
+					}
+				}
+			}
+
+			// add subjects to study
+			number.times {
+				subjectMax++
+				
+				// create a subject instance
+				def subject = new Subject(
+					name		: 'Subject ' + subjectMax,
+					species		: species,
+					template	: template,
+					parent		: flow.study
+				)
+
+				// validate subject
+				if (subject.validate()) {
+					// add it to the study
+					flow.study.addToSubjects( subject )
+					println ".added subject "+subject
+				} else {
+					// whoops?
+					this.appendErrors(subject, flash.errors)
+					errors = true
+				}
+			}
+		} else {
+			// add feedback
+			errors = true
+			if (number < 1)	this.appendErrorMap(['addNumber': 'Enter a positive number of subjects to add'], flash.errors)
+			if (!species)	this.appendErrorMap(['species': 'You need to select a species, or add one if it is not yet present'], flash.errors)
+			if (!template)	this.appendErrorMap(['template': 'You need to select a template, or add one if it is not yet present'], flash.errors)
+		}
+
+		return !errors
+	}
+
+	/**
+	 * Handle the wizard event page
+	 *
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def eventPage(flow, flash, params) {
+		def errors = false
+		flash.errors = [:]
+
+		// remember the params in the flash scope
+		flash.values = params
+
+		// handle the 'add event' form
+		if (flow.event) {
+			flow.event.giveFields().each() { field ->
+				// set field
+				flow.event.setFieldValue(
+					field.name,
+					params.get(field.escapedName())
+				)
+			}
+		}
+
+		// handle the eventGroup names and grouping
+		def name	= ""
+		def tempName= ""
+		flow.study.eventGroups.each() { eventGroup ->
+			// iterate through templates
+			flow.study.giveAllEventTemplates().each() { template ->
+				tempName = params.get( 'eventGroup_' + eventGroup.getIdentifier() + '_' + template.getIdentifier() )
+
+				// is the name different?
+				if (tempName != eventGroup.name) {
+					name = tempName
+				}
+			}
+
+			// should the name change?
+			if (name) {
+				// yes, change it
+				eventGroup.name = name
+				name = ""
+			}
+
+			// handle eventGrouping
+			( ((flow.study.events) ? flow.study.events : []) + ((flow.study.samplingEvents) ? flow.study.samplingEvents : []) ) .each() { event ->
+				if (params.get( 'event_' + event.getIdentifier() + '_group_' + eventGroup.getIdentifier() )) {
+					// add to eventGroup
+					if (event instanceof SamplingEvent) {
+						eventGroup.addToSamplingEvents(event)
+					} else {
+						eventGroup.addToEvents(event)
+					}
+				} else {
+					// remove from eventGroup
+					if (event instanceof SamplingEvent) {
+						eventGroup.removeFromSamplingEvents(event)
+					} else {
+						eventGroup.removeFromEvents(event)
+					}
+				}
+			}
+		}
+
+		// handle the (sampling) events
+		( ((flow.study.events) ? flow.study.events : []) + ((flow.study.samplingEvents) ? flow.study.samplingEvents : []) ) .each() { event ->
+			event.giveFields().each() { field ->
+				event.setFieldValue(
+					field.name,
+					params.get( 'event_' + event.getIdentifier() + '_' + field.escapedName())
+				)
+			}
+
+			// validate event
+			if (!event.validate()) {
+				errors = true
+				this.appendErrors(event, flash.errors)
+			}
+		}
+
+		// handle eventGroup names
+		flow.study.eventGroups.each() { eventGroup ->
+			
+		}
+
+		return !errors
+	}
+
+	/**
+	 * Handle the wizard group page
+	 *
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def groupPage(flow, flash, params) {
+		def errors = false
+		flash.errors = [:]
+
+		// remember the params in the flash scope
+		flash.values = params
+
+		// iterate through groups
+		flow.study.eventGroups.each() { eventGroup ->
+			// iterate through subjects
+			flow.study.subjects.each() { subject ->
+				if (params.get('subject_' + subject.getIdentifier() + '_group_' + eventGroup.getIdentifier() )) {
+					// add to eventGroup
+					eventGroup.addToSubjects(subject)
+				} else {
+					// remove from eventGroup
+					eventGroup.removeFromSubjects(subject)
+				}
+			}
+		}
+	}
+
+	/**
+	 * Handle the wizard samples page
+	 *
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def samplePage(flow, flash, params) {
+		def errors = false
+		flash.errors = [:]
+
+		// remember the params in the flash scope
+		flash.values = params
+
+		return !errors
 	}
 }

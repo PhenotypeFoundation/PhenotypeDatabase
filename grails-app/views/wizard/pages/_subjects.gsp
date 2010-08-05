@@ -36,37 +36,33 @@
 	<wizard:ajaxButtonElement name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()">
 	</wizard:ajaxButtonElement>
 
-<g:if test="${subjects}">
-	<g:each var="sTemplate" in="${subjectTemplates}">
-		<g:set var="showHeader" value="${true}" />
-		<g:set var="subjectTemplate" value="${sTemplate.getValue()}" />
-		<h1>${subjectTemplate.name} template</h1>
-		<div class="table">
-		<g:each status="i" var="sId" in="${subjectTemplate.subjects}">
-		  <g:set var="subjectId" value="${sId.getValue()}" />
-		  <g:if test="${subjects[ subjectId ]}">
-		  	<g:if test="${showHeader}">
-			<g:set var="showHeader" value="${false}" />
-			<div class="header">
-				<div class="firstColumn">#</div>
-				<div class="firstColumn"></div>
-				<wizard:templateColumnHeaders entity="${subjects[ subjectId ]}" class="column" />				
-			</div>
-			</g:if>
-			<div class="row">
-				<div class="firstColumn">${subjectId + 1}</div>
-				<div class="firstColumn">
-					<wizard:ajaxButton name="delete" src="../images/icons/famfamfam/delete.png" alt="delete this subject" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${subjectId});" afterSuccess="onWizardPage()" />
+	<g:if test="${study.subjects}">
+		<g:each var="template" in="${study.giveSubjectTemplates()}">
+			<g:set var="showHeader" value="${true}" />
+			<h1>${template} template</h1>
+			<div class="table">
+			<g:each var="subject" status="s" in="${study.giveSubjectsForTemplate(template)}">
+				<g:if test="${showHeader}">
+				<g:set var="showHeader" value="${false}" />
+				<div class="header">
+				  <div class="firstColumn">#</div>
+				  <div class="firstColumn"></div>
+				  <wizard:templateColumnHeaders class="column" entity="${subject}" />
 				</div>
-				<wizard:templateColumns id="${subjectId}" entity="${subjects[ subjectId ]}" template="${subjects[ subjectId ].template}" name="subject_${subjectId}" class="column" subject="${subjects[ subjectId ]}" addDummy="true" />
+				</g:if>
+				<div class="row">
+					<div class="firstColumn">${subject.getIdentifier()}</div>
+					<div class="firstColumn">
+						<wizard:ajaxButton name="delete" src="../images/icons/famfamfam/delete.png" alt="delete this subject" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${subject.getIdentifier()});" afterSuccess="onWizardPage()" />
+					</div>
+					<wizard:templateColumns class="column" entity="${subject}" name="subject_${subject.getIdentifier()}" />
+				</div>
+			</g:each>
 			</div>
-		  </g:if>
+			<div class="sliderContainer">
+				<div class="slider" ></div>
+			</div>
 		</g:each>
-		</div>
-		<div class="sliderContainer">
-			<div class="slider" ></div>
-		</div>
-	</g:each>
-</g:if>
+	</g:if>
 
 </wizard:pageContent>

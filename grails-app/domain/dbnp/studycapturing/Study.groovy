@@ -99,6 +99,16 @@ class Study extends TemplateEntity {
 		TemplateEntity.giveTemplates(subjects)
 	}
 
+
+	/**
+	 * Return all subjects for a specific template
+	 * @param Template
+	 * @return ArrayList
+	 */
+	def ArrayList<Subject> giveSubjectsForTemplate(Template template) {
+		subjects.findAll { it.template.equals(template) }
+	}
+
 	/**
 	 * Return the unique Event and SamplingEvent templates that are used in this study
 	 */
@@ -106,7 +116,20 @@ class Study extends TemplateEntity {
 		// For some reason, giveAllEventTemplates() + giveAllSamplingEventTemplates()
 		// gives trouble when asking .size() to the result
 		// So we also use giveTemplates here
-		TemplateEntity.giveTemplates(events + samplingEvents)
+		TemplateEntity.giveTemplates( ((events) ? events : []) + ((samplingEvents) ? samplingEvents : []) )
+	}
+
+
+	/**
+	 * Return all events and samplingEvenets for a specific template
+	 * @param Template
+	 * @return ArrayList
+	 */
+	def ArrayList giveEventsForTemplate(Template template) {
+		def events = events.findAll { it.template.equals(template) }
+		def samplingEvents = samplingEvents.findAll { it.template.equals(template) }
+
+		return (events) ? events : samplingEvents
 	}
 
 	/**
@@ -137,13 +160,12 @@ class Study extends TemplateEntity {
 	}
 
 
-	 /**
-	* Delete a specific subject from this study, including all its relations
-	* @param subject The subject to be deleted
-	* @return A String which contains a (user-readable) message describing the changes to the database
-	*/
+	/**
+	 * Delete a specific subject from this study, including all its relations
+	 * @param subject The subject to be deleted
+	 * @return A String which contains a (user-readable) message describing the changes to the database
+	 */
 	String deleteSubject(Subject subject) {
-
 		String msg = "Subject ${subject.name} was deleted"
 
 		// Delete the subject from the event groups it was referenced in
@@ -167,6 +189,57 @@ class Study extends TemplateEntity {
 		this.removeFromSubjects(subject)
 		// But apparently it needs an explicit delete() too
 		subject.delete()
+
+		return msg
+	}
+
+	/**
+	 * Delete an event from the study, including all its relations
+	 * @param Event
+	 * @return String
+	 */
+	String deleteEvent(Event event) {
+		String msg = "Event ${event} was deleted"
+
+		// remove event from the study
+		this.removeFromEvents(event)
+
+		// remove event from eventGroups
+		this.eventGroups.each() { eventGroup ->
+			eventGroup.removeFromEvents(event)
+		}
+
+		return msg
+	}
+
+	/**
+	 * Delete a samplingEvent from the study, including all its relations
+	 * @param SamplingEvent
+	 * @return String
+	 */
+	String deleteSamplingEvent(SamplingEvent samplingEvent) {
+		String msg = "SamplingEvent ${samplingEvent} was deleted"
+
+		// remove event from eventGroups
+		this.eventGroups.each() { eventGroup ->
+			eventGroup.removeFromSamplingEvents(samplingEvent)
+		}
+
+		// remove event from the study
+		this.removeFromSamplingEvents(samplingEvent)
+
+		return msg
+	}
+	/**
+	 * Delete an eventGroup from the study, including all its relations
+	 * @param EventGroup
+	 * @return String
+	 */
+	String deleteEventGroup(EventGroup eventGroup) {
+		String msg = "EventGroup ${eventGroup} was deleted"
+
+		// remove the eventGroup from the study
+		this.removeFromEventGroups(eventGroup)
 
 		return msg
 	}

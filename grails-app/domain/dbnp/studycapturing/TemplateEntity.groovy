@@ -17,7 +17,6 @@ import org.springframework.validation.FieldError
  * $Date$
  */
 abstract class TemplateEntity implements Serializable {
-
 	/** The actual template of this TemplateEntity instance */
 	Template template
 
@@ -37,6 +36,14 @@ abstract class TemplateEntity implements Serializable {
 	Map templateFileFields = [:] // Contains filenames
 	Map templateTermFields = [:]
 
+	// keep an internal identifier for use in dynamic forms
+	private int identifier = 0
+	static int iterator = 0
+
+	// set transients
+	static transients = [ "identifier", "iterator" ]
+
+	// define relationships
 	static hasMany = [
 		templateStringFields: String,
 		templateTextFields: String,
@@ -53,7 +60,6 @@ abstract class TemplateEntity implements Serializable {
 	]
 
 	static mapping = {
-
 		// Specify that each TemplateEntity-subclassing entity should have its own tables to store TemplateField values.
 		// This results in a lot of tables, but performance is presumably better because in most queries, only values of
 		// one specific entity will be retrieved. Also, because of the generic nature of these tables, they can end up
@@ -326,6 +332,23 @@ abstract class TemplateEntity implements Serializable {
 	}
 
 	/**
+	 * Class constructor increments that static iterator
+	 * and sets the object's identifier (used in dynamic webforms)
+	 * @void
+	 */
+	public TemplateEntity() {
+		if (!identifier) identifier = iterator++
+	}
+
+	/**
+	 * Return the identifier
+	 * @return int
+	 */
+	final public int getIdentifier() {
+		return identifier
+	}
+
+	/**
 	 * Get the proper templateFields Map for a specific field type
 	 * @param TemplateFieldType
 	 * @return pointer
@@ -592,12 +615,12 @@ abstract class TemplateEntity implements Serializable {
 			// otherwise, it should not be present in the store, so
 			// it is unset if it is.
 			if (value || value == 0 || ( field.type == TemplateFieldType.BOOLEAN && value == false)) {
-				println ".setting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
+				println ".setting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") template field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
 
 				// set value
 				store[fieldName] = value
 			} else if (store[fieldName]) {
-				println ".unsetting [" + ((super) ? super.class : '??') + "] template field: [" + fieldName + "]"
+				println ".unsetting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") template field: [" + fieldName + "]"
 
 				// remove the item from the Map (if present)
 				store.remove(fieldName)

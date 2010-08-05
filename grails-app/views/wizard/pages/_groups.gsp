@@ -26,7 +26,7 @@
 		<div class="header">
 			<div class="column">Template</div>
 			<div class="column">Subjects</div>
-			<g:if test="${eventGroups}"><g:each var="eventGroup" status="g" in="${eventGroups}">
+			<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 				<div class="column">
 					${eventGroup.name}
 					<div class="helpIcon"></div>
@@ -42,37 +42,35 @@
 				</div>
 			</g:each></g:if>
 		</div>
-		<g:each var="sTemplate" in="${subjectTemplates}">
-			<g:set var="subjectTemplate" value="${sTemplate.getValue()}"/>
+		<g:each var="template" in="${study.giveSubjectTemplates()}">
 			<g:set var="showHeader" value="${true}"/>
-			<g:each var="sId" in="${subjectTemplate.subjects}">
-				<g:set var="subjectId" value="${sId.getValue()}"/>
-				<div class="row">
-					<div class="column">
-						<g:if test="${showHeader}">
-							<g:set var="showHeader" value="${false}"/>
-							${subjectTemplate.name}
-							<div class="helpIcon"></div>
-							<div class="helpContent">
-								<h1>${subjectTemplate.name}</h1>
-								<h2>Template Fields:</h2>
-								<g:each var="field" status="f" in="${subjects[ subjectId ].giveFields()}">
-									${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
-								</g:each>
-							</div>
-						</g:if>
-					</div>
-					<div class="column">${subjects[subjectId].name}</div>
-					<g:if test="${eventGroups}"><g:each var="eventGroup" status="g" in="${eventGroups}">
-						<div class="column">
-							<g:if test="${eventGroup.subjects.find{ it == subjects[ subjectId ] } }">
-								<input type="checkbox" name="subject_${subjectId}_group_${g}" checked="checked"/>
-							</g:if><g:else>
-							<input type="checkbox" name="subject_${subjectId}_group_${g}"/>
-						</g:else>
+			<g:each var="subject" in="${study.giveSubjectsForTemplate(template)}">
+			<div class="row">
+				<div class="column">
+					<g:if test="${showHeader}">
+						<g:set var="showHeader" value="${false}"/>
+						${template.name}
+						<div class="helpIcon"></div>
+						<div class="helpContent">
+							<h1>${template.name}</h1>
+							<h2>Template Fields:</h2>
+							<g:each var="field" in="${subject.giveFields()}">
+								${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
+							</g:each>
 						</div>
-					</g:each></g:if>
+					</g:if>
 				</div>
+				<div class="column">${subject.name}</div>
+				<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
+				<div class="column">
+					<g:if test="${eventGroup.subjects.find{ it == subject } }">
+						<input type="checkbox" name="subject_${subject.getIdentifier()}_group_${eventGroup.getIdentifier()}" checked="checked"/>
+					</g:if><g:else>
+						<input type="checkbox" name="subject_${subject.getIdentifier()}_group_${eventGroup.getIdentifier()}" />
+					</g:else>
+				</div>
+				</g:each></g:if>
+			</div>
 			</g:each>
 		</g:each>
 	</div>
