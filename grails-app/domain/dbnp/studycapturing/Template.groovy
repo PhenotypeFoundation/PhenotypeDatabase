@@ -16,7 +16,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class Template implements Serializable {
+class Template extends Identity {
 
 	/** The name of the template */
 	String name
@@ -33,17 +33,10 @@ class Template implements Serializable {
 	/** The template fields which are the members of this template. This is a List to preserve the field order */
 	List fields
 
-	// keep an internal identifier for use in dynamic forms
-	private int identifier = 0
-	static int iterator = 0
-
-	// set transients
-	static transients = [ "identifier", "iterator" ]
-
 	static hasMany = [fields: TemplateField]
 
+	// constraints
 	static constraints = {
-
 		owner(nullable: true, blank: true)
 		description(nullable: true, blank: true)
 
@@ -77,24 +70,6 @@ class Template implements Serializable {
 		// TODO: this probably has to change in the case of private templates of different users,
 		// which can co-exist with the same name. See also TemplateField
 		//	name(unique:['entity'])
-	}
-
-	/**
-	 * Class constructor increments that static iterator
-	 * and sets the object's identifier (used in dynamic webforms)
-	 * @void
-	 */
-	public Template() {
-		if (!identifier) identifier = iterator++
-		println ".instantiating [" + this.getClass() + "] ("+ identifier + ")"
-	}
-
-	/**
-	 * Return the identifier
-	 * @return int
-	 */
-	final public int getIdentifier() {
-		return identifier
 	}
 
 	/**

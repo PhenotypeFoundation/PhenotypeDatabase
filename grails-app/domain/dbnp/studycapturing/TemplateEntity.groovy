@@ -16,7 +16,7 @@ import org.springframework.validation.FieldError
  * $Author$
  * $Date$
  */
-abstract class TemplateEntity implements Serializable {
+abstract class TemplateEntity extends Identity {
 	/** The actual template of this TemplateEntity instance */
 	Template template
 

@@ -6,7 +6,7 @@ package dbnp.studycapturing
  * Since a Publication can apply to multiple studies, the entries in this table form an independent 'library'
  * and are not connected to Study instances via a cascading relation.
  */
-class Publication implements Serializable {
+class Publication extends Identity {
 	String title
 	String pubMedID
 	String DOI      // document identifier, see dx.doi.org

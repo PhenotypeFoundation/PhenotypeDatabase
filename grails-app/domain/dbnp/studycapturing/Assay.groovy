@@ -5,7 +5,7 @@ package dbnp.studycapturing
  * The actual data of these measurements are described in submodules of dbNP. The type property describes in which module
  * this data can be found.
  */
-class Assay implements Serializable {
+class Assay extends Identity {
 
 	/** The name of the assay, which should indicate the measurements represented in this assay to the user. */
 	String name

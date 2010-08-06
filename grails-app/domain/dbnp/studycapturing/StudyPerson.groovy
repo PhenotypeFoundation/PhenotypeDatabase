@@ -3,7 +3,7 @@ package dbnp.studycapturing
 /**
  * Link table which couples studies with persons and the role they have within the study
  */
-class StudyPerson implements Serializable {
+class StudyPerson extends Identity {
 
 	// A StudyPerson relation always belongs to one study.
 	static belongsTo = [parent : Study]

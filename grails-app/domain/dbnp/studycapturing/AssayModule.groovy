@@ -3,7 +3,7 @@ package dbnp.studycapturing
 /**
  * This entity describes actual dbNP submodule instances: what type of data they store, and how to reach them  
  */
-class AssayModule implements Serializable {
+class AssayModule extends Identity {
 	
 	/** The name of the module, for user-reference purposes  */
 	String name

@@ -5,7 +5,7 @@ package dbnp.studycapturing
  * Person roles form an independent 'roles list' and are therefore not coupled to a specific StudyPerson relation with belongsTo.
  * Generally, there will only be a few PersonRoles such as PI, lab analyst etc.
  */
-class PersonRole implements Serializable {
+class PersonRole extends Identity {
 
 	/** The name of the role, such as Project Leader or PI */
 	String name

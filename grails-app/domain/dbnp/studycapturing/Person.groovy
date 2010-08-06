@@ -5,7 +5,7 @@ package dbnp.studycapturing
  * Those people do not neccessarily have an account in GSCF, the Study/Persons/Affiliations administration
  * is independent of GSCF usernames and accounts.
  */
-class Person implements Serializable {
+class Person extends Identity {
 	String title
 	String gender
 	String lastName
