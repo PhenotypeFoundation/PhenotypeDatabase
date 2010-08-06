@@ -236,8 +236,10 @@ class WizardController {
 				flash.values = params
 
 				// refresh templates
-				flow.study.giveSubjectTemplates().each() {
-					it.refresh()
+				if (flow.study.subjects) {
+					flow.study.giveSubjectTemplates().each() {
+						it.refresh()
+					}
 				}
 
 				success()
@@ -386,22 +388,24 @@ class WizardController {
 				// handle form data
 				eventPage(flow, flash, params)
 
-				// first find the current maximum default name "Subject xxxx"
-				def eventGroupNo = 0
-				def eventGroupMax = 0
-				flow.study.eventGroups.each() {
-					it.name.trim().eachMatch(/(\d+)$/){
-						eventGroupNo = it[1] as int
-						if (eventGroupNo > eventGroupMax) {
-							eventGroupMax = eventGroupNo
-						}
+				// set work variables
+				def groupName = 'Group '
+				def tempGroupIterator = 1
+				def tempGroupName = groupName + tempGroupIterator
+
+				// make sure group name is unique
+				if (flow.study.eventGroups) {
+					while (flow.study.eventGroups.find { it.name == tempGroupName }) {
+						tempGroupIterator++
+						tempGroupName = groupName + tempGroupIterator
 					}
 				}
+				groupName = tempGroupName
 
 				// add a new eventGroup
 				flow.study.addToEventGroups(
 					new EventGroup(
-						name	: 'Group ' + (eventGroupMax+1),
+						name	: groupName,
 						parent	: flow.study
 					)
 				)
@@ -455,7 +459,7 @@ class WizardController {
 			on("next") {
 				// handle form data
 				groupPage(flow, flash, params) ? success() : error()
-			}.to "waitForSave"
+			}.to "samples"
 			on("quickSave") {
 				// handle form data
 				groupPage(flow, flash, params) ? success() : error()
@@ -490,56 +494,51 @@ class WizardController {
 			render(view: "_samples")
 			onRender {
 				flow.page = 6
-				/*
-				// iterate through eventGroups
-				if (!flow.samples) {
-					println ".generating samples"
-					flow.samplesWithTemplate = 0
-					flow.samples = []
-					flow.sampleTemplates = [:]
-					flow.eventGroups.each() { eventGroup ->
-						// iterate through events
+
+				// got samples?
+				if (!flow.study.samples) {
+					// generate samples
+					// iterate through eventGroups
+					flow.study.eventGroups.each() { eventGroup ->
+						// iterate through samplingEvents
 						eventGroup.samplingEvents.each() { samplingEvent ->
 							def samplingEventName = this.ucwords(samplingEvent.template.name)
 
 							// iterate through subjects
 							eventGroup.subjects.each() { subject ->
 								def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
-								def increment = flow.samples.size()
+								def tempSampleIterator = 0
+								def tempSampleName = sampleName
 
-								flow.samples[increment] = [
-									sample: new Sample(
-										parent: flow.study,
-										parentSubject: subject,
-										parentEvent: samplingEvent,
-										name: sampleName
-									),
-									name: sampleName,
-									eventGroup: eventGroup,
-									event: samplingEvent,
-									subject: subject
-								]
+								// make sure sampleName is unique
+								if (flow.study.samples) {
+									while (flow.study.samples.find { it.name == tempSampleName }) {
+										tempSampleIterator++
+										tempSampleName = sampleName + "_" + tempSampleIterator
+									}
+									sampleName = tempSampleName
+								}
 
-								// and add this sample to the study
-								flow.study.addToSamples(flow.samples[increment].sample)
+								// instantiate a sample
+								flow.study.addToSamples(
+									new Sample(
+										parent			: flow.study,
+										parentSubject	: subject,
+										parentEvent		: samplingEvent,
+										name			: sampleName
+									)
+								)
 							}
 						}
-					}
-				} else if (flash.check) {
-					println "CHECKING SAMPLE CONSISTENCY"
-					// check the consistency of the samples
-					flow.samples.each() { sampleData ->
-						println sampleData
-						println sampleData.event.template
+
 					}
 				}
 
 				success()
-				*/
 			}
 			on("switchTemplate") {
-				//println params
-				handleSamples(flow, flash, params)
+				// handle form data
+				samplePage(flow, flash, params)
 
 				// ignore errors
 				flash.errors = [:]
@@ -547,17 +546,13 @@ class WizardController {
 				succes()
 			}.to "samples"
 			on("refresh") {
-				println ".refresh ${flow.sampleTemplates.size()} sample templates (${flow.samples.size()} samples present)"
-
-				// refresh templates
-				flow.sampleTemplates.each() {
-					println ".refresh template ["+it.value.name+"]"
-					it.value.template.refresh()
-					println "  --> fields: "+it.value.template.fields
-				}
-
 				// handle samples
 				handleSamples(flow, flash, params)
+
+				// refresh all sample templates
+				flow.study.giveSampleTemplates().each() {
+					it.refresh()
+				}
 
 				// ignore errors
 				flash.errors = [:]
@@ -565,13 +560,17 @@ class WizardController {
 				success()
 			}.to "samples"
 			on("regenerate") {
-				println ".removing 'samples' and 'sampleTemplates' from the flowscope, triggering regeneration of the samples..."
-				flow.samples.each() {
-					flow.study.removeFromSamples( it.sample )
+				// handle samples
+				handleSamples(flow, flash, params)
+
+				// remove all samples from the study
+				flow.study.samples.findAll{true}.each() { sample ->
+					flow.study.removeFromSamples(sample)
 				}
-				flow.remove('samples')
-				flow.remove('sampleTemplates')
-				println flow.study.samples
+
+				// ignore errors
+				flash.errors = [:]
+
 				success()
 			}.to "samples"
 			on("previous") {
@@ -584,39 +583,12 @@ class WizardController {
 				success()
 			}.to "samplePrevious"
 			on("next") {
-				flash.values = params
-				flash.errors = [:]
-
-// for now, development only!
-if (grails.util.GrailsUtil.environment == "development") {
-				// do all samples have a template assigned?
-				if (flow.samplesWithTemplate < flow.samples.size()) {
-					// handle samples
-					this.handleSamples(flow, flash, params)
-
-					// ignore errors
-					flash.errors = [:]
-					
-					// add error
-					this.appendErrorMap(['samples': 'you need to select a template for each sample'], flash.errors)
-
-					error()
-				} else if (this.handleSamples(flow, flash, params)) {
-					success()
-				} else {
-					error()
-				}
-} else {
-	success()
-}
+				// handle form data
+				samplePage(flow, flash, params) ? success() : error()
 			}.to "confirm"
 			on("quickSave") {
-				// handle samples
-				if (handleSamples(flow, flash, params)) {
-					success()
-				} else {
-					error()
-				}
+				// handle form data
+				samplePage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
 		}
 
@@ -722,221 +694,6 @@ if (grails.util.GrailsUtil.environment == "development") {
 			return false
 		}
 	}
-
-	/**
-	 * re-usable code for handling samples
-	 * @param Map LocalAttributeMap (the flow scope)
-	 * @param Map localAttributeMap (the flash scope)
-	 * @param Map GrailsParameterMap (the flow parameters = form data)
-	 * @return boolean
-	 */
-	def handleSamples(flow, flash, params) {
-		flash.errors = [:]
-		def errors = false		
-		def id = 0
-
-		// iterate through samples
-		flow.samples.each() { sampleData ->
-			def sample = sampleData.sample
-			def sampleTemplateName = params.get('template_'+id)
-			def oldSampleTemplateName = sampleData.sample.template.toString()
-
-			// has the sample template for this sample changed
-			if (sampleTemplateName && sampleTemplateName.size() > 0 && oldSampleTemplateName != sampleTemplateName) {
-				// yes, has the template changed?
-				println ".changing template for sample ${id} to ${sampleTemplateName}"
-
-				// decrease previous template count
-				if (oldSampleTemplateName && flow.sampleTemplates[ oldSampleTemplateName ]) {
-					flow.sampleTemplates[ oldSampleTemplateName ].count--
-
-					if (flow.sampleTemplates[ oldSampleTemplateName ].count < 1) {
-						// no samples left, remove template altogether
-						flow.sampleTemplates.remove( oldSampleTemplateName )
-					}
-				} else {
-					// increate main template counter?
-					flow.samplesWithTemplate++
-				}
-
-				// increase current template count
-				if (!flow.sampleTemplates[ sampleTemplateName ]) {
-					flow.sampleTemplates[ sampleTemplateName ] = [
-						name		: sampleTemplateName,
-						template	: Template.findByName( sampleTemplateName ),
-						count		: 1
-					]
-				} else {
-					// increase count
-					flow.sampleTemplates[ sampleTemplateName ].count++
-				}
-
-				// change template
-				sampleData.sample.template = flow.sampleTemplates[ sampleTemplateName ].template
-			}
-
-			// handle values
-			sampleData.sample.giveFields().each() { sampleField ->
-				if ( params.containsKey( 'sample_'+id+'_'+sampleField.escapedName() ) ) {
-					sampleData.sample.setFieldValue( sampleField.name, params.get( 'sample_'+id+'_'+sampleField.escapedName() ) )
-				}
-			}
-
-			// validate sample
-			if (!sampleData.sample.validate()) {
-				errors = true
-				this.appendErrors(sampleData.sample, flash.errors, 'sample_' + id + '_' )
-			}
-
-			// increase counter
-			id++
-		}
-
-		return !errors
-	}
-
-	/**
-	 * groovy / java equivalent of php's ucwords function
-	 *
-	 * Capitalize all first letters of seperate words
-	 *
-	 * @param String
-	 * @return String
-	 */
-	def ucwords(String text) {
-		def newText = ''
-
-		// change case to lowercase
-		text = text.toLowerCase()
-
-		// iterate through words
-		text.split(" ").each() {
-			newText += it[0].toUpperCase() + it.substring(1) + " "
-		}
-
-		return newText.substring(0, newText.size()-1)
-	}
-
-	/**
-	 * return the object from a map of objects by searching for a name
-	 * @param String name
-	 * @param Map map of objects
-	 * @return Object
-	 */
-	def getObjectByName(name, map) {
-		def result = null
-		map.each() {
-			if (it.name == name) {
-				result = it
-			}
-		}
-
-		return result
-	}
-
-	/**
-	 * transform domain class validation errors into a human readable
-	 * linked hash map
-	 * @param object validated domain class
-	 * @return object  linkedHashMap
-	 */
-	def getHumanReadableErrors(object) {
-		def errors = [:]
-		object.errors.getAllErrors().each() {
-			def message = it.toString()
-
-			//errors[it.getArguments()[0]] = it.getDefaultMessage()
-			errors[it.getArguments()[0]] = message.substring(0, message.indexOf(';'))
-		}
-
-		return errors
-	}
-
-	/**
-	 * append errors of a particular object to a map
-	 * @param object
-	 * @param map linkedHashMap
-	 * @void
-	 */
-	def appendErrors(object, map) {
-		this.appendErrorMap(this.getHumanReadableErrors(object), map)
-	}
-
-	def appendErrors(object, map, prepend) {
-		this.appendErrorMap(this.getHumanReadableErrors(object), map, prepend)
-	}
-
-	/**
-	 * append errors of one map to another map
-	 * @param map linkedHashMap
-	 * @param map linkedHashMap
-	 * @void
-	 */
-	def appendErrorMap(map, mapToExtend) {
-		map.each() {key, value ->
-			mapToExtend[key] = ['key': key, 'value': value, 'dynamic': false]
-		}
-	}
-
-	def appendErrorMap(map, mapToExtend, prepend) {
-		map.each() {key, value ->
-			mapToExtend[prepend + key] = ['key': key, 'value': value, 'dynamic': true]
-		}
-	}
-
-	/**
-	 * Parses a RelTime string and returns a nice human readable string
-	 *
-	 * @return Human Readable string or a HTTP response code 400 on error
-	 */
-	def ajaxParseRelTime = {
-		if (params.reltime == null) {
-			response.status = 400
-			render('reltime parameter is expected')
-		}
-
-		try {
-			def reltime = RelTime.parseRelTime(params.reltime)
-			render reltime.toPrettyString()
-		} catch (IllegalArgumentException e) {
-			response.status = 400
-			render(e.getMessage())
-		}
-	}
-
-	/**
-	 * Proxy for searching PubMed articles (or other articles from the Entrez DB).
-	 *
-	 * This proxy is needed because it is not allowed to fetch XML directly from a different
-	 * domain using javascript. So we have the javascript call a function on our own domain
-	 * and the proxy will fetch the data from Entrez
-	 *
-	 * @since	20100609
-	 * @param	_utility	The name of the utility, without the complete path. Example: 'esearch.fcgi'
-	 * @return	XML
-	 */
-	def entrezProxy = {
-		// Remove unnecessary parameters
-		params.remove( "action" )
-		params.remove( "controller" )
-
-		def url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
-		def util = params.remove( "_utility" )
-		def paramString = params.collect { k, v -> k + '=' + v.encodeAsURL() }.join( '&' );
-
-		def fullUrl = url + '/' + util + '?' + paramString;
-
-		// Return the output of the request
-		// render fullUrl;
-		render(
-                    text:           new URL( fullUrl ).getText(),
-                    contentType:    "text/xml",
-                    encoding:       "UTF-8"
-                );
-	}
-
-
-	/****** REFACTORED METHODS OVER HERE! ******/
 
 	/**
 	 * Handle the wizard study page
@@ -1159,28 +916,28 @@ if (grails.util.GrailsUtil.environment == "development") {
 		def number		= params.get('addNumber') as int
 		def species		= Term.findByName(params.get('species'))
 		def template	= Template.findByName(params.get('template'))
-		def subjectNo	= 0
-		def subjectMax	= 0
 
 		// can we add subjects?
 		if (number > 0 && species && template) {
-			// first find the current maximum default name "Subject xxxx"
-			flow.study.subjects.each() {
-				it.name.trim().eachMatch(/(\d+)$/){
-					subjectNo = it[1] as int
-					if (subjectNo > subjectMax) {
-						subjectMax = subjectNo
-					}
-				}
-			}
-
 			// add subjects to study
 			number.times {
-				subjectMax++
+				// work variables
+				def subjectName = 'Subject '
+				def subjectIterator = 1
+				def tempSubjectName = subjectName + subjectIterator
+
+				// make sure subject name is unique
+				if (flow.study.subjects) {
+					while (flow.study.subjects.find { it.name == tempSubjectName }) {
+						subjectIterator++
+						tempSubjectName = subjectName + subjectIterator
+					}
+				}
+				subjectName = tempSubjectName
 				
 				// create a subject instance
 				def subject = new Subject(
-					name		: 'Subject ' + subjectMax,
+					name		: subjectName,
 					species		: species,
 					template	: template,
 					parent		: flow.study
@@ -1291,11 +1048,6 @@ if (grails.util.GrailsUtil.environment == "development") {
 			}
 		}
 
-		// handle eventGroup names
-		flow.study.eventGroups.each() { eventGroup ->
-			
-		}
-
 		return !errors
 	}
 
@@ -1344,6 +1096,173 @@ if (grails.util.GrailsUtil.environment == "development") {
 		// remember the params in the flash scope
 		flash.values = params
 
+		// iterate through samples
+		flow.study.samples.each() { sample ->
+			// iterate through sample fields
+			sample.giveFields().each() { field ->
+				def value = params.get('sample_'+sample.getIdentifier()+'_'+field.escapedName())
+
+				// set field value
+				if (!(field.name == 'name' && !value)) {
+					println "setting "+field.name+" to "+value
+					sample.setFieldValue(field.name, value)
+				}
+			}
+
+			// has the template changed?
+			def templateName = params.get('template_' + sample.getIdentifier())
+			if (templateName && sample.template?.name != templateName) {
+				sample.template = Template.findByName(templateName)
+			}
+
+			// validate sample
+			if (!sample.validate()) {
+				errors = true
+				this.appendErrors(sample, flash.errors)
+				println 'error-> sample_'+sample.getIdentifier()
+			}
+		}
+
 		return !errors
+	}
+
+	/**
+	 * groovy / java equivalent of php's ucwords function
+	 *
+	 * Capitalize all first letters of separate words
+	 *
+	 * @param String
+	 * @return String
+	 */
+	def ucwords(String text) {
+		def newText = ''
+
+		// change case to lowercase
+		text = text.toLowerCase()
+
+		// iterate through words
+		text.split(" ").each() {
+			newText += it[0].toUpperCase() + it.substring(1) + " "
+		}
+
+		return newText.substring(0, newText.size()-1)
+	}
+
+	/**
+	 * return the object from a map of objects by searching for a name
+	 * @param String name
+	 * @param Map map of objects
+	 * @return Object
+	 */
+	def getObjectByName(name, map) {
+		def result = null
+		map.each() {
+			if (it.name == name) {
+				result = it
+			}
+		}
+
+		return result
+	}
+
+	/**
+	 * transform domain class validation errors into a human readable
+	 * linked hash map
+	 * @param object validated domain class
+	 * @return object  linkedHashMap
+	 */
+	def getHumanReadableErrors(object) {
+		def errors = [:]
+		object.errors.getAllErrors().each() {
+			def message = it.toString()
+
+			//errors[it.getArguments()[0]] = it.getDefaultMessage()
+			errors[it.getArguments()[0]] = message.substring(0, message.indexOf(';'))
+		}
+
+		return errors
+	}
+
+	/**
+	 * append errors of a particular object to a map
+	 * @param object
+	 * @param map linkedHashMap
+	 * @void
+	 */
+	def appendErrors(object, map) {
+		this.appendErrorMap(this.getHumanReadableErrors(object), map)
+	}
+
+	def appendErrors(object, map, prepend) {
+		this.appendErrorMap(this.getHumanReadableErrors(object), map, prepend)
+	}
+
+	/**
+	 * append errors of one map to another map
+	 * @param map linkedHashMap
+	 * @param map linkedHashMap
+	 * @void
+	 */
+	def appendErrorMap(map, mapToExtend) {
+		map.each() {key, value ->
+			mapToExtend[key] = ['key': key, 'value': value, 'dynamic': false]
+		}
+	}
+
+	def appendErrorMap(map, mapToExtend, prepend) {
+		map.each() {key, value ->
+			mapToExtend[prepend + key] = ['key': key, 'value': value, 'dynamic': true]
+		}
+	}
+
+	/**
+	 * Parses a RelTime string and returns a nice human readable string
+	 *
+	 * @return Human Readable string or a HTTP response code 400 on error
+	 */
+	def ajaxParseRelTime = {
+		if (params.reltime == null) {
+			response.status = 400
+			render('reltime parameter is expected')
+		}
+
+		try {
+			def reltime = RelTime.parseRelTime(params.reltime)
+			render reltime.toPrettyString()
+		} catch (IllegalArgumentException e) {
+			response.status = 400
+			render(e.getMessage())
+		}
+	}
+
+	/**
+	 * Proxy for searching PubMed articles (or other articles from the Entrez DB).
+	 *
+	 * This proxy is needed because it is not allowed to fetch XML directly from a different
+	 * domain using javascript. So we have the javascript call a function on our own domain
+	 * and the proxy will fetch the data from Entrez
+	 *
+	 * @since	20100609
+	 * @param	_utility	The name of the utility, without the complete path. Example: 'esearch.fcgi'
+	 * @return	XML
+	 */
+	def entrezProxy = {
+		// Remove unnecessary parameters
+		params.remove( "action" )
+		params.remove( "controller" )
+
+		def url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
+		def util = params.remove( "_utility" )
+		def paramString = params.collect { k, v -> k + '=' + v.encodeAsURL() }.join( '&' );
+
+		def fullUrl = url + '/' + util + '?' + paramString;
+
+		// Return the output of the request
+		// render fullUrl;
+		render(
+                    text:           new URL( fullUrl ).getText(),
+                    contentType:    "text/xml",
+                    encoding:       "UTF-8"
+                );
 	}
 }

@@ -34,62 +34,114 @@
 		}
 	</script>
 
-	<g:if test="${samples}">
-		<g:if test="${samples.size() > samplesWithTemplate}">
+	<g:if test="${study.samples}">
+		<g:if test="${study.samples.findAll{!it.template}.size()}">
+		<h1>Samples that still need to have a template assigned</h1>
+		<div class="table">
+		<div class="header">
+			<div class="firstColumn">#</div>
+			<div class="column">Sampling Event</div>
+			<div class="column">Subject</div>
+			<div class="column">Template</div>
+			<div class="column" style="width:200px;">Name</div>
+		</div>
+		<g:set var="previousTemplate" value=""/>
+		<g:each var="sample" in="${study.samples}">
+			<g:if test="${!sample.template}">
+				<div class="row">
+					<div class="firstColumn">${sample.getIdentifier()}</div>
+					<div class="column">
+						<g:if test="${previousTemplate != sample.parentEvent.template.name}">
+							<g:set var="previousTemplate" value="${sample.parentEvent.template.name}"/>
+							${sample.parentEvent.template.name}
+							<div class="helpIcon"></div>
+							<div class="helpContent">
+								<h1>${sample.parentEvent.template.name}</h1>
+								<h2>Template Fields:</h2>
+								<g:each var="field" in="${sample.parentEvent.giveFields()}">
+									${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
+								</g:each>
+							</div>
+						</g:if>
+					</div>
+					<div class="column">
+						${sample.parentSubject.name}
+						<div class="helpIcon"></div>
+						<div class="helpContent">
+							<h1>${sample.parentSubject.template.name}</h1>
+							<h2>Template Fields:</h2>
+							<g:each var="field" in="${sample.parentSubject.giveFields()}">
+								${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
+							</g:each>
+						</div>
+					</div>
+					<div class="column">
+						<wizard:templateSelect name="template_${sample.getIdentifier()}" entity="${dbnp.studycapturing.Sample}" value="${sample.template}" tableEditorChangeEvent="switchTemplate(element);" addDummy="true" />						
+					</div>
+					<div class="column">${sample.name}</div>
+					<wizard:templateColumns name="sample_${sample.getIdentifier()}" class="column" id="1" entity="${sample}"/>
+				</div>
+			</g:if>
+		</g:each>
+		</div>
+		<div class="sliderContainer">
+			<div class="slider" ></div>
+		</div>
+		</g:if> 
+
+		<g:each var="sampleTemplate" in="${study.giveSampleTemplates()}">
+			<h1>${sampleTemplate.name}</h1>
 			<g:set var="showHeader" value="${true}" />
-			<h1>Samples that still need to have a template assigned</h1>
+			<g:set var="previousTemplate" value=""/>			
 			<div class="table">
-			<g:each status="s" var="sampleData" in="${samples}">
-				<g:if test="${!sampleData.sample.template}">
-					<g:if test="${showHeader}">
+			<g:each var="sample" in="${study.giveSamplesForTemplate(sampleTemplate)}">
+				<g:if test="${showHeader}">
 					<g:set var="showHeader" value="${false}" />
 					<div class="header">
 						<div class="firstColumn">#</div>
+						<div class="column">Sampling Event</div>
+						<div class="column">Subject</div>
 						<div class="column">Template</div>
-					</div>
-					</g:if>
-					<div class="row">
-						<div class="firstColumn">${s+1}</div>
-						<div class="column">
-							<wizard:templateSelect name="template_${s}" entity="${dbnp.studycapturing.Sample}" value="${sampleData['sample'].template}" addDummy="true" tableEditorChangeEvent="switchTemplate(element);" />
-						</div>
-						<wizard:templateColumns name="sample_${s}" class="column" id="1" entity="${sampleData.sample}"/>
+						<wizard:templateColumnHeaders entity="${sample}" class="column" />
 					</div>
 				</g:if>
-			</g:each>
-			</div>
-			<div class="sliderContainer">
-				<div class="slider" ></div>
-			</div>
-		</g:if>
-
-		<g:each status="n" var="sampleTemplateName" in="${sampleTemplates}">
-			<h1>${sampleTemplateName.value.name}</h1>
-			<g:set var="showHeader" value="${true}" />
-			<div class="table">
-			<g:each status="s" var="sampleData" in="${samples}">
-				<g:if test="${sampleData.sample.template.toString() == sampleTemplateName.value.name}">
-					<g:if test="${showHeader}">
-						<g:set var="showHeader" value="${false}" />
-						<div class="header">
-							<div class="firstColumn">#</div>
-							<div class="column">Template</div>
-							<wizard:templateColumnHeaders entity="${sampleData.sample}" class="column" />
-						</div>
-					</g:if>
-					<div class="row">
-						<div class="firstColumn">${s+1}</div>
-						<div class="column">
-							<wizard:templateSelect name="template_${s}" entity="${dbnp.studycapturing.Sample}" value="${sampleData['sample'].template}" addDummy="true" tableEditorChangeEvent="switchTemplate(element);" />
-						</div>
-						<wizard:templateColumns name="sample_${s}" class="column" id="1" entity="${sampleData.sample}"/>
+				<div class="row">
+					<div class="firstColumn">${sample.getIdentifier()}</div>
+					<div class="column">
+						<g:if test="${previousTemplate != sample.parentEvent.template.name}">
+							<g:set var="previousTemplate" value="${sample.parentEvent.template.name}"/>
+							${sample.parentEvent.template.name}
+							<div class="helpIcon"></div>
+							<div class="helpContent">
+								<h1>${sample.parentEvent.template.name}</h1>
+								<h2>Template Fields:</h2>
+								<g:each var="field" in="${sample.parentEvent.giveFields()}">
+									${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
+								</g:each>
+							</div>
+						</g:if>
 					</div>
-				</g:if>
+					<div class="column">
+						${sample.parentSubject.name}
+						<div class="helpIcon"></div>
+						<div class="helpContent">
+							<h1>${sample.parentSubject.template.name}</h1>
+							<h2>Template Fields:</h2>
+							<g:each var="field" in="${sample.parentSubject.giveFields()}">
+								${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
+							</g:each>
+						</div>
+					</div>
+					<div class="column">
+						<wizard:templateSelect name="template_${sample.getIdentifier()}" entity="${dbnp.studycapturing.Sample}" value="${sample.template}" addDummy="true" tableEditorChangeEvent="switchTemplate(element);" />
+					</div>
+					<wizard:templateColumns name="sample_${sample.getIdentifier()}" class="column" id="1" entity="${sample}"/>
+				</div>
 			</g:each>
 			</div>
 			<div class="sliderContainer">
 				<div class="slider" ></div>
 			</div>
 		</g:each>
-	</g:if>	
+	</g:if>
 </wizard:pageContent>

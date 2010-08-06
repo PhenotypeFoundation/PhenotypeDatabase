@@ -99,7 +99,6 @@ class Study extends TemplateEntity {
 		TemplateEntity.giveTemplates(subjects)
 	}
 
-
 	/**
 	 * Return all subjects for a specific template
 	 * @param Template
@@ -152,6 +151,16 @@ class Study extends TemplateEntity {
 	Set<Template> giveSampleTemplates() {
 		TemplateEntity.giveTemplates(samples)
 	}
+
+	/**
+	 * Return all samples for a specific template
+	 * @param Template
+	 * @return ArrayList
+	 */
+	def ArrayList<Subject> giveSamplesForTemplate(Template template) {
+		samples.findAll { it.template.equals(template) }
+	}
+
 	/**
 	 * Returns the template of the study
 	 */
