@@ -1,8 +1,5 @@
 package dbnp.studycapturing
 
-import org.apache.log4j.Logger
-
-
 /**
  * Identity Domain Class
  *
@@ -19,7 +16,8 @@ import org.apache.log4j.Logger
  *
  * So you can easily handle the post data in the controller
  * without relying on an iterator of your own as this proves
- * to be very unreliable:
+ * to be very unreliable and quite some extra code and effort
+ * in both controller and views:
  *
  * Subject.findAll().each() { subject->
  * 	 subject.giveFields() { field->
@@ -64,7 +62,10 @@ abstract class Identity implements Serializable {
 
 			// has the iterator become too large?
 			if (iterator >= maximumIdentity) {
-				// yes, reset it back to 0
+				// yes, reset it back to 0 as this iterator
+				// works for the complete application, not
+				// only the user session. We don't want it
+				// to go too high :)
 				iterator = 0
 			}
 		}
