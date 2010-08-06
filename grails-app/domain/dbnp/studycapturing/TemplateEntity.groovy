@@ -36,13 +36,6 @@ abstract class TemplateEntity extends Identity {
 	Map templateFileFields = [:] // Contains filenames
 	Map templateTermFields = [:]
 
-	// keep an internal identifier for use in dynamic forms
-	private int identifier = 0
-	static int iterator = 0
-
-	// set transients
-	static transients = [ "identifier", "iterator" ]
-
 	// define relationships
 	static hasMany = [
 		templateStringFields: String,
@@ -329,23 +322,6 @@ abstract class TemplateEntity extends Identity {
 			}
 			return (!error)
 		})
-	}
-
-	/**
-	 * Class constructor increments that static iterator
-	 * and sets the object's identifier (used in dynamic webforms)
-	 * @void
-	 */
-	public TemplateEntity() {
-		if (!identifier) identifier = iterator++
-	}
-
-	/**
-	 * Return the identifier
-	 * @return int
-	 */
-	final public int getIdentifier() {
-		return identifier
 	}
 
 	/**
