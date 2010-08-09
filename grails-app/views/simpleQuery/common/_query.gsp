@@ -82,9 +82,9 @@
                 <tbody>
                 <g:each in="${listStudies}" var="Study" status="i" >
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-                    <td><g:link url="[action:'show',controller:'study']" id="${Study.id}">${fieldValue(bean: Study, field: "id")}</g:link></td>
-                    <td><g:link url="[action:'show',controller:'study']" id="${Study.id}">${fieldValue(bean: Study, field: "title")}</g:link></td>
-                    <td><g:link url="[action:'show',controller:'study']" id="${Study.id}"></g:link></td>
+                    <td><g:link url="[action:'show',controller:'study', id:Study.id]">${fieldValue(bean: Study, field: "id")}</g:link></td>
+                    <td><g:link url="[action:'show',controller:'study', id:Study.id]">${fieldValue(bean: Study, field: "title")}</g:link></td>
+                    <td><g:link url="[action:'show',controller:'study', id:Study.id]"></g:link></td>
                   </tr>
                 </g:each>
                 </tbody>
