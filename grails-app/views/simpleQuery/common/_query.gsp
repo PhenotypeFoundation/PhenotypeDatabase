@@ -24,7 +24,7 @@
           <div class="input"><g:select name="species" from="${species}" value="" noSelection="['':'--- select a species ---']"/></div>
         </div>
         <div class="element">
-          <div class="description">Organ (e.g. 'liver')</div>
+          <div class="description">Material (e.g. 'liver')</div>
           <div class="input"><g:select name="organ" from="" value="${organ}" noSelection="['':'--- select organ/tissue ---']"/></div>
         </div>
       </div>
@@ -42,7 +42,7 @@
           <g:else>
             <g:each status="i" in="${search_sa_compounds}" var="compound">
             <div id="compoundRow${i}">
-              <div class="descriptionSA">Compound (e.g. 'glucose')</div><div class="input"><g:textField name="sa_compound" value="${search_sa_compounds.get(i)}"/></div><div class="descriptionSA">Type of regulations</div><div class="input"><g:select name="operator" from="${operators}" value="="/></div><div class="descriptionSA">Value</div><div class="input"><g:textField name="sa_value" value="${search_sa_values.get(i)}"/></div>
+              <div class="descriptionSA">Compound (e.g. 'glucose')</div><div class="input"><g:textField name="sa_compound" value="${search_sa_compounds.get(i)}"/></div><div class="descriptionSA">Type of regulations</div><div class="input"><g:select name="sa_operator" from="${operators}" value="="/></div><div class="descriptionSA">Value</div><div class="input"><g:textField name="sa_value" value="${search_sa_values.get(i)}"/></div>
             </div>
             </g:each>
           </g:else>
@@ -67,7 +67,7 @@
     </g:form>
 
     <g:if test="${search_term}">
-        <h1><g:message code="Search results for term '${search_term}'"/></h1>
+        <h1><g:message code="Search results"/></h1>
 
         <g:if test="${listStudies}">
           <div class="list">
@@ -92,6 +92,9 @@
           </div>
 
         </g:if>
+        <g:else>
+          <g:message code="No studies found with term '${search_term}'"/>  
+        </g:else>
     </g:if>
 
 </div>
