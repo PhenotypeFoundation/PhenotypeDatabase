@@ -535,6 +535,8 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * Term select element
 	 * @param Map attributes
 	 */
+	// TODO: change termSelect to use Term accessions instead of preferred names, to make it possible to track back
+	// terms from multiple ontologies with possibly the same preferred name
 	def termSelect = { attrs ->
 		def from = []
 
