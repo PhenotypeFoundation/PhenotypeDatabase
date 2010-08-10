@@ -58,19 +58,26 @@ abstract class Identity implements Serializable {
 		// does this instance have an identifier?
 		if (!identifier) {
 			// no, increment the iterator
-			identifier = iterator++
-
-			// has the iterator become too large?
-			if (iterator >= maximumIdentity) {
-				// yes, reset it back to 0 as this iterator
-				// works for the complete application, not
-				// only the user session. We don't want it
-				// to go too high :)
-				iterator = 0
-			}
+			incrementIterator()
 		}
 
 		println ".instantiating [" + super.getClass() + "] ("+ identifier + ")"
+	}
+
+	// This method is synchronized to assure a thread-safe increment of the iterator variable
+	synchronized private void incrementIterator() {
+		// Increment the iterator variable
+		identifier = iterator++
+
+		// has the iterator become too large?
+		if (iterator >= maximumIdentity) {
+			// yes, reset it back to 0 as this iterator
+			// works for the complete application, not
+			// only the user session. We don't want it
+			// to go too high :)
+			iterator = 0
+		}
+
 	}
 
 	/**
