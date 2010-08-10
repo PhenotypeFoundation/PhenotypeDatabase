@@ -60,7 +60,7 @@ abstract class Identity implements Serializable {
 		setIdentifier()
 
 		// feedback
-		println "instantiating [${identifier}:${super.getClass()}]"
+		println ".instantiating [${identifier}:${super.getClass()}]"
 	}
 
 	/**
