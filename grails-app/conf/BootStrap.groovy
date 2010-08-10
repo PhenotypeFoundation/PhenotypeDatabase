@@ -37,7 +37,7 @@ class BootStrap {
 
 			// If in development mode and no studies are present, add example studies
 			if (Study.count() == 0 && grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
-				//BootStrapStudies.addExampleStudies()
+				BootStrapStudies.addExampleStudies()
 			}
 		}
 
