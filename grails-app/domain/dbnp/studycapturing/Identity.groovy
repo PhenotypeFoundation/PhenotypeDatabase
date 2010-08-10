@@ -51,37 +51,36 @@ abstract class Identity implements Serializable {
 
 	/**
 	 * Class constructor increments that static iterator
-	 * and sets the object's identifier (used in dynamic webforms)
+	 * and sets the object's identifier
+	 * @visibility public
 	 * @void
 	 */
 	public Identity() {
-		// does this instance have an identifier?
-		if (!identifier) {
-			// no, increment the iterator
-			incrementIterator()
-		}
+		// set the local identifier
+		setIdentifier()
 
-		println ".instantiating [" + super.getClass() + "] ("+ identifier + ")"
+		// feedback
+		println "instantiating [${identifier}:${super.getClass()}]"
 	}
 
-	// This method is synchronized to assure a thread-safe increment of the iterator variable
-	synchronized private void incrementIterator() {
-		// Increment the iterator variable
-		identifier = iterator++
+	/**
+	 * Method to increment the static iterator variable. This method
+	 * is synchronized to assure a thread-safe increment.
+	 * @visibility private
+	 * @void
+	 */
+	synchronized final private void setIdentifier() {
+		// increment the iterator variable
+		// reset iterator to 1 if it is becoming too high
+		iterator = (iterator >= maximumIdentity) ? 1 : iterator+1
 
-		// has the iterator become too large?
-		if (iterator >= maximumIdentity) {
-			// yes, reset it back to 0 as this iterator
-			// works for the complete application, not
-			// only the user session. We don't want it
-			// to go too high :)
-			iterator = 0
-		}
-
+		// set the instance identifier
+		identifier = iterator
 	}
 
 	/**
 	 * Return the identifier
+	 * @visibility public
 	 * @return int
 	 */
 	final public int getIdentifier() {
