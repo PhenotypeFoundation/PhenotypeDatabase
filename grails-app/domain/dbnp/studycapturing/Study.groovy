@@ -1,5 +1,7 @@
 package dbnp.studycapturing
 
+import dbnp.user.User
+
 /**
  * Domain class describing the basic entity in the study capture part: the Study class.
  *
@@ -13,7 +15,7 @@ class Study extends TemplateEntity {
     	[only: ['title', 'Description']]
     }
 
-	nimble.User owner   // The owner of the study. A new study is automatically owned by its creator.
+	User owner   // The owner of the study. A new study is automatically owned by its creator.
 	String title        // The title of the study
 	String code 		// currently used as the external study ID, e.g. to reference a study in a SAM module
 	Date dateCreated
@@ -27,8 +29,8 @@ class Study extends TemplateEntity {
 	List assays
 
 	static hasMany = [
-		editors: nimble.User,   // Users with read/write access to the study
-		readers: nimble.User,   // Users with only read access to the study
+		editors: User,   // Users with read/write access to the study
+		readers: User,   // Users with only read access to the study
 		subjects: Subject,
 		samplingEvents: SamplingEvent,
 		events: Event,

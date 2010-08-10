@@ -89,7 +89,7 @@
                                   <label for="readers"><g:message code="study.readers.label" default="Readers" /></label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean: studyInstance, field: 'readers', 'errors')}">
-                                    <g:select name="readers" from="${nimble.User.list()}" multiple="yes" optionKey="id" size="5" value="${studyInstance?.readers}" />
+                                    <g:select name="readers" from="${dbnp.user.User.list()}" multiple="yes" optionKey="id" size="5" value="${studyInstance?.readers}" />
                                 </td>
                             </tr>
                         
@@ -107,7 +107,7 @@
                                   <label for="editors"><g:message code="study.editors.label" default="Editors" /></label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean: studyInstance, field: 'editors', 'errors')}">
-                                    <g:select name="editors" from="${nimble.User.list()}" multiple="yes" optionKey="id" size="5" value="${studyInstance?.editors}" />
+                                    <g:select name="editors" from="${dbnp.user.User.list()}" multiple="yes" optionKey="id" size="5" value="${studyInstance?.editors}" />
                                 </td>
                             </tr>
                         
@@ -152,7 +152,7 @@
                                   <label for="owner"><g:message code="study.owner.label" default="Owner" /></label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean: studyInstance, field: 'owner', 'errors')}">
-                                    <g:select name="owner.id" from="${nimble.User.list()}" optionKey="id" value="${studyInstance?.owner?.id}"  />
+                                    <g:select name="owner.id" from="${dbnp.user.User.list()}" optionKey="id" value="${studyInstance?.owner?.id}"  />
                                 </td>
                             </tr>
                         

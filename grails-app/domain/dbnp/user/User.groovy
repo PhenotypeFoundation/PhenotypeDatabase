@@ -1,5 +1,5 @@
 /**
- * Profile Domain Class
+ * User Domain Class
  *
  * Description of my domain class
  *
@@ -12,9 +12,9 @@
  * $Author$
  * $Date$
  */
-package nimble
+package dbnp.user
 
-class Profile {
+class User {
     static constraints = {
     }
 }

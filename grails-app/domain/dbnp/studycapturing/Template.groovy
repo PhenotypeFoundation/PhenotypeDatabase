@@ -1,5 +1,7 @@
 package dbnp.studycapturing
 
+import dbnp.user.User
+
 /**
  * The Template class describes a TemplateEntity template, which is basically an extension of the study capture entities
  * in terms of extra fields (which are described by classes that extend the TemplateField class).
@@ -28,7 +30,7 @@ class Template extends Identity {
 	Class entity
 
 	/** The owner of the template. If the owner is not defined, it is a shared/public template */
-	nimble.User owner
+	User owner
 
 	/** The template fields which are the members of this template. This is a List to preserve the field order */
 	List fields

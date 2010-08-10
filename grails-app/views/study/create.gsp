@@ -104,7 +104,7 @@
                                     <label for="owner.id"><g:message code="study.owner.label" default="Owner" /></label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean: studyInstance, field: 'owner', 'errors')}">
-                                    <g:select name="owner.id" from="${nimble.User.list()}" optionKey="id" value="${studyInstance?.owner?.id}"  />
+                                    <g:select name="owner.id" from="${dbnp.user.User.list()}" optionKey="id" value="${studyInstance?.owner?.id}"  />
                                 </td>
                             </tr>
                         
