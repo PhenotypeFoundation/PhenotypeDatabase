@@ -424,7 +424,7 @@ class WizardController {
 				// remove eventGroup
 				def eventGroupToRemove = flow.study.eventGroups.find { it.getIdentifier() == (params.get('do') as int) }
 				if (eventGroupToRemove) {
-					flow.study.deleteEventGroup( eventGroupToRemove )
+					println flow.study.deleteEventGroup( eventGroupToRemove )
 				}
 			}.to "events"
 			on("previous") {

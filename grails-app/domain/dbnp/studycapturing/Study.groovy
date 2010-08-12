@@ -241,13 +241,68 @@ class Study extends TemplateEntity {
 
 		return msg
 	}
+	
 	/**
 	 * Delete an eventGroup from the study, including all its relations
 	 * @param EventGroup
 	 * @return String
 	 */
 	String deleteEventGroup(EventGroup eventGroup) {
+		// TODO THIS DOESNT WORK!!!!
+		println "-"
+		println "-"
+		println "-"
+		println "-"
+		println "-"
+		println "REMOVING AND ENENTGROUP DOES NOT DELETE SAMPLES"
+		println "-"
+		println "-"
+		println "-"
+		println "-"
+		println "-"
+
+
+
 		String msg = "EventGroup ${eventGroup} was deleted"
+
+		// remove all samples that originate from this eventGroup
+		if (eventGroup.samplingEvents.size()) {
+			// find all samples related to this eventGroup
+			// - subject comparison is relatively straightforward and
+			//   behaves as expected
+			// - event comparison behaves strange, so now we compare
+			//		1. database id's or,
+			//		2. object identifiers or,
+			//		3. objects itself
+			//   this seems now to work as expected
+			this.samples.findAll { sample ->
+				(
+					(eventGroup.subjects.findAll {
+						it.equals(sample.parentSubject)
+					})
+					&&
+					(eventGroup.samplingEvents.findAll {
+						(
+							(it.id && sample.parentEvent.id && it.id==sample.parentEvent.id)
+							||
+							(it.getIdentifier() == sample.parentEvent.getIdentifier())
+							||
+							it.equals(sample.parentEvent)
+						)
+					})
+				)
+			}.each() {
+			   	// remove sample from study
+				println ".removing sample "+it
+				this.removeFromSamples( it )
+			}
+		}
+
+		// remove all samplingEvents from this eventGroup
+		eventGroup.samplingEvents.findAll{}.each() { eventGroup.removeFromSamplingEvents(it) }
+
+		// remove all subject from this eventGroup
+		eventGroup.subjects.findAll{}.each() { eventGroup.removeFromSubjects(it) }
 
 		// remove the eventGroup from the study
 		this.removeFromEventGroups(eventGroup)

@@ -463,7 +463,7 @@
                         </td>
                       </g:if>
                       <td>${event.getStartTimeString()}</td>
-                      <td>${event.getDurationString()}</td>
+                      <td>${((event.getClass() == 'Event') ? event.getDurationString() : '')}</td>
                       <td>${event.template.name}</td>
                       <td>
                         <g:if test="${event instanceof dbnp.studycapturing.SamplingEvent}">
