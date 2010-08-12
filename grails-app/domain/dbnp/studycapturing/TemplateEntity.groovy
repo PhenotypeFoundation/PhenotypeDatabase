@@ -21,20 +21,21 @@ abstract class TemplateEntity extends Identity {
 	Template template
 
 	// Maps for storing the different template field values
-	Map templateStringFields = [:]
-	Map templateTextFields = [:]
-	Map templateStringListFields = [:]
-	Map templateIntegerFields = [:]
-	Map templateFloatFields = [:]
-	Map templateDoubleFields = [:]
-	Map templateDateFields = [:]
-	Map templateBooleanFields = [:]
+	Map templateStringFields	= [:]
+	Map templateTextFields		= [:]
+	Map templateStringListFields= [:]
+	Map templateIntegerFields	= [:]
+	Map templateFloatFields		= [:]
+	Map templateDoubleFields	= [:]
+	Map templateDateFields		= [:]
+	Map templateBooleanFields	= [:]
+	Map templateTemplateFields	= [:]
 
 	// N.B. If you try to set Long.MIN_VALUE for a reltime field, an error will occur
 	// However, this will never occur in practice: this value represents 3 bilion centuries
-	Map templateRelTimeFields = [:] // Contains relative times in seconds
-	Map templateFileFields = [:] // Contains filenames
-	Map templateTermFields = [:]
+	Map templateRelTimeFields	= [:] // Contains relative times in seconds
+	Map templateFileFields		= [:] // Contains filenames
+	Map templateTermFields		= [:]
 
 	// define relationships
 	static hasMany = [
@@ -49,6 +50,7 @@ abstract class TemplateEntity extends Identity {
 		templateRelTimeFields: long,
 		templateFileFields: String,
 		templateBooleanFields: boolean,
+		templateTemplateFields: Template,
 		systemFields: TemplateField
 	]
 
@@ -300,7 +302,7 @@ abstract class TemplateEntity extends Identity {
 						error = true
 						errors.rejectValue(
 							'templateFileFields',
-							'templateEntity.typeMismatch.string',
+							'templateEntity.typeMismatch.file',
 							[key, value.class] as Object[],
 							'Property {0} must be of type String and is currently of type {1}'
 						)
@@ -309,6 +311,26 @@ abstract class TemplateEntity extends Identity {
 			}
 
 			// got an error, or not?
+			return (!error)
+		})
+		templateTemplateFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value && value.class != Template) {
+					try {
+						fields[key] = (value as Template)
+
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateTemplateFields',
+							'templateEntity.typeMismatch.template',
+							[key, value.class] as Object[],
+							'Property {0} must be of type Template and is currently of type {1}'
+						)
+					}
+				}
+			}
 			return (!error)
 		})
 		templateBooleanFields(validator: { fields, obj, errors ->
@@ -355,6 +377,8 @@ abstract class TemplateEntity extends Identity {
 				return templateTermFields
 			case TemplateFieldType.BOOLEAN:
 				return templateBooleanFields
+			case TemplateFieldType.TEMPLATE:
+				return templateTemplateFields
 			default:
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}
@@ -558,16 +582,19 @@ abstract class TemplateEntity extends Identity {
 			}
 		}
 
+		// Magic setter for template fields
+		if (field.type == TemplateFieldType.TEMPLATE && value && value.class == String) {
+			value = Template.findByName(value)
+		}
+
 		// Set the field value
 		if (isDomainField(field)) {
 			// got a value?
 			if (value) {
-				//debug message: println ".setting [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
-
-				// set value
+				println ".setting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") domain field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
 				this[field.name] = value
 			} else {
-				//debug message: println ".unsetting [" + ((super) ? super.class : '??') + "] domain field: [" + fieldName + "]"
+				println ".unsetting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") domain field: [" + fieldName + "]"
 
 				// remove value. For numbers, this is done by setting
 				// the value to 0, otherwise, setting it to NULL
@@ -687,5 +714,4 @@ abstract class TemplateEntity extends Identity {
 			throw new NoSuchFieldException("Multiple templates found in collection!")
 		}
 	}
-
 }

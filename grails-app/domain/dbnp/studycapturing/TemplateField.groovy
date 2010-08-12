@@ -52,7 +52,6 @@ class TemplateField implements Serializable {
 	]
 
 	static constraints = {
-
 		// outcommented for now due to bug in Grails / Hibernate
 		// see http://jira.codehaus.org/browse/GRAILS-6020
 		// This is to verify that TemplateField names are unique within templates of each super entity
@@ -128,6 +127,4 @@ class TemplateField implements Serializable {
 
 		return elements.size();
 	}
-
-
 }

@@ -8,13 +8,11 @@ package dbnp.studycapturing
  *       However, using a separate class makes it more clear in the code that Event and SamplingEvent are treated differently
  */
 class SamplingEvent extends TemplateEntity {
-
 	// A SamplingEvent always belongs to one study.
 	// Although this is technically inherited from Event, we have to specify it here again.
 	// Otherwise, Grails expects the SamplingEvent to be referenced in Study.events,
 	// where it is actually referenced in Study.samplingEvents
 	static belongsTo = [parent : Study]
-
 	static hasMany = [samples : Sample]
 
 	/** Start time of the event, relative to the start time of the study */
@@ -23,8 +21,13 @@ class SamplingEvent extends TemplateEntity {
 	/** Duration of the sampling event, if it has any (default is 0) */
 	long duration
 
+	// define what template samples should have
+	Template sampleTemplate
+
+	// define domain constraints
 	static constraints = {
 		duration(default: 0L)
+		sampleTemplate(nullable: false, blank: false)
 	}
 
 	/**
@@ -42,16 +45,13 @@ class SamplingEvent extends TemplateEntity {
 		new TemplateField(
 			name: 'duration',
 			type: TemplateFieldType.RELTIME,
-			comment: "Please enter the duration of the sampling action, if applicable. "+RelTime.getHelpText())
+			comment: "Please enter the duration of the sampling action, if applicable. "+RelTime.getHelpText()),
+		new TemplateField(
+			name: 'sampleTemplate',
+			type: TemplateFieldType.TEMPLATE,
+			entity: dbnp.studycapturing.Sample,
+			comment: "Please select the template of the resulting samples")
 	]
-
-	/**
-	 * Get the duration of the event as RelTime
-	 * @return RelTime
-	 */
-	/*RelTime getDuration() {
-		return new RelTime(duration)
-	}*/
 
 	 /**
 	  * Return the start time of the event, which should be relative to the start of the study
@@ -59,15 +59,6 @@ class SamplingEvent extends TemplateEntity {
 	 */
 	def getStartTimeString() {
 		return new RelTime(startTime).toPrettyString();
-	}
-
-	/**
-	 * Get extended, human readable string representing the duration between startTime and endTime
-     *
-	 * @return String
-	 */
-	def getDurationString() {
-		return new RelTime(duration).toPrettyString();
 	}
 
 	/**
@@ -89,13 +80,12 @@ class SamplingEvent extends TemplateEntity {
 
 	/**
 	 * Get all samples that have this sampling event as a parent
+	 * @return Map
  	 */
 	def getSamples() {
-
 		def samples = Sample.findAll("from Sample as s where s.parentEvent.id = ${this.id}")
 		samples.collect { it.class == SamplingEvent.class }
 		samples.collect { it != null }
 		return samples == null ? [] : samples
 	}
-
 }

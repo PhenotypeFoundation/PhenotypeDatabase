@@ -1026,6 +1026,16 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 							value: fieldValue
 						){helpText}
 						break
+					case ['TEMPLATE']:
+						inputElement = (renderType == 'element') ? 'templateElement' : 'templateSelect'
+						out << "$inputElement"(
+							description: ucName,
+							name: prependName + it.escapedName(),
+							addDummy: true,
+							entity: it.entity,
+							value: fieldValue
+						){helpText}
+						break
 					default:
 						// unsupported field type
 						out << '<span class="warning">!' + it.type + '</span>'

@@ -502,6 +502,10 @@ class WizardController {
 					flow.study.eventGroups.each() { eventGroup ->
 						// iterate through samplingEvents
 						eventGroup.samplingEvents.each() { samplingEvent ->
+							println samplingEvent
+							println samplingEvent.sampleTemplate
+							println samplingEvent.sampleTemplate.getClass()
+
 							def samplingEventName = this.ucwords(samplingEvent.template.name)
 
 							// iterate through subjects
@@ -522,10 +526,11 @@ class WizardController {
 								// instantiate a sample
 								flow.study.addToSamples(
 									new Sample(
-										parent			: flow.study,
-										parentSubject	: subject,
-										parentEvent		: samplingEvent,
-										name			: sampleName
+										parent: flow.study,
+										parentSubject: subject,
+										parentEvent: samplingEvent,
+										name: sampleName,
+										template: (samplingEvent.sampleTemplate) ? samplingEvent.sampleTemplate : ''
 									)
 								)
 							}
