@@ -30,10 +30,10 @@
 		Type of event
 	</wizard:radioElement>
 	<wizard:templateElement name="eventTemplate" elementId="eventTemplate" description="Event Template" value="${event?.template}" entity="${dbnp.studycapturing.Event}" addDummy="true" ajaxOnChange="switchTemplate" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" >
-		The template to use for this study
+		The template to use for this event
 	</wizard:templateElement>
-	<wizard:templateElement name="sampleTemplate" elementId="sampleTemplate" description="Sample Template" value="${event?.template}" entity="${dbnp.studycapturing.SamplingEvent}" addDummy="true" ajaxOnChange="switchTemplate" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" >
-		The template to use for this study
+	<wizard:templateElement name="sampleTemplate" elementId="sampleTemplate" description="Sampling Event Template" value="${event?.template}" entity="${dbnp.studycapturing.SamplingEvent}" addDummy="true" ajaxOnChange="switchTemplate" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" >
+		The template to use for this sampling event
 	</wizard:templateElement>
 	<g:if test="${event?.template}">
 	<div id="${values?.eventType}TemplateFields">

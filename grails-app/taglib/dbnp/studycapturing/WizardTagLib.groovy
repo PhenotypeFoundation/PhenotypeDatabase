@@ -236,19 +236,13 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		if (!renderedElement) return false
 
 		// render a form element
-		if (attrs.get('elementId')) {
-		out << '<div class="element" id="'+ attrs.remove('elementId') +'">'
-		} else {
-			out << '<div class="element">'
-		}
+		out << '<div class="element"'+ ((attrs.get('elementId')) ? 'id="'+attrs.remove('elementId')+'"': '') + '>'
 		out << ' <div class="description">'
-		out << description
+		out << ((description) ? description.replaceAll(/[a-z][A-Z][a-z]/) { it[0] + ' ' + it[1..2] }.replaceAll(/\w+/) { it[0].toUpperCase() + ((it.size() > 1) ? it[1..-1] : '') } : '')
 		out << ' </div>'
 		out << ' <div class="input">'
 		out << renderedElement
-		if (helpText.size() > 0) {
-			out << '	<div class="helpIcon"></div>'
-		}
+		out << ((helpText.size() > 0) ? '	<div class="helpIcon"></div>' : '')
 
 		// add an disabled input box for feedback purposes
 		// @see dateElement(...)
@@ -849,7 +843,14 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		if (template) {
 			// render template fields
 			entity.giveFields().each() {
-				def ucName		= it.name[0].toUpperCase() + it.name.substring(1)
+				// Format the column name by:
+				// - separating combined names (SampleName --> Sample Name)
+				// - capitalizing every seperate word
+				def ucName = it.name.replaceAll(/[a-z][A-Z][a-z]/) {
+					it[0] + ' ' + it[1..2]
+				}.replaceAll(/\w+/) {
+					it[0].toUpperCase() + ((it.size() > 1) ? it[1..-1] : '')
+				}
 
 				out << '<div class="' + attrs.get('class') + '">' + ucName + (it.unit ? " (${it.unit})" : '')
 				if (it.comment) {
