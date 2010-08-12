@@ -8,8 +8,9 @@
       <a href="#">Studies</a>
       <ul class="subnav">
         <li><g:link controller="study" action="list">View studies</g:link></li>
-		  <li><g:link controller="wizard" action="index">Create/edit study</g:link></li>
-		  <li><g:link controller="importer" action="index">Import study data</g:link></li>
+		<li><g:link controller="wizard" action="index">Create/edit study</g:link></li>
+		<li><g:link controller="importer" action="index">Import study data</g:link></li>
+        <li><g:link controller="simpleQuery" action="index">Search study data</g:link></li>
       </ul>
      </li>
      <li>
