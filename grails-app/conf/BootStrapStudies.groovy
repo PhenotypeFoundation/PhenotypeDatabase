@@ -35,6 +35,7 @@ class BootStrapStudies {
 		def liverSamplingEventTemplate = Template.findByName("Liver extraction")
 		def fastingTreatmentTemplate = Template.findByName("Fasting treatment")
 		def bloodSamplingEventTemplate = Template.findByName("Blood extraction")
+		def humanTissueSampleTemplate = Template.findByName("Human tissue sample")
 		def humanBloodSampleTemplate = Template.findByName("Human blood sample")
 		
 
@@ -230,13 +231,15 @@ class BootStrapStudies {
 		def evS = new SamplingEvent(
 			startTime: 3600 +7 * 24 * 3600,
 			endTime: 3600 +7 * 24 * 3600,
-			template: liverSamplingEventTemplate)
+			template: liverSamplingEventTemplate,
+			sampleTemplate: humanTissueSampleTemplate)
 		.setFieldValue('Sample weight',5F)
 
 		def evS4 = new SamplingEvent(
 			startTime: 3600 +7 * 24 * 3600,
 			endTime: 3600 +7 * 24 * 3600,
-			template: liverSamplingEventTemplate)
+			template: liverSamplingEventTemplate,
+			sampleTemplate: humanTissueSampleTemplate)
 		.setFieldValue('Sample weight',5F)
 
 		// Add events to study
@@ -385,7 +388,8 @@ class BootStrapStudies {
 		def bloodSamplingEvent = new SamplingEvent(
 			startTime: 3 * 24 * 3600 + 30 * 3600,
 			endTime: 3 * 24 * 3600 + 30 * 3600,
-			template: bloodSamplingEventTemplate)
+			template: bloodSamplingEventTemplate,
+			sampleTemplate: humanBloodSampleTemplate)
 		.setFieldValue('Sample volume',4.5F);
 
 		rootGroup.addToEvents fastingEvent
