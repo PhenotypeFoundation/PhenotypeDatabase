@@ -293,16 +293,29 @@ class Study extends TemplateEntity {
 				)
 			}.each() {
 			   	// remove sample from study
+
+				// -------
+				// NOTE, the right samples are found, but the don't
+				// get deleted from the database!
+				// -------
+
 				println ".removing sample "+it
+				msg += ", sample '${it.name}' was deleted"
 				this.removeFromSamples( it )
 			}
 		}
 
 		// remove all samplingEvents from this eventGroup
-		eventGroup.samplingEvents.findAll{}.each() { eventGroup.removeFromSamplingEvents(it) }
+		eventGroup.samplingEvents.findAll{}.each() {
+			eventGroup.removeFromSamplingEvents(it)
+			msg += ", samplingEvent '${it.name}' was removed from eventGroup '${eventGroup.name}'"
+		}
 
 		// remove all subject from this eventGroup
-		eventGroup.subjects.findAll{}.each() { eventGroup.removeFromSubjects(it) }
+		eventGroup.subjects.findAll{}.each() {
+			eventGroup.removeFromSubjects(it)
+			msg += ", subject '${it.name}' was removed from eventGroup '${eventGroup.name}'"
+		}
 
 		// remove the eventGroup from the study
 		this.removeFromEventGroups(eventGroup)
