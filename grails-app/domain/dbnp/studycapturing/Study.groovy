@@ -320,7 +320,7 @@ class Study extends TemplateEntity {
 		}
 
 		// remove the eventGroup from the study
-		println ".remove eventGroup '${eventGroup.name}' from study '{$this.name}'"
+		println ".remove eventGroup '${eventGroup.name}' from study '${this.name}'"
 		this.removeFromEventGroups(eventGroup)
 
 		return msg
