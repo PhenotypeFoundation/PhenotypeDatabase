@@ -267,7 +267,7 @@ class Study extends TemplateEntity {
 		println "-"
 		println "-"
 		println "-"
-		println "REMOVING AND ENENTGROUP DOES NOT DELETE SAMPLES"
+		println "REMOVING AN EVENTGROUP DOES NOT DELETE SAMPLES"
 		println "-"
 		println "-"
 		println "-"
@@ -278,58 +278,64 @@ class Study extends TemplateEntity {
 
 		String msg = "EventGroup ${eventGroup} was deleted"
 
-		// remove all samples that originate from this eventGroup
-		if (eventGroup.samplingEvents.size()) {
-			// find all samples related to this eventGroup
-			// - subject comparison is relatively straightforward and
-			//   behaves as expected
-			// - event comparison behaves strange, so now we compare
-			//		1. database id's or,
-			//		2. object identifiers or,
-			//		3. objects itself
-			//   this seems now to work as expected
-			this.samples.findAll { sample ->
-				(
-					(eventGroup.subjects.findAll {
-						it.equals(sample.parentSubject)
-					})
-					&&
-					(eventGroup.samplingEvents.findAll {
-						(
-							(it.id && sample.parentEvent.id && it.id==sample.parentEvent.id)
-							||
-							(it.getIdentifier() == sample.parentEvent.getIdentifier())
-							||
-							it.equals(sample.parentEvent)
-						)
-					})
-				)
-			}.each() {
-			   	// remove sample from study
+		// If the event group contains sampling events
+		if (eventGroup.samplingEvents) {
+			// remove all samples that originate from this eventGroup
+			if (eventGroup.samplingEvents.size()) {
+				// find all samples related to this eventGroup
+				// - subject comparison is relatively straightforward and
+				//   behaves as expected
+				// - event comparison behaves strange, so now we compare
+				//		1. database id's or,
+				//		2. object identifiers or,
+				//		3. objects itself
+				//   this seems now to work as expected
+				this.samples.findAll { sample ->
+					(
+						(eventGroup.subjects.findAll {
+							it.equals(sample.parentSubject)
+						})
+						&&
+						(eventGroup.samplingEvents.findAll {
+							(
+								(it.id && sample.parentEvent.id && it.id==sample.parentEvent.id)
+								||
+								(it.getIdentifier() == sample.parentEvent.getIdentifier())
+								||
+								it.equals(sample.parentEvent)
+							)
+						})
+					)
+				}.each() {
+					// remove sample from study
 
-				// -------
-				// NOTE, the right samples are found, but the don't
-				// get deleted from the database!
-				// -------
+					// -------
+					// NOTE, the right samples are found, but the don't
+					// get deleted from the database!
+					// -------
 
-				println ".removing sample '${it.name}' from study '${this.title}'"
-				msg += ", sample '${it.name}' was deleted"
-				this.removeFromSamples( it )
+					println ".removing sample '${it.name}' from study '${this.title}'"
+					msg += ", sample '${it.name}' was deleted"
+					this.removeFromSamples( it )
+				}
+			}
+
+			// remove all samplingEvents from this eventGroup
+			eventGroup.samplingEvents.findAll{}.each() {
+				eventGroup.removeFromSamplingEvents(it)
+				println ".removed samplingEvent '${it.name}' from eventGroup '${eventGroup.name}'"
+				msg += ", samplingEvent '${it.name}' was removed from eventGroup '${eventGroup.name}'"
 			}
 		}
 
-		// remove all samplingEvents from this eventGroup
-		eventGroup.samplingEvents.findAll{}.each() {
-			eventGroup.removeFromSamplingEvents(it)
-			println ".removed samplingEvent '${it.name}' from eventGroup '${eventGroup.name}'"
-			msg += ", samplingEvent '${it.name}' was removed from eventGroup '${eventGroup.name}'"
-		}
-
-		// remove all subject from this eventGroup
-		eventGroup.subjects.findAll{}.each() {
-			eventGroup.removeFromSubjects(it)
-			println ".removed subject '${it.name}' from eventGroup '${eventGroup.name}'"
-			msg += ", subject '${it.name}' was removed from eventGroup '${eventGroup.name}'"
+		// If the event group contains subjects
+		if (eventGroup.subjects) {
+			// remove all subject from this eventGroup
+			eventGroup.subjects.findAll{}.each() {
+				eventGroup.removeFromSubjects(it)
+				println ".removed subject '${it.name}' from eventGroup '${eventGroup.name}'"
+				msg += ", subject '${it.name}' was removed from eventGroup '${eventGroup.name}'"
+			}
 		}
 
 		// remove the eventGroup from the study
