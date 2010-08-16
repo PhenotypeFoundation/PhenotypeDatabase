@@ -7,6 +7,7 @@ import dbnp.studycapturing.SamplingEvent
 import dbnp.studycapturing.Sample
 import dbnp.studycapturing.TemplateFieldType
 import dbnp.studycapturing.Subject
+import dbnp.studycapturing.EventGroup
 
 /**
  * Test the creation of a Sample and its TemplateEntity functionality on data model level
@@ -31,6 +32,8 @@ class SampleTests extends StudyTests {
 	final String testSamplingEventName = "Test sampling event"
 	final String testSamplingEventTemplateName = "Blood extraction"
 	final long testSamplingEventTime = 34534534L
+	final long testSamplingEventDuration = 1000L
+	final String testEventGroupName = "Test Group"
 
 
 	protected void setUp() {
@@ -44,11 +47,16 @@ class SampleTests extends StudyTests {
 		def samplingEventTemplate = Template.findByName(testSamplingEventTemplateName)
 		assert samplingEventTemplate
 
+		// Look up sample template
+		def sampleTemplate = Template.findByName(testSampleTemplateName)
+		assert sampleTemplate
+
 		// Create parent sampling event
 		def samplingEvent = new SamplingEvent(
 			startTime: testSamplingEventTime,
-			endTime: testSamplingEventTime,
-			template: samplingEventTemplate
+			duration: testSamplingEventDuration,
+			template: samplingEventTemplate,
+			sampleTemplate: sampleTemplate
 		)
 
 		if (!samplingEvent.validate()) {
@@ -61,10 +69,6 @@ class SampleTests extends StudyTests {
 		// It should do fine now
 		assert samplingEvent.validate()
 		assert samplingEvent.save(flush:true)
-
-		// Look up sample template
-		def sampleTemplate = Template.findByName(testSampleTemplateName)
-		assert sampleTemplate
 
 		// Create sample with the retrieved study as parent
 		def sample = new Sample(
@@ -92,6 +96,7 @@ class SampleTests extends StudyTests {
 	}
 
 	void testSave() {
+
 		// Try to retrieve the sample and make sure it's the same
 		def sampleDB = Sample.findByName(testSampleName)
 		assert sampleDB
@@ -100,6 +105,7 @@ class SampleTests extends StudyTests {
 		assert sampleDB.parentEvent
 		assert sampleDB.parentEvent.startTime.equals(testSamplingEventTime)
 
+		println "The sample has parentEvent ${sampleDB.parentEvent.encodeAsHTML()}"
 		// A sample without a name should not be saveable
 		sampleDB.name = null
 		assert !sampleDB.validate()
@@ -156,10 +162,82 @@ class SampleTests extends StudyTests {
 
 		assert !study.subjects.contains(subject)
 
-		assert !Subject.findByName(testSampleName)
+		assert !Subject.findByName(subject.name)
 		assert !Sample.findByName(testSampleName)
 
 		assert Subject.count() == 0
+		assert Sample.count() == 0
+
+	}
+
+	void testDeleteViaParentSamplingEvent() {
+
+		def sampleDB = Sample.findByName(testSampleName)
+		assert sampleDB
+
+		// Retrieve the parent study
+		def study = Study.findByTitle(testStudyName)
+		assert study
+
+		def event = sampleDB.parentEvent
+		assert event
+
+		// Use the deleteSamplingEvent method
+		def msg = study.deleteSamplingEvent(event)
+		println msg
+		assert study.save()
+
+		assert !study.samplingEvents.contains(event)
+
+		assert !SamplingEvent.findByStartTime(testSamplingEventTime)
+		assert !Sample.findByName(testSampleName)
+
+		assert SamplingEvent.count() == 0
+		assert Sample.count() == 0
+
+	}
+
+	void testDeleteViaParentEventGroup() {
+
+		def sampleDB = Sample.findByName(testSampleName)
+		assert sampleDB
+
+		// Retrieve the parent study
+		def study = Study.findByTitle(testStudyName)
+		assert study
+
+		// Retrieve the sample's sampling event
+		def event = sampleDB.parentEvent
+		assert event
+
+		// Create a subject and add it at the sample's parent
+		def subject = SubjectTests.createSubject(study)
+		assert subject
+		sampleDB.parentSubject = subject
+		assert sampleDB.validate()
+		assert sampleDB.save()
+
+		// Create an event group in this study with the sample's sampling event
+		def group = new EventGroup(
+		    name: testEventGroupName
+		)
+		study.addToEventGroups(group)
+		group.addToSubjects(subject)
+		group.addToSamplingEvents(event)
+		assert study.eventGroups.find { it.name == group.name}
+		assert group.validate()
+		assert study.save()
+
+		// Use the deleteSamplingEvent method
+		def msg = study.deleteEventGroup(group)
+		println msg
+		assert study.save()
+
+		assert !study.eventGroups.contains(group)
+		assert !EventGroup.findByName(testEventGroupName)
+		assert !Sample.findByName(testSampleName)
+
+		assert EventGroup.count() == 0
 		assert Sample.count() == 0
 
 	}

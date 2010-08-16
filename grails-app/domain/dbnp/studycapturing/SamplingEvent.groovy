@@ -88,4 +88,9 @@ class SamplingEvent extends TemplateEntity {
 		samples.collect { it != null }
 		return samples == null ? [] : samples
 	}
+
+	def String toString() {
+		return fieldExists('Description') ? getFieldValue('Description') : ""
+	}
+	
 }

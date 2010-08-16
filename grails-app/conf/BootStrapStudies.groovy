@@ -230,14 +230,12 @@ class BootStrapStudies {
 
 		def evS = new SamplingEvent(
 			startTime: 3600 +7 * 24 * 3600,
-			endTime: 3600 +7 * 24 * 3600,
 			template: liverSamplingEventTemplate,
 			sampleTemplate: humanTissueSampleTemplate)
 		.setFieldValue('Sample weight',5F)
 
 		def evS4 = new SamplingEvent(
 			startTime: 3600 +7 * 24 * 3600,
-			endTime: 3600 +7 * 24 * 3600,
 			template: liverSamplingEventTemplate,
 			sampleTemplate: humanTissueSampleTemplate)
 		.setFieldValue('Sample weight',5F)
@@ -313,8 +311,10 @@ class BootStrapStudies {
 			.setFieldValue("Age", 17)
 			.setFieldValue("Cage", "" + (int)(x/2))
 
+			// We have to save the subject first, otherwise the parentEvent property of the sample cannot be set
+			// (this is possibly a Grails or Hibernate bug)
 			mouseStudy.addToSubjects(currentSubject)
-			.with { if (!validate()) { errors.each { println it} } else save()}
+			currentSubject.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Add subject to appropriate EventGroup
 			if (x > 70) { HFBL4.addToSubjects(currentSubject).save() }
@@ -332,10 +332,11 @@ class BootStrapStudies {
 				material: bloodTerm,
 				template: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
-				parentEvent: x > 40 ? evS4 : evS
+				parentEvent: evS //x > 40 ? evS4 : evS
 			);
+			mouseStudy.addToSamples(currentSample)
+			currentSample.with { if (!validate()) { errors.each { println it} } else save()}
 			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
-			mouseStudy.addToSamples(currentSample).with { if (!validate()) { errors.each { println it} } else save()}
 		}
 
 		// Add EventGroups to study
@@ -387,7 +388,6 @@ class BootStrapStudies {
 
 		def bloodSamplingEvent = new SamplingEvent(
 			startTime: 3 * 24 * 3600 + 30 * 3600,
-			endTime: 3 * 24 * 3600 + 30 * 3600,
 			template: bloodSamplingEventTemplate,
 			sampleTemplate: humanBloodSampleTemplate)
 		.setFieldValue('Sample volume',4.5F);
@@ -410,6 +410,9 @@ class BootStrapStudies {
 			.setFieldValue("Weight", Math.random() * 150F)
 			.setFieldValue("BMI", 20 + Math.random() * 10F)
 
+			humanStudy.addToSubjects(currentSubject)
+			currentSubject.with { if (!validate()) { errors.each { println it} } else save()}
+
 			rootGroup.addToSubjects currentSubject
 			rootGroup.save()
 
@@ -420,75 +423,27 @@ class BootStrapStudies {
 				parentSubject: currentSubject,
 				parentEvent: bloodSamplingEvent
 			);
-			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
 
-			humanStudy.addToSubjects(currentSubject).addToSamples(currentSample)
-			.with { if (!validate()) { errors.each { println it} } else save()}
+			humanStudy.addToSamples(currentSample)
+			currentSample.with { if (!validate()) { errors.each { println it} } else save()}
+			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
 		}
 
 		humanStudy.addToEvents(fastingEvent)
 		humanStudy.addToSamplingEvents(bloodSamplingEvent)
 		humanStudy.addToEventGroups rootGroup
 
-
+		println ".adding persons and saving PPSH study..."
 		// Add persons to study
 		def studyperson3 = new StudyPerson( person: person1, role: role2 )
-
 		humanStudy
 		.addToPersons( studyperson3 )
 		.addToPublications( publication2 )
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
-		// Add clinical data       ==> to be moved to SAM
+		println ".adding assay references to mouse example study..."
 
-		def lipidAssay = new dbnp.clinicaldata.ClinicalAssay(
-			name: 'Lipid profile',
-			approved: true
-		).with { if (!validate()) { errors.each { println it} } else save()}
-
-		def ldlMeasurement = new dbnp.clinicaldata.ClinicalMeasurement(
-			name: 'LDL',
-			unit: 'mg/dL',
-			type: dbnp.data.FeatureType.QUANTITATIVE,
-			referenceValues: '100 mg/dL',
-			detectableLimit: 250,
-			isDrug: false, isIntake: true, inSerum: true
-		).with { if (!validate()) { errors.each { println it} } else save()}
-
-		def hdlMeasurement = new dbnp.clinicaldata.ClinicalMeasurement(
-			name: 'HDL',
-			unit: 'mg/dL',
-			type: dbnp.data.FeatureType.QUANTITATIVE,
-			referenceValues: '50 mg/dL',
-			detectableLimit: 100,
-			isDrug: false, isIntake: true, inSerum: true
-		).with { if (!validate()) { errors.each { println it} } else save()}
-
-		lipidAssay.addToMeasurements ldlMeasurement
-		lipidAssay.addToMeasurements hdlMeasurement
-
-		def lipidAssayInstance = new dbnp.clinicaldata.ClinicalAssayInstance(
-			assay: lipidAssay
-		).with { if (!validate()) { errors.each { println it} } else save()}
-
-		humanStudy.samples*.each {
-			new dbnp.clinicaldata.ClinicalFloatData(
-				assay: lipidAssayInstance,
-				measurement: ldlMeasurement,
-				sample: it.name,
-				value: Math.round(Math.random()*ldlMeasurement.detectableLimit)
-			).with { if (!validate()) { errors.each { println it} } else save()}
-
-			new dbnp.clinicaldata.ClinicalFloatData(
-				assay: lipidAssayInstance,
-				measurement: hdlMeasurement,
-				sample: it.name,
-				value: Math.round(Math.random()*hdlMeasurement.detectableLimit)
-			).with { if (!validate()) { errors.each { println it} } else save()}
-		}
-
-		// Add assay to study capture module
-
+		// Add SAM assay references
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
 			type: AssayType.SIMPLE_ASSAY,
@@ -509,7 +464,9 @@ class BootStrapStudies {
 		mouseStudy.addToAssays(lipidAssayRef);
 		mouseStudy.save()
 
-		lipidAssayRef.with { if (!validate()) { errors.each { println it} } else save()}
+		//lipidAssayRef.with { if (!validate()) { errors.each { println it} } else save()}
+
+		println ".adding assay references to human example study..."
 
 		def  glucoseAssay2Ref = new Assay(
 			name: 'Glucose assay 2',
@@ -523,17 +480,18 @@ class BootStrapStudies {
 			externalAssayID: 3
 		)
 
-		humanStudy.addToAssays(glucoseAssay2Ref)
-		humanStudy.addToAssays(glucoseAssay3Ref)
-		humanStudy.save()
-
 		humanStudy.samples*.each {
 			glucoseAssay2Ref.addToSamples(it)
 			glucoseAssay3Ref.addToSamples(it)
 		}
 
-		glucoseAssay2Ref.with { if (!validate()) { errors.each { println it} } else save()}
-		glucoseAssay3Ref.with { if (!validate()) { errors.each { println it} } else save()}
+
+		humanStudy.addToAssays(glucoseAssay2Ref)
+		humanStudy.addToAssays(glucoseAssay3Ref)
+		humanStudy.save()
+		println "Saving"
+		//glucoseAssay2Ref.with { if (!validate()) { errors.each { println it} } else save()}
+		//glucoseAssay3Ref.with { if (!validate()) { errors.each { println it} } else save()}
 
 	}
 

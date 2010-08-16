@@ -11,13 +11,14 @@ class Sample extends TemplateEntity {
 	//static searchable = { [only: ['name']] }
 
 	// A Sample always belongs to one study.
-	static belongsTo = [parent : Study]
+	static belongsTo = [parent : Study, parentSubject : Subject, parentEvent : SamplingEvent]
 
 	// A Sample optionally has a parent Subject from which it was taken, this Subject should be in the same parent study.
-	Subject parentSubject
+	//long parentSubject
 
 	// Also, it has a parent SamplingEvent describing the actual sampling, also within the same parent study.
-	SamplingEvent parentEvent
+	// Strange enough, we need to define parentEvent as a long here, otherwise the SamplingEvent gets serialized into the database (?!!)
+	//long parentEvent
 
 	String name             // should be unique with respect to the parent study (which can be inferred)
 	Term material	        // material of the sample (should normally be bound to the BRENDA ontology)

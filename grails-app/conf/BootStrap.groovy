@@ -39,6 +39,8 @@ class BootStrap {
 			if (Study.count() == 0 && grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
 				BootStrapStudies.addExampleStudies()
 			}
+
+			println "Finished adding templates and studies"
 		}
 
 		/**
@@ -50,6 +52,7 @@ class BootStrap {
 		TemplateEntity.getField(Subject.domainFields, 'species').ontologies = [Ontology.getOrCreateOntologyByNcboId(1132)]
 		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [Ontology.getOrCreateOntologyByNcboId(1005)]
 
+		println "Registering SAM REST methods"
 		// register methods for accessing SAM's Rest services 
 		if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION) {
 			CommunicationManager.SAMServerURL = 'http://sam.dbnp.org'
@@ -58,6 +61,8 @@ class BootStrap {
 			CommunicationManager.SAMServerURL = 'http://localhost:8182/sam'
 		}
 		CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
+
+		println "Done with BootStrap"
 	}
 
 	def destroy = {
