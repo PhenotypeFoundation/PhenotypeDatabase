@@ -299,7 +299,7 @@ class Study extends TemplateEntity {
 				// get deleted from the database!
 				// -------
 
-				println ".removing sample "+it
+				println ".removing sample '${it.name}' from study '${this.name}'"
 				msg += ", sample '${it.name}' was deleted"
 				this.removeFromSamples( it )
 			}
@@ -308,16 +308,19 @@ class Study extends TemplateEntity {
 		// remove all samplingEvents from this eventGroup
 		eventGroup.samplingEvents.findAll{}.each() {
 			eventGroup.removeFromSamplingEvents(it)
+			println ".removed samplingEvent '${it.name}' from eventGroup '${eventGroup.name}'"
 			msg += ", samplingEvent '${it.name}' was removed from eventGroup '${eventGroup.name}'"
 		}
 
 		// remove all subject from this eventGroup
 		eventGroup.subjects.findAll{}.each() {
 			eventGroup.removeFromSubjects(it)
+			println ".removed subject '${it.name}' from eventGroup '${eventGroup.name}'"
 			msg += ", subject '${it.name}' was removed from eventGroup '${eventGroup.name}'"
 		}
 
 		// remove the eventGroup from the study
+		println ".remove eventGroup '${eventGroup.name}' from study '{$this.name}'"
 		this.removeFromEventGroups(eventGroup)
 
 		return msg
