@@ -620,7 +620,6 @@
                     </g:if>
                     <td>${assay.name}</td>
                     <td>${assay.module.name}</td>
-                    <td>${assay.module.type}</td>
                     <td>${assay.module.platform}</td>
                     <td>${assay.module.url}</td>
                     <td>
