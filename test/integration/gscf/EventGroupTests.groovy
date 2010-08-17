@@ -72,7 +72,8 @@ class EventGroupTests extends StudyTests {
 
 	}
 
-	void testDelete() {
+	// This test is switched off, as event groups should be deleted via study.deleteEventGroup() and not directly
+	void dontTestDelete() {
 		def groupDB = EventGroup.findByName(testEventGroupName)
 		assert groupDB
 
