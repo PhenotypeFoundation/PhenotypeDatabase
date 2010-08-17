@@ -8,9 +8,6 @@ class AssayModule extends Identity {
 	/** The name of the module, for user-reference purposes  */
 	String name
 
-	/** The type of the module */
-	AssayType type
-
 	/** A descriptive string describing the 'platform' of the assay data in the module */
 	String platform
 

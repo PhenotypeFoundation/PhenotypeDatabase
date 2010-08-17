@@ -446,7 +446,6 @@ class BootStrapStudies {
 		// Add SAM assay references
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
-			type: AssayType.SIMPLE_ASSAY,
 			platform: 'clinical measurements',
 			url: 'http://localhost:8182/sam'
 		).with { if (!validate()) { errors.each { println it} } else save()}
