@@ -317,6 +317,8 @@ class Study extends TemplateEntity {
 					println ".removing sample '${it.name}' from study '${this.title}'"
 					msg += ", sample '${it.name}' was deleted"
 					this.removeFromSamples( it )
+					// Also here, contrary to documentation, an extra delete() is needed
+					it.delete()
 				}
 			}
 
@@ -341,6 +343,8 @@ class Study extends TemplateEntity {
 		// remove the eventGroup from the study
 		println ".remove eventGroup '${eventGroup.name}' from study '${this.title}'"
 		this.removeFromEventGroups(eventGroup)
+		// Also here, contrary to documentation, an extra delete() is needed
+		eventGroup.delete()
 
 		return msg
 	}

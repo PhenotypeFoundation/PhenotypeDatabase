@@ -59,9 +59,6 @@ class SampleTests extends StudyTests {
 			sampleTemplate: sampleTemplate
 		)
 
-		if (!samplingEvent.validate()) {
-			samplingEvent.errors.each { println it}
-		}
 		// The SamplingEvent should not validate at this point because it doesn't have a parent study
 		assert !samplingEvent.validate()
 
@@ -222,6 +219,9 @@ class SampleTests extends StudyTests {
 		    name: testEventGroupName
 		)
 		study.addToEventGroups(group)
+		assert group.validate()
+
+
 		group.addToSubjects(subject)
 		group.addToSamplingEvents(event)
 		assert study.eventGroups.find { it.name == group.name}
