@@ -24,13 +24,13 @@
 		<br/><i>Note that depending on the size of your browser window and the template, additional fields can be reached by the slider at the bottom of the page.</i>		
 	</span>
 
-	<wizard:textFieldElement name="addNumber" description="Number of subjects to add" error="addNumber" value="${values.addNumber}" size="4" maxlength="4">
+	<wizard:textFieldElement name="addNumber" description="Number of subjects to add" error="addNumber" value="${values?.addNumber}" size="4" maxlength="4">
 		The number of subjects to add to your study
 	</wizard:textFieldElement>
-	<wizard:termElement name="species" description="of species" value="${values.species}" ontologies="1132" addDummy="true">
+	<wizard:termElement name="species" description="of species" value="${values?.species}" ontologies="1132" addDummy="true">
 		The species of the subjects you would like to add to your study
 	</wizard:termElement>
-	<wizard:templateElement name="template" description="with template" value="${values.template}" error="template" entity="${dbnp.studycapturing.Subject}" ontologies="1132" addDummy="true">
+	<wizard:templateElement name="template" description="with template" value="${values?.template}" error="template" entity="${dbnp.studycapturing.Subject}" ontologies="1132" addDummy="true">
 		The template to use for these subjects
 	</wizard:templateElement>
 	<wizard:ajaxButtonElement name="add" value="Add" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()">

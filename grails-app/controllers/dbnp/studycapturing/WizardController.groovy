@@ -79,8 +79,10 @@ class WizardController {
 				[title: 'Study'],				// study
 				[title: 'Subjects'],			// subjects
 				[title: 'Events'],				// events and event grouping
-				[title: 'Groups'],				// groups
+				//[title: 'Event Groups'],		// groups
 				[title: 'Samples'],				// samples
+				[title: 'Assays'],				// assays
+				//[title: 'Assay Groups'],		// assays
 				[title: 'Confirmation'],		// confirmation page
 				[title: 'Done']					// finish page
 			]
@@ -456,7 +458,7 @@ class WizardController {
 		groups {
 			render(view: "_groups")
 			onRender {
-				flow.page = 5
+				flow.page = 4
 				success()
 			}
 			on("previous") {
@@ -477,7 +479,7 @@ class WizardController {
 		samplePrevious {
 			render(view: "_samples_previous_warning")
 			onRender {
-				flow.page = 6
+				flow.page = 5
 
 				// TEMPORARY FIX TO REMOVE ALL SAMPLES AND REGENERATE THEM
 				// THEN USER BROWSED BACK
@@ -500,7 +502,7 @@ class WizardController {
 		samples {
 			render(view: "_samples")
 			onRender {
-				flow.page = 6
+				flow.page = 5
 
 				// got samples?
 				if (!flow.study.samples) {
@@ -596,11 +598,33 @@ class WizardController {
 			on("next") {
 				// handle form data
 				samplePage(flow, flash, params) ? success() : error()
-			}.to "confirm"
+			}.to "assays"
 			on("quickSave") {
 				// handle form data
 				samplePage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
+		}
+
+		assays {
+			render(view: "_assays")
+			onRender {
+				flow.page = 6
+			}
+			on("previous") {
+			}.to "samples"
+			on("next") {
+			}.to "assayGroups"
+		}
+
+		assayGroups {
+			render(view: "_assay_groups")
+			onRender {
+				flow.page = 6
+			}
+			on("previous") {
+			}.to "assays"
+			on("next") {
+			}.to "confirm"
 		}
 
 		// confirmation
