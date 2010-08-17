@@ -30,6 +30,8 @@ abstract class TemplateEntity extends Identity {
 	Map templateDateFields		= [:]
 	Map templateBooleanFields	= [:]
 	Map templateTemplateFields	= [:]
+	Map templateModuleFields	= [:]
+	Map templateLongFields		= [:]
 
 	// N.B. If you try to set Long.MIN_VALUE for a reltime field, an error will occur
 	// However, this will never occur in practice: this value represents 3 bilion centuries
@@ -39,19 +41,21 @@ abstract class TemplateEntity extends Identity {
 
 	// define relationships
 	static hasMany = [
-		templateStringFields: String,
-		templateTextFields: String,
+		templateStringFields	: String,
+		templateTextFields		: String,
 		templateStringListFields: TemplateFieldListItem,
-		templateIntegerFields: int,
-		templateFloatFields: float,
-		templateDoubleFields: double,
-		templateDateFields: Date,
-		templateTermFields: Term,
-		templateRelTimeFields: long,
-		templateFileFields: String,
-		templateBooleanFields: boolean,
-		templateTemplateFields: Template,
-		systemFields: TemplateField
+		templateIntegerFields	: int,
+		templateFloatFields		: float,
+		templateDoubleFields	: double,
+		templateDateFields		: Date,
+		templateTermFields		: Term,
+		templateRelTimeFields	: long,
+		templateFileFields		: String,
+		templateBooleanFields	: boolean,
+		templateTemplateFields	: Template,
+		templateModuleFields	: AssayModule,
+		templateLongFields		: long,
+		systemFields			: TemplateField
 	]
 
 	static mapping = {
@@ -313,13 +317,23 @@ abstract class TemplateEntity extends Identity {
 			// got an error, or not?
 			return (!error)
 		})
+		templateBooleanFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value) {
+					fields[key] = true;
+				} else {
+					fields[key] = false;
+				}
+			}
+			return (!error)
+		})
 		templateTemplateFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
 				if (value && value.class != Template) {
 					try {
 						fields[key] = (value as Template)
-
 					} catch (Exception e) {
 						error = true
 						errors.rejectValue(
@@ -333,13 +347,40 @@ abstract class TemplateEntity extends Identity {
 			}
 			return (!error)
 		})
-		templateBooleanFields(validator: { fields, obj, errors ->
+		templateModuleFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value) {
-					fields[key] = true;
-				} else {
-					fields[key] = false;
+				if (value && value.class != AssayModule) {
+					try {
+						fields[key] = (value as AssayModule)
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateModuleFields',
+							'templateEntity.typeMismatch.module',
+							[key, value.class] as Object[],
+							'Property {0} must be of type AssayModule and is currently of type {1}'
+						)
+					}
+				}
+			}
+			return (!error)
+		})
+		templateLongFields(validator: { fields, obj, errors ->
+			def error = false
+			fields.each { key, value ->
+				if (value && value.class != Long) {
+					try {
+						fields[key] = Long.parseLong(value.trim())
+					} catch (Exception e) {
+						error = true
+						errors.rejectValue(
+							'templateLongFields',
+							'templateEntity.typeMismatch.long',
+							[key, value.class] as Object[],
+							'Property {0} must be of type Long and is currently of type {1}'
+						)
+					}
 				}
 			}
 			return (!error)
@@ -379,6 +420,10 @@ abstract class TemplateEntity extends Identity {
 				return templateBooleanFields
 			case TemplateFieldType.TEMPLATE:
 				return templateTemplateFields
+			case TemplateFieldType.MODULE:
+				return templateModuleFields
+			case TemplateFieldType.LONG:
+				return templateLongFields
 			default:
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}
@@ -582,9 +627,20 @@ abstract class TemplateEntity extends Identity {
 			}
 		}
 
-		// Magic setter for template fields
+		// Magic setter for TEMPLATE fields
 		if (field.type == TemplateFieldType.TEMPLATE && value && value.class == String) {
 			value = Template.findByName(value)
+		}
+
+		// Magic setter for MODULE fields
+		if (field.type == TemplateFieldType.MODULE && value && value.class == String) {
+			value = AssayModule.findByName(value)
+		}
+
+		// Magic setter for LONG fields
+		if (field.type == TemplateFieldType.LONG && value && value.class == String) {
+			// TODO, check for invalids?
+			value = Long.parseLong(value.trim())
 		}
 
 		// Set the field value
@@ -599,7 +655,7 @@ abstract class TemplateEntity extends Identity {
 				// remove value. For numbers, this is done by setting
 				// the value to 0, otherwise, setting it to NULL
 				switch (field.type.toString()) {
-					case ['INTEGER', 'FLOAT', 'DOUBLE', 'RELTIME']:
+					case ['INTEGER', 'FLOAT', 'DOUBLE', 'RELTIME', 'LONG']:
 						this[field.name] = 0;
 						break;
 					case [ 'BOOLEAN' ]:

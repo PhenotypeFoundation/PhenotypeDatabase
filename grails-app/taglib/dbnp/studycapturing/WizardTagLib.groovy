@@ -901,7 +901,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 				}
 
 				switch (it.type.toString()) {
-					case ['STRING', 'INTEGER', 'FLOAT', 'DOUBLE']:
+					case ['STRING', 'INTEGER', 'FLOAT', 'DOUBLE', 'LONG']:
 						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
 						out << "$inputElement"(
 							description: ucName,
@@ -1036,6 +1036,16 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 							entity: it.entity,
 							value: fieldValue
 						){helpText}
+						break
+					case ['MODULE']:
+						inputElement = (renderType == 'element') ? 'selectElement' : 'select'
+						out << "$inputElement"(
+							description: ucName,
+							name: prependName + it.escapedName(),
+							from: AssayModule.findAll(),
+							value: fieldValue
+						){helpText}
+					break
 						break
 					default:
 						// unsupported field type

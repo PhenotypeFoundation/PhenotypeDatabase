@@ -5,19 +5,39 @@ package dbnp.studycapturing
  * The actual data of these measurements are described in submodules of dbNP. The type property describes in which module
  * this data can be found.
  */
-class Assay extends Identity {
-
-	/** The name of the assay, which should indicate the measurements represented in this assay to the user. */
+class Assay extends TemplateEntity {
+	// The name of the assay, which should indicate the measurements represented in this assay to the user.
 	String name
 
-	/** The dbNP module in which the assay omics data can be found. */
+	// The dbNP module in which the assay omics data can be found. */
 	AssayModule module
 
-	/**
-		The assay ID which is used in the dbNP submodule which contains the actual omics data of this assay.
-		This ID is generated in GSCF, but is used in the submodules to refer to this particular Assay.
-	 */
+	// The assay ID which is used in the dbNP submodule which contains the actual omics data of this assay.
+	// This ID is generated in GSCF, but is used in the submodules to refer to this particular Assay.
 	long externalAssayID
+
+	/**
+	 * return the domain fields for this domain class
+	 * @return List
+	 */
+	static List<TemplateField> giveDomainFields() { return Assay.domainFields }
+	static List<TemplateField> domainFields = [
+		new TemplateField(
+			name: 'name',
+			type: TemplateFieldType.STRING,
+			preferredIdentifier: true,
+			required: true
+		),
+		new TemplateField(
+			name: 'module',
+			type: TemplateFieldType.MODULE
+
+		),
+		new TemplateField(
+			name: 'externalAssayID',
+			type: TemplateFieldType.LONG
+		)
+	]
 
 	// An Assay always belongs to one study.
 	static belongsTo = [parent: Study]

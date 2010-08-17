@@ -610,10 +610,51 @@ class WizardController {
 			onRender {
 				flow.page = 6
 			}
+			on("refresh") {
+				// handle form data
+				assayPage(flow, flash, params)
+
+				// force refresh of the template
+				if (flow.assay && flow.assay.template && flow.assay.template instanceof Template) {
+					flow.assay.template.refresh()
+				}
+
+				// reset errors
+				flash.errors = [:]
+				success()
+			}.to "assays"
+            on("switchTemplate") {
+				// handle form data
+				assayPage(flow, flash, params)
+
+				// find assay template
+				def template = Template.findByName( params.get('template') )
+
+				if (flow.assay) {
+					// set template
+					flow.assay.template = template
+				} else {
+					// create a new assay instance
+					flow.assay = new Assay(template: template)
+				}
+
+				// reset errors
+				flash.errors = [:]
+				success()
+			}.to "assays"
 			on("previous") {
+				// handle form data
+				assayPage(flow, flash, params)
+
+				// ignore errors
+				flash.errors = [:]
+
+				success()
 			}.to "samples"
 			on("next") {
-			}.to "assayGroups"
+				// handle form data
+				assayPage(flow, flash, params) ? success() : error()
+			}.to "assays"
 		}
 
 		assayGroups {
@@ -622,8 +663,17 @@ class WizardController {
 				flow.page = 6
 			}
 			on("previous") {
+				// handle form data
+				assayGroupPage(flow, flash, params)
+
+				// ignore errors
+				flash.errors = [:]
+
+				success()
 			}.to "assays"
 			on("next") {
+				// handle form data
+				assayGroupPage(flow, flash, params) ? success() : error()
 			}.to "confirm"
 		}
 
@@ -1160,6 +1210,53 @@ class WizardController {
 				println 'error-> sample_'+sample.getIdentifier()
 			}
 		}
+
+		return !errors
+	}
+
+	/**
+	 * Handle the wizard assays page
+	 *
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def assayPage(flow, flash, params) {
+		def errors = false
+		flash.errors = [:]
+
+		// remember the params in the flash scope
+		flash.values = params
+
+		// handle the 'add assay' form
+		if (flow.assay) {
+			flow.assay.giveFields().each() { field ->
+				// set field
+				flow.assay.setFieldValue(
+					field.name,
+					params.get(field.escapedName())
+				)
+			}
+		}
+
+		return !errors
+	}
+
+	/**
+	 * Handle the wizard assayGroups page
+	 *
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean
+	 */
+	def assayGroupPage(flow, flash, params) {
+		def errors = false
+		flash.errors = [:]
+
+		// remember the params in the flash scope
+		flash.values = params
 
 		return !errors
 	}

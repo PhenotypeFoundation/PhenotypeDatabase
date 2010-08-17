@@ -1,6 +1,6 @@
 <%
 /**
- * Template Editor TEMPLATE template (to keep it simple)
+ * Template Editor MODULE template
  *
  * @author	Jeroen Wesbeek
  * @since	20100817
@@ -13,4 +13,4 @@
  * $Date$
  */
 %>
-Template field
+Module

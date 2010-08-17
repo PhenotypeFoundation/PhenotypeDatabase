@@ -2,24 +2,27 @@ package dbnp.studycapturing
 
 /**
  * Enum describing the type of a TemplateField.
+ *
  * Revision information:
  * $Rev$
  * $Author$
  * $Date$
  */
 public enum TemplateFieldType implements Serializable {
-	STRING('String'),
-	TEXT('Long string'),
-	INTEGER('Integer number'),
-	FLOAT('Floating-point number'),
-	DOUBLE('Double precision floating-point number'),
-	STRINGLIST('List of items'),
-	ONTOLOGYTERM('Ontology Reference'),
-	DATE('Date'),
-	RELTIME('Relative time'), // relative date, e.g. days since start of study
-	FILE('File'),
-	BOOLEAN('Boolean'),
-	TEMPLATE('Template')
+	STRING('String'),									// string
+	TEXT('Long string'),								// text
+	INTEGER('Integer number'),							// integer
+	FLOAT('Floating-point number'),						// float
+	DOUBLE('Double precision floating-point number'),	// double
+	STRINGLIST('List of items'),						// string list
+	ONTOLOGYTERM('Ontology Reference'),					// ontology reference
+	DATE('Date'),										// date
+	RELTIME('Relative time'),							// relative date, e.g. days since start of study
+	FILE('File'),										// file
+	BOOLEAN('Boolean'),									// boolean
+	TEMPLATE('Template'),								// template
+	MODULE('Module'),									// third party connected module,
+	LONG('Long number')									// long
     // TODO: add a timezone-aware date type to use for study start date
 
     String name
@@ -29,7 +32,7 @@ public enum TemplateFieldType implements Serializable {
 	}
 
 	static list() {
-		[STRING, TEXT, INTEGER, FLOAT, DOUBLE, STRINGLIST, ONTOLOGYTERM, DATE, RELTIME, FILE, BOOLEAN, TEMPLATE]
+		[STRING, TEXT, INTEGER, FLOAT, DOUBLE, STRINGLIST, ONTOLOGYTERM, DATE, RELTIME, FILE, BOOLEAN, TEMPLATE, MODULE, LONG]
 	}
 
 	def getDefaultValue() {
@@ -53,9 +56,13 @@ public enum TemplateFieldType implements Serializable {
 			case FILE:
 				return ""
 			case BOOLEAN:
-				return false;
+				return false
 			case TEMPLATE:
-				return null;
+				return null
+			case MODULE:
+				return null
+			case LONG:
+				return Long.MIN_VALUE
 			default:
 				throw new NoSuchFieldException("Field type ${fieldType} not recognized")
 		}
