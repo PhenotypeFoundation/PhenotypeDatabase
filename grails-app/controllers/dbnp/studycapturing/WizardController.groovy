@@ -317,7 +317,7 @@ class WizardController {
 				// change template and/or instance?
 				if (!flow.event || (flow.event instanceof Event && type == "sample") || (flow.event instanceof SamplingEvent && type == "event")) {
 					// create new instance
-					flow.event = (type == "event") ? new Event(template: template, parent: flow.study) : new SamplingEvent(template: template, parent: flow.study)
+					flow.event = (type == "event") ? new Event(template: template) : new SamplingEvent(template: template)
 				} else {
 					flow.event.template = template
 				}
@@ -350,21 +350,29 @@ class WizardController {
 				// reset errors
 				flash.errors = [:]
 
+				// add event to study
+				if (flow.event instanceof SamplingEvent) {
+					flow.study.addToSamplingEvents( flow.event )
+				} else {
+					flow.study.addToEvents( flow.event )
+				}
+
 				// validate event
 				if (flow.event.validate()) {
-					// validates properly
-					if (flow.event instanceof SamplingEvent) {
-						flow.study.addToSamplingEvents( flow.event )
-					} else {
-						flow.study.addToEvents( flow.event )
-					}
-
 					// remove event from the flowscope
 					flow.remove('event')
 					
 					success()
 				} else {
 					// event does not validate
+					// remove from study
+					if (flow.event instanceof SamplingEvent) {
+						flow.study.removeFromSamplingEvents( flow.event )
+					} else {
+						flow.study.removeFromEvents( flow.event )
+					}
+
+					// append errors
 					this.appendErrors(flow.event, flash.errors)
 					error()
 				}
@@ -405,8 +413,7 @@ class WizardController {
 				// add a new eventGroup
 				flow.study.addToEventGroups(
 					new EventGroup(
-						name	: groupName,
-						parent	: flow.study
+						name	: groupName
 					)
 				)
 
@@ -526,7 +533,6 @@ class WizardController {
 								// instantiate a sample
 								flow.study.addToSamples(
 									new Sample(
-										parent: flow.study,
 										parentSubject: subject,
 										parentEvent: samplingEvent,
 										name: sampleName,
@@ -630,7 +636,7 @@ class WizardController {
 				try {
 					// save study
 					println ".saving study"
-					if (!flow.study.save()) {
+					if (!flow.study.save(flush:true)) {
 						this.appendErrors(flow.study, flash.errors)
 						throw new Exception('error saving study')
 					}
@@ -944,17 +950,20 @@ class WizardController {
 				def subject = new Subject(
 					name		: subjectName,
 					species		: species,
-					template	: template,
-					parent		: flow.study
+					template	: template
 				)
+
+				// add it to the study
+				flow.study.addToSubjects( subject )
 
 				// validate subject
 				if (subject.validate()) {
-					// add it to the study
-					flow.study.addToSubjects( subject )
 					println ".added subject "+subject
 				} else {
 					// whoops?
+					flow.study.removeFromSubjects( subject )
+
+					// append errors
 					this.appendErrors(subject, flash.errors)
 					errors = true
 				}

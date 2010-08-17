@@ -248,6 +248,7 @@ class Study extends TemplateEntity {
 		// Remove event from the study
 		// This should remove the event group itself too, because of the cascading belongsTo relation
 		this.removeFromSamplingEvents(samplingEvent)
+
 		// But apparently it needs an explicit delete() too
 		// (Which can be verified by outcommenting this line, then SampleTests.testDeleteViaParentSamplingEvent fails
 		samplingEvent.delete()
@@ -261,21 +262,6 @@ class Study extends TemplateEntity {
 	 * @return String
 	 */
 	String deleteEventGroup(EventGroup eventGroup) {
-		// TODO THIS DOESNT WORK!!!!
-		println "-"
-		println "-"
-		println "-"
-		println "-"
-		println "-"
-		println "REMOVING AN EVENTGROUP DOES NOT DELETE SAMPLES"
-		println "-"
-		println "-"
-		println "-"
-		println "-"
-		println "-"
-
-
-
 		String msg = "EventGroup ${eventGroup} was deleted"
 
 		// If the event group contains sampling events
@@ -317,7 +303,9 @@ class Study extends TemplateEntity {
 					println ".removing sample '${it.name}' from study '${this.title}'"
 					msg += ", sample '${it.name}' was deleted"
 					this.removeFromSamples( it )
+
 					// Also here, contrary to documentation, an extra delete() is needed
+					// otherwise date is not properly deleted!
 					it.delete()
 				}
 			}
@@ -343,7 +331,9 @@ class Study extends TemplateEntity {
 		// remove the eventGroup from the study
 		println ".remove eventGroup '${eventGroup.name}' from study '${this.title}'"
 		this.removeFromEventGroups(eventGroup)
+
 		// Also here, contrary to documentation, an extra delete() is needed
+		// otherwise cascaded deletes are not properly performed
 		eventGroup.delete()
 
 		return msg
