@@ -37,7 +37,30 @@ class BootStrap {
 
 			// If in development mode and no studies are present, add example studies
 			if (Study.count() == 0 && grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
-				BootStrapStudies.addExampleStudies()
+				// check if special file is present in project directory
+				if ((new File(System.properties['user.dir']+"/.skip-studies").exists())) {
+					// yes it is, skip study bootstrapping
+					println ".skipping study bootstrapping"
+
+					// get species ontology
+					def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
+
+					// add terms
+					def mouseTerm = new Term(
+						name: 'Mus musculus',
+						ontology: speciesOntology,
+						accession: '10090'
+					).with { if (!validate()) { errors.each { println it} } else save()}
+
+					def humanTerm = new Term(
+						name: 'Homo sapiens',
+						ontology: speciesOntology,
+						accession: '9606'
+					).with { if (!validate()) { errors.each { println it} } else save()}
+				} else {
+					// general study boostrapping
+					BootStrapStudies.addExampleStudies()
+				}
 			}
 
 			println "Finished adding templates and studies"
