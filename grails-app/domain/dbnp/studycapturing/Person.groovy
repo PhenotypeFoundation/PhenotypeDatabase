@@ -4,6 +4,11 @@ package dbnp.studycapturing
  * The Person class represents a person who is related to one ore more studies, such as a PI, a lab analyst etc.
  * Those people do not neccessarily have an account in GSCF, the Study/Persons/Affiliations administration
  * is independent of GSCF usernames and accounts.
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 class Person extends Identity {
 	String title

@@ -2,6 +2,11 @@ package dbnp.studycapturing
 
 /**
  * Link table which couples studies with persons and the role they have within the study
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 class StudyPerson extends Identity {
 

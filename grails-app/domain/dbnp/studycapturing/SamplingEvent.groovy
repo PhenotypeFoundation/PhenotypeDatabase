@@ -6,6 +6,11 @@ package dbnp.studycapturing
  * NOTE: according to Grails documentation, super classes and subclasses share the same table.
  *       thus, we could merge the sampling with the Event super class and include a boolean
  *       However, using a separate class makes it more clear in the code that Event and SamplingEvent are treated differently
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 class SamplingEvent extends TemplateEntity {
 	// A SamplingEvent always belongs to one study.

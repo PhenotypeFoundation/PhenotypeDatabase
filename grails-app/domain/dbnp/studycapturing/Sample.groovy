@@ -4,6 +4,11 @@ import dbnp.data.Term
 
 /**
  * The Sample class describes an actual sample which results from a SamplingEvent.
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 class Sample extends TemplateEntity {
 	// uncommented due to searchable issue

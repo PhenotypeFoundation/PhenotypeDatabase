@@ -5,6 +5,11 @@ package dbnp.studycapturing
  * Publication entries should be created using the study wizard, which connects to PubMed to fill in the fields.
  * Since a Publication can apply to multiple studies, the entries in this table form an independent 'library'
  * and are not connected to Study instances via a cascading relation.
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 class Publication extends Identity {
 	String title
