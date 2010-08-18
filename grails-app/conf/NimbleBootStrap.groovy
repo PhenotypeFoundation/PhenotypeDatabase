@@ -41,6 +41,8 @@ class NimbleBootStrap {
 
   def init = {servletContext ->
 
+	println "Executing Nimble bootstrap..."
+
     // The following must be executed
     internalBootStap(servletContext)
 
@@ -91,6 +93,9 @@ class NimbleBootStrap {
 
 		adminsService.add(admin)
 	}
+
+	println "Done with Nimble bootstrap"
+
   }
 
   def destroy = {
