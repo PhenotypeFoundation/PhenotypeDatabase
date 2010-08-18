@@ -654,7 +654,7 @@ class WizardController {
 			on("next") {
 				// handle form data
 				assayPage(flow, flash, params) ? success() : error()
-			}.to "assays"
+			}.to "assayGroups"
 		}
 
 		assayGroups {
