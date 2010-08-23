@@ -14,7 +14,7 @@ class Assay extends TemplateEntity {
 
 	// The assay ID which is used in the dbNP submodule which contains the actual omics data of this assay.
 	// This ID is generated in GSCF, but is used in the submodules to refer to this particular Assay.
-	long externalAssayID
+	String externalAssayID
 
 	/**
 	 * return the domain fields for this domain class

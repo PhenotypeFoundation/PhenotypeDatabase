@@ -124,8 +124,7 @@ class RestController {
 	def getSamples = {
 		def items = []
 		if( params.externalAssayID ) {
-			def id = Long.parseLong(params.externalAssayID)
- 			def assay = Assay.find( "from Assay as a where externalAssayID=?",[id])
+ 			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.externalAssayID])
 			assay.getSamples().each { sample ->
 				def item = [ 
 					'name'		      : sample.name,

@@ -455,7 +455,7 @@ class BootStrapStudies {
 		def lipidAssayRef = new Assay(
 			name: 'Lipid profiling',
 			module: clinicalModule,
-			externalAssayID: 1
+			externalAssayID: 'PPS3_SAM'
 		)
 
 		mouseStudy.samples*.each {
@@ -472,13 +472,13 @@ class BootStrapStudies {
 		def  glucoseAssay2Ref = new Assay(
 			name: 'Glucose assay 2',
 			module: clinicalModule,
-			externalAssayID: 2
+			externalAssayID: 'PPSH-2'
 		)
 
 		def  glucoseAssay3Ref = new Assay(
 			name: 'Glucose assay 3',
 			module: clinicalModule,
-			externalAssayID: 3
+			externalAssayID: 'PPSH-3'
 		)
 
 		humanStudy.samples*.each {
@@ -490,7 +490,7 @@ class BootStrapStudies {
 		humanStudy.addToAssays(glucoseAssay2Ref)
 		humanStudy.addToAssays(glucoseAssay3Ref)
 		humanStudy.save()
-		println "Saving"
+		
 		//glucoseAssay2Ref.with { if (!validate()) { errors.each { println it} } else save()}
 		//glucoseAssay3Ref.with { if (!validate()) { errors.each { println it} } else save()}
 
