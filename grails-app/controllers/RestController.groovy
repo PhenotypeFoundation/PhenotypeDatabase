@@ -15,12 +15,10 @@
  *
  */
 
-import data.*
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Assay
 import grails.converters.*
-import org.codehaus.groovy.grails.web.json.*
-
+import nl.metabolomicscentre.dsp.http.BasicAuthentication
 
 
 class RestController {
@@ -31,16 +29,28 @@ class RestController {
       /** Rest resources for Simple Assay Module (SAM) **/
      /**************************************************/
 
+	def authService
 	def beforeInterceptor = [action:this.&auth]
 	def credentials
+	def requestUser
 // defined as a regular method so its private
 
+	/**
+	 * Authorization closure, which is run before executing any of the REST resource actions
+	 * It fetches a username/password combination from basic HTTP authentication and checks whether
+	 * that is an active (nimble) account
+	 * @return
+	 */
 	def auth() {
-	    credentials = nl.metabolomicscentre.dsp.http.BasicAuthentication.credentialsFromRequest(request)
-		if(false) {
+	    credentials = BasicAuthentication.credentialsFromRequest(request)
+		requestUser = authService.authUser(credentials.u,credentials.p)
+		if(!requestUser) {
 		    response.sendError(403)
 	        return false
 	    }
+		else {
+			return true
+		}
 	}
 
 
@@ -54,7 +64,7 @@ class RestController {
 	*/
 	def getStudies = {
 		List studies = [] 
-		Study.list().each { study ->
+		Study.findAllByOwner(requestUser).each { study ->
 			studies.push( [ 'externalStudyID': study.code, 'name':study.title ] )
 		}
  		render studies as JSON 
@@ -92,10 +102,8 @@ class RestController {
 	def getAssays = {
 		List assays = [] 
 		if( params.externalStudyID ) {
-			println params.moduleURL
- 			def study = Study.find( "from Study as s where s.code=?", [params.externalStudyID])
+ 			def study = Study.find( "from Study as s where s.owner=? and s.code=?", [requestUser.getId(), params.externalStudyID])
 			if(study) study.assays.each{ assay ->
-				println assay.module.url
 				if (assay.module.url.equals(params.moduleURL)) {
 			        def map = ['name':assay.name, 'externalAssayID':assay.externalAssayID]
 					assays.push( map )
