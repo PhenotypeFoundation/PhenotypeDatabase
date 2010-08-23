@@ -102,8 +102,8 @@ class RestController {
 	def getAssays = {
 		List assays = [] 
 		if( params.externalStudyID ) {
- 			def study = Study.find( "from Study as s where s.owner=? and s.code=?", [requestUser.getId(), params.externalStudyID])
-			if(study) study.assays.each{ assay ->
+ 			def study = Study.find( "from Study as s where s.code=?", [params.externalStudyID])
+			if(study && study.owner == requestUser) study.assays.each{ assay ->
 				if (assay.module.url.equals(params.moduleURL)) {
 			        def map = ['name':assay.name, 'externalAssayID':assay.externalAssayID]
 					assays.push( map )

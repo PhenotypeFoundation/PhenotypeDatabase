@@ -9,8 +9,9 @@ class User extends grails.plugins.nimble.core.UserBase implements Serializable {
 		return username;
 	}
 
-	long getId() {
-		return id;
+	long giveId() {
+		//Long val = this.id;
+		return (long)ident();
 	}
 
 }
