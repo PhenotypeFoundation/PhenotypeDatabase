@@ -48,7 +48,9 @@ class NimbleBootStrap {
 
     // Execute any custom Nimble related BootStrap for your application below
 
-	if (dbnp.user.User.count() == 0) {
+	println "Adding example user..."
+
+	if (0 && dbnp.user.User.count() == 0) {
 
 		// Create example User account
 		def user = InstanceGenerator.user()
@@ -69,6 +71,8 @@ class NimbleBootStrap {
 		  }
 		  throw new RuntimeException("Error creating example user")
 		}
+
+		println "Adding example admin user..."
 
 		// Create example Administrative account
 		def admins = Role.findByName(AdminsService.ADMIN_ROLE)

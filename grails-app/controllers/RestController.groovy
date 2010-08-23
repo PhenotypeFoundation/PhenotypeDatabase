@@ -30,15 +30,25 @@ class RestController {
        /**************************************************/
       /** Rest resources for Simple Assay Module (SAM) **/
      /**************************************************/
-    
+
+	def beforeInterceptor = [action:this.&auth]
+	def credentials
+// defined as a regular method so its private
+
+	def auth() {
+	    credentials = nl.metabolomicscentre.dsp.http.BasicAuthentication.credentialsFromRequest(request)
+		if(false) {
+		    response.sendError(403)
+	        return false
+	    }
+	}
+
 
 
 	/**
 	* REST resource for the Simple Assay Module.
 	* Provide a list of all studies. 
 	*
-	*
-	* Examlpe call of the getAssays REST resource: http://localhost:8080/gscf/rest/getAssays/json?externalStudyID=1
 	*
 	* @return as JSON object list of members externalStudyID, and title for all studies
 	*/
@@ -73,16 +83,23 @@ class RestController {
 	* REST resource for the Simple Assay Module.
 	* Provide a list of all assays for a given study
 	*
-	* @param  externalStudyID 
-	* @return list of assays as JSON object 
+	* Example call of the getAssays REST resource: http://localhost:8080/gscf/rest/getAssays?externalStudyID=PPSH&moduleURL=http://localhost:8182/sam
+	*
+	* @param externalStudyID The external study id (code) of the target GSCF Study object
+	* @param moduleURL The base URL of the calling dbNP module
+	* @return list of assays in the study as JSON object, filtered to only contain assays for the specified module
 	*/
 	def getAssays = {
 		List assays = [] 
 		if( params.externalStudyID ) {
+			println params.moduleURL
  			def study = Study.find( "from Study as s where s.code=?", [params.externalStudyID])
-			if(study) study.assays.each{ assay -> 
-			    def map = ['name':assay.name, 'externalAssayID':assay.externalAssayID]
-				assays.push( map )
+			if(study) study.assays.each{ assay ->
+				println assay.module.url
+				if (assay.module.url.equals(params.moduleURL)) {
+			        def map = ['name':assay.name, 'externalAssayID':assay.externalAssayID]
+					assays.push( map )
+				}
 			}
  		}
 		render assays as JSON 
