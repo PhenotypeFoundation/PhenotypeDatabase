@@ -18,7 +18,7 @@ class BootStrapStudies {
 	 * Add example studies. This function is meant to be called only in development mode
 	 */
 
-	public static void addExampleStudies() {
+	public static void addExampleStudies(dbnp.user.User owner) {
 
 		// Look up the used ontologies which should be in the database by now
 		def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
@@ -167,6 +167,7 @@ class BootStrapStudies {
 			researchQuestion:"Leptin etc.",
 			ecCode:"2007117.c",
 			startDate: Date.parse('yyyy-MM-dd','2008-01-02'),
+			owner: owner
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		mouseStudy.setFieldValue('Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet.");// After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
@@ -373,6 +374,7 @@ class BootStrapStudies {
 			description:"Human study",
 			ecCode:"unknown",
 			startDate: Date.parse('yyyy-MM-dd','2008-01-14'),
+			owner: owner
 		)
 		.setFieldValue( 'Description', "Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U." )
 		.with { if (!validate()) { errors.each { println it} } else save()}

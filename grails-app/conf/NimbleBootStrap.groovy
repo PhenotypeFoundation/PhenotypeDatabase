@@ -16,14 +16,6 @@
  */
  
 
-import grails.plugins.nimble.InstanceGenerator
-
-import grails.plugins.nimble.core.LevelPermission
-import grails.plugins.nimble.core.Role
-import grails.plugins.nimble.core.Group
-import grails.plugins.nimble.core.AdminsService
-import grails.plugins.nimble.core.UserService
-
 /*
  * Allows applications using Nimble to undertake process at BootStrap that are related to Nimbe provided objects
  * such as Users, Role, Groups, Permissions etc.
@@ -33,80 +25,12 @@ import grails.plugins.nimble.core.UserService
  */
 class NimbleBootStrap {
 
-  def grailsApplication
-  
-  def nimbleService
-  def userService
-  def adminsService
 
-  def init = {servletContext ->
-
-	println "Executing Nimble bootstrap..."
-
-    // The following must be executed
-    internalBootStap(servletContext)
-
-    // Execute any custom Nimble related BootStrap for your application below
-
-	println "Adding example user..."
-
-	if (0 && dbnp.user.User.count() == 0) {
-
-		// Create example User account
-		def user = InstanceGenerator.user()
-		user.username = "user"
-		user.pass = 'useR123!'
-		user.passConfirm = 'useR123!'
-		user.enabled = true
-
-		def userProfile = InstanceGenerator.profile()
-		userProfile.fullName = "Test User"
-		userProfile.owner = user
-		user.profile = userProfile
-
-		def savedUser = userService.createUser(user)
-		if (savedUser.hasErrors()) {
-		  savedUser.errors.each {
-			log.error(it)
-		  }
-		  throw new RuntimeException("Error creating example user")
-		}
-
-		println "Adding example admin user..."
-
-		// Create example Administrative account
-		def admins = Role.findByName(AdminsService.ADMIN_ROLE)
-		def admin = InstanceGenerator.user()
-		admin.username = "admin"
-		admin.pass = "admiN123!"
-		admin.passConfirm = "admiN123!"
-		admin.enabled = true
-
-		def adminProfile = InstanceGenerator.profile()
-		adminProfile.fullName = "Administrator"
-		adminProfile.owner = admin
-		admin.profile = adminProfile
-
-		def savedAdmin = userService.createUser(admin)
-		if (savedAdmin.hasErrors()) {
-		  savedAdmin.errors.each {
-			log.error(it)
-		  }
-		  throw new RuntimeException("Error creating administrator")
-		}
-
-		adminsService.add(admin)
-	}
-
-	println "Done with Nimble bootstrap"
-
+  def init = { servletContext ->
+	  // Skipping the normal Nimble (plugin) bootstrap initialization because we already called it earlier
   }
 
   def destroy = {
-
   }
 
-  private internalBootStap(def servletContext) {
-    nimbleService.init()
-  }
 } 

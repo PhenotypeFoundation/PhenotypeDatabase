@@ -272,6 +272,19 @@
                 </td>
               </g:each>
             </tr>
+			  <tr>
+				<td>Owner</td>
+				<g:each in="${studyList}" var="studyInstance">
+				  <td>
+					<g:if test="${studyInstance.owner}">
+						<g:link controller="user" action="show" id="${studyInstance.owner.id}">${studyInstance.owner?.encodeAsHTML()}</g:link>
+					</g:if>
+					<g:else>
+					 -
+					</g:else>
+				  </td>
+				</g:each>
+			  </tr>
             <tr>
               <td>Readers</td>
               <g:each in="${studyList}" var="studyInstance">
