@@ -615,9 +615,8 @@
                   </g:if>
                   <th width="100">Assay Name</th>
                   <th width="100">Module</th>
-                  <th>Type</th>
                   <th width="150">Platform</th>
-                  <th>Url</th>
+                  <th>Link</th>
                   <th>Samples</th>
                 </tr>
               </thead>
@@ -634,7 +633,7 @@
                     <td>${assay.name}</td>
                     <td>${assay.module.name}</td>
                     <td>${assay.module.platform}</td>
-                    <td>${assay.module.url}</td>
+                    <td><a href="${dbnp.rest.common.CommunicationManager.getAssayShowURL(assay.externalAssayID)}">view</a></td>
                     <td>
                       <% sortedAssaySamples = assay.samples.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
                       ${sortedAssaySamples.name.join( ', ' )}

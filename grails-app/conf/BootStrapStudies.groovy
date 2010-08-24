@@ -387,15 +387,21 @@ class BootStrapStudies {
 			template: fastingTreatmentTemplate)
 		.setFieldValue('Fasting period','8h');
 
+		def bloodSamplingEventBefore = new SamplingEvent(
+			startTime: 0,
+			template: bloodSamplingEventTemplate,
+			sampleTemplate: humanBloodSampleTemplate)
+		.setFieldValue('Sample volume',4.5F);
 
-		def bloodSamplingEvent = new SamplingEvent(
+		def bloodSamplingEventAfter = new SamplingEvent(
 			startTime: 3 * 24 * 3600 + 30 * 3600,
 			template: bloodSamplingEventTemplate,
 			sampleTemplate: humanBloodSampleTemplate)
 		.setFieldValue('Sample volume',4.5F);
 
 		rootGroup.addToEvents fastingEvent
-		rootGroup.addToSamplingEvents bloodSamplingEvent
+		rootGroup.addToSamplingEvents bloodSamplingEventBefore
+		rootGroup.addToSamplingEvents bloodSamplingEventAfter
 		rootGroup.save()
 
 		def y = 1
@@ -423,7 +429,19 @@ class BootStrapStudies {
 				material: bloodTerm,
 				template: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
-				parentEvent: bloodSamplingEvent
+				parentEvent: bloodSamplingEventBefore
+			);
+
+			humanStudy.addToSamples(currentSample)
+			currentSample.with { if (!validate()) { errors.each { println it} } else save()}
+			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
+
+			currentSample = new Sample(
+				name: currentSubject.name + '_A',
+				material: bloodTerm,
+				template: humanBloodSampleTemplate,
+				parentSubject: currentSubject,
+				parentEvent: bloodSamplingEventAfter
 			);
 
 			humanStudy.addToSamples(currentSample)
@@ -432,7 +450,8 @@ class BootStrapStudies {
 		}
 
 		humanStudy.addToEvents(fastingEvent)
-		humanStudy.addToSamplingEvents(bloodSamplingEvent)
+		humanStudy.addToSamplingEvents(bloodSamplingEventBefore)
+		humanStudy.addToSamplingEvents(bloodSamplingEventAfter)
 		humanStudy.addToEventGroups rootGroup
 
 		println ".adding persons and saving PPSH study..."
@@ -445,11 +464,18 @@ class BootStrapStudies {
 
 		println ".adding assay references to mouse example study..."
 
-		// Add SAM assay references
+		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
 			platform: 'clinical measurements',
 			url: 'http://localhost:8182/sam'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		// Add metabolomics assay reference
+		def metabolomicsModule = new AssayModule(
+			name: 'Metabolomics module',
+			platform: 'GCMS/LCMS',
+			url: 'http://localhost:8080/nmcdsp'
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		def lipidAssayRef = new Assay(
@@ -458,41 +484,63 @@ class BootStrapStudies {
 			externalAssayID: 'PPS3_SAM'
 		)
 
+		def metAssayRef = new Assay(
+			name: 'Lipidomics profile',
+			module: metabolomicsModule,
+			externalAssayID: 'PPS3_Lipidomics'
+		)
+
 		mouseStudy.samples*.each {
 			lipidAssayRef.addToSamples(it)
+			metAssayRef.addToSamples(it)
 		}
 
 		mouseStudy.addToAssays(lipidAssayRef);
-		mouseStudy.save()
-
-		//lipidAssayRef.with { if (!validate()) { errors.each { println it} } else save()}
+		mouseStudy.addToAssays(metAssayRef);
+		mouseStudy.save(flush:true)
 
 		println ".adding assay references to human example study..."
 
-		def  glucoseAssay2Ref = new Assay(
-			name: 'Glucose assay 2',
+		def  glucoseAssayBRef = new Assay(
+			name: 'Glucose assay before',
 			module: clinicalModule,
-			externalAssayID: 'PPSH-2'
+			externalAssayID: 'PPSH-Glu-B'
 		)
 
-		def  glucoseAssay3Ref = new Assay(
-			name: 'Glucose assay 3',
+		def  glucoseAssayARef = new Assay(
+			name: 'Glucose assay after',
 			module: clinicalModule,
-			externalAssayID: 'PPSH-3'
+			externalAssayID: 'PPSH-Glu-A'
 		)
 
+		def metAssayRefB = new Assay(
+			name: 'Lipidomics profile before',
+			module: metabolomicsModule,
+			externalAssayID: 'PPSH_Lipidomics_start'
+		)
+
+		def metAssayRefA = new Assay(
+			name: 'Lipidomics profile after',
+			module: metabolomicsModule,
+			externalAssayID: 'PPSH_Lipidomics_end'
+		)
 		humanStudy.samples*.each {
-			glucoseAssay2Ref.addToSamples(it)
-			glucoseAssay3Ref.addToSamples(it)
+			if (it.parentEvent.startTime == 0) {
+				glucoseAssayBRef.addToSamples(it)
+				metAssayRefB.addToSamples(it)
+			}
+			else {
+				glucoseAssayARef.addToSamples(it)
+				metAssayRefA.addToSamples(it)
+			}
 		}
 
 
-		humanStudy.addToAssays(glucoseAssay2Ref)
-		humanStudy.addToAssays(glucoseAssay3Ref)
-		humanStudy.save()
-		
-		//glucoseAssay2Ref.with { if (!validate()) { errors.each { println it} } else save()}
-		//glucoseAssay3Ref.with { if (!validate()) { errors.each { println it} } else save()}
+		humanStudy.addToAssays(glucoseAssayARef)
+		humanStudy.addToAssays(glucoseAssayBRef)
+		humanStudy.addToAssays(metAssayRefA)
+		humanStudy.addToAssays(metAssayRefB)
+		humanStudy.save(flush:true)
 
 	}
 

@@ -172,7 +172,7 @@ class CommunicationManager {
 
 		// register method that links to the SAM view for showing a SimpleAssay 
         // parameters: externalAssayID
-		addViewWrapper( 'getAssayShowURL', url, 'simpleAssay/show', ['externalAssayID'] )
+		addViewWrapper( 'getAssayShowURL', url, 'simpleAssay/showByExternalID', ['externalAssayID'] )
 
    		// register method that links to the SAM view for editing a SimpleAssay 
         // parameters: externalAssayID

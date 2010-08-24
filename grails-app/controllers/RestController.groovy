@@ -30,10 +30,9 @@ class RestController {
      /**************************************************/
 
 	def authService
-	def beforeInterceptor = [action:this.&auth]
+	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
 	def credentials
 	def requestUser
-// defined as a regular method so its private
 
 	/**
 	 * Authorization closure, which is run before executing any of the REST resource actions
@@ -41,7 +40,7 @@ class RestController {
 	 * that is an active (nimble) account
 	 * @return
 	 */
-	def auth() {
+	private def auth() {
 	    credentials = BasicAuthentication.credentialsFromRequest(request)
 		requestUser = authService.authUser(credentials.u,credentials.p)
 		if(!requestUser) {
@@ -53,14 +52,31 @@ class RestController {
 		}
 	}
 
-
+	/**
+	* REST resource for data modules.
+	* Username and password should be supplied via HTTP Basic Authentication.
+	* Determines whether the given user/password combination is a valid GSCF account.
+	*
+	* @return bool True when user/password is a valid GSCF account, false otherwise.
+	*/
+	def isUser= {
+		boolean isUser
+		def reqUser = authService.authUser(credentials.u,credentials.p)
+		if (reqUser) {
+			isUser = true
+		}
+		else {
+			isUser = false
+		}
+		render isUser as JSON
+	}
 
 	/**
-	* REST resource for the Simple Assay Module.
-	* Provide a list of all studies. 
+	* REST resource for data modules.
+	* Username and password should be supplied via HTTP Basic Authentication.
+	* Provide a list of all studies owned by the supplied user.
 	*
-	*
-	* @return as JSON object list of members externalStudyID, and title for all studies
+	* @return JSON object list containing 'externalStudyID', and 'name' (title) for each study
 	*/
 	def getStudies = {
 		List studies = [] 
@@ -72,11 +88,12 @@ class RestController {
 
 
 	/**
-	* REST resource for the Simple Assay Module.
-	* Provide a list of all subjects belonging to a study. 
+	* REST resource for data modules.
+	* Username and password should be supplied via HTTP Basic Authentication.
+	* Provide a list of all subjects belonging to a study.
 	*
-	* @param  externalStudyID
-	* @return as JSON object list of subject names 
+	* @param externalStudyID String The external study id (code) of the target GSCF Study object
+	* @return JSON object list of subject names
 	*/
 	def getSubjects = {
 		List subjects = [] 
@@ -90,14 +107,15 @@ class RestController {
 
 
 	/**
-	* REST resource for the Simple Assay Module.
+	* REST resource for data modules.
+	* Username and password should be supplied via HTTP Basic Authentication.
 	* Provide a list of all assays for a given study
 	*
 	* Example call of the getAssays REST resource: http://localhost:8080/gscf/rest/getAssays?externalStudyID=PPSH&moduleURL=http://localhost:8182/sam
 	*
-	* @param externalStudyID The external study id (code) of the target GSCF Study object
-	* @param moduleURL The base URL of the calling dbNP module
-	* @return list of assays in the study as JSON object, filtered to only contain assays for the specified module
+	* @param externalStudyID String The external study id (code) of the target GSCF Study object
+	* @param moduleURL String The base URL of the calling dbNP module
+	* @return list of assays in the study as JSON object list, filtered to only contain assays for the specified module, with 'externalAssayID' and 'name' for each assay
 	*/
 	def getAssays = {
 		List assays = [] 
@@ -115,11 +133,17 @@ class RestController {
 
 
 	/**
-	* REST resource for the Simple Assay Module.
-	* Provide all samples of a given Assay. The result is an enriched list with additional informatin on a sample. 
+	* REST resource for data modules.
+	* Username and password should be supplied via HTTP Basic Authentication.
+	* Provide all samples of a given Assay. The result is an enriched list with additional information for each sample.
 	*
-	* @param  assayID (externalAssayID of some Assay in GSCF)
-	* @return list of element of  Sample.name x Sample.material x Sample.subject.name x Sample.Event.name x Sample.Event.time
+	* @param externalAssayID String (externalAssayID of some Assay in GSCF)
+	* @return As a JSON object list, for each sample in that assay:
+	* @return 'name' (Sample name, which is unique)
+	* @return 'material' (Sample material)
+	* @return 'subject' (The name of the subject from which the sample was taken)
+	* @return 'event' (the name of the template of the SamplingEvent describing the sampling)
+	* @return 'startTime' (the time the sample was taken relative to the start of the study, as a string)
 	*/
 	def getSamples = {
 		def items = []
@@ -131,9 +155,8 @@ class RestController {
 					'material'	      : sample.material.name,
 					'subject'	      : sample.parentSubject.name,
 					'event'		      : sample.parentEvent.template.name,
-					'startTime'	      : sample.parentEvent.getStartTimeString(),
-					'externalSampleId': sample.externalSampleId
-				] 
+					'startTime'	      : sample.parentEvent.getStartTimeString()
+				]
 				items.push item 
 			}
  		}
@@ -141,198 +164,8 @@ class RestController {
 	}
 
 
-
-
-
-       /****************************/
-      /** Rest resources for DSP **/
-     /****************************/
-    
-	
-	/* still not complete!! */
-
-	/**
-	* REST resource for DSP.
-	* call: gscf/rest/isUser/?username=username&password=password
-	*
-	* @param  String username   
-	* @param  String password
-	* @return bool
-	*/
-	def isUser= {
-		def isUser = isVerifiedUser( params )
-		render isUser as JSON
-	}
-
-
-	/* still not complete!! */
-	/**
-	* REST resource for DSP.
-	* call: gscf/rest/listStudies/?username=username&password=password 
-	*
-	* @param  String username
-	* @param  String password
-	* @return list of studies 
-	*/
-	def listStudies = {
-
-		if( !isVerifiedUser( params ) ) {
-			render [:] as JSON
-			return
-		}
-
-		List studies = [] 
-
-		// add code for filtering studies that belong to given user 
-		// (use Study.findAll( ... )  
-		// ... 
-		Study.list().each { 
-			def map = ["study_token":it.code, "name":it.name]
-			studies.add( map )
-		}
-		
-		render studies as JSON
-	}
-
-
-
-	/* still not complete!! */
-	/**
-	* REST resource for DSP.
-	* call: gscf/rest/getStudy/?username=username&password=password&study_token=studytoken
-	*
-	* @param  String username
-	* @param  String password
-	* @param  String study_token 
-	* @return list of studies 
-	*/
-	def getStudy = {
-
-		if( !isVerifiedUser( params ) ) {
-			render [:] as JSON
-			return
-		}
-
-		List studyResult = [:] 
-		def code   = params.study_token
-
-		def query = "from Study as s where s.code = ?"
-		def study = Study.find( query, code )
-		studyResult = [ 'study_token' : study.code, 'name' : study.name ]
-			/*  still not complete!! 
-				Add features
-					... study_token:”GHyJeR#g”, 
-					... created: “20/06/2010 22:34:52”,
-					... meta: [
-					... greenhouse_id: “GH010938.AB.5”,
-					... greenhouse_type: “lean-to, detached, and ridge and gutter connected” ]
-			*/
-		
-		render studyResult as JSON
-	}
-
-
-
-
-	/* still not complete!! */
-	/**
-	* REST resource for DSP.
-	* call: gscf/rest/listStudySamples/?username=username&password=password&study_token=studytoken
-	*
-	* @param  String user name
-	* @param  String password 
-	* @param  String a valid GSCF Study.code
-	* @return List of pairs; each pair is a map with keys sample_token and name and values Study.code and Sample.name.
-	*/
-	def listStudySamples = {
-
-		if( !isVerifiedUser( params ) ) {
-			render [:] as JSON
-			return
-		}
-
-		List samples = [:] 
-		def code = params.study_token
-		def query = "from Samples as s where s.study = ?"
-		def study = Study.find( query, code )
-		if(study) study.samples.each { sample ->
-			def map = [ sample_token:code, name:sample.name ]
-			samples.add( map )
-		}
-		
-		render samples as JSON
-	}
-
-
-
-	/* still not complete!! */
-	/**
-	* REST resource for DSP.
-	* call: getStudySample/?username=me&password=123&study_token=GHyJeR#g&sample_name=”AHVJwR”)
-	*
-	* @param  String username
-	* @param  String password
-	* @param  String study_token 
-	* @param  String sample_name 
-	* @return list of studies 
-	*/
-	def getStudySample = {
-
-		if( !isVerifiedUser( params ) ) {
-			render [:] as JSON
-			return
-		}
-
-		List sample = [:] 
-		def code = params.study_token
-		def name = params.sample_name
-
-		def query = "from Sample as s where s.name = ? AND s.parentStudy "
-		def study = Sample.find( query, name )
-		sample = [ 'study_token' : sample.code, 'name' : sample.name ]
-		// samples will have unique identifier strings
-		/*  still not complete!! 
-				Add features
-				[ 
-					study_token:”GHyJeR#g”, 
-					sample_token:”AHVJwR”, 
-					name: “Sample SMPL002”,
-					created: “25/06/2010 09:14:32”,
-					meta: [ subject: “SUB000294-34942.A”, subject_bmi: “29.3”, ... study_token:”GHyJeR#g”, 
-					... created: “20/06/2010 22:34:52”, greenhouse_id: “GH010938.AB.5”,
-					greenhouse_type: “lean-to, detached, and ridge and gutter connected” 
-				]
-			*/
-		render sample as JSON
-	}
-
-
-
-
-	/* still not complete!! */
-	/** Convenience method for isUser and listStudies.
-	*   Verify user and password.
-	*   @param  params object with two map keys: (1) 'username', (2) 'password'
-	*   @param  String password
-	*   @return bool
-	*/
-	private isVerifiedUser( params ) {
-		def isVerified = false 
-		def user = params?.username
-		def pass = params?.password
-
-		if( user && pass ) {
-			// insert code for verification of user and 
-			// ... 
-			isVerified = true
- 		}
-		return isVerified
-	}
-
-
-
     /* this is just for testing! */
-    def test = {
+    /*def test = {
 		render( dbnp.rest.common.CommunicationManager.getQueryResultWithOperator("Insulin",">",200) )
-    }
+    }*/
 }
