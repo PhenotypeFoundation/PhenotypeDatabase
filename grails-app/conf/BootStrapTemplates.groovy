@@ -590,7 +590,7 @@ class BootStrapTemplates {
 		// plant sampling event template
 		println ".adding plant sampling event template"
 		def plantSamplingEventTemplate = new Template(
-			name: 'Plant-sample ',
+			name: 'Plant-sample',
 			description: 'plant sample ',
 			entity: dbnp.studycapturing.SamplingEvent,
 		    sampleTemplates: [plantSampleTemplate]
@@ -628,6 +628,47 @@ class BootStrapTemplates {
 		)
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
+
+		// assay templates
+
+		def assayDescriptionField = new TemplateField(
+				name: 'Description',
+			    comment: 'add general assay information here',
+				entity: Assay,
+				type: TemplateFieldType.STRING
+		);
+		assayDescriptionField.with { if (!validate()) { errors.each { println it} } else save()}
+
+		println ".adding clinical chemistry assay template"
+		def ccAssayTemplate = new Template(
+			name: 'Clinical chemistry assay',
+			description: 'Clinical chemistry assay stored in a SAM module',
+			entity: dbnp.studycapturing.Assay
+		)
+		.addToFields(assayDescriptionField)
+		.with { if (!validate()) { errors.each { println it} } else save()}
+
+		println ".adding metabolomics assay template"
+		def metAssayTemplate = new Template(
+			name: 'Metabolomics assay',
+			description: 'Metabolomics assay stored in a metabolomics module',
+			entity: dbnp.studycapturing.Assay
+		)
+		.addToFields(assayDescriptionField)
+		.addToFields(
+			new TemplateField(
+				name: 'Spectrometry technique',
+			    comment: 'Select the used metabolomics technique',
+				entity: Assay,
+				type: TemplateFieldType.STRINGLIST,
+			    listEntries: [
+					new TemplateFieldListItem(name: 'GC/MS'),
+			        new TemplateFieldListItem(name: 'LC/MS'),
+			        new TemplateFieldListItem(name: 'NMR'),
+			        new TemplateFieldListItem(name: 'HPLC')
+			    ])
+		)
+		.with { if (!validate()) { errors.each { println it} } else save()}
 	}
 
 }

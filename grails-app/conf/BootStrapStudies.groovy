@@ -37,7 +37,8 @@ class BootStrapStudies {
 		def bloodSamplingEventTemplate = Template.findByName("Blood extraction")
 		def humanTissueSampleTemplate = Template.findByName("Human tissue sample")
 		def humanBloodSampleTemplate = Template.findByName("Human blood sample")
-		
+		def ccAssayTemplate = Template.findByName("Clinical chemistry assay")
+		def metAssayTemplate = Template.findByName("Metabolomics assay")
 
 		// Add terms manually, to avoid having to do many HTTP requests to the BioPortal website
 		println ".adding terms"
@@ -480,15 +481,18 @@ class BootStrapStudies {
 
 		def lipidAssayRef = new Assay(
 			name: 'Lipid profiling',
+			template: ccAssayTemplate,
 			module: clinicalModule,
 			externalAssayID: 'PPS3_SAM'
 		)
 
 		def metAssayRef = new Assay(
 			name: 'Lipidomics profile',
+			template: metAssayTemplate,
 			module: metabolomicsModule,
 			externalAssayID: 'PPS3_Lipidomics'
 		)
+		.setFieldValue('Spectrometry technique','LC/MS')
 
 		mouseStudy.samples*.each {
 			lipidAssayRef.addToSamples(it)
@@ -503,27 +507,34 @@ class BootStrapStudies {
 
 		def  glucoseAssayBRef = new Assay(
 			name: 'Glucose assay before',
+			template: ccAssayTemplate,
 			module: clinicalModule,
 			externalAssayID: 'PPSH-Glu-B'
 		)
 
 		def  glucoseAssayARef = new Assay(
 			name: 'Glucose assay after',
+			template: ccAssayTemplate,
 			module: clinicalModule,
 			externalAssayID: 'PPSH-Glu-A'
 		)
 
 		def metAssayRefB = new Assay(
 			name: 'Lipidomics profile before',
+			template: metAssayTemplate,
 			module: metabolomicsModule,
 			externalAssayID: 'PPSH_Lipidomics_start'
 		)
+		.setFieldValue('Spectrometry technique','GC/MS')
 
 		def metAssayRefA = new Assay(
 			name: 'Lipidomics profile after',
+			template: metAssayTemplate,
 			module: metabolomicsModule,
 			externalAssayID: 'PPSH_Lipidomics_end'
 		)
+		.setFieldValue('Spectrometry technique','GC/MS')
+
 		humanStudy.samples*.each {
 			if (it.parentEvent.startTime == 0) {
 				glucoseAssayBRef.addToSamples(it)
