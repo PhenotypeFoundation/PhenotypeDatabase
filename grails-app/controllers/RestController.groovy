@@ -61,6 +61,7 @@ class RestController {
 	*/
 	def isUser= {
 		boolean isUser
+		credentials = BasicAuthentication.credentialsFromRequest(request)
 		def reqUser = authService.authUser(credentials.u,credentials.p)
 		if (reqUser) {
 			isUser = true
