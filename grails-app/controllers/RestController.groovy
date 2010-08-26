@@ -57,7 +57,7 @@ class RestController {
 	* Username and password should be supplied via HTTP Basic Authentication.
 	* Determines whether the given user/password combination is a valid GSCF account.
 	*
-	* @return bool True when user/password is a valid GSCF account, false otherwise.
+	* @return bool {"authenticated":true} when user/password is a valid GSCF account, {"authenticated":false} otherwise.
 	*/
 	def isUser= {
 		boolean isUser
@@ -69,7 +69,8 @@ class RestController {
 		else {
 			isUser = false
 		}
-		render isUser as JSON
+		def reply = ['authenticated':isUser]
+		render reply as JSON
 	}
 
 	/**
