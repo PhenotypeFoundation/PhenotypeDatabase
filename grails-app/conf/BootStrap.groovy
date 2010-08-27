@@ -46,7 +46,6 @@ class BootStrap {
 		def user
 
 		if (dbnp.user.User.count() == 0) {
-
 			println "Adding example user..."
 
 			// Create example User account
@@ -101,12 +100,12 @@ class BootStrap {
 		println "Done with Nimble bootstrap"
 
 		// If there are no templates yet in the database
-		if (true || Template.count() == 0) {
+		if (Template.count() == 0) {
 			println "No templates in the current database.";
 
 			// If in development or test mode, add the ontologies manually to the database
 			// without contacting the BioPortal website, to avoid annoying hiccups when the server is busy
-			if (true || grails.util.GrailsUtil.environment != GrailsApplication.ENV_PRODUCTION) {
+			if (grails.util.GrailsUtil.environment != GrailsApplication.ENV_PRODUCTION) {
 				println "Adding ontology descriptors"
 				BootStrapTemplates.initTemplateOntologies()
 			}
@@ -115,7 +114,7 @@ class BootStrap {
 			BootStrapTemplates.initTemplates()
 
 			// If in development mode and no studies are present, add example studies
-			if (true || Study.count() == 0 && grails.util.GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION) {
+			if (Study.count() == 0 && grails.util.GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION) {
 				// check if special file is present in project directory
 				if ((new File(System.properties['user.dir']+"/.skip-studies").exists())) {
 					// yes it is, skip study bootstrapping
