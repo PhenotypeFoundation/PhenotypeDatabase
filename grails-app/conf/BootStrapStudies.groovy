@@ -169,10 +169,10 @@ class BootStrapStudies {
 			ecCode:"2007117.c",
 			startDate: Date.parse('yyyy-MM-dd','2008-01-02'),
 			owner: owner
-		).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		mouseStudy.setFieldValue('Description', "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet.");// After 1 week 10 mice that received a low fat diet were given an IP leptin challenge and 10 mice of the low-fat group received placebo injections. The same procedure was performed with mice that were fed the high-fat diet. After 4 weeks the procedure was repeated. In total 80 mice were culled." )
-		mouseStudy.save(flush:true)
+		mouseStudy.save()
 
 		def evLF = new Event(
 			startTime: 3600,
@@ -254,11 +254,11 @@ class BootStrapStudies {
 		.addToEvents(evBL4)
 		.addToSamplingEvents(evS)
 		.addToSamplingEvents(evS4)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Extra check if the SamplingEvents are saved correctly
-		evS.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
-		evS4.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		evS.with { if (!validate()) { errors.each { println it} } else save()}
+		evS4.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def LFBV1 = new EventGroup(name:"10% fat + vehicle for 1 week")
 		.addToEvents(evLF)
@@ -316,17 +316,17 @@ class BootStrapStudies {
 			// We have to save the subject first, otherwise the parentEvent property of the sample cannot be set
 			// (this is possibly a Grails or Hibernate bug)
 			mouseStudy.addToSubjects(currentSubject)
-			currentSubject.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+			currentSubject.with { if (!validate()) { errors.each { println it} } else save()}
 
 			// Add subject to appropriate EventGroup
-			if (x > 70) { HFBL4.addToSubjects(currentSubject).save(flush:true) }
-			else if (x > 60) { HFBV4.addToSubjects(currentSubject).save(flush:true) }
-			else if (x > 50) { LFBL4.addToSubjects(currentSubject).save(flush:true) }
-			else if (x > 40) { LFBV4.addToSubjects(currentSubject).save(flush:true) }
-			else if (x > 30) { HFBL1.addToSubjects(currentSubject).save(flush:true) }
-			else if (x > 20) { HFBV1.addToSubjects(currentSubject).save(flush:true) }
-			else if (x > 10) { LFBL1.addToSubjects(currentSubject).save(flush:true) }
-			else             { LFBV1.addToSubjects(currentSubject).save(flush:true) }
+			if (x > 70) { HFBL4.addToSubjects(currentSubject).save() }
+			else if (x > 60) { HFBV4.addToSubjects(currentSubject).save() }
+			else if (x > 50) { LFBL4.addToSubjects(currentSubject).save() }
+			else if (x > 40) { LFBV4.addToSubjects(currentSubject).save() }
+			else if (x > 30) { HFBL1.addToSubjects(currentSubject).save() }
+			else if (x > 20) { HFBV1.addToSubjects(currentSubject).save() }
+			else if (x > 10) { LFBL1.addToSubjects(currentSubject).save() }
+			else             { LFBV1.addToSubjects(currentSubject).save() }
 
 			// Create sample
 			def currentSample = new Sample(
@@ -337,7 +337,7 @@ class BootStrapStudies {
 				parentEvent: evS //x > 40 ? evS4 : evS
 			);
 			mouseStudy.addToSamples(currentSample)
-			currentSample.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+			currentSample.with { if (!validate()) { errors.each { println it} } else save()}
 			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
 		}
 
@@ -351,7 +351,7 @@ class BootStrapStudies {
 		.addToEventGroups(LFBL4)
 		.addToEventGroups(HFBV4)
 		.addToEventGroups(HFBL4)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add persons and publications to study
 		def studyperson1 = new StudyPerson( person: person1, role: role1 )
@@ -362,7 +362,7 @@ class BootStrapStudies {
 		.addToPersons( studyperson2 )
         .addToPublications( publication1 )
         .addToPublications( publication2 )
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add example human study
 		println ".adding NuGO PPSH example study..."
@@ -378,7 +378,7 @@ class BootStrapStudies {
 			owner: owner
 		)
 		.setFieldValue( 'Description', "Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U." )
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def rootGroup = new EventGroup(name: 'Root group');
 
@@ -403,7 +403,7 @@ class BootStrapStudies {
 		rootGroup.addToEvents fastingEvent
 		rootGroup.addToSamplingEvents bloodSamplingEventBefore
 		rootGroup.addToSamplingEvents bloodSamplingEventAfter
-		rootGroup.save(flush:true)
+		rootGroup.save()
 
 		def y = 1
 		11.times {
@@ -420,10 +420,10 @@ class BootStrapStudies {
 			.setFieldValue("BMI", 20 + Math.random() * 10F)
 
 			humanStudy.addToSubjects(currentSubject)
-			currentSubject.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+			currentSubject.with { if (!validate()) { errors.each { println it} } else save()}
 
 			rootGroup.addToSubjects currentSubject
-			rootGroup.save(flush:true)
+			rootGroup.save()
 
 			def currentSample = new Sample(
 				name: currentSubject.name + '_B',
@@ -434,7 +434,7 @@ class BootStrapStudies {
 			);
 
 			humanStudy.addToSamples(currentSample)
-			currentSample.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+			currentSample.with { if (!validate()) { errors.each { println it} } else save()}
 			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
 
 			currentSample = new Sample(
@@ -446,7 +446,7 @@ class BootStrapStudies {
 			);
 
 			humanStudy.addToSamples(currentSample)
-			currentSample.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+			currentSample.with { if (!validate()) { errors.each { println it} } else save()}
 			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
 		}
 
@@ -461,7 +461,7 @@ class BootStrapStudies {
 		humanStudy
 		.addToPersons( studyperson3 )
 		.addToPublications( publication2 )
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		println ".adding assay references to mouse example study..."
 
@@ -470,14 +470,14 @@ class BootStrapStudies {
 			name: 'SAM module for clinical data',
 			platform: 'clinical measurements',
 			url: 'http://sam.nmcdsp.org'
-		).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add metabolomics assay reference
 		def metabolomicsModule = new AssayModule(
 			name: 'Metabolomics module',
 			platform: 'GCMS/LCMS',
 			url: 'http://nmcdsp.nmcdsp.org'
-		).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		def lipidAssayRef = new Assay(
 			name: 'Lipid profiling',
@@ -501,7 +501,7 @@ class BootStrapStudies {
 
 		mouseStudy.addToAssays(lipidAssayRef);
 		mouseStudy.addToAssays(metAssayRef);
-		mouseStudy.save(flush:true)
+		mouseStudy.save()
 
 		println ".adding assay references to human example study..."
 
@@ -551,7 +551,7 @@ class BootStrapStudies {
 		humanStudy.addToAssays(glucoseAssayBRef)
 		humanStudy.addToAssays(metAssayRefA)
 		humanStudy.addToAssays(metAssayRefB)
-		humanStudy.save(flush:true)
+		humanStudy.save()
 
 	}
 
