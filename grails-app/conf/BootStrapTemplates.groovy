@@ -468,7 +468,7 @@ class BootStrapTemplates {
 			)
 		)
 		.addToFields(protocolField)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// boost treatment template
 		println ".adding boost treatment template"
