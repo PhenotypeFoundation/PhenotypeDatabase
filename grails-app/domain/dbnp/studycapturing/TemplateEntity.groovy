@@ -748,7 +748,7 @@ abstract class TemplateEntity extends Identity {
 	 * a template, also an empty set is returned.
 	 */
 	static Collection<Template> giveTemplates(Collection<TemplateEntity> entityCollection) {
-		def set = entityCollection*.template.unique();
+		def set = entityCollection*.template?.unique();
 
 		// If one or more entities does not have a template, the resulting
 		// set contains null. That is not what is meant.
