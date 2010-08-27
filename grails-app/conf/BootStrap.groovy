@@ -101,7 +101,7 @@ class BootStrap {
 		println "Done with Nimble bootstrap"
 
 		// If there are no templates yet in the database
-		if (Template.count() == 0) {
+		if (true || Template.count() == 0) {
 			println "No templates in the current database.";
 
 			// If in development or test mode, add the ontologies manually to the database
@@ -115,7 +115,7 @@ class BootStrap {
 			BootStrapTemplates.initTemplates()
 
 			// If in development mode and no studies are present, add example studies
-			if (Study.count() == 0 && grails.util.GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION) {
+			if (true || Study.count() == 0 && grails.util.GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION) {
 				// check if special file is present in project directory
 				if ((new File(System.properties['user.dir']+"/.skip-studies").exists())) {
 					// yes it is, skip study bootstrapping
