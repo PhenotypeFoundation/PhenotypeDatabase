@@ -492,7 +492,7 @@ class BootStrapTemplates {
 			)
 		)
 		.addToFields(protocolField)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// fasting treatment template
 		println ".adding fasting treatment template"
@@ -508,7 +508,7 @@ class BootStrapTemplates {
 				entity: Event
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// SamplingEvent templates
 		println ".adding sampling protocol template field"
@@ -518,7 +518,7 @@ class BootStrapTemplates {
 			type: TemplateFieldType.FILE,
 			comment: 'You can upload a protocol here which describes the procedure which was used when carrying out the sampling event'
 		)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// liver sampling event template
 		println ".adding liver sampling event template"
@@ -536,7 +536,7 @@ class BootStrapTemplates {
 				type: TemplateFieldType.FLOAT
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// blood sampling
 		println ".adding blood sampling event template"
@@ -554,7 +554,7 @@ class BootStrapTemplates {
 				type: TemplateFieldType.FLOAT
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// plant sample extraction event template
 		println ".adding plant sample extraction event template"
@@ -585,7 +585,7 @@ class BootStrapTemplates {
 				 ]
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// plant sampling event template
 		println ".adding plant sampling event template"
@@ -626,7 +626,7 @@ class BootStrapTemplates {
 				type: TemplateFieldType.STRING
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 
 		// assay templates
@@ -637,7 +637,7 @@ class BootStrapTemplates {
 				entity: Assay,
 				type: TemplateFieldType.STRING
 		);
-		assayDescriptionField.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
+		assayDescriptionField.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		println ".adding clinical chemistry assay template"
 		def ccAssayTemplate = new Template(
@@ -646,7 +646,7 @@ class BootStrapTemplates {
 			entity: dbnp.studycapturing.Assay
 		)
 		.addToFields(assayDescriptionField)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		println ".adding metabolomics assay template"
 		def metAssayTemplate = new Template(
@@ -668,7 +668,7 @@ class BootStrapTemplates {
 			        new TemplateFieldListItem(name: 'HPLC')
 			    ])
 		)
-		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 	}
 
 }
