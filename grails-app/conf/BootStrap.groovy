@@ -129,13 +129,13 @@ class BootStrap {
 						name: 'Mus musculus',
 						ontology: speciesOntology,
 						accession: '10090'
-					).with { if (!validate()) { errors.each { println it} } else save()}
+					).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 					def humanTerm = new Term(
 						name: 'Homo sapiens',
 						ontology: speciesOntology,
 						accession: '9606'
-					).with { if (!validate()) { errors.each { println it} } else save()}
+					).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 				} else {
 					// general study boostrapping
 					BootStrapStudies.addExampleStudies(user)

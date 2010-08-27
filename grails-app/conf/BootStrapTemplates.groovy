@@ -29,7 +29,7 @@ class BootStrapTemplates {
 			versionNumber: '1.2',
 			ncboId: '1132',
 			ncboVersionedId: '38802'
-		).with { if (!validate()) { errors.each { println it} } else save()}
+		).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// add Sample>material ontology
 		println ".adding BRENDA source material ontology"
@@ -40,7 +40,7 @@ class BootStrapTemplates {
 			versionNumber: '1.3',
 			ncboId: '1005',
 			ncboVersionedId: '40643'
-		).with { if (!validate()) { errors.each { println it} } else save()}
+		).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// add NCI ontology which is used in Mouse genotype template field
 		def nciOntology = new Ontology(
@@ -50,7 +50,7 @@ class BootStrapTemplates {
 			versionNumber: '10.01',
 			ncboId: '1032',
 			ncboVersionedId: '42693'
-		).with { if (!validate()) { errors.each { println it} } else save()}
+		).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// add CHEBI ontology which is used in Mouse genotype template field
 		def chebiOntology = new Ontology(
@@ -60,7 +60,7 @@ class BootStrapTemplates {
 			versionNumber: '1.68',
 			ncboId: '1007',
 			ncboVersionedId: '42878'
-		).with { if (!validate()) { errors.each { println it} } else save()}
+		).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 		
 	}
 
@@ -75,16 +75,16 @@ class BootStrapTemplates {
 		def genderField = new TemplateField(
 			name: 'Gender',type: TemplateFieldType.STRINGLIST, entity: Subject,
 			listEntries: [new TemplateFieldListItem(name:'Male'),new TemplateFieldListItem(name: 'Female'),new TemplateFieldListItem(name: 'Unknown')])
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		def ageField = new TemplateField(
 			name: 'Age',type: TemplateFieldType.INTEGER,entity: Subject,unit: 'years',comment: 'Either include age at the start of the study or date of birth (if known)')
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		def genotypeField = new TemplateField(
 			name: 'Genotype', type: TemplateFieldType.STRING,entity: Subject,
 			comment: 'If present, indicate the genetic variance of the subject (e.g., mutagenized populations,knock-out/in,transgene etc)')
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		 def genotypeTypeField = new TemplateField(
 			name: 'Genotype type',type: TemplateFieldType.STRINGLIST,entity: Subject,
@@ -93,18 +93,18 @@ class BootStrapTemplates {
 				new TemplateFieldListItem(name:'knock-out'),
 				new TemplateFieldListItem(name:'knock-in')],
 			comment: 'If a genotype was specified, please indicate here the type of the genotype')
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		def varietyField = new TemplateField(
 			name: 'Variety', type: TemplateFieldType.STRING,entity: Subject,
 			comment: 'taxonomic category consisting of members of a species that differ from others of the same species in minor but heritable characteristics')
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		def ecotypeField = new TemplateField(
 			name: 'Ecotype', type: TemplateFieldType.STRING,entity: Subject,
 			 comment: 'a type or subspecies of life that is especially well adapted to a certain environment'
 		)
-		 .with { if (!validate()) { errors.each { println it} } else save()}
+		 .with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 
 		// Nutritional study template
@@ -120,7 +120,7 @@ class BootStrapTemplates {
 		.addToFields(new TemplateField(name: 'Lab id',type: TemplateFieldType.STRING,entity: Study,comment:'In which lab was the study performed; indicate the roomnumber.'))
 		.addToFields(new TemplateField(name: 'Institute',type: TemplateFieldType.STRING,entity: Study,comment:'In which institute was the study performed; indicate the full address information (to be replaced by persons-affiliations?)'))
 		.addToFields(new TemplateField(name: 'Study protocol',type: TemplateFieldType.FILE,entity: Study,comment:'Optionally attach a file in which the protocol in the study is described'))
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// Mouse template
 		println ".adding mouse subject template..."
@@ -144,7 +144,7 @@ class BootStrapTemplates {
 			name: 'Litter size',type: TemplateFieldType.INTEGER,entity: Subject,comment:'If known, indicate the litter size of the litter from which the subject originates'))
 		.addToFields(new TemplateField(
 			name: 'Weight', type: TemplateFieldType.DOUBLE, unit: 'gram',entity: Subject,comment:'If known indicate the weight of the subject in grams at the start of the study'))
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// Human template
 		println ".adding human subject template..."
@@ -174,7 +174,7 @@ class BootStrapTemplates {
 			name: 'Heart rate',type: TemplateFieldType.FLOAT, unit: 'beats/min',entity: Subject, comment:'Indicate the heart rate at the start of in study in beats per minute'))
 		.addToFields(new TemplateField(
 			name: 'Run-in-food',type: TemplateFieldType.TEXT,entity: Subject, comment:'If defined, give a short description of the food used before the measurements'))
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		println ".adding sample remarks field"
 		def sampleRemarksField = new TemplateField(
@@ -182,7 +182,7 @@ class BootStrapTemplates {
 			type: TemplateFieldType.TEXT,
 		    entity: Sample
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		println ".adding sample vial textfield"
 		def sampleVialTextField = new TemplateField(
@@ -190,7 +190,7 @@ class BootStrapTemplates {
 			type: TemplateFieldType.STRING,
 		    entity: Sample
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// Human tissue sample template
 		println ".adding human sample template..."
@@ -208,7 +208,7 @@ class BootStrapTemplates {
 		        entity: Sample
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// Human blood sample template
 		println ".adding human sample template..."
@@ -226,7 +226,7 @@ class BootStrapTemplates {
 				entity: Sample
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		/*
 		def GrowthTreatmentTemplate = new Template(
@@ -241,7 +241,7 @@ class BootStrapTemplates {
 		.addToFields(new TemplateField(name: 'Temparature Night',type: TemplateFieldType.STRING))
 		.addToFields(new TemplateField(name: 'Light Intensity',type: TemplateFieldType.STRING))
 		.addToFields(new TemplateField(name: 'Harvest Delay',type: TemplateFieldType.STRING))
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 		 */
 
 		//Plant template
@@ -315,7 +315,7 @@ class BootStrapTemplates {
 			name: 'Harvest delay', entity: Subject, type: TemplateFieldType.TEXT))
 		.addToFields(new TemplateField(
 			name: 'Additional info', entity: Subject, type: TemplateFieldType.TEXT))
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		println ".adding open-field plant template..."
 		def FieldTemplate = new Template(
@@ -336,7 +336,7 @@ class BootStrapTemplates {
 			name: 'Growth protocol', entity: Subject, type: TemplateFieldType.TEXT))
 		.addToFields(new TemplateField(
 			name: 'Harvest delay', entity: Subject, type: TemplateFieldType.TEXT))
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		//Plant template
 		println ".adding chamber plant template..."
@@ -391,7 +391,7 @@ class BootStrapTemplates {
 			name: 'Growth protocol', type: TemplateFieldType.TEXT, entity: Subject))
 		.addToFields(new TemplateField(
 			name: 'Harvest delay', type: TemplateFieldType.TEXT, entity: Subject))
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		println ".adding plant sample template..."
 		def plantSampleTemplate = new Template(
@@ -400,7 +400,7 @@ class BootStrapTemplates {
 		)
 		.addToFields(sampleRemarksField)
 		.addToFields(sampleVialTextField)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		println ".adding material prep template"
 		def materialPrepTemplate = new Template(
@@ -440,7 +440,7 @@ class BootStrapTemplates {
 				entity: Event
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		def protocolField = new TemplateField(
 			name: 'Protocol',
@@ -448,7 +448,7 @@ class BootStrapTemplates {
 			entity: Event,
 			comment: 'You can upload a protocol here which describes the procedure which was used when carrying out the event'
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 
 		// diet treatment template
 		println ".adding diet treatement template"
@@ -492,7 +492,7 @@ class BootStrapTemplates {
 			)
 		)
 		.addToFields(protocolField)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
 
 		// fasting treatment template
 		println ".adding fasting treatment template"
@@ -508,7 +508,7 @@ class BootStrapTemplates {
 				entity: Event
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
 
 		// SamplingEvent templates
 		println ".adding sampling protocol template field"
@@ -518,7 +518,7 @@ class BootStrapTemplates {
 			type: TemplateFieldType.FILE,
 			comment: 'You can upload a protocol here which describes the procedure which was used when carrying out the sampling event'
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
 
 		// liver sampling event template
 		println ".adding liver sampling event template"
@@ -536,7 +536,7 @@ class BootStrapTemplates {
 				type: TemplateFieldType.FLOAT
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
 
 		// blood sampling
 		println ".adding blood sampling event template"
@@ -554,7 +554,7 @@ class BootStrapTemplates {
 				type: TemplateFieldType.FLOAT
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
 
 		// plant sample extraction event template
 		println ".adding plant sample extraction event template"
@@ -585,7 +585,7 @@ class BootStrapTemplates {
 				 ]
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
 
 		// plant sampling event template
 		println ".adding plant sampling event template"
@@ -626,7 +626,7 @@ class BootStrapTemplates {
 				type: TemplateFieldType.STRING
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
 
 
 		// assay templates
@@ -637,7 +637,7 @@ class BootStrapTemplates {
 				entity: Assay,
 				type: TemplateFieldType.STRING
 		);
-		assayDescriptionField.with { if (!validate()) { errors.each { println it} } else save()}
+		assayDescriptionField.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
 
 		println ".adding clinical chemistry assay template"
 		def ccAssayTemplate = new Template(
@@ -646,7 +646,7 @@ class BootStrapTemplates {
 			entity: dbnp.studycapturing.Assay
 		)
 		.addToFields(assayDescriptionField)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
 
 		println ".adding metabolomics assay template"
 		def metAssayTemplate = new Template(
@@ -668,7 +668,7 @@ class BootStrapTemplates {
 			        new TemplateFieldListItem(name: 'HPLC')
 			    ])
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)()}
 	}
 
 }
