@@ -106,7 +106,7 @@ class BootStrap {
 
 			// If in development or test mode, add the ontologies manually to the database
 			// without contacting the BioPortal website, to avoid annoying hiccups when the server is busy
-			if (grails.util.GrailsUtil.environment != GrailsApplication.ENV_PRODUCTION) {
+			if (true || grails.util.GrailsUtil.environment != GrailsApplication.ENV_PRODUCTION) {
 				println "Adding ontology descriptors"
 				BootStrapTemplates.initTemplateOntologies()
 			}
