@@ -226,8 +226,18 @@ class Study extends TemplateEntity {
 	 * @void
 	 */
 	def deleteAssay(Assay assay) {
-		// remove this assay from the study
-		this.removeFromAssays( assay )
+		if (assay && assay instanceof Assay) {
+			// iterate through linked samples
+			assay.samples.findAll { true }.each() { sample ->
+				assay.removeFromSamples(sample)
+			}
+
+			// remove this assay from the study
+			this.removeFromAssays(assay)
+
+			// and delete it explicitly
+			assay.delete()
+		}
 	}
 
 	/**

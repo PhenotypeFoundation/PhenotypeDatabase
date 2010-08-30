@@ -669,6 +669,8 @@ class WizardController {
 				}
 			}.to "assays"
 			on("deleteAssay") {
+				println params
+				
 				// handle form data
 				assayPage(flow, flash, params)
 
@@ -693,11 +695,28 @@ class WizardController {
 			on("next") {
 				// handle form data
 				assayPage(flow, flash, params) ? success() : error()
-			}.to "assayGroups"
+			}.to "assayNext"
 			on("quickSave") {
 				// handle form data
 				assayPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
+		}
+
+		// assayNext
+		assayNext {
+			action {
+				// have we got samples and assays?
+				if (flow.study.assays && flow.study.samples) {
+					// yes, go to the group page
+					toAssayGroups()
+				} else {
+					// no need to show the group page as
+					// there's nothing to group
+					toConfirm()
+				}
+			}
+			on("toAssayGroups").to "assayGroups"
+			on("toConfirm").to "confirm"
 		}
 
 		// assay grouping page
@@ -725,6 +744,23 @@ class WizardController {
 			}.to "waitForSave"
 		}
 
+		// confirm Previous
+		confirmPrevious {
+			action {
+				// have we got samples and assays?
+				if (flow.study.assays && flow.study.samples) {
+					// yes, go to the group page
+					toAssayGroups()
+				} else {
+					// no need to show the group page as
+					// there's nothing to group
+					toAssays()
+				}
+			}
+			on("toAssayGroups").to "assayGroups"
+			on("toAssays").to "assays"
+		}
+
 		// confirmation
 		confirm {
 			render(view: "_confirmation")
@@ -735,7 +771,10 @@ class WizardController {
 			on("toSubjects").to "subjects"
 			on("toEvents").to "events"
 			on("toGroups").to "groups"
-			on("previous").to "samples"
+			on("toSamples").to "samples"
+			on("toAssays").to "assays"
+			on("toAssayGroups").to "assayGroups"
+			on("previous").to "confirmPrevious"
 			on("next").to "waitForSave"
 			on("quickSave").to "waitForSave"
 		}
