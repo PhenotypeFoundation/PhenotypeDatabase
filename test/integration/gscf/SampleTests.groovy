@@ -290,6 +290,40 @@ class SampleTests extends StudyTests {
 
 	}
 
+	/**
+	 * Test whether it's indeed not possible to add two yet-to-be-saved samples with the same name to a yet-to-be-saved study
+	 */
+	void testSampleUniqueNameConstraintAtValidate() {
+		def sample = Sample.findByName(testSampleName)
+		assert sample
+
+		def study = sample.parent
+		assert study
+
+		def sample1 = new Sample(
+		    name: testSampleName + "-double",
+		    template: sample.template,
+		    parentEvent: sample.parentEvent
+		)
+
+		def sample2 = new Sample(
+			name: testSampleName + "-double",
+		    template: sample.template,
+		    parentEvent: sample.parentEvent
+		)
+
+		// Add the sample to the retrieved parent study
+		study.addToSamples(sample1)
+		study.addToSamples(sample2)
+
+		// At this point, the sample should not validate or save, because there is already a sample with that name in the study
+		assert !sample1.validate()
+		assert !sample1.save(flush:true)
+
+		assert !sample2.validate()
+		assert !sample2.save(flush:true)
+	}
+
 	void testFindViaSamplingEvent() {
 		// Try to retrieve the sampling event by using the time...
 		// (should be also the parent study but that's not yet implemented)
