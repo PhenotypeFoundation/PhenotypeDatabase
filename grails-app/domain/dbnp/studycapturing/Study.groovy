@@ -43,7 +43,7 @@ class Study extends TemplateEntity {
 
 	static constraints = {
 		owner(nullable: true, blank: true)
-		code(nullable:false, blank:true,unique:true) 
+		code(nullable:false, blank:true,unique:true)
 	}
 
 	static mapping = {
@@ -81,7 +81,7 @@ class Study extends TemplateEntity {
 	 * return the title of this study
 	 */
 	def String toString() {
-		return code + " - " + title
+		return title
 	}
 
 	/**
@@ -218,6 +218,16 @@ class Study extends TemplateEntity {
 		subject.delete()
 
 		return msg
+	}
+
+	/**
+	 * Delete an assay from the study
+	 * @param Assay
+	 * @void
+	 */
+	def deleteAssay(Assay assay) {
+		// remove this assay from the study
+		this.removeFromAssays( assay )
 	}
 
 	/**

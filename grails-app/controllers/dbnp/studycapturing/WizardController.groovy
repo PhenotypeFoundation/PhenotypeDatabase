@@ -668,6 +668,19 @@ class WizardController {
 					error()
 				}
 			}.to "assays"
+			on("deleteAssay") {
+				// handle form data
+				assayPage(flow, flash, params)
+
+				// reset errors
+				flash.errors = [:]
+
+				// find this assay
+				def assay = flow.study.assays.find { it.getIdentifier() == (params.get('do') as int) }
+
+				// perform delete
+				if (assay) flow.study.deleteAssay( assay )
+			}.to "assays"
 			on("previous") {
 				// handle form data
 				assayPage(flow, flash, params)
@@ -681,6 +694,10 @@ class WizardController {
 				// handle form data
 				assayPage(flow, flash, params) ? success() : error()
 			}.to "assayGroups"
+			on("quickSave") {
+				// handle form data
+				assayPage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
 		}
 
 		// assay grouping page
@@ -702,6 +719,10 @@ class WizardController {
 				// handle form data
 				assayGroupPage(flow, flash, params) ? success() : error()
 			}.to "confirm"
+			on("quickSave") {
+				// handle form data
+				assayGroupPage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
 		}
 
 		// confirmation
@@ -1301,6 +1322,22 @@ class WizardController {
 
 		// remember the params in the flash scope
 		flash.values = params
+
+		// iterate through samples
+		flow.study.samples.each() { sample ->
+			// iterate through assays
+			flow.study.assays.each() { assay ->
+				if (params.get( 'sample_' + sample.getIdentifier() + '_assay_' + assay.getIdentifier() )) {
+					println "add sample "+sample.getIdentifier()+" to assay "+assay.getIdentifier()
+					// add sample to assay
+					assay.addToSamples( sample )
+				} else {
+					// remove sample from assay
+					assay.removeFromSamples( sample )
+				}
+				println assay.samples
+			}
+		}
 
 		return !errors
 	}

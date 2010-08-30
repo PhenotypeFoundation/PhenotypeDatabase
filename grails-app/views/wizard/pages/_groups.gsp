@@ -63,11 +63,7 @@
 				<div class="column">${subject.name}</div>
 				<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 				<div class="column">
-					<g:if test="${eventGroup.subjects.find{ it == subject } }">
-						<input type="checkbox" name="subject_${subject.getIdentifier()}_group_${eventGroup.getIdentifier()}" checked="checked"/>
-					</g:if><g:else>
-						<input type="checkbox" name="subject_${subject.getIdentifier()}_group_${eventGroup.getIdentifier()}" />
-					</g:else>
+					<input type="checkbox" name="subject_${subject.getIdentifier()}_group_${eventGroup.getIdentifier()}"<g:if test="${eventGroup.subjects.find{ it == subject } }"> checked="checked"</g:if>/>
 				</div>
 				</g:each></g:if>
 			</div>
