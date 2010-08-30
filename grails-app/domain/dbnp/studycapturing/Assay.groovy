@@ -35,7 +35,7 @@ class Assay extends TemplateEntity {
 		),
 		new TemplateField(
 			name: 'externalAssayID',
-			type: TemplateFieldType.LONG
+			type: TemplateFieldType.STRING
 		)
 	]
 
