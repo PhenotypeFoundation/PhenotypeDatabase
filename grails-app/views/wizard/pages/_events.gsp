@@ -96,7 +96,7 @@
 				<div class="row">
 					<div class="firstColumn">${event.getIdentifier()}</div>
 					<div class="firstColumn">
-						<wizard:ajaxButton name="deleteEvent" src="../images/icons/famfamfam/delete.png" alt="delete this subject" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onWizardPage()"/>
+						<wizard:ajaxButton name="deleteEvent" src="../images/icons/famfamfam/delete.png" alt="delete this event" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onWizardPage()"/>
 					</div>
 					<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 					<div class="column">

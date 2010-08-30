@@ -605,6 +605,7 @@ class WizardController {
 			}.to "waitForSave"
 		}
 
+		// assays page
 		assays {
 			render(view: "_assays")
 			onRender {
@@ -642,6 +643,31 @@ class WizardController {
 				flash.errors = [:]
 				success()
 			}.to "assays"
+			on("add") {
+				// handle form data
+				assayPage(flow, flash, params)
+
+				// reset errors
+				flash.errors = [:]
+
+				// add assay to study
+				flow.study.addToAssays( flow.assay )
+
+				// validate assay
+				if (flow.assay.validate()) {
+					// remove assay from the flowscope
+					flow.remove('assay')
+					success()
+				} else {
+					// assay does not validate
+					// remove from study
+					flow.study.removeFromAssays( flow.assay )
+
+					// append errors
+					this.appendErrors(flow.assay, flash.errors)
+					error()
+				}
+			}.to "assays"
 			on("previous") {
 				// handle form data
 				assayPage(flow, flash, params)
@@ -657,6 +683,7 @@ class WizardController {
 			}.to "assayGroups"
 		}
 
+		// assay grouping page
 		assayGroups {
 			render(view: "_assay_groups")
 			onRender {
@@ -936,7 +963,7 @@ class WizardController {
 		}
 
 	}
-
+	                                         
 	/**
 	 * Handle the wizard subject page
 	 *
@@ -1125,7 +1152,7 @@ class WizardController {
 			event.giveFields().each() { field ->
 				event.setFieldValue(
 					field.name,
-					params.get( 'event_' + event.getIdentifier() + '_' + field.escapedName())
+					params.get( 'event_' + event.getIdentifier() + '_' + field.escapedName() )
 				)
 			}
 
@@ -1206,7 +1233,7 @@ class WizardController {
 			// validate sample
 			if (!sample.validate()) {
 				errors = true
-				this.appendErrors(sample, flash.errors)
+				this.appendErrors(sample, flash.errors, 'sample_' + sample.getIdentifier() + '_' )
 				println 'error-> sample_'+sample.getIdentifier()
 			}
 		}
@@ -1237,6 +1264,23 @@ class WizardController {
 					field.name,
 					params.get(field.escapedName())
 				)
+			}
+		}
+
+		// handle the assay data
+		flow.study.assays.each() { assay ->
+			// set data
+			assay.giveFields().each() { field ->
+				assay.setFieldValue(
+					field.name,
+					params.get( 'assay_' + assay.getIdentifier() + '_' + field.escapedName() )
+				)
+			}
+
+			// validate assay
+			if (!assay.validate()) {
+				errors = true
+				this.appendErrors(assay, flash.errors, 'assay_' + assay.getIdentifier() + '_')
 			}
 		}
 

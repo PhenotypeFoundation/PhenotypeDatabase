@@ -22,4 +22,16 @@ class EventGroup extends Identity {
 		// Ensure that the event group name is unique within the study
 		name(unique:['parent'])	
 	}
+
+	/**
+	 * Return all events and samplingEvents
+	 * @return ArrayList
+	 */
+	def ArrayList getAllEvents() {
+		return (
+			((events) ? events : [])
+			+
+			((samplingEvents) ? samplingEvents : [])
+		)
+	}
 }

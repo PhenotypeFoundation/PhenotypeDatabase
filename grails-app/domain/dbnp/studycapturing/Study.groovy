@@ -111,6 +111,22 @@ class Study extends TemplateEntity {
 	}
 
 	/**
+	 * Return all unique assay templates
+	 * @return Set
+	 */
+	Set<Template> giveAllAssayTemplates() {
+		TemplateEntity.giveTemplates(( (assays) ? assays : [] ))
+	}
+
+	/**
+	 * Return all assays for a particular template
+	 * @return ArrayList
+	 */
+	def ArrayList giveAssaysForTemplate(Template template) {
+		assays.findAll { it.template.equals(template) }
+	}
+
+	/**
 	 * Return the unique Event and SamplingEvent templates that are used in this study
 	 */
 	Set<Template> giveAllEventTemplates() {
