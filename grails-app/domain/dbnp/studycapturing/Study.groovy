@@ -81,7 +81,7 @@ class Study extends TemplateEntity {
 	 * return the title of this study
 	 */
 	def String toString() {
-		return title
+		return code + " - " + title
 	}
 
 	/**

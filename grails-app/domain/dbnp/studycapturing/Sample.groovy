@@ -61,6 +61,36 @@ class Sample extends TemplateEntity {
 		// Check if the externalSampleId (currently defined as name) is really unique within each parent study of this sample.
 		// This feature is tested by integration test SampleTests.testSampleUniqueNameConstraint
 		name(unique:['parent'])
+
+		// Same, but also when the other sample is not even in the database
+		// This feature is tested by integration test SampleTests.testSampleUniqueNameConstraintAtValidate
+		name(validator: { field, obj, errors ->
+			// 'obj' refers to the actual Sample object
+
+			// define a boolean
+			def error = false
+
+			if (obj.parent) {
+
+				// check if there is exactly one sample with this name in the study (this one)
+				if (obj.parent.samples.findAll{ it.name == obj.name}.size() > 1) {
+					error = true
+					errors.rejectValue(
+						'name',
+						'sample.UniqueNameViolation',
+						[obj.name, obj.parent] as Object[],
+						'Sample name {0} appears multiple times in study {1}'
+						)
+				}
+			}
+			else {
+				// if there is no parent study defined, fail immediately
+				error = true
+			}
+
+			// got an error, or not?
+			return (!error)
+		})
 	}
 
 	static getSamplesFor( event ) {
