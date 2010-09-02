@@ -468,7 +468,8 @@ class BootStrapTemplates {
 			)
 		)
 		.addToFields(protocolField)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		dietTreatmentTemplate.refresh()
 
 		// boost treatment template
 		println ".adding boost treatment template"
@@ -492,7 +493,8 @@ class BootStrapTemplates {
 			)
 		)
 		.addToFields(protocolField)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		boostTreatmentTemplate.refresh()
 
 		// fasting treatment template
 		println ".adding fasting treatment template"
@@ -536,7 +538,8 @@ class BootStrapTemplates {
 				type: TemplateFieldType.FLOAT
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		liverSamplingEventTemplate.refresh()
 
 		// blood sampling
 		println ".adding blood sampling event template"
@@ -554,7 +557,8 @@ class BootStrapTemplates {
 				type: TemplateFieldType.FLOAT
 			)
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		bloodSamplingEventTemplate.refresh()
 
 		// plant sample extraction event template
 		println ".adding plant sample extraction event template"
@@ -668,7 +672,8 @@ class BootStrapTemplates {
 			        new TemplateFieldListItem(name: 'HPLC')
 			    ])
 		)
-		.with { if (!validate()) { errors.each { println it} } else save()}
+		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+		metAssayTemplate.refresh()
 	}
 
 }
