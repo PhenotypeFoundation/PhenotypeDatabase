@@ -895,10 +895,6 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 				def helpText	= (it.comment && renderType == 'element') ? it.comment : ''
 				def ucName		= it.name[0].toUpperCase() + it.name.substring(1)
 
-				// check if this is a required property
-				println it.getProperties().constraints.required
-				println it.getProperties().constraints.required.getClass()
-
 				// output column opening element?
 				if (renderType == 'column') {
 					out << '<div class="' + attrs.get('class') + '">'
