@@ -79,22 +79,11 @@ class SamplingEvent extends TemplateEntity {
 		def that = this;
 		groups.each { eventgroup ->
 			if (!eventFound) {
-				eventFound = (that.id in eventgroup.events.id);
+				eventFound = (that.id in eventgroup.samplingEvents.id);
 			}
 		}
 
 		return eventFound;
-	}	
-
-	/**
-	 * Get all samples that have this sampling event as a parent
-	 * @return Map
- 	 */
-	def getSamples() {
-		def samples = Sample.findAll("from Sample as s where s.parentEvent.id = ${this.id}")
-		samples.collect { it.class == SamplingEvent.class }
-		samples.collect { it != null }
-		return samples == null ? [] : samples
 	}
 
 	def String toString() {
