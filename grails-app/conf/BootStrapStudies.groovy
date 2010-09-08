@@ -420,7 +420,8 @@ class BootStrapStudies {
 				template: humanTemplate
 			)
 			.setFieldValue("Gender", (Math.random() > 0.5) ? "Male" : "Female")
-			.setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19" + (10 + (int) (Math.random() * 80))))
+			//.setFieldValue("DOB", new java.text.SimpleDateFormat("dd-mm-yy").parse("01-02-19" + (10 + (int) (Math.random() * 80))))
+			.setFieldValue("DOB", new Date().parse("dd/mm/yyyy", ((10 + (int) Math.random() * 18) + "/0" + (1 + (int) (Math.random() * 8)) + "/19" + (10 + (int) (Math.random() * 80))) ))
 			.setFieldValue("Age", 30)
 			.setFieldValue("Height", Math.random() * 2F)
 			.setFieldValue("Weight", Math.random() * 150F)
