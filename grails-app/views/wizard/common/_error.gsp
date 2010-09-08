@@ -30,6 +30,7 @@
 		 <g:if test="${error.value['dynamic']}">
 		element.addClass('error');
 		 </g:if><g:else>
+		element.parent().parent().removeClass('required');
 		element.parent().parent().addClass('error');
 		 </g:else>
 		</g:each>

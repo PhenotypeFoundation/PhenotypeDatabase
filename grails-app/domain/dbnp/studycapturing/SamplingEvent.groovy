@@ -46,16 +46,19 @@ class SamplingEvent extends TemplateEntity {
 		new TemplateField(
 			name: 'startTime',
 			type: TemplateFieldType.RELTIME,
-			comment: "Please enter the start time as a relative time from study start date."+RelTime.getHelpText()),
+			comment: "Please enter the start time as a relative time from study start date."+RelTime.getHelpText(),
+			required: true),
 		new TemplateField(
 			name: 'duration',
 			type: TemplateFieldType.RELTIME,
-			comment: "Please enter the duration of the sampling action, if applicable. "+RelTime.getHelpText()),
+			comment: "Please enter the duration of the sampling action, if applicable. "+RelTime.getHelpText(),
+			required: true),
 		new TemplateField(
 			name: 'sampleTemplate',
 			type: TemplateFieldType.TEMPLATE,
 			entity: dbnp.studycapturing.Sample,
-			comment: "Please select the template of the resulting samples")
+			comment: "Please select the template of the resulting samples",
+			required: true)
 	]
 
 	 /**

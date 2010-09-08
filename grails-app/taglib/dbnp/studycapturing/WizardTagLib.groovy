@@ -236,7 +236,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 		if (!renderedElement) return false
 
 		// render a form element
-		out << '<div class="element"'+ ((attrs.get('elementId')) ? 'id="'+attrs.remove('elementId')+'"': '') + '>'
+		out << '<div class="element'+ ((attrs.get('required')) ? ' required' : '') +'"'+ ((attrs.get('elementId')) ? 'id="'+attrs.remove('elementId')+'"': '') + '>'
 		out << ' <div class="description">'
 		out << ((description) ? description.replaceAll(/[a-z][A-Z][a-z]/) { it[0] + ' ' + it[1..2] }.replaceAll(/\w+/) { it[0].toUpperCase() + ((it.size() > 1) ? it[1..-1] : '') } : '')
 		out << ' </div>'
@@ -895,6 +895,10 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 				def helpText	= (it.comment && renderType == 'element') ? it.comment : ''
 				def ucName		= it.name[0].toUpperCase() + it.name.substring(1)
 
+				// check if this is a required property
+				println it.getProperties().constraints.required
+				println it.getProperties().constraints.required.getClass()
+
 				// output column opening element?
 				if (renderType == 'column') {
 					out << '<div class="' + attrs.get('class') + '">'
@@ -904,27 +908,30 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 					case ['STRING', 'INTEGER', 'FLOAT', 'DOUBLE', 'LONG']:
 						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
 						out << "$inputElement"(
-							description: ucName,
-							name: prependName + it.escapedName(),
-							value: fieldValue
+							description	: ucName,
+							name		: prependName + it.escapedName(),
+							value		: fieldValue,
+							required	: it.isRequired()
 						){helpText}
 						break
 					case 'TEXT':
 						inputElement = (renderType == 'element') ? 'textAreaElement' : 'textField'
 						out << "$inputElement"(
-							description: ucName,
-							name: prependName + it.escapedName(),
-							value: fieldValue
+							description	: ucName,
+							name		: prependName + it.escapedName(),
+							value		: fieldValue,
+							required	: it.isRequired()
 						){helpText}
 						break
 					case 'STRINGLIST':
 						inputElement = (renderType == 'element') ? 'selectElement' : 'select'
 						if (!it.listEntries.isEmpty()) {
 							out << "$inputElement"(
-								description: ucName,
-								name: prependName + it.escapedName(),
-								from: it.listEntries,
-								value: fieldValue
+								description	: ucName,
+								name		: prependName + it.escapedName(),
+								from		: it.listEntries,
+								value		: fieldValue,
+								required	: it.isRequired()
 							){helpText}
 						} else {
 							out << '<span class="warning">no values!!</span>'
@@ -944,14 +951,16 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 								name		: prependName + it.escapedName(),
 								value		: fieldValue.toString(),
 								ontologies	: it.ontologies,
-								addDummy	: addDummy
+								addDummy	: addDummy,
+								required	: it.isRequired()
 							){helpText}
 						} else {
 							out << "$inputElement"(
 								description	: ucName,
 								name		: prependName + it.escapedName(),
 								value		: fieldValue.toString(),
-								addDummy	: addDummy
+								addDummy	: addDummy,
+								required	: it.isRequired()
 							){helpText}
 						}
 						break
@@ -960,10 +969,11 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 						// @see ontology-chooser.js
 						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
 						out << "$inputElement"(
-							name: prependName + it.escapedName(),
-							value: fieldValue,
-							rel: 'ontology-all',
-							size: 100
+							name	: prependName + it.escapedName(),
+							value	: fieldValue,
+							rel		: 'ontology-all',
+							size	: 100,
+							required: it.isRequired()
 						)
 						out << hiddenField(
 							name: prependName + it.name + '-concept_id',
@@ -994,56 +1004,62 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 
 						// render element
 						out << "$inputElement"(
-							description: ucName,
-							name: prependName + it.escapedName(),
-							value: fieldValue,
-							rel: 'date'
+							description	: ucName,
+							name		: prependName + it.escapedName(),
+							value		: fieldValue,
+							rel			: 'date',
+							required	: it.isRequired()
 						){helpText}
 						break
 					case ['RELTIME']:
 						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
 						out << "$inputElement"(
-							description: ucName,
-							name: prependName + it.escapedName(),
-							value: new RelTime( fieldValue ).toString(),
-                            addExampleElement: true,
-                            onBlur: 'showExampleReltime(this)'
+							description			: ucName,
+							name				: prependName + it.escapedName(),
+							value				: new RelTime( fieldValue ).toString(),
+                            addExampleElement	: true,
+                            onBlur				: 'showExampleReltime(this)',
+							required			: it.isRequired()
 						){helpText}
 						break
 					case ['FILE']:
 						inputElement = (renderType == 'element') ? 'fileFieldElement' : 'fileField'
 						out << "$inputElement"(
-							description: ucName,
-							name: prependName + it.escapedName(),
-							value: fieldValue ? fieldValue : "",
-                            addExampleElement: true
+							description			: ucName,
+							name				: prependName + it.escapedName(),
+							value				: fieldValue ? fieldValue : "",
+                            addExampleElement	: true,
+							required			: it.isRequired()
 						){helpText}
 						break
 					case ['BOOLEAN']:
 						inputElement = (renderType == 'element') ? 'checkBoxElement' : 'checkBox'
 						out << "$inputElement"(
-							description: ucName,
-							name: prependName + it.escapedName(),
-							value: fieldValue
+							description	: ucName,
+							name		: prependName + it.escapedName(),
+							value		: fieldValue,
+							required	: it.isRequired()
 						){helpText}
 						break
 					case ['TEMPLATE']:
 						inputElement = (renderType == 'element') ? 'templateElement' : 'templateSelect'
 						out << "$inputElement"(
-							description: ucName,
-							name: prependName + it.escapedName(),
-							addDummy: true,
-							entity: it.entity,
-							value: fieldValue
+							description	: ucName,
+							name		: prependName + it.escapedName(),
+							addDummy	: true,
+							entity		: it.entity,
+							value		: fieldValue,
+							required	: it.isRequired()
 						){helpText}
 						break
 					case ['MODULE']:
 						inputElement = (renderType == 'element') ? 'selectElement' : 'select'
 						out << "$inputElement"(
-							description: ucName,
-							name: prependName + it.escapedName(),
-							from: AssayModule.findAll(),
-							value: fieldValue
+							description	: ucName,
+							name		: prependName + it.escapedName(),
+							from		: AssayModule.findAll(),
+							value		: fieldValue,
+							required	: it.isRequired()
 						){helpText}
 					break
 						break

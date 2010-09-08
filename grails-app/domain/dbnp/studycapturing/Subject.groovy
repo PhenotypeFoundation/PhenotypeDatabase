@@ -44,10 +44,12 @@ class Subject extends TemplateEntity {
 			name: 'name',
 			type: TemplateFieldType.STRING,
 			preferredIdentifier: true,
-			comment: 'Use the local subject name or the pre-defined name'),
+			comment: 'Use the local subject name or the pre-defined name',
+			required: true),
 		new TemplateField(
 			name: 'species',
 			type: TemplateFieldType.ONTOLOGYTERM,
-			comment: "The species name is based on the NEWT ontology; if a species is missing, please add it to the ontology using 'add more'")
+			comment: "The species name is based on the NEWT ontology; if a species is missing, please add it to the ontology using 'add more'",
+			required: true)
 	]
 }

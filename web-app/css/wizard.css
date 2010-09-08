@@ -180,8 +180,12 @@
     margin-right: 5px;
 }
 
+.wizard .required {
+    background: url(../images/icons/famfamfam/bullet_go.png) no-repeat 230px 4px;
+}
+
 .wizard .error {
-    background: url(../images/icons/famfamfam/exclamation.png) no-repeat 230px 4px;
+    background: url(../images/icons/famfamfam/exclamation.png) no-repeat 230px 2px;
 }
 
 .wizard .element .input input, textarea {

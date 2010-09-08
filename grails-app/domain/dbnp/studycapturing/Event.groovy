@@ -59,11 +59,13 @@ class Event extends TemplateEntity {
 		new TemplateField(
 			name: 'startTime',
 			type: TemplateFieldType.RELTIME,
-			comment: "Please enter the start time as a relative time from study start date. "+RelTime.getHelpText()),
+			comment: "Please enter the start time as a relative time from study start date. "+RelTime.getHelpText(),
+			required: true),
 		new TemplateField(
 			name: 'endTime',
 			type: TemplateFieldType.RELTIME,
-			comment: "Please enter the end time as a relative time from study start date. "+RelTime.getHelpText())
+			comment: "Please enter the end time as a relative time from study start date. "+RelTime.getHelpText(),
+			required: true)
 	]
 
 	/**

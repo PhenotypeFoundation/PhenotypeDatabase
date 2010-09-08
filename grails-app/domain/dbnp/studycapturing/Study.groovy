@@ -65,16 +65,19 @@ class Study extends TemplateEntity {
 	static final List<TemplateField> domainFields = [
 		new TemplateField(
 			name: 'title',
-			type: TemplateFieldType.STRING),
+			type: TemplateFieldType.STRING,
+			required: true),
 		new TemplateField(
 			name: 'code',
 			type: TemplateFieldType.STRING,
 			preferredIdentifier:true,
-			comment: 'Fill out the code by which many people will recognize your study'),
+			comment: 'Fill out the code by which many people will recognize your study',
+			required: true),
 		new TemplateField(
 			name: 'startDate',
 			type: TemplateFieldType.DATE,
-			comment: 'Fill out the official start date or date of first action')
+			comment: 'Fill out the official start date or date of first action',
+			required: true)
 	]
 
 	/**
