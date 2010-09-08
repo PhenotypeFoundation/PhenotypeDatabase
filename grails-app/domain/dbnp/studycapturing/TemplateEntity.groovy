@@ -537,7 +537,7 @@ abstract class TemplateEntity extends Identity {
 
 				// add time as well?
 				if (dateMatch[0][7] != null) {
-					parser += dateMatch[0][6] + 'HH:mm'
+					parser += dateMatch[0][8] + 'HH:mm'
 				}
 
 				value = new Date().parse(parser, value)
