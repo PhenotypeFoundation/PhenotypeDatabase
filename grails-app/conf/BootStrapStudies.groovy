@@ -405,6 +405,13 @@ class BootStrapStudies {
 		rootGroup.addToSamplingEvents bloodSamplingEventAfter
 		rootGroup.save()
 
+		humanStudy.addToEvents(fastingEvent)
+		humanStudy.addToSamplingEvents(bloodSamplingEventBefore)
+		humanStudy.addToSamplingEvents(bloodSamplingEventAfter)
+		humanStudy.addToEventGroups rootGroup
+
+		humanStudy.save()		
+
 		def y = 1
 		11.times {
 			def currentSubject = new Subject(
@@ -449,11 +456,6 @@ class BootStrapStudies {
 			currentSample.with { if (!validate()) { errors.each { println it} } else save()}
 			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
 		}
-
-		humanStudy.addToEvents(fastingEvent)
-		humanStudy.addToSamplingEvents(bloodSamplingEventBefore)
-		humanStudy.addToSamplingEvents(bloodSamplingEventAfter)
-		humanStudy.addToEventGroups rootGroup
 
 		println ".adding persons and saving PPSH study..."
 		// Add persons to study
