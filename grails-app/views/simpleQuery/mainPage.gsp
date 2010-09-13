@@ -9,11 +9,11 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-	<meta name="layout" content="main"/><g:if env="production">
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'simpleQuery.min.css')}"/>
+	<meta name="layout" content="main"/>
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'simpleQuery.css')}"/>
+<g:if env="production">
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'simpleQuery.min.js')}"></script>
 </g:if><g:else>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'simpleQuery.css')}"/>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'simpleQuery.js')}"></script>
 </g:else>
 </head>
