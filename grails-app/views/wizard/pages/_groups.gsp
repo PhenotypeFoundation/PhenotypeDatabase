@@ -32,7 +32,13 @@
 					<div class="helpIcon"></div>
 					<div class="helpContent">
 						<h1>${eventGroup.name}</h1>
-						<g:each var="event" status="e" in="${eventGroup.getAllEvents()}">
+						<g:each var="event" status="e" in="${eventGroup.events}">
+							<h2>${event.template}</h2>
+							<g:each var="field" status="f" in="${event.giveFields()}">
+								${field.name}: ${event.getFieldValue(field.name)}<br/>
+							</g:each>
+						</g:each>
+						<g:each var="event" status="e" in="${eventGroup.samplingEvents}">
 							<h2>${event.template}</h2>
 							<g:each var="field" status="f" in="${event.giveFields()}">
 								${field.name}: ${event.getFieldValue(field.name)}<br/>
