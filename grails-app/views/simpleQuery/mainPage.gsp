@@ -10,10 +10,11 @@
 <html>
 <head>
 	<meta name="layout" content="main"/>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'simpleQuery.css')}"/>
 <g:if env="production">
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'simpleQuery.min.css')}"/>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'simpleQuery.min.js')}"></script>
 </g:if><g:else>
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'simpleQuery.css')}"/>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'simpleQuery.js')}"></script>
 </g:else>
 </head>
