@@ -25,7 +25,7 @@
         </div>
         <div class="element">
           <div class="description">Material (e.g. 'liver')</div>
-          <div class="input"><g:select name="organ" from="" value="${organ}" noSelection="['':'--- select organ/tissue ---']"/></div>
+          <div class="input"><g:select name="organs" from="${organs}" value="" noSelection="['':'--- select organ/tissue ---']"/></div>
         </div>
       </div>
 
@@ -35,7 +35,7 @@
 
           <g:if test="${showFirstRowCompounds}">
           <div id="compoundRow1">
-            <div class="descriptionSA">Compound</div><div class="input"><g:textField name="sa_compound" value=""/></div><div class="descriptionSA">Operator</div><div class="input" id="operatorInput"><g:select name="operator" from="${operators}" value="="/></div><div class="descriptionSA">Value</div><div class="input"><g:textField name="sa_value" value=""/></div>
+            <div class="descriptionSA">Compound</div><div class="input"><g:textField name="sa_compound" value=""/></div><div class="descriptionSA">Operator</div><div class="input" id="operatorInput"><g:select name="sa_operator" from="${operators}" value="="/></div><div class="descriptionSA">Value</div><div class="input"><g:textField name="sa_value" value=""/></div>
           </div>
           </g:if>
 
@@ -74,6 +74,7 @@
             <table>
                 <thead>
                     <tr>
+                        <g:sortableColumn property="id" title="Result" />
                         <g:sortableColumn property="id" title="${message(code: 'study.id', default: 'ID')}" />
                         <g:sortableColumn property="title" title="${message(code: 'study.title.label', default: 'Study')}" />
                         <g:sortableColumn property="samples" title="${message(code: 'study.sample', default: 'Samples')}" />
@@ -82,6 +83,7 @@
                 <tbody>
                 <g:each in="${listStudies}" var="Study" status="i" >
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+                    <td><g:checkBox name="study${Study.id}" value="${true}" /></td>
                     <td><g:link url="[action:'show',controller:'study', id:Study.id]">${fieldValue(bean: Study, field: "id")}</g:link></td>
                     <td><g:link url="[action:'show',controller:'study', id:Study.id]">${fieldValue(bean: Study, field: "title")}</g:link></td>
                     <td><g:link url="[action:'show',controller:'study', id:Study.id]"></g:link></td>
