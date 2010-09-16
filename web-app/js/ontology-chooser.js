@@ -38,8 +38,7 @@ OntologyChooser.prototype = {
     options : {
         minLength   : 3,    // minimum input length before launching Ajax request
         showHide    : null, // show / hide this DOM element on select/deselect autocomplete results
-        spinner     : '../images/spinner.gif',
-
+        spinner     : '../images/spinner.gif'
     },
 
     /**
