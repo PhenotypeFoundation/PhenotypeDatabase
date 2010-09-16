@@ -29,7 +29,12 @@ function onWizardPage() {
     // handle and initialize table(s)
     attachTableEvents();
     handleWizardTable();
-    new TableEditor().init('div.table', 'div.row', 'div.column');
+    new TableEditor().init({
+        tableIdentifier : 'div.table',
+        rowIdentifier   : 'div.row',
+        columnIdentifier: 'div.column',
+        headerIdentifier: 'div.header'
+    });
 
     // initialize the ontology chooser
     new OntologyChooser().init();

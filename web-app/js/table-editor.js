@@ -14,25 +14,31 @@
 function TableEditor() {
 }
 TableEditor.prototype = {
-    tableIdentifier:    null,
-    rowIdentifier:      null,
-    columnIdentifier:   null,
-    selected:           null,
+    options : {
+        tableIdentifier     :   'div.table',
+        headerIdentifier    :   'div.header',
+        rowIdentifier       :   'div.row',
+        columnIdentifier    :   'div.column',
+        selected            :   null
+    },
+    allSelected : false,
 
     /**
      * initialize object
-     * @param tableIdentifier
-     * @param rowIdentifier
-     * @param columnIdentifier
+     * @param options
      */
-    init: function(tableIdentifier, rowIdentifier, columnIdentifier) {
-        // store parameters globally
-        this.tableIdentifier = tableIdentifier;
-        this.rowIdentifier = rowIdentifier;
-        this.columnIdentifier = columnIdentifier;
+    init: function(options) {
+        var that = this;
+        
+        // set class parameters
+        if (options) {
+            $.each(options, function(key,value) {
+                that.options[key] = value;
+            });
+        }
 
         // got table(s)?
-        var table = $(tableIdentifier);
+        var table = $(this.options.tableIdentifier);
         if (table) {
             // yes, initialize table(s)
             that = this;
@@ -47,27 +53,128 @@ TableEditor.prototype = {
      * @param table
      */
     initializeTable: function(table) {
-        var that = this;
+        var that  = this;
+        var t = $(table);
 
-        $(table).selectable({
-            filter: this.rowIdentifier,
+        // initialize selectable
+        t.selectable({
+            filter: this.options.rowIdentifier,
             selected: function(event, ui) {
+                that.cleanup(t);
                 that.attachColumnHandlers(ui.selected);
             },
             unselected: function(event, ui) {
-                that.deAttachColumnHandlers(ui.selected);
+                that.cleanup(t);
+                that.detachColumnHandlers(ui.selected);
             }
         });
+
+        // insert a 'select all' element in the top-left header column
+        var selectAllElement = $($(this.options.headerIdentifier + ':eq(0)', t ).find(':nth-child(1)')[0]);
+        if (selectAllElement) {
+            // set up the selectAll element
+            selectAllElement
+                .addClass('selectAll')
+                .html('&nbsp;&nbsp;&nbsp;')
+                .bind('click',function() {
+                    that.selectAll(t);
+                });
+
+            // add a tooltip
+            selectAllElement.qtip({
+                content: 'leftMiddle',
+                position: {
+                    corner: {
+                        tooltip: 'leftMiddle',
+                        target: 'rightMiddle'
+                    }
+                },
+                style: {
+                    border: {
+                        width: 5,
+                        radius: 10
+                    },
+                    padding: 10,
+                    textAlign: 'center',
+                    tip: true,
+                    name: 'blue'
+                },
+                content: "Click to select all rows in this table",
+                show: 'mouseover',
+                hide: 'mouseout',
+                api: {
+                    beforeShow: function() {
+                        // not used at this moment
+                    }
+                }
+            });
+        }
+    },
+
+    /**
+     * select all rows in the table
+     * @param table
+     */
+    selectAll: function(table) {
+        var that = this;
+        this.cleanup(table);
+
+        // select and bind row
+        $(this.options.rowIdentifier, table).each(function() {
+            var row = $(this);
+            row.addClass('ui-selected');
+            that.attachColumnHandlers(row);
+        });
+
+        // and set flag
+        this.allSelected = true;
+    },
+
+    /**
+     * check if the table needs cleanup
+     * @param table
+     */
+    cleanup: function(table) {
+        // check if all rows were selected
+        if (this.allSelected) {
+            // yes, then we need to cleanup. If we only used the jquery-ui
+            // selector we wouldn't have to do so as it cleans up after
+            // itself. But as we cannot programatically hook into the selector
+            // we have to clean up ourselves. Perform a table cleanup and
+            // unbind every handlers.
+            this.deselectAll(table);
+        }
+    },
+
+    /**
+     * deselect all rows in the table
+     * Note that this conflicts with the jquery selectable, so this is
+     * NOT a user function, merely an 'underwater' function used for
+     * consistency
+     * @param table
+     */
+    deselectAll: function(table) {
+        var that = this;
+
+        // cleanup rows
+        $(this.options.rowIdentifier, table).each(function() {
+            var row = $(this);
+            row.removeClass('ui-selected');
+            that.detachColumnHandlers(row);
+        });
+
+        // and unset flag
+        this.allSelected = false;
     },
 
     /**
      * de-attach input handlers for this row
      * @param row
      */
-    deAttachColumnHandlers: function(row) {
+    detachColumnHandlers: function(row) {
         var that = this;
 
-        $(this.columnIdentifier, row).each(function() {
+        $(this.options.columnIdentifier, row).each(function() {
             var input = $(':input', $(this));
 
             // does this column contain an input field
@@ -89,7 +196,7 @@ TableEditor.prototype = {
         // define regular expressions
         var regAutoComplete = new RegExp("ui-autocomplete-input");
 
-        $(this.columnIdentifier, row).each(function() {
+        $(this.options.columnIdentifier, row).each(function() {
             var input = $(':input', $(this));
             var inputElement = $(input)
             var type = inputElement.attr('type');
@@ -170,7 +277,7 @@ TableEditor.prototype = {
 
         // select all input elements in the selected rows
         $('.ui-selected', t).each(function() {
-            $(that.columnIdentifier + ':eq(' + columnNumber + ') ' + elementSelector, $(this)).each(function() {
+            $(that.options.columnIdentifier + ':eq(' + columnNumber + ') ' + elementSelector, $(this)).each(function() {
                 var me = $(this)
                 if (me.attr('type') != "hidden") {
                     var myVal = that.getValue(me);

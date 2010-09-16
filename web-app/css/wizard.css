@@ -233,6 +233,16 @@
     font-weight: bold;
 }
 
+.wizard .table .selectAll {
+    display: inline-block;
+    background-color: red;
+    background: url(../images/icons/famfamfam/control_eject.png) no-repeat center center;
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180g);
+    cursor: pointer;
+}
+
 .wizard .table .header {
     display: block;
     background-color: #006DBA;

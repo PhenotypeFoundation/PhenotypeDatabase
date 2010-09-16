@@ -40,6 +40,9 @@
 		<g:each var="template" in="${study.giveSubjectTemplates()}">
 			<g:set var="showHeader" value="${true}" />
 			<h1>${template} template</h1>
+			<div class="sliderContainer">
+				<div class="slider" ></div>
+			</div>
 			<div class="table">
 			<g:each var="subject" status="s" in="${study.giveSubjectsForTemplate(template)}">
 				<g:if test="${showHeader}">

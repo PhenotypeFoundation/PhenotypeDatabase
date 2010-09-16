@@ -10,7 +10,7 @@
  * $Date$
  */
 $(document).ready(function() {
-    var d = ''
+    var d = '<b>development:</b> '
     d += '<input type="button" class="prevnext" value="reload CSS" onclick="reloadCSS();return false;"/>'
     d += '<input type="button" class="prevnext" value="reload JS" onclick="reloadJS();return false;"/>'
     d += '<input type="button" class="prevnext" value="reload Both" onclick="reloadBoth();return false;"/>'
