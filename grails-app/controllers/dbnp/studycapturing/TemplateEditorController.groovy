@@ -502,7 +502,12 @@ class TemplateEditorController {
 		} else {
 			template.fields.add( Integer.parseInt( params.position ), templateField )
 		}
-		template.save(flush:true);
+
+	    if (!template.validate()) {
+		    response.status = 500;
+		    template.errors.each { render it}
+	    }
+	    template.save(flush:true);
 
 		def html = g.render( template: 'elements/selected', model: [templateField: templateField, template: template, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list()] );
 		def output = [ id: templateField.id, html: html ];

@@ -72,36 +72,6 @@ class Template extends Identity {
 		// TODO: this probably has to change in the case of private templates of different users,
 		// which can co-exist with the same name. See also TemplateField
 		// name(unique:['entity'])
-		// workaround:
-		name(validator: { value, obj, errors ->
-			// 'obj' refers to the actual Template object
-
-			// define a boolean
-			boolean error = false
-
-			if (value && obj.entity) {
-
-				// gather all Cars with this particular model
-				def entityTemplates = Template.findAllByEntity(obj.entity)
-
-				// check if there is already a Template object with this name in that collection
-				if (entityTemplates.findAll{it.name.equals(value)}.size() > 0) {
-					errors.rejectValue(
-						'name',
-						'template.UniqueNameViolation',
-						[value, obj.entity] as Object[],
-						'There already exists a template named {0} for entity {1}'
-					)
-					error = true
-				}
-			}
-			else {
-				// if there is no name or model defined, fail immediately
-				error = true
-			}
-			// got an error, or not?
-			if (error) return false
-		})
 
 	}
 
