@@ -624,6 +624,11 @@ abstract class TemplateEntity extends Identity {
 				if (term) {
 					value = term
 				}
+				// TODO: search ontology for the term online (it may still exist) and insert it into the Term cache
+				// if not found, throw exception
+				else {
+					throw new IllegalArgumentException("Ontology term not recognized (not in the GSCF ontology cache): ${value} when setting field ${fieldName}")
+				}
 			}
 		}
 

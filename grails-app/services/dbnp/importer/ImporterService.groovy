@@ -65,7 +65,8 @@ class ImporterService {
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(columnindex, org.apache.poi.ss.usermodel.Row.CREATE_NULL_AS_BLANK).getCellType()
 	    def datamatrix_celldata = df.formatCellValue(sheet.getRow(datamatrix_start).getCell(columnindex))
 	    def datamatrix_cell	    = sheet.getRow(datamatrix_start).getCell(columnindex)
-	    def headercell = sheet.getRow(sheet.getFirstRowNum()).getCell(columnindex)
+	    println "frn is "+sheet.getFirstRowNum()
+		def headercell = sheet.getRow(headerrow-1+sheet.getFirstRowNum()).getCell(columnindex)
 	    def tft = TemplateFieldType.STRING //default templatefield type
 
             // Check for every celltype, currently redundant code, but possibly this will be
@@ -246,32 +247,29 @@ class ImporterService {
 	// go through the data matrix, read every record and validate the entity and try to persist it
 	datamatrix.each { record ->
 	    record.each { entity ->
-		if(entity.validate()) {
-		    switch (entity.getClass()) {
+			switch (entity.getClass()) {
 			case Study	 :  print "Persisting Study `" + entity + "`: "
-					    persistEntity(entity)
-					    break
+						if (persistEntity(entity)) validatedSuccesfully++
+						break
 			case Subject	 :  print "Persisting Subject `" + entity + "`: "
-					    persistEntity(entity)
-					    study.addToSubjects(entity)
-					    break
+						study.addToSubjects(entity)
+						if (persistEntity(entity)) validatedSuccesfully++
+						break
 			case Event	 :  print "Persisting Event `" + entity + "`: "
-					    persistEntity(entity)
-					    study.addToEvents(entity)
-					    break
+						study.addToEvents(entity)
+						if (persistEntity(entity)) validatedSuccesfully++
+						break
 			case Sample	 :  print "Persisting Sample `" + entity +"`: "
-					    persistEntity(entity)
-					    study.addToSamples(entity)
-					    break
+						study.addToSamples(entity)
+						if (persistEntity(entity)) validatedSuccesfully++
+						break
 			case SamplingEvent: print "Persisting SamplingEvent `" + entity + "`: "
-					    persistEntity(entity)
-					    study.addToSamplingEvents(entity)
-					    break;
+						study.addToSamplingEvents(entity)
+						if (persistEntity(entity)) validatedSuccesfully++
+						break;
 			default		 :  println "Skipping persisting of `" + entity.getclass() +"`"
-					    break
-		    } // end switch
-		    validatedSuccesfully++
-		} // end if
+						break
+			} // end switch
 	    } // end record
 	} // end datamatrix
 	return validatedSuccesfully
@@ -284,12 +282,27 @@ class ImporterService {
      * @param entity entity object like Study, Subject, Protocol et cetera
      * 
      */
-    def persistEntity(entity) {	
-	 if (!entity.save()) //.merge?
-	    entity.errors.allErrors.each {
-	    println it
+    boolean persistEntity(entity) {
+	    println "persisting ${entity}"
+	    // if not validated
+		if (entity.validate()) {
+			if (entity.save()) { //.merge?
+				return true
+			}
+			else { // if save was unsuccesful
+				entity.errors.allErrors.each {
+					println it
+				}
+				return false
+			}
+		}
+	    else { // if not validated
+		    entity.errors.each {
+			    println it
+		    }
+			return false
+	    }
 	 }
-    }
 
 	/**
 	 * This method creates a record (array) containing entities with values

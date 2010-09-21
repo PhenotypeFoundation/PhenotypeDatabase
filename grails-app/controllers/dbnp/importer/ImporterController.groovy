@@ -257,7 +257,7 @@ class ImporterController {
 	}
 
 	//import workbook
-	session.importer_importeddata = ImporterService.importdata(session.importer_template_id, session.importer_workbook, 0, 1, session.importer_header)
+	session.importer_importeddata = ImporterService.importdata(session.importer_template_id, session.importer_workbook, session.importer_sheetindex, session.importer_datamatrix_start, session.importer_header)
 
 	if (params.layout=="horizontal")
 	    render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
