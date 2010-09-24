@@ -35,7 +35,13 @@ class AuthService {
 		try {
 			currentUser.login( token );
 		} catch ( Exception e ) {
-			return false //username wasn't in the system, show them an error message?
+			def foundUser = User.findByUsernameAndPasswordHash(username, password)
+			if (foundUser) {
+				return foundUser
+			}
+			else {
+				return false //username wasn't in the system, show them an error message?
+			}
 		}
 
 		//return UserBase.get(currentUser.getPrincipal())
