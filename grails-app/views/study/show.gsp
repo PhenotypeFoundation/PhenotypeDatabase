@@ -633,7 +633,7 @@
                     <td>${assay.name}</td>
                     <td>${assay.module.name}</td>
                     <td>${assay.module.platform}</td>
-                    <td><a href="${dbnp.rest.common.CommunicationManager.getAssayShowURL(assay.externalAssayID)}">view</a></td>
+                    <td><a href="${assay.module.url}/assay/${assay.externalAssayID}">view</a></td>
                     <td>
                       <% sortedAssaySamples = assay.samples.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
                       ${sortedAssaySamples.name.join( ', ' )}
