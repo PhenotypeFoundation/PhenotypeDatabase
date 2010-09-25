@@ -12,7 +12,7 @@ import dbnp.user.User
  */
 class Study extends TemplateEntity {
 	static searchable = {
-    	[only: ['title', 'Description']]
+    	[only: ['title', 'Description']] // the description field will be searched only if defined in a study template
     }
 
 	User owner   // The owner of the study. A new study is automatically owned by its creator.
@@ -47,9 +47,11 @@ class Study extends TemplateEntity {
 	}
 
 	static mapping = {
-		researchQuestion type: 'text'
-		description type: 'text'
 		autoTimestamp true
+
+		// Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
+		templateTextFields type: 'text'
+
 	}
 
 	// The external study ID is currently defined as the code of the study.

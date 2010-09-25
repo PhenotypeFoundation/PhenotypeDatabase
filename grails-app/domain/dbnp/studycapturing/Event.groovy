@@ -41,13 +41,6 @@ class Event extends TemplateEntity {
 		})
 	}
 
-	static mapping = {
-
-		// Specify that subclasses for Event should have their own database table.
-		// This is done because otherwise we run into troubles with the SamplingEvent references from Study.
-		tablePerHierarchy false
-	}
-
 	/**
 	 * return the domain fields for this domain class
 	 * @return List<TemplateField>
