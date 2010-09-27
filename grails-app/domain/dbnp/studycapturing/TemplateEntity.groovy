@@ -716,7 +716,7 @@ abstract class TemplateEntity extends Identity {
 	 * Return all fields defined in the underlying template and the built-in
 	 * domain fields of this entity
 	 */
-	def public List<TemplateField> giveFields() {
+	def List<TemplateField> giveFields() {
 		return this.giveDomainFields() + this.giveTemplateFields();
 	}
 
