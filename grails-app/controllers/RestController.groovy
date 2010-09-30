@@ -85,7 +85,7 @@ class RestController {
 		List studies = [] 
 		def user = params.user
 		Study.findAllByOwner(requestUser).each { study ->
-			studies.push( [ 'externalStudyID': study.code, 'name':study.title, 'studyToken':study.code ] )
+			studies.push( [ 'externalStudyID': study.code, 'title':study.title, 'studyToken':study.code ] )
 		}
  		render studies as JSON 
 	}
