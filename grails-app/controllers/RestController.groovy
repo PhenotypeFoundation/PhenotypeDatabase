@@ -1,5 +1,5 @@
 /**
- * RestControler
+ * RestController
  *
  * This controler provides a REST service.
  * The names of the RESET resources are the same as the names of this
@@ -79,13 +79,13 @@ class RestController {
 	* Username and password should be supplied via HTTP Basic Authentication.
 	* Provide a list of all studies owned by the supplied user.
 	*
-	* @return JSON object list containing 'externalStudyID', and 'name' (title) for each study
+	* @return JSON object list containing 'studyToken', and 'name' (title) for each study
 	*/
 	def getStudies = {
 		List studies = [] 
 		def user = params.user
 		Study.findAllByOwner(requestUser).each { study ->
-			studies.push( [ 'externalStudyID': study.code, 'title':study.title, 'studyToken':study.code ] )
+			studies.push( [ 'title':study.title, 'studyToken':study.code ] )
 		}
  		render studies as JSON 
 	}
@@ -96,13 +96,13 @@ class RestController {
 	* Username and password should be supplied via HTTP Basic Authentication.
 	* Provide a list of all subjects belonging to a study.
 	*
-	* @param externalStudyID String The external study id (code) of the target GSCF Study object
+	* @param studyToken String The external study id (code) of the target GSCF Study object
 	* @return JSON object list of subject names
 	*/
 	def getSubjects = {
 		List subjects = [] 
-		if( params.externalStudyID ) {
-			def id = params.externalStudyID
+		if( params.studyToken ) {
+			def id = params.studyToken
  			def study = Study.find( "from Study as s where s.code=?", [id])
 			if(study) study.subjects.each { subjects.push it.name }
 		}
@@ -116,23 +116,23 @@ class RestController {
 	* Provide a list of all assays for a given study
 	*
 	* Example call of the getAssays REST resource: 
-	* http://localhost:8080/gscf/rest/getAssays?externalStudyID=PPSH&moduleURL=http://localhost:8182/sam
+	* http://localhost:8080/gscf/rest/getAssays?studyToken=PPSH&moduleURL=http://localhost:8182/sam
 	*
-	* @param externalStudyID String The external study id (code) of the target GSCF Study object
+	* @param stuyToken String The external study id (code) of the target GSCF Study object
 	* @param moduleURL String The base URL of the calling dbNP module
 	* @return list of assays in the study as JSON object list, filtered to only contain assays 
-	*         for the specified module, with 'externalAssayID' and 'name' for each assay
+	*         for the specified module, with 'assayToken' and 'name' for each assay
 	*/
 	def getAssays = {
 		List assays = [] 
-		if( params.externalStudyID || params.studyToken ) {
-			def id = params.studyToken ?: params.externalStudyID
+		if( params.studyToken ) {
+			def id = params.studyToken
  			def study = Study.find( "from Study as s where s.code=?", [id] )
 			if(study && study.owner == requestUser) study.assays.each{ assay ->
-				if (assay.module.url.equals(params.moduleURL)) {
-			        def map = ['name':assay.name, 'externalAssayID':assay.externalAssayID, 'assayToken':assay.externalAssayID]
+				//if (assay.module.url.equals(params.moduleURL)) {
+			        def map = ['name':assay.name, 'assayToken':assay.externalAssayID]
 					assays.push( map )
-				}
+				//}
 			}
  		}
 		render assays as JSON 
@@ -144,7 +144,7 @@ class RestController {
 	* Username and password should be supplied via HTTP Basic Authentication.
 	* Provide all samples of a given Assay. The result is an enriched list with additional information for each sample.
 	*
-	* @param externalAssayID String (externalAssayID of some Assay in GSCF)
+	* @param assayToken String (assayToken of some Assay in GSCF)
 	* @return As a JSON object list, for each sample in that assay:
 	* @return 'name' (Sample name, which is unique)
 	* @return 'material' (Sample material)
@@ -154,8 +154,8 @@ class RestController {
 	*/
 	def getSamples = {
 		def items = []
-		if( params.externalAssayID ) {
- 			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.externalAssayID])
+		if( params.assayToken ) {
+ 			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
 			assay.getSamples().each { sample ->
 				def item = [ 
 					'name'		      : sample.name,
@@ -240,7 +240,7 @@ class RestController {
 	* Username and password should be supplied via HTTP Basic Authentication.
 	* One specific sample of a given Assay.
 	*
-	* @param externalAssayID String (externalAssayID of some Assay in GSCF)
+	* @param assayToken String (id of some Assay in GSCF)
 	* @return As a JSON object list, for each sample in that assay:
 	* @return 'name' (Sample name, which is unique)
 	* @return 'material' (Sample material)
