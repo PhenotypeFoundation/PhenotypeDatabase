@@ -302,7 +302,6 @@ class RestController {
  			def study = Study.find( "from Study as s where code=?",[params.studyToken])
 			
                 }
-
         render items as JSON*/
 	}
 }
