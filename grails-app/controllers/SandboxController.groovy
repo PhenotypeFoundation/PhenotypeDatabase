@@ -7,6 +7,7 @@ import dbnp.clinicaldata.ClinicalMeasurement
 class SandboxController {
 
 	def clinicalDataLayerService
+        def oauthService
 
 	def index = {
 
