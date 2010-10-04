@@ -25,6 +25,5 @@ This study capturing module can be easily linked to assay specific modules and t
            <g:renderOauthError />
      </div>
     </g:hasOAuthError>
-
   </body>
 </html>
