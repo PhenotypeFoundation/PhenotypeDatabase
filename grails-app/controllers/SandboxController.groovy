@@ -51,5 +51,15 @@ class SandboxController {
 		[fields: f, subjects: st.subjects, studyInstance: st, subject: Subject.findByName('A1')]
 	}
 
+        def oauth = {
+            def key = session.oauthToken.key
+            def secret = session.oauthToken.secret
+            def response = oauthService.accessResource(url: 'http://www.myexperiment.org/whoami.xml', consumer: 'myExperiment',
+            token:[key: key, secret: secret], method: 'POST')
+            render ("Calling whoami from myExperiment [key:" + key + ", secret:"+secret+"]")
+            render ("Response: " + response)
+
+        }
+
 
 }
