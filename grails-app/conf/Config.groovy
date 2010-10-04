@@ -154,3 +154,14 @@ gscf {
 
 // jquery plugin
 grails.views.javascript.library="jquery"
+
+oauth {
+	provider_name {
+		requestTokenUrl = 'http://www.myexperiment.org/oauth/request_token'
+		accessTokenUrl = 'http://www.myexperiment.org/oauth/access_token'
+		authUrl = 'http://www.myexperiment.org/oauth/authorize'
+                scope = 'http://example.com/oauth/feed/api/' // Optional - currently required by the Google GData APIs
+		consumer.key = '$oauthkey$'
+		consumer.secret = '$oauthsecret$'
+	}
+}
