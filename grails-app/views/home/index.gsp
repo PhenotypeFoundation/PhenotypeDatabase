@@ -17,5 +17,14 @@ This study capturing module can be easily linked to assay specific modules and t
       </n:isNotLoggedIn></p>
     Choose from the upper bar whether you would like to create, view or search studies
 
+    <g:oauthLink consumer='myExperiment'
+             returnTo="[controller: 'Home', action: 'index']">Authorize</g:oauthLink>
+
+    <g:hasOauthError>
+     <div class="errors">
+           <g:renderOauthError />
+     </div>
+    <g:hasOAuthError/>
+
   </body>
 </html>

@@ -18,4 +18,5 @@ class HomeController {
     def index = {
        [ studyCount: dbnp.studycapturing.Study.count() ]
     }
+    
 }

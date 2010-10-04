@@ -156,7 +156,7 @@ gscf {
 grails.views.javascript.library="jquery"
 
 oauth {
-	provider_name {
+	myExperiment {
 		requestTokenUrl = 'http://www.myexperiment.org/oauth/request_token'
 		accessTokenUrl = 'http://www.myexperiment.org/oauth/access_token'
 		authUrl = 'http://www.myexperiment.org/oauth/authorize'
