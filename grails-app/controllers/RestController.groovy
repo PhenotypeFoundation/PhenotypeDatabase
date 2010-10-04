@@ -279,4 +279,29 @@ class RestController {
  		}
 		render items as JSON
 	}
+
+        /**
+	* REST resource for dbNP modules.
+	*
+	* @param studyToken String, the external identifier of the study
+	* @return List of all fields of this study
+	* @return
+	*
+	* Example REST call (without authentication):
+        * http://localhost:8080/gscf/rest/getStudy/study?studyToken=PPSH
+        *
+	* Returns the JSON object:
+	* {"title":"NuGO PPS human study","studyToken":"PPSH","startDate":"2008-01-13T23:00:00Z",
+	* "Description":"Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U.",
+	* "Objectives":null,"Consortium":null,"Cohort name":null,"Lab id":null,"Institute":null,
+	* "Study protocol":null}
+	*/
+	def getAuthorizationLevel = {
+		def items = [:]
+		/*if( params.studyToken ) {
+ 			def study = Study.find( "from Study as s where code=?",[params.studyToken])
+			
+                }
+		render items as JSON*/
+	}
 }
