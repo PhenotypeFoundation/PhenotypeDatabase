@@ -47,7 +47,7 @@ grails.enable.native2ascii = true
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
-        grails.serverURL = "http://www.changeme.com"
+        grails.serverURL = "http://gscf.nmcdsp.org"
     }
     development {
         grails.serverURL = "http://localhost:8080/${appName}"
@@ -155,6 +155,8 @@ gscf {
 // jquery plugin
 grails.views.javascript.library="jquery"
 
+// The OAuth consumer key and secret variables are currently replaced by Jeroen's Continuous Integration script
+// These keys were requested by me (Tjeerd) from myExperiment
 oauth {
 	myExperiment {
 		requestTokenUrl = 'http://www.myexperiment.org/oauth/request_token'
