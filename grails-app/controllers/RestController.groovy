@@ -158,7 +158,7 @@ class RestController {
  			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
 			assay.getSamples().each { sample ->
 				def item = [ 
-					'name'		      : sample.name,
+					'sampleToken'         : sample.name,
 					'material'	      : sample.material.name,
 					'subject'	      : sample.parentSubject.name,
 					'event'		      : sample.parentEvent.template.name,
