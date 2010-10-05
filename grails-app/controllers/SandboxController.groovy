@@ -54,7 +54,7 @@ class SandboxController {
 
         def oauth = {            
             def secret = session.oauthToken.secret
-            def response = oauthService.accessResource(url: 'http://www.myexperiment.org/whoami.xml', 'myExperiment',
+            def response = oauthService.accessResource('http://www.myexperiment.org/whoami.xml', 'myExperiment',
                            [key: session.oauthToken.key, secret: session.oauthToken.secret], 'GET')
             render ("Calling whoami from myExperiment [key:" + key + ", secret:"+secret+"]")
             render ("Response: " + response)
