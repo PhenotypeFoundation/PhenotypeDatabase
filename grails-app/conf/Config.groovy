@@ -155,7 +155,7 @@ gscf {
 // jquery plugin
 grails.views.javascript.library="jquery"
 
-// The OAuth consumer key and secret variables are currently replaced by Jeroen's Continuous Integration script.
+// The OAuth consumer key and secret variables are currently replaced by Jeroen's Continuous Integration script
 // These keys were requested by me (Tjeerd) from myExperiment
 oauth {
 	myExperiment {
