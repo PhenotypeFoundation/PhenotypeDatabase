@@ -18,13 +18,12 @@ This study capturing module can be easily linked to assay specific modules and t
     Choose from the upper bar whether you would like to create, view or search studies
 
     <g:oauthLink consumer='myExperiment'
-             returnTo="[controller: 'Home', action: 'index']">Authorize</g:oauthLink>
+             returnTo="[controller: 'home', action: 'index']">Authorize</g:oauthLink>
 
     <g:hasOauthError>
      <div class="errors">
            <g:renderOauthError />
-     </div>
-      
+     </div>      
     </g:hasOauthError>
   </body>
 </html>
