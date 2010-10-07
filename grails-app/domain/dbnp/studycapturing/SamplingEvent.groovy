@@ -78,7 +78,7 @@ class SamplingEvent extends TemplateEntity {
 		def eventFound = false;
 		def that = this;
 		groups.each { eventgroup ->
-			if (!eventFound) {
+			if (!eventFound && eventgroup.samplingEvents) {
 				eventFound = (that.id in eventgroup.samplingEvents.id);
 			}
 		}

@@ -112,7 +112,7 @@ class Event extends TemplateEntity {
 		def eventFound = false;
 		def that = this;
 		groups.each { eventgroup ->
-			if (!eventFound) {
+			if (!eventFound && eventgroup.events) {
 				eventFound = (that.id in eventgroup.events.id);
 			}
 		}
