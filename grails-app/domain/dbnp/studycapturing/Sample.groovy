@@ -28,7 +28,6 @@ class Sample extends TemplateEntity {
 	String name             // should be unique with respect to the parent study (which can be inferred)
 	Term material	        // material of the sample (should normally be bound to the BRENDA ontology)
 
-	def getExternalSampleId() { name }
 
 	/**
 	 * return the domain fields for this domain class

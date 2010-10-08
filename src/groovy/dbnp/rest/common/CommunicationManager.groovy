@@ -29,7 +29,7 @@ class CommunicationManager {
     def public static GSCFServerURL = "http://localhost:8080/gscf"
     def public static DSPServerURL  = "http://localhost:8080/gscf"
 
-     
+
 
     /**
      * Get the results of provided by a rest Rest resource.
@@ -108,10 +108,15 @@ class CommunicationManager {
 		CommunicationManager.metaClass.registerStaticMethod( restName ) { Object [] strangeGroovyArgs ->
 			def map = [:]
 		    def args = strangeGroovyArgs[0]        // groovy nests the parameters of the methods in some other array
-			for( i in 0..(params.size-1) ) {
-				def param = params[i]
-			    map[param] = args[i]
+
+			if(params.size > 0 )
+			{
+				for( i in 0..(params.size-1) ) {
+					def param = params[i]
+			   	 	map[param] = args[i]
+				}
 			}
+
 			return closure( getRestResource( serverURL, restName, map ) )
 		}
 	}
@@ -153,10 +158,10 @@ class CommunicationManager {
     public static registerRestWrapperMethodsGSCFtoSAM() {
     	def url = GSCFServerURL + '/rest'
 		addRestWrapper( url , 'getStudies' )
-		addRestWrapper( url , 'getSubjects', ['externalStudyID'] )
-		addRestWrapper( url , 'getAssays',   ['externalStudyID'] )
-		addRestWrapper( url , 'getSamples',  ['externalAssayID'] )
-    }
+     	addRestWrapper( url , 'getSubjects', ['studyToken'] )
+ 		addRestWrapper( url , 'getAssays',   ['studyToken','moduleURL'] )
+ 		addRestWrapper( url , 'getSamples',  ['assayToken'] )
+	}
 
 
     /**
@@ -172,7 +177,7 @@ class CommunicationManager {
 
 		// register method that links to the SAM view for showing a SimpleAssay 
         // parameters: externalAssayID
-		addViewWrapper( 'getAssayShowURL', url, 'simpleAssay/showByExternalID', ['externalAssayID'] )
+		addViewWrapper( 'getAssayShowURL', url, 'simpleAssay/show', ['externalAssayID'] )
 
    		// register method that links to the SAM view for editing a SimpleAssay 
         // parameters: externalAssayID
@@ -191,21 +196,21 @@ class CommunicationManager {
 		// Example of a returned map: 
 		//				 ["studies":[NuGO PPS human study], 
 		//               "samples":[[ [...], dbnp.studycapturing.Sample: 1]]]
-		def closure1 = { map ->
-		    def studies = []
-		    def samples = []
+		def closure = { map -> 
+		    def studies = [] 	
+		    def assays  = [] 	
 			def studiesHQ = "from dbnp.studycapturing.Study as s where s.code=?"
 			map['studyIds'].each { studies.add( dbnp.studycapturing.Study.find(studiesHQ,[it]) ) }
-			map['Samples'].each { samSample ->
-				def sampleID = samSample['externalSampleID']
-			    def sampleHQ = "from dbnp.studycapturing.Sample as a where a.externalSampleID='${sampleID}'"
-				def sample = dbnp.studycapturing.Sample.find(sampleHQ)
-				samples.add( [samSample,sample] )
-			}
-			return [studies:studies, samples:samples]
+			map['assays'].each { samAssay ->
+				def assayID = samAssay['externalAssayID']
+			    def assayHQ = "from dbnp.studycapturing.Assay as a where a.externalAssayID='${assayID}'"
+				def assay = dbnp.studycapturing.Assay.find(assayHQ)
+				assays.add( [samAssay,assay] )
+			} 
+			return [studies:studies, assays:assays] 
 		}
 
-		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'], closure1 )
+		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'], closure )
 
 
    		// Rest resource: getQueryResultWithOperator 

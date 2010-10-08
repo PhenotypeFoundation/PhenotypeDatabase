@@ -52,4 +52,8 @@ class Assay extends TemplateEntity {
 	def String toString() {
 		return name;
 	}
+
+    def getToken() {
+		return externalAssayID
+    }
 }

@@ -54,9 +54,9 @@ class Study extends TemplateEntity {
 
 	}
 
-	// The external study ID is currently defined as the code of the study.
+	// The external identifier (studyToken) is currently the code of the study.
 	// It is used from within dbNP submodules to refer to particular study in this GSCF instance.
-	def getExternalStudyId() { code }
+	def getToken() { code }
 
 	/**
 	 * return the domain fields for this domain class

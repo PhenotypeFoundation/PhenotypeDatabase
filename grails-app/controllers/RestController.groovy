@@ -85,7 +85,7 @@ class RestController {
 		List studies = [] 
 		def user = params.user
 		Study.findAllByOwner(requestUser).each { study ->
-			studies.push( [ 'title':study.title, 'studyToken':study.code ] )
+			studies.push( [ 'title':study.title, 'studyToken':study.getToken()] )
 		}
  		render studies as JSON 
 	}
@@ -130,7 +130,7 @@ class RestController {
  			def study = Study.find( "from Study as s where s.code=?", [id] )
 			if(study && study.owner == requestUser) study.assays.each{ assay ->
 				//if (assay.module.url.equals(params.moduleURL)) {
-			        def map = ['name':assay.name, 'assayToken':assay.externalAssayID]
+			        def map = ['name':assay.name, 'assayToken':assay.getToken()]
 					assays.push( map )
 				//}
 			}
@@ -158,20 +158,17 @@ class RestController {
  			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
 			assay.getSamples().each { sample ->
 				def item = [ 
-					'sampleToken'         : sample.name,
-					'material'	      : sample.material.name,
-					'subject'	      : sample.parentSubject.name,
-					'event'		      : sample.parentEvent.template.name,
-					'startTime'	      : sample.parentEvent.getStartTimeString()
+					'sampleToken' : sample.name,
+					'material'	  : sample.material.name,
+					'subject'	  : sample.parentSubject.name,
+					'event'		  : sample.parentEvent.template.name,
+					'startTime'	  : sample.parentEvent.getStartTimeString()
 				]
 				items.push item 
 			}
  		}
 		render items as JSON
 	}
-
-
-
 
 
 	/**
@@ -197,7 +194,6 @@ class RestController {
 			study.giveFields().each { field ->
 				def name = field.name
 				def value = study.getFieldValue( name )
-				if(name=="code") { name = "studyToken" }
 				items[name] = value
 			}
         }
@@ -226,7 +222,6 @@ class RestController {
 			assay.giveFields().each { field ->
 				def name = field.name
 				def value = assay.getFieldValue( name )
-				if(name=="externalAssayID") { name = "assayToken" }
 				items[name] = value
 			}
         }
@@ -271,7 +266,6 @@ class RestController {
 					sample.giveFields().each { field ->
 						def name = field.name
 						def value = sample.getFieldValue( name )
-						if(name=="name") { name = "sampleToken" }
 						items[name] = value
             		}
 				}
