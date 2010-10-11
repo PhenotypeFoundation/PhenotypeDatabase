@@ -17,6 +17,7 @@
 
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Assay
+import dbnp.user.User
 import grails.converters.*
 import nl.metabolomicscentre.dsp.http.BasicAuthentication
 
@@ -32,7 +33,7 @@ class RestController {
 	def authService
 	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
 	def credentials
-	def requestUser
+	def requestUser = User.findByName( "user" )
 
 	/**
 	 * Authorization closure, which is run before executing any of the REST resource actions
@@ -43,7 +44,8 @@ class RestController {
 	private def auth() {
 
 	    credentials = BasicAuthentication.credentialsFromRequest(request)
-		requestUser = authService.authUser(credentials.u,credentials.p)
+		//requestUser = authService.authUser(credentials.u,credentials.p)
+		// we circumvene the user
 		if(!requestUser) {
 		    response.sendError(403)
 	        return false
@@ -129,10 +131,10 @@ class RestController {
 			def id = params.studyToken
  			def study = Study.find( "from Study as s where s.code=?", [id] )
 			if(study && study.owner == requestUser) study.assays.each{ assay ->
-				//if (assay.module.url.equals(params.moduleURL)) {
+				if (assay.module.url.equals(params.moduleURL)) {
 			        def map = ['name':assay.name, 'assayToken':assay.getToken()]
 					assays.push( map )
-				//}
+				}
 			}
  		}
 		render assays as JSON 
@@ -274,7 +276,7 @@ class RestController {
 		render items as JSON
 	}
 
-        /**
+   /**
 	* REST resource for dbNP modules.
 	*
 	* @param studyToken String, the external identifier of the study
@@ -282,8 +284,8 @@ class RestController {
 	* @return
 	*
 	* Example REST call (without authentication):
-        * http://localhost:8080/gscf/rest/getStudy/study?studyToken=PPSH
-        *
+    * 	http://localhost:8080/gscf/rest/getStudy/study?studyToken=PPSH
+    *
 	* Returns the JSON object:
 	* {"title":"NuGO PPS human study","studyToken":"PPSH","startDate":"2008-01-13T23:00:00Z",
 	* "Description":"Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U.",
@@ -298,4 +300,59 @@ class RestController {
                 }
         render items as JSON*/
 	}
+
+
+
+
+
+   /**
+	* REST resource for dbNP modules.
+	*
+	* @param studyToken String, the external identifier of the study
+	*
+	* Dummy for testing only. (Warning: to be replaced as soon as the authorization is implemented!)
+	* @param Hash with exactly the values that will be returned 
+	*
+	* @return Hash with keys 'isReader', 'isEditor', 'isOwner' }
+	*/
+
+	def getAuthorizationLevel = {
+
+		isReader = false 
+		isEditor = false 
+		isOwner  = false 
+
+		// Warning: this case is only for testing! 
+		// The code below should be used until the
+		// authorization works. 
+		if( params.isOwner || params.isEditor || params.Owner ) { 
+			return render ['isReader':params.isOwner, 
+				'isEditor':params.isEditor, 'isOwner':params.isOwner] as JSON
+		}
+
+
+		// in future the users authorization level will be based on authorization model
+		/*
+		if( params.studyToken ) {
+			def id = params.studyToken
+ 			def study = Study.find( "from Study as s where s.code=?", [id])
+			if(study) study.subjects.each { subjects.push it.name }
+		}
+
+		def user
+		if( params.user ) {
+			def id = params.user
+ 			user = users.find( "from User as u where u.code=?", [id])
+		}
+
+		if( study.readers.contains(user) ) isReader = true
+		if( study.editors.contains(user) ) isEditor = true
+		if( study.owner.contains(user) )   isOwner  = true
+
+		*/
+
+		render ['isReader':isOwner, 'isEditor':isEditor, 'isOwner':isOwner] as JSON
+    }
+
+
 }
