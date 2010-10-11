@@ -30,6 +30,10 @@ class Subject extends TemplateEntity {
 		name(unique:['parent'])
 	}
 
+        static mapping = {
+                name column:"subjectname"
+	}
+
 
 	/**
 	 * return the domain fields for this domain class

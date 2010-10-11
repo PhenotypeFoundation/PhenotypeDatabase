@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
-import dbnp.user.User
+import org.nmcdsp.plugins.aaaa.SecUser
+import org.nmcdsp.plugins.aaaa.Entity
 
 /**
  * The Template class describes a TemplateEntity template, which is basically an extension of the study capture entities
@@ -30,12 +31,20 @@ class Template extends Identity {
 	Class entity
 
 	/** The owner of the template. If the owner is not defined, it is a shared/public template */
-	User owner
+	SecUser owner
 
 	/** The template fields which are the members of this template. This is a List to preserve the field order */
 	List fields
 
 	static hasMany = [fields: TemplateField]
+
+        static mapping = {
+                name column:"templatename"
+                description column:"templatedescription"
+                entity column:"templateentity"
+                owner column:"templateowner"
+                fields column:"templatefields"
+	}
 
 	// constraints
 	static constraints = {

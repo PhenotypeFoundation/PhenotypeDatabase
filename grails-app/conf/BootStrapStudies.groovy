@@ -18,7 +18,7 @@ class BootStrapStudies {
 	 * Add example studies. This function is meant to be called only in development mode
 	 */
 
-	public static void addExampleStudies(dbnp.user.User owner) {
+	public static void addExampleStudies(org.nmcdsp.plugins.aaaa.SecUser owner) {
 
 		// Look up the used ontologies which should be in the database by now
 		def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)

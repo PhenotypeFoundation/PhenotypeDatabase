@@ -2,6 +2,7 @@ package dbnp.studycapturing
 
 import dbnp.data.Term
 import org.springframework.validation.FieldError
+import org.nmcdsp.plugins.aaaa.Entity
 
 /**
  * The TemplateEntity domain Class is a superclass for all template-enabled study capture entities, including
@@ -42,20 +43,20 @@ abstract class TemplateEntity extends Identity {
 	// define relationships
 	static hasMany = [
 		templateStringFields	: String,
-		templateTextFields		: String,
+		templateTextFields	: String,
 		templateStringListFields: TemplateFieldListItem,
 		templateIntegerFields	: int,
-		templateFloatFields		: float,
+		templateFloatFields	: float,
 		templateDoubleFields	: double,
-		templateDateFields		: Date,
-		templateTermFields		: Term,
+		templateDateFields	: Date,
+		templateTermFields	: Term,
 		templateRelTimeFields	: long,
-		templateFileFields		: String,
+		templateFileFields	: String,
 		templateBooleanFields	: boolean,
 		templateTemplateFields	: Template,
 		templateModuleFields	: AssayModule,
-		templateLongFields		: long,
-		systemFields			: TemplateField
+		templateLongFields	: long,
+		systemFields		: TemplateField
 	]
 
 	static mapping = {
@@ -69,6 +70,8 @@ abstract class TemplateEntity extends Identity {
 
 		// Make sure that the text fields are really stored as TEXT, so that those Strings can have an arbitrary length.
 		templateTextFields type: 'text'
+
+                template column:"templateentitytemplate"
 	}
 
 	// Inject the service for storing files (for TemplateFields of TemplateFieldType FILE).

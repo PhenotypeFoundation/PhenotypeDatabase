@@ -26,6 +26,10 @@ class MappingColumn {
 	    dontimport(default:false)
     }
 
+    static mapping = {
+            tablePerHierarchy false
+    }
+
     String toString() {
 	return "Name:" + name + "/TemplateFieldType:" + templatefieldtype + "/Entity:" + entity + "/Property:" + property + "/Index:" + index + "/Value:" + value + "/Identifier:" + identifier
     }

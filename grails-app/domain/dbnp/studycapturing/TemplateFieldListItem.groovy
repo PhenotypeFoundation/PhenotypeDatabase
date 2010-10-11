@@ -19,6 +19,10 @@ class TemplateFieldListItem implements Serializable {
 	static constraints = {
 	}
 
+        static mapping = {
+                name column:"templatefieldlistitemname"
+	}
+
 	String toString() {
 		return name;
 	}

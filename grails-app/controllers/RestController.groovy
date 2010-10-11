@@ -17,7 +17,7 @@
 
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Assay
-import dbnp.user.User
+import org.nmcdsp.plugins.aaaa.SecUser
 import grails.converters.*
 import nl.metabolomicscentre.dsp.http.BasicAuthentication
 
@@ -33,7 +33,7 @@ class RestController {
 	def authService
 	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
 	def credentials
-	def requestUser = User.findByName( "user" )
+	def requestUser = SecUser.findByName( "user" )
 
 	/**
 	 * Authorization closure, which is run before executing any of the REST resource actions
@@ -65,7 +65,7 @@ class RestController {
 	def isUser= {
 		boolean isUser
 		credentials = BasicAuthentication.credentialsFromRequest(request)
-		def reqUser = authService.authUser(credentials.u,credentials.p)
+		//def reqUser = authService.authUser(credentials.u,credentials.p)
 		if (reqUser) {
 			isUser = true
 		}
@@ -316,7 +316,7 @@ class RestController {
 	* @return Hash with keys 'isReader', 'isEditor', 'isOwner' }
 	*/
 
-	def getAuthorizationLevel = {
+	/*def getAuthorizationLevel = {
 
 		isReader = false 
 		isEditor = false 
@@ -349,10 +349,10 @@ class RestController {
 		if( study.editors.contains(user) ) isEditor = true
 		if( study.owner.contains(user) )   isOwner  = true
 
-		*/
+		
 
 		render ['isReader':isOwner, 'isEditor':isEditor, 'isOwner':isOwner] as JSON
-    }
+    }*/
 
 
 }

@@ -286,38 +286,21 @@
 				</g:each>
 			  </tr>
             <tr>
-              <td>Readers</td>
+              <td>Members <permissions:manage entity="${studyList[0]}">manage</permissions:manage></td>
               <g:each in="${studyList}" var="studyInstance">
                 <td>
-                  <g:if test="${studyInstance.readers?.size()==0}">
+                  <g:if test="${studyInstance.getAllMemberUsers()==0}">
                     -
                   </g:if>
                   <g:else>
-                    <g:each in="${studyInstance.readers}" var="r" status="i">
+                    <g:each in="${studyInstance.getAllMemberUsers()}" var="memberuser" status="i">
                       <g:if test="${i > 0}">, </g:if>
-                      <g:link controller="user" action="show" id="${r.id}">${r?.encodeAsHTML()}</g:link>
+                      <g:link controller="user" action="show" id="${memberuser.id}">${memberuser?.encodeAsHTML()}</g:link>
                     </g:each>
                   </g:else>
                 </td>
               </g:each>
             </tr>
-            <tr>
-              <td>Editors</td>
-              <g:each in="${studyList}" var="studyInstance">
-                <td>
-                  <g:if test="${studyInstance.editors?.size()==0}">
-                    -
-                  </g:if>
-                  <g:else>
-                    <g:each in="${studyInstance.editors}" var="r" status="i">
-                      <g:if test="${i > 0}">, </g:if>
-                      <g:link controller="user" action="show" id="${r.id}">${r?.encodeAsHTML()}</g:link>
-                    </g:each>
-                  </g:else>
-                </td>
-              </g:each>
-            </tr>
-
           </table>
         </div>
 

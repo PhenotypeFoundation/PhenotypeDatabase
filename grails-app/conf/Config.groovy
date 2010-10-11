@@ -155,6 +155,11 @@ gscf {
 // jquery plugin
 grails.views.javascript.library="jquery"
 
+// Needed for the Spring Security Core plugin:
+grails.plugins.springsecurity.userLookup.userDomainClassName = 'org.nmcdsp.plugins.aaaa.SecUser'
+grails.plugins.springsecurity.userLookup.authorityJoinClassName = 'org.nmcdsp.plugins.aaaa.SecUserSecRole'
+grails.plugins.springsecurity.authority.className = 'org.nmcdsp.plugins.aaaa.SecRole'
+
 // The OAuth consumer key and secret variables are currently replaced by Jeroen's Continuous Integration script.
 // These keys were requested by me (Tjeerd) from myExperiment.
 oauth {

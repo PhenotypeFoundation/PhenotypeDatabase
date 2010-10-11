@@ -3,30 +3,30 @@
 	<div id="panel">
 		<div class="content clearfix">
 			<div class="left">
-				<h1>Welcome to the Generic Study Capture Framework</h1>
+				<h1>Welcome to the Metabolomics Data Support Platform</h1>
 				<h2>version <b>${meta(name: 'app.version')}</b></h2>
 				<p class="grey">Please use the forms on the right to either log in if you already have an account, or sign up if you think this data support platform suits your needs.</p>
 				<p class="grey">Note that <span class="red">registration</span> and <span class="red">password reminders</span> are not yet implemented and hence <span class="red">do not work</span> at this moment!</p>
 				<g:if test="${flash.message}"><p class="red">${flash.message}</p></g:if>
 			</div>
 			<div class="left">
-				<g:form url="[action:'signin',controller:'auth']" class="clearfix">
-					<input type="hidden" name="targetUri" value="${targetUri}" />
+				<g:form controller="." action="j_spring_security_check" method='POST' class="clearfix">
 					<h1>Member Login</h1>
 					<label class="grey" for="username">Username:</label>
-					<input class="field" type="text" name="username" id="username" value="${username}" size="23" />
+					<input class="field" type="text" name="j_username" id="username" value="${username}" size="23" />
 					<label class="grey" for="password">Password:</label>
-					<input class="field" type="password" name="password" id="password" size="23" />
-					<label><g:checkBox name="rememberMe" value="${rememberMe}" /> &nbsp;Remember me</label>
+					<input class="field" type="password" name="j_password" id="password" size="23" />
+					<label><input type='checkbox' class='chk' name='${rememberMeParameter}' id='remember_me'
+					<g:if test='${hasCookie}'>checked='checked'</g:if> /></label>
         	<div class="clear"></div>
 					<input type="submit" name="submit" value="Login" class="bt_login" />
 					<a class="lost-pwd" href="<g:createLink url="[action:'passwordReminder',controller:'auth']" class="lost-pwd" />">Lost your password?</a>
 				</g:form>
 			</div>
-			<div class="left right">			
+			<div class="left right">
 				<g:form url="[action:'signUp',controller:'auth']" class="clearfix">
 					<input type="hidden" name="targetUri" value="${targetUri}" />
-					<h1>Not a member yet? Sign Up!</h1>				
+					<h1>Not a member yet? Sign Up!</h1>
 					<label class="grey" for="signup">Username:</label>
 					<input class="field" type="text" name="signup" id="signup" value="${username}" size="23" />
 					<label class="grey" for="email">Email:</label>
@@ -39,18 +39,19 @@
 	</div>
 	<div class="tab">
 		<ul class="login">
-			<li class="left">&nbsp;</li>    
-			<li>Hello <n:isLoggedIn><n:principal/></n:isLoggedIn><n:isNotLoggedIn>Guest</n:isNotLoggedIn>!</li>
+			<li class="left">&nbsp;</li>
+			<% /* <li>Hello <authentication:isLoggedIn><authentication:loggedInUsername/></authentication:isLoggedIn>
+                        <authentication:isNotLoggedIn>Guest</authentication:isNotLoggedIn>!</li>
 			<li class="sep">|</li>
 			<li id="toggle">
-				<n:isLoggedIn><g:link controller="auth" action="signout">sign out</g:link></n:isLoggedIn>
-				<n:isNotLoggedIn>
+                        <authentication:isLoggedIn><g:link controller="logout" action="index">sign out</g:link></authentication:isLoggedIn>
+				<authentication:isNotLoggedIn>
 				 <a id="open" class="open" href="#">Log In | Register</a>
-				 <a id="close" style="display: none;" class="close" href="#">Close Panel</a>			
-				</n:isNotLoggedIn>
-			</li>
+				 <a id="close" style="display: none;" class="close" href="#">Close Panel</a>
+                                </authentication:isNotLoggedIn>
+			</li>*/ %>
 	    <li class="right">&nbsp;</li>
-		</ul> 
-	</div> 
-  </div> 
+		</ul>
+	</div>
+  </div>
 <!-- /LOGIN PANEL -->

@@ -5,14 +5,8 @@ import dbnp.data.Term
 import dbnp.rest.common.CommunicationManager
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
+import org.nmcdsp.plugins.aaaa.SecUser
 
-// Imports for Nimble
-import grails.plugins.nimble.InstanceGenerator
-import grails.plugins.nimble.core.LevelPermission
-import grails.plugins.nimble.core.Role
-import grails.plugins.nimble.core.Group
-import grails.plugins.nimble.core.AdminsService
-import grails.plugins.nimble.core.UserService
 
 /**
  * Application Bootstrapper
@@ -25,79 +19,18 @@ import grails.plugins.nimble.core.UserService
  * $Date$
  */
 class BootStrap {
-
-	// Injections for Nimble
-	def grailsApplication
-	def nimbleService
-	def userService
-	def adminsService
+        def springSecurityService
 
 	def init = {servletContext ->
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
-		// If there are no users yet in the database
-		println "Executing Nimble bootstrap..."
-
-	    // The following must be executed
-	    nimbleService.init()
-
-	    // Add users
-		def user
-
-		if (dbnp.user.User.count() == 0) {
-			println "Adding example user..."
-
-			// Create example User account
-			user = InstanceGenerator.user()
-			user.username = "user"
-			user.pass = 'useR123!'
-			user.passConfirm = 'useR123!'
-			user.enabled = true
-
-			def userProfile = InstanceGenerator.profile()
-			userProfile.fullName = "Test User"
-			userProfile.owner = user
-			user.profile = userProfile
-
-			def savedUser = userService.createUser(user)
-			if (savedUser.hasErrors()) {
-			  savedUser.errors.each {
-				log.error(it)
-			  }
-			  throw new RuntimeException("Error creating example user")
-			}
-
-			println "Adding example admin user..."
-
-			// Create example Administrative account
-			def admins = Role.findByName(AdminsService.ADMIN_ROLE)
-			def admin = InstanceGenerator.user()
-			admin.username = "admin"
-			admin.pass = "admiN123!"
-			admin.passConfirm = "admiN123!"
-			admin.enabled = true
-
-			def adminProfile = InstanceGenerator.profile()
-			adminProfile.fullName = "Administrator"
-			adminProfile.owner = admin
-			admin.profile = adminProfile
-
-			def savedAdmin = userService.createUser(admin)
-			if (savedAdmin.hasErrors()) {
-			  savedAdmin.errors.each {
-				log.error(it)
-			  }
-			  throw new RuntimeException("Error creating administrator")
-			}
-
-			adminsService.add(admin)
-		}
-		else {
-			user = dbnp.user.User.findByUsername("user")
-		}
-
-		println "Done with Nimble bootstrap"
+		def user = SecUser.findByUsername('user') ?: new SecUser(
+			username: 'user',
+			password: springSecurityService.encodePassword('useR123!'),
+			enabled: true).save(failOnError: true)
+		
+		println "Done with SpringSecurity bootstrap, created [user]."
 
 		// If there are no templates yet in the database
 		if (Template.count() == 0) {

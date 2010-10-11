@@ -1,6 +1,6 @@
 package dbnp.studycapturing
 
-import dbnp.user.User
+import org.nmcdsp.plugins.aaaa.SecUser
 
 /**
  * Domain class describing the basic entity in the study capture part: the Study class.
@@ -15,22 +15,20 @@ class Study extends TemplateEntity {
     	[only: ['title', 'Description']] // the description field will be searched only if defined in a study template
     }
 
-	User owner   // The owner of the study. A new study is automatically owned by its creator.
+	SecUser owner   // The owner of the study. A new study is automatically owned by its creator.
 	String title        // The title of the study
 	String code 		// currently used as the external study ID, e.g. to reference a study in a SAM module
 	Date dateCreated
 	Date lastUpdated
 	Date startDate
-    List subjects
+        List subjects
 	List events
 	List samplingEvents
 	List eventGroups
 	List samples
 	List assays
 
-	static hasMany = [
-		editors: User,   // Users with read/write access to the study
-		readers: User,   // Users with only read access to the study
+	static hasMany = [		
 		subjects: Subject,
 		samplingEvents: SamplingEvent,
 		events: Event,
@@ -51,6 +49,15 @@ class Study extends TemplateEntity {
 
 		// Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
 		templateTextFields type: 'text'
+                owner column:"studyowner"
+                title column:"studytitle"
+                code column:"studycode"
+                subjects column:"studysubjects"
+                events column:"studyevents"
+                samplingEvents column:"studysamplingevents"
+                eventGroups column:"studyeventgroups"
+                samples column:"studysamples"
+                assays column:"studyassays"
 
 	}
 
