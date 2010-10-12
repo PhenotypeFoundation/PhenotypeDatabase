@@ -26,11 +26,21 @@ class BootStrap {
 		System.setProperty('user.timezone', 'CET')
 
 		def user = SecUser.findByUsername('user') ?: new SecUser(
-			username: 'user',
-			password: springSecurityService.encodePassword('useR123!'),
-			enabled: true).save(failOnError: true)
+                           username: 'user',
+                           password: springSecurityService.encodePassword('useR123!'),
+                           enabled: true).save(failOnError: true)
+
+                def userAdmin = SecUser.findByUsername('admin') ?: new SecUser(
+                                username: 'admin',
+                                password: springSecurityService.encodePassword('admiN123!'),
+                                enabled: true).save(failOnError: true)
+
+                def userTest = SecUser.findByUsername('test') ?: new SecUser(
+                                username: 'test',
+                                password: springSecurityService.encodePassword('testT123!'),
+                                enabled: true).save(failOnError: true)
 		
-		println "Done with SpringSecurity bootstrap, created [user]."
+		println "Done with SpringSecurity bootstrap, created [user, admin, test]."
 
 		// If there are no templates yet in the database
 		if (Template.count() == 0) {
