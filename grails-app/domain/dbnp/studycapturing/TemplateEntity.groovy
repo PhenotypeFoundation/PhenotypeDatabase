@@ -24,7 +24,7 @@ abstract class TemplateEntity extends Identity {
 	// Maps for storing the different template field values
 	Map templateStringFields	= [:]
 	Map templateTextFields		= [:]
-	Map templateStringListFields= [:]
+	Map templateStringListFields    = [:]
 	Map templateIntegerFields	= [:]
 	Map templateFloatFields		= [:]
 	Map templateDoubleFields	= [:]
