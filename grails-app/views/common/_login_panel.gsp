@@ -40,7 +40,7 @@
 	<div class="tab">
 		<ul class="login">
 			<li class="left">&nbsp;</li>
-			<% /* <li>Hello <authentication:isLoggedIn><authentication:loggedInUsername/></authentication:isLoggedIn>
+			<li>Hello <authentication:isLoggedIn><authentication:loggedInUsername/></authentication:isLoggedIn>
                         <authentication:isNotLoggedIn>Guest</authentication:isNotLoggedIn>!</li>
 			<li class="sep">|</li>
 			<li id="toggle">
@@ -49,7 +49,7 @@
 				 <a id="open" class="open" href="#">Log In | Register</a>
 				 <a id="close" style="display: none;" class="close" href="#">Close Panel</a>
                                 </authentication:isNotLoggedIn>
-			</li>*/ %>
+			</li>
 	    <li class="right">&nbsp;</li>
 		</ul>
 	</div>

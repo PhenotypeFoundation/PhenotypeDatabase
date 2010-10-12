@@ -47,4 +47,4 @@ grails.project.dependency.resolution = {
     }
 }
 
-//grails.plugin.location.'aaaa' = '/home/tjeerd/NetBeansProjects/nmcdsp/aaaa'
+//grails.plugin.location.'aaaa' = '/home/tjeerd/NetBeansProjects/nmcdsp/nmcdsp-grailsPlugins/aaaa'
