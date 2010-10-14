@@ -49,6 +49,17 @@ class StudyController {
         }
     }
 
+	def showByToken = {
+        def studyInstance = Study.findByCode(params.id)
+        if (!studyInstance) {
+            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+            redirect(action: "list")
+        }
+        else {
+            redirect(action: "show", id: studyInstance.id)
+        }
+    }
+
     /**
      * Gives the events for one eventgroup in JSON format
      *
