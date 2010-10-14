@@ -40,11 +40,9 @@ class RestController {
 	 * @return
 	 */
 	private def auth() {
-
 	    credentials = BasicAuthentication.credentialsFromRequest(request)		
-                requestUser = AuthenticationService.authenticateUser(credentials.u, credentials.p)
+        requestUser = AuthenticationService.authenticateUser(credentials.u, credentials.p)
                 
-                // we circumvene the user
 		if(!requestUser) {
 		    response.sendError(403)
 	        return false
@@ -65,16 +63,11 @@ class RestController {
 		boolean isUser
 		credentials = BasicAuthentication.credentialsFromRequest(request)
 		def reqUser = AuthenticationService.authenticateUser(credentials.u, credentials.p)
-
-                if (reqUser) {
-			isUser = true
-		}
-		else {
-			isUser = false
-		}
+		isUser = reqUser ? true : false
 		def reply = ['authenticated':isUser]
 		render reply as JSON
 	}
+
 
 	/**
 	* REST resource for data modules.
@@ -158,15 +151,17 @@ class RestController {
 		def items = []
 		if( params.assayToken ) {
  			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
-			assay.getSamples().each { sample ->
-				def item = [ 
-					'sampleToken' : sample.name,
-					'material'	  : sample.material.name,
-					'subject'	  : sample.parentSubject.name,
-					'event'		  : sample.parentEvent.template.name,
-					'startTime'	  : sample.parentEvent.getStartTimeString()
-				]
-				items.push item 
+			if( assay )  {
+				assay.getSamples().each { sample ->
+					def item = [ 
+						'sampleToken' : sample.name,
+						'material'	  : sample.material.name,
+						'subject'	  : sample.parentSubject.name,
+						'event'		  : sample.parentEvent.template.name,
+						'startTime'	  : sample.parentEvent.getStartTimeString()
+					]
+					items.push item 
+				}
 			}
  		}
 		render items as JSON
@@ -193,10 +188,12 @@ class RestController {
 		def items = [:]
 		if( params.studyToken ) {
  			def study = Study.find( "from Study as s where code=?",[params.studyToken])
-			study.giveFields().each { field ->
-				def name = field.name
-				def value = study.getFieldValue( name )
-				items[name] = value
+			if(study) {
+				study.giveFields().each { field ->
+					def name = field.name
+					def value = study.getFieldValue( name )
+					items[name] = value
+				}
 			}
         }
 		render items as JSON
@@ -221,10 +218,12 @@ class RestController {
 		def items = [:]
 		if( params.assayToken ) {
  			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
-			assay.giveFields().each { field ->
-				def name = field.name
-				def value = assay.getFieldValue( name )
-				items[name] = value
+			if(assay) {
+				assay.giveFields().each { field ->
+					def name = field.name
+					def value = assay.getFieldValue( name )
+					items[name] = value
+				}
 			}
         }
 		render items as JSON
@@ -258,18 +257,20 @@ class RestController {
 		def items = [:]
 		if( params.assayToken && params.sampleToken ) {
  			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
-			assay.getSamples().each { sample ->
-				if( sample.name == params.sampleToken ) {
-					items = [ 
-						'subject'	      : sample.parentSubject.name,
-						'event'		      : sample.parentEvent.template.name,
-						'startTime'	      : sample.parentEvent.getStartTimeString()
-					]
-					sample.giveFields().each { field ->
-						def name = field.name
-						def value = sample.getFieldValue( name )
-						items[name] = value
-            		}
+			if(assay) {
+				assay.getSamples().each { sample ->
+					if( sample.name == params.sampleToken ) {
+							items = [ 
+							'subject'	      : sample.parentSubject.name,
+							'event'		      : sample.parentEvent.template.name,
+							'startTime'	      : sample.parentEvent.getStartTimeString()
+							]
+							sample.giveFields().each { field ->
+							def name = field.name
+							def value = sample.getFieldValue( name )
+							items[name] = value
+            			}
+					}
 				}
 			}
  		}
@@ -277,26 +278,12 @@ class RestController {
 	}
 
 	def getAuthorizationLevel = {
-		// Warning: this case is only for testing! 
-		// The code below should be used until the
-		// authorization works. 
-		/*if( params.isOwner || params.isEditor || params.Owner ) {
-			return render ['isReader':params.isOwner, 
-				'isEditor':params.isEditor, 'isOwner':params.isOwner] as JSON
-		}*/
-
 		// in future the users authorization level will be based on authorization model		
 		if( params.studyToken ) {
 			def id = params.studyToken
  			def study = Study.find( "from Study as s where s.code=?", [id])
 			if(study) study.subjects.each { subjects.push it.name }
 		}
-
-		/*def user
-		if( params.user ) {
-			def id = params.user
- 			user = users.find( "from User as u where u.code=?", [id])
-		}*/
 
 		def perm = study.getPermissions(requestUser)
                 
