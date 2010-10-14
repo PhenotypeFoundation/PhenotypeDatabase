@@ -11,6 +11,8 @@
 import dbnp.studycapturing.*
 import dbnp.data.Term
 import dbnp.data.Ontology
+import org.codehaus.groovy.grails.commons.*
+import org.codehaus.groovy.grails.commons.ConfigurationHolder as C
 
 class BootStrapStudies {
 
@@ -468,18 +470,20 @@ class BootStrapStudies {
 
 		println ".adding assay references to mouse example study..."
 
+		def samURL = GrailsApplication.ENV_TEST ?  'http://localhost:8182/sam' : 'http://sam.nmcdsp.org'
+
 		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
 			platform: 'clinical measurements',
-			url: 'http://sam.nmcdsp.org'
+			url: samURL 
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add metabolomics assay reference
 		def metabolomicsModule = new AssayModule(
 			name: 'Metabolomics module',
 			platform: 'GCMS/LCMS',
-			url: 'http://nmcdsp.nmcdsp.org'
+			url: samURL 
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		def lipidAssayRef = new Assay(
