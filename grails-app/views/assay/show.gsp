@@ -56,7 +56,15 @@
                             <td valign="top" class="value"><g:link controller="study" action="show" id="${assayInstance?.parent?.id}">${assayInstance?.parent?.encodeAsHTML()}</g:link></td>
                             
                         </tr>
-                    
+
+                        <g:each var="field" in="${assayInstance.giveTemplateFields()}">
+							<tr class="prop">
+								<td valign="top" class="name">${field.name}</td>
+
+								<td valign="top" class="value">${assayInstance.getFieldValue(field.name)?.encodeAsHTML()}</td>
+							</tr>
+						</g:each>
+
                         <tr class="prop">
                             <td valign="top" class="name"><g:message code="assay.samples.label" default="Samples" /></td>
                             

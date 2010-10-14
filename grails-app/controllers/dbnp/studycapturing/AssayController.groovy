@@ -47,6 +47,17 @@ class AssayController {
         }
     }
 
+	def showByToken = {
+	    def assayInstance = Assay.findByExternalAssayID(params.id)
+	    if (!assayInstance) {
+	        flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
+	        redirect(action: "list")
+	    }
+	    else {
+		    redirect(action: "show", id: assayInstance.id)
+	    }
+	}
+
     def edit = {
         def assayInstance = Assay.get(params.id)
         if (!assayInstance) {
