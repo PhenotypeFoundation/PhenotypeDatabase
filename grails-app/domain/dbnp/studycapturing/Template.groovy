@@ -19,7 +19,7 @@ import org.nmcdsp.plugins.aaaa.Entity
  * $Author$
  * $Date$
  */
-class Template extends Entity {
+class Template extends Identity {
 
 	/** The name of the template */
 	String name
