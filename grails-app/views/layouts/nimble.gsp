@@ -20,8 +20,8 @@
     </script>
 
 	<script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
-	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.2.custom.min.js')}" type="text/javascript"></script>
-	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.2.custom.css')}"/>
+	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.5.custom.min.js')}" type="text/javascript"></script>
+	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.5.custom.css')}"/>
 	 <link rel="stylesheet" href="${resource(dir:'css',file:'nimble.css')}"/>
 
 	<g:layoutHead/>
