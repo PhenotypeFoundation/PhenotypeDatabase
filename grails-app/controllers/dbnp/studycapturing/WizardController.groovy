@@ -475,6 +475,9 @@ class WizardController {
 			}.to "waitForSave"
 		}
 
+		// decide to show a warning page or not
+
+
 		// sample 'previous' page with warning
 		samplePrevious {
 			render(view: "_samples_previous_warning")
@@ -516,7 +519,7 @@ class WizardController {
 			}.to "samples"
 			on("refresh") {
 				// handle samples
-				handleSamples(flow, flash, params)
+				samplePage(flow, flash, params)
 
 				// refresh all sample templates
 				flow.study.giveSampleTemplates().each() {
@@ -530,7 +533,7 @@ class WizardController {
 			}.to "samples"
 			on("regenerate") {
 				// handle samples
-				handleSamples(flow, flash, params)
+				samplePage(flow, flash, params)
 
 				// remove all samples from the study
 				flow.study.samples.findAll{true}.each() { sample ->
@@ -544,7 +547,7 @@ class WizardController {
 			}.to "samples"
 			on("previous") {
 				// handle samples
-				handleSamples(flow, flash, params)
+				samplePage(flow, flash, params)
 
 				// ignore errors
 				flash.errors = [:]
