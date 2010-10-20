@@ -447,11 +447,47 @@ class WizardController {
 			on("next") {
 				// handle form data
 				eventPage(flow, flash, params) ? success() : error()
-			}.to "groups"
+			}.to "eventsNext"
 			on("quickSave") {
 				// handle form data
 				eventPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
+		}
+
+		// decide to show a warning page or not
+		eventsNext {
+			action {
+				def assigned = false
+
+				// check if all sampling events are in an eventGroup
+				flow.study.samplingEvents.each() { samplingEvent ->
+					// iterate through eventGroups
+					flow.study.eventGroups.each() { eventGroup ->
+						if ( eventGroup.samplingEvents.find { it.equals(samplingEvent) } ) {
+							assigned = true
+						}
+					}
+				}
+
+				if (assigned) {
+					toGroupsPage()
+				} else {
+					toWarningPage()
+				}
+			}
+			on("toWarningPage").to "unassignedSamplingEventWarning"
+			on("toGroupsPage").to "groups"
+		}
+
+		// warning page for unassigned samplingEvent
+		unassignedSamplingEventWarning {
+			render(view: "_unassigned_samplingEvent_warning")
+			onRender {
+				flow.page = 4
+				success()
+			}
+			on("next").to "groups"
+			on("previous").to "events"
 		}
 
 		// groups page
@@ -474,9 +510,6 @@ class WizardController {
 				groupPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
 		}
-
-		// decide to show a warning page or not
-
 
 		// sample 'previous' page with warning
 		samplePrevious {
