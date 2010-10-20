@@ -503,50 +503,6 @@ class WizardController {
 			render(view: "_samples")
 			onRender {
 				flow.page = 5
-
-				// got samples?
-				if (!flow.study.samples) {
-					// generate samples
-					// iterate through eventGroups
-					flow.study.eventGroups.each() { eventGroup ->
-						// iterate through samplingEvents
-						eventGroup.samplingEvents.each() { samplingEvent ->
-							println samplingEvent
-							println samplingEvent.sampleTemplate
-							println samplingEvent.sampleTemplate.getClass()
-
-							def samplingEventName = this.ucwords(samplingEvent.template.name)
-
-							// iterate through subjects
-							eventGroup.subjects.each() { subject ->
-								def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
-								def tempSampleIterator = 0
-								def tempSampleName = sampleName
-
-								// make sure sampleName is unique
-								if (flow.study.samples) {
-									while (flow.study.samples.find { it.name == tempSampleName }) {
-										tempSampleIterator++
-										tempSampleName = sampleName + "_" + tempSampleIterator
-									}
-									sampleName = tempSampleName
-								}
-
-								// instantiate a sample
-								flow.study.addToSamples(
-									new Sample(
-										parentSubject: subject,
-										parentEvent: samplingEvent,
-										name: sampleName,
-										template: (samplingEvent.sampleTemplate) ? samplingEvent.sampleTemplate : ''
-									)
-								)
-							}
-						}
-
-					}
-				}
-
 				success()
 			}
 			on("switchTemplate") {
@@ -1192,13 +1148,55 @@ class WizardController {
 				if (params.get( 'event_' + event.getIdentifier() + '_group_' + eventGroup.getIdentifier() )) {
 					// add to eventGroup
 					if (event instanceof SamplingEvent) {
-						eventGroup.addToSamplingEvents(event)
+						// check if we are already in this eventGroup
+						if (!eventGroup.samplingEvents.find { it.equals(event) }) {
+							// no, add it
+							eventGroup.addToSamplingEvents(event)
+
+							// iterate through subjects for this eventGroup
+							eventGroup.subjects.each() { subject ->
+								// instantiate a sample for this subject / event
+								def samplingEventName = this.ucwords(event.template.name)
+								def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
+								def tempSampleIterator = 0
+								def tempSampleName = sampleName
+
+								// make sure sampleName is unique
+								if (flow.study.samples) {
+									while (flow.study.samples.find { it.name == tempSampleName }) {
+										tempSampleIterator++
+										tempSampleName = sampleName + "_" + tempSampleIterator
+									}
+									sampleName = tempSampleName
+								}
+
+								// instantiate a sample
+								flow.study.addToSamples(
+									new Sample(
+										parentSubject: subject,
+										parentEvent: event,
+										name: sampleName,
+										template: (event.sampleTemplate) ? event.sampleTemplate : ''
+									)
+								)
+							}
+						}
 					} else {
 						eventGroup.addToEvents(event)
 					}
 				} else {
 					// remove from eventGroup
 					if (event instanceof SamplingEvent) {
+						// iterate through subjects (if we have them)
+						eventGroup.subjects.each() { subject ->
+							// find all samples for this subject / event
+							flow.study.samples.findAll { (it.parentEvent.equals(event) && it.parentSubject.equals(subject) ) }.each() {
+								// delete this sample
+								flow.study.removeFromSamples( it )
+								it.delete()
+							}
+						}
+						
 						eventGroup.removeFromSamplingEvents(event)
 					} else {
 						eventGroup.removeFromEvents(event)
@@ -1246,11 +1244,50 @@ class WizardController {
 			// iterate through subjects
 			flow.study.subjects.each() { subject ->
 				if (params.get('subject_' + subject.getIdentifier() + '_group_' + eventGroup.getIdentifier() )) {
-					// add to eventGroup
-					eventGroup.addToSubjects(subject)
+					// check if this subject is already part of this eventGroup
+					if ( !eventGroup.subjects.find { it.equals(subject) } ) {
+						// add to eventGroup
+						eventGroup.addToSubjects(subject)
+
+						// iterate through samplingEvents
+						eventGroup.samplingEvents.each() { samplingEvent ->
+							def samplingEventName = this.ucwords(samplingEvent.template.name)
+							def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
+							def tempSampleIterator = 0
+							def tempSampleName = sampleName
+
+							// make sure sampleName is unique
+							if (flow.study.samples) {
+								while (flow.study.samples.find { it.name == tempSampleName }) {
+									tempSampleIterator++
+									tempSampleName = sampleName + "_" + tempSampleIterator
+								}
+								sampleName = tempSampleName
+							}
+
+							// instantiate a sample
+							flow.study.addToSamples(
+								new Sample(
+									parentSubject: subject,
+									parentEvent: samplingEvent,
+									name: sampleName,
+									template: (samplingEvent.sampleTemplate) ? samplingEvent.sampleTemplate : ''
+								)
+							)
+						}
+					}
 				} else {
 					// remove from eventGroup
 					eventGroup.removeFromSubjects(subject)
+
+					// iterate through samplingEvents
+					eventGroup.samplingEvents.each() { samplingEvent ->
+						flow.study.samples.findAll { ( it.parentEvent.equals(samplingEvent) && it.parentSubject.equals(subject) ) }.each() {
+							// delete this sample
+							flow.study.removeFromSamples( it )
+							it.delete()
+						}
+					}
 				}
 			}
 		}

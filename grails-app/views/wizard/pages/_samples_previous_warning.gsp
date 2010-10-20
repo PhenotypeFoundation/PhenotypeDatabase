@@ -45,7 +45,7 @@
 
 	<span class="info">
 		<span class="warning">Warning!</span>
-		Renaming, adding and removing subjects, sample events and / or grouping <i>may</i> result in (some of the) samples to be reset!<br />
+		Renaming, adding and removing subjects, sample events and / or grouping <i>may</i> result in loss of samples!<br />
 		Continuing to the groups page in <span id="seconds"></span> seconds...
 	</span>
 
