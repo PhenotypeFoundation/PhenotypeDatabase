@@ -8,9 +8,9 @@
  * @see     dbnp.studycapturing.WizardController
  *
  * Revision information:
- * $Rev: 567 $
- * $Author: duh $
- * $Date: 2010-06-16 13:55:55 +0200 (Wed, 16 Jun 2010) $
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 var warnOnRedirect = true;
 $(document).ready(function() {

@@ -7,9 +7,9 @@
 	 * @package importer
 	 *
 	 * Revision information:
-	 * $Rev: 492 $
-	 * $Author: tabma $
-	 * $Date: 2010-05-28 11:08:19 +0200 (Fri, 28 May 2010) $
+	 * $Rev$
+	 * $Author$
+	 * $Date$
 	 */
 %>
 <g:form name="propertiesform" action="saveProperties">

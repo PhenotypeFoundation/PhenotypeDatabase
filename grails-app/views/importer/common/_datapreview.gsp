@@ -7,9 +7,9 @@
 	 * @package importer
 	 *
 	 * Revision information:
-	 * $Rev: $
-	 * $Author: $
-	 * $Date: $
+	 * $Rev$
+	 * $Author$
+	 * $Date$
 	 */
 %>
 <table width="100%">

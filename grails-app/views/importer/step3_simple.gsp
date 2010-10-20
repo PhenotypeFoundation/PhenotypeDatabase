@@ -7,9 +7,9 @@
 	 * @package importer
 	 *
 	 * Revision information:
-	 * $Rev: 496 $
-	 * $Author: duh $
-	 * $Date: 2010-05-28 14:25:13 +0200 (Fri, 28 May 2010) $
+	 * $Rev$
+	 * $Author$
+	 * $Date$
 	 */
 %>
 

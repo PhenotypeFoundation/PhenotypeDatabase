@@ -8,9 +8,9 @@
 	* @see dbnp.studycapturing.TemplateEditorController
 	*
 	* Revision information:
-	* $Rev: 428 $
-	* $Author: duh $
-	* $Date: 2010-05-18 11:09:55 +0200 (di, 18 mei 2010) $
+	* $Rev$
+	* $Author$
+	* $Date$
 	*/
 %>
 <%@ page contentType="text/html;charset=UTF-8" %>
