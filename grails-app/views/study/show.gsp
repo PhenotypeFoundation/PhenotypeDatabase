@@ -619,6 +619,13 @@
                     <td>${assay.name}</td>
                     <td>${assay.module.name}</td>
                     <td>${assay.module.platform}</td>
+                    %{--<td><a href="${assay.module.url}/assay/${assay.externalAssayID}">view</a></td>--}%
+                    <td><jumpbar:link
+                      linkDest="${createLink(action:'show')}"
+                      linkText='Go back to GSCF'
+                      frameSource="${assay.module.url}/assay/${assay.externalAssayID}">
+                      view
+                    </jumpbar:link></td>
                     <td><a href="${assay.module.url}/assay/${assay.externalAssayID}">view</a></td>
                     <td>
                       <% sortedAssaySamples = assay.samples.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
