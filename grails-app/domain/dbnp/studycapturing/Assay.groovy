@@ -30,12 +30,13 @@ class Assay extends TemplateEntity {
 		),
 		new TemplateField(
 			name: 'module',
-			type: TemplateFieldType.MODULE
-
+			type: TemplateFieldType.MODULE,
+			required: true
 		),
 		new TemplateField(
 			name: 'externalAssayID',
-			type: TemplateFieldType.STRING
+			type: TemplateFieldType.STRING,
+			required: true
 		)
 	]
 
@@ -46,7 +47,7 @@ class Assay extends TemplateEntity {
 	static hasMany = [samples: Sample]
 
 	static constraints = {
-		externalAssayID(unique: true)
+		externalAssayID(nullable:false, blank:false, unique: true)
 	}
 
 	def String toString() {
