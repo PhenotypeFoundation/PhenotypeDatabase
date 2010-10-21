@@ -384,13 +384,13 @@
     color: red;
 }
 
-.wizard ul.publication_list, .wizard ul.contact_list {
+.wizard ul.publication_list, .wizard ul.contact_list, .wizard ul.user_list {
     list-style-type: none;
     margin: -10px 0 0 255px;
     padding: 0;
 }
 
-.wizard ul.publication_list li, .wizard ul.contact_list li {
+.wizard ul.publication_list li, .wizard ul.contact_list li, .wizard ul.user_list li {
     margin-left: 0px;
     padding: 4px 6px;
 }

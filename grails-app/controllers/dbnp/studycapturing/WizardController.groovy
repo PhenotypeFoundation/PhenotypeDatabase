@@ -4,6 +4,9 @@ import dbnp.data.*
 
 // Grails convertors is imported in order to create JSON objects
 import grails.converters.*
+import grails.plugins.springsecurity.Secured
+import dbnp.authentication.AuthenticationService
+import dbnp.authentication.SecUser
 
 
 /**
@@ -11,6 +14,8 @@ import grails.converters.*
  *
  * The wizard controller handles the handeling of pages and data flow
  * through the study capturing wizard.
+ *
+ * This controller is only accessible by logged in users.
  *
  * @author Jeroen Wesbeek
  * @since 20100107
@@ -21,7 +26,10 @@ import grails.converters.*
  * $Author$
  * $Date$
  */
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class WizardController {
+        def AuthenticationService
+        
 	/**
 	 * index method, redirect to the webflow
 	 * @void
@@ -789,6 +797,10 @@ class WizardController {
 				try {
 					// save study
 					println ".saving study"
+
+                                        // Make sure the owner of the study is set right
+                                        flow.study.owner = AuthenticationService.getLoggedInUser()
+                                        
 					if (!flow.study.save(flush:true)) {
 						this.appendErrors(flow.study, flash.errors)
 						throw new Exception('error saving study')
@@ -845,8 +857,16 @@ class WizardController {
 		// load study
 		try {
 			// load study
-			flow.study = (params.studyid) ? Study.findById( params.studyid ) : Study.findByTitle( params.study )
+			def study = (params.studyid) ? Study.findById( params.studyid ) : Study.findByTitle( params.study )
 
+                        // Check whether the user is allowed to edit this study. If it is not allowed
+                        // the used should had never seen a link to this page, so he should never get
+                        // here. That's why we just return false
+                        if( !study.canWrite(AuthenticationService.getLoggedInUser()) ) {
+                            return false;
+                        }
+
+                        flow.study = study
 			// set 'quicksave' variable
 			flow.quickSave = true
 
@@ -902,6 +922,15 @@ class WizardController {
 
 		// handle contacts
 		handleContacts(flow, flash, params)
+
+		// handle users (readers, writers)
+		handleUsers(flow, flash, params, 'readers')
+		handleUsers(flow, flash, params, 'writers')
+
+                // handle public checkbox
+                if( params.get( "publicstudy" ) ) {
+                    flow.study.publicstudy = params.get( "publicstudy" )
+                }
 
 		// validate the study
 		if (flow.study.validate()) {
@@ -1015,6 +1044,67 @@ class WizardController {
 		}
 
 	}
+
+	/**
+	 * re-usable code for handling contacts form data in a web flow
+	 * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map localAttributeMap (the flash scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+         * @param String    'readers' or 'writers' 
+	 * @return boolean
+	 */
+	def handleUsers(flow, flash, params, type) {
+		def users = []
+
+                if( type == "readers" ) {
+                    users = flow.study.readers ?: []
+                } else if( type == "writers" ) {
+                    users = flow.study.writers ?: []
+                }
+
+		// Check the ids of the contacts that should be attached
+		// to this study. If they are already attached, keep 'm. If
+		// studies are attached that are not in the selected (i.e. the
+		// user deleted them), remove them
+
+		// Users are saved as user_id
+		def userIDs = params.get( type + '_ids')
+		if (userIDs) {
+			// Find the individual IDs and make integers
+			userIDs = userIDs.split(',').collect { Integer.parseInt(it, 10) }
+
+			// First remove the publication that are not present in the array
+			users.removeAll { user -> !userIDs.find { id -> id == user.id } }
+
+			// Add those publications not yet present in the database
+			userIDs.each { id ->
+				if (!users.find { user -> id == user.id }) {
+					def user = SecUser.get(id)
+					if (user) {
+                                            users.add(user)
+					} else {
+						println('.user with ID ' + id + ' not found in database.')
+					}
+				}
+			}
+
+		} else {
+			println('.no users selected.')
+			users.clear()
+		}
+
+                if( type == "readers" ) {
+                    if( flow.study.readers )
+                        flow.study.readers.clear()
+                    users.each { flow.study.addToReaders( it ) }
+                } else if( type == "writers" ) {
+                    if( flow.study.writers )
+                        flow.study.writers.clear()
+                        
+                    users.each { flow.study.addToWriters( it ) }
+                }
+
+        }
 	                                         
 	/**
 	 * Handle the wizard subject page

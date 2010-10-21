@@ -17,7 +17,7 @@
 
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Assay
-import org.nmcdsp.plugins.aaaa.SecUser
+import dbnp.authentication.SecUser
 import grails.converters.*
 import nl.metabolomicscentre.dsp.http.BasicAuthentication
 

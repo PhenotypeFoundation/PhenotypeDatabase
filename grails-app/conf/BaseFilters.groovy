@@ -28,6 +28,7 @@ class BaseFilters {
 				session.setMaxInactiveInterval(604800)
 			}
 		}
+
 	}
 }
 

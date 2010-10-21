@@ -1,6 +1,6 @@
 package dbnp.studycapturing
 
-import org.nmcdsp.plugins.aaaa.SecUser
+import dbnp.authentication.SecUser
 
 /**
  * Domain class describing the basic entity in the study capture part: the Study class.
@@ -11,9 +11,9 @@ import org.nmcdsp.plugins.aaaa.SecUser
  * $Date$
  */
 class Study extends TemplateEntity {
-	static searchable = {
-    	[only: ['title', 'Description']] // the description field will be searched only if defined in a study template
-    }
+        static searchable = {
+            [only: ['title', 'Description']] // the description field will be searched only if defined in a study template
+        }
 
 	SecUser owner		// The owner of the study. A new study is automatically owned by its creator.
 	String title        // The title of the study
@@ -28,7 +28,8 @@ class Study extends TemplateEntity {
 	List samples
 	List assays
 	boolean published = false // Determines whether a study is private (only accessable by the owner and writers) or published (also visible to readers)
-
+        boolean publicstudy = false  // Determines whether anonymous users are allowed to see this study. This has only effect when published = true
+        
 	static hasMany = [		
 		subjects: Subject,
 		samplingEvents: SamplingEvent,
@@ -37,7 +38,9 @@ class Study extends TemplateEntity {
 		samples: Sample,
 		assays: Assay,
 		persons: StudyPerson,
-		publications: Publication
+		publications: Publication,
+                readers: SecUser,
+                writers: SecUser
 	]
 
 	static constraints = {
@@ -53,15 +56,6 @@ class Study extends TemplateEntity {
 
 		// Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
 		templateTextFields type: 'text'
-		owner column: "studyowner"
-		title column: "studytitle"
-		code column: "studycode"
-		subjects column: "studysubjects"
-		events column: "studyevents"
-		samplingEvents column: "studysamplingevents"
-		eventGroups column: "studyeventgroups"
-		samples column: "studysamples"
-		assays column: "studyassays"
 	}
 
 	// The external identifier (studyToken) is currently the code of the study.
@@ -406,4 +400,47 @@ class Study extends TemplateEntity {
 
 		return msg
 	}
+
+    /**
+     * Returns true if the given user is allowed to read this study
+     */
+    public boolean canRead(SecUser loggedInUser) {
+        // Anonymous readers are only given access when published and public
+        if( loggedInUser == null ) {
+            return this.publicstudy && this.published;
+        }
+
+        // Owners and writers are allowed to read this study
+        if( this.owner == loggedInUser || this.writers.contains(loggedInUser) ) {
+            return true
+        }
+            
+        // Readers are allowed to read this study when it is published
+        if( this.readers.contains(loggedInUser) && this.published ) {
+            return true
+        }
+        
+        return false
+    }
+
+    /**
+     * Returns true if the given user is allowed to write this study
+     */
+    public boolean canWrite(SecUser loggedInUser) {
+        if( loggedInUser == null ) {
+            return false;
+        }
+        return this.owner == loggedInUser || this.writers.contains(loggedInUser)
+    }
+
+    /**
+     * Returns true if the given user is the owner of this study
+     */
+    public boolean isOwner(SecUser loggedInUser) {
+        if( loggedInUser == null ) {
+            return false;
+        }
+        return this.owner == loggedInUser
+    }
+
 }

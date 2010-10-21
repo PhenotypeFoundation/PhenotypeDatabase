@@ -156,9 +156,45 @@ gscf {
 grails.views.javascript.library="jquery"
 
 // Needed for the Spring Security Core plugin:
-grails.plugins.springsecurity.userLookup.userDomainClassName = 'org.nmcdsp.plugins.aaaa.SecUser'
-grails.plugins.springsecurity.userLookup.authorityJoinClassName = 'org.nmcdsp.plugins.aaaa.SecUserSecRole'
-grails.plugins.springsecurity.authority.className = 'org.nmcdsp.plugins.aaaa.SecRole'
+grails.plugins.springsecurity.userLookup.userDomainClassName = 'dbnp.authentication.SecUser'
+grails.plugins.springsecurity.userLookup.authorityJoinClassName = 'dbnp.authentication.SecUserSecRole'
+grails.plugins.springsecurity.authority.className = 'dbnp.authentication.SecRole'
+grails.plugins.springsecurity.password.algorithm = 'SHA-256'
+grails.plugins.springsecurity.password.encodeHashAsBase64 = true
+grails.plugins.springsecurity.dao.reflectionSaltSourceProperty = 'username' // Use the persons username as salt for encryption
+grails.plugins.springsecurity.securityConfigType = grails.plugins.springsecurity.SecurityConfigType.Annotation
+
+// Make sure the different controllers provided by springsecurity.ui are only accessible by administrators
+// NB: the RegisterController is used for forgotten passwords. It should be accessible by anyone
+grails.plugins.springsecurity.controllerAnnotations.staticRules = [
+    '/user/**': ['ROLE_ADMIN'],
+    '/role/**': ['ROLE_ADMIN'],
+    '/aclclass/**': ['ROLE_ADMIN'],
+    '/aclentry/**': ['ROLE_ADMIN'],
+    '/aclobjectidentity/**': ['ROLE_ADMIN'],
+    '/aclsid/**': ['ROLE_ADMIN'],
+    '/persistentlogin/**': ['ROLE_ADMIN'],
+    '/registrationcode/**': ['ROLE_ADMIN'],
+    '/requestmap/**': ['ROLE_ADMIN'],
+    '/securityinfo/**': ['ROLE_ADMIN']
+]
+
+
+// Needed for sending emails
+grails {
+    mail {
+        host = "smtp.gmail.com"
+        port = 465
+        username = "gscfproject@gmail.com"
+        password = "gscf2010"
+        props = [
+            "mail.smtp.auth":"true",
+            "mail.smtp.socketFactory.port": '465',
+            "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+            "mail.smtp.socketFactory.fallback": "false"
+        ]
+    }
+}
 
 // The OAuth consumer key and secret variables are currently replaced by Jeroen's Continuous Integration script.
 // These keys were requested by me (Tjeerd) from myExperiment.
@@ -172,3 +208,4 @@ oauth {
 		consumer.secret = '$oauthsecret$'
 	}
 }
+

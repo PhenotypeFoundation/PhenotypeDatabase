@@ -1,21 +1,71 @@
 package dbnp.studycapturing
 
 import grails.converters.*
+import grails.plugins.springsecurity.Secured
+
 
 /**
  * Controller class for studies
  */
 class StudyController {
-
+    def AuthenticationService
+    
     //static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
     def index = {
         redirect(action: "list", params: params)
     }
 
+    /**
+     * Shows all studies where the user has access to
+     */
     def list = {
-        params.max = Math.min(params.max ? params.int('max') : 10, 100)
-        [studyInstanceList: Study.list(params), studyInstanceTotal: Study.count()]
+
+        def user = AuthenticationService.getLoggedInUser()
+        def max = Math.min(params.max ? params.int('max') : 10, 100)
+
+        def c = Study.createCriteria()
+
+        def studies
+        if( user == null ) {
+            studies = c.list {
+                maxResults(max)
+                and {
+                    eq( "published", true )
+                    eq( "publicstudy", true )
+                }
+            }
+        } else {
+            studies = c.list {
+                maxResults(max)
+                or {
+                    eq( "owner", user )
+                    writers {
+                        eq( "id", user.id )
+                    }
+                    and {
+                        readers {
+                            eq( "id", user.id )
+                        }
+                        eq( "published", true )
+                    }
+                }
+            }
+        }
+        
+        [studyInstanceList: studies, studyInstanceTotal: studies.count()]
+    }
+
+    /**
+     * Shows studies for which the logged in user is the owner
+     */
+    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
+    def myStudies = {
+        def user = AuthenticationService.getLoggedInUser()
+        def max = Math.min(params.max ? params.int('max') : 10, 100)
+
+        def studies = Study.findAllByOwner(user);
+        render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: studies.count()] )
     }
 
     /**
@@ -42,20 +92,34 @@ class StudyController {
             redirect(action: "list")
         }
         else {
+            // Check whether the user may see this study
+            def loggedInUser = AuthenticationService.getLoggedInUser()
+            if( !studyInstance.canRead(loggedInUser) ) {
+                flash.message = "You have no access to this study"
+                redirect(action: "list")
+            }
+
             // The study instance is packed into an array, to be able to
             // use the same view for showing the study and comparing multiple
             // studies
-            [studyList: [ studyInstance ], multipleStudies: false ]
+            [studyList: [ studyInstance ], multipleStudies: false, loggedInUser: loggedInUser ]
         }
     }
 
-	def showByToken = {
+    def showByToken = {
         def studyInstance = Study.findByCode(params.id)
         if (!studyInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
             redirect(action: "list")
         }
         else {
+            // Check whether the user may see this study
+            def loggedInUser = AuthenticationService.getLoggedInUser()
+            if( !studyInstance.canRead(loggedInUser) ) {
+                flash.message = "You have no access to this study"
+                redirect(action: "list")
+            }
+
             redirect(action: "show", id: studyInstance.id)
         }
     }

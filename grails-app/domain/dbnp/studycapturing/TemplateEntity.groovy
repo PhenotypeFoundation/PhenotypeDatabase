@@ -69,8 +69,6 @@ abstract class TemplateEntity extends Identity {
 
 		// Make sure that the text fields are really stored as TEXT, so that those Strings can have an arbitrary length.
 		templateTextFields type: 'text'
-
-                template column:"templateentitytemplate"
 	}
 
 	// Inject the service for storing files (for TemplateFields of TemplateFieldType FILE).

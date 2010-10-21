@@ -272,33 +272,45 @@
                 </td>
               </g:each>
             </tr>
-			  <tr>
-				<td>Owner</td>
-				<g:each in="${studyList}" var="studyInstance">
-				  <td>
-					<g:if test="${studyInstance.owner}">
-						<g:link controller="user" action="show" id="${studyInstance.owner.id}">${studyInstance.owner?.encodeAsHTML()}</g:link>
-					</g:if>
-					<g:else>
-					 -
-					</g:else>
-				  </td>
-				</g:each>
-			  </tr>
             <tr>
-              <td>Members</td>
+              <td>Public</td>
               <g:each in="${studyList}" var="studyInstance">
                 <td>
-                  <% /* <g:if test="${studyInstance.getAllMemberUsers()==0}">
+                   ${studyInstance.publicstudy}
+                </td>
+              </g:each>
+            </tr>
+            <tr>
+              <td>Owner</td>
+              <g:each in="${studyList}" var="studyInstance">
+                <td>
+                   ${studyInstance.owner.username}
+                </td>
+              </g:each>
+            </tr>
+            <tr>
+              <td>Readers</td>
+              <g:each in="${studyList}" var="studyInstance">
+                <td>
+                  <g:if test="${studyInstance.readers.size() == 0}">
                     -
                   </g:if>
                   <g:else>
-                    <g:each in="${studyInstance.getAllMemberUsers()}" var="memberuser" status="i">
-                      <g:if test="${i > 0}">, </g:if>
-                      <g:link controller="user" action="show" id="${memberuser.id}">${memberuser?.encodeAsHTML()}</g:link>
-                    </g:each>
+                    ${studyInstance.readers.username.join( ", " )}
                   </g:else>
-                  */ %>
+                </td>
+              </g:each>
+            </tr>
+            <tr>
+              <td>Writers</td>
+              <g:each in="${studyList}" var="studyInstance">
+                <td>
+                  <g:if test="${studyInstance.writers.size()==0}">
+                    -
+                  </g:if>
+                  <g:else>
+                    ${studyInstance.writers.username.join( ", " )}
+                  </g:else>
                 </td>
               </g:each>
             </tr>
@@ -844,9 +856,13 @@
         <g:if test="${studyList?.size() == 1}">
           <g:set var="studyInstance" value="${studyList[0]}" />
           <g:hiddenField name="id" value="${studyInstance?.id}" />
-          <span class="button"><g:link class="edit" controller="wizard" params="[jump:'edit']" id="${studyInstance?.id}">${message(code: 'default.button.edit.label', default: 'Edit')}</g:link></span>
-          <span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" /></span>
-        </g:if>
+          <g:if test="${studyInstance.canWrite(loggedInUser)}">
+            <span class="button"><g:link class="edit" controller="wizard" params="[jump:'edit']" id="${studyInstance?.id}">${message(code: 'default.button.edit.label', default: 'Edit')}</g:link></span>
+          </g:if>
+          <g:if test="${studyInstance.isOwner(loggedInUser)}">
+            <span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" /></span>
+          </g:if>
+          </g:if>
         <span class="button"><g:link class="backToList" action="list">Back to list</g:link></span>
       </g:form>
     </div>

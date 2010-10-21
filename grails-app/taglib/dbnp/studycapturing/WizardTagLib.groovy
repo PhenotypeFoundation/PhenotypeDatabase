@@ -2,6 +2,7 @@ package dbnp.studycapturing
 
 import org.codehaus.groovy.grails.plugins.web.taglib.JavascriptTagLib
 import dbnp.studycapturing.*
+import dbnp.authentication.SecUser
 import dbnp.data.*
 import cr.co.arquetipos.crypto.Blowfish
 
@@ -18,6 +19,9 @@ import cr.co.arquetipos.crypto.Blowfish
  * $Date$
  */
 class WizardTagLib extends JavascriptTagLib {
+
+        def AuthenticationService
+        
 	// define the tag namespace (e.g.: <wizard:action ... />
 	static namespace = "wizard"
 
@@ -648,8 +652,18 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	 * @param Map attrs
 	 */
 	def studySelect = { attrs ->
-		// for now, just fetch all studies
-		attrs.from = Study.findAll()
+		// Find all studies the user has access to
+                def user = AuthenticationService.getLoggedInUser()
+
+                def c = Study.createCriteria()
+                attrs.from = c.list {
+                    or {
+                        eq( "owner", user )
+                        writers {
+                            eq( "id", user.id )
+                        }
+                    }
+                }
 
 		// got a name?
 		if (!attrs.name) {
@@ -1310,4 +1324,102 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 
 		out << "Role: " + select(selectAttrs)
 	}
+
+
+	def UserSelectElement = { attrs, body ->
+		// render list with publications currently available
+		baseElement.call(
+			'_userList',
+			attrs,
+			body
+		)
+
+		attrs.description = '';
+
+		// render 'Add user button'
+		baseElement.call(
+			'_userAddButton',
+			attrs,
+			body
+		)
+	}
+
+	/**
+	 * Renders an input box for publications
+	 */
+	def userSelect = { attrs, body ->
+		if (attrs.get('value') == null) {
+			attrs.value = [];
+		}
+		if (attrs.get('description') == null) {
+			attrs.description = '';
+		}
+                
+		out << '<form id="' + attrs.name + '_form" onSubmit="return false;">';
+		out << select(
+			name: attrs.get("name"),
+			value: '',
+                        from: SecUser.list(),
+                        optionValue: 'username',
+                        optionKey: 'id',
+			style: 'width: 400px;'
+		);
+		out << '</form>';
+	}
+
+	def _userList = { attrs, body ->
+		def display_none = 'none';
+		if (!attrs.get('value') || attrs.get('value').size() == 0) {
+			display_none = 'inline';
+		}
+
+		// Add a unordered list
+		out << '<ul class="user_list" id="' + attrs.name + '_list">';
+
+		out << '<li>';
+		out << '<span class="user_none" id="' + attrs.name + '_none" style="display: ' + display_none + ';">';
+		out << '-';
+		out << '</span>';
+		out << '</li>';
+
+		out << '</ul>';
+
+		// Add the publications using javascript
+		out << '<script type="text/javascript">'
+		if (attrs.get('value') && attrs.get('value').size() > 0) {
+			def i = 0;
+			attrs.get('value').each {
+				out << 'showUser( ';
+				out << '  "' + attrs.name + '",';
+				out << '  ' + it.id + ',';
+				out << '  "' + it.username + '",';
+				out << '  ' + i++;
+				out << ');';
+			}
+		}
+		out << '</script>';
+
+		def ids;
+		if (attrs.get('value') && attrs.get('value').size() > 0) {
+			ids = attrs.get('value').id.join(',')
+		} else {
+			ids = '';
+		}
+		out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
+	}
+
+	def _userAddButton = { attrs, body ->
+
+		// Output the dialog for the publications
+		out << '<div id="' + attrs.name + '_dialog">';
+		out << '<p>Select a user from the database.</p>';
+		out << userSelect(attrs, body);
+		out << '</div>';
+		out << '<script type="text/javascript">';
+		out << '  createUserDialog( "' + attrs.name + '" );'
+		out << '</script>';
+
+		out << '<input type="button" onClick="openUserDialog(\'' + attrs.name + '\' );" value="Add User">';
+	}
+
 }

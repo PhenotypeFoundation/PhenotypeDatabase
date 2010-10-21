@@ -30,7 +30,9 @@ import dbnp.studycapturing.TemplateFieldType
 import dbnp.studycapturing.TemplateField
 import grails.converters.JSON
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import grails.plugins.springsecurity.Secured
 
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ImporterController {
     def ImporterService    
 

@@ -5,7 +5,7 @@ import dbnp.data.Term
 import dbnp.rest.common.CommunicationManager
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
-import org.nmcdsp.plugins.aaaa.SecUser
+import dbnp.authentication.*
 
 
 /**
@@ -25,22 +25,30 @@ class BootStrap {
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
-		def user = SecUser.findByUsername('user') ?: new SecUser(
+                def adminRole = SecRole.findByAuthority( 'ROLE_ADMIN' ) ?: new SecRole( authority: 'ROLE_ADMIN' ).save()
+
+                def user = SecUser.findByUsername('user') ?: new SecUser(
                            username: 'user',
-                           password: springSecurityService.encodePassword('useR123!'),
-                           enabled: true).save(failOnError: true)
+                           password: springSecurityService.encodePassword( 'useR123!', 'user' ),
+                           email: 'user@dbnp.org',
+                           userConfirmed: true, adminConfirmed: true).save(failOnError: true)
 
                 def userAdmin = SecUser.findByUsername('admin') ?: new SecUser(
                                 username: 'admin',
-                                password: springSecurityService.encodePassword('admiN123!'),
-                                enabled: true).save(failOnError: true)
+                                password: springSecurityService.encodePassword( 'admiN123!', 'admin' ),
+                                email: 'admin@dbnp.org',
+                                userConfirmed: true, adminConfirmed: true).save(failOnError: true)
+
+                // Make the admin user an administrator
+                SecUserSecRole.create userAdmin, adminRole, true
 
                 def userTest = SecUser.findByUsername('test') ?: new SecUser(
                                 username: 'test',
-                                password: springSecurityService.encodePassword('testT123!'),
-                                enabled: true).save(failOnError: true)
-		
-		println "Done with SpringSecurity bootstrap, created [user, admin, test]."
+                                password: springSecurityService.encodePassword( 'useR123!', 'test' ),
+                                email: 'test@dbnp.org',
+                            userConfirmed: true, adminConfirmed: true).save(failOnError: true)
+
+                println "Done with SpringSecurity bootstrap, created [user, admin, test]."
 
 		// If there are no templates yet in the database
 		if (Template.count() == 0) {
@@ -80,7 +88,7 @@ class BootStrap {
 					).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 				} else {
 					// general study boostrapping
-					BootStrapStudies.addExampleStudies(user)
+					BootStrapStudies.addExampleStudies(user, userAdmin)
 				}
 			}
 
