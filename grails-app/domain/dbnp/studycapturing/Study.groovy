@@ -15,13 +15,13 @@ class Study extends TemplateEntity {
     	[only: ['title', 'Description']] // the description field will be searched only if defined in a study template
     }
 
-	SecUser owner   // The owner of the study. A new study is automatically owned by its creator.
+	SecUser owner		// The owner of the study. A new study is automatically owned by its creator.
 	String title        // The title of the study
 	String code 		// currently used as the external study ID, e.g. to reference a study in a SAM module
 	Date dateCreated
 	Date lastUpdated
 	Date startDate
-        List subjects
+	List subjects
 	List events
 	List samplingEvents
 	List eventGroups
@@ -53,16 +53,15 @@ class Study extends TemplateEntity {
 
 		// Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
 		templateTextFields type: 'text'
-                owner column:"studyowner"
-                title column:"studytitle"
-                code column:"studycode"
-                subjects column:"studysubjects"
-                events column:"studyevents"
-                samplingEvents column:"studysamplingevents"
-                eventGroups column:"studyeventgroups"
-                samples column:"studysamples"
-                assays column:"studyassays"
-
+		owner column: "studyowner"
+		title column: "studytitle"
+		code column: "studycode"
+		subjects column: "studysubjects"
+		events column: "studyevents"
+		samplingEvents column: "studysamplingevents"
+		eventGroups column: "studyeventgroups"
+		samples column: "studysamples"
+		assays column: "studyassays"
 	}
 
 	// The external identifier (studyToken) is currently the code of the study.
@@ -95,7 +94,7 @@ class Study extends TemplateEntity {
 			name: 'published',
 			type: TemplateFieldType.BOOLEAN,
 			comment: 'Determines whether this study is published (accessible for the study readers and, if the study is public, for anonymous users). A study can only be published if it meets certain quality criteria, which will be checked upon save.',
-			required: true)
+			required: false)
 	]
 
 	/**
