@@ -212,7 +212,7 @@ class RestController {
     *
 	* Returns the JSON object: {"name":"Lipid profiling","module":{"class":"dbnp.studycapturing.AssayModule","id":1,
 	* "name":"SAM module for clinical data","platform":"clinical measurements","url":"http://sam.nmcdsp.org"},
-	* "assayToken":"PPS3_SAM","Description":null}
+	* "assayToken":"PPS3_SAM","parentStudyToken":"PPS","Description":null}
 	*/
 	def getAssay = {
 		def items = [:]
@@ -224,6 +224,7 @@ class RestController {
 					def value = assay.getFieldValue( name )
 					items[name] = value
 				}
+				items["parentStudyToken"] = assay.parent.getToken()
 			}
         }
 		render items as JSON
