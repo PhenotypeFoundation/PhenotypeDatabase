@@ -90,6 +90,11 @@ class Study extends TemplateEntity {
 			name: 'startDate',
 			type: TemplateFieldType.DATE,
 			comment: 'Fill out the official start date or date of first action',
+			required: true),
+		new TemplateField(
+			name: 'published',
+			type: TemplateFieldType.BOOLEAN,
+			comment: 'Determines whether this study is published (accessible for the study readers and, if the study is public, for anonymous users). A study can only be published if it meets certain quality criteria, which will be checked upon save.',
 			required: true)
 	]
 
