@@ -1,7 +1,6 @@
 package dbnp.studycapturing
 
 import org.nmcdsp.plugins.aaaa.SecUser
-import org.nmcdsp.plugins.aaaa.Entity
 
 /**
  * The Template class describes a TemplateEntity template, which is basically an extension of the study capture entities

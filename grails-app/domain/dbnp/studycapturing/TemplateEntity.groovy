@@ -2,7 +2,6 @@ package dbnp.studycapturing
 
 import dbnp.data.Term
 import org.springframework.validation.FieldError
-import org.nmcdsp.plugins.aaaa.Entity
 
 /**
  * The TemplateEntity domain Class is a superclass for all template-enabled study capture entities, including

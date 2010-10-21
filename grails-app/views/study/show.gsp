@@ -286,10 +286,10 @@
 				</g:each>
 			  </tr>
             <tr>
-              <td>Members <permissions:manage entity="${studyList[0]}">manage</permissions:manage></td>
+              <td>Members</td>
               <g:each in="${studyList}" var="studyInstance">
                 <td>
-                  <g:if test="${studyInstance.getAllMemberUsers()==0}">
+                  <% /* <g:if test="${studyInstance.getAllMemberUsers()==0}">
                     -
                   </g:if>
                   <g:else>
@@ -298,6 +298,7 @@
                       <g:link controller="user" action="show" id="${memberuser.id}">${memberuser?.encodeAsHTML()}</g:link>
                     </g:each>
                   </g:else>
+                  */ %>
                 </td>
               </g:each>
             </tr>

@@ -1,7 +1,5 @@
 package dbnp.studycapturing
 
-import org.nmcdsp.plugins.aaaa.Entity
-
 /**
  * Identity Domain Class
  *
@@ -42,7 +40,7 @@ import org.nmcdsp.plugins.aaaa.Entity
  * $Author$
  * $Date$
  */
-abstract class Identity extends Entity implements Serializable {
+abstract class Identity implements Serializable {
 	// keep an internal identifier for use in dynamic forms
 	private int identifier = 0
 	private int maximumIdentity = 99999
