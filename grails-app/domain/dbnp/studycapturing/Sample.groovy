@@ -53,7 +53,9 @@ class Sample extends TemplateEntity {
 	static constraints = {
 		// The parent subject is optional, e.g. in a biobank of samples the subject could be unknown or non-existing.
 		parentSubject(nullable:true)
-
+		// The same holds for parentEvent
+		parentEvent(nullable:true)
+		
 		// The material domain field is optional
 		material(nullable: true)
 

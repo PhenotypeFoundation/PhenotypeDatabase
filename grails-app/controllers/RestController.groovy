@@ -155,10 +155,10 @@ class RestController {
 				assay.getSamples().each { sample ->
 					def item = [ 
 						'sampleToken' : sample.name,
-						'material'	  : sample.material.name,
-						'subject'	  : sample.parentSubject.name,
-						'event'		  : sample.parentEvent.template.name,
-						'startTime'	  : sample.parentEvent.getStartTimeString()
+						'material'	  : sample.material?.name,
+						'subject'	  : sample.parentSubject?.name,
+						'event'		  : sample.parentEvent?.template?.name,
+						'startTime'	  : sample.parentEvent?.getStartTimeString()
 					]
 					items.push item 
 				}
