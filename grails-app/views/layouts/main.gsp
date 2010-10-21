@@ -27,6 +27,7 @@
 		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NMC & NuGO. All rights reserved.
 		<g:if env="development">( style: <%=session.style%> )</g:if>
 	</div>
+	<img src="${resource(dir: 'images', file: 'beta-stamp.png')}" alt="beta">
 	<g:if env="development"><g:render template="/common/feedback"/></g:if>
 </div>
 </body>

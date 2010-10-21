@@ -17,26 +17,7 @@
 </script>
 	<img id="add_feedback" src="${resource(dir: 'images', file: 'icons/famfamfam/bug_add.png')}" style="cursor: pointer;" alt="submit feedback for this page" />
 	<div class="feedback" id="feedback">
-	  <form>
-		<g:hiddenField name="feedbackUrl" />
-		<g:hiddenField name="feedbackWindowWidth" />
-		<g:hiddenField name="feedbackWindowHeight" />
-		<g:hiddenField name="feedbackUserAgent" />
-		<div class="element">
-			<div class="name">Type of feedback</div>
-			<div class="input"><g:select name="feedbackType" from="${['bug','feature']}" /></div>
-		</div>
-		<div class="element">
-			<div class="name">Your name</div>
-			<div class="input"><g:textField name="feedbackName" /></div>
-		</div>
-		<div class="element">
-			<div class="name">Remark</div>
-			<div class="input"><g:textArea name="feedbackBody" rows="5" cols="40">detailed feedback description...</g:textArea></div>
-		</div>
-		<div class="element">
-			<div class="name"></div>
-			<div class="input"><g:submitToRemote url="[controller:'feedback',action:'add']" update="[success:'feedback']" value="submit feedback" /></div>
-		</div>
-	  </form>
+	<iframe src ="https://trac.nbic.nl/gscf/newticket" width="100%" height="300">
+	  <p>Your browser does not support iframes. Click <a href="https://trac.nbic.nl/gscf/newticket" target="_new">here</a> to report a bug.</p>
+	</iframe>
 	</div>
