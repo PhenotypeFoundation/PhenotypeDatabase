@@ -43,35 +43,14 @@ class SampleTests extends StudyTests {
 		def study = Study.findByTitle(testStudyName)
 		assert study
 
-		// Look up sampling event template
-		def samplingEventTemplate = Template.findByName(testSamplingEventTemplateName)
-		assert samplingEventTemplate
-
 		// Look up sample template
 		def sampleTemplate = Template.findByName(testSampleTemplateName)
 		assert sampleTemplate
 
-		// Create parent sampling event
-		def samplingEvent = new SamplingEvent(
-			startTime: testSamplingEventTime,
-			duration: testSamplingEventDuration,
-			template: samplingEventTemplate,
-			sampleTemplate: sampleTemplate
-		)
-
-		// The SamplingEvent should not validate at this point because it doesn't have a parent study
-		assert !samplingEvent.validate()
-
-		study.addToSamplingEvents(samplingEvent)
-		// It should do fine now
-		assert samplingEvent.validate()
-		assert samplingEvent.save(flush:true)
-
 		// Create sample with the retrieved study as parent
 		def sample = new Sample(
 		    name: testSampleName,
-		    template: sampleTemplate,
-		    parentEvent: samplingEvent
+		    template: sampleTemplate
 		)
 
 		// At this point, the sample should not validate, because it doesn't have a parent study assigned
@@ -92,6 +71,70 @@ class SampleTests extends StudyTests {
 
 	}
 
+	private void addParentSamplingEvent() {
+
+		// Retrieve the sample
+		def sampleDB = Sample.findByName(testSampleName)
+		assert sampleDB
+
+		// Retrieve the study that should have been created in StudyTests
+		def study = Study.findByTitle(testStudyName)
+		assert study
+
+		// Look up sampling event template
+		def samplingEventTemplate = Template.findByName(testSamplingEventTemplateName)
+		assert samplingEventTemplate
+
+		// Create parent sampling event
+		def samplingEvent = new SamplingEvent(
+			startTime: testSamplingEventTime,
+			duration: testSamplingEventDuration,
+			template: samplingEventTemplate,
+			sampleTemplate: Template.findByName(testSampleTemplateName)
+		)
+
+		// The SamplingEvent should not validate at this point because it doesn't have a parent study
+		assert !samplingEvent.validate()
+
+		study.addToSamplingEvents(samplingEvent)
+		// It should do fine now
+		assert samplingEvent.validate()
+		assert samplingEvent.save(flush:true)
+
+		// Add sample to the sampling event
+		samplingEvent.addToSamples(sampleDB)
+
+		// Make sure the sampling event is really the parent event of the sample
+		assert sampleDB.parentEvent
+		assert sampleDB.parentEvent == samplingEvent
+		assert sampleDB.parentEvent.startTime.equals(testSamplingEventTime)
+
+	}
+
+	void testStudyPublish() {
+		def sampleDB = Sample.findByName(testSampleName)
+		assert sampleDB
+
+		// Retrieve the parent study
+		def study = Study.findByTitle(testStudyName)
+		assert study
+
+		// Make sure the study validates at this point
+		assert study.validate()
+
+		// Try to publish the study, should fail as it has a sample without a parent sampling event
+		//study.published = true
+		assert !study.validate()
+
+		// Add parent sampling event
+		addParentSamplingEvent()
+
+		// Add parent subject
+
+		// Now the study should validate
+		assert study.validate()
+	}
+
 	void testSave() {
 
 		// Try to retrieve the sample and make sure it's the same
@@ -99,22 +142,17 @@ class SampleTests extends StudyTests {
 		assert sampleDB
 		assert sampleDB.name.equals(testSampleName)
 		assert sampleDB.template.name.equals(testSampleTemplateName)
-		assert sampleDB.parentEvent
-		assert sampleDB.parentEvent.startTime.equals(testSamplingEventTime)
 
 		println "The sample has parentEvent ${sampleDB.parentEvent.encodeAsHTML()}"
 		// A sample without a name should not be saveable
 		sampleDB.name = null
 		assert !sampleDB.validate()
 
-		// A sample without a parent SamplingEvent should not be saveable
-		sampleDB.name = testSampleName
-		sampleDB.parentEvent = null
-		assert !sampleDB.validate()
 	}
 
 	void testDelete() {
 		def sampleDB = Sample.findByName(testSampleName)
+		assert sampleDB
 		sampleDB.delete()
 		try {
 			sampleDB.save()
@@ -176,6 +214,9 @@ class SampleTests extends StudyTests {
 		def study = Study.findByTitle(testStudyName)
 		assert study
 
+		// Add parent sampling event
+		addParentSamplingEvent()
+
 		def event = sampleDB.parentEvent
 		assert event
 
@@ -204,6 +245,7 @@ class SampleTests extends StudyTests {
 		assert study
 
 		// Retrieve the sample's sampling event
+		addParentSamplingEvent()
 		def event = sampleDB.parentEvent
 		assert event
 
@@ -228,9 +270,14 @@ class SampleTests extends StudyTests {
 		assert group.validate()
 		assert study.save()
 
-		// Use the deleteSamplingEvent method
+		// Use the deleteEventGroup method
 		def msg = study.deleteEventGroup(group)
 		println msg
+		if (!study.validate()) {
+			study.errors.each { println it}
+		}
+		assert study.validate()
+
 		assert study.save()
 
 		assert !study.eventGroups.contains(group)
@@ -325,6 +372,10 @@ class SampleTests extends StudyTests {
 	}
 
 	void testFindViaSamplingEvent() {
+
+		// Add parent sampling event
+		addParentSamplingEvent()
+		
 		// Try to retrieve the sampling event by using the time...
 		// (should be also the parent study but that's not yet implemented)
 		def samplingEventDB = SamplingEvent.findByStartTime(testSamplingEventTime)
@@ -333,7 +384,7 @@ class SampleTests extends StudyTests {
 		def samples = samplingEventDB.getSamples()
 		assert samples
 		assert samples.size() == 1
-		assert samples.first().name == testSampleName
+		assert samples.every {it.name == testSampleName}
 	}
 
 	void testDomainFields() {
