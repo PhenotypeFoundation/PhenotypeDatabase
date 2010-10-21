@@ -273,6 +273,7 @@ class SampleTests extends StudyTests {
 		// Use the deleteEventGroup method
 		def msg = study.deleteEventGroup(group)
 		println msg
+		assert Sample.count() == 0 // trigger (if any) e.ObjectDeletedException: deleted object would be re-saved by cascade (remove deleted object from associations)
 		if (!study.validate()) {
 			study.errors.each { println it}
 		}

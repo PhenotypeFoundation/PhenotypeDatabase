@@ -27,6 +27,7 @@ class Study extends TemplateEntity {
 	List eventGroups
 	List samples
 	List assays
+	boolean published = false // Determines whether a study is private (only accessable by the owner and writers) or published (also visible to readers)
 
 	static hasMany = [		
 		subjects: Subject,
@@ -340,7 +341,7 @@ class Study extends TemplateEntity {
 							)
 						})
 					)
-				}.each() {
+				}.each() { sample ->
 					// remove sample from study
 
 					// -------
@@ -348,13 +349,21 @@ class Study extends TemplateEntity {
 					// get deleted from the database!
 					// -------
 
-					println ".removing sample '${it.name}' from study '${this.title}'"
-					msg += ", sample '${it.name}' was deleted"
-					this.removeFromSamples( it )
+					println ".removing sample '${sample.name}' from study '${this.title}'"
+					msg += ", sample '${sample.name}' was deleted"
+					this.removeFromSamples( sample )
+
+					// remove the sample from any sampling events it belongs to
+					this.samplingEvents.findAll { it.samples.any { it == sample }} .each {
+						println ".removed sample ${sample.name} from sampling event ${it} at ${it.getStartTimeString()}"
+						it.removeFromSamples(sample)
+					}
+
+					// TODO: remove the sample from any assays it belongs to
 
 					// Also here, contrary to documentation, an extra delete() is needed
 					// otherwise date is not properly deleted!
-					it.delete()
+					sample.delete()
 				}
 			}
 
