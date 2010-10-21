@@ -111,6 +111,27 @@ class SampleTests extends StudyTests {
 
 	}
 
+	private void addParentSubject() {
+
+		def sampleDB = Sample.findByName(testSampleName)
+		assert sampleDB
+
+		// Retrieve the parent study
+		def study = Study.findByTitle(testStudyName)
+		assert study
+
+		def subject = SubjectTests.createSubject(study)
+		assert subject
+
+		sampleDB.parentSubject = subject
+		assert sampleDB.validate()
+		assert sampleDB.save()
+
+	}
+
+	/**
+	 * Test whether a study which has orphan (without parent subject/event) samples cannot be published
+	 */
 	void testStudyPublish() {
 		def sampleDB = Sample.findByName(testSampleName)
 		assert sampleDB
@@ -123,13 +144,14 @@ class SampleTests extends StudyTests {
 		assert study.validate()
 
 		// Try to publish the study, should fail as it has a sample without a parent sampling event
-		//study.published = true
+		study.published = true
 		assert !study.validate()
 
 		// Add parent sampling event
 		addParentSamplingEvent()
 
 		// Add parent subject
+		addParentSubject()
 
 		// Now the study should validate
 		assert study.validate()
@@ -183,12 +205,9 @@ class SampleTests extends StudyTests {
 		def study = Study.findByTitle(testStudyName)
 		assert study
 
-		def subject = SubjectTests.createSubject(study)
-		assert subject
-
-		sampleDB.parentSubject = subject
-		assert sampleDB.validate()
-		assert sampleDB.save()
+		// Add parent subject
+		addParentSubject()
+		Subject subject = sampleDB.parentSubject
 
 		// Use the deleteSubject method
 		def msg = study.deleteSubject(subject)
@@ -249,23 +268,20 @@ class SampleTests extends StudyTests {
 		def event = sampleDB.parentEvent
 		assert event
 
-		// Create a subject and add it at the sample's parent
-		def subject = SubjectTests.createSubject(study)
-		assert subject
-		sampleDB.parentSubject = subject
-		assert sampleDB.validate()
-		assert sampleDB.save()
+		// Add parent subject
+		addParentSubject()
+		Subject subject = sampleDB.parentSubject
 
-		// Create an event group in this study with the sample's sampling event
+		// Create an event group in this study with the sample's sampling event and subject
 		def group = new EventGroup(
 		    name: testEventGroupName
 		)
 		study.addToEventGroups(group)
 		assert group.validate()
 
-
 		group.addToSubjects(subject)
 		group.addToSamplingEvents(event)
+
 		assert study.eventGroups.find { it.name == group.name}
 		assert group.validate()
 		assert study.save()

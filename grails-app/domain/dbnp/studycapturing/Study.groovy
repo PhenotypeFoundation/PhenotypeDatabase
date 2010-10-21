@@ -43,6 +43,9 @@ class Study extends TemplateEntity {
 	static constraints = {
 		owner(nullable: true, blank: true)
 		code(nullable:false, blank:true,unique:true)
+
+		// TODO: add custom validator for 'published' to assess whether the study meets all quality criteria for publication
+		// tested by SampleTests.testStudyPublish
 	}
 
 	static mapping = {
@@ -359,7 +362,11 @@ class Study extends TemplateEntity {
 						it.removeFromSamples(sample)
 					}
 
-					// TODO: remove the sample from any assays it belongs to
+					// remove the sample from any assays it belongs to
+					this.assays.findAll { it.samples.any { it == sample }} .each {
+						println ".removed sample ${sample.name} from assay ${it.name}"
+						it.removeFromSamples(sample)
+					}
 
 					// Also here, contrary to documentation, an extra delete() is needed
 					// otherwise date is not properly deleted!
