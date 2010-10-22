@@ -664,6 +664,11 @@
                   <g:if test="${multipleStudies}">
                     <th></th>
                   </g:if>
+
+	                <th>Parent Subject</th>
+	                <th>Parent Sampling Event</th>
+
+
                   <g:each in="${new dbnp.studycapturing.Sample().giveDomainFields()}" var="field">
                     <th>${field}</th>
                   </g:each>
@@ -728,6 +733,8 @@
                         ${studyInstance.title}
                       </td>
                     </g:if>
+	                  <td>${sample.parentSubject?.name}</td>
+	                  <td>${sample.parentEvent?.template?.name} at ${sample.parentEvent?.getStartTimeString()}</td>
                     <g:each in="${sample.giveDomainFields()}" var="field">
                       <td>${sample.getFieldValue(field.name)}</td>
                     </g:each>
