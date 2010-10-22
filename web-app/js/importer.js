@@ -464,7 +464,7 @@ function showPublication( element_id, id, title, authors, nr ) {
     var deletebutton = document.createElement( 'img' );
     deletebutton.className = 'famfamfam delete_button';
     deletebutton.setAttribute( 'alt', 'remove this publication' );
-    deletebutton.setAttribute( 'src', baseUrl + '/images/icons/famfamfam/delete.png' );
+    deletebutton.setAttribute( 'src', baseUrl + '/plugins/famfamfam-1.0.1/images/icons/delete.png' );
     deletebutton.onclick = function() { removePublication(  element_id, id ); return false; };
 
     var titleDiv = document.createElement( 'div' );
@@ -648,7 +648,7 @@ function showContact( element_id, id, fullName, role, nr ) {
     var deletebutton = document.createElement( 'img' );
     deletebutton.className = 'famfamfam delete_button';
     deletebutton.setAttribute( 'alt', 'remove this person' );
-    deletebutton.setAttribute( 'src', baseUrl + '/images/icons/famfamfam/delete.png' );
+    deletebutton.setAttribute( 'src', baseUrl + '/plugins/famfamfam-1.0.1/images/icons/delete.png' );
     deletebutton.onclick = function() { removeContact(  element_id, id ); return false; };
 
     var titleDiv = document.createElement( 'div' );

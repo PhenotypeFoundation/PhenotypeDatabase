@@ -15,7 +15,7 @@
 		});
 	});
 </script>
-	<img id="add_feedback" src="${resource(dir: 'images', file: 'icons/famfamfam/bug_add.png')}" style="cursor: pointer;" alt="submit feedback for this page" />
+	<img id="add_feedback" src="${resource(dir: 'images/icons', file: 'bug_add.png', plugin: 'famfamfam')}" style="cursor: pointer;" alt="submit feedback for this page"/>
 	<div class="feedback" id="feedback">
 	<iframe src ="https://trac.nbic.nl/gscf/newticket" width="100%" height="300">
 	  <p>Your browser does not support iframes. Click <a href="https://trac.nbic.nl/gscf/newticket" target="_new">here</a> to report a bug.</p>

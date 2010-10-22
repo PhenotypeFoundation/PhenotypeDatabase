@@ -1,8 +1,8 @@
 <g:set var="numUses" value="${template.numUses()}" />
 <span class="listButtons">
-  <img onClick="editTemplate( ${template.id} );" src="${createLinkTo( dir: 'images', file: 'icons/famfamfam/application_edit.png')}" alt="Edit template properties" title="Edit template properties">
-  <img onClick="editFields( ${template.id} );"src="${createLinkTo( dir: 'images', file: 'icons/famfamfam/application_form.png')}" alt="Add/remove template fields" title="Add/remove template fields">
-  <img class="disabled" src="${createLinkTo( dir: 'images', file: 'icons/famfamfam/delete.png')}" alt="Deleting this template is not possible. Template is used in ${numUses} objects." title="Deleting this template is not possible. Template is used in ${numUses} objects.">
+  <img onClick="editTemplate( ${template.id} );" src="${createLinkTo( dir: 'images/icons', file: 'application_edit.png', plugin: 'famfamfam' )}" alt="Edit template properties" title="Edit template properties">
+  <img onClick="editFields( ${template.id} );"src="${createLinkTo( dir: 'images/icons', file: 'application_form.png', plugin: 'famfamfam' )}" alt="Add/remove template fields" title="Add/remove template fields">
+  <img class="disabled" src="${createLinkTo( dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam' )}" alt="Deleting this template is not possible. Template is used in ${numUses} objects." title="Deleting this template is not possible. Template is used in ${numUses} objects.">
 </span>
 ${template.name}
 

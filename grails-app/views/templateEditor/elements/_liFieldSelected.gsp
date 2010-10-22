@@ -1,9 +1,9 @@
 <span class="listButtons">
   <g:if test="${template.inUse()}">
-	<img class="disabled" src="${createLinkTo( dir: 'images', file: 'icons/famfamfam/delete.png')}" alt="This field can not be removed from the template, as the template is still in use." title="This field can not be removed from the template, as the template is still in use.">
+	<img class="disabled" src="${createLinkTo( dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam' )}" alt="This field can not be removed from the template, as the template is still in use." title="This field can not be removed from the template, as the template is still in use.">
   </g:if>
   <g:else>
-	<img onClick="removeTemplateField( ${templateField.id} ); moveFieldListItem( ${templateField.id}, '#availableTemplateFields' );" src="${createLinkTo( dir: 'images', file: 'icons/famfamfam/delete.png')}" alt="Remove this template field from the template" title="Remove this template field from the template">
+	<img onClick="removeTemplateField( ${templateField.id} ); moveFieldListItem( ${templateField.id}, '#availableTemplateFields' );" src="${createLinkTo( dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam' )}" alt="Remove this template field from the template" title="Remove this template field from the template">
   </g:else>
 </span>
 

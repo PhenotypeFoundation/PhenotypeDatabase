@@ -51,7 +51,7 @@
 				<div class="row">
 					<div class="firstColumn">${assay.getIdentifier()}</div>
 					<div class="firstColumn">
-						<wizard:ajaxButton name="deleteAssay" src="../images/icons/famfamfam/delete.png" alt="delete this assay" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${assay.getIdentifier()});" afterSuccess="onWizardPage()"/>
+						<wizard:ajaxButton name="deleteAssay" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this assay" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${assay.getIdentifier()});" afterSuccess="onWizardPage()"/>
 					</div>
 					<wizard:templateColumns class="column" entity="${assay}" name="assay_${assay.getIdentifier()}" />
 				</div>

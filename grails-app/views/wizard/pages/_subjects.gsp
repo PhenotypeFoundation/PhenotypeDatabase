@@ -56,7 +56,7 @@
 				<div class="row">
 					<div class="firstColumn">${subject.getIdentifier()}</div>
 					<div class="firstColumn">
-						<wizard:ajaxButton name="delete" src="../images/icons/famfamfam/delete.png" alt="delete this subject" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${subject.getIdentifier()});" afterSuccess="onWizardPage()" />
+						<wizard:ajaxButton name="delete" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this subject" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${subject.getIdentifier()});" afterSuccess="onWizardPage()" />
 					</div>
 					<wizard:templateColumns class="column" entity="${subject}" name="subject_${subject.getIdentifier()}" />
 				</div>

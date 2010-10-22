@@ -19,7 +19,7 @@
     display: block;
     margin-bottom: 5px;
     padding-left: 20px;
-    background: url(../images/icons/famfamfam/information.png) no-repeat center left;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/information.png) no-repeat center left;
 }
 
 .wizard .info .error {
@@ -29,7 +29,7 @@
     display: block;
     margin-bottom: 5px;
     padding-left: 20px;
-    background: url(../images/icons/famfamfam/error.png) no-repeat center left;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat center left;
 }
 
 .wizard .info .warning {
@@ -39,7 +39,7 @@
     display: block;
     margin-bottom: 5px;
     padding-left: 20px;
-    background: url(../images/icons/famfamfam/exclamation.png) no-repeat center left;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/exclamation.png) no-repeat center left;
 }
 
 .wizard .info .todo {
@@ -49,7 +49,7 @@
     display: block;
     margin-bottom: 5px;
     padding-left: 20px;
-    background: url(../images/icons/famfamfam/wrench.png) no-repeat center left;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/wrench.png) no-repeat center left;
 }
 
 .wizard .info .known {
@@ -59,7 +59,7 @@
     display: block;
     margin-bottom: 5px;
     padding-left: 20px;
-    background: url(../images/icons/famfamfam/eye.png) no-repeat center left;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/eye.png) no-repeat center left;
 }
 
 .wizard .famfamfam {
@@ -181,11 +181,11 @@
 }
 
 .wizard .required {
-    background: url(../images/icons/famfamfam/bullet_go.png) no-repeat 230px 4px;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/bullet_go.png) no-repeat 230px 4px;
 }
 
 .wizard .error {
-    background: url(../images/icons/famfamfam/exclamation.png) no-repeat 230px 2px;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/exclamation.png) no-repeat 230px 2px;
 }
 
 .wizard .element .input input, textarea {
@@ -205,7 +205,7 @@
 .wizard .element .helpIcon {
     display: inline-block;
     margin-top: 4px;
-    background: url(../images/icons/famfamfam/help.png) no-repeat left top;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/help.png) no-repeat left top;
     width: 16px;
     height: 16px;
     zoom: 1; /* IE 6 & 7 hack */
@@ -236,7 +236,7 @@
 .wizard .table .selectAll {
     display: inline-block;
     background-color: red;
-    background: url(../images/icons/famfamfam/control_eject.png) no-repeat center center;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/control_eject.png) no-repeat center center;
     -webkit-transform: rotate(180deg);
     -moz-transform: rotate(180deg);
     -o-transform: rotate(180g);
@@ -257,7 +257,7 @@
 .wizard .column .helpIcon {
     display: inline-block;
     margin-top: 4px;
-    background: url(../images/icons/famfamfam/help.png) no-repeat left top;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/help.png) no-repeat left top;
     width: 16px;
     height: 16px;
     zoom: 1; /* IE 6 & 7 hack */

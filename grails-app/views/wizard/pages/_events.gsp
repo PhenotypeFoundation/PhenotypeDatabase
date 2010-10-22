@@ -83,11 +83,11 @@
 					<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 					<div class="column">
 						<g:textField name="eventGroup_${eventGroup.getIdentifier()}_${template.getIdentifier()}" value="${eventGroup.name}" />
-						<wizard:ajaxButton name="deleteEventGroup" src="../images/icons/famfamfam/delete.png" alt="delete this eventgroup" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${eventGroup.getIdentifier()});" afterSuccess="onWizardPage()" />
+						<wizard:ajaxButton name="deleteEventGroup" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this eventgroup" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${eventGroup.getIdentifier()});" afterSuccess="onWizardPage()" />
 					</div>
 					</g:each></g:if>
 					<div class="firstColumn">
-						<wizard:ajaxButton name="addEventGroup" src="../images/icons/famfamfam/add.png" alt="add a new eventgroup" class="famfamfam" value="+" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
+						<wizard:ajaxButton name="addEventGroup" src="${resource(dir: 'images/icons', file: 'add.png', plugin: 'famfamfam')}" alt="add a new eventgroup" class="famfamfam" value="+" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
 					</div>
 				  <wizard:templateColumnHeaders class="column" entity="${event}" />
 				</div>
@@ -96,7 +96,7 @@
 				<div class="row">
 					<div class="firstColumn">${event.getIdentifier()}</div>
 					<div class="firstColumn">
-						<wizard:ajaxButton name="deleteEvent" src="../images/icons/famfamfam/delete.png" alt="delete this event" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onWizardPage()"/>
+						<wizard:ajaxButton name="deleteEvent" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this event" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onWizardPage()"/>
 					</div>
 					<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 					<div class="column">

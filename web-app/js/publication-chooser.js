@@ -191,7 +191,7 @@ PublicationChooser.prototype = {
         
         var imgEl = document.createElement( 'img' );
         imgEl.setAttribute( 'id', inputElement.attr( 'id' ) + '_delete' );
-        imgEl.setAttribute( 'src', baseUrl + '/images/icons/famfamfam/delete.png' );
+        imgEl.setAttribute( 'src', baseUrl + '/plugins/famfamfam-1.0.1/images/icons/delete.png' );
         imgEl.setAttribute( 'style', 'margin-left: 5px; margin-right: 5px; ');
 
         notfoundSpan.appendChild( imgEl );
