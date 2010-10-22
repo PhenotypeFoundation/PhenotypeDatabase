@@ -98,7 +98,7 @@ class LoginController {
 			def config = SpringSecurityUtils.securityConfig
             String view = 'auth'
             String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
-            String redirectUrl = g.createLink( absolute: true, controller: 'login', action: 'auth_remote', params: [ consumer: params.consumer, token: params.token, returnUrl: params.returnUrl ] )
+            String redirectUrl = g.createLink( controller: 'login', action: 'auth_remote', params: [ consumer: params.consumer, token: params.token, returnUrl: params.returnUrl ], absolute: true )
             render view: view, model: [postUrl: postUrl,
                                        rememberMeParameter: config.rememberMe.parameter, redirectUrl: redirectUrl ]
         }

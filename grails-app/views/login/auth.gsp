@@ -44,39 +44,25 @@
 
 <body>
 	<div id='login'>
-		<div class='inner'>
-			<g:if test='${flash.message}'>
-			<div class='login_message'>${flash.message}</div>
-			</g:if>
-			<div class='fheader'>Please Login..</div>
-			<form action='${postUrl}' method='POST' id='loginForm' class='cssform' autocomplete='off'>
-				<p>
-					<label for='username'>Login ID</label>
-					<input type='text' class='text_' name='j_username' id='username' />
-				</p>
-				<p>
-					<label for='password'>Password</label>
-					<input type='password' class='text_' name='j_password' id='password' />
-				</p>
-				<p>
-					<label for='remember_me'>Remember me</label>
-					<input type='checkbox' class='chk' name='${rememberMeParameter}' id='remember_me'
-					<g:if test='${hasCookie}'>checked='checked'</g:if> />
-				</p>
-				<p>
-					<input type='submit' value='Login' />
-				</p>
+		<div class='inner' style="margin-top: 160px;">
 
-                                <g:if test="${redirectUrl}">
-                                  <g:hiddenField name="spring-security-redirect" value="${redirectUrl}" />
-                                </g:if>
-			</form>
+			<!-- Logging in is handled in the login panel -->
+			<!-- That's why the login form is removed here, and the data is moved down -->
+
+			  <g:if test='${flash.message}'>
+				<div class='login_message'>${flash.message}</div>
+			  </g:if>
+			  <div class='fheader'>Please Login..</div>
+
 		</div>
 	</div>
 <script type='text/javascript'>
 <!--
 (function(){
-	document.forms['loginForm'].elements['j_username'].focus();
+	// Open login panel
+	$("div#panel").slideDown("slow");
+	$("#toggle a").toggle();
+
 })();
 // -->
 </script>

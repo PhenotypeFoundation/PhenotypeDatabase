@@ -20,6 +20,11 @@
 					<g:if test='${hasCookie}'>checked='checked'</g:if> /> Remember me</label>
                                         <div class="clear"></div>
 					<input type="submit" name="submit" value="Login" class="bt_login" />
+
+					<g:if test="${redirectUrl}">
+					  <g:hiddenField name="spring-security-redirect" value="${redirectUrl}" />
+					</g:if>
+
 					<a class="lost-pwd" href="<g:createLink url="[action:'forgotPassword',controller:'register']" class="lost-pwd" />">Lost your password?</a>
 				</g:form>
 			</div>

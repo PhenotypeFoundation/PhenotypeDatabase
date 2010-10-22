@@ -65,7 +65,6 @@ class RestControllerTests extends ControllerUnitTestCase {
 
 		controller.getStudies()
 		println controller.response.contentAsString
-		controller.response.getHeaders().each { println it }
     }
 
     void testGetStudy() {
