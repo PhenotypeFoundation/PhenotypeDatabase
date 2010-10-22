@@ -29,7 +29,7 @@ import dbnp.authentication.SecUser
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class WizardController {
         def AuthenticationService
-        
+
 	/**
 	 * index method, redirect to the webflow
 	 * @void
@@ -283,7 +283,7 @@ class WizardController {
 				// handle form data
 				subjectPage(flow, flash, params) ? success() : error()
 			}.to "events"
-			on("quickSave") {				
+			on("quickSave") {
 				// handle form data
 				subjectPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
@@ -371,7 +371,7 @@ class WizardController {
 				if (flow.event.validate()) {
 					// remove event from the flowscope
 					flow.remove('event')
-					
+
 					success()
 				} else {
 					// event does not validate
@@ -555,7 +555,7 @@ class WizardController {
 
 				// ignore errors
 				flash.errors = [:]
-				
+
 				succes()
 			}.to "samples"
 			on("refresh") {
@@ -670,7 +670,7 @@ class WizardController {
 			}.to "assays"
 			on("deleteAssay") {
 				println params
-				
+
 				// handle form data
 				assayPage(flow, flash, params)
 
@@ -800,7 +800,7 @@ class WizardController {
 
                                         // Make sure the owner of the study is set right
                                         flow.study.owner = AuthenticationService.getLoggedInUser()
-                                        
+
 					if (!flow.study.save(flush:true)) {
 						this.appendErrors(flow.study, flash.errors)
 						throw new Exception('error saving study')
@@ -859,14 +859,15 @@ class WizardController {
 			// load study
 			def study = (params.studyid) ? Study.findById( params.studyid ) : Study.findByTitle( params.study )
 
-                        // Check whether the user is allowed to edit this study. If it is not allowed
-                        // the used should had never seen a link to this page, so he should never get
-                        // here. That's why we just return false
-                        if( !study.canWrite(AuthenticationService.getLoggedInUser()) ) {
-                            return false;
-                        }
+			// Check whether the user is allowed to edit this study. If it is not allowed
+			// the used should had never seen a link to this page, so he should never get
+			// here. That's why we just return false
+			if (!study.canWrite(AuthenticationService.getLoggedInUser())) {
+				return false
+			}
 
-                        flow.study = study
+			flow.study = study
+
 			// set 'quicksave' variable
 			flow.quickSave = true
 
@@ -881,7 +882,7 @@ class WizardController {
 
 	/**
 	 * Handle the wizard study page
-	 * 
+	 *
 	 * @param Map LocalAttributeMap (the flow scope)
 	 * @param Map localAttributeMap (the flash scope)
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
@@ -890,7 +891,7 @@ class WizardController {
 	def studyPage(flow, flash, params) {
 		// remember the params in the flash scope
 		flash.values = params
-		
+
 		// instantiate study of it is not yet present
 		if (!flow.study) flow.study = new Study()
 
@@ -927,10 +928,10 @@ class WizardController {
 		handleUsers(flow, flash, params, 'readers')
 		handleUsers(flow, flash, params, 'writers')
 
-                // handle public checkbox
-                if( params.get( "publicstudy" ) ) {
-                    flow.study.publicstudy = params.get( "publicstudy" )
-                }
+		// handle public checkbox
+		if (params.get("publicstudy")) {
+			flow.study.publicstudy = params.get("publicstudy")
+		}
 
 		// validate the study
 		if (flow.study.validate()) {
@@ -1050,17 +1051,17 @@ class WizardController {
 	 * @param Map LocalAttributeMap (the flow scope)
 	 * @param Map localAttributeMap (the flash scope)
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
-         * @param String    'readers' or 'writers' 
+         * @param String    'readers' or 'writers'
 	 * @return boolean
 	 */
 	def handleUsers(flow, flash, params, type) {
 		def users = []
 
-                if( type == "readers" ) {
-                    users = flow.study.readers ?: []
-                } else if( type == "writers" ) {
-                    users = flow.study.writers ?: []
-                }
+		if (type == "readers") {
+			users = flow.study.readers ?: []
+		} else if (type == "writers") {
+			users = flow.study.writers ?: []
+		}
 
 		// Check the ids of the contacts that should be attached
 		// to this study. If they are already attached, keep 'm. If
@@ -1093,19 +1094,18 @@ class WizardController {
 			users.clear()
 		}
 
-                if( type == "readers" ) {
-                    if( flow.study.readers )
-                        flow.study.readers.clear()
-                    users.each { flow.study.addToReaders( it ) }
-                } else if( type == "writers" ) {
-                    if( flow.study.writers )
-                        flow.study.writers.clear()
-                        
-                    users.each { flow.study.addToWriters( it ) }
-                }
+		if (type == "readers") {
+			if (flow.study.readers)
+			flow.study.readers.clear()
+			users.each { flow.study.addToReaders(it) }
+		} else if (type == "writers") {
+			if (flow.study.writers)
+			flow.study.writers.clear()
 
+			users.each { flow.study.addToWriters(it) }
+		}
         }
-	                                         
+
 	/**
 	 * Handle the wizard subject page
 	 *
@@ -1188,7 +1188,7 @@ class WizardController {
 					}
 				}
 				subjectName = tempSubjectName
-				
+
 				// create a subject instance
 				def subject = new Subject(
 					name		: subjectName,
@@ -1322,7 +1322,7 @@ class WizardController {
 								it.delete()
 							}
 						}
-						
+
 						eventGroup.removeFromSamplingEvents(event)
 					} else {
 						eventGroup.removeFromEvents(event)
