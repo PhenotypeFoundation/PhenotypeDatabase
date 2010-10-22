@@ -35,51 +35,50 @@ class RestController {
 
 	/**
 	 * Authorization closure, which is run before executing any of the REST resource actions
-	 * It fetches a username/password combination from basic HTTP authentication and checks whether
-	 * that is an active (SecuritySpring) account
-	 * @return
+	 * It fetches a consumer/token combination from the url and checks whether
+	 * that is a correct and known combination
+	 *
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return true if the user is remotely logged in, false otherwise
 	 */
 	private def auth() {
-	    credentials = BasicAuthentication.credentialsFromRequest(request)		
-        requestUser = AuthenticationService.authenticateUser(credentials.u, credentials.p)
-                
-		if(!requestUser) {
-		    response.sendError(403)
-	        return false
-	    }
-		else {
+		if( !AuthenticationService.isRemotelyLoggedIn( params.consumer, params.token ) ) {
+			response.sendError(403)
+			return false
+		} else {
 			return true
 		}
 	}
 
 	/**
-	* REST resource for data modules.
-	* Username and password should be supplied via HTTP Basic Authentication.
-	* Determines whether the given user/password combination is a valid GSCF account.
-	*
-	* @return bool {"authenticated":true} when user/password is a valid GSCF account, {"authenticated":false} otherwise.
-	*/
-	def isUser= {
-		boolean isUser
-		credentials = BasicAuthentication.credentialsFromRequest(request)
-		def reqUser = AuthenticationService.authenticateUser(credentials.u, credentials.p)
-		isUser = reqUser ? true : false
+	 * REST resource for data modules.
+	 * Consumer and token should be supplied via URL parameters.
+	 * Determines whether the given user/password combination is a valid GSCF account.
+	 *
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return bool {"authenticated":true} when user/password is a valid GSCF account, {"authenticated":false} otherwise.
+	 */
+	def isUser = {
+		boolean isUser = AuthenticationService.isRemotelyLoggedIn( params.consumer, params.token )
 		def reply = ['authenticated':isUser]
 		render reply as JSON
 	}
 
 
 	/**
-	* REST resource for data modules.
-	* Username and password should be supplied via HTTP Basic Authentication.
-	* Provide a list of all studies owned by the supplied user.
-	*
-	* @return JSON object list containing 'studyToken', and 'name' (title) for each study
-	*/
+ 	 * REST resource for data modules.
+ 	 * Consumer and token should be supplied via URL parameters.
+ 	 * Provide a list of all studies owned by the supplied user.
+	 *
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return JSON object list containing 'studyToken', and 'name' (title) for each study
+	 */
 	def getStudies = {
 		List studies = [] 
-		def user = params.user
-		Study.findAllByOwner(requestUser).each { study ->
+		Study.findAllByOwner(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )).each { study ->
 			studies.push( [ 'title':study.title, 'studyToken':study.getToken()] )
 		}
  		render studies as JSON 
@@ -87,46 +86,72 @@ class RestController {
 
 
 	/**
-	* REST resource for data modules.
-	* Username and password should be supplied via HTTP Basic Authentication.
-	* Provide a list of all subjects belonging to a study.
-	*
-	* @param studyToken String The external study id (code) of the target GSCF Study object
-	* @return JSON object list of subject names
-	*/
+	 * REST resource for data modules.
+	 * Consumer and token should be supplied via URL parameters.
+	 * Provide a list of all subjects belonging to a study.
+	 *
+	 * If the user is not allowed to read the study contents, a 401 error is given
+	 *
+	 * @param	studyToken	String The external study id (code) of the target GSCF Study object
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return JSON object list of subject names
+	 */
 	def getSubjects = {
 		List subjects = [] 
 		if( params.studyToken ) {
 			def id = params.studyToken
  			def study = Study.find( "from Study as s where s.code=?", [id])
-			if(study) study.subjects.each { subjects.push it.name }
+
+			if(study) {
+				// Check whether the person is allowed to read the data of this study
+				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+					response.sendError(401)
+					return false
+				}
+
+				study.subjects.each { subjects.push it.name }
+			}
 		}
 		render subjects as JSON 
 	}
 
 
 	/**
-	* REST resource for data modules.
-	* Username and password should be supplied via HTTP Basic Authentication.
-	* Provide a list of all assays for a given study
-	*
-	* Example call of the getAssays REST resource: 
-	* http://localhost:8080/gscf/rest/getAssays?studyToken=PPSH&moduleURL=http://localhost:8182/sam
-	*
-	* @param stuyToken String The external study id (code) of the target GSCF Study object
-	* @param moduleURL String The base URL of the calling dbNP module
-	* @return list of assays in the study as JSON object list, filtered to only contain assays 
-	*         for the specified module, with 'assayToken' and 'name' for each assay
-	*/
+	 * REST resource for data modules.
+	 * Consumer and token should be supplied via URL parameters.
+	 * Provide a list of all assays for a given study.
+	 *
+	 * If the user is not allowed to read the study contents, a 401 error is given
+	 *
+	 * Example call of the getAssays REST resource:
+	 * http://localhost:8080/gscf/rest/getAssays?studyToken=PPSH&moduleURL=http://localhost:8182/sam
+	 *
+	 * @param	studyToken	String The external study id (code) of the target GSCF Study object
+	 * @param	moduleURL	String The base URL of the calling dbNP module
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return list of assays in the study as JSON object list, filtered to only contain assays
+	 *         for the specified module, with 'assayToken' and 'name' for each assay
+	 */
 	def getAssays = {
 		List assays = [] 
 		if( params.studyToken ) {
 			def id = params.studyToken
  			def study = Study.find( "from Study as s where s.code=?", [id] )
-			if(study && study.owner == requestUser) study.assays.each{ assay ->
-				if (assay.module.url.equals(params.moduleURL)) {
-			        def map = ['name':assay.name, 'assayToken':assay.getToken()]
-					assays.push( map )
+
+			if(study) {
+				// Check whether the person is allowed to read the data of this study
+				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+					response.sendError(401)
+					return false
+				}
+
+				study.assays.each{ assay ->
+					if (assay.module.url.equals(params.moduleURL)) {
+						def map = ['name':assay.name, 'assayToken':assay.getToken()]
+						assays.push( map )
+					}
 				}
 			}
  		}
@@ -135,18 +160,20 @@ class RestController {
 
 
 	/**
-	* REST resource for data modules.
-	* Username and password should be supplied via HTTP Basic Authentication.
-	* Provide all samples of a given Assay. The result is an enriched list with additional information for each sample.
-	*
-	* @param assayToken String (assayToken of some Assay in GSCF)
-	* @return As a JSON object list, for each sample in that assay:
-	* @return 'name' (Sample name, which is unique)
-	* @return 'material' (Sample material)
-	* @return 'subject' (The name of the subject from which the sample was taken)
-	* @return 'event' (the name of the template of the SamplingEvent describing the sampling)
-	* @return 'startTime' (the time the sample was taken relative to the start of the study, as a string)
-	*/
+	 * REST resource for data modules.
+	 * Username and password should be supplied via HTTP Basic Authentication.
+	 * Provide all samples of a given Assay. The result is an enriched list with additional information for each sample.
+	 *
+	 * @param	assayToken	String (assayToken of some Assay in GSCF)
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return As a JSON object list, for each sample in that assay:
+	 * @return 'name' (Sample name, which is unique)
+	 * @return 'material' (Sample material)
+	 * @return 'subject' (The name of the subject from which the sample was taken)
+	 * @return 'event' (the name of the template of the SamplingEvent describing the sampling)
+	 * @return 'startTime' (the time the sample was taken relative to the start of the study, as a string)
+	 */
 	def getSamples = {
 		def items = []
 		if( params.assayToken ) {
@@ -169,26 +196,36 @@ class RestController {
 
 
 	/**
-	* REST resource for dbNP modules.
-	*
-	* @param studyToken String, the external identifier of the study
-	* @return List of all fields of this study
-	* @return 
-	*
-	* Example REST call (without authentication): 
-    * http://localhost:8080/gscf/rest/getStudy/study?studyToken=PPSH
-    *
-	* Returns the JSON object: 
-	* {"title":"NuGO PPS human study","studyToken":"PPSH","startDate":"2008-01-13T23:00:00Z",
-	* "Description":"Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U.",
-	* "Objectives":null,"Consortium":null,"Cohort name":null,"Lab id":null,"Institute":null,
-	* "Study protocol":null}
+	 * REST resource for dbNP modules.
+	 *
+	 * @param	studyToken String, the external identifier of the study
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return List of all fields of this study
+	 * @return
+	 *
+	 * If the user is not allowed to read this study, a 401 error is given
+	 *
+	 * Example REST call (without authentication):
+     * http://localhost:8080/gscf/rest/getStudy/study?studyToken=PPSH
+     *
+	 * Returns the JSON object:
+	 * {"title":"NuGO PPS human study","studyToken":"PPSH","startDate":"2008-01-13T23:00:00Z",
+	 * "Description":"Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U.",
+	 * "Objectives":null,"Consortium":null,"Cohort name":null,"Lab id":null,"Institute":null,
+	 * "Study protocol":null}
 	*/
 	def getStudy = {
 		def items = [:]
 		if( params.studyToken ) {
  			def study = Study.find( "from Study as s where code=?",[params.studyToken])
 			if(study) {
+				// Check whether the person is allowed to read the data of this study
+				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+					response.sendError(401)
+					return false
+				}
+				
 				study.giveFields().each { field ->
 					def name = field.name
 					def value = study.getFieldValue( name )
@@ -202,18 +239,20 @@ class RestController {
 
 
 	/**
-	* REST resource for dbNP modules.
-	*
-	* @param assayToken String, the external identifier of the study
-	* @return List of all fields of this assay 
-	*
-	* Example REST call (without authentication): 
-    * http://localhost:8080/gscf/rest/getAssay/assay?assayToken=PPS3_SAM
-    *
-	* Returns the JSON object: {"name":"Lipid profiling","module":{"class":"dbnp.studycapturing.AssayModule","id":1,
-	* "name":"SAM module for clinical data","platform":"clinical measurements","url":"http://sam.nmcdsp.org"},
-	* "assayToken":"PPS3_SAM","parentStudyToken":"PPS","Description":null}
-	*/
+	 * REST resource for dbNP modules.
+	 *
+	 * @param	assayToken String, the external identifier of the study
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return List of all fields of this assay
+	 *
+	 * Example REST call (without authentication):
+     * http://localhost:8080/gscf/rest/getAssay/assay?assayToken=PPS3_SAM
+     *
+	 * Returns the JSON object: {"name":"Lipid profiling","module":{"class":"dbnp.studycapturing.AssayModule","id":1,
+	 * "name":"SAM module for clinical data","platform":"clinical measurements","url":"http://sam.nmcdsp.org"},
+	 * "assayToken":"PPS3_SAM","parentStudyToken":"PPS","Description":null}
+	 */
 	def getAssay = {
 		def items = [:]
 		if( params.assayToken ) {
@@ -233,27 +272,29 @@ class RestController {
 
 
 	/**
-	* REST resource for data modules.
-	* Username and password should be supplied via HTTP Basic Authentication.
-	* One specific sample of a given Assay.
-	*
-	* @param assayToken String (id of some Assay in GSCF)
-	* @return As a JSON object list, for each sample in that assay:
-	* @return 'name' (Sample name, which is unique)
-	* @return 'material' (Sample material)
-	* @return 'subject' (The name of the subject from which the sample was taken)
-	* @return 'event' (the name of the template of the SamplingEvent describing the sampling)
-	* @return 'startTime' (the time the sample was taken relative to the start of the study, as a string)
-	*
-	* Example REST call (without authentication): 
-    * http://localhost:8080/gscf/rest/getSample/sam?assayToken=PPS3_SAM&sampleToken=A30_B 
-    *
-	* Returns the JSON object: 
-	* {"subject":"A30","event":"Liver extraction","startTime":"1 week, 1 hour",
-	* "sampleToken":"A30_B","material":{"class":"dbnp.data.Term","id":6,"accession":"BTO:0000131",
-	* "name":"blood plasma","ontology":{"class":"Ontology","id":2}},"Remarks":null,
-	* "Text on vial":"T70.91709057820039","Sample measured volume":null}
-	*/
+	 * REST resource for data modules.
+	 * Username and password should be supplied via HTTP Basic Authentication.
+	 * One specific sample of a given Assay.
+	 *
+	 * @param	assayToken	String (id of some Assay in GSCF)
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return As a JSON object list, for each sample in that assay:
+	 * @return 'name' (Sample name, which is unique)
+	 * @return 'material' (Sample material)
+	 * @return 'subject' (The name of the subject from which the sample was taken)
+	 * @return 'event' (the name of the template of the SamplingEvent describing the sampling)
+	 * @return 'startTime' (the time the sample was taken relative to the start of the study, as a string)
+	 *
+	 * Example REST call (without authentication):
+     * http://localhost:8080/gscf/rest/getSample/sam?assayToken=PPS3_SAM&sampleToken=A30_B
+     *
+	 * Returns the JSON object:
+	 * {"subject":"A30","event":"Liver extraction","startTime":"1 week, 1 hour",
+	 * "sampleToken":"A30_B","material":{"class":"dbnp.data.Term","id":6,"accession":"BTO:0000131",
+	 * "name":"blood plasma","ontology":{"class":"Ontology","id":2}},"Remarks":null,
+	 * "Text on vial":"T70.91709057820039","Sample measured volume":null}
+	 */
 	def getSample = {
 		def items = [:]
 		if( params.assayToken && params.sampleToken ) {
@@ -278,19 +319,32 @@ class RestController {
 		render items as JSON
 	}
 
+	/**
+	 * Returns the authorization level the user has for a given study.
+	 *
+	 * If no studyToken is given, a 400 (Bad Request) error is given.
+	 * If the given study doesn't exist, a 404 (Not found) error is given.
+	 *
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return	JSON Object
+	 * @return  { isOwner: true/false, 'canRead': true/false, 'canWrite': true/false }
+	 */
 	def getAuthorizationLevel = {
-		// in future the users authorization level will be based on authorization model		
 		if( params.studyToken ) {
 			def id = params.studyToken
  			def study = Study.find( "from Study as s where s.code=?", [id])
-			if(study) study.subjects.each { subjects.push it.name }
-		}
 
-		def perm = study.getPermissions(requestUser)
-                
-		render ('isOwner': study.isOwner(requestUser),
-                        'create': perm.create, 'read':perm.read,
-                        'update': perm.update, 'delete':perm.delete
-                        ) as JSON
+			if( !study ) {
+				response.sendError(404)
+				return false
+			}
+
+			def user = AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token );
+			render( 'isOwner': study.isOwner(user), 'canRead': study.canRead(user), 'canWrite': study.canWrite(user) )
+		} else {
+			response.sendError(400)
+			return false
+		}
     }
 }

@@ -163,6 +163,7 @@ grails.plugins.springsecurity.password.algorithm = 'SHA-256'
 grails.plugins.springsecurity.password.encodeHashAsBase64 = true
 grails.plugins.springsecurity.dao.reflectionSaltSourceProperty = 'username' // Use the persons username as salt for encryption
 grails.plugins.springsecurity.securityConfigType = grails.plugins.springsecurity.SecurityConfigType.Annotation
+grails.plugins.springsecurity.successHandler.targetUrlParameter = 'spring-security-redirect'
 
 // Make sure the different controllers provided by springsecurity.ui are only accessible by administrators
 // NB: the RegisterController is used for forgotten passwords. It should be accessible by anyone

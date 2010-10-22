@@ -25,6 +25,11 @@ class LoginController {
 	def springSecurityService
 
 	/**
+	 * Dependency injection for the GSCF authentication service
+	 */
+	def AuthenticationService
+
+	/**
 	 * Default action; redirects to 'defaultTargetUrl' if logged in, /login/auth otherwise.
 	 */
 	def index = {
@@ -54,6 +59,50 @@ class LoginController {
 		                           rememberMeParameter: config.rememberMe.parameter]
 	}
 
+        /**
+         * Shows the login page for users from a module
+         */
+        def auth_remote = {
+            def consumer    = params.consumer
+            def token       = params.token
+
+			if( consumer == null || token == null ) {
+				throw new Exception( "Consumer and Token must be given!" );
+			}
+
+            def returnUrl   = params.returnUrl
+
+            // If the user is already authenticated with this session_id, redirect
+            // him
+            if( AuthenticationService.isRemotelyLoggedIn( consumer, token ) ) {
+                if( returnUrl ) {
+					redirect url: returnUrl
+                } else {
+                    redirect controller: 'home'
+                }
+            }
+
+            // If the user is already logged in locally, we log him in and
+            // immediately redirect him
+            if (AuthenticationService.isLoggedIn()) {
+				AuthenticationService.logInRemotely( consumer, token, AuthenticationService.getLoggedInUser() )
+
+				if( returnUrl ) {
+                    redirect url: returnUrl
+                } else {
+                    redirect controller: 'home'
+                }
+            }
+
+            // Otherwise we show the login screen
+			def config = SpringSecurityUtils.securityConfig
+            String view = 'auth'
+            String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
+            String redirectUrl = g.createLink( absolute: true, controller: 'login', action: 'auth_remote', params: [ consumer: params.consumer, token: params.token, returnUrl: params.returnUrl ] )
+            render view: view, model: [postUrl: postUrl,
+                                       rememberMeParameter: config.rememberMe.parameter, redirectUrl: redirectUrl ]
+        }
+        
 	/**
 	 * Show denied page.
 	 */

@@ -66,6 +66,10 @@
 				<p>
 					<input type='submit' value='Login' />
 				</p>
+
+                                <g:if test="${redirectUrl}">
+                                  <g:hiddenField name="spring-security-redirect" value="${redirectUrl}" />
+                                </g:if>
 			</form>
 		</div>
 	</div>
