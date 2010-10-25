@@ -24,5 +24,6 @@
   <body>
     <h1>Step 5: import wizard finished</h1>
     <p>${validatedSuccesfully} of ${totalrows} rows were imported succesfully.</p>
+    <p>Click <a href="${referer}">here</a> to return to the page you came from.</p>
   </body>
 </html>

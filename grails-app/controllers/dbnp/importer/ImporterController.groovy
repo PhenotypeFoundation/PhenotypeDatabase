@@ -39,7 +39,9 @@ class ImporterController {
     /**
      * Default page
      **/
-    def index = { 	
+
+    def index = {
+        session.import_referer = request.getHeader('referer')        
     }
 
     def simpleWizard = {
@@ -272,7 +274,7 @@ class ImporterController {
      */
     def savePostview = {
 	def validatedSuccesfully = ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
-	render(view:"step4", model:[validatedSuccesfully:validatedSuccesfully, totalrows:session.importer_importeddata.size])
+	render(view:"step4", model:[validatedSuccesfully:validatedSuccesfully, totalrows:session.importer_importeddata.size, referer: session.import_referer])
     }
 
     /**
