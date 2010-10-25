@@ -165,6 +165,10 @@ grails.plugins.springsecurity.dao.reflectionSaltSourceProperty = 'username' // U
 grails.plugins.springsecurity.securityConfigType = grails.plugins.springsecurity.SecurityConfigType.Annotation
 grails.plugins.springsecurity.successHandler.targetUrlParameter = 'spring-security-redirect'
 
+// Needed for the (copy of) the Spring Security UI plugin
+grails.plugins.springsecurity.ui.forgotPassword.emailFrom = 'gscf@dbnp.org'
+grails.plugins.springsecurity.ui.forgotPassword.emailSubject = 'Password reset GSCF'
+
 // Make sure the different controllers provided by springsecurity.ui are only accessible by administrators
 // NB: the RegisterController is used for forgotten passwords. It should be accessible by anyone
 grails.plugins.springsecurity.controllerAnnotations.staticRules = [

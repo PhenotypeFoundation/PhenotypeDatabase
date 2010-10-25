@@ -1,72 +1,73 @@
 <head>
-	<meta name='layout' content='springSecurityUI'/>
+	<meta name='layout' content='main'/>
 	<g:set var="entityName" value="${message(code: 'user.label', default: 'User')}"/>
 	<title><g:message code="default.create.label" args="[entityName]"/></title>
+
+    <script type="text/javascript">
+      // This method is called on the event body.onLoad
+      $(function() {
+              $("#tabs").tabs();
+      });
+    </script>
 </head>
 
 <body>
-
+    <script src="${resource(dir: 'js', file: 'jquery-callback-1.2.js')}" type="text/javascript"></script>
 <h3><g:message code="default.create.label" args="[entityName]"/></h3>
 
-<g:form action="save" name='userCreateForm'>
+<g:form action="save" name='userCreateForm' class="button-style">
 
-<%
-def tabData = []
-tabData << [name: 'userinfo', icon: 'icon_user',  messageCode: 'spring.security.ui.user.info']
-tabData << [name: 'roles',    icon: 'icon_role', messageCode: 'spring.security.ui.user.roles']
-%>
+      <div id="tabs">
+        <ul>
+          <li><a href="#userinfo">User info</a></li>
+          <li><a href="#roles">Roles</a></li>
+        </ul>
 
-<s2ui:tabs elementId='tabs' height='375' data="${tabData}">
+        <div id="userinfo">
 
-	<s2ui:tab name='userinfo' height='280'>
-		<table>
-		<tbody>
+		  <table>
+		  <tbody>
+			<tr><td>Username</td><td><g:textField name="username" value="${user?.username}"/></td></tr>
+			<tr><td>Password</td><td><g:passwordField name="password" value="${user?.password}"/></td></tr>
+			<tr><td>Email address</td><td><g:textField name="email" value="${user?.email}"/></td></tr>
+			<tr><td>User confirmed</td><td><g:checkBox name="userConfirmed" value="${user?.userConfirmed}"/></td></tr>
+			<tr><td>Admin confirmed</td><td><g:checkBox name="adminConfirmed" value="${user?.adminConfirmed}"/></td></tr>
+			<tr><td>Account expired</td><td><g:checkBox name="accountExpired" value="${user?.accountExpired}"/></td></tr>
+			<tr><td>Account locked</td><td><g:checkBox name="accountLocked" value="${user?.accountLocked}"/></td></tr>
+			<tr><td>Password expired</td><td><g:checkBox name="passwordExpired" value="${user?.passwordExpired}"/></td></tr>
 
-			<s2ui:textFieldRow name='username' labelCode='user.username.label' bean="${user}"
-                            labelCodeDefault='Username' value="${user?.username}"/>
-
-			<s2ui:passwordFieldRow name='password' labelCode='user.password.label' bean="${user}"
-                                labelCodeDefault='Password' value="${user?.password}"/>
-
-			<s2ui:checkboxRow name='userConfirmed' labelCode='user.confirmed.label' bean="${user}"
-                           labelCodeDefault='Confirmed (by user)' value="${user?.userConfirmed}"/>
-
-                        <s2ui:checkboxRow name='adminConfirmed' labelCode='user.approved.label' bean="${user}"
-                           labelCodeDefault='Approved (by administrator)' value="${user?.adminConfirmed}"/>
-
-			<s2ui:checkboxRow name='accountExpired' labelCode='user.accountExpired.label' bean="${user}"
-                           labelCodeDefault='Account Expired' value="${user?.accountExpired}"/>
-
-			<s2ui:checkboxRow name='accountLocked' labelCode='user.accountLocked.label' bean="${user}"
-                           labelCodeDefault='Account Locked' value="${user?.accountLocked}"/>
-
-			<s2ui:checkboxRow name='passwordExpired' labelCode='user.passwordExpired.label' bean="${user}"
-                           labelCodeDefault='Password Expired' value="${user?.passwordExpired}"/>
-		</tbody>
-		</table>
-	</s2ui:tab>
-
-	<s2ui:tab name='roles' height='280'>
-		<g:each var="auth" in="${authorityList}">
+		  </tbody>
+		  </table>
+	  </div>
+	  <div id="roles">
+		<g:each var="entry" in="${roleMap}">
 		<div>
-			<g:checkBox name="${auth.authority}" />
-			<g:link controller='role' action='edit' id='${auth.id}'>${auth.authority.encodeAsHTML()}</g:link>
+			<g:checkBox name="${entry.key.authority}" value="${entry.value}"/>
+			<g:link controller='role' action='edit' id='${entry.key.id}'>${entry.key.authority.encodeAsHTML()}</g:link>
 		</div>
 		</g:each>
-	</s2ui:tab>
+	  </div>
 
-</s2ui:tabs>
+	  </div>
 
-<div style='float:left; margin-top: 10px; '>
-<s2ui:submitButton elementId='create' form='userCreateForm' messageCode='default.button.create.label'/>
+<div style='float:left; margin-top: 10px;'>
+  <input type="submit" value="Save" />
+
+  <g:if test='${user}'>
+	DELETE
+  </g:if>
+
 </div>
 
 </g:form>
 
+<g:if test='${user}'>
+  deleteform
+</g:if>
+
 <script>
 $(document).ready(function() {
 	$('#username').focus();
-	<s2ui:initCheckboxes/>
 });
 </script>
 

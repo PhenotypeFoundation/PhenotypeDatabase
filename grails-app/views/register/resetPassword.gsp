@@ -6,26 +6,28 @@
 <body>
 
 <p/>
-
 	<g:form action='resetPassword' name='resetPasswordForm' autocomplete='off'>
-  	<g:hiddenField name='t' value='${token}'/>
-	<div class="sign-in">
+    	<g:hiddenField name='t' value='${token}'/>
+	  <div class="sign-in">
 
-	<br/>
-	<h4><g:message code='spring.security.ui.resetPassword.description'/></h4>
+		<g:hasErrors bean="${command}">
+		  <p>Both passwords should match, contain more than 8 and less than 64 characters.</p>
+		  <p>Also, passwords should contain at least one letter, one number and one symbol.</p>
+		</g:hasErrors>
 
-	<table>
-		<s2ui:passwordFieldRow name='password' labelCode='resetPasswordCommand.password.label' bean="${command}"
-                             labelCodeDefault='Password' value="${command?.password}"/>
+		<br/>
+		<h4><g:message code='spring.security.ui.resetPassword.description'/></h4>
 
-		<s2ui:passwordFieldRow name='password2' labelCode='resetPasswordCommand.password2.label' bean="${command}"
-                             labelCodeDefault='Password (again)' value="${command?.password2}"/>
-	</table>
+		<table>
+		  <tr><td>Password</td><td><g:passwordField name="password" value="${command?.password}" /></td></tr>
+		  <tr><td>Password (again)</td><td>
+			<g:passwordField name="password2" value="${command?.password2}" />
+		  </td></tr>
+		</table>
 
-	<input type="submit" value="Reset my password" />
+		<input type="submit" value="Reset my password" />
 
-
-	</div>
+	  </div>
 	</g:form>
 
 
