@@ -1272,7 +1272,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	}
 
 	def _contactAddButtonAddition = { attrs, body ->
-		out << '<input type="button" onClick="addContact ( \'' + attrs.name + '\' ); $(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show();" value="Add">';
+		out << '<input type="button" onClick="if( addContact ( \'' + attrs.name + '\' ) ) { $(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show(); }" value="Add">';
 		out << '<input type="button" onClick="$(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show();" value="Close">';
 	}
 

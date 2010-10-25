@@ -588,6 +588,11 @@ function addContact( element_id ) {
   var person_id = $( '#' + element_id + '_person' ).val();
   var role_id = $( '#' + element_id + '_role' ).val();
 
+  if( person_id == "" || person_id == 0 || role_id == "" || role_id == 0 ) {
+	alert( "Please select both a person and a role." );
+	return false;
+  }
+
   var combination = person_id + '-' + role_id;
 
     // Put the ID in the array, but only if it does not yet exist
@@ -602,6 +607,8 @@ function addContact( element_id ) {
         // Hide the 'none box'
         $( '#' + element_id + '_none' ).css( 'display', 'none' );
     }
+
+	return true;
 }
 
 /**
