@@ -47,6 +47,21 @@ class PersonAffiliationController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
+	/**
+     * Fires after every action and determines the layout of the page
+     */
+    def afterInterceptor = { model, modelAndView ->
+      println( params );
+
+      if ( params['dialog'] ) {
+        model.layout = 'dialog';
+        model.extraparams = [ 'dialog': 'true' ] ;
+      } else {
+        model.layout = 'main';
+        model.extraparams = [] ;
+      }
+    }
+
     def index = {
         redirect(action: "list", params: params)
     }
@@ -64,9 +79,15 @@ class PersonAffiliationController {
 
     def save = {
         def personAffiliationInstance = new PersonAffiliation(params)
+        def extraparams = new LinkedHashMap();
+
+        if( params[ 'dialog' ] ) {
+          extraparams[ 'dialog' ] = params[ 'dialog' ]
+        }
+
         if (personAffiliationInstance.save(flush: true)) {
             flash.message = "${message(code: 'default.created.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), personAffiliationInstance])}"
-            redirect(action: "show", id: personAffiliationInstance.id)
+            redirect(action: "show", id: personAffiliationInstance.id, params: extraparams)
         }
         else {
             render(view: "create", model: [personAffiliationInstance: personAffiliationInstance])
@@ -97,6 +118,13 @@ class PersonAffiliationController {
 
     def update = {
         def personAffiliationInstance = PersonAffiliation.get(params.id)
+
+        def extraparams = new LinkedHashMap();
+
+        if( params[ 'dialog' ] ) {
+          extraparams[ 'dialog' ] = params[ 'dialog' ]
+        }
+
         if (personAffiliationInstance) {
             if (params.version) {
                 def version = params.version.toLong()
@@ -110,7 +138,7 @@ class PersonAffiliationController {
             personAffiliationInstance.properties = params
             if (!personAffiliationInstance.hasErrors() && personAffiliationInstance.save(flush: true)) {
                 flash.message = "${message(code: 'default.updated.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), personAffiliationInstance])}"
-                redirect(action: "show", id: personAffiliationInstance.id)
+                redirect(action: "show", id: personAffiliationInstance.id, params: extraparams)
             }
             else {
                 render(view: "edit", model: [personAffiliationInstance: personAffiliationInstance])
@@ -118,27 +146,34 @@ class PersonAffiliationController {
         }
         else {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), params.id])}"
-            redirect(action: "list")
+            redirect(action: "list", params: extraparams)
         }
     }
 
     def delete = {
         def personAffiliationInstance = PersonAffiliation.get(params.id)
+
+        def extraparams = new LinkedHashMap();
+
+        if( params[ 'dialog' ] ) {
+          extraparams[ 'dialog' ] = params[ 'dialog' ]
+        }
+
         if (personAffiliationInstance) {
             def affiliationName = personAffiliationInstance.toString()
             try {
                 personAffiliationInstance.delete(flush: true)
                 flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), affiliationName])}"
-                redirect(action: "list")
+                redirect(action: "list", params: extraparams)
             }
             catch (org.springframework.dao.DataIntegrityViolationException e) {
                 flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), affiliationName])}"
-                redirect(action: "show", id: params.id)
+                redirect(action: "show", id: params.id, params: extraparams)
             }
         }
         else {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'personAffiliation.label', default: 'Affiliation'), params.id])}"
-            redirect(action: "list")
+            redirect(action: "list", params: extraparams)
         }
     }
 }

@@ -187,6 +187,10 @@ tr.prop td { padding-top: 2px; padding-bottom: 2px; }
 	padding-left: 28px;
         font-weight: normal;
 }
+.buttons input.otherList, .buttons a.otherList {
+	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/application_view_detail.png) 5px 50% no-repeat;
+	padding-left: 28px;
+}
 
 /* Reset the font weight for buttons occurring within the table */
 td.buttons input { font-weight: normal; }

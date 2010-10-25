@@ -63,7 +63,8 @@
             </div>
             <div class="buttons">
                 <span class="button"><g:link class="create" action="create" params="${extraparams}"><g:message code="default.new.label" args="[entityName]" /></g:link></span>
-            </div>
+				<span class="button"><g:link class="otherList" controller="personAffiliation" action="list" params="${extraparams}">Edit Affiliations</g:link></span>
+			</div>
             <div class="paginateButtons">
                 <g:paginate total="${personInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next" params="${extraparams}" />
             </div>

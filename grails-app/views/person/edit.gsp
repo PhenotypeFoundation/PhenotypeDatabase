@@ -125,7 +125,9 @@
                                 </td>
                                 <td colspan="3" valign="top" class="value ${hasErrors(bean: personInstance, field: 'affiliations', 'errors')}">
                                     <g:select name="affiliations" from="${dbnp.studycapturing.PersonAffiliation.list()}" multiple="yes" optionKey="id" size="5" value="${personInstance?.affiliations}" />
-                                </td>
+
+									<g:link controller="personAffiliation" action="list" params="${extraparams}">Edit Affiliations</g:link>
+								</td>
                             </tr>
                         
                         </tbody>
