@@ -89,7 +89,7 @@ class BootStrapStudies {
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		def glucoseTerm = new Term(
-			name: 'Glucose',
+			name: 'glucose',
 			ontology: chebiOntology,
 			accession: 'CHEBI:17234'
 		).with { if (!validate()) { errors.each { println it} } else save()}
