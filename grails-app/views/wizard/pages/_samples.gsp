@@ -39,7 +39,7 @@
 		<h1>Samples that still need to have a template assigned</h1>
 		<div class="table">
 		<div class="header">
-			<div class="firstColumn">#</div>
+			<div class="firstColumn"></div>
 			<div class="column">Sampling Event</div>
 			<div class="column">Subject</div>
 			<div class="column">Template</div>
@@ -49,7 +49,7 @@
 		<g:each var="sample" in="${study.samples}">
 			<g:if test="${!sample.template}">
 				<div class="row">
-					<div class="firstColumn">${sample.getIdentifier()}</div>
+					<div class="firstColumn">&nbsp;</div>
 					<div class="column">
 						<g:if test="${previousTemplate != sample.parentEvent.template.name}">
 							<g:set var="previousTemplate" value="${sample.parentEvent.template.name}"/>
@@ -98,7 +98,7 @@
 				<g:if test="${showHeader}">
 					<g:set var="showHeader" value="${false}" />
 					<div class="header">
-						<div class="firstColumn">#</div>
+						<div class="firstColumn"></div>
 						<div class="column">Sampling Event</div>
 						<div class="column">Subject</div>
 						<div class="column">Template</div>
@@ -106,7 +106,7 @@
 					</div>
 				</g:if>
 				<div class="row">
-					<div class="firstColumn">${sample.getIdentifier()}</div>
+					<div class="firstColumn"></div>
 					<div class="column">
 						<g:if test="${previousTemplate != sample.parentEvent.template.name}">
 							<g:set var="previousTemplate" value="${sample.parentEvent.template.name}"/>

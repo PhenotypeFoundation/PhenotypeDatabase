@@ -48,13 +48,11 @@
 				<g:if test="${showHeader}">
 				<g:set var="showHeader" value="${false}" />
 				<div class="header">
-				  <div class="firstColumn">#</div>
 				  <div class="firstColumn"></div>
 				  <wizard:templateColumnHeaders class="column" entity="${subject}" />
 				</div>
 				</g:if>
 				<div class="row">
-					<div class="firstColumn">${subject.getIdentifier()}</div>
 					<div class="firstColumn">
 						<wizard:ajaxButton name="delete" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this subject" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${subject.getIdentifier()});" afterSuccess="onWizardPage()" />
 					</div>

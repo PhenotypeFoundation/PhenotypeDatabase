@@ -78,7 +78,6 @@
 				<g:if test="${showHeader}">
 				<g:set var="showHeader" value="${false}" />
 				<div class="header">
-					<div class="firstColumn">#</div>
 					<div class="firstColumn"></div>
 					<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 					<div class="column">
@@ -94,7 +93,6 @@
 				</g:if>
 
 				<div class="row">
-					<div class="firstColumn">${event.getIdentifier()}</div>
 					<div class="firstColumn">
 						<wizard:ajaxButton name="deleteEvent" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this event" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onWizardPage()"/>
 					</div>

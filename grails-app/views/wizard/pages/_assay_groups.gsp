@@ -25,7 +25,7 @@
 		<g:set var="previousTemplate" value=""/>
 		<div class="table">
 		<div class="header">
-			<div class="firstColumn">#</div>
+			<div class="firstColumn"></div>
 			<div class="column" style="width:150px;">Sample Type</div>
 			<div class="column" style="width:200px;">Sample Name</div>
 			<g:each var="assay" in="${study.assays}">
@@ -35,7 +35,7 @@
 		<g:each var="sampleTemplate" in="${study.giveSampleTemplates()}">
 			<g:each var="sample" in="${study.giveSamplesForTemplate(sampleTemplate)}">
 				<div class="row">
-					<div class="firstColumn">${sample.getIdentifier()}</div>
+					<div class="firstColumn"></div>
 					<div class="column">
 						<g:if test="${previousTemplate != sampleTemplate.name}">
 							<g:set var="previousTemplate" value="${sampleTemplate.name}"/>
