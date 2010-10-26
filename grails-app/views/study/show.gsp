@@ -638,7 +638,6 @@
                       frameSource="${assay.module.url}/assay/${assay.externalAssayID}">
                       view
                     </jumpbar:link></td>
-                    <td><a href="${assay.module.url}/assay/${assay.externalAssayID}">view</a></td>
                     <td>
                       <% sortedAssaySamples = assay.samples.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
                       ${sortedAssaySamples.name.join( ', ' )}
