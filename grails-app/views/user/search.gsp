@@ -9,6 +9,11 @@
 
 	<g:form action='userSearch' name='userSearchForm'>
 
+		<g:if test="${flash.message}">
+		  <p>
+			${flash.message}
+		  </p>
+		</g:if>
 		<br/>
 
 		<table>

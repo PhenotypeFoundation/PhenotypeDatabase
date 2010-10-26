@@ -15,12 +15,13 @@
 package dbnp.authentication
 
 import grails.converters.JSON
-
+import grails.plugins.springsecurity.Secured
 import org.springframework.dao.DataIntegrityViolationException
 
 /**
  * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
  */
+@Secured(['ROLE_ADMIN'])
 class UserController {
 
 	def userCache
@@ -212,7 +213,13 @@ class UserController {
 	}
 
 	protected findById() {
+		if(!params.id) {
+			flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'user.label', default: 'User'), params.id])}"
+			redirect action: search
+		}
+
 		def user = SecUser.get(params.id)
+		
 		if (!user) {
 			flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'user.label', default: 'User'), params.id])}"
 			redirect action: search

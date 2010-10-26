@@ -87,6 +87,7 @@
 				</ol>
 				<ol id="selectedTemplateFields" class="templateFields <g:if test="${template.inUse()}">inUse</g:if>">
 					<g:render template="elements/selected" var="templateField" collection="${template.fields}" model="['template':template]"/>
+					<% /* NB: this empty field should always be the last in the list! */ %>
 					<li class="empty ui-state-default" <g:if test="${template.fields?.size() > 0 }">style='display: none;'</g:if>>This template does not yet contain any fields. Drag a field to this list or use the 'Add field button'.</li>
 				</ol>
 			</div>
@@ -95,8 +96,8 @@
 
 				<p>These fields are available for adding to the template. Drag a field to the template to add it.</p>
 				<ol id="availableTemplateFields" class="templateFields">
-					<li class="empty ui-state-default" <g:if test="${allFields.size() > template.fields.size()}">style='display: none;'</g:if>>There are no additional fields that can be added. Use the 'Create new field' button to create new fields.</li>
 					<g:render template="elements/available" var="templateField" collection="${allFields - template.fields}" />
+					<li class="empty ui-state-default" <g:if test="${allFields.size() > template.fields.size()}">style='display: none;'</g:if>>There are no additional fields that can be added. Use the 'Create new field' button to create new fields.</li>
 				</ol>
 
 				<div id="addNew">
@@ -120,5 +121,11 @@
 		  <g:render template="ontologyDialog" />
 		</div>
 
-	</body>
+		<div id="wait" class="wait">
+		  &nbsp;
+		</div>
+		<div class="wait_text wait">
+		  <img src="<g:resource dir="images" file="spinner.gif" />"> Please wait
+		</div>
+		</body>
 </html>

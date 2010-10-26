@@ -1,6 +1,7 @@
 <span class="listButtons">
   <img onClick="editTemplate( ${template.id} );" src="${createLinkTo( dir: 'images/icons', file: 'application_edit.png', plugin: 'famfamfam' )}" alt="Edit template properties" title="Edit template properties">
   <img onClick="editFields( ${template.id} );"src="${createLinkTo( dir: 'images/icons', file: 'application_form.png', plugin: 'famfamfam' )}" alt="Add/remove template fields" title="Add/remove template fields">
+  <img onClick="cloneTemplate( ${template.id} );"src="${createLinkTo( dir: 'images/icons', file: 'page_copy.png', plugin: 'famfamfam' )}" alt="Clone this template" title="Clone this template">
   <img onClick="if( confirm( 'Are you sure?' ) ) { deleteTemplate( ${template.id} ); }" src="${createLinkTo( dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam' )}" alt="Delete this template" title="Delete this template">
 </span>
 ${template.name}

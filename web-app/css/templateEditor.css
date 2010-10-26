@@ -81,6 +81,21 @@ a.switch { font-size: small; color: #68BFEF; text-decoration: none; }
 	margin-left: 10px; margin-right: 10px;
 }
 
+/* Please wait dialog */
+#wait { /* Transparency, see http://hungred.com/how-to/css-opacity-cross-browser-compatible/ */
+	filter: alpha(opacity:0.5);
+	KHTMLOpacity: 0.5;
+	MozOpacity: 0.5;
+	-khtml-opacity:.50;
+	-ms-filter:”alpha(opacity=50)”;
+	-moz-opacity:.50;
+	filter:alpha(opacity=50);
+	opacity:.50;
+}
+#wait { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 100;  background-color: #f2f5f7; }
+.wait_text { position: absolute; left: 50%; top: 50%; margin-left: -100px; margin-top: -20px; width: 200px; height: 40px; text-align: center; font-weight: bold; background-color: white; border: 1px solid #006DBA; padding-top: 13px; vertical-align: center; }
+.wait { display: none; }
+
 /* Add Ontology dialog */
 #addOntology { list-style-type: none; padding-left: 0; }
 #addOntology li { list-style-type: none; margin: 8px 0; padding-left: 20px; }

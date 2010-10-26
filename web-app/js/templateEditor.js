@@ -60,6 +60,8 @@ function hideTemplateForm( id ) {
 function createTemplate( id ) {
     var formEl = $( '#template_' + id + '_form' );
 
+	showWaiting();
+
     // Update the field
     $.ajax({
         url:        baseUrl + '/templateEditor/' + formEl.attr( 'action' ),
@@ -72,7 +74,10 @@ function createTemplate( id ) {
         },
         error:      function( request ) {
             alert( "Could not create template: " + request.responseText );
-        }
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
     });
 }
 
@@ -81,6 +86,8 @@ function createTemplate( id ) {
  */
 function updateTemplate( id ) {
     var formEl = $( '#template_' + id + '_form' );
+
+	showWaiting();
 
     // Update the field
     $.ajax({
@@ -94,7 +101,10 @@ function updateTemplate( id ) {
         },
         error:      function( request ) {
             alert( "Could not update template: " + request.responseText );
-        }
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
     });
 }
 
@@ -102,7 +112,10 @@ function updateTemplate( id ) {
  * Deletes a template field using AJAX
  */
 function deleteTemplate( id ) {
-    // Update the field
+
+	showWaiting();
+
+	// Update the field
     $.ajax({
         url:        baseUrl + '/templateEditor/deleteTemplate',
         data:       'template=' + id,
@@ -115,10 +128,36 @@ function deleteTemplate( id ) {
         },
         error:      function( request ) {
             alert( "Could not delete template: " + request.responseText );
-        }
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
     });
 
 	return true;
+}
+
+/**
+ * Clones a template using AJAX
+ */
+function cloneTemplate( id ) {
+	showWaiting();
+
+    // Update the field
+    $.ajax({
+        url:        baseUrl + '/templateEditor/cloneTemplate/' + id,
+		dataType:   'json',
+        type:       "POST",
+        success:    function(data, textStatus, request) {
+            addTemplateListItem( data.id, data.html );
+        },
+        error:      function( request ) {
+            alert( "Could not clone template: " + request.responseText );
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
+    });
 }
 
 // Adds a new listitem when a field has been added
@@ -202,6 +241,8 @@ function createTemplateField( id ) {
     var formEl = $( '#templateField_' + id + '_form' );
 	var templateId = $('#templateSelect').val();
 
+	showWaiting();
+
     // Update the field
     $.ajax({
         url:        baseUrl + '/templateEditor/' + formEl.attr( 'action' ),
@@ -214,7 +255,10 @@ function createTemplateField( id ) {
         },
         error:       function( request ) {
             alert( "Could not add template field: " + request.responseText );
-        }
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
     });
 }
 
@@ -223,6 +267,8 @@ function createTemplateField( id ) {
  */
 function updateTemplateField( id ) {
     var formEl = $( '#templateField_' + id + '_form' );
+
+	showWaiting();
 
     // Update the field
     $.ajax({
@@ -236,7 +282,10 @@ function updateTemplateField( id ) {
         },
         error:      function( request ) {
             alert( "Could not update template field: " + request.responseText );
-        }
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
     });
 }
 
@@ -244,6 +293,8 @@ function updateTemplateField( id ) {
  * Deletes a template field using AJAX
  */
 function deleteTemplateField( id ) {
+	showWaiting();
+
     // Delete the field
     $.ajax({
         url:        baseUrl + '/templateEditor/deleteField',
@@ -257,7 +308,10 @@ function deleteTemplateField( id ) {
         },
         error:      function( request ) {
             alert( "Could not delete template field: " + request.responseText );
-        }
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
     });
 
 	return true;
@@ -265,7 +319,7 @@ function deleteTemplateField( id ) {
 
 /**
  * Is triggered when an item from the templatefields has been moved and
- * shoule be updated
+ * should be updated
  */
 function updateTemplateFieldPosition( event, ui ) {
 	// If the item is dragged to the 'availableTemplateFIelds list, we should not 'move' it
@@ -278,12 +332,13 @@ function updateTemplateFieldPosition( event, ui ) {
 		// Return true, otherwise the move operation is canceled by jquery
 		return true;
 	}
+
     // Find the new position of the element in the list
     // http://stackoverflow.com/questions/2979643/jquery-ui-sortable-position
     //
-    // Because there is also a hidden 'empty template' list item in the list,
-    // the number is decreased by 1
-    var newposition = ui.item.index() - 1;
+    // There is also a hidden 'empty template' list item in the list. This is
+	// the last item in the list, so it doesn't matter in this computation
+    var newposition = ui.item.index();
 
     // Find the ID of the templateField and template
     var item_id = ui.item.context.id;
@@ -295,6 +350,8 @@ function updateTemplateFieldPosition( event, ui ) {
 
     // Disable sorting until this move has been saved (in order to prevent collisions
     $( '#templateFields' ).sortable( 'disable' );
+
+	showWaiting();
 
     // Move the item
     $.ajax({
@@ -309,7 +366,10 @@ function updateTemplateFieldPosition( event, ui ) {
         error: function( request ) {
 			undoMove();
 			alert( "Could not move template field: " + request.responseText );
-        }
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
     });
 }
 
@@ -344,6 +404,8 @@ function addTemplateField( id, newposition, moveAfterwards ) {
 
 	var templateId = $('#templateSelect').val();
 
+	showWaiting();
+
     // Update the field
     $.ajax({
         url:        baseUrl + '/templateEditor/addField',
@@ -368,7 +430,10 @@ function addTemplateField( id, newposition, moveAfterwards ) {
 			}
 
             alert( "Could not add template field: " + request.responseText );
-        }
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
     });
 
 	return true;
@@ -396,6 +461,8 @@ function removeTemplateField( id, moveAfterwards ) {
 
 	var templateId = $('#templateSelect').val();
 
+	showWaiting();
+
     // Update the field
     $.ajax({
         url:        baseUrl + '/templateEditor/removeField',
@@ -419,7 +486,10 @@ function removeTemplateField( id, moveAfterwards ) {
 			}
 
 			alert( "Could not delete template field: " + request.responseText );
-        }
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
     });
 
 	return true;
@@ -513,6 +583,9 @@ function showHideEmpty( selector ) {
 		$( selector + ' .empty' ).hide();
 	}
 }
+
+function showWaiting() { $( '.wait' ).show() }
+function hideWaiting() { $( '.wait' ).hide() }
 
 /************************************
  *

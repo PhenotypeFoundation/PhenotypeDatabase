@@ -28,7 +28,7 @@ import dbnp.authentication.SecUser
  */
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class WizardController {
-        def AuthenticationService
+	def AuthenticationService
 
 	/**
 	 * index method, redirect to the webflow

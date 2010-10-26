@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import dbnp.authentication.SecUser
+import dbnp.authentication.AuthenticationService
 
 /**
  * The Template class describes a TemplateEntity template, which is basically an extension of the study capture entities
@@ -36,7 +37,6 @@ class Template extends Identity {
 	List fields
 
 	static hasMany = [fields: TemplateField]
-
         static mapping = {
 	}
 
@@ -76,6 +76,51 @@ class Template extends Identity {
 		// which can co-exist with the same name. See also TemplateField
 		// name(unique:['entity'])
 
+	}
+
+	public Template() {
+		super()
+	}
+
+	/**
+	 * Creates a clone of the given other template and also copies its owner
+	 * 
+	 * @param	otherTemplate
+	 */
+	public Template( Template otherTemplate) {
+		this()
+
+		//authenticationService = new AuthenticationService()
+
+		this.name = otherTemplate.name + " (Copy)"
+		this.description = otherTemplate.description
+		this.entity = otherTemplate.entity
+		this.owner = otherTemplate.owner
+
+		// The fields are copied by reference
+		this.fields = otherTemplate.fields
+	}
+
+	/** 
+	 * Creates a clone of the given other template. The currently logged in user
+	 * is set as the owner
+	 * @param	otherTemplate
+	 */
+	public Template( Template otherTemplate, SecUser owner ) {
+		this()
+
+		//authenticationService = new AuthenticationService()
+
+		this.name = otherTemplate.name + " (Copy)"
+		this.description = otherTemplate.description
+		this.entity = otherTemplate.entity
+		this.owner = owner
+
+		// The fields are copied by reference
+		this.fields = []
+		otherTemplate.fields.each {
+			this.fields.add( it )
+		}
 	}
 
 	/**

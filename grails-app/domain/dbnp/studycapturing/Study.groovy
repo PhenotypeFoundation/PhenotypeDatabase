@@ -28,7 +28,7 @@ class Study extends TemplateEntity {
 	List samples
 	List assays
 	boolean published = false // Determines whether a study is private (only accessable by the owner and writers) or published (also visible to readers)
-        boolean publicstudy = false  // Determines whether anonymous users are allowed to see this study. This has only effect when published = true
+    boolean publicstudy = false  // Determines whether anonymous users are allowed to see this study. This has only effect when published = true
         
 	static hasMany = [		
 		subjects: Subject,

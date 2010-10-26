@@ -15,6 +15,7 @@
 package dbnp.studycapturing
 import dbnp.data.*
 import dbnp.studycapturing.*
+import dbnp.authentication.AuthenticationService
 import cr.co.arquetipos.crypto.Blowfish
 import grails.converters.*
 import java.lang.reflect.*;
@@ -22,7 +23,9 @@ import java.lang.reflect.*;
 class TemplateEditorController {
     def entityName;
     def entity;
- 
+
+	def AuthenticationService
+	
 	/**
     * Study template editor page
 	*/
@@ -173,7 +176,7 @@ class TemplateEditorController {
 	 *						html: HTML to replace the contents of the LI-item that was updated.
 	 *					On error the method gives a HTTP response status 500 and the error
      */
-    def createTemplate = {
+   def createTemplate = {
 		// Decode the entity
         if( !_checkEntity() ) {
 			response.status = 500;
@@ -193,6 +196,36 @@ class TemplateEditorController {
         } else {
             response.status = 500;
             render 'Template could not be created because errors occurred.';
+            return
+        }
+    }
+
+    /**
+     * Clones a template using a AJAX call
+	 *
+	 * @return			JSON object with two entries:
+	 *						id: [id of this object]
+	 *						html: HTML of the contents of the LI-item that will be added.
+	 *					On error the method gives a HTTP response status 500 and the error
+     */
+     def cloneTemplate = {
+        // Search for the template field
+        def template = Template.get( params.id );
+        if( !template ) {
+            response.status = 404;
+            render 'Template not found';
+            return;
+        }
+
+		// Create the template fields and add it to the template
+		def newTemplate = new Template( template, authenticationService.getLoggedInUser() );
+        if (newTemplate.validate() && newTemplate.save(flush: true)) {
+			def html = g.render( template: 'elements/liTemplate', model: [template: newTemplate] );
+			def output = [ id: newTemplate.id, html: html ];
+			render output as JSON;
+        } else {
+            response.status = 500;
+            render 'Template could not be cloned because errors occurred.';
             return
         }
     }
@@ -606,6 +639,9 @@ class TemplateEditorController {
         // Move the item
         def currentIndex = template.fields.indexOf( templateField );
         def moveField = template.fields.remove( currentIndex );
+
+		println( "Old: " + currentIndex + " - New: " + params.position );
+		
         template.fields.add( Integer.parseInt( params.position ), moveField );
 		template.save(flush:true);
 

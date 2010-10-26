@@ -9,6 +9,9 @@
               $("#tabs").tabs();
       });
     </script>
+	<style type="text/css">
+	  div.usermanagement { font-size: 0.8em; }
+	</style>
 </head>
 
 <body>
@@ -17,7 +20,7 @@
 
 <g:form action="save" name='userCreateForm' class="button-style">
 
-      <div id="tabs">
+      <div id="tabs" class="usermanagement">
         <ul>
           <li><a href="#userinfo">User info</a></li>
           <li><a href="#roles">Roles</a></li>
@@ -53,17 +56,9 @@
 <div style='float:left; margin-top: 10px;'>
   <input type="submit" value="Save" />
 
-  <g:if test='${user}'>
-	DELETE
-  </g:if>
-
 </div>
 
 </g:form>
-
-<g:if test='${user}'>
-  deleteform
-</g:if>
 
 <script>
 $(document).ready(function() {

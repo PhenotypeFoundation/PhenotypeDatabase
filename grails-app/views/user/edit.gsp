@@ -9,6 +9,9 @@
               $("#tabs").tabs();
       });
     </script>
+	<style type="text/css">
+	  div.usermanagement { font-size: 0.8em; }
+	</style>
 </head>
 
 <body>
@@ -19,7 +22,7 @@
 <g:hiddenField name="id" value="${user?.id}"/>
 <g:hiddenField name="version" value="${user?.version}"/>
 
-      <div id="tabs">
+      <div id="tabs" class="usermanagement">
         <ul>
           <li><a href="#userinfo">User info</a></li>
           <li><a href="#roles">Roles</a></li>
@@ -56,7 +59,7 @@
   <input type="submit" value="Save" />
 
   <g:if test='${user}'>
-	DELETE
+    <input type="button" value="Delete" onClick="$('#userDeleteForm').submit(); return false;"/>
   </g:if>
 
 </div>
@@ -64,7 +67,9 @@
 </g:form>
 
 <g:if test='${user}'>
-  deleteform
+  <g:form action="delete" name='userDeleteForm'>
+	<g:hiddenField name="id" value="${user?.id}"/>
+  </g:form>
 </g:if>
 
 <script>

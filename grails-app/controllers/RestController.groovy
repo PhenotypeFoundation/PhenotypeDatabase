@@ -66,6 +66,20 @@ class RestController {
 		render reply as JSON
 	}
 
+	/**
+	 * REST resource for data modules.
+	 * Consumer and token should be supplied via URL parameters.
+	 * Provides the details of the user that has logged in
+	 *
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return bool {"username": "...", "id": ... } when user/password is logged in.
+	 */
+	def getUser = {
+		SecUser user = AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
+		def reply = [username: user.username, id: user.id]
+		render reply as JSON
+	}
 
 	/**
  	 * REST resource for data modules.

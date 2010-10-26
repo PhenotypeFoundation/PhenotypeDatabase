@@ -58,5 +58,13 @@
 			</g:form>
 		</div>
 
+		<div id="wait" class="wait">
+		  &nbsp;
+		</div>
+		<div class="wait_text wait">
+		  <img src="<g:resource dir="images" file="spinner.gif" />"> Please wait
+		</div>
+
+
 	</body>
 </html>
