@@ -337,8 +337,10 @@ class ImporterService {
 					value = ""
 				}
 
+                                try {
+
 				// which entity does the current cell (field) belong to?
-				switch (mc.entity) {
+                                    switch (mc.entity) {
 					case Study: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)
 						study.setFieldValue(mc.property, value)
 						break
@@ -356,7 +358,11 @@ class ImporterService {
 						break
 					case Object:   // don't import
 						break
-				} // end switch
+                                    } // end switch
+                                } catch (IllegalArgumentException iae) {
+                                    // leave the field empty and let the user choose the ontology manually in a later step
+                                    
+                                }
 			} // end
 		} // end for
 
