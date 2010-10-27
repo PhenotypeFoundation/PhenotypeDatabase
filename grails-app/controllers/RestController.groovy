@@ -172,13 +172,13 @@ class RestController {
 		render assays as JSON 
 	}
 
-
 	/**
 	 * REST resource for data modules.
-	 * Username and password should be supplied via HTTP Basic Authentication.
 	 * Provide all samples of a given Assay. The result is an enriched list with additional information for each sample.
 	 *
 	 * @param	assayToken	String (assayToken of some Assay in GSCF)
+	 * @param	sampleToken Optional parameter. One or more sampleTokens to specify what sample to give exectly. 
+	 * 			If not given, return all samples for specified assay.
 	 * @param	consumer	consumer name of the calling module
 	 * @param	token		token for the authenticated user (e.g. session_id)
 	 * @return As a JSON object list, for each sample in that assay:
@@ -187,21 +187,78 @@ class RestController {
 	 * @return 'subject' (The name of the subject from which the sample was taken)
 	 * @return 'event' (the name of the template of the SamplingEvent describing the sampling)
 	 * @return 'startTime' (the time the sample was taken relative to the start of the study, as a string)
+ 	 * 
+ 	 * 
+ 	 * 
+ 	 * Example 1: no sampleTokens given.
+	 * Query: 
+ 	 * http://localhost:8080/gscf/rest/getSamples/query?assayToken=PPSH-Glu-A
+ 	 * 
+	 * Result: 
+ 	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"6_A","material":"blood plasma","subject":"6","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"10_A","material":"blood plasma","subject":"10","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"2_A","material":"blood plasma","subject":"2","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"11_A","material":"blood plasma","subject":"11","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"1_A","material":"blood plasma","subject":"1","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"9_A","material":"blood plasma","subject":"9","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"4_A","material":"blood plasma","subject":"4","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"8_A","material":"blood plasma","subject":"8","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"7_A","material":"blood plasma","subject":"7","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"3_A","material":"blood plasma","subject":"3","event":"Blood extraction","startTime":"4 days, 6 hours"}]
+ 	 * 
+ 	 * 
+ 	 * 
+ 	 * Example 2: one sampleToken given.
+	 * Query: 
+	 * http://localhost:8080/gscf/rest/getSamples/query?assayToken=PPSH-Glu-A&sampleToken=5_A
+ 	 * 
+ 	 * Result: 
+	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"}]
+ 	 * 
+ 	 * 
+ 	 * 
+ 	 * Example 3: two sampleTokens given.
+	 * Query: 
+	 * http://localhost:8080/gscf/rest/getSamples/query?assayToken=PPSH-Glu-A&sampleToken=5_A
+ 	 * 
+ 	 * Result: 
+	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 *  {"sampleToken":"6_A","material":"blood plasma","subject":"6","event":"Blood extraction","startTime":"4 days, 6 hours"}]
 	 */
 	def getSamples = {
 		def items = []
 		if( params.assayToken ) {
  			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
 			if( assay )  {
-				assay.getSamples().each { sample ->
-					def item = [ 
-						'sampleToken' : sample.name,
-						'material'	  : sample.material?.name,
-						'subject'	  : sample.parentSubject?.name,
-						'event'		  : sample.parentEvent?.template?.name,
-						'startTime'	  : sample.parentEvent?.getStartTimeString()
-					]
-					items.push item 
+				if( params.sampleToken ) {
+					def sampleTokens = (params.sampleToken instanceof String) ? 
+						[params.sampleToken] : params.sampleToken
+						assay.getSamples().each { sample ->
+						if( sampleTokens.find{ it == sample.name } ) {
+							println "adding"
+							def item = [ 
+								'sampleToken' : sample.name,
+								'material'	  : sample.material?.name,
+								'subject'	  : sample.parentSubject?.name,
+								'event'		  : sample.parentEvent?.template?.name,
+								'startTime'	  : sample.parentEvent?.getStartTimeString()
+							]
+							items.push item 
+						}
+					}
+				}
+				else {
+					assay.getSamples().each { sample ->
+						def item = [ 
+							'sampleToken' : sample.name,
+							'material'	  : sample.material?.name,
+							'subject'	  : sample.parentSubject?.name,
+							'event'		  : sample.parentEvent?.template?.name,
+							'startTime'	  : sample.parentEvent?.getStartTimeString()
+						]
+						items.push item 
+					}
 				}
 			}
  		}
@@ -284,54 +341,6 @@ class RestController {
 	}
 
 
-
-	/**
-	 * REST resource for data modules.
-	 * Username and password should be supplied via HTTP Basic Authentication.
-	 * One specific sample of a given Assay.
-	 *
-	 * @param	assayToken	String (id of some Assay in GSCF)
-	 * @param	consumer	consumer name of the calling module
-	 * @param	token		token for the authenticated user (e.g. session_id)
-	 * @return As a JSON object list, for each sample in that assay:
-	 * @return 'name' (Sample name, which is unique)
-	 * @return 'material' (Sample material)
-	 * @return 'subject' (The name of the subject from which the sample was taken)
-	 * @return 'event' (the name of the template of the SamplingEvent describing the sampling)
-	 * @return 'startTime' (the time the sample was taken relative to the start of the study, as a string)
-	 *
-	 * Example REST call (without authentication):
-     * http://localhost:8080/gscf/rest/getSample/sam?assayToken=PPS3_SAM&sampleToken=A30_B
-     *
-	 * Returns the JSON object:
-	 * {"subject":"A30","event":"Liver extraction","startTime":"1 week, 1 hour",
-	 * "sampleToken":"A30_B","material":{"class":"dbnp.data.Term","id":6,"accession":"BTO:0000131",
-	 * "name":"blood plasma","ontology":{"class":"Ontology","id":2}},"Remarks":null,
-	 * "Text on vial":"T70.91709057820039","Sample measured volume":null}
-	 */
-	def getSample = {
-		def items = [:]
-		if( params.assayToken && params.sampleToken ) {
- 			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
-			if(assay) {
-				assay.getSamples().each { sample ->
-					if( sample.name == params.sampleToken ) {
-							items = [ 
-							'subject'	      : sample.parentSubject.name,
-							'event'		      : sample.parentEvent.template.name,
-							'startTime'	      : sample.parentEvent.getStartTimeString()
-							]
-							sample.giveFields().each { field ->
-							def name = field.name
-							def value = sample.getFieldValue( name )
-							items[name] = value
-            			}
-					}
-				}
-			}
- 		}
-		render items as JSON
-	}
 
 	/**
 	 * Returns the authorization level the user has for a given study.
