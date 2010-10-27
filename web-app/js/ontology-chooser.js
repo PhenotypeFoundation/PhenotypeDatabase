@@ -169,8 +169,8 @@ OntologyChooser.prototype = {
                     // add error class
                     element.addClass('error');
                 }
-            }
-
+            },
+            html: true
         });
     },
 
