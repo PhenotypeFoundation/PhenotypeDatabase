@@ -238,22 +238,31 @@ class ImporterService {
      * a record with fields from one or more different entities.
      *
      * @param study entity Study
-     * @param datamatrix two dimensional array containing entities with values read from Excel file     *
+     * @param datamatrix two dimensional array containing entities with values read from Excel file
      */    
     def saveDatamatrix(Study study, datamatrix) {
 	def validatedSuccesfully = 0
+        def entitystored = null
 	study.refresh()        
 	
 	// go through the data matrix, read every record and validate the entity and try to persist it
 	datamatrix.each { record ->
 	    record.each { entity ->
-			switch (entity.getClass()) {
-			case Study	 :  print "Persisting Study `" + entity + "`: "
-						if (persistEntity(entity)) validatedSuccesfully++
+                        switch (entity.getClass()) {
+                        case Study	 :  print "Persisting Study `" + entity + "`: "
+                                            	if (persistEntity(entity)) validatedSuccesfully++
 						break
 			case Subject	 :  print "Persisting Subject `" + entity + "`: "
                                                 entity.parent = study
-                                                study.addToSubjects(entity)
+                                                
+                                                // is the current entity not already in the database?
+                                                entitystored = isEntityStored(entity)
+                                                
+                                                // this entity is new, so add it to the study
+                                                if (entitystored==null) study.addToSubjects(entity)
+                                                else // existing entity, so update it
+                                                    updateEntity(entitystored, entity)
+
                                                 if (persistEntity(study)) validatedSuccesfully++
 						break
 			case Event	 :  print "Persisting Event `" + entity + "`: "
@@ -270,13 +279,60 @@ class ImporterService {
                                                 entity.parent = study
 						study.addToSamplingEvents(entity)
 						if (persistEntity(entity)) validatedSuccesfully++
-						break;
+						break
 			default		 :  println "Skipping persisting of `" + entity.getclass() +"`"
 						break
 			} // end switch
 	    } // end record
 	} // end datamatrix
 	return validatedSuccesfully
+    }
+
+    /**
+     * Check whether an entity already exists within a study. A combination of
+     * the study where the entity will be stored and a unique field in the entity is
+     * used to check whether the instantiated entity (read from Excel) is new.
+     * If the entity is found in the database it will be returned as so and
+     * it should update the entity-values (read from Ecel) into the record in the database.
+     *
+     * @param entity entity object like a Study, Subject, Sample et cetera
+     * @return entity if found, otherwise null
+     */
+    def isEntityStored(entity) {
+            switch (entity.getClass()) {
+                        case Study          :  return Study.findByCode(entity.code)
+                                               break
+			case Subject        :  return Subject.findByParentAndName(entity.parent, entity.name)
+                                               break
+                        case Event          :  break
+                        case Sample         :  break
+                        case SamplingEvent  :  break
+                        default             :  // unknown entity
+                                               return null
+            }
+    }
+
+    /**
+     * Find the entity and update the fields. The entity is an instance
+     * read from Excel. This method looks in the database for the entity
+     * having the same identifier. If it has found the same entity
+     * already in the database, it will update the record.
+     *
+     * @param entitystored existing record in the database to update
+     * @param entity entity read from Excel
+     */
+    def updateEntity(entitystored, entity) {
+        switch (entity.getClass()) {
+                        case Study          :  break
+			case Subject        :  entitystored.properties = entity.properties
+                                               entitystored.save()
+                                               break
+                        case Event          :  break
+                        case Sample         :  break
+                        case SamplingEvent  :  break
+                        default             :  // unknown entity
+                                               return null
+        }
     }
 
     /**
