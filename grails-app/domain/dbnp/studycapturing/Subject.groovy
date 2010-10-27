@@ -56,4 +56,13 @@ class Subject extends TemplateEntity {
 			comment: "The species name is based on the NEWT ontology; if a species is missing, please add it to the ontology using 'add more'",
 			required: true)
 	]
+
+        /**
+        * Return by default the name of the subject.
+        * 
+        * @return name field
+        */
+        String toString() {
+            return name
+        }
 }

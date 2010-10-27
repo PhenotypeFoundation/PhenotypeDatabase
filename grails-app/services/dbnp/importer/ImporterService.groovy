@@ -242,7 +242,7 @@ class ImporterService {
      */    
     def saveDatamatrix(Study study, datamatrix) {
 	def validatedSuccesfully = 0
-	study.refresh()
+	study.refresh()        
 	
 	// go through the data matrix, read every record and validate the entity and try to persist it
 	datamatrix.each { record ->
@@ -252,18 +252,22 @@ class ImporterService {
 						if (persistEntity(entity)) validatedSuccesfully++
 						break
 			case Subject	 :  print "Persisting Subject `" + entity + "`: "
-						study.addToSubjects(entity)
-						if (persistEntity(entity)) validatedSuccesfully++
+                                                entity.parent = study
+                                                study.addToSubjects(entity)
+                                                if (persistEntity(study)) validatedSuccesfully++
 						break
 			case Event	 :  print "Persisting Event `" + entity + "`: "
+                                                entity.parent = study
 						study.addToEvents(entity)
 						if (persistEntity(entity)) validatedSuccesfully++
 						break
 			case Sample	 :  print "Persisting Sample `" + entity +"`: "
+                                                entity.parent = study
 						study.addToSamples(entity)
 						if (persistEntity(entity)) validatedSuccesfully++
 						break
 			case SamplingEvent: print "Persisting SamplingEvent `" + entity + "`: "
+                                                entity.parent = study
 						study.addToSamplingEvents(entity)
 						if (persistEntity(entity)) validatedSuccesfully++
 						break;
@@ -283,7 +287,7 @@ class ImporterService {
      * 
      */
     boolean persistEntity(entity) {
-	    println "persisting ${entity}"
+	    println "persisting ${entity}"            
 	    // if not validated
 		if (entity.validate()) {
 			if (entity.save()) { //.merge?
