@@ -196,6 +196,7 @@ function attachDatePickers() {
             changeMonth : true,
             changeYear  : true,
             dateFormat  : 'dd/mm/yy',
+            yearRange   : 'c-80:c+20',
             altField    : '#' + $(this).attr('name') + 'Example',
             altFormat   : 'DD, d MM, yy'
         });
