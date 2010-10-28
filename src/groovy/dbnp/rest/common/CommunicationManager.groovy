@@ -4,6 +4,7 @@ import grails.converters.JSON
 import java.net.URLEncoder
 import org.codehaus.groovy.grails.web.json.*
 
+
 /**  CommunicationManager
  *
  *   @author Jahn
@@ -261,6 +262,23 @@ class CommunicationManager {
 		addRestWrapper( url, 'getStudySample',  ['username','password','study_token','sample_token'] )
 		addRestWrapper( url, 'isUser',  ['username','password'] )
     }
+
+
+    /**
+     * Give list of missing parameters for a parameter call in a RestController.
+     *  
+     * @params params Map params     	The parameter list required by this view.
+     * @params requiredParamers 		List of parameter names that must be provided
+     * @return true, if params has all required parameters, false otherwise 
+     */  
+	static String hasValidParams( params, Object [] requiredParams ) {
+		def list = []
+		requiredParams.each { p ->
+			if( !params[p] ) list.push p
+		}
+		if(list.size()>0) { return true }
+		return false
+	}
 
 
 

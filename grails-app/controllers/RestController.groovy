@@ -20,6 +20,7 @@ import dbnp.studycapturing.Assay
 import dbnp.authentication.SecUser
 import grails.converters.*
 import nl.metabolomicscentre.dsp.http.BasicAuthentication
+import dbnp.rest.common.CommunicationManager
 
 
 class RestController {
@@ -31,7 +32,7 @@ class RestController {
 	def AuthenticationService        
 	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
 	def credentials
-	def requestUser // = SecUser.findByName( "user" )
+	def requestUser //= SecUser.findByUsername( "user" )
 
 	/**
 	 * Authorization closure, which is run before executing any of the REST resource actions
@@ -138,19 +139,53 @@ class RestController {
 	 *
 	 * If the user is not allowed to read the study contents, a 401 error is given
 	 *
-	 * Example call of the getAssays REST resource:
-	 * http://localhost:8080/gscf/rest/getAssays?studyToken=PPSH&moduleURL=http://localhost:8182/sam
-	 *
 	 * @param	studyToken	String The external study id (code) of the target GSCF Study object
 	 * @param	moduleURL	String The base URL of the calling dbNP module
 	 * @param	consumer	consumer name of the calling module
-	 * @param	token		token for the authenticated user (e.g. session_id)
 	 * @return list of assays in the study as JSON object list, filtered to only contain assays
 	 *         for the specified module, with 'assayToken' and 'name' for each assay
+ 	 *
+ 	 *
+ 	 * Example 1. REST call without assayToken 
+ 	 *            http://localhost:8080/gscf/rest/getAssays/aas?studyToken=PPSH
+	 *				&moduleURL=http://localhost:8182/sam
+ 	 *
+ 	 * Result: [{"name":"Glucose assay after",
+	 *		        "module":{"class":"dbnp.studycapturing.AssayModule","id":1,"name":"SAM module for clinical data",
+	 *				"platform":"clinical measurements","url":"http://localhost:8182/sam"},
+	 *			"externalAssayID":"PPSH-Glu-A", "Description":null,"parentStudyToken":"PPSH"},
+	 *			{"name":"Glucose assay before",
+	 *				"module":{"class":"dbnp.studycapturing.AssayModule","id":1,"name":"SAM module for clinical data",
+	 *				"platform":"clinical measurements","url":"http://localhost:8182/sam"},
+	 *				"externalAssayID":"PPSH-Glu-B","Description":null,"parentStudyToken":"PPSH"}]
+ 	 *
+ 	 *
+ 	 * Example 2. REST call with one assayToken 
+ 	 * 			  http://localhost:8080/gscf/rest/getAssays/queryOneTokenz?studyToken=PPSH
+	 *				&moduleURL=http://localhost:8182/sam&assayToken=PPSH-Glu-A
+ 	 *
+	 * Result: [{"name":"Glucose assay after","module":{"class":"dbnp.studycapturing.AssayModule","id":1,
+	 *			"name":"SAM module for clinical data","platform":"clinical measurements","url":"http://localhost:8182/sam"},
+	 *			"externalAssayID":"PPSH-Glu-A","Description":null,"parentStudyToken":"PPSH"}]
+	 *
+ 	 *
+ 	 * Example 3. REST call with two assayTokens.
+	 *
+ 	 * Result: Same as result in Example 1.
 	 */
 	def getAssays = {
-		List assays = [] 
+
+		List returnList = []    // return list of hashes each containing fields and values belonging to an assay 
+
+		// Check if required parameters are present 
+		def validCall = CommunicationManager.hasValidParams( params, "moduleURL", "studyToken" )
+		if( !validCall ) { 
+			render "Error. Wrong or insufficient parameters." as JSON 
+			return
+		}
+
 		if( params.studyToken ) {
+
 			def id = params.studyToken
  			def study = Study.find( "from Study as s where s.code=?", [id] )
 
@@ -161,16 +196,54 @@ class RestController {
 					return false
 				}
 
-				study.assays.each{ assay ->
-					if (assay.module.url.equals(params.moduleURL)) {
-						def map = ['name':assay.name, 'assayToken':assay.getToken()]
-						assays.push( map )
+				def assays = []
+				if(params.assayToken==null) {
+					assays = study.assays
+				}
+				else if( params.assayToken instanceof String ) { 
+					def assay = study.assays.find{ it.externalAssayID==params.assayToken }
+					if( assay ) {
+						 assays.push assay
 					}
 				}
-			}
+				else { 													// there are multiple assayTokens instances
+					params.assayToken.each { assayToken ->
+						def assay = study.assays.find{ it.externalAssayID==assayToken }
+						if(assay) {
+							assays.push assay
+						}
+					}
+				}
+
+				assays.each{ assay ->
+					if (assay.module.url.equals(params.moduleURL)) {
+						if(assay) {
+							def map = [:]
+							assay.giveFields().each { field ->
+								def name = field.name
+								def value = assay.getFieldValue( name )
+								if(field.name=='externalAssayID') {
+									name = 'assayToken'
+								}
+								map[name] = value
+							}
+							map["parentStudyToken"] = assay.parent.getToken()
+							returnList.push( map )
+						}
+					}
+				}
+        	}
+
  		}
-		render assays as JSON 
+
+		render returnList as JSON 
 	}
+
+
+
+
+
+
 
 	/**
 	 * REST resource for data modules.
@@ -307,38 +380,6 @@ class RestController {
 		render items as JSON
 	}
 
-
-
-	/**
-	 * REST resource for dbNP modules.
-	 *
-	 * @param	assayToken String, the external identifier of the study
-	 * @param	consumer	consumer name of the calling module
-	 * @param	token		token for the authenticated user (e.g. session_id)
-	 * @return List of all fields of this assay
-	 *
-	 * Example REST call (without authentication):
-     * http://localhost:8080/gscf/rest/getAssay/assay?assayToken=PPS3_SAM
-     *
-	 * Returns the JSON object: {"name":"Lipid profiling","module":{"class":"dbnp.studycapturing.AssayModule","id":1,
-	 * "name":"SAM module for clinical data","platform":"clinical measurements","url":"http://sam.nmcdsp.org"},
-	 * "assayToken":"PPS3_SAM","parentStudyToken":"PPS","Description":null}
-	 */
-	def getAssay = {
-		def items = [:]
-		if( params.assayToken ) {
- 			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
-			if(assay) {
-				assay.giveFields().each { field ->
-					def name = field.name
-					def value = assay.getFieldValue( name )
-					items[name] = value
-				}
-				items["parentStudyToken"] = assay.parent.getToken()
-			}
-        }
-		render items as JSON
-	}
 
 
 
