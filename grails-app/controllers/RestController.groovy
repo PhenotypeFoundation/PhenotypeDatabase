@@ -50,6 +50,7 @@ class RestController {
 		} else {
 			return true
 		}
+		return true
 	}
 
 	/**
@@ -82,21 +83,86 @@ class RestController {
 		render reply as JSON
 	}
 
+
 	/**
  	 * REST resource for data modules.
  	 * Consumer and token should be supplied via URL parameters.
  	 * Provide a list of all studies owned by the supplied user.
 	 *
+	 * @param	studyToken  optional parameter. If no studyToken is given, all studies available to user are returned.
+	 *                      Otherwise, the studies for which the studyTokens are given are be returned. 
 	 * @param	consumer	consumer name of the calling module
 	 * @param	token		token for the authenticated user (e.g. session_id)
-	 * @return JSON object list containing 'studyToken', and 'name' (title) for each study
+	 * @return  JSON object list containing 'studyToken', and 'name' (title) for each study
+	 *
+	 *
+	 * Example 1. REST call without studyToken. 
+	 * 
+	 * Call: http://localhost:8080/gscf/rest/getStudies/query 
+	 *
+	 * Result: [{"title":"NuGO PPS3 mouse study leptin module","studyToken":"PPS3_leptin_module",
+	 * 			"startDate":"2008-01-01T23:00:00Z","published":false,"Description":"C57Bl/6 mice were fed a high fat (45 en%) 
+	 * 			or low fat (10 en%) diet after a four week run-in on low fat diet.","Objectives":null,"Consortium":null,
+	 *			"Cohort name":null,"Lab id":null,"Institute":null,"Study protocol":null},
+	 *			{"title":"NuGO PPS human study","studyToken":"PPSH","startDate":"2008-01-13T23:00:00Z","published":false,
+	 *			"Description":"Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U.","Objectives":null,
+	 *			"Consortium":null,"Cohort name":null,"Lab id":null,"Institute":null,"Study protocol":null}]
+	 *
+	 *
+	 * Example 2. REST call with one studyToken. 
+	 * 
+	 * Call: http://localhost:8080/gscf/rest/getStudies/query?studyToken=PPSH
+	 *
+	 * Result: [{"title":"NuGO PPS human study","studyToken":"PPSH","startDate":"2008-01-13T23:00:00Z",
+	 * 		"published":false,"Description":"Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U.",
+	 * 		"Objectives":null,"Consortium":null,"Cohort name":null,"Lab id":null,"Institute":null,"Study protocol":null}]
+	 *
+	 *
+	 *
+	 * Example 2. REST call with two studyTokens. 
+	 *
+	 * http://localhost:8080/gscf/rest/getStudies/query?studyToken=PPSH&studyToken=PPS3_leptin_module
+	 *
+	 * Result: same as result of Example 1. 
 	 */
 	def getStudies = {
+
+		List returnStudies = [] 
 		List studies = [] 
-		Study.findAllByOwner(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )).each { study ->
-			studies.push( [ 'title':study.title, 'studyToken':study.getToken()] )
+
+		if( !params.studyToken ) {
+			studies = Study.findAll()
 		}
- 		render studies as JSON 
+		else if( params.studyToken instanceof String ) {
+			studies.push Study.findByCode( params.studyToken ) 
+		}
+		else { 
+			params.studyToken.each{ studyToken ->
+				studies.push Study.findByCode( studyToken )
+			}
+		}
+
+		studies.each { study ->
+			if(study) {
+				// Check whether the person is allowed to read the data of this study
+				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+					response.sendError(401)
+					return false
+				}
+				def items = [:]
+				study.giveFields().each { field ->
+					def name = field.name
+					def value = study.getFieldValue( name )
+					if( name=='code' ) {
+						name = 'studyToken'
+					}
+					items[name] = value
+				}
+				returnStudies.push items
+			}
+		}
+
+ 		render returnStudies as JSON 
 	}
 
 
@@ -309,7 +375,6 @@ class RestController {
 						[params.sampleToken] : params.sampleToken
 						assay.getSamples().each { sample ->
 						if( sampleTokens.find{ it == sample.name } ) {
-							println "adding"
 							def item = [ 
 								'sampleToken' : sample.name,
 								'material'	  : sample.material?.name,
@@ -337,49 +402,6 @@ class RestController {
  		}
 		render items as JSON
 	}
-
-
-	/**
-	 * REST resource for dbNP modules.
-	 *
-	 * @param	studyToken String, the external identifier of the study
-	 * @param	consumer	consumer name of the calling module
-	 * @param	token		token for the authenticated user (e.g. session_id)
-	 * @return List of all fields of this study
-	 * @return
-	 *
-	 * If the user is not allowed to read this study, a 401 error is given
-	 *
-	 * Example REST call (without authentication):
-     * http://localhost:8080/gscf/rest/getStudy/study?studyToken=PPSH
-     *
-	 * Returns the JSON object:
-	 * {"title":"NuGO PPS human study","studyToken":"PPSH","startDate":"2008-01-13T23:00:00Z",
-	 * "Description":"Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U.",
-	 * "Objectives":null,"Consortium":null,"Cohort name":null,"Lab id":null,"Institute":null,
-	 * "Study protocol":null}
-	*/
-	def getStudy = {
-		def items = [:]
-		if( params.studyToken ) {
- 			def study = Study.find( "from Study as s where code=?",[params.studyToken])
-			if(study) {
-				// Check whether the person is allowed to read the data of this study
-				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
-					response.sendError(401)
-					return false
-				}
-				
-				study.giveFields().each { field ->
-					def name = field.name
-					def value = study.getFieldValue( name )
-					items[name] = value
-				}
-			}
-        }
-		render items as JSON
-	}
-
 
 
 
