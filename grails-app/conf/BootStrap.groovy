@@ -19,9 +19,11 @@ import dbnp.authentication.*
  * $Date$
  */
 class BootStrap {
-        def springSecurityService
+    def springSecurityService
 
 	def init = {servletContext ->
+		"Bootstrapping application".grom()
+		
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
@@ -69,7 +71,7 @@ class BootStrap {
 				// check if special file is present in project directory
 				if ((new File(System.properties['user.dir']+"/.skip-studies").exists())) {
 					// yes it is, skip study bootstrapping
-					println ".skipping study bootstrapping"
+					"Skipping study bootstrapping".grom()
 
 					// get species ontology
 					def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
@@ -87,6 +89,8 @@ class BootStrap {
 						accession: '9606'
 					).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 				} else {
+					"Bootstrapping studies".grom()
+					
 					// general study boostrapping
 					BootStrapStudies.addExampleStudies(user, userAdmin)
 				}
