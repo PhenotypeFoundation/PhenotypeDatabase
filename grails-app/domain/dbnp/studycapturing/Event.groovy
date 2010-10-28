@@ -12,6 +12,8 @@ package dbnp.studycapturing
  */
 class Event extends TemplateEntity {
 
+	static searchable = true
+
 	static belongsTo = [parent : Study]	
 
 	/** Start time of the event, relative to the start time of the study */

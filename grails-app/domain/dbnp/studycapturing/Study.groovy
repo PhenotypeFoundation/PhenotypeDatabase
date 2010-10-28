@@ -11,9 +11,7 @@ import dbnp.authentication.SecUser
  * $Date$
  */
 class Study extends TemplateEntity {
-        static searchable = {
-            [only: ['title', 'Description']] // the description field will be searched only if defined in a study template
-        }
+        static searchable = true
 
 	SecUser owner		// The owner of the study. A new study is automatically owned by its creator.
 	String title        // The title of the study

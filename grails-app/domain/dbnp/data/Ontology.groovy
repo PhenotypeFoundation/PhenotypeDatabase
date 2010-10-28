@@ -19,6 +19,10 @@ class Ontology implements Serializable {
 	int ncboId              // BioPortal: ontologyId
 	int ncboVersionedId     // BioPortal: id
 
+	static constraints = {
+		ncboId(unique: true)     // For now, we just want one version of each NCBO ontology in the database
+	}	
+
 	/**
 	 * Find child terms
 	 * @return A set containing all terms that reside under this ontology
