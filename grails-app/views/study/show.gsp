@@ -633,9 +633,10 @@
                     <td>${assay.module.platform}</td>
                     %{--<td><a href="${assay.module.url}/assay/${assay.externalAssayID}">view</a></td>--}%
                     <td><jumpbar:link
-                      linkDest="${createLink(action:'show')}"
+                      linkDest="${createLink(action:'show', id:study.id)}"
                       linkText='Go back to GSCF'
-                      frameSource="${assay.module.url}/assay/${assay.externalAssayID}">
+                      frameSource="${assay.module.url}/assay/showByToken/${assay.externalAssayID}"
+                      pageTitle="Assay View in Module">
                       view
                     </jumpbar:link></td>
                     <td>
