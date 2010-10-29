@@ -479,14 +479,14 @@ class BootStrapStudies {
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
 			platform: 'clinical measurements',
-			url: samURL 
+			consumer: samURL 
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add metabolomics assay reference
 		def metabolomicsModule = new AssayModule(
 			name: 'Metabolomics module',
 			platform: 'GCMS/LCMS',
-			url: nmcdspURL
+			consumer: nmcdspURL
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		def lipidAssayRef = new Assay(

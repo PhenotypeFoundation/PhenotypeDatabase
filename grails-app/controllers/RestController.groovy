@@ -32,7 +32,7 @@ class RestController {
 	def AuthenticationService        
 	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
 	def credentials
-	def requestUser //= SecUser.findByUsername( "user" )
+	def requestUser = // SecUser.findByUsername( "user" )
 
 	/**
 	 * Authorization closure, which is run before executing any of the REST resource actions
@@ -50,7 +50,6 @@ class RestController {
 		} else {
 			return true
 		}
-		return true
 	}
 
 	/**
@@ -145,10 +144,12 @@ class RestController {
 		studies.each { study ->
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
+/*
 				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 					response.sendError(401)
 					return false
 				}
+*/
 				def items = [:]
 				study.giveFields().each { field ->
 					def name = field.name
@@ -206,7 +207,6 @@ class RestController {
 	 * If the user is not allowed to read the study contents, a 401 error is given
 	 *
 	 * @param	studyToken	String The external study id (code) of the target GSCF Study object
-	 * @param	moduleURL	String The base URL of the calling dbNP module
 	 * @param	consumer	consumer name of the calling module
 	 * @return list of assays in the study as JSON object list, filtered to only contain assays
 	 *         for the specified module, with 'assayToken' and 'name' for each assay
@@ -214,7 +214,7 @@ class RestController {
  	 *
  	 * Example 1. REST call without assayToken 
  	 *            http://localhost:8080/gscf/rest/getAssays/aas?studyToken=PPSH
-	 *				&moduleURL=http://localhost:8182/sam
+	 *				&consumer=http://localhost:8182/sam
  	 *
  	 * Result: [{"name":"Glucose assay after",
 	 *		        "module":{"class":"dbnp.studycapturing.AssayModule","id":1,"name":"SAM module for clinical data",
@@ -228,7 +228,7 @@ class RestController {
  	 *
  	 * Example 2. REST call with one assayToken 
  	 * 			  http://localhost:8080/gscf/rest/getAssays/queryOneTokenz?studyToken=PPSH
-	 *				&moduleURL=http://localhost:8182/sam&assayToken=PPSH-Glu-A
+	 *				&consumer=http://localhost:8182/sam&assayToken=PPSH-Glu-A
  	 *
 	 * Result: [{"name":"Glucose assay after","module":{"class":"dbnp.studycapturing.AssayModule","id":1,
 	 *			"name":"SAM module for clinical data","platform":"clinical measurements","url":"http://localhost:8182/sam"},
@@ -244,7 +244,7 @@ class RestController {
 		List returnList = []    // return list of hashes each containing fields and values belonging to an assay 
 
 		// Check if required parameters are present 
-		def validCall = CommunicationManager.hasValidParams( params, "moduleURL", "studyToken" )
+		def validCall = CommunicationManager.hasValidParams( params, "consumer", "studyToken" )
 		if( !validCall ) { 
 			render "Error. Wrong or insufficient parameters." as JSON 
 			return
@@ -282,7 +282,7 @@ class RestController {
 				}
 
 				assays.each{ assay ->
-					if (assay.module.url.equals(params.moduleURL)) {
+					if (assay.module.consumer.equals(params.consumer )) {
 						if(assay) {
 							def map = [:]
 							assay.giveFields().each { field ->

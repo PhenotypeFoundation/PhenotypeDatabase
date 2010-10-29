@@ -11,8 +11,8 @@ class AssayModule extends Identity {
 	/** A descriptive string describing the 'platform' of the assay data in the module */
 	String platform
 
-	/** The base URL at which the module instance is located */
-	String url
+	/** Consumer id (e.g., OAuth consuemr key) of module where instance is located */
+	String consumer 
 
 	static constraints = {
 	}
@@ -20,6 +20,5 @@ class AssayModule extends Identity {
 	def String toString() {
 		return name;
 	}
-
 
 }
