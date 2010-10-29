@@ -32,7 +32,7 @@ class RestController {
 	def AuthenticationService        
 	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
 	def credentials
-	def requestUser = // SecUser.findByUsername( "user" )
+	def requestUser // = SecUser.findByUsername( "user" )
 
 	/**
 	 * Authorization closure, which is run before executing any of the REST resource actions
