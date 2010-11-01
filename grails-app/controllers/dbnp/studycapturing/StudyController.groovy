@@ -73,10 +73,28 @@ class StudyController {
      * 
      */
     def list_extended = {
+		// If nothing has been selected, redirect the user
+		if( !params.id ) 
+			redirect( action: 'list' )
+
+		// Check whether one id has been selected or multiple.
+		def ids = params.id
+		if( ids instanceof String )
+			redirect( action: 'show', id: ids )
+
+		// Parse strings to a long
+		def long_ids = []
+		ids.each { long_ids.add( Long.parseLong( it ) ) }
+
+		println( long_ids )
+
         def startTime = System.currentTimeMillis()
-        params.max = Math.min(params.max ? params.int('max') : 10, 100)
-        
-        def studyList = Study.list(params)
+		def c = Study.createCriteria()
+
+        def studyList = c {
+			maxResults( Math.min(params.max ? params.int('max') : 10, 100) )
+			'in'( "id", long_ids )
+		}
         render(view:'show',model:[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ) ] )
     }
 
