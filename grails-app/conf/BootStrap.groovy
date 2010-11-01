@@ -70,9 +70,6 @@ class BootStrap {
 			if (Study.count() == 0 && grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST) {
 				// check if special file is present in project directory
 				if ((new File(System.properties['user.dir']+"/.skip-studies").exists())) {
-					// yes it is, skip study bootstrapping
-					"Skipping study bootstrapping".grom()
-
 					// get species ontology
 					def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
 
@@ -89,8 +86,6 @@ class BootStrap {
 						accession: '9606'
 					).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
 				} else {
-					"Bootstrapping studies".grom()
-					
 					// general study boostrapping
 					BootStrapStudies.addExampleStudies(user, userAdmin)
 				}
