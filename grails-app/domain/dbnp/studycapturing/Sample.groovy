@@ -16,7 +16,12 @@ class Sample extends TemplateEntity {
 	//static searchable = { [only: ['name']] }
 
 	// A Sample always belongs to one study.
-	static belongsTo = [parent : Study, parentSubject : Subject, parentEvent : SamplingEvent]
+	static belongsTo = [
+		parent			: Study,
+		parentSubject	: Subject,
+		parentEvent		: SamplingEvent,
+		parentEventGroup: EventGroup
+	]
 
 	// A Sample optionally has a parent Subject from which it was taken, this Subject should be in the same parent study.
 	//long parentSubject
@@ -27,7 +32,6 @@ class Sample extends TemplateEntity {
 
 	String name             // should be unique with respect to the parent study (which can be inferred)
 	Term material	        // material of the sample (should normally be bound to the BRENDA ontology)
-
 
 	/**
 	 * return the domain fields for this domain class
@@ -53,8 +57,12 @@ class Sample extends TemplateEntity {
 	static constraints = {
 		// The parent subject is optional, e.g. in a biobank of samples the subject could be unknown or non-existing.
 		parentSubject(nullable:true)
+
 		// The same holds for parentEvent
 		parentEvent(nullable:true)
+
+		// and for parentEventGroup
+		parentEventGroup(nullable:true)
 		
 		// The material domain field is optional
 		material(nullable: true)

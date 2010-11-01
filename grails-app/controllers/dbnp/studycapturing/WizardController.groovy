@@ -1299,10 +1299,11 @@ class WizardController {
 								// instantiate a sample
 								flow.study.addToSamples(
 									new Sample(
-										parentSubject: subject,
-										parentEvent: event,
-										name: sampleName,
-										template: (event.sampleTemplate) ? event.sampleTemplate : ''
+										parentSubject	: subject,
+										parentEvent		: event,
+										parentEventGroup: eventGroup,
+										name			: sampleName,
+										template		: (event.sampleTemplate) ? event.sampleTemplate : ''
 									)
 								)
 							}
@@ -1394,10 +1395,11 @@ class WizardController {
 							// instantiate a sample
 							flow.study.addToSamples(
 								new Sample(
-									parentSubject: subject,
-									parentEvent: samplingEvent,
-									name: sampleName,
-									template: (samplingEvent.sampleTemplate) ? samplingEvent.sampleTemplate : ''
+									parentSubject	: subject,
+									parentEvent		: samplingEvent,
+									parentEventGroup: eventGroup,
+									name			: sampleName,
+									template		: (samplingEvent.sampleTemplate) ? samplingEvent.sampleTemplate : ''
 								)
 							)
 						}
