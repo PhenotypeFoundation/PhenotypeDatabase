@@ -390,7 +390,7 @@ class ImporterService {
 			def value
 
 			// Check if column must be imported
-			if (!mc.dontimport) {
+			if (mc!=null) if (!mc.dontimport) {
 				try {
 					value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
 				} catch (NumberFormatException nfe) {
