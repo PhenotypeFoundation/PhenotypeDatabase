@@ -32,9 +32,6 @@ h2 {
 	background: url(../images/default_style/header.png) no-repeat center top;
 	padding-top: 120px;
 }
-#header img {
-	margin: 20px 0 10px;
-}
 
 /** END :: header **/
 /** START :: topnav **/
@@ -54,8 +51,11 @@ ul.topnav li {
 	padding: 0 15px 0 0;
 	position: relative; /*--Declare X and Y axis base--*/
 }
+ul.topnav li img {
+    border: none;
+}
 ul.topnav li a{
-	padding: 10px 5px;
+    padding: 10px 5px;
 	color: #fff;
 	display: block;
 	text-decoration: none;
