@@ -228,12 +228,14 @@ class ImporterController {
 
 	render(view:"step2", model:[entities:selectedentities, header:session.importer_header, templates:templates])
     }
-
-    /**
-    * @param columnproperty array of columns containing index and property (represented as a String)
+    
+    /** 
+     * Method which stores the properties set per column and then imports the data.
+     *
+     * @param columnproperty array of columns containing index and property (represented as a String)
     *
     */
-    def saveProperties = {
+    def saveProperties = {        
 
 	// Find actual Template object from the chosen template name
 	def template = Template.get(session.importer_template_id)
@@ -260,8 +262,11 @@ class ImporterController {
 		}
 	}
 
-	//import workbook
-	session.importer_importeddata = ImporterService.importdata(session.importer_template_id, session.importer_workbook, session.importer_sheetindex, session.importer_datamatrix_start, session.importer_header)
+	//import workbook and store it in a session
+	session.importer_importeddata = ImporterService.importData(session.importer_template_id, session.importer_workbook, session.importer_sheetindex, session.importer_datamatrix_start, session.importer_header)
+
+        //
+        //render(view:"step2a_simple", model:[datamatrix:session.importer_importeddata])
 
 	if (params.layout=="horizontal")
 	    render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])

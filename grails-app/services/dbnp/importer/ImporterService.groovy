@@ -221,7 +221,7 @@ class ImporterService {
     * 
     * @see dbnp.importer.MappingColumn
     */
-    def importdata(template_id, HSSFWorkbook wb, int sheetindex, int rowindex, mcmap) {
+    def importData(template_id, HSSFWorkbook wb, int sheetindex, int rowindex, mcmap) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def table = []
 	
@@ -375,6 +375,7 @@ class ImporterService {
 		def df = new DataFormatter()
 		def template = Template.get(template_id)
 		def record = []
+                def failed = [:]
 
 		// Initialize all possible entities with the chosen template
 		def study = new Study(template: template)
@@ -387,7 +388,7 @@ class ImporterService {
 		for (HSSFCell cell: excelrow) {
 			// get the MappingColumn information of the current cell
 			def mc = mcmap[cell.getColumnIndex()]
-			def value
+			def value                        
 
 			// Check if column must be imported
 			if (mc!=null) if (!mc.dontimport) {
@@ -401,7 +402,8 @@ class ImporterService {
 
 				// which entity does the current cell (field) belong to?
                                     switch (mc.entity) {
-					case Study: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)
+					case Study: // does the entity already exist in the record? If not make it so.
+                                                (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)
 						study.setFieldValue(mc.property, value)
 						break
 					case Subject: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(subject)
@@ -421,12 +423,16 @@ class ImporterService {
                                     } // end switch
                                 } catch (IllegalArgumentException iae) {
                                     // leave the field empty and let the user choose the ontology manually in a later step
-                                    
+                                    failed.put(mc, value)
                                 }
 			} // end
 		} // end for
 
-	return record
+	// add the failed columns to the record (might also be just an empty map if nothing failed)
+        // a failed column means that using the entity.setFieldValue() threw an exception
+        record.add(failed)
+        
+        return record
     }
 
     /**
