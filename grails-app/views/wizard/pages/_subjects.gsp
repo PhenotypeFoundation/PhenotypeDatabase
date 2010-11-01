@@ -49,7 +49,7 @@
 				<g:set var="showHeader" value="${false}" />
 				<div class="header">
 				  <div class="firstColumn"></div>
-				  <wizard:templateColumnHeaders class="column" entity="${subject}" />
+				  <wizard:templateColumnHeaders class="column" entity="${subject}" columnWidths="[Name:200, Species: 150]" />
 				</div>
 				</g:if>
 				<div class="row">

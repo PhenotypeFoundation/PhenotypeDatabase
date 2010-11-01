@@ -25,7 +25,7 @@
 	<div class="table">
 		<div class="header">
 			<div class="column">Template</div>
-			<div class="column">Subjects</div>
+			<div class="column" style="width:150px;" rel="resized">Subjects</div>
 			<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 				<div class="column">
 					${eventGroup.name}

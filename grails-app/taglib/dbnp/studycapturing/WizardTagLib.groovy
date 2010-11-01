@@ -19,8 +19,7 @@ import cr.co.arquetipos.crypto.Blowfish
  * $Date$
  */
 class WizardTagLib extends JavascriptTagLib {
-
-        def AuthenticationService
+	def AuthenticationService
         
 	// define the tag namespace (e.g.: <wizard:action ... />
 	static namespace = "wizard"
@@ -852,6 +851,7 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 	def templateColumnHeaders = { attrs ->
 		def entity		= (attrs.get('entity'))
 		def template	= (entity && entity instanceof TemplateEntity) ? entity.template : null
+		def columnWidths= (attrs.get('columnWidths')) ? attrs.remove('columnWidths') : []
 
 		// got a template?
 		if (template) {
@@ -866,7 +866,15 @@ println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "]
 					it[0].toUpperCase() + ((it.size() > 1) ? it[1..-1] : '')
 				}
 
-				out << '<div class="' + attrs.get('class') + '">' + ucName + (it.unit ? " (${it.unit})" : '')
+				// strip spaces
+				def ucNameSpaceless = ucName.replaceAll(/ /) { '' }
+
+				// do we have to use a specific width for this column?
+				if (columnWidths[ucName]) {
+					out << '<div class="' + attrs.get('class') + '" style="width:' + columnWidths[ucNameSpaceless] + 'px;" rel="resized">' + ucName + (it.unit ? " (${it.unit})" : '')
+				} else {
+					out << '<div class="' + attrs.get('class') + '">' + ucName + (it.unit ? " (${it.unit})" : '')
+				}
 				if (it.comment) {
 					out << '<div class="helpIcon"></div>'
 					out << '<div class="helpContent">' + it.comment + '</div>'

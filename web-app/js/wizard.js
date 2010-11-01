@@ -247,6 +247,7 @@ function handleWizardTable() {
         var width = 20;
         var column = 0;
         var columns = [];
+        var resized = [];
 
         // calculate total width of elements in header
         header.children().each(function() {
@@ -264,6 +265,7 @@ function handleWizardTable() {
             width += columnWidth;
 
             // remember column
+            resized[ column ] = (c.attr('rel') == 'resized');
             columns[ column ] = c.width();
             column++;
         });
@@ -277,7 +279,13 @@ function handleWizardTable() {
             var row = $(this);
             var column = 0;
             row.children().each(function() {
-                $(this).css({ width: columns[ column] + 'px' });
+                var child = $(this);
+                child.css({ width: columns[ column] + 'px' });
+                if (resized[ column ]) {
+                    $(':input',child).each(function() {
+                        $(this).css({width: (columns[ column ] - 10) + 'px'});
+                    });
+                }
                 column++;
             });
             row.css({ width: width + 'px' });
