@@ -88,7 +88,7 @@ function onWizardPage() {
     });
 
     // initialize accordeon(s)
-    $("#accordion").accordion();
+    $("#accordion").accordion({autoHeight: false});
 }
 
 // insert a redirect confirmation dialogue to all anchors leading the
