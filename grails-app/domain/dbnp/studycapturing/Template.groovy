@@ -88,17 +88,7 @@ class Template extends Identity {
 	 * @param	otherTemplate
 	 */
 	public Template( Template otherTemplate) {
-		this()
-
-		//authenticationService = new AuthenticationService()
-
-		this.name = otherTemplate.name + " (Copy)"
-		this.description = otherTemplate.description
-		this.entity = otherTemplate.entity
-		this.owner = otherTemplate.owner
-
-		// The fields are copied by reference
-		this.fields = otherTemplate.fields
+		this( otherTemplate, otherTemplate.owner )
 	}
 
 	/** 

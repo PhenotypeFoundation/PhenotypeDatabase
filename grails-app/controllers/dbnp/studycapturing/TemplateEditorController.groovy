@@ -15,16 +15,32 @@
 package dbnp.studycapturing
 import dbnp.data.*
 import dbnp.studycapturing.*
+
 import dbnp.authentication.AuthenticationService
+import grails.plugins.springsecurity.Secured
+
 import cr.co.arquetipos.crypto.Blowfish
 import grails.converters.*
 import java.lang.reflect.*;
 
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class TemplateEditorController {
     def entityName;
     def entity;
-
 	def AuthenticationService
+
+	/**
+     * Fires after every action and determines the layout of the page
+     */
+    def afterInterceptor = { model, modelAndView ->
+      if ( params['standalone'] ) {
+        model.layout = 'main';
+        model.extraparams = [ 'standalone': 'true' ] ;
+      } else {
+        model.layout = 'dialog';
+        model.extraparams = [] ;
+      }
+    }
 	
 	/**
     * Study template editor page
@@ -80,9 +96,9 @@ class TemplateEditorController {
 		}
 
 		// redirect to template editor page of the specified entity
-		redirect(action: "index",params:[entity: resultEntity])
+		params.entity = resultEntity
+		redirect(action: "index", params:params)
 	}
-
 
     /**
      * index closure
@@ -106,6 +122,36 @@ class TemplateEditorController {
             encryptedEntity: params.entity,
             humanReadableEntity: humanReadableEntity,
 			ontologies: params.ontologies
+        ];
+    }
+
+    /**
+     * compare two or more templates
+     */
+    def compare = {
+        // Check whether a right entity is given
+        if( !_checkEntity() ) {
+			return
+		}
+
+        // fetch all templates for this entity
+        def templates = Template.findAllByEntity(entity)
+
+		// Find all available fields
+		def allFields = TemplateField.findAllByEntity( entity ).sort { a, b -> a.name <=> b.name }
+
+		// Generate a human readable entity name
+		def parts = entityName.tokenize( '.' );
+		def humanReadableEntity = parts[ parts.size() - 1 ];
+
+        return [
+            entity: entity,
+            templates: templates,
+			allFields: allFields,
+            encryptedEntity: params.entity,
+            humanReadableEntity: humanReadableEntity,
+			ontologies: params.ontologies,
+			templateEntities: this.templateEntityList()
         ];
     }
 
@@ -137,8 +183,6 @@ class TemplateEditorController {
 		// Generate a human readable entity name
 		def parts = entityName.tokenize( '.' );
 		def humanReadableEntity = parts[ parts.size() - 1 ];
-
-
 
 		// Find all available fields
 		def allFields = TemplateField.findAllByEntity( entity ).sort { a, b -> a.name <=> b.name }
@@ -835,4 +879,35 @@ class TemplateEditorController {
         }
 
     }
+
+	def templateEntityList = {
+		def entities = [
+			[ name: 'Study', entity: 'dbnp.studycapturing.Study' ],
+			[ name: 'Subject', entity: 'dbnp.studycapturing.Subject' ],
+			[ name: 'Event', entity: 'dbnp.studycapturing.Event' ],
+			[ name: 'Sampling Event', entity: 'dbnp.studycapturing.SamplingEvent' ],
+			[ name: 'Sample', entity: 'dbnp.studycapturing.Sample' ],
+			[ name: 'Assay', entity: 'dbnp.studycapturing.Assay' ]
+		]
+
+		entities.each { 
+			// add the entity class name to the element
+			// do we have crypto information available?
+			if (grailsApplication.config.crypto) {
+				// generate a Blowfish encrypted and Base64 encoded string.
+				it.encoded = URLEncoder.encode(
+					Blowfish.encryptBase64(
+						it.entity.toString().replaceAll(/^class /, ''),
+						grailsApplication.config.crypto.shared.secret
+					)
+				)
+			} else {
+				// base64 only; this is INSECURE! As this class
+				// is instantiated elsewehere. Possibly exploitable!
+				it.encoded = URLEncoder.encode(it.entity.toString().replaceAll(/^class /, '').bytes.encodeBase64())
+			}
+		}
+
+		return entities
+	}
 }

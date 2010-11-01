@@ -6,10 +6,10 @@
 </span>
 ${template.name}
 
-
 <form class="templateField_form" id="template_${template.id}_form" action="updateTemplate">
 	<g:hiddenField name="id" value="${template.id}" />
 	<g:hiddenField name="version" value="${template.version}" />
+	<g:hiddenField name="standalone" value="${standalone}" />
 	<g:render template="elements/templateForm" model="['template': template]"/>
 	<div class="templateFieldButtons">
 		<input type="button" value="Save" onClick="updateTemplate( ${template.id} );">

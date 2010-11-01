@@ -96,6 +96,22 @@ a.switch { font-size: small; color: #68BFEF; text-decoration: none; }
 .wait_text { position: absolute; left: 50%; top: 50%; margin-left: -100px; margin-top: -20px; width: 200px; height: 40px; text-align: center; font-weight: bold; background-color: white; border: 1px solid #006DBA; padding-top: 13px; vertical-align: center; }
 .wait { display: none; }
 
+/* Compare templates view */
+.dataTables_length { float: left; width: 40%; }
+.dataTables_filter { float: right; width: 50%; text-align: right; }
+table#compare_templates { clear: both; }
+.dataTables_info { float: left; width: 40%; line-height: 25px; }
+.dataTables_paginate { float: right; text-align: right; width: 50%; padding-top: 5px; }
+
+.paging_full_numbers span.paginate_active { background:none repeat scroll 0 0 #2E6AB1; color:#FFFFFF; }
+.paging_full_numbers span.paginate_button, .paging_full_numbers span.paginate_active {
+	border:1px solid #CCCCCC; margin-right:2px; padding:1px 6px; text-decoration:none;
+	cursor: pointer;
+}
+
+
+
+
 /* Add Ontology dialog */
 #addOntology { list-style-type: none; padding-left: 0; }
 #addOntology li { list-style-type: none; margin: 8px 0; padding-left: 20px; }

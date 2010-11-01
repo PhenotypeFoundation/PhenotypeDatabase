@@ -239,7 +239,14 @@
                 <tr>
                   <td>${field}</td>
                   <g:each in="${studyList}" var="studyInstance">
-                    <td>${studyInstance.getFieldValue(field.name)}</td>
+                    <td>
+					  <g:if test="${studyInstance.fieldExists(field.name)}">
+						${studyInstance.getFieldValue(field.name)}
+					  </g:if>
+					  <g:else>
+						-
+					  </g:else>
+					</td>
                   </g:each>
                 </tr>
               </g:if>

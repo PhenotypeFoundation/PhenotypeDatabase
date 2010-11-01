@@ -16,7 +16,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 	<head>
-		<meta name="layout" content="dialog"/>
+		<meta name="layout" content="${layout}"/>
 		<title>template editor</title>
 		<script src="${createLinkTo(dir: 'js', file: 'templateEditor.js')}" type="text/javascript"></script>
 		<link rel="stylesheet" href="${createLinkTo(dir: 'css', file: 'templateEditor.css')}" />
@@ -25,6 +25,10 @@
 		</g:if><g:else>
 		  <script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
 		</g:else>
+
+		<style type="text/css">
+		  #content .templateEditorStep { font-size: 0.8em; }
+		</style>
 	</head>
 	<body>
 
@@ -79,7 +83,7 @@
 
 		<g:if test="${template}">
 			<div class="templateEditorStep" id="step2_selectedFields">
-				<h3 class="templateName">${template.name} (<a class="switch" href="${createLink(action:'index')}?entity=${encryptedEntity.encodeAsURL()}">switch</a>)</h3>
+				<h3 class="templateName">${template.name} (<a class="switch" href="${createLink(action:'index',params: extraparams + [ 'entity': encryptedEntity ])}">switch</a>)</h3>
 
 				<p>Currently, this template contains the following fields. Drag fields to reorder. Drag fields to the list of available fields to remove the field from the template.</p>
 				<ol id="domainFields" class="templateFields <g:if test="${template.inUse()}">inUse</g:if>">
@@ -116,7 +120,7 @@
 				</div>
 			</div>
 		</g:if>
-
+		<br clear="all" />
 		<div id="ontologyDialog">
 		  <g:render template="ontologyDialog" />
 		</div>
