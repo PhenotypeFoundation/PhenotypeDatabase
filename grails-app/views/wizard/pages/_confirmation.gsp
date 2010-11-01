@@ -105,13 +105,4 @@
 	</div>
 </div>
 
-<g:if env="development">
-<span class="info">
-	<span class="todo">TODO</span>
-	<ul>
-		<li>this page is not complete yet, finish it to summerize the study you are about to store in the database</li>
-	</ul>
-</span>
-</g:if>
-
 </wizard:pageContent>
