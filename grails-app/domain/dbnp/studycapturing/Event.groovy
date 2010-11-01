@@ -63,6 +63,10 @@ class Event extends TemplateEntity {
 			required: true)
 	]
 
+    static mapping = {
+        sort "startTime"
+    }
+
 	/**
 	 * Get the duration of the event as RelTime
 	 * @return RelTime

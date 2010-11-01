@@ -261,7 +261,7 @@
                     -
                   </g:if>
                   <g:else>
-                   ${studyInstance.giveEventTemplates().name.join(", ")}
+					${studyInstance.giveEventTemplates().name.join(", ")}
                   </g:else>
                 </td>
               </g:each>

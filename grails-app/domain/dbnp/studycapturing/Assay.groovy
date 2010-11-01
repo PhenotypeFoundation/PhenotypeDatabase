@@ -50,6 +50,10 @@ class Assay extends TemplateEntity {
 		externalAssayID(nullable:false, blank:false, unique: true)
 	}
 
+    static mapping = {
+        sort "name"
+    }
+
 	def String toString() {
 		return name;
 	}

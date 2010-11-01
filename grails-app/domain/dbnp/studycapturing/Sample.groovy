@@ -102,6 +102,10 @@ class Sample extends TemplateEntity {
 		})
 	}
 
+    static mapping = {
+        sort "name"
+    }
+
 	static getSamplesFor( event ) {
 		return  Sample.findAll( 'from Sample s where s.parentEvent =:event', [event:event] )
 	}

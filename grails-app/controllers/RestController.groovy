@@ -21,7 +21,7 @@ import dbnp.authentication.SecUser
 import grails.converters.*
 import nl.metabolomicscentre.dsp.http.BasicAuthentication
 import dbnp.rest.common.CommunicationManager
-
+import org.springframework.security.core.context.SecurityContextHolder;
 
 class RestController {
 
@@ -30,7 +30,7 @@ class RestController {
      /**************************************************/
 
 	def AuthenticationService        
-	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
+	def beforeInterceptor = [action:this.&auth,except:["isUser", "logOut"]]
 	def credentials
 	def requestUser // = SecUser.findByUsername( "user" )
 

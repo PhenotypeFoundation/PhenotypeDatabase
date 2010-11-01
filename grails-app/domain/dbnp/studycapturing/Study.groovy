@@ -51,6 +51,7 @@ class Study extends TemplateEntity {
 
 	static mapping = {
 		autoTimestamp true
+		sort "title"
 
 		// Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
 		templateTextFields type: 'text'
@@ -99,7 +100,7 @@ class Study extends TemplateEntity {
 	/**
 	 * returns all events and sampling events that do not belong to a group
 	 */
-	def Set<Event> getOrphanEvents() {
+	def List<Event> getOrphanEvents() {
 		def orphans =	events.findAll { event -> !event.belongsToGroup(eventGroups) } +
 						samplingEvents.findAll { event -> !event.belongsToGroup(eventGroups) }
 
@@ -109,7 +110,7 @@ class Study extends TemplateEntity {
 	/**
 	 * Return the unique Subject templates that are used in this study
 	 */
-	def Set<Template> giveSubjectTemplates() {
+	def List<Template> giveSubjectTemplates() {
 		TemplateEntity.giveTemplates(subjects)
 	}
 
@@ -126,7 +127,7 @@ class Study extends TemplateEntity {
 	 * Return all unique assay templates
 	 * @return Set
 	 */
-	Set<Template> giveAllAssayTemplates() {
+	List<Template> giveAllAssayTemplates() {
 		TemplateEntity.giveTemplates(( (assays) ? assays : [] ))
 	}
 
@@ -141,7 +142,7 @@ class Study extends TemplateEntity {
 	/**
 	 * Return the unique Event and SamplingEvent templates that are used in this study
 	 */
-	Set<Template> giveAllEventTemplates() {
+	List<Template> giveAllEventTemplates() {
 		// For some reason, giveAllEventTemplates() + giveAllSamplingEventTemplates()
 		// gives trouble when asking .size() to the result
 		// So we also use giveTemplates here
@@ -164,21 +165,21 @@ class Study extends TemplateEntity {
 	/**
 	 * Return the unique Event templates that are used in this study
 	 */
-	Set<Template> giveEventTemplates() {
+	List<Template> giveEventTemplates() {
 		TemplateEntity.giveTemplates(events)
 	}
 
 	/**
 	 * Return the unique SamplingEvent templates that are used in this study
 	 */
-	Set<Template> giveSamplingEventTemplates() {
+	List<Template> giveSamplingEventTemplates() {
 		TemplateEntity.giveTemplates(samplingEvents)
 	}
 
 	/**
 	 * Returns the unique Sample templates that are used in the study
 	 */
-	Set<Template> giveSampleTemplates() {
+	List<Template> giveSampleTemplates() {
 		TemplateEntity.giveTemplates(samples)
 	}
 

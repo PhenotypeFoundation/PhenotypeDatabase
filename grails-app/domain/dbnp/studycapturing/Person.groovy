@@ -38,4 +38,10 @@ class Person extends Identity {
 		address(nullable: true, blank: true)
 		mobile(nullable: true, blank: true)
 	}
+
+    static mapping = {
+        sort "lastName, firstName"
+    }
+
+
 }

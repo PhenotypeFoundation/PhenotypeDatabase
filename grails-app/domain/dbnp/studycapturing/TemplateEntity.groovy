@@ -757,7 +757,17 @@ abstract class TemplateEntity extends Identity {
 
 		// If one or more entities does not have a template, the resulting
 		// set contains null. That is not what is meant.
-		return set.findAll { it != null };
+		set = set.findAll { it != null };
+
+		// Sort the list so we always have the same order
+		set = set.sort{ a, b ->
+			a == null || b == null || a.equals(b) ? 0 :
+			a.name < b.name ? -1 :
+			a.name > b.name ?  1 :
+			a.id < b.id ? -1 : 1
+		}
+
+		return set
 	}
 
 	/**
