@@ -291,7 +291,7 @@
               <td>Owner</td>
               <g:each in="${studyList}" var="studyInstance">
                 <td>
-                   ${studyInstance.owner.username}
+                   ${studyInstance.owner?.username}
                 </td>
               </g:each>
             </tr>
@@ -312,7 +312,7 @@
               <td>Writers</td>
               <g:each in="${studyList}" var="studyInstance">
                 <td>
-                  <g:if test="${studyInstance.writers.size()==0}">
+                  <g:if test="${studyInstance.writers?.size()==0}">
                     -
                   </g:if>
                   <g:else>
