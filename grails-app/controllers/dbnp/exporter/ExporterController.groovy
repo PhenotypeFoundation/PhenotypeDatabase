@@ -87,7 +87,7 @@ class ExporterController {
         }
 
         HSSFWorkbook wb = new HSSFWorkbook()
-        FileOutputStream fileOut = new FileOutputStream(studyInstance.title+"_SimpleTox.xls")
+        //FileOutputStream fileOut = new FileOutputStream(studyInstance.title+"_SimpleTox.xls")
 //        HSSFCellStyle style = wb.createCellStyle()
 //        style.setFillForegroundColor((short) HSSFColor.RED.index)
 
@@ -125,23 +125,40 @@ class ExporterController {
             // Species row 9
             sub.createCell((short)8).setCellValue(studyInstance.samples.getAt(s-1).parentSubject.species.name)
 
+            // adding the subject domain + template properties
             for (u in 0..studyInstance.samples.getAt(s-1).parentSubject.giveFields().unique().size()-1){
-                row.createCell((short)9+u).setCellValue(studyInstance.samples.getAt(s-1).parentSubject.giveFields().getAt(u).toString())
-//                println "VALUE "+studyInstance.samples.getAt(s-1).parentSubject.getFieldValue(u.name)
                 TemplateField tf = studyInstance.samples.getAt(s-1).parentSubject.giveFields().getAt(u)
-//                println tf.name
-//                println studyInstance.samples.getAt(s-1).parentSubject.giveFields().getAt(u)
                 row.createCell((short)9+u).setCellValue(tf.name)
                 studyInstance.samples.getAt(s-1).parentSubject.getFieldValue(tf.name) ? sub.createCell((short)9+u).setCellValue(studyInstance.samples.getAt(s-1).parentSubject.getFieldValue(tf.name).toString()) : "not define"
             }
 
-        }
+            // adding the samplingEvent domain + template properties
+            for (t in 0..studyInstance.samples.getAt(s-1).parentEvent.giveFields().unique().size()-1){
+                TemplateField tf = studyInstance.samples.getAt(s-1).parentEvent.giveFields().getAt(t)
+                row.createCell((short)9+studyInstance.samples.getAt(s-1).parentSubject.giveFields().unique().size()+t).setCellValue(tf.name)
+                studyInstance.samples.getAt(s-1).parentEvent.getFieldValue(tf.name) ? sub.createCell((short)9+studyInstance.samples.getAt(s-1).parentSubject.giveFields().unique().size()+t).setCellValue(studyInstance.samples.getAt(s-1).parentEvent.getFieldValue(tf.name).toString()) : "not define"
+            }
 
+            // adding samples domain + template properties
+            TemplateField sf = studyInstance.samples.getAt(s-1).giveFields().getAt(s)
+            //println studyInstance.samples.getAt(s-1).getFieldValue(sf.name)
+
+            // adding Event domaine + template properties
+
+
+        }
         //println "DOMAINS " +studyInstance.samples.getAt(s-1).parentSubject.giveFields()
+
+        //wb.write(fileOut)
+        //fileOut.close()
+
+        response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.title}_SimpleTox.xls\"")
+        response.setContentType("application/octet-stream")
+        wb.write(response.outputStream)
+        response.outputStream.close()
+
         
-        
-        wb.write(fileOut)
-        fileOut.close()
     }
 
+ 
 }

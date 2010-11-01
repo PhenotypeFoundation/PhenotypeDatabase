@@ -77,12 +77,21 @@
       </table>
     </div>
 
-    <div class="paginateButtons">
-        <g:paginate total="${studyInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next" />
-        <br>
-        <INPUT TYPE=submit name=submit Value="Export">
+
+    <div class="paginateButtons" id="button">
     </div>
+
+<!--    <g:submitToRemote action="test" update="result" />-->
+
+<!--    <g:submitToRemote action="export" update="[success:'message',failure:'error']" />-->
+
+    <INPUT TYPE=submit name=submit Value="Export">
+
   </div>
+
+    <div id="result">  </div>
+
 </g:form>
+
 </body>
 </html>
