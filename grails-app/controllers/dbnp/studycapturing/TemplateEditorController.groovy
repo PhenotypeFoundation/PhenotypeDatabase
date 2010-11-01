@@ -33,7 +33,7 @@ class TemplateEditorController {
      * Fires after every action and determines the layout of the page
      */
     def afterInterceptor = { model, modelAndView ->
-      if ( params['standalone'] ) {
+      if ( params['standalone'] && params['standalone'] == 'true') {
         model.layout = 'main';
         model.extraparams = [ 'standalone': 'true' ] ;
       } else {

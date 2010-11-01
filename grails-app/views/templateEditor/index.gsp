@@ -31,7 +31,7 @@
 
 		<div class="templateEditorStep" id="step1_template">
 			<h3>Select template</h3>
-			<p>Showing templates for <b>${humanReadableEntity}</b>.</p>
+			<p>Showing templates for <b>${humanReadableEntity}</b> (<g:link controller="templateEditor" action="compare" params="${[entity: encryptedEntity] + extraparams}">compare</g:link>).</p>
 			<p>Please select a template to edit or create a new template</p>
 
 			<ul id="templates">

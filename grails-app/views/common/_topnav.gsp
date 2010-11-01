@@ -15,6 +15,17 @@
       <li><g:link controller="exporter" action="index">Export as SimpleTox</g:link></li>
       </ul>
      </li>
+	<li>
+      <a href="#">Templates</a>
+      <ul class="subnav">
+        <li><g:link controller="templateEditor" action="study" params="${[standalone: true]}">Study templates</g:link></li>
+        <li><g:link controller="templateEditor" action="subject" params="${[standalone: true]}">Subject templates</g:link></li>
+        <li><g:link controller="templateEditor" action="event" params="${[standalone: true]}">Event templates</g:link></li>
+        <li><g:link controller="templateEditor" action="samplingEvent" params="${[standalone: true]}">Sampling event templates</g:link></li>
+        <li><g:link controller="templateEditor" action="sample" params="${[standalone: true]}">Sample templates</g:link></li>
+        <li><g:link controller="templateEditor" action="assay" params="${[standalone: true]}">Assay templates</g:link></li>
+      </ul>
+     </li>
      <li>
       <a href="#">Contacts</a>
       <ul class="subnav">

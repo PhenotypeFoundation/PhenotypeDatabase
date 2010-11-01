@@ -42,10 +42,9 @@
 	</head>
 	<body>
 	  <h1>Template fields for templates of entity
-
 	  <select onChange="location.href = '<g:createLink action="compare" params="${extraparams + [ extra: 'true' ]}" />&entity=' + $(this).val();">
-		  <g:each in="${templateEntities}" var="entity">
-			<option <g:if test="${entity.name == humanReadableEntity}">selected</g:if> value="${entity.encoded}">${entity.name}</option>
+		  <g:each in="${templateEntities}" var="ent">
+			<option <g:if test="${ent.entity == entity.toString().replaceAll(/^class /, '')}">selected</g:if> value="${ent.encoded}">${ent.name}</option>
 		  </g:each>
 	  </select>
 	  </h1>
@@ -75,7 +74,11 @@
 		  <td>${field.comment}</td>
 		  <td>${field.required}</td>
 		  <g:each in="${templates}" var="currentTemplate">
-			<td><input type="checkbox" <g:if test="${currentTemplate.fields.contains(field)}">checked="checked"</g:if> readonly="readonly" disabled="disabled" /> </td>
+			<td style="text-align: center;" align="center">
+			  <g:if test="${currentTemplate.fields.contains(field)}">
+			  	<img align="center" src="${createLinkTo( dir: 'images/icons', file: 'accept.png', plugin: 'famfamfam' )}" alt="X" />
+			  </g:if>
+			</td>
 		  </g:each>
 		</tr>
 	  </g:each>
