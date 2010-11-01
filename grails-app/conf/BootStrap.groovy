@@ -22,8 +22,6 @@ class BootStrap {
     def springSecurityService
 
 	def init = {servletContext ->
-		"Bootstrapping application".grom()
-		
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
