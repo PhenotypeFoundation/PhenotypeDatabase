@@ -28,6 +28,7 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'timepicker-0.2.1.min.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'wizard.min.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'ajaxupload.3.6.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.min.js')}"></script>
 </g:if><g:else>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'wizard.css')}"/>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.js')}"></script>
@@ -40,6 +41,7 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'timepicker-0.2.1.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'wizard.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'ajaxupload.3.6.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.js')}"></script>
 </g:else>
 </head>
 <body>
