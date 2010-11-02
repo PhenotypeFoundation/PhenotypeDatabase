@@ -228,6 +228,32 @@ class BootStrapTemplates {
 		)
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
+		
+		/* 
+		 * Add NMC - DCL Sample Mapping Template
+		 * by Michael van Vliet
+		 * 
+		 * For the Pilot running in Leiden (NOV2010)
+		 */
+		println ".adding sample DCL-Sample-Reference"
+		def sampleDCLTextField = new TemplateField(
+			name: 'DCL Sample Reference',
+			type: TemplateFieldType.STRING,
+			entity: Sample
+		)
+		.with { if (!validate()) { errors.each { println it} } else save()}
+
+		// Human tissue sample template
+		println ".adding DCL Sample template..."
+		def dclSampleTemplate = new Template(
+			name: 'DCL Sample information',
+			entity: dbnp.studycapturing.Sample
+		)
+		.addToFields(sampleDCLTextField)
+		.with { if (!validate()) { errors.each { println it} } else save()}
+		// EO DCL Sample Mapping Template**********************************
+		
+		
 		/*
 		def GrowthTreatmentTemplate = new Template(
 			name: 'Growth treatment',

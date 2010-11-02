@@ -35,23 +35,18 @@ class PilotController {
    }
 	
     def index = {
-        
+		
+		def studyInstance = new Study()
+		studyInstance.properties = params
+		
+		[studyInstanceList: Study.list(params), studyInstance: studyInstance]
     }
 
     def list = {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
         [studyInstanceList: Study.list(params), studyInstanceTotal: Study.count()]
     }
-	
-	/**
-	* create closure
-	*/
-   def create = {
-	   def studyInstance = new Study()
-	   studyInstance.properties = params
-	   return [studyInstance: studyInstance]
-   }
-   
+	  
    def save = {
 	   def studyInstance = new Study(params)
 	   
@@ -79,7 +74,7 @@ class PilotController {
 		   redirect(action: "show", id: studyInstance.id, params: extraparams )
 	   }
 	   else {
-		   render(view: "create", model: [studyInstance: studyInstance])
+		   render(view: "index", model: [studyInstance: studyInstance])
 	   }
    }
    

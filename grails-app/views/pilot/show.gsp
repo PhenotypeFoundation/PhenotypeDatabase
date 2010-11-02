@@ -17,8 +17,17 @@
             	<p>
             		<b>Instructions</b>: You are now on the Study page. 
             		All information within the application is related to a study.
-            		For this pilot a Metabolomics Assay has been created.
-            		Click on this assay to continue with the pilot. 
+            		For this pilot a Metabolomics Assay has been created.<br /><br />
+            		
+					<g:if test="${studyInstance.samples.size() == 0}">
+                    	Currently there are no samples registered for this study. Please use the <b>"Import Samples"</b> to add samples to this study.                    	
+					</g:if>
+
+					<g:if test="${studyInstance.samples.size() > 0}">
+            			Click on this assay to continue with the pilot.
+					</g:if>
+            		
+
             	</p>
                 <table>
                     <tbody>
@@ -26,13 +35,22 @@
                         <tr class="prop">
                             <td valign="top" class="name"><g:message code="study.title.label" default="Title" /></td>
 
-                            <td valign="top" class="value">${fieldValue(bean: studyInstance, field: "title")}</td>
+                            <td valign="top" class="value">${fieldValue(bean: studyInstance, field: "title")} (${fieldValue(bean: studyInstance, field: "code")})</td>
 
                         </tr>
                         <tr class="prop">
-                            <td valign="top" class="name"><g:message code="study.code.label" default="Code" /></td>
+                            <td valign="top" class="name">Samples (${studyInstance.samples.size()})</td>
 
-                            <td valign="top" class="value">${fieldValue(bean: studyInstance, field: "code")}</td>
+                            <td valign="top" class="value">
+                            	
+                            	<g:if test="${studyInstance.samples.size() == 0}">
+                            		<g:link controller="importer" action="simpleWizard">Import Samples</g:link>                            		
+                            	</g:if>
+                            	
+                            	<g:if test="${studyInstance.samples.size() > 0}">
+									${studyInstance.samples.join( ', ' )}                            		
+                            	</g:if>                            	
+                            </td>
 
                         </tr>
                         
