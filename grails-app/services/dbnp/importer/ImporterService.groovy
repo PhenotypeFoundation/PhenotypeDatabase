@@ -64,9 +64,8 @@ class ImporterService {
 	    //def index	=   c.getColumnIndex()
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(columnindex, org.apache.poi.ss.usermodel.Row.CREATE_NULL_AS_BLANK).getCellType()
 	    def datamatrix_celldata = df.formatCellValue(sheet.getRow(datamatrix_start).getCell(columnindex))
-	    def datamatrix_cell	    = sheet.getRow(datamatrix_start).getCell(columnindex)
-	    println "frn is "+sheet.getFirstRowNum()
-		def headercell = sheet.getRow(headerrow-1+sheet.getFirstRowNum()).getCell(columnindex)
+	    def datamatrix_cell	    = sheet.getRow(datamatrix_start).getCell(columnindex)	    
+            def headercell = sheet.getRow(headerrow-1+sheet.getFirstRowNum()).getCell(columnindex)
 	    def tft = TemplateFieldType.STRING //default templatefield type
 
             // Check for every celltype, currently redundant code, but possibly this will be
@@ -430,7 +429,7 @@ class ImporterService {
 
 	// add the failed columns to the record (might also be just an empty map if nothing failed)
         // a failed column means that using the entity.setFieldValue() threw an exception
-        record.add(failed)
+        //record.add(failed)
         
         return record
     }
