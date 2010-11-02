@@ -7,7 +7,6 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
 import dbnp.authentication.*
 
-
 /**
  * Application Bootstrapper
  * @Author Jeroen Wesbeek
@@ -19,36 +18,38 @@ import dbnp.authentication.*
  * $Date$
  */
 class BootStrap {
-    def springSecurityService
+	def springSecurityService
 
 	def init = {servletContext ->
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
-                def adminRole = SecRole.findByAuthority( 'ROLE_ADMIN' ) ?: new SecRole( authority: 'ROLE_ADMIN' ).save()
+		"Bootstrapping application".grom()
 
-                def user = SecUser.findByUsername('user') ?: new SecUser(
-                           username: 'user',
-                           password: springSecurityService.encodePassword( 'useR123!', 'user' ),
-                           email: 'user@dbnp.org',
-                           userConfirmed: true, adminConfirmed: true).save(failOnError: true)
+		def adminRole = SecRole.findByAuthority('ROLE_ADMIN') ?: new SecRole(authority: 'ROLE_ADMIN').save()
 
-                def userAdmin = SecUser.findByUsername('admin') ?: new SecUser(
-                                username: 'admin',
-                                password: springSecurityService.encodePassword( 'admiN123!', 'admin' ),
-                                email: 'admin@dbnp.org',
-                                userConfirmed: true, adminConfirmed: true).save(failOnError: true)
+		def user = SecUser.findByUsername('user') ?: new SecUser(
+			username: 'user',
+			password: springSecurityService.encodePassword('useR123!', 'user'),
+			email: 'user@dbnp.org',
+			userConfirmed: true, adminConfirmed: true).save(failOnError: true)
 
-                // Make the admin user an administrator
-                SecUserSecRole.create userAdmin, adminRole, true
+		def userAdmin = SecUser.findByUsername('admin') ?: new SecUser(
+			username: 'admin',
+			password: springSecurityService.encodePassword('admiN123!', 'admin'),
+			email: 'admin@dbnp.org',
+			userConfirmed: true, adminConfirmed: true).save(failOnError: true)
 
-                def userTest = SecUser.findByUsername('test') ?: new SecUser(
-                                username: 'test',
-                                password: springSecurityService.encodePassword( 'useR123!', 'test' ),
-                                email: 'test@dbnp.org',
-                            userConfirmed: true, adminConfirmed: true).save(failOnError: true)
+		// Make the admin user an administrator
+		SecUserSecRole.create userAdmin, adminRole, true
 
-                println "Done with SpringSecurity bootstrap, created [user, admin, test]."
+		def userTest = SecUser.findByUsername('test') ?: new SecUser(
+			username: 'test',
+			password: springSecurityService.encodePassword('useR123!', 'test'),
+			email: 'test@dbnp.org',
+			userConfirmed: true, adminConfirmed: true).save(failOnError: true)
+
+		println "Done with SpringSecurity bootstrap, created [user, admin, test]."
 
 		// If there are no templates yet in the database
 		if (Template.count() == 0) {
@@ -67,7 +68,9 @@ class BootStrap {
 			// If in development mode and no studies are present, add example studies
 			if (Study.count() == 0 && grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST) {
 				// check if special file is present in project directory
-				if ((new File(System.properties['user.dir']+"/.skip-studies").exists())) {
+				if ((new File(System.properties['user.dir'] + "/.skip-studies").exists())) {
+					"Skipping study bootstrapping".grom()
+
 					// get species ontology
 					def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
 
@@ -76,14 +79,16 @@ class BootStrap {
 						name: 'Mus musculus',
 						ontology: speciesOntology,
 						accession: '10090'
-					).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+					).with { if (!validate()) { errors.each { println it} } else save(flush: true)}
 
 					def humanTerm = new Term(
 						name: 'Homo sapiens',
 						ontology: speciesOntology,
 						accession: '9606'
-					).with { if (!validate()) { errors.each { println it} } else save(flush:true)}
+					).with { if (!validate()) { errors.each { println it} } else save(flush: true)}
 				} else {
+					"Bootstrapping Studies".grom()
+					
 					// general study boostrapping
 					BootStrapStudies.addExampleStudies(user, userAdmin)
 				}
