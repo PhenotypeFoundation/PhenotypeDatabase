@@ -3,7 +3,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="layout" content="${layout}" />
+        <meta name="layout" content="${layout}" />        
         <g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}" />
         <title><g:message code="default.show.label" args="[entityName]" /></title>
     </head>
@@ -26,9 +26,8 @@
 					<g:if test="${studyInstance.samples.size() > 0}">
             			Click on this assay to continue with the pilot.
 					</g:if>
-            		
-
             	</p>
+            	
                 <table>
                     <tbody>
 
@@ -44,7 +43,7 @@
                             <td valign="top" class="value">
                             	
                             	<g:if test="${studyInstance.samples.size() == 0}">
-                            		<g:link controller="importer" action="simpleWizard">Import Samples</g:link>                            		
+									<g:link controller="importer" action="index" params="[redirectTo: 'http://localhost:8080/gscf/pilot/show/'+studyInstance.id]">Import Samples</g:link>
                             	</g:if>
                             	
                             	<g:if test="${studyInstance.samples.size() > 0}">
@@ -54,17 +53,24 @@
 
                         </tr>
                         
-                        <tr class="prop">
-                            <td valign="top" class="name">Assays</td>
-
-                            <td valign="top" class="value">
-								<g:each in="${studyInstance.assays.unique()}" var="assay">
-									<g:link controller="assay" action="show" id="${assay.id}">${assay.name}</g:link><br />
-								</g:each>                            
-                            </td>
-
-                        </tr> 
-                    
+                        <g:if test="${studyInstance.samples.size() > 0}">                        
+	                        <tr class="prop">
+	                            <td valign="top" class="name">Assays</td>
+	
+	                            <td valign="top" class="value">
+									<g:each in="${studyInstance.assays.unique()}" var="assay">
+										<jumpbar:link
+                      						linkDest="${createLink(action:'show', id:studyInstance.id)}"
+                      						linkText='Go back to GSCF'
+                      						frameSource="${assay.module.url}/assay/showByToken?id=${assay.externalAssayID}&sessionToken=${session.id}"
+                      						pageTitle="Assay View in Module">
+                      						${assay.name}
+                    					</jumpbar:link><br />
+									</g:each>                            
+	                            </td>	
+	                        </tr> 
+                    	</g:if>
+                    	
                     </tbody>
                 </table>
             </div>

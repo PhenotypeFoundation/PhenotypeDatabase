@@ -18,6 +18,8 @@ import dbnp.studycapturing.*;
 
 class PilotController {
 	
+	def authenticationService
+	
 	static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 	
 	/**
@@ -52,6 +54,7 @@ class PilotController {
 	   
 	   //For Pilot we do not ask for code, we generate it for the user
 	   studyInstance.code = params?.title?.encodeAsMD5()
+	   studyInstance.owner = authenticationService.getLoggedInUser()
 	   
 	   def extraparams = new LinkedHashMap();
 
@@ -67,8 +70,8 @@ class PilotController {
 		   assayInstance.module = AssayModule.findByName("Metabolomics module")
 		   assayInstance.externalAssayID = assayInstance?.name?.encodeAsMD5()
 		   studyInstance.addToAssays(assayInstance)
-		   assayInstance.save(flush: true)		   
-		   
+		   assayInstance.save(flush: true)
+		   		   
 		   //flash.message = "${message(code: 'default.created.message', args: [message(code: 'study.label', default: 'Study'), ( studyInstance.title ? studyInstance.title : "" ) + " " + ( studyInstance.code ? studyInstance.code : "" )])}"
 		   
 		   redirect(action: "show", id: studyInstance.id, params: extraparams )
@@ -79,12 +82,25 @@ class PilotController {
    }
    
    def show = {
+	   	   	   
 	   def studyInstance = Study.get(params.id)
 	   if (!studyInstance) {
 		   flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
 		   redirect(action: "list")
 	   }
 	   else {
+		   
+		   //add all samples to the assay when not there yet!
+		   studyInstance.assays.each { assay ->
+			   if (assay.samples.size() <= 0){
+				   studyInstance.samples.each { sample ->
+					   log.info("ADD THE DIRTY WAY!!!")
+					   assay.addToSamples(sample)
+				   }
+				   assay.save()
+			   }			   
+		   }
+		   
 		   [studyInstance: studyInstance]
 	   }
    }
