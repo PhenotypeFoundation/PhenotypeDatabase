@@ -43,7 +43,7 @@ class ImporterController {
     def index = {
         //session.import_referer = request.forwardURI
         // should do a check what is in the url, strip it?
-        session.import_referer = params.redirectTo
+        session.import_referer = params.redirectTo        
     }
 
     def simpleWizard = {
@@ -268,9 +268,7 @@ class ImporterController {
 	session.importer_importeddata = ImporterService.importData(session.importer_template_id, session.importer_workbook, session.importer_sheetindex, session.importer_datamatrix_start, session.importer_header)
 
         // First handle the "failed cells"
-        //ImporterService.getFailedCells(session.importer_importeddata)
-        
-        //render(view:"step2a_simple", model:[datamatrix:session.importer_importeddata])
+        //render(view:"step2a_simple", model:[datamatrix:ImporterService.getFailedCells(session.importer_importeddata)])
 
 	if (params.layout=="horizontal")
 	    render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])

@@ -230,6 +230,30 @@ class ImporterService {
 	}
 	return table	
     }
+
+    /** Method to extract failed cells from the datamatrix. Failed cells are cell values
+     * which could not be stored in an entity (e.g. Humu Supiuns in an ontology field).
+     *
+     * @param datamatrix two dimensional array containing entities and possibly also failed cells
+     * @return array of failed cells
+     * */
+    def getFailedCells(datamatrix) {
+       def failedcells = []
+       
+       datamatrix.each { record ->
+            record.each { column ->
+                column.each {
+                    if (it.getClass().getName().equals('java.util.LinkedHashMap$Entry')) {
+                        println it.key
+                        println it.value
+                        failedcells.add(it)
+                    }
+                }
+            }
+        }
+
+        return failedcells
+    }
    
     /**
      * Method to store a matrix containing the entities in a record like structure. Every row in the table
@@ -423,6 +447,7 @@ class ImporterService {
                                 } catch (IllegalArgumentException iae) {
                                     // leave the field empty and let the user choose the ontology manually in a later step
                                     failed.put(mc, value)
+                                    println "failed ("+mc.templatefieldtype+"`" + value + "`"
                                 }
 			} // end
 		} // end for
@@ -430,7 +455,6 @@ class ImporterService {
 	// add the failed columns to the record (might also be just an empty map if nothing failed)
         // a failed column means that using the entity.setFieldValue() threw an exception
         //record.add(failed)
-        
         return record
     }
 
