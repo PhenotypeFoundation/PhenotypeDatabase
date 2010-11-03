@@ -79,6 +79,8 @@ log4j = {
 	       'org.hibernate'
 
     warn   'org.mortbay.log'
+
+    //debug 'org.codehaus.groovy.grails.plugins'
 }
 
 graphviz {
