@@ -798,8 +798,8 @@ class WizardController {
 					// save study
 					println ".saving study"
 
-                                        // Make sure the owner of the study is set right
-                                        flow.study.owner = AuthenticationService.getLoggedInUser()
+					// Make sure the owner of the study is set right
+					flow.study.owner = AuthenticationService.getLoggedInUser()
 
 					if (!flow.study.save(flush:true)) {
 						this.appendErrors(flow.study, flash.errors)
@@ -854,6 +854,8 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def loadStudy(flow, flash, params) {
+		def AuthenticationService
+		
 		flash.errors = new LinkedHashMap()
 		
 		// load study
