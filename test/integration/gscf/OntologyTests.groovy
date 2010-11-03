@@ -192,11 +192,16 @@ class OntologyTests extends GrailsUnitTestCase {
 	}
 
 	public void testAddBioPortalOntology() {
-		def ontology = dbnp.data.Ontology.getBioPortalOntology("1005")			
+		// Add a new ontology
+		def ontology = dbnp.data.Ontology.getBioPortalOntology("1031")
 		// Validate and save ontology
 		if (!ontology.validate()) { ontology.errors.each { println it} }
 		assert ontology.validate()
 		assert ontology.save(flush: true)
-		assert Ontology.findByNcboId(1005).name.equals(ontology.name)
+		assert Ontology.findByNcboId(1031).name.equals(ontology.name)
+
+		// Make sure that it is not possible to add an ontology twice
+		def addAgain = dbnp.data.Ontology.getBioPortalOntology("1031")
+		assert !addAgain.validate()
 	}
 }

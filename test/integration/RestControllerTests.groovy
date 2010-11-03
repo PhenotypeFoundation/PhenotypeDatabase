@@ -67,14 +67,6 @@ class RestControllerTests extends ControllerUnitTestCase {
 		println controller.response.contentAsString
     }
 
-    void testGetStudy() {
-		login();
-
-		controller.params.studyToken = studyToken
-		controller.getStudy()
-		println controller.response.contentAsString
-    }
-
 	void testGetAuthorizationLevel() {
 		login();
 
@@ -91,28 +83,11 @@ class RestControllerTests extends ControllerUnitTestCase {
 		println controller.response.contentAsString
     }
 
-	void testGetAssay() {
-		login();
-
-		controller.params.assayToken = assayToken
-		controller.getAssay()
-		println controller.response.contentAsString
-    }
-
 	void testGetSamples() {
 		login();
 
 		controller.params.assayToken = assayToken
 		controller.getSamples()
-		println controller.response.contentAsString
-    }
-
-	void testGetSample() {
-		login();
-
-		controller.params.assayToken = assayToken
-		controller.params.sampleToken = sampleToken
-		controller.getSample()
 		println controller.response.contentAsString
     }
 
