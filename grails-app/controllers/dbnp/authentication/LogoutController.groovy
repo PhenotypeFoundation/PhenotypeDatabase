@@ -3,7 +3,8 @@ package dbnp.authentication
 import org.codehaus.groovy.grails.plugins.springsecurity.SpringSecurityUtils
 
 class LogoutController {
-
+	def AuthenticationService
+	
 	/**
 	 * Index action. Redirects to the Spring security logout uri.
 	 */
@@ -17,8 +18,10 @@ class LogoutController {
 	}
 
 	def remote = {
-		// Log out the remote user
-		AuthenticationService.logOffRemotely( params.consumer, params.token )
+		if( params.consumer || params.token ) {
+			// Log out the remote user
+			AuthenticationService.logOffRemotely( params.consumer, params.token )
+		}
 		
 		// Try to rest the redirect url
 		if( params[ SpringSecurityUtils.securityConfig.successHandler.targetUrlParameter ] ) {
