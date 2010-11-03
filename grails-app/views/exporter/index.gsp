@@ -80,15 +80,10 @@
 
     <div class="paginateButtons" id="button">
     </div>
-
-<!--    <g:submitToRemote action="test" update="result" />-->
-
-<!--    <g:submitToRemote action="export" update="[success:'message',failure:'error']" />-->
-
+    
     <INPUT TYPE=submit name=submit Value="Export">
 
   </div>
-
     <div id="result">  </div>
 
 </g:form>

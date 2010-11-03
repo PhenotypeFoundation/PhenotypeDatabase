@@ -73,7 +73,8 @@ class ExporterController {
      * the export method will create a SimpleTox format for the selected study
      */
     def export = {
-        def studyInstance
+        //def studyInstance
+        def studies = []
 
         // the attributes list for the SimpleTox format
         def attributes_list = ["SubjectID","DataFile","HybName","SampleName","ArrayType","Label","StudyTitle","Array_ID",
@@ -82,83 +83,120 @@ class ExporterController {
         // Get the selected study
         for ( j in dbnp.studycapturing.Study.list() ){
             if (params.containsKey(j.title)){
-                studyInstance = j
+//                studyInstance = j
+                    studies.add(j)
             }
         }
 
+//        def studies = params*.key.collect{ Study.findByTitle(it) }
+
+        println "STUDIES : "+studies
+
+        for (studyInstance in studies) {
+
+
+            if (studyInstance!=null){
+
+                println "StudyInstance :" +studyInstance
+
         HSSFWorkbook wb = new HSSFWorkbook()
-        //FileOutputStream fileOut = new FileOutputStream(studyInstance.title+"_SimpleTox.xls")
-//        HSSFCellStyle style = wb.createCellStyle()
-//        style.setFillForegroundColor((short) HSSFColor.RED.index)
-
-
+        println " WORKBOOK : "+wb
         // The first row contains the attributes names
         HSSFSheet sheet = wb.createSheet()
         HSSFRow row     = sheet.createRow((short)0)
         for (i in 0..attributes_list.size()){
-//            HSSFCell cell   = row.createCell((short)i)
-//            cell.setCellValue(attributes_list[i])
-//            cell.setCellStyle(style)
             row.createCell((short)i).setCellValue(attributes_list[i])
         }
 
         // Adding the next lines
         for (s in 1..studyInstance.samples.size()){
+            try {
             // creating new line for every sample
             HSSFRow sub     = sheet.createRow((short)s)
-            // adding subject name in row 1
-            sub.createCell((short)0).setCellValue(studyInstance.samples.getAt(s-1).parentSubject.name)
-            // adding sample in row 4
-            sub.createCell((short)3).setCellValue(studyInstance.samples.getAt(s-1).name)
-            // adding label (EventGroup) in row 6
-            for (ev in EventGroup.list()){
-                if (ev.subjects.name.contains(studyInstance.samples.getAt(s-1).parentSubject.name)) {
-                    sub.createCell((short)5).setCellValue(ev.name)
-                    break
-                }
-                else {
-                    sub.createCell((short)5).setCellValue(" ")
-                }
-            }
-            // adding study title in row 7
-            sub.createCell((short)6).setCellValue(studyInstance.title)
-            // Species row 9
-            sub.createCell((short)8).setCellValue(studyInstance.samples.getAt(s-1).parentSubject.species.name)
+            def sample = studyInstance.samples.getAt(s-1)
+            
+            writeMandatoryFields(sub,sample,studyInstance)
 
             // adding the subject domain + template properties
-            for (u in 0..studyInstance.samples.getAt(s-1).parentSubject.giveFields().unique().size()-1){
-                TemplateField tf = studyInstance.samples.getAt(s-1).parentSubject.giveFields().getAt(u)
-                row.createCell((short)9+u).setCellValue(tf.name)
-                studyInstance.samples.getAt(s-1).parentSubject.getFieldValue(tf.name) ? sub.createCell((short)9+u).setCellValue(studyInstance.samples.getAt(s-1).parentSubject.getFieldValue(tf.name).toString()) : "not define"
-            }
+            writeSubjectProperties(sub,sample,row)
 
             // adding the samplingEvent domain + template properties
-            for (t in 0..studyInstance.samples.getAt(s-1).parentEvent.giveFields().unique().size()-1){
-                TemplateField tf = studyInstance.samples.getAt(s-1).parentEvent.giveFields().getAt(t)
-                row.createCell((short)9+studyInstance.samples.getAt(s-1).parentSubject.giveFields().unique().size()+t).setCellValue(tf.name)
-                studyInstance.samples.getAt(s-1).parentEvent.getFieldValue(tf.name) ? sub.createCell((short)9+studyInstance.samples.getAt(s-1).parentSubject.giveFields().unique().size()+t).setCellValue(studyInstance.samples.getAt(s-1).parentEvent.getFieldValue(tf.name).toString()) : "not define"
-            }
-
+            writeSamplingEventProperties(sub,sample,row)
+            
             // adding samples domain + template properties
-            TemplateField sf = studyInstance.samples.getAt(s-1).giveFields().getAt(s)
+            TemplateField sf = sample.giveFields().getAt(s)
             //println studyInstance.samples.getAt(s-1).getFieldValue(sf.name)
 
             // adding Event domaine + template properties
 
-
+            }
+            catch (Exception e){
+                println "Error creating file"
+            }
         }
-        //println "DOMAINS " +studyInstance.samples.getAt(s-1).parentSubject.giveFields()
 
-        //wb.write(fileOut)
-        //fileOut.close()
-
+        // Make the file downloadable
         response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.title}_SimpleTox.xls\"")
         response.setContentType("application/octet-stream")
         wb.write(response.outputStream)
         response.outputStream.close()
-
-        
+            }
+        }
     }
 
+    def writeMandatoryFields(sub,sample,study) {
+
+        try {
+        // adding subject name in row 1
+        sub.createCell((short)0).setCellValue(sample.parentSubject.name)
+        // adding sample in row 4
+        sub.createCell((short)3).setCellValue(sample.name)
+        // adding label (EventGroup) in row 6
+        for (ev in EventGroup.list()){
+            if (ev.subjects.name.contains(sample.parentSubject.name)) {
+                sub.createCell((short)5).setCellValue(ev.name)
+                break
+            }
+            else {
+                sub.createCell((short)5).setCellValue(" ")
+            }
+        }
+        // adding study title in row 7
+        sub.createCell((short)6).setCellValue(study.title)
+        // Species row 9
+        sub.createCell((short)8).setCellValue(sample.parentSubject.species.name)
+        }
+        catct (Exception e){
+            println "Error during Mandatory Fields"
+        }
+    }
+
+    // writing subject properties
+    def writeSubjectProperties(sub,sample,row) {
+        try {
+        for (u in 0..sample.parentSubject.giveFields().unique().size()-1){
+            TemplateField tf = sample.parentSubject.giveFields().getAt(u)
+            row.createCell((short)9+u).setCellValue(tf.name)
+            sample.parentSubject.getFieldValue(tf.name) ? sub.createCell((short)9+u).setCellValue(sample.parentSubject.getFieldValue(tf.name).toString()) : "not define"
+        }
+        }
+        catch (Exception e){
+            println "Error during Subject Properties"
+        }
+    }
+
+    // writing samplingEvent properties
+    def writeSamplingEventProperties(sub,sample,row){
+        try {
+        for (t in 0..sample.parentEvent.giveFields().unique().size()-1){
+            TemplateField tf =sample.parentEvent.giveFields().getAt(t)
+            row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue(tf.name)
+            sample.parentEvent.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue(sample.parentEvent.getFieldValue(tf.name).toString()) : "not define"
+        }
+        }
+        catch (Exception e) {
+            println "Error during Sampling Event properties"
+        }
+    }
  
 }
