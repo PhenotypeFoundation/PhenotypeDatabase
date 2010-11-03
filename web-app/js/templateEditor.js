@@ -54,6 +54,15 @@ function hideTemplateForm( id ) {
     formOpened = false;
 }
 
+
+/**
+ * Clears the form after adding a template
+ */
+function clearTemplateForm( id ) {
+    $( '#template_' + id + '_form input#name' ).val( "" );
+    $( '#template_' + id + '_form textarea' ).val( "" );
+}
+
 /**
  * Creates a new template using AJAX
  */
@@ -69,7 +78,8 @@ function createTemplate( id ) {
 		dataType:   'json',
         type:       "POST",
         success:    function(data, textStatus, request) {
-            hideTemplateForm( id );
+            clearTemplateForm( id );
+			hideTemplateForm( id );
             addTemplateListItem( data.id, data.html );
         },
         error:      function( request ) {
@@ -235,6 +245,18 @@ function hideTemplateFieldForm( id ) {
 }
 
 /**
+ * Clears the form to add a template field after adding one
+ */
+function clearTemplateFieldForm( id ) {
+    $( '#templateField_' + id + '_form input#name' ).val( "" );
+    $( '#templateField_' + id + '_form input#unit' ).val( "" );
+    $( '#templateField_' + id + '_form input#required' ).attr( "checked", "" );
+    $( '#templateField_' + id + '_form textarea' ).val( "" );
+    $( '#templateField_' + id + '_form select' ).attr( 'selectedIndex', 0 );
+    $( '#templateField_' + id + '_form .extra' ).hide();
+}
+
+/**
  * Adds a new template field using AJAX
  */
 function createTemplateField( id ) {
@@ -250,6 +272,7 @@ function createTemplateField( id ) {
 		dataType: 'json',
         type:       "POST",
         success:    function(data, textStatus, request) {
+            clearTemplateFieldForm( id );
             hideTemplateFieldForm( id );
             addFieldListItem( data.id, data.html );
         },

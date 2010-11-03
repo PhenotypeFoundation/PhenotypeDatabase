@@ -12,5 +12,4 @@
 	 * $Author$
 	 * $Date$
 	 */
-%>
-True/False
+%>True/False

@@ -109,6 +109,24 @@ table#compare_templates { clear: both; }
 	cursor: pointer;
 }
 
+.sorting_asc {
+	background:url("../images/icons/sort_asc.png") no-repeat scroll right center transparent;
+}
+.sorting_desc {
+	background:url("../images/icons/sort_desc.png") no-repeat scroll right center transparent;
+}
+.sorting {
+	background:url("../images/icons/sort_both.png") no-repeat scroll right center transparent;
+}
+.sorting_asc_disabled {
+	background:url("../images/icons/sort_asc_disabled.png") no-repeat scroll right center transparent;
+}
+.sorting_desc_disabled {
+	background:url("../images/icons/sort_desc_disabled.png") no-repeat scroll right center transparent;
+}
+
+#compare_templates th {white-space: nowrap;}
+.longTitle { display: none; }
 
 
 

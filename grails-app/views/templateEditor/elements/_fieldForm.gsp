@@ -1,5 +1,28 @@
 	<label for="name">Name:</label> <g:textField name="name" value="${templateField?.name}" /><br />
-	<label for="type">Type:</label> <g:select from="${fieldTypes}" name="type" value="${templateField?.type}" onChange="showExtraFields( ${templateField ? templateField.id : '\'new\''} );" /><br />
+	<label for="type">Type:</label>
+	  <%
+		/* Create a list of field types grouped on category */
+		def grouped = [:]
+		fieldTypes.each {
+		  if( !grouped[ it.category ] )
+			grouped[ it.category ] = []
+
+			grouped[ it.category ].add( it )
+		}
+	  %>
+	  <select name="type" onChange="showExtraFields( ${templateField ? templateField.id : '\'new\''} );">
+		<g:each in="${grouped}" var="group">
+		  <optgroup label="${group.key}">
+			<g:each in="${group.value}" var="field">
+			  <option
+				<g:if test="${templateField?.type == field}">selected="selected"</g:if>
+				value="${field}">${field} <g:if test="${field.example}">(${field.example})</g:if></option>
+			</g:each>
+		  </optgroup>
+		</g:each>
+	  </select>
+
+		<br />
 
 	<div class="extra stringlist_options" <g:if test="${templateField?.type.toString() == 'STRINGLIST'}">style='display: block;'</g:if>>
 	  <label for="type">Items (every item on a new line):</label>

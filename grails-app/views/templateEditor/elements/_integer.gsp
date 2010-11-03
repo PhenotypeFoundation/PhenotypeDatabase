@@ -12,5 +12,4 @@
 	 * $Author$
 	 * $Date$
 	 */
-%>
-Integer
+%>Integer

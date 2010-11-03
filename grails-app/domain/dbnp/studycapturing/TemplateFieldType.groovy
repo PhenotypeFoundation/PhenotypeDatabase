@@ -9,26 +9,33 @@ package dbnp.studycapturing
  * $Date$
  */
 public enum TemplateFieldType implements Serializable {
-	STRING('String'),									// string
-	TEXT('Long string'),								// text
-	INTEGER('Integer number'),							// integer
-	FLOAT('Floating-point number'),						// float
-	DOUBLE('Double precision floating-point number'),	// double
-	STRINGLIST('List of items'),						// string list
-	ONTOLOGYTERM('Ontology Reference'),					// ontology reference
-	DATE('Date'),										// date
-	RELTIME('Relative time'),							// relative date, e.g. days since start of study
-	FILE('File'),										// file
-	BOOLEAN('Boolean'),									// boolean
-	TEMPLATE('Template'),								// template
-	MODULE('Module'),									// third party connected module,
-	LONG('Long number')									// long
+	STRING('String','Text', ''),											// string
+	TEXT('Long string', 'Text', ''),										// text
+	INTEGER('Integer number', 'Numerical', '1'),							// integer
+	FLOAT('Floating-point number', 'Numerical', '1.0'),						// float
+	DOUBLE('Double precision floating-point number', 'Numerical', '1.0'),	// double
+	STRINGLIST('List of items', 'Text', ''),								// string list
+	ONTOLOGYTERM('Ontology Reference', 'Other', ''),						// ontology reference
+	DATE('Date', 'Date', '2010-01-01'),										// date
+	RELTIME('Relative time', 'Date', '3 days'),								// relative date, e.g. days since start of study
+	FILE('File', 'Other', '')		,										// file
+	BOOLEAN('Boolean', 'Other', 'true/false'),								// boolean
+	TEMPLATE('Template', 'Other', ''),										// template
+	MODULE('Module', 'Other', ''),											// third party connected module,
+	LONG('Long number', 'Numerical', '100')									// long
     // TODO: add a timezone-aware date type to use for study start date
 
     String name
+	String category
+	String example
 
 	TemplateFieldType(String name) {
 		this.name = name
+	}
+	TemplateFieldType(String name, String category, String example) {
+		this.name = name
+		this.category = category
+		this.example = example
 	}
 
 	static list() {
