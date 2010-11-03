@@ -34,7 +34,8 @@ import grails.plugins.springsecurity.Secured
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ImporterController {
-    def ImporterService    
+    def ImporterService
+    def AuthenticationService
 
     /**
      * Default page
@@ -47,7 +48,7 @@ class ImporterController {
     }
 
     def simpleWizard = {
-	render(view:"index_simple", model:[studies:Study.list(), entities: grailsApplication.config.gscf.domain.importableEntities])
+	render(view:"index_simple", model:[studies:Study.findAllWhere(owner:AuthenticationService.getLoggedInUser()), entities: grailsApplication.config.gscf.domain.importableEntities])
     }
 
     def advancedWizard = {
