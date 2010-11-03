@@ -166,7 +166,7 @@ class ExporterController {
         // Species row 9
         sub.createCell((short)8).setCellValue(sample.parentSubject.species.name)
         }
-        catct (Exception e){
+        catch (Exception e){
             println "Error during Mandatory Fields"
         }
     }
