@@ -854,6 +854,8 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def loadStudy(flow, flash, params) {
+		flash.errors = new LinkedHashMap()
+		
 		// load study
 		try {
 			// load study
@@ -874,7 +876,7 @@ class WizardController {
 			return true
 		} catch (Exception e) {
 			// rollback
-			this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace'], flash.errors)
+			this.appendErrorMap(['exception': e.getMessage() + ', see log for stacktrace'], flash.errors)
 
 			return false
 		}
