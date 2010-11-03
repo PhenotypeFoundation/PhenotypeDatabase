@@ -24,7 +24,7 @@
 	</div>
 	<div id="content"><g:layoutBody/></div>
 	<div id="footer">
-		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NMC & NuGO. All rights reserved.
+		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="http://dbnp.org">http://dbnp.org</a>.
 		<g:if env="development">( style: <%=session.style%> )</g:if>
 	</div>
 	<img src="${resource(dir: 'images', file: 'beta-stamp.png')}" alt="beta">
