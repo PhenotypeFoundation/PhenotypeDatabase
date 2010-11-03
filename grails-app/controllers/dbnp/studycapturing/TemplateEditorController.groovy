@@ -78,6 +78,13 @@ class TemplateEditorController {
     }
 
 	/**
+    * Assay template editor page
+	*/
+	def assay = {
+	    showEntity('dbnp.studycapturing.Assay')
+    }
+
+	/**
 	 * Show the template editor page for a particular entity
 	 * @param targetEntity The full class name of the target entity
 	 */
