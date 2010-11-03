@@ -30,6 +30,7 @@ import dbnp.studycapturing.Sample
 import dbnp.data.Term
 
 class ImporterService {
+    def AuthenticationService
 
     boolean transactional = true
 
@@ -235,7 +236,7 @@ class ImporterService {
      * which could not be stored in an entity (e.g. Humu Supiuns in an ontology field).
      *
      * @param datamatrix two dimensional array containing entities and possibly also failed cells
-     * @return array of failed cells
+     * @return array of failed cells in [rownum:n, value:xxx] format
      * */
     def getFailedCells(datamatrix) {
        def failedcells = []
@@ -243,9 +244,7 @@ class ImporterService {
        datamatrix.each { record ->
             record.each { column ->
                 column.each {
-                    if (it.getClass().getName().equals('java.util.LinkedHashMap$Entry')) {
-                        println it.key
-                        println it.value
+                    if (it.getClass().getName().equals('java.util.LinkedHashMap$Entry')) {                        
                         failedcells.add(it)
                     }
                 }
@@ -273,6 +272,7 @@ class ImporterService {
 	    record.each { entity ->
                         switch (entity.getClass()) {
                         case Study	 :  print "Persisting Study `" + entity + "`: "
+                                                entity.owner = AuthenticationService.getLoggedInUser()
                                             	if (persistEntity(entity)) validatedSuccesfully++
 						break
 			case Subject	 :  print "Persisting Subject `" + entity + "`: "
@@ -446,8 +446,8 @@ class ImporterService {
                                     } // end switch
                                 } catch (IllegalArgumentException iae) {
                                     // leave the field empty and let the user choose the ontology manually in a later step
-                                    failed.put(mc, value)
-                                    println "failed ("+mc.templatefieldtype+"`" + value + "`"
+                                    failed.put(mc, [rownum:excelrow.getRowNum(), value:value])
+                                    //println "failed ("+mc.templatefieldtype+"`" + value + "`"
                                 }
 			} // end
 		} // end for

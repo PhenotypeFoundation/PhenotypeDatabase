@@ -24,8 +24,6 @@
   <body>
     <h1>Step 2a: values which could not be determined</h1>
     <p>The next step is to adjust values which could not be determined.</p>
-  <g:each var="record" in="${datamatrix}">
-     <p>Record: ${record}</p>
-</g:each>
+  <importer:failedCells failedcells="${failedcells}" />
   </body>
 </html>

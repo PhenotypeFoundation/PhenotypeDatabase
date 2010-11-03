@@ -64,6 +64,14 @@ class ImporterTagLib {
     }
 
     /**
+     * Show failed cells
+     */
+    def failedCells = { attrs ->
+	def failedcells = attrs['failedcells']
+	out << render (template:"common/failedcells", model:[failedcells:failedcells])
+    }
+
+    /**
      * @param entities array containing selected entities
      * @param header array containing mappingcolumn objects
      * @param allfieldtypes if set, show all fields
