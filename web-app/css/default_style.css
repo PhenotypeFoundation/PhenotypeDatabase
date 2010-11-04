@@ -35,10 +35,12 @@ h2 {
 
 #header .info {
     color: #ff3333;
-    display: block;
     position: relative;
     width: 350px;
     margin: -110px 710px;
+    display: inline-block;
+    zoom: 1; /* IE 6 & 7 hack */
+    *display: inline; /* IE 6 & 7 hack */
 }
 #header .info table {
     border: 0;
