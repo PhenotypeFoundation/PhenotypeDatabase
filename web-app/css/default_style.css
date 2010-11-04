@@ -38,7 +38,7 @@ h2 {
     position: relative;
     width: 350px;
     margin: -110px 710px;
-    display: inline-block;
+    display: block;
     zoom: 1; /* IE 6 & 7 hack */
     *display: inline; /* IE 6 & 7 hack */
 }
