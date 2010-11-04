@@ -746,7 +746,7 @@ class TemplateEditorController {
 			ontology = dbnp.data.Ontology.getBioPortalOntology( id );
 		} catch( Exception e ) {
 			response.status = 500;
-			render e.getMessage();
+			render 'Ontology with ID ' + id + ' not found';
 			return;
 		}
 
@@ -769,10 +769,11 @@ class TemplateEditorController {
 	}
 
 	/**
-	 * Adds a ontolgy based on the ID given
+	 * Adds a ontolgy based on the term ID given
 	 *
 	 * @param	ncboID
 	 * @return	JSON	Ontology object
+	 * @deprecated	User addOntologyById instead, using the ncboId given by the JSON call
 	 */
 	def addOntologyByTerm = {
 		def id = params.termID;
@@ -789,7 +790,11 @@ class TemplateEditorController {
 			ontology = dbnp.data.Ontology.getBioPortalOntologyByTerm( id );
 		} catch( Exception e ) {
 			response.status = 500;
-			render e.getMessage();
+
+			if( e.getMessage() )
+				render e.getMessage()
+			else
+				render "Unknown error: " + e.getClass()
 			return;
 		}
 
@@ -810,7 +815,6 @@ class TemplateEditorController {
 		ontology.save(flush: true)
 		render ontology as JSON
 	}
-
 
     /**
      * Checks whether a correct entity is given

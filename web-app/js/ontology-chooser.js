@@ -19,6 +19,10 @@
  * we use 'ontology' instead of 'bp_form_complete' to
  * identify ontology fields.
  *
+ * N.B. In order to show the labels of the terms correctly (i.e.
+ * no ugly HTML tags, you also have to include jquery.ui.autocomplete.html.js
+ * in your page!
+ *
  * @author      Jeroen Wesbeek
  * @since       20100312
  * @package     wizard
@@ -144,6 +148,7 @@ OntologyChooser.prototype = {
                 // set hidden fields
                 that.setInputValue(element, 'concept_id', ui.item.concept_id);
                 that.setInputValue(element, 'ontology_id', ui.item.ontology_id);
+                that.setInputValue(element, 'ncbo_id', ui.item.ncbo_id);
                 that.setInputValue(element, 'full_id', ui.item.full_id);
 
                 // remove error class (if present)
@@ -164,6 +169,7 @@ OntologyChooser.prototype = {
                     inputElement.val('');
                     that.setInputValue(element, 'concept_id', '');
                     that.setInputValue(element, 'ontology_id', '');
+                    that.setInputValue(element, 'ncbo_id', '');
                     that.setInputValue(element, 'full_id', '');
 
                     // add error class
@@ -217,11 +223,12 @@ OntologyChooser.prototype = {
 
                 parsed[ parsed.length ] = {
                     value           : cols[0],
-                    label           : cols[0] + ' <span class="about">(' + cols[2] + ')</span> <span class="from">from: ' + cols[ (cols.length-1) ] + '</span>',
+                    label           : cols[0] + ' <span class="about">(' + cols[2] + ')</span> <span class="from">from: ' + cols[ (cols.length-2) ] + '</span>',
                     preferred_name  : cols[0],  // e.g. Mus musculus musculus
                     concept_id      : cols[1],  // e.g. birnlex_161
                     ontology_id     : cols[3],  // e.g. 29684
-                    full_id         : cols[4]   // e.g. http://bioontology.org/projects/ontologies/birnlex#birnlex_161
+                    full_id         : cols[4],  // e.g. http://bioontology.org/projects/ontologies/birnlex#birnlex_161
+                    ncbo_id         : cols[8]   // e.g. 1494
                 }
             }
         }

@@ -625,13 +625,16 @@ function addOntology() {
 	var url; var data;
 
     // Create a URL to call and call it
-	if( $( '#ncboID' ).val() ) {
+	if( $( '#ncboIDText' ).val() ) {
 	    url = baseUrl + '/templateEditor/addOntologyById';
-		data = 'ncboID=' + $( '#ncboID' ).val();
+		data = 'ncboID=' + $( '#ncboIDText' ).val();
 		$( '#ncbo_spinner' ).show();
 	} else {
-	    url = baseUrl + '/templateEditor/addOntologyByTerm';
-		data = 'termID=' + $( '#termID' ).val();
+	    // url = baseUrl + '/templateEditor/addOntologyByTerm';
+		// data = 'termID=' + $( '#addOntology input[name=termID-ontology_id]' ).val();
+	    url = baseUrl + '/templateEditor/addOntologyById';
+		data = 'ncboID=' + $( '#addOntology input[name=termID-ncbo_id]' ).val();
+
 		$( '#term_spinner' ).show();
 	}
 
