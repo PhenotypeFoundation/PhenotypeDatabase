@@ -49,7 +49,7 @@
 		<g:each var="subject" in="${study.subjects}">
 			<p><b>${subject}</b></p>
 			<ul>
-			<g:each var="field" in="${subject.giveFields()}">
+			<g:each var="field" in="${subject?.giveFields()}">
 				<g:if test="${subject.getFieldValue(field.name)}"><li>${field.name} - ${subject.getFieldValue(field.name)}</li></g:if> 	
 			</g:each>
 			</ul>
@@ -66,7 +66,7 @@
 				<li>
 					<i><g:if test="${(event.getClass() == 'SamplingEvent')}">Sampling </g:if>Event</i>
 					<ul>
-				<g:each var="field" in="${event.giveFields()}">
+				<g:each var="field" in="${event?.giveFields()}">
 						<li>${field} - ${event.getFieldValue(field.name)}</li>
 				</g:each>
 					</ul>
@@ -82,7 +82,7 @@
 		<g:each var="sample" in="${study.samples}">
 			<p><b>${sample}</b></p>
 			<ul>
-			<g:each var="field" in="${sample.giveFields()}">
+			<g:each var="field" in="${sample?.giveFields()}">
 				<g:if test="${sample.getFieldValue(field.name)}"><li>${field.name} - ${sample.getFieldValue(field.name)}</li></g:if>
 			</g:each>
 			</ul>
@@ -95,7 +95,7 @@
 		<g:each var="sample" in="${study.assays}">
 			<p><b>${assay}</b></p>
 			<ul>
-			<g:each var="field" in="${assay.giveFields()}">
+			<g:each var="field" in="${assay?.giveFields()}">
 				<g:if test="${assay.getFieldValue(field.name)}"><li>${field.name} - ${assay.getFieldValue(field.name)}</li></g:if>
 			</g:each>
 			</ul>
