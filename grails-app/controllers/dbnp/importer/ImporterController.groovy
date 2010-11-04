@@ -152,6 +152,34 @@ class ImporterController {
 	render(view:"step3", model:[datamatrix:session.importer_importeddata])	
     }
 
+    /*
+     * Store the corrected cells back into the datamatrix. Be sure to check
+     * if the corrected ontology is not blank. If so, it should keep
+     * the original value which was read from the Excel file.
+     *
+     * @param cell array of cells with updated ontologies
+     * 
+    */
+    def saveCorrectedCells = {
+        def correctedcells = [:]
+
+        // Loop through the form with cell fields and values
+        params.cell.index.each { cellhashcode, value ->
+	    correctedcells.put(cellhashcode, value)
+        }
+
+        // Store the corrected cells back into the datamatrix
+        ImporterService.saveCorrectedCells(
+                    session.importer_importeddata,
+                    session.imported_failedcells,
+                    correctedcells)
+
+        //render("failed cells saved")
+     
+        render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
+
+    }
+
     /**
     * User has assigned all entities and templatefieldtypes to the columns and continues to the next step (assigning properties to columns)
     * All information of the columns is stored in a session as MappingColumn object
@@ -269,7 +297,9 @@ class ImporterController {
 	session.importer_importeddata = ImporterService.importData(session.importer_template_id, session.importer_workbook, session.importer_sheetindex, session.importer_datamatrix_start, session.importer_header)
 
         // First handle the "failed cells"
-        //render(view:"step2a_simple", model:[failedcells:ImporterService.getFailedCells(session.importer_importeddata)])
+        session.imported_failedcells = ImporterService.getFailedCells(session.importer_importeddata)
+
+        //render(view:"step2a_simple", model:[failedcells:session.imported_failedcells])
 
 	if (params.layout=="horizontal")
 	    render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])

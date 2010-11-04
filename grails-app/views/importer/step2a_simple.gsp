@@ -19,11 +19,11 @@
   <head>
     <meta name="layout" content="main"/>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'importer.css')}"/>
-    <title>Step 2a: values which could not be determined</title>
+    <title>Step 2a: ontologies which could not be determined</title>
   </head>
   <body>
-    <h1>Step 2a: values which could not be determined</h1>
-    <p>The next step is to adjust values which could not be determined.</p>
+    <h1>Step 2a: ontologies which could not be determined</h1>
+    <p>The next step is to correct ontologies which could not be determined.</p>
   <importer:failedCells failedcells="${failedcells}" />
   </body>
 </html>

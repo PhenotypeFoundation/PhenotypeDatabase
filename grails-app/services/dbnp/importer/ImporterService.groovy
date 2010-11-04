@@ -236,14 +236,14 @@ class ImporterService {
      * which could not be stored in an entity (e.g. Humu Supiuns in an ontology field).
      *
      * @param datamatrix two dimensional array containing entities and possibly also failed cells
-     * @return array of failed cells in [rownum:n, value:xxx] format
+     * @return array of failed cells in [mappingcolumn, hssfcell] format
      * */
     def getFailedCells(datamatrix) {
        def failedcells = []
        
        datamatrix.each { record ->
             record.each { column ->
-                column.each {
+                column.each {                    
                     if (it.getClass().getName().equals('java.util.LinkedHashMap$Entry')) {                        
                         failedcells.add(it)
                     }
@@ -252,6 +252,46 @@ class ImporterService {
         }
 
         return failedcells
+    }
+
+    /** Method to put failed cells back into the datamatrix. Failed cells are cell values
+     * which could not be stored in an entity (e.g. Humu Supiuns in an ontology field).
+     *
+     * @param datamatrix two dimensional array containing entities and possibly also failed cells
+     * @param failedcells map of failed cells in [mappingcolumn, hssfcell] format
+     * @param correctedcells map of corrected cells
+     **/
+    def saveCorrectedCells(datamatrix, failedcells, correctedcells) {
+        /*failedcells.each {
+            println it
+        }*/
+        def newdatamatrix = []
+
+        // Remove failed cells 'entity' / clean up datamatrix
+        datamatrix.each { record ->
+            def newrecord = []
+
+            record.each { entity ->
+              // LinkedHashMap means a "mappingcolumn:hssfcell" object is inside the record (= failed to map to entity)
+              if (!entity.getClass().getName().equals('java.util.LinkedHashMap'))
+              newrecord.add(entity)
+            }
+
+            newdatamatrix.add(newrecord)
+        }
+
+        newdatamatrix.each { record ->
+            record.each { entity ->
+                entity.giveFields().each { field ->
+                    println "das"+ field
+                }
+            }
+        }
+
+        println "-----"
+        correctedcells.each {
+            println it.dump()
+        }
     }
    
     /**
@@ -445,8 +485,8 @@ class ImporterService {
 						break
                                     } // end switch
                                 } catch (IllegalArgumentException iae) {
-                                    // leave the field empty and let the user choose the ontology manually in a later step
-                                    failed.put(mc, [rownum:excelrow.getRowNum(), value:value])
+                                    // store the mapping column and the cell in an array
+                                    failed.put(mc, cell)
                                     //println "failed ("+mc.templatefieldtype+"`" + value + "`"
                                 }
 			} // end

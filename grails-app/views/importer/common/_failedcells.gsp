@@ -27,19 +27,19 @@ $(document).ready(function() {
 
 <table>
   <tr>
-    <td>Column</td><td>Row</td><td>Ontology unknown</td><td>Corrected ontology</td>
+    <th>Column</th><th>Row</th><th>Unknown ontology found</th><th>Corrected ontology</th>
   </tr>
-<g:form>
+<g:form name="failedcellsform" action="saveCorrectedCells">
 	<g:each var="record" in="${failedcells}">
           <tr>
             <td>${record.key.name}</td>
-            <td>${record.value.rownum}</td>
-            <td>${record.value.value}</td>
+            <td>${record.value.getRowIndex()}</td>
+            <td>${record.value}</td>
             <td>
-                <input type="text" name="cell${record.value.rownum}" rel="ontology-all-name"/><br/>
-                <input type="hidden" name="cell${record.value.rownum}-concept_id" /><br/>
-                <input type="hidden" name="cell${record.value.rownum}-ontology_id" /><br/>
-                <input type="hidden" name="cell${record.value.rownum}-full_id" /><br/>
+                <input type="text" name="cell.index.${record.value.hashCode()}" rel="ontology-all-name"/>
+                <!-- <input type="hidden" name="cell.index.${record.value}-concept_id"/>
+                <input type="hidden" name="cell.index.${record.value}-ontology_id"/>
+                <input type="hidden" name="cell.index.${record.value}-full_id"/> -->
             </td>
           </tr>
         </g:each>
