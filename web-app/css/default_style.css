@@ -33,6 +33,19 @@ h2 {
 	padding-top: 120px;
 }
 
+#header .info {
+    color: #ff3333;
+    display: block;
+    position: relative;
+    width: 350px;
+    margin: -110px 710px;
+}
+#header .info table {
+    border: 0;
+}
+#header .info td {
+    padding: 0px;
+}
 /** END :: header **/
 /** START :: topnav **/
 ul.topnav {

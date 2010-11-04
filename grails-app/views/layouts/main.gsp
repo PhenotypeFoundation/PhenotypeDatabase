@@ -21,6 +21,7 @@
 <div class="container">
 	<div id="header">
 		<g:render template="/common/topnav"/>
+		<g:render template="/common/info"/>
 	</div>
 	<div id="content"><g:layoutBody/></div>
 	<div id="footer">
