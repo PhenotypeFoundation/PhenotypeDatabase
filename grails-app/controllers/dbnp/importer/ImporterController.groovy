@@ -60,7 +60,7 @@ class ImporterController {
     def upload_advanced = {
 	def wb = handleUpload('importfile')
 
-	ksession.importer_header = ImporterService.getHeader(wb, 0)
+	session.importer_header = ImporterService.getHeader(wb, 0)
 	session.importer_study = Study.get(params.study.id.toInteger())
 	session.importer_template_id = params.template_id
 	session.importer_workbook = wb
