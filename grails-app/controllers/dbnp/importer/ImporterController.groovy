@@ -22,14 +22,10 @@ package dbnp.importer
 
 import dbnp.studycapturing.Template
 import dbnp.studycapturing.Study
-import dbnp.studycapturing.Subject
-import dbnp.studycapturing.Event
 
-import dbnp.studycapturing.Sample
 import dbnp.studycapturing.TemplateFieldType
-import dbnp.studycapturing.TemplateField
 import grails.converters.JSON
-import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import org.apache.poi.ss.usermodel.Workbook
 import grails.plugins.springsecurity.Secured
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
@@ -124,7 +120,7 @@ class ImporterController {
      * @param formfilename name used for the file field in the form
      * @return workbook object reference
      */
-    private HSSFWorkbook handleUpload(formfilename) {
+    private Workbook handleUpload(formfilename) {
 
 	def downloadedfile = request.getFile(formfilename);
         def tempfile = new File(System.getProperty('java.io.tmpdir') + File.separatorChar + System.currentTimeMillis() + ".nmcdsp")

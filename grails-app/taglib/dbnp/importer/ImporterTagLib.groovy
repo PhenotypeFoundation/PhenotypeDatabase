@@ -15,9 +15,8 @@
 
 package dbnp.importer
 import dbnp.studycapturing.Template
-import dbnp.studycapturing.TemplateField
 import dbnp.studycapturing.TemplateFieldType
-import org.apache.poi.hssf.usermodel.HSSFCell
+import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.DataFormatter
 
 class ImporterTagLib {
@@ -207,7 +206,7 @@ class ImporterTagLib {
     }
 
     /**
-    * @param cell HSSFCell variable
+    * @param cell Cell variable
     * @return good representation of variable (instead of toString())
     */
     def displayCell = { attrs ->	
@@ -215,9 +214,9 @@ class ImporterTagLib {
 	def df = new DataFormatter()
 
 	switch (cell.getCellType()) {
-	    case HSSFCell.CELL_TYPE_STRING	:   out << cell.getStringCellValue()
+	    case Cell.CELL_TYPE_STRING	:   out << cell.getStringCellValue()
 						    break
-	    case HSSFCell.CELL_TYPE_NUMERIC	:   out << df.formatCellValue(cell)
+	    case Cell.CELL_TYPE_NUMERIC	:   out << df.formatCellValue(cell)
 						    break
 	}
     }
