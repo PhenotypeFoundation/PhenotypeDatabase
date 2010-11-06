@@ -31,17 +31,21 @@ $(document).ready(function() {
   </tr>
 <g:form name="failedcellsform" action="saveCorrectedCells">
 	<g:each var="record" in="${failedcells}">
-          <tr>
-            <td>${record.key.name}</td>
-            <td>${record.value.getRowIndex()}</td>
-            <td>${record.value}</td>
-            <td>
-                <input type="text" name="cell.index.${record.value.hashCode()}" rel="ontology-all-name"/>
-                <!-- <input type="hidden" name="cell.index.${record.value}-concept_id"/>
-                <input type="hidden" name="cell.index.${record.value}-ontology_id"/>
-                <input type="hidden" name="cell.index.${record.value}-full_id"/> -->
-            </td>
-          </tr>
+          <g:each var="list" in="${record}">
+            <g:each var="cell" in="${list}">
+            <tr>
+              <td>${cell.value.name}</td>
+              <td>-</td>
+              <td>${cell.value.value}</td>
+              <td>
+                  <input type="text" name="cell.index.${cell.hashCode()}" rel="ontology-all-name"/>
+                  <!-- <input type="hidden" name="cell.index.${cell.value}-concept_id"/>
+                  <input type="hidden" name="cell.index.${cell.value}-ontology_id"/>
+                  <input type="hidden" name="cell.index.${cell.value}-full_id"/> -->
+              </td>
+            </tr>
+            </g:each>
+          </g:each>
         </g:each>
   <tr>
     <td colspan="4">

@@ -218,74 +218,68 @@ class ImporterService {
     def importData(template_id, Workbook wb, int sheetindex, int rowindex, mcmap) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def table = []
+        def failedcells = [:] // map [recordhash, [mappingcolumnlist]] values
 	
 	// walk through all rows and fill the table with records
 	(rowindex..sheet.getLastRowNum()).each { i ->
-	    table.add(createRecord(template_id, sheet.getRow(i), mcmap))
-	}
-	return table	
-    }
+	    //table.add(createRecord(template_id, sheet.getRow(i), mcmap))
+            // Create an entity record based on a row read from Excel and store the cells which failed to be mapped
+            def (record, failed) = createRecord(template_id, sheet.getRow(i), mcmap)
 
-    /** Method to extract failed cells from the datamatrix. Failed cells are cell values
-     * which could not be stored in an entity (e.g. Humu Supiuns in an ontology field).
-     *
-     * @param datamatrix two dimensional array containing entities and possibly also failed cells
-     * @return array of failed cells in [mappingcolumn, cell] format
-     * */
-    def getFailedCells(datamatrix) {
-       def failedcells = []
-       
-       datamatrix.each { record ->
-            record.each { column ->
-                column.each {                    
-                    if (it.getClass().getName().equals('java.util.LinkedHashMap$Entry')) {                        
-                        failedcells.add(it)
-                    }
-                }
+            // Add record with entity and its values to the table
+            table.add(record)
+
+            // If failed cells have been found, add them to the failed cells map
+            // the record hashcode is later on used to put the failed data back
+            // in the data matrix
+            if (failed.size()!=0) failedcells.put(record.hashCode(), failed)
+	}
+
+        failedcells.each { record ->
+           record.each { cell ->
+               cell.each {
+                   println it.value.dump()
+               }
             }
         }
 
-        return failedcells
+
+	return [table,failedcells]
     }
 
     /** Method to put failed cells back into the datamatrix. Failed cells are cell values
      * which could not be stored in an entity (e.g. Humu Supiuns in an ontology field).
+     * Empty corrections should not be stored
      *
      * @param datamatrix two dimensional array containing entities and possibly also failed cells
-     * @param failedcells map of failed cells in [mappingcolumn, cell] format
-     * @param correctedcells map of corrected cells
+     * @param failedcells list with maps of failed cells in [mappingcolumn, cell] format
+     * @param correctedcells map of corrected cells in [cellhashcode, value] format
      **/
-    def saveCorrectedCells(datamatrix, failedcells, correctedcells) {
-        /*failedcells.each {
-            println it
-        }*/
-        def newdatamatrix = []
+    def saveCorrectedCells(datamatrix, failedcells, correctedcells) {       
+        // Loop through all failed cells
+        failedcells.each { mcrecord ->
+            mcrecord.each { mappingcolumn ->
+                  // Get the corrected value
+                  def correctedvalue = correctedcells.find { it.key.toInteger() == mappingcolumn.hashCode()}.value
 
-        // Remove failed cells 'entity' / clean up datamatrix
-        datamatrix.each { record ->
-            def newrecord = []
-
-            record.each { entity ->
-              // LinkedHashMap means a "mappingcolumn:cell" object is inside the record (= failed to map to entity)
-              if (!entity.getClass().getName().equals('java.util.LinkedHashMap'))
-              newrecord.add(entity)
-            }
-
-            newdatamatrix.add(newrecord)
-        }
-
-        newdatamatrix.each { record ->
-            record.each { entity ->
-                entity.giveFields().each { field ->
-                    println "das"+ field
-                }
-            }
-        }
-
-        println "-----"
-        correctedcells.each {
-            println it.dump()
-        }
+                  // Find the record in the table which the mappingcolumn belongs to
+                  def tablerecord = datamatrix.find { it.hashCode() == mcrecord.key }
+                  
+                  // Loop through all entities in the record
+                  tablerecord.each { rec ->
+                      rec.each { entity ->                          
+                            try {
+                                // Update the entity field
+                                entity.setFieldValue(mappingcolumn.value.property[0], correctedvalue)
+                                println "Adjusted " + mappingcolumn.value.property[0] + " to " + correctedvalue
+                            }
+                            catch (Exception e) {
+                                println "Could not map corrected ontology"
+                            }
+                      }
+                  } // end of table record
+            } // end of mapping record
+        } // end of failed cells loop
     }
    
     /**
@@ -346,11 +340,9 @@ class ImporterService {
     }
 
     /**
-     * Check whether an entity already exists within a study. A combination of
-     * the study where the entity will be stored and a unique field in the entity is
+     * Check whether an entity already exist. A unique field in the entity is
      * used to check whether the instantiated entity (read from Excel) is new.
-     * If the entity is found in the database it will be returned as so and
-     * it should update the entity-values (read from Ecel) into the record in the database.
+     * If the entity is found in the database it will be returned as is.
      *
      * @param entity entity object like a Study, Subject, Sample et cetera
      * @return entity if found, otherwise null
@@ -427,12 +419,13 @@ class ImporterService {
 	 * @param template_id template identifier
 	 * @param excelrow POI based Excel row containing the cells
 	 * @param mcmap map containing MappingColumn objects
+         * @return list of entities and list of failed cells
 	 */
 	def createRecord(template_id, Row excelrow, mcmap) {
 		def df = new DataFormatter()
 		def template = Template.get(template_id)
-		def record = []
-                def failed = [:]
+		def record = [] // list of entities and the read values
+                def failed = [] // list of failed columns [mappingcolumn] with the value which couldn't be mapped into the entity
 
 		// Initialize all possible entities with the chosen template
 		def study = new Study(template: template)
@@ -479,17 +472,17 @@ class ImporterService {
 						break
                                     } // end switch
                                 } catch (IllegalArgumentException iae) {
-                                    // store the mapping column and the cell in an array
-                                    failed.put(mc, cell)
-                                    //println "failed ("+mc.templatefieldtype+"`" + value + "`"
+                                    // store the mapping column and value which failed
+                                    def temp = new MappingColumn()
+                                    temp.properties = mc.properties
+                                    temp.value = value                                    
+                                    failed.add(temp)
                                 }
 			} // end
 		} // end for
-
-	// add the failed columns to the record (might also be just an empty map if nothing failed)
-        // a failed column means that using the entity.setFieldValue() threw an exception
-        //record.add(failed)
-        return record
+	
+        // a failed column means that using the entity.setFieldValue() threw an exception        
+        return [record, failed]        
     }
 
     /**

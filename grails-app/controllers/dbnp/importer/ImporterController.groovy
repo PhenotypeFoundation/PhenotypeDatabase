@@ -153,21 +153,21 @@ class ImporterController {
      * if the corrected ontology is not blank. If so, it should keep
      * the original value which was read from the Excel file.
      *
-     * @param cell array of cells with updated ontologies
+     * @param cell array of cells with corrected cells (ontologies)
      * 
     */
     def saveCorrectedCells = {
         def correctedcells = [:]
 
         // Loop through the form with cell fields and values
-        params.cell.index.each { cellhashcode, value ->
-	    correctedcells.put(cellhashcode, value)
+        params.cell.index.each { mappingcolumnhash, value ->
+	    correctedcells.put(mappingcolumnhash, value)
         }
 
         // Store the corrected cells back into the datamatrix
         ImporterService.saveCorrectedCells(
                     session.importer_importeddata,
-                    session.imported_failedcells,
+                    session.importer_failedcells,
                     correctedcells)
 
         //render("failed cells saved")
@@ -289,18 +289,18 @@ class ImporterController {
 		}
 	}
 
-	//import workbook and store it in a session
-	session.importer_importeddata = ImporterService.importData(session.importer_template_id, session.importer_workbook, session.importer_sheetindex, session.importer_datamatrix_start, session.importer_header)
+	// Import the workbook and store the table with entity records and store the failed cells
+	def (table, failedcells) = ImporterService.importData(session.importer_template_id, session.importer_workbook, session.importer_sheetindex, session.importer_datamatrix_start, session.importer_header)
 
-        // First handle the "failed cells"
-        session.imported_failedcells = ImporterService.getFailedCells(session.importer_importeddata)
+        session.importer_importeddata = table        
+        session.importer_failedcells = failedcells
 
-        //render(view:"step2a_simple", model:[failedcells:session.imported_failedcells])
+        render(view:"step2a_simple", model:[failedcells:session.importer_failedcells])
 
-	if (params.layout=="horizontal")
+	/*if (params.layout=="horizontal")
 	    render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
 	else if (params.layout=="vertical")
-	    render(view:"step3", model:[datamatrix:session.importer_importeddata])
+	    render(view:"step3", model:[datamatrix:session.importer_importeddata])*/
     }
 
     /**
