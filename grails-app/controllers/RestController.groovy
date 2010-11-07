@@ -32,7 +32,7 @@ class RestController {
 	def AuthenticationService        
 	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
 	def credentials
-	def requestUser // = SecUser.findByUsername( "user" )
+	def requestUser
 
 	/**
 	 * Authorization closure, which is run before executing any of the REST resource actions
@@ -41,7 +41,7 @@ class RestController {
 	 *
 	 * @param	consumer	consumer name of the calling module
 	 * @param	token		token for the authenticated user (e.g. session_id)
-	 * @return true if the user is remotely logged in, false otherwise
+	 * @return  true if the user is remotely logged in, false otherwise
 	 */
 	private def auth() {
 		if( !AuthenticationService.isRemotelyLoggedIn( params.consumer, params.token ) ) {
@@ -143,6 +143,7 @@ class RestController {
 
 		studies.each { study ->
 			if(study) {
+				def user = AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 				// Check whether the person is allowed to read the data of this study
 				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 					response.sendError(401)
@@ -256,10 +257,12 @@ class RestController {
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
+				/*
 				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 					response.sendError(401)
 					return false
 				}
+				*/
 
 				def assays = []
 				if(params.assayToken==null) {
@@ -325,6 +328,7 @@ class RestController {
 	 * @return 'subject' (The name of the subject from which the sample was taken)
 	 * @return 'event' (the name of the template of the SamplingEvent describing the sampling)
 	 * @return 'startTime' (the time the sample was taken relative to the start of the study, as a string)
+	 * @return additional template fields are returned
  	 * 
  	 * 
  	 * 
@@ -369,38 +373,45 @@ class RestController {
 		if( params.assayToken ) {
  			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
 			if( assay )  {
-				if( params.sampleToken ) {
+				def samples = assay.getSamples() // on all samples
+
+				if( params.sampleToken ) {       // or on a subset of samples?
 					def sampleTokens = (params.sampleToken instanceof String) ? 
 						[params.sampleToken] : params.sampleToken
-						assay.getSamples().each { sample ->
-						if( sampleTokens.find{ it == sample.name } ) {
-							def item = [ 
-								'sampleToken' : sample.name,
-								'material'	  : sample.material?.name,
-								'subject'	  : sample.parentSubject?.name,
-								'event'		  : sample.parentEvent?.template?.name,
-								'startTime'	  : sample.parentEvent?.getStartTimeString()
-							]
-							items.push item 
-						}
+					samples = []
+					sampleTokens.each{ sampleToken ->
+						assay.getSamples().find{ sample -> sampleToken == sample.name } 
 					}
 				}
-				else {
-					assay.getSamples().each { sample ->
-						def item = [ 
-							'sampleToken' : sample.name,
-							'material'	  : sample.material?.name,
-							'subject'	  : sample.parentSubject?.name,
-							'event'		  : sample.parentEvent?.template?.name,
-							'startTime'	  : sample.parentEvent?.getStartTimeString()
-						]
-						items.push item 
+
+				samples.each { sample ->
+
+					def item = [ 
+						'material'	  : sample.material?.name,
+						'subject'	  : sample.parentSubject?.name,
+						'event'		  : sample.parentEvent?.template?.name,
+						'startTime'	  : sample.parentEvent?.getStartTimeString()
+					]
+
+					sample.giveFields().each { field ->
+						def name = field.name
+						def value = sample.getFieldValue( name )
+						if(name!='material')
+						{
+							item[name]=value
+						}
 					}
+					items.push item 
 				}
 			}
  		}
 		render items as JSON
 	}
+
+
+
+
+
 
 
 
@@ -432,4 +443,10 @@ class RestController {
 			return false
 		}
     }
+
+
+
+
+
+
 }
