@@ -401,6 +401,33 @@ class RestController {
 							item[name]=value
 						}
 					}
+
+					if(sample.parentEvent) {
+						def parentEvent = sample.parentEvent
+						def eventHash = [:]
+						parentEvent.giveFields().each { field ->
+							def name = field.name
+							if( name!='sampleTemplate' && name!='fields') {
+								def value = parentEvent.getFieldValue( name )
+								eventHash[name]=value
+							}
+						}
+						item['eventObject'] = eventHash 
+					}
+
+					if(sample.parentSubject) {
+						def parentSubject = sample.parentSubject
+						def subject = [:]
+						parentSubject.giveFields().each { field ->
+							def name = field.name
+							if( name!='fields') {
+								def value = parentSubject.getFieldValue( name )
+								subject[name]=value
+							}
+						}
+						item['subjectObject'] = subject 
+					}
+
 					items.push item 
 				}
 			}
