@@ -855,6 +855,8 @@ class WizardController {
 	 */
 	def loadStudy(flow, flash, params) {
 //		def authenticationService
+        if( authenticationService == null )
+            authenticationService = new AuthenticationService()
 		
 		flash.errors = new LinkedHashMap()
 		
