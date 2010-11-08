@@ -370,6 +370,7 @@ class RestController {
 		def items = []
 		if( params.assayToken ) {
  			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
+
 			if( assay )  {
 				def samples = assay.getSamples() // on all samples
 
@@ -378,7 +379,7 @@ class RestController {
 						[params.sampleToken] : params.sampleToken
 					samples = []
 					sampleTokens.each{ sampleToken ->
-						assay.getSamples().find{ sample -> sampleToken == sample.name } 
+						samples.addAll(assay.getSamples().find{ sample -> sampleToken == sample.name }) 
 					}
 				}
 
