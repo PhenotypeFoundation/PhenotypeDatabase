@@ -145,21 +145,19 @@ class RestController {
 			if(study) {
 				def user = AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 				// Check whether the person is allowed to read the data of this study
-				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
-					response.sendError(401)
-					return false
-				}
-				
-				def items = [:]
-				study.giveFields().each { field ->
-					def name = field.name
-					def value = study.getFieldValue( name )
-					if( name=='code' ) {
-						name = 'studyToken'
-					}
-					items[name] = value
-				}
-				returnStudies.push items
+				if( study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+
+                    def items = [:]
+                    study.giveFields().each { field ->
+                        def name = field.name
+                        def value = study.getFieldValue( name )
+                        if( name=='code' ) {
+                            name = 'studyToken'
+                        }
+                        items[name] = value
+                    }
+                    returnStudies.push items
+                }
 			}
 		}
 
