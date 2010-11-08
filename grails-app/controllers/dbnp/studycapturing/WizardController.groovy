@@ -28,7 +28,7 @@ import dbnp.authentication.SecUser
  */
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class WizardController {
-	def AuthenticationService
+	def authenticationService
 
 	/**
 	 * index method, redirect to the webflow
@@ -799,7 +799,7 @@ class WizardController {
 					println ".saving study"
 
 					// Make sure the owner of the study is set right
-					flow.study.owner = AuthenticationService.getLoggedInUser()
+					flow.study.owner = authenticationService.getLoggedInUser()
 
 					if (!flow.study.save(flush:true)) {
 						this.appendErrors(flow.study, flash.errors)
@@ -854,7 +854,7 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def loadStudy(flow, flash, params) {
-//		def AuthenticationService
+//		def authenticationService
 		
 		flash.errors = new LinkedHashMap()
 		
@@ -866,7 +866,7 @@ class WizardController {
 			// Check whether the user is allowed to edit this study. If it is not allowed
 			// the used should had never seen a link to this page, so he should never get
 			// here. That's why we just return false
-			if (!study.canWrite(AuthenticationService.getLoggedInUser())) {
+			if (!study.canWrite(authenticationService.getLoggedInUser())) {
 				return false
 			}
 
