@@ -122,7 +122,7 @@ class WizardController {
 			action {
 				if (flow.jump && flow.jump.action == 'edit' && flow.jump.id) {
 					// load study
-					if (this.loadStudy(flow, flash, [studyid:flow.jump.id])) {
+					if (this.loadStudy(flow, flash, [studyid:flow.jump.id],authenticationService.getLoggedInUser())) {
 						toStudyPage()
 					} else {
 						toStartPage()
@@ -179,7 +179,7 @@ class WizardController {
 			}.to "start"
 			on("next") {
 				// load study
-				if (this.loadStudy(flow, flash, params)) {
+				if (this.loadStudy(flow, flash, params, authenticationService.getLoggedInUser())) {
 					success()
 				} else {
 					error()
@@ -853,11 +853,9 @@ class WizardController {
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
 	 * @returns boolean
 	 */
-	def loadStudy(flow, flash, params) {
+	def loadStudy(flow, flash, params, user) {
 //		def authenticationService
-        if( authenticationService == null )
-            authenticationService = new AuthenticationService()
-		
+
 		flash.errors = new LinkedHashMap()
 		
 		// load study
@@ -868,8 +866,9 @@ class WizardController {
 			// Check whether the user is allowed to edit this study. If it is not allowed
 			// the used should had never seen a link to this page, so he should never get
 			// here. That's why we just return false
-			if (!study.canWrite(authenticationService.getLoggedInUser())) {
-				return false
+//			if (!study.canWrite(authenticationService.getLoggedInUser())) {
+            if (!study.canWrite(user)){
+ 				return false
 			}
 
 			flow.study = study
