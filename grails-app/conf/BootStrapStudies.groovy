@@ -13,6 +13,7 @@ import dbnp.data.Term
 import dbnp.data.Ontology
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
+import dbnp.rest.common.CommunicationManager
 
 class BootStrapStudies {
 
@@ -472,8 +473,14 @@ class BootStrapStudies {
 
 		println ".adding assay references to mouse example study..."
 
-		def samURL = GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION ? 'http://sam.nmcdsp.org' : 'http://localhost:8182/sam'
-		def nmcdspURL = GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION ? 'http://nmcdsp.nmcdsp.org' : 'http://localhost:8183/nmcdsp' 
+		// sam urls are in config.groovy, where they belong...
+		// if that doesn't work for you, make it work... now you're
+		// breaking the other environments....
+		//def samURL = GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION ? 'http://sam.nmcdsp.org' : 'http://localhost:8182/sam'
+		//def nmcdspURL = GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION ? 'http://nmcdsp.nmcdsp.org' : 'http://localhost:8183/nmcdsp'
+		def samURL = CommunicationManager.SAMServerURL
+		def nmcdspURL = samURL.replace("sam","metabolomics")
+
 
 		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
@@ -555,7 +562,6 @@ class BootStrapStudies {
 				metAssayRefA.addToSamples(it)
 			}
 		}
-
 
 		humanStudy.addToAssays(glucoseAssayARef)
 		humanStudy.addToAssays(glucoseAssayBRef)

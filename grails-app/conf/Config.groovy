@@ -1,3 +1,5 @@
+import dbnp.rest.common.CommunicationManager
+
 /**
  * Application Configuration
  *
@@ -48,21 +50,36 @@ grails.enable.native2ascii = true
 environments {
 	development {
 		grails.serverURL = "http://localhost:8080/${appName}"
+
+		CommunicationManager.SAMServerURL = 'http://localhost:8182/sam'
+		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 	}
 	ci {
 		// used by build script
 		grails.serverURL = "http://ci.gscf.nmcdsp.org"
+
+		CommunicationManager.SAMServerURL = 'http://ci.sam.nmcdsp.org'
+		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 	}
 	test {
 		// used by build script
 		grails.serverURL = "http://test.gscf.nmcdsp.org"
+
+		CommunicationManager.SAMServerURL = 'http://test.sam.nmcdsp.org'
+		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 	}
 	production {
 		grails.serverURL = "http://www.nmcdsp.org"
+
+		CommunicationManager.SAMServerURL = 'http://sam.nmcdsp.org'
+		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 	}
 	www {
 		// used by build script
 		grails.serverURL = "http://www.nmcdsp.org"
+
+		CommunicationManager.SAMServerURL = 'http://sam.nmcdsp.org'
+		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 	}
 }
 

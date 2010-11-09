@@ -107,13 +107,6 @@ class BootStrap {
 		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [Ontology.getOrCreateOntologyByNcboId(1005)]
 
 		println "Registering SAM REST methods"
-		// register methods for accessing SAM's Rest services 
-		if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION) {
-			CommunicationManager.SAMServerURL = 'http://sam.nmcdsp.org'
-		}
-		else {
-			CommunicationManager.SAMServerURL = 'http://localhost:8182/sam'
-		}
 		CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
 
 		println "Done with BootStrap"
