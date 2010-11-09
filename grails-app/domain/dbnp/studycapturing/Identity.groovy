@@ -59,8 +59,8 @@ abstract class Identity implements Serializable {
 		// set the local identifier
 		setIdentifier()
 
-		// feedback
-		println ".instantiating [${identifier}:${super.getClass()}]"
+		// debug info
+		log.debug ".instantiating [${identifier}:${super.getClass()}]"
 	}
 
 	/**
