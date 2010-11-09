@@ -92,7 +92,7 @@
 	</div>
 	<h3><a href="#">Assays</a></h3>
 	<div>
-		<g:each var="sample" in="${study.assays}">
+		<g:each var="assay" in="${study.assays}">
 			<p><b>${assay}</b></p>
 			<ul>
 			<g:each var="field" in="${assay?.giveFields()}">
