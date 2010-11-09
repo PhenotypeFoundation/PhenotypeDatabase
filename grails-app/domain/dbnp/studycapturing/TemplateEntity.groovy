@@ -652,10 +652,10 @@ abstract class TemplateEntity extends Identity {
 		if (isDomainField(field)) {
 			// got a value?
 			if (value) {
-				println ".setting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") domain field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
+				//log.debug ".setting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") domain field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
 				this[field.name] = value
 			} else {
-				println ".unsetting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") domain field: [" + fieldName + "]"
+				//log.debug ".unsetting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") domain field: [" + fieldName + "]"
 
 				// remove value. For numbers, this is done by setting
 				// the value to 0, otherwise, setting it to NULL
@@ -679,12 +679,12 @@ abstract class TemplateEntity extends Identity {
 			// otherwise, it should not be present in the store, so
 			// it is unset if it is.
 			if (value || value == 0 || ( field.type == TemplateFieldType.BOOLEAN && value == false)) {
-				println ".setting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") template field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
+				//log.debug ".setting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") template field: [" + fieldName + "] ([" + value.toString() + "] of type [" + value.class + "])"
 
 				// set value
 				store[fieldName] = value
 			} else if (store[fieldName]) {
-				println ".unsetting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") template field: [" + fieldName + "]"
+				//log.debug ".unsetting [" + ((super) ? super.class : '??') + "] ("+getIdentifier()+") template field: [" + fieldName + "]"
 
 				// remove the item from the Map (if present)
 				store.remove(fieldName)
