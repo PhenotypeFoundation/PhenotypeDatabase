@@ -257,6 +257,7 @@ class ImporterService {
      **/
     def saveCorrectedCells(datamatrix, failedcells, correctedcells) {       
         // Loop through all failed cells
+
         failedcells.each { mcrecord ->
             mcrecord.each { mappingcolumn ->
                   // Get the corrected value
@@ -264,10 +265,10 @@ class ImporterService {
 
                   // Find the record in the table which the mappingcolumn belongs to
                   def tablerecord = datamatrix.find { it.hashCode() == mcrecord.key }
-                  
+
                   // Loop through all entities in the record
                   tablerecord.each { rec ->
-                      rec.each { entity ->                          
+                      rec.each { entity ->
                             try {
                                 // Update the entity field
                                 entity.setFieldValue(mappingcolumn.value.property[0], correctedvalue)
@@ -279,7 +280,7 @@ class ImporterService {
                       }
                   } // end of table record
             } // end of mapping record
-        } // end of failed cells loop
+        } // end of failed cells loop     
     }
    
     /**
@@ -424,6 +425,7 @@ class ImporterService {
 	def createRecord(template_id, Row excelrow, mcmap) {
 		def df = new DataFormatter()
 		def template = Template.get(template_id)
+                def tft = TemplateFieldType
 		def record = [] // list of entities and the read values
                 def failed = [] // list of failed columns [mappingcolumn] with the value which couldn't be mapped into the entity
 
@@ -448,7 +450,26 @@ class ImporterService {
 					value = ""
 				}
 
+
+                                //println "temateplfedielfdtype=" + mc.templatefieldtype
+                                // Are we trying to map an ontology term which is empty? Then it is a failed cell
+                                /*if (value=="") {
+                                    println "empty term"
+                                    def temp = new MappingColumn()
+                                    //temp.properties = mc.properties
+                                    temp.value = "undefined"
+                                    failed.add(temp)
+                                }*/
+                              
+
                                 try {
+                                    /*if ((mc.templatefieldtype == TemplateFieldType.ONTOLOGYTERM) && (value == ""))
+                                        {
+                                            def temp = new MappingColumn()
+                                            temp.properties = mc.properties
+                                            temp.value="unknown"
+                                            failed.add(temp)
+                                        }*/
 
 				// which entity does the current cell (field) belong to?
                                     switch (mc.entity) {
@@ -475,7 +496,7 @@ class ImporterService {
                                     // store the mapping column and value which failed
                                     def temp = new MappingColumn()
                                     temp.properties = mc.properties
-                                    temp.value = value                                    
+                                    temp.value = value
                                     failed.add(temp)
                                 }
 			} // end

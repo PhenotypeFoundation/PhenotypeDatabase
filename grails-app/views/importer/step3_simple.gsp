@@ -1,6 +1,6 @@
 <%
 	/**
-	 * Thirds step in the importer, showing the imported data
+	 * Third step in the importer, showing the imported data
 	 *
 	 * @author Tjeerd Abma
 	 * @since 20100317

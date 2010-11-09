@@ -74,7 +74,7 @@ $(document).ready(function() {
 </g:javascript>
 </head>
   <body>
-    <h1>Importer wizard (simple)</h1>
+    <h1>Importer wizard</h1>
     <p>You can import your Excel data to the server by choosing a file from your local harddisk in the form below.</p>
 	<form id="simplewizardform" controller="importer" method="post" action="upload_simple" enctype="multipart/form-data">
 	<table border="0">

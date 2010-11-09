@@ -21,6 +21,8 @@ class MappingColumn {
 	Boolean identifier
 	Boolean dontimport
 
+    static transients = [ "templatefieldtype", "entity" ]
+
     static constraints = {
 	    name(unique: true)
 	    dontimport(default:false)

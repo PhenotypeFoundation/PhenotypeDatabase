@@ -40,15 +40,18 @@ class ImporterController {
     def index = {
         //session.import_referer = request.forwardURI
         // should do a check what is in the url, strip it?
-        session.import_referer = params.redirectTo        
+        session.import_referer = params.redirectTo
+        render(view:"index_simple",
+               model:[studies:Study.findAllWhere(owner:AuthenticationService.getLoggedInUser()),
+               entities: grailsApplication.config.gscf.domain.importableEntities])
     }
 
     def simpleWizard = {
-	render(view:"index_simple", model:[studies:Study.findAllWhere(owner:AuthenticationService.getLoggedInUser()), entities: grailsApplication.config.gscf.domain.importableEntities])
+	//render(view:"index_simple", model:[studies:Study.findAllWhere(owner:AuthenticationService.getLoggedInUser()), entities: grailsApplication.config.gscf.domain.importableEntities])
     }
 
     def advancedWizard = {
-	render(view:"index_advanced", model:[templates:Template.list()])
+	//render(view:"index_advanced", model:[templates:Template.list()])
     }
 
     /**
@@ -84,33 +87,40 @@ class ImporterController {
 	// Initialize some session variables
 	session.importer_workbook = wb
 	session.importer_study = Study.get(params.study.id.toInteger())
-	session.importer_template_id = params.template_id
-	session.importer_sheetindex = params.sheetindex.toInteger() -1 // 0 == first sheet
-	session.importer_datamatrix_start = params.datamatrix_start.toInteger() -1 // 0 == first row
-	session.importer_headerrow = params.headerrow.toInteger()
+        
+        if (session.importer_study.canWrite(AuthenticationService.getLoggedInUser())) {
+            session.importer_template_id = params.template_id
+            session.importer_sheetindex = params.sheetindex.toInteger() -1 // 0 == first sheet
+            session.importer_datamatrix_start = params.datamatrix_start.toInteger() -1 // 0 == first row
+            session.importer_headerrow = params.headerrow.toInteger()
 
-	// Get the header from the Excel file using the arguments given in the first step of the wizard
-	session.importer_header = ImporterService.getHeader(wb,
-							    session.importer_sheetindex,
-							    session.importer_headerrow,
-							    session.importer_datamatrix_start,
-							    entityClass)
+            // Get the header from the Excel file using the arguments given in the first step of the wizard
+            session.importer_header = ImporterService.getHeader(wb,
+                                                                session.importer_sheetindex,
+                                                                session.importer_headerrow,
+                                                                session.importer_datamatrix_start,
+                                                                entityClass)
 	
-	// Initialize 'selected entities', used to show entities above the columns
-	session.importer_header.each {
-	    selectedentities.add([name:params.entity, columnindex:it.key.toInteger()])
-	}
+            // Initialize 'selected entities', used to show entities above the columns
+            session.importer_header.each {
+                selectedentities.add([name:params.entity, columnindex:it.key.toInteger()])
+            }
 
-	def templates = Template.get(session.importer_template_id)
+            def templates = Template.get(session.importer_template_id)
 	
-	render(view:"step2_simple", model:[entities: selectedentities,
-					   header:session.importer_header,
-					   datamatrix:ImporterService.getDatamatrix(
-					       wb, session.importer_header,
-					       session.importer_sheetindex,
-					       session.importer_datamatrix_start,
-					       5),
-					   templates:templates])
+            render(view:"step2_simple", model:[entities: selectedentities,
+                                        header:session.importer_header,
+					datamatrix:ImporterService.getDatamatrix(
+					wb, session.importer_header,
+					session.importer_sheetindex,
+                                        session.importer_datamatrix_start,
+                                        5),
+                                        templates:templates])
+        } // end of if
+        else {
+            render (template:"common/error", 
+                    model:[error:"Wrong permissions: you are not allowed to write to the study you selected (${session.importer_study})."])
+        }
     }
 
     /**
@@ -138,8 +148,7 @@ class ImporterController {
 
 	session.importer_importeddata.each { table ->
 	    table.each { entity ->
-		entity.giveFields().each { field ->
-		    //print ":" + params["entity_" + entity.hashCode() + "_" + field.escapedName()]
+		entity.giveFields().each { field ->		    
 		    entity.setFieldValue (field.toString(), params["entity_" + entity.hashCode() + "_" + field.escapedName()])
 		}		
 	    }
@@ -170,8 +179,6 @@ class ImporterController {
                     session.importer_failedcells,
                     correctedcells)
 
-        //render("failed cells saved")
-     
         render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
 
     }
@@ -295,12 +302,14 @@ class ImporterController {
         session.importer_importeddata = table        
         session.importer_failedcells = failedcells
 
-        render(view:"step2a_simple", model:[failedcells:session.importer_failedcells])
-
-	/*if (params.layout=="horizontal")
-	    render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
-	else if (params.layout=="vertical")
-	    render(view:"step3", model:[datamatrix:session.importer_importeddata])*/
+        if (failedcells.size()!=0)
+            render(view:"step2a_simple", model:[failedcells:session.importer_failedcells])
+        else {
+            if (params.layout=="horizontal")
+                render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
+            else if (params.layout=="vertical")
+                render(view:"step3", model:[datamatrix:session.importer_importeddata])
+        }
     }
 
     /**

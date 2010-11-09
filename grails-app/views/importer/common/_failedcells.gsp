@@ -49,7 +49,7 @@ $(document).ready(function() {
         </g:each>
   <tr>
     <td colspan="4">
-      	<input type="submit" value="Accept changes">
+      	<input type="submit" value="Next">
     </td>
   </tr>
 

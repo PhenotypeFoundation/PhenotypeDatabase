@@ -19,10 +19,10 @@
   <head>
     <meta name="layout" content="main"/>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'importer.css')}"/>
-    <title>Step 1: import wizard preview (simple)</title>
+    <title>Step 1: import wizard preview</title>
   </head>
   <body>
-    <h1>Step 1: import wizard preview (simple)</h1>
+    <h1>Step 1: import wizard preview</h1>
     <p>Below you see a preview of your imported file, please correct the automatically detected types.</p>
   <importer:preview header="${header}" datamatrix="${datamatrix}"/>  
   </body>  
