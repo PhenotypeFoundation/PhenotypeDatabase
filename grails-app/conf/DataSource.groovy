@@ -46,6 +46,19 @@ environments {
 			//logSql = true	// enable logging while not yet final
 		}
 	}
+	nbx14 {
+		dataSource {
+			dbCreate = "update"
+			username = "gscf"
+			password = "dbnp"
+
+			// PostgreSQL
+			driverClassName = "org.postgresql.Driver"
+			url = "jdbc:postgresql://localhost:5432/gscf-nbx14"
+			dialect = org.hibernate.dialect.PostgreSQLDialect
+			//logSql = true	// enable logging while not yet final
+		}
+	}
 	production {
 		dataSource {
 			dbCreate = "update"
