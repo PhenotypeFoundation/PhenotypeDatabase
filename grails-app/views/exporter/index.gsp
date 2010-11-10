@@ -6,14 +6,20 @@
     <meta name="layout" content="main" />
     <g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}" />
     <title>SimpleTox Exporter</title>
+
+    
+
+
 </head>
 <body>
 
-  <g:form action="export">
+  <g:formRemote url="[controller:'exporter',action:'export']" name="simpleToxForm" onComplete="file://" onFailure="alert('Error while exporting the file');" >
 
   <div class="body">
     <h1>Export as SimpleTox</h1>
-    <br> Select the study you want to export in SimpleTox format.<br><br>
+    <br> Select the study you want to export in SimpleTox format.<br>
+    If you choose multiple studies, a ZIP file will be created.
+    <br><br>
     <g:if test="${flash.message}">
       <div class="message">${flash.message}</div>
     </g:if>
@@ -34,9 +40,9 @@
           <g:each in="${studyInstanceList}" var="studyInstance" status="i" >
               <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
 
-                  <td><input type="checkbox" name="${studyInstance.title}" id="${studyInstance.title}"></td>
+                  <td><input type="checkbox" name="${studyInstance.title}" id="checked_studies"></td>
 
-                  <td><g:link action="show" id="${studyInstance.id}">${fieldValue(bean: studyInstance, field: "code")}</g:link></td>
+                  <td><g:link controller="study" action="show" id="${studyInstance.id}">${fieldValue(bean: studyInstance, field: "code")}</g:link></td>
 	              <td>
 		              ${fieldValue(bean: studyInstance, field: "title")}
 	              </td>
@@ -70,7 +76,6 @@
                       ${studyInstance.assays.module.platform.unique().join( ', ' )}
                     </g:else>
                   </td>
-
               </tr>
           </g:each>
           </tbody>
@@ -80,13 +85,12 @@
 
     <div class="paginateButtons" id="button">
     </div>
-    
-    <INPUT TYPE=submit name=submit Value="Export">
+
+    <input type="submit" value="Export"/>
 
   </div>
-    <div id="result">  </div>
 
-</g:form>
+</g:formRemote>
 
 </body>
 </html>
