@@ -169,8 +169,8 @@ class ImporterController {
         def correctedcells = [:]
 
         // Loop through the form with cell fields and values
-        params.cell.index.each { mappingcolumnhash, value ->
-	    correctedcells.put(mappingcolumnhash, value)
+        params.cell.index.each { cellhash, value ->
+	    correctedcells.put(cellhash, value)
         }
 
         // Store the corrected cells back into the datamatrix

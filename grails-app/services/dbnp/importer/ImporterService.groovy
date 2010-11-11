@@ -218,11 +218,10 @@ class ImporterService {
     def importData(template_id, Workbook wb, int sheetindex, int rowindex, mcmap) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def table = []
-        def failedcells = [:] // map [recordhash, [mappingcolumnlist]] values
+        def failedcells = [:] // map [recordhash, importrecord] values
 	
 	// walk through all rows and fill the table with records
-	(rowindex..sheet.getLastRowNum()).each { i ->
-	    //table.add(createRecord(template_id, sheet.getRow(i), mcmap))
+	(rowindex..sheet.getLastRowNum()).each { i ->	    
             // Create an entity record based on a row read from Excel and store the cells which failed to be mapped
             def (record, failed) = createRecord(template_id, sheet.getRow(i), mcmap)
 
@@ -231,18 +230,9 @@ class ImporterService {
 
             // If failed cells have been found, add them to the failed cells map
             // the record hashcode is later on used to put the failed data back
-            // in the data matrix
-            if (failed.size()!=0) failedcells.put(record.hashCode(), failed)
+            // in the data matrix            
+            if (failed.importcells.size()>0) failedcells.put(record.hashCode(), failed)
 	}
-
-        failedcells.each { record ->
-           record.each { cell ->
-               cell.each {
-                   println it.value.dump()
-               }
-            }
-        }
-
 
 	return [table,failedcells]
     }
@@ -256,31 +246,32 @@ class ImporterService {
      * @param correctedcells map of corrected cells in [cellhashcode, value] format
      **/
     def saveCorrectedCells(datamatrix, failedcells, correctedcells) {       
-        // Loop through all failed cells
+        
+        // Loop through all failed cells (stored as
+        failedcells.each { record ->
+            record.value.importcells.each { cell ->
 
-        failedcells.each { mcrecord ->
-            mcrecord.each { mappingcolumn ->
                   // Get the corrected value
-                  def correctedvalue = correctedcells.find { it.key.toInteger() == mappingcolumn.hashCode()}.value
+                  def correctedvalue = correctedcells.find { it.key.toInteger() == cell.getIdentifier()}.value
 
                   // Find the record in the table which the mappingcolumn belongs to
-                  def tablerecord = datamatrix.find { it.hashCode() == mcrecord.key }
+                  def tablerecord = datamatrix.find { it.hashCode() == record.key }
 
-                  // Loop through all entities in the record
+                  // Loop through all entities in the record and correct them if necessary
                   tablerecord.each { rec ->
                       rec.each { entity ->
                             try {
                                 // Update the entity field
-                                entity.setFieldValue(mappingcolumn.value.property[0], correctedvalue)
-                                println "Adjusted " + mappingcolumn.value.property[0] + " to " + correctedvalue
+                                entity.setFieldValue(cell.mappingcolumn.property, correctedvalue)
+                                //println "Adjusted " + cell.mappingcolumn.property + " to " + correctedvalue
                             }
                             catch (Exception e) {
-                                println "Could not map corrected ontology"
+                                //println "Could not map corrected ontology: " + cell.mappingcolumn.property + " to " + correctedvalue
                             }
                       }
                   } // end of table record
-            } // end of mapping record
-        } // end of failed cells loop     
+               } // end of cell record
+            } // end of failedlist
     }
    
     /**
@@ -427,7 +418,7 @@ class ImporterService {
 		def template = Template.get(template_id)
                 def tft = TemplateFieldType
 		def record = [] // list of entities and the read values
-                def failed = [] // list of failed columns [mappingcolumn] with the value which couldn't be mapped into the entity
+                def failed = new ImportRecord() // list of failed cells with the value which couldn't be mapped into the entity
 
 		// Initialize all possible entities with the chosen template
 		def study = new Study(template: template)
@@ -459,18 +450,10 @@ class ImporterService {
                                     //temp.properties = mc.properties
                                     temp.value = "undefined"
                                     failed.add(temp)
-                                }*/
+                                }*/                                
                               
 
                                 try {
-                                    /*if ((mc.templatefieldtype == TemplateFieldType.ONTOLOGYTERM) && (value == ""))
-                                        {
-                                            def temp = new MappingColumn()
-                                            temp.properties = mc.properties
-                                            temp.value="unknown"
-                                            failed.add(temp)
-                                        }*/
-
 				// which entity does the current cell (field) belong to?
                                     switch (mc.entity) {
 					case Study: // does the entity already exist in the record? If not make it so.
@@ -494,14 +477,15 @@ class ImporterService {
                                     } // end switch
                                 } catch (IllegalArgumentException iae) {
                                     // store the mapping column and value which failed
-                                    def temp = new MappingColumn()
-                                    temp.properties = mc.properties
-                                    temp.value = value
-                                    failed.add(temp)
+                                    def mcInstance = new MappingColumn()
+                                    mcInstance.properties = mc.properties
+                                    failed.addToImportcells(
+                                        new ImportCell(mappingcolumn:mcInstance,
+                                            value:value)
+                                        )
                                 }
 			} // end
 		} // end for
-	
         // a failed column means that using the entity.setFieldValue() threw an exception        
         return [record, failed]        
     }

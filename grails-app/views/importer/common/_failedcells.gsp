@@ -30,21 +30,19 @@ $(document).ready(function() {
     <th>Column</th><th>Row</th><th>Unknown ontology found</th><th>Corrected ontology</th>
   </tr>
 <g:form name="failedcellsform" action="saveCorrectedCells">
-	<g:each var="record" in="${failedcells}">
-          <g:each var="list" in="${record}">
-            <g:each var="cell" in="${list}">
+	<g:each var="item" in="${failedcells}"> <!-- [recordhash, importrecord] -->
+          <g:each var="cell" in="${item.value.importcells}">
             <tr>
-              <td>${cell.value.name}</td>
+              <td>${cell.mappingcolumn.name}</td>
               <td>-</td>
-              <td>${cell.value.value}</td>
+              <td>${cell}</td>
               <td>
-                  <input type="text" name="cell.index.${cell.hashCode()}" rel="ontology-all-name"/>
-                  <!-- <input type="hidden" name="cell.index.${cell.value}-concept_id"/>
-                  <input type="hidden" name="cell.index.${cell.value}-ontology_id"/>
-                  <input type="hidden" name="cell.index.${cell.value}-full_id"/> -->
+                  <input type="text" name="cell.index.${cell.getIdentifier()}" rel="ontology-all-name"/>
+                  <!-- <input type="hidden" name="cell.index.${cell}-concept_id"/>
+                  <input type="hidden" name="cell.index.${cell}-ontology_id"/>
+                  <input type="hidden" name="cell.index.${cell}-full_id"/> -->
               </td>
-            </tr>
-            </g:each>
+            </tr>            
           </g:each>
         </g:each>
   <tr>

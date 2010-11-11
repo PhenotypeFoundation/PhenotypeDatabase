@@ -1,5 +1,6 @@
 package dbnp.importer
 import dbnp.studycapturing.TemplateField
+import dbnp.studycapturing.Identity
 
 /**
 * name: column name (in Excel)

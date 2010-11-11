@@ -24,7 +24,7 @@
     <div class="table">
 	<g:set var="showHeader" value="${true}"/>
 	    <g:each status="index" var="table" in="${datamatrix}">
-		<g:each status="i" var="entity" in="${table}">                  
+		<g:each status="i" var="entity" in="${table}">
 		    <g:if test="${showHeader}">
 			<g:set var="showHeader" value="${false}"/>
 			<div class="header">
