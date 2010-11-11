@@ -42,7 +42,7 @@ class SetupController {
 		// render the main wizard page which immediately
 		// triggers the 'next' action (hence, the main
 		// page dynamically renders the study template
-		// and makes the flow jump to the study logic)
+		// and makes the flow jump to the start logic)
 		mainPage {
 			render(view: "/setup/index")
 			onRender {
