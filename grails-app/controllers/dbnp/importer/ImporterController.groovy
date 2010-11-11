@@ -88,6 +88,7 @@ class ImporterController {
 	session.importer_workbook = wb
 	session.importer_study = Study.get(params.study.id.toInteger())
         
+        // Is the current logged in user allowed to write to this study?
         if (session.importer_study.canWrite(AuthenticationService.getLoggedInUser())) {
             session.importer_template_id = params.template_id
             session.importer_sheetindex = params.sheetindex.toInteger() -1 // 0 == first sheet

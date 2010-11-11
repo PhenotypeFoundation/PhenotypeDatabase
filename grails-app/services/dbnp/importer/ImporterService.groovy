@@ -149,10 +149,11 @@ class ImporterService {
     Cell[][] getDatamatrix(Workbook wb, header, int sheetindex, int datamatrix_start, int count) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def rows  = []
-	def df = new DataFormatter()	
+	def df = new DataFormatter()
 
-	// walk through all rows
-	(count <= sheet.getLastRowNum()) ?
+        count = (count < sheet.getLastRowNum()) ? count : sheet.getLastRowNum()
+
+	// walk through all rows	
 	((datamatrix_start+sheet.getFirstRowNum())..count).each { rowindex ->
 	    def row = []
 
@@ -166,12 +167,9 @@ class ImporterService {
 		def c = sheet.getRow(rowindex).getCell(columnindex, Row.CREATE_NULL_AS_BLANK)
 		//row.add(df.formatCellValue(c))
 		row.add(c)
-		//if (c.getCellType() == c.CELL_TYPE_STRING) println "STR"+c.getStringCellValue()
-		//if (c.getCellType() == c.CELL_TYPE_NUMERIC) println "INT" +c.getNumericCellValue()
 	    }
-		//row.add(df.formatCellValue(c))
 	    rows.add(row)
-	} : 0
+	}
 
 	return rows
     }
@@ -231,7 +229,7 @@ class ImporterService {
             // If failed cells have been found, add them to the failed cells map
             // the record hashcode is later on used to put the failed data back
             // in the data matrix            
-            if (failed.importcells.size()>0) failedcells.put(record.hashCode(), failed)
+            if (failed.importcells?.size()>0) failedcells.put(record.hashCode(), failed)
 	}
 
 	return [table,failedcells]
@@ -440,7 +438,6 @@ class ImporterService {
 				} catch (NumberFormatException nfe) {
 					value = ""
 				}
-
 
                                 //println "temateplfedielfdtype=" + mc.templatefieldtype
                                 // Are we trying to map an ontology term which is empty? Then it is a failed cell
