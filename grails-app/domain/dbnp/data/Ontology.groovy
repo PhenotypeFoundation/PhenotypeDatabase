@@ -4,7 +4,7 @@ package dbnp.data
  * This class describes an existing ontology, of which terms can be stored (actually 'cached' would be a better description)
  * in the (global) Term store.
  * This information is mapped from the BioPortal NCBO REST service, e.g.: http://rest.bioontology.org/bioportal/ontologies/38802
- * @see http://www.bioontology.org/wiki/index.php/NCBO_REST_services
+ * see http://www.bioontology.org/wiki/index.php/NCBO_REST_services
  *
  * Revision information:
  * $Rev$
@@ -74,7 +74,6 @@ class Ontology implements Serializable {
 		return getOrCreateOntologyByNcboId( ncboId as int )
 	}
 	static Ontology getOrCreateOntologyByNcboId( int ncboId ) {
-		println "find ${ncboId} in ${list()*.ncboId}"
 		def ontology = findByNcboId( ncboId as String )
 
 		// got an ontology?
@@ -139,10 +138,6 @@ class Ontology implements Serializable {
 				return ontology
 			} else {
 				// it does not validate
-				println ".encountered errors instantiating Ontology by versionedId [" + ncboVersionedId + "] :"
-				ontology.errors.each() {
-					println "  -" + it
-				}
 				throw new Exception("instantiating Ontology by (versioned) id [" + ncboVersionedId + "] failed")
 			}
 		} catch (Exception e) {

@@ -17,23 +17,22 @@ class Subject extends TemplateEntity {
 	//static searchable = { [only: ['name']] }
 
 	// A Subject always belongs to one Study
-	static belongsTo = [parent : Study]
+	static belongsTo = [parent: Study]
 
-	/** The name of the subject, which should be unique within the study */
+	/** The name of the subject, which should be unique within the study  */
 	String name
 
-	/** The species of the subject. In the domainFields property, the ontologies from which this term may come are specified. */
+	/** The species of the subject. In the domainFields property, the ontologies from which this term may come are specified.  */
 	Term species
 
 	static constraints = {
 		// Ensure that the subject name is unique within the study
-		name(unique:['parent'])
+		name(unique: ['parent'])
 	}
 
-        static mapping = {
-                name column:"subjectname"
+	static mapping = {
+		name column: "subjectname"
 	}
-
 
 	/**
 	 * return the domain fields for this domain class
@@ -57,12 +56,12 @@ class Subject extends TemplateEntity {
 			required: true)
 	]
 
-        /**
-        * Return by default the name of the subject.
-        * 
-        * @return name field
-        */
-        String toString() {
-            return name
-        }
+	/**
+	 * Return by default the name of the subject.
+	 *
+	 * @return name field
+	 */
+	String toString() {
+		return name
+	}
 }

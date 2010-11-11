@@ -19,6 +19,7 @@ class BootStrapTemplates {
 	 * (e.g. in development or automated test environments)
 	 */
 	public static void initTemplateOntologies() {
+		"inserting initial ontologies".grom()
 		def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
 		def brendaOntology = Ontology.getOrCreateOntologyByNcboId(1005)
 		def nciOntology = Ontology.getOrCreateOntologyByNcboId(1032)
@@ -29,9 +30,7 @@ class BootStrapTemplates {
 	 * Add example templates, this function would normally be called on an empty database
 	 */
 	public static void initTemplates() {
-
-		// Create templates
-		println ".adding example templates"
+		"inserting initial templates".grom()
 
 		def genderField = new TemplateField(
 			name: 'Gender',type: TemplateFieldType.STRINGLIST, entity: Subject,
@@ -67,9 +66,7 @@ class BootStrapTemplates {
 		)
 		 .with { if (!validate()) { errors.each { println it} } else save()}
 
-
 		// Nutritional study template
-		println ".adding academic study template..."
 		def studyTemplate = new Template(
 			name: 'Academic study',
 			entity: dbnp.studycapturing.Study
@@ -84,7 +81,6 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Mouse template
-		println ".adding mouse subject template..."
 		def mouseTemplate = new Template(
 			name: 'Mouse', entity: dbnp.studycapturing.Subject)
 		.addToFields(new TemplateField(
@@ -108,7 +104,6 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Human template
-		println ".adding human subject template..."
 		def humanTemplate = new Template(
 			name: 'Human', entity: dbnp.studycapturing.Subject)
 		.addToFields(genderField)
@@ -137,7 +132,6 @@ class BootStrapTemplates {
 			name: 'Run-in-food',type: TemplateFieldType.TEXT,entity: Subject, comment:'If defined, give a short description of the food used before the measurements'))
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
-		println ".adding sample remarks field"
 		def sampleRemarksField = new TemplateField(
 			name: 'Remarks',
 			type: TemplateFieldType.TEXT,
@@ -145,7 +139,6 @@ class BootStrapTemplates {
 		)
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
-		println ".adding sample vial textfield"
 		def sampleVialTextField = new TemplateField(
 			name: 'Text on vial',
 			type: TemplateFieldType.STRING,
@@ -154,7 +147,6 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Human tissue sample template
-		println ".adding human sample template..."
 		def humanSampleTemplate = new Template(
 			name: 'Human tissue sample',
 			entity: dbnp.studycapturing.Sample
@@ -172,7 +164,6 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Human blood sample template
-		println ".adding human sample template..."
 		def humanBloodSampleTemplate = new Template(
 		    name: 'Human blood sample',
 			entity: dbnp.studycapturing.Sample
@@ -196,7 +187,6 @@ class BootStrapTemplates {
 		 * 
 		 * For the Pilot running in Leiden (NOV2010)
 		 */
-		println ".adding sample DCL-Sample-Reference"
 		def sampleDCLTextField = new TemplateField(
 			name: 'DCL Sample Reference',
 			type: TemplateFieldType.STRING,
@@ -205,7 +195,6 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Human tissue sample template
-		println ".adding DCL Sample template..."
 		def dclSampleTemplate = new Template(
 			name: 'DCL Sample information',
 			entity: dbnp.studycapturing.Sample
@@ -232,7 +221,6 @@ class BootStrapTemplates {
 		 */
 
 		//Plant template
-		println ".adding geenhouse plant template..."
 		def greenHouseTemplate = new Template(
 			name: 'Plant-green house ',
 			entity: dbnp.studycapturing.Subject
@@ -304,7 +292,6 @@ class BootStrapTemplates {
 			name: 'Additional info', entity: Subject, type: TemplateFieldType.TEXT))
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
-		println ".adding open-field plant template..."
 		def FieldTemplate = new Template(
 			name: 'Plant-open field',
 			entity: dbnp.studycapturing.Subject
@@ -326,7 +313,6 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		//Plant template
-		println ".adding chamber plant template..."
 		def chamberTemplate = new Template(
 			name: 'Plant-chamber',
 			entity: dbnp.studycapturing.Subject
@@ -380,7 +366,6 @@ class BootStrapTemplates {
 			name: 'Harvest delay', type: TemplateFieldType.TEXT, entity: Subject))
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
-		println ".adding plant sample template..."
 		def plantSampleTemplate = new Template(
 			name: 'Plant sample',
 			entity: dbnp.studycapturing.Sample
@@ -389,7 +374,6 @@ class BootStrapTemplates {
 		.addToFields(sampleVialTextField)
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
-		println ".adding material prep template"
 		def materialPrepTemplate = new Template(
 			name: 'Plant-material preparation',
 		    description: 'material preparation',
@@ -438,7 +422,6 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// diet treatment template
-		println ".adding diet treatement template"
 		def dietTreatmentTemplate = new Template(
 			name: 'Diet treatment',
 			entity: dbnp.studycapturing.Event
@@ -459,7 +442,6 @@ class BootStrapTemplates {
 		dietTreatmentTemplate.refresh()
 
 		// boost treatment template
-		println ".adding boost treatment template"
 		def boostTreatmentTemplate = new Template(
 			name: 'Compound challenge',
 			entity: dbnp.studycapturing.Event
@@ -484,7 +466,6 @@ class BootStrapTemplates {
 		boostTreatmentTemplate.refresh()
 
 		// fasting treatment template
-		println ".adding fasting treatment template"
 		def fastingTreatment = new Template(
 			name: 'Fasting treatment',
 			description: 'Fasting for a specific amount of time',
@@ -500,7 +481,6 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// SamplingEvent templates
-		println ".adding sampling protocol template field"
 		def samplingProtocolField = new TemplateField(
 			name: 'Sample Protocol',
 			entity: SamplingEvent,
@@ -510,7 +490,6 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// liver sampling event template
-		println ".adding liver sampling event template"
 		def liverSamplingEventTemplate = new Template(
 			name: 'Liver extraction',
 			description: 'Liver sampling for transcriptomics arrays',
@@ -529,7 +508,6 @@ class BootStrapTemplates {
 		liverSamplingEventTemplate.refresh()
 
 		// blood sampling
-		println ".adding blood sampling event template"
 		def bloodSamplingEventTemplate = new Template(
 			name: 'Blood extraction',
 			description: 'Blood extraction targeted at lipid assays',
@@ -548,7 +526,6 @@ class BootStrapTemplates {
 		bloodSamplingEventTemplate.refresh()
 
 		// plant sample extraction event template
-		println ".adding plant sample extraction event template"
 		def plantSamplingExtractEventTemplate = new Template(
 			name: 'Plant sample extraction',
 			description: 'sample extraction',
@@ -579,7 +556,6 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		// plant sampling event template
-		println ".adding plant sampling event template"
 		def plantSamplingEventTemplate = new Template(
 			name: 'Plant-sample',
 			description: 'plant sample ',
@@ -621,7 +597,6 @@ class BootStrapTemplates {
 
 
 		// assay templates
-
 		def assayDescriptionField = new TemplateField(
 				name: 'Description',
 			    comment: 'add general assay information here',
@@ -630,7 +605,6 @@ class BootStrapTemplates {
 		);
 		assayDescriptionField.with { if (!validate()) { errors.each { println it} } else save()}
 
-		println ".adding clinical chemistry assay template"
 		def ccAssayTemplate = new Template(
 			name: 'Clinical chemistry assay',
 			description: 'Clinical chemistry assay stored in a SAM module',
@@ -639,7 +613,6 @@ class BootStrapTemplates {
 		.addToFields(assayDescriptionField)
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
-		println ".adding metabolomics assay template"
 		def metAssayTemplate = new Template(
 			name: 'Metabolomics assay',
 			description: 'Metabolomics assay stored in a metabolomics module',

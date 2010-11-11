@@ -22,6 +22,7 @@ class BootStrapStudies {
 	 */
 
 	public static void addExampleStudies(dbnp.authentication.SecUser owner, dbnp.authentication.SecUser otherUser ) {
+		"inserting initial studies".grom()
 
 		// Look up the used ontologies which should be in the database by now
 		def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
@@ -44,9 +45,6 @@ class BootStrapStudies {
 		def metAssayTemplate = Template.findByName("Metabolomics assay")
 
 		// Add terms manually, to avoid having to do many HTTP requests to the BioPortal website
-		println ".adding terms"
-
-
 		def mouseTerm = new Term(
 			name: 'Mus musculus',
 			ontology: speciesOntology,
@@ -96,7 +94,6 @@ class BootStrapStudies {
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Create a few persons, roles and Affiliations
-		println ".adding persons, roles and affiliations"
 		def affiliation1 = new PersonAffiliation(
 			institute: "Science Institute NYC",
 			department: "Department of Mathematics"
@@ -143,7 +140,6 @@ class BootStrapStudies {
 		30.times { new Person( firstName: "Person #${personCounter}", lastName: "Testperson", email: "email${personCounter++}@testdomain.com" ).save() }
 
 		// Create a few publications
-		println ".adding publications"
 		def publication1 = new Publication(
 			title: "Postnatal development of hypothalamic leptin receptors",
 			authorsList: "Cottrell EC, Mercer JG, Ozanne SE.",
@@ -163,7 +159,6 @@ class BootStrapStudies {
 		.save();
 
 		// Add example mouse study
-		println ".adding NuGO PPS3 leptin example study..."
 		def mouseStudy = new Study(
 			template: studyTemplate,
 			title:"NuGO PPS3 mouse study leptin module",
@@ -368,9 +363,6 @@ class BootStrapStudies {
         .addToPublications( publication2 )
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
-		// Add example human study
-		println ".adding NuGO PPSH example study..."
-
 		def humanStudy = new Study(
 			template: studyTemplate,
 			title:"NuGO PPS human study",
@@ -463,15 +455,12 @@ class BootStrapStudies {
 			currentSample.setFieldValue( "Text on vial", "T" + (Math.random() * 100L) )
 		}
 
-		println ".adding persons and saving PPSH study..."
 		// Add persons to study
 		def studyperson3 = new StudyPerson( person: person1, role: role2 )
 		humanStudy
 		.addToPersons( studyperson3 )
 		.addToPublications( publication2 )
 		.with { if (!validate()) { errors.each { println it} } else save()}
-
-		println ".adding assay references to mouse example study..."
 
 		// sam urls are in config.groovy, where they belong...
 		// if that doesn't work for you, make it work... now you're
@@ -519,8 +508,6 @@ class BootStrapStudies {
 		mouseStudy.addToAssays(lipidAssayRef);
 		mouseStudy.addToAssays(metAssayRef);
 		mouseStudy.save()
-
-		println ".adding assay references to human example study..."
 
 		def  glucoseAssayBRef = new Assay(
 			name: 'Glucose assay before',
