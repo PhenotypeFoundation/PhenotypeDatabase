@@ -52,12 +52,6 @@
 	</sec:ifAllGranted>
 	<g:if env="development">
 		<li><g:link controller="query" action="index"><img src="${fam.icon(name: 'database_gear')}" alt="query database"/></g:link></li>
-		<li>
-			<a href="#"><img src="${fam.icon(name: 'application_form')}" alt="scaffolded controllers"/></a>
-			<ul class="subnav"><g:each var="c" in="${grailsApplication.controllerClasses}">
-				<li><g:link controller="${c.logicalPropertyName}">${c.fullName}</g:link></li></g:each>
-			</ul>
-		</li>
 	</g:if>
 	<g:if test="${session.pilot == true}">
 		<li><g:link controller="pilot" action="index">Pilot</g:link></li>

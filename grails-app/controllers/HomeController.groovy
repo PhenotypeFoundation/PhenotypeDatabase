@@ -1,4 +1,5 @@
 import dbnp.studycapturing.Study
+import dbnp.studycapturing.Template
 
 /**
  * Home Controler
@@ -16,7 +17,11 @@ import dbnp.studycapturing.Study
  */
 class HomeController {
     def index = {
-       [ studyCount: dbnp.studycapturing.Study.count(), userCount: dbnp.authentication.SecUser.count() ]
+	    if (!Template.count()) {
+		    redirect(controller:'setup',action:'index')		    
+	    } else {
+		    [ studyCount: dbnp.studycapturing.Study.count(), userCount: dbnp.authentication.SecUser.count() ]
+	    }
     }
     
 }
