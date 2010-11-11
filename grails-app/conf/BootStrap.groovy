@@ -31,7 +31,7 @@ class BootStrap {
 		System.setProperty('user.timezone', 'CET')
 
 		// set up authentication (if required)
-		if (!SecRole.count() || !SecUser.count()) BootStrapAuthentication.initDefaultAuthentication()
+		if (!SecRole.count() || !SecUser.count()) BootStrapAuthentication.initDefaultAuthentication(springSecurityService)
 
 		// developmental bootstrapping:
 		//      - templates

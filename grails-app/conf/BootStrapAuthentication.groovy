@@ -15,7 +15,7 @@ class BootStrapAuthentication {
 	 * @visibility  public
 	 * @void
 	 */
-	public static void initDefaultAuthentication() {
+	public static void initDefaultAuthentication(springSecurityService) {
 		"setting up default authentication".grom()
 
 		def adminRole = SecRole.findByAuthority('ROLE_ADMIN') ?: new SecRole(authority: 'ROLE_ADMIN').save()
