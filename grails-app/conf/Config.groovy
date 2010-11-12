@@ -75,6 +75,13 @@ environments {
 		CommunicationManager.SAMServerURL = 'http://sam.nbx14.osx.eu'
 		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 	}
+	demo {
+		// used by build script
+		grails.serverURL = "http://demo.nbx14.osx.eu"
+
+		CommunicationManager.SAMServerURL = 'http://demo.sam.nbx14.osx.eu'
+		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
+	}
 	production {
 		grails.serverURL = "http://www.nmcdsp.org"
 
