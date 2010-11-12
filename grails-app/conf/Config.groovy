@@ -68,14 +68,14 @@ environments {
 		CommunicationManager.SAMServerURL = 'http://test.sam.nmcdsp.org'
 		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 	}
-	dbnp-test {
+	dbnptest {
 		// used by build script
 		grails.serverURL = "http://test.dbnp.org"
 
 		CommunicationManager.SAMServerURL = 'http://test.sam.dbnp.org'
 		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 	}
-	dbnp-demo {
+	dbnpdemo {
 		// used by build script
 		grails.serverURL = "http://demo.dbnp.org"
 

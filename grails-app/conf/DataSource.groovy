@@ -46,7 +46,7 @@ environments {
 			//logSql = true	// enable logging while not yet final
 		}
 	}
-	dbnp-test {
+	dbnptest {
 		dataSource {
 			dbCreate = "update"
 			username = "gscf"
@@ -59,7 +59,7 @@ environments {
 			//logSql = true	// enable logging while not yet final
 		}
 	}
-	dbnp-demo {
+	dbnpdemo {
 		dataSource {
 			dbCreate = "update"
 			username = "gscf"
