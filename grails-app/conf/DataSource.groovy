@@ -46,7 +46,7 @@ environments {
 			//logSql = true	// enable logging while not yet final
 		}
 	}
-	nbx14 {
+	dbnp-test {
 		dataSource {
 			dbCreate = "update"
 			username = "gscf"
@@ -54,12 +54,12 @@ environments {
 
 			// PostgreSQL
 			driverClassName = "org.postgresql.Driver"
-			url = "jdbc:postgresql://localhost:5432/gscf-nbx14"
+			url = "jdbc:postgresql://localhost:5432/gscf-test"
 			dialect = org.hibernate.dialect.PostgreSQLDialect
 			//logSql = true	// enable logging while not yet final
 		}
 	}
-	demo {
+	dbnp-demo {
 		dataSource {
 			dbCreate = "update"
 			username = "gscf"
