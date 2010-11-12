@@ -38,6 +38,8 @@ class ImporterController {
      **/
 
     def index = {
+        //String.metaClass.mostSimilarTo = { ImporterService.mostSimilar(delegate, it) }
+
         //session.import_referer = request.forwardURI
         // should do a check what is in the url, strip it?
         session.import_referer = params.redirectTo
