@@ -70,16 +70,16 @@ environments {
 	}
 	nbx14 {
 		// used by build script
-		grails.serverURL = "http://nbx14.osx.eu"
+		grails.serverURL = "http://test.dbnp.org"
 
-		CommunicationManager.SAMServerURL = 'http://sam.nbx14.osx.eu'
+		CommunicationManager.SAMServerURL = 'http://test.sam.dbnp.org'
 		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 	}
 	demo {
 		// used by build script
-		grails.serverURL = "http://demo.nbx14.osx.eu"
+		grails.serverURL = "http://demo.dbnp.org"
 
-		CommunicationManager.SAMServerURL = 'http://demo.sam.nbx14.osx.eu'
+		CommunicationManager.SAMServerURL = 'http://demo.sam.dbnp.org'
 		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 	}
 	production {
