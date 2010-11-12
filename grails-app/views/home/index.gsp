@@ -5,7 +5,7 @@
 </head>
 <body>
 
-<g:if env="demo"><g:render template="/common/demo_intro"/></g:if>
+<g:if env="dbnpdemo"><g:render template="/common/demo_intro"/></g:if>
 
 </body>
 </html>
