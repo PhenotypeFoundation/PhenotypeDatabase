@@ -26,7 +26,7 @@ html>body #templates li { line-height: 16px; vertical-align: center; }
  * Formatting of the template fields and the forms to edit/add them
  */
 .templateFields { list-style-type: none;  margin: 0; padding: 0; width: 330px; }
-.templateFields li { margin: 0 5px 3px 5px; padding: 3px 5px; }
+.templateFields li { margin: 0 5px 3px 5px; padding: 3px 5px; display: block; }
 html>body .templateFields li { line-height: 16px; vertical-align: center; }
 .ui-state-highlight { height: 17px; }
 .templateFields .ui-icon { display: inline-block; height: 13px; }
@@ -87,7 +87,7 @@ a.switch { font-size: small; color: #68BFEF; text-decoration: none; }
 	KHTMLOpacity: 0.5;
 	MozOpacity: 0.5;
 	-khtml-opacity:.50;
-	-ms-filter:”alpha(opacity=50)”;
+	-ms-filter:"alpha(opacity=50)";
 	-moz-opacity:.50;
 	filter:alpha(opacity=50);
 	opacity:.50;

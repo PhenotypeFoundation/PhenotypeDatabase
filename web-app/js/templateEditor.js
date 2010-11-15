@@ -223,6 +223,7 @@ function showTemplateFieldForm( list_item_id ) {
 
 		// Disable all other listitems
 		$( '#availableTemplateFields li:not(#' + list_item_id + ')').addClass( 'ui-state-disabled' );
+		$( '#selectedTemplateFields li:not(#' + list_item_id + ')').addClass( 'ui-state-disabled' );
 
 		if( list_item_id != 'templateField_new' ) {
 			// Disable add new
@@ -239,6 +240,7 @@ function hideTemplateFieldForm( id ) {
 
     // Enable all other listitems
     $( '#availableTemplateFields li:not(#templateField_' + id + ')').removeClass( 'ui-state-disabled' );
+	$( '#selectedTemplateFields li:not(#' + id + ')').removeClass( 'ui-state-disabled' );
 	$( '#addNew').removeClass( 'ui-state-disabled' );
 
     formOpened = false;
