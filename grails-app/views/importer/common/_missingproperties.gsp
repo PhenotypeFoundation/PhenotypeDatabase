@@ -19,6 +19,33 @@
 <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js')}"></script>
 <script type="text/javascript" src="${resource(dir: 'js', file: 'importer.js')}"></script>
 
+
+<g:if env="production">
+<script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.min.js')}"></script>
+</g:if><g:else>
+<script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.js')}"></script>
+</g:else>
+
+<script>
+  $(document).ready(function() {
+
+// handle term selects
+    new SelectAddMore().init({
+        rel     : 'term',
+        url     : baseUrl + '/termEditor',
+        vars    : 'ontologies',
+        label   : 'add more...',
+        style   : 'addMore',
+        onClose : function(scope) {
+            //refreshWebFlow();?
+
+        }
+    });
+
+
+  });
+</script>
+
 <div class="wizard" id="wizard">
 <g:form name="missingpropertiesform" action="saveMissingProperties">
     <div class="table">
