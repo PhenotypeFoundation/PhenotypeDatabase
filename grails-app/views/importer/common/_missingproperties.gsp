@@ -19,7 +19,6 @@
 <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js')}"></script>
 <script type="text/javascript" src="${resource(dir: 'js', file: 'importer.js')}"></script>
 
-
 <g:if env="production">
 <script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.min.js')}"></script>
 </g:if><g:else>
@@ -38,6 +37,11 @@
         style   : 'addMore',
         onClose : function(scope) {
             //refreshWebFlow();?
+             //location.reload();
+             updatefield = '<input type = "hidden" name="updatefield" value="true" / >';
+             $('#missingpropertiesform').append(updatefield);
+
+             $('#missingpropertiesform').submit();
 
         }
     });
@@ -47,7 +51,7 @@
 </script>
 
 <div class="wizard" id="wizard">
-<g:form name="missingpropertiesform" action="saveMissingProperties">
+<g:form name="missingpropertiesform" id="missingpropertiesform" action="saveMissingProperties">
     <div class="table">
 	<g:set var="showHeader" value="${true}"/>
 	    <g:each status="index" var="table" in="${datamatrix}">

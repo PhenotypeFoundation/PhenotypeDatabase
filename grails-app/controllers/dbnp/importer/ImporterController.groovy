@@ -143,12 +143,13 @@ class ImporterController {
     }
 
     /**
-     * Method to save the missing properties
+     * Method to save the missing properties.
+     *
      * @param entity entity class we are using (dbnp.studycapturing.Subject etc.)
      */
 
     def saveMissingProperties = {
-
+        
 	session.importer_importeddata.each { table ->
 	    table.each { entity ->
 		entity.giveFields().each { field ->		    
@@ -157,7 +158,9 @@ class ImporterController {
 	    }
 	}
 
-	render(view:"step3", model:[datamatrix:session.importer_importeddata])	
+        // a new ontology term was added, so stay at the current step otherwise go to the next step
+        if (params.updatefield) render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
+            else render(view:"step3", model:[datamatrix:session.importer_importeddata])
     }
 
     /*
@@ -338,5 +341,9 @@ class ImporterController {
 
 	// render as JSON
         render templates as JSON
+    }
+
+    def refresh = {
+       // params
     }
 }
