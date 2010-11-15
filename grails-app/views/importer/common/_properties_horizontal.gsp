@@ -23,7 +23,7 @@
 		    <g:if test="${selentity.name.toLowerCase()==stdentity.value.name.toLowerCase()}">
 			    <td class="header" width="200px">
 				<b>${header[selentity.columnindex.toInteger()].name}</b>
-				<importer:propertyChooser name="columnproperty" mappingcolumn="${header[selentity.columnindex.toInteger()]}" allfieldtypes="${allfieldtypes}"/>
+				<importer:propertyChooser name="columnproperty" mappingcolumn="${header[selentity.columnindex.toInteger()]}" matchvalue="test" "allfieldtypes="${allfieldtypes}"/>
 			    </td>			    		
 		    </g:if>
 		</g:each>

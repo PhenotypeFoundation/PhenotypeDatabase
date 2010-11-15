@@ -110,7 +110,7 @@ class ImporterController {
             }
 
             def templates = Template.get(session.importer_template_id)
-	
+
             render(view:"step2_simple", model:[entities: selectedentities,
                                         header:session.importer_header,
 					datamatrix:ImporterService.getDatamatrix(

@@ -537,7 +537,7 @@ class ImporterService {
         sum
     }
 
-    static def stringSimilarity (l_str, r_str, degree=2) {
+    static def stringSimilarity (l_str, r_str, degree=2) {        
         similarity(l_str.toLowerCase().toCharArray(),
             r_str.toLowerCase().toCharArray(),
             degree)

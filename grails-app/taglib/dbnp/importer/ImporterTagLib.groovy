@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.DataFormatter
 
 class ImporterTagLib {
     static namespace = 'importer'
+    def ImporterService
 
     /**
     * @param header string array containing header
@@ -99,6 +100,7 @@ class ImporterTagLib {
      *
      * @param name name for the property chooser element
      * @param importtemplate_id template identifier where fields are retrieved from
+     * @param matchvalue value which will be looked up via fuzzy matching against the list of options and will be selected
      * @param MappingColumn object containing all required information
      * @param allfieldtypes boolean true if all templatefields should be listed, otherwise only show filtered templatefields
      * @return chooser object
@@ -110,6 +112,7 @@ class ImporterTagLib {
 	def t = Template.get(session.importer_template_id)
 	def mc = attrs['mappingcolumn']
 	def allfieldtypes = attrs['allfieldtypes']
+        def matchvalue = attrs['matchvalue']
 	def domainfields = mc.entity.giveDomainFields().findAll { it.type == mc.templatefieldtype }
 	    domainfields = domainfields.findAll { it.preferredIdentifier != mc.identifier}
 
@@ -121,8 +124,8 @@ class ImporterTagLib {
 	// map identifier to preferred column
 	def prefcolumn = mc.entity.giveDomainFields().findAll { it.preferredIdentifier == true }
 
-	(mc.identifier) ? out << createPropertySelect(attrs['name'], prefcolumn, mc.index) :
-	    out << createPropertySelect(attrs['name'], templatefields, mc.index)
+	(mc.identifier) ? out << createPropertySelect(attrs['name'], prefcolumn, matchvalue, mc.index) :
+	    out << createPropertySelect(attrs['name'], templatefields, matchvalue, mc.index)
     }
 
     /**
@@ -130,11 +133,15 @@ class ImporterTagLib {
      *
      * @param name name of the HTML select object
      * @param options list of options (fields) to be used
+     * @param matchvalue value which will be looked up via fuzzy matching against the list of options and will be selected
      * @param columnIndex column identifier (corresponding to position in header of the Excel sheet)
      * @return HTML select object
      */
-    def createPropertySelect(String name, options, Integer columnIndex)
-    {	
+    def createPropertySelect(String name, options, matchvalue, Integer columnIndex)
+    {
+        //String.metaClass.mostSimilarTo = { ImporterService.mostSimilar(delegate, it) }
+        //println "mostsimilar="+ImporterService.mostSimilar(matchvalue, options)
+
 	def res = "<select style=\"font-size:10px\" name=\"${name}.index.${columnIndex}\">"
 
 	res += "<option value=\"dontimport\" selected>Don't import</option>"
