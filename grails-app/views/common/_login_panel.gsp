@@ -47,6 +47,12 @@
 			<li class="left">&nbsp;</li>
 			<li>Hello <sec:ifLoggedIn><sec:username/></sec:ifLoggedIn>
                         <sec:ifNotLoggedIn>Guest</sec:ifNotLoggedIn>!</li>
+			<sec:ifLoggedIn>
+			<li class="sep">|</li>
+			<li id="toggle">
+			  <g:link controller="userRegistration" action="profile">profile</g:link>
+			</li>
+			</sec:ifLoggedIn>
 			<li class="sep">|</li>
 			<li id="toggle">
                         <sec:ifLoggedIn><g:link controller="logout" action="index">sign out</g:link></sec:ifLoggedIn>

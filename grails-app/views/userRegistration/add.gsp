@@ -15,10 +15,6 @@
           <p>
             N.B. An administrator must approve your account before you can use it.
           </p>
-
-          <p>Username: ${username}</p>
-          <p>Password: ${password}</p>
-
         </div>
   </body>
 </html>

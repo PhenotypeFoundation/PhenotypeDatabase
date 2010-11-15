@@ -52,7 +52,7 @@
             <g:if test="${flash.message}"> <div class='login_message'>${flash.message}</div></g:if>
 
               <div class='fheader'>Please enter username and email address. </div>
-              <form action='/gscf/register/add' method='POST' id='loginForm' class='cssform' autocomplete='off'>
+              <form action='/gscf/userRegistration/add' method='POST' id='loginForm' class='cssform' autocomplete='off'>
                       <p>
                               <label for='username'>Username</label>
                               <g:textField name="username" value="${username}" />

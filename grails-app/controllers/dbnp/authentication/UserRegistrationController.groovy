@@ -17,12 +17,12 @@ import grails.plugins.springsecurity.Secured
 
 class UserRegistrationController {
     def springSecurityService
+	def authenticationService
     
     /**
      * Shows a simple registration form
      */
     def index = {
-
     }
 
     /**
@@ -50,7 +50,7 @@ class UserRegistrationController {
            username: params.username,
            email: params.email,
            password: springSecurityService.encodePassword(password, params.username),
-           userConfirmed: true, adminConfirmed: true)
+           userConfirmed: false, adminConfirmed: false)
        
         // Redirect user if save fails
         if( !user.save(failOnError: true) ) {
@@ -148,6 +148,33 @@ class UserRegistrationController {
         flash.message = "The registration of " + user.username + " is approved."
     }
 
+    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
+	def profile = {
+		[ user: authenticationService.getLoggedInUser() ]
+	}
+
+    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
+	def updateProfile = { ProfileCommand command ->
+		def user = authenticationService.getLoggedInUser();
+		command.username = user.username
+		command.oldPass = user.password
+		command.validate()
+
+		if (command.hasErrors()) {
+			render( view: 'profile', model: [user: user, command: command]);
+			return
+		}
+
+		String salt = user.username
+		RegistrationCode.withTransaction { status ->
+			user.password = springSecurityService.encodePassword(command.password, salt)
+			user.email = command.email
+			user.save()
+		}
+
+		redirect controller: 'home'
+	}
+
     private String generatePassword( int length ) {
         String validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-!@#%^&*()/\\;:"
         int maxIndex = validChars.length()
@@ -162,4 +189,44 @@ class UserRegistrationController {
 
         return resultID
     }
+
+	static final passwordValidator = { String password, command ->
+		if( password == "" ) {
+			return
+		}
+
+		if (command.username && command.username.equals(password)) {
+			return 'command.password.error.username'
+		}
+
+		if (password && password.length() >= 8 && password.length() <= 64 &&
+				(!password.matches('^.*\\p{Alpha}.*$') ||
+				!password.matches('^.*\\p{Digit}.*$') ||
+				!password.matches('^.*[!@#$%^&].*$'))) {
+			return 'command.password.error.strength'
+		}
+	}
+
+	static final password2Validator = { value, command ->
+		if (command.password != command.password2) {
+			return 'command.password2.error.mismatch'
+		}
+	}
 }
+
+class ProfileCommand {
+
+	String username
+	String oldPass
+	String email
+	String password
+	String password2
+
+	static constraints = {
+		username blank: false
+		email blank: false, email: true
+		password blank: true, minSize: 8, maxSize: 64, validator: UserRegistrationController.passwordValidator
+		password2 validator: UserRegistrationController.password2Validator
+	}
+}
+
