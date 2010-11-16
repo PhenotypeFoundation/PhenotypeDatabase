@@ -139,16 +139,20 @@ class ImporterTagLib {
      */
     def createPropertySelect(String name, options, matchvalue, Integer columnIndex)
     {
-        //String.metaClass.mostSimilarTo = { ImporterService.mostSimilar(delegate, it) }
-        //println "mostsimilar="+ImporterService.mostSimilar(matchvalue, options)
+        // Determine which field in the options list matches the best with the matchvalue
+        def mostsimilar = ImporterService.mostSimilar(matchvalue, options)
 
 	def res = "<select style=\"font-size:10px\" name=\"${name}.index.${columnIndex}\">"
 
-	res += "<option value=\"dontimport\" selected>Don't import</option>"
+	res += "<option value=\"dontimport\">Don't import</option>"
 
 	options.each { f ->
-	    res+= "<option value=\"${f.name}\">"
-	    
+	    res+= "<option value=\"${f.name}\""
+
+            res+= (mostsimilar.toString().toLowerCase()==f.name.toLowerCase()) ?
+                    " selected>" :
+                    ">"
+            
 	    res+= (f.preferredIdentifier) ? 
 		    "${f.name} (IDENTIFIER)</option>" :
 		    "${f.name}</option>"

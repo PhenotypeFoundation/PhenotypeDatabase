@@ -55,6 +55,19 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
 }
 
 $(document).ready(function() {
+
+      // handle template selects
+  new SelectAddMore().init({
+       rel     : 'template',
+       url     : '/gscf/templateEditor',
+       vars    : 'entity', // can be a comma separated list of variable names to pass on
+       label   : 'add / modify..',
+       style   : 'modify',
+       onClose : function(scope) {
+           refreshWebFlow();
+       }
+  });
+
     
     $('#simplewizardform').submit(function() {
 	if ($('#file').val() == "") {
@@ -72,6 +85,13 @@ $(document).ready(function() {
 });
 
 </g:javascript>
+
+<g:if env="production">
+<script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.min.js')}"></script>
+</g:if><g:else>
+<script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.js')}"></script>
+</g:else>
+      
 </head>
   <body>
     <h1>Importer wizard</h1>
@@ -124,6 +144,7 @@ $(document).ready(function() {
 	    </td>
 	    <td>
 		<g:select
+                rel="template"
 		name="entity"
 		id="entity"
 		from="${entities}"		
