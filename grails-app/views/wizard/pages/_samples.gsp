@@ -102,7 +102,7 @@
 						<div class="column">Sampling Event</div>
 						<div class="column">Subject</div>
 						<div class="column">Template</div>
-						<wizard:templateColumnHeaders entity="${sample}" class="column" />
+						<wizard:templateColumnHeaders entity="${sample}" class="column" columnWidths="[Name:200]"/>
 					</div>
 				</g:if>
 				<div class="row">
