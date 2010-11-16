@@ -28,9 +28,16 @@
 				</g:form>
 			</div>
 			<div class="left right">
-                          <g:form url="[action:'add',controller:'userRegistration']" class="clearfix">
+                    <g:form url="[action:'add',controller:'userRegistration']" class="clearfix registration">
 					<input type="hidden" name="targetUri" value="${targetUri}" />
 					<h1>Not a member yet? Sign Up!</h1>
+					  <g:hasErrors bean="${command}">
+						  <g:renderErrors bean="${command}" as="list" />
+						  <g:if test="${addSendUserLink}">
+								<a class="resend_confirmation" href="<g:createLink url="[action:'sendUserConfirmation',controller:'userRegistration', params: [username: username]]" />">Resend confirmation message</a><br />
+						  </g:if>
+					  </g:hasErrors>
+
 					<label class="grey" for="signup">Username:</label>
 					<input class="field" type="text" name="username" id="username" value="${username}" size="23" />
 					<label class="grey" for="email">Email:</label>
@@ -46,7 +53,7 @@
 		<ul class="login">
 			<li class="left">&nbsp;</li>
 			<li>Hello <sec:ifLoggedIn><sec:username/></sec:ifLoggedIn>
-                        <sec:ifNotLoggedIn>Guest</sec:ifNotLoggedIn>!</li>
+				<sec:ifNotLoggedIn>Guest</sec:ifNotLoggedIn>!</li>
 			<sec:ifLoggedIn>
 			<li class="sep">|</li>
 			<li id="toggle">

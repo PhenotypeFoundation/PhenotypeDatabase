@@ -47,25 +47,26 @@
         <title>User registration</title>
     </head>
     <body>
-        <div class="body" id="register">
-          <div class="inner">
-            <g:if test="${flash.message}"> <div class='login_message'>${flash.message}</div></g:if>
 
-              <div class='fheader'>Please enter username and email address. </div>
-              <form action='/gscf/userRegistration/add' method='POST' id='loginForm' class='cssform' autocomplete='off'>
-                      <p>
-                              <label for='username'>Username</label>
-                              <g:textField name="username" value="${username}" />
-                      </p>
-                      <p>
-                              <label for='password'>Email address</label>
-                              <g:textField name="email" value="${email}" />
-                      </p>
-                      <p>
-                              <input type='submit' value='Register' />
-                      </p>
-              </form>
-          </div>
-        </div>
-  </body>
+        <div class="body" id="register">
+		<div class='inner' style="margin-top: 160px;">
+
+			<!-- Registration in is handled in the login panel -->
+			<!-- That's why the registration form is removed here, and the data is moved down -->
+
+			  <div class='fheader'>Please resolve the errors and try again..</div>
+
+		</div>
+	</div>
+	<script type='text/javascript'>
+	<!--
+	(function(){
+		// Open login panel
+		$("div#panel").slideDown("slow");
+		$("#toggle a").toggle();
+
+	})();
+	// -->
+	</script>
+</body>
 </html>

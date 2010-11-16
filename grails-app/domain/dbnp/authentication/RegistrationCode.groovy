@@ -18,12 +18,17 @@ package dbnp.authentication
  * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
  */
 class RegistrationCode {
-
-	String username
+	int userId
 	String token = UUID.randomUUID().toString().replaceAll('-', '')
 	Date dateCreated
+	Date expiryDate
 
 	static mapping = {
 		version false
+	}
+
+	public static boolean deleteByUser( SecUser user ) {
+		RegistrationCode.findByUserId(user.id)*.delete();
+		return true;
 	}
 }

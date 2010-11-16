@@ -16,6 +16,9 @@ package dbnp.authentication
 import grails.plugins.springsecurity.Secured
 
 class UserRegistrationController {
+	static int DAYS_BEFORE_EXPIRY = 3;
+	static int DAYS_BEFORE_EXPIRY_ADMIN = 365;
+
     def springSecurityService
 	def authenticationService
     
@@ -29,25 +32,30 @@ class UserRegistrationController {
      * Registers a new user. Also sends an e-mail to the user and to the administrators
      * for confirmation
      */
-    def add = {
-        if( !params.username || !params.email ) {
-            flash.message = "You must enter a username and provide an email address"
-            render(view: "index", model: [username: params.username, email: params.email])
-            return
-        }
+    def add = { RegisterCommand command ->
+		
+		command.validate()
 
-        // Check whether this username already exists
-        if( SecUser.findByUsername( params.username ) ) {
-            flash.message = "Username already exists"
-            render(view: "index", model: [username: params.username, email: params.email])
-            return
-        }
+		if (command.hasErrors()) {
+			def addSendUserLink = false;
+
+			// Check the errors and append a link if needed
+			command.errors.allErrors.each {
+				if( it.code == "registerCommand.username.notyetconfirmed" ) {
+					addSendUserLink = true;
+				}
+			}
+
+			flash.message = "";
+            render(view: "index", model: [username: params.username, email: params.email, command: command, addSendUserLink: addSendUserLink])
+			return
+		}
 
         // Generate a random password
         def password = this.generatePassword(8)
 
         def user = new SecUser(
-           username: params.username,
+           username	: params.username,
            email: params.email,
            password: springSecurityService.encodePassword(password, params.username),
            userConfirmed: false, adminConfirmed: false)
@@ -61,28 +69,64 @@ class UserRegistrationController {
         // Clear the flash message so the user does not see old messages
         flash.message = ""
 
-        // Create links for the user and administrator to click on. These codes are built from
-        // the username and encrypted password. They do not provide 100% security, since the codes
-        // could be broken, but it is enough for the confirmation step
-        def userCode = ( user.username + user.password + 'user' ).encodeAsMD5();
-        def adminCode = ( user.username + user.password + 'admin' ).encodeAsMD5();
-        def userLink = createLink( controller: 'userRegistration', action: 'confirmUser', params: [id: user.id, code: userCode], absolute: true )
-        def adminLink = createLink( controller: 'userRegistration', action: 'confirmAdmin', params: [id: user.id, code: adminCode], absolute: true )
+		sendUserConfirmationMail( user, password );
+		sendAdminConfirmationMail( user );
+
+        // Give the user a nice welcome page
+    }
+
+	def sendUserConfirmation = {
+		def user = SecUser.findByUsername( params.username );
+		if( !user ) {
+			flash.message = "No user with this username is found in the database.";
+            render(view: "index", model: [username: params.username])
+		}
+		if( user.userConfirmed ) {
+			flash.message = "This user has already been confirmed";
+            render(view: "index", model: [username: params.username])
+		}
+
+		// Remove old registration codes
+		RegistrationCode.deleteByUser(user);
+
+		// Create a new password
+        def password = this.generatePassword(8)
+		user.password = springSecurityService.encodePassword(password, user.username)
+
+		// Send a message
+		sendUserConfirmationMail(user, password);
+
+		flash.message = "A new confirmation email has been sent to your registered email address";
+		render(view: "index", model: [username: params.username])
+	}
+
+	private sendUserConfirmationMail( SecUser user, String password ) {
+		def userCode = new RegistrationCode(userId: user.id, expiryDate: new Date() + UserRegistrationController.DAYS_BEFORE_EXPIRY).save( flush: true );
+        def userLink = createLink( controller: 'userRegistration', action: 'confirmUser', params: [code: userCode.token], absolute: true )
 
         // Send an email to the user
         try {
             sendMail {
-                to      params.email
+                to      user.email
                 subject "Registration at GSCF"
-                html    g.render(template:'/email/registrationConfirmationUser', model:[username: user.username, password: password, link: userLink])
+                html    g.render(template:'/email/registrationConfirmationUser', model:[username: user.username, password: password, expiryDate: userCode.expiryDate, link: userLink])
             }
         } catch(Exception e) {
             log.error "Problem sending email $e.message", e
             flash.message = 'Email could not be sent'
+			return false
         }
+
+		return true
+	}
+
+	private sendAdminConfirmationMail( SecUser user ) {
+		def adminCode = new RegistrationCode(userId: user.id, expiryDate: new Date() + UserRegistrationController.DAYS_BEFORE_EXPIRY_ADMIN).save(flush: true)
+        def adminLink = createLink( controller: 'userRegistration', action: 'confirmAdmin', params: [code: adminCode.token], absolute: true )
 
         // Send an email to the administrators
         try {
+			// Determine administrator email addresses
             sendMail {
                 to      "gscfproject@gmail.com"
                 subject "New user (" + user.username + ") at GSCF"
@@ -91,23 +135,27 @@ class UserRegistrationController {
         } catch(Exception e) {
             log.error "Problem sending email $e.message", e
             flash.message = "Email could not be sent to administrators"
+			return false
         }
+		return true
+	}
 
-        // Give the user a nice welcome page
-        [username: user.username, password: password]
-    }
 
     def confirmUser = {
-        def code = params.code
-        def id = params.id
+        def token = params.code
 
-        def user = SecUser.findById(id)
-
-        def generatedCode = ( user.username + user.password + "user" ).encodeAsMD5()
-        if( !user || code != generatedCode ) {
+		def registrationCode = token ? RegistrationCode.findByToken(token) : null
+		if (!registrationCode) {
             flash.message = "No user found with given parameters. Please make sure you have copied the URL correctly."
             return
-        }
+		}
+
+		if (registrationCode.expiryDate.before(new Date())) {
+            flash.message = "Your registration should have been confirmed within " + UserRegistrationController.DAYS_BEFORE_EXPIRY + " days. This confirmation link has expired. Please register again."
+            return
+		}
+
+		def user = SecUser.findById(registrationCode.userId)
 
         if( user.userConfirmed ) {
             flash.message = "This registration has already been confirmed."
@@ -116,6 +164,9 @@ class UserRegistrationController {
 
         user.userConfirmed = true
         user.save(flush: true)
+
+		// Remove the registrationCode
+		registrationCode.delete();
 
         if( user.adminConfirmed ) {
             flash.message = "Your registration has been confirmed. You can now login."
@@ -126,16 +177,21 @@ class UserRegistrationController {
 
     @Secured(['ROLE_ADMIN', 'IS_AUTHENTICATED_FULLY'])
     def confirmAdmin = {
-        def code = params.code
-        def id = params.id
 
-        def user = SecUser.findById(id)
+        def token = params.code
 
-        def generatedCode = ( user.username + user.password + "admin" ).encodeAsMD5();
-        if( !user || code != generatedCode ) {
+		def registrationCode = token ? RegistrationCode.findByToken(token) : null
+		if (!registrationCode) {
             flash.message = "No user found with specified code. Please make sure you have copied the URL correctly."
-            return;
-        }
+            return
+		}
+
+		if (registrationCode.expiryDate.before(new Date())) {
+            flash.message = "You should have approved this registration within " + UserRegistrationController.DAYS_BEFORE_EXPIRY_ADMIN + " days. This confirmation link has expired."
+            return
+		}
+
+		def user = SecUser.findById(registrationCode.userId)
 
         if( user.adminConfirmed ) {
             flash.message = "This user has already been approved. This might be done by another administrator"
@@ -144,6 +200,9 @@ class UserRegistrationController {
 
         user.adminConfirmed = true
         user.save(flush: true)
+
+		// Remove the registrationCode
+		registrationCode.delete();
 
         flash.message = "The registration of " + user.username + " is approved."
     }
@@ -212,6 +271,21 @@ class UserRegistrationController {
 			return 'command.password2.error.mismatch'
 		}
 	}
+
+	static final usernameValidator = { value, command ->
+		def user = SecUser.findByUsername( command.username );
+		if( user ) {
+            if( user.enabled ) {
+				return "registerCommand.username.unique"
+			} else if( user.dateCreated.after( new Date() - DAYS_BEFORE_EXPIRY ) ) {
+				return "registerCommand.username.notyetconfirmed"
+			} else {
+				RegistrationCode.deleteByUser(user);
+				user.delete(flush:true);
+			}
+        }
+	}
+
 }
 
 class ProfileCommand {
@@ -230,3 +304,13 @@ class ProfileCommand {
 	}
 }
 
+class RegisterCommand {
+
+	String username
+	String email
+
+	static constraints = {
+		email(blank: false, email: true)
+		username(blank: false, validator: UserRegistrationController.usernameValidator)
+	}
+}

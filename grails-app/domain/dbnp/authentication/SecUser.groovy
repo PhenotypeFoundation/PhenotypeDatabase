@@ -5,6 +5,7 @@ class SecUser implements Serializable {
 	String username
 	String password
         String email
+	Date dateCreated
 	boolean enabled
 	boolean accountExpired
 	boolean accountLocked

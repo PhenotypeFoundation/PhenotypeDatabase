@@ -241,3 +241,5 @@ Version: 1.0
 	text-decoration: underline;
 }
 
+.registration ul { list-style-type: none; margin-left: 0; padding-left: 0; }
+.registration ul li { margin: 3px 0; }
