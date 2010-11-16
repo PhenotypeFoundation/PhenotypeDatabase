@@ -204,7 +204,7 @@ class WizardController {
 				}
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 				success()
 			}.to "study"
             on("switchTemplate") {
@@ -212,7 +212,7 @@ class WizardController {
 				studyPage(flow, flash, params)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 				success()
 			}.to "study"
 			on("previous") {
@@ -220,7 +220,7 @@ class WizardController {
 				studyPage(flow, flash, params)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 				success()
 			}.to "start"
 			on("next") {
@@ -263,7 +263,7 @@ class WizardController {
 				subjectPage(flow, flash, params)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				// remove subject
 				def subjectToRemove = flow.study.subjects.find { it.identifier == (params.get('do') as int) }
@@ -276,7 +276,7 @@ class WizardController {
 				subjectPage(flow, flash, params)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 				success()
 			}.to "study"
 			on("next") {
@@ -333,7 +333,7 @@ class WizardController {
 				}
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 				success()
 
 			}.to "events"
@@ -350,7 +350,7 @@ class WizardController {
 				if (flow.event?.template) flow.event.template.refresh()
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 				success()
 			}.to "events"
 			on("add") {
@@ -358,7 +358,7 @@ class WizardController {
 				eventPage(flow, flash, params)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				// add event to study
 				if (flow.event instanceof SamplingEvent) {
@@ -383,7 +383,7 @@ class WizardController {
 					}
 
 					// append errors
-					this.appendErrors(flow.event, flash.errors)
+					this.appendErrors(flow.event, flash.wizardErrors)
 					error()
 				}
 			}.to "events"
@@ -392,7 +392,7 @@ class WizardController {
 				eventPage(flow, flash, params)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				// find matching (sampling) event
 				def event 			= flow.study.events.find { it.getIdentifier() == (params.get('do') as int) }
@@ -428,7 +428,7 @@ class WizardController {
 				)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 				success()
 			}.to "events"
 			on("deleteEventGroup") {
@@ -436,7 +436,7 @@ class WizardController {
 				eventPage(flow, flash, params)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				// remove eventGroup
 				def eventGroupToRemove = flow.study.eventGroups.find { it.getIdentifier() == (params.get('do') as int) }
@@ -449,7 +449,7 @@ class WizardController {
 				eventPage(flow, flash, params)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 				success()
 			}.to "subjects"
 			on("next") {
@@ -554,7 +554,7 @@ class WizardController {
 				samplePage(flow, flash, params)
 
 				// ignore errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				succes()
 			}.to "samples"
@@ -568,7 +568,7 @@ class WizardController {
 				}
 
 				// ignore errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				success()
 			}.to "samples"
@@ -582,7 +582,7 @@ class WizardController {
 				}
 
 				// ignore errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				success()
 			}.to "samples"
@@ -591,7 +591,7 @@ class WizardController {
 				samplePage(flow, flash, params)
 
 				// ignore errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				success()
 			}.to "samplePrevious"
@@ -621,7 +621,7 @@ class WizardController {
 				}
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 				success()
 			}.to "assays"
             on("switchTemplate") {
@@ -640,7 +640,7 @@ class WizardController {
 				}
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 				success()
 			}.to "assays"
 			on("add") {
@@ -648,7 +648,7 @@ class WizardController {
 				assayPage(flow, flash, params)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				// add assay to study
 				flow.study.addToAssays( flow.assay )
@@ -664,7 +664,7 @@ class WizardController {
 					flow.study.removeFromAssays( flow.assay )
 
 					// append errors
-					this.appendErrors(flow.assay, flash.errors)
+					this.appendErrors(flow.assay, flash.wizardErrors)
 					error()
 				}
 			}.to "assays"
@@ -675,7 +675,7 @@ class WizardController {
 				assayPage(flow, flash, params)
 
 				// reset errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				// find this assay
 				def assay = flow.study.assays.find { it.getIdentifier() == (params.get('do') as int) }
@@ -688,7 +688,7 @@ class WizardController {
 				assayPage(flow, flash, params)
 
 				// ignore errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				success()
 			}.to "samples"
@@ -730,7 +730,7 @@ class WizardController {
 				assayGroupPage(flow, flash, params)
 
 				// ignore errors
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				success()
 			}.to "assays"
@@ -791,7 +791,7 @@ class WizardController {
 		save {
 			action {
 				println "saving..."
-				flash.errors = [:]
+				flash.wizardErrors = [:]
 
 				// persist data to the database
 				try {
@@ -802,7 +802,7 @@ class WizardController {
 					flow.study.owner = authenticationService.getLoggedInUser()
 
 					if (!flow.study.save(flush:true)) {
-						this.appendErrors(flow.study, flash.errors)
+						this.appendErrors(flow.study, flash.wizardErrors)
 						throw new Exception('error saving study')
 					}
 					println ".saved study "+flow.study+" (id: "+flow.study.id+")"
@@ -810,7 +810,7 @@ class WizardController {
 					success()
 				} catch (Exception e) {
 					// rollback
-					this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace' ], flash.errors)
+					this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace' ], flash.wizardErrors)
 
 					// stacktrace in flash scope
 					flash.debug = e.getStackTrace()
@@ -856,7 +856,7 @@ class WizardController {
 	def loadStudy(flow, flash, params, user) {
 //		def authenticationService
 
-		flash.errors = new LinkedHashMap()
+		flash.wizardErrors = new LinkedHashMap()
 		
 		// load study
 		try {
@@ -879,7 +879,7 @@ class WizardController {
 			return true
 		} catch (Exception e) {
 			// rollback
-			this.appendErrorMap(['exception': e.getMessage() + ', see log for stacktrace'], flash.errors)
+			this.appendErrorMap(['exception': e.getMessage() + ', see log for stacktrace'], flash.wizardErrors)
 
 			return false
 		}
@@ -944,8 +944,8 @@ class WizardController {
 			return true
 		} else {
 			// validation failed
-			flash.errors = [:]
-			this.appendErrors(flow.study, flash.errors)
+			flash.wizardErrors = [:]
+			this.appendErrors(flow.study, flash.wizardErrors)
 			return false
 		}
 	}
@@ -1121,7 +1121,7 @@ class WizardController {
 	 */
 	def subjectPage(flow, flash, params) {
 		def errors = false
-		flash.errors = [:]
+		flash.wizardErrors = [:]
 
 		// remember the params in the flash scope
 		flash.values = params
@@ -1140,7 +1140,7 @@ class WizardController {
 			// validate subject
 			if (!subject.validate()) {
 				errors = true
-				this.appendErrors(subject, flash.errors, 'subject_' + subject.getIdentifier() + '_')
+				this.appendErrors(subject, flash.wizardErrors, 'subject_' + subject.getIdentifier() + '_')
 			}
 		}
 
@@ -1168,7 +1168,7 @@ class WizardController {
 		subjectPage(flow, flash, params)
 
 		// (re)set error message
-		flash.errors = [:]
+		flash.wizardErrors = [:]
 
 		// set work variables
 		def errors		= false
@@ -1212,16 +1212,16 @@ class WizardController {
 					flow.study.removeFromSubjects( subject )
 
 					// append errors
-					this.appendErrors(subject, flash.errors)
+					this.appendErrors(subject, flash.wizardErrors)
 					errors = true
 				}
 			}
 		} else {
 			// add feedback
 			errors = true
-			if (number < 1)	this.appendErrorMap(['addNumber': 'Enter a positive number of subjects to add'], flash.errors)
-			if (!species)	this.appendErrorMap(['species': 'You need to select a species, or add one if it is not yet present'], flash.errors)
-			if (!template)	this.appendErrorMap(['template': 'You need to select a template, or add one if it is not yet present'], flash.errors)
+			if (number < 1)	this.appendErrorMap(['addNumber': 'Enter a positive number of subjects to add'], flash.wizardErrors)
+			if (!species)	this.appendErrorMap(['species': 'You need to select a species, or add one if it is not yet present'], flash.wizardErrors)
+			if (!template)	this.appendErrorMap(['template': 'You need to select a template, or add one if it is not yet present'], flash.wizardErrors)
 		}
 
 		return !errors
@@ -1237,7 +1237,7 @@ class WizardController {
 	 */
 	def eventPage(flow, flash, params) {
 		def errors = false
-		flash.errors = [:]
+		flash.wizardErrors = [:]
 
 		// remember the params in the flash scope
 		flash.values = params
@@ -1349,7 +1349,7 @@ class WizardController {
 			// validate event
 			if (!event.validate()) {
 				errors = true
-				this.appendErrors(event, flash.errors)
+				this.appendErrors(event, flash.wizardErrors)
 			}
 		}
 
@@ -1366,7 +1366,7 @@ class WizardController {
 	 */
 	def groupPage(flow, flash, params) {
 		def errors = false
-		flash.errors = [:]
+		flash.wizardErrors = [:]
 
 		// remember the params in the flash scope
 		flash.values = params
@@ -1436,7 +1436,7 @@ class WizardController {
 	 */
 	def samplePage(flow, flash, params) {
 		def errors = false
-		flash.errors = [:]
+		flash.wizardErrors = [:]
 
 		// remember the params in the flash scope
 		flash.values = params
@@ -1463,7 +1463,7 @@ class WizardController {
 			// validate sample
 			if (!sample.validate()) {
 				errors = true
-				this.appendErrors(sample, flash.errors, 'sample_' + sample.getIdentifier() + '_' )
+				this.appendErrors(sample, flash.wizardErrors, 'sample_' + sample.getIdentifier() + '_' )
 				println 'error-> sample_'+sample.getIdentifier()
 			}
 		}
@@ -1481,7 +1481,7 @@ class WizardController {
 	 */
 	def assayPage(flow, flash, params) {
 		def errors = false
-		flash.errors = [:]
+		flash.wizardErrors = [:]
 
 		// remember the params in the flash scope
 		flash.values = params
@@ -1510,7 +1510,7 @@ class WizardController {
 			// validate assay
 			if (!assay.validate()) {
 				errors = true
-				this.appendErrors(assay, flash.errors, 'assay_' + assay.getIdentifier() + '_')
+				this.appendErrors(assay, flash.wizardErrors, 'assay_' + assay.getIdentifier() + '_')
 			}
 		}
 
@@ -1527,7 +1527,7 @@ class WizardController {
 	 */
 	def assayGroupPage(flow, flash, params) {
 		def errors = false
-		flash.errors = [:]
+		flash.wizardErrors = [:]
 
 		// remember the params in the flash scope
 		flash.values = params

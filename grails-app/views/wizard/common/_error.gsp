@@ -14,9 +14,9 @@
 	 * $Date$
 	 */
 %>
-<g:if test="${errors}">
+<g:if test="${wizardErrors}">
 	<div id="wizardError" class="error" title="errors">
-		<g:each in="${errors}" var="error" status="e">
+		<g:each in="${wizardErrors}" var="error" status="e">
 			<p>
 				<g:if test="${!e}"><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span></g:if>
 				${error.value['key']} &rarr; ${error.value['value']}
@@ -25,7 +25,7 @@
 	</div>
 	<script type="text/javascript">
 		// mark error fields
-		<g:each in="${errors}" var="error">
+		<g:each in="${wizardErrors}" var="error">
 		var element = $("input:[name='${error.key}'], input:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], select:[name='${error.key}'], select:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}']");
 		 <g:if test="${error.value['dynamic']}">
 		element.addClass('error');
