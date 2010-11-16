@@ -4,14 +4,18 @@
 	<li>
       <a href="#">Studies</a>
       <ul class="subnav">
-        <li><g:link controller="study" action="list">View studies</g:link></li>
-		<li><g:link controller="wizard" action="index">Create/edit study</g:link></li>
+	    <sec:ifLoggedIn>
+		<li><g:link controller="study" action="myStudies">My studies</g:link></li>
+		<li><g:link controller="study" action="list">All studies</g:link></li>
+	    </sec:ifLoggedIn>
+		<sec:ifNotLoggedIn>
+		<li><g:link controller="study" action="list">View studies</g:link></li>
+		</sec:ifNotLoggedIn>
+		<li><g:link controller="wizard" action="index" params="[jump:'create']">Create a new study</g:link></li>
+		<li><g:link controller="wizard" action="index" params="[jump:'edit']">Edit a study</g:link></li>
 		<li><g:link controller="importer" action="index">Import study data</g:link></li>
         <li><g:link controller="simpleQuery" action="index">Search study data</g:link></li>
         <li><g:link controller="exporter" action="index">Export as SimpleTox</g:link></li>
-		<sec:ifLoggedIn>
-			 <li><g:link controller="study" action="myStudies">My studies</g:link></li>
-		</sec:ifLoggedIn>
       </ul>
      </li>
 	<li>

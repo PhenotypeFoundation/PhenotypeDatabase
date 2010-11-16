@@ -84,7 +84,6 @@ class WizardController {
 			flow.pages = [
 				//[title: 'Templates'],			// templates
 				[title: 'Start'],				// load or create a study
-				[title: 'Study'],				// study
 				[title: 'Subjects'],			// subjects
 				[title: 'Events'],				// events and event grouping
 				//[title: 'Event Groups'],		// groups
@@ -120,12 +119,16 @@ class WizardController {
 		// Jump [18x]
 		handleJump {
 			action {
-				if (flow.jump && flow.jump.action == 'edit' && flow.jump.id) {
-					// load study
-					if (this.loadStudy(flow, flash, [studyid:flow.jump.id],authenticationService.getLoggedInUser())) {
-						toStudyPage()
+				if (flow.jump && flow.jump.action == 'edit') {
+					if (flow.jump.id) {
+						// load study
+						if (this.loadStudy(flow, flash, [studyid:flow.jump.id],authenticationService.getLoggedInUser())) {
+							toStudyPage()
+						} else {
+							toStartPage()
+						}
 					} else {
-						toStartPage()
+						toModifyPage()
 					}
 				} else if (flow.jump && flow.jump.action == 'create') {
 					toStudyPage()
@@ -135,6 +138,7 @@ class WizardController {
 			}
 			on("toStartPage").to "start"
 			on("toStudyPage").to "study"
+			on("toModifyPage").to "modify"
 		}
 
 		// create or modify a study
@@ -191,7 +195,7 @@ class WizardController {
 		study {
 			render(view: "_study")
 			onRender {
-				flow.page = 2
+				flow.page = 1
 				success()
 			}
 			on("refresh") {
@@ -235,7 +239,7 @@ class WizardController {
 		subjects {
 			render(view: "_subjects")
 			onRender {
-				flow.page = 3
+				flow.page = 2
 
 				if (!flash.values || !flash.values.addNumber) flash.values = [addNumber:1]
 
@@ -293,7 +297,7 @@ class WizardController {
 		events {
 			render(view: "_events")
 			onRender {
-				flow.page = 4
+				flow.page = 3
 
 				// add initial eventGroup to study
 				if (!flow.study.eventGroups?.size()) {
@@ -491,7 +495,7 @@ class WizardController {
 		unassignedSamplingEventWarning {
 			render(view: "_unassigned_samplingEvent_warning")
 			onRender {
-				flow.page = 4
+				flow.page = 3
 				success()
 			}
 			on("next").to "groups"
@@ -502,7 +506,7 @@ class WizardController {
 		groups {
 			render(view: "_groups")
 			onRender {
-				flow.page = 4
+				flow.page = 3
 				success()
 			}
 			on("previous") {
@@ -523,7 +527,7 @@ class WizardController {
 		samplePrevious {
 			render(view: "_samples_previous_warning")
 			onRender {
-				flow.page = 5
+				flow.page = 4
 
 				// TEMPORARY FIX TO REMOVE ALL SAMPLES AND REGENERATE THEM
 				// THEN USER BROWSED BACK
@@ -546,7 +550,7 @@ class WizardController {
 		samples {
 			render(view: "_samples")
 			onRender {
-				flow.page = 5
+				flow.page = 4
 				success()
 			}
 			on("switchTemplate") {
@@ -609,7 +613,7 @@ class WizardController {
 		assays {
 			render(view: "_assays")
 			onRender {
-				flow.page = 6
+				flow.page = 5
 			}
 			on("refresh") {
 				// handle form data
@@ -723,7 +727,7 @@ class WizardController {
 		assayGroups {
 			render(view: "_assay_groups")
 			onRender {
-				flow.page = 6
+				flow.page = 5
 			}
 			on("previous") {
 				// handle form data
@@ -765,7 +769,7 @@ class WizardController {
 		confirm {
 			render(view: "_confirmation")
 			onRender {
-				flow.page = 7
+				flow.page = 6
 			}
 			on("toStudy").to "study"
 			on("toSubjects").to "subjects"
@@ -782,7 +786,7 @@ class WizardController {
 		waitForSave {
 			render(view: "_wait")
 			onRender {
-				flow.page = 8
+				flow.page = 7
 			}
 			on("next").to "save"
 		}
@@ -827,7 +831,7 @@ class WizardController {
 		error {
 			render(view: "_error")
 			onRender {
-				flow.page = 7
+				flow.page = 6
 			}
 			on("next").to "waitForSave"
 			on("previous").to "samples"
@@ -837,7 +841,7 @@ class WizardController {
 		done {
 			render(view: "_done")
 			onRender {
-				flow.page = 8
+				flow.page = 7
 			}
 			onEnd {
 				// clean flow scope
