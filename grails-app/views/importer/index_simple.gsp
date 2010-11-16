@@ -8,10 +8,14 @@
 <html>
   <head>
     <meta name="layout" content="main"/>
-    <title>Importer wizard (simple)</title>
+    <title>Importer wizard (simple)</title>    
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'importer.css')}"/>
 
-<g:javascript library="jquery" plugin="jquery"/>
+<g:if env="production">
+  <script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.min.js')}"></script>
+</g:if><g:else>
+  <script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.js')}"></script>
+</g:else>
 
 <g:javascript>
 /**
@@ -29,6 +33,16 @@
 function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {    
     var rselect = $('#'+name).get(0)
     var items = data
+
+    // If a study has been selected, don't show the "Choose study" field, otherwise do
+    if ($('#'+'entity').val() == 'study')
+      $('#studyfield').hide();
+    else $('#studyfield').show();
+
+    // set the entity name for the data template chooser
+    //alert ( "das" + $('select[name=template_id]').attr('entity') )
+
+    //$('select[name=template_id]').attr('entity', $('#'+'entity').val());
 
     if (items) {
 
@@ -52,22 +66,21 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
             if (this.id == selected) rselect.options[i].selected = true
         });
     }
+
+ // handle template selects 
+  new SelectAddMore().init({
+       rel     : 'typetemplate',
+       url     : '/gscf/templateEditor',
+       vars    : 'thentity', // can be a comma separated list of variable names to pass on
+       label   : 'add / modify ...',
+       style   : 'modify',
+       onClose : function(scope) {
+           //refreshWebFlow();           
+       }
+    });
 }
 
 $(document).ready(function() {
-
-      // handle template selects
-  new SelectAddMore().init({
-       rel     : 'template',
-       url     : '/gscf/templateEditor',
-       vars    : 'entity', // can be a comma separated list of variable names to pass on
-       label   : 'add / modify..',
-       style   : 'modify',
-       onClose : function(scope) {
-           refreshWebFlow();
-       }
-  });
-
     
     $('#simplewizardform').submit(function() {
 	if ($('#file').val() == "") {
@@ -130,7 +143,7 @@ $(document).ready(function() {
 		<g:select name="datamatrix_start" from="${2..10}"/>
 	    </td>
 	</tr>
-	<tr>
+	<tr id="studyfield">
 	    <td>
 		Choose your study:
 	    </td>
@@ -143,8 +156,7 @@ $(document).ready(function() {
 		Choose type of data:
 	    </td>
 	    <td>
-		<g:select
-                rel="template"
+		<g:select                
 		name="entity"
 		id="entity"
 		from="${entities}"		
@@ -162,11 +174,9 @@ $(document).ready(function() {
 		<div id="datatemplate">Choose type of data template:</div>
 	    </td>
 	    <td>
-		<g:select name="template_id" optionKey="id" optionValue="name" from="[]" />
+		<g:select rel="typetemplate" entity="hoi" name="template_id" optionKey="id" optionValue="name" from="[]" />
 	    </td>
 	</tr>
-
-
 	<tr>
 	    <td colspan="2">
 		<input type="submit" value="Next"/>
