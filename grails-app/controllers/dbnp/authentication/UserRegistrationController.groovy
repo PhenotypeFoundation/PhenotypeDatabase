@@ -32,7 +32,7 @@ class UserRegistrationController {
      * Registers a new user. Also sends an e-mail to the user and to the administrators
      * for confirmation
      */
-    def add = { RegisterCommand command ->
+    def add = { RegisterUserCommand command ->
 		
 		command.validate()
 
@@ -41,7 +41,7 @@ class UserRegistrationController {
 
 			// Check the errors and append a link if needed
 			command.errors.allErrors.each {
-				if( it.code == "registerCommand.username.notyetconfirmed" ) {
+				if( it.code == "registerUserCommand.username.notyetconfirmed" ) {
 					addSendUserLink = true;
 				}
 			}
@@ -276,9 +276,9 @@ class UserRegistrationController {
 		def user = SecUser.findByUsername( command.username );
 		if( user ) {
             if( user.enabled ) {
-				return "registerCommand.username.unique"
+				return "registerUserCommand.username.unique"
 			} else if( user.dateCreated.after( new Date() - DAYS_BEFORE_EXPIRY ) ) {
-				return "registerCommand.username.notyetconfirmed"
+				return "registerUserCommand.username.notyetconfirmed"
 			} else {
 				RegistrationCode.deleteByUser(user);
 				user.delete(flush:true);
@@ -304,7 +304,7 @@ class ProfileCommand {
 	}
 }
 
-class RegisterCommand {
+class RegisterUserCommand {
 
 	String username
 	String email
