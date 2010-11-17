@@ -120,7 +120,7 @@ OntologyChooser.prototype = {
                     // nope, fetch it from NCBO
                     $.getJSON(url, function(data) {
                         // parse result data
-                        var result = that.parseData(data.data);
+                        var result = that.parseData(data.data, ontology_id);
 
                         // cache results
                         that.cache[ q ] = result;
@@ -134,7 +134,7 @@ OntologyChooser.prototype = {
                         }
 
                         // response callback
-                        response(that.parseData(data.data));
+                        response(result);
                     });
                 }
             },
@@ -212,7 +212,7 @@ OntologyChooser.prototype = {
      * @param data
      * @return array
      */
-    parseData: function(data) {
+    parseData: function(data, ontology_ids) {
         var parsed = [];
         var rows = data.split('~!~');
 
@@ -221,6 +221,15 @@ OntologyChooser.prototype = {
             if (row) {
                 var cols = row.split('|');
 
+				// If we search in a single ontology, the json doesn't return the
+				// NCBO id in the 8th column (probably because we already know the NCBO id)
+				var ncbo_id;
+				if( cols.length > 8 ) {
+					ncbo_id = cols[8];
+				} else {
+					ncbo_id = ontology_ids;
+				}
+
                 parsed[ parsed.length ] = {
                     value           : cols[0],
                     label           : cols[0] + ' <span class="about">(' + cols[2] + ')</span> <span class="from">from: ' + cols[ (cols.length-2) ] + '</span>',
@@ -228,7 +237,7 @@ OntologyChooser.prototype = {
                     concept_id      : cols[1],  // e.g. birnlex_161
                     ontology_id     : cols[3],  // e.g. 29684
                     full_id         : cols[4],  // e.g. http://bioontology.org/projects/ontologies/birnlex#birnlex_161
-                    ncbo_id         : cols[8]   // e.g. 1494
+                    ncbo_id         : ncbo_id   // e.g. 1494
                 }
             }
         }
