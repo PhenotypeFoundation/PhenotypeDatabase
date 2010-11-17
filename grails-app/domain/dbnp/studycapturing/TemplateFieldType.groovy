@@ -9,11 +9,11 @@ package dbnp.studycapturing
  * $Date$
  */
 public enum TemplateFieldType implements Serializable {
-	STRING('String','Text', ''),											// string
-	TEXT('Long string', 'Text', ''),										// text
-	INTEGER('Integer number', 'Numerical', '1'),							// integer
-	FLOAT('Floating-point number', 'Numerical', '1.0'),						// float
-	DOUBLE('Double precision floating-point number', 'Numerical', '1.0'),	// double
+	STRING('String','Text', 'max 255 chars'),											// string
+	TEXT('Long string', 'Text', 'unlimited'),										// text
+	//INTEGER('Integer number', 'Numerical', '1'),							// integer
+	//FLOAT('Floating-point number', 'Numerical', '1.0'),						// float
+	DOUBLE('Floating point number', 'Numerical', '1.0'),					// double
 	STRINGLIST('List of items', 'Text', ''),								// string list
 	ONTOLOGYTERM('Ontology Reference', 'Other', ''),						// ontology reference
 	DATE('Date', 'Date', '2010-01-01'),										// date
@@ -22,7 +22,7 @@ public enum TemplateFieldType implements Serializable {
 	BOOLEAN('Boolean', 'Other', 'true/false'),								// boolean
 	TEMPLATE('Template', 'Other', ''),										// template
 	MODULE('Module', 'Other', ''),											// third party connected module,
-	LONG('Long number', 'Numerical', '100')									// long
+	LONG('Integer number', 'Numerical', '100')								// long
     // TODO: add a timezone-aware date type to use for study start date
 
     String name
@@ -39,17 +39,13 @@ public enum TemplateFieldType implements Serializable {
 	}
 
 	static list() {
-		[STRING, TEXT, INTEGER, FLOAT, DOUBLE, STRINGLIST, ONTOLOGYTERM, DATE, RELTIME, FILE, BOOLEAN, TEMPLATE, MODULE, LONG]
+		[STRING, TEXT, DOUBLE, STRINGLIST, ONTOLOGYTERM, DATE, RELTIME, FILE, BOOLEAN, TEMPLATE, MODULE, LONG]
 	}
 
 	def getDefaultValue() {
 		switch (this) {
 			case [STRING, TEXT]:
 				return ""
-			case INTEGER:
-				return Integer.MIN_VALUE
-			case FLOAT:
-				return Float.NaN
 			case DOUBLE:
 				return Double.MIN_VALUE
 			case STRINGLIST:

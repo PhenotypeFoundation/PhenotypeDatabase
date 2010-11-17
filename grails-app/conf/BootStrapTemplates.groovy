@@ -38,7 +38,7 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def ageField = new TemplateField(
-			name: 'Age',type: TemplateFieldType.INTEGER,entity: Subject,unit: 'years',comment: 'Either include age at the start of the study or date of birth (if known)')
+			name: 'Age',type: TemplateFieldType.LONG,entity: Subject,unit: 'years',comment: 'Either include age at the start of the study or date of birth (if known)')
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def genotypeField = new TemplateField(
@@ -89,16 +89,16 @@ class BootStrapTemplates {
 		.addToFields(genotypeTypeField)
 		.addToFields(genderField)
 		.addToFields(new TemplateField(
-			name: 'Age', type: TemplateFieldType.INTEGER, entity: Subject, unit: 'weeks', comment: 'Age at start of study'))
+			name: 'Age', type: TemplateFieldType.LONG, entity: Subject, unit: 'weeks', comment: 'Age at start of study'))
 		.addToFields(new TemplateField(
 			name: 'Age type',type: TemplateFieldType.STRINGLIST,entity: Subject,
 			listEntries: [new TemplateFieldListItem(name:'postnatal'),new TemplateFieldListItem(name:'embryonal')]))
 		.addToFields(new TemplateField(
 			name: 'Cage',type: TemplateFieldType.STRING,entity: Subject,comment:'Indicate the cage used for housing (type and/or size)'))
 		.addToFields(new TemplateField(
-			name: '#Mice in cage',type: TemplateFieldType.INTEGER,entity: Subject,comment:'If known, indicate the number of mice per cage'))
+			name: '#Mice in cage',type: TemplateFieldType.LONG,entity: Subject,comment:'If known, indicate the number of mice per cage'))
 		.addToFields(new TemplateField(
-			name: 'Litter size',type: TemplateFieldType.INTEGER,entity: Subject,comment:'If known, indicate the litter size of the litter from which the subject originates'))
+			name: 'Litter size',type: TemplateFieldType.LONG,entity: Subject,comment:'If known, indicate the litter size of the litter from which the subject originates'))
 		.addToFields(new TemplateField(
 			name: 'Weight', type: TemplateFieldType.DOUBLE, unit: 'gram',entity: Subject,comment:'If known indicate the weight of the subject in grams at the start of the study'))
 		.with { if (!validate()) { errors.each { println it} } else save()}
@@ -119,15 +119,15 @@ class BootStrapTemplates {
 		.addToFields(new TemplateField(
 			name: 'Race',type: TemplateFieldType.STRING,entity: Subject, comment:'If known and of interest the ethnic group can be indicated'))
 		.addToFields(new TemplateField(
-			name: 'Waist circumference',type: TemplateFieldType.FLOAT, unit: 'cm',entity: Subject, comment:'The waist circumference is measured just above the hip bone. Indicate the measure at the start of the study.'))
+			name: 'Waist circumference',type: TemplateFieldType.DOUBLE, unit: 'cm',entity: Subject, comment:'The waist circumference is measured just above the hip bone. Indicate the measure at the start of the study.'))
 		.addToFields(new TemplateField(
-			name: 'Hip circumference',type: TemplateFieldType.FLOAT, unit: 'cm',entity: Subject, comment:'The hip circumference is measured at the level of the two bony prominences front of the hips. Indicate the measure at the start of the study.'))
+			name: 'Hip circumference',type: TemplateFieldType.DOUBLE, unit: 'cm',entity: Subject, comment:'The hip circumference is measured at the level of the two bony prominences front of the hips. Indicate the measure at the start of the study.'))
 		.addToFields(new TemplateField(
-			name: 'Systolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg',entity: Subject, comment:'Indicate the levels at the start of the study in mmHG'))
+			name: 'Systolic blood pressure',type: TemplateFieldType.DOUBLE, unit: 'mmHg',entity: Subject, comment:'Indicate the levels at the start of the study in mmHG'))
 		.addToFields(new TemplateField(
-			name: 'Diastolic blood pressure',type: TemplateFieldType.FLOAT, unit: 'mmHg',entity: Subject, comment:'Indicate the levels at the start of the study in mmHG'))
+			name: 'Diastolic blood pressure',type: TemplateFieldType.DOUBLE, unit: 'mmHg',entity: Subject, comment:'Indicate the levels at the start of the study in mmHG'))
 		.addToFields(new TemplateField(
-			name: 'Heart rate',type: TemplateFieldType.FLOAT, unit: 'beats/min',entity: Subject, comment:'Indicate the heart rate at the start of in study in beats per minute'))
+			name: 'Heart rate',type: TemplateFieldType.DOUBLE, unit: 'beats/min',entity: Subject, comment:'Indicate the heart rate at the start of in study in beats per minute'))
 		.addToFields(new TemplateField(
 			name: 'Run-in-food',type: TemplateFieldType.TEXT,entity: Subject, comment:'If defined, give a short description of the food used before the measurements'))
 		.with { if (!validate()) { errors.each { println it} } else save()}
@@ -157,7 +157,7 @@ class BootStrapTemplates {
 			new TemplateField(
 			    name: 'Sample measured weight',
 			    unit: 'mg',
-			    type: TemplateFieldType.FLOAT,
+			    type: TemplateFieldType.DOUBLE,
 		        entity: Sample
 			)
 		)
@@ -174,7 +174,7 @@ class BootStrapTemplates {
 			new TemplateField(
 			    name: 'Sample measured volume',
 			    unit: 'ml',
-			    type: TemplateFieldType.FLOAT,
+			    type: TemplateFieldType.DOUBLE,
 				entity: Sample
 			)
 		)
@@ -269,15 +269,15 @@ class BootStrapTemplates {
 		.addToFields(new TemplateField(
 			name: 'Growth protocol', entity: Subject, type: TemplateFieldType.TEXT))
 		.addToFields(new TemplateField(
-			name: 'Position X', entity: Subject, type: TemplateFieldType.FLOAT))
+			name: 'Position X', entity: Subject, type: TemplateFieldType.DOUBLE))
 		.addToFields(new TemplateField(
-			name: 'Position Y', entity: Subject, type: TemplateFieldType.FLOAT))
+			name: 'Position Y', entity: Subject, type: TemplateFieldType.DOUBLE))
 		.addToFields(new TemplateField(
 			name: 'Block', entity: Subject, type: TemplateFieldType.STRING))
 		.addToFields(new TemplateField(
-			name: 'Temperature at day', entity: Subject, type: TemplateFieldType.FLOAT))
+			name: 'Temperature at day', entity: Subject, type: TemplateFieldType.DOUBLE))
 		.addToFields(new TemplateField(
-			name: 'Temperature at night', entity: Subject, type: TemplateFieldType.FLOAT))
+			name: 'Temperature at night', entity: Subject, type: TemplateFieldType.DOUBLE))
 		.addToFields(new TemplateField(
 			name: 'Photo period', entity: Subject, type: TemplateFieldType.STRING))
 		.addToFields(new TemplateField(
@@ -342,13 +342,13 @@ class BootStrapTemplates {
 		.addToFields(new TemplateField(
 			name: 'Block', type: TemplateFieldType.STRING, entity: Subject))
 		.addToFields(new TemplateField(
-			name: 'Position X', type: TemplateFieldType.FLOAT, entity: Subject))
+			name: 'Position X', type: TemplateFieldType.DOUBLE, entity: Subject))
 		.addToFields(new TemplateField(
-			name: 'Position Y', type: TemplateFieldType.FLOAT, entity: Subject))
+			name: 'Position Y', type: TemplateFieldType.DOUBLE, entity: Subject))
 		.addToFields(new TemplateField(
-			name: 'Temperature at day', type: TemplateFieldType.FLOAT, entity: Subject))
+			name: 'Temperature at day', type: TemplateFieldType.DOUBLE, entity: Subject))
 		.addToFields(new TemplateField(
-			name: 'Temperature at night', type: TemplateFieldType.FLOAT, entity: Subject))
+			name: 'Temperature at night', type: TemplateFieldType.DOUBLE, entity: Subject))
 		.addToFields(new TemplateField(
 			name: 'Photo period', type: TemplateFieldType.STRING, entity: Subject))
 		.addToFields(new TemplateField(
@@ -501,7 +501,7 @@ class BootStrapTemplates {
 				name: 'Sample weight',
 				unit: 'mg',
 				entity: SamplingEvent,
-				type: TemplateFieldType.FLOAT
+				type: TemplateFieldType.DOUBLE
 			)
 		)
 		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
@@ -519,7 +519,7 @@ class BootStrapTemplates {
 				name: 'Sample volume',
 				entity: SamplingEvent,
 				unit: 'ml',
-				type: TemplateFieldType.FLOAT
+				type: TemplateFieldType.DOUBLE
 			)
 		)
 		.with { if (!validate()) { errors.each { println it} } else save(flush:true)}
@@ -538,7 +538,7 @@ class BootStrapTemplates {
 				name: 'Sample weight',
 				unit: 'ul',
 				entity: SamplingEvent,
-				type: TemplateFieldType.FLOAT
+				type: TemplateFieldType.DOUBLE
 			)
 		)
 		.addToFields(

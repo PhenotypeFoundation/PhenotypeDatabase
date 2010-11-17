@@ -94,7 +94,6 @@
 					<g:render template="elements/selected" var="templateField" collection="${template.fields}" model="['template':template]"/>
 					<% /* NB: this empty field should always be the last in the list! */ %>
 					<li class="empty ui-state-default" <g:if test="${template.fields?.size() > 0 }">style='display: none;'</g:if>>This template does not yet contain any fields. Drag a field to this list or use the 'Add field button'.</li>
-  				<input type="text" name="xxxas">
 				</ol>
 			</div>
 			<div class="templateEditorStep" id="step3_availableFields">

@@ -24,8 +24,6 @@ abstract class TemplateEntity extends Identity {
 	Map templateStringFields	= [:]
 	Map templateTextFields		= [:]
 	Map templateStringListFields    = [:]
-	Map templateIntegerFields	= [:]
-	Map templateFloatFields		= [:]
 	Map templateDoubleFields	= [:]
 	Map templateDateFields		= [:]
 	Map templateBooleanFields	= [:]
@@ -44,8 +42,6 @@ abstract class TemplateEntity extends Identity {
 		templateStringFields	: String,
 		templateTextFields	: String,
 		templateStringListFields: TemplateFieldListItem,
-		templateIntegerFields	: int,
-		templateFloatFields	: float,
 		templateDoubleFields	: double,
 		templateDateFields	: Date,
 		templateTermFields	: Term,
@@ -147,7 +143,7 @@ abstract class TemplateEntity extends Identity {
 					} catch (Exception e) {
 						error = true
 						errors.rejectValue(
-							'templateIntegerFields',
+							'templateStringFields',
 							'templateEntity.typeMismatch.templateFieldListItem',
 							[key, value.class] as Object[],
 							'Property {0} must be of type TemplateFieldListItem and is currently of type {1}'
@@ -157,58 +153,25 @@ abstract class TemplateEntity extends Identity {
 			}
 			return (!error)
 		})
-		templateIntegerFields(validator: { fields, obj, errors ->
-			def error = false
-			fields.each { key, value ->
-				if (value && value.class != Integer) {
-					try {
-						fields[key] = (value as Integer)
-					} catch (Exception e) {
-						error = true
-						errors.rejectValue(
-							'templateIntegerFields',
-							'templateEntity.typeMismatch.integer',
-							[key, value.class] as Object[],
-							'Property {0} must be of type Integer and is currently of type {1}'
-						)
-					}
-				}
-			}
-			return (!error)
-		})
-		templateFloatFields(validator: { fields, obj, errors ->
-			def error = false
-			fields.each { key, value ->
-				if (value && value.class != Float) {
-					try {
-						fields[key] = (value as Float)
-					} catch (Exception e) {
-						error = true
-						errors.rejectValue(
-							'templateFloatFields',
-							'templateEntity.typeMismatch.float',
-							[key, value.class] as Object[],
-							'Property {0} must be of type Float and is currently of type {1}'
-						)
-					}
-				}
-			}
-			return (!error)
-		})
 		templateDoubleFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
+				// Double field should accept Doubles and Floats
 				if (value && value.class != Double) {
-					try {
-						fields[key] = (value as Double)
-					} catch (Exception e) {
-						error = true
-						errors.rejectValue(
-							'templateDoubleFields',
-							'templateEntity.typeMismatch.double',
-							[key, value.class] as Object[],
-							'Property {0} must be of type Double and is currently of type {1}'
-						)
+					if(value.class == Float) {
+						fields[key] = value.toDouble();
+					} else {
+						try {
+							fields[key] = (value as Double)
+						} catch (Exception e) {
+							error = true
+							errors.rejectValue(
+								'templateDoubleFields',
+								'templateEntity.typeMismatch.double',
+								[key, value.class] as Object[],
+								'Property {0} must be of type Double and is currently of type {1}'
+							)
+						}
 					}
 				}
 			}
@@ -369,17 +332,22 @@ abstract class TemplateEntity extends Identity {
 		templateLongFields(validator: { fields, obj, errors ->
 			def error = false
 			fields.each { key, value ->
-				if (value && value.class != Long) {
-					try {
-						fields[key] = Long.parseLong(value.trim())
-					} catch (Exception e) {
-						error = true
-						errors.rejectValue(
-							'templateLongFields',
-							'templateEntity.typeMismatch.long',
-							[key, value.class] as Object[],
-							'Property {0} must be of type Long and is currently of type {1}'
-						)
+				// Long field should accept Longs and Integers
+				if (value && value.class != Long ) {
+					if( value.class == Integer ) {
+						fields[key] = value.toLong();
+					} else {
+						try {
+							fields[key] = Long.parseLong(value.trim())
+						} catch (Exception e) {
+							error = true
+							errors.rejectValue(
+								'templateLongFields',
+								'templateEntity.typeMismatch.long',
+								[key, value.class] as Object[],
+								'Property {0} must be of type Long and is currently of type {1}'
+							)
+						}
 					}
 				}
 			}
@@ -402,16 +370,12 @@ abstract class TemplateEntity extends Identity {
 				return templateTextFields
 			case TemplateFieldType.STRINGLIST:
 				return templateStringListFields
-			case TemplateFieldType.INTEGER:
-				return templateIntegerFields
 			case TemplateFieldType.DATE:
 				return templateDateFields
 			case TemplateFieldType.RELTIME:
 				return templateRelTimeFields
 			case TemplateFieldType.FILE:
 				return templateFileFields
-			case TemplateFieldType.FLOAT:
-				return templateFloatFields
 			case TemplateFieldType.DOUBLE:
 				return templateDoubleFields
 			case TemplateFieldType.ONTOLOGYTERM:
@@ -644,8 +608,12 @@ abstract class TemplateEntity extends Identity {
 
 		// Magic setter for LONG fields
 		if (field.type == TemplateFieldType.LONG && value && value.class == String) {
-			// TODO, check for invalids?
-			value = Long.parseLong(value.trim())
+			// A check for invalidity is done in the validator of these fields. For that
+			// reason, we just try to parse it here. If it fails, the validator will also
+			// fail.
+			try {
+				value = Long.parseLong(value.trim())
+			} catch( Exception e ) {}
 		}
 
 		// Set the field value
@@ -660,7 +628,7 @@ abstract class TemplateEntity extends Identity {
 				// remove value. For numbers, this is done by setting
 				// the value to 0, otherwise, setting it to NULL
 				switch (field.type.toString()) {
-					case ['INTEGER', 'FLOAT', 'DOUBLE', 'RELTIME', 'LONG']:
+					case [ 'DOUBLE', 'RELTIME', 'LONG']:
 						this[field.name] = 0;
 						break;
 					case [ 'BOOLEAN' ]:
