@@ -16,7 +16,14 @@
 
 <body>
     <script src="${resource(dir: 'js', file: 'jquery-callback-1.2.js')}" type="text/javascript"></script>
-<h3><g:message code="default.edit.label" args="[entityName]"/></h3>
+
+	<g:if test="${flash.userError}">
+	  <div id="error" class="error" title="errors">
+			<p>
+			  ${flash.userError}
+			</p>
+	  </div>
+	<h3><g:message code="default.edit.label" args="[entityName]"/></h3>
 
 <g:form action="update" name='userEditForm' class="button-style">
 <g:hiddenField name="id" value="${user?.id}"/>

@@ -45,13 +45,13 @@ class RegisterController {
 
 		String username = params.username
 		if (!username) {
-			flash.error = message(code: 'spring.security.ui.forgotPassword.username.missing')
+			flash.userError = message(code: 'spring.security.ui.forgotPassword.username.missing')
 			return
 		}
 
 		def user = SecUser.findByUsername(username)
 		if (!user) {
-			flash.error = message(code: 'spring.security.ui.forgotPassword.user.notFound')
+			flash.userError = message(code: 'spring.security.ui.forgotPassword.user.notFound')
 			return
 		}
 
@@ -78,7 +78,7 @@ class RegisterController {
 
 		def registrationCode = token ? RegistrationCode.findByToken(token) : null
 		if (!registrationCode) {
-			flash.error = message(code: 'spring.security.ui.resetPassword.badCode')
+			flash.userError = message(code: 'spring.security.ui.resetPassword.badCode')
 			redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
 			return
 		}

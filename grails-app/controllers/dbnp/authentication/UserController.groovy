@@ -101,7 +101,7 @@ class UserController {
 			redirect action: search
 		}
 		catch (DataIntegrityViolationException e) {
-			flash.error = "${message(code: 'default.not.deleted.message', args: [message(code: 'user.label', default: 'User'), params.id])}"
+			flash.userError = "${message(code: 'default.not.deleted.message', args: [message(code: 'user.label', default: 'User'), params.id])}"
 			redirect action: edit, id: params.id
 		}
 	}
