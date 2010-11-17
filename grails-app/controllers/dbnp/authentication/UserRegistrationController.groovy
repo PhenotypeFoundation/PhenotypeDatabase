@@ -14,6 +14,8 @@
  */
 package dbnp.authentication
 import grails.plugins.springsecurity.Secured
+import org.codehaus.groovy.grails.commons.GrailsApplication
+import grails.util.GrailsUtil
 
 class UserRegistrationController {
 	static int DAYS_BEFORE_EXPIRY = 3;
@@ -124,11 +126,21 @@ class UserRegistrationController {
 		def adminCode = new RegistrationCode(userId: user.id, expiryDate: new Date() + UserRegistrationController.DAYS_BEFORE_EXPIRY_ADMIN).save(flush: true)
         def adminLink = createLink( controller: 'userRegistration', action: 'confirmAdmin', params: [code: adminCode.token], absolute: true )
 
+		// If we are in production, send the mails to all administrators
+		// Otherwise, send it to a default (spam) mail address
+		def adminMail = "gscfproject@gmail.com";
+		if ( GrailsUtil.getEnvironment().equals(GrailsApplication.ENV_PRODUCTION) ) {
+			def administrators = SecRole.findUsers( 'ROLE_ADMIN' );
+			if( administrators.size() > 0 ) {
+				adminMail = administrators.email.toArray();
+			}
+		}
+
         // Send an email to the administrators
         try {
 			// Determine administrator email addresses
             sendMail {
-                to      "gscfproject@gmail.com"
+                to      adminMail
                 subject "New user (" + user.username + ") at GSCF"
                 html    g.render(template:"/email/registrationConfirmationAdmin", model:[username: user.username, email: user.email, link: adminLink])
             }

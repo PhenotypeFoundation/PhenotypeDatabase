@@ -18,8 +18,8 @@
 	<head>
 		<meta name="layout" content="${layout}"/>
 		<title>template editor</title>
-		<script src="${createLinkTo(dir: 'js', file: 'templateEditor.js')}" type="text/javascript"></script>
-		<link rel="stylesheet" href="${createLinkTo(dir: 'css', file: 'templateEditor.css')}" />
+		<script src="${resource(dir: 'js', file: 'templateEditor.js')}" type="text/javascript"></script>
+		<link rel="stylesheet" href="${resource(dir: 'css', file: 'templateEditor.css')}" />
 		<style type="text/css">
 		  #content .templateEditorStep { font-size: 0.8em; }
 		</style>

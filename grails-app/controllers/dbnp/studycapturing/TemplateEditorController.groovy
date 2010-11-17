@@ -493,7 +493,19 @@ class TemplateEditorController {
 		// Set all parameters
 		templateField.properties = params
         if (!templateField.hasErrors() && templateField.save(flush: true)) {
-			def html = g.render( template: 'elements/available', model: [templateField: templateField, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list()] );
+
+			// Select the template to use for the HTML output
+			def renderTemplate = 'elements/available';
+			if( params.renderTemplate == 'selected' ) {
+				renderTemplate = 'elements/selected';
+			}
+
+			// Selected fields should have a template given
+			def template = null;
+			if( params.templateId )
+				template = Template.findById( params.templateId );
+			
+			def html = g.render( template: renderTemplate, model: [template: template, templateField: templateField, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list()] );
 			def output = [ id: templateField.id, html: html ];
 			render output as JSON;
         } else {
@@ -634,9 +646,9 @@ class TemplateEditorController {
         }
 
 		// If the template is in use, field can not be removed
-		if( template.inUse() ) {
+		if( templateField.isFilledInTemplate(template) ) {
 			response.status = 500;
-			render 'No fields can be removed from templates that are in use.'
+			render 'Fields can not be removed from a template if it has been filled somewhere.'
 			return;
 		}
 

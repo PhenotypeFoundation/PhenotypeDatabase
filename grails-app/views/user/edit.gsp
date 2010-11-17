@@ -23,6 +23,7 @@
 			  ${flash.userError}
 			</p>
 	  </div>
+	</g:if>
 	<h3><g:message code="default.edit.label" args="[entityName]"/></h3>
 
 <g:form action="update" name='userEditForm' class="button-style">
@@ -55,7 +56,7 @@
 		<g:each var="entry" in="${roleMap}">
 		<div>
 			<g:checkBox name="${entry.key.authority}" value="${entry.value}"/>
-			<g:link controller='role' action='edit' id='${entry.key.id}'>${entry.key.authority.encodeAsHTML()}</g:link>
+			${entry.key.authority.encodeAsHTML()}
 		</div>
 		</g:each>
 	  </div>

@@ -117,19 +117,119 @@ class TemplateField implements Serializable {
 	}
 
 	/**
-	 * The number of templates that use this template
+	 * The number of templates that use this template field
 	 *
-	 * @returns		the number of templates that use this template.
+	 * @returns		the number of templates that use this template field.
 	 */
 	def numUses() {
+		return getUses().size();
+	}
+
+	/**
+	 * Retrieves the templates that use this template field
+	 *
+	 * @returns		a list of templates that use this template field.
+	 */
+	def getUses() {
 		def templates = Template.findAll();
 		def elements;
+
 		if( templates && templates.size() > 0 ) {
 			elements = templates.findAll { template -> template.fields.contains( this ) };
 		} else {
-			return 0;
+			return [];
 		}
 
-		return elements.size();
+		return elements;
 	}
+
+	/**
+	 * Checks whether this template field is used in a template and also filled in any instance of that template
+	 *
+	 * @returns		true iff this template field is used in a template, the template is instantiated
+	 *				and an instance has a value for this field. false otherwise
+	 */
+	def isFilled() {
+		// Find all entities that use this template
+		def templates = getUses();
+
+		if( templates.size() == 0 )
+			return false;
+
+		def c = this.entity.createCriteria()
+		def entities = c {
+			'in'("template",templates)
+		}
+
+		def filledEntities = entities.findAll { entity -> entity.getFieldValue( this.name ) }
+
+		return filledEntities.size() > 0;
+	}
+
+	/**
+	 * Checks whether this template field is used in the given template and also filled in an instance of that template
+	 *
+	 * @returns		true iff this template field is used in the given template, the template is instantiated
+	 *				and an instance has a value for this field. false otherwise
+	 */
+	def isFilledInTemplate(Template t) {
+		println( "Checking field " + this.name )
+		println( "Filled in template: " + t)
+		if( t == null ) 
+			return false;
+			
+		// If the template is not used, if can never be filled
+		if( !t.fields.contains( this ) )
+			return false;
+
+		// Find all entities that use this template
+		def entities = entity.findAllByTemplate( t );
+
+		println( "Num entities: " + entities.size() )
+
+		def filledEntities = entities.findAll { entity -> entity.getFieldValue( this.name ) }
+
+		println( "Num filled entities: " + filledEntities.size() )
+		println( "Values: " + filledEntities*.getFieldValue( this.name ).join( ', ' ) )
+		return filledEntities.size() > 0;
+	}
+
+	/**
+	 * Check whether a templatefield that is used in a template may still be edited or deleted.
+	 * That is possible if the templatefield is never filled and the template is only used in one template
+	 *
+	 * This method should only be used for templatefields used in a template that is currently shown. Otherwise
+	 * the user may edit this template field, while it is also in use in another template than is currently shown.
+	 * That lead to confusion.
+	 *
+	 * @returns true iff this template may still be edited or deleted.
+	 */
+	def isEditable() {
+		return !isFilled() && numUses() == 1;
+	}
+
+	/**
+	 * Checks whether the given list item is selected in an entity where this template field is used
+	 *
+	 * @param	item	ListItem to check.
+	 * @returns			true iff the list item is part of this template field and the given list
+	 *					item is selected in an entity where this template field is used. false otherwise
+	 *					Returns false if the type of this template field is other than STRINGLIST
+	 */
+	def entryUsed(TemplateFieldListItem item) {
+		//return numUses() > 0;
+	}
+
+	/**
+	 * Checks whether a term from the given ontology is selected in an entity where this template field is used
+	 *
+	 * @param	item	ListItem to check.
+	 * @returns			true iff the ontology is part of this template field and a term from the given
+	 *					ontology is selected in an entity where this template field is used. false otherwise
+	 *					Returns false if the type of this template field is other than ONTOLOGY
+	 */
+	def entryUsed(Ontology item) {
+		//return numUses() > 0;
+	}
+
 }

@@ -1,9 +1,9 @@
 <g:set var="numUses" value="${template.numUses()}" />
 <span class="listButtons">
-  <img onClick="editTemplate( ${template.id} );" src="${createLinkTo( dir: 'images/icons', file: 'application_edit.png', plugin: 'famfamfam' )}" alt="Edit template properties" title="Edit template properties">
-  <img onClick="editFields( ${template.id} );"src="${createLinkTo( dir: 'images/icons', file: 'application_form.png', plugin: 'famfamfam' )}" alt="Add/remove template fields" title="Add/remove template fields">
-  <img onClick="cloneTemplate( ${template.id} );"src="${createLinkTo( dir: 'images/icons', file: 'page_copy.png', plugin: 'famfamfam' )}" alt="Clone this template" title="Clone this template">
-  <img class="disabled" src="${createLinkTo( dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam' )}" alt="Deleting this template is not possible. Template is used in ${numUses} objects." title="Deleting this template is not possible. Template is used in ${numUses} objects.">
+  <img onClick="editTemplate( ${template.id} );" src="${resource( dir: 'images/icons', file: 'application_edit.png', plugin: 'famfamfam' )}" alt="Edit template properties" title="Edit template properties">
+  <img onClick="editFields( ${template.id} );"src="${resource( dir: 'images/icons', file: 'application_form.png', plugin: 'famfamfam' )}" alt="Add/remove template fields" title="Add/remove template fields">
+  <img onClick="cloneTemplate( ${template.id} );"src="${resource( dir: 'images/icons', file: 'page_copy.png', plugin: 'famfamfam' )}" alt="Clone this template" title="Clone this template">
+  <img class="disabled" src="${resource( dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam' )}" alt="Deleting this template is not possible. Template is used in ${numUses} objects." title="Deleting this template is not possible. Template is used in ${numUses} objects.">
 </span>
 ${template.name}
 
