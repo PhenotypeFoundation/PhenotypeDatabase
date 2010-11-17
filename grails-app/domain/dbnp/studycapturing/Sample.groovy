@@ -59,7 +59,7 @@ class Sample extends TemplateEntity {
 		parentSubject(nullable:true)
 
 		// The same holds for parentEvent
-		parentEvent(nullable:true)
+		parentEvent(nullable:false)
 
 		// and for parentEventGroup
 		parentEventGroup(nullable:true)
