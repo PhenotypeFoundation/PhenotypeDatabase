@@ -173,8 +173,6 @@ class TemplateField implements Serializable {
 	 *				and an instance has a value for this field. false otherwise
 	 */
 	def isFilledInTemplate(Template t) {
-		println( "Checking field " + this.name )
-		println( "Filled in template: " + t)
 		if( t == null ) 
 			return false;
 			
@@ -184,13 +182,8 @@ class TemplateField implements Serializable {
 
 		// Find all entities that use this template
 		def entities = entity.findAllByTemplate( t );
-
-		println( "Num entities: " + entities.size() )
-
 		def filledEntities = entities.findAll { entity -> entity.getFieldValue( this.name ) }
 
-		println( "Num filled entities: " + filledEntities.size() )
-		println( "Values: " + filledEntities*.getFieldValue( this.name ).join( ', ' ) )
 		return filledEntities.size() > 0;
 	}
 
