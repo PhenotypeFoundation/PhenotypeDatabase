@@ -16,11 +16,11 @@
 %>
 <wizard:pageContent>
 
-	<g:if env="development">
+	<% /* g:if env="development">
 		<wizard:ajaxButtonElement description="Development feature (regenerate samples)" name="regenerate" value="regenerate new samples" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()">
 			This functionality is only available in development mode for debugging purposes and will not show in test and production environments
 		</wizard:ajaxButtonElement>
-	</g:if>
+	</g:if */ %>
 	
 	<span class="info">
 		<span class="title">Samples</span>
@@ -102,7 +102,7 @@
 						<div class="column">Sampling Event</div>
 						<div class="column">Subject</div>
 						<div class="column">Template</div>
-						<wizard:templateColumnHeaders entity="${sample}" class="column" columnWidths="[Name:200]"/>
+						<wizard:templateColumnHeaders entity="${sample}" class="column" columnWidths="[Name:250]"/>
 					</div>
 				</g:if>
 				<div class="row">

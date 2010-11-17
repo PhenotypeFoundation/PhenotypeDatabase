@@ -79,6 +79,8 @@ class WizardController {
 	def pagesFlow = {
 		// start the flow
 		onStart {
+			log.info ".entering onStart"
+
 			// define flow variables
 			flow.page = 0
 			flow.pages = [
@@ -104,6 +106,8 @@ class WizardController {
 		mainPage {
 			render(view: "/wizard/index")
 			onRender {
+				log.info ".entering mainPage"
+
 				flow.page = 1
 				success()
 			}
@@ -119,6 +123,8 @@ class WizardController {
 		// Jump [18x]
 		handleJump {
 			action {
+				log.info ".entering handleJump"
+
 				if (flow.jump && flow.jump.action == 'edit') {
 					if (flow.jump.id) {
 						// load study
@@ -145,6 +151,8 @@ class WizardController {
 		start {
 			render(view: "_start")
 			onRender {
+				log.info ".entering start"
+
 				flow.page = 1
 				success()
 			}
@@ -163,6 +171,7 @@ class WizardController {
 		redirectToImport {
 			render(view: "_redirect")
 			onRender {
+				log.info ".entering redirectToImport"
 				flash.uri = "/importer/index"
 			}
 			on("next").to "start"
@@ -172,6 +181,8 @@ class WizardController {
 		modify {
 			render(view: "_modify")
 			onRender {
+				log.info ".entering modify"
+
 				flow.page = 1
 				flash.cancel = true
 				success()
@@ -195,6 +206,8 @@ class WizardController {
 		study {
 			render(view: "_study")
 			onRender {
+				log.info ".entering study"
+
 				flow.page = 1
 				success()
 			}
@@ -239,6 +252,8 @@ class WizardController {
 		subjects {
 			render(view: "_subjects")
 			onRender {
+				log.info ".entering subjects"
+
 				flow.page = 2
 
 				if (!flash.values || !flash.values.addNumber) flash.values = [addNumber:1]
@@ -297,6 +312,8 @@ class WizardController {
 		events {
 			render(view: "_events")
 			onRender {
+				log.info ".entering events"
+
 				flow.page = 3
 
 				// add initial eventGroup to study
@@ -469,6 +486,8 @@ class WizardController {
 		// decide to show a warning page or not
 		eventsNext {
 			action {
+				log.info ".entering eventsNext"
+
 				def assigned = false
 
 				// check if all sampling events are in an eventGroup
@@ -495,6 +514,8 @@ class WizardController {
 		unassignedSamplingEventWarning {
 			render(view: "_unassigned_samplingEvent_warning")
 			onRender {
+				log.info ".entering unassignedSamplingEventsWarning"
+
 				flow.page = 3
 				success()
 			}
@@ -506,6 +527,8 @@ class WizardController {
 		groups {
 			render(view: "_groups")
 			onRender {
+				log.info ".entering groups"
+
 				flow.page = 3
 				success()
 			}
@@ -527,20 +550,9 @@ class WizardController {
 		samplePrevious {
 			render(view: "_samples_previous_warning")
 			onRender {
+				log.info ".entering samplePrevious"
+
 				flow.page = 4
-
-				// TEMPORARY FIX TO REMOVE ALL SAMPLES AND REGENERATE THEM
-				// THEN USER BROWSED BACK
-				println ".removing samples from study"
-
-				// remove samples from study
-				flow.samples.each() {
-					flow.study.removeFromSamples(it.sample)
-				}
-
-				// remove samples from flow
-				flow.remove('samples')
-				// END FIX
 			}
 			on("next").to "samples"
 			on("previous").to "groups"
@@ -550,6 +562,8 @@ class WizardController {
 		samples {
 			render(view: "_samples")
 			onRender {
+				log.info ".entering samples"
+
 				flow.page = 4
 				success()
 			}
@@ -613,6 +627,8 @@ class WizardController {
 		assays {
 			render(view: "_assays")
 			onRender {
+				log.info ".entering assays"
+
 				flow.page = 5
 			}
 			on("refresh") {
@@ -709,6 +725,8 @@ class WizardController {
 		// assayNext
 		assayNext {
 			action {
+				log.info ".entering assayNext"
+
 				// have we got samples and assays?
 				if (flow.study.assays && flow.study.samples) {
 					// yes, go to the group page
@@ -727,6 +745,8 @@ class WizardController {
 		assayGroups {
 			render(view: "_assay_groups")
 			onRender {
+				log.info ".entering assayGroups"
+
 				flow.page = 5
 			}
 			on("previous") {
@@ -751,6 +771,8 @@ class WizardController {
 		// confirm Previous
 		confirmPrevious {
 			action {
+				log.info ".entering confirmPrevious"
+
 				// have we got samples and assays?
 				if (flow.study.assays && flow.study.samples) {
 					// yes, go to the group page
@@ -769,6 +791,8 @@ class WizardController {
 		confirm {
 			render(view: "_confirmation")
 			onRender {
+				log.info ".entering confirm"
+
 				flow.page = 6
 			}
 			on("toStudy").to "study"
@@ -786,6 +810,8 @@ class WizardController {
 		waitForSave {
 			render(view: "_wait")
 			onRender {
+				log.info ".entering waitForSave"
+
 				flow.page = 7
 			}
 			on("next").to "save"
@@ -794,13 +820,14 @@ class WizardController {
 		// store all study data
 		save {
 			action {
-				println "saving..."
+				log.info ".entering save"
+
 				flash.wizardErrors = [:]
 
 				// persist data to the database
 				try {
 					// save study
-					println ".saving study"
+					log.info ".saving study"
 
 					// Make sure the owner of the study is set right
 					flow.study.owner = authenticationService.getLoggedInUser()
@@ -809,7 +836,7 @@ class WizardController {
 						this.appendErrors(flow.study, flash.wizardErrors)
 						throw new Exception('error saving study')
 					}
-					println ".saved study "+flow.study+" (id: "+flow.study.id+")"
+					log.info ".saved study "+flow.study+" (id: "+flow.study.id+")"
 
 					success()
 				} catch (Exception e) {
@@ -831,6 +858,8 @@ class WizardController {
 		error {
 			render(view: "_error")
 			onRender {
+				log.info ".entering error"
+
 				flow.page = 6
 			}
 			on("next").to "waitForSave"
@@ -841,6 +870,8 @@ class WizardController {
 		done {
 			render(view: "_done")
 			onRender {
+				log.info ".entering done"
+
 				flow.page = 7
 			}
 			onEnd {
@@ -983,13 +1014,13 @@ class WizardController {
 					if (publication) {
 						flow.study.addToPublications(publication)
 					} else {
-						println('.publication with ID ' + id + ' not found in database.')
+						log.info('.publication with ID ' + id + ' not found in database.')
 					}
 				}
 			}
 
 		} else {
-			println('.no publications selected.')
+			log.info('.no publications selected.')
 			flow.study.publications.clear()
 		}
 
@@ -1044,12 +1075,12 @@ class WizardController {
 
 						flow.study.addToPersons(studyPerson)
 					} else {
-						println('.person ' + ids.person + ' or Role ' + ids.role + ' not found in database.')
+						log.info('.person ' + ids.person + ' or Role ' + ids.role + ' not found in database.')
 					}
 				}
 			}
 		} else {
-			println('.no persons selected.')
+			log.info('.no persons selected.')
 			flow.study.persons.clear()
 		}
 
@@ -1093,13 +1124,13 @@ class WizardController {
 					if (user) {
                                             users.add(user)
 					} else {
-						println('.user with ID ' + id + ' not found in database.')
+						log.info('.user with ID ' + id + ' not found in database.')
 					}
 				}
 			}
 
 		} else {
-			println('.no users selected.')
+			log.info('.no users selected.')
 			users.clear()
 		}
 
@@ -1210,7 +1241,7 @@ class WizardController {
 
 				// validate subject
 				if (subject.validate()) {
-					println ".added subject "+subject
+					log.info ".added subject "+subject
 				} else {
 					// whoops?
 					flow.study.removeFromSubjects( subject )
@@ -1292,7 +1323,8 @@ class WizardController {
 							eventGroup.subjects.each() { subject ->
 								// instantiate a sample for this subject / event
 								def samplingEventName = this.ucwords(event.template.name)
-								def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
+								def eventGroupName = eventGroup.name.replaceAll(/\w+/, { it[0].toUpperCase() + ((it.size() > 1) ? it[1..-1] : '') }).replaceAll("([ ]{1,})", "")
+								def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
 								def tempSampleIterator = 0
 								def tempSampleName = sampleName
 
@@ -1388,7 +1420,8 @@ class WizardController {
 						// iterate through samplingEvents
 						eventGroup.samplingEvents.each() { samplingEvent ->
 							def samplingEventName = this.ucwords(samplingEvent.template.name)
-							def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
+							def eventGroupName = eventGroup.name.replaceAll(/\w+/, { it[0].toUpperCase() + ((it.size() > 1) ? it[1..-1] : '') }).replaceAll("([ ]{1,})", "")
+							def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
 							def tempSampleIterator = 0
 							def tempSampleName = sampleName
 
@@ -1412,17 +1445,21 @@ class WizardController {
 								)
 							)
 						}
+					} else {
 					}
 				} else {
-					// remove from eventGroup
-					eventGroup.removeFromSubjects(subject)
+					// check if this subject is a member of this eventGroup
+					if (eventGroup.subjects.find { it.equals(subject) }) {
+						// remove from eventGroup
+						eventGroup.removeFromSubjects(subject)
 
-					// iterate through samplingEvents
-					eventGroup.samplingEvents.each() { samplingEvent ->
-						flow.study.samples.findAll { ( it.parentEvent.equals(samplingEvent) && it.parentSubject.equals(subject) ) }.each() {
-							// delete this sample
-							flow.study.removeFromSamples( it )
-							it.delete()
+						// iterate through samplingEvents
+						eventGroup.samplingEvents.each() { samplingEvent ->
+							flow.study.samples.findAll { (it.parentEvent.equals(samplingEvent) && it.parentSubject.equals(subject) && it.parentEventGroup.equals(eventGroup)) }.each() {
+								// delete this sample
+								flow.study.removeFromSamples(it)
+								it.delete()
+							}
 						}
 					}
 				}

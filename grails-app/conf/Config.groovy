@@ -119,6 +119,9 @@ log4j = {
 
 	warn 'org.mortbay.log'
 
+	//info 'org.codehaus.groovy.grails.web.servlet',
+	//	 'org.codehaus.groovy.grails.plugins'
+
 	//debug 'org.codehaus.groovy.grails.plugins'
 }
 

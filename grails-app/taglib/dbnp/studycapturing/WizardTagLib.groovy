@@ -225,7 +225,8 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Closure help content
 	 */
 	def baseElement = { inputElement, attrs, help ->
-println ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "] and value [" + ((attrs.value) ? attrs.get('value').toString() : "-") + "]"
+		log.info ".rendering [" + inputElement + "] with name [" + attrs.get('name') + "] and value [" + ((attrs.value) ? attrs.get('value').toString() : "-") + "]"
+
 		// work variables
 		def description = attrs.remove('description')
 		def addExampleElement = attrs.remove('addExampleElement')
