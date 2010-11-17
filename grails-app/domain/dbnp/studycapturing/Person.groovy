@@ -40,7 +40,8 @@ class Person extends Identity {
 	}
 
     static mapping = {
-        sort "lastName, firstName"
+        sort 'lastName': 'asc'
+		sort 'firstName': 'asc'
     }
 
 
