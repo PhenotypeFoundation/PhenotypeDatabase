@@ -646,18 +646,29 @@ class WizardController {
 			}.to "assays"
             on("switchTemplate") {
 				// handle form data
-				assayPage(flow, flash, params)
+	            assayPage(flow, flash, params)
 
-				// find assay template
-				def template = Template.findByName( params.get('template') )
-
-				if (flow.assay) {
-					// set template
-					flow.assay.template = template
-				} else {
-					// create a new assay instance
-					flow.assay = new Assay(template: template)
-				}
+	            // find assay template
+	            def template = Template.findByName(params.get('template'))
+	            if (flow.assay) {
+		            // set template
+		            flow.assay.template = template
+		            if (template) {
+			            flow.assay.setFieldValue(
+				            'externalAssayID',
+				            this.ucwords(flow.study.code).replaceAll("([ ]{1,})", "") + '_' + this.ucwords(template.name).replaceAll("([ ]{1,})", "")
+			            )
+		            }
+	            } else {
+		            // create a new assay instance
+		            flow.assay = new Assay(template: template)
+		            if (template) {
+			            flow.assay.setFieldValue(
+				            'externalAssayID',
+				            this.ucwords(flow.study.code).replaceAll("([ ]{1,})", "") + '_' + this.ucwords(template.name).replaceAll("([ ]{1,})", "")
+			            )
+		            }
+	            }
 
 				// reset errors
 				flash.wizardErrors = [:]
@@ -889,8 +900,6 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def loadStudy(flow, flash, params, user) {
-//		def authenticationService
-
 		flash.wizardErrors = new LinkedHashMap()
 		
 		// load study
@@ -901,7 +910,6 @@ class WizardController {
 			// Check whether the user is allowed to edit this study. If it is not allowed
 			// the used should had never seen a link to this page, so he should never get
 			// here. That's why we just return false
-//			if (!study.canWrite(authenticationService.getLoggedInUser())) {
             if (!study.canWrite(user)){
  				return false
 			}
@@ -1323,7 +1331,7 @@ class WizardController {
 							eventGroup.subjects.each() { subject ->
 								// instantiate a sample for this subject / event
 								def samplingEventName = this.ucwords(event.template.name)
-								def eventGroupName = eventGroup.name.replaceAll(/\w+/, { it[0].toUpperCase() + ((it.size() > 1) ? it[1..-1] : '') }).replaceAll("([ ]{1,})", "")
+								def eventGroupName = this.ucwords(eventGroup).replaceAll("([ ]{1,})", "")
 								def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
 								def tempSampleIterator = 0
 								def tempSampleName = sampleName
@@ -1420,7 +1428,7 @@ class WizardController {
 						// iterate through samplingEvents
 						eventGroup.samplingEvents.each() { samplingEvent ->
 							def samplingEventName = this.ucwords(samplingEvent.template.name)
-							def eventGroupName = eventGroup.name.replaceAll(/\w+/, { it[0].toUpperCase() + ((it.size() > 1) ? it[1..-1] : '') }).replaceAll("([ ]{1,})", "")
+							def eventGroupName = this.ucwords(eventGroup)
 							def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
 							def tempSampleIterator = 0
 							def tempSampleName = sampleName
@@ -1490,7 +1498,7 @@ class WizardController {
 
 				// set field value
 				if (!(field.name == 'name' && !value)) {
-					println "setting "+field.name+" to "+value
+					log.info "setting "+field.name+" to "+value
 					sample.setFieldValue(field.name, value)
 				}
 			}
@@ -1505,7 +1513,7 @@ class WizardController {
 			if (!sample.validate()) {
 				errors = true
 				this.appendErrors(sample, flash.wizardErrors, 'sample_' + sample.getIdentifier() + '_' )
-				println 'error-> sample_'+sample.getIdentifier()
+				log.info 'error-> sample_'+sample.getIdentifier()
 			}
 		}
 
