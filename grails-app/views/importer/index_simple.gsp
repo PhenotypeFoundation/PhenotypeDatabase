@@ -45,7 +45,6 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
     //$('select[name=template_id]').attr('entity', $('#'+'entity').val());
     $('select[name=template_id]').attr('entity', $('#'+'entity').val());
 
-
     if (items) {
 
         // remove old options
@@ -77,7 +76,7 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
        label   : 'add / modify ...',
        style   : 'modify',
        onClose : function(scope) {
-           //refreshWebFlow();           
+           location.reload();
        }
     });
 }
