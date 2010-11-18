@@ -466,10 +466,8 @@ class BootStrapStudies {
 		// if that doesn't work for you, make it work... now you're
 		// breaking the other environments....
 		//def samURL = GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION ? 'http://sam.nmcdsp.org' : 'http://localhost:8182/sam'
-		//def nmcdspURL = GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION ? 'http://nmcdsp.nmcdsp.org' : 'http://localhost:8183/nmcdsp'
+		def nmcdspURL = GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION ? 'http://metabolomics.nmcdsp.org' : 'http://localhost:8183/nmcdsp'
 		def samURL = CommunicationManager.SAMServerURL
-		def nmcdspURL = samURL.replace("sam","metabolomics")
-
 
 		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
