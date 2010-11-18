@@ -1428,7 +1428,7 @@ class WizardController {
 						// iterate through samplingEvents
 						eventGroup.samplingEvents.each() { samplingEvent ->
 							def samplingEventName = this.ucwords(samplingEvent.template.name)
-							def eventGroupName = this.ucwords(eventGroup)
+							def eventGroupName = this.ucwords(eventGroup.name)
 							def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
 							def tempSampleIterator = 0
 							def tempSampleName = sampleName
