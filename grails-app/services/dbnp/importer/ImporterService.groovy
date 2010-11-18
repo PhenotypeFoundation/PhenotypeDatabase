@@ -344,7 +344,8 @@ class ImporterService {
 			case Subject        :  return Subject.findByParentAndName(entity.parent, entity.name)
                                                break
                         case Event          :  break
-                        case Sample         :  break
+                        case Sample         :
+                                               break
                         case SamplingEvent  :  break
                         default             :  // unknown entity
                                                return null

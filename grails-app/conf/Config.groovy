@@ -186,11 +186,11 @@ gscf {
 		// use: grailsApplication.config.gscf.domain.importableEntities
 		// @see ImporterController
 		importableEntities: [
-			event: [name: 'Event', entity: 'dbnp.studycapturing.Event'],
-			sample: [name: 'Sample', entity: 'dbnp.studycapturing.Sample'],
-			study: [name: 'Study', entity: 'dbnp.studycapturing.Study'],
-			subject: [name: 'Subject', entity: 'dbnp.studycapturing.Subject'],
-			samplingevent: [name: 'SamplingEvent', entity: 'dbnp.studycapturing.SamplingEvent']
+			event: [name: 'Event', entity: 'dbnp.studycapturing.Event', encrypted:''],
+			sample: [name: 'Sample', entity: 'dbnp.studycapturing.Sample', encrypted:''],
+			study: [name: 'Study', entity: 'dbnp.studycapturing.Study', encrypted:''],
+			subject: [name: 'Subject', entity: 'dbnp.studycapturing.Subject', encrypted:''],
+			samplingevent: [name: 'SamplingEvent', entity: 'dbnp.studycapturing.SamplingEvent', encrypted:'']
 
 		]
 	]

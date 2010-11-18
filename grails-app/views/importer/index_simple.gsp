@@ -34,15 +34,17 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
     var rselect = $('#'+name).get(0)
     var items = data
 
-    // If a study has been selected, don't show the "Choose study" field, otherwise do
-    if ($('#'+'entity').val() == 'study')
+    // If a study has been selected, don't show the "Choose study" field, otherwise do    
+    if ($('#'+'entity :selected').text() == 'Study')
       $('#studyfield').hide();
     else $('#studyfield').show();
 
     // set the entity name for the data template chooser
-    //alert ( "das" + $('select[name=template_id]').attr('entity') )
+    //if ($('#'+'entity').val() == 'event')
 
     //$('select[name=template_id]').attr('entity', $('#'+'entity').val());
+    $('select[name=template_id]').attr('entity', $('#'+'entity').val());
+
 
     if (items) {
 
@@ -71,7 +73,7 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
   new SelectAddMore().init({
        rel     : 'typetemplate',
        url     : '/gscf/templateEditor',
-       vars    : 'thentity', // can be a comma separated list of variable names to pass on
+       vars    : 'entity', // can be a comma separated list of variable names to pass on
        label   : 'add / modify ...',
        style   : 'modify',
        onClose : function(scope) {
@@ -161,7 +163,7 @@ $(document).ready(function() {
 		id="entity"
 		from="${entities}"		
 		optionValue="${{it.value.name}}"
-		optionKey="key"
+		optionKey="${{it.value.encrypted}}"
 		noSelection="['':'-Choose type of data-']"
 		onChange="${remoteFunction( controller: 'importer',
 					    action:'ajaxGetTemplatesByEntity',
@@ -174,7 +176,7 @@ $(document).ready(function() {
 		<div id="datatemplate">Choose type of data template:</div>
 	    </td>
 	    <td>
-		<g:select rel="typetemplate" entity="hoi" name="template_id" optionKey="id" optionValue="name" from="[]" />
+		<g:select rel="typetemplate" entity="none" name="template_id" optionKey="id" optionValue="name" from="[]" />
 	    </td>
 	</tr>
 	<tr>

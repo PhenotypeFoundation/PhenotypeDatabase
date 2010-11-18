@@ -28,6 +28,8 @@ import grails.converters.JSON
 import org.apache.poi.ss.usermodel.Workbook
 import grails.plugins.springsecurity.Secured
 
+import cr.co.arquetipos.crypto.Blowfish
+
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ImporterController {
     def ImporterService
@@ -40,6 +42,15 @@ class ImporterController {
     def index = {
         // should do a check what is in the url, strip it?
         session.import_referer = params.redirectTo
+
+        grailsApplication.config.gscf.domain.importableEntities.each {            
+            it.value.encrypted = 
+				Blowfish.encryptBase64(
+					it.value.entity.toString().replaceAll(/^class /, ''),
+					grailsApplication.config.crypto.shared.secret
+				)
+        }
+
         render(view:"index_simple",
                model:[studies:Study.findAllWhere(owner:AuthenticationService.getLoggedInUser()),
                entities: grailsApplication.config.gscf.domain.importableEntities])
@@ -80,13 +91,18 @@ class ImporterController {
     def upload_simple = {
 	def wb = handleUpload('importfile')
 	def selectedentities = []
-	def entity = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
-	def entityClass = Class.forName(entity, true, this.getClass().getClassLoader())
+	//def entity = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
+        def entityName = Blowfish.decryptBase64(
+                            params.entity,
+                            grailsApplication.config.crypto.shared.secret
+                         )
 
+	def entityClass = Class.forName(entityName, true, this.getClass().getClassLoader())
+        
 	// Initialize some session variables
 	session.importer_workbook = wb
 	session.importer_study = Study.get(params.study.id.toInteger())
-        
+
         // Is the current logged in user allowed to write to this study?
         if (session.importer_study.canWrite(AuthenticationService.getLoggedInUser())) {
             session.importer_template_id = params.template_id
@@ -102,8 +118,8 @@ class ImporterController {
                                                                 entityClass)
 	
             // Initialize 'selected entities', used to show entities above the columns
-            session.importer_header.each {
-                selectedentities.add([name:params.entity, columnindex:it.key.toInteger()])
+            session.importer_header.each {                
+                selectedentities.add([name:entityName, columnindex:it.key.toInteger()])
             }
 
             def templates = Template.get(session.importer_template_id)
@@ -327,9 +343,14 @@ class ImporterController {
     * @param entity entity name string (Sample, Subject, Study et cetera)
     * @return JSON object containing the found templates
     */
-    def ajaxGetTemplatesByEntity = {
-	def entityClass = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
-	
+    def ajaxGetTemplatesByEntity = {        
+        def entityName = Blowfish.decryptBase64(
+                    	params.entity,
+                    	grailsApplication.config.crypto.shared.secret
+                    )
+
+	//def entityClass = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
+        def entityClass = entityName
 
         // fetch all templates for a specific entity
         def templates = Template.findAllByEntity(Class.forName(entityClass, true, this.getClass().getClassLoader()))	

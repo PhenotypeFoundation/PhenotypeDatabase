@@ -14,13 +14,12 @@
 %>
 <g:form name="propertiesform" action="saveProperties">
     <table>
-	  <g:each var="stdentity" in ="${standardentities}">	      
-	      
-	      <% if (selectedentities.any { it.name.toLowerCase() == stdentity.value.name.toLowerCase() } && stdentity.value.name!="") { %>
+	  <g:each var="stdentity" in ="${standardentities}">            
+	      <% if (selectedentities.any { it.name.toLowerCase() == stdentity.value.entity.toLowerCase() } && stdentity.value.entity!="") { %>
 	      <tr><td colspan="2"><h4>${stdentity.value.name}</h4></td></tr>	      
 		<tr>
 		<g:each var="selentity" in="${selectedentities}">		    
-		    <g:if test="${selentity.name.toLowerCase()==stdentity.value.name.toLowerCase()}">
+		    <g:if test="${selentity.name.toLowerCase()==stdentity.value.entity.toLowerCase()}">
 			    <td class="header" width="200px">
 				<b>${header[selentity.columnindex.toInteger()].name}</b>
 				<importer:propertyChooser name="columnproperty" mappingcolumn="${header[selentity.columnindex.toInteger()]}" matchvalue="${header[selentity.columnindex.toInteger()].name}" allfieldtypes="${allfieldtypes}"/>
