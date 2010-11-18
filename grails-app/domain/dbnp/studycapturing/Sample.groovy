@@ -15,20 +15,21 @@ class Sample extends TemplateEntity {
 	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
 	//static searchable = { [only: ['name']] }
 
-	// A Sample always belongs to one study.
 	static belongsTo = [
+		// A Sample always belongs to one study.
 		parent			: Study,
+
+		// A Sample optionally has a parent Subject from which it was taken, this Subject should be in the same parent study.
 		parentSubject	: Subject,
+
+		// Also, it has a parent SamplingEvent describing the actual sampling, also within the same parent study.
 		parentEvent		: SamplingEvent,
+
+		// And it has a parent EventGroup which tied it to its parent subject and parent event
 		parentEventGroup: EventGroup
+
+		// We can't have parentAssay since a Sample can belong to multiple Assays
 	]
-
-	// A Sample optionally has a parent Subject from which it was taken, this Subject should be in the same parent study.
-	//long parentSubject
-
-	// Also, it has a parent SamplingEvent describing the actual sampling, also within the same parent study.
-	// Strange enough, we need to define parentEvent as a long here, otherwise the SamplingEvent gets serialized into the database (?!!)
-	//long parentEvent
 
 	String name             // should be unique with respect to the parent study (which can be inferred)
 	Term material	        // material of the sample (should normally be bound to the BRENDA ontology)
@@ -59,11 +60,11 @@ class Sample extends TemplateEntity {
 		parentSubject(nullable:true)
 
 		// The same holds for parentEvent
-		parentEvent(nullable:false)
+		parentEvent(nullable:true)
 
 		// and for parentEventGroup
 		parentEventGroup(nullable:true)
-		
+
 		// The material domain field is optional
 		material(nullable: true)
 
