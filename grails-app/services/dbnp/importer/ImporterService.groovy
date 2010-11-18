@@ -88,20 +88,20 @@ class ImporterService {
 
 			    break
                     case Cell.CELL_TYPE_NUMERIC:
-			    def fieldtype = TemplateFieldType.INTEGER
+			    def fieldtype = TemplateFieldType.LONG
 			    def doubleBoolean = true
-			    def integerBoolean = true
+			    def longBoolean = true
 
 			    // is this cell really an integer?
 			    try {
-				Integer.valueOf(datamatrix_celldata)
-			    } catch (NumberFormatException nfe) { integerBoolean = false }
+				Long.valueOf(datamatrix_celldata)
+			    } catch (NumberFormatException nfe) { longBoolean = false }
 			    finally {
-				if (integerBoolean) fieldtype = TemplateFieldType.INTEGER
+				if (longBoolean) fieldtype = TemplateFieldType.LONG
 			    }
 
-			    // it's not an integer, perhaps a double?
-			    if (!integerBoolean)
+			    // it's not an long, perhaps a double?
+			    if (!longBoolean)
 				try {
 				    formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
 				} catch (NumberFormatException nfe) { doubleBoolean = false }
@@ -496,8 +496,8 @@ class ImporterService {
 	    switch (type) {
 		case TemplateFieldType.STRING	    :   return value.trim()
 		case TemplateFieldType.TEXT	    :   return value.trim()
-		case TemplateFieldType.INTEGER	    :   return (int) Double.valueOf(value)
-		case TemplateFieldType.FLOAT	    :   return Float.valueOf(value.replace(",","."));
+		case TemplateFieldType.LONG	    :   return (long) Double.valueOf(value)
+		//case TemplateFieldType.FLOAT	    :   return Float.valueOf(value.replace(",","."));
 		case TemplateFieldType.DOUBLE	    :   return Double.valueOf(value.replace(",","."));
 		case TemplateFieldType.STRINGLIST   :   return value.trim()
 		case TemplateFieldType.ONTOLOGYTERM :   return value.trim()
