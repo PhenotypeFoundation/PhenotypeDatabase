@@ -12,7 +12,10 @@ package dbnp.studycapturing
  */
 class Event extends TemplateEntity {
 
-	static searchable = true
+	// uncommented due to searchable issue
+	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
+	// Enabling this causes the error: Trying to marshall a null id [id] for alias [Event] in the study create wizard when you add events
+	// static searchable = true
 
 	static belongsTo = [parent : Study]	
 
