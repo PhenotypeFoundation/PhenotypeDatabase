@@ -924,7 +924,7 @@ class WizardTagLib extends JavascriptTagLib {
 				}
 
 				switch (it.type.toString()) {
-					case ['STRING', 'INTEGER', 'FLOAT', 'DOUBLE', 'LONG']:
+					case ['STRING', 'DOUBLE', 'LONG']:
 						inputElement = (renderType == 'element') ? 'textFieldElement' : 'textField'
 						out << "$inputElement"(
 							description	: ucName,
