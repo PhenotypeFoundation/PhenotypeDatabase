@@ -214,10 +214,8 @@ class ImporterController {
 				      break
 		case "TEXT"	    : tft = TemplateFieldType.TEXT
 				      break
-		case "INTEGER"	    : tft = TemplateFieldType.INTEGER
-				      break
-		case "FLOAT"	    : tft = TemplateFieldType.FLOAT
-				      break
+		case "LONG"	    : tft = TemplateFieldType.LONG
+                                      break
 		case "DOUBLE"	    : tft = TemplateFieldType.DOUBLE
 				      break
 		case "STRINGLIST"   : tft = TemplateFieldType.STRINGLIST
