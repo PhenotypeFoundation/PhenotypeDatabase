@@ -93,20 +93,37 @@ abstract class TemplateEntity extends Identity {
 			// iterate through fields
 			fields.each { key, value ->
 				// check if the value is of proper type
-				if (value && value.class != String) {
-					// it's of some other type
-					try {
-						// try to cast it to the proper type
-						fields[key] = (value as String)
-					} catch (Exception e) {
-						// could not typecast properly, value is of improper type
-						// add error message
+				if (value) {
+					def strValue = "";
+					if( value.class != String) {
+						// it's of some other type
+						try {
+							// try to cast it to the proper type
+							strValue = (value as String)
+							fields[key] = strValue
+						} catch (Exception e) {
+							// could not typecast properly, value is of improper type
+							// add error message
+							error = true
+							errors.rejectValue(
+								'templateStringFields',
+								'templateEntity.typeMismatch.string',
+								[key, value.class] as Object[],
+								'Property {0} must be of type String and is currently of type {1}'
+							)
+						}
+					} else {
+						strValue = value;
+					}
+
+					// Check whether the string doesn't exceed 255 characters
+					if( strValue.size() > 255 ) {
 						error = true
 						errors.rejectValue(
 							'templateStringFields',
-							'templateEntity.typeMismatch.string',
-							[key, value.class] as Object[],
-							'Property {0} must be of type String and is currently of type {1}'
+							'templateEntity.tooLong.string',
+							[key] as Object[],
+							'Property {0} may contain at most 255 characters.'
 						)
 					}
 				}
