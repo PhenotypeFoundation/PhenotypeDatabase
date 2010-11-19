@@ -83,7 +83,10 @@
  	<script type="text/javascript">
 		$(document).ready(function() {
     		// initialize the ontology chooser
-    		new OntologyChooser().init({showHide: $('div#button')});
+    		new OntologyChooser().init({
+			    showHide: $('div#button'),
+			    spinner: "${resource(dir: 'images', file: 'spinner.gif')}"
+		    });
 		});
  	</script>
 

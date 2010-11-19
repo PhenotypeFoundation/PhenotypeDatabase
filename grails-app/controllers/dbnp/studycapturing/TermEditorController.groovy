@@ -57,76 +57,44 @@ class TermEditorController {
 				println ".rendering term selection popup"
 			}
 			on("add") {
-				// get ontology by ncboVersionedId
-				def ontology = Ontology.findByNcboVersionedId( params.get('term-ontology_id') as int )
-                def strTerm = params.get('term')
+				println params
 
-				// do we have an ontology?
-				if (!ontology && params.get('term-ontology_id')) {
-					// no, so either this is a new ontology that does not yet
-					// exist in the database, or it is a new version of an
-					// ontology that is already present in the database
-					println ".ontology missing, first fetch ontology information"
+				def ncboId = params.get('term-ncbo_id')
+				def ncboVersionedId = params.get('term-ontology_id')
+				def ontology = null
 
-					// use the NCBO REST service to fetch ontology information
-					try {
-						// instantiate Ontology with the proper values
-						ontology = Ontology.getBioPortalOntologyByVersionedId( params.get('term-ontology_id') )
-
-						// check if this is a newer version of an existing ontology
-						def checkOntology = Ontology.findByName( ontology.name )
-						if ( checkOntology ) {
-							// this is a newer version of an existing Ontology, update
-							// the ontology to a newer version. This is not the best
-							// way to handle these updates as we don't know if terms
-							// have been updated. However, introducing different versions
-							// of Ontologies results into numerous difficulties as well:
-							//	- what to do with studies that rely on an older ontology
-							//	- when a new ontology is added, the existing terms of the
-							//	  older version are lacking in the new version
-							//	- the webservice can only search on ontologyid, not on
-							//	  versions of ncboVersioned id's
-							//	- if the name has changed between versions this check
-							//	  will not work anymore
-							//	- etc :)
-							// So for now, we will just update the existing ontology with
-							// the new information until it becomes clear this needs a
-							// more thorough workaround...
-							//
-							// Jeroen, 20101026
-
-							// update ontology values
-							checkOntology.ncboVersionedId	= ontology.ncboVersionedId
-							checkOntology.versionNumber		= ontology.versionNumber
-							checkOntology.url				= ontology.url
-
-							// store the ontology
-							if ( checkOntology.validate() ) {
-								println ".updated ontology with new version information"
-								checkOntology.save(flush:true)
-
-								// and use this existing ontology
-								ontology = checkOntology
-							}
-						} else if ( ontology.validate() ) {
-							// store the ontology
-							println ".adding new ontology"
-							ontology.save(flush:true)
-						}
-					} catch (Exception e) {
-						// something went wrong, probably the
-						// ontology-id is invalid (hence, the term
-						// is invalid)
-						println ".oops? --> " + e.getMessage()
-						flash.errors = ["We could not add the ontology for this term, please try again"]
+				try {
+					// got the ncboId?
+					if (ncboId && ncboId != "null") {
+						// find ontology by ncboId
+						ontology = Ontology.findByNcboId(ncboId as int)
+					} else if (ncboVersionedId && ncboVersionedId != "null") {
+						// find ontology by ncboId
+						ontology = Ontology.findByNcboVersionedId(ncboVersionedId as int)
+					} else {
+						// somehow we didn't get both the ncboId as well
+						// as the versioned id. Throw an error.
+						throw new Exception("We did not receive the ontology with your request, please try again")
 					}
-				}
 
-				// got an error?
-				if (!flash.errors) {
+					// do we have the ontology?
+					if (!ontology) {
+						// no, try to instantiate by using the BioPortal
+						ontology = (ncboId && ncboId != "null") ? Ontology.getBioPortalOntology( ncboId as int ) : Ontology.getBioPortalOntologyByVersionedId( ncboVersionedId as String )
+
+						// validate and save ontology
+						if (!(ontology.validate() && ontology.save(flush:true))) {
+							if (ncboId && ncboId != "null") {
+								throw new Exception("An Ontology with ncboId ${ncboId} (= Ontology ID) does not seem valid. See http://bioportal.bioontology.org/ontologies")
+							} else {
+								throw new Exception("An Ontology with ncboVersionedId ${ncboVersionedId} (= URL id) does not seem valid. See http://bioportal.bioontology.org/ontologies")
+							}
+						}
+					}
+
 					// instantiate term with parameters
 					def term = new Term(
-						name: strTerm,
+						name: params.get('term'),
 						ontology: ontology,
 						accession: params.get('term-concept_id')
 					)
@@ -134,7 +102,7 @@ class TermEditorController {
 					// validate term
 					if (term.validate()) {
 						// save the term to the database
-						if (term.save(flush:true)) {
+						if (term.save()) {
 							flash.message = "'" + params.get('term') + "' was successfully added, either search for another term to add or close this window"
 							success()
 						} else {
@@ -144,7 +112,6 @@ class TermEditorController {
 						}
 					} else {
 						// term did not validate properly
-						term.errors.each() { println it }
 						if (term.errors =~ 'unique') {
 							flash.errors = ["'" + params.get('term') + "' already exists, either search for another term or close this window"]
 						} else {
@@ -153,6 +120,10 @@ class TermEditorController {
 
 						error()
 					}
+				} catch (Exception e) {
+					flash.errors = ["${e.getMessage()}"]
+
+					error()
 				}
 			}.to "terms"
 		}
