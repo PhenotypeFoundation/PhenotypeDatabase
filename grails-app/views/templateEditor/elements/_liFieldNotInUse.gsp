@@ -8,11 +8,5 @@
 (<g:if test="${templateField.unit}">${templateField.unit}, </g:if><g:render template="elements/${templateField.type.toString().toLowerCase().replaceAll(/ /,'_')}" model="[templateField: templateField]" />)
 
 <form class="templateField_form" id="templateField_${templateField.id}_form" action="updateField">
-	<g:hiddenField name="id" value="${templateField.id}" />
-	<g:hiddenField name="version" value="${templateField.version}" />
 	<g:render template="elements/fieldForm" model="['templateField': templateField, 'ontologies': ontologies, 'fieldTypes': fieldTypes]"/>
-	<div class="templateFieldButtons">
-		<input type="button" value="Save" onClick="updateTemplateField( ${templateField.id} );">
-		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField.id} );">
-	</div>
 </form>

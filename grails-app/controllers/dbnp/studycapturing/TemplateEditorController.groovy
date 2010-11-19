@@ -400,13 +400,12 @@ class TemplateEditorController {
 		if( params.type.toString() == 'STRINGLIST' ) {
 			def listEntries = [];
 			params.listEntries.eachLine {
-				// Search whether a listitem with this name already exists.
-				// if it does, use that one to prevent pollution of the database
+				// We don't search for a listitem that might already exist,
+				// because if we use that list item, it will be removed from the
+				// other string list. 
 				def name = it.trim();
-				def listitem = TemplateFieldListItem.findByName( name );7
-				if( !listitem ) {
-					listitem = new TemplateFieldListItem( name: name )
-				}
+
+				def listitem = new TemplateFieldListItem( name: name )
 				listEntries.add( listitem );
 			}
 
@@ -465,34 +464,95 @@ class TemplateEditorController {
         }
 
 		// If this field is type stringlist or ontology, we have to prepare the parameters
-		if( params.type.toString() == 'STRINGLIST' ) {
+		//
+		// For stringlist and ontologyterm fields, the list items can be changed, even when the field is in use
+		// In that case, only never-used items can be removed or changed and items can be added. If that is the case
+		// params.is_disabled is true and we should combine listEntries and extraListEntries with the items already in use.
+		if( params.type.toString() == 'STRINGLIST' || ( templateField.type == TemplateFieldType.STRINGLIST && params.is_disabled) ) {
+			def listEntryLines = "";
 			def listEntries = [];
-			params.listEntries.eachLine {
-				// Search whether a listitem with this name already exists.
-				// if it does, use that one to prevent pollution of the database
-				def name = it.trim();
-				def listitem = TemplateFieldListItem.findByName( name );7
-				if( !listitem ) {
-					listitem = new TemplateFieldListItem( name: name )
-				}
-				listEntries.add( listitem );
+
+			if( params.is_disabled ) {
+				listEntries = templateField.getUsedListEntries();
 			}
 
+			if( params.listEntries ) {
+				listEntryLines = params.listEntries;
+				
+				listEntryLines.eachLine {
+					// We don't search for a listitem that might already exist,
+					// because if we use that list item, it will be removed from the
+					// other string list. We only search for an item that already
+					// belongs to this list.
+					def name = it.trim();
+
+					def c = TemplateFieldListItem.createCriteria()
+					def listitem = c.get {
+						eq( "name", name )
+						eq( "parent", templateField)
+					}
+					if( !listitem ) {
+						listitem = new TemplateFieldListItem( name: name )
+					}
+
+					// Prevent using the same list entry twice
+					if( !listEntries.contains( listitem ) )
+						listEntries.add( listitem );
+				}
+			}
+
+			// Add listEntries to the templateField
 			params.listEntries = listEntries;
 		} else {
 			params.remove( 'listEntries' );
 		}
 
 		// If this field is a ontologyterm, we add ontology objects
-		if( params.type.toString() == 'ONTOLOGYTERM' && params.ontologies ) {
-			params.ontologies = Ontology.getAll( params.ontologies.collect { Integer.parseInt( it ) } );
+		// For stringlist and ontologyterm fields, the list items can be changed, even when the field is in use
+		// In that case, only never-used items can be removed or changed and items can be added. If that is the case
+		// params.is_disabled is true and we should combine ontologies with the ontologies already in use.
+		if( ( params.type.toString() == 'ONTOLOGYTERM' || ( templateField.type == TemplateFieldType.ONTOLOGYTERM && params.is_disabled ) ) && params.ontologies ) {
+			def usedOntologies = [];
+
+			if( params.is_disabled ) {
+				usedOntologies = templateField.getUsedOntologies();
+			}
+
+			if( params.ontologies ) {
+				def ontologies = params.ontologies;
+	
+				params.ontologies = usedOntologies + Ontology.getAll( ontologies.collect { Integer.parseInt( it ) } );
+			}
+
 		} else {
 			params.remove( 'ontologies' );
 		}
 
+		// A field that is already used in one or more templates, but is not filled everywhere,
+		// can not be set to required
+		if( params.required ) {
+			if( !templateField.isFilledInAllObjects() ) {
+				response.status = 500;
+				render "A field can only be marked as required if all objects using this field have a value for the field."
+				return
+			}
+		}
+
 		// Set all parameters
 		templateField.properties = params
+
+		templateField.validate();
+		
+
         if (!templateField.hasErrors() && templateField.save(flush: true)) {
+
+			// Remove all orphaned list items, because grails doesn't handle it for us
+			TemplateFieldListItem.findAllByParent( templateField ).each {
+				if( !params.listEntries.contains( it ) ) {
+					templateField.removeFromListEntries( it );
+					it.delete();
+				}
+			}
 
 			// Select the template to use for the HTML output
 			def renderTemplate = 'elements/available';
@@ -510,7 +570,7 @@ class TemplateEditorController {
 			render output as JSON;
         } else {
             response.status = 500;
-            render 'TemplateField was not updated because errors occurred.';
+            render 'TemplateField was not updated because errors occurred. Please contact the system administrator';
             return
         }
     }

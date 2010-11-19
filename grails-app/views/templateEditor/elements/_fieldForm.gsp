@@ -1,4 +1,9 @@
-	<label for="name">Name:</label> <g:textField name="name" value="${templateField?.name}" /><br />
+  <g:hiddenField name="id" value="${templateField?.id}" />
+  <g:hiddenField name="version" value="${templateField?.version}" />
+  <g:if test="${is_new}"><g:hiddenField name="entity" value="${encryptedEntity}" /></g:if>
+  <g:if test="${is_selected}"><g:hiddenField name="renderTemplate" value="selected" /></g:if>
+  <g:if test="${template}"><g:hiddenField name="templateId" value="${template.id}" /></g:if>
+<label for="name">Name:</label> <g:textField name="name" value="${templateField?.name}" /><br />
 	<label for="type">Type:</label>
 	  <%
 		/* Create a list of field types grouped on category */
@@ -36,3 +41,14 @@
 	<label for="unit">Unit:</label> <g:textField name="unit" value="${templateField?.unit}" /><br />
 	<label for="comment">Comment:</label> <g:textArea name="comment" value="${templateField?.comment}" /><br />
 	<label for="required">Required:</label> <g:checkBox name="required" value="${templateField?.required}" /><br />
+
+	<div class="templateFieldButtons">
+	  <g:if test="${is_new}">
+		<input type="button" value="Save" onClick="createTemplateField( 'new' );">
+		<input type="button" value="Cancel" onClick="hideTemplateFieldForm( 'new' );">
+	  </g:if>
+	  <g:else>
+		<input type="button" value="Save" onClick="updateTemplateField( ${templateField?.id} );">
+		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} );">
+	  </g:else>
+	</div>

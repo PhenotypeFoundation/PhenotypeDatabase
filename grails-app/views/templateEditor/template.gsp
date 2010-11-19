@@ -111,12 +111,7 @@
 					</a>
 
 					<form class="templateField_form" id="templateField_new_form" action="createField">
-						<g:hiddenField name="entity" value="${encryptedEntity}" />
-						<g:render template="elements/fieldForm" model="['templateField': null, 'fieldTypes': fieldTypes]"/>
-						<div class="templateFieldButtons">
-							<input type="button" value="Save" onClick="createTemplateField( 'new' );">
-							<input type="button" value="Cancel" onClick="hideTemplateFieldForm( 'new' );">
-						</div>
+						<g:render template="elements/fieldForm" model="['templateField': null, 'fieldTypes': fieldTypes, 'encryptedEntity': encryptedEntity, 'is_new': true]"/>
 					</form>
 				</div>
 			</div>

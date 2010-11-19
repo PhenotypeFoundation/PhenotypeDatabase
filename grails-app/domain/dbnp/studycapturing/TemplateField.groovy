@@ -75,7 +75,7 @@ class TemplateField implements Serializable {
                 type column:"templatefieldtype"
                 entity column:"templatefieldentity"
                 unit column:"templatefieldunit"
-                comment column:"templatefieldcomment"                
+                comment column:"templatefieldcomment"
 	}
 
 	String toString() {
@@ -105,6 +105,56 @@ class TemplateField implements Serializable {
 		}
 
 		return results
+	}
+
+	/**
+	 * Retrieves all list items of a stringlist template field that have been used in an object
+	 * 
+	 * @return	ArrayList containing all list items of this template field that have been used in an object.
+	 */
+	def getUsedListEntries() {
+		if( this.type != TemplateFieldType.STRINGLIST )
+			return []
+
+		return this.listEntries.findAll { this.entryUsed( it ) }
+	}
+
+	/**
+	 * Retrieves all list items of a stringlist template field that have never been used in an object
+	 *
+	 * @return	ArrayList containing all list items of this template field that have nevert been used in an object.
+	 */
+	def getNonUsedListEntries() {
+		if( this.type != TemplateFieldType.STRINGLIST )
+			return []
+		
+		return this.listEntries.findAll { !this.entryUsed( it ) }
+	}
+
+	/**
+	 * Retrieves all ontologies of an ontologyterm template field that have been used in an object
+	 *
+	 * @return	ArrayList containing all ontologies of this template field that have been used in an object
+	 *			(i.e. all ontologies from which a term has been selected in this template field).
+	 */
+	def getUsedOntologies() {
+		if( this.type != TemplateFieldType.ONTOLOGYTERM )
+			return []
+
+		return this.ontologies.findAll { this.entryUsed( it ) }
+	}
+
+	/**
+	 * Retrieves all list items of an ontologyterm template field that have never been used in an object
+	 *
+	 * @return	ArrayList containing all ontologies of this template field that have never been used in an object.
+	 *			(i.e. all ontologies from which no term has been selected in this template field).
+	 */
+	def getNonUsedOntologies() {
+		if( this.type != TemplateFieldType.ONTOLOGYTERM )
+			return []
+
+		return this.ontologies.findAll { !this.entryUsed( it ) }
 	}
 
 	/**
@@ -150,12 +200,13 @@ class TemplateField implements Serializable {
 	 *				and an instance has a value for this field. false otherwise
 	 */
 	def isFilled() {
-		// Find all entities that use this template
+		// Find all templates that use this template field
 		def templates = getUses();
 
 		if( templates.size() == 0 )
 			return false;
 
+		// Find all entities that use these templates
 		def c = this.entity.createCriteria()
 		def entities = c {
 			'in'("template",templates)
@@ -188,6 +239,34 @@ class TemplateField implements Serializable {
 	}
 
 	/**
+	 * Checks whether this template field is filled in all objects using a template with this template field
+	 * If the template field is never used, the method returns true. If the template field is used in a template,
+	 * but no objects with this template exist, the method also returns true
+	 *
+	 * @returns		false iff objects exist using this template field, but without a value for this field. true otherwise
+	 */
+	def isFilledInAllObjects() {
+		// Find all templates that use this entity
+		def templates = getUses();
+
+		if( templates.size() == 0 )
+			return true;
+
+		// Find all entities that use these templates
+		def c = this.entity.createCriteria()
+		def entities = c {
+			'in'("template",templates)
+		}
+
+		if( entities.size() == 0 )
+			return true;
+
+		def emptyEntities = entities.findAll { entity -> !entity.getFieldValue( this.name ) }
+
+		return ( emptyEntities.size() == 0 );
+	}
+
+	/**
 	 * Check whether a templatefield that is used in a template may still be edited or deleted.
 	 * That is possible if the templatefield is never filled and the template is only used in one template
 	 *
@@ -210,7 +289,27 @@ class TemplateField implements Serializable {
 	 *					Returns false if the type of this template field is other than STRINGLIST
 	 */
 	def entryUsed(TemplateFieldListItem item) {
-		//return numUses() > 0;
+		if( this.type != TemplateFieldType.STRINGLIST )
+			return false;
+
+		// Find all templates that use this template field
+		def templates = getUses();
+
+		if( templates.size() == 0 )
+			return false;
+
+		// Find all entities that use these templates
+		def c = this.entity.createCriteria()
+		def entities = c {
+			'in'("template",templates)
+		}
+
+		if( entities.size() == 0 ) 
+			return false
+			
+		def entitiesWithListItem = entities.findAll { entity -> entity.getFieldValue( this.name ).equals( item ) }
+
+		return entitiesWithListItem.size() > 0;
 	}
 
 	/**
@@ -219,10 +318,38 @@ class TemplateField implements Serializable {
 	 * @param	item	ListItem to check.
 	 * @returns			true iff the ontology is part of this template field and a term from the given
 	 *					ontology is selected in an entity where this template field is used. false otherwise
-	 *					Returns false if the type of this template field is other than ONTOLOGY
+	 *					Returns false if the type of this template field is other than ONTOLOGYTERM
 	 */
 	def entryUsed(Ontology item) {
-		//return numUses() > 0;
+		if( this.type != TemplateFieldType.ONTOLOGYTERM )
+			return false;
+
+		// Find all templates that use this template field
+		def templates = getUses();
+
+		// If the template field is never used in a template, it will also never
+		// be filled, and this Ontology will never be used
+		if( templates.size() == 0 )
+			return false;
+
+		// Find all entities that use these templates
+		def c = this.entity.createCriteria()
+		def entities = c {
+			'in'("template",templates)
+		}
+
+		if( entities.size() == 0 )
+			return false
+
+		def entitiesWithOntology = entities.findAll { entity -> 
+			def value = entity.getFieldValue( this.name );
+			if( value ) 
+				return value.ontology.equals( item )
+			else
+				return false;
+		}
+
+		return entitiesWithOntology.size() > 0;
 	}
 
 }

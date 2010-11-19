@@ -14,20 +14,9 @@
 
   <form class="templateField_form" id="templateField_${templateField.id}_form" action="updateField">
 	  <g:if test="${templateField.isEditable()}">
-		<g:hiddenField name="id" value="${templateField.id}" />
-		<g:hiddenField name="version" value="${templateField.version}" />
-		<g:hiddenField name="renderTemplate" value="selected" />
-		<g:hiddenField name="templateId" value="${template.id}" />
-		<g:render template="elements/fieldForm" model="['templateField': templateField, 'ontologies': ontologies, 'fieldTypes': fieldTypes]"/>
-		<div class="templateFieldButtons">
-			<input type="button" value="Save" onClick="updateTemplateField( ${templateField.id} );">
-			<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField.id} );">
-		</div>
+		<g:render template="elements/fieldForm" model="['templateField': templateField, 'template': template, 'is_selected': true, 'ontologies': ontologies, 'fieldTypes': fieldTypes]" />
 	  </g:if>
 	<g:else>
-		<g:render template="elements/disabledFieldForm" model="['templateField': templateField, 'ontologies': ontologies, 'fieldTypes': fieldTypes]"/>
-		<div class="templateFieldButtons">
-			<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField.id} );">
-		</div>
+		<g:render template="elements/disabledFieldForm" model="['templateField': templateField, 'template': template, 'is_selected': true, 'ontologies': ontologies, 'fieldTypes': fieldTypes]"/>
 	</g:else>
   </form>

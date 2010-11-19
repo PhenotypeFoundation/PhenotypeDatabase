@@ -599,17 +599,24 @@ abstract class TemplateEntity extends Identity {
 		if (field.type == TemplateFieldType.ONTOLOGYTERM && value && value.class == String) {
 			// iterate through ontologies and find term
 			field.ontologies.each() { ontology ->
-				def term = ontology.giveTermByName(value)
+				// If we've found a term already, value.class == Term. In that case,
+				// we shouldn't look further. Unfortunately, groovy doesn't support breaking out of
+				// each(), so we check it on every iteration.
+				if( value.class == String ) {
+					def term = ontology.giveTermByName(value)
 
-				// found a term?
-				if (term) {
-					value = term
+					// found a term?
+					if (term) {
+						value = term
+					}
 				}
+			}
+
+			// If the term is not found in any ontology
+			if( value.class == String ) {
 				// TODO: search ontology for the term online (it may still exist) and insert it into the Term cache
 				// if not found, throw exception
-				else {
-					throw new IllegalArgumentException("Ontology term not recognized (not in the GSCF ontology cache): ${value} when setting field ${fieldName}")
-				}
+				throw new IllegalArgumentException("Ontology term not recognized (not in the GSCF ontology cache): ${value} when setting field ${fieldName}")
 			}
 		}
 

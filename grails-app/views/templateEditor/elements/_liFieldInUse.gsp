@@ -9,12 +9,17 @@
     (<g:if test="${templateField.unit}">${templateField.unit}, </g:if><g:render template="elements/${templateField.type.toString().toLowerCase().replaceAll(/ /,'_')}" model="[templateField: templateField]"/>)
     
 <form class="templateField_form" id="templateField_${templateField.id}_form" action="updateField">
-	<g:hiddenField name="id" value="${templateField.id}" />
-	<g:hiddenField name="version" value="${templateField.version}" />
-	<p class="noEditsPossible">Editing not possible. Field is used in ${numUses} template(s).</p>
-	<g:render template="elements/disabledFieldForm" model="['templateField': templateField, 'ontologies': ontologies, 'fieldTypes': fieldTypes]"/>
-	<div class="templateFieldButtons">
-		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField.id} );">
-	</div>
+  <g:if test="${ templateField?.type.toString() == 'STRINGLIST' }">
+    <p class="noEditsPossible">You can only add or remove list items that are not used. Field is used in ${numUses} template(s).</p>
+  </g:if>
+  <g:else>
+    <g:if test="${templateField?.type.toString() == 'ONTOLOGYTERM' }">
+    <p class="noEditsPossible">You can only add or remove ontologies that are not used. Field is used in ${numUses} template(s).</p>
+	</g:if>
+	<g:else>
+	  <p class="noEditsPossible">Editing not possible. Field is used in ${numUses} template(s).</p>
+	</g:else>
+  </g:else>
+  <g:render template="elements/disabledFieldForm" model="['templateField': templateField, 'ontologies': ontologies, 'fieldTypes': fieldTypes]"/>
 </form>
 
