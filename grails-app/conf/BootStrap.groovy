@@ -8,6 +8,7 @@ import dbnp.studycapturing.TemplateEntity
 import dbnp.studycapturing.Subject
 import dbnp.studycapturing.Sample
 import dbnp.rest.common.CommunicationManager
+import org.codehaus.groovy.grails.commons.*
 
 /**
  * Application Bootstrapper
@@ -27,11 +28,26 @@ class BootStrap {
 		// grom what's happening
 		"bootstrapping application".grom()
 
+		// get configuration
+		def config = ConfigurationHolder.config
+
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
 		// set up authentication (if required)
 		if (!SecRole.count() || !SecUser.count()) BootStrapAuthentication.initDefaultAuthentication(springSecurityService)
+
+		// set up the SAM communication manager
+		// this should probably more dynamic and put into the modules
+		// section instead of the bootstrap as not all instances will
+		// probably run WITH sam. GSCF should be able to run independently
+		// from other modules. Part of gscf ticket #185
+		if (config.modules?.sam) {
+			// register SAM REST methods
+			"Registering SAM REST methods".grom()
+			CommunicationManager.SAMServerURL = config.modules.sam.url
+			CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
+		}
 
 		// developmental bootstrapping:
 		//      - templates
@@ -56,10 +72,6 @@ class BootStrap {
 		 */
 		TemplateEntity.getField(Subject.domainFields, 'species').ontologies = [Ontology.getOrCreateOntologyByNcboId(1132)]
 		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [Ontology.getOrCreateOntologyByNcboId(1005)]
-
-		// register SAM REST methods
-		"Registering SAM REST methods".grom()
-		CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
 	}
 
 	def destroy = {

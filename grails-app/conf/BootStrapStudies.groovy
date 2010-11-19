@@ -14,15 +14,19 @@ import dbnp.data.Ontology
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
 import dbnp.rest.common.CommunicationManager
+import org.codehaus.groovy.grails.commons.*
+
 
 class BootStrapStudies {
 
 	/**
 	 * Add example studies. This function is meant to be called only in development mode
 	 */
-
 	public static void addExampleStudies(dbnp.authentication.SecUser owner, dbnp.authentication.SecUser otherUser ) {
 		"inserting initial studies".grom()
+
+		// get configuration
+		def config = ConfigurationHolder.config
 
 		// Look up the used ontologies which should be in the database by now
 		def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
@@ -462,25 +466,18 @@ class BootStrapStudies {
 		.addToPublications( publication2 )
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
-		// sam urls are in config.groovy, where they belong...
-		// if that doesn't work for you, make it work... now you're
-		// breaking the other environments....
-		//def samURL = GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION ? 'http://sam.nmcdsp.org' : 'http://localhost:8182/sam'
-		def nmcdspURL = GrailsUtil.environment == GrailsApplication.ENV_PRODUCTION ? 'http://metabolomics.nmcdsp.org' : 'http://localhost:8183/nmcdsp'
-		def samURL = CommunicationManager.SAMServerURL
-
 		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
 			platform: 'clinical measurements',
-			url: samURL
+			url: config.modules.sam.url
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add metabolomics assay reference
 		def metabolomicsModule = new AssayModule(
 			name: 'Metabolomics module',
 			platform: 'GCMS/LCMS',
-			url: nmcdspURL
+			url: config.modules.metabolomics.url
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		def lipidAssayRef = new Assay(

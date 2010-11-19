@@ -50,50 +50,85 @@ grails.enable.native2ascii = true
 environments {
 	development {
 		grails.serverURL = "http://localhost:8080/${appName}"
-
-		CommunicationManager.SAMServerURL = 'http://localhost:8182/sam'
-		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
+		modules {
+			sam {
+				url = "http://localhost:8182/sam"
+			}
+			metabolomics {
+				url = "http://localhost:8183/nmcdsp"
+			}
+		}
 	}
 	ci {
 		// used by build script
 		grails.serverURL = "http://ci.gscf.nmcdsp.org"
-
-		CommunicationManager.SAMServerURL = 'http://ci.sam.nmcdsp.org'
-		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
+		modules {
+			sam {
+				url = "http://ci.sam.nmcdsp.org"
+			}
+			metabolomics {
+				url = "http://ci.metabolomics.nmcdsp.org"
+			}
+		}
 	}
 	test {
 		// used by build script
 		grails.serverURL = "http://test.gscf.nmcdsp.org"
-
-		CommunicationManager.SAMServerURL = 'http://test.sam.nmcdsp.org'
-		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
+		modules {
+			sam {
+				url = "http://test.sam.nmcdsp.org"
+			}
+			metabolomics {
+				url = "http://test.metabolomics.nmcdsp.org"
+			}
+		}
 	}
 	dbnptest {
 		// used by build script
 		grails.serverURL = "http://test.dbnp.org"
-
-		CommunicationManager.SAMServerURL = 'http://test.sam.dbnp.org'
-		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
+		modules {
+			sam {
+				url = "http://test.sam.dbnp.org"
+			}
+			metabolomics {
+				url = "http://test.metabolomics.dbnp.org"
+			}
+		}
 	}
 	dbnpdemo {
 		// used by build script
 		grails.serverURL = "http://demo.dbnp.org"
-
-		CommunicationManager.SAMServerURL = 'http://demo.sam.dbnp.org'
-		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
+		modules {
+			sam {
+				url = "http://demo.sam.dbnp.org"
+			}
+			metabolomics {
+				url = "http://demo.metabolomics.dbnp.org"
+			}
+		}
 	}
 	production {
 		grails.serverURL = "http://www.nmcdsp.org"
-
-		CommunicationManager.SAMServerURL = 'http://sam.nmcdsp.org'
-		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
+		modules {
+			sam {
+				url = "http://sam.nmcdsp.org"
+			}
+			metabolomics {
+				url = "http://metabolomics.nmcdsp.org"
+			}
+		}
 	}
 	www {
 		// used by build script
 		grails.serverURL = "http://www.nmcdsp.org"
-
-		CommunicationManager.SAMServerURL = 'http://sam.nmcdsp.org'
-		CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
+		modules {
+			sam {
+				url = "http://sam.nmcdsp.org"
+			}
+			metabolomics {
+				url = "http://metabolomics.nmcdsp.org"
+			}
+		}
 	}
 }
 
