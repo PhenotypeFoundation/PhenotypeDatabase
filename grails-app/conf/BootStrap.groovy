@@ -42,10 +42,12 @@ class BootStrap {
 		// section instead of the bootstrap as not all instances will
 		// probably run WITH sam. GSCF should be able to run independently
 		// from other modules. Part of gscf ticket #185
-		if (config.modules?.sam) {
+		if (config.modules) {
 			// register SAM REST methods
 			"Registering SAM REST methods".grom()
+			CommunicationManager.GSCFServerURL = config.grails.serverURL
 			CommunicationManager.SAMServerURL = config.modules.sam.url
+			CommunicationManager.DSPServerURL = config.modules.metabolomics.url
 			CommunicationManager.registerRestWrapperMethodsGSCFtoSAM()
 		}
 
