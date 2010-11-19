@@ -52,16 +52,20 @@ class Ontology implements Serializable {
 		// TODO: maybe make a static OntologyService instance to be more efficient, and decorate it with caching?
 		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.bioportal.BioportalOntologyService()
 		uk.ac.ebi.ontocat.Ontology o = os.getOntology(ncboId)
-
+		
 		// Instantiate and return Ontology object
-		new dbnp.data.Ontology(
-			name: o.label,
-			description: o.description,
-			url: o.properties['homepage'] ?: "http://bioportal.bioontology.org/ontologies/${o.id}",
-			versionNumber: o.versionNumber,
-			ncboId: o.ontologyAccession,
-			ncboVersionedId: o.id
-		);
+		if (o != null) {
+			new dbnp.data.Ontology(
+				name: o.label,
+				description: o.description,
+				url: o.properties['homepage'] ?: "http://bioportal.bioontology.org/ontologies/${o.id}",
+				versionNumber: o.versionNumber,
+				ncboId: o.ontologyAccession,
+				ncboVersionedId: o.id
+			);
+		} else {
+			println ("ERROR: ontology with ncboId ${ncboId} could not be found!")
+		}
 	}
 
 
