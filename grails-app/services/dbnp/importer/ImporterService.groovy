@@ -311,10 +311,15 @@ class ImporterService {
 						study.addToEvents(entity)
 						if (persistEntity(entity)) validatedSuccesfully++
 						break
-			case Sample	 :  print "Persisting Sample `" + entity +"`: "
+			case Sample	 :  print "Persisting Sample `" + entity +"`: "                                                
                                                 entity.parent = study
-						study.addToSamples(entity)
-						if (persistEntity(entity)) validatedSuccesfully++
+                                                
+                                                // is this sample validatable (sample name unique for example?)
+                                                if (entity.validate()) {
+                                                    study.addToSamples(entity)
+                                                    if (persistEntity(study)) validatedSuccesfully++
+                                                }
+                                                
 						break
 			case SamplingEvent: print "Persisting SamplingEvent `" + entity + "`: "
                                                 entity.parent = study
@@ -383,10 +388,11 @@ class ImporterService {
      * 
      */
     boolean persistEntity(entity) {
-	    println "persisting ${entity}"            
+	    println "persisting ${entity}"
+            println entity.dump()
 	    // if not validated
 		if (entity.validate()) {
-			if (entity.save()) { //.merge?
+			if (entity.save(flush:true)) { //.merge?
 				return true
 			}
 			else { // if save was unsuccesful
