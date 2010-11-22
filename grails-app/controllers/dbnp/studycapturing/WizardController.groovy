@@ -96,6 +96,13 @@ class WizardController {
 				[title: 'Done']					// finish page
 			]
 			flow.jump = session.jump
+
+			// since this controller was refactored it's technically
+			// safe to enable quicksave throughout the application.
+			// However, we must keep an eye on the quality of the
+			// studies as this change makes it easier to create dummy
+			// studies which will create garbage in out database.
+			flow.quickSave = true
 			success()
 		}
 
