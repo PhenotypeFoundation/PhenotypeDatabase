@@ -792,11 +792,13 @@ class WizardTagLib extends JavascriptTagLib {
 		out << '<div id="upload_button_' + attrs.name + '" class="upload_button">Upload</div>';
 		out << '<input type="hidden" name="' + attrs.name + '" id="' + attrs.name + '" value="' + attrs.value + '">';
 		out << '<div id="' + attrs.name + 'Example" class="upload_info"></div>';
+		out << '<a id="' + attrs.name + 'Delete" class="upload_del" href="#" onClick="if( confirm( \'Are you sure to delete this file?\' ) ) { deleteFile( \'' + attrs.name + '\' ); } return false;"><img src="' + resource( dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam' ) + '"></a>';
 		out << '<script type="text/javascript">';
 		out << '  $(document).ready( function() { ';
 		out << '    var filename = "' + attrs.value + '";';
 		out << '    fileUploadField( "' + attrs.name + '" );';
 		out << '    if( filename != "" ) {';
+		out << '      $("#' + attrs.name + 'Delete").show();';
 		out << '      $("#' + attrs.name + 'Example").html("Current file: " + createFileHTML( filename ) )';
 		out << '    }';
 		out << '  } );';
@@ -1429,6 +1431,34 @@ class WizardTagLib extends JavascriptTagLib {
 		out << '</script>';
 
 		out << '<input type="button" onClick="openUserDialog(\'' + attrs.name + '\' );" value="Add User">';
+	}
+
+	def showTemplateField = { attrs, body ->
+		def field = attrs.get( 'field' );
+		def entity = attrs.get( 'entity' );
+		def fieldName = '';
+		def fieldType = '';
+		
+		if( entity ) {
+			if( field instanceof String ) {
+				fieldName = field;
+				fieldType = '';
+			} else if( field instanceof TemplateField ) {
+				fieldName = field.name
+				fieldType = field.type.toString();
+			} else {
+				return;
+			}
+
+			def value = entity.getFieldValue( fieldName );
+
+			if( fieldType == 'FILE' && value != "" ) {
+			  out << '<a href="' + g.createLink( controller: "file", action: "get",  id: value ) + '">' + value + '</a>';
+			} else {
+				out << value;
+			}
+
+		}
 	}
 
 }

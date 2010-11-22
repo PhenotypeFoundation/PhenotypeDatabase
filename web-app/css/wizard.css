@@ -380,6 +380,20 @@
     display: inline; color: #006dba;
     margin-left: 5px; 
 }
+
+#content .wizard .upload_info a {
+	text-decoration: underline;
+}
+
+.wizard .upload_del img {
+	border-width: 0;
+	padding-left: 6px; 
+}
+
+.wizard .upload_del {
+	display: none;
+}
+
 .wizard .upload_info .error {
     color: red;
 }

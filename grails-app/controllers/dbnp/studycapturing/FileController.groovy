@@ -22,9 +22,19 @@ class FileController {
      * Returns the file that is asked for or a 404 error if the file doesn't exist
      */
     def get = {
-        // Check whether the file exists
-        def filename = params.id;
         def fileExists;
+
+		// Filename is not url decoded for some reason
+		def coder = new org.apache.commons.codec.net.URLCodec()
+		def filename = coder.decode(params.id)
+
+		// Security check to prevent accessing files in other directories
+		if( filename.contains( '..' ) ) {
+			response.status = 500;
+			render "Invalid filename given";
+			return;
+		}
+		
         try {
             fileExists = fileService.fileExists( filename )
         } catch( FileNotFoundException e ) {
@@ -32,7 +42,7 @@ class FileController {
         }
         if( !filename || !fileExists ) {
             response.status = 404;
-            render( "" );
+            render( "File not found" );
             return;
         }
         def file = fileService.get( filename );
@@ -41,7 +51,9 @@ class FileController {
         //response.setContentType( "image/jpeg" );
 
         // Return the file
+		response.setHeader "Content-disposition", "attachment; filename=${filename}"
         response.outputStream << file.newInputStream()
+		response.outputStream.flush()
     }
 
     /**
@@ -72,4 +84,6 @@ class FileController {
             render( "" );
         }
     }
+
+
 }

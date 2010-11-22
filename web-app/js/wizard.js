@@ -371,19 +371,27 @@ function fileUploadField(field_id) {
 
                     // Give feedback to the user
                     $('#' + field_id + 'Example').html('Uploading ' + createFileHTML( file ));
-
+                    $('#' + field_id + 'Delete').hide();
 
 		},
 		onComplete : function(file, response){
                     if( response == "" ) {
                         $('#' + field_id).val( '' );
                         $('#' + field_id + 'Example').html('<span class="error">Error uploading ' + createFileHTML( file ) + '</span>' );
+	                    $('#' + field_id + 'Delete').hide();
                     } else {
                         $('#' + field_id).val( response );
                         $('#' + field_id + 'Example').html('Uploaded ' + createFileHTML( file ) );
+	                    $('#' + field_id + 'Delete').show();
                     }
 		}
 	});
+}
+
+function deleteFile( field_id ) {
+	$('#' + field_id).val( '*deleted*' );
+	$('#' + field_id + 'Example').html('File deleted' );
+	$('#' + field_id + 'Delete').hide();
 }
 
 function createFileHTML( filename ) {

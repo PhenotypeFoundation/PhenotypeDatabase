@@ -449,7 +449,6 @@ abstract class TemplateEntity extends Identity {
 			TemplateField field = getField(this.giveTemplateFields(), fieldName)
 			return getStore(field.type)[fieldName]
 		}
-
 	}
 
 	/**
@@ -548,7 +547,7 @@ abstract class TemplateEntity extends Identity {
 
 		// Magic setter for files: handle values for file fields
 		//
-		// If NULL is given, the field value is emptied and the old file is removed
+		// If NULL is given or "*deleted*", the field value is emptied and the old file is removed
 		// If an empty string is given, the field value is kept as was
 		// If a file is given, it is moved to the right directory. Old files are deleted. If
 		//   the file does not exist, the field is kept
@@ -558,7 +557,7 @@ abstract class TemplateEntity extends Identity {
 		if (field.type == TemplateFieldType.FILE) {
 			def currentFile = getFieldValue(field.name);
 
-			if (value == null) {
+			if (value == null || ( value.class == String && value == '*deleted*' ) ) {
 				// If NULL is given, the field value is emptied and the old file is removed
 				value = "";
 				if (currentFile) {

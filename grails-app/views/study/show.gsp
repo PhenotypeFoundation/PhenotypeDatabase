@@ -241,7 +241,7 @@
                   <g:each in="${studyList}" var="studyInstance">
                     <td>
 					  <g:if test="${studyInstance.fieldExists(field.name)}">
-						${studyInstance.getFieldValue(field.name)}
+						<wizard:showTemplateField field="${field}" entity="${studyInstance}" />
 					  </g:if>
 					  <g:else>
 						-
@@ -410,13 +410,13 @@
                       </td>
                     </g:if>
                     <g:each in="${subject.giveDomainFields()}" var="field">
-                      <td>${subject.getFieldValue(field.name)}</td>
+                      <td><wizard:showTemplateField field="${field}" entity="${subject}" /></td>
                     </g:each>
                   
                     <g:each in="${showSubjectFields}" var="field">
                       <td>
                         <g:if test="${subject.fieldExists(field.name)}">
-                          ${subject.getFieldValue(field.name)}
+                          	<wizard:showTemplateField field="${field}" entity="${subject}" />
                         </g:if>
                         <g:else>
                           N/A
@@ -494,7 +494,7 @@
                         <g:each in="${event.giveTemplateFields()}" var="field">
                           <g:if test="${event.getFieldValue(field.name)}">
                             <g:if test="${fieldCounter > 1}">, </g:if>
-                              ${field.name} = ${event.getFieldValue( field.name )}
+                              ${field.name} = <wizard:showTemplateField field="${field}" entity="${event}" />
                             <g:set var="fieldCounter" value="${fieldCounter + 1}" />
                           </g:if>
                         </g:each>
@@ -582,7 +582,7 @@
                             <g:each in="${event.giveTemplateFields()}" var="field">
                               <g:if test="${event.getFieldValue(field.name)}">
                                 <g:if test="${fieldCounter > 1}">, </g:if>
-                                  ${field.name} = ${event.getFieldValue( field.name )}
+                                  ${field.name} = <wizard:showTemplateField field="${field}" entity="${event}" />
                                 <g:set var="fieldCounter" value="${fieldCounter + 1}" />
                               </g:if>
                             </g:each>
@@ -743,13 +743,13 @@
 	                  <td>${sample.parentSubject?.name}</td>
 	                  <td>${sample.parentEvent?.template?.name} at ${sample.parentEvent?.getStartTimeString()}</td>
                     <g:each in="${sample.giveDomainFields()}" var="field">
-                      <td>${sample.getFieldValue(field.name)}</td>
+                      <td><wizard:showTemplateField field="${field}" entity="${sample}" /></td>
                     </g:each>
 
                     <g:each in="${showSampleFields}" var="field">
                       <td>
                         <g:if test="${sample.fieldExists(field.name)}">
-                          ${sample.getFieldValue(field.name)}
+                          <wizard:showTemplateField field="${field}" entity="${sample}" />
                         </g:if>
                         <g:else>
                           N/A
