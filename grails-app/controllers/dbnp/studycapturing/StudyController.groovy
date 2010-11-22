@@ -53,7 +53,7 @@ class StudyController {
             }
         }
         
-        [studyInstanceList: studies, studyInstanceTotal: studies.count()]
+        [studyInstanceList: studies, studyInstanceTotal: studies.count(), loggedInUser: user]
     }
 
     /**
@@ -65,7 +65,7 @@ class StudyController {
         def max = Math.min(params.max ? params.int('max') : 10, 100)
 
         def studies = Study.findAllByOwner(user);
-        render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: studies.count()] )
+        render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: studies.count(), loggedInUser: user] )
     }
 
     /**
