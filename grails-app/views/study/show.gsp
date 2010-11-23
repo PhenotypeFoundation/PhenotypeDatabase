@@ -866,7 +866,7 @@
     </div>
     <br>
     <div class="buttons">
-      <g:form>
+      <g:form action="delete">
         <g:if test="${studyList?.size() == 1}">
           <g:set var="studyInstance" value="${studyList[0]}" />
           <g:hiddenField name="id" value="${studyInstance?.id}" />

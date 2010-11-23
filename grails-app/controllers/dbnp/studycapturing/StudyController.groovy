@@ -201,6 +201,25 @@ class StudyController {
         render json as JSON
     }
 
+    def delete = {
+        def studyInstance = Study.get(params.id)
+        if (studyInstance) {
+            try {
+                studyInstance.delete(flush: true)
+                flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+                redirect(action: "list")
+            }
+            catch (org.springframework.dao.DataIntegrityViolationException e) {
+                flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+                redirect(action: "show", id: params.id)
+            }
+        }
+        else {
+            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+            redirect(action: "list")
+        }
+    }
+
     /*def edit = {
         def studyInstance = Study.get(params.id)
         if (!studyInstance) {
@@ -238,23 +257,5 @@ class StudyController {
             redirect(action: "list")
         }
     }
-
-    def delete = {
-        def studyInstance = Study.get(params.id)
-        if (studyInstance) {
-            try {
-                studyInstance.delete(flush: true)
-                flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                redirect(action: "list")
-            }
-            catch (org.springframework.dao.DataIntegrityViolationException e) {
-                flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                redirect(action: "show", id: params.id)
-            }
-        }
-        else {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-            redirect(action: "list")
-        }
-    }*/
+*/
 }
