@@ -405,9 +405,9 @@ function addTemplateFieldEvent( event, ui ) {
     // Find the new position of the element in the list
     // http://stackoverflow.com/questions/2979643/jquery-ui-sortable-position
     //
-    // Because there is also a hidden 'empty template' list item in the list,
-    // the number is decreased by 1
-    var newposition = ui.item.index() - 1;
+    // There is also a hidden 'empty template' list item in the list. This is
+	// the last item in the list, so it doesn't matter in this computation
+    var newposition = ui.item.index();
 
 	var item_id = ui.item.context.id;
     var id = item_id.substring( item_id.lastIndexOf( '_' ) + 1 );
