@@ -100,7 +100,7 @@ class TermEditorController {
 					// validate term
 					if (term.validate()) {
 						// save the term to the database
-						if (term.save()) {
+						if (term.save(flush:true)) {
 							flash.message = "'" + params.get('term') + "' was successfully added, either search for another term to add or close this window"
 							success()
 						} else {
