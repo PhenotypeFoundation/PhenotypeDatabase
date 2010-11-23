@@ -282,7 +282,7 @@ class ImporterService {
      */    
     def saveDatamatrix(Study study, datamatrix) {
 	def validatedSuccesfully = 0
-        def entitystored = null
+        def entitystored = null        
 	study.refresh()        
 	
 	// go through the data matrix, read every record and validate the entity and try to persist it
@@ -388,8 +388,7 @@ class ImporterService {
      * 
      */
     boolean persistEntity(entity) {
-	    println "persisting ${entity}"
-            println entity.dump()
+	    println "persisting ${entity}"            
 	    // if not validated
 		if (entity.validate()) {
 			if (entity.save(flush:true)) { //.merge?
