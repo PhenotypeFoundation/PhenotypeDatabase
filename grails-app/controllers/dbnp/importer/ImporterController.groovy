@@ -40,6 +40,9 @@ class ImporterController {
      **/
 
     def index = {
+        // no data has been imported yet
+        session.validatedSuccesfully = null
+
         // should do a check what is in the url, strip it?
         session.import_referer = params.redirectTo
 
@@ -333,8 +336,14 @@ class ImporterController {
      * Method which saves the data matrix to the database
      */
     def savePostview = {
-	def validatedSuccesfully = ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
-	render(view:"step4", model:[validatedSuccesfully:validatedSuccesfully, totalrows:session.importer_importeddata.size, referer: session.import_referer])
+        
+        if (session.validatedSuccesfully) {
+            render (template:"common/error",
+                    model:[error:"Data is already imported or you are calling the url directly without following the previous import steps."])
+        } else {
+            session.validatedSuccesfully = ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
+            render(view:"step4", model:[validatedSuccesfully:session.validatedSuccesfully, totalrows:session.importer_importeddata.size, referer: session.import_referer])
+        }
     }
 
     /**
