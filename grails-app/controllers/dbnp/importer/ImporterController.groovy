@@ -335,8 +335,7 @@ class ImporterController {
     /**
      * Method which saves the data matrix to the database
      */
-    def savePostview = {
-        println session.import_wizard_init
+    def savePostview = {        
 
         // Called this page directly, then display an error message.
         if ( (!session?.import_wizard_init) ) {
