@@ -48,7 +48,8 @@ class BootStrap {
 			CommunicationManager.GSCFServerURL = config.grails.serverURL
 			CommunicationManager.SAMServerURL = config.modules.sam.url
 			CommunicationManager.DSPServerURL = config.modules.metabolomics.url
-			CommunicationManager.registerRestWrapperMethodsSAMtoGSCF()
+			CommunicationManager.ServerURL = config.grails.serverURL
+			CommunicationManager.registerRestWrapperMethodsFromSAM()
 		}
 
 		// developmental bootstrapping:
