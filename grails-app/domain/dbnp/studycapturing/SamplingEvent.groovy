@@ -61,6 +61,11 @@ class SamplingEvent extends TemplateEntity {
 			required: true)
 	]
 
+       static mapping = {
+            // Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
+            templateTextFields type: 'text'
+        }
+
 	 /**
 	  * Return the start time of the event, which should be relative to the start of the study
 	  * @return String a human readable representation of the start time of the event

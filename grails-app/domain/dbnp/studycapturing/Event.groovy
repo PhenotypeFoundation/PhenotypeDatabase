@@ -68,6 +68,9 @@ class Event extends TemplateEntity {
 
     static mapping = {
         sort "startTime"
+
+        // Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
+	templateTextFields type: 'text'
     }
 
 	/**

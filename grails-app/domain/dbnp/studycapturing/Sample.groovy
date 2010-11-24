@@ -105,6 +105,9 @@ class Sample extends TemplateEntity {
 
     static mapping = {
         sort "name"
+
+        // Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
+	templateTextFields type: 'text'
     }
 
 	static getSamplesFor( event ) {
