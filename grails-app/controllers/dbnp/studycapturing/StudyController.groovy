@@ -170,7 +170,7 @@ class StudyController {
                 redirect(action: "list");
                 return;
             }
-            events = eventGroup?.events;
+            events = eventGroup?.events + eventGroup?.samplingEvents;
         }
 
         // This parameter should give the startdate of the study in milliseconds
@@ -185,18 +185,39 @@ class StudyController {
             def parameters = []
             for( templateField in event.giveTemplateFields() ) {
                 def value = event.getFieldValue( templateField.name );
-                if( value ) {
-                    parameters << templateField.name + " = " + value;
+				if( value ) {
+					if( templateField.type == TemplateFieldType.RELTIME )
+						value = new RelTime( value ).toString();
+
+	                def param = templateField.name + " = " + value;
+
+					if( templateField.unit )
+						param += templateField.unit;
+
+                    parameters << param ;
                 }
             }
 
-             json.events << [
-                'start':    new Date( startDate + event.startTime * 1000 ),
-                'end':      new Date( startDate + event.endTime * 1000 ),
-                'durationEvent': !event.isSamplingEvent(),
-                'title': event.template.name + " (" + parameters.join( ', ' ) + ")",
-                'description': parameters
-            ]
+			def description = parameters.join( '<br />\n' );
+
+			if( event instanceof SamplingEvent ) {
+				 json.events << [
+					'start':    new Date( startDate + event.startTime * 1000 ),
+					'end':      new Date( startDate + event.startTime * 1000 ),
+					'durationEvent': false,
+					'title': event.template.name,
+					'description': description
+				]
+			} else {
+				 json.events << [
+					'start':    new Date( startDate + event.startTime * 1000 ),
+					'end':      new Date( startDate + event.endTime * 1000 ),
+					'durationEvent': true,
+					'title': event.template.name,
+					'description': description
+				]
+				
+			}
         }
         render json as JSON
     }

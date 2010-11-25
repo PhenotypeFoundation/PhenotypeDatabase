@@ -75,7 +75,7 @@ function _loadJSONEvents( json, returnvalue, httpRequest, timelineNr, bandNr, ev
 function setBandWidth( timelineNr, bandNr, numEventsCurrentBand )
 {
     // Make the band large enough (8 for margin and 20 per event )
-    w = 8 + 20 * numEventsCurrentBand;
+    w = 15 + 18 * numEventsCurrentBand;
     timeline[ timelineNr ].getBand( bandNr )._bandInfo.width = w;
 
     // Save the number of events
@@ -214,3 +214,4 @@ Timeline.EmptyEtherPainter.prototype.setHighlight=function(A,B){this._highlight.
 };
 Timeline.EmptyEtherPainter.prototype.paint=function(){};
 Timeline.EmptyEtherPainter.prototype.softPaint=function(){};
+

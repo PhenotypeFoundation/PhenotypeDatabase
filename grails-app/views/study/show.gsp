@@ -38,6 +38,7 @@
     </script>
     <script src="${resource(dir: 'js', file: 'timeline-simile/timeline-api.js')}" type="text/javascript"></script>
     <script src="${resource(dir: 'js', file: 'timeline-simile/custom-timeline.js')}" type="text/javascript"></script>
+    <script src="${resource(dir: 'js', file: 'timeline-simile/relative-time.js')}" type="text/javascript"></script>
     <script src="${resource(dir: 'js', file: 'jquery-callback-1.2.js')}" type="text/javascript"></script>
 
     <!-- Create the JSON objects for the timeline with events -->
@@ -79,6 +80,11 @@
                         layout:         'original',
                         theme:          theme
                      });
+
+			  // Make sure the date is printed using the relative time
+              bandInfos[${bandNr}].etherPainter = new Timeline.RelativeDateEtherPainter( { theme: theme, startDate: firstDate, unit: Timeline.DateTime.DAY } );
+			  bandInfos[${bandNr}].labeller = new Timeline.RelativeDateLabeller( "en", 0, firstDate );
+
               bandTitleInfo[ timelineNr ][ ${bandNr} ] = {
                 title: "${study.title}",
                 subjects: "",
