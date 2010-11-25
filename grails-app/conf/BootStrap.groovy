@@ -45,10 +45,7 @@ class BootStrap {
 		if (config.modules) {
 			// register SAM REST methods
 			"Registering SAM REST methods".grom()
-			CommunicationManager.GSCFServerURL = config.grails.serverURL
-			CommunicationManager.SAMServerURL = config.modules.sam.url
-			CommunicationManager.DSPServerURL = config.modules.metabolomics.url
-			CommunicationManager.ServerURL = config.grails.serverURL
+			CommunicationManager.registerModule('gscf', config.grails.serverURL, config.modules)
 			CommunicationManager.registerRestWrapperMethodsFromSAM()
 		}
 

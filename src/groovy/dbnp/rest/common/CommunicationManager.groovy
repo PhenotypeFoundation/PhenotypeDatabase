@@ -26,18 +26,14 @@ import org.codehaus.groovy.grails.web.json.*
 class CommunicationManager {
 
 
-    /* this should moved somewhere else */
-    /* The static URLs are set in grails-app/conf/Config.groovy */ 
     def        static Encoding      = "UTF-8" 
-    def public static ServerURL     = "http://localhost:8182/sam"
-    def public static SAMServerURL  = "http://localhost:8182/sam"
-    def public static GSCFServerURL = "http://localhost:8080/gscf"
-    def public static DSPServerURL  = "http://localhost:8080/ncdsp"
-
+	                                 // map that maps name strings of dbNP modules to urls 
+	def public static URLMap = [:]   // e.g., 'gscf' -> 'http://sam. 
+	def public static ModuleName = ''
 
 
     /**
-     * Get the results of provided by a rest Rest resource.
+     * Get the results provided by a rest Rest resource.
      *
      * @params String resource The name of the resource, e.g. importer/pages 
      * @params Map params      A Map of parmater names and values., e.g. ['externalAssayID':12]
@@ -47,6 +43,22 @@ class CommunicationManager {
 		def url = getRestURL( RestServerURL, resource, params )
 		return  JSON.parse( url.newReader() )
     }
+
+	private static getURL( serverName ) {
+		return URLMap[serverName]?.url
+	}
+
+    /** Register this module once before run time. 
+      * @params moduleName      the string name for this module, e.g., 'sam' or 'gscf'
+      * @params serverURL 	    the URL of this module, e.g., 'localhost:8080/sam'
+      * @params map             a map that maps module names to urls 
+      */ 
+	public static registerModule( moduleName, serverURL, urlMap ) {
+		ModuleName = moduleName
+		URLMap = urlMap
+		URLMap[ModuleName] = ['url':serverURL] 
+	}
+
 
 
     /**
@@ -58,10 +70,10 @@ class CommunicationManager {
      * @params Map params      A Map of parmater names and values., e.g. ['externalAssayID':12]
      * @return String url   
      */
-    public static URL getRestURL( RestServerURL, resource, params ) {
-        def url = RestServerURL + '/' + resource
+    public static URL getRestURL( serverName, resource, params ) {
+        def url = getURL(serverName) + '/rest/' + resource
 		def first = true
-		params['consumer']=ServerURL
+		params['consumer'] = getURL( ModuleName )
 		params.each { name, value ->
 			if(first) {
 				first = false
@@ -110,8 +122,8 @@ class CommunicationManager {
      * 
      */
 
-    public static addRestWrapper( serverURL, restName, params = [], closure = { return it } ) {
-		if(!serverURL) { throw new Exception("addRestWrapper: REST serverURL is null") }
+    public static addRestWrapper( serverName, restName, params = [], closure = { return it } ) {
+		if(!serverName) { throw new Exception("addRestWrapper: REST serverURL is null") }
 		def result
 		try {
 			CommunicationManager.metaClass.registerStaticMethod( restName ) { Object [] strangeGroovyArgs ->
@@ -124,7 +136,7 @@ class CommunicationManager {
 				   	 	map[param] = args[i]
 					}
 				}
-				result = closure( getRestResource( serverURL, restName, map ) )
+				result = closure( getRestResource( serverName, restName, map ) )
 			} 
 		} catch ( Exception e ) { 
 			throw new Exception("addRestWrapper: error. Could not retrieve data from RESTFful service. ") 
@@ -132,16 +144,6 @@ class CommunicationManager {
 
 		return result
 	}
-
-
-    /**
-     *  This method creates on run time new methods for accessing Grails views that SAM provides for GSCF.
-     *  This method should be called in grails-app/conf/BootStrap.groovy in the GSCF module.
-     */          
-    public static registerRestWrapperMethodsFromSAM() {
-		def url = SAMServerURL
-		addRestWrapper( url+'/rest', 'getQueryResult',  ['query'] )
-    }
 
 
 
@@ -156,5 +158,25 @@ class CommunicationManager {
 		requiredParams.every { params[it] }
 	}
 
+
+
+    /**
+     *  This creates on run time new methods for accessing Rest resources that GSCF provides for SAM.
+     *  This method should be called in grails-app/conf/BootStrap.groovy in the SAM module.
+     */ 
+    public static registerRestWrapperMethodsFromGSCF() {
+		addRestWrapper( 'gscf', 'getStudies', ['token'] )
+		addRestWrapper( 'gscf', 'getSubjects', ['token','studyToken'] )
+		addRestWrapper( 'gscf', 'getAssays',   ['token','studyToken','url'] )
+		addRestWrapper( 'gscf', 'getSamples',  ['token','assayToken'] )
+    }
+
+    /**
+     *  This method creates on run time new methods for accessing Grails views that SAM provides for GSCF.
+     *  This method should be called in grails-app/conf/BootStrap.groovy in the GSCF module.
+     */          
+    public static registerRestWrapperMethodsFromSAM() {
+		addRestWrapper( 'gscf', 'getQueryResult',  ['query'] )
+    }
 
 }

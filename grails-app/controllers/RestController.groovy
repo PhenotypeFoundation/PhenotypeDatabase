@@ -251,7 +251,7 @@ class RestController {
 		if( params.studyToken ) {
 
 			def id = params.studyToken
- 			def study = Study.find( "from Study as s where s.code=?", [id] )
+ 			def study = Study.findByCode(id)
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
@@ -301,7 +301,6 @@ class RestController {
         	}
 
  		}
-
 		render returnList as JSON 
 	}
 
