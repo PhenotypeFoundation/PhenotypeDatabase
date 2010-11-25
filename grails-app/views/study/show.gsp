@@ -521,7 +521,33 @@
               // eventgroups in all studies, in order to show a proper list.
               // We want every field to appear just once,
               // so the list is filtered for unique values
-              groupTemplates = studyList*.giveAllEventTemplates()?.flatten().unique()
+              def groupTemplates = studyList*.giveAllEventTemplates()?.flatten().unique()
+			  def showTemplates = groupTemplates;
+
+			  def showProperties = [:];
+			  def allEvents = studyList*.events.flatten() + studyList*.samplingEvents.flatten();
+			  def eventColumns = 0;
+
+			  showTemplates.each { template ->
+				// We want to show all properties only once. If the properties are never filled
+				// we shouldn't show them at all.
+				def showFields = []
+				template.fields.each { field ->
+				  for( def event: allEvents.findAll { it.template == template } ) {
+					if( event.getFieldValue( field.name ) ) {
+					  showFields << field;
+					  break;
+					}
+				  }
+				}
+
+				showProperties[ template.name ] = showFields;
+
+				// Compute the total number of columns under 'Events' (the +1 is
+				// because of the 'start time' column)
+				eventColumns += [ 1, showFields.size() + 1 ].max();
+			  }
+
             %>
             <table>
               <thead>
@@ -530,7 +556,7 @@
                     <th></th>
                   </g:if>
                   <th>Name</th>
-                  <th colspan="${groupTemplates?.size()}">Events</th>
+                  <th colspan="${eventColumns}">Events</th>
                   <th>Subjects</th>
                 </tr>
                 <tr>
@@ -538,8 +564,23 @@
                     <th></th>
                   </g:if>
                   <th></th>
-                  <g:each in="${groupTemplates}" var="eventTemplate">
-                    <th>${eventTemplate.name}</th>
+                  <g:each in="${showTemplates}" var="eventTemplate">
+                    <th colspan="${[1, showProperties[ eventTemplate.name ].size() ].max() + 1}">${eventTemplate.name}</th>
+                  </g:each>
+                  <th></th>
+                </tr>
+                <tr class="templateFields">
+                  <g:if test="${multipleStudies}">
+                    <th></th>
+                  </g:if>
+                  <th></th>
+                  <g:each in="${showTemplates}" var="eventTemplate">
+					<th>start time</th>
+					<g:if test="${showProperties[ eventTemplate.name ].size() > 0}">
+					  <g:each in="${showProperties[ eventTemplate.name ]}" var="field">
+						<th>${field.name}</th>
+					  </g:each>
+					</g:if>
                   </g:each>
                   <th></th>
                 </tr>
@@ -549,9 +590,25 @@
 
               <g:each in="${studyList}" var="studyInstance">
                 <%
-                  def sortedEventGroups = studyInstance.eventGroups.sort( { a, b ->
+                  // Sort the groups by name
+				  def sortedEventGroups = studyInstance.eventGroups.sort( { a, b ->
                       return a.name <=> b.name;
                   }  as Comparator );
+
+				  // Determine the number of rows per group (depending on the max
+				  // number of events per template in a group)
+				  def maxNumberEventsPerTemplate = [:];
+				  def rowsPerStudy = 0;
+				  sortedEventGroups.each { group ->
+					def max = 1;
+					showTemplates.each { template ->
+					  def num = ( group.events + group.samplingEvents ).findAll { it.template == template }.size();
+					  if( num > max )
+						max = num;
+					}
+					maxNumberEventsPerTemplate[group.name] = max;
+					rowsPerStudy += max;
+				  }
 
                   def orphans = studyInstance.getOrphanEvents();
                   if( orphans?.size() > 0 ) {
@@ -562,39 +619,48 @@
                       subjects: []
                     ));
                   }
-
                 %>
                 <g:each in="${sortedEventGroups}" var="eventGroup" status="j">
-                  <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-                    <g:if test="${multipleStudies && j==0}">
-                      <td class="studytitle" rowspan="${sortedEventGroups?.size()}">
-                        ${studyInstance.title}
-                      </td>
-                    </g:if>
-                    <td>${eventGroup.name}</td>
+				  <g:set var="n" value="${1}" />
+                  <g:while test="${n <= maxNumberEventsPerTemplate[ eventGroup.name ]}">
 
-                    <g:each in="${groupTemplates}" var="currentEventTemplate">
-                      <td>
-                        <g:each in="${eventGroup.events}" var="event">
-                          <g:if test="${event.template.name==currentEventTemplate.name}">
+					<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+					  <g:if test="${n == 1}">
+						<g:if test="${multipleStudies && j==0}">
+						  <td class="studytitle" rowspan="${rowsPerStudy}">
+							${studyInstance.title}
+						  </td>
+						</g:if>
+						<td rowspan="${maxNumberEventsPerTemplate[ eventGroup.name ]}">${eventGroup.name}</td>
+					  </g:if>
+					
+					  <g:each in="${showTemplates}" var="currentEventTemplate">
+						<g:if test="${showProperties[ currentEventTemplate.name ].size() == 0}">
+						  <td>&nbsp;</td>
+						</g:if>
+						<g:else>
+						  <%
+							def templateEvents = (eventGroup.events + eventGroup.samplingEvents).findAll { it.template == currentEventTemplate }.sort { a, b -> a.startTime <=> b.startTime }.asType(List)
+							def event = templateEvents.size() >= n ? templateEvents[ n - 1 ] : null;
+						  %>
+						  <td class="templateFieldValue"><g:if test="${event}">${new RelTime( event.startTime ).toString()}</g:if></td>
+						  <g:each in="${showProperties[ currentEventTemplate.name ]}" var="field">
+							<td class="templateFieldValue"><wizard:showTemplateField field="${field}" entity="${event}" /></td>
+						  </g:each>
+						</g:else>
+					  </g:each>
+					
+					  <g:if test="${n == 1}">
+						<td rowspan="${maxNumberEventsPerTemplate[ eventGroup.name ]}">
+						  <% sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
+						  ${sortedGroupSubjects.name.join( ', ' )}
+						</td>
+					  </g:if>
+					</tr>
 
-                            <g:set var="fieldCounter" value="${1}" />
-                            <g:each in="${event.giveTemplateFields()}" var="field">
-                              <g:if test="${event.getFieldValue(field.name)}">
-                                <g:if test="${fieldCounter > 1}">, </g:if>
-                                  ${field.name} = <wizard:showTemplateField field="${field}" entity="${event}" />
-                                <g:set var="fieldCounter" value="${fieldCounter + 1}" />
-                              </g:if>
-                            </g:each>
-                          </g:if>
-                        </g:each>
-                      </td>
-                    </g:each>
-                    <td>
-                      <% sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
-                      ${sortedGroupSubjects.name.join( ', ' )}
-                    </td>
-                  </tr>
+
+					<g:set var="n" value="${n+1}" />
+				  </g:while>
 
                   <g:set var="i" value="${i + 1}" />
                 </g:each>

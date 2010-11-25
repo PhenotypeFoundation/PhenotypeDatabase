@@ -24,6 +24,9 @@
     vertical-align: center;
 }
 
+.templateFields th { font-weight: normal; font-size: 0.8em; }
+.templateFieldValue { font-size: 0.9em;}
+
 /*
     Hide the timeline by default in order to create a good layout for non-script
     browsers. The div is shown again using javascript
