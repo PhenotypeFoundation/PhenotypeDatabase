@@ -123,13 +123,13 @@ class PilotController {
 		   
 		   //add all samples to the assay when not there yet!
 		   studyInstance.assays.each { assay ->
-			   if (assay.samples.size() <= 0){
+			   //if (assay.samples.size() <= 0){ // needs improving!!! too much overhead, okay for pilot
 				   studyInstance.samples.each { sample ->
 					   log.info("ADD THE DIRTY WAY!!!")
 					   assay.addToSamples(sample)
 				   }
 				   assay.save()
-			   }			   
+			   //}			   
 		   }
 		   
 		   [studyInstance: studyInstance]
