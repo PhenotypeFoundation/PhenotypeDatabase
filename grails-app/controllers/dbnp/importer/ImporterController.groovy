@@ -169,13 +169,13 @@ class ImporterController {
 	session.importer_importeddata.each { table ->
 	    table.each { entity ->
 		entity.giveFields().each { field ->		    
-		    entity.setFieldValue (field.toString(), params["entity_" + entity.hashCode() + "_" + field.escapedName()])
+		    entity.setFieldValue (field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
 		}		
 	    }
 	}
 
         // a new ontology term was added, so stay at the current step otherwise go to the next step
-        if (params.updatefield) render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
+        if (params.updatefield) render(view:"step3_simple", model:[datamatrix:session.importer_importeddata, failedcells:session.importer_failedcells])
             else render(view:"step3", model:[datamatrix:session.importer_importeddata])
     }
 
@@ -322,14 +322,15 @@ class ImporterController {
         session.importer_importeddata = table        
         session.importer_failedcells = failedcells
 
-        if (failedcells.size()!=0)
+        // Are there any failed cells, then show an extra step to correct the cells
+        /*if (failedcells.size()!=0)
             render(view:"step2a_simple", model:[failedcells:session.importer_failedcells])
-        else {
+        else {*/
             if (params.layout=="horizontal")
-                render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
+                render(view:"step3_simple", model:[datamatrix:session.importer_importeddata, failedcells:session.importer_failedcells])
             else if (params.layout=="vertical")
                 render(view:"step3", model:[datamatrix:session.importer_importeddata])
-        }
+        //}
     }
 
     /**

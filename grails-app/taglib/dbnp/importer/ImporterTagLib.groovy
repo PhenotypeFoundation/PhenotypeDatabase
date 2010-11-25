@@ -59,8 +59,9 @@ class ImporterTagLib {
      * Show missing properties
      */
     def missingProperties = { attrs ->
-	def datamatrix = attrs['datamatrix']	
-	out << render (template:"common/missingproperties", model:[datamatrix:datamatrix])
+	def datamatrix = attrs['datamatrix']
+        def failedcells = attrs['failedcells']
+	out << render (template:"common/missingproperties", model:[datamatrix:datamatrix, failedcells:failedcells])
     }
 
     /**

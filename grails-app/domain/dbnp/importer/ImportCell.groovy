@@ -19,6 +19,7 @@ import dbnp.studycapturing.Identity
 
 class ImportCell extends Identity {
     MappingColumn mappingcolumn
+    int entityidentifier
     String value
 
     static constraints = {

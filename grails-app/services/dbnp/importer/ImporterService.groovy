@@ -216,7 +216,7 @@ class ImporterService {
     def importData(template_id, Workbook wb, int sheetindex, int rowindex, mcmap) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def table = []
-        def failedcells = [:] // map [recordhash, importrecord] values
+        def failedcells = [] // list of records
 	
 	// walk through all rows and fill the table with records
 	(rowindex..sheet.getLastRowNum()).each { i ->	    
@@ -226,10 +226,8 @@ class ImporterService {
             // Add record with entity and its values to the table
             table.add(record)
 
-            // If failed cells have been found, add them to the failed cells map
-            // the record hashcode is later on used to put the failed data back
-            // in the data matrix            
-            if (failed.importcells?.size()>0) failedcells.put(record.hashCode(), failed)
+            // If failed cells have been found, add them to the failed cells list            
+            if (failed?.importcells?.size()>0) failedcells.add(failed)
 	}
 
 	return [table,failedcells]
@@ -422,7 +420,7 @@ class ImporterService {
 		def template = Template.get(template_id)
                 def tft = TemplateFieldType
 		def record = [] // list of entities and the read values
-                def failed = new ImportRecord() // list of failed cells with the value which couldn't be mapped into the entity
+                def failed = new ImportRecord() // map with entity identifier and failed mappingcolumn
 
 		// Initialize all possible entities with the chosen template
 		def study = new Study(template: template)
@@ -444,17 +442,6 @@ class ImporterService {
 				} catch (NumberFormatException nfe) {
 					value = ""
 				}
-
-                                //println "temateplfedielfdtype=" + mc.templatefieldtype
-                                // Are we trying to map an ontology term which is empty? Then it is a failed cell
-                                /*if (value=="") {
-                                    println "empty term"
-                                    def temp = new MappingColumn()
-                                    //temp.properties = mc.properties
-                                    temp.value = "undefined"
-                                    failed.add(temp)
-                                }*/                                
-                              
 
                                 try {
 				// which entity does the current cell (field) belong to?
@@ -480,17 +467,31 @@ class ImporterService {
                                     } // end switch
                                 } catch (IllegalArgumentException iae) {
                                     // store the mapping column and value which failed
+                                    def identifier
+
+                                    switch (mc.entity) {
+                                        case Study:  identifier = study.getIdentifier()
+						break
+					case Subject: identifier = subject.getIdentifier()
+						break
+					case SamplingEvent: identifier = samplingEvent.getIdentifier()
+						break
+					case Event: identifier = event.getIdentifier()						
+						break
+					case Sample: identifier = sample.getIdentifier()
+						break
+					case Object:   // don't import
+						break
+                                    }
+                                    
                                     def mcInstance = new MappingColumn()
                                     mcInstance.properties = mc.properties
-                                    failed.addToImportcells(
-                                        new ImportCell(mappingcolumn:mcInstance,
-                                            value:value)
-                                        )
+                                    failed.addToImportcells(new ImportCell(mappingcolumn:mcInstance, value:value, entityidentifier:identifier))
                                 }
 			} // end
 		} // end for
         // a failed column means that using the entity.setFieldValue() threw an exception        
-        return [record, failed]        
+        return [record, failed]
     }
 
     /**

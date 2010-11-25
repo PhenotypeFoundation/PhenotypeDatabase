@@ -24,6 +24,6 @@
   <body>
     <h1>Step 3: fill in missing mappings</h1>
     You must map the missing properties
-    <importer:missingProperties datamatrix="${datamatrix}"/>
+    <importer:missingProperties datamatrix="${datamatrix}" failedcells="${failedcells}"/>
   </body>
 </html>
