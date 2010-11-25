@@ -565,7 +565,7 @@
                   </g:if>
                   <th></th>
                   <g:each in="${showTemplates}" var="eventTemplate">
-                    <th colspan="${[1, showProperties[ eventTemplate.name ].size() ].max() + 1}">${eventTemplate.name}</th>
+                    <th colspan="${[1, showProperties[ eventTemplate.name ].size() + 1 ].max()}">${eventTemplate.name}</th>
                   </g:each>
                   <th></th>
                 </tr>
@@ -651,9 +651,19 @@
 					  </g:each>
 					
 					  <g:if test="${n == 1}">
-						<td rowspan="${maxNumberEventsPerTemplate[ eventGroup.name ]}">
-						  <% sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
-						  ${sortedGroupSubjects.name.join( ', ' )}
+						<% sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
+
+						<td rowspan="${maxNumberEventsPerTemplate[ eventGroup.name ]}" title="${sortedGroupSubjects.name.join( ', ' )}">
+							<g:if test="${eventGroup.subjects.size()==0}">
+								-
+							</g:if>
+							<g:else>
+								<g:each in="${eventGroup.subjects.species.unique()}" var="currentSpecies" status="k">
+									<g:if test="${k > 0}">,</g:if>
+									<%=eventGroup.subjects.findAll { return it.species == currentSpecies; }.size() %>
+									${currentSpecies}
+								</g:each>
+							</g:else>
 						</td>
 					  </g:if>
 					</tr>
