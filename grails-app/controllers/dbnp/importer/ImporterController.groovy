@@ -343,9 +343,15 @@ class ImporterController {
             render (template:"common/error",
                     model:[error:"Data is already imported or you are calling the url directly without following the previous import steps."])
         } else {
-            session.validatedSuccesfully = ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
-            render(view:"step4", model:[validatedSuccesfully:session.validatedSuccesfully, totalrows:session.importer_importeddata.size, referer: session.import_referer])
+            def (validatedSuccesfully, updatedEntities, failedtopersist) = ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
+            session.validatedSuccesfully = validatedSuccesfully
+            render(view:"step4", model:[validatedSuccesfully:session.validatedSuccesfully, failedtopersist:failedtopersist, updatedentities:updatedEntities, totalrows:session.importer_importeddata.size, referer: session.import_referer])
             session.import_wizard_init = false
+
+            println "failed:"
+            failedtopersist.each {
+                println it
+            }
         }
     }
 

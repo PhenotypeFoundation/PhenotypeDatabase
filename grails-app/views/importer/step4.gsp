@@ -24,6 +24,29 @@
   <body>
     <h1>Step 5: import wizard finished</h1>
     <p>${validatedSuccesfully} of ${totalrows} rows were imported succesfully.</p>
+
+
+
+    <g:if test="${failedtopersist}">
+      <p>The following entities could not be persisted:</p>
+      <table>     
+      <g:each var="entity" in="${failedtopersist}">
+        <tr>
+        <g:each var="field" in="${entity.giveFields()}">
+          <td>
+            <g:if test="${entity.getFieldValue(field.name)!=null}">
+              <b>${field.name}</b> ${entity.getFieldValue(field.name)}
+            </g:if>
+           <g:else><b>${field.name}</b> &#215;
+            </g:else>
+          </td>
+        </g:each>
+      </tr>
+      </g:each>
+      </table>
+    </g:if>
+
+
     <g:if test="${referer}">
       <p>Click <a href="${referer}">here</a> to return to the page you came from.</p>
     </g:if>

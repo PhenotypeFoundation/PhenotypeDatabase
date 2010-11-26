@@ -280,16 +280,19 @@ class ImporterService {
      */    
     def saveDatamatrix(Study study, datamatrix) {
 	def validatedSuccesfully = 0
-        def entitystored = null        
-	study.refresh()        
-	
+        def entitystored = null
+        def failedtopersist = []
+        def updatedentities = []
+	study.refresh()
+        
 	// go through the data matrix, read every record and validate the entity and try to persist it
 	datamatrix.each { record ->
 	    record.each { entity ->
                         switch (entity.getClass()) {
                         case Study	 :  print "Persisting Study `" + entity + "`: "
                                                 entity.owner = AuthenticationService.getLoggedInUser()
-                                            	if (persistEntity(entity)) validatedSuccesfully++
+                                            	if (persistEntity(entity)) validatedSuccesfully++;
+                                                    else failedtopersist.add(entity)
 						break
 			case Subject	 :  print "Persisting Subject `" + entity + "`: "
                                                 entity.parent = study
@@ -299,15 +302,19 @@ class ImporterService {
                                                 
                                                 // this entity is new, so add it to the study
                                                 if (entitystored==null) study.addToSubjects(entity)
-                                                else // existing entity, so update it
+                                                else { // existing entity, so update it
                                                     updateEntity(entitystored, entity)
+                                                    updatedentities.add(entity)
+                                                }
 
-                                                if (persistEntity(study)) validatedSuccesfully++
+                                                if (persistEntity(study)) validatedSuccesfully++;
+                                                    else failedtopersist.add(entity)
 						break
 			case Event	 :  print "Persisting Event `" + entity + "`: "
                                                 entity.parent = study
 						study.addToEvents(entity)
-						if (persistEntity(entity)) validatedSuccesfully++
+						if (persistEntity(entity)) validatedSuccesfully++;
+                                                    else failedtopersist.add(entity)
 						break
 			case Sample	 :  print "Persisting Sample `" + entity +"`: "                                                
                                                 entity.parent = study
@@ -315,21 +322,23 @@ class ImporterService {
                                                 // is this sample validatable (sample name unique for example?)
                                                 if (entity.validate()) {
                                                     study.addToSamples(entity)
-                                                    if (persistEntity(study)) validatedSuccesfully++
-                                                }
+                                                    if (persistEntity(study)) validatedSuccesfully++;                                                       
+                                                } else failedtopersist.add(entity)
                                                 
 						break
 			case SamplingEvent: print "Persisting SamplingEvent `" + entity + "`: "
                                                 entity.parent = study
 						study.addToSamplingEvents(entity)
-						if (persistEntity(entity)) validatedSuccesfully++
+						if (persistEntity(entity)) validatedSuccesfully++;
+                                                    else failedtopersist.add(entity)
 						break
 			default		 :  println "Skipping persisting of `" + entity.getclass() +"`"
+                                                failedtopersist.add(entity)
 						break
 			} // end switch
 	    } // end record
 	} // end datamatrix
-	return validatedSuccesfully
+	return [validatedSuccesfully, updatedentities, failedtopersist]
     }
 
     /**
