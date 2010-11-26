@@ -50,20 +50,14 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
-        // mark error fieldssss
+        // mark error fields
         <g:each in="${failedcells}" var="record">
           <g:each in="${record.importcells}" var="cell">
           var element = $("select[name=entity_${cell.entityidentifier}_${cell.mappingcolumn.property}]");
 
           element.addClass('error')
           element.append( new Option("Invalid: ${cell.value}","", true, true) );
-
-          console.log(element.val())
-          //element.
-          
-          //element.hide()
-          //element.attr('disabled', true)
-          
+  
           </g:each>
         </g:each>
   });
