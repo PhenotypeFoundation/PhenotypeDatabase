@@ -1,9 +1,6 @@
 import dbnp.studycapturing.*
-import dbnp.clinicaldata.ClinicalFloatData
-import dbnp.clinicaldata.ClinicalMeasurement
 
 // The sandbox is meant for internal communication over code examples etc.
-
 class SandboxController {
 
 	def clinicalDataLayerService
