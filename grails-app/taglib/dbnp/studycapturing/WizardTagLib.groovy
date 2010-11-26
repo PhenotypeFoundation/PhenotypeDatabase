@@ -1438,25 +1438,33 @@ class WizardTagLib extends JavascriptTagLib {
 		def entity = attrs.get( 'entity' );
 		def fieldName = '';
 		def fieldType = '';
+		def fieldUnit = '';
 		
 		if( entity ) {
 			if( field instanceof String ) {
 				fieldName = field;
 				fieldType = '';
+				fieldUnit = '';
 			} else if( field instanceof TemplateField ) {
 				fieldName = field.name
 				fieldType = field.type.toString();
+				fieldUnit = field.unit
 			} else {
 				return;
 			}
 
 			def value = entity.getFieldValue( fieldName );
 
+			// Show a link if the field is a FILE field
 			if( fieldType == 'FILE' && value != "" ) {
 			  out << '<a href="' + g.createLink( controller: "file", action: "get",  id: value ) + '">' + value + '</a>';
 			} else {
 				out << value;
 			}
+
+			// Show the unit (if a unit is present and a value was shown)
+			if( fieldUnit && value != "" )
+				out << " " + fieldUnit
 
 		}
 	}

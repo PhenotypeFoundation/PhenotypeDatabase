@@ -402,13 +402,7 @@
               <g:set var="i" value="${1}" />
 
               <g:each in="${studyList}" var="studyInstance">
-                <%
-                  // Sort subjects by name
-                  subjects = studyInstance.subjects;
-                  sortedSubjects = subjects.sort( { a, b -> a.name <=> b.name } as Comparator )
-                %>
-
-                <g:each in="${sortedSubjects}" var="subject" status="j">
+                <g:each in="${studyInstance.subjects}" var="subject" status="j">
                   <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                     <g:if test="${multipleStudies && j==0}">
                       <td class="studytitle" rowspan="${sortedSubjects?.size()}">
