@@ -28,14 +28,19 @@ class SecUser implements Serializable {
 		SecUserSecRole.findAllBySecUser(this).collect { it.secRole } as Set
 	}
 
-        public boolean equals(Object y)
-        {
-            if( !( y instanceof SecUser ) ) {
-                return false;
-            }
+	public boolean equals(Object y)
+	{
+		if( !( y instanceof SecUser ) ) {
+			return false;
+		}
 
-            if (y == null) return false;
+		if (y == null) return false;
 
-            return this.id == y.id
-        }
+		return this.id == y.id
+	}
+
+	public boolean hasAdminRights() {
+		return getAuthorities().contains( SecRole.findByAuthority( 'ROLE_ADMIN' ) );
+	}
+
 }

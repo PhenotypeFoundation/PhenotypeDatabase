@@ -111,7 +111,7 @@ Timeline.RelativeDateEtherPainter.prototype.initialize = function(band, timeline
 
     this._backgroundLayer = band.createLayerDiv(0);
     this._backgroundLayer.setAttribute("name", "ether-background"); // for debugging
-    this._backgroundLayer.style.background = this._theme.ether.backgroundColors[band.getIndex()];
+    //this._backgroundLayer.style.background = this._theme.ether.backgroundColors[band.getIndex()];
 
     this._markerLayer = null;
     this._lineLayer = null;

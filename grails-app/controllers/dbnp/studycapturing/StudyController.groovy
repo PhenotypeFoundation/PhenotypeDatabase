@@ -124,6 +124,159 @@ class StudyController {
         }
     }
 
+	/**
+     * Shows the subjects tab of one or more studies. Is called when opening the subjects-tab
+	 * on the study overview screen.
+     */
+    def show_subjects = {
+		def studyList = readStudies( params.id );
+
+		if( !studyList )
+			return
+
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+    }
+
+	/**
+     * Shows the events timeline tab of one or more studies. Is called when opening the events timeline-tab
+	 * on the study overview screen.
+     */
+    def show_events_timeline = {
+		def studyList = readStudies( params.id );
+
+		if( !studyList )
+			return
+
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+    }
+
+	/**
+     * Shows the events table tab of one or more studies. Is called when opening the events table-tab
+	 * on the study overview screen.
+     */
+    def show_events_table = {
+		def studyList = readStudies( params.id );
+
+		if( !studyList )
+			return
+
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+    }
+
+	/**
+     * Shows the assays tab of one or more studies. Is called when opening the assays tab
+	 * on the study overview screen.
+     */
+    def show_assays = {
+		def studyList = readStudies( params.id );
+
+		if( !studyList )
+			return
+
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+    }
+
+	/**
+     * Shows the samples tab of one or more studies. Is called when opening the samples-tab
+	 * on the study overview screen.
+     */
+    def show_samples = {
+		def studyList = readStudies( params.id );
+
+		if( !studyList )
+			return
+
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+    }
+
+	/**
+     * Shows the persons tab of one or more studies. Is called when opening the persons tab
+	 * on the study overview screen.
+     */
+    def show_persons = {
+		def studyList = readStudies( params.id );
+
+		if( !studyList )
+			return
+
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+    }
+
+	/**
+     * Shows the publications tab of one or more studies. Is called when opening the publications tab
+	 * on the study overview screen.
+     */
+    def show_publications = {
+		def studyList = readStudies( params.id );
+
+		if( !studyList )
+			return
+
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+    }
+
+	/**
+	 * Creates the javascript for showing the timeline of one or more studies
+	 */
+	def createTimelineBandsJs = {
+		def studyList = readStudies( params.id );
+
+		if( !studyList )
+			return
+
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ) ]
+	}
+
+    /**
+	 * Reads one or more studies from the database and checks whether the logged
+	 * in user is allowed to access them.
+	 * 
+	 * Is used by several show_-methods
+	 *
+	 * @return List with Study objects or false if an error occurred.
+	 */
+	private def readStudies( id ) {
+		// If nothing has been selected, redirect the user
+		if( !id || !( id instanceof String)) {
+            response.status = 500;
+            render 'No study selected';
+            return false
+		}
+
+		// Check whether one id has been selected or multiple.
+		def ids = URLDecoder.decode( id ).split( "," );
+
+		// Parse strings to a long
+		def long_ids = []
+		ids.each { long_ids.add( Long.parseLong( it ) ) }
+
+		def c = Study.createCriteria()
+
+        def studyList = c {
+			maxResults( Math.min(params.max ? params.int('max') : 10, 100) )
+			'in'( "id", long_ids )
+		}
+
+		// Check whether the user may see these studies
+		def studiesAllowed = []
+        def loggedInUser = AuthenticationService.getLoggedInUser()
+
+		studyList.each { studyInstance ->
+            if( studyInstance.canRead(loggedInUser) ) {
+				studiesAllowed << studyInstance
+            }
+		}
+
+		// If the user is not allowed to see any of the studies, return 404
+		if( studiesAllowed.size() == 0 ) {
+            response.status = 404;
+            render 'Selected studies not found';
+            return false
+		}
+		
+		return studyList
+	}
+
     def showByToken = {
         def studyInstance = Study.findByCode(params.id)
         if (!studyInstance) {

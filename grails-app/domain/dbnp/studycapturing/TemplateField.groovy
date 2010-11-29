@@ -352,4 +352,17 @@ class TemplateField implements Serializable {
 		return entitiesWithOntology.size() > 0;
 	}
 
+	/**
+	 * Checks whether this field is filled in any of the entities in the given list
+	 *
+	 * @param	List	List of TemplateEntities to search in
+	 * @return	boolean	True iff any of the given entities has this field as template field, and has a value for it. False otherwise
+	 */
+	def isFilledInList( entityList ) {
+		if( !entityList )
+			return false;
+			
+		return true in entityList.collect { it.fieldExists( this.name ) && it.getFieldValue( this.name ) != null }?.flatten()
+	}
+
 }

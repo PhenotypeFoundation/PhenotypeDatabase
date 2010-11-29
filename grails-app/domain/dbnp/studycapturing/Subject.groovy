@@ -67,4 +67,45 @@ class Subject extends TemplateEntity {
 	String toString() {
 		return name
 	}
+
+	/**
+	 * Returns a human readable string of a list of subjects, with a maximum number
+	 * of characters
+	 *
+	 * @param subjectList	List with Subject objects
+	 * @param maxChars		maximum number of characters returned
+	 * @return				human readble string with at most maxChars characters, representing the subjects given.
+	 */
+	public static String trimSubjectNames( ArrayList subjectList, Integer maxChars ) {
+		def simpleSubjects = subjectList.name.join( ', ' );
+		def showSubjects
+		
+		// If the subjects will fit, show them all
+		if( !maxChars || simpleSubjects.size() < maxChars ) {
+		  showSubjects = simpleSubjects;
+		} else {
+		  // Always add the first name
+		  def subjectNames = subjectList[0]?.name;
+
+		  // Continue adding names until the length is to long
+		  def id = 0;
+		  subjectList.each { subject ->
+			if( id > 0 ) {
+			  if( subjectNames?.size() + subject.name?.size() < maxChars - 15 ) {
+				subjectNames += ", " + subject.name;
+			  } else {
+				return;
+			  }
+			}
+			id++;
+		  }
+
+		  // Add a postfix
+		  subjectNames += " and " + ( subjectList?.size() - id ) + " more";
+
+		  showSubjects = subjectNames;
+		}
+
+		return showSubjects
+	}
 }
