@@ -30,16 +30,13 @@
 	<wizard:templateElements entity="${study}" />
 	<wizard:publicationSelectElement name="publication" value="${study?.publications}" />
 	<wizard:contactSelectElement name="contacts" value="${study?.persons}" />
-
         <br />
         <div class="element">
           <div class="description">Public </div>
           <div class="input"><g:checkBox name="publicstudy" value="${study?.publicstudy}" /></div>
         </div>
 
-        <wizard:userSelectElement name="readers" description="Readers" value="${study?.readers}" />
-	<wizard:userSelectElement name="writers" description="Writers" value="${study?.writers}" />
-
-        </g:if>
-
+		<wizard:userSelectElement name="readers" description="Readers" value="${study?.readers}"/>
+		<wizard:userSelectElement name="writers" description="Writers" value="${study?.writers}"/>
+	</g:if>
 </wizard:pageContent>

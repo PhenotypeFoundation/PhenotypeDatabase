@@ -28,8 +28,12 @@
     </div>
 
 <script type="text/javascript">
-// scriptable webflow action
-function refreshWebFlow() {
-	<wizard:ajaxSubmitJs form="#wizardForm" name="refresh" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" class="prevnext" />
-}
+	// scriptable webflow action
+	function refreshWebFlow() {
+		<wizard:ajaxSubmitJs form="#wizardForm" name="refresh" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" class="prevnext" />
+	}
+
+	// set page title to study title
+	var title = "${study?.title}";
+	document.title = (title) ? title : 'Create study wizard';
 </script>
