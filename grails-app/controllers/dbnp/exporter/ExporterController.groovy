@@ -73,12 +73,6 @@ class ExporterController {
         [studyInstanceList: studies, studyInstanceTotal: studies.count()]
     }
 
-    def print = {
-        render params
-        render "PRINTING"
-    }
-
-
     def export = {
 
         def studies = []
@@ -93,7 +87,7 @@ class ExporterController {
             def files = []
             for (studyInstance in studies){
                 downloadFile(studyInstance,false)
-                files.add(new File("web-app/fileuploads/"+studyInstance.title+"_SimpleTox.xls"))
+                files.add(new File("web-app/fileuploads/"+studyInstance.code+"_SimpleTox.xls"))
             }
 
             response.setContentType( "application/zip" ) ;
@@ -196,7 +190,7 @@ class ExporterController {
         // Make the file downlodable
         if(dl) {
             println "Creation for downloading the file "+studyInstance.title+"_SimpleTox.xls"
-            response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.title}_SimpleTox.xls\"")
+            response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.code}_SimpleTox.xls\"")
             response.setContentType("application/octet-stream")
             wb.write(response.outputStream)
             response.outputStream.close()
@@ -204,7 +198,7 @@ class ExporterController {
 
         // Create the file and save into ZIP
         if(!dl){
-            FileOutputStream fileOut = new FileOutputStream("web-app/fileuploads/"+studyInstance.title+"_SimpleTox.xls", true)
+            FileOutputStream fileOut = new FileOutputStream("web-app/fileuploads/"+studyInstance.code+"_SimpleTox.xls", true)
             wb.write(fileOut)
             fileOut.close()
         }
@@ -233,17 +227,21 @@ class ExporterController {
 
     // writing subject properties
     def writeSubjectProperties(sub,sample,row) {
+        println "----- SUBJECT -----"
         for (u in 0..sample.parentSubject.giveFields().unique().size()-1){
             TemplateField tf = sample.parentSubject.giveFields().getAt(u)
-            row.createCell((short)9+u).setCellValue("subject-"+tf.name)
+            println tf.name
+            row.createCell((short)9+u).setCellValue(tf.name)
             sample.parentSubject.getFieldValue(tf.name) ? sub.createCell((short)9+u).setCellValue(sample.parentSubject.getFieldValue(tf.name).toString()) : "not define"
         }
     }
 
     // writing samplingEvent properties
     def writeSamplingEventProperties(sub,sample,row){
+        println "----- SAMPLING EVENT -----"
         for (t in 0..sample.parentEvent.giveFields().unique().size()-1){
             TemplateField tf =sample.parentEvent.giveFields().getAt(t)
+            println tf.name
             row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue("samplingEvent-"+tf.name)
             sample.parentEvent.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue(sample.parentEvent.getFieldValue(tf.name).toString()) : "not define"
         }
@@ -256,8 +254,10 @@ class ExporterController {
 
     // writing sample properties
     def writeSampleProperties(sub,sample,row){
+        println "----- SAMPLE -----"
         for (v in 0..sample.giveFields().unique().size()-1){
             TemplateField tf =sample.giveFields().getAt(v)
+            println tf.name
             row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.giveFields().unique().size()).setCellValue("sample-"+tf.name)
             sample.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.giveFields().unique().size()).setCellValue(sample.getFieldValue(tf.name).toString()) : "not define"
         }
