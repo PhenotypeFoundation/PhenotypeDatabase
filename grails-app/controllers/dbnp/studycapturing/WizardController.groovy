@@ -921,11 +921,13 @@ class WizardController {
  				return false
 			}
 
-			// Grails tends to dynamically load objects. This is a nice
-			// feature, but can cause problems (see ticket #223) as objects
-			// get instantiated multiple times which causes the POST variable
-			// to have a different 'identity' as the actual instances. The
-			// workaround is to 'touch' them here so they get instantiated:
+			// Grails tends to lazily initialize objects. While in theory this
+			// is a nice feature, it does not work well with our complex setup
+			// using the Identity class to match POST variables with object
+			// instances. This lazy initialization caused two issues:
+			// #147 and #223, and both are now resolved by forcing objects to
+			// be instantiated / initialized when a study is loaded from the
+			// database
 			study.hasMany.each { name, type ->
 				// dynamically instantiate all identity classes
 				if (type.toString() =~ "dbnp.studycapturing") {
