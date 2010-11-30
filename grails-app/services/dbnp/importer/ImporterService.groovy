@@ -282,6 +282,7 @@ class ImporterService {
 	def validatedSuccesfully = 0
         def entitystored = null
         def failedtopersist = []
+        def persisterrors = []
         def updatedentities = []
 	study.refresh()
         
@@ -291,6 +292,9 @@ class ImporterService {
                         switch (entity.getClass()) {
                         case Study	 :  print "Persisting Study `" + entity + "`: "
                                                 entity.owner = AuthenticationService.getLoggedInUser()
+                                                println "storing study" + entity
+                                                println "dump=" + entity.dump()
+                                                println "validate=" + entity.validate()
                                             	if (persistEntity(entity)) validatedSuccesfully++;
                                                     else failedtopersist.add(entity)
 						break
@@ -323,7 +327,9 @@ class ImporterService {
                                                 if (entity.validate()) {
                                                     study.addToSamples(entity)
                                                     if (persistEntity(study)) validatedSuccesfully++;                                                       
-                                                } else failedtopersist.add(entity)
+                                                } else {
+                                                    failedtopersist.add(entity)
+                                                }
                                                 
 						break
 			case SamplingEvent: print "Persisting SamplingEvent `" + entity + "`: "
@@ -395,7 +401,7 @@ class ImporterService {
      * 
      */
     boolean persistEntity(entity) {
-	    println "persisting ${entity}"            
+	    println "persisting ${entity}"        
 	    // if not validated
 		if (entity.validate()) {
 			if (entity.save(flush:true)) { //.merge?

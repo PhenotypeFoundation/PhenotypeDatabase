@@ -30,7 +30,7 @@
     <g:if test="${failedtopersist}">
       <p>The following entities could not be persisted:</p>
       <table>     
-      <g:each var="entity" in="${failedtopersist}">
+      <g:each var="entity" in="${failedtopersist}">       
         <tr>
         <g:each var="field" in="${entity.giveFields()}">
           <td>
@@ -41,6 +41,11 @@
             </g:else>
           </td>
         </g:each>
+        <td>
+           <g:each var="error" in="${entity.errors.allErrors}">
+             <b>error</b>: field `${error.getField()}` rejected value: ${error.getRejectedValue()}</b>
+        </g:each>
+        </td>
       </tr>
       </g:each>
       </table>

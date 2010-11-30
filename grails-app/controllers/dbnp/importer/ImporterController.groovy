@@ -376,11 +376,6 @@ class ImporterController {
             session.validatedSuccesfully = validatedSuccesfully
             render(view:"step4", model:[validatedSuccesfully:session.validatedSuccesfully, failedtopersist:failedtopersist, updatedentities:updatedEntities, totalrows:session.importer_importeddata.size, referer: session.import_referer])
             session.import_wizard_init = false
-
-            println "failed:"
-            failedtopersist.each {
-                println it
-            }
         }
     }
 
