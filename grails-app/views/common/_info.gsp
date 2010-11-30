@@ -2,11 +2,23 @@
 <div class="info">
 	<table>
 		<tr>
-			<td colspan="2">${meta(name: 'app.name')} ${meta(name: 'app.version')} ${meta(name: 'app.build.type')} build</td>
+			<td colspan="2">${meta(name: 'app.name')} ${meta(name: 'app.version')} <b><i><u>${meta(name: 'app.build.type')}</u> build</i></b></td>
 		</tr>
 		<tr>
 			<td>revision</td>
 			<td>: ${meta(name: 'app.build.svn.revision')}</td>
+		</tr>
+		<tr>
+			<td>Grails version</td>
+			<td>: <g:meta name="app.grails.version"></g:meta></td>
+		</tr>
+		<tr>
+			<td>Groovy version</td>
+			<td>: ${org.codehaus.groovy.runtime.InvokerHelper.getVersion()}</td>
+		</tr>
+		<tr>
+			<td>JVM version</td>
+			<td>: ${System.getProperty('java.version')}</td>
 		</tr>
 		<tr>
 			<td>deployed</td>

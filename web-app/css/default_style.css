@@ -1,31 +1,36 @@
 body {
-	margin: 0; padding: 0;
+	margin: 0;
+	padding: 0;
 	font: 10px normal Arial, Helvetica, sans-serif;
 	background: #fff url(../images/default_style/body_bg.gif) repeat-x;
 }
+
 /*a:link, a:visited, a:hover {
-    color: #ff7900;
-    font-weight: normal;
-    text-decoration: none;
+	color: #ff7900;
+	font-weight: normal;
+	text-decoration: none;
 }*/
 h1 {
-    color: #006dba;
-    font-weight: normal;
-    font-size: 16px;
-    margin: .8em 0 .3em 0;
+	color: #006dba;
+	font-weight: normal;
+	font-size: 16px;
+	margin: .8em 0 .3em 0;
 }
+
 h2 {
-    color: #006dba;
-    font-weight: normal;
-    font-size: 12px;
-    margin: .8em 0 .3em 0;
+	color: #006dba;
+	font-weight: normal;
+	font-size: 12px;
+	margin: .8em 0 .3em 0;
 }
+
 /** START :: container **/
 .container {
 	width: 960px;
 	margin: 0 auto;
 	position: relative;
 }
+
 /** END :: container **/
 /** START :: header **/
 #header {
@@ -34,21 +39,28 @@ h2 {
 }
 
 #header .info {
-    color: #ff3333;
-		vertical-align: top;
-		align: right;
-    width: 350px;
-		margin: -140px 0px 0px 600px;
-    display: inline-block;
-    zoom: 1; /* IE 6 & 7 hack */
-    *display: inline; /* IE 6 & 7 hack */
+	color: #ff3333;
+	vertical-align: top;
+	align: right;
+	width: 350px;
+	margin: -140px 0px 0px 600px;
+	display: inline-block;
+	zoom: 1; /* IE 6 & 7 hack */
+	*display: inline; /* IE 6 & 7 hack */
+	background-color: #666;
+	border: 1px dotted red;
+	filter:alpha(opacity=80);
+	opacity: 0.8;
 }
+
 #header .info table {
-    border: 0;
+	border: 0;
 }
+
 #header .info td {
-    padding: 0px;
+	padding: 0px;
 }
+
 /** END :: header **/
 /** START :: topnav **/
 ul.topnav {
@@ -61,38 +73,52 @@ ul.topnav {
 	font-size: 1.2em;
 	background: url(../images/default_style/topnav/topnav_bg.gif) repeat-x;
 }
+
 ul.topnav li {
 	float: left;
 	margin: 0;
 	padding: 0 15px 0 0;
 	position: relative; /*--Declare X and Y axis base--*/
 }
+
 ul.topnav li img {
-    border: none;
+	border: none;
 }
-ul.topnav li a{
-    padding: 10px 5px;
+
+ul.topnav li a {
+	padding: 10px 5px;
 	color: #fff;
 	display: block;
 	text-decoration: none;
 	float: left;
 }
-ul.topnav li a:hover{
+
+ul.topnav li a:hover {
 	background: url(../images/default_style/topnav/topnav_hover.gif) no-repeat center top;
 }
-ul.topnav li span { /*--Drop down trigger styles--*/
+
+ul.topnav li span {
+/*--Drop down trigger styles--*/
 	width: 17px;
 	height: 35px;
 	float: left;
 	background: url(../images/default_style/topnav/subnav_btn.gif) no-repeat center top;
 }
-ul.topnav li span.subhover {background-position: center bottom; cursor: pointer;} /*--Hover effect for trigger--*/
+
+ul.topnav li span.subhover {
+	background-position: center bottom;
+	cursor: pointer;
+}
+
+/*--Hover effect for trigger--*/
 ul.topnav li ul.subnav {
 	list-style: none;
 	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
-	left: 0; top: 35px;
+	left: 0;
+	top: 35px;
 	background: #333;
-	margin: 0; padding: 0;
+	margin: 0;
+	padding: 0;
 	display: none;
 	float: left;
 	width: 170px;
@@ -102,22 +128,28 @@ ul.topnav li ul.subnav {
 	-webkit-border-bottom-right-radius: 5px;
 	border: 1px solid #111;
 }
-ul.topnav li ul.subnav li{
-	margin: 0; padding: 0;
+
+ul.topnav li ul.subnav li {
+	margin: 0;
+	padding: 0;
 	border-top: 1px solid #252525; /*--Create bevel effect--*/
 	border-bottom: 1px solid #444; /*--Create bevel effect--*/
 	clear: both;
 	width: 170px;
 }
+
 html ul.topnav li ul.subnav li a {
 	float: left;
 	width: 145px;
 	background: #333 url(../images/default_style/topnav/dropdown_linkbg.gif) no-repeat 10px center;
 	padding-left: 20px;
 }
-html ul.topnav li ul.subnav li a:hover { /*--Hover effect for subnav links--*/
+
+html ul.topnav li ul.subnav li a:hover {
+/*--Hover effect for subnav links--*/
 	background: #222 url(../images/default_style/topnav/dropdown_linkbg.gif) no-repeat 10px center;
 }
+
 /** END :: topnav **/
 /** START :: content **/
 #content {
@@ -128,29 +160,31 @@ html ul.topnav li ul.subnav li a:hover { /*--Hover effect for subnav links--*/
 }
 
 #content p {
-    text-align: justify; 
+	text-align: justify;
 }
-#content a:link, #content a:visited, #content a:hover{
-    color: #006dba;
-    text-decoration: none;
+
+#content a:link, #content a:visited, #content a:hover {
+	color: #006dba;
+	text-decoration: none;
 }
+
 #content p img {
-    display: run-in;
-    float: right;
-    padding: 2px;
-    border: 1px solid #006dba;
-    margin-left: 10px;
-    margin-bottom: 10px;
-    height: 120px;
+	display: run-in;
+	float: right;
+	padding: 2px;
+	border: 1px solid #006dba;
+	margin-left: 10px;
+	margin-bottom: 10px;
+	height: 120px;
 }
 
-#content .message { 
-    border: 1px solid #ccc; /* #006dba; */
-    margin-bottom: 10px;
-    margin-top: 10px;
+#content .message {
+	border: 1px solid #ccc; /* #006dba; */
+	margin-bottom: 10px;
+	margin-top: 10px;
 
-    background: #f7f7f7 url(../plugins/famfamfam-1.0.1/images/icons/information.png) 10px 10px no-repeat;
-    padding: 10px 10px 10px 33px;
+	background: #f7f7f7 url(../plugins/famfamfam-1.0.1/images/icons/information.png) 10px 10px no-repeat;
+	padding: 10px 10px 10px 33px;
 
 }
 
@@ -163,78 +197,92 @@ html ul.topnav li ul.subnav li a:hover { /*--Hover effect for subnav links--*/
 	border-top: 1px solid #727272;
 	padding-top: 5px;
 }
+
 #footer a:link, #footer a:visited, #footer a:hover {
-    color: #006dba;
-    font-weight: normal;
-    text-decoration: none;
+	color: #006dba;
+	font-weight: normal;
+	text-decoration: none;
 }
+
 /** END :: footer **/
 
 /** START :: TABLES **/
 table {
-    border: 1px solid #ccc;
-    width: 100%
+	border: 1px solid #ccc;
+	width: 100%
 }
+
 tr {
-    border: 0;
+	border: 0;
 }
+
 td, th {
-    font: 11px verdana, arial, helvetica, sans-serif;
-    line-height: 12px;
-    padding: 5px 6px;
-    text-align: left;
-    vertical-align: top;
+	font: 11px verdana, arial, helvetica, sans-serif;
+	line-height: 12px;
+	padding: 5px 6px;
+	text-align: left;
+	vertical-align: top;
 }
+
 th {
-    background: #fff url(../images/default_style/tables/shadow.jpg);
-    color: #666;
-    font-size: 11px;
-    font-weight: bold;
-    line-height: 17px;
-    padding: 2px 6px;
+	background: #fff url(../images/default_style/tables/shadow.jpg);
+	color: #666;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 17px;
+	padding: 2px 6px;
 }
+
 th a:link, th a:visited, th a:hover {
-    color: #333;
-    display: block;
-    font-size: 10px;
-    text-decoration: none;
-    width: 100%;
+	color: #333;
+	display: block;
+	font-size: 10px;
+	text-decoration: none;
+	width: 100%;
 }
+
 th.asc a, th.desc a {
-    background-position: right;
-    background-repeat: no-repeat;
+	background-position: right;
+	background-repeat: no-repeat;
 }
+
 th.asc a {
-    background-image: url(../images/default_style/tables/sorted_asc.gif);
+	background-image: url(../images/default_style/tables/sorted_asc.gif);
 }
+
 th.desc a {
-    background-image: url(../images/default_style/tables/sorted_desc.gif);
+	background-image: url(../images/default_style/tables/sorted_desc.gif);
 }
 
 .odd {
-    background: #f7f7f7;
+	background: #f7f7f7;
 }
+
 .even {
-    background: #fff;
+	background: #fff;
 }
+
 /** END :: TABLES **/
 
 /** START :: LIST **/
 .list table {
-    border-collapse: collapse;
+	border-collapse: collapse;
 }
+
 .list th, .list td {
-    border-left: 1px solid #ddd;
+	border-left: 1px solid #ddd;
 }
+
 .list th:hover, .list tr:hover {
-    background: #b2d1ff;
+	background: #b2d1ff;
 }
+
 /** END :: LIST **/
 
 /** START :: buttons **/
 .buttons {
-    margin-top: 15px;
-    font-size: 10px;
+	margin-top: 15px;
+	font-size: 10px;
 }
 
 /* Hides the default navigation bar that is added by the Grails scaffolding */
@@ -243,129 +291,146 @@ th.desc a {
 /* Links in the buttons section should look just like buttons in the
    same section */
 #content .button a {
-    color: #333;
+	color: #333;
 }
+
 .button a {
-    font-size: 10px;
-    font-weight: bold;
-    margin-left: 3px;
-    margin-right: 3px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+	font-size: 10px;
+	font-weight: bold;
+	margin-left: 3px;
+	margin-right: 3px;
+	padding-top: 2px;
+	padding-bottom: 2px;
 }
+
 .buttons input {
-    background: #fff;
-    border: 0;
-    color: #333;
-    cursor: pointer;
-    font-size: 10px;
-    font-weight: bold;
-    margin-left: 3px;
-    margin-right: 3px;
-    overflow: visible;
-    padding: 2px 6px;
-    font-family: Verdana, Arial, Helvetica, sans-serif;
+	background: #fff;
+	border: 0;
+	color: #333;
+	cursor: pointer;
+	font-size: 10px;
+	font-weight: bold;
+	margin-left: 3px;
+	margin-right: 3px;
+	overflow: visible;
+	padding: 2px 6px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
 }
 
 .buttons input.delete, .buttons a.delete {
 	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/delete.png) 5px 50% no-repeat;
 	padding-left: 28px;
 }
-.buttons input.edit, .buttons a.edit  {
+
+.buttons input.edit, .buttons a.edit {
 	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/application_edit.png) 5px 50% no-repeat;
 	padding-left: 28px;
 }
+
 .buttons input.save, .buttons a.save {
 	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/accept.png) 5px 50% no-repeat;
 	padding-left: 28px;
 }
+
 .buttons input.create, .buttons a.create {
 	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/add.png) 5px 50% no-repeat;
 	padding-left: 28px;
 }
+
 .buttons input.backToList, .buttons a.backToList {
 	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/application.png) 5px 50% no-repeat;
 	padding-left: 28px;
 }
+
 .buttons input.cancel, .buttons a.cancel {
 	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/delete.png) 5px 50% no-repeat;
 	padding-left: 28px;
-        font-weight: normal;
+	font-weight: normal;
 }
+
 .buttons input.otherList, .buttons a.otherList {
 	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/application_view_detail.png) 5px 50% no-repeat;
 	padding-left: 28px;
 }
 
 /* Reset the font weight for buttons occurring within the table */
-td.buttons input { font-weight: normal; }
+td.buttons input {
+	font-weight: normal;
+}
 
 /** END :: buttons **/
 
 /** START :: pagination buttons **/
 .paginateButtons {
-    margin-top: 15px;
-    overflow: auto;
-    width: 100%;
+	margin-top: 15px;
+	overflow: auto;
+	width: 100%;
 }
 
 .paginateButtons a,
 .paginateButtons span.currentStep {
-    border:solid 1px #ccc;
-    margin-right:2px;
-    display:block;
-    float:left;
-    padding:1px 6px;
-    text-decoration:none;
+	border: solid 1px #ccc;
+	margin-right: 2px;
+	display: block;
+	float: left;
+	padding: 1px 6px;
+	text-decoration: none;
 }
 
 .paginateButtons a {
-    color:#0e509e;
+	color: #0e509e;
 }
 
 .paginateButtons span.currentStep {
-    background:#2e6ab1;
-    color:#FFFFFF;
+	background: #2e6ab1;
+	color: #FFFFFF;
 }
 
 /** END :: pagination buttons **/
 
 /* START :: ontology autocomplete */
 .ui-autocomplete .ui-menu-item {
-    font-size: 10px;
+	font-size: 10px;
 }
+
 .ui-autocomplete .about {
-    font-size: 8px;
-    color: #006DBA;
+	font-size: 8px;
+	color: #006DBA;
 }
+
 .ui-autocomplete .from {
-    font-size: 8px;
-    color: #666;
+	font-size: 8px;
+	color: #666;
 }
+
 /* END :: ontology autocomplete */
 
 /* START :: special select option styles */
 option.addMore {
-    background: url(../plugins/famfamfam-1.0.1/images/icons/add.png) no-repeat left top;
-    background-color: #333;
-    padding-left: 18px;
-    height: 16px;
-    color: #fff;
-    font-weight: bold;
+	background: url(../plugins/famfamfam-1.0.1/images/icons/add.png) no-repeat left top;
+	background-color: #333;
+	padding-left: 18px;
+	height: 16px;
+	color: #fff;
+	font-weight: bold;
 }
+
 option.modify {
-    background: url(../plugins/famfamfam-1.0.1/images/icons/layout_add.png) no-repeat left top;
-    background-color: #333;
-    padding-left: 18px;
-    height: 16px;
-    color: #fff;
-    font-weight: bold;    
+	background: url(../plugins/famfamfam-1.0.1/images/icons/layout_add.png) no-repeat left top;
+	background-color: #333;
+	padding-left: 18px;
+	height: 16px;
+	color: #fff;
+	font-weight: bold;
 }
+
 option.locked {
-    background: url(../plugins/famfamfam-1.0.1/images/icons/lock.png) no-repeat left top;
-    padding-left: 18px;
+	background: url(../plugins/famfamfam-1.0.1/images/icons/lock.png) no-repeat left top;
+	padding-left: 18px;
 }
+
 option.unlocked {
-    padding-left: 18px;
+	padding-left: 18px;
 }
+
 /* END :: special select option styles */
