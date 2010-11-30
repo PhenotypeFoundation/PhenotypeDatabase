@@ -164,19 +164,48 @@ class ImporterController {
      * @param entity entity class we are using (dbnp.studycapturing.Subject etc.)
      */
 
-    def saveMissingProperties = {
+    def saveMissingProperties = {        
+        def fielderrors = 0
+        def invalidentities = 0
         
 	session.importer_importeddata.each { table ->
 	    table.each { entity ->
-		entity.giveFields().each { field ->		    
-		    entity.setFieldValue (field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
-		}		
-	    }
-	}
+                // a new entity is being traversed, if a field cannot be set, increase this counter
+                fielderrors = 0
+
+		entity.giveFields().each { field ->                    
+                    try {
+                        // try to set the value
+                        entity.setFieldValue (field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])                        
+                    } catch (Exception e) {                    
+                        fielderrors++
+                    }
+		}
+
+                // a field could not be set in the entity, so the entity failed (is not validated)
+                if (fielderrors) invalidentities++
+
+                // all fields in the entity could be set, no errors, so remove it from the failed cells
+                if (!fielderrors) {
+                     session.importer_failedcells.each { record ->
+                        record.importcells.each { cell ->
+                           // remove the cell from the failed cells session
+                           if (cell.entityidentifier == entity.getIdentifier()) {                            
+                               record.removeFromImportcells(cell)
+                           }
+                        }
+                     }
+                } // end of fielderrors
+	    } // end of record
+	} // end of table
 
         // a new ontology term was added, so stay at the current step otherwise go to the next step
         if (params.updatefield) render(view:"step3_simple", model:[datamatrix:session.importer_importeddata, failedcells:session.importer_failedcells])
-            else render(view:"step3", model:[datamatrix:session.importer_importeddata])
+            else 
+        if (invalidentities)
+            render(view:"step3_simple", model:[datamatrix:session.importer_importeddata, failedcells:session.importer_failedcells])
+        else
+            render(view:"step3", model:[datamatrix:session.importer_importeddata])
     }
 
     /*

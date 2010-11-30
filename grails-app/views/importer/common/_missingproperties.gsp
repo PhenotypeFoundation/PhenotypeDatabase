@@ -56,7 +56,7 @@
           var element = $("select[name=entity_${cell.entityidentifier}_${cell.mappingcolumn.property}]");
 
           element.addClass('error')
-          element.append( new Option("Invalid: ${cell.value}","", true, true) );
+          element.append( new Option("Invalid: ${cell.value}","#invalidterm", true, true) );
   
           </g:each>
         </g:each>
