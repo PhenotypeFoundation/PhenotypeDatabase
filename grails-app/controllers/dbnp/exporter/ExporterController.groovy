@@ -206,7 +206,7 @@ class ExporterController {
 
     def writeMandatoryFields(sub,sample,study) {
         // adding subject name in row 1
-        sample.parentSubject.name ? sub.createCell((short)0).setCellValue(sample.parentSubject.name) : "not defined"
+        sample.parentSubject ? sub.createCell((short)0).setCellValue(sample.parentSubject.name) : "not defined"
         // adding sample in row 4
         sample.name!=null ? sub.createCell((short)3).setCellValue(sample.name) : "not defined"
         // adding label (EventGroup) in row 6
