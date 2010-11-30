@@ -921,6 +921,19 @@ class WizardController {
  				return false
 			}
 
+			// Grails tends to dynamically load objects. This is a nice
+			// feature, but can cause problems (see ticket #223) as objects
+			// get instantiated multiple times which causes the POST variable
+			// to have a different 'identity' as the actual instances. The
+			// workaround is to 'touch' them here so they get instantiated:
+			study.hasMany.each { name, type ->
+				// dynamically instantiate all identity classes
+				if (type.toString() =~ "dbnp.studycapturing") {
+					study.getProperty( name ).each { }
+				}
+			}
+
+			// store study in the flowscope
 			flow.study = study
 
 			// set 'quicksave' variable
