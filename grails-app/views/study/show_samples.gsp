@@ -20,8 +20,11 @@
 		<%
 		  // Determine a union of the fields for all different
 		  // samples in all studies. In order to show a proper list.
-		  // We want every field to appear just once,
-		  // so the list is filtered for unique values
+		  // We want every field to appear just once, so the list is filtered
+		  // for unique names. This ensures that different template fields with
+		  // the same name, show up in the same column. This might happen when
+		  // both humans and mice are shown, where humans have a weight in kgs
+		  // and mice have a weight in grams.
 		  sampleTemplates = studyList*.giveSampleTemplates().flatten().unique()
 
 		  if( !sampleTemplates ) {
@@ -29,7 +32,7 @@
 			sampleFields = [];
 			showSampleFields = [];
 		  } else {
-			sampleFields = sampleTemplates*.fields.flatten().unique()
+			sampleFields = sampleTemplates*.fields.flatten().name.unique()
 			if( !sampleFields ) {
 			  sampleFields = [];
 			  showSampleFields = [];
@@ -44,7 +47,7 @@
 				  // If the field is filled for this subject, we have to
 				  // show the field and should not check any other
 				  // samples (hence the break)
-				  if( sample.fieldExists( sampleField.name ) && sample.getFieldValue( sampleField.name ) ) {
+				  if( sample.fieldExists( sampleField ) && sample.getFieldValue( sampleField ) ) {
 					showSampleFields << sampleField;
 					break;
 				  }
@@ -83,9 +86,10 @@
 			<td><wizard:showTemplateField field="${field}" entity="${sample}" /></td>
 		  </g:each>
 
-		  <g:each in="${showSampleFields}" var="field">
+		  <g:each in="${showSampleFields}" var="fieldname">
 			<td>
-			  <g:if test="${sample.fieldExists(field.name)}">
+			  <g:if test="${sample.fieldExists(fieldname)}">
+				<g:set var="field" value="${sample.getField(fieldname)}" />
 				<wizard:showTemplateField field="${field}" entity="${sample}" />
 			  </g:if>
 			  <g:else>

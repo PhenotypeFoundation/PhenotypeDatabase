@@ -1447,13 +1447,13 @@ class WizardTagLib extends JavascriptTagLib {
 
 			// Show a link if the field is a FILE field
 			if( fieldType == 'FILE' && value != "" ) {
-			  out << '<a href="' + g.createLink( controller: "file", action: "get",  id: value ) + '">' + value + '</a>';
+			    out << '<a href="' + g.createLink( controller: "file", action: "get",  id: value ) + '">' + value + '</a>';
 			} else {
 				out << value;
 			}
 
 			// Show the unit (if a unit is present and a value was shown)
-			if( fieldUnit && value != "" )
+			if( fieldUnit && value != null && value != "" )
 				out << " " + fieldUnit
 
 		}

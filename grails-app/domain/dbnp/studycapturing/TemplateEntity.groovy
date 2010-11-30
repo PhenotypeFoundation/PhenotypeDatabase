@@ -718,6 +718,10 @@ abstract class TemplateEntity extends Identity {
 		return (this.template) ? this.template.fields : []
 	}
 
+	def TemplateField getField( fieldName ) {
+		return getField(this.giveFields(), fieldName);
+	}
+
 	/**
 	 * Look up the type of a certain template field
 	 * @param String fieldName The name of the template field
