@@ -226,7 +226,8 @@ class ExporterController {
         // adding study title in row 7
         sub.createCell((short)6).setCellValue(study.title)
         // Species row 9
-        sample.parentSubject.species.name!=null ? sub.createCell((short)8).setCellValue(sample.parentSubject.species.name) : "not defined"
+//        sample.parentSubject.species.name!=null ? sub.createCell((short)8).setCellValue(sample.parentSubject.species.name) : "not defined"
+        sample.parentSubject ? sub.createCell((short)8).setCellValue(sample.parentSubject.species.name) : "not defined"
     }
 
     // writing subject properties
