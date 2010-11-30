@@ -77,7 +77,7 @@ class ExporterController {
 
         def studies = []
         for ( j in dbnp.studycapturing.Study.list() ){
-            if (params.containsKey(j.title)){
+            if (params.containsKey(j.code)){
                 studies.add(j)
             }
         }

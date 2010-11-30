@@ -40,7 +40,7 @@
           <g:each in="${studyInstanceList}" var="studyInstance" status="i" >
               <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
 
-                  <td><input type="checkbox" name="${studyInstance.title}" id="checked_studies"></td>
+                  <td><input type="checkbox" name="${studyInstance.code}" id="checked_studies"></td>
 
                   <td><g:link controller="study" action="show" id="${studyInstance.id}">${fieldValue(bean: studyInstance, field: "code")}</g:link></td>
 	              <td>
