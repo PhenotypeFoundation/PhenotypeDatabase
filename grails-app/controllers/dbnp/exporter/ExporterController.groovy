@@ -211,10 +211,14 @@ class ExporterController {
         sample.name!=null ? sub.createCell((short)3).setCellValue(sample.name) : "not defined"
         // adding label (EventGroup) in row 6
         for (ev in EventGroup.list()){
-            if ( (sample.parentSubject.name) && (ev.subjects.name.contains(sample.parentSubject.name))) {
-                sub.createCell((short)5).setCellValue(ev.name)
-                break
-            }
+            if(sample.parentSubject){
+                if ( (sample.parentSubject.name) && (ev.subjects.name.contains(sample.parentSubject.name))) {
+                    sub.createCell((short)5).setCellValue(ev.name)
+                    break
+                }
+                else {
+                    sub.createCell((short)5).setCellValue(" ")
+                }}
             else {
                 sub.createCell((short)5).setCellValue(" ")
             }
