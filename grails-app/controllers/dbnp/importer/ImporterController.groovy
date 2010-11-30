@@ -203,7 +203,7 @@ class ImporterController {
         if (params.updatefield) render(view:"step3_simple", model:[datamatrix:session.importer_importeddata, failedcells:session.importer_failedcells])
             else 
         if (invalidentities)
-            render(view:"step3_simple", model:[datamatrix:session.importer_importeddata, failedcells:session.importer_failedcells])
+            render(view:"step3_simple", model:[datamatrix:session.importer_importeddata, failedcells:session.importer_failedcells, invalidentities:invalidentities])
         else
             render(view:"step3", model:[datamatrix:session.importer_importeddata])
     }

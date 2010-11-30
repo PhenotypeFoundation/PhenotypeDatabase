@@ -63,6 +63,10 @@
   });
 </script>
 
+<g:if test="${invalidentities}">
+  <p><b>There are ${invalidentities} entities which could not be validated, they are indicated by a red color, please correct them before continuing.</b></p>
+</g:if>
+
 <div class="wizard" id="wizard">
 <g:form name="missingpropertiesform" id="missingpropertiesform" action="saveMissingProperties">
     <div class="table">
