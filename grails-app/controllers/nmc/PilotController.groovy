@@ -15,6 +15,8 @@
 package nmc
 
 import dbnp.studycapturing.*;
+import grails.plugins.springsecurity.Secured
+
 
 class PilotController {
 	
@@ -36,38 +38,14 @@ class PilotController {
 	 }
    }
 	
-    def index = {
+    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
+	def index = {
 		
 		session.pilot = true
-		
+
 		def user = authenticationService.getLoggedInUser()
 		def max = Math.min(params.max ? params.int('max') : 10, 100)
-
-		def c = Study.createCriteria()
-
-		def studies
-		if( user == null ) {
-			//login and return here...
-			redirect(controller:"login", action:"auth")
-			return false
-			
-		} else {
-			studies = c.list {
-				maxResults(max)
-				or {
-					eq( "owner", user )
-					writers {
-						eq( "id", user.id )
-					}
-					and {
-						readers {
-							eq( "id", user.id )
-						}
-						eq( "published", true )
-					}
-				}
-			}
-		}
+		def studies = Study.giveReadableStudies(user, max);
 		
 		def studyInstance = new Study()
 		studyInstance.properties = params

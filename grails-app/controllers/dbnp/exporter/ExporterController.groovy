@@ -44,32 +44,7 @@ class ExporterController {
 
         def c = dbnp.studycapturing.Study.createCriteria()
 
-        def studies
-        if( user == null ) {
-            studies = c.list {
-                maxResults(max)
-                and {
-                    eq( "published", true )
-                    eq( "publicstudy", true )
-                }
-            }
-        } else {
-            studies = c.list {
-                maxResults(max)
-                or {
-                    eq( "owner", user )
-                    writers {
-                        eq( "id", user.id )
-                    }
-                    and {
-                        readers {
-                            eq( "id", user.id )
-                        }
-                        eq( "published", true )
-                    }
-                }
-            }
-        }
+        def studies = Study.giveReadableStudies(user, max);
         [studyInstanceList: studies, studyInstanceTotal: studies.count()]
     }
 

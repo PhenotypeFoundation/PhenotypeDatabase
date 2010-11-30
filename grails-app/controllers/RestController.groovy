@@ -255,12 +255,10 @@ class RestController {
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
-				/*
 				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 					response.sendError(401)
 					return false
 				}
-				*/
 
 				def assays = []
 				if(params.assayToken==null) {
@@ -282,7 +280,7 @@ class RestController {
 				}
 
 				assays.each{ assay ->
-					if (assay.module.url.equals(params.consumer )) {
+					if (assay.module.url.equals(params.consumer)) {
 						if(assay) {
 							def map = [:]
 							assay.giveFields().each { field ->

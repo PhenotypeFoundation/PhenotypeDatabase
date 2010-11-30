@@ -652,18 +652,8 @@ class WizardTagLib extends JavascriptTagLib {
 	 * @param Map attrs
 	 */
 	def studySelect = { attrs ->
-		// Find all studies the user has access to
-                def user = AuthenticationService.getLoggedInUser()
-
-                def c = Study.createCriteria()
-                attrs.from = c.list {
-                    or {
-                        eq( "owner", user )
-                        writers {
-                            eq( "id", user.id )
-                        }
-                    }
-                }
+		// Find all studies the user has access to (max 100)
+		attrs.from = Study.giveWritableStudies(AuthenticationService.getLoggedInUser(), 100);
 
 		// got a name?
 		if (!attrs.name) {

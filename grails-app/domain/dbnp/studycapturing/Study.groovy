@@ -409,6 +409,11 @@ class Study extends TemplateEntity {
             return this.publicstudy && this.published;
         }
 
+		// Administrators are allowed to read every study
+		if( loggedInUser.hasAdminRights() ) {
+			return true;
+		}
+
         // Owners and writers are allowed to read this study
         if( this.owner == loggedInUser || this.writers.contains(loggedInUser) ) {
             return true
@@ -429,6 +434,12 @@ class Study extends TemplateEntity {
         if( loggedInUser == null ) {
             return false;
         }
+
+		// Administrators are allowed to write every study
+		if( loggedInUser.hasAdminRights() ) {
+			return true;
+		}
+
         return this.owner == loggedInUser || this.writers.contains(loggedInUser)
     }
 
@@ -442,4 +453,69 @@ class Study extends TemplateEntity {
         return this.owner == loggedInUser
     }
 
+	/**
+	 * Returns a list of studies that are writable for the given user
+	 */
+	public static giveWritableStudies(SecUser user, int max) {
+		// User that are not logged in, are not allowed to write to a study
+		if( user == null )
+			return [];
+			
+		def c = Study.createCriteria()
+
+		// Administrators are allowed to read everything
+		if( user.hasAdminRights() ) {
+			return c.list {
+				maxResults(max)
+			}
+		}
+
+		return c.list {
+			maxResults(max)
+			or {
+				eq( "owner", user )
+				writers {
+					eq( "id", user.id )
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns a list of studies that are readable by the given user
+	 */
+	public static giveReadableStudies(SecUser user, int max) {
+		def c = Study.createCriteria()
+
+        // Administrators are allowed to read everything
+		if( user == null ) {
+            return c.list {
+				maxResults(max)
+                and {
+                    eq( "published", true )
+                    eq( "publicstudy", true )
+                }
+            }
+        } else if( user.hasAdminRights() ) {
+            return c.list {
+				maxResults(max)
+			}
+		} else  {
+            return c.list {
+				maxResults(max)
+                or {
+                    eq( "owner", user )
+                    writers {
+                        eq( "id", user.id )
+                    }
+                    and {
+                        readers {
+                            eq( "id", user.id )
+                        }
+                        eq( "published", true )
+                    }
+                }
+            }
+        }
+	}
 }

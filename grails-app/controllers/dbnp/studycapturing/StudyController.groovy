@@ -3,7 +3,6 @@ package dbnp.studycapturing
 import grails.converters.*
 import grails.plugins.springsecurity.Secured
 
-
 /**
  * Controller class for studies
  */
@@ -24,35 +23,8 @@ class StudyController {
         def user = AuthenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
 
-        def c = Study.createCriteria()
+        def studies = Study.giveReadableStudies( user, max );
 
-        def studies
-        if( user == null ) {
-            studies = c.list {
-                maxResults(max)
-                and {
-                    eq( "published", true )
-                    eq( "publicstudy", true )
-                }
-            }
-        } else {
-            studies = c.list {
-                maxResults(max)
-                or {
-                    eq( "owner", user )
-                    writers {
-                        eq( "id", user.id )
-                    }
-                    and {
-                        readers {
-                            eq( "id", user.id )
-                        }
-                        eq( "published", true )
-                    }
-                }
-            }
-        }
-        
         [studyInstanceList: studies, studyInstanceTotal: studies.count(), loggedInUser: user]
     }
 

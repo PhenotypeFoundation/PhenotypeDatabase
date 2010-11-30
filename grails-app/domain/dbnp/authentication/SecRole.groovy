@@ -1,6 +1,6 @@
 package dbnp.authentication
 
-class SecRole {
+class SecRole implements Serializable {
 
 	String authority
 
