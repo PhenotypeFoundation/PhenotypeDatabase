@@ -53,7 +53,7 @@ class BootStrap {
 		//      - templates
 		//      - ontologies
 		//      - and/or studies
-		if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
+		if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT || grails.util.GrailsUtil.environment == "dbnpdemo") {
 			// add ontologies?
 			if (!Ontology.count()) BootStrapTemplates.initTemplateOntologies()
 
@@ -75,6 +75,6 @@ class BootStrap {
 	}
 
 	def destroy = {
-		println "stopping application..."
+		"stopping application...".grom()
 	}
 } 
