@@ -45,3 +45,4 @@ grails.project.dependency.resolution = {
 
 //grails.plugin.location.'aaaa' = '/home/tjeerd/NetBeansProjects/nmcdsp/nmcdsp-grailsPlugins/aaaa'
 //grails.plugin.location.'grom' = '../grom'
+//grails.plugin.location.'ajax-flow' = '../AjaxFlow'
