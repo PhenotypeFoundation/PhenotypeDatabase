@@ -11,11 +11,11 @@ import dbnp.authentication.SecUser
  * $Date$
  */
 class Study extends TemplateEntity {
-        static searchable = true
+	static searchable = true
 
 	SecUser owner		// The owner of the study. A new study is automatically owned by its creator.
-	String title        // The title of the study
-	String code 		// currently used as the external study ID, e.g. to reference a study in a SAM module
+	String title		// The title of the study
+	String code		 // currently used as the external study ID, e.g. to reference a study in a SAM module
 	Date dateCreated
 	Date lastUpdated
 	Date startDate
@@ -26,9 +26,9 @@ class Study extends TemplateEntity {
 	List samples
 	List assays
 	boolean published = false // Determines whether a study is private (only accessable by the owner and writers) or published (also visible to readers)
-    boolean publicstudy = false  // Determines whether anonymous users are allowed to see this study. This has only effect when published = true
-        
-	static hasMany = [		
+	boolean publicstudy = false  // Determines whether anonymous users are allowed to see this study. This has only effect when published = true
+
+	static hasMany = [
 		subjects: Subject,
 		samplingEvents: SamplingEvent,
 		events: Event,
@@ -37,13 +37,13 @@ class Study extends TemplateEntity {
 		assays: Assay,
 		persons: StudyPerson,
 		publications: Publication,
-                readers: SecUser,
-                writers: SecUser
+		readers: SecUser,
+		writers: SecUser
 	]
 
 	static constraints = {
 		owner(nullable: true, blank: true)
-		code(nullable:false, blank:true,unique:true)
+		code(nullable: false, blank: true, unique: true)
 
 		// TODO: add custom validator for 'published' to assess whether the study meets all quality criteria for publication
 		// tested by SampleTests.testStudyPublish
@@ -59,6 +59,7 @@ class Study extends TemplateEntity {
 
 	// The external identifier (studyToken) is currently the code of the study.
 	// It is used from within dbNP submodules to refer to particular study in this GSCF instance.
+
 	def getToken() { code }
 
 	/**
@@ -75,7 +76,7 @@ class Study extends TemplateEntity {
 		new TemplateField(
 			name: 'code',
 			type: TemplateFieldType.STRING,
-			preferredIdentifier:true,
+			preferredIdentifier: true,
 			comment: 'Fill out the code by which many people will recognize your study',
 			required: true),
 		new TemplateField(
@@ -101,8 +102,8 @@ class Study extends TemplateEntity {
 	 * returns all events and sampling events that do not belong to a group
 	 */
 	def List<Event> getOrphanEvents() {
-		def orphans =	events.findAll { event -> !event.belongsToGroup(eventGroups) } +
-						samplingEvents.findAll { event -> !event.belongsToGroup(eventGroups) }
+		def orphans = events.findAll { event -> !event.belongsToGroup(eventGroups) } +
+			samplingEvents.findAll { event -> !event.belongsToGroup(eventGroups) }
 
 		return orphans
 	}
@@ -128,7 +129,7 @@ class Study extends TemplateEntity {
 	 * @return Set
 	 */
 	List<Template> giveAllAssayTemplates() {
-		TemplateEntity.giveTemplates(( (assays) ? assays : [] ))
+		TemplateEntity.giveTemplates(((assays) ? assays : []))
 	}
 
 	/**
@@ -146,9 +147,8 @@ class Study extends TemplateEntity {
 		// For some reason, giveAllEventTemplates() + giveAllSamplingEventTemplates()
 		// gives trouble when asking .size() to the result
 		// So we also use giveTemplates here
-		TemplateEntity.giveTemplates( ((events) ? events : []) + ((samplingEvents) ? samplingEvents : []) )
+		TemplateEntity.giveTemplates(((events) ? events : []) + ((samplingEvents) ? samplingEvents : []))
 	}
-
 
 	/**
 	 * Return all events and samplingEvenets for a specific template
@@ -199,38 +199,29 @@ class Study extends TemplateEntity {
 		return this.template
 	}
 
-
 	/**
 	 * Delete a specific subject from this study, including all its relations
 	 * @param subject The subject to be deleted
-	 * @return A String which contains a (user-readable) message describing the changes to the database
+	 * @void
 	 */
-	String deleteSubject(Subject subject) {
-		String msg = "Subject ${subject.name} was deleted"
-
+	void deleteSubject(Subject subject) {
 		// Delete the subject from the event groups it was referenced in
 		this.eventGroups.each {
 			if (it.subjects.contains(subject)) {
 				it.removeFromSubjects(subject)
-				msg += ", deleted from event group '${it.name}'"
 			}
 		}
 
 		// Delete the samples that have this subject as parent
 		this.samples.findAll { it.parentSubject.equals(subject) }.each {
-			// This should remove the sample itself too, because of the cascading belongsTo relation
-			this.removeFromSamples(it)
-			// But apparently it needs an explicit delete() too
-			it.delete()
-			msg += ", sample '${it.name}' was deleted"
+			this.deleteSample(it)
 		}
 
 		// This should remove the subject itself too, because of the cascading belongsTo relation
 		this.removeFromSubjects(subject)
+
 		// But apparently it needs an explicit delete() too
 		subject.delete()
-
-		return msg
 	}
 
 	/**
@@ -256,11 +247,9 @@ class Study extends TemplateEntity {
 	/**
 	 * Delete an event from the study, including all its relations
 	 * @param Event
-	 * @return String
+	 * @void
 	 */
-	String deleteEvent(Event event) {
-		String msg = "Event ${event} was deleted"
-
+	void deleteEvent(Event event) {
 		// remove event from the study
 		this.removeFromEvents(event)
 
@@ -268,18 +257,38 @@ class Study extends TemplateEntity {
 		this.eventGroups.each() { eventGroup ->
 			eventGroup.removeFromEvents(event)
 		}
+	}
 
-		return msg
+	/**
+	 * Delete a sample from the study, including all its relations
+	 * @param Event
+	 * @void
+	 */
+	void deleteSample(Sample sample) {
+		// remove the sample from the study
+		this.removeFromSamples(sample)
+
+		// remove the sample from any sampling events it belongs to
+		this.samplingEvents.findAll { it.samples.any { it == sample }}.each {
+			it.removeFromSamples(sample)
+		}
+
+		// remove the sample from any assays it belongs to
+		this.assays.findAll { it.samples.any { it == sample }}.each {
+			it.removeFromSamples(sample)
+		}
+
+		// Also here, contrary to documentation, an extra delete() is needed
+		// otherwise date is not properly deleted!
+		sample.delete()
 	}
 
 	/**
 	 * Delete a samplingEvent from the study, including all its relations
 	 * @param SamplingEvent
-	 * @return String
+	 * @void
 	 */
-	String deleteSamplingEvent(SamplingEvent samplingEvent) {
-		String msg = "SamplingEvent ${samplingEvent} was deleted"
-
+	void deleteSamplingEvent(SamplingEvent samplingEvent) {
 		// remove event from eventGroups
 		this.eventGroups.each() { eventGroup ->
 			eventGroup.removeFromSamplingEvents(samplingEvent)
@@ -288,10 +297,7 @@ class Study extends TemplateEntity {
 		// Delete the samples that have this sampling event as parent
 		this.samples.findAll { it.parentEvent.equals(samplingEvent) }.each {
 			// This should remove the sample itself too, because of the cascading belongsTo relation
-			this.removeFromSamples(it)
-			// But apparently it needs an explicit delete() too
-			it.delete()
-			msg += ", sample '${it.name}' was deleted"
+			this.deleteSample(it)
 		}
 
 		// Remove event from the study
@@ -301,18 +307,14 @@ class Study extends TemplateEntity {
 		// But apparently it needs an explicit delete() too
 		// (Which can be verified by outcommenting this line, then SampleTests.testDeleteViaParentSamplingEvent fails
 		samplingEvent.delete()
-
-		return msg
 	}
-	
+
 	/**
 	 * Delete an eventGroup from the study, including all its relations
 	 * @param EventGroup
-	 * @return String
+	 * @void
 	 */
-	String deleteEventGroup(EventGroup eventGroup) {
-		String msg = "EventGroup ${eventGroup} was deleted"
-
+	void deleteEventGroup(EventGroup eventGroup) {
 		// If the event group contains sampling events
 		if (eventGroup.samplingEvents) {
 			// remove all samples that originate from this eventGroup
@@ -327,13 +329,13 @@ class Study extends TemplateEntity {
 				//   this seems now to work as expected
 				this.samples.findAll { sample ->
 					(
-						(eventGroup.subjects.findAll {
-							it.equals(sample.parentSubject)
-						})
+					(eventGroup.subjects.findAll {
+						it.equals(sample.parentSubject)
+					})
 						&&
 						(eventGroup.samplingEvents.findAll {
 							(
-								(it.id && sample.parentEvent.id && it.id==sample.parentEvent.id)
+							(it.id && sample.parentEvent.id && it.id == sample.parentEvent.id)
 								||
 								(it.getIdentifier() == sample.parentEvent.getIdentifier())
 								||
@@ -343,128 +345,97 @@ class Study extends TemplateEntity {
 					)
 				}.each() { sample ->
 					// remove sample from study
-
-					// -------
-					// NOTE, the right samples are found, but the don't
-					// get deleted from the database!
-					// -------
-
-					println ".removing sample '${sample.name}' from study '${this.title}'"
-					msg += ", sample '${sample.name}' was deleted"
-					this.removeFromSamples( sample )
-
-					// remove the sample from any sampling events it belongs to
-					this.samplingEvents.findAll { it.samples.any { it == sample }} .each {
-						println ".removed sample ${sample.name} from sampling event ${it} at ${it.getStartTimeString()}"
-						it.removeFromSamples(sample)
-					}
-
-					// remove the sample from any assays it belongs to
-					this.assays.findAll { it.samples.any { it == sample }} .each {
-						println ".removed sample ${sample.name} from assay ${it.name}"
-						it.removeFromSamples(sample)
-					}
-
-					// Also here, contrary to documentation, an extra delete() is needed
-					// otherwise date is not properly deleted!
-					sample.delete()
+					this.deleteSample(sample)
 				}
 			}
 
 			// remove all samplingEvents from this eventGroup
-			eventGroup.samplingEvents.findAll{}.each() {
+			eventGroup.samplingEvents.findAll {}.each() {
 				eventGroup.removeFromSamplingEvents(it)
-				println ".removed samplingEvent '${it.name}' from eventGroup '${eventGroup.name}'"
-				msg += ", samplingEvent '${it.name}' was removed from eventGroup '${eventGroup.name}'"
 			}
 		}
 
 		// If the event group contains subjects
 		if (eventGroup.subjects) {
 			// remove all subject from this eventGroup
-			eventGroup.subjects.findAll{}.each() {
+			eventGroup.subjects.findAll {}.each() {
 				eventGroup.removeFromSubjects(it)
-				println ".removed subject '${it.name}' from eventGroup '${eventGroup.name}'"
-				msg += ", subject '${it.name}' was removed from eventGroup '${eventGroup.name}'"
 			}
 		}
 
 		// remove the eventGroup from the study
-		println ".remove eventGroup '${eventGroup.name}' from study '${this.title}'"
 		this.removeFromEventGroups(eventGroup)
 
 		// Also here, contrary to documentation, an extra delete() is needed
 		// otherwise cascaded deletes are not properly performed
 		eventGroup.delete()
-
-		return msg
 	}
 
-    /**
-     * Returns true if the given user is allowed to read this study
-     */
-    public boolean canRead(SecUser loggedInUser) {
-        // Anonymous readers are only given access when published and public
-        if( loggedInUser == null ) {
-            return this.publicstudy && this.published;
-        }
+	/**
+	 * Returns true if the given user is allowed to read this study
+	 */
+	public boolean canRead(SecUser loggedInUser) {
+		// Anonymous readers are only given access when published and public
+		if (loggedInUser == null) {
+			return this.publicstudy && this.published;
+		}
 
 		// Administrators are allowed to read every study
-		if( loggedInUser.hasAdminRights() ) {
+		if (loggedInUser.hasAdminRights()) {
 			return true;
 		}
 
-        // Owners and writers are allowed to read this study
-        if( this.owner == loggedInUser || this.writers.contains(loggedInUser) ) {
-            return true
-        }
-            
-        // Readers are allowed to read this study when it is published
-        if( this.readers.contains(loggedInUser) && this.published ) {
-            return true
-        }
-        
-        return false
-    }
+		// Owners and writers are allowed to read this study
+		if (this.owner == loggedInUser || this.writers.contains(loggedInUser)) {
+			return true
+		}
 
-    /**
-     * Returns true if the given user is allowed to write this study
-     */
-    public boolean canWrite(SecUser loggedInUser) {
-        if( loggedInUser == null ) {
-            return false;
-        }
+		// Readers are allowed to read this study when it is published
+		if (this.readers.contains(loggedInUser) && this.published) {
+			return true
+		}
+
+		return false
+	}
+
+	/**
+	 * Returns true if the given user is allowed to write this study
+	 */
+	public boolean canWrite(SecUser loggedInUser) {
+		if (loggedInUser == null) {
+			return false;
+		}
 
 		// Administrators are allowed to write every study
-		if( loggedInUser.hasAdminRights() ) {
+		if (loggedInUser.hasAdminRights()) {
 			return true;
 		}
 
-        return this.owner == loggedInUser || this.writers.contains(loggedInUser)
-    }
+		return this.owner == loggedInUser || this.writers.contains(loggedInUser)
+	}
 
-    /**
-     * Returns true if the given user is the owner of this study
-     */
-    public boolean isOwner(SecUser loggedInUser) {
-        if( loggedInUser == null ) {
-            return false;
-        }
-        return this.owner == loggedInUser
-    }
+	/**
+	 * Returns true if the given user is the owner of this study
+	 */
+	public boolean isOwner(SecUser loggedInUser) {
+		if (loggedInUser == null) {
+			return false;
+		}
+		return this.owner == loggedInUser
+	}
 
 	/**
 	 * Returns a list of studies that are writable for the given user
 	 */
 	public static giveWritableStudies(SecUser user, int max) {
 		// User that are not logged in, are not allowed to write to a study
-		if( user == null )
-			return [];
-			
+		if (user == null)
+		return [];
+
 		def c = Study.createCriteria()
 
 		// Administrators are allowed to read everything
-		if( user.hasAdminRights() ) {
+		if (user.hasAdminRights()) {
 			return c.list {
 				maxResults(max)
 			}
@@ -473,9 +444,9 @@ class Study extends TemplateEntity {
 		return c.list {
 			maxResults(max)
 			or {
-				eq( "owner", user )
+				eq("owner", user)
 				writers {
-					eq( "id", user.id )
+					eq("id", user.id)
 				}
 			}
 		}
@@ -487,35 +458,35 @@ class Study extends TemplateEntity {
 	public static giveReadableStudies(SecUser user, int max) {
 		def c = Study.createCriteria()
 
-        // Administrators are allowed to read everything
-		if( user == null ) {
-            return c.list {
+		// Administrators are allowed to read everything
+		if (user == null) {
+			return c.list {
 				maxResults(max)
-                and {
-                    eq( "published", true )
-                    eq( "publicstudy", true )
-                }
-            }
-        } else if( user.hasAdminRights() ) {
-            return c.list {
+				and {
+					eq("published", true)
+					eq("publicstudy", true)
+				}
+			}
+		} else if (user.hasAdminRights()) {
+			return c.list {
 				maxResults(max)
 			}
-		} else  {
-            return c.list {
+		} else {
+			return c.list {
 				maxResults(max)
-                or {
-                    eq( "owner", user )
-                    writers {
-                        eq( "id", user.id )
-                    }
-                    and {
-                        readers {
-                            eq( "id", user.id )
-                        }
-                        eq( "published", true )
-                    }
-                }
-            }
-        }
+				or {
+					eq("owner", user)
+					writers {
+						eq("id", user.id)
+					}
+					and {
+						readers {
+							eq("id", user.id)
+						}
+						eq("published", true)
+					}
+				}
+			}
+		}
 	}
 }
