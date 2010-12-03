@@ -62,7 +62,7 @@
 
                             <tr class="prop">
                                 <td valign="top" class="name">
-                                    <label for="prefix"><g:message code="person.prefix.label" default="Prefix" /></label>
+                                    <label for="prefix"><g:message code="person.prefix.label" default="Prefix" /> (e.g. 'van de')</label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean: personInstance, field: 'prefix', 'errors')}">
                                     <g:textField name="prefix" value="${personInstance?.prefix}" />
