@@ -95,7 +95,7 @@
 								<td>${field}</td>
 								<g:each in="${studyList}" var="studyInstance">
 									<td>
-										<g:if test="${studyInstance.fieldExists(field.name)}">
+										<g:if test="${studyInstance.fieldExists(field?.name)}">
 											<wizard:showTemplateField field="${field}" entity="${studyInstance}"/>
 										</g:if>
 										<g:else>
@@ -116,7 +116,7 @@
 									-
 								</g:if>
 								<g:else>
-									${studyInstance.giveEventTemplates().name.join(", ")}
+									${studyInstance.giveEventTemplates()?.name.join(", ")}
 								</g:else>
 							</td>
 						</g:each>
@@ -129,7 +129,7 @@
 									-
 								</g:if>
 								<g:else>
-									${studyInstance.giveSamplingEventTemplates().name.join(", ")}
+									${studyInstance.giveSamplingEventTemplates()?.name.join(", ")}
 								</g:else>
 							</td>
 						</g:each>
