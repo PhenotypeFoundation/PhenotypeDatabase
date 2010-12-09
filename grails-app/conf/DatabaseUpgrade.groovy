@@ -19,15 +19,11 @@ class DatabaseUpgrade {
 	 * @param dataSource
 	 */
 	public static void handleUpgrades(dataSource) {
-		// gromming debug message
-		"handeling database upgrades".grom()
-
 		// get a sql instance
 		groovy.sql.Sql sql = new groovy.sql.Sql(dataSource)
 
-		// check for study description change from template
-		// to required domain field (r1245 and r1246)
-		changeStudyDescription(sql)
+		// execute per-change check and upgrade code
+		changeStudyDescription(sql)			// r1245 / r1246
 	}
 
 	/**
@@ -42,7 +38,6 @@ class DatabaseUpgrade {
 
 			// database upgrade required
 			try {
-				println "PERFORMING DATABASE UPGRADE!!!"
 				// get the template field id
 				def id = sql.firstRow("SELECT id FROM template_field WHERE templatefieldentity='dbnp.studycapturing.Study' AND templatefieldname='Description'").id
 
@@ -58,10 +53,10 @@ class DatabaseUpgrade {
 				}
 
 				// delete all obsolete descriptions
-				//sql.execute("DELETE FROM study_template_text_fields WHERE template_text_fields_idx='Description'")
+				sql.execute("DELETE FROM study_template_text_fields WHERE template_text_fields_idx='Description'")
 
 				// and delete the obsolete template field
-				//sql.execute("DELETE FROM template_field WHERE id=${id}")
+				sql.execute("DELETE FROM template_field WHERE id=${id}")
 			} catch (Exception e) {
 				"changeStudyDescription database upgrade failed: " + e.getMessage()
 			}
