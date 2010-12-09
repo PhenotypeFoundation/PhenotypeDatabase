@@ -78,7 +78,7 @@ class Study extends TemplateEntity {
 			name: 'description',
 			type: TemplateFieldType.TEXT,
 			comment:'Give a brief synopsis of what your study is about',
-			required: false),
+			required: true),
 		new TemplateField(
 			name: 'code',
 			type: TemplateFieldType.STRING,
