@@ -55,6 +55,9 @@ class DatabaseUpgrade {
 				// delete all obsolete descriptions
 				sql.execute("DELETE FROM study_template_text_fields WHERE template_text_fields_idx='Description'")
 
+				// delete all template_template_field references
+				sql.execute("DELETE FROM template_template_field WHERE template_field_id=${id}")
+
 				// and delete the obsolete template field
 				sql.execute("DELETE FROM template_field WHERE id=${id}")
 			} catch (Exception e) {
