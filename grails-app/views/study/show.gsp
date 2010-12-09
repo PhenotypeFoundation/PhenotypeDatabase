@@ -90,7 +90,7 @@
 					%>
 				<!-- Show all template and domain fields, if filled -->
 					<g:each in="${studyFields}" var="field">
-						<g:if test="${field.isFilledInList( studyList )}">
+						<g:if test="${field?.isFilledInList( studyList )}">
 							<tr>
 								<td>${field}</td>
 								<g:each in="${studyList}" var="studyInstance">
