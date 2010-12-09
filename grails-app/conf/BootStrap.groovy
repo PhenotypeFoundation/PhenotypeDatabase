@@ -24,6 +24,9 @@ class BootStrap {
 	// user spring security
 	def springSecurityService
 
+	// inject the datasource
+	def dataSource
+
 	def init = { servletContext ->
 		// grom what's happening
 		"bootstrapping application".grom()
@@ -48,6 +51,9 @@ class BootStrap {
 			CommunicationManager.registerModule('gscf', config.grails.serverURL, config.modules)
 			CommunicationManager.registerRestWrapperMethodsFromSAM()
 		}
+
+		// automatically handle database upgrades
+		DatabaseUpgrade.handleUpgrades(dataSource)
 
 		// developmental bootstrapping:
 		//      - templates
