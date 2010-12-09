@@ -6,7 +6,11 @@
 	<meta name="layout" content="main"/>
 	<g:if test="${studyList.size()}">
 	<meta property="og:title" content="${studyList[0].title}"/>
+	<g:if test="${studyList[0].getField('description')}">
 	<meta property="og:description" content="${(studyList[0].getFieldValue('Description')) ? studyList[0].getFieldValue('Description') : 'A study in the Generic Study Capture Framework'}"/>
+	</g:if><g:else>
+	<meta property="og:description" content="A study in the Generic Study Capture Framework"/>
+	</g:else>
 	</g:if>
 	<g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}"/>
 	<title><g:message code="default.show.label" args="[entityName]"/></title>
