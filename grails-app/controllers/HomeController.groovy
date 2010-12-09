@@ -20,7 +20,7 @@ class HomeController {
 	    if (!Template.count()) {
 		    redirect(controller:'setup',action:'index')		    
 	    } else {
-		    [ studyCount: dbnp.studycapturing.Study.count(), userCount: dbnp.authentication.SecUser.count() ]
+		    [ studyCount: dbnp.studycapturing.Study.count(), userCount: dbnp.authentication.SecUser.count(), facebookLikeUrl: '/' ]
 	    }
     }
     

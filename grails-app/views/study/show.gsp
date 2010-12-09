@@ -3,8 +3,10 @@
 <%@ page import="dbnp.studycapturing.RelTime" %>
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<meta name="layout" content="main"/>
+	<g:if test="${studyList.size()}">
+	<meta property="og:title" content="${studyList[0].title}"/>
+	</g:if>
 	<g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}"/>
 	<title><g:message code="default.show.label" args="[entityName]"/></title>
 	<script type="text/javascript">
