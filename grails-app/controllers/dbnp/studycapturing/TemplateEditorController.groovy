@@ -27,7 +27,7 @@ import java.lang.reflect.*;
 class TemplateEditorController {
     def entityName;
     def entity;
-	def AuthenticationService
+	def authenticationService
 
 	/**
      * Fires after every action and determines the layout of the page

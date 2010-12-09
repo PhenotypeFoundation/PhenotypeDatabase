@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+
+<templates xmlns="gscf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="gscf template.xsd" count="1">
+	<template>
+		<name>Academic Study</name>
+		<description></description>
+		<entity>dbnp.studycapturing.Study</entity>
+	
+		<!-- 
+			Owner is not exported because there will be other users in the target database. 
+			Use the current user when importing as owner.
+		-->
+		<templateFields>
+			<templateField>
+				<name>Description</name>
+				<type>TEXT</type>
+				<unit />
+				<comment></comment>
+				<preferredIdentifier>true</preferredIdentifier>
+			</templateField>
+			<templateField>
+				<name>Start date</name>
+				<type>DATE</type>
+				<unit />
+				<comment>Use the start date of the study in this field</comment>
+				<required>true</required>
+			</templateField>
+			<templateField>
+				<name>Length</name>
+				<type>LONG</type>
+				<unit>weeks</unit>
+				<comment>Use the start date of the study in this field</comment>
+				<required>false</required>
+			</templateField>
+			<templateField>
+				<name>Species</name>
+				<type>ONTOLOGYTERM</type>
+				<unit />
+				<comment></comment>
+				<ontologies>
+					<ontology>
+						<ncboId>1132</ncboId>
+						<ncboVersionedId>38802</ncboVersionedId>
+						<name>NCBI organismal classification</name>
+						<description>A taxonomic classification of living organisms and associated artifacts for their controlled description within the context of databases.</description>
+						<url>http://bioportal.bioontology.org/ontologies/38802</url>
+						<versionNumber>1.2</versionNumber>
+					</ontology>
+				</ontologies>
+			</templateField>
+			<templateField>
+				<name>Species</name>
+				<type>ONTOLOGYTERM</type>
+				<unit />
+				<comment></comment>
+				<ontologies>
+					<ontology>
+						<ncboId>1132</ncboId>
+						<ncboVersionedId>38802</ncboVersionedId>
+					</ontology>
+				</ontologies>
+			</templateField>
+			<templateField>
+				<name>Institute</name>
+				<type>STRINGLIST</type>
+				<unit />
+				<comment>What institution has performed this study</comment>
+				<listItems>
+					<listItem>
+						<name>TNO</name>
+					</listItem>
+					<listItem>
+						<name>Leiden University</name>
+					</listItem>
+					<listItem>
+						<name>WUR Wageningen</name>
+					</listItem>
+				</listItems>
+			</templateField>
+		</templateFields>
+	</template>
+</templates>

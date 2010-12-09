@@ -128,11 +128,14 @@ table#compare_templates { clear: both; }
 #compare_templates th {white-space: nowrap;}
 .longTitle { display: none; }
 
-
-
 /* Add Ontology dialog */
 #addOntology { list-style-type: none; padding-left: 0; }
 #addOntology li { list-style-type: none; margin: 8px 0; padding-left: 20px; }
 #addOntology li input.text { margin-top: 5px; }
 #addOntology li .check { float: left; margin-left: -15px; margin-top: 2px; }
 
+/* Importer */
+#importTemplates h3 { margin-top: 0; }
+#importTemplates ol.fields { margin-top: 0; }
+#importTemplates .otherTemplateName { display: none; }
+#importTemplates .error { color: #AA0000; }

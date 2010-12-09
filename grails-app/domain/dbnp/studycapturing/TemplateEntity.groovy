@@ -780,4 +780,26 @@ abstract class TemplateEntity extends Identity {
 			throw new NoSuchFieldException("Multiple templates found in collection!")
 		}
 	}
+
+    /**
+     * Returns a Class object given by the entityname, but only if it is a subclass of TemplateEntity
+	 *
+	 * @return A class object of the given entity, null if the entity is not a subclass of TemplateEntity
+	 * @throws ClassNotFoundException
+     */
+    static Class parseEntity( String entityName ) {
+		if( entityName == null )
+			return null
+
+        // Find the templates
+        def entity = Class.forName(entityName, true, Thread.currentThread().getContextClassLoader())
+
+        // succes, is entity an instance of TemplateEntity?
+        if (entity?.superclass =~ /TemplateEntity$/ || entity?.superclass?.superclass =~ /TemplateEntity$/) {
+            return entity;
+        } else {
+            return null;
+        }
+
+    }
 }

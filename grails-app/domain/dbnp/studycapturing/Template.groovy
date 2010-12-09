@@ -122,6 +122,48 @@ class Template extends Identity {
 	}
 
 	/**
+	 * Check whether the contents of the other template and the current template are equal.
+	 * For this check the name, description and owner don't matter. Also, the order of
+	 * template fields doesn't matter
+	 *
+	 * @return	true iff this template and the other template are used for the same entity and
+	 *			the template contain the same template fields
+	 */
+	public boolean contentEquals( Template otherTemplate ) {
+		if( otherTemplate == this )
+			return true
+
+		if( otherTemplate == null )
+			return false
+
+		if( otherTemplate.entity != this.entity )
+			return false
+
+		// Check all template fields
+		if( otherTemplate.fields?.size() != this.fields?.size() )
+			return false
+
+		if( otherTemplate.fields != null && this.fields != null ) {
+			for( def field in this.fields ) {
+				def fieldFound = false;
+				for( def otherField in otherTemplate.fields ) {
+					if( otherField.contentEquals( field ) ) {
+						fieldFound = true;
+						break
+					}
+				}
+
+				if( !fieldFound ) {
+					return false
+				}
+			}
+		}
+
+		// If all tests pass, the objects are content-equal
+		return true
+	}
+
+	/**
 	 * Look up the type of a certain template subject field
 	 * @param String fieldName The name of the template field
 	 * @return String	The type (static member of TemplateFieldType) of the field, or null of the field does not exist
@@ -208,5 +250,51 @@ class Template extends Identity {
 		}
 
 		return results
+	}
+
+	/**
+	 * Create a new template based on the parsed XML object. 
+	 *
+	 * @see grails.converters.XML#parse(java.lang.String)
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 *
+	 */
+	public static parse(Object xmlObject, SecUser loggedInUser) {
+		def t = new Template();
+		t.name = xmlObject?.name?.text()
+		t.description = xmlObject?.description?.text()
+
+		// Check whether a correct entity is given. The parseEntity method might
+		// throw a ClassNotFoundException, but that is OK, it should be thrown if the class
+		// doesn't exist.
+		def entity = TemplateEntity.parseEntity( xmlObject.entity?.text() );
+		if( !entity ) {
+			throw new Exception( "Incorrect entity given" );
+		}
+
+		t.entity = entity
+
+		// Set the owner to the currently logged in user
+		t.owner = loggedInUser
+
+		// Set all template fields
+		xmlObject.templateFields.templateField.each {
+			def field = TemplateField.parse( it, entity );
+
+			// Check whether a similar field already exists. For that, we search in all
+			// template fields with the same name, in order to have as little comparisons
+			// as possible
+			for( def otherField in TemplateField.findAllByName( field.name ) ) {
+				if( field.contentEquals( otherField ) ) {
+					field = otherField;
+					break;
+				}
+			}
+			
+			t.addToFields( field );
+		}
+
+		return t
 	}
 }

@@ -365,4 +365,118 @@ class TemplateField implements Serializable {
 		return true in entityList.collect { it.fieldExists( this.name ) && it.getFieldValue( this.name ) != null }?.flatten()
 	}
 
+
+	/**
+	 * Check whether the contents of the other templatefield and the current templatefield are equal.
+	 * For this check the comments field doesn't matter. 
+	 *
+	 * @return	true iff this template field equals the other template field
+	 *			(the comments field may be different)
+	 */
+	public boolean contentEquals( Object otherObject ) {
+		if( !( otherObject instanceof TemplateField ) )
+			return false
+
+		TemplateField otherField = (TemplateField) otherObject;
+
+		if( otherField == this )
+			return true
+
+		if( otherField == null )
+			return false
+
+		if( otherField.entity != this.entity ) {
+			return false
+		}
+		if( otherField.name != this.name ) {
+			return false
+		}
+		if( otherField.type != this.type ) {
+			return false
+		}
+		if( otherField.unit != this.unit ) {
+			return false
+		}
+		if( otherField.required != this.required ) {
+			return false
+		}
+
+		if( otherField.preferredIdentifier != this.preferredIdentifier ) {
+			return false
+		}
+
+		// Check whether the list entries are equal (except for the order)
+		def size1 = otherField.listEntries?.size() ?: 0
+		def size2 = this.listEntries?.size() ?: 0
+		if( size1 != size2 ) {
+			return false
+		}
+		
+		if( otherField.listEntries != null && this.listEntries != null ) {
+			for( def entry in this.listEntries ) {
+				def entryFound = false;
+				for( def otherEntry in otherField.listEntries ) {
+					if( otherEntry.name == entry.name ) {
+						entryFound = true;
+						break
+					}
+				}
+
+				if( !entryFound ) {
+					return false
+				}
+			}
+		}
+		
+		// Check whether the ontologies are equal (except for the order)
+		size1 = otherField.ontologies?.size() ?: 0
+		size2 = this.ontologies?.size() ?: 0
+		if( size1 != size2 ) {
+			return false
+		}
+		if( this.ontologies != null && otherField.ontologies != null ) {
+			for( def ontology in this.ontologies ) {
+				if( !otherField.ontologies.contains( ontology ) ) {
+					return false
+				}
+			}
+		}
+		
+		// If all tests pass, the objects are content-equal
+		return true
+	}
+
+	/**
+	 * Create a new template field based on the parsed XML object. 
+	 *
+	 * @see grails.converters.XML#parse(java.lang.String)
+	 * @throws IllegalArgumentException 
+	 */
+	public static parse(Object xmlObject, Class entity) {
+		def t = new TemplateField();
+
+		t.name = xmlObject?.name?.text()
+		t.unit = xmlObject?.unit?.text() == "" ? null : xmlObject?.unit?.text()
+		t.comment = xmlObject?.comment?.text()
+		t.required = xmlObject?.required?.text() == 'true' ? true : false
+		t.preferredIdentifier = xmlObject?.preferredIdentifier?.text() == 'true' ? true : false
+
+		t.entity = entity
+
+		t.type = TemplateFieldType.valueOf( xmlObject?.type?.text() )
+
+		// Search for ontologies
+		xmlObject.ontologies?.ontology.each {
+			def ncboId = it.ncboId?.text();
+			t.addToOntologies( Ontology.getOrCreateOntologyByNcboId( ncboId ) );
+		}
+
+		// Search for list entries
+		xmlObject.listItems?.listItem.each {
+			t.addToListEntries( new TemplateFieldListItem( name: it.name?.text() ) );
+		}
+		return t;
+	}
+
+
 }

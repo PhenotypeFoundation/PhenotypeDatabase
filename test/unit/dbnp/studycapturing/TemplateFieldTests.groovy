@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import grails.test.*
+import dbnp.data.Ontology
 
 class TemplateFieldTests extends GrailsUnitTestCase {
     def testEvent;
@@ -184,6 +185,103 @@ class TemplateFieldTests extends GrailsUnitTestCase {
         } catch( Exception ex ) {
             fail();
         }
+    }
+
+    void testContentEquals() {
+		// Check whether the fields matter
+		TemplateField tf1 = new TemplateField( entity: dbnp.studycapturing.Subject, name: 'Weight', type: TemplateFieldType.LONG, unit: 'kg', comments: 'Weight field' )
+		TemplateField tf2 = new TemplateField( entity: dbnp.studycapturing.Subject, name: 'Weight', type: TemplateFieldType.LONG,  unit: 'kg', comments: 'Weight field 2' )
+		TemplateField tf3 = new TemplateField( entity: dbnp.studycapturing.Subject, name: 'Length', type: TemplateFieldType.LONG,  unit: 'm', comments: 'Length field' )
+		TemplateField tf4 = new TemplateField( entity: dbnp.studycapturing.Subject, name: 'Length', type: TemplateFieldType.LONG,  unit: 'm', comments: 'Length field', required: true )
+		TemplateField tf5 = new TemplateField( entity: dbnp.studycapturing.Study, name: 'Length', type: TemplateFieldType.LONG,  unit: 'm', comments: 'Length field', required: true )
+
+		TemplateField tf6 = new TemplateField( entity: dbnp.studycapturing.Subject, name: 'Species', type: TemplateFieldType.ONTOLOGYTERM )
+		TemplateField tf7 = new TemplateField( entity: dbnp.studycapturing.Subject, name: 'Species', type: TemplateFieldType.ONTOLOGYTERM )
+
+		TemplateField tf8 = new TemplateField( entity: dbnp.studycapturing.Subject, name: 'Species', type: TemplateFieldType.STRINGLIST )
+		TemplateField tf9 = new TemplateField( entity: dbnp.studycapturing.Subject, name: 'Species', type: TemplateFieldType.STRINGLIST )
+
+		mockDomain( TemplateField, [tf1, tf2, tf3, tf4, tf5, tf6, tf7, tf8, tf9] );
+
+		assert( tf1.contentEquals( tf1 ) );
+		assert( tf1.contentEquals( tf2 ) );
+		assert( tf2.contentEquals( tf1 ) );
+		assert( !tf1.contentEquals( tf3 ) );
+		assert( !tf3.contentEquals( tf4 ) );
+		assert( !tf5.contentEquals( tf4 ) );
+
+		// Test ontology fields
+		Ontology o1 = new Ontology( ncboId: 1000, ncboVersionedId: 14192, name: "Ontology 1" )
+		Ontology o2 = new Ontology( ncboId: 1000, ncboVersionedId: 14192, name: "Ontology 2" )
+		Ontology o3 = new Ontology( ncboId: 1000, ncboVersionedId: 5123, name: "Ontology 3" )
+		Ontology o4 = new Ontology( ncboId: 4123, ncboVersionedId: 14192, name: "Ontology 4" )
+
+		tf6.addToOntologies( o1 )
+
+		// Different number of ontologies
+		assert( !tf6.contentEquals( tf7 ) );
+
+		tf7.addToOntologies( o1 );
+
+		// Same ontologies
+		assert( tf6.contentEquals( tf7 ) );
+
+		tf7.ontologies.clear()
+		tf7.addToOntologies( o2 );
+
+		// Ontologies with the same ncboId
+		assert( !tf6.contentEquals( tf7 ) );
+
+		tf6.ontologies.clear(); tf7.ontologies.clear()
+		tf6.addToOntologies( o1 )
+		tf6.addToOntologies( o4 )
+		tf7.addToOntologies( o4 );
+		tf7.addToOntologies( o1 );
+
+		// Different order but same ontologies
+		assert( tf6.contentEquals( tf7 ) );
+
+		// Test listentries
+
+		assert( tf8.contentEquals( tf9 ) );
+
+		TemplateFieldListItem l1 = new TemplateFieldListItem( name: 'string1' );
+		TemplateFieldListItem l2 = new TemplateFieldListItem( name: 'string1' );
+		TemplateFieldListItem l3 = new TemplateFieldListItem( name: 'string2' );
+		TemplateFieldListItem l4 = new TemplateFieldListItem( name: 'string3' );
+
+		tf8.addToListEntries( l1 );
+
+		// Different number of list entries
+		assert( !tf8.contentEquals( tf9 ) );
+
+		tf9.addToListEntries( l1 );
+
+		// Same list entries
+		assert( tf8.contentEquals( tf9 ) );
+
+		tf9.listEntries.clear();
+		tf9.addToListEntries( l2 );
+
+		// Different list entries with the same name
+		assert( tf8.contentEquals( tf9 ) );
+
+		tf9.listEntries.clear();
+		tf9.addToListEntries( l3 );
+
+		// Different list entries
+		assert( !tf8.contentEquals( tf9 ) );
+
+		// Same entries but different order
+		tf8.listEntries.clear();
+		tf9.listEntries.clear();
+		tf8.addToListEntries( l2 );
+		tf8.addToListEntries( l3 );
+		tf9.addToListEntries( l3 );
+		tf9.addToListEntries( l2 );
+
+		// Different order but same list entries
+		assert( tf8.contentEquals( tf9 ) );
 
     }
 }
