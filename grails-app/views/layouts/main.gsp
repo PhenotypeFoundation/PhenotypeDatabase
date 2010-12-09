@@ -15,6 +15,7 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
 	<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script></g:if>
+    <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
 </head>
 <body>
 <g:render template="/common/login_panel"/>
@@ -24,6 +25,11 @@
 		<g:render template="/common/info"/>
 	</div>
 	<div id="content"><g:layoutBody/></div>
+	<g:if test="${facebookLikeUrl}">
+	<div id="facebookConnect">
+		<fb:like href="${resource(absolute: true)}${facebookLikeUrl}" show_faces="true" width="450" action="recommend" font="arial"></fb:like>
+	</div>
+	</g:if>
 	<div id="footer">
 		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="http://dbnp.org">http://dbnp.org</a>.
 		<g:if env="development">( style: <%=session.style%> )</g:if>
