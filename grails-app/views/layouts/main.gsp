@@ -14,12 +14,12 @@
 	<script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.5.custom.min.js')}" type="text/javascript"></script>
 	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.5.custom.css')}"/>
+	<script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
 	<g:layoutHead/>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
 	<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script></g:if>
-    <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
 </head>
 <body>
 <g:render template="/common/login_panel"/>
