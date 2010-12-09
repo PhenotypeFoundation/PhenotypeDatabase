@@ -71,7 +71,6 @@ class BootStrapTemplates {
 			name: 'Academic study',
 			entity: dbnp.studycapturing.Study
 		)
-		.addToFields(new TemplateField(name: 'Description',type: TemplateFieldType.TEXT, entity: Study,comment:'Describe here the type of subjects and the treatment, challenges and sampling.'))
 		.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT,entity: Study,comment:'Fill out the aim or questions of the study'))
 		.addToFields(new TemplateField(name: 'Consortium',type: TemplateFieldType.STRING,entity: Study,comment:'If the study was performed within a consortium (e.g. NMC, NuGO), you can indicate this here'))
 		.addToFields(new TemplateField(name: 'Cohort name',type: TemplateFieldType.STRING,entity: Study,comment:'If a cohort was used the name or code of the cohort can be define here (define a cohort template)'))

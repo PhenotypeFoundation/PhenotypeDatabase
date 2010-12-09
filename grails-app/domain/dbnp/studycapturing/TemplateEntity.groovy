@@ -23,7 +23,7 @@ abstract class TemplateEntity extends Identity {
 	// Maps for storing the different template field values
 	Map templateStringFields	= [:]
 	Map templateTextFields		= [:]
-	Map templateStringListFields    = [:]
+	Map templateStringListFields= [:]
 	Map templateDoubleFields	= [:]
 	Map templateDateFields		= [:]
 	Map templateBooleanFields	= [:]
@@ -40,18 +40,18 @@ abstract class TemplateEntity extends Identity {
 	// define relationships
 	static hasMany = [
 		templateStringFields	: String,
-		templateTextFields	: String,
+		templateTextFields		: String,
 		templateStringListFields: TemplateFieldListItem,
 		templateDoubleFields	: double,
-		templateDateFields	: Date,
-		templateTermFields	: Term,
+		templateDateFields		: Date,
+		templateTermFields		: Term,
 		templateRelTimeFields	: long,
-		templateFileFields	: String,
+		templateFileFields		: String,
 		templateBooleanFields	: boolean,
 		templateTemplateFields	: Template,
 		templateModuleFields	: AssayModule,
-		templateLongFields	: long,
-		systemFields		: TemplateField
+		templateLongFields		: long,
+		systemFields			: TemplateField
 	]
 
 	static mapping = {

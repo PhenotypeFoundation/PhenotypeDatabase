@@ -15,7 +15,8 @@ class Study extends TemplateEntity {
 
 	SecUser owner		// The owner of the study. A new study is automatically owned by its creator.
 	String title		// The title of the study
-	String code		 // currently used as the external study ID, e.g. to reference a study in a SAM module
+	String description	// A brief synopsis of what the study is about
+	String code			// currently used as the external study ID, e.g. to reference a study in a SAM module
 	Date dateCreated
 	Date lastUpdated
 	Date startDate
@@ -73,6 +74,11 @@ class Study extends TemplateEntity {
 			name: 'title',
 			type: TemplateFieldType.STRING,
 			required: true),
+		new TemplateField(
+			name: 'description',
+			type: TemplateFieldType.TEXT,
+			comment:'Give a brief synopsis of what your study is about',
+			required: false),
 		new TemplateField(
 			name: 'code',
 			type: TemplateFieldType.STRING,
@@ -430,7 +436,7 @@ class Study extends TemplateEntity {
 	public static giveWritableStudies(SecUser user, int max) {
 		// User that are not logged in, are not allowed to write to a study
 		if (user == null)
-		return [];
+			return [];
 
 		def c = Study.createCriteria()
 

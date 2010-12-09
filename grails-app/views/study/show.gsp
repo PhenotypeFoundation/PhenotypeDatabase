@@ -4,13 +4,9 @@
 <html>
 <head>
 	<meta name="layout" content="main"/>
-	<g:if test="${studyList.size()}">
+	<g:if test="${studyList.size() == 1}">
 	<meta property="og:title" content="${studyList[0].title}"/>
-	<g:if test="${studyList[0].getField('description')}">
-	<meta property="og:description" content="${(studyList[0].getFieldValue('Description')) ? studyList[0].getFieldValue('Description') : 'A study in the Generic Study Capture Framework'}"/>
-	</g:if><g:else>
-	<meta property="og:description" content="A study in the Generic Study Capture Framework"/>
-	</g:else>
+	<meta property="og:description" content="${(studyList[0].getFieldValue('description')) ? studyList[0].getFieldValue('description') : 'A study in the Generic Study Capture Framework'}"/>
 	</g:if>
 	<g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}"/>
 	<title><g:message code="default.show.label" args="[entityName]"/></title>
