@@ -55,8 +55,14 @@ class DatabaseUpgrade {
 				// delete all obsolete descriptions
 				sql.execute("DELETE FROM study_template_text_fields WHERE template_text_fields_idx='Description'")
 
-				// delete all template_template_field references
-				sql.execute("DELETE FROM template_template_field WHERE template_field_id=${id}")
+				// find all template id's where this field is used
+				sql.eachRow("SELECT DISTINCT template_fields_id, fields_idx FROM template_template_field WHERE template_field_id=${id}") { row ->
+					// delete the template_template_field reference
+					sql.execute("DELETE FROM template_template_field WHERE template_field_id=${id} AND template_fields_id=${row.template_fields_id}")
+
+					// and lower the idx-es of the remaining fields
+					sql.execute("UPDATE template_template_field SET fields_idx=fields_idx-1 WHERE fields_idx>${row.fields_idx} AND template_fields_id=${row.template_fields_id}")
+				}
 
 				// and delete the obsolete template field
 				sql.execute("DELETE FROM template_field WHERE id=${id}")
