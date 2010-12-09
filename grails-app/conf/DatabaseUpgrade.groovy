@@ -1,4 +1,5 @@
 import groovy.sql.Sql
+import dbnp.studycapturing.Study
 
 /**
  * A script to automatically perform database changes
@@ -34,12 +35,36 @@ class DatabaseUpgrade {
 	 * @param sql
 	 */
 	public static void changeStudyDescription(sql) {
-		"changeStudyDescription".grom()
 		// check if we need to perform this upgrade
 		if (sql.firstRow("SELECT count(*) as total FROM template_field WHERE templatefieldentity='dbnp.studycapturing.Study' AND templatefieldname='Description'").total > 0) {
-			println "perform upgrade!"
-		} else {
-			println "upgrade not necessary!"
+			// grom that we are performing the upgrade
+			"performing database upgrade: study description".grom()
+
+			// database upgrade required
+			try {
+				println "PERFORMING DATABASE UPGRADE!!!"
+				// get the template field id
+				def id = sql.firstRow("SELECT id FROM template_field WHERE templatefieldentity='dbnp.studycapturing.Study' AND templatefieldname='Description'").id
+
+				// iterate through all obsolete study descriptions
+				sql.eachRow("SELECT study_id, template_text_fields_elt as description FROM study_template_text_fields WHERE template_text_fields_idx='Description'") { row ->
+					// migrate the template description to the study object itself
+					// so we don't have to bother with sql injections, etc
+					def study = Study.findById( row.study_id )
+					study.setFieldValue('description', row.description)
+					if (!(study.validate() && study.save())) {
+						throw new Exception("could not save study with id ${row.study_id}")
+					}
+				}
+
+				// delete all obsolete descriptions
+				//sql.execute("DELETE FROM study_template_text_fields WHERE template_text_fields_idx='Description'")
+
+				// and delete the obsolete template field
+				//sql.execute("DELETE FROM template_field WHERE id=${id}")
+			} catch (Exception e) {
+				"changeStudyDescription database upgrade failed: " + e.getMessage()
+			}
 		}
 	}
 }
