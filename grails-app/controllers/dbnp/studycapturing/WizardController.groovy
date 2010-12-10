@@ -7,6 +7,7 @@ import grails.converters.*
 import grails.plugins.springsecurity.Secured
 import dbnp.authentication.AuthenticationService
 import dbnp.authentication.SecUser
+import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 
 
 /**
@@ -29,6 +30,7 @@ import dbnp.authentication.SecUser
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class WizardController {
 	def authenticationService
+	def validationTagLib = new ValidationTagLib()	
 
 	/**
 	 * index method, redirect to the webflow
@@ -144,6 +146,7 @@ class WizardController {
 						toModifyPage()
 					}
 				} else if (flow.jump && flow.jump.action == 'create') {
+					if (!flow.study) flow.study = new Study()
 					toStudyPage()
 				} else {
 					toStartPage()
@@ -166,6 +169,9 @@ class WizardController {
 			on("next") {
 				// clean the flow scope
 				flow.remove('study')
+
+				// create a new study instance
+				if (!flow.study) flow.study = new Study()				
 
 				// set 'quicksave' variable to false
 				flow.quickSave = false
@@ -468,9 +474,6 @@ class WizardController {
 
 				// remove eventGroup
 				def eventGroupToRemove = flow.study.eventGroups.find { it.getIdentifier() == (params.get('do') as int) }
-				if (eventGroupToRemove) {
-					println flow.study.deleteEventGroup( eventGroupToRemove )
-				}
 			}.to "events"
 			on("previous") {
 				// handle form data
@@ -663,7 +666,7 @@ class WizardController {
 		            if (template) {
 			            flow.assay.setFieldValue(
 				            'externalAssayID',
-				            this.ucwords(flow.study.code).replaceAll("([ ]{1,})", "") + '_' + this.ucwords(template.name).replaceAll("([ ]{1,})", "")
+				            ucwords(flow.study.code).replaceAll("([ ]{1,})", "") + '_' + ucwords(template.name).replaceAll("([ ]{1,})", "")
 			            )
 		            }
 	            } else {
@@ -672,7 +675,7 @@ class WizardController {
 		            if (template) {
 			            flow.assay.setFieldValue(
 				            'externalAssayID',
-				            this.ucwords(flow.study.code).replaceAll("([ ]{1,})", "") + '_' + this.ucwords(template.name).replaceAll("([ ]{1,})", "")
+				            ucwords(flow.study.code).replaceAll("([ ]{1,})", "") + '_' + ucwords(template.name).replaceAll("([ ]{1,})", "")
 			            )
 		            }
 	            }
@@ -707,8 +710,6 @@ class WizardController {
 				}
 			}.to "assays"
 			on("deleteAssay") {
-				println params
-
 				// handle form data
 				assayPage(flow, flash, params)
 
@@ -907,7 +908,7 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def loadStudy(flow, flash, params, user) {
-		flash.wizardErrors = new LinkedHashMap()
+		flash.wizardErrors	= [:]
 		
 		// load study
 		try {
@@ -959,22 +960,14 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def studyPage(flow, flash, params) {
-		// remember the params in the flash scope
-		flash.values = params
+		flash.values		= params
+		flash.wizardErrors	= [:]
 
 		// instantiate study of it is not yet present
 		if (!flow.study) flow.study = new Study()
 
 		// did the study template change?
 		if (params.get('template').size() && flow.study.template?.name != params.get('template')) {
-			println ".change study template!"
-
-			// yes, was the template already set?
-			if (flow.study.template instanceof Template) {
-				// yes, first make sure all values are unset?
-				println "!!! check the database fields if data of a previous template remains in the database or is deleted by GORM!"
-			}
-
 			// set the template
 			flow.study.template = Template.findByName(params.remove('template'))
 		}
@@ -1003,14 +996,20 @@ class WizardController {
 			flow.study.publicstudy = params.get("publicstudy")
 		}
 
-		// validate the study
-		if (flow.study.validate()) {
-			// instance is okay
-			return true
+		// have we got a template?
+		if (flow.study.template && flow.study.template instanceof Template) {
+			// validate the study
+			if (flow.study.validate()) {
+				// instance is okay
+				return true
+			} else {
+				// validation failed
+				this.appendErrors(flow.study, flash.wizardErrors)
+				return false
+			}
 		} else {
-			// validation failed
-			flash.wizardErrors = [:]
-			this.appendErrors(flow.study, flash.wizardErrors)
+			// no, return an error that the template is not set
+			this.appendErrorMap(['template': g.message(code: 'select.not.selected.or.add', args: ['template'])], flash.wizardErrors)
 			return false
 		}
 	}
@@ -1023,6 +1022,8 @@ class WizardController {
 	 * @returns boolean
 	 */
 	def handlePublications(flow, flash, params) {
+		flash.wizardErrors	= [:]
+
 		if (!flow.study.publications) flow.study.publications = []
 
 		// Check the ids of the pubblications that should be attached
@@ -1064,6 +1065,8 @@ class WizardController {
 	 * @return boolean
 	 */
 	def handleContacts(flow, flash, params) {
+		flash.wizardErrors	= [:]
+
 		if (!flow.study.persons) flow.study.persons = []
 
 		// Check the ids of the contacts that should be attached
@@ -1125,6 +1128,8 @@ class WizardController {
 	 * @return boolean
 	 */
 	def handleUsers(flow, flash, params, type) {
+		flash.wizardErrors = [:]
+
 		def users = []
 
 		if (type == "readers") {
@@ -1139,7 +1144,7 @@ class WizardController {
 		// user deleted them), remove them
 
 		// Users are saved as user_id
-		def userIDs = params.get( type + '_ids')
+		def userIDs = params.get(type + '_ids')
 		if (userIDs) {
 			// Find the individual IDs and make integers
 			userIDs = userIDs.split(',').collect { Integer.parseInt(it, 10) }
@@ -1152,7 +1157,7 @@ class WizardController {
 				if (!users.find { user -> id == user.id }) {
 					def user = SecUser.get(id)
 					if (user) {
-                                            users.add(user)
+						users.add(user)
 					} else {
 						log.info('.user with ID ' + id + ' not found in database.')
 					}
@@ -1166,15 +1171,15 @@ class WizardController {
 
 		if (type == "readers") {
 			if (flow.study.readers)
-			flow.study.readers.clear()
+				flow.study.readers.clear()
 			users.each { flow.study.addToReaders(it) }
 		} else if (type == "writers") {
 			if (flow.study.writers)
-			flow.study.writers.clear()
+				flow.study.writers.clear()
 
 			users.each { flow.study.addToWriters(it) }
 		}
-        }
+	}
 
 	/**
 	 * Handle the wizard subject page
@@ -1285,8 +1290,8 @@ class WizardController {
 			// add feedback
 			errors = true
 			if (number < 1)	this.appendErrorMap(['addNumber': 'Enter a positive number of subjects to add'], flash.wizardErrors)
-			if (!species)	this.appendErrorMap(['species': 'You need to select a species, or add one if it is not yet present'], flash.wizardErrors)
-			if (!template)	this.appendErrorMap(['template': 'You need to select a template, or add one if it is not yet present'], flash.wizardErrors)
+			if (!species)	this.appendErrorMap(['species': g.message(code: 'select.not.selected.or.add', args: ['species'])], flash.wizardErrors)
+			if (!template)	this.appendErrorMap(['template': g.message(code: 'select.not.selected.or.add', args: ['template'])], flash.wizardErrors)
 		}
 
 		return !errors
@@ -1352,9 +1357,9 @@ class WizardController {
 							// iterate through subjects for this eventGroup
 							eventGroup.subjects.each() { subject ->
 								// instantiate a sample for this subject / event
-								def samplingEventName = this.ucwords(event.template.name)
-								def eventGroupName = this.ucwords(eventGroup.name).replaceAll("([ ]{1,})", "")
-								def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
+								def samplingEventName = ucwords(event.template.name)
+								def eventGroupName = ucwords(eventGroup.name).replaceAll("([ ]{1,})", "")
+								def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
 								def tempSampleIterator = 0
 								def tempSampleName = sampleName
 
@@ -1449,9 +1454,9 @@ class WizardController {
 
 						// iterate through samplingEvents
 						eventGroup.samplingEvents.each() { samplingEvent ->
-							def samplingEventName = this.ucwords(samplingEvent.template.name)
-							def eventGroupName = this.ucwords(eventGroup.name)
-							def sampleName = (this.ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
+							def samplingEventName = ucwords(samplingEvent.template.name)
+							def eventGroupName = ucwords(eventGroup.name)
+							def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
 							def tempSampleIterator = 0
 							def tempSampleName = sampleName
 
@@ -1608,14 +1613,12 @@ class WizardController {
 			// iterate through assays
 			flow.study.assays.each() { assay ->
 				if (params.get( 'sample_' + sample.getIdentifier() + '_assay_' + assay.getIdentifier() )) {
-					println "add sample "+sample.getIdentifier()+" to assay "+assay.getIdentifier()
 					// add sample to assay
 					assay.addToSamples( sample )
 				} else {
 					// remove sample from assay
 					assay.removeFromSamples( sample )
 				}
-				println assay.samples
 			}
 		}
 
@@ -1630,7 +1633,7 @@ class WizardController {
 	 * @param String
 	 * @return String
 	 */
-	def ucwords(String text) {
+	public static ucwords(String text) {
 		def newText = ''
 
 		// change case to lowercase
@@ -1669,11 +1672,16 @@ class WizardController {
 	 */
 	def getHumanReadableErrors(object) {
 		def errors = [:]
-		object.errors.getAllErrors().each() {
-			def message = it.toString()
+		object.errors.getAllErrors().each() { error ->
+			// error.codes.each() { code -> println code }
 
-			//errors[it.getArguments()[0]] = it.getDefaultMessage()
-			errors[it.getArguments()[0]] = message.substring(0, message.indexOf(';'))
+			// generally speaking g.message(...) should work,
+			// however it fails in some steps of the wizard
+			// (add event, add assay, etc) so g is not always
+			// availably. Using our own instance of the
+			// validationTagLib instead so it is always
+			// available to us
+			errors[ error.getArguments()[0] ] = validationTagLib.message(error: error)
 		}
 
 		return errors
@@ -1686,11 +1694,11 @@ class WizardController {
 	 * @void
 	 */
 	def appendErrors(object, map) {
-		this.appendErrorMap(this.getHumanReadableErrors(object), map)
+		this.appendErrorMap(getHumanReadableErrors(object), map)
 	}
 
 	def appendErrors(object, map, prepend) {
-		this.appendErrorMap(this.getHumanReadableErrors(object), map, prepend)
+		this.appendErrorMap(getHumanReadableErrors(object), map, prepend)
 	}
 
 	/**
