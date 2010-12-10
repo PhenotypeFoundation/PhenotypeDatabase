@@ -46,7 +46,7 @@ class PublicationController {
             publication.errors.getAllErrors().each() {
                 println it
             }
-            errors = publications.errors.getAllErrors.join( ', ' );
+            errors = publications.errors.getAllErrors().join( ', ' );
             message = "Publication addition failed"
         }
 
