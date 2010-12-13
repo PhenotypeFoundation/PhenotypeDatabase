@@ -35,6 +35,8 @@
 			<li><g:link controller="templateEditor" action="samplingEvent" params="${[standalone: true]}">Sampling event templates</g:link></li>
 			<li><g:link controller="templateEditor" action="sample" params="${[standalone: true]}">Sample templates</g:link></li>
 			<li><g:link controller="templateEditor" action="assay" params="${[standalone: true]}">Assay templates</g:link></li>
+			<li><g:link controller="template" action="export">Export</g:link></li>
+			<li><g:link controller="template" action="importTemplate">Import</g:link></li>
 		</ul>
 	</li>
 	<li>

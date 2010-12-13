@@ -34,7 +34,7 @@
 				  <listItems>
 					<g:each in="${field.listEntries}" var="listEntry">
 					  <listItem>
-						  <name>${listEntry.name?.encodeAsSimpleXML()}</name>
+						  <g:if test="${listEntry}"><name>${listEntry.name?.encodeAsSimpleXML()}</name></g:if>
 					  </listItem>
 					</g:each>
 				  </listItems>

@@ -83,7 +83,7 @@
 
 	<% /* Length of long titles depends on the number of templates.
 		  We've got about 90 characters to show in total */
-		  def numCharsLongTitle = Math.floor( 90 / templates.size() );
+		  def numCharsLongTitle = Math.floor( 90 / templates.size() ).intValue();
 	%>
 	<table id="compare_templates">
 	  <thead>
@@ -105,7 +105,7 @@
 			  </span>
 			  <span class="longTitle">
 				<g:if test="${currentTemplate.name.size() > numCharsLongTitle}">
-				  ${currentTemplate.name.substring(0,numCharsLongTitle - 3)}...
+				  ${currentTemplate.name.substring(0, numCharsLongTitle - 3)}...
 				</g:if>
 				<g:else>
   				  ${currentTemplate.name}
