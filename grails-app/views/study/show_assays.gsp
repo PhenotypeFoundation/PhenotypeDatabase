@@ -30,12 +30,8 @@
 		  <td>${assay.name}</td>
 		  <td>${assay.module.name}</td>
 		  <td>${assay.module.platform}</td>
-		  %{--<td><a href="${assay.module.url}/assay/${assay.externalAssayID}">view</a></td>--}%
-		  <td><jumpbar:link
-			linkDest="${createLink(action:'show', id:studyInstance.id)}/#Assays"
-			linkText='Go back to GSCF'
-			frameSource="${assay.module.url}/assay/showByToken/${assay.externalAssayID}"
-			pageTitle="Assay View in Module">
+		  <td>
+          <jumpbar:link frameSource="${assay.module.url}/assay/showByToken/${assay.externalAssayID}" pageTitle="Metabolomics Module">
 			view
 		  </jumpbar:link></td>
 		  <td>

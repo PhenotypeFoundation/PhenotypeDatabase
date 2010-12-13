@@ -2,6 +2,9 @@ package dbnp.studycapturing
 
 class AssayController {
 
+    def assayService
+    def authenticationService
+    
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
     def index = {
@@ -112,6 +115,80 @@ class AssayController {
         else {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
             redirect(action: "list")
+        }
+    }
+
+    /**
+     * Shows a page where an assay from a study can be selected
+     *
+     * @param none
+     */
+    def selectAssay = {
+        def user = authenticationService.getLoggedInUser()
+        def studies = Study.findAllByOwner(user)
+        def assays = Assay.findAllByParent(studies[0])
+
+        [userStudies: studies, assays: assays]
+    }
+
+    /**
+     * Exports all assay information as an Excel file.
+     *
+     * @param params.id Assay id
+     */
+    def exportAssayAsExcel = {
+        Assay assay = Assay.get(params.id)
+
+        if (!assay) {
+            flash.errorMessage = "No assay found with id: $params.id."
+            redirect action: 'selectAssay'
+            return
+        }
+
+        // TODO: refactor into service
+
+        // Gather sample meta data from GSCF
+        def samples = assay.samples
+
+        def collectUsedTemplateFields = { templateEntityList ->
+
+            def templateFields = templateEntityList*.giveFields().flatten().unique().findAll{it}
+            def usedTemplateFields = templateFields.findAll{ tf ->
+
+                templateEntityList.any { it.fieldExists(tf.name) && it.getFieldValue(tf.name) }
+            }
+
+            def m = [:]
+            usedTemplateFields.each { tf ->
+                m["${tf.name}"] = templateEntityList.collect{ it.fieldExists(tf.name) ? it.getFieldValue(tf.name) : '' }
+            }
+            m
+        }
+
+        // get all sample related subjects
+        def assayData = [
+                'Subject Data':         collectUsedTemplateFields(samples*.parentSubject.unique()),
+                'Sampling Event Data':  collectUsedTemplateFields(samples*.parentEvent.unique()),
+                'Event Data':           collectUsedTemplateFields(samples*.parentEventGroup.events.flatten().unique()),
+                'Sample Data':          collectUsedTemplateFields(samples)]
+
+        // Gather sample meta data from the module
+
+        // - sample metadata
+
+        // Gather measurement data from the module
+
+        // - measurements
+
+        // Write to excel
+
+        println assayData
+
+        try {
+            assayService.exportAssayDataAsExcelFile(assayData)
+        } catch (Exception e) {
+            flash.errorMessage = e.message
+            redirect action: 'selectAssay'
         }
     }
 }

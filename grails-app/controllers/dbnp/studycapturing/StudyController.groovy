@@ -366,42 +366,14 @@ class StudyController {
         }
     }
 
-    /*def edit = {
-        def studyInstance = Study.get(params.id)
-        if (!studyInstance) {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-            redirect(action: "list")
-        }
-        else {
-            return [studyInstance: studyInstance]
-        }
+    /**
+     * Renders assay names and id's as JSON
+     */
+    def ajaxGetAssays = {
+
+        def study = Study.read(params.id)
+        render study?.assays?.collect{[name: it.name, id: it.id]} as JSON
     }
 
-    def update = {
-        def studyInstance = Study.get(params.id)
-        if (studyInstance) {
-            if (params.version) {
-                def version = params.version.toLong()
-                if (studyInstance.version > version) {
-                    
-                    studyInstance.errors.rejectValue("version", "default.optimistic.locking.failure", [message(code: 'study.label', default: 'Study')] as Object[], "Another user has updated this Study while you were editing")
-                    render(view: "edit", model: [studyInstance: studyInstance])
-                    return
-                }
-            }
-            studyInstance.properties = params
-            if (!studyInstance.hasErrors() && studyInstance.save(flush: true)) {
-                flash.message = "${message(code: 'default.updated.message', args: [message(code: 'study.label', default: 'Study'), studyInstance.id])}"
-                redirect(action: "show", id: studyInstance.id)
-            }
-            else {
-                render(view: "edit", model: [studyInstance: studyInstance])
-            }
-        }
-        else {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-            redirect(action: "list")
-        }
-    }
-*/
+
 }
