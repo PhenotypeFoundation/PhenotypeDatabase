@@ -61,6 +61,7 @@ h2 {
 	padding: 0px;
 }
 
+
 /** END :: header **/
 /** START :: topnav **/
 ul.topnav {
@@ -72,6 +73,7 @@ ul.topnav {
 	background: #222;
 	font-size: 1.2em;
 	background: url(../images/default_style/topnav/topnav_bg.gif) repeat-x;
+	z-index: 1000;
 }
 
 ul.topnav li {
@@ -437,4 +439,5 @@ option.unlocked {
 
 #facebookConnect {
 	padding:0px 0px 10px 0px;
+	z-index: -1;
 }
