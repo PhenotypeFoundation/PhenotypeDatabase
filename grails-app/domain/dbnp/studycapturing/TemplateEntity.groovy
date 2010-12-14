@@ -17,7 +17,7 @@ import org.springframework.validation.FieldError
  * $Date$
  */
 abstract class TemplateEntity extends Identity {
-	/** The actual template of this TemplateEntity instance */
+	// The actual template of this TemplateEntity instance
 	Template template
 
 	// Maps for storing the different template field values
@@ -54,6 +54,48 @@ abstract class TemplateEntity extends Identity {
 		systemFields			: TemplateField
 	]
 
+	// remember required fields when
+	// so we can validate is the required
+	// template fields are set
+	boolean requiredFieldsSet	= false
+	Set requiredFields			= []
+
+	/**
+	 * Get the required fields for the defined template, currently
+	 * this method is called in custom validators below but it's
+	 * best to call it in a template setter method. But as that
+	 * involves a lot of refactoring this implementation will do
+	 * fine for now.
+	 *
+	 * Another possible issue might be that if the template is
+	 * updated after the required fields are cached in the object.
+	 *
+	 * @return Set 	requiredFields
+	 */
+	final Set getRequiredFields() {
+		if (template) {
+			// template is set, check if required fields
+			// have already been fetched
+			if (!requiredFieldsSet) {
+				// no, fetch required fields
+				requiredFields		= template.getRequiredFields()
+				requiredFieldsSet	= true
+			}
+
+			// return the required fields
+			return requiredFields
+		} else {
+			// template is not yet set, return
+			// an empty set
+			return []
+		}
+	}
+
+	// overload transients from Identity
+	// and append requiredFields vars
+	static transients			= [ "identifier", "iterator", "maximumIdentity", "requiredFieldsSet", "requiredFields" ]
+
+	// define the mapping
 	static mapping = {
 		// Specify that each TemplateEntity-subclassing entity should have its own tables to store TemplateField values.
 		// This results in a lot of tables, but performance is presumably better because in most queries, only values of
@@ -129,6 +171,23 @@ abstract class TemplateEntity extends Identity {
 				}
 			}
 
+			// validating the required template fields. Note that the
+			// getRequiredFields() are cached in this object, so any
+			// template changes after caching may not be validated
+			// properly.
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.STRING }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateStringFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			// got an error, or not?
 			return (!error)
 		})
@@ -149,6 +208,21 @@ abstract class TemplateEntity extends Identity {
 					}
 				}
 			}
+
+			// validating required fields
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.TEXT }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateTextFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			return (!error)
 		})
 		templateStringListFields(validator: { fields, obj, errors ->
@@ -168,6 +242,21 @@ abstract class TemplateEntity extends Identity {
 					}
 				}
 			}
+
+			// validating required fields
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.STRINGLIST }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateStringFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			return (!error)
 		})
 		templateDoubleFields(validator: { fields, obj, errors ->
@@ -192,6 +281,21 @@ abstract class TemplateEntity extends Identity {
 					}
 				}
 			}
+
+			// validating required fields
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.DOUBLE }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateDoubleFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			return (!error)
 		})
 		templateDateFields(validator: { fields, obj, errors ->
@@ -211,6 +315,21 @@ abstract class TemplateEntity extends Identity {
 					}
 				}
 			}
+
+			// validating required fields
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.DATE }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateDateFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			return (!error)
 		})
 		templateRelTimeFields(validator: { fields, obj, errors ->
@@ -238,6 +357,21 @@ abstract class TemplateEntity extends Identity {
 					}
 				}
 			}
+
+			// validating required fields
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.RELTIME }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateRelTimeFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			return (!error)
 		})
 		templateTermFields(validator: { fields, obj, errors ->
@@ -257,6 +391,21 @@ abstract class TemplateEntity extends Identity {
 					}
 				}
 			}
+
+			// validating required fields
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.ONTOLOGYTERM }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateTermFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			return (!error)
 		})
 		templateFileFields(validator: { fields, obj, errors ->
@@ -294,6 +443,20 @@ abstract class TemplateEntity extends Identity {
 				}
 			}
 
+			// validating required fields
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.FILE }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateFileFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			// got an error, or not?
 			return (!error)
 		})
@@ -306,6 +469,7 @@ abstract class TemplateEntity extends Identity {
 					fields[key] = false;
 				}
 			}
+
 			return (!error)
 		})
 		templateTemplateFields(validator: { fields, obj, errors ->
@@ -325,6 +489,21 @@ abstract class TemplateEntity extends Identity {
 					}
 				}
 			}
+
+			// validating required fields
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.TEMPLATE }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateTemplateFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			return (!error)
 		})
 		templateModuleFields(validator: { fields, obj, errors ->
@@ -344,6 +523,21 @@ abstract class TemplateEntity extends Identity {
 					}
 				}
 			}
+
+			// validating required fields
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.MODULE }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateModuleFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			return (!error)
 		})
 		templateLongFields(validator: { fields, obj, errors ->
@@ -368,6 +562,21 @@ abstract class TemplateEntity extends Identity {
 					}
 				}
 			}
+
+			// validating required fields
+			obj.getRequiredFields().findAll { it.type == TemplateFieldType.LONG }.each { field ->
+				if (! fields.find { key, value -> key == field.name } ) {
+					// required field is missing
+					error = true
+					errors.rejectValue(
+						'templateLongFields',
+						'templateEntity.required',
+						[field.name] as Object[],
+						'Property {0} is required but it missing'
+					)
+				}
+			}
+
 			return (!error)
 		})
 	}

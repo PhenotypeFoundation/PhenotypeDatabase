@@ -200,6 +200,18 @@ class Template extends Identity {
 	}
 
 	/**
+	 * get all required fields
+	 * @param Class fieldType
+	 * @return Set < TemplateField >
+	 */
+	def getRequiredFieldsByType(TemplateFieldType fieldType) {
+		def result = fields.findAll {
+			(it.required == true && it.type == fieldType)
+		}
+		return result;
+	}
+
+	/**
 	 * Checks whether this template is used by any object
 	 *
 	 * @returns		true iff this template is used by any object, false otherwise
