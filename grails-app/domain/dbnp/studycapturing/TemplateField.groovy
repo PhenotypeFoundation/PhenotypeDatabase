@@ -377,13 +377,13 @@ class TemplateField implements Serializable {
 		if( !( otherObject instanceof TemplateField ) )
 			return false
 
+		if( otherObject == null )
+			return false
+
 		TemplateField otherField = (TemplateField) otherObject;
 
 		if( otherField == this )
 			return true
-
-		if( otherField == null )
-			return false
 
 		if( otherField.entity != this.entity ) {
 			return false
@@ -416,7 +416,9 @@ class TemplateField implements Serializable {
 			for( def entry in this.listEntries ) {
 				def entryFound = false;
 				for( def otherEntry in otherField.listEntries ) {
-					if( otherEntry.name == entry.name ) {
+					def name1 = entry != null ? entry.name : ""
+					def name2 = otherEntry != null ? otherEntry.name : ""
+					if( name1 == name2 ) {
 						entryFound = true;
 						break
 					}
