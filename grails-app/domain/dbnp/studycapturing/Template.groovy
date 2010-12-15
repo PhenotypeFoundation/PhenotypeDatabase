@@ -140,8 +140,11 @@ class Template extends Identity {
 			return false
 
 		// Check all template fields
-		if( otherTemplate.fields?.size() != this.fields?.size() )
+		def size1 = otherTemplate.fields?.size() ?: 0
+		def size2 = otherTemplate.fields?.size() ?: 0
+		if( size1 != size2 ) {
 			return false
+		}
 
 		if( otherTemplate.fields != null && this.fields != null ) {
 			for( def field in this.fields ) {

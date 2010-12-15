@@ -100,7 +100,6 @@ class TemplateController {
 		ids.each { id ->
 			def templateData = templates.find { template -> template.key == id.toLong() }
 			def importTemplate = templateData?.template
-			println id + ": " + templateData
 
 			if( !importTemplate ) {
 				messages << "Template with id " + id + " could not be found."

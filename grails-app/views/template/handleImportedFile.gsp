@@ -28,11 +28,16 @@
 				  <p>${templateData.template.description}</p>
 				</td>
 				<td>
+				  <g:if test="${templateData.template.fields?.size() > 0}">
 				  <ol class="fields">
 					<g:each in="${templateData.template.fields}" var="field">
 					  <li>${field.name} (<g:if test="${field.unit}">${field.unit}, </g:if>${field.type})</li>
 					</g:each>
 				  </ol>
+				  </g:if>
+				  <g:else>
+					(no fields)
+				  </g:else>
 				</td>
 				<td>
 				  <g:if test="${templateData.alternatives.size() > 0}">
