@@ -473,7 +473,11 @@ class TemplateField implements Serializable {
 
 		// Search for list entries
 		xmlObject.listItems?.listItem.each {
-			t.addToListEntries( new TemplateFieldListItem( name: it.name?.text() ) );
+			def name = ""
+			if( it.name )
+				name = it.name.text()
+
+			t.addToListEntries( new TemplateFieldListItem( name: name ) );
 		}
 		return t;
 	}
