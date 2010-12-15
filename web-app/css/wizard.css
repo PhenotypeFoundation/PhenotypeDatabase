@@ -241,6 +241,8 @@
     -moz-transform: rotate(180deg);
     -o-transform: rotate(180g);
     cursor: pointer;
+    zoom: 1; /* IE 6 & 7 hack */
+    *display: inline; /* IE 6 & 7 hack */
 }
 
 .wizard .table .header {
@@ -324,15 +326,16 @@
     width: 75px;
 }
 
-.wizard .table .highlight, .wizard .table .highlight input, .wizard .table .highlight select, .wizard .table .highlight b {
+#wizard div.row:hover, #wizard div.row:hover b{
     background-color: #006DBA;
     color: #fff;
 }
 
-.wizard .table .highlight input, .wizard .table .highlight select {
+#wizard div.row:hover input, #wizard div.row:hover select {
     background-color: #6e99d4;
     color: #fff;
 }
+
 /* END :: TABLE */
 
 /* START :: BIG BUTTONS and BIG TEXT */

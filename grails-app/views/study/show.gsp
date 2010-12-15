@@ -10,19 +10,23 @@
 	</g:if>
 	<g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}"/>
 	<title><g:message code="default.show.label" args="[entityName]"/></title>
-	<script type="text/javascript">
+  	<script type="text/javascript">
+	    // Flag whether the timelines have been loaded
+        var timelineloaded = false;
+
 		// Number of timelines that should be loaded
 		var numTimelines = ${studyList?.size()};
 
 		// This method is called on the event body.onLoad
 		$(function() {
 			$("#tabs").tabs({
-				load: function(event, ui) {
-					// If the events tab is shown, the timeline should be redrawn
-					if (ui.tab.hash == '#Events_timeline') {
-						loadTimeline('eventstimeline', 'eventtitles', 0);
-					}
-				},
+                show: function(event, ui) {
+                  // If the events tab is shown, the timeline should be redrawn
+                  if( ui.tab.hash == '#events-timeline' && !timelineloaded ) {
+                    loadTimeline( 'eventstimeline', 'eventtitles', 0 );
+                    timelineloaded = true;
+                  }
+                },
 				ajaxOptions: {
 					error: function(xhr, status, index, anchor) {
 						$(anchor.hash).html(
@@ -61,7 +65,7 @@
 			<ul>
 				<li><a href="#study">Study Information</a></li>
 				<li><a href="<g:createLink action="show_subjects" id="${studyList.id.join(',')}"/>" title="Subjects"><span>Subjects</span></a></li>
-				<li><a href="<g:createLink action="show_events_timeline" id="${studyList.id.join(',')}"/>" title="Events timeline"><span>Events timeline</span></a></li>
+				<li><a href="#events-timeline"><span>Events timeline</span></a></li>
 				<li><a href="<g:createLink action="show_events_table" id="${studyList.id.join(',')}"/>" title="Events table"><span>Events table</span></a></li>
 				<li><a href="<g:createLink action="show_assays" id="${studyList.id.join(',')}"/>" title="Assays"><span>Assays</span></a></li>
 				<li><a href="<g:createLink action="show_samples" id="${studyList.id.join(',')}"/>" title="Samples"><span>Samples</span></a></li>
@@ -178,6 +182,24 @@
 					</tr>
 				</table>
 			</div>
+
+		  <div id="events-timeline">
+			<g:if test="${studyList*.events?.flatten()?.size()==0 && studyInstance*.samplingEvents?.flatten()?.size()==0 }">
+			  No events in these studies
+			</g:if>
+			<g:else>
+			  <g:each in="${studyList}" var="study" status="i">
+				<div style="margin: 10px; ">
+				  <div class="eventtitles" id="eventtitles-${i}"></div>
+				  <div class="eventstimeline" id="eventstimeline-${i}"></div>
+				</div>
+			  </g:each>
+			  <noscript>
+				Javascript is needed for showing the timeline, but it has been disabled in your browser. Please enable javascript or use
+				the events table instead.
+			  </noscript>
+			</g:else>
+		  </div>
 
 			<% /*
 		  All other tabs are moved to separate views and are loaded using

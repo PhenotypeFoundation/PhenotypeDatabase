@@ -221,16 +221,9 @@ function attachDateTimePickers() {
 
 // attach subject events
 function attachTableEvents() {
-    $('div#wizard').find('div.row').each(function() {
-        $(this).hover(
-                function() {
-                    $(this).addClass('highlight');
-                },
-                function() {
-                    $(this).removeClass('highlight');
-                }
-        );
-    });
+	// This method handled the background hover color on table rows
+	// Since this broke select boxes in IE7, this is now handled by css
+	// See wizard.css and #234 and #237
 }
 
 // if the wizard page contains a table, the width of

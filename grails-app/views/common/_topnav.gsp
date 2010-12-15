@@ -51,7 +51,7 @@
 		<a href="#">Publications</a>
 		<ul class="subnav">
 			<li><g:link controller="publication" action="list">View publications</g:link></li>
-			<li><g:link controller="publication" action="add">Add publication</g:link></li>
+			<li><g:link controller="publication" action="create">Add publication</g:link></li>
 		</ul>
 	</li>
 	<sec:ifAllGranted roles="ROLE_ADMIN">
