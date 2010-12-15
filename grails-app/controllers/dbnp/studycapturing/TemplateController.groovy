@@ -78,7 +78,7 @@ class TemplateController {
 
 				templates << templateData
 			} catch (Exception e) {
-				templates << [ template: null, error: "Template " + ( template.name ?: " without name" ) + " could not be parsed: " + e ];
+				templates << [ template: null, error: "Template " + ( template.name ?: " without name" ) + " could not be parsed: " + e + " (" + e. getStackTrace()[ 0 ] + ")" ];
 			}
 		}
 

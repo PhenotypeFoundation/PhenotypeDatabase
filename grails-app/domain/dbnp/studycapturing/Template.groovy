@@ -300,7 +300,7 @@ class Template extends Identity {
 			// Check whether a similar field already exists. For that, we search in all
 			// template fields with the same name, in order to have as little comparisons
 			// as possible
-			for( def otherField in TemplateField.findAllByName( field.name ) ) {
+			for( def otherField in TemplateField.findAllByName( field?.name ) ) {
 				if( field.contentEquals( otherField ) ) {
 					field = otherField;
 					break;
