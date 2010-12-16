@@ -9,7 +9,11 @@ Version: 1.0
 	The CSS, XHTML and design is released under Creative Common License 3.0:
 	http://creativecommons.org/licenses/by-sa/3.0/
 
-*/ 
+*/
+
+.toppanel {
+	z-index: 10000;
+}
 
 /***** clearfix *****/
 .toppanel .clear {clear: both;height: 0;line-height: 0;}
@@ -30,7 +34,7 @@ Version: 1.0
 	height: 42px;
 	position: relative;
     top: 0;
-    z-index: 999;
+    z-index: 10001;
 }
 
 .toppanel .tab ul.login {
@@ -110,7 +114,7 @@ Version: 1.0
     /*position: relative;*/   /*Panel will "push" the content down */
     top: 0;
     width: 100%;
-    z-index: 999;
+    z-index: 10001;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
@@ -124,7 +128,7 @@ Version: 1.0
 	background: #272727;
 	overflow: hidden;
 	position: relative;
-	z-index: 3;
+	z-index: 10002;
 	display: none;
 }
 
