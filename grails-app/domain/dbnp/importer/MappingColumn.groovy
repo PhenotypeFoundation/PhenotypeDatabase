@@ -11,7 +11,7 @@ import dbnp.studycapturing.Identity
 * value: column value (optional, normally only name is used)
 * identifier: true if this column is identifying (unique/primary key)
 */
-class MappingColumn {
+class MappingColumn implements Serializable {
 
 	String name
 	dbnp.studycapturing.TemplateFieldType templatefieldtype

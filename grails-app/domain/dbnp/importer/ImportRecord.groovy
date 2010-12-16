@@ -15,7 +15,7 @@
 package dbnp.importer
 import dbnp.studycapturing.Identity
 
-class ImportRecord extends Identity {
+class ImportRecord extends Identity implements Serializable {
     static hasMany = [ importcells: ImportCell ]
     
     static constraints = {

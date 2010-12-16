@@ -1,3 +1,136 @@
+/**
+ * ajaxflow css
+ *
+ * @author	Jeroen Wesbeek
+ * @since	20101214
+ *
+ * Revision information:
+ * $Rev$
+ * $Author$
+ * $Date$
+ */
+
+/** START :: AJAX FLOW **/
+.ajaxFlow {
+	width: 100%;
+}
+.ajaxFlow h1 {
+	color: #006DBA;
+	font-weight: bold;
+	font-size: 18px;
+	padding-bottom: 10px;
+}
+.ajaxFlowError {
+	width: 97.5%;
+	border: 1px dotted red;
+	padding: 10px 10px 10px 10px;
+}
+
+/** START :: TABS **/
+.tabs {
+    display: block;
+    padding-bottom: 2px;
+    border-bottom: 2px solid #006DBA;
+    width: 100%;
+}
+.tabs ul {
+    list-style-type: none; /* suppression of useless elements */
+    padding: 0px;
+    font-size: 10px;
+    margin: 0px;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    height: 20px;
+    width: 100%;
+}
+.tabs li {
+    float: left;
+    margin: 0px;
+    height: 20px;
+    float: left;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: #006DBA;
+    background: #CCC;
+    font-weight: bold;
+}
+.tabs li input {
+	cursor: pointer;
+	color: #006DBA;
+	background-color: transparent;
+	border: none;	
+}
+.tabs li:last-child:after {
+	content: url('../images/importer/spacer.gif');
+}
+.tabs li:first-child:before {
+	content: url('../images/importer/spacer.gif');
+}
+.tabs li:before {
+	content:url(../images/importer/arrowR.gif);
+	position:inherit;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	display:inline;
+}
+.tabs li:after {
+	content:url(../images/importer/arrowL.gif);
+	position:inherit;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	display:inline;
+}
+.tabs .content {
+    padding: 0px 10px 0px 10px;
+    display: inline;
+    border: 0px;
+	vertical-align: top;
+	line-height: 20px;
+}
+.tabs .active {
+    background-color: #006DBA !important;
+    color: #fff !important;
+    text-shadow: 0px 0px 1px #333;
+}
+
+/** START NAVIGATION **/
+.navigation {
+    display: block;
+    padding-top: 2px;
+    border-top: 2px solid #006DBA;
+    width: 100%;
+	color: #666666;
+	font-size: 10px;
+}
+
+.navigation .prevnext {
+    cursor: pointer;
+    color: #006DBA;
+    background-color: transparent;
+    border: none;
+}
+
+/** CONTENT STYLES **/
+.content {
+	padding: 20px 0px 20px 0px;
+}
+
+.content h1 {
+	color: #006DBA;
+	font-weight: bold;
+	font-size: 18px;
+}
+.content p {
+	text-align: justify;
+	padding: 10px 0px 10px 0px;
+}
+
+.content a, .content a:visited {
+	color: red;
+	text-decoration: none;
+}
+
 .header
 {
     border-collapse:collapse;
@@ -36,6 +169,6 @@
     color:blue;
 }
 
-.validationfail {        
+.validationfail {
     color: red;
 }

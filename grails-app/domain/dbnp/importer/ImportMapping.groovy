@@ -1,6 +1,6 @@
 package dbnp.importer
 
-class ImportMapping {
+class ImportMapping implements Serializable {
 
 	static hasMany = [columns: MappingColumn]
 	static String t

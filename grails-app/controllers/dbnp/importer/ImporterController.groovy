@@ -1,407 +1,494 @@
+package dbnp.importer
+import dbnp.studycapturing.Study
+import dbnp.studycapturing.Template
+
+import org.apache.poi.ss.usermodel.Workbook
+
+import grails.converters.JSON
+import cr.co.arquetipos.crypto.Blowfish
+
+
 /**
- * Importer controller
+ * Wizard Controller
  *
- * The importer controller handles the uploading of tabular, comma delimited and Excel format
- * based files. When uploaded a preview is shown of the data and the user can adjust the column
- * type. Data in cells which don't correspond to the specified column type will be represented as "#error".
- *
- * The importer controller catches the actions and consecutively performs the
- * logic behind it.
- *
- * @package	importer
- * @author	t.w.abma@umcutrecht.nl
- * @since	20100126
+ * @author	Jeroen Wesbeek
+ * @since	20101206
  *
  * Revision information:
  * $Rev$
  * $Author$
  * $Date$
  */
-
-package dbnp.importer
-
-import dbnp.studycapturing.Template
-import dbnp.studycapturing.Study
-
-import dbnp.studycapturing.TemplateFieldType
-import grails.converters.JSON
-import org.apache.poi.ss.usermodel.Workbook
-import grails.plugins.springsecurity.Secured
-
-import cr.co.arquetipos.crypto.Blowfish
-
-@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ImporterController {
-    def ImporterService
+    // the pluginManager is used to check if the Grom
+    // plugin is available so we can 'Grom' development
+    // notifications to the unified notifications daemon
+    // (see http://www.grails.org/plugin/grom)
+    def pluginManager
     def AuthenticationService
-
+    def fileService
+    def ImporterService
+	
     /**
-     * Default page
-     **/
-
+     * index method, redirect to the webflow
+     * @void
+     */
     def index = {
-        // no data has been imported yet
-        session.import_wizard_init = true
+        // Grom a development message
+        if (pluginManager.getGrailsPlugin('grom')) "redirecting into the webflow".grom()
 
-        // should do a check what is in the url, strip it?
-        session.import_referer = params.redirectTo
-
-        grailsApplication.config.gscf.domain.importableEntities.each {            
-            it.value.encrypted = 
-				Blowfish.encryptBase64(
-					it.value.entity.toString().replaceAll(/^class /, ''),
-					grailsApplication.config.crypto.shared.secret
-				)
+        // encrypt the importable entities
+        grailsApplication.config.gscf.domain.importableEntities.each {
+            it.value.encrypted =
+            Blowfish.encryptBase64(
+                it.value.entity.toString().replaceAll(/^class /, ''),
+                grailsApplication.config.crypto.shared.secret
+            )
         }
 
-        render(view:"index_simple",
-               model:[studies:Study.findAllWhere(owner:AuthenticationService.getLoggedInUser()),
-               entities: grailsApplication.config.gscf.domain.importableEntities])
-    }
-
-    def simpleWizard = {
-	//render(view:"index_simple", model:[studies:Study.findAllWhere(owner:AuthenticationService.getLoggedInUser()), entities: grailsApplication.config.gscf.domain.importableEntities])
-    }
-
-    def advancedWizard = {
-	//render(view:"index_advanced", model:[templates:Template.list()])
+        /**
+         * Do you believe it in your head?
+         * I can go with the flow
+         * Don't say it doesn't matter (with the flow) matter anymore
+         * I can go with the flow (I can go)
+         * Do you believe it in your head?
+         */
+        redirect(action: 'pages')
     }
 
     /**
-    * This method will move the uploaded file to a temporary path and send the header
-    * and the first n rows to the preview
-    * @param importfile uploaded file to import
-    * @param study.id study identifier
-    */
-    def upload_advanced = {
-	def wb = handleUpload('importfile')
+     * WebFlow definition
+     * @void
+     */
+    def pagesFlow = {
+        // start the flow
+        onStart {
+            // Grom a development message
+            if (pluginManager.getGrailsPlugin('grom')) "entering the WebFlow".grom()
 
-	session.importer_header = ImporterService.getHeader(wb, 0)
-	session.importer_study = Study.get(params.study.id.toInteger())
-	session.importer_template_id = params.template_id
-	session.importer_workbook = wb
+            // define variables in the flow scope which is availabe
+            // throughout the complete webflow also have a look at
+            // the Flow Scopes section on http://www.grails.org/WebFlow
+            //
+            // The following flow scope variables are used to generate
+            // wizard tabs. Also see common/_tabs.gsp for more information
+            flow.page = 0
+            flow.pages = [
+                [title: 'Import file'],
+                [title: 'Properties'],
+                [title: 'Mappings'],
+                [title: 'Imported'],
+                [title: 'Persist']
+            ]
+            flow.cancel = true;
+            flow.quickSave = true;
 
-        render (view:"step1_advanced", model:[header:session.importer_header, datamatrix:ImporterService.getDatamatrix(wb, session.importer_header, 0, 5)])
-    }
+            success()
+        }
 
-    /**
-    * This method will move the uploaded file to a temporary path and send the header
-    * and the rows to the postview
-    *
-    * @param importfile uploaded file to import
-    * @param entity string representation of the entity chosen
-    */
-    def upload_simple = {
-	def wb = handleUpload('importfile')
-	def selectedentities = []
-	//def entity = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
-        def entityName = Blowfish.decryptBase64(
-                            params.entity,
-                            grailsApplication.config.crypto.shared.secret
-                         )
-
-	def entityClass = Class.forName(entityName, true, this.getClass().getClassLoader())
-        
-	// Initialize some session variables
-	session.importer_workbook = wb
-	session.importer_study = Study.get(params.study.id.toInteger())
-
-        // Is the current logged in user allowed to write to this study?
-        if (session.importer_study.canWrite(AuthenticationService.getLoggedInUser())) {
-            session.importer_template_id = params.template_id
-            session.importer_sheetindex = params.sheetindex.toInteger() -1 // 0 == first sheet
-            session.importer_datamatrix_start = params.datamatrix_start.toInteger() -1 // 0 == first row
-            session.importer_headerrow = params.headerrow.toInteger()
-
-            // Get the header from the Excel file using the arguments given in the first step of the wizard
-            session.importer_header = ImporterService.getHeader(wb,
-                                                                session.importer_sheetindex,
-                                                                session.importer_headerrow,
-                                                                session.importer_datamatrix_start,
-                                                                entityClass)
-	
-            // Initialize 'selected entities', used to show entities above the columns
-            session.importer_header.each {                
-                selectedentities.add([name:entityName, columnindex:it.key.toInteger()])
+        // render the main wizard page which immediately
+        // triggers the 'next' action (hence, the main
+        // page dynamically renders the study template
+        // and makes the flow jump to the study logic)
+        mainPage {
+            render(view: "/importer/index")
+            onRender {
+                // Grom a development message
+                if (pluginManager.getGrailsPlugin('grom')) "rendering the main Ajaxflow page (index.gsp)".grom()
+                
+                // let the view know we're in page 1
+                flow.page = 1
+                success()
             }
+            on("next").to "pageOne"
+        }
 
-            def templates = Template.get(session.importer_template_id)
+        // File import and entitie template selection page
+        pageOne {
+            render(view: "_page_one")
+            onRender {
+                log.info ".entering import wizard"
+                // Grom a development message
+                if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_page_one.gsp".grom()
 
-            render(view:"step2_simple", model:[entities: selectedentities,
-                                        header:session.importer_header,
-					datamatrix:ImporterService.getDatamatrix(
-					wb, session.importer_header,
-					session.importer_sheetindex,
-                                        session.importer_datamatrix_start,
-                                        5),
-                                        templates:templates])
-        } // end of if
-        else {
-            render (template:"common/error", 
-                    model:[error:"Wrong permissions: you are not allowed to write to the study you selected (${session.importer_study})."])
+                flow.page = 1
+                flow.studies = Study.findAllWhere(owner:AuthenticationService.getLoggedInUser())
+                flow.importer_importableentities = grailsApplication.config.gscf.domain.importableEntities
+                
+                success()
+            }
+            on("next") {
+                if (fileImportPage(flow, params)) {                    
+                    success()
+                } else {
+                    println "field is missing"
+                    error()
+                }
+                // put your bussiness logic (if applicable) in here
+            }.to "pageTwo"
+            on("toPageTwo") {
+                // put your bussiness logic (if applicable) in here
+            }.to "pageTwo"
+            on("toPageThree") {
+                // put your bussiness logic (if applicable) in here
+            }.to "pageThree"
+            on("toPageFour") {
+                // put your bussiness logic (if applicable) in here
+            }.to "pageFour"
+            on("toPageFive") {
+                // put your bussiness logic (if applicable) in here
+                flow.page = 5
+            }.to "save"
+        }
+
+        // Property to column assignment page
+        pageTwo {            
+            render(view: "_page_two")
+            onRender {
+                log.info ".import wizard properties page"
+                // Grom a development message
+                if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_page_two.gsp".grom()
+                
+                flow.page = 2
+                success()
+            }
+            on("next") {
+                if (propertiesPage(flow, params)) {
+                    success()
+                } else {
+                    println "properties are wrong"
+                    error()
+                }
+            }.to "pageThree"
+            on("previous").to "pageOne"
+            on("toPageOne").to "pageOne"
+            on("toPageThree").to "pageThree"
+            on("toPageFour").to "pageFour"
+            on("toPageFive") {
+                flow.page = 5
+            }.to "save"
+        }
+
+        // Mapping page
+        pageThree {            
+            render(view: "_page_three")
+            onRender {                
+                log.info ".import wizard mapping page"
+                // Grom a development message
+                if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_page_three.gsp".grom()
+
+                flow.page = 3
+                success()
+            }            
+            on("refresh") {                
+                    success()
+            }.to "pageThree"
+            on("next") {
+                if (mappingsPage(flow, params)) {
+                    success()
+                } else {
+                    log.error ".import wizard mapping error, could not validate all entities"
+                    error()                    
+                }
+            }.to "pageFour"
+            on("previous").to "pageTwo"
+            on("toPageOne").to "pageOne"
+            on("toPageTwo").to "pageTwo"
+            on("toPageFour").to "pageFour"
+            on("toPageFive") {
+                flow.page = 5
+            }.to "save"
+        }
+
+        // Imported data overview page
+        pageFour {
+            render(view: "_page_four")
+            onRender {
+                // Grom a development message
+                if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_page_four.gsp".grom()
+
+                flow.page = 4
+                success()
+            }
+            on("next") {
+                if (importedPage(flow, params)) {
+                    success()
+                } else {
+                    log.error ".import wizard imported error, something went wrong showing the imported entities"
+                    error()
+                }
+                flow.page = 5
+            }.to "save"
+            on("previous").to "pageThree"
+            on("toPageOne").to "pageOne"
+            on("toPageTwo").to "pageTwo"
+            on("toPageThree").to "pageThree"
+            on("toPageFive") {
+                flow.page = 5
+            }.to "save"
+        }
+
+        // Save the imported data
+        save {
+            action {
+                // here you can validate and save the
+                // instances you have created in the
+                // ajax flow.
+                try {
+                    // Grom a development message
+                    if (pluginManager.getGrailsPlugin('grom')) ".persisting instances to the database...".grom()                    
+
+                    if (saveEntities(flow, params)) {
+                        println "succes"
+                        success()
+                    } else {
+                        log.error ".import wizard imported error, something went wrong showing the imported entities"                        
+                        //throw Exception
+                    }                    
+                } catch (Exception e) {
+                    // put your error handling logic in
+                    // here                    
+                    flow.page = 4
+                    error()
+                }
+            }
+            on("error").to "error"
+            on(Exception).to "error"
+            on("success").to "finalPage"
+        }
+
+        // render errors
+        error {
+            render(view: "_error")
+            onRender {
+                
+                // Grom a development message
+                if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_error.gsp".grom()
+
+                // set page to 4 so that the navigation
+                // works (it is disabled on the final page)
+                flow.page = 4
+            }
+            on("next").to "save"
+            on("previous").to "pageFour"
+            on("toPageOne").to "pageOne"
+            on("toPageTwo").to "pageTwo"
+            on("toPageThree").to "pageThree"
+            on("toPageFour").to "pageFour"
+            on("toPageFive").to "save"
+
+        }
+
+        // last wizard page
+        finalPage {
+            render(view: "_final_page")
+            onRender {
+                // Grom a development message
+                if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_final_page.gsp".grom()
+				
+                success()
+            }
         }
     }
 
     /**
-     * This method handles a file being uploaded and storing it in a temporary directory
-     * and returning a workbook
+     * Return templates which belong to a certain entity type
      *
-     * @param formfilename name used for the file field in the form
-     * @return workbook object reference
+     * @param entity entity name string (Sample, Subject, Study et cetera)
+     * @return JSON object containing the found templates
      */
-    private Workbook handleUpload(formfilename) {
-
-	def downloadedfile = request.getFile(formfilename);
-        def tempfile = new File(System.getProperty('java.io.tmpdir') + File.separatorChar + System.currentTimeMillis() + ".nmcdsp")
-        downloadedfile.transferTo(tempfile)
-
-	return ImporterService.getWorkbook(new FileInputStream(tempfile))
-    }
-
-    /**
-     * Method to save the missing properties.
-     *
-     * @param entity entity class we are using (dbnp.studycapturing.Subject etc.)
-     */
-
-    def saveMissingProperties = {        
-        def fielderrors = 0
-        def invalidentities = 0
-        
-	session.importer_importeddata.each { table ->
-	    table.each { entity ->
-                // a new entity is being traversed, if a field cannot be set, increase this counter
-                fielderrors = 0
-
-		entity.giveFields().each { field ->                    
-                    try {
-                        // try to set the value
-                        entity.setFieldValue (field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])                        
-                    } catch (Exception e) {                    
-                        fielderrors++
-                    }
-		}
-
-                // a field could not be set in the entity, so the entity failed (is not validated)
-                if (fielderrors) invalidentities++
-
-                // all fields in the entity could be set, no errors, so remove it from the failed cells
-                if (!fielderrors) {
-                     session.importer_failedcells.each { record ->
-                        record.importcells.each { cell ->
-                           // remove the cell from the failed cells session
-                           if (cell.entityidentifier == entity.getIdentifier()) {                            
-                               record.removeFromImportcells(cell)
-                           }
-                        }
-                     }
-                } // end of fielderrors
-	    } // end of record
-	} // end of table
-
-        // a new ontology term was added, so stay at the current step otherwise go to the next step
-        if (params.updatefield) render(view:"step3_simple", model:[datamatrix:session.importer_importeddata, failedcells:session.importer_failedcells])
-            else 
-        if (invalidentities)
-            render(view:"step3_simple", model:[datamatrix:session.importer_importeddata, failedcells:session.importer_failedcells, invalidentities:invalidentities])
-        else
-            render(view:"step3", model:[datamatrix:session.importer_importeddata])
-    }
-
-    /*
-     * Store the corrected cells back into the datamatrix. Be sure to check
-     * if the corrected ontology is not blank. If so, it should keep
-     * the original value which was read from the Excel file.
-     *
-     * @param cell array of cells with corrected cells (ontologies)
-     * 
-    */
-    def saveCorrectedCells = {
-        def correctedcells = [:]
-
-        // Loop through the form with cell fields and values
-        params.cell.index.each { cellhash, value ->
-	    correctedcells.put(cellhash, value)
-        }
-
-        // Store the corrected cells back into the datamatrix
-        ImporterService.saveCorrectedCells(
-                    session.importer_importeddata,
-                    session.importer_failedcells,
-                    correctedcells)
-
-        render(view:"step3_simple", model:[datamatrix:session.importer_importeddata])
-
-    }
-
-    /**
-    * User has assigned all entities and templatefieldtypes to the columns and continues to the next step (assigning properties to columns)
-    * All information of the columns is stored in a session as MappingColumn object
-    *
-    * @param entities list of entities and columns it has been assigned to (columnindex.entitytype)
-    * @param templatefieldtype list of celltypes and columns it has been assigned to (columnindex:templatefieldtype format)
-    * @return properties page
-    *
-    * @see celltype: http://poi.apache.org/apidocs/org/apache/poi/ss/usermodel/Cell.html
-    */
-    def savePreview = {
-	def tft = null	
-	def identifiercolumnindex = (params.identifier!=null) ? params.identifier.toInteger() : -1
-	def selectedentities = []
-
-	// loop all entities and see which column has been assigned which entitytype
-	// and build an array containing the selected entities
-	params.entity.index.each { columnindex, entityname ->
-	    def _entity = [name:entityname,columnindex:columnindex.toInteger()]
-	    selectedentities.add(_entity)
-	}
-
-	params.templatefieldtype.index.each { columnindex, _templatefieldtype ->
-	    switch (_templatefieldtype) {
-		case "STRING"	    : tft = TemplateFieldType.STRING
-				      break
-		case "TEXT"	    : tft = TemplateFieldType.TEXT
-				      break
-		case "LONG"	    : tft = TemplateFieldType.LONG
-                                      break
-		case "DOUBLE"	    : tft = TemplateFieldType.DOUBLE
-				      break
-		case "STRINGLIST"   : tft = TemplateFieldType.STRINGLIST
-				      break
-		case "ONTOLOGYTERM" : tft = TemplateFieldType.ONTOLOGYTERM
-				      break
-		case "DATE"	    : tft = TemplateFieldType.DATE
-				      break
-		default: break
-	    }
-	    
-	    // Set the templatefield type for this column
-	    session.importer_header[columnindex.toInteger()].templatefieldtype = tft
-	}
-
-	// Detect the entity type
-	params.entity.index.each { columnindex, entityname ->
-	    Class clazz	= null
-
-	    switch (entityname) {
-		case "Study"	: clazz = dbnp.studycapturing.Study
-			break
-		case "Subject"	: clazz = dbnp.studycapturing.Subject
-			break
-		case "Event"	: clazz = dbnp.studycapturing.Event
-			break
-		case "Protocol" : clazz = dbnp.studycapturing.Protocol
-			break
-		case "Sample"	: clazz = dbnp.studycapturing.Sample
-			break
-		default: clazz = Object
-			break
-	    }
-
-	    // Store properties for this column
-	    session.importer_header[columnindex.toInteger()].identifier = (columnindex.toInteger() == identifiercolumnindex) ? true : false
-	    session.importer_header[columnindex.toInteger()].index = columnindex.toInteger()
-	    session.importer_header[columnindex.toInteger()].entity = clazz
-	}
-
-	// currently only one template is used for all entities
-	// TODO: show template fields per entity
-	
-	def templates = Template.get(session.importer_template_id)
-
-	render(view:"step2", model:[entities:selectedentities, header:session.importer_header, templates:templates])
-    }
-    
-    /** 
-     * Method which stores the properties set per column and then imports the data.
-     *
-     * @param columnproperty array of columns containing index and property (represented as a String)
-    *
-    */
-    def saveProperties = {        
-
-	// Find actual Template object from the chosen template name
-	def template = Template.get(session.importer_template_id)
-
-	params.columnproperty.index.each { columnindex, property ->
-
-		// Create an actual class instance of the selected entity with the selected template
-		// This should be inside the closure because in some cases in the advanced importer, the fields can have different target entities
-		def entityClass = Class.forName(session.importer_header[columnindex.toInteger()].entity.getName(), true, this.getClass().getClassLoader())
-		def entityObj = entityClass.newInstance(template:template)
-
-		// Store the selected property for this column into the column map for the ImporterService
-		session.importer_header[columnindex.toInteger()].property = property
-
-		// Look up the template field type of the target TemplateField and store it also in the map
-		session.importer_header[columnindex.toInteger()].templatefieldtype = entityObj.giveFieldType(property)
-
-		// Is a "Don't import" property assigned to the column?
-		session.importer_header[columnindex.toInteger()].dontimport = (property=="dontimport") ? true : false
-
-		//if it's an identifier set the mapping column true or false
-		entityObj.giveFields().each {
-		    (it.preferredIdentifier && (it.name==property)) ? session.importer_header[columnindex.toInteger()].identifier = true : false
-		}
-	}
-
-	// Import the workbook and store the table with entity records and store the failed cells
-	def (table, failedcells) = ImporterService.importData(session.importer_template_id, session.importer_workbook, session.importer_sheetindex, session.importer_datamatrix_start, session.importer_header)
-
-        session.importer_importeddata = table        
-        session.importer_failedcells = failedcells
-
-        // Are there any failed cells, then show an extra step to correct the cells
-        /*if (failedcells.size()!=0)
-            render(view:"step2a_simple", model:[failedcells:session.importer_failedcells])
-        else {*/
-            if (params.layout=="horizontal")
-                render(view:"step3_simple", model:[datamatrix:session.importer_importeddata, failedcells:session.importer_failedcells])
-            else if (params.layout=="vertical")
-                render(view:"step3", model:[datamatrix:session.importer_importeddata])
-        //}
-    }
-
-    /**
-     * Method which saves the data matrix to the database
-     */
-    def savePostview = {        
-
-        // Called this page directly, then display an error message.
-        if ( (!session?.import_wizard_init) ) {
-            render (template:"common/error",
-                    model:[error:"Data is already imported or you are calling the url directly without following the previous import steps."])
-        } else {
-            def (validatedSuccesfully, updatedEntities, failedtopersist) = ImporterService.saveDatamatrix(session.importer_study, session.importer_importeddata)
-            session.validatedSuccesfully = validatedSuccesfully
-            render(view:"step4", model:[validatedSuccesfully:session.validatedSuccesfully, failedtopersist:failedtopersist, updatedentities:updatedEntities, totalrows:session.importer_importeddata.size, referer: session.import_referer])
-            session.import_wizard_init = false
-        }
-    }
-
-    /**
-    * Return templates which belong to a certain entity type
-    * 
-    * @param entity entity name string (Sample, Subject, Study et cetera)
-    * @return JSON object containing the found templates
-    */
-    def ajaxGetTemplatesByEntity = {        
+    def ajaxGetTemplatesByEntity = {
         def entityName = Blowfish.decryptBase64(
-                    	params.entity,
-                    	grailsApplication.config.crypto.shared.secret
-                    )
+            params.entity,
+            grailsApplication.config.crypto.shared.secret
+        )
 
-	//def entityClass = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
+        //def entityClass = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
         def entityClass = entityName
 
         // fetch all templates for a specific entity
-        def templates = Template.findAllByEntity(Class.forName(entityClass, true, this.getClass().getClassLoader()))	
+        def templates = Template.findAllByEntity(Class.forName(entityClass, true, this.getClass().getClassLoader()))
 
 	// render as JSON
         render templates as JSON
     }
 
-    def refresh = {
-       // params
+    /**
+     * Handle the file import page.
+     *
+     * @param Map LocalAttributeMap (the flow scope)
+     * @param Map GrailsParameterMap (the flow parameters = form data)
+     * @returns boolean true if correctly validated, otherwise false
+     */
+    boolean fileImportPage(flow, params) {
+        def importedfile = fileService.get(params['importfile'])
+        //fileService.delete(YourFile)
+
+        if (params.entity && params.template_id && importedfile.exists()) {
+            // create a workbook instance of the file
+            session.importer_workbook = ImporterService.getWorkbook(new FileInputStream(importedfile))
+            
+            def selectedentities = []
+            
+            def entityName = Blowfish.decryptBase64(
+                params.entity,
+                grailsApplication.config.crypto.shared.secret
+            )
+            
+            def entityClass = Class.forName(entityName, true, this.getClass().getClassLoader())
+            
+            // Initialize some session variables
+            //flow.importer_workbook = wb // workbook object must be serialized for this to work
+            flow.importer_study = Study.get(params.study.id.toInteger())            
+
+             // Is the current logged in user allowed to write to this study?
+             if (flow.importer_study.canWrite(AuthenticationService.getLoggedInUser())) {
+                flow.importer_template_id = params.template_id
+                flow.importer_sheetindex = params.sheetindex.toInteger() -1 // 0 == first sheet
+                flow.importer_datamatrix_start = params.datamatrix_start.toInteger() -1 // 0 == first row
+                flow.importer_headerrow = params.headerrow.toInteger()
+
+                // Get the header from the Excel file using the arguments given in the first step of the wizard
+                flow.importer_header = ImporterService.getHeader(session.importer_workbook,
+                    flow.importer_sheetindex,
+                    flow.importer_headerrow,
+                    flow.importer_datamatrix_start,
+                    entityClass)
+
+                // Initialize 'selected entities', used to show entities above the columns
+                flow.importer_header.each {
+                    selectedentities.add([name:entityName, columnindex:it.key.toInteger()])
+                }
+                
+                flow.importer_selectedentities = selectedentities                
+
+                session.importer_datamatrix = ImporterService.getDatamatrix(
+                            session.importer_workbook, flow.importer_header,
+                            flow.importer_sheetindex,
+                            flow.importer_datamatrix_start,
+                            5)
+
+              
+                flow.importer_templates = Template.get(flow.importer_template_id)
+                flow.importer_allfieldtypes = "true"
+            } // end of if
+            /*else {
+                render (template:"common/error",
+                    model:[error:"Wrong permissions: you are not allowed to write to the study you selected (${flow.importer_study})."])
+            }*/
+
+            return true
+        }
+    }
+
+    /**
+     * Handle the property mapping page.
+     *
+     * @param Map LocalAttributeMap (the flow scope)
+     * @param Map GrailsParameterMap (the flow parameters = form data)
+     * @returns boolean true if correctly validated, otherwise false
+     */
+    boolean propertiesPage (flow, params) {
+        // Find actual Template object from the chosen template name
+        def template = Template.get(flow.importer_template_id)
+
+        params.columnproperty.index.each { columnindex, property ->
+            // Create an actual class instance of the selected entity with the selected template
+            // This should be inside the closure because in some cases in the advanced importer, the fields can have different target entities
+            def entityClass = Class.forName(flow.importer_header[columnindex.toInteger()].entity.getName(), true, this.getClass().getClassLoader())
+            def entityObj = entityClass.newInstance(template:template)
+
+            // Store the selected property for this column into the column map for the ImporterService
+            flow.importer_header[columnindex.toInteger()].property = property
+
+            // Look up the template field type of the target TemplateField and store it also in the map
+            flow.importer_header[columnindex.toInteger()].templatefieldtype = entityObj.giveFieldType(property)
+
+            // Is a "Don't import" property assigned to the column?
+            flow.importer_header[columnindex.toInteger()].dontimport = (property=="dontimport") ? true : false
+
+            //if it's an identifier set the mapping column true or false
+            entityObj.giveFields().each {
+                (it.preferredIdentifier && (it.name==property)) ? flow.importer_header[columnindex.toInteger()].identifier = true : false
+            }
+        }
+
+        // Import the workbook and store the table with entity records and store the failed cells
+        def (table, failedcells) = ImporterService.importData(flow.importer_template_id,
+                                                              session.importer_workbook,
+                                                              flow.importer_sheetindex,
+                                                              flow.importer_datamatrix_start,
+                                                              flow.importer_header)
+
+        flow.importer_importeddata = table
+        flow.importer_failedcells = failedcells
+    }
+
+    /**
+     * Handle the mapping page.
+     *
+     * @param Map LocalAttributeMap (the flow scope)
+     * @param Map GrailsParameterMap (the flow parameters = form data)
+     * @returns boolean true if correctly validated, otherwise false
+     */
+    boolean mappingsPage(flow,params) {
+        def fielderrors = 0
+        flow.importer_invalidentities = 0
+
+        flow.importer_importeddata.each { table ->
+            table.each { entity ->
+                // a new entity is being traversed, if a field cannot be set, increase this counter
+                fielderrors = 0
+
+                entity.giveFields().each { field ->
+                    try {
+                        // try to set the value
+                        entity.setFieldValue (field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
+                    } catch (Exception e) {
+                        fielderrors++
+                    }
+                }
+
+                // a field could not be set in the entity, so the entity failed (is not validated)
+                if (fielderrors) flow.importer_invalidentities++
+
+                // all fields in the entity could be set, no errors, so remove it from the failed cells
+                if (!fielderrors) {
+                    flow.importer_failedcells.each { record ->
+                        record.importcells.each { cell ->
+                            // remove the cell from the failed cells session
+                            if (cell.entityidentifier == entity.getIdentifier()) {
+                                record.removeFromImportcells(cell)
+                            }
+                        }
+                    }
+                } // end of fielderrors
+            } // end of record
+        } // end of table
+
+        return (flow.importer_invalidentities == 0) ? true : false
+    } // end of method
+
+    /**
+     * Handle the imported entities page.
+     *
+     * @param Map LocalAttributeMap (the flow scope)
+     * @param Map GrailsParameterMap (the flow parameters = form data)
+     * @returns boolean true if correctly validated, otherwise false
+     */
+    boolean importedPage(flow, params) {
+        return true
+    }
+
+    boolean saveEntities(flow, params) {
+            def (validatedSuccesfully, updatedEntities, failedToPersist) = ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata)
+
+            flow.importer_validatedsuccesfully = validatedSuccesfully
+            flow.importer_failedtopersist = failedToPersist
+            flow.imported_updatedentities = updatedEntities
+            flow.importer_totalrows = flow.importer_importeddata.size
+            flow.importer_referer = ""
+
+            return true
     }
 }

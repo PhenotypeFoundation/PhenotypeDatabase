@@ -28,25 +28,27 @@ $('#clearselect').click(function() {
 
 });
 </script>
-<g:form name="propertiesform" action="saveProperties">
+<!-- saveproperties action was defined in the form --> 
     <table>
-	  <g:each var="stdentity" in ="${standardentities}">            
-	      <% if (selectedentities.any { it.name.toLowerCase() == stdentity.value.entity.toLowerCase() } && stdentity.value.entity!="") { %>
+	  <g:each var="stdentity" in ="${importer_importableentities}">
+	      <% if (importer_selectedentities.any { it.name.toLowerCase() == stdentity.value.entity.toLowerCase() } && stdentity.value.entity!="") { %>
+            
 	      <tr><td colspan="3"><h4>${stdentity.value.name}</h4></td></tr>
 		<tr>
-                  <td class="header" width="25px"><input id="clearselect" type="button" value="clear" name="clearselect"></td>
-		<g:each var="selentity" in="${selectedentities}">		    
-		    <g:if test="${selentity.name.toLowerCase()==stdentity.value.entity.toLowerCase()}">
+            <td class="header" width="25px"><input id="clearselect" type="button" value="clear" name="clearselect"></td>
+            <g:each var="selentity" in="${importer_selectedentities}">
+              <g:if test="${selentity.name.toLowerCase()==stdentity.value.entity.toLowerCase()}">
 			    <td class="header" width="200px">
-				<b>${header[selentity.columnindex.toInteger()].name}</b>
-				<importer:propertyChooser name="columnproperty" mappingcolumn="${header[selentity.columnindex.toInteger()]}" matchvalue="${header[selentity.columnindex.toInteger()].name}" allfieldtypes="${allfieldtypes}"/>
+				<b>${importer_header[selentity.columnindex.toInteger()].name}</b>
+                  <importer:propertyChooser name="columnproperty" mappingcolumn="${importer_header[selentity.columnindex.toInteger()]}" matchvalue="${importer_header[selentity.columnindex.toInteger()].name}" template_id="${importer_template_id}" allfieldtypes="${importer_allfieldtypes}"/>
 			    </td>			    		
-		    </g:if>
-		</g:each>
+              </g:if>
+            </g:each>
 		</tr>
-		<g:each var="row" in="${datamatrix}">
+
+        <g:each var="row" in="${session.importer_datamatrix}">
 		<tr>
-                  <td class="datamatrix">
+                  <td class="datamatrix">                    
                   </td>
 		    <g:each var="cell" in="${row}">
 			<td class="datamatrix">
@@ -56,18 +58,7 @@ $('#clearselect').click(function() {
 		    </g:each>
 		</tr>
 		</g:each>
-		<tr>
-		  <td colspan="${header.size()}">
-		      <hr />
-		  </td>
-		</tr>
+
 	  <% } %> <!-- end of JSP if-->
-	  </g:each>	
-	<tr>
-	    <td>
-		<input type="hidden" name="layout" value="${layout}">
-		<input type="submit" name="savebutton" value="Next"/>
-	    </td>
-	</tr>
-    </table>    
-</g:form>
+	  </g:each>		
+    </table>

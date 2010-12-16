@@ -36,14 +36,13 @@
         label   : 'add more...',
         style   : 'addMore',
         onClose : function(scope) {
-            //refreshWebFlow();?
+            refreshFlow();            
              //location.reload();
-             updatefield = '<input type = "hidden" name="updatefield" value="true" / >';
+             /*updatefield = '<input type = "hidden" name="updatefield" value="true" / >';
              $('#missingpropertiesform').append(updatefield);
-             $('#missingpropertiesform').submit();
+             $('#missingpropertiesform').submit();*/
         }
     });
-
 
   });
 </script>
@@ -62,13 +61,12 @@
         </g:each>
   });
 </script>
-
-<g:if test="${invalidentities}">
-  <p><b>There are ${invalidentities} entities which could not be validated, they are indicated by a red color, please correct them before continuing.</b></p>
+  
+<g:if test="${importer_invalidentities}"><br/><br/>
+  <b>There are ${importer_invalidentities} entities which could not be validated, they are indicated by a red color, please correct them before continuing.</b>
 </g:if>
 
 <div class="wizard" id="wizard">
-<g:form name="missingpropertiesform" id="missingpropertiesform" action="saveMissingProperties">
     <div class="table">
 	<g:set var="showHeader" value="${true}"/>
 	    <g:each status="index" var="table" in="${datamatrix}">
@@ -91,8 +89,6 @@
 	    </g:each>
     </div>
     <div>
-	<br/>
-	<input type="submit" value="Accept changes">
+	<br/>	
     </div>
-</g:form>    
 </div>

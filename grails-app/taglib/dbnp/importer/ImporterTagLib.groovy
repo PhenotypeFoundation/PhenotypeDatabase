@@ -68,32 +68,20 @@ class ImporterTagLib {
      * Show failed cells
      */
     def failedCells = { attrs ->
-	def failedcells = attrs['failedcells']
-	out << render (template:"common/failedcells", model:[failedcells:failedcells])
+        def failedcells = attrs['failedcells']
+        out << render (template:"common/failedcells", model:[failedcells:failedcells])
     }
 
     /**
      * @param entities array containing selected entities
      * @param header array containing mappingcolumn objects
-     * @param allfieldtypes if set, show all fields
-     * @param layout constant value: "horizontal" or "vertical"
+     * @param allfieldtypes if set, show all fields    
      */
     def properties = { attrs ->
 	def header = attrs['header']
 	def entities = attrs['entities']
-	def allfieldtypes = (attrs['allfieldtypes']==null) ? "false" : "true"
-	def layout = (attrs['layout']==null) ? "vertical" : attrs['layout']
 
-	//choose template for vertical layout (default) or horizontal layout
-	def template = (layout == "vertical") ? "common/properties_vertical" : "common/properties_horizontal"
-	
-	out << render (	template:template,
-			model:[selectedentities:entities,
-			standardentities:grailsApplication.config.gscf.domain.importableEntities,
-			header:header,
-			allfieldtypes:allfieldtypes,
-			layout:layout]
-			)
+	out << render (	template:"common/properties_horizontal" )
     }
 
     /**
@@ -109,11 +97,11 @@ class ImporterTagLib {
     def propertyChooser = { attrs ->
 	// TODO: this should be changed to retrieving fields per entity instead of from one template
 	//	 and session variables should not be used inside the service, migrate to controller
-
-	def t = Template.get(session.importer_template_id)
+    
+	def t = Template.get(attrs['template_id'])
 	def mc = attrs['mappingcolumn']
 	def allfieldtypes = attrs['allfieldtypes']
-        def matchvalue = attrs['matchvalue']
+    def matchvalue = attrs['matchvalue']
 	def domainfields = mc.entity.giveDomainFields().findAll { it.type == mc.templatefieldtype }
 	    domainfields = domainfields.findAll { it.preferredIdentifier != mc.identifier}
 

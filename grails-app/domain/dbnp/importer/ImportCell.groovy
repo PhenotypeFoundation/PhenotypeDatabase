@@ -17,7 +17,7 @@ import dbnp.studycapturing.Identity
  * $Date$
  */
 
-class ImportCell extends Identity {
+class ImportCell extends Identity implements Serializable {
     MappingColumn mappingcolumn
     int entityidentifier
     String value

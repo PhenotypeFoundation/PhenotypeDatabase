@@ -12,7 +12,6 @@
 	 * $Date$
 	 */
 %>
-<g:form name="postviewform" action="savePostview">
     <table>	
 	<tr>	  
 	    <g:each var="table" in="${datamatrix}">
@@ -36,12 +35,4 @@
 		</g:each>
 	    </g:each>
 	</tr>
-    </table>
-    <table>
-	<tr>
-	    <td colspan="">
-		<input type="submit" value="This is OK, store the imported data">
-	    </td>
-	</tr>
-    </table>
-</g:form>
+    </table> 

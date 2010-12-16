@@ -16,6 +16,7 @@
 
 package dbnp.importer
 import org.apache.poi.ss.usermodel.*
+import org.apache.poi.hssf.usermodel.HSSFCell
 
 import dbnp.studycapturing.TemplateFieldType
 import dbnp.studycapturing.Template
@@ -49,7 +50,7 @@ class ImporterService {
 	def sheetrow = sheet.getRow(datamatrix_start)
 	//def header = []
 	def header = [:]
-        def df = new DataFormatter()
+    def df = new DataFormatter()
 	def property = new String()
 
 	//for (Cell c: sheet.getRow(datamatrix_start)) {
@@ -60,79 +61,79 @@ class ImporterService {
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(columnindex,Row.CREATE_NULL_AS_BLANK).getCellType()
 	    def datamatrix_celldata = df.formatCellValue(sheet.getRow(datamatrix_start).getCell(columnindex))
 	    def datamatrix_cell	    = sheet.getRow(datamatrix_start).getCell(columnindex)	    
-            def headercell = sheet.getRow(headerrow-1+sheet.getFirstRowNum()).getCell(columnindex)
+        def headercell = sheet.getRow(headerrow-1+sheet.getFirstRowNum()).getCell(columnindex)
 	    def tft = TemplateFieldType.STRING //default templatefield type
 
-            // Check for every celltype, currently redundant code, but possibly this will be
+        // Check for every celltype, currently redundant code, but possibly this will be
 	    // a piece of custom code for every cell type like specific formatting	    
 	        
 	    switch (datamatrix_celltype) {
-                    case Cell.CELL_TYPE_STRING:
-			    //parse cell value as double
-			    def doubleBoolean = true
-			    def fieldtype = TemplateFieldType.STRING
+                case Cell.CELL_TYPE_STRING:
+                    //parse cell value as double
+                    def doubleBoolean = true
+                    def fieldtype = TemplateFieldType.STRING
 
-			    // is this string perhaps a double?
-			    try {
-				formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
-			    } catch (NumberFormatException nfe) { doubleBoolean = false }
-			    finally {
-				if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
-			    }
+                    // is this string perhaps a double?
+                    try {
+                        formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
+                    } catch (NumberFormatException nfe) { doubleBoolean = false }
+                    finally {
+                        if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
+                    }
 
-			    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+                    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
 									    templatefieldtype:fieldtype,
 									    index:columnindex,
 									    entity:theEntity,
 									    property:property);
 
-			    break
-                    case Cell.CELL_TYPE_NUMERIC:
-			    def fieldtype = TemplateFieldType.LONG
-			    def doubleBoolean = true
-			    def longBoolean = true
+                    break
+                case Cell.CELL_TYPE_NUMERIC:
+                    def fieldtype = TemplateFieldType.LONG
+                    def doubleBoolean = true
+                    def longBoolean = true
 
-			    // is this cell really an integer?
-			    try {
-				Long.valueOf(datamatrix_celldata)
-			    } catch (NumberFormatException nfe) { longBoolean = false }
-			    finally {
-				if (longBoolean) fieldtype = TemplateFieldType.LONG
-			    }
+                    // is this cell really an integer?
+                    try {
+                        Long.valueOf(datamatrix_celldata)
+                    } catch (NumberFormatException nfe) { longBoolean = false }
+                    finally {
+                        if (longBoolean) fieldtype = TemplateFieldType.LONG
+                    }
 
-			    // it's not an long, perhaps a double?
-			    if (!longBoolean)
-				try {
-				    formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
-				} catch (NumberFormatException nfe) { doubleBoolean = false }
-				finally {
-				    if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
-				}
+                    // it's not an long, perhaps a double?
+                    if (!longBoolean)
+                    try {
+    				    formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
+    				} catch (NumberFormatException nfe) { doubleBoolean = false }
+    				finally {
+    				    if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
+    				}
 
-			    if (DateUtil.isCellDateFormatted(datamatrix_cell)) fieldtype = TemplateFieldType.DATE
+                    if (DateUtil.isCellDateFormatted(datamatrix_cell)) fieldtype = TemplateFieldType.DATE
 
-			    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+                    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
 									    templatefieldtype:fieldtype,
 									    index:columnindex,
 									    entity:theEntity,
 									    property:property);
-			    break
-		    case Cell.CELL_TYPE_BLANK:
-			    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+                    break
+                case Cell.CELL_TYPE_BLANK:
+                    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
 									    templatefieldtype:TemplateFieldType.STRING,
 									    index:columnindex,
 									    entity:theEntity,
 									    property:property);
-			    break
-                    default:
-			    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
+                    break
+                default:
+                    header[columnindex] = new dbnp.importer.MappingColumn(name:df.formatCellValue(headercell),
 									    templatefieldtype:TemplateFieldType.STRING,
 									    index:columnindex,
 									    entity:theEntity,
 									    property:property);
-			    break
-            } // end of switch
-	} // end of cell loop
+                    break
+                } // end of switch
+        } // end of cell loop
         return header
     }
 
@@ -146,7 +147,7 @@ class ImporterService {
      * @return two dimensional array (matrix) of Cell objects
      */
 
-    Cell[][] getDatamatrix(Workbook wb, header, int sheetindex, int datamatrix_start, int count) {
+    HSSFCell[][] getDatamatrix(Workbook wb, header, int sheetindex, int datamatrix_start, int count) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def rows  = []
 	def df = new DataFormatter()
@@ -164,9 +165,8 @@ class ImporterService {
 	    }*/
 	    
 	    (0..header.size()-1).each { columnindex ->
-		def c = sheet.getRow(rowindex).getCell(columnindex, Row.CREATE_NULL_AS_BLANK)
-		//row.add(df.formatCellValue(c))
-		row.add(c)
+            def c = sheet.getRow(rowindex).getCell(columnindex, Row.CREATE_NULL_AS_BLANK)            
+            row.add(c)
 	    }
 	    rows.add(row)
 	}
@@ -280,70 +280,66 @@ class ImporterService {
      */    
     def saveDatamatrix(Study study, datamatrix) {
 	def validatedSuccesfully = 0
-        def entitystored = null
-        def failedtopersist = []
-        def persisterrors = []
-        def updatedentities = []
-	study.refresh()
+    def entitystored = null
+    def failedtopersist = []
+    def persisterrors = []
+    def updatedentities = []
+    study.refresh()
         
 	// go through the data matrix, read every record and validate the entity and try to persist it
 	datamatrix.each { record ->
-	    record.each { entity ->
+	    record.each { entity ->            
                         switch (entity.getClass()) {
-                        case Study	 :  print "Persisting Study `" + entity + "`: "
-                                                entity.owner = AuthenticationService.getLoggedInUser()
-                                                println "storing study" + entity
-                                                println "dump=" + entity.dump()
-                                                println "validate=" + entity.validate()
+                        case Study	 :  log.info "Persisting Study `" + entity + "`: "
+                                                entity.owner = AuthenticationService.getLoggedInUser()                                              
                                             	if (persistEntity(entity)) validatedSuccesfully++;
                                                     else failedtopersist.add(entity)
-						break
-			case Subject	 :  print "Persisting Subject `" + entity + "`: "
-                                                entity.parent = study
-                                                
-                                                // is the current entity not already in the database?
-                                                entitystored = isEntityStored(entity)
-                                                
-                                                // this entity is new, so add it to the study
-                                                if (entitystored==null) study.addToSubjects(entity)
-                                                else { // existing entity, so update it
-                                                    updateEntity(entitystored, entity)
-                                                    updatedentities.add(entity)
-                                                }
+                                        break
+                        case Subject :  log.info "Persisting Subject `" + entity + "`: "
+                                        entity.parent = study
 
+                                        // is the current entity not already in the database?
+                                        entitystored = isEntityStored(entity)
+                                                
+                                        // this entity is new, so add it to the study
+                                        if (entitystored==null) study.addToSubjects(entity)
+                                            else { // existing entity, so update it
+                                                updateEntity(entitystored, entity)
+                                                updatedentities.add(entity)
+                                            }
+
+                                        if (persistEntity(study)) validatedSuccesfully++;
+                                            else failedtopersist.add(entity)
+                                        break
+                        case Event	 :  log.info "Persisting Event `" + entity + "`: "
+                                        entity.parent = study
+                                        study.addToEvents(entity)
+                                        if (persistEntity(entity)) validatedSuccesfully++;
+                                            else failedtopersist.add(entity)
+                                        break
+                        case Sample	 :  log.info "Persisting Sample `" + entity +"`: "
+                                        entity.parent = study
+                                                
+                                        // is this sample validatable (sample name unique for example?)
+                                        if (entity.validate()) {
+                                            study.addToSamples(entity)
                                                 if (persistEntity(study)) validatedSuccesfully++;
-                                                    else failedtopersist.add(entity)
-						break
-			case Event	 :  print "Persisting Event `" + entity + "`: "
-                                                entity.parent = study
-						study.addToEvents(entity)
-						if (persistEntity(entity)) validatedSuccesfully++;
-                                                    else failedtopersist.add(entity)
-						break
-			case Sample	 :  print "Persisting Sample `" + entity +"`: "                                                
-                                                entity.parent = study
-                                                
-                                                // is this sample validatable (sample name unique for example?)
-                                                if (entity.validate()) {
-                                                    study.addToSamples(entity)
-                                                    if (persistEntity(study)) validatedSuccesfully++;                                                       
-                                                } else {
-                                                    failedtopersist.add(entity)
-                                                }
-                                                
-						break
-			case SamplingEvent: print "Persisting SamplingEvent `" + entity + "`: "
-                                                entity.parent = study
-						study.addToSamplingEvents(entity)
-						if (persistEntity(entity)) validatedSuccesfully++;
-                                                    else failedtopersist.add(entity)
-						break
-			default		 :  println "Skipping persisting of `" + entity.getclass() +"`"
-                                                failedtopersist.add(entity)
-						break
+                                        } else {
+                                            failedtopersist.add(entity)
+                                        }
+                                        break
+                    case SamplingEvent: log.info "Persisting SamplingEvent `" + entity + "`: "
+                                        entity.parent = study
+                                        study.addToSamplingEvents(entity)
+                                        if (persistEntity(entity)) validatedSuccesfully++;
+                                            else failedtopersist.add(entity)
+                                        break
+                        default		 :  log.info "Skipping persisting of `" + entity.getclass() +"`"
+                                        failedtopersist.add(entity)
+                                        break
 			} // end switch
 	    } // end record
-	} // end datamatrix
+	} // end datamatrix    
 	return [validatedSuccesfully, updatedentities, failedtopersist]
     }
 
@@ -359,7 +355,7 @@ class ImporterService {
             switch (entity.getClass()) {
                         case Study          :  return Study.findByCode(entity.code)
                                                break
-			case Subject        :  return Subject.findByParentAndName(entity.parent, entity.name)
+                        case Subject        :  return Subject.findByParentAndName(entity.parent, entity.name)
                                                break
                         case Event          :  break
                         case Sample         :
@@ -382,7 +378,7 @@ class ImporterService {
     def updateEntity(entitystored, entity) {
         switch (entity.getClass()) {
                         case Study          :  break
-			case Subject        :  entitystored.properties = entity.properties
+                        case Subject        :  entitystored.properties = entity.properties
                                                entitystored.save()
                                                break
                         case Event          :  break
@@ -433,9 +429,9 @@ class ImporterService {
 	def createRecord(template_id, Row excelrow, mcmap) {
 		def df = new DataFormatter()
 		def template = Template.get(template_id)
-                def tft = TemplateFieldType
+        def tft = TemplateFieldType
 		def record = [] // list of entities and the read values
-                def failed = new ImportRecord() // map with entity identifier and failed mappingcolumn
+        def failed = new ImportRecord() // map with entity identifier and failed mappingcolumn
 
 		// Initialize all possible entities with the chosen template
 		def study = new Study(template: template)
@@ -458,51 +454,51 @@ class ImporterService {
 					value = ""
 				}
 
-                                try {
-				// which entity does the current cell (field) belong to?
-                                    switch (mc.entity) {
-					case Study: // does the entity already exist in the record? If not make it so.
-                                                (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)
+                try {
+                    // which entity does the current cell (field) belong to?
+                    switch (mc.entity) {
+                        case Study: // does the entity already exist in the record? If not make it so.
+                        (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)
 						study.setFieldValue(mc.property, value)
 						break
-					case Subject: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(subject)
+                        case Subject: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(subject)
 						subject.setFieldValue(mc.property, value)
 						break
-					case SamplingEvent: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(samplingEvent)
+                        case SamplingEvent: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(samplingEvent)
 						samplingEvent.setFieldValue(mc.property, value)
 						break
-					case Event: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(event)
+                        case Event: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(event)
 						event.setFieldValue(mc.property, value)
 						break
-					case Sample: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(sample)
+                        case Sample: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(sample)
 						sample.setFieldValue(mc.property, value)
 						break
-					case Object:   // don't import
+                        case Object:   // don't import
 						break
-                                    } // end switch
-                                } catch (IllegalArgumentException iae) {
-                                    // store the mapping column and value which failed
-                                    def identifier
+                    } // end switch
+                } catch (IllegalArgumentException iae) {
+                    // store the mapping column and value which failed
+                    def identifier
 
-                                    switch (mc.entity) {
-                                        case Study:  identifier = study.getIdentifier()
-						break
-					case Subject: identifier = subject.getIdentifier()
-						break
-					case SamplingEvent: identifier = samplingEvent.getIdentifier()
-						break
-					case Event: identifier = event.getIdentifier()						
-						break
-					case Sample: identifier = sample.getIdentifier()
-						break
-					case Object:   // don't import
-						break
-                                    }
+                    switch (mc.entity) {
+                        case Study:  identifier = study.getIdentifier()
+                        break
+                        case Subject: identifier = subject.getIdentifier()
+                        break
+                        case SamplingEvent: identifier = samplingEvent.getIdentifier()
+                        break
+                        case Event: identifier = event.getIdentifier()
+                        break
+                        case Sample: identifier = sample.getIdentifier()
+                        break
+                        case Object:   // don't import
+                        break
+                    }
                                     
-                                    def mcInstance = new MappingColumn()
-                                    mcInstance.properties = mc.properties
-                                    failed.addToImportcells(new ImportCell(mappingcolumn:mcInstance, value:value, entityidentifier:identifier))
-                                }
+                    def mcInstance = new MappingColumn()
+                    mcInstance.properties = mc.properties
+                    failed.addToImportcells(new ImportCell(mappingcolumn:mcInstance, value:value, entityidentifier:identifier))
+                }
 			} // end
 		} // end for
         // a failed column means that using the entity.setFieldValue() threw an exception        
@@ -514,17 +510,17 @@ class ImporterService {
     * @param value string containing the value
     * @return object corresponding to the TemplateFieldType
     */
-    def formatValue(String value, TemplateFieldType type) throws NumberFormatException {
+   def formatValue(String value, TemplateFieldType type) throws NumberFormatException {
 	    switch (type) {
-		case TemplateFieldType.STRING	    :   return value.trim()
-		case TemplateFieldType.TEXT	    :   return value.trim()
-		case TemplateFieldType.LONG	    :   return (long) Double.valueOf(value)
-		//case TemplateFieldType.FLOAT	    :   return Float.valueOf(value.replace(",","."));
-		case TemplateFieldType.DOUBLE	    :   return Double.valueOf(value.replace(",","."));
-		case TemplateFieldType.STRINGLIST   :   return value.trim()
-		case TemplateFieldType.ONTOLOGYTERM :   return value.trim()
-		case TemplateFieldType.DATE	    :   return value
-		default				    :   return value
+            case TemplateFieldType.STRING	    :   return value.trim()
+            case TemplateFieldType.TEXT         :   return value.trim()
+            case TemplateFieldType.LONG         :   return (long) Double.valueOf(value)
+            //case TemplateFieldType.FLOAT	    :   return Float.valueOf(value.replace(",","."));
+            case TemplateFieldType.DOUBLE	    :   return Double.valueOf(value.replace(",","."));
+            case TemplateFieldType.STRINGLIST   :   return value.trim()
+            case TemplateFieldType.ONTOLOGYTERM :   return value.trim()
+            case TemplateFieldType.DATE         :   return value
+            default                             :   return value
 	    }
     }
 
