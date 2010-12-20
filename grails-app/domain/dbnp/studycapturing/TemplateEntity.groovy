@@ -21,44 +21,44 @@ abstract class TemplateEntity extends Identity {
 	Template template
 
 	// Maps for storing the different template field values
-	Map templateStringFields	= [:]
-	Map templateTextFields		= [:]
-	Map templateStringListFields= [:]
-	Map templateDoubleFields	= [:]
-	Map templateDateFields		= [:]
-	Map templateBooleanFields	= [:]
-	Map templateTemplateFields	= [:]
-	Map templateModuleFields	= [:]
-	Map templateLongFields		= [:]
+	Map templateStringFields		= [:]
+	Map templateTextFields			= [:]
+	Map templateStringListFields	= [:]
+	Map templateDoubleFields		= [:]
+	Map templateDateFields			= [:]
+	Map templateBooleanFields		= [:]
+	Map templateTemplateFields		= [:]
+	Map templateModuleFields		= [:]
+	Map templateLongFields			= [:]
 
 	// N.B. If you try to set Long.MIN_VALUE for a reltime field, an error will occur
 	// However, this will never occur in practice: this value represents 3 bilion centuries
-	Map templateRelTimeFields	= [:] // Contains relative times in seconds
-	Map templateFileFields		= [:] // Contains filenames
-	Map templateTermFields		= [:]
+	Map templateRelTimeFields		= [:] // Contains relative times in seconds
+	Map templateFileFields			= [:] // Contains filenames
+	Map templateTermFields			= [:]
 
 	// define relationships
 	static hasMany = [
-		templateStringFields	: String,
-		templateTextFields		: String,
-		templateStringListFields: TemplateFieldListItem,
-		templateDoubleFields	: double,
-		templateDateFields		: Date,
-		templateTermFields		: Term,
-		templateRelTimeFields	: long,
-		templateFileFields		: String,
-		templateBooleanFields	: boolean,
-		templateTemplateFields	: Template,
-		templateModuleFields	: AssayModule,
-		templateLongFields		: long,
-		systemFields			: TemplateField
+		templateStringFields		: String,
+		templateTextFields			: String,
+		templateStringListFields	: TemplateFieldListItem,
+		templateDoubleFields		: double,
+		templateDateFields			: Date,
+		templateTermFields			: Term,
+		templateRelTimeFields		: long,
+		templateFileFields			: String,
+		templateBooleanFields		: boolean,
+		templateTemplateFields		: Template,
+		templateModuleFields		: AssayModule,
+		templateLongFields			: long,
+		systemFields				: TemplateField
 	]
 
 	// remember required fields when
 	// so we can validate is the required
 	// template fields are set
-	boolean requiredFieldsSet	= false
-	Set requiredFields			= []
+	Template requiredFieldsTemplate	= null
+	Set requiredFields				= []
 
 	/**
 	 * Get the required fields for the defined template, currently
@@ -73,27 +73,25 @@ abstract class TemplateEntity extends Identity {
 	 * @return Set 	requiredFields
 	 */
 	final Set getRequiredFields() {
-		if (template) {
-			// template is set, check if required fields
-			// have already been fetched
-			if (!requiredFieldsSet) {
-				// no, fetch required fields
-				requiredFields		= template.getRequiredFields()
-				requiredFieldsSet	= true
-			}
-
-			// return the required fields
-			return requiredFields
-		} else {
-			// template is not yet set, return
-			// an empty set
-			return []
+		// check if template is set
+		if (template && !template.equals(requiredFieldsTemplate)) {
+			// template has been set or was changed, fetch
+			// required fields for this template
+			requiredFields			= template.getRequiredFields()
+			requiredFieldsTemplate	= template
+		} else if (!template) {
+			// template is not yet set, or was reset
+			requiredFieldsTemplate	= null
+			requiredFields			= []
 		}
+
+
+		// return the required fields
+		return requiredFields
 	}
 
-	// overload transients from Identity
-	// and append requiredFields vars
-	static transients			= [ "identifier", "iterator", "maximumIdentity", "requiredFieldsSet", "requiredFields" ]
+	// overload transients from Identity and append requiredFields vars
+	static transients			= [ "identifier", "iterator", "maximumIdentity", "requiredFields", "requiredFieldsTemplate" ]
 
 	// define the mapping
 	static mapping = {
