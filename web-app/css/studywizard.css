@@ -1,0 +1,94 @@
+/** START :: BIG BUTTONS and BIG TEXT **/
+.bigbutton {
+    background: url(../images/wizard/big-button.jpg) no-repeat left top;
+    border: 0px;
+    width: 454px;
+    height: 53px;
+    color: #fff;
+    font-size: 18pt;
+}
+.bigbutton:hover {
+    color: #000;
+}
+.bigtext {
+    color: #006dba;
+    font-weight: normal;
+    font-size: 24px;
+    margin: .8em 0 .3em 0;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+/** END :: BIG BUTTONS and BIG TEXT **/
+
+/** START :: study page upload buttons **/
+.ajaxFlow .upload_button {
+    display: inline; border: 1px solid #006dba; padding: 4px 8px; cursor: pointer; line-height: 26px;
+}
+
+.ajaxFlow .upload_info {
+    display: inline; color: #006dba;
+    margin-left: 5px; 
+}
+
+.ajaxFlow .upload_info a {
+	text-decoration: underline;
+}
+
+.ajaxFlow .upload_del img {
+	border-width: 0;
+	padding-left: 6px; 
+}
+
+.ajaxFlow .upload_del {
+	display: none;
+}
+
+.ajaxFlow .upload_info .error {
+    color: red;
+}
+/** END :: study page upload buttons **/
+
+/** START :: study page publication, contact and users lists **/
+.ajaxFlow ul.publication_list, .ajaxFlow ul.contact_list, .ajaxFlow ul.user_list {
+    list-style-type: none;
+    margin: -10px 0 0 255px;
+    padding: 0;
+}
+.ajaxFlow ul.publication_list li, .ajaxFlow ul.contact_list li, .ajaxFlow ul.user_list li {
+    margin-left: 0px;
+    padding: 4px 6px;
+}
+.ajaxFlow li.even {
+    background-color: #F3F3F3;
+}
+.ajaxFlow li.odd {
+    background-color: #FAFAFA;
+}
+.ajaxFlow li .delete_button {
+	float: right;
+	margin-left: 10px;
+	cursor: pointer;
+}
+.ajaxFlow ul.publication_list li .authors {
+	font-size: 10px;
+	margin-top: 3px;
+	color: #333;
+}
+.ajaxFlow ul.contact_list li .person {
+	display: inline;
+}
+.ajaxFlow ul.contact_list li .role {
+	color: #000099;
+	display: inline;
+	margin-left: 5px;
+}
+.ajaxFlow ul.contact_list li .role:before {
+	content: ' / ';
+	color: #000099;
+}
+.ajaxFlow .contacts_dialog {
+	margin: 5px 0;
+}
+/** END :: study page publication, contact and users lists **/
+

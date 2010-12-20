@@ -33,7 +33,7 @@
 
 						<td><input type="checkbox" name="id" value="${studyInstance.id}" id="${studyInstance.title}"></td>
 						<td><g:link action="show" id="${studyInstance?.id}"><img src='${fam.icon(name: 'application_form_magnify')}' border="0" alt="view study" /></g:link></td>
-						<td><g:if test="${studyInstance.canWrite(loggedInUser)}"><g:link class="edit" controller="wizard" params="[jump:'edit']" id="${studyInstance?.id}"><img src='${fam.icon(name: 'application_form_edit')}' border="0" alt="edit study" /></g:link></g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> </td>
+						<td><g:if test="${studyInstance.canWrite(loggedInUser)}"><g:link class="edit" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}"><img src='${fam.icon(name: 'application_form_edit')}' border="0" alt="edit study" /></g:link></g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> </td>
 						<td>${fieldValue(bean: studyInstance, field: "code")}</td>
 						<td>
 							${fieldValue(bean: studyInstance, field: "title")}
@@ -76,7 +76,7 @@
 		</div>
 		<div class="buttons">
 			<sec:ifLoggedIn>
-				<span class="button"><g:link class="create" controller="wizard" params="[jump:'create']"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
+				<span class="button"><g:link class="create" controller="studyWizard" params="[jump:'create']"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
 			</sec:ifLoggedIn>
 		</div>
 		<div class="paginateButtons">

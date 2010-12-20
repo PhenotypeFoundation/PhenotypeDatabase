@@ -1,42 +1,37 @@
 package dbnp.studycapturing
 
 import dbnp.data.*
-
-// Grails convertors is imported in order to create JSON objects
 import grails.converters.*
 import grails.plugins.springsecurity.Secured
 import dbnp.authentication.AuthenticationService
 import dbnp.authentication.SecUser
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 
-
 /**
- * Wizard Controler
+ * ajaxflow Controller
  *
- * The wizard controller handles the handeling of pages and data flow
- * through the study capturing wizard.
- *
- * This controller is only accessible by logged in users.
- *
- * @author Jeroen Wesbeek
- * @since 20100107
- * @package studycapturing
+ * @author	Jeroen Wesbeek
+ * @since	20101220
  *
  * Revision information:
- * $Rev$
- * $Author$
- * $Date$
+ * $Rev:  66849 $
+ * $Author:  duh $
+ * $Date:  2010-12-08 15:12:54 +0100 (Wed, 08 Dec 2010) $
  */
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
-class WizardController {
+class StudyWizardController {
+	def pluginManager
 	def authenticationService
-	def validationTagLib = new ValidationTagLib()	
+	def validationTagLib = new ValidationTagLib()
 
 	/**
 	 * index method, redirect to the webflow
 	 * @void
 	 */
 	def index = {
+		// Grom a development message
+		if (pluginManager.getGrailsPlugin('grom')) "redirecting into the webflow".grom()
+
 		def jump = [:]
 
 		// allow quickjumps to:
@@ -75,14 +70,20 @@ class WizardController {
 
 	/**
 	 * WebFlow definition
-	 * @see http://grails.org/WebFlow
 	 * @void
 	 */
 	def pagesFlow = {
 		// start the flow
 		onStart {
-			log.info ".entering onStart"
+			// Grom a development message
+			if (pluginManager.getGrailsPlugin('grom')) "entering the WebFlow".grom()
 
+			// define variables in the flow scope which is availabe
+			// throughout the complete webflow also have a look at
+			// the Flow Scopes section on http://www.grails.org/WebFlow
+			//
+			// The following flow scope variables are used to generate
+			// wizard tabs. Also see common/_tabs.gsp for more information
 			// define flow variables
 			flow.page = 0
 			flow.pages = [
@@ -99,12 +100,6 @@ class WizardController {
 			]
 			flow.jump = session.jump
 
-			// since this controller was refactored it's technically
-			// safe to enable quicksave throughout the application.
-			// However, we must keep an eye on the quality of the
-			// studies as this change makes it easier to create dummy
-			// studies which will create garbage in out database.
-			flow.quickSave = true
 			success()
 		}
 
@@ -113,10 +108,12 @@ class WizardController {
 		// page dynamically renders the study template
 		// and makes the flow jump to the study logic)
 		mainPage {
-			render(view: "/wizard/index")
+			render(view: "/studywizard/index")
 			onRender {
-				log.info ".entering mainPage"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the main Ajaxflow page (index.gsp)".grom()
 
+				// let the view know we're in page 1
 				flow.page = 1
 				success()
 			}
@@ -132,7 +129,8 @@ class WizardController {
 		// Jump [18x]
 		handleJump {
 			action {
-				log.info ".entering handleJump"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "entering handleJump".grom()
 
 				if (flow.jump && flow.jump.action == 'edit') {
 					if (flow.jump.id) {
@@ -161,7 +159,8 @@ class WizardController {
 		start {
 			render(view: "_start")
 			onRender {
-				log.info ".entering start"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_start.gsp".grom()
 
 				flow.page = 1
 				success()
@@ -171,7 +170,7 @@ class WizardController {
 				flow.remove('study')
 
 				// create a new study instance
-				if (!flow.study) flow.study = new Study()				
+				if (!flow.study) flow.study = new Study()
 
 				// set 'quicksave' variable to false
 				flow.quickSave = false
@@ -184,7 +183,9 @@ class WizardController {
 		redirectToImport {
 			render(view: "_redirect")
 			onRender {
-				log.info ".entering redirectToImport"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_redirect.gsp".grom()
+
 				flash.uri = "/importer/index"
 			}
 			on("next").to "start"
@@ -194,10 +195,11 @@ class WizardController {
 		modify {
 			render(view: "_modify")
 			onRender {
-				log.info ".entering modify"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_modify.gsp".grom()
 
 				flow.page = 1
-				flash.cancel = true
+				flash.showCancel = true
 				success()
 			}
 			on("cancel") {
@@ -219,9 +221,18 @@ class WizardController {
 		study {
 			render(view: "_study")
 			onRender {
-				log.info ".entering study"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_study.gsp".grom()
 
 				flow.page = 1
+
+				// since this controller was refactored it's technically
+				// safe to enable quicksave throughout the application.
+				// However, we must keep an eye on the quality of the
+				// studies as this change makes it easier to create dummy
+				// studies which will create garbage in out database.
+				flow.quickSave = true
+
 				success()
 			}
 			on("refresh") {
@@ -265,7 +276,8 @@ class WizardController {
 		subjects {
 			render(view: "_subjects")
 			onRender {
-				log.info ".entering subjects"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_subjects.gsp".grom()
 
 				flow.page = 2
 
@@ -325,7 +337,8 @@ class WizardController {
 		events {
 			render(view: "_events")
 			onRender {
-				log.info ".entering events"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_events.gsp".grom()
 
 				flow.page = 3
 
@@ -476,6 +489,8 @@ class WizardController {
 				def eventGroupToRemove = flow.study.eventGroups.find { it.getIdentifier() == (params.get('do') as int) }
 			}.to "events"
 			on("duplicate") {
+				println "duplicate"
+				println params
 				// handle form data
 				eventPage(flow, flash, params)
 
@@ -484,7 +499,7 @@ class WizardController {
 
 				// clone event
 				def event = null
-				(flow.study.events + flow.study.samplingEvents).find { it.getIdentifier() == (params.get('do') as int) }.each {
+				(((flow.study.events) ? flow.study.events : []) + ((flow.study.samplingEvents) ? flow.study.samplingEvents : [])).find { it.getIdentifier() == (params.get('do') as int) }.each {
 					event = (it instanceof SamplingEvent) ? new SamplingEvent() : new Event()
 
 					// set template
@@ -529,7 +544,8 @@ class WizardController {
 		// decide to show a warning page or not
 		eventsNext {
 			action {
-				log.info ".entering eventsNext"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) ".entering eventsNext".grom()
 
 				def assigned = false
 
@@ -557,7 +573,8 @@ class WizardController {
 		unassignedSamplingEventWarning {
 			render(view: "_unassigned_samplingEvent_warning")
 			onRender {
-				log.info ".entering unassignedSamplingEventsWarning"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_unnassigned_samplingEvent_warning.gsp".grom()
 
 				flow.page = 3
 				success()
@@ -570,7 +587,8 @@ class WizardController {
 		groups {
 			render(view: "_groups")
 			onRender {
-				log.info ".entering groups"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_groups.gsp".grom()
 
 				flow.page = 3
 				success()
@@ -593,7 +611,8 @@ class WizardController {
 		samplePrevious {
 			render(view: "_samples_previous_warning")
 			onRender {
-				log.info ".entering samplePrevious"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_samples_previous_warning.gsp".grom()
 
 				flow.page = 4
 			}
@@ -605,7 +624,8 @@ class WizardController {
 		samples {
 			render(view: "_samples")
 			onRender {
-				log.info ".entering samples"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_samples.gsp".grom()
 
 				flow.page = 4
 				success()
@@ -670,7 +690,8 @@ class WizardController {
 		assays {
 			render(view: "_assays")
 			onRender {
-				log.info ".entering assays"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_assays.gsp".grom()
 
 				flow.page = 5
 			}
@@ -777,7 +798,8 @@ class WizardController {
 		// assayNext
 		assayNext {
 			action {
-				log.info ".entering assayNext"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "entering assayNext".grom()
 
 				// have we got samples and assays?
 				if (flow.study.assays && flow.study.samples) {
@@ -797,7 +819,8 @@ class WizardController {
 		assayGroups {
 			render(view: "_assay_groups")
 			onRender {
-				log.info ".entering assayGroups"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_assay_groups.gsp".grom()
 
 				flow.page = 5
 			}
@@ -823,7 +846,8 @@ class WizardController {
 		// confirm Previous
 		confirmPrevious {
 			action {
-				log.info ".entering confirmPrevious"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "entering confirmPrevious".grom()
 
 				// have we got samples and assays?
 				if (flow.study.assays && flow.study.samples) {
@@ -843,7 +867,8 @@ class WizardController {
 		confirm {
 			render(view: "_confirmation")
 			onRender {
-				log.info ".entering confirm"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_confirmation.gsp".grom()
 
 				flow.page = 6
 			}
@@ -862,7 +887,8 @@ class WizardController {
 		waitForSave {
 			render(view: "_wait")
 			onRender {
-				log.info ".entering waitForSave"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_wait.gsp".grom()
 
 				flow.page = 7
 			}
@@ -872,14 +898,16 @@ class WizardController {
 		// store all study data
 		save {
 			action {
-				log.info ".entering save"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "entering save".grom()
 
 				flash.wizardErrors = [:]
 
 				// persist data to the database
 				try {
 					// save study
-					log.info ".saving study"
+					// Grom a development message
+					if (pluginManager.getGrailsPlugin('grom')) "saving study".grom()
 
 					// Make sure the owner of the study is set right
 					flow.study.owner = authenticationService.getLoggedInUser()
@@ -910,7 +938,8 @@ class WizardController {
 		error {
 			render(view: "_error")
 			onRender {
-				log.info ".entering error"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_error.gsp".grom()
 
 				flow.page = 6
 			}
@@ -922,7 +951,8 @@ class WizardController {
 		done {
 			render(view: "_done")
 			onRender {
-				log.info ".entering done"
+				// Grom a development message
+				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_done.gsp".grom()
 
 				flow.page = 7
 			}
@@ -942,11 +972,13 @@ class WizardController {
 	 */
 	def loadStudy(flow, flash, params, user) {
 		flash.wizardErrors	= [:]
-		
+
 		// load study
 		try {
 			// load study
+			println "een"
 			def study = (params.studyid) ? Study.findById( params.studyid ) : Study.findByTitle( params.study )
+			println "twee"
 
 			// Check whether the user is allowed to edit this study. If it is not allowed
 			// the used should had never seen a link to this page, so he should never get
@@ -962,6 +994,7 @@ class WizardController {
 			// #147 and #223, and both are now resolved by forcing objects to
 			// be instantiated / initialized when a study is loaded from the
 			// database
+			study.template
 			study.hasMany.each { name, type ->
 				// dynamically instantiate all identity classes
 				if (type.toString() =~ "dbnp.studycapturing") {

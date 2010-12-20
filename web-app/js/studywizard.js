@@ -1,11 +1,9 @@
 /**
- * wizard javascript functions
+ * study wizard javascript functions
  *
  * @author  Jeroen Wesbeek
  * @since   20100115
  * @package wizard
- * @see     dbnp.studycapturing.WizardTagLib
- * @see     dbnp.studycapturing.WizardController
  *
  * Revision information:
  * $Rev$
@@ -15,22 +13,19 @@
 var warnOnRedirect = true;
 $(document).ready(function() {
     insertOnRedirectWarning();
-    onWizardPage();
+    onStudyWizardPage();
 });
 
-// runs when document is ready or a wizard action has been performs
-// @see _wizard.gsp, _navigation.gsp, _subjects.gsp
-function onWizardPage() {
+function onStudyWizardPage() {
     // GENERAL
     attachHelpTooltips();
     attachDatePickers();
     attachDateTimePickers();
 
     // handle and initialize table(s)
-    attachTableEvents();
     handleWizardTable();
     new TableEditor().init({
-        tableIdentifier : 'div.table',
+        tableIdentifier : 'div.tableEditor',
         rowIdentifier   : 'div.row',
         columnIdentifier: 'div.column',
         headerIdentifier: 'div.header'
@@ -47,7 +42,7 @@ function onWizardPage() {
         label   : 'add more...',
         style   : 'addMore',
         onClose : function(scope) {
-            refreshWebFlow();
+            refreshFlow();
         }
     });
 
@@ -59,7 +54,7 @@ function onWizardPage() {
         label   : 'add / modify..',
         style   : 'modify',
         onClose : function(scope) {
-            refreshWebFlow();
+            refreshFlow();
         }
     });
 
@@ -71,7 +66,7 @@ function onWizardPage() {
         label   : 'add / modify persons...',
         style   : 'modify',
         onClose : function(scope) {
-            refreshWebFlow();
+            refreshFlow();
         }
     });
 
@@ -83,7 +78,7 @@ function onWizardPage() {
         label   : 'add / modify roles...',
         style   : 'modify',
         onClose : function(scope) {
-            refreshWebFlow();
+            refreshFlow();
         }
     });
 
@@ -115,81 +110,9 @@ function onDirectWarning() {
     return confirm('Warning: navigating away from the wizard causes loss of work and unsaved data. Are you sure you want to continue?');
 }
 
-// attach help tooltips
-function attachHelpTooltips() {
-    // attach help action on all wizard help icons
-    $('div#wizard').find('div.helpIcon').each(function() {
-        helpIcon = $(this);
-        helpContent = helpIcon.parent().find('div.helpContent');
-        if (!helpContent.html()) {
-            helpContent = helpIcon.parent().parent().find('div.helpContent');
-        }
-
-        // handle special content
-        var html = (helpContent.html()) ? helpContent.html() : '';
-        if (html) {
-            var specialContent = html.match(/\[([^:]+)\:([^\]]+)\]/);
-            if (specialContent) {
-                // replace content by calling a helper function
-                eval(specialContent[1] + "('" + specialContent[2] + "',helpContent)");
-            }
-
-            // attach tooltip
-            helpIcon.qtip({
-                content: 'leftMiddle',
-                position: {
-                    corner: {
-                        tooltip: 'leftMiddle',
-                        target: 'rightMiddle'
-                    }
-                },
-                style: {
-                    border: {
-                        width: 5,
-                        radius: 10
-                    },
-                    padding: 10,
-                    textAlign: 'center',
-                    tip: true,
-                    name: 'blue'
-                },
-                content: helpContent.html(),
-                show: 'mouseover',
-                hide: 'mouseout',
-                api: {
-                    beforeShow: function() {
-                        // not used at this moment
-                    }
-                }
-            });
-
-            // remove helpcontent div as we don't need it anymore
-            helpContent.remove();
-        }
-    });
-}
-
-// insert a youtube player in a certain element
-function youtube(video, element) {
-    // insert a div we will replace with a youtube player
-    element.html("<div id='" + video + "'></div>");
-
-    // insert youtube player
-    var params = { allowScriptAccess: "always" };
-    var atts = { id: 'myytplayer_' + video };
-    swfobject.embedSWF("http://www.youtube.com/v/" + video + "?enablejsapi=1&playerapiid=ytplayer_" + video,
-            video, "200", "150", "8", null, null, params, atts);
-}
-
-// when a youtube player is ready, play the video
-function onYouTubePlayerReady(playerId) {
-    ytplayer = document.getElementById("my" + playerId);
-    ytplayer.playVideo();
-}
-
 // add datepickers to date fields
 function attachDatePickers() {
-    $('div#wizard').find("input[type=text][rel$='date']").each(function() {
+    $("input[type=text][rel$='date']").each(function() {
         $(this).datepicker({
             numberOfMonths: 3,
             showButtonPanel: true,
@@ -205,7 +128,7 @@ function attachDatePickers() {
 
 // add datetimepickers to date fields
 function attachDateTimePickers() {
-    $('div#wizard').find("input[type=text][rel$='datetime']").each(function() {
+    $("input[type=text][rel$='datetime']").each(function() {
         $(this).datepicker({
             changeMonth     : true,
             changeYear      : true,
@@ -219,19 +142,12 @@ function attachDateTimePickers() {
     });
 }
 
-// attach subject events
-function attachTableEvents() {
-	// This method handled the background hover color on table rows
-	// Since this broke select boxes in IE7, this is now handled by css
-	// See wizard.css and #234 and #237
-}
-
 // if the wizard page contains a table, the width of
 // the header and the rows is automatically scaled to
 // the cummalative width of the columns in the header
 function handleWizardTable() {
     var that = this;
-    var wizardTables = $("div#wizard").find('div.table');
+    var wizardTables = $(".ajaxFlow").find('div.tableEditor');
 
     wizardTables.each(function() {
         var wizardTable = $(this);
@@ -317,16 +233,22 @@ function showExampleReltime(inputfield) {
     var fieldName = inputfield.name;
 
     var successFunc = function(data, textStatus, request) {
-        if( request.status == 200 ) {
+		var exampleField = document.getElementById( fieldName + "Example" );
+
+        if( request.status == 200 && exampleField) {
             document.getElementById( fieldName + "Example" ).value = data;
         }
     };
 
     var errorFunc = function( request, textStatus, errorThrown ) {
-        // On error, clear the example field
-        document.getElementById( fieldName + "Example" ).value = "";
-    };
-        
+		var exampleField = document.getElementById( fieldName + "Example" );
+
+        if(exampleField) {
+        	// On error, clear the example field
+        	document.getElementById( fieldName + "Example" ).value = "";
+		}
+	};
+
     $.ajax({
         url     : baseUrl + '/wizard/ajaxParseRelTime?reltime=' + inputfield.value,
         success : successFunc,
@@ -610,7 +532,7 @@ function addContact( element_id ) {
     if( $.inArray(combination, ids ) == -1 ) {
         ids[ ids.length ] = combination;
         $( '#' + element_id + '_ids' ).val( ids.join( ',' ) );
-        
+
         // Show the title and a remove button
         showContact( element_id, combination, $("#" + element_id + "_person  :selected").text(), $("#" + element_id + "_role :selected").text(), ids.length - 1 );
 
@@ -678,7 +600,7 @@ function showContact( element_id, id, fullName, role, nr ) {
     var authorsDiv = document.createElement( 'div' );
     authorsDiv.className = 'role';
     authorsDiv.appendChild( document.createTextNode( role ) );
-    
+
     var li = document.createElement( 'li' );
     li.setAttribute( 'id', element_id + '_item_' + id );
     li.className = nr % 2 == 0 ? 'even' : 'odd';

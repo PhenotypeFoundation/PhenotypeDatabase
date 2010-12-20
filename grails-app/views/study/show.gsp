@@ -215,7 +215,7 @@
 				<g:set var="studyInstance" value="${studyList[0]}"/>
 				<g:hiddenField name="id" value="${studyInstance?.id}"/>
 				<g:if test="${studyInstance.canWrite(loggedInUser)}">
-					<span class="button"><g:link class="edit" controller="wizard" params="[jump:'edit']" id="${studyInstance?.id}">${message(code: 'default.button.edit.label', default: 'Edit')}</g:link></span>
+					<span class="button"><g:link class="edit" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}">${message(code: 'default.button.edit.label', default: 'Edit')}</g:link></span>
 				</g:if>
 				<g:if test="${studyInstance.isOwner(loggedInUser)}">
 					<span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');"/></span>
