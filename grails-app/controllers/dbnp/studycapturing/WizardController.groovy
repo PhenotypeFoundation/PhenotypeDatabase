@@ -498,6 +498,7 @@ class WizardController {
 						)
 					}
 
+					// assign duplicate event to study
 					if (event instanceof SamplingEvent) {
 						flow.study.addToSamplingEvents(event)
 					} else {
