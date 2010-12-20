@@ -105,7 +105,9 @@
 						</g:else>
 					</div>
 					</g:each></g:if>
-					<div class="firstColumn"></div>
+					<div class="firstColumn">
+						<wizard:ajaxButton name="duplicate" src="${resource(dir: 'images/icons', file: 'application_put.png', plugin: 'famfamfam')}" alt="duplicate this event" class="famfamfam" value="-" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onWizardPage()" />
+					</div>
 					<wizard:templateColumns class="column" entity="${event}" name="event_${event.getIdentifier()}" />
 				</div>
 

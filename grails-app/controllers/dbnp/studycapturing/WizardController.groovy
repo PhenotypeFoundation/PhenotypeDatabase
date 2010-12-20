@@ -475,6 +475,38 @@ class WizardController {
 				// remove eventGroup
 				def eventGroupToRemove = flow.study.eventGroups.find { it.getIdentifier() == (params.get('do') as int) }
 			}.to "events"
+			on("duplicate") {
+				// handle form data
+				eventPage(flow, flash, params)
+
+				// reset errors
+				flash.wizardErrors = [:]
+
+				// clone event
+				def event = null
+				(flow.study.events + flow.study.samplingEvents).find { it.getIdentifier() == (params.get('do') as int) }.each {
+					event = (it instanceof SamplingEvent) ? new SamplingEvent() : new Event()
+
+					// set template
+					event.template = it.template
+
+					// copy data
+					it.giveFields().each() { field ->
+						event.setFieldValue(
+							field.name,
+							it.getFieldValue(field.name)
+						)
+					}
+
+					if (event instanceof SamplingEvent) {
+						flow.study.addToSamplingEvents(event)
+					} else {
+						flow.study.addToEvents(event)
+					}
+				}
+
+				success()
+			}.to "events"
 			on("previous") {
 				// handle form data
 				eventPage(flow, flash, params)
