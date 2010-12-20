@@ -489,8 +489,6 @@ class StudyWizardController {
 				def eventGroupToRemove = flow.study.eventGroups.find { it.getIdentifier() == (params.get('do') as int) }
 			}.to "events"
 			on("duplicate") {
-				println "duplicate"
-				println params
 				// handle form data
 				eventPage(flow, flash, params)
 
@@ -976,9 +974,7 @@ class StudyWizardController {
 		// load study
 		try {
 			// load study
-			println "een"
 			def study = (params.studyid) ? Study.findById( params.studyid ) : Study.findByTitle( params.study )
-			println "twee"
 
 			// Check whether the user is allowed to edit this study. If it is not allowed
 			// the used should had never seen a link to this page, so he should never get
