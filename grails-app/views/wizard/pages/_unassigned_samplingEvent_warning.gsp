@@ -43,11 +43,13 @@
 	</script>
 
 	<span class="info">
-		<span class="warning">Warning!</span>
-		In the previous page one (or more) sampling events were not assigned to a group which means no samples
-		will be generated for these sampling events. If this is in error, please go back to the previous
-		page and make sure to properly group the sampling events. If, however, this is how you intended it, press
-		next to continue, or wait <span id="seconds"></span> seconds...
+		<span class="warning"><g:message code="generic.warning" />!</span>
+	<g:if test="${study.samplingEvents}">
+		<g:message code="studywizard.no.samplingevents.grouped" />
+	</g:if>
+	<g:else>
+		<g:message code="studywizard.no.samplingevents" />
+	</g:else>
 	</span>
 
 </wizard:pageContent>
