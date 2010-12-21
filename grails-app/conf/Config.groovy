@@ -1,4 +1,5 @@
 import dbnp.rest.common.CommunicationManager
+import org.apache.commons.lang.RandomStringUtils
 
 /**
  * Application Configuration
@@ -158,7 +159,7 @@ log4j = {
 	//info 'org.codehaus.groovy.grails.web.servlet',
 	//	 'org.codehaus.groovy.grails.plugins'
 	//
-	debug 'org.codehaus.groovy.grails.plugins'
+	//debug 'org.codehaus.groovy.grails.plugins'
 }
 
 graphviz {
@@ -180,7 +181,7 @@ graphviz {
 // @see WizardTaglib.groovy (encrypt)
 // @see TemplateEditorController.groovy (decrypt)
 crypto {
-	shared.secret = "U73reG*mE^\$t@7s!e%"
+	shared.secret = RandomStringUtils.random(32, true, true)
 }
 
 // GSCF specific configuration
