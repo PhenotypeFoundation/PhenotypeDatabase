@@ -1,5 +1,5 @@
 <g:if test="${(meta(name: 'app.build.display.info') as int) as boolean}">
-<div class="info">
+<div class="buildinfo">
 	<table>
 		<tr>
 			<td colspan="2">${meta(name: 'app.name')} ${meta(name: 'app.version')} <b><i><u>${meta(name: 'app.build.type')}</u> build</i></b></td>

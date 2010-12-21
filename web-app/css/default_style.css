@@ -39,7 +39,7 @@ h2 {
 	padding-top: 120px;
 }
 
-#header .info {
+#header .buildinfo {
 	color: #ff3333;
 	vertical-align: top;
 	align: right;
@@ -54,11 +54,11 @@ h2 {
 	opacity: 0.8;
 }
 
-#header .info table {
+#header .buildinfo table {
 	border: 0;
 }
 
-#header .info td {
+#header .buildinfo td {
 	padding: 0px;
 }
 
