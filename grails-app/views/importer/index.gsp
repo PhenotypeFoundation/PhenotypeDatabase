@@ -27,7 +27,7 @@
       <script type="text/javascript" src="${resource(dir: 'js', file: 'ajaxupload.3.6.js')}"></script>
       <script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
       <script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.js')}"></script>
-      <script type="text/javascript" src="${resource(dir: 'js', file: 'wizard.js')}"></script>
+      <script type="text/javascript" src="${resource(dir: 'js', file: 'importer.js')}"></script>
     </g:else>
 
 </head>
