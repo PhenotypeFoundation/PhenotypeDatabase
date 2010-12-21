@@ -158,7 +158,7 @@ log4j = {
 	//info 'org.codehaus.groovy.grails.web.servlet',
 	//	 'org.codehaus.groovy.grails.plugins'
 	//
-	//debug 'org.codehaus.groovy.grails.plugins'
+	debug 'org.codehaus.groovy.grails.plugins'
 }
 
 graphviz {
