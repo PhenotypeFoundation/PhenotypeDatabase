@@ -6,7 +6,7 @@ sourcePubMed = function( chooserObject, searchterm, response ) {
     var searchFor = [];
     var terms = searchterm.split( " " );
     for( var i = 0; i < terms.length; i++ ) {
-        searchFor[ searchFor.length ] = "(" + $.trim( terms[i] ) + "[title]" + " OR " + $.trim( terms[i] ) + "[author]" + ")";
+        searchFor[ searchFor.length ] = "(" + $.trim( terms[i] ) + "[title]" + " OR " + $.trim( terms[i] ) + "[author]" + " OR " + $.trim( terms[i] ) + "[pmid]" + ")";
     }
 
     // The fetching of the data is done using a proxy, because in IE it is not allowed to retrieve
