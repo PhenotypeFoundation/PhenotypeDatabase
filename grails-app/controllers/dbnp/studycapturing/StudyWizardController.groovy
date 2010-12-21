@@ -270,6 +270,24 @@ class StudyWizardController {
 			on("quickSave") {
 				studyPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
+			on("toPageTwo") {
+				studyPage(flow, flash, params) ? success() : error()
+			}.to "subjects"
+			on("toPageThree") {
+				studyPage(flow, flash, params) ? success() : error()
+			}.to "events"
+			on("toPageFour") {
+				studyPage(flow, flash, params) ? success() : error()
+			}.to "samples"
+			on("toPageFive") {
+				studyPage(flow, flash, params) ? success() : error()
+			}.to "assays"
+			on("toPageSix") {
+				studyPage(flow, flash, params) ? success() : error()
+			}.to "confirm"
+			on("toPageSeven") {
+				studyPage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
 		}
 
 		// render and handle subjects page
@@ -329,6 +347,24 @@ class StudyWizardController {
 			}.to "events"
 			on("quickSave") {
 				// handle form data
+				subjectPage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
+			on("toPageOne") {
+				subjectPage(flow, flash, params) ? success() : error()
+			}.to "study"
+			on("toPageThree") {
+				subjectPage(flow, flash, params) ? success() : error()
+			}.to "events"
+			on("toPageFour") {
+				subjectPage(flow, flash, params) ? success() : error()
+			}.to "samples"
+			on("toPageFive") {
+				subjectPage(flow, flash, params) ? success() : error()
+			}.to "assays"
+			on("toPageSix") {
+				subjectPage(flow, flash, params) ? success() : error()
+			}.to "confirm"
+			on("toPageSeven") {
 				subjectPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
 		}
@@ -537,6 +573,24 @@ class StudyWizardController {
 				// handle form data
 				eventPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
+			on("toPageOne") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "study"
+			on("toPageTwo") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "subjects"
+			on("toPageFour") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "samples"
+			on("toPageFive") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "assays"
+			on("toPageSix") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "confirm"
+			on("toPageSeven") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
 		}
 
 		// decide to show a warning page or not
@@ -579,6 +633,24 @@ class StudyWizardController {
 			}
 			on("next").to "groups"
 			on("previous").to "events"
+			on("toPageOne") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "study"
+			on("toPageTwo") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "subjects"
+			on("toPageFour") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "samples"
+			on("toPageFive") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "assays"
+			on("toPageSix") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "confirm"
+			on("toPageSeven") {
+				eventPage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
 		}
 
 		// groups page
@@ -603,6 +675,24 @@ class StudyWizardController {
 				// handle form data
 				groupPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
+			on("toPageOne") {
+				groupPage(flow, flash, params) ? success() : error()
+			}.to "study"
+			on("toPageTwo") {
+				groupPage(flow, flash, params) ? success() : error()
+			}.to "subjects"
+			on("toPageFour") {
+				groupPage(flow, flash, params) ? success() : error()
+			}.to "samples"
+			on("toPageFive") {
+				groupPage(flow, flash, params) ? success() : error()
+			}.to "assays"
+			on("toPageSix") {
+				groupPage(flow, flash, params) ? success() : error()
+			}.to "confirm"
+			on("toPageSeven") {
+				groupPage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
 		}
 
 		// sample 'previous' page with warning
@@ -616,6 +706,12 @@ class StudyWizardController {
 			}
 			on("next").to "samples"
 			on("previous").to "groups"
+			on("toPageOne").to "study"
+			on("toPageTwo").to "subjects"
+			on("toPageThree").to "events"
+			on("toPageFive").to "assays"
+			on("toPageSix").to "confirm"
+			on("toPageSeven").to "waitForSave"
 		}
 
 		// samples page
@@ -680,6 +776,24 @@ class StudyWizardController {
 			}.to "assays"
 			on("quickSave") {
 				// handle form data
+				samplePage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
+			on("toPageOne") {
+				samplePage(flow, flash, params) ? success() : error()
+			}.to "study"
+			on("toPageTwo") {
+				samplePage(flow, flash, params) ? success() : error()
+			}.to "subjects"
+			on("toPageThree") {
+				samplePage(flow, flash, params) ? success() : error()
+			}.to "events"
+			on("toPageFive") {
+				samplePage(flow, flash, params) ? success() : error()
+			}.to "assays"
+			on("toPageSix") {
+				samplePage(flow, flash, params) ? success() : error()
+			}.to "confirm"
+			on("toPageSeven") {
 				samplePage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
 		}
@@ -791,6 +905,24 @@ class StudyWizardController {
 				// handle form data
 				assayPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
+			on("toPageOne") {
+				assayPage(flow, flash, params) ? success() : error()
+			}.to "study"
+			on("toPageTwo") {
+				assayPage(flow, flash, params) ? success() : error()
+			}.to "subjects"
+			on("toPageThree") {
+				assayPage(flow, flash, params) ? success() : error()
+			}.to "events"
+			on("toPageFour") {
+				assayPage(flow, flash, params) ? success() : error()
+			}.to "samples"
+			on("toPageSix") {
+				assayPage(flow, flash, params) ? success() : error()
+			}.to "confirm"
+			on("toPageSeven") {
+				assayPage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
 		}
 
 		// assayNext
@@ -839,6 +971,24 @@ class StudyWizardController {
 				// handle form data
 				assayGroupPage(flow, flash, params) ? success() : error()
 			}.to "waitForSave"
+			on("toPageOne") {
+				assayGroupPage(flow, flash, params) ? success() : error()
+			}.to "study"
+			on("toPageTwo") {
+				assayGroupPage(flow, flash, params) ? success() : error()
+			}.to "subjects"
+			on("toPageThree") {
+				assayGroupPage(flow, flash, params) ? success() : error()
+			}.to "events"
+			on("toPageFour") {
+				assayGroupPage(flow, flash, params) ? success() : error()
+			}.to "samples"
+			on("toPageSix") {
+				assayGroupPage(flow, flash, params) ? success() : error()
+			}.to "confirm"
+			on("toPageSeven") {
+				assayGroupPage(flow, flash, params) ? success() : error()
+			}.to "waitForSave"
 		}
 
 		// confirm Previous
@@ -880,6 +1030,12 @@ class StudyWizardController {
 			on("previous").to "confirmPrevious"
 			on("next").to "waitForSave"
 			on("quickSave").to "waitForSave"
+			on("toPageOne").to "study"
+			on("toPageTwo").to "subjects"
+			on("toPageThree").to "events"
+			on("toPageFour").to "samples"
+			on("toPageFive").to "assays"
+			on("toPageSeven").to "waitForSave"
 		}
 
 		waitForSave {
@@ -943,7 +1099,13 @@ class StudyWizardController {
 			}
 			on("next").to "waitForSave"
 			on("previous").to "samples"
-		}
+			on("toPageOne").to "study"
+			on("toPageTwo").to "subjects"
+			on("toPageThree").to "events"
+			on("toPageFour").to "samples"
+			on("toPageFive").to "assays"
+			on("toPageSix").to "confirm"
+			on("toPageSeven").to "waitForSave"		}
 
 		// render finish page
 		done {
