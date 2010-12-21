@@ -25,32 +25,10 @@
 <script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.js')}"></script>
 </g:else>
 
-<script>
-  $(document).ready(function() {
-
-// handle term selects
-    new SelectAddMore().init({
-        rel     : 'term',
-        url     : baseUrl + '/termEditor',
-        vars    : 'ontologies',
-        label   : 'add more...',
-        style   : 'addMore',
-        onClose : function(scope) {
-            refreshFlow();            
-             //location.reload();
-             /*updatefield = '<input type = "hidden" name="updatefield" value="true" / >';
-             $('#missingpropertiesform').append(updatefield);
-             $('#missingpropertiesform').submit();*/
-        }
-    });
-
-  });
-</script>
-
 <script type="text/javascript">
-  $(document).ready(function() {
+ $(document).ready(function() {
         // mark error fields
-        <g:each in="${failedcells}" var="record">
+        <g:each in="${importer_failedcells}" var="record">
           <g:each in="${record.importcells}" var="cell">
           var element = $("select[name=entity_${cell.entityidentifier}_${cell.mappingcolumn.property}]");
 
@@ -67,7 +45,7 @@
 </g:if>
 
 <div class="wizard" id="wizard">
-    <div class="table">
+    <div class="tableEditor">
 	<g:set var="showHeader" value="${true}"/>
 	    <g:each status="index" var="table" in="${datamatrix}">
 		<g:each status="i" var="entity" in="${table}">

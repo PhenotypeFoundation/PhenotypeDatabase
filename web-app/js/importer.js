@@ -1,11 +1,9 @@
 /**
- * wizard javascript functions
+ * study wizard javascript functions
  *
  * @author  Jeroen Wesbeek
  * @since   20100115
  * @package wizard
- * @see     dbnp.studycapturing.WizardTagLib
- * @see     dbnp.studycapturing.WizardController
  *
  * Revision information:
  * $Rev$
@@ -15,24 +13,26 @@
 var warnOnRedirect = true;
 $(document).ready(function() {
     insertOnRedirectWarning();
-    onMissingPropertiesPage();
+    onStudyWizardPage();
 });
 
-// runs when document is ready or a wizard action has been performs
-// @see _wizard.gsp, _navigation.gsp, _subjects.gsp
-function onMissingPropertiesPage() {
+function onStudyWizardPage() {
     // GENERAL
     attachHelpTooltips();
     attachDatePickers();
     attachDateTimePickers();
 
     // handle and initialize table(s)
-    attachTableEvents();
     handleWizardTable();
-    new TableEditor().init('div.table', 'div.row', 'div.column');
+    new TableEditor().init({
+        tableIdentifier : 'div.tableEditor',
+        rowIdentifier   : 'div.row',
+        columnIdentifier: 'div.column',
+        headerIdentifier: 'div.header'
+    });
 
     // initialize the ontology chooser
-   /* new OntologyChooser().init();
+    new OntologyChooser().init();
 
     // handle term selects
     new SelectAddMore().init({
@@ -42,7 +42,7 @@ function onMissingPropertiesPage() {
         label   : 'add more...',
         style   : 'addMore',
         onClose : function(scope) {
-            refreshWebFlow();
+            refreshFlow();
         }
     });
 
@@ -54,7 +54,7 @@ function onMissingPropertiesPage() {
         label   : 'add / modify..',
         style   : 'modify',
         onClose : function(scope) {
-            refreshWebFlow();
+            refreshFlow();
         }
     });
 
@@ -66,7 +66,7 @@ function onMissingPropertiesPage() {
         label   : 'add / modify persons...',
         style   : 'modify',
         onClose : function(scope) {
-            refreshWebFlow();
+            refreshFlow();
         }
     });
 
@@ -78,13 +78,12 @@ function onMissingPropertiesPage() {
         label   : 'add / modify roles...',
         style   : 'modify',
         onClose : function(scope) {
-            refreshWebFlow();
+            refreshFlow();
         }
     });
 
     // initialize accordeon(s)
-    $("#accordion").accordion();
-    */
+    $("#accordion").accordion({autoHeight: false});
 }
 
 // insert a redirect confirmation dialogue to all anchors leading the
@@ -111,87 +110,16 @@ function onDirectWarning() {
     return confirm('Warning: navigating away from the wizard causes loss of work and unsaved data. Are you sure you want to continue?');
 }
 
-// attach help tooltips
-function attachHelpTooltips() {
-    // attach help action on all wizard help icons
-    $('div#wizard').find('div.helpIcon').each(function() {
-        helpIcon = $(this);
-        helpContent = helpIcon.parent().find('div.helpContent');
-        if (!helpContent.html()) {
-            helpContent = helpIcon.parent().parent().find('div.helpContent');
-        }
-
-        // handle special content
-        var html = (helpContent.html()) ? helpContent.html() : '';
-        if (html) {
-            var specialContent = html.match(/\[([^:]+)\:([^\]]+)\]/);
-            if (specialContent) {
-                // replace content by calling a helper function
-                eval(specialContent[1] + "('" + specialContent[2] + "',helpContent)");
-            }
-
-            // attach tooltip
-            helpIcon.qtip({
-                content: 'leftMiddle',
-                position: {
-                    corner: {
-                        tooltip: 'leftMiddle',
-                        target: 'rightMiddle'
-                    }
-                },
-                style: {
-                    border: {
-                        width: 5,
-                        radius: 10
-                    },
-                    padding: 10,
-                    textAlign: 'center',
-                    tip: true,
-                    name: 'blue'
-                },
-                content: helpContent.html(),
-                show: 'mouseover',
-                hide: 'mouseout',
-                api: {
-                    beforeShow: function() {
-                        // not used at this moment
-                    }
-                }
-            });
-
-            // remove helpcontent div as we don't need it anymore
-            helpContent.remove();
-        }
-    });
-}
-
-// insert a youtube player in a certain element
-function youtube(video, element) {
-    // insert a div we will replace with a youtube player
-    element.html("<div id='" + video + "'></div>");
-
-    // insert youtube player
-    var params = { allowScriptAccess: "always" };
-    var atts = { id: 'myytplayer_' + video };
-    swfobject.embedSWF("http://www.youtube.com/v/" + video + "?enablejsapi=1&playerapiid=ytplayer_" + video,
-            video, "200", "150", "8", null, null, params, atts);
-}
-
-// when a youtube player is ready, play the video
-function onYouTubePlayerReady(playerId) {
-    ytplayer = document.getElementById("my" + playerId);
-    ytplayer.playVideo();
-}
-
 // add datepickers to date fields
 function attachDatePickers() {
-    $('div#wizard').find("input[type=text][rel$='date']").each(function() {
+    $("input[type=text][rel$='date']").each(function() {
         $(this).datepicker({
             numberOfMonths: 3,
             showButtonPanel: true,
             changeMonth : true,
             changeYear  : true,
             dateFormat  : 'dd/mm/yy',
+            yearRange   : 'c-80:c+20',
             altField    : '#' + $(this).attr('name') + 'Example',
             altFormat   : 'DD, d MM, yy'
         });
@@ -200,7 +128,7 @@ function attachDatePickers() {
 
 // add datetimepickers to date fields
 function attachDateTimePickers() {
-    $('div#wizard').find("input[type=text][rel$='datetime']").each(function() {
+    $("input[type=text][rel$='datetime']").each(function() {
         $(this).datepicker({
             changeMonth     : true,
             changeYear      : true,
@@ -214,19 +142,12 @@ function attachDateTimePickers() {
     });
 }
 
-// attach subject events
-function attachTableEvents() {
-	// This method handled the background hover color on table rows
-	// Since this broke select boxes in IE7, this is now handled by css
-	// See wizard.css and #234 and #237
-}
-
 // if the wizard page contains a table, the width of
 // the header and the rows is automatically scaled to
 // the cummalative width of the columns in the header
 function handleWizardTable() {
     var that = this;
-    var wizardTables = $("div#wizard").find('div.table');
+    var wizardTables = $(".ajaxFlow").find('div.tableEditor');
 
     wizardTables.each(function() {
         var wizardTable = $(this);
@@ -235,6 +156,7 @@ function handleWizardTable() {
         var width = 20;
         var column = 0;
         var columns = [];
+        var resized = [];
 
         // calculate total width of elements in header
         header.children().each(function() {
@@ -252,6 +174,7 @@ function handleWizardTable() {
             width += columnWidth;
 
             // remember column
+            resized[ column ] = (c.attr('rel') == 'resized');
             columns[ column ] = c.width();
             column++;
         });
@@ -265,7 +188,13 @@ function handleWizardTable() {
             var row = $(this);
             var column = 0;
             row.children().each(function() {
-                $(this).css({ width: columns[ column] + 'px' });
+                var child = $(this);
+                child.css({ width: columns[ column] + 'px' });
+                if (resized[ column ]) {
+                    $(':input',child).each(function() {
+                        $(this).css({width: (columns[ column ] - 10) + 'px'});
+                    });
+                }
                 column++;
             });
             row.css({ width: width + 'px' });
@@ -276,7 +205,7 @@ function handleWizardTable() {
             // handle slider
             if (header.width() < wizardTable.width()) {
                 // no, so hide it
-                sliderContainer.css({ 'display': 'none '});
+                sliderContainer.hide();
             } else {
                 sliderContainer.slider({
                     value   : 1,
@@ -304,16 +233,22 @@ function showExampleReltime(inputfield) {
     var fieldName = inputfield.name;
 
     var successFunc = function(data, textStatus, request) {
-        if( request.status == 200 ) {
+		var exampleField = document.getElementById( fieldName + "Example" );
+
+        if( request.status == 200 && exampleField) {
             document.getElementById( fieldName + "Example" ).value = data;
         }
     };
 
     var errorFunc = function( request, textStatus, errorThrown ) {
-        // On error, clear the example field
-        document.getElementById( fieldName + "Example" ).value = "";
-    };
-        
+		var exampleField = document.getElementById( fieldName + "Example" );
+
+        if(exampleField) {
+        	// On error, clear the example field
+        	document.getElementById( fieldName + "Example" ).value = "";
+		}
+	};
+
     $.ajax({
         url     : baseUrl + '/wizard/ajaxParseRelTime?reltime=' + inputfield.value,
         success : successFunc,
@@ -351,25 +286,32 @@ function fileUploadField(field_id) {
 
                     // Give feedback to the user
                     $('#' + field_id + 'Example').html('Uploading ' + createFileHTML( file ));
-
+                    $('#' + field_id + 'Delete').hide();
 
 		},
 		onComplete : function(file, response){
                     if( response == "" ) {
                         $('#' + field_id).val( '' );
                         $('#' + field_id + 'Example').html('<span class="error">Error uploading ' + createFileHTML( file ) + '</span>' );
+	                    $('#' + field_id + 'Delete').hide();
                     } else {
                         $('#' + field_id).val( response );
                         $('#' + field_id + 'Example').html('Uploaded ' + createFileHTML( file ) );
+	                    $('#' + field_id + 'Delete').show();
                     }
 		}
 	});
 }
 
+function deleteFile( field_id ) {
+	$('#' + field_id).val( '*deleted*' );
+	$('#' + field_id + 'Example').html('File deleted' );
+	$('#' + field_id + 'Delete').hide();
+}
+
 function createFileHTML( filename ) {
     return '<a target="_blank" href="' + baseUrl + '/file/get/' + filename + '">' + filename + '</a>';
 }
-
 
 /*************************************************
  *
@@ -578,6 +520,11 @@ function addContact( element_id ) {
   var person_id = $( '#' + element_id + '_person' ).val();
   var role_id = $( '#' + element_id + '_role' ).val();
 
+  if( person_id == "" || person_id == 0 || role_id == "" || role_id == 0 ) {
+	alert( "Please select both a person and a role." );
+	return false;
+  }
+
   var combination = person_id + '-' + role_id;
 
     // Put the ID in the array, but only if it does not yet exist
@@ -585,13 +532,15 @@ function addContact( element_id ) {
     if( $.inArray(combination, ids ) == -1 ) {
         ids[ ids.length ] = combination;
         $( '#' + element_id + '_ids' ).val( ids.join( ',' ) );
-        
+
         // Show the title and a remove button
         showContact( element_id, combination, $("#" + element_id + "_person  :selected").text(), $("#" + element_id + "_role :selected").text(), ids.length - 1 );
 
         // Hide the 'none box'
         $( '#' + element_id + '_none' ).css( 'display', 'none' );
     }
+
+	return true;
 }
 
 /**
@@ -651,7 +600,7 @@ function showContact( element_id, id, fullName, role, nr ) {
     var authorsDiv = document.createElement( 'div' );
     authorsDiv.className = 'role';
     authorsDiv.appendChild( document.createTextNode( role ) );
-    
+
     var li = document.createElement( 'li' );
     li.setAttribute( 'id', element_id + '_item_' + id );
     li.className = nr % 2 == 0 ? 'even' : 'odd';
@@ -662,3 +611,146 @@ function showContact( element_id, id, fullName, role, nr ) {
     $( '#' + element_id + '_list' ).append( li );
 }
 
+/*************************************************
+ *
+ * Functions for adding users (readers or writers) to the study
+ *
+ ************************************************/
+
+/**
+ * Adds a user to the study using javascript
+ */
+function addUser( element_id ) {
+    /* Find publication ID and add to form */
+    id = parseInt( $("#" + element_id + "_form select").val() );
+
+    // Put the ID in the array, but only if it does not yet exist
+    var ids = getUserIds( element_id );
+
+    if( $.inArray (id, ids ) == -1 ) {
+        ids[ ids.length ] = id;
+        $( '#' + element_id + '_ids' ).val( ids.join( ',' ) );
+
+        // Show the title and a remove button
+        showUser( element_id, id, $("#" + element_id + "_form select option:selected").text(), ids.length - 1 );
+
+        // Hide the 'none box'
+        $( '#' + element_id + '_none' ).css( 'display', 'none' );
+    }
+
+    return false;
+}
+
+/**
+ * Removes a user from the study using javascript
+ * N.B. The deletion must be handled in grails when the form is submitted
+ */
+function removeUser( element_id, id ) {
+    var ids = getUserIds( element_id );
+    if( $.inArray(id, ids ) != -1 ) {
+        // Remove the ID
+        ids.splice($.inArray(id, ids ), 1);
+        $( '#' + element_id + '_ids' ).val( ids.join( ',' ) );
+
+        // Remove the title from the list
+        var li = $( "#" + element_id + '_item_' + id );
+        if( li ) {
+            li.remove();
+        }
+
+        // Show the 'none box' if needed
+        if( ids.length == 0 ) {
+            $( '#' + element_id + '_none' ).css( 'display', 'inline' );
+        }
+
+    }
+}
+
+/**
+ * Returns an array of user IDs currently attached to the study
+ * The array contains integers
+ */
+function getUserIds( element_id ) {
+    var ids = $( '#' + element_id + '_ids' ).val();
+    if( ids == "" ) {
+        return new Array();
+    } else {
+        ids_array = ids.split( ',' );
+        for( var i = 0; i < ids_array.length; i++ ) {
+            ids_array[ i ] = parseInt( ids_array[ i ] );
+        }
+
+        return ids_array;
+    }
+}
+
+/**
+ * Shows a publication on the screen
+ */
+function showUser( element_id, id, username, nr ) {
+    var deletebutton = document.createElement( 'img' );
+    deletebutton.className = 'famfamfam delete_button';
+    deletebutton.setAttribute( 'alt', 'remove this user' );
+    deletebutton.setAttribute( 'src', baseUrl + '/plugins/famfamfam-1.0.1/images/icons/delete.png' );
+    deletebutton.onclick = function() { removeUser(  element_id, id ); return false; };
+
+    var titleDiv = document.createElement( 'div' );
+    titleDiv.className = 'username' ;
+    titleDiv.appendChild( document.createTextNode( username ) );
+
+    var li = document.createElement( 'li' );
+    li.setAttribute( 'id', element_id + '_item_' + id );
+    li.className = nr % 2 == 0 ? 'even' : 'odd';
+    li.appendChild( deletebutton );
+    li.appendChild( titleDiv );
+
+    $( '#' + element_id + '_list' ).append( li );
+}
+
+/**
+ * Creates the dialog for searching a publication
+ */
+function createUserDialog( element_id ) {
+    /* Because of the AJAX loading of this page, the dialog will be created
+     * again, when the page is reloaded. This raises problems when reading the
+     * values of the selected publication. For that reason we check whether the
+     * dialog already exists
+     */
+    if( $( "." + element_id + "_user_dialog" ).length == 0 ) {
+        $("#" + element_id + "_dialog").dialog({
+            title   : "Add user",
+            autoOpen: false,
+            width   : 800,
+            height  : 400,
+            modal   : true,
+            dialogClass : element_id + "_user_dialog",
+            position: "center",
+            buttons : {
+               Add  : function() { addUser( element_id ); $(this).dialog("close"); },
+               Close  : function() { $(this).dialog("close"); }
+            },
+            close   : function() {
+                /* closeFunc(this); */
+            }
+        }).width(790).height(400);
+    } else {
+       /* If a dialog already exists, remove the new div */
+       $("#" + element_id + "_dialog").remove();
+    }
+}
+
+/**
+ * Opens the dialog for searching a publication
+ */
+function openUserDialog( element_id ) {
+    // Empty input field
+    var field = $( '#' + element_id );
+    field.val( '' );
+
+    // Show the dialog
+    $( '#' + element_id + '_dialog' ).dialog( 'open' );
+    field.focus();
+
+    // Disable 'Add' button
+    //enableButton( '.' + element_id + '_user_dialog', 'Add', false );
+}

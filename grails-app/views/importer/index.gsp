@@ -13,21 +13,26 @@
 %>
 <html>
 <head>
-	<meta name="layout" content="main"/>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.css')}"/>
+    <meta name="layout" content="main"/>
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.css')}"/>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'importer.css')}"/>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'wizard.css')}"/>
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'table-editor.css')}"/>
 
     <g:if env="production">
       <script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.min.js')}"></script>
       <script type="text/javascript" src="${resource(dir: 'js', file: 'ajaxupload.3.6.js')}"></script>
       <script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.min.js')}"></script>
+      <script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.js')}"></script>
+      <script type="text/javascript" src="${resource(dir: 'js', file: 'importer.js')}"></script>
+      <script type="text/javascript" src="${resource(dir: 'js', file: 'tooltips.js')}"></script>
     </g:if><g:else>
       <script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.js')}"></script>
       <script type="text/javascript" src="${resource(dir: 'js', file: 'ajaxupload.3.6.js')}"></script>
       <script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
       <script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.js')}"></script>
       <script type="text/javascript" src="${resource(dir: 'js', file: 'importer.js')}"></script>
+      <script type="text/javascript" src="${resource(dir: 'js', file: 'tooltips.js')}"></script>
     </g:else>
 
 </head>
