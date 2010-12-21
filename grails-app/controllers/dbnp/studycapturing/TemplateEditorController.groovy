@@ -892,7 +892,6 @@ class TemplateEditorController {
      * Checks whether a correct entity is given
 	 *
 	 * @return	boolean	True if a correct entity is given. Returns false and raises an error otherwise
-	 * @see		error()
      */
     def _checkEntity = {
         // got a entity get parameter?
