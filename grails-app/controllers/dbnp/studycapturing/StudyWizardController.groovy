@@ -108,7 +108,7 @@ class StudyWizardController {
 		// page dynamically renders the study template
 		// and makes the flow jump to the study logic)
 		mainPage {
-			render(view: "/studywizard/index")
+			render(view: "/studyWizard/index")
 			onRender {
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the main Ajaxflow page (index.gsp)".grom()
