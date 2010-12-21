@@ -18,8 +18,8 @@
 	 	 * in automatically triggering the 'next' event in
 	 	 * the webflow. This is required to render the initial
 	 	 * page / partial and done by using af:triggerEvent
+	 <af:triggerEvent name="next" afterSuccess="onPage();" />
 		 */ %>
-	<af:triggerEvent name="next" afterSuccess="onPage();" />
 </af:flow>
 <g:if env="development">
 <af:error class="ajaxFlowError">
