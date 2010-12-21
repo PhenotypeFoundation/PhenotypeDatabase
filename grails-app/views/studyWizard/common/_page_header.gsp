@@ -17,6 +17,6 @@
  */
 %>
 <g:hiddenField name="do" value="" />
-<h1>AjaxFlow '<i>studyWizard</i>' : page ${page}</h1>
+<h1><g:if test="${(study && study.getFieldValue('title'))}">${study.title}</g:if><g:else>${pages[page - 1].title}</g:else> (page ${page} of ${pages.size()})</h1>
 <g:render template="common/tabs"/>
 <div class="content">
