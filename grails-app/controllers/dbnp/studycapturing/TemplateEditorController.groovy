@@ -763,8 +763,6 @@ class TemplateEditorController {
         def currentIndex = template.fields.indexOf( templateField );
         def moveField = template.fields.remove( currentIndex );
 
-		println( "Old: " + currentIndex + " - New: " + params.position );
-		
         template.fields.add( Integer.parseInt( params.position ), moveField );
 		template.save(flush:true);
 
