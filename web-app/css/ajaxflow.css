@@ -26,13 +26,13 @@
 }
 
 /** START :: TABS **/
-.tabs {
+.ajaxFlow .tabs {
     display: block;
     padding-bottom: 2px;
     border-bottom: 2px solid #006DBA;
     width: 100%;
 }
-.tabs ul {
+.ajaxFlow .tabs ul {
     list-style-type: none; /* suppression of useless elements */
     padding: 0px;
     font-size: 10px;
@@ -42,7 +42,7 @@
     height: 20px;
     width: 100%;
 }
-.tabs li {
+.ajaxFlow .tabs li {
     float: left;
     margin: 0px;
     height: 20px;
@@ -54,47 +54,47 @@
     background: #CCC;
     font-weight: bold;
 }
-.tabs li input {
+.ajaxFlow .tabs li input {
 	cursor: pointer;
 	color: #006DBA;
 	background-color: transparent;
 	border: none;	
 }
-.tabs li:last-child:after {
+.ajaxFlow .tabs li:last-child:after {
 	content: url('../images/ajaxflow/spacer.gif');
 }
-.tabs li:first-child:before {
+.ajaxFlow .tabs li:first-child:before {
 	content: url('../images/ajaxflow/spacer.gif');
 }
-.tabs li:before {
+.ajaxFlow .tabs li:before {
 	content:url(../images/ajaxflow/arrowR.gif);
 	position:inherit;
 	margin-top: 0px;
 	margin-bottom: 0px;
 	display:inline;
 }
-.tabs li:after {
+.ajaxFlow .tabs li:after {
 	content:url(../images/ajaxflow/arrowL.gif);
 	position:inherit;
 	margin-top: 0px;
 	margin-bottom: 0px;
 	display:inline;
 }
-.tabs .content {
+.ajaxFlow .tabs .content {
     padding: 0px 10px 0px 10px;
     display: inline;
     border: 0px;
 	vertical-align: top;
 	line-height: 20px;
 }
-.tabs .active {
+.ajaxFlow .tabs .active {
     background-color: #006DBA !important;
     color: #fff !important;
     text-shadow: 0px 0px 1px #333;
 }
 
 /** START NAVIGATION **/
-.navigation {
+.ajaxFlow .navigation {
     display: block;
     padding-top: 2px;
     border-top: 2px solid #006DBA;
@@ -103,7 +103,7 @@
 	font-size: 10px;
 }
 
-.navigation .prevnext {
+.ajaxFlow .navigation .prevnext {
     cursor: pointer;
     color: #006DBA;
     background-color: transparent;
@@ -111,25 +111,46 @@
 }
 
 /** CONTENT STYLES **/
-.content {
+.ajaxFlow .content {
 	padding: 20px 0px 20px 0px;
 }
 
-.content p {
+.ajaxFlow .content p {
 	text-align: justify;
 	padding: 10px 0px 10px 0px;
 }
 
-.content a, .content a:visited {
+.ajaxFlow .content a, .ajaxFlow .content a:visited {
 	color: red;
 	text-decoration: none;
 }
 
 /** START :: buttons inside the ajaxflow **/
-.prevnext {
+.ajaxFlow .prevnext {
     cursor: pointer;
     color: #006DBA;
     background-color: transparent;
     border: none;
 }
 /** END :: buttons inside the ajaxflow **/
+
+/** START :: please wait **/
+.ajaxFlow .wait { }
+.ajaxFlow .wait .title {
+    color: #006dba;
+    font-weight: normal;
+    font-size: 24px;
+    margin: .8em 0 .3em 0;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+.ajaxFlow .wait .spinner {
+	background: url(../images/ajaxflow/spinner-large.gif) no-repeat center top;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	display: block;
+	width: 100%;
+	height: 48px;
+}
+/** END :: please wait **/

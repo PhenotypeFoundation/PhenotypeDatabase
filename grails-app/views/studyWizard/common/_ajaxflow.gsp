@@ -12,7 +12,7 @@
  */
 %>
 <div id="ajaxflow">
-<af:flow name="studyWizard" class="ajaxFlow" commons="common" partials="pages" controller="[controller: 'studyWizard', action: 'pages']">
+<af:flow name="studyWizard" class="ajaxFlow" commons="common" partials="pages" controller="[controller: 'studyWizard', action: 'pages']" spinner="ajaxFlowWait">
 	<%	/**
 	 	 * The initial rendering of this template will result
 	 	 * in automatically triggering the 'next' event in
@@ -28,4 +28,5 @@
 </g:if>
 </div>
 <g:render template="common/on_page"/>
+<g:render template="common/please_wait"/>
 

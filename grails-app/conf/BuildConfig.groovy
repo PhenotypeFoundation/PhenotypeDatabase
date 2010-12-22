@@ -44,5 +44,5 @@ grails.project.dependency.resolution = {
 }
 
 //grails.plugin.location.'grom' = '../grom'
-//grails.plugin.location.'ajaxflow' = '../ajafFlow'
+//grails.plugin.location.'ajaxflow' = '../ajaxflow'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
