@@ -18,7 +18,6 @@ package dbnp.importer
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFCell
 
-
 import dbnp.studycapturing.TemplateFieldType
 import dbnp.studycapturing.Template
 import dbnp.studycapturing.SamplingEvent
@@ -45,18 +44,17 @@ class ImporterService {
      * @param sheetindex sheet to use within the workbook
      * @return header representation as a MappingColumn hashmap
      */
-    def getHeader(Workbook wb, int sheetindex, int headerrow, int datamatrix_start, theEntity=null){
+    def getHeader(Workbook wb, int sheetindex, int headerrow, int datamatrix_start, theEntity=null) {
+        def sheet = wb.getSheetAt(sheetindex)
+        def sheetrow = sheet.getRow(datamatrix_start)
+        //def header = []
+        def header = [:]
+        def df = new DataFormatter()
+        def property = new String()
 
-	def sheet = wb.getSheetAt(sheetindex)	
-	def sheetrow = sheet.getRow(datamatrix_start)
-	//def header = []
-	def header = [:]
-    def df = new DataFormatter()
-	def property = new String()
+        //for (Cell c: sheet.getRow(datamatrix_start)) {
 
-	//for (Cell c: sheet.getRow(datamatrix_start)) {
-
-	(0..sheetrow.getLastCellNum() -1 ).each { columnindex ->
+        (0..sheetrow.getLastCellNum() -1 ).each { columnindex ->
 
 	    //def index	=   c.getColumnIndex()
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(columnindex,Row.CREATE_NULL_AS_BLANK).getCellType()
