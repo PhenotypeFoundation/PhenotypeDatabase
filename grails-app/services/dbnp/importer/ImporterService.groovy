@@ -146,7 +146,7 @@ class ImporterService {
      * @return two dimensional array (matrix) of Cell objects
      */
 
-    XSSFCell[][] getDatamatrix(Workbook wb, header, int sheetindex, int datamatrix_start, int count) {
+    Object[][] getDatamatrix(Workbook wb, header, int sheetindex, int datamatrix_start, int count) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def rows  = []
 	def df = new DataFormatter()
