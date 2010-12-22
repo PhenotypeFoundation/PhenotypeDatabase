@@ -16,7 +16,8 @@
 
 package dbnp.importer
 import org.apache.poi.ss.usermodel.*
-import org.apache.poi.hssf.usermodel.HSSFCell
+import org.apache.poi.xssf.usermodel.XSSFCell
+
 
 import dbnp.studycapturing.TemplateFieldType
 import dbnp.studycapturing.Template
@@ -147,12 +148,12 @@ class ImporterService {
      * @return two dimensional array (matrix) of Cell objects
      */
 
-    HSSFCell[][] getDatamatrix(Workbook wb, header, int sheetindex, int datamatrix_start, int count) {
+    XSSFCell[][] getDatamatrix(Workbook wb, header, int sheetindex, int datamatrix_start, int count) {
 	def sheet = wb.getSheetAt(sheetindex)
 	def rows  = []
 	def df = new DataFormatter()
 
-        count = (count < sheet.getLastRowNum()) ? count : sheet.getLastRowNum()
+    count = (count < sheet.getLastRowNum()) ? count : sheet.getLastRowNum()
 
 	// walk through all rows	
 	((datamatrix_start+sheet.getFirstRowNum())..count).each { rowindex ->
@@ -168,7 +169,8 @@ class ImporterService {
             def c = sheet.getRow(rowindex).getCell(columnindex, Row.CREATE_NULL_AS_BLANK)            
             row.add(c)
 	    }
-	    rows.add(row)
+     
+	    rows.add(row)     
 	}
 
 	return rows

@@ -369,7 +369,6 @@ class ImporterController {
                             flow.importer_sheetindex,
                             flow.importer_datamatrix_start,
                             5)
-
               
                 flow.importer_templates = Template.get(flow.importer_template_id)
                 flow.importer_allfieldtypes = "true"
