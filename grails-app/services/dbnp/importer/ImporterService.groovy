@@ -157,12 +157,6 @@ class ImporterService {
 	((datamatrix_start+sheet.getFirstRowNum())..count).each { rowindex ->
 	    def row = []
 
-	    // walk through every cell
-	    /*for (Cell c: sheet.getRow(rowindex)) {
-		row.add(c)
-		println c.getColumnIndex() + "=" +c
-	    }*/
-	    
 	    (0..header.size()-1).each { columnindex ->
             def c = sheet.getRow(rowindex).getCell(columnindex, Row.CREATE_NULL_AS_BLANK)            
             row.add(c)
