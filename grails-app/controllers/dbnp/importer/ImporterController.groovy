@@ -41,7 +41,7 @@ class ImporterController {
 
         // encrypt the importable entities
         grailsApplication.config.gscf.domain.importableEntities.each {
-            it.value.encrypted =
+            it.value.encrypted =            
             Blowfish.encryptBase64(
                 it.value.entity.toString().replaceAll(/^class /, ''),
                 grailsApplication.config.crypto.shared.secret
@@ -299,8 +299,8 @@ class ImporterController {
      * @param entity entity name string (Sample, Subject, Study et cetera)
      * @return JSON object containing the found templates
      */
-    def ajaxGetTemplatesByEntity = {
-        def entityName = Blowfish.decryptBase64(
+    def ajaxGetTemplatesByEntity = {        
+        def entityName = Blowfish.decryptBase64(            
             params.entity,
             grailsApplication.config.crypto.shared.secret
         )
