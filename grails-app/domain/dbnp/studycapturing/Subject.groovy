@@ -55,7 +55,7 @@ class Subject extends TemplateEntity {
 		new TemplateField(
 			name: 'species',
 			type: TemplateFieldType.ONTOLOGYTERM,
-			comment: "The species name is based on the NEWT ontology; if a species is missing, please add it to the ontology using 'add more'",
+			comment: "The species name is based on the NCI Thesaurus / NCBI organismal classification ontology, a taxonomic classification of living organisms and associated artifacts. If a species is missing, please add it by using 'add more'",
 			required: true)
 	]
 

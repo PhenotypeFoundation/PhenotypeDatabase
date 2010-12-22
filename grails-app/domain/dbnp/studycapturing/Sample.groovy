@@ -51,7 +51,8 @@ class Sample extends TemplateEntity {
 		),
 		new TemplateField(
 			name: 'material',
-			type: TemplateFieldType.ONTOLOGYTERM
+			type: TemplateFieldType.ONTOLOGYTERM,
+			comment: "The material is based on the BRENDA tissue / enzyme source ontology, a structured controlled vocabulary for the source of an enzyme. It comprises terms for tissues, cell lines, cell types and cell cultures from uni- and multicellular organisms. If a material is missing, please add it by using 'add more'"
 		)
 	]
 
