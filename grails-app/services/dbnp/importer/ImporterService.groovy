@@ -296,7 +296,6 @@ class ImporterService {
                                                     else failedtopersist.add(entity)
                                         break
                         case Subject :  log.info "Persisting Subject `" + entity + "`: "
-                                        entity.parent = study
 
                                         // is the current entity not already in the database?
                                         entitystored = isEntityStored(entity)
@@ -311,14 +310,12 @@ class ImporterService {
                                         if (persistEntity(study)) validatedSuccesfully++;
                                             else failedtopersist.add(entity)
                                         break
-                        case Event	 :  log.info "Persisting Event `" + entity + "`: "
-                                        entity.parent = study
+                        case Event	 :  log.info "Persisting Event `" + entity + "`: "                                      
                                         study.addToEvents(entity)
                                         if (persistEntity(entity)) validatedSuccesfully++;
                                             else failedtopersist.add(entity)
                                         break
-                        case Sample	 :  log.info "Persisting Sample `" + entity +"`: "
-                                        entity.parent = study
+                        case Sample	 :  log.info "Persisting Sample `" + entity +"`: "                                      
                                                 
                                         // is this sample validatable (sample name unique for example?)
                                         if (entity.validate()) {
@@ -328,8 +325,7 @@ class ImporterService {
                                             failedtopersist.add(entity)
                                         }
                                         break
-                    case SamplingEvent: log.info "Persisting SamplingEvent `" + entity + "`: "
-                                        entity.parent = study
+                    case SamplingEvent: log.info "Persisting SamplingEvent `" + entity + "`: "                                    
                                         study.addToSamplingEvents(entity)
                                         if (persistEntity(entity)) validatedSuccesfully++;
                                             else failedtopersist.add(entity)

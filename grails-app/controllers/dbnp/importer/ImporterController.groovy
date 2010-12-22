@@ -1,5 +1,7 @@
 package dbnp.importer
 import dbnp.studycapturing.Study
+import dbnp.studycapturing.Sample
+import dbnp.studycapturing.Event
 import dbnp.studycapturing.Template
 
 import org.apache.poi.ss.usermodel.Workbook
@@ -431,38 +433,48 @@ class ImporterController {
      * @param Map GrailsParameterMap (the flow parameters = form data)
      * @returns boolean true if correctly validated, otherwise false
      */
-    boolean mappingsPage(flow,params) {
-        def fielderrors = 0
-        flow.importer_invalidentities = 0
+    boolean mappingsPage(flow,params) {        
+        flow.importer_invalidentities = 0        
 
         flow.importer_importeddata.each { table ->
             table.each { entity ->
-                // a new entity is being traversed, if a field cannot be set, increase this counter
-                fielderrors = 0
+                def invalidontologies = 0
 
+                // Set the fields for this entity by retrieving values from the params
                 entity.giveFields().each { field ->
-                    try {
-                        // try to set the value
-                        entity.setFieldValue (field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
-                    } catch (Exception e) {
-                        fielderrors++
-                    }
+                        // field of type ontology and value "#invalidterm"?
+                        if (field.type == dbnp.studycapturing.TemplateFieldType.ONTOLOGYTERM &&
+                            params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] == "#invalidterm"                            
+                        ) {
+                            invalidontologies++
+                        } else
+                            entity.setFieldValue (field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])                                                
                 }
 
-                // a field could not be set in the entity, so the entity failed (is not validated)
-                if (fielderrors) flow.importer_invalidentities++
+                // Determine entity class and add a parent (defined as Study in first step of wizard)
+                switch (entity.getClass()) {
+                    case [Study, Sample, Event]:   entity.parent = flow.importer_study
+                }
 
-                // all fields in the entity could be set, no errors, so remove it from the failed cells
-                if (!fielderrors) {
+                // Try to validate the entity now all fields have been set
+                if (!entity.validate() || invalidontologies) {
+                    flow.importer_invalidentities++
+                    
+					entity.errors.getAllErrors().each() {
+						log.error ".import wizard imported validation error:" + it
+					}
+                } else {                    
+                    // Valid entity, remove it from failedcells
                     flow.importer_failedcells.each { record ->
                         record.importcells.each { cell ->
                             // remove the cell from the failed cells session
-                            if (cell.entityidentifier == entity.getIdentifier()) {
+                                if (cell.entityidentifier == entity.getIdentifier()) {
                                 record.removeFromImportcells(cell)
                             }
-                        }
-                    }
-                } // end of fielderrors
+                        } // end of importcells
+                    } // end of failedcells
+                } // end else if
+
             } // end of record
         } // end of table
 
