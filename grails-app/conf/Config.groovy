@@ -4,7 +4,7 @@ import org.apache.commons.lang.RandomStringUtils
 /**
  * Application Configuration
  *
- * @author Jeroen Wesbeek
+ * @author Jeroen Wesbeek 
  * @since 20100520
  *
  * Revision information:
