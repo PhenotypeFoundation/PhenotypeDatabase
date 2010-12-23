@@ -10,7 +10,6 @@ import org.apache.poi.ss.usermodel.Workbook
 import grails.converters.JSON
 import cr.co.arquetipos.crypto.Blowfish
 
-
 /**
  * Wizard Controller
  *
