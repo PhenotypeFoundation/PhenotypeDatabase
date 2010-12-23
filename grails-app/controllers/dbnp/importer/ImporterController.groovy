@@ -1,5 +1,6 @@
 package dbnp.importer
 import dbnp.studycapturing.Study
+import dbnp.studycapturing.Subject
 import dbnp.studycapturing.Sample
 import dbnp.studycapturing.Event
 import dbnp.studycapturing.Template
@@ -156,6 +157,7 @@ class ImporterController {
             }
             on("next") {
                 if (propertiesPage(flow, params)) {
+                    println "HIER"
                     success()
                 } else {
                     println "properties are wrong"
@@ -423,6 +425,7 @@ class ImporterController {
 
         flow.importer_importeddata = table
         flow.importer_failedcells = failedcells
+        return true
     }
 
     /**
@@ -452,7 +455,7 @@ class ImporterController {
 
                 // Determine entity class and add a parent (defined as Study in first step of wizard)
                 switch (entity.getClass()) {
-                    case [Study, Sample, Event]:   entity.parent = flow.importer_study
+                    case [Subject, Sample, Event]:   entity.parent = flow.importer_study
                 }
 
                 // Try to validate the entity now all fields have been set
