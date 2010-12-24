@@ -28,7 +28,7 @@
  </head>
  <body>
    <p>
-     Search for a publication on pubmed. You can search on a part of the title or authors.
+     Search for a publication on pubmed. You can search on a part of the title or authors or type in a Pubmed ID.
    </p>
    <g:form action="createFromPubmed">
     <g:textField name="publication" rel="publication-pubmed" style="width:500px;"/>
