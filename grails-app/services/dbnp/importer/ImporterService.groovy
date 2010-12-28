@@ -60,7 +60,7 @@ class ImporterService {
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(columnindex,Row.CREATE_NULL_AS_BLANK).getCellType()
 	    def datamatrix_celldata = df.formatCellValue(sheet.getRow(datamatrix_start).getCell(columnindex))
 	    def datamatrix_cell	    = sheet.getRow(datamatrix_start).getCell(columnindex)	    
-        def headercell = sheet.getRow(headerrow-1+sheet.getFirstRowNum()).getCell(columnindex)
+            def headercell = sheet.getRow(headerrow-1+sheet.getFirstRowNum()).getCell(columnindex)
 	    def tft = TemplateFieldType.STRING //default templatefield type
 
         // Check for every celltype, currently redundant code, but possibly this will be
