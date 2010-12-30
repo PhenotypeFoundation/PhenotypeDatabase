@@ -54,8 +54,11 @@ class Study extends TemplateEntity {
 		autoTimestamp true
 		sort "title"
 
+		// Make sure the TEXT field description is persisted with a TEXT field in the database
+		description type: 'text'
 		// Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
 		templateTextFields type: 'text'
+
 	}
 
 	// The external identifier (studyToken) is currently the code of the study.
