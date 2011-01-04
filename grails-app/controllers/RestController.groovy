@@ -94,6 +94,9 @@ class RestController {
 	 * @param	token		token for the authenticated user (e.g. session_id)
 	 * @return  JSON object list containing 'studyToken', and 'name' (title) for each study
 	 *
+	 * If one study is requested, a 404 error might occur if the study doesn't exist, and a 401 error if the user is not
+	 * authorized to access this study. If multiple studies are requrested, non-existing studies or studies for which the 
+	 * user is not authorized are not returned in the list (so the list might be empty).
 	 *
 	 * Example 1. REST call without studyToken. 
 	 * 
@@ -133,13 +136,28 @@ class RestController {
 			studies = Study.findAll()
 		}
 		else if( params.studyToken instanceof String ) {
-			studies.push Study.findByCode( params.studyToken ) 
+			def study = Study.findByCode( params.studyToken ) 
+			if( study ) {
+				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
+					response.sendError(401)
+					return false
+				}
+				
+				studies.push study 
+			} else {
+				response.sendError(404)
+				return false
+			}
+	
 		}
 		else { 
 			params.studyToken.each{ studyToken ->
-				studies.push Study.findByCode( studyToken )
+				def study = Study.findByCode( studyToken );
+				if( study )
+					studies.push study 
 			}
 		}
+		
 
 		studies.each { study ->
 			if(study) {
@@ -170,7 +188,7 @@ class RestController {
 	 * Consumer and token should be supplied via URL parameters.
 	 * Provide a list of all subjects belonging to a study.
 	 *
-	 * If the user is not allowed to read the study contents, a 401 error is given
+	 * If the user is not allowed to read the study contents, a 401 error is given. If the study doesn't exist, a 404 error is given
 	 *
 	 * @param	studyToken	String The external study id (code) of the target GSCF Study object
 	 * @param	consumer	consumer name of the calling module
@@ -191,6 +209,9 @@ class RestController {
 				}
 
 				study.subjects.each { subjects.push it.name }
+			} else {
+				response.sendError(404)
+				return false
 			}
 		}
 		render subjects as JSON 
@@ -202,7 +223,7 @@ class RestController {
 	 * Consumer and token should be supplied via URL parameters.
 	 * Provide a list of all assays for a given study.
 	 *
-	 * If the user is not allowed to read the study contents, a 401 error is given
+	 * If the user is not allowed to read the study contents, a 401 error is given. If the study doesn't exist, a 404 error is given
 	 *
 	 * @param	studyToken	String The external study id (code) of the target GSCF Study object
 	 * @param	consumer	consumer name of the calling module
@@ -296,7 +317,10 @@ class RestController {
 						}
 					}
 				}
-        	}
+        	} else {
+				response.sendError(404)
+				return false
+			}
 
  		}
 		render returnList as JSON 
@@ -312,6 +336,8 @@ class RestController {
 	 * REST resource for data modules.
 	 * Provide all samples of a given Assay. The result is an enriched list with additional information for each sample.
 	 *
+	 * If the user is not allowed to read the study contents, a 401 error is given. If the assay doesn't exist, a 404 error is given
+	 * 
 	 * @param	assayToken	String (assayToken of some Assay in GSCF)
 	 * @param	sampleToken Optional parameter. One or more sampleTokens to specify what sample to give exectly. 
 	 * 			If not given, return all samples for specified assay.
@@ -369,6 +395,12 @@ class RestController {
  			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
 
 			if( assay )  {
+				// Check whether the person is allowed to read the data of this study
+				if( !assay.parent.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+					response.sendError(401)
+					return false
+				}
+				
 				def samples = assay.getSamples() // on all samples
 
 				if( params.sampleToken ) {       // or on a subset of samples?
@@ -426,6 +458,10 @@ class RestController {
 
 					items.push item 
 				}
+			} else {
+				// Assay not found
+				response.sendError(404)
+				return false
 			}
  		}
 		render items as JSON
@@ -466,10 +502,5 @@ class RestController {
 			return false
 		}
     }
-
-
-
-
-
 
 }

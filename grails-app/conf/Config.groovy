@@ -58,6 +58,9 @@ environments {
 			metabolomics {
 				url = "http://localhost:8183/nmcdsp"
 			}
+			metagenomics {
+				url = "http://localhost:8184/metagenomics"
+			}
 		}
 	}
 	ci {
@@ -70,6 +73,9 @@ environments {
 			metabolomics {
 				url = "http://ci.metabolomics.nmcdsp.org"
 			}
+			metagenomics {
+				url = "http://ci.metagenomics.nmcdsp.org"
+			}			
 		}
 	}
 	test {

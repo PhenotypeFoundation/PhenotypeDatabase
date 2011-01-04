@@ -399,7 +399,14 @@ class BootStrapStudies {
 			platform: 'GCMS/LCMS',
 			url: config.modules.metabolomics.url
 		).with { if (!validate()) { errors.each { println it} } else save()}
-
+		
+		// Add metabolomics assay reference
+		def metagenomicsModule = new AssayModule(
+			name: 'Metagenomics module',
+			platform: 'High throughput sequencing',
+			url: config.modules.metagenomics.url
+		).with { if (!validate()) { errors.each { println it} } else save()}
+		
 		def lipidAssayRef = new Assay(
 			name: 'Lipid profiling',
 			template: ccAssayTemplate,
@@ -451,6 +458,23 @@ class BootStrapStudies {
 			externalAssayID: 'PPSH_Lipidomics_end'
 		).setFieldValue('Spectrometry technique', 'GC/MS')
 
+		
+		// Add sequencing (metagenomics) assays
+		def sequencingAssay16SRef = new Assay(
+			name		: '16S Sequencing assay',
+			template	: ccAssayTemplate,
+			module		: metagenomicsModule,
+			externalAssayID: 'PPSH-SEQ-16S'
+		)
+		
+		// Add sequencing (metagenomics) assays
+		def sequencingAssay18SRef = new Assay(
+			name		: '18S Sequencing assay',
+			template	: ccAssayTemplate,
+			module		: metagenomicsModule,
+			externalAssayID: 'PPSH-SEQ-18S'
+		)
+		
 		humanStudy.samples*.each {
 			if (it.parentEvent.startTime == 0) {
 				glucoseAssayBRef.addToSamples(it)
@@ -459,9 +483,13 @@ class BootStrapStudies {
 			else {
 				glucoseAssayARef.addToSamples(it)
 				metAssayRefA.addToSamples(it)
+				sequencingAssay16SRef.addToSamples(it)
+				sequencingAssay18SRef.addToSamples(it)
 			}
 		}
-
+		
+		humanStudy.addToAssays(sequencingAssay16SRef)
+		humanStudy.addToAssays(sequencingAssay18SRef)
 		humanStudy.addToAssays(glucoseAssayARef)
 		humanStudy.addToAssays(glucoseAssayBRef)
 		humanStudy.addToAssays(metAssayRefA)
