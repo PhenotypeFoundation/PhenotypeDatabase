@@ -1497,18 +1497,6 @@ class StudyWizardController {
 
 				// add it to the study
 				flow.study.addToSubjects( subject )
-
-				// validate subject
-				if (subject.validate()) {
-					log.info ".added subject "+subject
-				} else {
-					// whoops?
-					flow.study.removeFromSubjects( subject )
-
-					// append errors
-					this.appendErrors(subject, flash.wizardErrors)
-					errors = true
-				}
 			}
 		} else {
 			// add feedback
