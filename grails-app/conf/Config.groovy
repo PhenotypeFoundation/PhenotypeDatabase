@@ -242,6 +242,9 @@ gscf {
 // jquery plugin
 grails.views.javascript.library = "jquery"
 
+// see http://jira.codehaus.org/browse/GRAILSPLUGINS-2711
+jquery.version = "1.4.4"
+
 // Needed for the Spring Security Core plugin:
 grails.plugins.springsecurity.userLookup.userDomainClassName = 'dbnp.authentication.SecUser'
 grails.plugins.springsecurity.userLookup.authorityJoinClassName = 'dbnp.authentication.SecUserSecRole'
@@ -286,6 +289,3 @@ grails {
 		]
 	}
 }
-
-// see http://jira.codehaus.org/browse/GRAILSPLUGINS-2711
-jquery.version = "1.4.4"

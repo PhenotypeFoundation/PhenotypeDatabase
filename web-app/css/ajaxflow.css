@@ -135,18 +135,62 @@
 /** END :: buttons inside the ajaxflow **/
 
 /** START :: please wait **/
-.ajaxFlow .wait { }
-.ajaxFlow .wait .title {
+.ajaxFlow .waitBackground {
+	background-color: black;
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	z-index: 100000;
+	top: 0px;
+	left: 0px;
+
+	filter: alpha(opacity:0.6);
+	KHTMLOpacity: 0.6;
+	MozOpacity: 0.6;
+	-khtml-opacity:.60;
+	-ms-filter:"alpha(opacity=60)";
+	-moz-opacity:.60;
+	filter:alpha(opacity=60);
+	opacity:.60;
+}
+
+.ajaxFlow .waiter {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	z-index: 100001;
+	top: 0px;
+	left: 0px;
+}
+
+.ajaxFlow .waiter .wait {
+	display: inline-block;
+	zoom: 1; /* IE 6 & 7 hack */
+	*display: inline; /* IE 6 & 7 hack */
+	width: 100%;
+	position:relative;
+	top: 40%;
+	left: 25%;
+	width: 50%;
+	height: 100px;
+	background-color: white;
+	z-index: 100001;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+}
+.ajaxFlow .waiter .wait .title {
     color: #006dba;
     font-weight: normal;
     font-size: 24px;
     margin: .8em 0 .3em 0;
-    display: block;
+    display: inline-block;
+	zoom: 1; /* IE 6 & 7 hack */
+	*display: inline; /* IE 6 & 7 hack */
     width: 100%;
     text-align: center;
 }
-.ajaxFlow .wait .spinner {
-	background: url(../images/ajaxflow/spinner-large.gif) no-repeat center top;
+.ajaxFlow .waiter .wait .spinner {
+	background: url(../images/ajaxflow/ajax-loader.gif) no-repeat center top;
 	margin-top: 0px;
 	margin-bottom: 0px;
 	display: block;
