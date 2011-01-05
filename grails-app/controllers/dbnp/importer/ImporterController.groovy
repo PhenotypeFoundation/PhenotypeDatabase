@@ -334,7 +334,7 @@ class ImporterController {
             def selectedentities = []
             
             def entityName = Blowfish.decryptBase64(
-                params.entity,
+                URLDecoder.decode(params.entity),
                 grailsApplication.config.crypto.shared.secret
             )
             
