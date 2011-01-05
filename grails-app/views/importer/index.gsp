@@ -16,7 +16,7 @@
     <meta name="layout" content="main"/>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.css')}"/>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'importer.css')}"/>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'wizard.css')}"/>
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'studywizard.css')}"/>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'table-editor.css')}"/>
 
     <g:if env="production">
