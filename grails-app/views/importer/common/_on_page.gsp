@@ -94,7 +94,7 @@ function updateSelect(name,data,keepFirstOption,selected,presentNullAsThis) {
  // handle template selects
   new SelectAddMore().init({
        rel     : 'typetemplate',
-       url     : '/gscf/templateEditor',
+       url     : baseUrl + '/templateEditor',
        vars    : 'entity', // can be a comma separated list of variable names to pass on
        label   : 'add / modify ...',
        style   : 'modify',
