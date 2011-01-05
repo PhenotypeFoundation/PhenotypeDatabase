@@ -286,3 +286,6 @@ grails {
 		]
 	}
 }
+
+// see http://jira.codehaus.org/browse/GRAILSPLUGINS-2711
+jquery.version = "1.4.4"
