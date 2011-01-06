@@ -1,14 +1,46 @@
 /**
  * Ontology chooser JavaScript class
+ * Copyright (C) 2010 Jeroen Wesbeek
  *
- * NCBO wrote it's own cross-site form completion utility
- * utilizing it's json webservice. However, the service is
- * no proper json service as it does not return proper json
- * objects (just a self designed string using | for value
- * breaks and ~!~ for line breaks. Also, their implementation
- * conflicts with the table editor. Therefore, I wrote this
- * cleaner implementation using jquery-ui's autocomplete
- * functionality.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Description:
+ * ------------
+ * NCBO wrote a javascript library to search for terms in one
+ * or more ontologies. However, this 'widget' contained it's
+ * own autocomplete implementation, and it was conflicting with
+ * other JavaScript libraries in our project (mainly the table
+ * editor).
+ *
+ * This Ontology Chooser aims at
+ * - utilizing the autocomplete functionality provided by the
+ *   jquery-ui library to create a common look and feel
+ *   throughout the application
+ * - using a 'rel' attribute instead of a 'class' attribute as
+ *   the latter might conflict with style elements
+ * - dynamically creating or updating hidden fields with
+ *   relevant ontology and term data
+ * - to be as unobtrusive as possible
+ * - add additional functionality to:
+ * 		*) show / hide DOM elements based if a term was
+ * 		   selected or not (generally a form button)
+ *		*) providing copy / paste functionality for
+ * 		   ontology fields where hidden fields are
+ * 		   transparently copied and pasted between
+ * 		   input fields that accept the same ontology
+ *
+ * The original NCBO implementation can be found here:
+ * http://www.bioontology.org/wiki/index.php/Ontology_Widgets#Term-selection_field_on_a_form
  *
  * Usage:
  * ------
@@ -19,14 +51,36 @@
  * we use 'ontology' instead of 'bp_form_complete' to
  * identify ontology fields.
  *
+ * To intitialize these fields the following JavaScript should
+ * be used, where 'div#button' is shown when a term was selected
+ * or hidden when a term was not selected / found:
+ * 	$(document).ready(function() {
+ *		// initialize the ontology chooser
+ * 		new OntologyChooser().init({
+ * 			showHide: $('div#button'),
+ * 			spinner: "http://www.ajaxload.info/images/exemples/2.gif"
+ * 		});
+ * });
+ *
  * N.B. In order to show the labels of the terms correctly (i.e.
  * no ugly HTML tags, you also have to include jquery.ui.autocomplete.html.js
  * in your page!
  *
+ * Documentation:
+ * --------------
+ * https://wiki.nbic.nl/index.php/DbNP_Technical_Documentation#Ontology_Chooser
+ *
+ * Live (Continuous Integration) example:
+ * --------------------------------------
+ * http://ci.nmcdsp.org/termEditor?ontologies=1132
+ *
  * @author		Jeroen Wesbeek
  * @since		20100312
  * @package		wizard
- * @requires	jquery, jquery-ui
+ * @requires	jquery, jquery-ui, jquery.ui.autocomplete.html.js
+ * @see			http://jquery.com
+ * @see			http://jqueryui.com
+ * @see			http://github.com/scottgonzalez/jquery-ui-extensions
  * @see			http://bioportal.bioontology.org/ontologies/
  * @see			http://bioportal.bioontology.org/search/json_search/?q=musculus
  *
@@ -89,7 +143,7 @@ OntologyChooser.prototype = {
 			ontology_id = "";
 		}
 
-		// handle ctrl or apple keys (to find ctrl-escape / ctrl-paste)
+		// handle ctrl or apple keys (to find ctrl-copy / ctrl-paste)
 		inputElement.bind('keydown', function(e) {
 			// check if ctrl-key or apple cmd key is pressed
 			// to start capturing copy events
@@ -117,7 +171,7 @@ OntologyChooser.prototype = {
 			if (e.keyCode == 17 || e.keyCode == 224) that.ctrl = false;
 		});
 
-		// http://bioportal.bioontology.org/search/json_search/?q=musculus
+		// initialize a jquery-ui autocomplete
 		inputElement.autocomplete({
 			minLength: that.options.minLength,
 			delay: 300,
@@ -254,11 +308,13 @@ OntologyChooser.prototype = {
 	/**
 	 * Parse the result data
 	 *
-	 * Data is in the following format:
-	 * Mus musculus musculus|birnlex_161|preferred name|29684|http://bioontology.org/projects/ontologies/birnlex#birnlex_161|Mus musculus musculus|Mus musculus musculus|BIRNLex~!~
+	 * Contrary to what 'json_search' might suggest, the webservice
+	 * does not return json objects, but some text format that we
+	 * need to parse ourselves. In this format | codes for a column
+	 * break, and ~!~ for a line break
 	 *
-	 * Where | codes for a column break, and ~!~ for
-	 * a line break
+	 * Example data:
+	 * Mus musculus musculus|birnlex_161|preferred name|29684|http://bioontology.org/projects/ontologies/birnlex#birnlex_161|Mus musculus musculus|Mus musculus musculus|BIRNLex~!~
 	 *
 	 * @param data
 	 * @return array
