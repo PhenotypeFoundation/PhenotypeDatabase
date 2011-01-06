@@ -20,11 +20,59 @@ class BootStrapTemplates {
 	 */
 	public static void initTemplateOntologies() {
 		"inserting initial ontologies".grom()
+
+		// add Species ontology which is used for a.o. the Subject domain field 'species'
+		def speciesOntology = new Ontology(
+			name: 'NCBI organismal classification',
+			description: 'A taxonomic classification of living organisms and associated artifacts for their controlled description within the context of databases.',
+			url: 'http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/',
+			versionNumber: '1.2',
+			ncboId: '1132',
+			ncboVersionedId: '38802'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		// add Sample>material ontology
+		def brendaOntology = new Ontology(
+			name: 'BRENDA tissue / enzyme source',
+			description: 'A structured controlled vocabulary for the source of an enzyme. It comprises terms for tissues, cell lines, cell types and cell cultures from uni- and multicellular organisms.',
+			url: 'http://www.brenda-enzymes.info',
+			versionNumber: '1.3',
+			ncboId: '1005',
+			ncboVersionedId: '40643'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		// add NCI ontology which is used in Mouse genotype template field
+		def nciOntology = new Ontology(
+			name: 'NCI Thesaurus',
+			description: 'A vocabulary for clinical care, translational and basic research, and public information and administrative activities.',
+			url: 'http://ncicb.nci.nih.gov/core/EVS',
+			versionNumber: '10.03',
+			ncboId: '1032',
+			ncboVersionedId: '42838'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		// add CHEBI ontology which is used for describing chemicals in e.g. events
+		def chebiOntology = new Ontology(
+			name: 'Chemical entities of biological interest',
+			description: 'A structured classification of chemical compounds of biological relevance.',
+			url: 'http://www.ebi.ac.uk/chebi',
+			versionNumber: '1.73',
+			ncboId: '1007',
+			ncboVersionedId: '44746'
+		).with { if (!validate()) { errors.each { println it} } else save()}
+
+		/* These ontologies can be added dynamically, fetching the description and such from BioPortal.
+		   However, because the BioPortal REST services are currently down,
+		   added the above as a fix which allows running offline from BioPortal,
+		   and commenting out the following lines.
+
 		def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
 		def brendaOntology = Ontology.getOrCreateOntologyByNcboId(1005)
 		def nciOntology = Ontology.getOrCreateOntologyByNcboId(1032)
-		def chebiOntology = Ontology.getOrCreateOntologyByNcboId(1007)		
+		def chebiOntology = Ontology.getOrCreateOntologyByNcboId(1007)
+		*/
 	}
+
 
 	/**
 	 * Add example templates, this function would normally be called on an empty database
