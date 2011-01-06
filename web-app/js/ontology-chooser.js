@@ -60,7 +60,7 @@
  * 			showHide: $('div#button'),
  * 			spinner: "http://www.ajaxload.info/images/exemples/2.gif"
  * 		});
- * });
+ *	});
  *
  * N.B. In order to show the labels of the terms correctly (i.e.
  * no ugly HTML tags, you also have to include jquery.ui.autocomplete.html.js
