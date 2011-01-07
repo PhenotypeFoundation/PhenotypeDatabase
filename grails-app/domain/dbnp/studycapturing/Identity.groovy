@@ -84,6 +84,7 @@ abstract class Identity implements Serializable {
 	 * @return int
 	 */
 	final public int getIdentifier() {
+		// set identifier if not yet set
 		if (!identifier) setIdentifier()
 
 		return identifier
