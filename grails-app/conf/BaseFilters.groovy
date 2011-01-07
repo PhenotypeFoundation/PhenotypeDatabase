@@ -28,6 +28,22 @@ class BaseFilters {
 				session.setMaxInactiveInterval(604800)
 			}
 		}
+		
+		profiler(controller: '*', action: '*') {
+			before = {
+				request._timeBeforeRequest = System.currentTimeMillis()
+			}
+
+			after = {
+				request._timeAfterRequest = System.currentTimeMillis()
+			}
+
+			afterView = {
+				def actionDuration = request._timeAfterRequest - request._timeBeforeRequest
+				def viewDuration = System.currentTimeMillis() - request._timeAfterRequest
+				log.info("Timer: ${controllerName}(${actionDuration}ms)::${actionName}(${viewDuration}ms)")
+			}
+		}
 
 	}
 }
