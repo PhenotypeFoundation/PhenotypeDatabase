@@ -216,7 +216,7 @@ class Study extends TemplateEntity {
 	void deleteSubject(Subject subject) {
 		// Delete the subject from the event groups it was referenced in
 		this.eventGroups.each {
-			if (it.subjects.contains(subject)) {
+			if (it.subjects?.contains(subject)) {
 				it.removeFromSubjects(subject)
 			}
 		}

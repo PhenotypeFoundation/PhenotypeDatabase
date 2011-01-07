@@ -523,6 +523,9 @@ class StudyWizardController {
 
 				// remove eventGroup
 				def eventGroupToRemove = flow.study.eventGroups.find { it.getIdentifier() == (params.get('do') as int) }
+				if (eventGroupToRemove) {
+					flow.study.deleteEventGroup( eventGroupToRemove )
+				}
 			}.to "events"
 			on("duplicate") {
 				// handle form data

@@ -51,7 +51,7 @@
 				</g:if>
 				<div class="row">
 					<div class="firstColumn">
-						<wizard:ajaxButton name="delete" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this subject" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${subject.getIdentifier()});" afterSuccess="onPage()" />
+						<af:ajaxButton name="delete" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this subject" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${subject.getIdentifier()});" afterSuccess="onPage()" />
 					</div>
 					<wizard:templateColumns class="column" entity="${subject}" name="subject_${subject.getIdentifier()}" />
 				</div>

@@ -82,11 +82,11 @@
 					<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 					<div class="column">
 						<g:textField name="eventGroup_${eventGroup.getIdentifier()}_${template.getIdentifier()}" value="${eventGroup.name}" />
-						<wizard:ajaxButton name="deleteEventGroup" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this eventgroup" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${eventGroup.getIdentifier()});" afterSuccess="onPage()" />
+						<af:ajaxButton name="deleteEventGroup" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this eventgroup" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${eventGroup.getIdentifier()});" afterSuccess="onPage()" />
 					</div>
 					</g:each></g:if>
 					<div class="firstColumn">
-						<wizard:ajaxButton name="addEventGroup" src="${resource(dir: 'images/icons', file: 'add.png', plugin: 'famfamfam')}" alt="add a new eventgroup" class="famfamfam" value="+" afterSuccess="onPage()" />
+						<af:ajaxButton name="addEventGroup" src="${resource(dir: 'images/icons', file: 'add.png', plugin: 'famfamfam')}" alt="add a new eventgroup" class="famfamfam" value="+" afterSuccess="onPage()" />
 					</div>
 				  <wizard:templateColumnHeaders class="column" entity="${event}" />
 				</div>
@@ -94,7 +94,7 @@
 
 				<div class="row">
 					<div class="firstColumn">
-						<wizard:ajaxButton name="deleteEvent" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this event" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onPage()"/>
+						<af:ajaxButton name="deleteEvent" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this event" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onPage()"/>
 					</div>
 					<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 					<div class="column">
@@ -106,7 +106,7 @@
 					</div>
 					</g:each></g:if>
 					<div class="firstColumn">
-						<wizard:ajaxButton name="duplicate" src="${resource(dir: 'images/icons', file: 'application_put.png', plugin: 'famfamfam')}" alt="duplicate this event" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onPage()" />
+						<af:ajaxButton name="duplicate" src="${resource(dir: 'images/icons', file: 'application_put.png', plugin: 'famfamfam')}" alt="duplicate this event" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onPage()" />
 					</div>
 					<wizard:templateColumns class="column" entity="${event}" name="event_${event.getIdentifier()}" />
 				</div>
