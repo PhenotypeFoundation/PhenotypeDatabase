@@ -54,7 +54,6 @@ abstract class Identity implements Serializable {
 	 * and sets the object's identifier
 	 * @visibility public
 	 * @void
-	 */
 	public Identity() {
 		// set the local identifier
 		setIdentifier()
@@ -62,6 +61,7 @@ abstract class Identity implements Serializable {
 		// debug info
 		//log.debug ".instantiating [${identifier}:${super.getClass()}]"
 	}
+	 */
 
 	/**
 	 * Method to increment the static iterator variable. This method
@@ -84,6 +84,8 @@ abstract class Identity implements Serializable {
 	 * @return int
 	 */
 	final public int getIdentifier() {
+		if (!identifier) setIdentifier()
+
 		return identifier
 	}
 }
