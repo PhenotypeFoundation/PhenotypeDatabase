@@ -50,20 +50,6 @@ abstract class Identity implements Serializable {
 	static transients = [ "identifier", "iterator", "maximumIdentity" ]
 
 	/**
-	 * Class constructor increments that static iterator
-	 * and sets the object's identifier
-	 * @visibility public
-	 * @void
-	public Identity() {
-		// set the local identifier
-		setIdentifier()
-
-		// debug info
-		//log.debug ".instantiating [${identifier}:${super.getClass()}]"
-	}
-	 */
-
-	/**
 	 * Method to increment the static iterator variable. This method
 	 * is synchronized to assure a thread-safe increment.
 	 * @visibility private
