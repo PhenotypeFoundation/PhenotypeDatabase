@@ -1145,21 +1145,6 @@ class StudyWizardController {
  				return false
 			}
 
-			// Grails tends to lazily initialize objects. While in theory this
-			// is a nice feature, it does not work well with our complex setup
-			// using the Identity class to match POST variables with object
-			// instances. This lazy initialization caused two issues:
-			// #147 and #223, and both are now resolved by forcing objects to
-			// be instantiated / initialized when a study is loaded from the
-			// database
-			study.template
-			study.hasMany.each { name, type ->
-				// dynamically instantiate all identity classes
-				if (type.toString() =~ "dbnp.studycapturing") {
-					study.getProperty( name ).each { }
-				}
-			}
-
 			// store study in the flowscope
 			flow.study = study
 

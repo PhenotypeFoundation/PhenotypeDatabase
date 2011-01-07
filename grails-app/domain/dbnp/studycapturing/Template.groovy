@@ -19,7 +19,7 @@ import dbnp.authentication.AuthenticationService
  * $Author$
  * $Date$
  */
-class Template extends Identity {
+class Template implements Serializable {
 
 	/** The name of the template */
 	String name
