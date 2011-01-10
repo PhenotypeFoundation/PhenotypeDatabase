@@ -174,6 +174,10 @@ class RestController {
                         }
                         items[name] = value
                     }
+					
+					// Add study version number 
+					items['version'] = study.version;
+					
                     returnStudies.push items
                 }
 			}
@@ -182,6 +186,51 @@ class RestController {
  		render returnStudies as JSON 
 	}
 
+	/**
+	 * REST resource for data modules.
+	 * Consumer and token should be supplied via URL parameters.
+	 * Provides the version number of the specified study
+	 *
+	 * @param	studyToken  optional parameter. If no studyToken is given, a 400 error is given
+	 * @param	consumer	consumer name of the calling module
+	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @return  JSON object list containing 'studyToken', and 'version'
+	 *
+	 * A 404 error might occur if the study doesn't exist, and a 401 error if the user is not
+	 * authorized to access this study. 
+	 *
+	 * Example. REST call with one studyToken.
+	 *
+	 * Call: http://localhost:8080/gscf/rest/getStudyVersion?studyToken=PPSH
+	 *
+	 * Result: {"studyToken":"PPSH","version":31}
+	 */
+	def getStudyVersion = {
+
+		def versionInfo = [:];
+		def study
+		
+		if( !params.studyToken || !(params.studyToken instanceof String)) {
+			response.sendError(400)
+			return false
+		} else {
+			study = Study.findByCode( params.studyToken )
+			if( study ) {
+				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
+					response.sendError(401)
+					return false
+				}
+			} else {
+				response.sendError(404)
+				return false
+			}
+		}
+
+		versionInfo[ 'studyToken' ] = params.studyToken;
+		versionInfo[ 'version' ] = study.version;
+
+		render versionInfo as JSON
+	}
 
 	/**
 	 * REST resource for data modules.

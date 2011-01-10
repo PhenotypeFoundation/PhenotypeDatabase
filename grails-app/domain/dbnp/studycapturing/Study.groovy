@@ -12,6 +12,8 @@ import dbnp.authentication.SecUser
  */
 class Study extends TemplateEntity {
 	static searchable = true
+	
+	def synchronizationService
 
 	SecUser owner		// The owner of the study. A new study is automatically owned by its creator.
 	String title		// The title of the study
@@ -497,5 +499,16 @@ class Study extends TemplateEntity {
 				}
 			}
 		}
+	}
+
+	// Send messages to modules about changes in this study
+	def beforeInsert = {
+		synchronizationService.invalidateStudy( this );
+	}
+	def beforeUpdate = {
+		synchronizationService.invalidateStudy( this );
+	}
+	def beforeDelete = {
+		synchronizationService.invalidateStudy( this );
 	}
 }
