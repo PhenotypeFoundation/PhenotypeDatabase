@@ -987,7 +987,7 @@ class WizardTagLib extends AjaxflowTagLib {
 
 		// Output the dialog for the publications
 		out << '<div id="' + attrs.name + '_dialog">';
-		out << '<p>Search for a publication on pubmed. You can search on a part of the title or authors. </p>';
+		out << '<p>Search for a publication on pubmed. You can search on a part of the title, authors or pubmed ID. </p>';
 		out << publicationSelect(attrs, body);
 		out << '</div>';
 		out << '<script type="text/javascript">';
