@@ -1,4 +1,5 @@
 import dbnp.authentication.*
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 /**
  * @Author Jeroen Wesbeek <work@osx.eu>
@@ -18,24 +19,35 @@ class BootStrapAuthentication {
 	public static void initDefaultAuthentication(springSecurityService) {
 		"setting up default authentication".grom()
 
-		def adminRole = SecRole.findByAuthority('ROLE_ADMIN') ?: new SecRole(authority: 'ROLE_ADMIN').save()
-		def user = SecUser.findByUsername('user') ?: new SecUser(
-			username: 'user',
-			password: springSecurityService.encodePassword('useR123!', 'user'),
-			email: 'user@dbnp.org',
-			userConfirmed: true, adminConfirmed: true).save(failOnError: true)
-		def userTest = SecUser.findByUsername('test') ?: new SecUser(
-			username: 'test',
-			password: springSecurityService.encodePassword('useR123!', 'test'),
-			email: 'test@dbnp.org',
-			userConfirmed: true, adminConfirmed: true).save(failOnError: true)
-		def userAdmin = SecUser.findByUsername('admin') ?: new SecUser(
-			username: 'admin',
-			password: springSecurityService.encodePassword('admiN123!', 'admin'),
-			email: 'admin@dbnp.org',
-			userConfirmed: true, adminConfirmed: true).save(failOnError: true)
+		// user work variable
+		def user=null
 
-		// Make the admin user an administrator
-		SecUserSecRole.create userAdmin, adminRole, true
+		// get configuration
+		def config = ConfigurationHolder.config
+
+		// create the admin role
+		def adminRole = SecRole.findByAuthority('ROLE_ADMIN') ?: new SecRole(authority: 'ROLE_ADMIN').save()
+
+		// iterate through default users, see
+		//	- grails-app/conf/config-environment.properties
+		//	- ~/.grails-config/environment-gscf.properties
+		config.authentication.users.each { key, values ->
+			// make sure we do not add duplicate users
+			if (!SecUser.findAllByUsername(values.username)) {
+				// create user instance
+				user = new SecUser(
+					username:values.username,
+					password:springSecurityService.encodePassword( values.password , values.username ),
+					email:values.email,
+					userConfirmed: true,
+					adminConfirmed: true
+				).save(failOnError: true)
+
+				// is this user an administrator?
+				if (values.administrator == 'true') {
+					SecUserSecRole.create(user, adminRole, true)
+				}
+			}
+		}
 	}
 }
