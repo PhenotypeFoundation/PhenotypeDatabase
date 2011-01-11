@@ -15,15 +15,15 @@ import org.apache.commons.lang.RandomStringUtils
 
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
+grails.config.locations = [
+	// the WAR default location
+	"classpath:${grails.util.GrailsUtil.environment}-config.properties",
+	// the run-app default location
+	"file:${basedir}/${grails.util.GrailsUtil.environment}-config.properties",
+	// the external configuration
+	"file:${userHome}/.grails-config/${appName}-${grails.util.GrailsUtil.environment}-config.properties"
+]
 
-// grails.config.locations = [ "classpath:${appName}-config.properties",
-//                             "classpath:${appName}-config.groovy",
-//                             "file:${userHome}/.grails/${appName}-config.properties",
-//                             "file:${userHome}/.grails/${appName}-config.groovy"]
-
-// if(System.properties["${appName}.config.location"]) {
-//    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
-// }
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
 grails.mime.types = [html: ['text/html', 'application/xhtml+xml'],
@@ -46,99 +46,6 @@ grails.converters.encoding = "UTF-8"
 
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
-
-// set per-environment serverURL stem for creating absolute links
-environments {
-	development {
-		grails.serverURL = "http://localhost:8080/${appName}"
-		modules {
-			sam {
-				url = "http://localhost:8182/sam"
-			}
-			metabolomics {
-				url = "http://localhost:8183/nmcdsp"
-			}
-			metagenomics {
-				url = "http://localhost:8184/metagenomics"
-			}
-		}
-	}
-	ci {
-		// used by build script
-		grails.serverURL = "http://ci.gscf.nmcdsp.org"
-		modules {
-			sam {
-				url = "http://ci.sam.nmcdsp.org"
-			}
-			metabolomics {
-				url = "http://ci.metabolomics.nmcdsp.org"
-			}
-			metagenomics {
-				url = "http://ci.metagenomics.nmcdsp.org"
-			}			
-		}
-	}
-	test {
-		// used by build script
-		grails.serverURL = "http://test.gscf.nmcdsp.org"
-		modules {
-			sam {
-				url = "http://test.sam.nmcdsp.org"
-			}
-			metabolomics {
-				url = "http://test.metabolomics.nmcdsp.org"
-			}
-		}
-	}
-	dbnptest {
-		// used by build script
-		grails.serverURL = "http://test.dbnp.org"
-		modules {
-			sam {
-				url = "http://test.sam.dbnp.org"
-			}
-			metabolomics {
-				url = "http://test.metabolomics.dbnp.org"
-                
-			}
-		}
-	}
-	dbnpdemo {
-		// used by build script
-		grails.serverURL = "http://demo.dbnp.org"
-		modules {
-			sam {
-				url = "http://demo.sam.dbnp.org"
-			}
-			metabolomics {
-				url = "http://demo.metabolomics.dbnp.org"
-			}
-		}
-	}
-	production {
-		grails.serverURL = "http://www.nmcdsp.org"
-		modules {
-			sam {
-				url = "http://sam.nmcdsp.org"
-			}
-			metabolomics {
-				url = "http://metabolomics.nmcdsp.org"
-			}
-		}
-	}
-	www {
-		// used by build script
-		grails.serverURL = "http://www.nmcdsp.org"
-		modules {
-			sam {
-				url = "http://sam.nmcdsp.org"
-			}
-			metabolomics {
-				url = "http://metabolomics.nmcdsp.org"
-			}
-		}
-	}
-}
 
 // log4j configuration
 log4j = {
@@ -276,13 +183,14 @@ grails.plugins.springsecurity.controllerAnnotations.staticRules = [
 	'/securityinfo/**': ['ROLE_ADMIN']
 ]
 
-// Needed for sending emails
+// default mail configuration, see environment specific properties file
+// for real configuration
 grails {
 	mail {
 		host = "smtp.gmail.com"
 		port = 465
-		username = "gscfproject@gmail.com"
-		password = "gscf2010"
+		username = "default_login@gmail.com"
+		password = "default_password"
 		props = [
 			"mail.smtp.auth": "true",
 			"mail.smtp.socketFactory.port": '465',
