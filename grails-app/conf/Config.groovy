@@ -16,10 +16,9 @@ import org.apache.commons.lang.RandomStringUtils
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
 grails.config.locations = [
-	// the WAR default location
+	// the WAR and run-app default location
 	"classpath:${grails.util.GrailsUtil.environment}-config.properties",
-	// the run-app default location
-	//"file:${basedir}/${grails.util.GrailsUtil.environment}-config.properties",
+
 	// the external configuration
 	"file:${userHome}/.grails-config/${appName}-${grails.util.GrailsUtil.environment}-config.properties"
 ]
