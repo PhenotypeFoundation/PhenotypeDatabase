@@ -16,7 +16,7 @@ dataSource {
 	driverClassName = "org.hsqldb.jdbcDriver"
 	dbCreate = "create-drop" // one of 'create', 'create-drop','update'
 	url = "jdbc:hsqldb:mem:devDB"
-	username = "sa"
+	username = "sasa"
 	password = ""
 }
 hibernate {

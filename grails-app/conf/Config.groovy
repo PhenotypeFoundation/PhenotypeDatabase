@@ -19,7 +19,7 @@ grails.config.locations = [
 	// the WAR default location
 	"classpath:${grails.util.GrailsUtil.environment}-config.properties",
 	// the run-app default location
-	"file:${basedir}/${grails.util.GrailsUtil.environment}-config.properties",
+	//"file:${basedir}/${grails.util.GrailsUtil.environment}-config.properties",
 	// the external configuration
 	"file:${userHome}/.grails-config/${appName}-${grails.util.GrailsUtil.environment}-config.properties"
 ]
