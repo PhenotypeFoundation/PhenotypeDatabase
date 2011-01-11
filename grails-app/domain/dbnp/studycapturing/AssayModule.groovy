@@ -23,9 +23,10 @@ class AssayModule extends Identity {
 	 * 
 	 * @see synchronizationService
 	 */
-	boolean notify = false;
+	Boolean notify = false;
 
 	static constraints = {
+		notify(nullable:true)
 	}
 
 	def String toString() {
