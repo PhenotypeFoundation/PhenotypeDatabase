@@ -16,11 +16,13 @@ import org.apache.commons.lang.RandomStringUtils
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
 grails.config.locations = [
-	// the WAR and run-app default location
-	"classpath:${grails.util.GrailsUtil.environment}-config.properties",
+	// the default per-environment configuration
+	// (e.g. grails-app/conf/config-development.properties)
+	"classpath:config-${grails.util.GrailsUtil.environment}.properties",
 
-	// the external configuration
-	"file:${userHome}/.grails-config/${appName}-${grails.util.GrailsUtil.environment}-config.properties"
+	// the external configuration to override the default
+	// configuration (e.g. ~/.grails-config/ci-gscf.properties)
+	"file:${userHome}/.grails-config/${grails.util.GrailsUtil.environment}-${appName}.properties"
 ]
 
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
