@@ -40,6 +40,7 @@
 		we.dialog({
 			modal: true,
 			width: 600,
+			maxHeight: 400,
 			buttons: {
 				Ok: function() {
 					$(this).dialog('close');
