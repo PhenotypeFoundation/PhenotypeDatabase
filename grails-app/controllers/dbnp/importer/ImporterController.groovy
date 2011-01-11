@@ -10,6 +10,8 @@ import org.apache.poi.ss.usermodel.Workbook
 import grails.converters.JSON
 import cr.co.arquetipos.crypto.Blowfish
 
+import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
+
 /**
  * Wizard Controller
  *
@@ -30,6 +32,7 @@ class ImporterController {
     def AuthenticationService
     def fileService
     def ImporterService
+    def validationTagLib = new ValidationTagLib()
 	
     /**
      * index method, redirect to the webflow
@@ -120,12 +123,33 @@ class ImporterController {
                 success()
             }
             on("next") {
-                if (fileImportPage(flow, params)) {                    
-                    success()
-                } else {
-                    println "field is missing"
-                    error()
+                // Study selected?
+                flow.importer_study = (params.study) ? Study.get(params.study.id.toInteger()) : null
+
+                // Trying to import a new study?
+                if (flow.importer_study)
+                    if (flow.importer_study.canWrite(AuthenticationService.getLoggedInUser())) {
+                        if (fileImportPage(flow, params)) {
+                            success()
+                        } else {
+                            error.log ".importer wizard not all fields are filled in"
+                            error()
+                        }
+                    } else
+                    {
+                        error.log ".importer wizard wrong permissions"
+                    }
+                else {
+                   if (fileImportPage(flow, params)) {
+                            success()
+                        } else {
+                            error.log ".importer wizard not all fields are filled in"
+                            error()
+                        }
                 }
+
+
+                
                 // put your bussiness logic (if applicable) in here
             }.to "pageTwo"
             on("toPageTwo") {
@@ -155,8 +179,7 @@ class ImporterController {
                 success()
             }
             on("next") {
-                if (propertiesPage(flow, params)) {
-                    println "HIER"
+                if (propertiesPage(flow, params)) {                    
                     success()
                 } else {
                     println "properties are wrong"
@@ -187,11 +210,11 @@ class ImporterController {
                     success()
             }.to "pageThree"
             on("next") {
-                if (mappingsPage(flow, params)) {
+                if (mappingsPage(flow, flash, params)) {
                     success()
                 } else {
-                    log.error ".import wizard mapping error, could not validate all entities"
-                    error()                    
+                    log.error ".import wizard mapping error, could not validate all entities"                    
+                    error()                  
                 }
             }.to "pageFour"
             on("previous").to "pageTwo"
@@ -241,8 +264,7 @@ class ImporterController {
                     // Grom a development message
                     if (pluginManager.getGrailsPlugin('grom')) ".persisting instances to the database...".grom()                    
 
-                    if (saveEntities(flow, params)) {
-                        println "succes"
+                    if (saveEntities(flow, params)) {                        
                         success()
                     } else {
                         log.error ".import wizard imported error, something went wrong showing the imported entities"                        
@@ -262,6 +284,7 @@ class ImporterController {
 
         // render errors
         error {
+            //println "error?"
             render(view: "_error")
             onRender {
                 
@@ -341,11 +364,8 @@ class ImporterController {
             def entityClass = Class.forName(entityName, true, this.getClass().getClassLoader())
             
             // Initialize some session variables
-            //flow.importer_workbook = wb // workbook object must be serialized for this to work
-            flow.importer_study = Study.get(params.study.id.toInteger())            
-
-             // Is the current logged in user allowed to write to this study?
-             if (flow.importer_study.canWrite(AuthenticationService.getLoggedInUser())) {
+            //flow.importer_workbook = wb // workbook object must be serialized for this to work            
+             
                 flow.importer_template_id = params.template_id
                 flow.importer_sheetindex = params.sheetindex.toInteger() -1 // 0 == first sheet
                 flow.importer_datamatrix_start = params.datamatrix_start.toInteger() -1 // 0 == first row
@@ -372,8 +392,7 @@ class ImporterController {
                             5)
               
                 flow.importer_templates = Template.get(flow.importer_template_id)
-                flow.importer_allfieldtypes = "true"
-            } // end of if
+                flow.importer_allfieldtypes = "true"     
             /*else {
                 render (template:"common/error",
                     model:[error:"Wrong permissions: you are not allowed to write to the study you selected (${flow.importer_study})."])
@@ -434,7 +453,8 @@ class ImporterController {
      * @param Map GrailsParameterMap (the flow parameters = form data)
      * @returns boolean true if correctly validated, otherwise false
      */
-    boolean mappingsPage(flow,params) {        
+    boolean mappingsPage(flow, flash, params) {
+        flash.wizardErrors = [:]
         flow.importer_invalidentities = 0        
 
         flow.importer_importeddata.each { table ->
@@ -460,6 +480,9 @@ class ImporterController {
                 // Try to validate the entity now all fields have been set
                 if (!entity.validate() || invalidontologies) {
                     flow.importer_invalidentities++
+
+                    // add errors to map
+                    this.appendErrors(entity, flash.wizardErrors, 'subject_' + entity.getIdentifier() + '_')                    
                     
 					entity.errors.getAllErrors().each() {
 						log.error ".import wizard imported validation error:" + it
@@ -504,4 +527,59 @@ class ImporterController {
 
             return true
     }
+
+    /**
+	 * append errors of a particular object to a map
+	 * @param object
+	 * @param map linkedHashMap
+	 * @void
+	 */
+	def appendErrors(object, map) {
+		this.appendErrorMap(getHumanReadableErrors(object), map)
+	}
+
+	def appendErrors(object, map, prepend) {
+		this.appendErrorMap(getHumanReadableErrors(object), map, prepend)
+	}
+
+    /**
+	 * append errors of one map to another map
+	 * @param map linkedHashMap
+	 * @param map linkedHashMap
+	 * @void
+	 */
+	def appendErrorMap(map, mapToExtend) {
+		map.each() {key, value ->
+			mapToExtend[key] = ['key': key, 'value': value, 'dynamic': false]
+		}
+	}
+
+	def appendErrorMap(map, mapToExtend, prepend) {
+		map.each() {key, value ->
+			mapToExtend[prepend + key] = ['key': key, 'value': value, 'dynamic': true]
+		}
+	}
+
+    /**
+	 * transform domain class validation errors into a human readable
+	 * linked hash map
+	 * @param object validated domain class
+	 * @return object  linkedHashMap
+	 */
+	def getHumanReadableErrors(object) {
+		def errors = [:]
+		object.errors.getAllErrors().each() { error ->
+			// error.codes.each() { code -> println code }
+
+			// generally speaking g.message(...) should work,
+			// however it fails in some steps of the wizard
+			// (add event, add assay, etc) so g is not always
+			// availably. Using our own instance of the
+			// validationTagLib instead so it is always
+			// available to us
+			errors[ error.getArguments()[0] ] = validationTagLib.message(error: error)
+		}
+
+		return errors
+	}
 }
