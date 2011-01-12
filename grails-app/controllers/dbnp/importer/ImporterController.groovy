@@ -504,12 +504,18 @@ class ImporterController {
      * @param entity entity to remove from the failedcells list
      */
     def removeFailedCell(failedcells, entity) {
+        def tempfailedcells = []
+        def tempfailedrecord = new ImportRecord()
+
         // Valid entity, remove it from failedcells
+
         failedcells.each { record ->
             record.importcells.each { cell ->
             // remove the cell from the failed cells session
                 if (cell.entityidentifier == entity.getIdentifier()) {
-                    record.removeFromImportcells(cell)
+                    tempfailedrecord = record
+                    tempfailedrecord.removeFromImportcells(cell)
+                    record = tempfailedrecord
                 }
             } // end of importcells
         } // end of failedcells
