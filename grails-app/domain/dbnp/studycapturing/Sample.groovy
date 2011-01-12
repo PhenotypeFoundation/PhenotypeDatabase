@@ -81,17 +81,21 @@ class Sample extends TemplateEntity {
 			// define a boolean
 			def error = false
 
+			// check whether obj.parent.samples is not null at this stage to avoid null pointer exception
 			if (obj.parent) {
 
-				// check if there is exactly one sample with this name in the study (this one)
-				if (obj.parent.samples.findAll{ it.name == obj.name}.size() > 1) {
-					error = true
-					errors.rejectValue(
-						'name',
-						'sample.UniqueNameViolation',
-						[obj.name, obj.parent] as Object[],
-						'Sample name {0} appears multiple times in study {1}'
-						)
+				if (obj.parent.samples) {
+
+					// check if there is exactly one sample with this name in the study (this one)
+					if (obj.parent.samples.findAll{ it.name == obj.name}.size() > 1) {
+						error = true
+						errors.rejectValue(
+							'name',
+							'sample.UniqueNameViolation',
+							[obj.name, obj.parent] as Object[],
+							'Sample name {0} appears multiple times in study {1}'
+							)
+					}
 				}
 			}
 			else {
