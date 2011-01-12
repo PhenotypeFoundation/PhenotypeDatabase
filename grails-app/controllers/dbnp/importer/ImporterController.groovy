@@ -125,7 +125,6 @@ class ImporterController {
             on("next") {
                 // Study selected?
                 flow.importer_study = (params.study) ? Study.get(params.study.id.toInteger()) : null
-                log.error "importerstudy="+flow.importer_study
 
                 // Trying to import a new study?
                 if (flow.importer_study)
@@ -439,6 +438,7 @@ class ImporterController {
                                                               flow.importer_header)
 
         flow.importer_importeddata = table
+        log.error "importeddata=" + flow.importer_importeddata.dump()
         flow.importer_failedcells = failedcells
         return true
     }
@@ -479,9 +479,6 @@ class ImporterController {
                 switch (entity.getClass()) {
                     case [Subject, Sample, Event]:   entity.parent = flow.importer_study
                 }
-
-                log.error "mapping_importer_study="+flow.importer_study
-
 
                 // Try to validate the entity now all fields have been set
                 if (!entity.validate() || invalidontologies) {
