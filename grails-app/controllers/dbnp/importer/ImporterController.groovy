@@ -456,6 +456,7 @@ class ImporterController {
 
         flow.importer_importeddata.each { table ->
             table.each { entity ->
+                log.error "Entity==" + entity
                 def invalidontologies = 0
 
                 // Set the fields for this entity by retrieving values from the params
