@@ -503,19 +503,14 @@ class ImporterController {
      * @param failedcell failed ontology cells
      * @param entity entity to remove from the failedcells list
      */
-    def removeFailedCell(failedcells, entity) {
-        def tempfailedcells = []
-        def tempfailedrecord = new ImportRecord()
-
+    def removeFailedCell(failedcells, entity) {        
         // Valid entity, remove it from failedcells
-
         failedcells.each { record ->
             record.importcells.each { cell ->
             // remove the cell from the failed cells session
                 if (cell.entityidentifier == entity.getIdentifier()) {
-                    tempfailedrecord = record
-                    tempfailedrecord.removeFromImportcells(cell)
-                    record = tempfailedrecord
+                    //record.removeFromImportcells(cell)
+                    cell.remove()
                 }
             } // end of importcells
         } // end of failedcells
