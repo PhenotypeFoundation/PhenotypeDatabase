@@ -16,3 +16,5 @@
     You must fill in the missing mappings.
     <importer:missingProperties datamatrix="${importer_importeddata}" failedcells="${importer_failedcells}"/>
 </af:page>
+
+<g:render template="common/error"/>

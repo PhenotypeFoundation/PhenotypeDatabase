@@ -147,8 +147,6 @@ class ImporterController {
                             error()
                         }
                 }
-
-
                 
                 // put your bussiness logic (if applicable) in here
             }.to "pageTwo"
@@ -213,8 +211,8 @@ class ImporterController {
                 if (mappingsPage(flow, flash, params)) {
                     success()
                 } else {
-                    log.error ".import wizard mapping error, could not validate all entities"                    
-                    error()                  
+                    log.error ".import wizard mapping error, could not validate all entities"
+                    error()
                 }
             }.to "pageFour"
             on("previous").to "pageTwo"
@@ -283,8 +281,7 @@ class ImporterController {
         }
 
         // render errors
-        error {
-            //println "error?"
+        error {                        
             render(view: "_error")
             onRender {
                 
@@ -302,7 +299,6 @@ class ImporterController {
             on("toPageThree").to "pageThree"
             on("toPageFour").to "pageFour"
             on("toPageFive").to "save"
-
         }
 
         // last wizard page
@@ -465,11 +461,17 @@ class ImporterController {
                 entity.giveFields().each { field ->
                         // field of type ontology and value "#invalidterm"?
                         if (field.type == dbnp.studycapturing.TemplateFieldType.ONTOLOGYTERM &&
-                            params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] == "#invalidterm"                            
+                            params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] == "#invalidterm"
                         ) {
                             invalidontologies++
                         } else
-                            entity.setFieldValue (field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])                                                
+                        if (field.type == dbnp.studycapturing.TemplateFieldType.ONTOLOGYTERM &&
+                            params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] != "#invalidterm") {
+                            removeFailedCell(flow.importer_failedcells, entity)
+                            entity.setFieldValue (field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
+                        }
+                        else
+                            entity.setFieldValue (field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
                 }
 
                 // Determine entity class and add a parent (defined as Study in first step of wizard)
@@ -481,22 +483,14 @@ class ImporterController {
                 if (!entity.validate() || invalidontologies) {
                     flow.importer_invalidentities++
 
-                    // add errors to map
-                    this.appendErrors(entity, flash.wizardErrors, 'subject_' + entity.getIdentifier() + '_')                    
+                    // add errors to map                    
+                    this.appendErrors(entity, flash.wizardErrors, "entity_"+entity.getIdentifier() + "_")
                     
 					entity.errors.getAllErrors().each() {
 						log.error ".import wizard imported validation error:" + it
 					}
                 } else {                    
-                    // Valid entity, remove it from failedcells
-                    flow.importer_failedcells.each { record ->
-                        record.importcells.each { cell ->
-                            // remove the cell from the failed cells session
-                                if (cell.entityidentifier == entity.getIdentifier()) {
-                                record.removeFromImportcells(cell)
-                            }
-                        } // end of importcells
-                    } // end of failedcells
+                    removeFailedCell(flow.importer_failedcells, entity)
                 } // end else if
 
             } // end of record
@@ -504,6 +498,22 @@ class ImporterController {
 
         return (flow.importer_invalidentities == 0) ? true : false
     } // end of method
+
+    /**
+     * @param failedcell failed ontology cells
+     * @param entity entity
+     */
+    def removeFailedCell(failedcells, entity) {
+        // Valid entity, remove it from failedcells
+        failedcells.each { record ->
+            record.importcells.each { cell ->
+            // remove the cell from the failed cells session
+                if (cell.entityidentifier == entity.getIdentifier()) {
+                    record.removeFromImportcells(cell)
+                }
+            } // end of importcells
+        } // end of failedcells
+    }
 
     /**
      * Handle the imported entities page.
@@ -536,7 +546,7 @@ class ImporterController {
 	 */
 	def appendErrors(object, map) {
 		this.appendErrorMap(getHumanReadableErrors(object), map)
-	}
+    }
 
 	def appendErrors(object, map, prepend) {
 		this.appendErrorMap(getHumanReadableErrors(object), map, prepend)
@@ -550,7 +560,7 @@ class ImporterController {
 	 */
 	def appendErrorMap(map, mapToExtend) {
 		map.each() {key, value ->
-			mapToExtend[key] = ['key': key, 'value': value, 'dynamic': false]
+			mapToExtend[key] = ['key': key, 'value': value, 'dynamic': false]            
 		}
 	}
 
@@ -570,6 +580,7 @@ class ImporterController {
 		def errors = [:]
 		object.errors.getAllErrors().each() { error ->
 			// error.codes.each() { code -> println code }
+            println "errors is " + error
 
 			// generally speaking g.message(...) should work,
 			// however it fails in some steps of the wizard

@@ -387,25 +387,16 @@ class ImporterService {
      * 
      */
     boolean persistEntity(entity) {
-	    println "persisting ${entity}"        
-	    // if not validated
-		if (entity.validate()) {
-			if (entity.save(flush:true)) { //.merge?
-				return true
-			}
-			else { // if save was unsuccesful
-				entity.errors.allErrors.each {
-					println it
-				}
-				return false
-			}
-		}
-	    else { // if not validated
-		    entity.errors.each {
-			    println it
-		    }
-			return false
-	    }
+	    log.info ".import wizard persisting ${entity}"
+	    
+        if (entity.save(flush:true))
+            return true
+        else { // if save was unsuccesful
+            entity.errors.allErrors.each {
+                log.error ".import wizard: " + it
+            }
+            return false
+        }
 	 }
 
 	/**
