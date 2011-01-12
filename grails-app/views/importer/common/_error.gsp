@@ -40,6 +40,10 @@
 		we.dialog({
 			modal: true,
 			width: 600,
+			maxHeight: 400,
+    		open: function(event, ui) {
+        		$(this).css({'max-height': 400, 'overflow-y': 'auto'});
+    		},
 			buttons: {
 				Ok: function() {
 					$(this).dialog('close');
