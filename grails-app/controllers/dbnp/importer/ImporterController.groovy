@@ -506,19 +506,14 @@ class ImporterController {
     def removeFailedCell(failedcells, entity) {        
         // Valid entity, remove it from failedcells
         failedcells.each { record ->
-            //record.importcells.each { cell ->
+            record.importcells.each { cell ->
             // remove the cell from the failed cells session
-
-            Iterator celliter = record.importcells.iterator()
-            while (celliter.hasNext()) {
-                def cell = celliter.next()
 
                 if (cell.entityidentifier == entity.getIdentifier()) {
                     //record.removeFromImportcells(cell)
-                    cell.remove()
+                    cell = null
                 }
             }
-
            // } // end of importcells
         } // end of failedcells
     }
