@@ -21,7 +21,7 @@
 			<g:each in="${group.value}" var="field">
 			  <option
 				<g:if test="${templateField?.type == field}">selected="selected"</g:if>
-				value="${field}">${field} <g:if test="${field.example}">(${field.example})</g:if></option>
+				value="${field}">${field.name} <g:if test="${field.example}">(${field.example})</g:if></option>
 			</g:each>
 		  </optgroup>
 		</g:each>

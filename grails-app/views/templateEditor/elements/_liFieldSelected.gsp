@@ -10,7 +10,7 @@
 
   <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
   <b>${templateField.name}</b>
-  (<g:if test="${templateField.unit}">${templateField.unit}, </g:if><g:render template="elements/${templateField.type.toString().toLowerCase().replaceAll(/ /,'_')}" model="[templateField: templateField]"/>)
+  (<g:if test="${templateField.unit}">${templateField.unit}, </g:if>${templateField.type.name})
 
   <form class="templateField_form" id="templateField_${templateField.id}_form" action="updateField">
 	  <g:if test="${templateField.isEditable()}">

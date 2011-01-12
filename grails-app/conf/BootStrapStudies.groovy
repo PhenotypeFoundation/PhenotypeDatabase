@@ -390,21 +390,21 @@ class BootStrapStudies {
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
 			platform: 'clinical measurements',
-			url: config.modules.sam.url
+			url: config.modules.sam.url.toString()
 		).with { if (!validate()) { errors.each { println it} } else save()}
 
 		// Add metabolomics assay reference
 		def metabolomicsModule = new AssayModule(
 			name: 'Metabolomics module',
 			platform: 'GCMS/LCMS',
-			url: config.modules.metabolomics.url
+			url: config.modules.metabolomics.url.toString()
 		).with { if (!validate()) { errors.each { println it} } else save()}
 		
 		// Add metabolomics assay reference
 		def metagenomicsModule = new AssayModule(
 			name: 'Metagenomics module',
 			platform: 'High throughput sequencing',
-			url: config.modules.metagenomics.url
+			url: config.modules.metagenomics.url.toString()
 		).with { if (!validate()) { errors.each { println it} } else save()}
 		
 		def lipidAssayRef = new Assay(

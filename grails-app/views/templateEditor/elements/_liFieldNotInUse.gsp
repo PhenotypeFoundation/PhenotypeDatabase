@@ -5,7 +5,7 @@
 </span>
 
 <b>${templateField.name}</b>
-(<g:if test="${templateField.unit}">${templateField.unit}, </g:if><g:render template="elements/${templateField.type.toString().toLowerCase().replaceAll(/ /,'_')}" model="[templateField: templateField]" />)
+(<g:if test="${templateField.unit}">${templateField.unit}, </g:if>${templateField.type.name})
 
 <form class="templateField_form" id="templateField_${templateField.id}_form" action="updateField">
 	<g:render template="elements/fieldForm" model="['templateField': templateField, 'ontologies': ontologies, 'fieldTypes': fieldTypes]"/>
