@@ -59,7 +59,7 @@ class BootStrap {
 		//      - templates
 		//      - ontologies
 		//      - and/or studies
-		if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT || grails.util.GrailsUtil.environment == "dbnpdemo") {
+		if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT || grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST || grails.util.GrailsUtil.environment == "dbnpdemo") {
 			// add ontologies?
 			if (!Ontology.count()) BootStrapTemplates.initTemplateOntologies()
 

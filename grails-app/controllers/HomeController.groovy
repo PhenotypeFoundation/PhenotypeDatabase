@@ -1,5 +1,6 @@
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Template
+import org.codehaus.groovy.grails.commons.GrailsApplication
 
 /**
  * Home Controler
@@ -17,7 +18,7 @@ import dbnp.studycapturing.Template
  */
 class HomeController {
     def index = {
-	    if (!Template.count()) {
+	    if (!Template.count() && grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST) {
 		    redirect(controller:'setup',action:'index')		    
 	    } else {
 		    [ studyCount: dbnp.studycapturing.Study.count(), userCount: dbnp.authentication.SecUser.count(), facebookLikeUrl: '/' ]
