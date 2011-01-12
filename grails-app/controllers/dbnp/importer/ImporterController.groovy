@@ -454,14 +454,11 @@ class ImporterController {
         flow.importer_invalidentities = 0        
 
         flow.importer_importeddata.each { table ->
-            log.error "table==" + table
-            table.each { entity ->
-                log.error "Entity==" + entity
+            table.each { entity ->                
                 def invalidontologies = 0
 
                 // Set the fields for this entity by retrieving values from the params
-                entity.giveFields().each { field ->
-                    log.error "entitygivefields" + field
+                entity.giveFields().each { field ->                    
                         // field of type ontology and value "#invalidterm"?
                         if (field.type == dbnp.studycapturing.TemplateFieldType.ONTOLOGYTERM &&
                             params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] == "#invalidterm"
@@ -504,7 +501,7 @@ class ImporterController {
 
     /**
      * @param failedcell failed ontology cells
-     * @param entity entity
+     * @param entity entity to remove from the failedcells list
      */
     def removeFailedCell(failedcells, entity) {
         // Valid entity, remove it from failedcells

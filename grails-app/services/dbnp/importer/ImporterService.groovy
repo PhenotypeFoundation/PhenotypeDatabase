@@ -439,7 +439,7 @@ class ImporterService {
                     // which entity does the current cell (field) belong to?
                     switch (mc.entity) {
                         case Study: // does the entity already exist in the record? If not make it so.
-                        (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)
+                        (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)                        
 						study.setFieldValue(mc.property, value)
 						break
                         case Subject: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(subject)
@@ -457,7 +457,8 @@ class ImporterService {
                         case Object:   // don't import
 						break
                     } // end switch
-                } catch (IllegalArgumentException iae) {
+                } catch (Exception iae) {
+                    log.error ".import wizard error could not set property `" + mc.property + "` to value `" + value + "`"
                     // store the mapping column and value which failed
                     def identifier
 
