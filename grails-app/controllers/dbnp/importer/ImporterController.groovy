@@ -437,8 +437,7 @@ class ImporterController {
                                                               flow.importer_datamatrix_start,
                                                               flow.importer_header)
 
-        flow.importer_importeddata = table
-        log.error "importeddata=" + flow.importer_importeddata.dump()
+        flow.importer_importeddata = table        
         flow.importer_failedcells = failedcells
         return true
     }
@@ -455,12 +454,14 @@ class ImporterController {
         flow.importer_invalidentities = 0        
 
         flow.importer_importeddata.each { table ->
+            log.error "table==" + table
             table.each { entity ->
                 log.error "Entity==" + entity
                 def invalidontologies = 0
 
                 // Set the fields for this entity by retrieving values from the params
                 entity.giveFields().each { field ->
+                    log.error "entitygivefields" + field
                         // field of type ontology and value "#invalidterm"?
                         if (field.type == dbnp.studycapturing.TemplateFieldType.ONTOLOGYTERM &&
                             params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] == "#invalidterm"
