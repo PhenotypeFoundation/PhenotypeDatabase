@@ -12,6 +12,8 @@ import cr.co.arquetipos.crypto.Blowfish
 
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 
+import grails.plugins.springsecurity.Secured
+
 /**
  * Wizard Controller
  *
@@ -23,6 +25,7 @@ import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
  * $Author$
  * $Date$
  */
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ImporterController {
     // the pluginManager is used to check if the Grom
     // plugin is available so we can 'Grom' development
@@ -119,7 +122,7 @@ class ImporterController {
                 flow.page = 1
                 flow.studies = Study.findAllWhere(owner:AuthenticationService.getLoggedInUser())
                 flow.importer_importableentities = grailsApplication.config.gscf.domain.importableEntities
-                
+
                 success()
             }
             on("next") {
