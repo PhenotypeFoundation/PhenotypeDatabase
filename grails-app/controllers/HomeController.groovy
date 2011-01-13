@@ -18,11 +18,11 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
  */
 class HomeController {
     def index = {
-	    if (!Template.count() && grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST) {
-		    redirect(controller:'setup',action:'index')		    
-	    } else {
+	    //if (!Template.count() && grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST && grails.util.GrailsUtil.environment != "dbnptest") {
+		//    redirect(controller:'setup',action:'index')
+	    //} else {
 		    [ studyCount: dbnp.studycapturing.Study.count(), userCount: dbnp.authentication.SecUser.count(), facebookLikeUrl: '/' ]
-	    }
+	    //}
     }
     
 }
