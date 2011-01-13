@@ -756,7 +756,7 @@ class StudyWizardController {
 
 				// remove all samples from the study
 				flow.study.samples.findAll{true}.each() { sample ->
-					flow.study.removeFromSamples(sample)
+					flow.study.deleteSample( sample )
 				}
 
 				// ignore errors
@@ -871,7 +871,7 @@ class StudyWizardController {
 				} else {
 					// assay does not validate
 					// remove from study
-					flow.study.removeFromAssays( flow.assay )
+					flow.study.deleteAssay( flow.assay )
 
 					// append errors
 					this.appendErrors(flow.assay, flash.wizardErrors)
@@ -1057,7 +1057,9 @@ class StudyWizardController {
 					if (pluginManager.getGrailsPlugin('grom')) "saving study".grom()
 
 					// Make sure the owner of the study is set right
-					flow.study.owner = authenticationService.getLoggedInUser()
+					if (!flow.study.owner) {
+						flow.study.owner = authenticationService.getLoggedInUser()
+					}
 
 					if (!flow.study.save(flush:true)) {
 						this.appendErrors(flow.study, flash.wizardErrors)
@@ -1585,8 +1587,7 @@ class StudyWizardController {
 							// find all samples for this subject / event
 							flow.study.samples.findAll { (it.parentEvent.equals(event) && it.parentSubject.equals(subject) ) }.each() {
 								// delete this sample
-								flow.study.removeFromSamples( it )
-								it.delete()
+								flow.study.deleteSample( it )
 							}
 						}
 
@@ -1682,8 +1683,7 @@ class StudyWizardController {
 						eventGroup.samplingEvents.each() { samplingEvent ->
 							flow.study.samples.findAll { (it.parentEvent.equals(samplingEvent) && it.parentSubject.equals(subject) && it.parentEventGroup.equals(eventGroup)) }.each() {
 								// delete this sample
-								flow.study.removeFromSamples(it)
-								it.delete()
+								flow.study.deleteSample( it )
 							}
 						}
 					}
