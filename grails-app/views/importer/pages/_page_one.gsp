@@ -84,3 +84,5 @@
 	</tr>
 	</table>
 </af:page>
+
+<g:render template="common/error"/>

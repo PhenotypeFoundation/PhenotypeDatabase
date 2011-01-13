@@ -25,7 +25,7 @@ import grails.plugins.springsecurity.Secured
  * $Author$
  * $Date$
  */
-@Secured(['IS_AUTHENTICATED_REMEMBERED'])
+//@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ImporterController {
     // the pluginManager is used to check if the Grom
     // plugin is available so we can 'Grom' development
@@ -126,27 +126,34 @@ class ImporterController {
                 success()
             }
             on("next") {
+                flash.wizardErrors = [:]
+                
                 // Study selected?
                 flow.importer_study = (params.study) ? Study.get(params.study.id.toInteger()) : null
 
-                // Trying to import a new study?
+                // Trying to import data into an existing study?
                 if (flow.importer_study)
                     if (flow.importer_study.canWrite(AuthenticationService.getLoggedInUser())) {
                         if (fileImportPage(flow, params)) {
                             success()
                         } else {
-                            error.log ".importer wizard not all fields are filled in"
+                            log.error ".importer wizard not all fields are filled in"
+                            this.appendErrorMap(['error': "Not all fields are filled in, please fill in or select all fields"], flash.wizardErrors)
                             error()
                         }
                     } else
                     {
-                        error.log ".importer wizard wrong permissions"
+                        log.error ".importer wizard wrong permissions"
+                        this.appendErrorMap(['error': "You don't have the right permissions"], flash.wizardErrors)
+
+                        error()
                     }
                 else {
                    if (fileImportPage(flow, params)) {
                             success()
                         } else {
-                            error.log ".importer wizard not all fields are filled in"
+                            log.error ".importer wizard not all fields are filled in"
+                            this.appendErrorMap(['error': "Not all fields are filled in, please fill in or select all fields"], flash.wizardErrors)
                             error()
                         }
                 }
