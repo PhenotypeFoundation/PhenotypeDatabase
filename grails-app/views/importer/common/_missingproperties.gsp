@@ -39,7 +39,7 @@
         </g:each>
   });
 </script>
-  
+
 <g:if test="${importer_invalidentities}"><br/><br/>
   <b>There are ${importer_invalidentities} entities which could not be validated, they are indicated by a red color, please correct them before continuing.</b>
 </g:if>
@@ -65,6 +65,9 @@
 		    </div>
 		</g:each>
 	    </g:each>
+    </div>
+    <div class="sliderContainer">
+      <div class="slider"></div>
     </div>
     <div>
 	<br/>	

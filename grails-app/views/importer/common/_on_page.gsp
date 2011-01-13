@@ -23,10 +23,13 @@
  */
 %>
 <script type="text/javascript">
+
     // Initially called when starting the import wizard
     function onPage() {
 
     $(document).ready(function() {
+
+    handleWizardTable();    
 
     $('#simplewizardform').submit(function() {
 	if ($('#file').val() == "") {
