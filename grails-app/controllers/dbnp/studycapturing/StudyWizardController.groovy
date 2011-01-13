@@ -1047,6 +1047,7 @@ class StudyWizardController {
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) "entering save".grom()
 
+				flow.page = 7
 				flash.wizardErrors = [:]
 
 				// persist data to the database
