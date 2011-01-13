@@ -10,6 +10,7 @@
 
 import dbnp.studycapturing.*
 import dbnp.data.Ontology
+import org.codehaus.groovy.grails.commons.GrailsApplication
 
 class BootStrapTemplates {
 
