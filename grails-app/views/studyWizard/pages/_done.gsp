@@ -19,7 +19,7 @@
 	<span class="info">
 		<span class="todo">Done!</span>
 		<g:if test="${quickSave}">
-			Your modifications you have made to this study have been saved.
+			The modifications you have made to this study have been saved.
 		</g:if>
 		<g:else>
 			The study you just created has been saved.

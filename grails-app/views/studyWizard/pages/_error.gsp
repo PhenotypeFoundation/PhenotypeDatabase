@@ -18,7 +18,7 @@
 
 	<span class="info">
 		<span class="title">Errors encountered</span>
-		We encountered some problems story the study you just created. This may just be a mere glitch, click 'next' to
+		We encountered some problems storing the study you just created. This may just be a mere glitch, click 'next' to
 		try to save the study again, or click 'prev' to change your study.
 	</span>
 
