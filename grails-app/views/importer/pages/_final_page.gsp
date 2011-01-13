@@ -11,6 +11,11 @@
  * $Date$
  */
 %>
+<script type="text/javascript">
+                // disable redirect warning
+                var warnOnRedirect = false;
+</script>
+
 <af:page>
 <h1>Final Page</h1>
 <p>
@@ -42,7 +47,6 @@ ${importer_validatedsuccesfully} of ${importer_totalrows} rows were imported suc
       </g:each>
       </table>
     </g:if>
-
 
     <g:if test="${importer_referer}">
       <p>Click <a href="${importer_referer}">here</a> to return to the page you came from.</p>
