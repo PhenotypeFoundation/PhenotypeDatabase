@@ -278,7 +278,9 @@ class ImporterService {
     def failedtopersist = []
     def persisterrors = []
     def updatedentities = []
-    study.refresh()
+
+    // Study passed? Sync data
+    if (study!=null) study.refresh()
         
 	// go through the data matrix, read every record and validate the entity and try to persist it
 	datamatrix.each { record ->
