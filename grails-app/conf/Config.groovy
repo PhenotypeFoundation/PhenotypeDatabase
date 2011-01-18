@@ -17,7 +17,7 @@ import org.apache.commons.lang.RandomStringUtils
 // config files can either be Java properties files or ConfigSlurper scripts
 grails.config.locations = [
 	// the default per-environment configuration
-	// (e.g. grails-app/conf/config-development.properties)
+	// (e.g. src/java/config-development.properties)
 	"classpath:config-${grails.util.GrailsUtil.environment}.properties",
 
 	// the external configuration to override the default
