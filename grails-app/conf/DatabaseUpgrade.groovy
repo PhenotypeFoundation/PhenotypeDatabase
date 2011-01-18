@@ -36,6 +36,7 @@ class DatabaseUpgrade {
 	/**
 	 * execute database change r1245 / r1246 if required
 	 * @param sql
+	 * @param db
 	 */
 	public static void changeStudyDescription(sql, db) {
 		// check if we need to perform this upgrade
@@ -82,6 +83,7 @@ class DatabaseUpgrade {
 	/**
 	 * execute database change r1327 if required
 	 * @param sql
+	 * @param db
 	 */
 	public static void changeStudyDescriptionToText(sql, db) {
 		// are we running postgreSQL ?
@@ -102,6 +104,12 @@ class DatabaseUpgrade {
 		}
 	}
 
+	/**
+	 * it appears that some TEXT template fields are not of type 'text'
+	 * which results in the '255' character issue
+	 * @param sql
+	 * @param db
+	 */
 	public static void changeTemplateTextFieldSignatures(sql, db) {
 		if (db == "org.postgresql.Driver") {
 			// check if any TEXT template fields are of type 'text'
@@ -110,8 +118,8 @@ class DatabaseUpgrade {
 				"performing database upgrade: ${row.tablename} template_text_fields_string/elt to text".grom()
 				try {
 					// change the datatype of text fields to text
-					sql.execute("ALTER TABLE ${row.tablename} ALTER COLUMN template_text_fields_elt TYPE text")
-					sql.execute("ALTER TABLE ${row.tablename} ALTER COLUMN template_text_fields_string TYPE text")
+					sql.execute("ALTER TABLE ${row.tablename.toString()} ALTER COLUMN template_text_fields_elt TYPE text")
+					sql.execute("ALTER TABLE ${row.tablename.toString()} ALTER COLUMN template_text_fields_string TYPE text")
 
 				} catch (Exception e) {
 					"changeTemplateTextFieldSignatures database upgrade failed: " + e.getMessage()
