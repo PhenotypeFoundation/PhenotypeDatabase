@@ -45,6 +45,10 @@ class ImporterController {
         // Grom a development message
         if (pluginManager.getGrailsPlugin('grom')) "redirecting into the webflow".grom()
 
+
+        // TODO --> move this logic to the application Bootstrapping as this
+		//			does not need to run every time the importer is started
+		//
         // encrypt the importable entities
         grailsApplication.config.gscf.domain.importableEntities.each {
             it.value.encrypted =            
@@ -160,19 +164,6 @@ class ImporterController {
                 
                 // put your bussiness logic (if applicable) in here
             }.to "pageTwo"
-            on("toPageTwo") {
-                // put your bussiness logic (if applicable) in here
-            }.to "pageTwo"
-            on("toPageThree") {
-                // put your bussiness logic (if applicable) in here
-            }.to "pageThree"
-            on("toPageFour") {
-                // put your bussiness logic (if applicable) in here
-            }.to "pageFour"
-            on("toPageFive") {
-                // put your bussiness logic (if applicable) in here
-                flow.page = 5
-            }.to "save"
         }
 
         // Property to column assignment page
@@ -195,12 +186,6 @@ class ImporterController {
                 }
             }.to "pageThree"
             on("previous").to "pageOne"
-            on("toPageOne").to "pageOne"
-            on("toPageThree").to "pageThree"
-            on("toPageFour").to "pageFour"
-            on("toPageFive") {
-                flow.page = 5
-            }.to "save"
         }
 
         // Mapping page
@@ -226,12 +211,6 @@ class ImporterController {
                 }
             }.to "pageFour"
             on("previous").to "pageTwo"
-            on("toPageOne").to "pageOne"
-            on("toPageTwo").to "pageTwo"
-            on("toPageFour").to "pageFour"
-            on("toPageFive") {
-                flow.page = 5
-            }.to "save"
         }
 
         // Imported data overview page
@@ -254,12 +233,6 @@ class ImporterController {
                 flow.page = 5
             }.to "save"
             on("previous").to "pageThree"
-            on("toPageOne").to "pageOne"
-            on("toPageTwo").to "pageTwo"
-            on("toPageThree").to "pageThree"
-            on("toPageFive") {
-                flow.page = 5
-            }.to "save"
         }
 
         // Save the imported data
@@ -305,11 +278,6 @@ class ImporterController {
             }
             on("next").to "save"
             on("previous").to "pageFour"
-            on("toPageOne").to "pageOne"
-            on("toPageTwo").to "pageTwo"
-            on("toPageThree").to "pageThree"
-            on("toPageFour").to "pageFour"
-            on("toPageFive").to "save"
         }
 
         // last wizard page
