@@ -105,13 +105,13 @@ class DatabaseUpgrade {
 	public static void changeTemplateTextFieldSignatures(sql, db) {
 		if (db == "org.postgresql.Driver") {
 			// check if any TEXT template fields are of type 'text'
-			sql.eachRow("SELECT columns.table_name FROM information_schema.columns WHERE columns.table_schema::text = 'public'::text AND column_name='template_text_fields_elt' AND data_type != 'text';")
+			sql.eachRow("SELECT columns.table_name as tablename FROM information_schema.columns WHERE columns.table_schema::text = 'public'::text AND column_name='template_text_fields_elt' AND data_type != 'text';")
 			{ row ->
-				"performing database upgrade: ${row.table_name} template_text_fields_string/elt to text".grom()
+				"performing database upgrade: ${row.tablename} template_text_fields_string/elt to text".grom()
 				try {
 					// change the datatype of study::description to text
-					sql.execute("ALTER TABLE ${row.table_name} ALTER COLUMN template_text_fields_elt TYPE text")
-					sql.execute("ALTER TABLE ${row.table_name} ALTER COLUMN template_text_fields_string TYPE text")
+					sql.execute("ALTER TABLE ${row.tablename} ALTER COLUMN template_text_fields_elt TYPE text")
+					sql.execute("ALTER TABLE ${row.tablename} ALTER COLUMN template_text_fields_string TYPE text")
 
 				} catch (Exception e) {
 					"changeTemplateTextFieldSignatures database upgrade failed: " + e.getMessage()
