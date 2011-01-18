@@ -28,9 +28,9 @@ class DatabaseUpgrade {
 		def db = config.dataSource.driverClassName
 
 		// execute per-change check and upgrade code
-		changeStudyDescription(sql, db)			// r1245 / r1246
-		changeStudyDescriptionToText(sql, db)	// r1327
-		changeTemplateTextFieldSignatures(sql, db) // prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
+		changeStudyDescription(sql, db)				// r1245 / r1246
+		changeStudyDescriptionToText(sql, db)		// r1327
+		changeTemplateTextFieldSignatures(sql, db)	// prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
 	}
 
 	/**
@@ -106,7 +106,8 @@ class DatabaseUpgrade {
 
 	/**
 	 * it appears that some TEXT template fields are not of type 'text'
-	 * which results in the '255' character issue
+	 * due to an issue in how Grails' GORM works with domain inheritance
+	 * (see http://jira.codehaus.org/browse/GRAILS-6754)
 	 * @param sql
 	 * @param db
 	 */
@@ -118,8 +119,8 @@ class DatabaseUpgrade {
 				"performing database upgrade: ${row.tablename} template_text_fields_string/elt to text".grom()
 				try {
 					// change the datatype of text fields to text
-					sql.execute("ALTER TABLE ${row.tablename.toString()} ALTER COLUMN template_text_fields_elt TYPE text")
-					sql.execute("ALTER TABLE ${row.tablename.toString()} ALTER COLUMN template_text_fields_string TYPE text")
+					sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_elt TYPE text", row.tablename))
+					sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_string TYPE text", row.tablename))
 
 				} catch (Exception e) {
 					"changeTemplateTextFieldSignatures database upgrade failed: " + e.getMessage()
