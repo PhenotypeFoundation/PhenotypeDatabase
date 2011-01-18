@@ -30,6 +30,7 @@ class DatabaseUpgrade {
 		// execute per-change check and upgrade code
 		changeStudyDescription(sql, db)			// r1245 / r1246
 		changeStudyDescriptionToText(sql, db)	// r1327
+		changeTemplateTextFieldSignatures(sql, db) // prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
 	}
 
 	/**
@@ -96,6 +97,24 @@ class DatabaseUpgrade {
 					sql.execute("ALTER TABLE study ALTER COLUMN description TYPE text")
 				} catch (Exception e) {
 					"changeStudyDescriptionToText database upgrade failed: " + e.getMessage()
+				}
+			}
+		}
+	}
+
+	public static void changeTemplateTextFieldSignatures(sql, db) {
+		if (db == "org.postgresql.Driver") {
+			// check if any TEXT template fields are of type 'text'
+			sql.eachRow("SELECT columns.table_name FROM information_schema.columns WHERE columns.table_schema::text = 'public'::text AND column_name='template_text_fields_elt' AND data_type != 'text';")
+			{ row ->
+				"performing database upgrade: ${row.table_name} template_text_fields_string/elt to text".grom()
+				try {
+					// change the datatype of study::description to text
+					sql.execute("ALTER TABLE ${row.table_name} ALTER COLUMN template_text_fields_elt TYPE text")
+					sql.execute("ALTER TABLE ${row.table_name} ALTER COLUMN template_text_fields_string TYPE text")
+
+				} catch (Exception e) {
+					"changeTemplateTextFieldSignatures database upgrade failed: " + e.getMessage()
 				}
 			}
 		}
