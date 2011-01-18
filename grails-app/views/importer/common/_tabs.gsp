@@ -14,4 +14,4 @@
  * $Date$
  */
 %>
-<af:tabs pages="${pages}" page="${page}" clickable="false" />
+<af:tabs pages="${pages}" page="${page}" clickable="${false}" />
