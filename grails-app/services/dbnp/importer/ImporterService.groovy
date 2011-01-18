@@ -60,7 +60,7 @@ class ImporterService {
 	    def datamatrix_celltype = sheet.getRow(datamatrix_start).getCell(columnindex,Row.CREATE_NULL_AS_BLANK).getCellType()
 	    def datamatrix_celldata = df.formatCellValue(sheet.getRow(datamatrix_start).getCell(columnindex))
 	    def datamatrix_cell	    = sheet.getRow(datamatrix_start).getCell(columnindex)	    
-            def headercell = sheet.getRow(headerrow-1+sheet.getFirstRowNum()).getCell(columnindex)
+        def headercell = sheet.getRow(headerrow-1+sheet.getFirstRowNum()).getCell(columnindex)
 	    def tft = TemplateFieldType.STRING //default templatefield type
 
         // Check for every celltype, currently redundant code, but possibly this will be
@@ -209,13 +209,14 @@ class ImporterService {
     */
     def importData(template_id, Workbook wb, int sheetindex, int rowindex, mcmap) {
 	def sheet = wb.getSheetAt(sheetindex)
+    def template = Template.get(template_id)
 	def table = []
-        def failedcells = [] // list of records
+    def failedcells = [] // list of records
 	
 	// walk through all rows and fill the table with records
 	(rowindex..sheet.getLastRowNum()).each { i ->	    
             // Create an entity record based on a row read from Excel and store the cells which failed to be mapped
-            def (record, failed) = createRecord(template_id, sheet.getRow(i), mcmap)
+            def (record, failed) = createRecord(template, sheet.getRow(i), mcmap)
 
             // Add record with entity and its values to the table
             table.add(record)
@@ -275,64 +276,61 @@ class ImporterService {
     def saveDatamatrix(Study study, datamatrix) {
 	def validatedSuccesfully = 0
     def entitystored = null
-    def failedtopersist = []
-    def persisterrors = []
-    def updatedentities = []
-
+    
     // Study passed? Sync data
     if (study!=null) study.refresh()
+
+    //study.subjects.each { it.refresh() }
         
 	// go through the data matrix, read every record and validate the entity and try to persist it
 	datamatrix.each { record ->
-	    record.each { entity ->            
+	    record.each { entity ->                
                         switch (entity.getClass()) {
                         case Study	 :  log.info "Persisting Study `" + entity + "`: "
                                                 entity.owner = AuthenticationService.getLoggedInUser()                                              
-                                            	if (persistEntity(entity)) validatedSuccesfully++;
-                                                    else failedtopersist.add(entity)
+                                            	persistEntity(entity)                                                    
                                         break
                         case Subject :  log.info "Persisting Subject `" + entity + "`: "
 
                                         // is the current entity not already in the database?
-                                        entitystored = isEntityStored(entity)
+                                        //entitystored = isEntityStored(entity)
                                                 
                                         // this entity is new, so add it to the study
-                                        if (entitystored==null) study.addToSubjects(entity)
-                                            else { // existing entity, so update it
-                                                updateEntity(entitystored, entity)
-                                                updatedentities.add(entity)
-                                            }
-
-                                        if (persistEntity(study)) validatedSuccesfully++;
-                                            else failedtopersist.add(entity)
+                                        //if (entitystored==null)
+                                        study.addToSubjects(entity)
+                                        
+                                        /*else { // existing entity, so update it
+                                            updateEntity(entitystored, entity)
+                                            updatedentities.add(entity)
+                                        }*/
+    
                                         break
                         case Event	 :  log.info "Persisting Event `" + entity + "`: "                                      
                                         study.addToEvents(entity)
-                                        if (persistEntity(entity)) validatedSuccesfully++;
-                                            else failedtopersist.add(entity)
+                                        persistEntity(entity)
                                         break
                         case Sample	 :  log.info "Persisting Sample `" + entity +"`: "                                      
                                                 
-                                        // is this sample validatable (sample name unique for example?)
-                                        if (entity.validate()) {
-                                            study.addToSamples(entity)
-                                                if (persistEntity(study)) validatedSuccesfully++;
-                                        } else {
-                                            failedtopersist.add(entity)
-                                        }
+                                        // is this sample validatable (sample name unique for example?)                                        
+                                        study.addToSamples(entity)
+                                        persistEntity(study)
+                                        
                                         break
                     case SamplingEvent: log.info "Persisting SamplingEvent `" + entity + "`: "                                    
                                         study.addToSamplingEvents(entity)
-                                        if (persistEntity(entity)) validatedSuccesfully++;
-                                            else failedtopersist.add(entity)
+                                        persistEntity(entity)
                                         break
-                        default		 :  log.info "Skipping persisting of `" + entity.getclass() +"`"
-                                        failedtopersist.add(entity)
+                        default		 :  log.info "Skipping persisting of `" + entity.getclass() +"`"                                        
                                         break
 			} // end switch
 	    } // end record
-	} // end datamatrix    
-	return [validatedSuccesfully, updatedentities, failedtopersist]
+	} // end datamatrix
+
+
+    if (study!=null) persistEntity(study)
+    
+	//return [validatedSuccesfully, updatedentities, failedtopersist]
+    //return [0,0,0]
     }
 
     /**
@@ -390,15 +388,18 @@ class ImporterService {
      */
     boolean persistEntity(entity) {
 	    log.info ".import wizard persisting ${entity}"
-	    
-        if (entity.save(flush:true))
-            return true
-        else { // if save was unsuccesful
-            entity.errors.allErrors.each {
-                log.error ".import wizard: " + it
-            }
-            return false
-        }
+
+         try {          
+                entity.save(flush:true)
+                return true
+
+         } catch (Exception e) {
+             def session = sessionFactory.currentSession
+             session.setFlushMode(org.hibernate.FlushMode.MANUAL)
+             log.error ".import wizard, failed to save entity:\n" + org.apache.commons.lang.exception.ExceptionUtils.getRootCauseMessage(e)
+         }
+
+         return true
 	 }
 
 	/**
@@ -407,11 +408,10 @@ class ImporterService {
 	 * @param template_id template identifier
 	 * @param excelrow POI based Excel row containing the cells
 	 * @param mcmap map containing MappingColumn objects
-         * @return list of entities and list of failed cells
+     * @return list of entities and list of failed cells
 	 */
-	def createRecord(template_id, Row excelrow, mcmap) {
-		def df = new DataFormatter()
-		def template = Template.get(template_id)
+	def createRecord(template, Row excelrow, mcmap) {
+		def df = new DataFormatter()		
         def tft = TemplateFieldType
 		def record = [] // list of entities and the read values
         def failed = new ImportRecord() // map with entity identifier and failed mappingcolumn
@@ -440,24 +440,24 @@ class ImporterService {
                 try {
                     // which entity does the current cell (field) belong to?
                     switch (mc.entity) {
-                        case Study: // does the entity already exist in the record? If not make it so.
-                        (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)                        
-						study.setFieldValue(mc.property, value)
-						break
-                        case Subject: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(subject)
-						subject.setFieldValue(mc.property, value)
-						break
-                        case SamplingEvent: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(samplingEvent)
-						samplingEvent.setFieldValue(mc.property, value)
-						break
-                        case Event: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(event)
-						event.setFieldValue(mc.property, value)
-						break
-                        case Sample: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(sample)
-						sample.setFieldValue(mc.property, value)
-						break
-                        case Object:   // don't import
-						break
+                        case    Study: // does the entity already exist in the record? If not make it so.
+                                (record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)
+                                study.setFieldValue(mc.property, value)
+                                break
+                        case    Subject: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(subject)
+                                subject.setFieldValue(mc.property, value)
+                                break
+                        case    SamplingEvent: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(samplingEvent)
+                                samplingEvent.setFieldValue(mc.property, value)
+                                break
+                        case    Event: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(event)
+                                event.setFieldValue(mc.property, value)
+                                break
+                        case    Sample: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(sample)
+                                sample.setFieldValue(mc.property, value)
+                                break
+                        case    Object:   // don't import
+                                break
                     } // end switch
                 } catch (Exception iae) {
                     log.error ".import wizard error could not set property `" + mc.property + "` to value `" + value + "`"

@@ -190,7 +190,7 @@ class ImporterController {
                 if (propertiesPage(flow, params)) {                    
                     success()
                 } else {
-                    println "properties are wrong"
+                    log.error ".import wizard, properties are set wrong"
                     error()
                 }
             }.to "pageThree"
@@ -272,15 +272,16 @@ class ImporterController {
                     // Grom a development message
                     if (pluginManager.getGrailsPlugin('grom')) ".persisting instances to the database...".grom()                    
 
-                    if (saveEntities(flow, params)) {                        
+                    if (saveEntities(flow, params)) {
                         success()
-                    } else {
+                    } else {                        
                         log.error ".import wizard imported error, something went wrong showing the imported entities"                        
                         //throw Exception
                     }                    
                 } catch (Exception e) {
                     // put your error handling logic in
-                    // here                    
+                    // here
+                    log.error ".import wizard, could not save entities:\n" + e.dump()
                     flow.page = 4
                     error()
                 }
@@ -542,14 +543,21 @@ class ImporterController {
         return true
     }
 
-    boolean saveEntities(flow, params) {
-            def (validatedSuccesfully, updatedEntities, failedToPersist) = ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata)
-
-            flow.importer_validatedsuccesfully = validatedSuccesfully
-            flow.importer_failedtopersist = failedToPersist
-            flow.imported_updatedentities = updatedEntities
-            flow.importer_totalrows = flow.importer_importeddata.size
-            flow.importer_referer = ""
+    boolean saveEntities(flow, params) {            
+            //def (validatedSuccesfully, updatedEntities, failedToPersist) =
+            try {
+                ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata)
+                
+            }
+            catch (Exception e) {                
+                log.error ".import wizard saveEntities error\n" + e.dump()
+            }
+            
+            //flow.importer_validatedsuccesfully = validatedSuccesfully
+            //flow.importer_failedtopersist = failedToPersist
+            //flow.imported_updatedentities = updatedEntities
+            //flow.importer_totalrows = flow.importer_importeddata.size
+            //flow.importer_referer = ""            
 
             return true
     }
@@ -595,8 +603,7 @@ class ImporterController {
 	def getHumanReadableErrors(object) {
 		def errors = [:]
 		object.errors.getAllErrors().each() { error ->
-			// error.codes.each() { code -> println code }
-            println "errors is " + error
+			// error.codes.each() { code -> println code }            
 
 			// generally speaking g.message(...) should work,
 			// however it fails in some steps of the wizard
