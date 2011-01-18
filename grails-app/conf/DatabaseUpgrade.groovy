@@ -109,7 +109,7 @@ class DatabaseUpgrade {
 			{ row ->
 				"performing database upgrade: ${row.tablename} template_text_fields_string/elt to text".grom()
 				try {
-					// change the datatype of study::description to text
+					// change the datatype of text fields to text
 					sql.execute("ALTER TABLE ${row.tablename} ALTER COLUMN template_text_fields_elt TYPE text")
 					sql.execute("ALTER TABLE ${row.tablename} ALTER COLUMN template_text_fields_string TYPE text")
 
