@@ -1,0 +1,19 @@
+label { display: inline-block; zoom: 1; *display: inline; width: 110px; margin-top: 5px; }
+
+#searchForm ul#criteria { margin-left: 110px; padding-left: 0px; margin-top: -19px; list-style-type: none;  }
+#searchForm ul#criteria li { margin: 2px 0; padding-left: 0; }
+#searchForm ul#criteria li span { display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 5px; }
+#searchForm ul#criteria li .entityfield { width: 200px; }
+#searchForm ul#criteria li .operator { width: 100px; }
+#searchForm ul#criteria li .value { width: 240px; }
+
+#searchForm ul#criteria li.emptyList:hover { cursor: default; }
+
+#searchForm ul#criteria li:hover { cursor: pointer; }
+#searchForm ul#criteria li:hover span { text-decoration: line-through; }
+
+#input_criteria { display: block; float: right; width: 250px; border: 1px solid #666; padding: 10px; }
+#input_criteria h2 { margin-top: 2px; margin-bottom: 8px; }
+#input_criteria label { width: 70px; margin-top: 8px; }
+#input_criteria input.text, #input_criteria select { width: 165px; }
+#input_criteria input.button {  margin-top: 8px; }
