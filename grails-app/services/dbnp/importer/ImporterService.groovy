@@ -306,19 +306,16 @@ class ImporterService {
     
                                         break
                         case Event	 :  log.info "Persisting Event `" + entity + "`: "                                      
-                                        study.addToEvents(entity)
-                                        persistEntity(entity)
+                                        study.addToEvents(entity)                                      
                                         break
                         case Sample	 :  log.info "Persisting Sample `" + entity +"`: "                                      
                                                 
                                         // is this sample validatable (sample name unique for example?)                                        
-                                        study.addToSamples(entity)
-                                        persistEntity(study)
+                                        study.addToSamples(entity)                                        
                                         
                                         break
                     case SamplingEvent: log.info "Persisting SamplingEvent `" + entity + "`: "                                    
-                                        study.addToSamplingEvents(entity)
-                                        persistEntity(entity)
+                                        study.addToSamplingEvents(entity)                                       
                                         break
                         default		 :  log.info "Skipping persisting of `" + entity.getclass() +"`"                                        
                                         break
@@ -327,7 +324,8 @@ class ImporterService {
 	} // end datamatrix
 
 
-    if (study!=null) persistEntity(study)
+    if (study!=null) study.save(failOnError:true)
+        //persistEntity(study)
     
 	//return [validatedSuccesfully, updatedentities, failedtopersist]
     //return [0,0,0]

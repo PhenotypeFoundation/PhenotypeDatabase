@@ -14,6 +14,8 @@ import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 
 import grails.plugins.springsecurity.Secured
 
+import org.hibernate.SessionFactory
+
 /**
  * Wizard Controller
  *
@@ -241,23 +243,19 @@ class ImporterController {
                 // here you can validate and save the
                 // instances you have created in the
                 // ajax flow.
-                try {
                     // Grom a development message
                     if (pluginManager.getGrailsPlugin('grom')) ".persisting instances to the database...".grom()                    
 
                     if (saveEntities(flow, params)) {
+                        log.error ".import wizard succesfully persisted all entities"                        
+                        def session = sessionFactory.getCurrentSession()
+                        session.clear()                        
                         success()
                     } else {                        
-                        log.error ".import wizard imported error, something went wrong showing the imported entities"                        
-                        //throw Exception
-                    }                    
-                } catch (Exception e) {
-                    // put your error handling logic in
-                    // here
-                    log.error ".import wizard, could not save entities:\n" + e.dump()
-                    flow.page = 4
-                    error()
-                }
+                        log.error ".import wizard, could not save entities:\n" + e.dump()
+                        flow.page = 4
+                        error()
+                    }
             }
             on("error").to "error"
             on(Exception).to "error"
@@ -265,7 +263,7 @@ class ImporterController {
         }
 
         // render errors
-        error {                        
+        error {
             render(view: "_error")
             onRender {
                 
@@ -281,14 +279,21 @@ class ImporterController {
         }
 
         // last wizard page
-        finalPage {
+        finalPage {            
             render(view: "_final_page")
             onRender {
+                println "EEN"
                 // Grom a development message
                 if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_final_page.gsp".grom()
+                println "TWEE"
 				
                 success()
+                println "DRIE"
             }
+            onEnd {
+				// clean flow scope
+				flow.clear()
+			}
         }
     }
 
@@ -513,13 +518,13 @@ class ImporterController {
 
     boolean saveEntities(flow, params) {            
             //def (validatedSuccesfully, updatedEntities, failedToPersist) =
-            try {
+            //try {
                 ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata)
                 
-            }
-            catch (Exception e) {                
-                log.error ".import wizard saveEntities error\n" + e.dump()
-            }
+            //}
+            //catch (Exception e) {
+//                log.error ".import wizard saveEntities error\n" + e.dump()
+//            }
             
             //flow.importer_validatedsuccesfully = validatedSuccesfully
             //flow.importer_failedtopersist = failedToPersist
