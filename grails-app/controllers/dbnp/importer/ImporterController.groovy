@@ -248,7 +248,7 @@ class ImporterController {
 
 				if (saveEntities(flow, params)) {
 					//if (ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata)) {
-					log.error ".import wizard succesfully persisted all entities"
+					//log.error ".import wizard succesfully persisted all entities"
 					//def session = sessionFactory.getCurrentSession()
 					//session.clear()
 					success()
@@ -520,7 +520,7 @@ class ImporterController {
 	boolean saveEntities(flow, params) {
 		//def (validatedSuccesfully, updatedEntities, failedToPersist) =
 		//try {
-		ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata, authenticationService)
+		ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata, authenticationService, log)
 
 		//}
 		//catch (Exception e) {

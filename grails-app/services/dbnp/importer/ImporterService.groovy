@@ -256,10 +256,10 @@ class ImporterService {
 						try {
 							// Update the entity field
 							entity.setFieldValue(cell.mappingcolumn.property, correctedvalue)
-							//println "Adjusted " + cell.mappingcolumn.property + " to " + correctedvalue
+							//log.info "Adjusted " + cell.mappingcolumn.property + " to " + correctedvalue
 						}
 						catch (Exception e) {
-							//println "Could not map corrected ontology: " + cell.mappingcolumn.property + " to " + correctedvalue
+							//log.info "Could not map corrected ontology: " + cell.mappingcolumn.property + " to " + correctedvalue
 						}
 					}
 				} // end of table record
@@ -275,7 +275,7 @@ class ImporterService {
 	 * @param study entity Study
 	 * @param datamatrix two dimensional array containing entities with values read from Excel file
 	 */
-	static saveDatamatrix(Study study, datamatrix, authenticationService) {
+	static saveDatamatrix(Study study, datamatrix, authenticationService, log) {
 		def validatedSuccesfully = 0
 		def entitystored = null
 
@@ -286,11 +286,11 @@ class ImporterService {
 		datamatrix.each { record ->
 			record.each { entity ->
 				switch (entity.getClass()) {
-					case Study: println "Persisting Study `" + entity + "`: "
+					case Study: log.info "Persisting Study `" + entity + "`: "
 						entity.owner = authenticationService.getLoggedInUser()
 						persistEntity(entity)
 						break
-					case Subject: println "Persisting Subject `" + entity + "`: "
+					case Subject: log.info "Persisting Subject `" + entity + "`: "
 
 						// is the current entity not already in the database?
 						//entitystored = isEntityStored(entity)
@@ -301,19 +301,19 @@ class ImporterService {
 						study.addToSubjects(entity)
 
 						break
-					case Event: println "Persisting Event `" + entity + "`: "
+					case Event: log.info "Persisting Event `" + entity + "`: "
 						study.addToEvents(entity)
 						break
-					case Sample: println "Persisting Sample `" + entity + "`: "
+					case Sample: log.info "Persisting Sample `" + entity + "`: "
 
 						// is this sample validatable (sample name unique for example?)
 						study.addToSamples(entity)
 
 						break
-					case SamplingEvent: println "Persisting SamplingEvent `" + entity + "`: "
+					case SamplingEvent: log.info "Persisting SamplingEvent `" + entity + "`: "
 						study.addToSamplingEvents(entity)
 						break
-					default: println "Skipping persisting of `" + entity.getclass() + "`"
+					default: log.info "Skipping persisting of `" + entity.getclass() + "`"
 						break
 				} // end switch
 			} // end record
@@ -390,7 +390,7 @@ class ImporterService {
 	 *
 	 */
 	boolean persistEntity(entity) {
-		println ".import wizard persisting ${entity}"
+		log.info ".import wizard persisting ${entity}"
 
 		try {
 			entity.save(flush: true)
