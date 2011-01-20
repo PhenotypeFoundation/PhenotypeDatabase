@@ -35,7 +35,7 @@ class ImporterController {
 	// notifications to the unified notifications daemon
 	// (see http://www.grails.org/plugin/grom)
 	def pluginManager
-	def AuthenticationService
+	def authenticationService
 	def fileService
 	def ImporterService
 	def validationTagLib = new ValidationTagLib()
@@ -89,10 +89,10 @@ class ImporterController {
 			flow.page = 0
 			flow.pages = [
 				[title: 'Import file'],
-				[title: 'Properties'],
-				[title: 'Mappings'],
+				[title: 'Assign properties'],
+				[title: 'Check imported data'],
 				//[title: 'Imported'],
-				[title: 'Persist']
+				[title: 'Done']
 			]
 			flow.cancel = true;
 			flow.quickSave = true;
@@ -126,7 +126,7 @@ class ImporterController {
 				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_page_one.gsp".grom()
 
 				flow.page = 1
-				flow.studies = Study.findAllWhere(owner: AuthenticationService.getLoggedInUser())
+				flow.studies = Study.findAllWhere(owner: authenticationService.getLoggedInUser())
 				flow.importer_importableentities = grailsApplication.config.gscf.domain.importableEntities
 
 				success()
@@ -139,7 +139,7 @@ class ImporterController {
 
 				// Trying to import data into an existing study?
 				if (flow.importer_study)
-					if (flow.importer_study.canWrite(AuthenticationService.getLoggedInUser())) {
+					if (flow.importer_study.canWrite(authenticationService.getLoggedInUser())) {
 						if (fileImportPage(flow, params)) {
 							success()
 						} else {
@@ -520,7 +520,7 @@ class ImporterController {
 	boolean saveEntities(flow, params) {
 		//def (validatedSuccesfully, updatedEntities, failedToPersist) =
 		//try {
-		ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata)
+		ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata, authenticationService)
 
 		//}
 		//catch (Exception e) {

@@ -30,7 +30,7 @@ import dbnp.data.Term
 import org.apache.commons.lang.RandomStringUtils
 
 class ImporterService {
-	def AuthenticationService
+	def authenticationService
 
 	boolean transactional = true
 
@@ -275,7 +275,7 @@ class ImporterService {
 	 * @param study entity Study
 	 * @param datamatrix two dimensional array containing entities with values read from Excel file
 	 */
-	static saveDatamatrix(Study study, datamatrix) {
+	static saveDatamatrix(Study study, datamatrix, authenticationService) {
 		def validatedSuccesfully = 0
 		def entitystored = null
 
@@ -287,7 +287,7 @@ class ImporterService {
 			record.each { entity ->
 				switch (entity.getClass()) {
 					case Study: println "Persisting Study `" + entity + "`: "
-						entity.owner = AuthenticationService.getLoggedInUser()
+						entity.owner = authenticationService.getLoggedInUser()
 						persistEntity(entity)
 						break
 					case Subject: println "Persisting Subject `" + entity + "`: "
