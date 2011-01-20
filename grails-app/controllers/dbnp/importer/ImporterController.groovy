@@ -91,7 +91,7 @@ class ImporterController {
                 [title: 'Import file'],
                 [title: 'Properties'],
                 [title: 'Mappings'],
-                [title: 'Imported'],
+                //[title: 'Imported'],
                 [title: 'Persist']
             ]
             flow.cancel = true;
@@ -211,7 +211,7 @@ class ImporterController {
                     log.error ".import wizard mapping error, could not validate all entities"
                     error()
                 }
-            }.to "pageFour"
+            }.to "save"
             on("previous").to "pageTwo"
         }
 
@@ -247,9 +247,10 @@ class ImporterController {
                     if (pluginManager.getGrailsPlugin('grom')) ".persisting instances to the database...".grom()                    
 
                     if (saveEntities(flow, params)) {
+					//if (ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata)) {
                         log.error ".import wizard succesfully persisted all entities"                        
-                        def session = sessionFactory.getCurrentSession()
-                        session.clear()                        
+                        //def session = sessionFactory.getCurrentSession()
+                        //session.clear()
                         success()
                     } else {                        
                         log.error ".import wizard, could not save entities:\n" + e.dump()
