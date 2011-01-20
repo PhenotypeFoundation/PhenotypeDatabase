@@ -27,7 +27,7 @@ import org.hibernate.SessionFactory
  * $Author$
  * $Date$
  */
-//@Secured(['IS_AUTHENTICATED_REMEMBERED'])
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ImporterController {
     // the pluginManager is used to check if the Grom
     // plugin is available so we can 'Grom' development
