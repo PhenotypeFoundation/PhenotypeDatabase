@@ -9,9 +9,9 @@
  * @see dbnp.studycapturing.WizardController
  *
  * Revision information:
- * $Rev: 1260 $
- * $Author: work@osx.eu $
- * $Date: 2010-12-10 15:12:28 +0100 (Fri, 10 Dec 2010) $
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 %>
 <g:if test="${wizardErrors}">

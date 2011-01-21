@@ -7,9 +7,9 @@
 	 * @package importer
 	 *
 	 * Revision information: 
-	 * $Rev: 1277 $
-	 * $Author: t.w.abma@umcutrecht.nl $
-	 * $Date: 2010-12-16 15:42:15 +0100 (Thu, 16 Dec 2010) $
+	 * $Rev$
+	 * $Author$
+	 * $Date$
 	 */
 %>
 <script type="text/javascript">

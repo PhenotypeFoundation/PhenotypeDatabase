@@ -9,9 +9,9 @@
  * @see     dbnp.studycapturing.WizardController
  *
  * Revision information:
- * $Rev: 1040 $
- * $Author: j.a.m.wesbeek@umail.leidenuniv.nl $
- * $Date: 2010-11-01 18:11:23 +0100 (Mon, 01 Nov 2010) $
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 %>
 <af:page>
