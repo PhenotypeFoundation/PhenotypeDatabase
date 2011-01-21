@@ -58,7 +58,8 @@
 	cursor: pointer;
 	color: #006DBA;
 	background-color: transparent;
-	border: none;	
+	border: none;
+	vertical-align: top;
 }
 .ajaxFlow .tabs li:last-child:after {
 	content: url('../images/ajaxflow/spacer.gif');
