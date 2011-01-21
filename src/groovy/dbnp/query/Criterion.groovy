@@ -4,8 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.text.SimpleDateFormat;
 
-import dbnp.studycapturing.RelTime;
-import dbnp.studycapturing.TemplateEntity;
+import nl.grails.plugins.gdt.*
 
 /**
  * Available operators for criteria

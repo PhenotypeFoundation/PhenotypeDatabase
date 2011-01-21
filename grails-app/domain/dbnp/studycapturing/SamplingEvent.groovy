@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import nl.grails.plugins.gdt.*
 
 /**
  * The SamplingEvent class describes a sampling event, an event that also results in one or more samples.
@@ -12,7 +13,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class SamplingEvent extends TemplateEntity {
+class SamplingEvent extends nl.grails.plugins.gdt.TemplateEntity {
 	// A SamplingEvent always belongs to one study.
 	// Although this is technically inherited from Event, we have to specify it here again.
 	// Otherwise, Grails expects the SamplingEvent to be referenced in Study.events,

@@ -1,8 +1,8 @@
 package dbnp.studycapturing
 
 import dbnp.studycapturing.*
+import nl.grails.plugins.gdt.*
 import dbnp.authentication.SecUser
-import dbnp.data.*
 import cr.co.arquetipos.crypto.Blowfish
 import nl.grails.plugins.ajaxflow.AjaxflowTagLib
 

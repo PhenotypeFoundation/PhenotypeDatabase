@@ -9,8 +9,7 @@
  */
 
 import dbnp.studycapturing.*
-import dbnp.data.Term
-import dbnp.data.Ontology
+import nl.grails.plugins.gdt.*
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
 import dbnp.rest.common.CommunicationManager

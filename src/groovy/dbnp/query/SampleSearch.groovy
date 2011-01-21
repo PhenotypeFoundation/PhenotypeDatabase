@@ -14,8 +14,9 @@
  */
 package dbnp.query
 
-import java.util.List;
-import dbnp.studycapturing.*;
+import java.util.List
+import dbnp.studycapturing.*
+import nl.grails.plugins.gdt.*
 
 class SampleSearch extends Search {
 	public SampleSearch() {

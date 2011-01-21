@@ -9,7 +9,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class PersonAffiliation extends Identity {
+class PersonAffiliation extends nl.grails.plugins.gdt.Identity {
 
 	String institute
 	String department

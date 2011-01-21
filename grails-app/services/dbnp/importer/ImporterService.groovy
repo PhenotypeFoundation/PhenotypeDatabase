@@ -19,14 +19,8 @@ package dbnp.importer
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFCell
 
-import dbnp.studycapturing.TemplateFieldType
-import dbnp.studycapturing.Template
-import dbnp.studycapturing.SamplingEvent
-import dbnp.studycapturing.Study
-import dbnp.studycapturing.Subject
-import dbnp.studycapturing.Event
-import dbnp.studycapturing.Sample
-import dbnp.data.Term
+import nl.grails.plugins.gdt.*
+import dbnp.studycapturing.*
 import org.apache.commons.lang.RandomStringUtils
 
 class ImporterService {

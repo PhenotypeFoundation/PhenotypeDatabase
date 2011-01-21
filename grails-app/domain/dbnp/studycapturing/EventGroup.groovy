@@ -8,7 +8,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class EventGroup extends Identity {
+class EventGroup extends nl.grails.plugins.gdt.Identity {
 	String name
 
 	static belongsTo = [parent : Study]

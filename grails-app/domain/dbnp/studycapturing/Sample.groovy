@@ -1,6 +1,6 @@
 package dbnp.studycapturing
 
-import dbnp.data.Term
+import nl.grails.plugins.gdt.*
 
 /**
  * The Sample class describes an actual sample which results from a SamplingEvent.
@@ -10,7 +10,7 @@ import dbnp.data.Term
  * $Author$
  * $Date$
  */
-class Sample extends TemplateEntity {
+class Sample extends nl.grails.plugins.gdt.TemplateEntity {
 	// uncommented due to searchable issue
 	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
 	//static searchable = { [only: ['name']] }

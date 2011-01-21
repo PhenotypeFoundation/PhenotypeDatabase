@@ -1,6 +1,5 @@
-<%@ page import="dbnp.studycapturing.Study" %>
-<%@ page import="dbnp.studycapturing.EventGroup" %>
-<%@ page import="dbnp.studycapturing.RelTime" %>
+<%@ page import="dbnp.studycapturing.*" %>
+<%@ page import="nl.grails.plugins.gdt.*" %>
 <html>
 <head>
 	<meta name="layout" content="main"/>

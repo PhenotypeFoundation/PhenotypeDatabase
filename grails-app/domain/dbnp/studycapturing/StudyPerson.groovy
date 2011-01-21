@@ -8,7 +8,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class StudyPerson extends Identity {
+class StudyPerson extends nl.grails.plugins.gdt.Identity {
 
 	// A StudyPerson relation always belongs to one study.
 	static belongsTo = [parent : Study]

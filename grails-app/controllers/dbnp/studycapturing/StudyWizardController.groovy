@@ -6,6 +6,7 @@ import grails.plugins.springsecurity.Secured
 import dbnp.authentication.AuthenticationService
 import dbnp.authentication.SecUser
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
+import nl.grails.plugins.gdt.*
 
 /**
  * ajaxflow Controller
@@ -1551,7 +1552,7 @@ class StudyWizardController {
 								// instantiate a sample for this subject / event
 								def samplingEventName = ucwords(event.template.name)
 								def eventGroupName = ucwords(eventGroup.name).replaceAll("([ ]{1,})", "")
-								def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
+								def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new nl.grails.plugins.gdt.RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
 								def tempSampleIterator = 0
 								def tempSampleName = sampleName
 
@@ -1647,7 +1648,7 @@ class StudyWizardController {
 						eventGroup.samplingEvents.each() { samplingEvent ->
 							def samplingEventName = ucwords(samplingEvent.template.name)
 							def eventGroupName = ucwords(eventGroup.name)
-							def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
+							def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new nl.grails.plugins.gdt.RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
 							def tempSampleIterator = 0
 							def tempSampleName = sampleName
 

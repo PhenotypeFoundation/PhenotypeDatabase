@@ -1,5 +1,4 @@
-import dbnp.studycapturing.Study
-import dbnp.studycapturing.Template
+import dbnp.studycapturing.*
 import org.codehaus.groovy.grails.commons.GrailsApplication
 
 /**

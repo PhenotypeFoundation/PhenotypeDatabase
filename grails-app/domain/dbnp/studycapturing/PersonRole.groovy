@@ -10,7 +10,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class PersonRole extends Identity {
+class PersonRole extends nl.grails.plugins.gdt.Identity {
 
 	/** The name of the role, such as Project Leader or PI */
 	String name

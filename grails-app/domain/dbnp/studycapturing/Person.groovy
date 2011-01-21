@@ -10,7 +10,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class Person extends Identity {
+class Person extends nl.grails.plugins.gdt.Identity {
 	String title
 	String gender
 	String lastName

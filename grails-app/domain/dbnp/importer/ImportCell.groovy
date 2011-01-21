@@ -1,7 +1,5 @@
 package dbnp.importer
 
-import dbnp.studycapturing.Identity
-
 /**
  * Cell Domain Class
  *
@@ -17,7 +15,7 @@ import dbnp.studycapturing.Identity
  * $Date$
  */
 
-class ImportCell extends Identity implements Serializable {
+class ImportCell extends nl.grails.plugins.gdt.Identity implements Serializable {
     MappingColumn mappingcolumn
     int entityidentifier
     String value

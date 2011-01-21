@@ -1,11 +1,12 @@
 package dbnp.studycapturing
+import nl.grails.plugins.gdt.*
 
 /**
  * This class describes an Assay, which describes the application of a certain (omics) measurement to multiple samples.
  * The actual data of these measurements are described in submodules of dbNP. The type property describes in which module
  * this data can be found.
  */
-class Assay extends TemplateEntity {
+class Assay extends nl.grails.plugins.gdt.TemplateEntity {
 	// The name of the assay, which should indicate the measurements represented in this assay to the user.
 	String name
 

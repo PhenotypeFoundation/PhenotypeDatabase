@@ -14,7 +14,8 @@
  */
 package dbnp.query
 
-import dbnp.studycapturing.*;
+import dbnp.studycapturing.*
+import nl.grails.plugins.gdt.*
 
 class StudySearch extends Search {
 	public StudySearch() {

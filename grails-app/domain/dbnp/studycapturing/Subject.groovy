@@ -1,7 +1,6 @@
 package dbnp.studycapturing
 
-import dbnp.data.Term
-import dbnp.data.Ontology
+import nl.grails.plugins.gdt.*
 
 /**
  * This domain class describes the subjects in a study.
@@ -11,7 +10,7 @@ import dbnp.data.Ontology
  * $Author$
  * $Date$
  */
-class Subject extends TemplateEntity {
+class Subject extends nl.grails.plugins.gdt.TemplateEntity {
 	// uncommented due to searchable issue
 	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
 	//static searchable = { [only: ['name']] }

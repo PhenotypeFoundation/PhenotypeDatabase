@@ -312,7 +312,7 @@ class StudyController {
                 def value = event.getFieldValue( templateField.name );
 				if( value ) {
 					if( templateField.type == TemplateFieldType.RELTIME )
-						value = new RelTime( value ).toString();
+						value = new nl.grails.plugins.gdt.RelTime( value ).toString();
 
 	                def param = templateField.name + " = " + value;
 

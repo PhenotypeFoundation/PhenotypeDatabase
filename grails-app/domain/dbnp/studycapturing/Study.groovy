@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import dbnp.authentication.SecUser
+import nl.grails.plugins.gdt.*
 
 /**
  * Domain class describing the basic entity in the study capture part: the Study class.
@@ -10,7 +11,7 @@ import dbnp.authentication.SecUser
  * $Author$
  * $Date$
  */
-class Study extends TemplateEntity {
+class Study extends nl.grails.plugins.gdt.TemplateEntity {
 	static searchable = true
 	
 	def synchronizationService

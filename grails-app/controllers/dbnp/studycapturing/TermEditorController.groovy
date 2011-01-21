@@ -14,8 +14,7 @@
  */
 package dbnp.studycapturing
 
-import dbnp.data.Term
-import dbnp.data.Ontology
+import nl.grails.plugins.gdt.*
 
 class TermEditorController {
 	/**

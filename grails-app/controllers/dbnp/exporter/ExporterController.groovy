@@ -209,7 +209,7 @@ class ExporterController {
     def writeSubjectProperties(sub,sample,row) {
         println "----- SUBJECT -----"
         for (u in 0..sample.parentSubject.giveFields().unique().size()-1){
-            TemplateField tf = sample.parentSubject.giveFields().getAt(u)
+            nl.grails.plugins.gdt.TemplateField tf = sample.parentSubject.giveFields().getAt(u)
             println tf.name
             row.createCell((short)9+u).setCellValue(tf.name)
             sample.parentSubject.getFieldValue(tf.name) ? sub.createCell((short)9+u).setCellValue(sample.parentSubject.getFieldValue(tf.name).toString()) : "not define"
@@ -220,7 +220,7 @@ class ExporterController {
     def writeSamplingEventProperties(sub,sample,row){
         println "----- SAMPLING EVENT -----"
         for (t in 0..sample.parentEvent.giveFields().unique().size()-1){
-            TemplateField tf =sample.parentEvent.giveFields().getAt(t)
+            nl.grails.plugins.gdt.TemplateField tf =sample.parentEvent.giveFields().getAt(t)
             println tf.name
             row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue("samplingEvent-"+tf.name)
             sample.parentEvent.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue(sample.parentEvent.getFieldValue(tf.name).toString()) : "not define"
@@ -236,7 +236,7 @@ class ExporterController {
     def writeSampleProperties(sub,sample,row){
         println "----- SAMPLE -----"
         for (v in 0..sample.giveFields().unique().size()-1){
-            TemplateField tf =sample.giveFields().getAt(v)
+            nl.grails.plugins.gdt.TemplateField tf =sample.giveFields().getAt(v)
             println tf.name
             row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.giveFields().unique().size()).setCellValue("sample-"+tf.name)
             sample.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.giveFields().unique().size()).setCellValue(sample.getFieldValue(tf.name).toString()) : "not define"

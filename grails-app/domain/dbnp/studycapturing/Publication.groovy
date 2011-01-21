@@ -11,7 +11,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class Publication extends Identity {
+class Publication extends nl.grails.plugins.gdt.Identity {
 	String title
 	String pubMedID
 	String DOI      // document identifier, see dx.doi.org

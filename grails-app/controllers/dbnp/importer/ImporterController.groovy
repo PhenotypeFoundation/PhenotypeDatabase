@@ -1,20 +1,12 @@
 package dbnp.importer
 
-import dbnp.studycapturing.Study
-import dbnp.studycapturing.Subject
-import dbnp.studycapturing.Sample
-import dbnp.studycapturing.Event
-import dbnp.studycapturing.Template
-
+import dbnp.studycapturing.*
+import nl.grails.plugins.gdt.*
 import org.apache.poi.ss.usermodel.Workbook
-
 import grails.converters.JSON
 import cr.co.arquetipos.crypto.Blowfish
-
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
-
 import grails.plugins.springsecurity.Secured
-
 import org.hibernate.SessionFactory
 
 /**
@@ -445,12 +437,12 @@ class ImporterController {
 				// Set the fields for this entity by retrieving values from the params
 				entity.giveFields().each { field ->
 					// field of type ontology and value "#invalidterm"?
-					if (field.type == dbnp.studycapturing.TemplateFieldType.ONTOLOGYTERM &&
+					if (field.type == nl.grails.plugins.gdt.TemplateFieldType.ONTOLOGYTERM &&
 						params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] == "#invalidterm"
 					) {
 						invalidontologies++
 					} else
-					if (field.type == dbnp.studycapturing.TemplateFieldType.ONTOLOGYTERM &&
+					if (field.type == nl.grails.plugins.gdt.TemplateFieldType.ONTOLOGYTERM &&
 						params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] != "#invalidterm") {
 						removeFailedCell(flow.importer_failedcells, entity)
 						entity.setFieldValue(field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])

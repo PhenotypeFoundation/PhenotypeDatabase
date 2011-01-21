@@ -14,6 +14,7 @@
  */
 package dbnp.studycapturing
 
+import nl.grails.plugins.gdt.*
 import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
 
 class SynchronizationService implements Serializable {
