@@ -20,7 +20,7 @@
  */
 package dbnp.studycapturing
 
-class RelTime {
+class RelTime implements Comparable {
 	final static long s = 1L;
 	final static long m = 60L * s;
 	final static long h = 60L * m;
@@ -284,9 +284,6 @@ class RelTime {
 	}
 
 	public void computeDifference(Date start, Date end) {
-		println([start, end]);
-		println([start.getTime(), end.getTime()]);
-
 		if (start && end) {
 			long seconds = (end.getTime() - start.getTime()) / 1000L;
 			setValue(seconds);
@@ -299,5 +296,25 @@ class RelTime {
 		RelTime reltime = new RelTime();
 		reltime.parse(value);
 		return reltime;
+	}
+	
+	public boolean equals( Object o ) {
+		if( o == null )
+			return false
+		if( !( o instanceof RelTime ) ) 
+			return false
+		
+		RelTime rt = (RelTime) o;
+		
+		return rt.reltimeValue == this.reltimeValue;
+	}
+	
+	public int compareTo( Object o ) throws ClassCastException {
+		if( o == null || !( o instanceof RelTime ) )
+			throw new ClassCastException( "Can't cast object " + o + " of class " + o.class.getName() + " to RelTime for comparison.")
+		
+		RelTime rt = (RelTime) o;
+		
+		return rt.reltimeValue <=> this.reltimeValue;
 	}
 }

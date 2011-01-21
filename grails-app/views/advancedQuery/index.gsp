@@ -12,6 +12,10 @@
 
 <form id="input_criteria">
 	<h2>Add criterium</h2>
+	<p>
+		N.B. Comparing numerical values is done without taking into
+		account the units. E.g. a weight of 1 kg equals 1 grams.
+	</p>
 	<label for="field">Field</label>
 		<select name="field">
 			<option value=""></option>
@@ -26,6 +30,16 @@
 			</g:each>
 		</select> 
 		
+	<label for="value">Comparison</label>
+		<select name="operator">
+			<option value="equals">Equals</option>
+			<option value="contains">Contains</option>
+			<option value="&gt;=">Greater than or equals</option>
+			<option value="&gt;">Greater than</option>
+			<option value="&lt;">Lower than</option>
+			<option value="&lt;=">Lower than or equals</option>
+		</select> 
+
 	<label for="value">Value</label>
 		<input class='text' type="text" name="value" />
 	

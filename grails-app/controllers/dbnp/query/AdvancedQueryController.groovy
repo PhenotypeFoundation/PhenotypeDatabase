@@ -35,9 +35,10 @@ class AdvancedQueryController {
 
 		// Create a search object and let it do the searching
 		Search search;
+		String view;
 		switch( params.entity ) {
-			case "Study":	search = new StudySearch();		break;
-			case "Sample":	search = new SampleSearch();	break;
+			case "Study":	search = new StudySearch();		view = "studyresults"; 	break;
+			case "Sample":	search = new SampleSearch();	view = "sampleresults";	break;
 			
 			// This exception will only be thrown if the entitiesToSearchFor contains more entities than 
 			// mentioned in this switch structure.
@@ -46,7 +47,7 @@ class AdvancedQueryController {
 		
 		search.execute( parseCriteria( params.criteria ) );
 		
-		render( view: search.getView(), model: [search: search] );
+		render( view: view, model: [search: search] );
 	}
 	
 	/**
@@ -63,7 +64,9 @@ class AdvancedQueryController {
 				def domainFields = entity.giveDomainFields();
 				def templateFields = TemplateField.findAllByEntity( entity )
 				
-				fields[ it ] = ( domainFields + templateFields ).collect { it.name }.unique().sort { a, b -> a[0].toUpperCase() + a[1..-1] <=> b[0].toUpperCase() + b[1..-1] };
+				def fieldNames = ( domainFields + templateFields ).collect { it.name }.unique() + 'Template'
+				
+				fields[ it ] = fieldNames.sort { a, b -> a[0].toUpperCase() + a[1..-1] <=> b[0].toUpperCase() + b[1..-1] };
 			}
 		}
 		
@@ -85,7 +88,7 @@ class AdvancedQueryController {
 	 *		1.field: d
 	 *	]
 	 *
-	 * @return	List with [entity: ..., field: ..., entityfield: ..., operator: ..., value: ...] tuples.
+	 * @return	List with Criterion objects
 	 */
 	protected List parseCriteria( def c ) {
 		ArrayList list = [];
@@ -93,19 +96,34 @@ class AdvancedQueryController {
 		// Loop through all keys of c and remove the non-numeric ones
 		c.each {
 			if( it.key ==~ /[0-9]+/ ) {
-				def criterium = it.value;
+				def formCriterion = it.value;
+				Criterion criterion = new Criterion();
 				
-				def field = criterium.entityfield?.split( /\./ );
+				// Split entity and field
+				def field = formCriterion.entityfield?.split( /\./ );
 				
 				if( field.size() > 1 ) {
-					criterium.entity = field[0].toString();
-					criterium.field = field[1].toString();
+					criterion.entity = field[0].toString();
+					criterion.field = field[1].toString();
 				} else {
-					criterium.entity = null;
-					criterium.field = field;
+					criterion.entity = null;
+					criterion.field = field;
 				}
 				
-				list << criterium;
+				// Convert operator string to Operator-enum field
+				switch( formCriterion.operator ) {
+					case ">=":			criterion.operator = Operator.gte; break;
+					case ">":			criterion.operator = Operator.gt;  break;
+					case "<":			criterion.operator = Operator.lte; break;
+					case "<=":			criterion.operator = Operator.lt;  break;
+					case "contains":	criterion.operator = Operator.contains; break;
+					case "equals":		criterion.operator = Operator.equals; break;
+				}
+				
+				// Copy value
+				criterion.value = formCriterion.value;
+				 
+				list << criterion;
 			}
 		}
 		

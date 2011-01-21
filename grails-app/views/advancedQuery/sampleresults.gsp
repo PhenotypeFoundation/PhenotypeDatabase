@@ -11,7 +11,7 @@
 <h1>Query results</h1>
 
 <p>
-	Your search for:
+	Your search for studies with:
 </p>
 <ul id="criteria">
 	<g:each in="${search.getCriteria()}" var="criterion">
@@ -23,25 +23,30 @@
 	</g:each>
 </ul>
 <p> 
-	resulted in ${search.getNumResults()} results.
+	resulted in ${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">sample</g:if><g:else>samples</g:else>.
 </p>
 
 <g:if test="${search.getNumResults() > 0}">
 
-	<table id="searchresults">
+	<table id="searchresults" class="paginate">
 		<thead>
-			<tr>
-				<th>Type</th>
-				<th>Id</th>
-			</tr>
+		<tr>
+			<th colspan="2"></th>
+			<th>Study</th>
+			<th>Name</th>
+		</tr>
 		</thead>
-		<g:each in="${search.getResults()}" var="result">
-			<tr>
-				<td>${search.entity}</td>
-				<td>${result.id}</td>
+		<tbody>
+		<g:each in="${search.getResults()}" var="sampleInstance" status="i">
+			<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+
+				<td><g:link controller="study" action="show" id="${sampleInstance?.parent?.id}">${sampleInstance?.parent?.title}</g:link></td>
+				<td>${fieldValue(bean: sampleInstance, field: "name")}</td>
 			</tr>
 		</g:each>
+		</tbody>
 	</table>
+
 </g:if>
 <p>
 	<g:link action="index">Search again</g:link>

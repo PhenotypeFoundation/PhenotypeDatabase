@@ -7,7 +7,7 @@ var criteriumId = 0;
 function addCriterium() {
 	var field_descriptor = $( '#input_criteria select[name=field]' ).val();
 	var value = $( '#input_criteria input[name=value]' ).val();
-	var operator = 'equals';
+	var operator = $( '#input_criteria select[name=operator]' ).val();
 	
 	// Show the title and a remove button
 	showCriterium(field_descriptor, value, operator);
@@ -18,6 +18,7 @@ function addCriterium() {
 	
 	// Clear the input form
 	$( '#input_criteria select[name=field]' ).val( '' );
+	$( '#input_criteria select[name=operator]' ).val( 'equals' );
 	$( '#input_criteria input[name=value]' ).val( '' );
 }
 

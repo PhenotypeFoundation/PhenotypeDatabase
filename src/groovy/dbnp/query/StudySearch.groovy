@@ -19,7 +19,6 @@ import dbnp.studycapturing.*;
 class StudySearch extends Search {
 	public StudySearch() {
 		this.entity = "Study";
-		this.view = "studyresults";
 	}
 
 	/**
@@ -45,13 +44,13 @@ class StudySearch extends Search {
 	 * the system doesn't look for human subjects having a sample with name 'sample 1'. The sample 1 might
 	 * as well belong to a mouse subject and still the study satisfies the criteria.
 	 * 
-	 * When searching for more than one criterium per entity, these are taken combined. Searching for
+	 * When searching for more than one criterion per entity, these are taken combined. Searching for
 	 * 
 	 * 		Subject.species = 'human'
 	 * 		Subject.name = 'Jan'
 	 * 
 	 *  will result in all studies having a human subject named 'Jan'. Studies with only a mouse subject 
-	 *  named 'Jan' or a human subject named 'Kees' won't satisty the criteria. 
+	 *  named 'Jan' or a human subject named 'Kees' won't satisfy the criteria. 
 	 *	
 	 */
 	@Override
@@ -70,6 +69,7 @@ class StudySearch extends Search {
 		studies = filterOnSubjectCriteria( studies );
 		studies = filterOnSampleCriteria( studies );
 		studies = filterOnEventCriteria( studies );
+		studies = filterOnSamplingEventCriteria( studies );
 		studies = filterOnAssayCriteria( studies );
 
 		// Save matches
@@ -82,14 +82,8 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the Study-criteria
 	 */
 	protected List filterOnStudyCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Study' ), { study, criterium ->
-			try {
-				return this.compare( study.getFieldValue( criterium.field ), criterium );
-			} catch( Exception e ) {
-				// An exception occurs if the given field doesn't exist. In that case, this criterium will fail.
-				// TODO: Maybe give the user a choice whether he want's to include these studies or not
-				return false;
-			}
+		return filterEntityList( studies, getEntityCriteria( 'Study' ), { study, criterion ->
+			return criterion.matchOne( study );
 		});
 	}
 
@@ -99,22 +93,11 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the Subject-criteria
 	 */
 	protected List filterOnSubjectCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Subject' ), { study, criterium ->
+		return filterEntityList( studies, getEntityCriteria( 'Subject' ), { study, criterion ->
 			if( !study.subjects?.size() )
 				return false
 
-			for( subject in study.subjects ) {
-				try {
-					if( this.compare( subject.getFieldValue( criterium.field ), criterium ) ) {
-						return true
-					}
-				} catch( Exception e ) {
-					// An exception occurs if the given field doesn't exist. In that case, this criterium will fail.
-					// TODO: Maybe give the user a choice whether he want's to include these studies or not
-				}
-			}
-			
-			return false;
+			return criterion.matchAny( study.subjects );
 		});
 	}
 
@@ -124,21 +107,11 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the sample-criteria
 	 */
 	protected List filterOnSampleCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Sample' ), { study, criterium ->
+		return filterEntityList( studies, getEntityCriteria( 'Sample' ), { study, criterion ->
 			if( !study.samples?.size() )
 				return false
 
-			for( sample in study.samples ) {
-				try {
-					if( this.compare( sample.getFieldValue( criterium.field ), criterium ) )
-						return true
-				} catch( Exception e ) {
-					// An exception occurs if the given field doesn't exist. In that case, this criterium will fail.
-					// TODO: Maybe give the user a choice whether he want's to include these studies or not
-				}
-			}
-			return false;
-			
+			return criterion.matchAny( study.samples );
 		});
 	}
 
@@ -148,23 +121,28 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the event-criteria
 	 */
 	protected List filterOnEventCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Event' ), { study, criterium ->
+		return filterEntityList( studies, getEntityCriteria( 'Event' ), { study, criterion ->
 			if( !study.events?.size() )
 				return false
 
-			for( event in study.events ) {
-				try {
-					if( this.compare( event.getFieldValue( criterium.field ), criterium ) )
-						return true
-				} catch( Exception e ) {
-					// An exception occurs if the given field doesn't exist. In that case, this criterium will fail.
-					// TODO: Maybe give the user a choice whether he want's to include these studies or not
-				}
-			}
-			return false;
+			return criterion.matchAny( study.events );
 		});
 	}
 	
+	/**
+	* Filters the given list of studies on the sampling event criteria
+	* @param studies	Original list of studies
+	* @return			List with all studies that match the event-criteria
+	*/
+   protected List filterOnSamplingEventCriteria( List studies ) {
+	   return filterEntityList( studies, getEntityCriteria( 'SamplingEvent' ), { study, criterion ->
+		   if( !study.samplingEvents?.size() )
+			   return false
+
+			return criterion.matchAny( study.samplingEvents );
+	   });
+   }
+
 	
 	/**
 	 * Filters the given list of studies on the assay criteria
@@ -172,20 +150,11 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the assay-criteria
 	 */
 	protected List filterOnAssayCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Assay' ), { study, criterium ->
+		return filterEntityList( studies, getEntityCriteria( 'Assay' ), { study, criterion ->
 			if( !study.assays?.size() )
 				return false
 
-			for( assay in study.assays ) {
-				try {
-					if( this.compare( assay.getFieldValue( criterium.field ), criterium ) )
-						return true
-				} catch( Exception e ) {
-					// An exception occurs if the given field doesn't exist. In that case, this criterium will fail.
-					// TODO: Maybe give the user a choice whether he want's to include these studies or not
-				}
-			}
-			return false;
+			return criterion.matchAny( study.assays );
 		});
 	}
 }

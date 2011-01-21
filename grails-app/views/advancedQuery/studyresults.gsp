@@ -14,11 +14,11 @@
 	Your search for studies with:
 </p>
 <ul id="criteria">
-	<g:each in="${search.getCriteria()}" var="criterium">
+	<g:each in="${search.getCriteria()}" var="criterion">
 		<li>
-			<span class="entityfield">${criterium.entityfield}</span>
-			<span class="operator">${criterium.operator}</span>
-			<span class="value">${criterium.value}</span>
+			<span class="entityfield">${criterion.entity}.${criterion.field}</span>
+			<span class="operator">${criterion.operator}</span>
+			<span class="value">${criterion.value}</span>
 		</li>
 	</g:each>
 </ul>

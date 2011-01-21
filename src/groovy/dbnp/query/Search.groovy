@@ -15,23 +15,24 @@
  */
 package dbnp.query
 
+import dbnp.studycapturing.RelTime
+import dbnp.studycapturing.TemplateEntity
+import dbnp.studycapturing.TemplateFieldType
 import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat
 
 class Search {
 	public String entity;
 
 	protected List criteria;
 	protected List results;
-	protected String view = "results";
 
 	public List getCriteria() { return criteria; }
 	public void setCriteria( List c ) { criteria = c; }
 
 	public List getResults() { return results; }
 	public void setResults( List r ) { results = r; }
-
-	public String getView() { return view; }
-	public void setView( String v) { view = v; }
 
 	/**
 	 * Returns the number of results found by this search
@@ -69,135 +70,93 @@ class Search {
 	protected List getEntityCriteria( String entity ) {
 		return criteria?.findAll { it.entity == entity }
 	}
-
+	
 	/**
-	 * Filters a list with entities, based on the given criteria and a closure to check whether a criterium is matched
+	 * Filters a list with entities, based on the given criteria and a closure to check whether a criterion is matched
 	 * 
 	 * @param entities	Original list with entities to check for these criteria
 	 * @param criteria	List with criteria to match on
-	 * @param check		Closure to see whether a specific entity matches a criterium. Gets two arguments:
+	 * @param check		Closure to see whether a specific entity matches a criterion. Gets two arguments:
 	 * 						element		The element to check 
-	 * 						criterium	The criterium to check on.
-	 * 					Returns true if the criterium holds, false otherwise
+	 * 						criterion	The criterion to check on.
+	 * 					Returns true if the criterion holds, false otherwise
 	 * @return			The filtered list of entities
 	 */
-	protected List filterEntityList( List entities, List criteria, Closure check ) {
+	protected List filterEntityList( List entities, List<Criterion> criteria, Closure check ) {
 		if( !entities || !criteria || criteria.size() == 0 ) {
 			return entities;
 		}
 
 		return entities.findAll { entity ->
-			for( def criterium in criteria ) {
-				println "Check " + entity + " for " + criterium
-				if( !check( entity, criterium ) ) {
+			for( criterion in criteria ) {
+				if( !check( entity, criterion ) ) {
 					return false;
 				}
 			}
 			return true;
 		}
 	}
-
+	
 	/**
-	 * Tries to match a value against a criterium and returns true if it matches
-	 * 
-	 * @param value		Value of the field to match
-	 * @param criterium	Criterium to match on. Should be a map with entries 'operator' and 'value'
-	 * @return			True iff the value matches this criterium, false otherwise
-	 */
-	protected boolean compare( def value, def criterium ) {
-		switch( value.class.getName() ) {
-			// TODO: Make the search capable of handle RelTime fields
-			case "java.lang.Long":			return longCompare( value, criterium );
-			case "java.lang.Double":		return doubleCompare( value, criterium );
-			case "java.lang.Boolean":		return booleanCompare( value, criterium );
-			case "java.lang.Date":			return dateCompare( value, criterium );
-			case "AssayModule":
-			case "Template":
-			case "RelTime":
-			case "Term":
-			case "TemplateFieldListItem":
-			default:						return stringCompare( value.toString(), criterium );
-		}
-	}
-
-	/**
-	 * Tries to match a string value against a criterium and returns true if it matches
+	 * Prepares a value from a template entity for comparison, by giving it a correct type
 	 *
-	 * @param value		String value of the field to match
-	 * @param criterium	Criterium to match on. Should be a map with entries 'operator' and 'value'
-	 * @return			True iff the value matches this criterium, false otherwise
+	 * @param value		Value of the field 
+	 * @param type		TemplateFieldType	Type of the specific field
+	 * @return			The value of the field in the correct entity
 	 */
-	protected boolean stringCompare( String value, def criterium ) {
-		try {
-			String stringCriterium = criterium.value.toString().trim()
-			return value.trim().equals( stringCriterium );
-		} catch( Exception e ) {
-			return false;
+	public static def prepare( def value, TemplateFieldType type ) {
+		switch (type) {
+			case TemplateFieldType.DATE:
+				try {
+					return new SimpleDateFormat( "yyyy-MM-dd" ).parse( value )
+				} catch( Exception e ) {
+					return value.toString();
+				}
+			case TemplateFieldType.RELTIME:
+				try {
+					if( value instanceof Number ) {
+						return new RelTime( value );
+					} else if( value.toString().isNumber() ) {
+						return new RelTime( Long.parseLong( value.toString() ) ) 
+					} else {
+						return new RelTime( value );
+					}
+				} catch( Exception e ) {
+					try {
+						return Long.parseLong( value )
+					} catch( Exception e2 ) {
+						return value.toString();
+					}
+				}
+			case TemplateFieldType.DOUBLE:
+				try {
+					return Double.valueOf( value )
+				} catch( Exception e ) {
+					return value.toString();
+				}
+			case TemplateFieldType.BOOLEAN:
+				try {
+					return Boolean.valueOf( value )
+				} catch( Exception e ) {
+					println e.getMessage();
+					return value.toString();
+				}
+			case TemplateFieldType.LONG:
+				try {
+					return Long.valueOf( value )
+				} catch( Exception e ) {
+					return value.toString();
+				}
+			case TemplateFieldType.STRING:
+			case TemplateFieldType.TEXT:
+			case TemplateFieldType.STRINGLIST:
+			case TemplateFieldType.TEMPLATE:
+			case TemplateFieldType.MODULE:
+			case TemplateFieldType.FILE:
+			case TemplateFieldType.ONTOLOGYTERM:
+			default:
+				return value.toString();
 		}
-	}
 
-	/**
-	 * Tries to match a date value against a criterium and returns true if it matches
-	 * 
-	 * @param value		Date value of the field to match
-	 * @param criterium	Criterium to match on. Should be a map with entries 'operator' and 'value'
-	 * @return			True iff the value matches this criterium, false otherwise
-	 */
-	protected boolean dateCompare( Date value, def criterium ) {
-		try {
-			Date dateCriterium = DateFormat.parse( criterium.value );
-			return value.equals( dateCriterium );
-		} catch( Exception e ) {
-			return false;
-		}
-	}
-
-	/**
-	 * Tries to match a long value against a criterium and returns true if it matches
-	 *
-	 * @param value		Long value of the field to match
-	 * @param criterium	Criterium to match on. Should be a map with entries 'operator' and 'value'
-	 * @return			True iff the value matches this criterium, false otherwise
-	 */
-	protected boolean longCompare( Long value, def criterium ) {
-		try {
-			Long longCriterium = Long.parseLong( criterium.value );
-			return value.equals( longCriterium );
-		} catch( Exception e ) {
-			return false;
-		}
-	}
-
-	/**
-	 * Tries to match a double value against a criterium and returns true if it matches
-	 *
-	 * @param value		Double value of the field to match
-	 * @param criterium	Criterium to match on. Should be a map with entries 'operator' and 'value'
-	 * @return			True iff the value matches this criterium, false otherwise
-	 */
-	protected boolean doubleCompare( Double value, def criterium ) {
-		try {
-			Double doubleCriterium = Double.parseDouble( criterium.value );
-			return value.equals( doubleCriterium );
-		} catch( Exception e ) {
-			return false;
-		}
-	}
-
-
-	/**
-	 * Tries to match a boolean value against a criterium and returns true if it matches
-	 *
-	 * @param value		Boolean value of the field to match
-	 * @param criterium	Criterium to match on. Should be a map with entries 'operator' and 'value'
-	 * @return			True iff the value matches this criterium, false otherwise
-	 */
-	protected boolean booleanCompare( Double value, def criterium ) {
-		try {
-			Boolean booleanCriterium = Boolean.parseBoolean( criterium.value );
-			return value.equals( booleanCriterium );
-		} catch( Exception e ) {
-			return false;
-		}
 	}
 }
