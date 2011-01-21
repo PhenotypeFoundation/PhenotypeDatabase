@@ -23,12 +23,12 @@
   </head>
   <body>
   <div style="color:red;">
-    flash.errorMessage
+    ${flash.errorMessage}
   </div>
-  <g:form name="assaySelect" action="">
-    <g:select optionKey="id" optionValue="title" name="study" from="${userStudies}"
+  <g:form name="assaySelect" action="exportAssayAsExcel">
+    <g:select optionKey="id" optionValue="title" name="studyId" from="${userStudies}"
             onChange="${remoteFunction(controller:'study',action:'ajaxGetAssays',params:'\'id=\'+escape(this.value)',onComplete: 'updateAssay(XMLHttpRequest.responseText, \'assay\')')}"/>
-    <g:select name="assay" id="assay" from="${assays}"/>
+    <g:select optionKey="id" name="assayId" id="assay" from="${assays}"/>
     <g:submitButton name="submit" value="Submit"/>
   </g:form>
   </body>

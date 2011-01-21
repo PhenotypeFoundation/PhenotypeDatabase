@@ -137,58 +137,30 @@ class AssayController {
      * @param params.id Assay id
      */
     def exportAssayAsExcel = {
-        Assay assay = Assay.get(params.id)
+
+        Assay assay = Assay.get(params.assayId)
 
         if (!assay) {
-            flash.errorMessage = "No assay found with id: $params.id."
+            flash.errorMessage = "No assay found with id: $params.assayId."
             redirect action: 'selectAssay'
             return
         }
 
-        // TODO: refactor into service
-
-        // Gather sample meta data from GSCF
-        def samples = assay.samples
-
-        def collectUsedTemplateFields = { templateEntityList ->
-
-            def templateFields = templateEntityList*.giveFields().flatten().unique().findAll{it}
-            def usedTemplateFields = templateFields.findAll{ tf ->
-
-                templateEntityList.any { it.fieldExists(tf.name) && it.getFieldValue(tf.name) }
-            }
-
-            def m = [:]
-            usedTemplateFields.each { tf ->
-                m["${tf.name}"] = templateEntityList.collect{ it.fieldExists(tf.name) ? it.getFieldValue(tf.name) : '' }
-            }
-            m
-        }
-
-        // get all sample related subjects
-        def assayData = [
-                'Subject Data':         collectUsedTemplateFields(samples*.parentSubject.unique()),
-                'Sampling Event Data':  collectUsedTemplateFields(samples*.parentEvent.unique()),
-                'Event Data':           collectUsedTemplateFields(samples*.parentEventGroup.events.flatten().unique()),
-                'Sample Data':          collectUsedTemplateFields(samples)]
-
-        // Gather sample meta data from the module
-
-        // - sample metadata
-
-        // Gather measurement data from the module
-
-        // - measurements
-
-        // Write to excel
-
-        println assayData
-
         try {
-            assayService.exportAssayDataAsExcelFile(assayData)
+
+            def assayData = assayService.collectAssayData(assay, grailsApplication.config.modules.metabolomics.url)
+
+            def filename = 'export.xlsx'
+            response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
+            response.setContentType("application/octet-stream")
+
+            assayService.exportColumnWiseDataToExcelFile(assayData, response.outputStream)
+
         } catch (Exception e) {
-            flash.errorMessage = e.message
+
+            flash.errorMessage = e.toString()
             redirect action: 'selectAssay'
+
         }
     }
 }
