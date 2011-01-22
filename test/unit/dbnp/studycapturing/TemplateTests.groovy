@@ -2,6 +2,7 @@ package dbnp.studycapturing
 
 import grails.test.*
 import dbnp.authentication.*
+import nl.grails.plugins.gdt.*
 
 class TemplateTests extends GrailsUnitTestCase {
     protected void setUp() {

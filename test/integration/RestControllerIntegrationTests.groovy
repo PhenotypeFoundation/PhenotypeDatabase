@@ -15,7 +15,7 @@ import dbnp.authentication.*
  * $Author$
  * $Date$
  */
-class RestControllerTests extends ControllerUnitTestCase {
+class RestControllerIntegrationTests extends ControllerUnitTestCase {
 	def AuthenticationService
 
 	String consumer = "TEST"

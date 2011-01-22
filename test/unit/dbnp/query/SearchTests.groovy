@@ -1,7 +1,6 @@
 package dbnp.query
 
-import dbnp.studycapturing.RelTime
-import dbnp.studycapturing.TemplateFieldType;
+import nl.grails.plugins.gdt.*
 import grails.test.*
 
 /**

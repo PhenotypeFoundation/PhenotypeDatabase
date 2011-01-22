@@ -1,7 +1,7 @@
 package dbnp.studycapturing
 
 import grails.test.*
-import dbnp.data.Ontology
+import nl.grails.plugins.gdt.*
 
 class TemplateFieldTests extends GrailsUnitTestCase {
     def testEvent;

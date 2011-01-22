@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import grails.test.*
+import nl.grails.plugins.gdt.*
 
 /**
  * RelTimeTests Test

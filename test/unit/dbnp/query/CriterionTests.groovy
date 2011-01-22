@@ -1,6 +1,6 @@
 package dbnp.query
 
-import dbnp.studycapturing.RelTime
+import nl.grails.plugins.gdt.*
 import grails.test.*
 import java.util.Date;
 import java.text.DateFormat;
