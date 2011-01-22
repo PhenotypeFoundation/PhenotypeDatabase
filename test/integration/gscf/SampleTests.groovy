@@ -1,13 +1,8 @@
 package gscf
 
-import dbnp.studycapturing.Study
-import dbnp.studycapturing.Template
+import dbnp.studycapturing.*
 import grails.test.GrailsUnitTestCase
-import dbnp.studycapturing.SamplingEvent
-import dbnp.studycapturing.Sample
-import dbnp.studycapturing.TemplateFieldType
-import dbnp.studycapturing.Subject
-import dbnp.studycapturing.EventGroup
+import nl.grails.plugins.gdt.*
 
 /**
  * Test the creation of a Sample and its TemplateEntity functionality on data model level

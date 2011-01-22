@@ -2,7 +2,7 @@ package gscf
 
 import grails.test.*
 import dbnp.data.*
-
+import nl.grails.plugins.gdt.*
 import uk.ac.ebi.ontocat.*
 
 /**

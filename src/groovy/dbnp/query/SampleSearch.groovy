@@ -83,9 +83,7 @@ class SampleSearch extends Search {
 				'in'( 'parent', studies )
 			}
 		} else {
-			Sample.findAll().each {
-				samples << it;
-			}
+			samples = Sample.findAll()
 		}
 
 		samples = filterOnSubjectCriteria( samples );
