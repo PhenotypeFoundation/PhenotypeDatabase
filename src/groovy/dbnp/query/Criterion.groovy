@@ -92,7 +92,9 @@ class Criterion {
 			
 		def classname = fieldValue.class.getName();
 		classname = classname[classname.lastIndexOf( '.' ) + 1..-1].toLowerCase();
-
+		
+		println "Match " + fieldValue + " of class " + classname + " with " + this
+		
 		try {
 			switch( classname ) {
 				case "integer":					return longCompare( new Long( fieldValue.longValue() ) );
@@ -237,7 +239,7 @@ class Criterion {
 			} else {
 				rt = new RelTime( value.toString() );
 			}
-
+			
 			return compareValues( fieldValue, this.operator, rt );
 		} catch( Exception e ) {
 			log.error e.class.getName() + ": " + e.getMessage();

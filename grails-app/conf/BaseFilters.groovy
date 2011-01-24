@@ -39,7 +39,7 @@ class BaseFilters {
 			}
 
 			afterView = {
-				def actionDuration = request._timeAfterRequest - request._timeBeforeRequest
+				def actionDuration = request._timeAfterRequest ? request._timeAfterRequest - request._timeBeforeRequest : 0
 				def viewDuration = System.currentTimeMillis() - request._timeAfterRequest
 				log.info("Timer: ${controllerName}(${actionDuration}ms)::${actionName}(${viewDuration}ms)")
 			}

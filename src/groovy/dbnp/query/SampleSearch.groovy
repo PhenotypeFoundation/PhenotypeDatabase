@@ -72,11 +72,13 @@ class SampleSearch extends Search {
 		def samples = []
 		if( getEntityCriteria( 'Study' ).size() > 0 ) {
 			def studies = Study.findAll();
+			
+			studies = filterOnStudyCriteria( studies );
+			
 			if( studies.size() == 0 ) {
 				results = [];
 				return;
 			}
-			studies = filterOnStudyCriteria( studies );
 			
 			def c = Sample.createCriteria()
 			samples = c.list {
@@ -91,7 +93,7 @@ class SampleSearch extends Search {
 		samples = filterOnEventCriteria( samples );
 		samples = filterOnSamplingEventCriteria( samples );
 		samples = filterOnAssayCriteria( samples );
-
+		
 		// Save matches
 		results = samples;
 	}
@@ -141,11 +143,12 @@ class SampleSearch extends Search {
 	 * @return			List with all samples that match the event-criteria
 	 */
 	protected List filterOnEventCriteria( List samples ) {
+		println "Event criteria: " + getEntityCriteria( 'Event' )
 		return filterEntityList( samples, getEntityCriteria( 'Event' ), { sample, criterion ->
-			if( !sample || !sample.parentEventGroup || !sample.parentEventGroup.events?.size() )
+			if( !sample || !sample.parentEventGroup || !sample.parentEventGroup.events || sample.parentEventGroup.events.size() == 0 )
 				return false
-
-			return criterion.matchAny( sample.parentEventGroup.events );
+		
+			return criterion.matchAny( sample.parentEventGroup.events.toList() );
 		});
 	}
 
@@ -173,6 +176,9 @@ class SampleSearch extends Search {
 		if( !samples?.size() )
 			return [];
 
+		if( getEntityCriteria( 'Assay' ).size() == 0 )
+			return samples
+			
 		// There is no sample.assays property, so we have to look for assays another way: just find
 		// all assays that match the criteria
 		def assays = filterEntityList( Assay.list(), getEntityCriteria( 'Assay' ), { assay, criterion ->

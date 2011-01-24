@@ -2,6 +2,7 @@ package dbnp.studycapturing
 
 import grails.converters.*
 import grails.plugins.springsecurity.Secured
+import nl.grails.plugins.gdt.TemplateFieldType
 
 /**
  * Controller class for studies

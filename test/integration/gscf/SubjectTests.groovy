@@ -4,6 +4,7 @@ import grails.test.*
 import dbnp.studycapturing.*
 import dbnp.data.*
 import nl.grails.plugins.gdt.*
+
 /**
  * SubjectTests Test
  *
