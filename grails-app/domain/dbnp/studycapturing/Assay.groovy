@@ -1,5 +1,6 @@
 package dbnp.studycapturing
 import nl.grails.plugins.gdt.*
+import java.util.UUID;
 
 /**
  * This class describes an Assay, which describes the application of a certain (omics) measurement to multiple samples.
@@ -16,6 +17,11 @@ class Assay extends nl.grails.plugins.gdt.TemplateEntity {
 	// The assay ID which is used in the dbNP submodule which contains the actual omics data of this assay.
 	// This ID is generated in GSCF, but is used in the submodules to refer to this particular Assay.
 	String externalAssayID
+
+	/**
+	* UUID of this assay
+	*/
+    String assayUUID
 
 	/**
 	 * return the domain fields for this domain class
@@ -49,6 +55,7 @@ class Assay extends nl.grails.plugins.gdt.TemplateEntity {
 
 	static constraints = {
 		externalAssayID(nullable:false, blank:false, unique: true)
+		assayUUID(nullable:true, unique: true)
 	}
 
     static mapping = {
@@ -63,6 +70,18 @@ class Assay extends nl.grails.plugins.gdt.TemplateEntity {
 	}
 
     def getToken() {
-		return externalAssayID
+		return giveUUID()
     }
+	
+	/**
+	 * Returns the UUID of this sample and generates one if needed
+	 */
+	public String giveUUID() {
+		if( !this.assayUUID ) {
+			this.assayUUID = UUID.randomUUID().toString();
+			this.save();
+		}
+		
+		return this.assayUUID;
+	}
 }

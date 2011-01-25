@@ -251,7 +251,7 @@ class StudyController {
 	}
 
     def showByToken = {
-        def studyInstance = Study.findByCode(params.id)
+        def studyInstance = Study.findByStudyUUID(params.id)
         if (!studyInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
             redirect(action: "list")

@@ -51,7 +51,7 @@ class AssayController {
     }
 
 	def showByToken = {
-	    def assayInstance = Assay.findByExternalAssayID(params.id)
+	    def assayInstance = Assay.findByAssayUUID(params.id)
 	    if (!assayInstance) {
 	        flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
 	        redirect(action: "list")

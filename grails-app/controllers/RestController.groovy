@@ -136,7 +136,7 @@ class RestController {
 			studies = Study.findAll()
 		}
 		else if( params.studyToken instanceof String ) {
-			def study = Study.findByCode( params.studyToken ) 
+			def study = Study.findByStudyUUID( params.studyToken ) 
 			if( study ) {
 				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
 					response.sendError(401)
@@ -152,7 +152,7 @@ class RestController {
 		}
 		else { 
 			params.studyToken.each{ studyToken ->
-				def study = Study.findByCode( studyToken );
+				def study = Study.findByStudyUUID( studyToken );
 				if( study )
 					studies.push study 
 			}
@@ -165,13 +165,10 @@ class RestController {
 				// Check whether the person is allowed to read the data of this study
 				if( study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 
-                    def items = [:]
+                    def items = [studyToken:study.giveUUID()]
                     study.giveFields().each { field ->
                         def name = field.name
                         def value = study.getFieldValue( name )
-                        if( name=='code' ) {
-                            name = 'studyToken'
-                        }
                         items[name] = value
                     }
 					
@@ -214,7 +211,7 @@ class RestController {
 			response.sendError(400)
 			return false
 		} else {
-			study = Study.findByCode( params.studyToken )
+			study = Study.findByStudyUUID( params.studyToken )
 			if( study ) {
 				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
 					response.sendError(401)
@@ -247,8 +244,7 @@ class RestController {
 	def getSubjects = {
 		List subjects = [] 
 		if( params.studyToken ) {
-			def id = params.studyToken
- 			def study = Study.find( "from Study as s where s.code=?", [id])
+ 			def study = Study.findByStudyUUID( params.studyToken)
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
@@ -320,8 +316,7 @@ class RestController {
 
 		if( params.studyToken ) {
 
-			def id = params.studyToken
- 			def study = Study.findByCode(id)
+ 			def study = Study.findByStudyUUID(params.studyToken)
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
@@ -335,14 +330,14 @@ class RestController {
 					assays = study.assays
 				}
 				else if( params.assayToken instanceof String ) { 
-					def assay = study.assays.find{ it.externalAssayID==params.assayToken }
+					def assay = study.assays.find{ it.giveUUID() == params.assayToken }
 					if( assay ) {
 						 assays.push assay
 					}
 				}
 				else { 													// there are multiple assayTokens instances
 					params.assayToken.each { assayToken ->
-						def assay = study.assays.find{ it.externalAssayID==assayToken }
+						def assay = study.assays.find{ it.giveUUID() == assayToken }
 						if(assay) {
 							assays.push assay
 						}
@@ -352,16 +347,13 @@ class RestController {
 				assays.each{ assay ->
 					if (assay.module.url.equals(params.consumer)) {
 						if(assay) {
-							def map = [:]
+							def map = [assayToken : assay.giveUUID()]
 							assay.giveFields().each { field ->
 								def name = field.name
 								def value = assay.getFieldValue( name )
-								if(field.name=='externalAssayID') {
-									name = 'assayToken'
-								}
 								map[name] = value
 							}
-							map["parentStudyToken"] = assay.parent.getToken()
+							map["parentStudyToken"] = assay.parent.giveUUID()
 							returnList.push( map )
 						}
 					}
@@ -374,12 +366,6 @@ class RestController {
  		}
 		render returnList as JSON 
 	}
-
-
-
-
-
-
 
 	/**
 	 * REST resource for data modules.
@@ -441,7 +427,7 @@ class RestController {
 	def getSamples = {
 		def items = []
 		if( params.assayToken ) {
- 			def assay = Assay.find( "from Assay as a where externalAssayID=?",[params.assayToken])
+ 			def assay = Assay.findByAssayUUID( params.assayToken );
 
 			if( assay )  {
 				// Check whether the person is allowed to read the data of this study
@@ -457,13 +443,14 @@ class RestController {
 						[params.sampleToken] : params.sampleToken
 					samples = []
 					sampleTokens.each{ sampleToken ->
-						samples.addAll(assay.getSamples().find{ sample -> sampleToken == sample.name }) 
+						samples.addAll(assay.getSamples().find{ sample -> sampleToken == sample.giveUUID() }) 
 					}
 				}
 
 				samples.each { sample ->
 
 					def item = [ 
+						'sampleToken' : sample.giveUUID(),
 						'material'	  : sample.material?.name,
 						'subject'	  : sample.parentSubject?.name,
 						'event'		  : sample.parentEvent?.template?.name,
@@ -484,7 +471,7 @@ class RestController {
 						def eventHash = [:]
 						parentEvent.giveFields().each { field ->
 							def name = field.name
-							if( name!='sampleTemplate' && name!='fields') {
+							if( name !='sampleTemplate' && name != 'fields') {
 								def value = parentEvent.getFieldValue( name )
 								eventHash[name]=value
 							}
@@ -516,13 +503,6 @@ class RestController {
 		render items as JSON
 	}
 
-
-
-
-
-
-
-
 	/**
 	 * Returns the authorization level the user has for a given study.
 	 *
@@ -536,8 +516,7 @@ class RestController {
 	 */
 	def getAuthorizationLevel = {
 		if( params.studyToken ) {
-			def id = params.studyToken
- 			def study = Study.find( "from Study as s where s.code=?", [id])
+ 			def study = Study.findByStudyUUID(params.studyToken)
 
 			if( !study ) {
 				response.sendError(404)

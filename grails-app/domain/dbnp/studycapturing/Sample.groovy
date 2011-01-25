@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import nl.grails.plugins.gdt.*
+import java.util.UUID;
 
 /**
  * The Sample class describes an actual sample which results from a SamplingEvent.
@@ -33,7 +34,12 @@ class Sample extends nl.grails.plugins.gdt.TemplateEntity {
 
 	String name             // should be unique with respect to the parent study (which can be inferred)
 	Term material	        // material of the sample (should normally be bound to the BRENDA ontology)
-
+	
+	/**
+	 * UUID of this sample
+	 */
+	String sampleUUID
+	
 	/**
 	 * return the domain fields for this domain class
 	 * @return List
@@ -68,6 +74,8 @@ class Sample extends nl.grails.plugins.gdt.TemplateEntity {
 
 		// The material domain field is optional
 		material(nullable: true)
+		
+		sampleUUID(nullable: true, unique: true)
 
 		// Check if the externalSampleId (currently defined as name) is really unique within each parent study of this sample.
 		// This feature is tested by integration test SampleTests.testSampleUniqueNameConstraint
@@ -121,5 +129,17 @@ class Sample extends nl.grails.plugins.gdt.TemplateEntity {
 
 	def String toString() {
 		return name
+	}
+	
+	/**
+	 * Returns the UUID of this sample and generates one if needed
+	 */
+	public String giveUUID() {
+		if( !this.sampleUUID ) {
+			this.sampleUUID = UUID.randomUUID().toString();
+			this.save();
+		}
+		
+		return this.sampleUUID;
 	}
 }

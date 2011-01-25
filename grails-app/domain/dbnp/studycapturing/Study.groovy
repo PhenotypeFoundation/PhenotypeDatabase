@@ -2,6 +2,7 @@ package dbnp.studycapturing
 
 import dbnp.authentication.SecUser
 import nl.grails.plugins.gdt.*
+import java.util.UUID;
 
 /**
  * Domain class describing the basic entity in the study capture part: the Study class.
@@ -32,6 +33,12 @@ class Study extends nl.grails.plugins.gdt.TemplateEntity {
 	boolean published = false // Determines whether a study is private (only accessable by the owner and writers) or published (also visible to readers)
 	boolean publicstudy = false  // Determines whether anonymous users are allowed to see this study. This has only effect when published = true
 
+	/**
+	* UUID of this study
+	*/
+	String studyUUID
+
+	
 	static hasMany = [
 		subjects: Subject,
 		samplingEvents: SamplingEvent,
@@ -48,7 +55,7 @@ class Study extends nl.grails.plugins.gdt.TemplateEntity {
 	static constraints = {
 		owner(nullable: true, blank: true)
 		code(nullable: false, blank: true, unique: true)
-
+		studyUUID(nullable:true, unique:true)
 		// TODO: add custom validator for 'published' to assess whether the study meets all quality criteria for publication
 		// tested by SampleTests.testStudyPublish
 	}
@@ -67,7 +74,7 @@ class Study extends nl.grails.plugins.gdt.TemplateEntity {
 	// The external identifier (studyToken) is currently the code of the study.
 	// It is used from within dbNP submodules to refer to particular study in this GSCF instance.
 
-	def getToken() { code }
+	def getToken() { return giveUUID() }
 
 	/**
 	 * return the domain fields for this domain class
@@ -500,6 +507,18 @@ class Study extends nl.grails.plugins.gdt.TemplateEntity {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Returns the UUID of this study and generates one if needed
+	 */
+	public String giveUUID() {
+		if( !this.studyUUID ) {
+			this.studyUUID = UUID.randomUUID().toString();
+			this.save(); 
+		}
+		
+		return this.studyUUID;
 	}
 
 	// Send messages to modules about changes in this study
