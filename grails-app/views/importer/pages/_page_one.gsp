@@ -1,3 +1,4 @@
+<%@ page import="nl.grails.plugins.gdt.GdtService" %>
 <%
 /**
  * first wizard page / tab
@@ -64,9 +65,9 @@
 		<g:select
 		name="entity"
 		id="entity"
-		from="${importer_importableentities}"
-		optionValue="${{it.value.name}}"
-		optionKey="${{it.value.encrypted}}"
+		from="${GdtService.cachedEntities}"
+		optionValue="${{it.name}}"
+		optionKey="${{it.encoded}}"
 		noSelection="['':'-Choose type of data-']"
 		onChange="${remoteFunction( controller: 'importer',
 					    action:'ajaxGetTemplatesByEntity',

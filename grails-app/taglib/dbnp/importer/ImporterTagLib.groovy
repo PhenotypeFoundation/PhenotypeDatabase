@@ -23,6 +23,7 @@ import org.apache.poi.ss.usermodel.DataFormatter
 class ImporterTagLib {
 	static namespace = 'importer'
 	def ImporterService
+	def GdtService
 
 	/**
 	 * @param header string array containing header
@@ -167,10 +168,9 @@ class ImporterTagLib {
 
 		def res = "<select style=\"font-size:10px\" name=\"${name}.index.${custval}\">"
 
-		grailsApplication.config.gscf.domain.importableEntities.each { e ->
-			res += "<option value=\"${e.value.name}\""
-			res += (e.value.type == sel) ? " selected" : ""
-			res += ">${e.value.name}</option>"
+		GdtService.getTemplateEntities().each { e ->
+			res += "<option value\"${e.name}\""
+			res += ">${e.name} bla</option>"
 		}
 
 		res += "</select>"

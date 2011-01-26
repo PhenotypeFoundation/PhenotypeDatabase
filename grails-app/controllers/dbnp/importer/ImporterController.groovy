@@ -4,7 +4,7 @@ import dbnp.studycapturing.*
 import nl.grails.plugins.gdt.*
 import org.apache.poi.ss.usermodel.Workbook
 import grails.converters.JSON
-import cr.co.arquetipos.crypto.Blowfish
+//import cr.co.arquetipos.crypto.Blowfish
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import grails.plugins.springsecurity.Secured
 import org.hibernate.SessionFactory
@@ -31,6 +31,7 @@ class ImporterController {
 	def fileService
 	def ImporterService
 	def validationTagLib = new ValidationTagLib()
+	def GdtService
 
 	/**
 	 * index method, redirect to the webflow
@@ -39,18 +40,6 @@ class ImporterController {
 	def index = {
 		// Grom a development message
 		if (pluginManager.getGrailsPlugin('grom')) "redirecting into the webflow".grom()
-
-		// TODO --> move this logic to the application Bootstrapping as this
-		//			does not need to run every time the importer is started
-		//
-		// encrypt the importable entities
-		grailsApplication.config.gscf.domain.importableEntities.each {
-			it.value.encrypted =
-				URLEncoder.encode(Blowfish.encryptBase64(
-					it.value.entity.toString().replaceAll(/^class /, ''),
-					grailsApplication.config.crypto.shared.secret
-				))
-		}
 
 		/**
 		 * Do you believe it in your head?
@@ -119,7 +108,7 @@ class ImporterController {
 
 				flow.page = 1
 				flow.studies = Study.findAllWhere(owner: authenticationService.getLoggedInUser())
-				flow.importer_importableentities = grailsApplication.config.gscf.domain.importableEntities
+				flow.importer_importableentities = GdtService.getTemplateEntities()
 
 				success()
 			}
@@ -297,16 +286,9 @@ class ImporterController {
 	 * @return JSON object containing the found templates
 	 */
 	def ajaxGetTemplatesByEntity = {
-		def entityName = Blowfish.decryptBase64(
-			URLDecoder.decode(params.entity),
-			grailsApplication.config.crypto.shared.secret
-		)
-
-		//def entityClass = grailsApplication.config.gscf.domain.importableEntities.get(params.entity).entity
-		def entityClass = entityName
-
 		// fetch all templates for a specific entity
-		def templates = Template.findAllByEntity(Class.forName(entityClass, true, this.getClass().getClassLoader()))
+		def templates = Template.findAllByEntity(GdtService.getInstanceByEntity(params.entity.decodeURL()))
+
 
 		// render as JSON
 		render templates as JSON
@@ -329,12 +311,8 @@ class ImporterController {
 
 			def selectedentities = []
 
-			def entityName = Blowfish.decryptBase64(
-				URLDecoder.decode(params.entity),
-				grailsApplication.config.crypto.shared.secret
-			)
-
-			def entityClass = Class.forName(entityName, true, this.getClass().getClassLoader())
+			def entityName = GdtService.decryptEntity(params.entity.decodeURL())
+			def entityClass = GdtService.getInstanceByEntityName(entityName)
 
 			// Initialize some session variables
 			//flow.importer_workbook = wb // workbook object must be serialized for this to work

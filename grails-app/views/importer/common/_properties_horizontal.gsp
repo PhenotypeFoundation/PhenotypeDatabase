@@ -31,13 +31,13 @@ $('#clearselect').click(function() {
 <!-- saveproperties action was defined in the form --> 
     <table>
 	  <g:each var="stdentity" in ="${importer_importableentities}">
-	      <% if (importer_selectedentities.any { it.name.toLowerCase() == stdentity.value.entity.toLowerCase() } && stdentity.value.entity!="") { %>
+	      <% if (importer_selectedentities.any { it.name.toLowerCase() == stdentity.entity.toLowerCase() } && stdentity.entity!="") { %>
             
-	      <tr><td colspan="3"><h4>${stdentity.value.name}</h4></td></tr>
+	      <tr><td colspan="3"><h4>${stdentity.name}</h4></td></tr>
 		<tr>
             <td class="header" width="25px"><input id="clearselect" type="button" value="clear" name="clearselect"></td>
             <g:each var="selentity" in="${importer_selectedentities}">
-              <g:if test="${selentity.name.toLowerCase()==stdentity.value.entity.toLowerCase()}">
+              <g:if test="${selentity.name.toLowerCase()==stdentity.entity.toLowerCase()}">
 			    <td class="header" width="200px">
 				<b>${importer_header[selentity.columnindex.toInteger()].name}</b>
                   <importer:propertyChooser name="columnproperty" mappingcolumn="${importer_header[selentity.columnindex.toInteger()]}" matchvalue="${importer_header[selentity.columnindex.toInteger()].name}" template_id="${importer_template_id}" allfieldtypes="${importer_allfieldtypes}"/>
@@ -59,6 +59,6 @@ $('#clearselect').click(function() {
 		</tr>
 		</g:each>
 
-	  <% } %> <!-- end of JSP if-->
-	  </g:each>		
+	  <% }  %> <!-- end of JSP if-->
+	  </g:each>
     </table>

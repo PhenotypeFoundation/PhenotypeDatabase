@@ -93,62 +93,6 @@ graphviz {
 	}
 }
 
-// cryptography settings
-// @see WizardTaglib.groovy (encrypt)
-// @see TemplateEditorController.groovy (decrypt)
-crypto {
-	shared.secret = RandomStringUtils.random(32, true, true)
-}
-
-// GSCF specific configuration
-gscf {
-	domain = [
-		// importable entities
-		// use: grailsApplication.config.gscf.domain.entities
-		entities: [
-			// dbnp.data
-			'dbnp.data.FeatureBase',
-			'dbnp.data.FeatureType',
-			'dbnp.data.Ontology',
-			'dbnp.data.Term',
-
-			// dbnp.studycapturing
-			'dbnp.studycapturing.Assay',
-			'dbnp.studycapturing.AssayModule',
-			'dbnp.studycapturing.AssayType',
-			'dbnp.studycapturing.Compound',
-			'dbnp.studycapturing.Event',
-			'dbnp.studycapturing.EventGroup',
-			'dbnp.studycapturing.Person',
-			'dbnp.studycapturing.PersonAffilitation',
-			'dbnp.studycapturing.PersonRole',
-			'dbnp.studycapturing.Publication',
-			'dbnp.studycapturing.Sample',
-			'dbnp.studycapturing.SamplingEvent',
-			'dbnp.studycapturing.Study',
-			'dbnp.studycapturing.StudyPerson',
-			'dbnp.studycapturing.Subject',
-			'dbnp.studycapturing.Template',
-			'dbnp.studycapturing.TemplateEntity',
-			'dbnp.studycapturing.TemplateField',
-			'dbnp.studycapturing.TemplateFieldListItem',
-			'dbnp.studycapturing.TemplateFieldType'
-		],
-
-		// importable entities
-		// use: grailsApplication.config.gscf.domain.importableEntities
-		// @see ImporterController
-		importableEntities: [
-			event: [name: 'Event', entity: 'dbnp.studycapturing.Event', encrypted:''],
-			sample: [name: 'Sample', entity: 'dbnp.studycapturing.Sample', encrypted:''],
-			study: [name: 'Study', entity: 'dbnp.studycapturing.Study', encrypted:''],
-			subject: [name: 'Subject', entity: 'dbnp.studycapturing.Subject', encrypted:''],
-			samplingevent: [name: 'SamplingEvent', entity: 'dbnp.studycapturing.SamplingEvent', encrypted:'']
-
-		]
-	]
-}
-
 // jquery plugin
 grails.views.javascript.library = "jquery"
 
