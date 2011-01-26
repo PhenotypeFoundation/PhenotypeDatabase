@@ -1,3 +1,4 @@
+<%@ page import="nl.grails.plugins.gdt.GdtService" %>
 <%
 	/**
 	 * Properties template which shows entities and allows to assign properties to columns
@@ -30,7 +31,7 @@ $('#clearselect').click(function() {
 </script>
 <!-- saveproperties action was defined in the form --> 
     <table>
-	  <g:each var="stdentity" in ="${importer_importableentities}">
+	  <g:each var="stdentity" in ="${GdtService.cachedEntities}">
 	      <% if (importer_selectedentities.any { it.name.toLowerCase() == stdentity.entity.toLowerCase() } && stdentity.entity!="") { %>
             
 	      <tr><td colspan="3"><h4>${stdentity.name}</h4></td></tr>

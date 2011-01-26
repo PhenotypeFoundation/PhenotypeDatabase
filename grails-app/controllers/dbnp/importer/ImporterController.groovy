@@ -108,7 +108,6 @@ class ImporterController {
 
 				flow.page = 1
 				flow.studies = Study.findAllWhere(owner: authenticationService.getLoggedInUser())
-				flow.importer_importableentities = GdtService.getTemplateEntities()
 
 				success()
 			}
