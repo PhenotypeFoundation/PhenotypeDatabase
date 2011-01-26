@@ -43,7 +43,7 @@ class SynchronizationService implements Serializable {
 		
 		def urls = []
 		modules.each { module ->
-			urls << module.url + '/rest/notifyStudyChange?studyToken=' + study.code
+			urls << module.url + '/rest/notifyStudyChange?studyToken=' + study.giveUUID()
 		}
 		
 		Thread.start { 
