@@ -8,16 +8,16 @@
  * @package	???
  *
  * Revision information:
- * $Rev$
- * $Author$
- * $Date$
+ * $Rev: 1442 $
+ * $Author: robert@isdat.nl $
+ * $Date: 2011-01-26 17:02:05 +0100 (Wed, 26 Jan 2011) $
  */
-package dbnp.studycapturing
+package dbnp.modules
 
 import nl.grails.plugins.gdt.*
-import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
+import dbnp.studycapturing.*
 
-class SynchronizationService implements Serializable {
+class ModuleNotificationService implements Serializable {
     boolean transactional = false
 	
     /**

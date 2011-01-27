@@ -3,6 +3,7 @@ package dbnp.studycapturing
 import dbnp.authentication.SecUser
 import nl.grails.plugins.gdt.*
 import java.util.UUID;
+import dbnp.modules.*;
 
 /**
  * Domain class describing the basic entity in the study capture part: the Study class.
@@ -15,7 +16,7 @@ import java.util.UUID;
 class Study extends nl.grails.plugins.gdt.TemplateEntity {
 	static searchable = true
 	
-	def synchronizationService
+	def moduleNotificationService
 
 	SecUser owner		// The owner of the study. A new study is automatically owned by its creator.
 	String title		// The title of the study
@@ -523,12 +524,12 @@ class Study extends nl.grails.plugins.gdt.TemplateEntity {
 
 	// Send messages to modules about changes in this study
 	def beforeInsert = {
-		synchronizationService.invalidateStudy( this );
+		moduleNotificationService.invalidateStudy( this );
 	}
 	def beforeUpdate = {
-		synchronizationService.invalidateStudy( this );
+		moduleNotificationService.invalidateStudy( this );
 	}
 	def beforeDelete = {
-		synchronizationService.invalidateStudy( this );
+		moduleNotificationService.invalidateStudy( this );
 	}
 }
