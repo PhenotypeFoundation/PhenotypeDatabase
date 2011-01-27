@@ -9,6 +9,11 @@ html>body #sortable li { height: 1.5em; line-height: 1.2em; }
 .ui-state-highlight { height: 1.5em; line-height: 1.2em; }
 
 /* START :: ontology autocomplete */
+.ui-autocomplete {
+	max-height: 200px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
 .ui-autocomplete .ui-menu-item {
     font-size: 10px;
 }

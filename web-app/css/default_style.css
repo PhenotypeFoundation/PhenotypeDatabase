@@ -396,6 +396,11 @@ td.buttons input {
 /** END :: pagination buttons **/
 
 /* START :: ontology autocomplete */
+.ui-autocomplete {
+	max-height: 200px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
 .ui-autocomplete .ui-menu-item {
 	font-size: 10px;
 }
