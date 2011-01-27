@@ -873,12 +873,15 @@ class WizardTagLib extends AjaxflowTagLib {
 						){helpText}
 						break
 					case ['MODULE']:
+					    def from = []
+						AssayModule.findAll().each { from[from.size()] = it.toString() }
+
 						inputElement = (renderType == 'element') ? 'selectElement' : 'select'
 						out << "$inputElement"(
 							description	: ucName,
 							name		: prependName + it.escapedName(),
-							from		: AssayModule.findAll(),
-							value		: fieldValue,
+							from		: from,
+							value		: fieldValue.toString(),
 							required	: it.isRequired()
 						){helpText}
 					break
