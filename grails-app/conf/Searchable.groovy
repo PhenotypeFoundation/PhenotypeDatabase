@@ -31,7 +31,7 @@ searchable {
 	 *
 	 * The default is "${user.home}/.grails/projects/${app.name}/searchable-index/${grails.env}"
 	 */
-	compassConnection = "${user.home}/.grails/projects/${app.name}/searchable-index/${grails.env}"
+	compassConnection = "~/.grails/projects/${app.name}/searchable-index/${grails.env}"
 
 	/**
 	 * Any settings you wish to pass to Compass
@@ -129,58 +129,10 @@ searchable {
 	 * If you use BootStrap.groovy to insert your data then you should use "true",
 	 * which means do a non-forking, otherwise "fork" is recommended
 	 */
-	bulkIndexOnStartup = true
+	bulkIndexOnStartup=true
 
 	/**
 	 * Should index locks be removed (if present) at startup?
 	 */
 	releaseLocksOnStartup = true
-}
-
-// per-environment settings
-environments {
-	development {
-		searchable {
-			// development is default; inherits from above
-			compassConnection = new File(
-				((new File("/home/tomcat").exists()) ? "/home/tomcat/searchable/gscf-dev/compassindex" : "/tmp/searchable/gscf-dev/compassindex")
-			).absolutePath
-		}
-	}
-	ci {
-		// used by build script
-		searchable {
-			compassConnection = new File(
-				((new File("/home/tomcat").exists()) ? "/home/tomcat/searchable/gscf-ci/compassindex" : "/tmp/searchable/gscf-ci/compassindex")
-			).absolutePath
-		}
-	}
-	test {
-		// used by build script
-		searchable {
-			// disable bulk index on startup
-			//bulkIndexOnStartup = false
-
-			// use faster in-memory index
-			//compassConnection = "ram://test-index"
-
-			compassConnection = new File(
-				((new File("/home/tomcat").exists()) ? "/home/tomcat/searchable/gscf-test/compassindex" : "/tmp/searchable/gscf-test/compassindex")
-			).absolutePath
-		}
-	}
-	production {
-		searchable {
-			// add your production settings here
-		}
-	}
-	www {
-		// used by build script
-		searchable {
-			// add your production settings here
-			compassConnection = new File(
-				((new File("/home/tomcat").exists()) ? "/home/tomcat/searchable/gscf-www/compassindex" : "/tmp/searchable/gscf-www/compassindex")
-			).absolutePath
-		}
-	}
 }
