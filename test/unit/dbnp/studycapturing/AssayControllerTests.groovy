@@ -17,6 +17,7 @@ import grails.test.*
 class AssayControllerTests extends ControllerUnitTestCase {
     protected void setUp() {
         super.setUp()
+        mockDomain(Assay, [new Assay(id:1)])
     }
 
     protected void tearDown() {
@@ -24,7 +25,7 @@ class AssayControllerTests extends ControllerUnitTestCase {
     }
 
     void testWrongAssayID() {
-        mockParams.assayId = 1
+        mockParams.assayId = 3
 
         controller.exportAssayAsExcel()
 
@@ -33,20 +34,29 @@ class AssayControllerTests extends ControllerUnitTestCase {
     }
 
     void testExceptionHandling() {
-        controller.assayService = [
-                collectAssayData:{a, b -> throw new Exception('msg1')},
-                exportColumnWiseDataToExcelFile:{a, b -> throw new Exception('msg2')}
+        mockParams.assayId = 1
+
+        controller.metaClass.'grailsApplication' = [
+                config: [modules: [metabolomics: [url: 'www.ab.com']]]
         ]
+
+        controller.assayService = [
+
+                collectAssayData:                   {a, b -> def e = new Exception('msga'); e.metaClass.cause = new Exception('msg1'); throw e },
+                exportColumnWiseDataToExcelFile:    {a, b -> def e = new Exception('msgb'); e.metaClass.cause = new Exception('msg2'); throw e }
+
+        ]
+
         controller.exportAssayAsExcel()
 
         assertEquals 'Redirected action should match', [action: 'selectAssay'], redirectArgs
-        assertEquals 'Error message', 'java.lang.Exception: msg1', mockFlash.errorMessage
+        assertEquals 'Error message', 'msg1', mockFlash.errorMessage
 
         controller.assayService.collectAssayData = {a, b -> true}
         controller.exportAssayAsExcel()
 
         assertEquals 'Redirected action should match', [action: 'selectAssay'], redirectArgs
-        assertEquals 'Error message', 'java.lang.Exception: msg2', mockFlash.errorMessage
+        assertEquals 'Error message', 'msg2', mockFlash.errorMessage
 
     }
 

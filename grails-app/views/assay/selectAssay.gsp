@@ -13,12 +13,19 @@
     <script type="text/javascript">
       function updateAssay(jsonData, selectID) {
         var a = eval(jsonData);
-        var sel = $('#'+selectID).empty()
+        var sel = $('#'+selectID).empty();
         
         $(a).each(function(i, el){
-          sel.append($("<option></option>").attr("value",el.id).text(el.name));
-        });
+          sel.append($("<option></option>").attr("value",el.id).text(el.name))
+        })
       }
+
+      $(document).ready(function(){
+        // trigger change event to load assay based on currently selected study.
+        // After pressing 'Back', the browser may use last selected study.
+        $('#study').change()
+
+      })
     </script>
   </head>
   <body>
@@ -26,9 +33,10 @@
     ${flash.errorMessage}
   </div>
   <g:form name="assaySelect" action="exportAssayAsExcel">
-    <g:select optionKey="id" optionValue="title" name="studyId" from="${userStudies}"
-            onChange="${remoteFunction(controller:'study',action:'ajaxGetAssays',params:'\'id=\'+escape(this.value)',onComplete: 'updateAssay(XMLHttpRequest.responseText, \'assay\')')}"/>
-    <g:select optionKey="id" name="assayId" id="assay" from="${assays}"/>
+    <g:select optionKey="id" optionValue="title" name="studyId" from="${userStudies}" id="study"
+      onChange="${remoteFunction(controller:'study',action:'ajaxGetAssays',params:'\'id=\'+escape(this.value)',onComplete: 'updateAssay(XMLHttpRequest.responseText, \'assay\')')}"/>
+    <g:select optionKey="id" name="assayId" id="assay" from=""/>
+    %{--<g:select optionKey="id" name="assayId" id="assay" from="${assays}"/>--}%
     <g:submitButton name="submit" value="Submit"/>
   </g:form>
   </body>

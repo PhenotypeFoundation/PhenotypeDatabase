@@ -140,6 +140,7 @@ class AssayController {
 
         Assay assay = Assay.get(params.assayId)
 
+        // check if assay exists
         if (!assay) {
             flash.errorMessage = "No assay found with id: $params.assayId."
             redirect action: 'selectAssay'
@@ -158,7 +159,7 @@ class AssayController {
 
         } catch (Exception e) {
 
-            flash.errorMessage = e.toString()
+            flash.errorMessage = e.cause?.message ?: e.message
             redirect action: 'selectAssay'
 
         }
