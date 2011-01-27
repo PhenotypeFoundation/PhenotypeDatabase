@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import nl.grails.plugins.gdt.*
 
 /**
  * The PersonAffiliation class is an attribute of a Person, it represents an affiliation where she/he works for.
@@ -9,7 +10,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class PersonAffiliation extends nl.grails.plugins.gdt.Identity {
+class PersonAffiliation extends Identity {
 
 	String institute
 	String department

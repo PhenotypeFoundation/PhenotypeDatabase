@@ -13,8 +13,9 @@
  * $Date$
  */
 package dbnp.importer
+import nl.grails.plugins.gdt.*
 
-class ImportRecord extends nl.grails.plugins.gdt.Identity implements Serializable {
+class ImportRecord extends Identity {
     static hasMany = [ importcells: ImportCell ]
     
     static constraints = {

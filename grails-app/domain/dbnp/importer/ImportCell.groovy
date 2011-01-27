@@ -1,4 +1,5 @@
 package dbnp.importer
+import nl.grails.plugins.gdt.*
 
 /**
  * Cell Domain Class
@@ -15,7 +16,7 @@ package dbnp.importer
  * $Date$
  */
 
-class ImportCell extends nl.grails.plugins.gdt.Identity implements Serializable {
+class ImportCell extends Identity {
     MappingColumn mappingcolumn
     int entityidentifier
     String value

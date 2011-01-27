@@ -13,7 +13,7 @@ import dbnp.modules.*;
  * $Author$
  * $Date$
  */
-class Study extends nl.grails.plugins.gdt.TemplateEntity {
+class Study extends TemplateEntity {
 	static searchable = true
 	
 	def moduleNotificationService

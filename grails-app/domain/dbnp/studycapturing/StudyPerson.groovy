@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import nl.grails.plugins.gdt.*
 
 /**
  * Link table which couples studies with persons and the role they have within the study
@@ -8,7 +9,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class StudyPerson extends nl.grails.plugins.gdt.Identity {
+class StudyPerson extends Identity {
 
 	// A StudyPerson relation always belongs to one study.
 	static belongsTo = [parent : Study]

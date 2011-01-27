@@ -13,7 +13,7 @@ import nl.grails.plugins.gdt.*
  * $Author$
  * $Date$
  */
-class SamplingEvent extends nl.grails.plugins.gdt.TemplateEntity {
+class SamplingEvent extends TemplateEntity {
 	// A SamplingEvent always belongs to one study.
 	// Although this is technically inherited from Event, we have to specify it here again.
 	// Otherwise, Grails expects the SamplingEvent to be referenced in Study.events,

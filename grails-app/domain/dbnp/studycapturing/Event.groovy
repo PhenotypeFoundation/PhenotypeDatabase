@@ -12,12 +12,12 @@ import nl.grails.plugins.gdt.*
  * $Author$
  * $Date$
  */
-class Event extends nl.grails.plugins.gdt.TemplateEntity {
+class Event extends TemplateEntity {
 
 	// uncommented due to searchable issue
 	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
 	// Enabling this causes the error: Trying to marshall a null id [id] for alias [Event] in the study create wizard when you add events
-	// static searchable = true
+	//static searchable = true
 
 	static belongsTo = [parent : Study]	
 

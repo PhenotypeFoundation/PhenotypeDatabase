@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import nl.grails.plugins.gdt.*
 
 /**
  * The Publication class represents a PubMed-registered publication.
@@ -11,7 +12,7 @@ package dbnp.studycapturing
  * $Author$
  * $Date$
  */
-class Publication extends nl.grails.plugins.gdt.Identity {
+class Publication extends Identity {
 	String title
 	String pubMedID
 	String DOI      // document identifier, see dx.doi.org

@@ -11,7 +11,7 @@ import java.util.UUID;
  * $Author$
  * $Date$
  */
-class Sample extends nl.grails.plugins.gdt.TemplateEntity {
+class Sample extends TemplateEntity {
 	// uncommented due to searchable issue
 	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
 	//static searchable = { [only: ['name']] }
