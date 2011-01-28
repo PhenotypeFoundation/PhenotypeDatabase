@@ -31,7 +31,7 @@
 		  <td>${assay.module.name}</td>
 		  <td>${assay.module.platform}</td>
 		  <td>
-          <jumpbar:link frameSource="${assay.module.url}/assay/showByToken/${assay.externalAssayID}" pageTitle="Metabolomics Module">
+          <jumpbar:link frameSource="${assay.module.url}/assay/showByToken/${assay.giveUUID()}" pageTitle="Metabolomics Module">
 			view
 		  </jumpbar:link></td>
 		  <td>
