@@ -516,7 +516,9 @@ class Study extends TemplateEntity {
 	public String giveUUID() {
 		if( !this.studyUUID ) {
 			this.studyUUID = UUID.randomUUID().toString();
-			this.save(); 
+			if( !this.save(flush:true) ) {
+				log.error "Couldn't save study UUID: " + this.getErrors();
+			}
 		}
 		
 		return this.studyUUID;

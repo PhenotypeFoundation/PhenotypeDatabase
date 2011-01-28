@@ -137,7 +137,9 @@ class Sample extends TemplateEntity {
 	public String giveUUID() {
 		if( !this.sampleUUID ) {
 			this.sampleUUID = UUID.randomUUID().toString();
-			this.save();
+			if( !this.save(flush:true) ) {
+				log.error "Couldn't save sample UUID: " + this.getErrors();
+			}
 		}
 		
 		return this.sampleUUID;

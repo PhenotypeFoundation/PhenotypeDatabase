@@ -79,7 +79,9 @@ class Assay extends TemplateEntity {
 	public String giveUUID() {
 		if( !this.assayUUID ) {
 			this.assayUUID = UUID.randomUUID().toString();
-			this.save();
+			if( !this.save(flush:true) ) {
+				log.error "Couldn't save assay UUID: " + this.getErrors();
+			}
 		}
 		
 		return this.assayUUID;
