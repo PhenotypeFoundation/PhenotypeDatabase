@@ -159,7 +159,7 @@ class AssayController {
 
         } catch (Exception e) {
 
-            flash.errorMessage = e.cause?.message ?: e.message
+            flash.errorMessage = e.message
             redirect action: 'selectAssay'
 
         }

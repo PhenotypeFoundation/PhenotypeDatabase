@@ -53,7 +53,7 @@ class AuthenticationService {
     
     public boolean logOffRemotely( String consumer, String token ) {
         def user = getSessionAuthenticatedUser(consumer, token)
-        
+
         if( user ) {
             user.refresh()
             user.delete()

@@ -22,6 +22,7 @@ class AssayService {
 
     boolean transactional = true
     def authenticationService
+    def moduleCommunicationService
 
     /**
      * Gathers all assay related data, including measurements from the module,
@@ -35,12 +36,12 @@ class AssayService {
      * @consumer the module url
      * @return The assay data structure as described above.
      */
-    def collectAssayData(assay, consumer) {
+    def collectAssayData(assay, consumer) throws Exception {
 
-        def path = "/rest/getMeasurementData?assayToken=$assay.token"
+        def path = "/rest/getMeasurementData?assayToken=$assay.assayUUID"
 
         // check whether module is reachable
-        if (!isModuleReachable(consumer, path)) {
+        if (!moduleCommunicationService.isModuleReachable(consumer)) {
 
             throw new Exception('Module is not reachable')
 
@@ -142,15 +143,6 @@ class AssayService {
             'Module Measurement Data':  requestModuleMeasurements(consumer, path)]
     }
 
-    def isModuleReachable(consumer, path) {
-
-        def connection = "$consumer$path".toURL().openConnection()
-        try {
-            connection.responseCode == HttpServletResponse.SC_OK
-        } catch(e) { false }
-        
-    }
-
     /**
      * Retrieves module measurement data through a rest call to the module
      *
@@ -160,34 +152,9 @@ class AssayService {
      */
     def requestModuleMeasurements(consumer, path) {
 
-        // create a random session token that will be used to allow to module to
-        // sync with gscf prior to presenting the measurement data
-        def sessionToken = UUID.randomUUID().toString()
+        def (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleRestMethodJSON(consumer, consumer+path)
 
-        if (!authenticationService.isLoggedIn()) {
-            // should not happen because we can only get here when a user is
-            // logged in...
-            throw new Exception('User is not logged in.')
-        }
-
-        // put the session token to work
-        authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
-
-        // Gather measurement data from the module
-        try {
-
-            def restResponse = "$consumer$path&sessionToken=$sessionToken".toURL().text
-
-        } catch (e) {
-
-            throw new Exception("Module did not respond to request for measurements. Cause: $e")
-            
-        }
-
-        def (sampleTokens, measurementTokens, moduleData) = JSON.parse( restResponse )
-
-        // Dispose of the ephemeral session token
-        authenticationService.logOffRemotely(consumer, sessionToken)
+        if (!sampleTokens?.size()) return []
 
         def lastDataIndex   = moduleData.size() - 1
         def stepSize        = sampleTokens.size() + 1
@@ -241,7 +208,7 @@ class AssayService {
 
                 data.each { category ->
 
-                    if (category.value != [:]) {
+                    if (category.value.size()) {
 
                         // put category keys into first row separated by null values
                         // wherever there are > 1 columns per category

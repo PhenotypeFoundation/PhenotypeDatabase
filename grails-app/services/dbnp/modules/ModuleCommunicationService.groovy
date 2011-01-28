@@ -14,9 +14,9 @@
  */
 package dbnp.modules
 
-import nl.grails.plugins.gdt.*
 import dbnp.studycapturing.*
 import grails.converters.*
+import javax.servlet.http.HttpServletResponse
 
 class ModuleCommunicationService implements Serializable {
     boolean transactional = false

@@ -62,7 +62,7 @@
 										<jumpbar:link
                       						linkDest="${createLink(action:'show', id:studyInstance.id)}"
                       						linkText='Go back to GSCF'
-                      						frameSource="${assay.module.url}/assay/showByToken?id=${assay.externalAssayID}&sessionToken=${session.id}"
+                      						frameSource="${assay.module.url}/assay/showByToken?id=${assay.giveUUID()}&sessionToken=${session.id}"
                       						pageTitle="Assay View in Module">
                       						${assay.name}
                     					</jumpbar:link><br />

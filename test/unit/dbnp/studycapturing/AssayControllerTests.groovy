@@ -42,8 +42,8 @@ class AssayControllerTests extends ControllerUnitTestCase {
 
         controller.assayService = [
 
-                collectAssayData:                   {a, b -> def e = new Exception('msga'); e.metaClass.cause = new Exception('msg1'); throw e },
-                exportColumnWiseDataToExcelFile:    {a, b -> def e = new Exception('msgb'); e.metaClass.cause = new Exception('msg2'); throw e }
+                collectAssayData:                   {a, b -> throw new Exception('msg1') },
+                exportColumnWiseDataToExcelFile:    {a, b -> throw new Exception('msg2') }
 
         ]
 
