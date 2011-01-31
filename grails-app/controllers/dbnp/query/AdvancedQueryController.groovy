@@ -1,4 +1,6 @@
 package dbnp.query
+import dbnp.modules.*
+import org.dbnp.gdt.*
 
 // TODO: Make use of the searchable-plugin possibilities instead of querying the database directly
 
@@ -8,6 +10,8 @@ package dbnp.query
  * @author Robert Horlings (robert@isdat.nl)
  */
 class AdvancedQueryController {
+	def moduleCommunicationService;
+	
 	def entitiesToSearchFor = [ 'Study': 'Studies', 'Sample': 'Samples']
     def index = {
 		[entitiesToSearchFor: entitiesToSearchFor, searchableFields: getSearchableFields()]
@@ -55,6 +59,7 @@ class AdvancedQueryController {
 	protected def getSearchableFields() {
 		def fields = [:];
 		
+		// Retrieve all local search fields
 		getEntities().each {
 			def entity = getEntity( 'dbnp.studycapturing.' + it );
 			
@@ -65,6 +70,30 @@ class AdvancedQueryController {
 				def fieldNames = ( domainFields + templateFields ).collect { it.name }.unique() + 'Template'
 				
 				fields[ it ] = fieldNames.sort { a, b -> a[0].toUpperCase() + a[1..-1] <=> b[0].toUpperCase() + b[1..-1] };
+			}
+		}
+		
+		// Loop through all modules and check which fields are searchable
+		// Right now, we just combine the results for different entities
+		AssayModule.list().each { module ->
+			def callUrl = module.url + '/rest/getQueryableFields'
+			try {
+				def json = moduleCommunicationService.callModuleRestMethodJSON( module.url, callUrl );
+				def moduleFields = [];
+				entitiesToSearchFor.each { entity ->					
+					if( json[ entity.key ] ) {
+						json[ entity.key ].each { field ->
+							moduleFields << field.toString();
+						}
+					}
+				}
+				
+				// Remove 'module' from module name
+				def moduleName = module.name.replace( 'module', '' ).trim()
+				
+				fields[ moduleName ] = moduleFields.unique();
+			} catch( Exception e ) {
+				log.error( "Error while retrieving queryable fields from " + module.name + ": " + e.getMessage() )
 			}
 		}
 		

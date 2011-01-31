@@ -14,7 +14,10 @@
  */
 package dbnp.query
 
+import java.util.List;
+
 import dbnp.studycapturing.*
+import org.dbnp.gdt.*
 
 class StudySearch extends Search {
 	public StudySearch() {
@@ -72,19 +75,19 @@ class StudySearch extends Search {
 		studies = filterOnSamplingEventCriteria( studies );
 		studies = filterOnAssayCriteria( studies );
 
+		studies = filterOnModuleCriteria( studies );
+		
 		// Save matches
 		results = studies;
 	}
-
+	
 	/**
 	 * Filters the given list of studies on the study criteria
 	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the Study-criteria
+	 * @return			List with all studies that match the Study criteria
 	 */
 	protected List filterOnStudyCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Study' ), { study, criterion ->
-			return criterion.matchOne( study );
-		});
+		return filterOnTemplateEntityCriteria(studies, "Study", { study, criterion -> return criterion.getFieldValue( study ) })
 	}
 
 	/**
@@ -93,12 +96,9 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the Subject-criteria
 	 */
 	protected List filterOnSubjectCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Subject' ), { study, criterion ->
-			if( !study.subjects?.size() )
-				return false
-
-			return criterion.matchAny( study.subjects );
-		});
+		return filterOnTemplateEntityCriteria(studies, "Subject", { study, criterion -> 
+			return study.subjects?.collect { criterion.getFieldValue( it ); }
+		})
 	}
 
 	/**
@@ -107,12 +107,9 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the sample-criteria
 	 */
 	protected List filterOnSampleCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Sample' ), { study, criterion ->
-			if( !study.samples?.size() )
-				return false
-
-			return criterion.matchAny( study.samples );
-		});
+		return filterOnTemplateEntityCriteria(studies, "Sample", { study, criterion ->
+			return study.samples?.collect { criterion.getFieldValue( it ); }
+		})
 	}
 
 	/**
@@ -121,12 +118,9 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the event-criteria
 	 */
 	protected List filterOnEventCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Event' ), { study, criterion ->
-			if( !study.events?.size() )
-				return false
-
-			return criterion.matchAny( study.events );
-		});
+		return filterOnTemplateEntityCriteria(studies, "Event", { study, criterion -> 
+			return study.events?.collect { criterion.getFieldValue( it ); }
+		})
 	}
 	
 	/**
@@ -135,14 +129,10 @@ class StudySearch extends Search {
 	* @return			List with all studies that match the event-criteria
 	*/
    protected List filterOnSamplingEventCriteria( List studies ) {
-	   return filterEntityList( studies, getEntityCriteria( 'SamplingEvent' ), { study, criterion ->
-		   if( !study.samplingEvents?.size() )
-			   return false
-
-			return criterion.matchAny( study.samplingEvents );
-	   });
+		return filterOnTemplateEntityCriteria(studies, "SamplingEvent", { study, criterion -> 
+			return study.samplingEvents?.collect { criterion.getFieldValue( it ); }
+		})
    }
-
 	
 	/**
 	 * Filters the given list of studies on the assay criteria
@@ -150,11 +140,8 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the assay-criteria
 	 */
 	protected List filterOnAssayCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Assay' ), { study, criterion ->
-			if( !study.assays?.size() )
-				return false
-
-			return criterion.matchAny( study.assays );
-		});
+		return filterOnTemplateEntityCriteria(studies, "Assay", { study, criterion ->
+			return study.assays?.collect { criterion.getFieldValue( it ); }
+		})
 	}
 }

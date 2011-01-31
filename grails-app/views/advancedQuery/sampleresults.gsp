@@ -26,12 +26,12 @@
 	resulted in ${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">sample</g:if><g:else>samples</g:else>.
 </p>
 
+
 <g:if test="${search.getNumResults() > 0}">
 
 	<table id="searchresults" class="paginate">
 		<thead>
 		<tr>
-			<th colspan="2"></th>
 			<th>Study</th>
 			<th>Name</th>
 		</tr>

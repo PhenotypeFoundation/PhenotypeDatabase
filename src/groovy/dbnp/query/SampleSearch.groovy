@@ -15,8 +15,10 @@
 package dbnp.query
 
 import dbnp.studycapturing.*
+import org.dbnp.gdt.*
 
 class SampleSearch extends Search {
+	
 	public SampleSearch() {
 		this.entity = "Sample";
 	}
@@ -92,6 +94,8 @@ class SampleSearch extends Search {
 		samples = filterOnSamplingEventCriteria( samples );
 		samples = filterOnAssayCriteria( samples );
 		
+		samples = filterOnModuleCriteria( samples );
+		
 		// Save matches
 		results = samples;
 	}
@@ -102,9 +106,7 @@ class SampleSearch extends Search {
 	 * @return			List with all samples that match the Sample-criteria
 	 */
 	protected List filterOnStudyCriteria( List studies ) {
-		return filterEntityList( studies, getEntityCriteria( 'Study' ), { study, criterion ->
-			return criterion.matchOne( study );
-		});
+		return filterOnTemplateEntityCriteria(studies, "Study", { study, criterion -> return criterion.getFieldValue( study ) })
 	}
 
 	/**
@@ -113,12 +115,9 @@ class SampleSearch extends Search {
 	 * @return			List with all samples that match the Subject-criteria
 	 */
 	protected List filterOnSubjectCriteria( List samples ) {
-		return filterEntityList( samples, getEntityCriteria( 'Subject' ), { sample, criterion ->
-			if( !sample.parentSubject )
-				return false
-
-			return criterion.matchOne( sample.parentSubject );
-		});
+		return filterOnTemplateEntityCriteria(samples, "Subject", { sample, criterion ->
+			return criterion.getFieldValue( sample.parentSubject );
+		})
 	}
 
 	/**
@@ -127,12 +126,9 @@ class SampleSearch extends Search {
 	 * @return			List with all samples that match the sample-criteria
 	 */
 	protected List filterOnSampleCriteria( List samples ) {
-		return filterEntityList( samples, getEntityCriteria( 'Sample' ), { sample, criterion ->
-			if( !sample  )
-				return false
-
-			return criterion.matchOne( sample );
-		});
+		return filterOnTemplateEntityCriteria(samples, "Sample", { sample, criterion ->
+			return criterion.getFieldValue( sample );
+		})
 	}
 
 	/**
@@ -141,13 +137,12 @@ class SampleSearch extends Search {
 	 * @return			List with all samples that match the event-criteria
 	 */
 	protected List filterOnEventCriteria( List samples ) {
-		println "Event criteria: " + getEntityCriteria( 'Event' )
-		return filterEntityList( samples, getEntityCriteria( 'Event' ), { sample, criterion ->
+		return filterOnTemplateEntityCriteria(samples, "Event", { sample, criterion ->
 			if( !sample || !sample.parentEventGroup || !sample.parentEventGroup.events || sample.parentEventGroup.events.size() == 0 )
-				return false
-		
-			return criterion.matchAny( sample.parentEventGroup.events.toList() );
-		});
+				return null
+
+			return criterion.getFieldValue( sample.parentEventGroup.events.toList() );
+		})
 	}
 
 	/**
@@ -156,14 +151,10 @@ class SampleSearch extends Search {
 	 * @return			List with all samples that match the event-criteria
 	 */
 	protected List filterOnSamplingEventCriteria( List samples ) {
-		return filterEntityList( samples, getEntityCriteria( 'SamplingEvent' ), { sample, criterion ->
-			if( !sample.parentEvent )
-				return false
-
-			return criterion.matchOne( sample.parentEvent );
-		});
+		return filterOnTemplateEntityCriteria(samples, "SamplingEvent", { sample, criterion ->
+			return criterion.getFieldValue( sample.parentEvent );
+		})
 	}
-
 
 	/**
 	 * Filters the given list of samples on the assay criteria
@@ -179,7 +170,8 @@ class SampleSearch extends Search {
 			
 		// There is no sample.assays property, so we have to look for assays another way: just find
 		// all assays that match the criteria
-		def assays = filterEntityList( Assay.list(), getEntityCriteria( 'Assay' ), { assay, criterion ->
+		def criteria = getEntityCriteria( 'Assay' );
+		def assays = filterEntityList( Assay.list(), criteria, { assay, criterion ->
 			if( !assay )
 				return false
 
@@ -189,6 +181,15 @@ class SampleSearch extends Search {
 		// If no assays match these criteria, then no samples will match either
 		if( assays.size() == 0 )
 			return [];
+		
+		// Save sample data for later use
+		saveResultFields( samples, criteria, { sample, criterion -> 
+			 def sampleAssays = Assay.findByStudy( sample.parent ).findAll { it.samples?.contains( sample ) };
+			 if( sampleAssays && sampleAssays.size() > 0 ) 
+			 	return sampleAssays.collect( criterion.getFieldValue( it ) )
+			else 
+				return null
+		});
 			
 		// Now filter the samples on whether they are attached to the filtered assays
 		return samples.findAll { sample ->
@@ -207,5 +208,4 @@ class SampleSearch extends Search {
 			return false;
 		}
 	}
-
 }

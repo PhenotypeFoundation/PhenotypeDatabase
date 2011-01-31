@@ -19,27 +19,38 @@ import grails.converters.*
 import javax.servlet.http.HttpServletResponse
 
 class ModuleCommunicationService implements Serializable {
-    boolean transactional = false
+	boolean transactional = false
 	def authenticationService
 	def moduleNotificationService
-	
-    /**
-     * Sends a notification to assay modules that some part of a study has changed.
-     * 
-     * Only modules that have the notify flag set to true will be notified. They will be notified on the URL
-     * 
-     * [moduleUrl]/rest/notifyStudyChange?studyToken=abc
-     * 
-     * Errors that occur when calling this URL are ignored. The module itself is responsible of
-     * maintaining a synchronized state.
-     * 
-     * @param study
-     * @return
-     */
+
+	/**
+	 * Cache containing the contents of different URLs. These urls are
+	 * saved per user, since the data could be different for different users.
+	 */
+	def cache = [:]
+
+	/**
+	 * Number of seconds to save the data in cache
+	 */
+	def numberOfSecondsInCache = 10 * 60;
+
+	/**
+	 * Sends a notification to assay modules that some part of a study has changed.
+	 * 
+	 * Only modules that have the notify flag set to true will be notified. They will be notified on the URL
+	 * 
+	 * [moduleUrl]/rest/notifyStudyChange?studyToken=abc
+	 * 
+	 * Errors that occur when calling this URL are ignored. The module itself is responsible of
+	 * maintaining a synchronized state.
+	 * 
+	 * @param study
+	 * @return
+	 */
 	def invalidateStudy( Study study ) {
 		moduleNotificationService.invalidateStudy( study );
-    }
-	
+	}
+
 	/**
 	 * Checks whether a specific method on a module is reachable and returns a SC_OK response code. 
 	 * 
@@ -54,11 +65,11 @@ class ModuleCommunicationService implements Serializable {
 		def connection = ( moduleUrl + path ).toURL().openConnection()
 		try {
 			return connection.responseCode == HttpServletResponse.SC_OK
-		} catch(e) { 
-			return false 
+		} catch(e) {
+			return false
 		}
 	}
-	
+
 	/**
 	 * Calls a rest method on a module
 	 * 
@@ -67,15 +78,22 @@ class ModuleCommunicationService implements Serializable {
 	 * @return			JSON 	JSON object of the parsed text
 	 */
 	def callModuleRestMethodJSON( consumer, restUrl ) throws Exception {
-		// create a random session token that will be used to allow to module to
-		// sync with gscf prior to presenting the measurement data
-		def sessionToken = UUID.randomUUID().toString()
-
 		if (!authenticationService.isLoggedIn()) {
 			// should not happen because we can only get here when a user is
 			// logged in...
 			throw new Exception('User is not logged in.')
 		}
+
+		// Check whether the url is present in cache
+		def cacheData = retrieveFromCache( restUrl );
+		if( cacheData && cacheData[ "success" ] )
+			return cacheData[ "contents" ];
+		else if( cacheData && !cacheData[ "success" ] )
+			throw new Exception( "Error while fetching data from " + restUrl + " (from cache): " + cacheData[ "error" ] )
+
+		// create a random session token that will be used to allow to module to
+		// sync with gscf prior to presenting the measurement data
+		def sessionToken = UUID.randomUUID().toString()
 
 		// put the session token to work
 		authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
@@ -89,19 +107,89 @@ class ModuleCommunicationService implements Serializable {
 			// The url itself doesn't have parameters
 			url += '?sessionToken=' + sessionToken
 		}
-		
+
 		// Perform a call to the url
 		def restResponse
 		try {
 			def textResponse = url.toURL().getText()
+			println "GSCF call to " + consumer + " URL: " + url
+			println "GSCF response: " + textResponse
 			restResponse = JSON.parse( textResponse )
 		} catch (Exception e) {
+			storeErrorInCache( restUrl, e.getMessage() );
 			throw new Exception( "An error occurred while fetching " + url + ".", e )
 		} finally {
 			// Dispose of the ephemeral session token
 			authenticationService.logOffRemotely(consumer, sessionToken)
 		}
+
+		// Store the response in cache
+		storeInCache( restUrl, restResponse );
 		
 		return restResponse
 	}
+
+	/**
+	 * Checks whether a specific url exists in cache
+	 * @param url	URL to call
+	 * @return		true if the url is present in cache
+	 */
+	def existsInCache( url ) {
+		return retrieveFromCache( url ) == null;
+	}
+
+	/**
+	 * Retrieves the contents of a specific URL from cache
+	 * @param url	URL to call
+	 * @return		JSON object with the contents of the URL or null if the url doesn't exist in cache
+	 */
+	def retrieveFromCache( url ) {
+		def user = authenticationService.getLoggedInUser();
+		def userId = user ? user.id : -1;
+
+		if( cache[ userId ] && cache[ userId ][ url ] && ( System.currentTimeMillis() - cache[ userId ][ url ][ "timestamp" ] ) < numberOfSecondsInCache * 1000 ) {
+			return cache[ userId ][ url ];
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Store the retrieved contents from a url in cache
+	 * @param url		URL that has been called
+	 * @param contents	Contents of the URL
+	 */
+	def storeInCache( url, contents ) {
+		def user = authenticationService.getLoggedInUser();
+		def userId = user ? user.id : -1;
+
+		if( !cache[ userId ] )
+			cache[ userId ] = [:]
+
+		cache[ userId ][ url ] = [
+			"timestamp": System.currentTimeMillis(),
+			"success": true,
+			"contents": contents
+		];
+	}
+	
+	/**
+	* Store the retrieved error from a url in cache
+	* @param url		URL that has been called
+	* @param contents	Contents of the URL
+	*/
+   def storeErrorInCache( url, error ) {
+	   def user = authenticationService.getLoggedInUser();
+	   def userId = user ? user.id : -1;
+
+	   if( !cache[ userId ] )
+		   cache[ userId ] = [:]
+
+	   cache[ userId ][ url ] = [
+		   "timestamp": System.currentTimeMillis(),
+		   "success": false,
+		   "error": error
+	   ];
+   }
+
 }

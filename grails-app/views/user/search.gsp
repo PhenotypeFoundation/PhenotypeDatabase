@@ -64,9 +64,9 @@
 
 	<g:if test='${searched}'>
 
-<%
-def queryParams = [username: username, enabled: enabled, accountExpired: accountExpired, accountLocked: accountLocked, passwordExpired: passwordExpired]
-%>
+	<%
+	def queryParams = [username: username, enabled: enabled, accountExpired: accountExpired, accountLocked: accountLocked, passwordExpired: passwordExpired]
+	%>
 
 	<div class="list">
 	<table>

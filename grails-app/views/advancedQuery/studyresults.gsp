@@ -25,7 +25,6 @@
 <p> 
 	resulted in ${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">study</g:if><g:else>studies</g:else>.
 </p>
-
 <g:if test="${search.getNumResults() > 0}">
 
 	<table id="searchresults" class="paginate">

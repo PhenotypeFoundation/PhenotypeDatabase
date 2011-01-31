@@ -24,13 +24,16 @@ class Criterion {
 	public def value
 
 	/**
-	 * Checks if the given object (with template) that satisfies the given criterion.
+	 * Retrieves the correct value for this criterion in the given object (with template)
 	 *
-	 * @param entity		Entity to check for criterion satisfaction. Should be a child of template entity
+	 * @param entity		Entity to check for value. Should be a child of template entity
 	 * @param criterion	Criterion to match on
-	 * @return			True iff there the entity satisfies the given criterion.
+	 * @return			Value of the given field or null if the field doesn't exist
 	 */
-	public boolean matchOne( TemplateEntity entity ) {
+	public def getFieldValue( TemplateEntity entity ) {
+		if( entity == null )
+			return null;
+
 		try {
 			def fieldValue
 			if( field == "Template" ) {
@@ -39,12 +42,30 @@ class Criterion {
 				fieldValue = Search.prepare( entity.getFieldValue( field ), entity.giveFieldType( field ) )
 			}
 
-			return this.match( fieldValue );
+			return fieldValue
 		} catch( Exception e ) {
 			// An exception occurs if the given field doesn't exist. In that case, this criterion will fail.
 			// TODO: Maybe give the user a choice whether he want's to include these studies or not
-			return false;
+			return null;
 		}
+	}
+
+	/**
+	 * Checks if the given object (with template) that satisfies the given criterion.
+	 *
+	 * @param entity		Entity to check for criterion satisfaction. Should be a child of template entity
+	 * @param criterion	Criterion to match on
+	 * @return			True iff there the entity satisfies the given criterion.
+	 */
+	public boolean matchEntity( TemplateEntity entity ) {
+		def fieldValue = this.getFieldValue( entity );
+
+		// Null is returned, the given field doesn't exist. In that case, this criterion will fail.
+		// TODO: Maybe give the user a choice whether he want's to include these studies or not
+		if( fieldValue == null )
+			return false;
+
+		return this.match( fieldValue );
 	}
 
 	/**
@@ -54,9 +75,9 @@ class Criterion {
 	 * @param criterion		Criterion to match on
 	 * @return				True iff there is any entity in the list that satisfies the given criterion.
 	 */
-	public boolean matchAny( List entityList ) {
+	public boolean matchAnyEntity( List<TemplateEntity> entityList ) {
 		for( entity in entityList ) {
-			if( matchOne( entity ) )
+			if( matchOneEntity( entity ) )
 				return true;
 		}
 		return false;
@@ -69,9 +90,39 @@ class Criterion {
 	 * @param criterion		Criterion to match on
 	 * @return				True iff all entities satisfy the given criterion.
 	 */
-	public boolean matchAll( List entityList ) {
+	public boolean matchAllEntities( List<TemplateEntity> entityList ) {
 		for( entity in entityList ) {
-			if( !matchOne( entity ) )
+			if( !matchOneEntity( entity ) )
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Checks for all values in the given List, if there is any value that satisfies the given criterion.
+	 *
+	 * @param entityList		List with values.
+	 * @param criterion		Criterion to match on
+	 * @return				True iff there is any value in the list that satisfies the given criterion.
+	 */
+	public boolean matchAny( List valueList ) {
+		for( value in valueList ) {
+			if( match( value ) )
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Checks for all values in the given List, if all values satisfy the given criterion.
+	 *
+	 * @param entityList		List with values.
+	 * @param criterion		Criterion to match on
+	 * @return				True iff all values satisfy the given criterion.
+	 */
+	public boolean matchAll( List entityList ) {
+		for( value in valueList ) {
+			if( !match( value ) )
 				return false;
 		}
 		return true;
@@ -86,12 +137,12 @@ class Criterion {
 	public boolean match( def fieldValue ) {
 		if( fieldValue == null )
 			return false;
-			
+
 		def classname = fieldValue.class.getName();
 		classname = classname[classname.lastIndexOf( '.' ) + 1..-1].toLowerCase();
-		
+
 		println "Match " + fieldValue + " of class " + classname + " with " + this
-		
+
 		try {
 			switch( classname ) {
 				case "integer":					return longCompare( new Long( fieldValue.longValue() ) );
@@ -151,11 +202,11 @@ class Criterion {
 		try {
 			Date dateCriterion = new SimpleDateFormat( "yyyy-MM-dd" ).parse( value );
 			Date fieldDate = new Date( fieldValue.getTime() );
-			
+
 			// Clear time in order to just compare dates
 			dateCriterion.clearTime();
 			fieldDate.clearTime();
-			
+
 			return compareValues( fieldDate, this.operator, dateCriterion )
 		} catch( Exception e ) {
 			log.error e.class.getName() + ": " + e.getMessage();
@@ -231,12 +282,12 @@ class Criterion {
 			RelTime rt
 
 			// Numbers are taken to be seconds, if a non-numeric value is given, try to parse it
-			if( value.toString().isNumber() ) {
+			if( value.toString().isLong() ) {
 				rt = new RelTime( Long.parseLong( value.toString() ) );
 			} else {
 				rt = new RelTime( value.toString() );
 			}
-			
+
 			return compareValues( fieldValue, this.operator, rt );
 		} catch( Exception e ) {
 			log.error e.class.getName() + ": " + e.getMessage();

@@ -15,7 +15,14 @@
  */
 package dbnp.query
 
+import groovy.lang.Closure;
+
 import java.text.SimpleDateFormat
+import java.util.List;
+
+import org.springframework.context.ApplicationContext
+import org.codehaus.groovy.grails.commons.ApplicationHolder;
+
 import org.dbnp.gdt.*
 
 class Search {
@@ -23,12 +30,16 @@ class Search {
 
 	protected List criteria;
 	protected List results;
+	protected Map resultFields = [:];
 
 	public List getCriteria() { return criteria; }
 	public void setCriteria( List c ) { criteria = c; }
 
 	public List getResults() { return results; }
 	public void setResults( List r ) { results = r; }
+	
+	public Map getResultFields() { return resultFields; }
+	public void setResultFields( Map r ) { resultFields = r; }
 
 	/**
 	 * Returns the number of results found by this search
@@ -154,5 +165,141 @@ class Search {
 				return value.toString();
 		}
 
+	}
+	
+	
+	/**
+	 * Filters the given list of studies on the study criteria
+	 * @param studies		Original list of studies
+	 * @param entity		Name of the entity to check the criteria for
+	 * @param valueCallback	Callback having a study and criterion as input, returning the value of the field to check on
+	 * @return				List with all studies that match the Criteria
+	 */
+	protected List filterOnTemplateEntityCriteria( List studies, String entityName, Closure valueCallback ) {
+		def criteria = getEntityCriteria( entityName );
+		def checkCallback = { study, criterion ->
+			def value = valueCallback( study, criterion );
+			
+			if( value == null )
+				return false
+			if( value instanceof Collection ) {
+				return criterion.matchAny( value )
+			} else {
+				return criterion.match( value );
+			}
+		}
+
+		// Save the value of this entity for later use
+		saveResultFields( studies, criteria, valueCallback );
+
+		return filterEntityList( studies, criteria, checkCallback);
+	}
+
+	/**
+	* Filters the given list of entities on the module criteria
+	* @param entities	Original list of entities. Entities should expose a giveUUID() method to give the token.
+	* @return			List with all entities that match the module criteria
+	*/
+	protected List filterOnModuleCriteria( List entities ) {
+		// An empty list can't be filtered more than is has been now
+		if( !entities || entities.size() == 0 )
+			return [];
+			
+		// Determine the moduleCommunicationService
+		ApplicationContext ctx = (ApplicationContext)ApplicationHolder.getApplication().getMainContext();
+		def moduleCommunicationService = ctx.getBean("moduleCommunicationService");
+			
+		// Loop through all modules and check whether criteria have been given
+		// for that module
+		AssayModule.list().each { module ->
+			// Remove 'module' from module name
+			def moduleName = module.name.replace( 'module', '' ).trim()
+			def moduleCriteria = getEntityCriteria( moduleName );
+			
+			if( moduleCriteria && moduleCriteria.size() > 0 ) {
+				println "Filter " + entities.size() + " entities on " + module.name + " criteria: " + moduleCriteria.size();
+
+				// Retrieve the data from the module
+				def tokens = entities.collect { it.giveUUID() }.unique();
+				def fields = moduleCriteria.collect { it.field }.unique();
+				
+				def callUrl = module.url + '/rest/getQueryableFieldData?entity=' + this.entity
+				tokens.sort().each { callUrl += "&tokens=" + it.encodeAsURL() }
+				fields.sort().each { callUrl += "&fields=" + it.encodeAsURL() }
+				
+				try {
+					def json = moduleCommunicationService.callModuleRestMethodJSON( module.url, callUrl );
+
+					// The data has been retrieved. Now walk through all criteria to filter the samples
+					entities = filterEntityList( entities, moduleCriteria, { entity, criterion ->
+						// Find the value of the field in this sample. That value is still in the
+						// JSON object
+						def token = entity.giveUUID()
+						if( !json[ token ] || json[ token ][ criterion.field ] == null )
+							return false;
+
+						// Check whether a list or string is given
+						def value = json[ token ][ criterion.field ];
+						
+						// Save the value of this entity for later use
+						saveResultField( entity.id, criterion.field, value )
+
+						if( !( value instanceof Collection ) ) {
+							value = [ value ];
+						}
+						
+						// Loop through all values and match any
+						for( val in value ) {
+							// Convert numbers to a long or double in order to process them correctly
+							val = val.toString();
+							if( val.isLong() ) {
+								val = Long.parseLong( val );
+							} else if( val.isDouble() ) {
+								val = Double.parseDouble( val );
+							}
+							
+							if( criterion.match( val ) )
+								return true;
+						}
+						
+						return false;
+					});
+										
+				} catch( Exception e ) {
+					println( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+				}
+			}
+		}
+		
+		return entities;
+	}
+	
+	/**
+	 * Saves data about template entities to use later on. This data is copied to a special
+	 * structure to make it compatible with data fetched from other modules. Ses also saveResultField() method
+	 * @param entities			List of template entities to find data in
+	 * @param criteria			Criteria to search for
+	 * @param valueCallback		Callback to retrieve a specific field from the entity
+	 */
+	protected void saveResultFields( entities, criteria, valueCallback ) {
+		for( criterion in criteria ) {
+			for( entity in entities ) {
+				saveResultField( entity.id, criterion.field, valueCallback( entity, criterion ) )
+			}
+		}
+	}
+
+	
+	/**
+	 * Saves a specific field of an object to use later on. Especially useful when looking up data from other modules.
+	 * @param id		ID of the object
+	 * @param fieldName	Field name that has been searched
+	 * @param value		Value of the field
+	 */
+	protected void saveResultField( id, fieldName, value ) {
+		if( resultFields[ id ] == null )
+			resultFields[ id ] = [:]
+		
+		resultFields[ id ][ fieldName ] = value;
 	}
 }
