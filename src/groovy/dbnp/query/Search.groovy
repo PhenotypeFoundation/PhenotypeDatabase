@@ -16,6 +16,7 @@
 package dbnp.query
 
 import java.text.SimpleDateFormat
+import org.dbnp.gdt.*
 
 class Search {
 	public String entity;

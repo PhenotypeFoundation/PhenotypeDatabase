@@ -13,6 +13,7 @@
  * $Date$
  */
 package dbnp.importer
+import org.dbnp.gdt.*
 
 class ImportRecord extends Identity {
     static hasMany = [ importcells: ImportCell ]

@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import org.dbnp.gdt.*
 
 /**
  * The SamplingEvent class describes a sampling event, an event that also results in one or more samples.

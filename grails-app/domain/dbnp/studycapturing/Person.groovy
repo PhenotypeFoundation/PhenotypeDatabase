@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import org.dbnp.gdt.*
 
 /**
  * The Person class represents a person who is related to one ore more studies, such as a PI, a lab analyst etc.

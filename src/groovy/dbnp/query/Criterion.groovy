@@ -1,6 +1,7 @@
 package dbnp.query
 
-import java.text.SimpleDateFormat;
+import java.text.SimpleDateFormat
+import org.dbnp.gdt.*
 
 /**
  * Available operators for criteria

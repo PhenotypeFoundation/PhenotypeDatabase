@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import org.dbnp.gdt.*
 
 /**
  * This class describes an Assay, which describes the application of a certain (omics) measurement to multiple samples.

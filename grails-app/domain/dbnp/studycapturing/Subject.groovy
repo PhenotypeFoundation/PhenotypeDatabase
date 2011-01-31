@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import org.dbnp.gdt.*
 
 /**
  * This domain class describes the subjects in a study.

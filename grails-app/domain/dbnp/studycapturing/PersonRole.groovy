@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import org.dbnp.gdt.*
 
 /**
  * The role of a person, as specified in a StudyPerson relation.

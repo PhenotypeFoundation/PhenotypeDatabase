@@ -13,6 +13,7 @@
  * $Date$
  */
 package dbnp.studycapturing
+import org.dbnp.gdt.*
 
 class TermEditorController {
 	/**

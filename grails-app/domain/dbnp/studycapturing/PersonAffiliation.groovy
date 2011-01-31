@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import org.dbnp.gdt.*
 
 /**
  * The PersonAffiliation class is an attribute of a Person, it represents an affiliation where she/he works for.

@@ -1,4 +1,5 @@
 package dbnp.studycapturing
+import org.dbnp.gdt.*
 
 /**
  * The Event class describes an actual event, as it has happened to a certain subject. Often, the same event occurs

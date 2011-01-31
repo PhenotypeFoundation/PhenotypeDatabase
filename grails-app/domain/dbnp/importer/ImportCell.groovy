@@ -1,4 +1,5 @@
 package dbnp.importer
+import org.dbnp.gdt.*
 
 /**
  * Cell Domain Class

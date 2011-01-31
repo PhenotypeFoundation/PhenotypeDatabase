@@ -15,6 +15,7 @@
 package dbnp.modules
 
 import dbnp.studycapturing.*
+import org.dbnp.gdt.*
 
 class ModuleNotificationService implements Serializable {
     boolean transactional = false
