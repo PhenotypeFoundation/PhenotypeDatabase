@@ -1,5 +1,4 @@
 package dbnp.studycapturing
-import nl.grails.plugins.gdt.*
 
 /**
  * The role of a person, as specified in a StudyPerson relation.

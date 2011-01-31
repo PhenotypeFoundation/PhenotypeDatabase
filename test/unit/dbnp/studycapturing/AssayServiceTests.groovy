@@ -5,10 +5,10 @@ import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.apache.poi.ss.usermodel.Cell
 import grails.converters.JSON
-import nl.grails.plugins.gdt.Term
-import nl.grails.plugins.gdt.TemplateField
-import nl.grails.plugins.gdt.Template
-import nl.grails.plugins.gdt.TemplateFieldType
+import org.dbnp.gdt.Term
+import org.dbnp.gdt.TemplateField
+import org.dbnp.gdt.Template
+import org.dbnp.gdt.TemplateFieldType
 
 /**
  * AssayServiceTests Test

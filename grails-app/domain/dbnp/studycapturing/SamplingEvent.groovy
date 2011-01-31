@@ -1,5 +1,4 @@
 package dbnp.studycapturing
-import nl.grails.plugins.gdt.*
 
 /**
  * The SamplingEvent class describes a sampling event, an event that also results in one or more samples.

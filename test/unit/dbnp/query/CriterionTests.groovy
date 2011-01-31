@@ -1,9 +1,6 @@
 package dbnp.query
 
-import nl.grails.plugins.gdt.*
 import grails.test.*
-import java.util.Date;
-import java.text.DateFormat;
 
 /**
  * SearchTests Test

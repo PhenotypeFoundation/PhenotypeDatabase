@@ -1,10 +1,6 @@
 package dbnp.query
 
 import dbnp.studycapturing.*
-import dbnp.data.*
-import dbnp.authentication.*;
-import grails.test.*
-import nl.grails.plugins.gdt.*
 
 /**
  * SearchTests Test

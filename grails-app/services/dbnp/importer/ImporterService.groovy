@@ -17,11 +17,8 @@
 package dbnp.importer
 
 import org.apache.poi.ss.usermodel.*
-import org.apache.poi.xssf.usermodel.XSSFCell
 
-import nl.grails.plugins.gdt.*
 import dbnp.studycapturing.*
-import org.apache.commons.lang.RandomStringUtils
 
 class ImporterService {
 	def authenticationService

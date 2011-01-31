@@ -1,4 +1,4 @@
-<%@ page import="nl.grails.plugins.gdt.GdtService" %>
+<%@ page import="org.dbnp.gdt.GdtService" %>
 <%
 	/**
 	 * Properties template which shows entities and allows to assign properties to columns

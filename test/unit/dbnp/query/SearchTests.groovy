@@ -1,6 +1,5 @@
 package dbnp.query
 
-import nl.grails.plugins.gdt.*
 import grails.test.*
 
 /**

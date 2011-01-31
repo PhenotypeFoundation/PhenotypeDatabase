@@ -1,5 +1,5 @@
 <%@ page import="dbnp.studycapturing.*" %>
-<%@ page import="nl.grails.plugins.gdt.*" %>
+<%@ page import="org.dbnp.gdt.*" %>
 <g:if test="${studyList*.eventGroups?.flatten()?.size()==0}">
   No event groups in this study
 </g:if>

@@ -1,5 +1,4 @@
 package dbnp.studycapturing
-import nl.grails.plugins.gdt.*
 
 /**
  * EventGroup groups events

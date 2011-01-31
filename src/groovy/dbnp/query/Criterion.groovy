@@ -1,10 +1,6 @@
 package dbnp.query
 
-import java.util.Date;
-import java.util.List;
 import java.text.SimpleDateFormat;
-
-import nl.grails.plugins.gdt.*
 
 /**
  * Available operators for criteria

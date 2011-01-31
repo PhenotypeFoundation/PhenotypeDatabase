@@ -1,5 +1,4 @@
 package dbnp.importer
-import nl.grails.plugins.gdt.*
 
 /**
  * Cell Domain Class

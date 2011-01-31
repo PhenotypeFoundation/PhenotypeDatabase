@@ -1,9 +1,6 @@
 package dbnp.studycapturing
 
 import dbnp.authentication.SecUser
-import nl.grails.plugins.gdt.*
-import java.util.UUID;
-import dbnp.modules.*;
 
 /**
  * Domain class describing the basic entity in the study capture part: the Study class.

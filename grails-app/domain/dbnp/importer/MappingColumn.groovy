@@ -1,6 +1,6 @@
 package dbnp.importer
 
-import nl.grails.plugins.gdt.*
+import org.dbnp.gdt.TemplateFieldType
 
 /**
 * name: column name (in Excel)
@@ -14,7 +14,7 @@ import nl.grails.plugins.gdt.*
 class MappingColumn implements Serializable {
 
 	String name
-	nl.grails.plugins.gdt.TemplateFieldType templatefieldtype
+	TemplateFieldType templatefieldtype
 	Class entity
 	String property
 	Integer index

@@ -1,8 +1,6 @@
 package gscf
 
 import dbnp.studycapturing.*
-import grails.test.GrailsUnitTestCase
-import nl.grails.plugins.gdt.*
 
 /**
  * Test the creation of a Sample and its TemplateEntity functionality on data model level

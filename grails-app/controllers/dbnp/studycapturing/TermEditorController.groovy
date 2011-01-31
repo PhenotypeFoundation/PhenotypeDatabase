@@ -14,8 +14,6 @@
  */
 package dbnp.studycapturing
 
-import nl.grails.plugins.gdt.*
-
 class TermEditorController {
 	/**
 	 * index closure

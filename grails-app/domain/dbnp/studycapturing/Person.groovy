@@ -1,5 +1,4 @@
 package dbnp.studycapturing
-import nl.grails.plugins.gdt.*
 
 /**
  * The Person class represents a person who is related to one ore more studies, such as a PI, a lab analyst etc.

@@ -1,7 +1,5 @@
 package dbnp.studycapturing
 
-import nl.grails.plugins.gdt.*
-
 /**
  * This domain class describes the subjects in a study.
  *

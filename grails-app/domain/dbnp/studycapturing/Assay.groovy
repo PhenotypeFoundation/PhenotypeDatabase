@@ -1,6 +1,4 @@
 package dbnp.studycapturing
-import nl.grails.plugins.gdt.*
-import java.util.UUID;
 
 /**
  * This class describes an Assay, which describes the application of a certain (omics) measurement to multiple samples.

@@ -9,7 +9,7 @@
  */
 
 import dbnp.studycapturing.*
-import nl.grails.plugins.gdt.*
+import org.dbnp.gdt.*
 import org.codehaus.groovy.grails.commons.GrailsApplication
 
 class BootStrapTemplates {

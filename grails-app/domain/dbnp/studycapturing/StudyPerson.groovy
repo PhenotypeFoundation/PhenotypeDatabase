@@ -1,5 +1,4 @@
 package dbnp.studycapturing
-import nl.grails.plugins.gdt.*
 
 /**
  * Link table which couples studies with persons and the role they have within the study

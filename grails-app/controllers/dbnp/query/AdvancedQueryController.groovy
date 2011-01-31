@@ -1,8 +1,5 @@
 package dbnp.query
 
-import dbnp.studycapturing.*
-import nl.grails.plugins.gdt.*
-
 // TODO: Make use of the searchable-plugin possibilities instead of querying the database directly
 
 /**

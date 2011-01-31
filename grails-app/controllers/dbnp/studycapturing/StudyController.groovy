@@ -2,7 +2,9 @@ package dbnp.studycapturing
 
 import grails.converters.*
 import grails.plugins.springsecurity.Secured
-import nl.grails.plugins.gdt.TemplateFieldType
+import org.dbnp.gdt.TemplateFieldType
+import org.dbnp.gdt.RelTime
+
 
 /**
  * Controller class for studies
@@ -313,7 +315,7 @@ class StudyController {
                 def value = event.getFieldValue( templateField.name );
 				if( value ) {
 					if( templateField.type == TemplateFieldType.RELTIME )
-						value = new nl.grails.plugins.gdt.RelTime( value ).toString();
+						value = new RelTime( value ).toString();
 
 	                def param = templateField.name + " = " + value;
 

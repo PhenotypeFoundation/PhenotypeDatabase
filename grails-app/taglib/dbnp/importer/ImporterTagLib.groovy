@@ -15,8 +15,6 @@
 
 package dbnp.importer
 
-import dbnp.studycapturing.*
-import nl.grails.plugins.gdt.*
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.DataFormatter
 
@@ -158,7 +156,7 @@ class ImporterTagLib {
 	 * @param name name of the HTML select object
 	 * @return HTML select object
 	 *
-	 * @see nl.grails.plugins.gdt.TemplateFieldType
+	 * @see org.dbnp.gdt.TemplateFieldType
 	 */
 
 	def entitySelect = { attrs ->
@@ -185,7 +183,7 @@ class ImporterTagLib {
 	 * @param name name of the HTML select object
 	 * @return HTML select object
 	 *
-	 * @see nl.grails.plugins.gdt.TemplateFieldType
+	 * @see org.dbnp.gdt.TemplateFieldType
 	 */
 	def templatefieldtypeSelect = { attrs ->
 		def selected = (attrs['selected'] == null) ? -1 : attrs['selected']

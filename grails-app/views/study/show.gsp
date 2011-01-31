@@ -1,5 +1,5 @@
 <%@ page import="dbnp.studycapturing.*" %>
-<%@ page import="nl.grails.plugins.gdt.*" %>
+<%@ page import="org.dbnp.gdt.*" %>
 <html>
 <head>
 	<meta name="layout" content="main"/>

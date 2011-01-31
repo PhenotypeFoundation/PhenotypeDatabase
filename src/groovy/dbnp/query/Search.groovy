@@ -15,9 +15,6 @@
  */
 package dbnp.query
 
-import nl.grails.plugins.gdt.*
-import java.util.List;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat
 
 class Search {

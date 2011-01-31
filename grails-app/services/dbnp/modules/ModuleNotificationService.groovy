@@ -14,7 +14,6 @@
  */
 package dbnp.modules
 
-import nl.grails.plugins.gdt.*
 import dbnp.studycapturing.*
 
 class ModuleNotificationService implements Serializable {

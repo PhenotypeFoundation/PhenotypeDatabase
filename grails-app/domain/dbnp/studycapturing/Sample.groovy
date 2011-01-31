@@ -1,8 +1,5 @@
 package dbnp.studycapturing
 
-import nl.grails.plugins.gdt.*
-import java.util.UUID;
-
 /**
  * The Sample class describes an actual sample which results from a SamplingEvent.
  *

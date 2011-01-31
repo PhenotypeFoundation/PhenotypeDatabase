@@ -14,9 +14,7 @@
  */
 package dbnp.studycapturing
 
-import nl.grails.plugins.gdt.*
-
 class AssayModuleController {
 	// Scaffold this class to circumvent not being able to add assays (0.4)
-	def scaffold = nl.grails.plugins.gdt.AssayModule
+	def scaffold = org.dbnp.gdt.AssayModule
 }
