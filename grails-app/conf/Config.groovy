@@ -124,20 +124,3 @@ grails.plugins.springsecurity.controllerAnnotations.staticRules = [
 	'/requestmap/**': ['ROLE_ADMIN'],
 	'/securityinfo/**': ['ROLE_ADMIN']
 ]
-
-// default mail configuration, see environment specific properties file
-// for real configuration
-grails {
-	mail {
-		host = "smtp.gmail.com"
-		port = 465
-		username = "default_login@gmail.com"
-		password = "default_password"
-		props = [
-			"mail.smtp.auth": "true",
-			"mail.smtp.socketFactory.port": '465',
-			"mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-			"mail.smtp.socketFactory.fallback": "false"
-		]
-	}
-}
