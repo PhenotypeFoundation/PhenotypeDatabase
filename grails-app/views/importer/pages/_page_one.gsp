@@ -22,7 +22,7 @@
 		Choose your Excel file to import:
 	    </td>
 	    <td width="100px">
-		<wizard:fileFieldElement name="importfile" value=""/>
+		<af:fileFieldElement name="importfile" value=""/>
 	    </td>
 	</tr>
 	<tr>

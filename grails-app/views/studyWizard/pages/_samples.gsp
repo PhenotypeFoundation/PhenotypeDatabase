@@ -17,9 +17,9 @@
 <af:page>
 
 	<% /* g:if env="development">
-		<wizard:ajaxButtonElement description="Development feature (regenerate samples)" name="regenerate" value="regenerate new samples" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()">
+		<af:ajaxButtonElement description="Development feature (regenerate samples)" name="regenerate" value="regenerate new samples" url="[controller:'wizard',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()">
 			This functionality is only available in development mode for debugging purposes and will not show in test and production environments
-		</wizard:ajaxButtonElement>
+		</af:ajaxButtonElement>
 	</g:if */ %>
 	
 	<span class="info">
@@ -30,7 +30,7 @@
 
 	<script type="text/javascript">
 		function switchTemplate( element ) {
-			<wizard:ajaxSubmitJs functionName="switchTemplate" this="element" afterSuccess="onPage()"/>
+			<af:ajaxSubmitJs functionName="switchTemplate" this="element" afterSuccess="onPage()"/>
 		}
 	</script>
 
@@ -76,10 +76,10 @@
 						</div>
 					</div>
 					<div class="column">
-						<wizard:templateSelect name="template_${sample.getIdentifier()}" entity="${dbnp.studycapturing.Sample}" value="${sample.template}" tableEditorChangeEvent="switchTemplate(element);" addDummy="true" />						
+						<af:templateSelect name="template_${sample.getIdentifier()}" entity="${dbnp.studycapturing.Sample}" value="${sample.template}" tableEditorChangeEvent="switchTemplate(element);" addDummy="true" />
 					</div>
 					<div class="column">${sample.name}</div>
-					<wizard:templateColumns name="sample_${sample.getIdentifier()}" class="column" id="1" entity="${sample}"/>
+					<af:templateColumns name="sample_${sample.getIdentifier()}" class="column" id="1" entity="${sample}"/>
 				</div>
 			</g:if>
 		</g:each>
@@ -102,7 +102,7 @@
 						<div class="column">Sampling Event</div>
 						<div class="column">Subject</div>
 						<div class="column">Template</div>
-						<wizard:templateColumnHeaders entity="${sample}" class="column" columnWidths="[Name:250]"/>
+						<af:templateColumnHeaders entity="${sample}" class="column" columnWidths="[Name:250]"/>
 					</div>
 				</g:if>
 				<div class="row">
@@ -133,9 +133,9 @@
 						</div>
 					</div>
 					<div class="column">
-						<wizard:templateSelect name="template_${sample.getIdentifier()}" entity="${dbnp.studycapturing.Sample}" value="${sample.template}" addDummy="true" tableEditorChangeEvent="switchTemplate(element);" />
+						<af:templateSelect name="template_${sample.getIdentifier()}" entity="${dbnp.studycapturing.Sample}" value="${sample.template}" addDummy="true" tableEditorChangeEvent="switchTemplate(element);" />
 					</div>
-					<wizard:templateColumns name="sample_${sample.getIdentifier()}" class="column" id="1" entity="${sample}"/>
+					<af:templateColumns name="sample_${sample.getIdentifier()}" class="column" id="1" entity="${sample}"/>
 				</div>
 			</g:each>
 			</div>

@@ -79,14 +79,14 @@
 			  </td>
 			</g:if>
 			<g:each in="${subject.giveDomainFields()}" var="field">
-			  <td><wizard:showTemplateField field="${field}" entity="${subject}" /></td>
+			  <td><af:showTemplateField field="${field}" entity="${subject}" /></td>
 			</g:each>
 
 			<g:each in="${showSubjectFields}" var="fieldname">
 			  <td>
 				<g:if test="${subject.fieldExists(fieldname)}">
 					<g:set var="field" value="${subject.getField(fieldname)}" />
-					<wizard:showTemplateField field="${field}" entity="${subject}" />
+					<af:showTemplateField field="${field}" entity="${subject}" />
 				</g:if>
 				<g:else>
 				  N/A

@@ -99,7 +99,7 @@
 								<g:each in="${studyList}" var="studyInstance">
 									<td>
 										<g:if test="${studyInstance.fieldExists(field.name)}">
-											<wizard:showTemplateField field="${field}" entity="${studyInstance}"/>
+											<af:showTemplateField field="${field}" entity="${studyInstance}"/>
 										</g:if>
 										<g:else>
 											-

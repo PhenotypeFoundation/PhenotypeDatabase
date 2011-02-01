@@ -1,3 +1,3 @@
-<wizard:pageContent>
+<af:pageContent>
 	Study
-</wizard:pageContent>
+</af:pageContent>

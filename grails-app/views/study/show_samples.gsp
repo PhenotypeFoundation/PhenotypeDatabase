@@ -83,14 +83,14 @@
 			<td>${sample.parentSubject?.name}</td>
 			<td>${sample.parentEvent?.template?.name} at ${sample.parentEvent?.getStartTimeString()}</td>
 		  <g:each in="${sample.giveDomainFields()}" var="field">
-			<td><wizard:showTemplateField field="${field}" entity="${sample}" /></td>
+			<td><af:showTemplateField field="${field}" entity="${sample}" /></td>
 		  </g:each>
 
 		  <g:each in="${showSampleFields}" var="fieldname">
 			<td>
 			  <g:if test="${sample.fieldExists(fieldname)}">
 				<g:set var="field" value="${sample.getField(fieldname)}" />
-				<wizard:showTemplateField field="${field}" entity="${sample}" />
+				<af:showTemplateField field="${field}" entity="${sample}" />
 			  </g:if>
 			  <g:else>
 				N/A

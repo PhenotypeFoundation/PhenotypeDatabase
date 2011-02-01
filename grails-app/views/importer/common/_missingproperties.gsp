@@ -54,14 +54,14 @@
 			<div class="header">
 			    <div class="firstColumn">#</div>
 			    <div class="firstColumn"></div>
-				<wizard:templateColumnHeaders entity="${entity}" class="column" />
+				<af:templateColumnHeaders entity="${entity}" class="column" />
 			</div>
 			<input type="hidden" name="entity" value="${entity.getClass().getName()}">
 		    </g:if>
 		    <div class="row">
 			<div class="firstColumn">#</div>
 			<div class="firstColumn"></div>
-			<wizard:templateColumns id="${entity.hashCode()}" entity="${entity}" template="${entity.template}" name="entity_${entity.getIdentifier()}" class="column" subject="${entity.hashCode()}" addDummy="true" />
+			<af:templateColumns id="${entity.hashCode()}" entity="${entity}" template="${entity.template}" name="entity_${entity.getIdentifier()}" class="column" subject="${entity.hashCode()}" addDummy="true" />
 		    </div>
 		</g:each>
 	    </g:each>

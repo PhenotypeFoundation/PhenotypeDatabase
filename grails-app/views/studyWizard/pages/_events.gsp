@@ -16,9 +16,9 @@
 %>
 <af:page>
 	<g:if env="development">
-		<wizard:ajaxButtonElement description="Development feature (clear events)" name="clear" value="clear events" afterSuccess="onPage()">
+		<af:ajaxButtonElement description="Development feature (clear events)" name="clear" value="clear events" afterSuccess="onPage()">
 			This functionality is only available in development mode for debugging purposes and will not show in test and production environments
-		</wizard:ajaxButtonElement>
+		</af:ajaxButtonElement>
 	</g:if>
 
 	<span class="info">
@@ -26,19 +26,19 @@
 		An event is any change ‘forced’ upon a subject, such as treatment, challenge, sampling. Choose an event type an define the different parameters of the event.		
 	</span>
 
-	<wizard:radioElement name="eventType" description="Type" elements="['event','sample']" value="${values?.eventType}">
+	<af:radioElement name="eventType" description="Type" elements="['event','sample']" value="${values?.eventType}">
 		Type of event
-	</wizard:radioElement>
-	<wizard:templateElement name="eventTemplate" elementId="eventTemplate" description="Event Template" value="${event?.template}" entity="${dbnp.studycapturing.Event}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
+	</af:radioElement>
+	<af:templateElement name="eventTemplate" elementId="eventTemplate" description="Event Template" value="${event?.template}" entity="${dbnp.studycapturing.Event}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
 		The template to use for this event
-	</wizard:templateElement>
-	<wizard:templateElement name="sampleTemplate" elementId="sampleTemplate" description="Sampling Event Template" value="${event?.template}" entity="${dbnp.studycapturing.SamplingEvent}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
+	</af:templateElement>
+	<af:templateElement name="sampleTemplate" elementId="sampleTemplate" description="Sampling Event Template" value="${event?.template}" entity="${dbnp.studycapturing.SamplingEvent}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
 		The template to use for this sampling event
-	</wizard:templateElement>
+	</af:templateElement>
 	<g:if test="${event?.template}">
 	<div id="${values?.eventType}TemplateFields">
-	<g:if test="${event?.template}"><wizard:templateElements entity="${event}" /></g:if>
-	<g:if test="${event?.template}"><wizard:buttonElement name="add" value="Add" afterSuccess="onPage()"/></g:if>
+	<g:if test="${event?.template}"><af:templateElements entity="${event}" /></g:if>
+	<g:if test="${event?.template}"><af:buttonElement name="add" value="Add" afterSuccess="onPage()"/></g:if>
 	</div>
 	</g:if>
 	
@@ -88,7 +88,7 @@
 					<div class="firstColumn">
 						<af:ajaxButton name="addEventGroup" src="${resource(dir: 'images/icons', file: 'add.png', plugin: 'famfamfam')}" alt="add a new eventgroup" class="famfamfam" value="+" afterSuccess="onPage()" />
 					</div>
-				  <wizard:templateColumnHeaders class="column" entity="${event}" />
+				  <af:templateColumnHeaders class="column" entity="${event}" />
 				</div>
 				</g:if>
 
@@ -108,7 +108,7 @@
 					<div class="firstColumn">
 						<af:ajaxButton name="duplicate" src="${resource(dir: 'images/icons', file: 'application_put.png', plugin: 'famfamfam')}" alt="duplicate this event" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onPage()" />
 					</div>
-					<wizard:templateColumns class="column" entity="${event}" name="event_${event.getIdentifier()}" />
+					<af:templateColumns class="column" entity="${event}" name="event_${event.getIdentifier()}" />
 				</div>
 
 			</g:each>

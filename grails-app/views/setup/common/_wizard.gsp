@@ -17,7 +17,7 @@
 	<g:form action="pages" name="wizardForm" id="wizardForm" enctype="multipart/form-data">
 	<g:hiddenField name="do" value="" />
 		<div id="wizardPage">
-			<wizard:ajaxFlowRedirect form="form#wizardForm" name="next" url="[controller:'setup',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
+			<af:ajaxFlowRedirect form="form#wizardForm" name="next" url="[controller:'setup',action:'pages']" update="[success:'wizardPage',failure:'wizardError']" afterSuccess="onWizardPage()" />
 		</div>
 	</g:form>
 </div>

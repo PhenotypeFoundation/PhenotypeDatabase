@@ -23,14 +23,14 @@
 
 	<% /* wizard:textFieldElement name="addNumber" description="Number of assays to add" error="addNumber" value="${values?.addNumber}" size="4" maxlength="4">
 		The number of assays to add to your study
-	</wizard:textFieldElement */ %>
-	<wizard:templateElement name="template" description="Template" value="${assay?.template}" entity="${dbnp.studycapturing.Assay}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
+	</af:textFieldElement */ %>
+	<af:templateElement name="template" description="Template" value="${assay?.template}" entity="${dbnp.studycapturing.Assay}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
 		Choose the type of assay you would like to add
-	</wizard:templateElement>
+	</af:templateElement>
 	<g:if test="${assay}">
-	<wizard:templateElements entity="${assay}" />
-	<wizard:ajaxButtonElement name="add" value="Add" afterSuccess="onPage()">
-	</wizard:ajaxButtonElement>
+	<af:templateElements entity="${assay}" />
+	<af:ajaxButtonElement name="add" value="Add" afterSuccess="onPage()">
+	</af:ajaxButtonElement>
 	</g:if>
 
 	<g:if test="${study.assays}">
@@ -43,7 +43,7 @@
 				<g:set var="showHeader" value="${false}" />
 				<div class="header">
 					<div class="firstColumn"></div>
-					<wizard:templateColumnHeaders class="column" entity="${assay}" />
+					<af:templateColumnHeaders class="column" entity="${assay}" />
 				</div>
 				</g:if>
 
@@ -51,7 +51,7 @@
 					<div class="firstColumn">
 						<af:ajaxButton name="deleteAssay" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this assay" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${assay.getIdentifier()});" afterSuccess="onPage()"/>
 					</div>
-					<wizard:templateColumns class="column" entity="${assay}" name="assay_${assay.getIdentifier()}" />
+					<af:templateColumns class="column" entity="${assay}" name="assay_${assay.getIdentifier()}" />
 				</div>
 			</g:each>
 			</div>

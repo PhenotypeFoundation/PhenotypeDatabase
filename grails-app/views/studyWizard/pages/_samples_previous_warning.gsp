@@ -37,7 +37,7 @@
 		}
 
 		function goToPrevious() {
-			<wizard:ajaxSubmitJs name="previous" afterSuccess="onPage()" />
+			<af:ajaxSubmitJs name="previous" afterSuccess="onPage()" />
 		}
 	</script>
 

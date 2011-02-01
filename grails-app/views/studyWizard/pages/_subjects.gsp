@@ -24,17 +24,17 @@
 		<br/><i>Note that depending on the size of your browser window and the template, additional fields can be reached by the slider at the bottom of the page.</i>		
 	</span>
 
-	<wizard:textFieldElement name="addNumber" description="Number of subjects to add" error="addNumber" value="${values?.addNumber}" size="4" maxlength="4">
+	<af:textFieldElement name="addNumber" description="Number of subjects to add" error="addNumber" value="${values?.addNumber}" size="4" maxlength="4">
 		The number of subjects to add to your study
-	</wizard:textFieldElement>
-	<wizard:termElement name="species" description="of species" value="${values?.species}" ontologies="1132" addDummy="true">
+	</af:textFieldElement>
+	<af:termElement name="species" description="of species" value="${values?.species}" ontologies="1132" addDummy="true">
 		The species of the subjects you would like to add to your study
-	</wizard:termElement>
-	<wizard:templateElement name="template" description="with template" value="${values?.template}" error="template" entity="${dbnp.studycapturing.Subject}" ontologies="1132" addDummy="true">
+	</af:termElement>
+	<af:templateElement name="template" description="with template" value="${values?.template}" error="template" entity="${dbnp.studycapturing.Subject}" ontologies="1132" addDummy="true">
 		The template to use for these subjects
-	</wizard:templateElement>
-	<wizard:ajaxButtonElement name="add" value="Add" afterSuccess="onPage()">
-	</wizard:ajaxButtonElement>
+	</af:templateElement>
+	<af:ajaxButtonElement name="add" value="Add" afterSuccess="onPage()">
+	</af:ajaxButtonElement>
 
 	<g:if test="${study.subjects}">
 		<g:each var="template" in="${study.giveSubjectTemplates()}">
@@ -46,14 +46,14 @@
 				<g:set var="showHeader" value="${false}" />
 				<div class="header">
 				  <div class="firstColumn"></div>
-				  <wizard:templateColumnHeaders class="column" entity="${subject}" columnWidths="[Name:200, Species: 150]" />
+				  <af:templateColumnHeaders class="column" entity="${subject}" columnWidths="[Name:200, Species: 150]" />
 				</div>
 				</g:if>
 				<div class="row">
 					<div class="firstColumn">
 						<af:ajaxButton name="delete" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this subject" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${subject.getIdentifier()});" afterSuccess="onPage()" />
 					</div>
-					<wizard:templateColumns class="column" entity="${subject}" name="subject_${subject.getIdentifier()}" />
+					<af:templateColumns class="column" entity="${subject}" name="subject_${subject.getIdentifier()}" />
 				</div>
 			</g:each>
 			</div>

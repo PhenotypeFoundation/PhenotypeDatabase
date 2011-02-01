@@ -1,4 +1,4 @@
-<wizard:pageContent>
+<af:pageContent>
 	Results
-</wizard:pageContent>
+</af:pageContent>
 

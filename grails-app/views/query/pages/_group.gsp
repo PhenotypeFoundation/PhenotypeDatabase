@@ -1,4 +1,4 @@
-<wizard:pageContent>
+<af:pageContent>
     Group
-</wizard:pageContent>
+</af:pageContent>
 

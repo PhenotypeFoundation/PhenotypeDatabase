@@ -42,7 +42,7 @@
 		</g:each>
 		  </ul>
 		</p>
-		Not right? Click <wizard:ajaxButton name="toStudy" value="here" afterSuccess="onPage()" class="prevnext" /> to go back to the study page and make corrections.
+		Not right? Click <af:ajaxButton name="toStudy" value="here" afterSuccess="onPage()" class="prevnext" /> to go back to the study page and make corrections.
 	</div>
 	<h3><a href="#">Subjects</a></h3>
 	<div>
@@ -55,7 +55,7 @@
 			</ul>
 		</g:each>
 
-		Not right? Click <wizard:ajaxButton name="toSubjects" value="here" afterSuccess="onPage()" class="prevnext" /> to go back to the subjects page and make corrections.
+		Not right? Click <af:ajaxButton name="toSubjects" value="here" afterSuccess="onPage()" class="prevnext" /> to go back to the subjects page and make corrections.
 	</div>
 	<h3><a href="#">Events</a></h3>
 	<div>
@@ -75,7 +75,7 @@
 			</ul>
 		</g:each>
 
-		Not right? Click <wizard:ajaxButton name="toEvents" value="here" afterSuccess="onPage()" class="prevnext" /> to go back to the events page and make corrections.
+		Not right? Click <af:ajaxButton name="toEvents" value="here" afterSuccess="onPage()" class="prevnext" /> to go back to the events page and make corrections.
 	</div>
 	<h3><a href="#">Samples</a></h3>
 	<div>
@@ -88,7 +88,7 @@
 			</ul>
 		</g:each>
 
-		Not right? Click <wizard:ajaxButton name="toSamples" value="here" afterSuccess="onPage()" class="prevnext" /> to go back to the subjects page and make corrections.
+		Not right? Click <af:ajaxButton name="toSamples" value="here" afterSuccess="onPage()" class="prevnext" /> to go back to the subjects page and make corrections.
 	</div>
 	<h3><a href="#">Assays</a></h3>
 	<div>
@@ -101,7 +101,7 @@
 			</ul>
 		</g:each>
 
-		Not right? Click <wizard:ajaxButton name="toAssays" value="here" afterSuccess="onPage()" class="prevnext" /> to go back to the subjects page and make corrections.
+		Not right? Click <af:ajaxButton name="toAssays" value="here" afterSuccess="onPage()" class="prevnext" /> to go back to the subjects page and make corrections.
 	</div>
 </div>
 

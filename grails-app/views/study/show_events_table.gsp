@@ -129,7 +129,7 @@
 			  %>
 			  <td class="templateFieldValue"><g:if test="${event}">${new RelTime( event.startTime ).toString()}</g:if></td>
 			  <g:each in="${showProperties[ currentEventTemplate.name ]}" var="field">
-				<td class="templateFieldValue"><wizard:showTemplateField field="${field}" entity="${event}" /></td>
+				<td class="templateFieldValue"><af:showTemplateField field="${field}" entity="${event}" /></td>
 			  </g:each>
 			</g:else>
 		  </g:each>

@@ -1,4 +1,3 @@
-<wizard:pageContent>
+<af:pageContent>
 	Biomarkers
-</wizard:pageContent>
-
+</af:pageContent>

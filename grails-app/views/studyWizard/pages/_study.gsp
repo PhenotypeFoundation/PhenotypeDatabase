@@ -22,21 +22,21 @@
 		Only the fields with an asterisks are obligatory. Pick the study template of choice (currently a fixed set) and define your study values.
 	</span>
 
-	<wizard:templateElement name="template" description="Template" value="${study?.template}" entity="${dbnp.studycapturing.Study}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()">
+	<af:templateElement name="template" description="Template" value="${study?.template}" entity="${dbnp.studycapturing.Study}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()">
 		Choose the type of study you would like to create.
 		Depending on the chosen template specific fields can be filled out. If none of the templates contain all the necessary fields, a new template can be defined (based on other templates).
-	</wizard:templateElement>
+	</af:templateElement>
 	<g:if test="${study}">
-		<wizard:templateElements entity="${study}"/>
-		<wizard:publicationSelectElement name="publication" value="${study?.publications}"/>
-		<wizard:contactSelectElement name="contacts" value="${study?.persons}"/>
+		<af:templateElements entity="${study}"/>
+		<af:publicationSelectElement name="publication" value="${study?.publications}"/>
+		<af:contactSelectElement name="contacts" value="${study?.persons}"/>
 		<br/>
 		<div class="element">
 			<div class="description">Public</div>
 			<div class="input"><g:checkBox name="publicstudy" value="${study?.publicstudy}"/></div>
 		</div>
 
-		<wizard:userSelectElement name="readers" description="Readers" value="${study?.readers}"/>
-		<wizard:userSelectElement name="writers" description="Writers" value="${study?.writers}"/>
+		<af:userSelectElement name="readers" description="Readers" value="${study?.readers}"/>
+		<af:userSelectElement name="writers" description="Writers" value="${study?.writers}"/>
 	</g:if>
 </af:page>

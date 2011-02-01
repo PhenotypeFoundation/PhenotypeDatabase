@@ -1,4 +1,4 @@
-<wizard:pageContent>
+<af:pageContent>
 
   Select samples
-</wizard:pageContent>
+</af:pageContent>
