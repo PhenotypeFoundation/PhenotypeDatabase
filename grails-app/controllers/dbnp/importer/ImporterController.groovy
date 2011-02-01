@@ -6,6 +6,8 @@ import grails.converters.JSON
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import grails.plugins.springsecurity.Secured
 
+import org.dbnp.gdt.*
+
 /**
  * Wizard Controller
  *
@@ -108,6 +110,12 @@ class ImporterController {
 
 				success()
 			}
+
+            on("refresh") {
+                flash.importer_params = params
+				success()
+			}.to "pageOne"
+
 			on("next") {
 				flash.wizardErrors = [:]
 
@@ -340,10 +348,6 @@ class ImporterController {
 
 			flow.importer_templates = Template.get(flow.importer_template_id)
 			flow.importer_allfieldtypes = "true"
-			/*else {
-							render (template:"common/error",
-								model:[error:"Wrong permissions: you are not allowed to write to the study you selected (${flow.importer_study})."])
-						}*/
 
 			return true
 		}
@@ -390,6 +394,7 @@ class ImporterController {
 
 		flow.importer_importeddata = table
 		flow.importer_failedcells = failedcells
+        
 		return true
 	}
 

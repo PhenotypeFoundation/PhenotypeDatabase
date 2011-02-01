@@ -70,6 +70,8 @@ log4j = {
 		'org.springframework',
 		'org.hibernate'
 
+    error stdout:"StackTrace"
+
 	warn 'org.mortbay.log'
 
 	//info 'org.codehaus.groovy.grails.web.servlet',

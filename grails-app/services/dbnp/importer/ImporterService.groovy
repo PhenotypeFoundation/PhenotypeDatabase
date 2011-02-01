@@ -150,8 +150,8 @@ class ImporterService {
 			def row = []
 
 			(0..header.size() - 1).each { columnindex ->
-				def c = sheet.getRow(rowindex).getCell(columnindex, Row.CREATE_NULL_AS_BLANK)
-				row.add(c)
+                if (sheet.getRow(rowindex))
+                    row.add( sheet.getRow(rowindex).getCell(columnindex, Row.CREATE_NULL_AS_BLANK) )
 			}
 
 			rows.add(row)
@@ -276,11 +276,21 @@ class ImporterService {
 		datamatrix.each { record ->
 			record.each { entity ->
 				switch (entity.getClass()) {
-					case Study: log.info "Persisting Study `" + entity + "`: "
+					case Study: log.info ".importer wizard, persisting Study `" + entity + "`: "
 						entity.owner = authenticationService.getLoggedInUser()
-						persistEntity(entity)
-						break
-					case Subject: log.info "Persisting Subject `" + entity + "`: "
+                        
+                        if (study.validate()) {
+                            if (!entity.save(flush:true)) {
+                                log.error ".importer wizard, study could not be saved: " + entity
+                                throw new Exception('.importer wizard, study could not be saved: ' + entity)
+                            }
+                        } else {
+                            log.error ".importer wizard, study could not be validated: " + entity
+                            throw new Exception('.importer wizard, study could not be validated: ' + entity)
+                        }
+
+                        break
+					case Subject: log.info ".importer wizard, persisting Subject `" + entity + "`: "
 
 						// is the current entity not already in the database?
 						//entitystored = isEntityStored(entity)
@@ -291,19 +301,19 @@ class ImporterService {
 						study.addToSubjects(entity)
 
 						break
-					case Event: log.info "Persisting Event `" + entity + "`: "
+					case Event: log.info ".importer wizard, persisting Event `" + entity + "`: "
 						study.addToEvents(entity)
 						break
-					case Sample: log.info "Persisting Sample `" + entity + "`: "
+					case Sample: log.info ".importer wizard, persisting Sample `" + entity + "`: "
 
 						// is this sample validatable (sample name unique for example?)
 						study.addToSamples(entity)
 
 						break
-					case SamplingEvent: log.info "Persisting SamplingEvent `" + entity + "`: "
+					case SamplingEvent: log.info ".importer wizard, persisting SamplingEvent `" + entity + "`: "
 						study.addToSamplingEvents(entity)
 						break
-					default: log.info "Skipping persisting of `" + entity.getclass() + "`"
+					default: log.info ".importer wizard, skipping persisting of `" + entity.getclass() + "`"
 						break
 				} // end switch
 			} // end record
@@ -380,9 +390,9 @@ class ImporterService {
 	 *
 	 */
 	boolean persistEntity(entity) {
-		log.info ".import wizard persisting ${entity}"
+		/*log.info ".import wizard persisting ${entity}"
 
-		try {
+		try {            
 			entity.save(flush: true)
 			return true
 
@@ -392,7 +402,8 @@ class ImporterService {
 			log.error ".import wizard, failed to save entity:\n" + org.apache.commons.lang.exception.ExceptionUtils.getRootCauseMessage(e)
 		}
 
-		return true
+		return true*/
+        //println "persistEntity"
 	}
 
 	/**

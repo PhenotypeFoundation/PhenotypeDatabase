@@ -22,7 +22,7 @@
 		Choose your Excel file to import:
 	    </td>
 	    <td width="100px">
-		<af:fileFieldElement name="importfile" value=""/>
+		<wizard:fileFieldElement name="importfile" value="${importer_params?.importfile}"/>
 	    </td>
 	</tr>
 	<tr>
@@ -30,7 +30,7 @@
 		Use data from sheet:
 	    </td>
 	    <td width="100px">
-		<g:select name="sheetindex" from="${1..25}"/>
+		<g:select name="sheetindex" from="${1..25}" value="${importer_params?.sheetindex}"/>
 	    </td>
 	</tr>
 	<tr>
@@ -38,7 +38,7 @@
 		Columnheader starts at row:
 	    </td>
 	    <td width="100px">
-		<g:select name="headerrow" from="${1..10}"/>
+		<g:select name="headerrow" from="${1..10}" value="${importer_params?.headerrow}"/>
 	    </td>
 	</tr>
 	<tr>
@@ -46,7 +46,7 @@
 		Data starts at row:
 	    </td>
 	    <td width="100px">
-		<g:select name="datamatrix_start" from="${2..10}"/>
+		<g:select name="datamatrix_start" from="${2..10}" value="${importer_params?.datamatrix_start}"/>
 	    </td>
 	</tr>
 	<tr id="studyfield">
@@ -54,7 +54,7 @@
 		Choose your study:
 	    </td>
 	    <td>
-		<g:select name="study.id" from="${studies}" optionKey="id"/>
+		<g:select name="study.id" from="${studies}" optionKey="id" value="${importer_params?.study?.id}"/>
 	    </td>
 	</tr>
 	<tr>
@@ -66,6 +66,7 @@
 		name="entity"
 		id="entity"
 		from="${GdtService.cachedEntities}"
+        value="${importer_params?.entity}"
 		optionValue="${{it.name}}"
 		optionKey="${{it.encoded}}"
 		noSelection="['':'-Choose type of data-']"
@@ -80,7 +81,7 @@
 		<div id="datatemplate">Choose type of data template:</div>
 	    </td>
 	    <td>
-		<g:select rel="typetemplate" entity="none" name="template_id" optionKey="id" optionValue="name" from="[]" />
+		<g:select rel="typetemplate" entity="none" name="template_id" optionKey="id" optionValue="name" from="[]" value="${importer_params?.template_id}"/>
 	    </td>
 	</tr>
 	</table>

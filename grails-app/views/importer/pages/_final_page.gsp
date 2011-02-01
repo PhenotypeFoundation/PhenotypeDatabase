@@ -19,7 +19,7 @@
 <af:page>
 <h1>Final Page</h1>
 <p>
-This concludes the example wizard. You can click <g:link action="index">here</g:link> to restart the wizard.
+This concludes the importer wizard. You can click <g:link action="index">here</g:link> to restart the wizard.
 </p>
 
 All rows were imported succesfully.
