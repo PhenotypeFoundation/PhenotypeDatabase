@@ -12,19 +12,6 @@
 	 * $Date$
 	 */
 %>
-<g:if env="production">
-<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.min.js')}"></script>
-</g:if><g:else>
-<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
-</g:else>
-
-<script type="text/javascript">
-$(document).ready(function() {
-		// initialize the ontology chooser
-    	new OntologyChooser().init();
-});
-</script>
-
 <table>
   <tr>
     <th>Column</th><th>Row</th><th>Unknown ontology found</th><th>Corrected ontology</th>

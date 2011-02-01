@@ -12,19 +12,6 @@
 	 * $Date$
 	 */
 %>
-
-<link rel="stylesheet" href="${resource(dir: 'css', file: 'wizard.css')}"/>
-
-<script type="text/javascript" src="${resource(dir: 'js', file: 'table-editor.js')}"></script>
-<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js')}"></script>
-<script type="text/javascript" src="${resource(dir: 'js', file: 'importer.js')}"></script>
-
-<g:if env="production">
-<script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.min.js')}"></script>
-</g:if><g:else>
-<script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.js')}"></script>
-</g:else>
-
 <script type="text/javascript">
  $(document).ready(function() {
         // mark error fields
@@ -52,15 +39,13 @@
 		    <g:if test="${showHeader}">
 			<g:set var="showHeader" value="${false}"/>
 			<div class="header">
-			    <div class="firstColumn">#</div>
-			    <div class="firstColumn"></div>
+				<div class="firstColumn"></div>
 				<af:templateColumnHeaders entity="${entity}" class="column" />
 			</div>
 			<input type="hidden" name="entity" value="${entity.getClass().getName()}">
 		    </g:if>
 		    <div class="row">
-			<div class="firstColumn">#</div>
-			<div class="firstColumn"></div>
+				<div class="firstColumn"></div>
 			<af:templateColumns id="${entity.hashCode()}" entity="${entity}" template="${entity.template}" name="entity_${entity.getIdentifier()}" class="column" subject="${entity.hashCode()}" addDummy="true" />
 		    </div>
 		</g:each>
