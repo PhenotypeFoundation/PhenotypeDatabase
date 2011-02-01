@@ -1259,6 +1259,8 @@ class WizardTagLib extends AjaxflowTagLib {
 			// Show a link if the field is a FILE field
 			if( fieldType == 'FILE' && value != "" ) {
 			    out << '<a href="' + g.createLink( controller: "file", action: "get",  id: value ) + '">' + value + '</a>';
+			} else if ( fieldType == 'RELTIME' ) {
+				out << new RelTime( value ).toString()
 			} else {
 				out << value;
 			}
