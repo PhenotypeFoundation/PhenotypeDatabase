@@ -132,7 +132,7 @@ class ImporterTagLib {
 		// Determine which field in the options list matches the best with the matchvalue
 		def mostsimilar = ImporterService.mostSimilar(matchvalue, options)
 
-		def res = "<select style=\"font-size:10px\" name=\"${name}.index.${columnIndex}\">"
+		def res = "<select style=\"font-size:10px\" id=\"${name}.index.${columnIndex}\" name=\"${name}.index.${columnIndex}\">"
 
 		res += "<option value=\"dontimport\">Don't import</option>"
 

@@ -80,7 +80,6 @@
 		});
 	}
 
-
 	/**
 	 * Update one select based on another select
 	 *

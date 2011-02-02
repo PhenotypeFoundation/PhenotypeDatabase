@@ -14,8 +14,31 @@
 	 */
 %>
 <script type="text/javascript">
+
 // for each select field on the page
 $(document).ready(function() {
+
+$('select[name^=columnproperty.index.]').each ( function() {
+
+  $(this).bind('change', function(e) {
+      //console.log($(this).val())      
+      var selection = $(this)
+
+      $('select[name^=columnproperty.index.] option:selected').each ( function() {
+        var selector = $(this)
+        
+        if (selection.attr('id') != selector.parent().attr('id') && (selection.val()!="dontimport"))
+          if ($(this).val() == selection.val()) {
+            selection.val($('option:first', selection).val());
+
+            alert("Property is already set for an other column, please choose a different property.")
+            return false
+          }
+      });      
+   
+  });
+ 
+});
 
 $('#clearselect').click(function() {
 
@@ -26,6 +49,7 @@ $('#clearselect').click(function() {
   });
 
 });
+
 
 });
 </script>
