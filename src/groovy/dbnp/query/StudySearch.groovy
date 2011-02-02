@@ -15,12 +15,17 @@
 package dbnp.query
 
 import java.util.List;
+import java.util.Map;
 
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
+import org.apache.commons.logging.LogFactory;
 
 class StudySearch extends Search {
+	private static final log = LogFactory.getLog(this);
+	
 	public StudySearch() {
+		super();
 		this.entity = "Study";
 	}
 
@@ -58,9 +63,10 @@ class StudySearch extends Search {
 	 */
 	@Override
 	void execute() {
-		// TODO: check for authorization for these studies?
-		def studies = Study.list();
+		super.execute();
 
+		def studies = Study.list().findAll { it.canRead( this.user ) };
+		
 		// If no criteria are found, return all studies
 		if( !criteria || criteria.size() == 0 ) {
 			results = studies;
@@ -74,13 +80,13 @@ class StudySearch extends Search {
 		studies = filterOnEventCriteria( studies );
 		studies = filterOnSamplingEventCriteria( studies );
 		studies = filterOnAssayCriteria( studies );
-
+		
 		studies = filterOnModuleCriteria( studies );
 		
 		// Save matches
 		results = studies;
 	}
-	
+
 	/**
 	 * Filters the given list of studies on the study criteria
 	 * @param studies	Original list of studies
@@ -96,7 +102,7 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the Subject-criteria
 	 */
 	protected List filterOnSubjectCriteria( List studies ) {
-		return filterOnTemplateEntityCriteria(studies, "Subject", { study, criterion -> 
+		return filterOnTemplateEntityCriteria(studies, "Subject", { study, criterion ->
 			return study.subjects?.collect { criterion.getFieldValue( it ); }
 		})
 	}
@@ -118,22 +124,22 @@ class StudySearch extends Search {
 	 * @return			List with all studies that match the event-criteria
 	 */
 	protected List filterOnEventCriteria( List studies ) {
-		return filterOnTemplateEntityCriteria(studies, "Event", { study, criterion -> 
+		return filterOnTemplateEntityCriteria(studies, "Event", { study, criterion ->
 			return study.events?.collect { criterion.getFieldValue( it ); }
 		})
 	}
-	
+
 	/**
-	* Filters the given list of studies on the sampling event criteria
-	* @param studies	Original list of studies
-	* @return			List with all studies that match the event-criteria
-	*/
-   protected List filterOnSamplingEventCriteria( List studies ) {
-		return filterOnTemplateEntityCriteria(studies, "SamplingEvent", { study, criterion -> 
+	 * Filters the given list of studies on the sampling event criteria
+	 * @param studies	Original list of studies
+	 * @return			List with all studies that match the event-criteria
+	 */
+	protected List filterOnSamplingEventCriteria( List studies ) {
+		return filterOnTemplateEntityCriteria(studies, "SamplingEvent", { study, criterion ->
 			return study.samplingEvents?.collect { criterion.getFieldValue( it ); }
 		})
-   }
-	
+	}
+
 	/**
 	 * Filters the given list of studies on the assay criteria
 	 * @param studies	Original list of studies
@@ -143,5 +149,23 @@ class StudySearch extends Search {
 		return filterOnTemplateEntityCriteria(studies, "Assay", { study, criterion ->
 			return study.assays?.collect { criterion.getFieldValue( it ); }
 		})
+	}
+
+	/**
+	 * Returns the saved field data that could be shown on screen. This means, the data
+	 * is filtered to show only data of the query results. Also, the study title and sample
+	 * name are filtered out, in order to be able to show all data on the screen without
+	 * checking further
+	 *
+	 * @return	Map with the entity id as a key, and a field-value map as value
+	 */
+	public Map getShowableResultFields() {
+		Map showableFields = super.getShowableResultFields()
+		showableFields.each { sampleElement ->
+			sampleElement.value = sampleElement.value.findAll { fieldElement ->
+				fieldElement.key != "Study title" && fieldElement.key != "Subject species"
+			}
+		}
+		return showableFields
 	}
 }

@@ -15,18 +15,23 @@
  */
 package dbnp.query
 
+import dbnp.authentication.SecUser
 import groovy.lang.Closure;
 
 import java.text.SimpleDateFormat
 import java.util.List;
 
 import org.springframework.context.ApplicationContext
+import org.springframework.web.context.request.RequestContextHolder;
 import org.codehaus.groovy.grails.commons.ApplicationHolder;
 
 import org.dbnp.gdt.*
 
 class Search {
 	public String entity;
+	public SecUser user;
+	public Date executionDate;
+	public int id;	// Is only used when this query is saved in session
 
 	protected List criteria;
 	protected List results;
@@ -41,6 +46,20 @@ class Search {
 	public Map getResultFields() { return resultFields; }
 	public void setResultFields( Map r ) { resultFields = r; }
 
+<<<<<<< .mine
+	public Search() {
+		ApplicationContext ctx = (ApplicationContext)ApplicationHolder.getApplication().getMainContext();
+		def authenticationService = ctx.getBean("authenticationService");
+		def sessionUser = authenticationService.getLoggedInUser();
+		
+		if( sessionUser )
+			this.user = sessionUser;
+		else
+			this.user = null
+	}
+	
+=======
+>>>>>>> .r1481
 	/**
 	 * Returns the number of results found by this search
 	 * @return
@@ -67,7 +86,9 @@ class Search {
 	 * Executes a search based on the given criteria. Should be filled in by
 	 * subclasses searching for a specific entity
 	 */
-	public void execute() {}
+	public void execute() {
+		this.executionDate = new Date();
+	}
 
 	/**
 	 * Returns a list of criteria targeted on the given entity
@@ -145,7 +166,6 @@ class Search {
 				try {
 					return Boolean.valueOf( value )
 				} catch( Exception e ) {
-					println e.getMessage();
 					return value.toString();
 				}
 			case TemplateFieldType.LONG:
@@ -177,6 +197,7 @@ class Search {
 	 */
 	protected List filterOnTemplateEntityCriteria( List studies, String entityName, Closure valueCallback ) {
 		def criteria = getEntityCriteria( entityName );
+		
 		def checkCallback = { study, criterion ->
 			def value = valueCallback( study, criterion );
 			
@@ -191,7 +212,7 @@ class Search {
 
 		// Save the value of this entity for later use
 		saveResultFields( studies, criteria, valueCallback );
-
+		
 		return filterEntityList( studies, criteria, checkCallback);
 	}
 
@@ -206,7 +227,7 @@ class Search {
 			return [];
 			
 		// Determine the moduleCommunicationService
-		def ctx = ApplicationHolder.getApplication().getMainContext();
+		def ctx = (ApplicationContext)ApplicationHolder.getApplication().getMainContext();
 		def moduleCommunicationService = ctx.getBean("moduleCommunicationService");
 			
 		// Loop through all modules and check whether criteria have been given
@@ -217,8 +238,6 @@ class Search {
 			def moduleCriteria = getEntityCriteria( moduleName );
 			
 			if( moduleCriteria && moduleCriteria.size() > 0 ) {
-				println "Filter " + entities.size() + " entities on " + module.name + " criteria: " + moduleCriteria.size();
-
 				// Retrieve the data from the module
 				def tokens = entities.collect { it.giveUUID() }.unique();
 				def fields = moduleCriteria.collect { it.field }.unique();
@@ -242,7 +261,7 @@ class Search {
 						def value = json[ token ][ criterion.field ];
 						
 						// Save the value of this entity for later use
-						saveResultField( entity.id, criterion.field, value )
+						saveResultField( entity.id, criterion.entity + " " + criterion.field, value )
 
 						if( !( value instanceof Collection ) ) {
 							value = [ value ];
@@ -266,7 +285,7 @@ class Search {
 					});
 										
 				} catch( Exception e ) {
-					println( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+					log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
 				}
 			}
 		}
@@ -284,7 +303,8 @@ class Search {
 	protected void saveResultFields( entities, criteria, valueCallback ) {
 		for( criterion in criteria ) {
 			for( entity in entities ) {
-				saveResultField( entity.id, criterion.field, valueCallback( entity, criterion ) )
+				if( criterion.field )
+					saveResultField( entity.id, criterion.entity + ' ' + criterion.field, valueCallback( entity, criterion ) )
 			}
 		}
 	}
@@ -301,5 +321,30 @@ class Search {
 			resultFields[ id ] = [:]
 		
 		resultFields[ id ][ fieldName ] = value;
+	}
+	
+	/** 
+	 * Removes all data from the result field map
+	 */
+	protected void clearResultFields() {
+		resultFields = [:]
+	}
+	
+	/**
+	 * Returns the saved field data that could be shown on screen. This means, the data is filtered to show only data of the query results.
+	 * 
+	 * Subclasses could filter out the fields they don't want to show on the result screen (e.g. because they are shown regardless of the 
+	 * query.)
+	 * @return	Map with the entity id as a key, and a field-value map as value
+	 */
+	public Map getShowableResultFields() {
+		def resultIds = getResults()*.id;
+		return getResultFields().findAll {
+			resultIds.contains( it.key )
+		}
+	}
+	
+	public String toString() {
+		return ( this.entity ? this.entity + " search" : "Search" ) + " " + this.id
 	}
 }

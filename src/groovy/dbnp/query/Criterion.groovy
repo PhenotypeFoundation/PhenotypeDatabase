@@ -2,6 +2,7 @@ package dbnp.query
 
 import java.text.SimpleDateFormat
 import org.dbnp.gdt.*
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Available operators for criteria
@@ -9,7 +10,10 @@ import org.dbnp.gdt.*
  *
  */
 enum Operator {
-	equals, contains, gte, gt, lte, lt
+	equals( "=" ), contains( "contains" ), gte( ">="), gt( ">" ), lte( "<=" ), lt( "<" ), insearch( "in" )
+	Operator(String name) { this.name = name }
+	private final String name;
+	public String toString() { return name }
 }
 
 /**
@@ -18,17 +22,26 @@ enum Operator {
  *
  */
 class Criterion {
+	private static final log = LogFactory.getLog(this);
 	public String entity
 	public String field
 	public Operator operator
 	public def value
 
 	/**
+	 * Retrieves a combination of the entity and field
+	 * @return
+	 */
+	public String entityField() {
+		return entity.toString() + ( field ? "." + field.toString() : "" );
+	}
+	
+	/**
 	 * Retrieves the correct value for this criterion in the given object (with template)
 	 *
 	 * @param entity		Entity to check for value. Should be a child of template entity
-	 * @param criterion	Criterion to match on
-	 * @return			Value of the given field or null if the field doesn't exist
+	 * @param criterion		Criterion to match on
+	 * @return				Value of the given field or null if the field doesn't exist
 	 */
 	public def getFieldValue( TemplateEntity entity ) {
 		if( entity == null )
@@ -36,7 +49,9 @@ class Criterion {
 
 		try {
 			def fieldValue
-			if( field == "Template" ) {
+			if( !field ) {
+				fieldValue = entity
+			} else if( field == "Template" ) {
 				fieldValue = entity.template?.name
 			} else {
 				fieldValue = Search.prepare( entity.getFieldValue( field ), entity.giveFieldType( field ) )
@@ -137,11 +152,15 @@ class Criterion {
 	public boolean match( def fieldValue ) {
 		if( fieldValue == null )
 			return false;
-
+		
+		// in-search criteria have to be handled separately
+		if( this.operator == Operator.insearch ) {
+			return this.value?.getResults()?.contains( fieldValue );
+		}	
+		
+		// Other criteria are handled based on the class of the value given.
 		def classname = fieldValue.class.getName();
 		classname = classname[classname.lastIndexOf( '.' ) + 1..-1].toLowerCase();
-
-		println "Match " + fieldValue + " of class " + classname + " with " + this
 
 		try {
 			switch( classname ) {
@@ -184,7 +203,8 @@ class Criterion {
 			case Operator.lte:
 				return fieldValue <= criterionValue;
 			case Operator.contains:
-				return fieldValue.contains( criterionValue );
+				// Contains operator can only be used on string values
+				return fieldValue.toString().contains( criterionValue.toString() );
 			case Operator.equals:
 			default:
 				return fieldValue.equals( criterionValue );
@@ -294,8 +314,41 @@ class Criterion {
 			return false;
 		}
 	}
+	
+	public static Operator parseOperator( String name ) throws Exception {
+		switch( name.trim() ) {
+			case "=":  
+			case "equals":		return Operator.equals; 
+			case "contains": 	return Operator.contains; 
+			case ">=": 
+			case "gte":			return Operator.gte; 
+			case ">": 
+			case "gt":			return Operator.gt; 
+			case "<=": 
+			case "lte":			return Operator.lte; 
+			case "<": 
+			case "lt":			return Operator.lt; 
+			case "in": 			return Operator.insearch;
+			default:
+				throw new Exception( "Operator not found" ); 
+		}
+	}
 
 	public String toString() {
-		return "[Criterion " + entity + "." + field + " " + operator + " " + value + "]";
+		return "[Criterion " + entityField() + " " + operator + " " + value + "]";
+	}
+	
+	public boolean equals( Object o ) {
+		if( o == null )
+			return false;
+		
+		if( !( o instanceof Criterion ) ) 
+			return false;
+			
+		Criterion otherCriterion = (Criterion) o;
+		return 	this.entity == otherCriterion.entity &&
+				this.field == otherCriterion.field && 
+				this.operator == otherCriterion.operator &&
+				this.value == otherCriterion.value;
 	}
 }

@@ -524,7 +524,9 @@ class RestController {
 			}
 
 			def user = AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token );
-			render( ['isOwner': study.isOwner(user), 'canRead': study.canRead(user), 'canWrite': study.canWrite(user)] as JSON )
+			def auth = ['isOwner': study.isOwner(user), 'canRead': study.canRead(user), 'canWrite': study.canWrite(user)];
+			log.trace "Authorization for study " + study.title + " and user " + user.username + ": " + auth
+			render auth as JSON;
 		} else {
 			response.sendError(400)
 			return false

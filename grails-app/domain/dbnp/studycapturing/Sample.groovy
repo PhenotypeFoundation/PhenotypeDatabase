@@ -128,6 +128,23 @@ class Sample extends TemplateEntity {
 	def String toString() {
 		return name
 	}
+
+	/**
+	* Basic equals method to check whether objects are equals, by comparing the ids
+	* @param o		Object to compare with
+	* @return		True iff the id of the given Sample is equal to the id of this Sample
+	*/
+   public boolean equals( Object o ) {
+	   if( o == null )
+		   return false;
+		   
+	   if( !( o instanceof Sample ) )
+		   return false
+	   
+	   Sample s = (Sample) o;
+	   
+	   return this.id == s.id
+   }
 	
 	/**
 	 * Returns the UUID of this sample and generates one if needed

@@ -15,6 +15,9 @@ class LogoutController {
 			redirect uri: SpringSecurityUtils.securityConfig.logout.filterProcessesUrl // '/j_spring_security_logout'
 		}
 		// TODO  put any pre-logout code here
+		
+		// Remove all queries from session
+		session.queries = [];
 	}
 
 	def remote = {
@@ -29,5 +32,8 @@ class LogoutController {
 		} else {
 			redirect uri: SpringSecurityUtils.securityConfig.logout.filterProcessesUrl // '/j_spring_security_logout'
 		}
+
+		// Remove all queries from session
+		session.queries = [];
 	}
 }

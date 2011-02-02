@@ -14,12 +14,18 @@
  */
 package dbnp.query
 
+import java.util.Map;
+
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
+import org.apache.commons.logging.LogFactory;
 
 class SampleSearch extends Search {
+	private static final log = LogFactory.getLog(this);
 	
 	public SampleSearch() {
+		super();
+				
 		this.entity = "Sample";
 	}
 
@@ -56,11 +62,11 @@ class SampleSearch extends Search {
 	 */
 	@Override
 	void execute() {
-		// TODO: check for authorization for these studies?
+		super.execute();
 
 		// If no criteria are found, return all samples
 		if( !criteria || criteria.size() == 0 ) {
-			results = Sample.list();
+			results = Sample.list().findAll { it.parent?.canRead( this.user ) };
 			return;
 		}
 
@@ -71,21 +77,29 @@ class SampleSearch extends Search {
 		// cost much time to process.
 		def samples = []
 		if( getEntityCriteria( 'Study' ).size() > 0 ) {
-			def studies = Study.findAll();
-			
+			def studies = Study.findAll().findAll { it.canRead( this.user ) };
+
 			studies = filterOnStudyCriteria( studies );
-			
+
 			if( studies.size() == 0 ) {
 				results = [];
 				return;
 			}
-			
+
 			def c = Sample.createCriteria()
 			samples = c.list {
 				'in'( 'parent', studies )
 			}
+
+			// Save data about the resulting studies in the
+			// result fields array. The data that is now in the array
+			// is saved based on the study id, not based on the sample id
+			clearResultFields();
+			saveResultFields( samples, getEntityCriteria( "Study" ), { sample, criterion ->
+				return criterion.getFieldValue( sample.parent );
+			});
 		} else {
-			samples = Sample.findAll()
+			samples = Sample.findAll().findAll { it.parent?.canRead( this.user ) }
 		}
 
 		samples = filterOnSubjectCriteria( samples );
@@ -93,9 +107,9 @@ class SampleSearch extends Search {
 		samples = filterOnEventCriteria( samples );
 		samples = filterOnSamplingEventCriteria( samples );
 		samples = filterOnAssayCriteria( samples );
-		
+
 		samples = filterOnModuleCriteria( samples );
-		
+
 		// Save matches
 		results = samples;
 	}
@@ -167,7 +181,7 @@ class SampleSearch extends Search {
 
 		if( getEntityCriteria( 'Assay' ).size() == 0 )
 			return samples
-			
+
 		// There is no sample.assays property, so we have to look for assays another way: just find
 		// all assays that match the criteria
 		def criteria = getEntityCriteria( 'Assay' );
@@ -177,35 +191,52 @@ class SampleSearch extends Search {
 
 			return criterion.matchOne( assay );
 		});
-		
+
 		// If no assays match these criteria, then no samples will match either
 		if( assays.size() == 0 )
 			return [];
-		
+
 		// Save sample data for later use
-		saveResultFields( samples, criteria, { sample, criterion -> 
-			 def sampleAssays = Assay.findByStudy( sample.parent ).findAll { it.samples?.contains( sample ) };
-			 if( sampleAssays && sampleAssays.size() > 0 ) 
-			 	return sampleAssays.collect( criterion.getFieldValue( it ) )
-			else 
+		saveResultFields( samples, criteria, { sample, criterion ->
+			def sampleAssays = Assay.findByStudy( sample.parent ).findAll { it.samples?.contains( sample ) };
+			if( sampleAssays && sampleAssays.size() > 0 )
+				return sampleAssays.collect( criterion.getFieldValue( it ) )
+			else
 				return null
 		});
-			
+
 		// Now filter the samples on whether they are attached to the filtered assays
 		return samples.findAll { sample ->
 			if( !sample.parent )
 				return false;
-			
+
 			def studyAssays = assays.findAll { it.parent.equals( sample.parent ); }
-			
-			// See if this sample is present in any of the matching assays. If so, 
+
+			// See if this sample is present in any of the matching assays. If so,
 			// this sample matches the criteria
 			for( def assay in studyAssays ) {
-				if( assay.samples?.contains( sample ) ) 
+				if( assay.samples?.contains( sample ) )
 					return true;
 			}
-			
+
 			return false;
+		}
+	}
+
+	/**
+	 * Returns the saved field data that could be shown on screen. This means, the data 
+	 * is filtered to show only data of the query results. Also, the study title and sample
+	 * name are filtered out, in order to be able to show all data on the screen without
+	 * checking further
+	 *
+	 * @return	Map with the entity id as a key, and a field-value map as value
+	 */
+	public Map getShowableResultFields() {
+		Map showableFields = super.getShowableResultFields()
+		showableFields.each { sampleElement ->
+			sampleElement.value = sampleElement.value.findAll { fieldElement ->
+				fieldElement.key != "Study title" && fieldElement.key != "Sample name"
+			}
 		}
 	}
 }

@@ -195,6 +195,16 @@ html ul.topnav li ul.subnav li a:hover {
 
 }
 
+#content .error {
+	border: 1px solid #f99; /* #006dba; */
+	margin-bottom: 10px;
+	margin-top: 10px;
+
+	background: #ffe0e0 url(../plugins/famfamfam-1.0.1/images/icons/error.png) 10px 10px no-repeat;
+	padding: 10px 10px 10px 33px;
+
+}
+
 /** END :: content **/
 /** START :: footer **/
 #footer {

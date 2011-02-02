@@ -4,52 +4,59 @@
 	<meta name="layout" content="main"/>
 	<title>Query results</title>
 	<link rel="stylesheet" href="<g:resource dir="css" file="advancedQuery.css" />" type="text/css"/>
-	<g:javascript src="advancedQuery.js" />
 </head>
 <body>
 
 <h1>Query results</h1>
 
 <p>
-	Your search for studies with:
+	Your search for samples with:
 </p>
-<ul id="criteria">
-	<g:each in="${search.getCriteria()}" var="criterion">
-		<li>
-			<span class="entityfield">${criterion.entity}.${criterion.field}</span>
-			<span class="operator">${criterion.operator}</span>
-			<span class="value">${criterion.value}</span>
-		</li>
-	</g:each>
-</ul>
+<g:render template="criteria" model="[criteria: search.getCriteria()]" />
 <p> 
 	resulted in ${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">sample</g:if><g:else>samples</g:else>.
 </p>
 
-
 <g:if test="${search.getNumResults() > 0}">
-
+	<% 
+		def resultFields = search.getShowableResultFields();
+		def extraFields = resultFields[ search.getResults()[ 0 ].id ]?.keySet();
+	%>
 	<table id="searchresults" class="paginate">
 		<thead>
 		<tr>
 			<th>Study</th>
 			<th>Name</th>
+			<g:each in="${extraFields}" var="fieldName">
+				<th>${fieldName}</th>
+			</g:each>
 		</tr>
 		</thead>
 		<tbody>
 		<g:each in="${search.getResults()}" var="sampleInstance" status="i">
 			<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-
 				<td><g:link controller="study" action="show" id="${sampleInstance?.parent?.id}">${sampleInstance?.parent?.title}</g:link></td>
 				<td>${fieldValue(bean: sampleInstance, field: "name")}</td>
+				<g:each in="${extraFields}" var="fieldName">
+					<td>
+						<% 
+							def fieldValue = resultFields[ sampleInstance.id ]?.get( fieldName );
+							if( fieldValue ) { 
+								if( fieldValue instanceof Collection )
+									fieldValue = fieldValue.collect { it.toString() }.findAll { it }.join( ', ' );
+								else
+									fieldValue = fieldValue.toString();
+							}
+						%>
+						${fieldValue}
+					</td>
+				</g:each>
 			</tr>
 		</g:each>
 		</tbody>
 	</table>
 
 </g:if>
-<p>
-	<g:link action="index">Search again</g:link>
-</p>
+<g:render template="resultbuttons" model="[queryId: queryId]" />
 </body>
 </html>

@@ -47,7 +47,7 @@ class ModuleCommunicationService implements Serializable {
 	 * @param study
 	 * @return
 	 */
-	def invalidateStudy( Study study ) {
+	def invalidateStudy( def study ) {
 		moduleNotificationService.invalidateStudy( study );
 	}
 
@@ -112,8 +112,8 @@ class ModuleCommunicationService implements Serializable {
 		def restResponse
 		try {
 			def textResponse = url.toURL().getText()
-			println "GSCF call to " + consumer + " URL: " + url
-			println "GSCF response: " + textResponse
+			log.trace "GSCF call to " + consumer + " URL: " + url
+			log.trace "GSCF response: " + textResponse
 			restResponse = JSON.parse( textResponse )
 		} catch (Exception e) {
 			storeErrorInCache( restUrl, e.getMessage() );

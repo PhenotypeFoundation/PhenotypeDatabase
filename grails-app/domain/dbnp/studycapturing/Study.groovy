@@ -521,6 +521,23 @@ class Study extends TemplateEntity {
 		
 		return this.studyUUID;
 	}
+	
+	/**
+	 * Basic equals method to check whether objects are equals, by comparing the ids
+	 * @param o		Object to compare with
+	 * @return		True iff the id of the given Study is equal to the id of this Study
+	 */
+	public boolean equals( Object o ) {
+		if( o == null )
+			return false;
+			
+		if( !( o instanceof Study ) )
+			return false
+		
+		Study s = (Study) o;
+		
+		return this.id == s.id
+	}
 
 	// Send messages to modules about changes in this study
 	def beforeInsert = {
