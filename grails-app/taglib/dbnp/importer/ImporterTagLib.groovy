@@ -108,15 +108,17 @@ class ImporterTagLib {
 		domainfields = domainfields.findAll { it.preferredIdentifier != mc.identifier}
 
 		//def templatefields = (allfieldtypes=="true") ? t.fields : t.fields.findAll { it.type == mc.templatefieldtype }
-		def templatefields = (allfieldtypes == "true") ?
+		/*def templatefields = (allfieldtypes == "true") ?
 			t.fields + mc.entity.giveDomainFields() :
-			t.fields.findAll { it.type == mc.templatefieldtype } + domainfields
+			t.fields.findAll { it.type == mc.templatefieldtype } + domainfields*/
+        def templatefields = t.fields + mc.entity.giveDomainFields()
 
 		// map identifier to preferred column
 		def prefcolumn = mc.entity.giveDomainFields().findAll { it.preferredIdentifier == true }
 
-		(mc.identifier) ? out << createPropertySelect(attrs['name'], prefcolumn, matchvalue, mc.index) :
-			out << createPropertySelect(attrs['name'], templatefields, matchvalue, mc.index)
+		/*(mc.identifier) ? out << createPropertySelect(attrs['name'], prefcolumn, matchvalue, mc.index) :
+			out << createPropertySelect(attrs['name'], templatefields, matchvalue, mc.index)*/
+         out << createPropertySelect(attrs['name'], templatefields, matchvalue, mc.index)
 	}
 
 	/**
