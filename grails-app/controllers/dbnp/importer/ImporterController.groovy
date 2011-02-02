@@ -6,8 +6,6 @@ import grails.converters.JSON
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import grails.plugins.springsecurity.Secured
 
-import org.dbnp.gdt.*
-
 /**
  * Wizard Controller
  *
