@@ -162,7 +162,7 @@ class ImporterController {
 				success()
 			}
 			on("next") {
-				if (propertiesPage(flow, params)) {
+				if (propertiesPage(flow, flash, params)) {
 					success()
 				} else {
 					log.error ".import wizard, properties are set wrong"
@@ -358,7 +358,9 @@ class ImporterController {
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
 	 * @returns boolean true if correctly validated, otherwise false
 	 */
-	boolean propertiesPage(flow, params) {
+	boolean propertiesPage(flow, flash, params) {
+        flash.wizardErrors = [:]
+        
 		// Find actual Template object from the chosen template name
 		def template = Template.get(flow.importer_template_id)
 
@@ -391,8 +393,18 @@ class ImporterController {
 			flow.importer_header)
 
 		flow.importer_importeddata = table
-		flow.importer_failedcells = failedcells
-        
+
+        // loop through all entities to validate them and add them to wizardErrors flash when invalid
+        table.each { record ->
+            record.each { entity ->
+                if (!entity.validate()) {
+				this.appendErrors(entity, flash.wizardErrors, 'entity_' + entity.getIdentifier() + '_')
+                }
+            }
+        }
+
+        flow.importer_failedcells = failedcells
+
 		return true
 	}
 
