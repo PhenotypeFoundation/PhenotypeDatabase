@@ -2,6 +2,7 @@ package dbnp.query
 
 import dbnp.studycapturing.*
 import grails.test.*
+import org.dbnp.gdt.AssayModule
 
 /**
  * SearchTests Test
@@ -37,6 +38,8 @@ class StudySearchTests extends GrailsUnitTestCase {
 		mockDomain( Event, events );
 		mockDomain( SamplingEvent, samplingEvents);
 		mockDomain( Assay, assays );
+
+        mockDomain( AssayModule );
 		
 		subjects.each { it.parent.addToSubjects( it ); }
 		samples.each { it.parent.addToSamples( it ); }

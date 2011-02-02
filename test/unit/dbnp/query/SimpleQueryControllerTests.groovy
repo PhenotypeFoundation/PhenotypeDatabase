@@ -1,7 +1,6 @@
-package dbnp.studycapturing
+package dbnp.query
 
 import grails.test.ControllerUnitTestCase
-import dbnp.query.SimpleQueryController
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,7 +23,7 @@ class SimpleQueryControllerTests extends ControllerUnitTestCase {
       def list1 = [1, 2, 3, 4]
       def list2 = [1, 3, 5]
 
-      def list3 = SimpleQueryController.mergeLists(list1, list2)
+      def list3 = SimpleQueryController.merge(list1, list2)
 
       assert list3 == [1, 3]
   }

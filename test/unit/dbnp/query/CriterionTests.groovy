@@ -1,6 +1,7 @@
 package dbnp.query
 
 import grails.test.*
+import org.dbnp.gdt.RelTime
 
 /**
  * SearchTests Test

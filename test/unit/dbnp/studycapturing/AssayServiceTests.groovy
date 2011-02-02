@@ -60,12 +60,22 @@ class AssayServiceTests extends GrailsUnitTestCase {
         Subject.get(1).setFieldValue('tf2', 'tfv2')
         Subject.get(2).setFieldValue('tf3', 'tfv3')
 
-        // mock authentication service
+        // mock authenticationService
         service.authenticationService = [
                 isLoggedIn: { true },
                 logInRemotely: { a, b, c -> },
                 logOffRemotely: { a, b -> },
                 getLoggedInUser: { null }
+        ]
+
+        // mock moduleCommunicationService
+        service.moduleCommunicationService = [
+                isModuleReachable: { a -> true },
+                callModuleRestMethodJSON: { consumer, path ->
+                    [['sample1', 'sample2', 'sample3'],
+                     ['measurement1','measurement2','measurement3','measurement4'],
+                     [1,2,3,4,5,6,7,8,9,10,11,12] ]
+                }
         ]
 
     }
@@ -180,14 +190,16 @@ class AssayServiceTests extends GrailsUnitTestCase {
 
         def consumer = 'http://metabolomics.nmcdsp.nl'
 
-        // mock URL's getText to be able to mock a http request
-        URL.metaClass.getText = {
-            new JSON ([['sample1', 'sample2', 'sample3'],
-              ['measurement1','measurement2','measurement3','measurement4'],
-              [1,2,3,4,5,6,7,8,9,10,11,12] ]).toString()
-        }
+//        // mock URL's getText to be able to mock a http request
+//        URL.metaClass.getText = {
+//            new JSON ([['sample1', 'sample2', 'sample3'],
+//              ['measurement1','measurement2','measurement3','measurement4'],
+//              [1,2,3,4,5,6,7,8,9,10,11,12] ]).toString()
+//        }
 
         def assayData = service.collectAssayData(assay, consumer)
+
+        println assayData
 
         def sample1index = assayData.'Sample Data'.'name'.findIndexOf{it == 'sample1'}
         def sample2index = assayData.'Sample Data'.'name'.findIndexOf{it == 'sample2'}

@@ -241,10 +241,8 @@ class SimpleQueryController {
 
    static List merge (List list1, List list2) {
 
-     def resultList = []
-     resultList = list1.intersect(list2)
+     list1.intersect(list2)
 
-     return resultList
    }
 
 }
