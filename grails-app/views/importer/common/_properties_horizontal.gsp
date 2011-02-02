@@ -65,7 +65,7 @@ $('#clearselect').click(function() {
               <g:if test="${selentity.name.toLowerCase()==stdentity.entity.toLowerCase()}">
 			    <td class="header" width="200px">
 				<b>${importer_header[selentity.columnindex.toInteger()].name}</b>
-                  <importer:propertyChooser name="columnproperty" mappingcolumn="${importer_header[selentity.columnindex.toInteger()]}" matchvalue="${importer_header[selentity.columnindex.toInteger()].name}" template_id="${importer_template_id}" allfieldtypes="${importer_allfieldtypes}"/>
+                  <importer:propertyChooser name="columnproperty" mappingcolumn="${importer_header[selentity.columnindex.toInteger()]}" matchvalue="${importer_header[selentity.columnindex.toInteger()].name}" template_id="${importer_template_id}" allfieldtypes="true"/>
 			    </td>			    		
               </g:if>
             </g:each>
