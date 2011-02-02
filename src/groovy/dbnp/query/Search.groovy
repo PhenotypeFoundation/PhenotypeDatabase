@@ -41,8 +41,6 @@ class Search {
 	public Map getResultFields() { return resultFields; }
 	public void setResultFields( Map r ) { resultFields = r; }
 
-    def moduleCommunicationService
-
 	/**
 	 * Returns the number of results found by this search
 	 * @return
@@ -207,9 +205,9 @@ class Search {
 		if( !entities || entities.size() == 0 )
 			return [];
 			
-//		// Determine the moduleCommunicationService
-//		ApplicationContext ctx = (ApplicationContext)ApplicationHolder.getApplication().getMainContext();
-//		def moduleCommunicationService = ctx.getBean("moduleCommunicationService");
+		// Determine the moduleCommunicationService
+		def ctx = ApplicationHolder.getApplication().getMainContext();
+		def moduleCommunicationService = ctx.getBean("moduleCommunicationService");
 			
 		// Loop through all modules and check whether criteria have been given
 		// for that module

@@ -3,6 +3,7 @@ package dbnp.query
 import dbnp.studycapturing.*
 import grails.test.*
 import org.dbnp.gdt.AssayModule
+import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 /**
  * SearchTests Test
@@ -47,6 +48,9 @@ class StudySearchTests extends GrailsUnitTestCase {
 		samplingEvents.each { it.parent.addToSamplingEvents( it ); }
 		samples.each { it.parent.addToSamples( it ); }
 		assays.each { it.parent.addToAssays( it ); }
+
+        // some mocks to make sure test doesn't break on finding 'moduleCommunicationService'
+        ApplicationHolder.metaClass.static.getApplication = { [getMainContext: { [getBean: {a -> null}] }] }
 		
     }
 
