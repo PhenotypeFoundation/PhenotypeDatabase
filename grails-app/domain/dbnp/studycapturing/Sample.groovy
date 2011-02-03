@@ -1,5 +1,6 @@
 package dbnp.studycapturing
 import org.dbnp.gdt.*
+import org.dbnp.bgdt.*
 
 /**
  * The Sample class describes an actual sample which results from a SamplingEvent.

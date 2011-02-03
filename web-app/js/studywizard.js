@@ -250,7 +250,7 @@ function showExampleReltime(inputfield) {
 	};
 
 	$.ajax({
-		url	 : baseUrl + '/wizard/ajaxParseRelTime?reltime=' + inputfield.value,
+		url	 : baseUrl + '/studyWizard/ajaxParseRelTime?reltime=' + inputfield.value,
 		success : successFunc,
 		error   : errorFunc
 	});

@@ -2,6 +2,7 @@ package dbnp.studycapturing
 
 import dbnp.authentication.SecUser
 import org.dbnp.gdt.*
+import org.dbnp.bgdt.*
 
 /**
  * Wizard tag library

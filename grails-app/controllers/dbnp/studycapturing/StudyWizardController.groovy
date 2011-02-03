@@ -5,6 +5,7 @@ import grails.plugins.springsecurity.Secured
 import dbnp.authentication.SecUser
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import org.dbnp.gdt.*
+import org.dbnp.bgdt.*
 
 /**
  * ajaxflow Controller
@@ -1099,7 +1100,8 @@ class StudyWizardController {
 			on("toPageFour").to "samples"
 			on("toPageFive").to "assays"
 			on("toPageSix").to "confirm"
-			on("toPageSeven").to "save"		}
+			on("toPageSeven").to "save"
+		}
 
 		// render finish page
 		done {

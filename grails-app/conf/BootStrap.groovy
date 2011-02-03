@@ -2,6 +2,7 @@ import dbnp.authentication.SecRole
 import dbnp.authentication.SecUser
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.dbnp.gdt.*
+import org.dbnp.bgdt.*
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Subject
 import dbnp.studycapturing.Sample
