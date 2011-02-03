@@ -26,43 +26,7 @@
 	// Initially called when starting the import wizard
 	function onPage() {
 		// GENERAL
-		attachHelpTooltips();
-		handleWizardTable();
-
-		// initialize the ontology chooser
-		new OntologyChooser().init();
-
-		// handle and initialize table(s)
-		new TableEditor().init({
-			tableIdentifier : 'div.tableEditor',
-			rowIdentifier   : 'div.row',
-			columnIdentifier: 'div.column',
-			headerIdentifier: 'div.header'
-		});
-
-		// handle term selects
-		new SelectAddMore().init({
-			rel	 : 'term',
-			url	 : baseUrl + '/termEditor',
-			vars	: 'ontologies',
-			label   : 'add more...',
-			style   : 'addMore',
-			onClose : function(scope) {
-				refreshFlow();
-			}
-		});
-
-		// handle template selects
-		new SelectAddMore().init({
-			rel	 : 'template',
-			url	 : baseUrl + '/templateEditor',
-			vars	: 'entity,ontologies',
-			label   : 'add / modify..',
-			style   : 'modify',
-			onClose : function(scope) {
-				refreshFlow();
-			}
-		});
+		onStudyWizardPage();
 
 		$('#simplewizardform').submit(function() {
 			if ($('#file').val() == "") {

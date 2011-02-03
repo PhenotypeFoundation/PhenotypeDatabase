@@ -19,6 +19,8 @@
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'studywizard.css')}"/>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'table-editor.css', plugin: 'gdt')}"/>
 
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'studywizard.js')}"></script>
+
 	<g:if env="production">
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js', plugin: 'gdt')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'SelectAddMore.min.js', plugin: 'gdt')}"></script>
