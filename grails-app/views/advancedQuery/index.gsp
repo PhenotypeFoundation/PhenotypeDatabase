@@ -39,7 +39,7 @@
 <h1>Query database</h1>
 
 <g:if test="${flash.error}">
-	<div class="error">
+	<div class="errormessage">
 		${flash.error.toString().encodeAsHTML()}
 	</div>
 </g:if>

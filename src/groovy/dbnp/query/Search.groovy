@@ -48,6 +48,17 @@ class Search {
 	public Map getResultFields() { return resultFields; }
 	public void setResultFields( Map r ) { resultFields = r; }
 
+	public Search() {
+		def ctx = ApplicationHolder.getApplication().getMainContext();
+		def authenticationService = ctx.getBean("authenticationService");
+		def sessionUser = authenticationService?.getLoggedInUser();
+
+		if( sessionUser )
+			this.user = sessionUser;
+		else
+			this.user = null
+	}
+	
 	/**
 	 * Returns the number of results found by this search
 	 * @return
@@ -214,8 +225,9 @@ class Search {
 		if( !entities || entities.size() == 0 )
 			return [];
 			
-		// Determine the moduleCommunicationService
-		def ctx = (ApplicationContext)ApplicationHolder.getApplication().getMainContext();
+		// Determine the moduleCommunicationService. Because this object
+		// is mocked in the tests, it can't be converted to a ApplicationContext object
+		def ctx = ApplicationHolder.getApplication().getMainContext();
 		def moduleCommunicationService = ctx.getBean("moduleCommunicationService");
 			
 		// Loop through all modules and check whether criteria have been given

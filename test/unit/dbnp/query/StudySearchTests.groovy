@@ -4,6 +4,7 @@ import dbnp.studycapturing.*
 import grails.test.*
 import org.dbnp.gdt.AssayModule
 import org.codehaus.groovy.grails.commons.ApplicationHolder
+import dbnp.authentication.*;
 
 /**
  * SearchTests Test
@@ -32,6 +33,8 @@ class StudySearchTests extends GrailsUnitTestCase {
 				new Sample( name: 'Sample 2', parent: studies[1], parentSubject: subjects[ 1 ], parentEvent: samplingEvents[ 1 ] )
 		]
 		def assays = [ new Assay( name: 'Assay 1', parent: studies[0], samples: [samples[0]] ), new Assay( name: 'Assay 2', parent: studies[1], samples: [samples[1]] ) ]
+
+		def users = [ new SecUser( username: "abc" ) ];
 		
 		mockDomain( Study, studies );
 		mockDomain( Subject, subjects );
@@ -41,6 +44,9 @@ class StudySearchTests extends GrailsUnitTestCase {
 		mockDomain( Assay, assays );
 
         mockDomain( AssayModule );
+		mockDomain( SecUser, users )
+		mockDomain( SecUserSecRole )
+		mockDomain( SecRole )
 		
 		subjects.each { it.parent.addToSubjects( it ); }
 		samples.each { it.parent.addToSamples( it ); }
@@ -48,9 +54,21 @@ class StudySearchTests extends GrailsUnitTestCase {
 		samplingEvents.each { it.parent.addToSamplingEvents( it ); }
 		samples.each { it.parent.addToSamples( it ); }
 		assays.each { it.parent.addToAssays( it ); }
+		studies.each {
+			it.owner = users[0]
+		}
 
         // some mocks to make sure test doesn't break on finding 'moduleCommunicationService'
-        ApplicationHolder.metaClass.static.getApplication = { [getMainContext: { [getBean: {a -> null}] }] }
+        ApplicationHolder.metaClass.static.getApplication = { [getMainContext: 
+			{ [getBean:
+				{ what ->
+					if( what == "authenticationService" )
+						return [getLoggedInUser: { return users[0]; } ]
+					else if( what == "moduleCommunicationService" )
+						return null
+				 }
+			] }
+		] }
 		
     }
 
@@ -69,7 +87,7 @@ class StudySearchTests extends GrailsUnitTestCase {
 		def studySearch = new StudySearch();
 
 		// Search without criteria
-		studySearch.setCriteria( );
+		studySearch.setCriteria();
 		studySearch.execute();
 		
 		assert studySearch.getResults().size() == 4

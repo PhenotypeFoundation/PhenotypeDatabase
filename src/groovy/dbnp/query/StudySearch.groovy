@@ -66,7 +66,7 @@ class StudySearch extends Search {
 		super.execute();
 
 		def studies = Study.list().findAll { it.canRead( this.user ) };
-		
+
 		// If no criteria are found, return all studies
 		if( !criteria || criteria.size() == 0 ) {
 			results = studies;
