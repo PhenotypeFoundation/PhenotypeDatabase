@@ -195,7 +195,7 @@ html ul.topnav li ul.subnav li a:hover {
 
 }
 
-#content .error {
+#content .disabledEerror {
 	border: 1px solid #f99; /* #006dba; */
 	margin-bottom: 10px;
 	margin-top: 10px;
