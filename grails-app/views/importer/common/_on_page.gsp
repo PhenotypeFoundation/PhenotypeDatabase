@@ -92,13 +92,13 @@
 
 		// handle template selects
 		new SelectAddMore().init({
-			rel	 : 'typetemplate',
+			rel	 : 'template',
 			url	 : baseUrl + '/templateEditor',
 			vars	: 'entity', // can be a comma separated list of variable names to pass on
 			label   : 'add / modify ...',
 			style   : 'modify',
 			onClose : function(scope) {
-				location.reload();
+				refreshFlow()
 			}
 		});
 	}

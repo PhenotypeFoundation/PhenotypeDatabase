@@ -322,10 +322,10 @@ class ImporterService {
 		if (study.validate()) {
 			if (!study.save(flush: true)) {
 				//this.appendErrors(flow.study, flash.wizardErrors)
-				throw new Exception('error saving study')
+				throw new Exception('.importer wizard [saveDatamatrix] error while saving study')
 			}
 		} else {
-			throw new Exception('study does not validate')
+			throw new Exception('.importer wizard [saveDatamatrix] study does not validate')
 		}
 
 		//persistEntity(study)

@@ -17,7 +17,7 @@
         // mark error fields
         <g:each in="${importer_failedcells}" var="record">
           <g:each in="${record.importcells}" var="cell">
-          var element = $("select[name=entity_${cell.entityidentifier}_${cell.mappingcolumn.property}]");
+          var element = $("select[name=entity_${cell.entityidentifier}_${cell.mappingcolumn.property.toLowerCase()}]");
 
           element.addClass('error')
           element.append( new Option("Invalid: ${cell.value}","#invalidterm", true, true) );

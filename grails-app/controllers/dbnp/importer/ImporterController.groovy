@@ -110,7 +110,7 @@ class ImporterController {
 			}
 
             on("refresh") {
-                flash.importer_params = params
+                flash.importer_params = params                
 				success()
 			}.to "pageOne"
 
@@ -250,7 +250,6 @@ class ImporterController {
 		error {
 			render(view: "_error")
 			onRender {
-
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_error.gsp".grom()
 
@@ -266,13 +265,9 @@ class ImporterController {
 		finalPage {
 			render(view: "_final_page")
 			onRender {
-				println "EEN"
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_final_page.gsp".grom()
-				println "TWEE"
-
 				success()
-				println "DRIE"
 			}
 			onEnd {
 				// clean flow scope
@@ -421,7 +416,7 @@ class ImporterController {
 
 		flow.importer_importeddata.each { table ->
 			table.each { entity ->
-				def invalidontologies = 0
+				def invalidfields = 0
 
 				// Set the fields for this entity by retrieving values from the params
 				entity.giveFields().each { field ->
@@ -429,14 +424,28 @@ class ImporterController {
 					if (field.type == org.dbnp.gdt.TemplateFieldType.ONTOLOGYTERM &&
 						params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] == "#invalidterm"
 					) {
-						invalidontologies++
+						invalidfields++
 					} else
 					if (field.type == org.dbnp.gdt.TemplateFieldType.ONTOLOGYTERM &&
 						params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] != "#invalidterm") {
-						removeFailedCell(flow.importer_failedcells, entity)
+						if (entity) removeFailedCell(flow.importer_failedcells, entity, field)
+                        println "removedcellontology" + entity
 						entity.setFieldValue(field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
 					}
 					else
+
+                    if (field.type == org.dbnp.gdt.TemplateFieldType.STRINGLIST &&
+						params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] != "#invalidterm") {
+						if (entity) removeFailedCell(flow.importer_failedcells, entity, field)
+                        println "removedcellstringlist" + entity.getIdentifier()
+						entity.setFieldValue(field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
+                    } else
+                    if (field.type == org.dbnp.gdt.TemplateFieldType.STRINGLIST &&
+						params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] == "#invalidterm"
+					) {
+						invalidfields++
+					} else
+
 						entity.setFieldValue(field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
 				}
 
@@ -446,7 +455,7 @@ class ImporterController {
 				}
 
 				// Try to validate the entity now all fields have been set
-				if (!entity.validate() || invalidontologies) {
+				if (!entity.validate() || invalidfields) {
 					flow.importer_invalidentities++
 
 					// add errors to map
@@ -462,6 +471,8 @@ class ImporterController {
 			} // end of record
 		} // end of table
 
+        println "invalidentities="+flow.importer_invalidentities
+
 		return (flow.importer_invalidentities == 0) ? true : false
 	} // end of method
 
@@ -469,12 +480,15 @@ class ImporterController {
 	 * @param failedcell failed ontology cells
 	 * @param entity entity to remove from the failedcells list
 	 */
-	def removeFailedCell(failedcells, entity) {
+	def removeFailedCell(failedcells, entity, field) {
 		// Valid entity, remove it from failedcells
 		failedcells.each { record ->
 			def tempimportcells = []
 
 			record.importcells.each { cell ->
+               // println "cell_entity=" + cell.value
+               // println "fieldname=" + field.name
+
 				// remove the cell from the failed cells session
 				if (cell.entityidentifier != entity.getIdentifier()) {
 					//record.removeFromImportcells(cell)
