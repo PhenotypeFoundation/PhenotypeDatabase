@@ -15,15 +15,17 @@
  */
 package dbnp.query
 
-import dbnp.authentication.SecUser
-import groovy.lang.Closure;
-
+import nl.grails.plugins.gdt.*
+import java.util.List;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat
 import java.util.List;
 
 import org.springframework.context.ApplicationContext
 import org.springframework.web.context.request.RequestContextHolder;
 import org.codehaus.groovy.grails.commons.ApplicationHolder;
+
+import dbnp.authentication.*
 
 import org.dbnp.gdt.*
 
@@ -46,20 +48,6 @@ class Search {
 	public Map getResultFields() { return resultFields; }
 	public void setResultFields( Map r ) { resultFields = r; }
 
-<<<<<<< .mine
-	public Search() {
-		ApplicationContext ctx = (ApplicationContext)ApplicationHolder.getApplication().getMainContext();
-		def authenticationService = ctx.getBean("authenticationService");
-		def sessionUser = authenticationService.getLoggedInUser();
-		
-		if( sessionUser )
-			this.user = sessionUser;
-		else
-			this.user = null
-	}
-	
-=======
->>>>>>> .r1481
 	/**
 	 * Returns the number of results found by this search
 	 * @return
