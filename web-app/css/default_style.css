@@ -195,6 +195,9 @@ html ul.topnav li ul.subnav li a:hover {
 
 }
 
+/* DISABLED as this is conflicting with other error styles,
+   please rename this in your stuff before enabling again, or
+   move it into a separate css file and/or div element */
 #content .disabledEerror {
 	border: 1px solid #f99; /* #006dba; */
 	margin-bottom: 10px;
