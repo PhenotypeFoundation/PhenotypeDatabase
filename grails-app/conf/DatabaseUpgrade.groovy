@@ -31,6 +31,7 @@ class DatabaseUpgrade {
 		changeStudyDescription(sql, db)				// r1245 / r1246
 		changeStudyDescriptionToText(sql, db)		// r1327
 		changeTemplateTextFieldSignatures(sql, db)	// prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
+		setAssayModuleDefaultValues(sql, db)		// r1304
 	}
 
 	/**
@@ -128,4 +129,27 @@ class DatabaseUpgrade {
 			}
 		}
 	}
+	
+	/**
+	* The fields 'notify' and 'openInFrame' have been added to AssayModule. However, there
+	* seems to be no method to setting the default values of these fields in the database. They
+	* are set to NULL by default, so all existing fields have 'NULL' set. 
+	* This method sets the default values
+	* @param sql
+	* @param db
+	*/
+   public static void setAssayModuleDefaultValues(sql, db) {
+	   "performing database upgrade: assay_module default values for boolean fields".grom()
+	   try {
+		   sql.execute("UPDATE assay_module SET notify = 0 WHERE notify IS NULL")
+	   } catch (Exception e) {
+		   println "setAssayModuleDefaultValues notify field couldn't be set to default value: " + e.getMessage()
+	   }
+	   try {
+		   sql.execute("UPDATE assay_module SET open_in_frame = 1 WHERE open_in_frame IS NULL")
+	   } catch (Exception e) {
+		   println "setAssayModuleDefaultValues openInFrame field couldn't be set to default value: " + e.getMessage()
+		   println "Maybe gdt plugin is not updated yet after revision 109"
+	   }
+   }
 }

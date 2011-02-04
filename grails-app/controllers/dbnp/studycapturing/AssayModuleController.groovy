@@ -14,6 +14,9 @@
  */
 package dbnp.studycapturing
 
+import grails.plugins.springsecurity.Secured
+
+@Secured(['ROLE_ADMIN'])
 class AssayModuleController {
 	// Scaffold this class to circumvent not being able to add assays (0.4)
 	def scaffold = org.dbnp.gdt.AssayModule
