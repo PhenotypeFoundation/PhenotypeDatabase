@@ -25,10 +25,10 @@ class StudyController {
 
         def user = AuthenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
+		def offset = params.offset ? params.int( 'offset' ) : 0
+        def studies = Study.giveReadableStudies( user, max, offset );
 
-        def studies = Study.giveReadableStudies( user, max );
-
-        [studyInstanceList: studies, studyInstanceTotal: studies.count(), loggedInUser: user]
+        [studyInstanceList: studies, studyInstanceTotal: Study.countReadableStudies( user ), loggedInUser: user]
     }
 
     /**
@@ -38,9 +38,10 @@ class StudyController {
     def myStudies = {
         def user = AuthenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
-
-        def studies = Study.findAllByOwner(user);
-        render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: studies.count(), loggedInUser: user] )
+		def offset = params.offset ? params.int( 'offset' ) : 0
+		
+        def studies = Study.findAllByOwner(user, [max:max,offset: offset]);
+        render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: Study.countByOwner(user), loggedInUser: user] )
     }
 
     /**

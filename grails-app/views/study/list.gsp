@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<g:form action="list_extended">
+<g:form action="list_extended" name="list_extended">
 	<div class="body">
 		<h1><g:message code="default.list.label" args="[entityName]"/></h1>
 		<g:if test="${flash.message}">
@@ -77,12 +77,12 @@
 		<div class="buttons">
 			<sec:ifLoggedIn>
 				<span class="button"><g:link class="create" controller="studyWizard" params="[jump:'create']"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
+				<span class="button"><a class="compare" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span>
 			</sec:ifLoggedIn>
+			
 		</div>
 		<div class="paginateButtons">
-			<g:paginate total="${studyInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next"/>
-			<br>
-			<INPUT TYPE=submit name=submit Value="Compare selected studies">
+			<g:paginate max="10" total="${studyInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next"/>
 		</div>
 	</div>
 </g:form>

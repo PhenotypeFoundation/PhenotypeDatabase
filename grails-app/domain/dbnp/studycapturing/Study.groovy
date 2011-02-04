@@ -13,7 +13,7 @@ import dbnp.authentication.SecUser
  */
 class Study extends TemplateEntity {
 	static searchable = true
-	
+
 	def moduleNotificationService
 
 	SecUser owner		// The owner of the study. A new study is automatically owned by its creator.
@@ -33,11 +33,11 @@ class Study extends TemplateEntity {
 	boolean publicstudy = false  // Determines whether anonymous users are allowed to see this study. This has only effect when published = true
 
 	/**
-	* UUID of this study
-	*/
+	 * UUID of this study
+	 */
 	String studyUUID
 
-	
+
 	static hasMany = [
 		subjects: Subject,
 		samplingEvents: SamplingEvent,
@@ -84,30 +84,30 @@ class Study extends TemplateEntity {
 
 	static final List<TemplateField> domainFields = [
 		new TemplateField(
-			name: 'title',
-			type: TemplateFieldType.STRING,
-			required: true),
+		name: 'title',
+		type: TemplateFieldType.STRING,
+		required: true),
 		new TemplateField(
-			name: 'description',
-			type: TemplateFieldType.TEXT,
-			comment:'Give a brief synopsis of what your study is about',
-			required: true),
+		name: 'description',
+		type: TemplateFieldType.TEXT,
+		comment:'Give a brief synopsis of what your study is about',
+		required: true),
 		new TemplateField(
-			name: 'code',
-			type: TemplateFieldType.STRING,
-			preferredIdentifier: true,
-			comment: 'Fill out the code by which many people will recognize your study',
-			required: true),
+		name: 'code',
+		type: TemplateFieldType.STRING,
+		preferredIdentifier: true,
+		comment: 'Fill out the code by which many people will recognize your study',
+		required: true),
 		new TemplateField(
-			name: 'startDate',
-			type: TemplateFieldType.DATE,
-			comment: 'Fill out the official start date or date of first action',
-			required: true),
+		name: 'startDate',
+		type: TemplateFieldType.DATE,
+		comment: 'Fill out the official start date or date of first action',
+		required: true),
 		new TemplateField(
-			name: 'published',
-			type: TemplateFieldType.BOOLEAN,
-			comment: 'Determines whether this study is published (accessible for the study readers and, if the study is public, for anonymous users). A study can only be published if it meets certain quality criteria, which will be checked upon save.',
-			required: false)
+		name: 'published',
+		type: TemplateFieldType.BOOLEAN,
+		comment: 'Determines whether this study is published (accessible for the study readers and, if the study is public, for anonymous users). A study can only be published if it meets certain quality criteria, which will be checked upon save.',
+		required: false)
 	]
 
 	/**
@@ -122,7 +122,7 @@ class Study extends TemplateEntity {
 	 */
 	def List<Event> getOrphanEvents() {
 		def orphans = events.findAll { event -> !event.belongsToGroup(eventGroups) } +
-			samplingEvents.findAll { event -> !event.belongsToGroup(eventGroups) }
+		samplingEvents.findAll { event -> !event.belongsToGroup(eventGroups) }
 
 		return orphans
 	}
@@ -348,20 +348,20 @@ class Study extends TemplateEntity {
 				//   this seems now to work as expected
 				this.samples.findAll { sample ->
 					(
-					(eventGroup.subjects.findAll {
-						it.equals(sample.parentSubject)
-					})
-						&&
-						(eventGroup.samplingEvents.findAll {
-							(
-							(it.id && sample.parentEvent.id && it.id == sample.parentEvent.id)
-								||
-								(it.getIdentifier() == sample.parentEvent.getIdentifier())
-								||
-								it.equals(sample.parentEvent)
+							(eventGroup.subjects.findAll {
+								it.equals(sample.parentSubject)
+							})
+							&&
+							(eventGroup.samplingEvents.findAll {
+								(
+										(it.id && sample.parentEvent.id && it.id == sample.parentEvent.id)
+										||
+										(it.getIdentifier() == sample.parentEvent.getIdentifier())
+										||
+										it.equals(sample.parentEvent)
+										)
+							})
 							)
-						})
-					)
 				}.each() { sample ->
 					// remove sample from study
 					this.deleteSample(sample)
@@ -457,11 +457,14 @@ class Study extends TemplateEntity {
 		if (user.hasAdminRights()) {
 			return c.list {
 				maxResults(max)
+				order("title", "asc")
+				
 			}
 		}
 
 		return c.list {
 			maxResults(max)
+			order("title", "asc")
 			or {
 				eq("owner", user)
 				writers {
@@ -474,13 +477,15 @@ class Study extends TemplateEntity {
 	/**
 	 * Returns a list of studies that are readable by the given user
 	 */
-	public static giveReadableStudies(SecUser user, int max) {
+	public static giveReadableStudies(SecUser user, int max, int offset = 0) {
 		def c = Study.createCriteria()
 
 		// Administrators are allowed to read everything
 		if (user == null) {
 			return c.list {
 				maxResults(max)
+				firstResult(offset)
+				order("title", "asc")
 				and {
 					eq("published", true)
 					eq("publicstudy", true)
@@ -489,10 +494,14 @@ class Study extends TemplateEntity {
 		} else if (user.hasAdminRights()) {
 			return c.list {
 				maxResults(max)
+				firstResult(offset)
+				order("title", "asc")
 			}
 		} else {
 			return c.list {
 				maxResults(max)
+				firstResult(offset)
+				order("title", "asc")
 				or {
 					eq("owner", user)
 					writers {
@@ -508,7 +517,41 @@ class Study extends TemplateEntity {
 			}
 		}
 	}
-	
+
+	/**
+	 * Returns the number of studies that are readable by the given user
+	 */
+	public static countReadableStudies(SecUser user) {
+		def c = Study.createCriteria()
+
+		// Administrators are allowed to read everything
+		if (user == null) {
+			return c.count {
+				and {
+					eq("published", true)
+					eq("publicstudy", true)
+				}
+			}
+		} else if (user.hasAdminRights()) {
+			return Study.count();
+		} else {
+			return c.count {
+				or {
+					eq("owner", user)
+					writers {
+						eq("id", user.id)
+					}
+					and {
+						readers {
+							eq("id", user.id)
+						}
+						eq("published", true)
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Returns the UUID of this study and generates one if needed
 	 */
@@ -519,10 +562,10 @@ class Study extends TemplateEntity {
 				log.error "Couldn't save study UUID: " + this.getErrors();
 			}
 		}
-		
+
 		return this.studyUUID;
 	}
-	
+
 	/**
 	 * Basic equals method to check whether objects are equals, by comparing the ids
 	 * @param o		Object to compare with
@@ -531,12 +574,12 @@ class Study extends TemplateEntity {
 	public boolean equals( Object o ) {
 		if( o == null )
 			return false;
-			
+
 		if( !( o instanceof Study ) )
 			return false
-		
+
 		Study s = (Study) o;
-		
+
 		return this.id == s.id
 	}
 

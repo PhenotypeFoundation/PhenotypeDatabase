@@ -354,6 +354,11 @@ th.desc a {
 	padding-left: 28px;
 }
 
+.buttons input.compare, .buttons a.compare {
+	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/application_double.png) 5px 50% no-repeat;
+	padding-left: 28px;
+}
+
 .buttons input.backToList, .buttons a.backToList {
 	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/application.png) 5px 50% no-repeat;
 	padding-left: 28px;
