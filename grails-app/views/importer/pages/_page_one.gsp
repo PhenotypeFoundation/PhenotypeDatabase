@@ -54,7 +54,7 @@
 		Choose your study:
 	    </td>
 	    <td>
-		<g:select name="study.id" from="${studies}" optionKey="id" value="${importer_params?.study?.id}"/>
+		<g:select name="study.id" from="${studies}" optionKey="id" optionValue="${{ it.code + ' - ' + it.title }}" value="${importer_params?.study?.id}"/>
 	    </td>
 	</tr>
 	<tr>
