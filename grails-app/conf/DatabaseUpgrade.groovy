@@ -31,7 +31,7 @@ class DatabaseUpgrade {
 		changeStudyDescription(sql, db)				// r1245 / r1246
 		changeStudyDescriptionToText(sql, db)		// r1327
 		changeTemplateTextFieldSignatures(sql, db)	// prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
-		setAssayModuleDefaultValues(sql, db)		// r1304
+		setAssayModuleDefaultValues(sql, db)		// 1490
 	}
 
 	/**
