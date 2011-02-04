@@ -18,7 +18,7 @@ import org.dbnp.gdt.*
 
 class ImportCell extends Identity {
     MappingColumn mappingcolumn
-    int entityidentifier
+    String entityidentifier
     String value
 
     static constraints = {

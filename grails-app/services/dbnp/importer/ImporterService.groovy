@@ -298,6 +298,7 @@ class ImporterService {
 						//if (entitystored==null)
 
 						study.addToSubjects(entity)
+                                        println "subject persisting" + entity.dump()
 
 						break
 					case Event: log.info ".importer wizard, persisting Event `" + entity + "`: "
@@ -465,18 +466,18 @@ class ImporterService {
 				} catch (Exception iae) {
 					log.error ".import wizard error could not set property `" + mc.property + "` to value `" + value + "`"
 					// store the mapping column and value which failed
-					def identifier
+                    def identifier
 
 					switch (mc.entity) {
-						case Study: identifier = study.getIdentifier()
+						case Study: identifier = "entity_" + study.getIdentifier() + "_" + mc.property
 							break
-						case Subject: identifier = subject.getIdentifier()
+						case Subject: identifier = "entity_" + subject.getIdentifier() + "_" + mc.property
 							break
-						case SamplingEvent: identifier = samplingEvent.getIdentifier()
+						case SamplingEvent: identifier = "entity_" + samplingEvent.getIdentifier() + "_" + mc.property
 							break
-						case Event: identifier = event.getIdentifier()
+						case Event: identifier = "entity_" + event.getIdentifier() + "_" + mc.property
 							break
-						case Sample: identifier = sample.getIdentifier()
+						case Sample: identifier = "entity_" + sample.getIdentifier() + "_" + mc.property
 							break
 						case Object:   // don't import
 							break

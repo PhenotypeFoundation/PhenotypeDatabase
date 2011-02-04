@@ -465,13 +465,11 @@ class ImporterController {
 						log.error ".import wizard imported validation error:" + it
 					}
 				} else {
-					removeFailedCell(flow.importer_failedcells, entity)
+					//removeFailedCell(flow.importer_failedcells, entity)
 				} // end else if
 
 			} // end of record
 		} // end of table
-
-        println "invalidentities="+flow.importer_invalidentities
 
 		return (flow.importer_invalidentities == 0) ? true : false
 	} // end of method
@@ -482,15 +480,15 @@ class ImporterController {
 	 */
 	def removeFailedCell(failedcells, entity, field) {
 		// Valid entity, remove it from failedcells
+        def entityidfield = "entity_" + entity.getIdentifier() + "_" + field.name.toLowerCase()
+
 		failedcells.each { record ->
 			def tempimportcells = []
 
-			record.importcells.each { cell ->
-               // println "cell_entity=" + cell.value
-               // println "fieldname=" + field.name
 
+			record.importcells.each { cell ->               
 				// remove the cell from the failed cells session
-				if (cell.entityidentifier != entity.getIdentifier()) {
+				if (cell.entityidentifier != entityidfield) {
 					//record.removeFromImportcells(cell)
 					tempimportcells.add(cell)
 				}
