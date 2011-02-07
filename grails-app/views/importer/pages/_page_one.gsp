@@ -48,15 +48,7 @@
 	    <td width="100px">
 		<g:select name="datamatrix_start" from="${2..10}" value="${importer_params?.datamatrix_start}"/>
 	    </td>
-	</tr>
-	<tr id="studyfield">
-	    <td>
-		Choose your study:
-	    </td>
-	    <td>
-		<g:select name="study.id" from="${studies}" optionKey="id" optionValue="${{ it.code + ' - ' + it.title }}" value="${importer_params?.study?.id}"/>
-	    </td>
-	</tr>
+	</tr>	
 	<tr>
 	    <td>
 		Choose type of data:
@@ -74,6 +66,14 @@
 					    action:'ajaxGetTemplatesByEntity',
 					    params: '\'entity=\'+escape(this.value)',
 					    onSuccess:'updateSelect(\'template_id\',data,false,false,\'default\')')}" />
+	    </td>
+	</tr>
+    <tr id="studyfield">
+	    <td>
+		Choose your study:
+	    </td>
+	    <td>
+		<g:select name="study.id" from="${studies}" optionKey="id" optionValue="${{ it.code + ' - ' + it.title }}" value="${importer_params?.study?.id}"/>
 	    </td>
 	</tr>
 	<tr>
