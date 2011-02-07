@@ -140,16 +140,35 @@ class DatabaseUpgrade {
 	*/
    public static void setAssayModuleDefaultValues(sql, db) {
 	   "performing database upgrade: assay_module default values for boolean fields".grom()
-	   try {
-		   sql.execute("UPDATE assay_module SET notify = 0 WHERE notify IS NULL")
-	   } catch (Exception e) {
-		   println "setAssayModuleDefaultValues notify field couldn't be set to default value: " + e.getMessage()
+
+	   // are we running postgreSQL ?
+	   if (db == "org.postgresql.Driver") {
+		   try {
+			   sql.execute("UPDATE assay_module SET notify = FALSE WHERE notify IS NULL")
+		   } catch (Exception e) {
+			   println "setAssayModuleDefaultValues notify field couldn't be set to default value: " + e.getMessage()
+		   }
+		   try {
+			   sql.execute("UPDATE assay_module SET open_in_frame = TRUE WHERE open_in_frame IS NULL")
+		   } catch (Exception e) {
+			   println "setAssayModuleDefaultValues openInFrame field couldn't be set to default value: " + e.getMessage()
+			   println "Maybe gdt plugin is not updated yet after revision 109"
+		   }
 	   }
-	   try {
-		   sql.execute("UPDATE assay_module SET open_in_frame = 1 WHERE open_in_frame IS NULL")
-	   } catch (Exception e) {
-		   println "setAssayModuleDefaultValues openInFrame field couldn't be set to default value: " + e.getMessage()
-		   println "Maybe gdt plugin is not updated yet after revision 109"
+	   
+	   // Are we running MySQL
+	   if( db == "com.mysql.jdbc.Driver" ) {
+		   try {
+			   sql.execute("UPDATE assay_module SET notify = 0 WHERE notify IS NULL")
+		   } catch (Exception e) {
+			   println "setAssayModuleDefaultValues notify field couldn't be set to default value: " + e.getMessage()
+		   }
+		   try {
+			   sql.execute("UPDATE assay_module SET open_in_frame = 1 WHERE open_in_frame IS NULL")
+		   } catch (Exception e) {
+			   println "setAssayModuleDefaultValues openInFrame field couldn't be set to default value: " + e.getMessage()
+			   println "Maybe gdt plugin is not updated yet after revision 109"
+		   }
 	   }
    }
 }
