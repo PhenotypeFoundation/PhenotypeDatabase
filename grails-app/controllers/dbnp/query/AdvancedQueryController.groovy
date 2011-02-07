@@ -1,4 +1,5 @@
 package dbnp.query
+
 import dbnp.modules.*
 import org.dbnp.gdt.*
 
@@ -14,7 +15,7 @@ class AdvancedQueryController {
 	def authenticationService
 
 	def entitiesToSearchFor = [ 'Study': 'Studies', 'Sample': 'Samples']
-	
+
 	/**
 	 * Shows search screen
 	 */
@@ -24,7 +25,7 @@ class AdvancedQueryController {
 		if( params.criteria ) {
 			criteria = parseCriteria( params.criteria, false )
 		}
-		[entitiesToSearchFor: entitiesToSearchFor, searchableFields: getSearchableFields(), criteria: criteria]
+		[searchModes: SearchMode.values(), entitiesToSearchFor: entitiesToSearchFor, searchableFields: getSearchableFields(), criteria: criteria]
 	}
 
 	/**
@@ -46,21 +47,24 @@ class AdvancedQueryController {
 		}
 
 		// Create a search object and let it do the searching
-		Search search;
+		Search search = determineSearch( params.entity );
 		String view = determineView( params.entity );
-		switch( params.entity ) {
-			case "Study":	search = new StudySearch();	break;
-			case "Sample":	search = new SampleSearch(); break;
 
-			// This exception will only be thrown if the entitiesToSearchFor contains more entities than
-			// mentioned in this switch structure.
-			default:		throw new Exception( "Can't search for entities of type " + params.entity );
+		// Choose between AND and OR search. Default is given by the Search class itself.
+		switch( params.operator?.toString()?.toLowerCase() ) {
+			case "or":
+				search.searchMode = SearchMode.or;
+				break;
+			case "and":
+				search.searchMode = SearchMode.and;
+				break;
 		}
+
 		search.execute( parseCriteria( params.criteria ) );
 
 		// Save search in session
 		def queryId = saveSearch( search );
-		render( view: view, model: [search: search, queryId: queryId] );
+		render( view: view, model: [search: search, queryId: queryId, actions: determineActions(search)] );
 	}
 
 	/**
@@ -68,17 +72,24 @@ class AdvancedQueryController {
 	 * @param 	id	queryId of the search to discard
 	 */
 	def discard = {
-		Integer queryId
-		try {
-			queryId = params.id as Integer
-		} catch( Exception e ) {
+		def queryIds = params.list( 'id' );
+		queryIds = queryIds.findAll { it.isInteger() }.collect { Integer.valueOf( it ) }
+
+		if( queryIds.size() == 0 ) {
 			flash.error = "Incorrect search ID given to discard"
 			redirect( action: "index" );
 			return
 		}
 
-		discardSearch( queryId );
-		flash.message = "Search has been discarded"
+		queryIds.each { queryId ->
+			discardSearch( queryId );
+		}
+
+		if( queryIds.size() > 1 ) {
+			flash.message = "Searches have been discarded"
+		} else {
+			flash.message = "Search has been discarded"
+		}
 		redirect( action: "list" );
 	}
 
@@ -87,10 +98,9 @@ class AdvancedQueryController {
 	 * @param 	id	queryId of the search to show
 	 */
 	def show = {
-		Integer queryId
-		try {
-			queryId = params.id as Integer
-		} catch( Exception e ) {
+		def queryId = params.int( 'id' );
+
+		if( !queryId ) {
 			flash.error = "Incorrect search ID given to show"
 			redirect( action: "index" );
 			return
@@ -106,9 +116,56 @@ class AdvancedQueryController {
 
 		// Determine which view to show
 		def view = determineView( s.entity );
-		render( view: view, model: [search: s, queryId: queryId] );
+		render( view: view, model: [search: s, queryId: queryId, actions: determineActions(s)] );
 	}
 
+	/**
+	 * Performs an action on specific searchResults 
+	 * @param 	queryId		queryId of the search to show
+	 * @param	id			list with the ids of the results to perform the action on
+	 * @param	actionName	Name of the action to perform
+	 */
+	def performAction = {
+		def queryId = params.int( 'queryId' );
+		def selectedIds = params.list( 'id' ).findAll { it.isLong() }.collect { Long.parseLong(it) }
+		def actionName = params.actionName;
+		def moduleName = params.moduleName;
+
+		if( !queryId ) {
+			flash.error = "Incorrect search ID given to show"
+			redirect( action: "index" );
+			return
+		}
+		
+		// Retrieve the search from session
+		Search s = retrieveSearch( queryId );
+		if( !s ) {
+			flash.message = "Specified search could not be found"
+			redirect( action: "list" );
+			return;
+		}
+
+		// Determine the possible actions
+		def actions = determineActions(s, selectedIds );
+
+		// Find the right action to perform
+		def redirectUrl;
+		for( action in actions ) {
+			if( action.module == moduleName && action.name == actionName ) {
+				redirectUrl = action.url;
+				break;
+			}
+		}
+		
+		if( !redirectUrl ) {
+			flash.error = "No valid action is given to perform";
+			redirect( action: "show", id: queryId );
+			return;
+		}
+		
+		redirect( url: redirectUrl );
+	}
+	
 	/**
 	 * Shows a list of searches that have been saved in session
 	 * @param 	id	queryId of the search to show
@@ -123,30 +180,99 @@ class AdvancedQueryController {
 		}
 		[searches: searches]
 	}
-	
+
 	/**
 	 * Shows a search screen where the user can search within the results of another search
 	 * @param	id	queryId of the search to search in
 	 */
 	def searchIn = {
-		Integer queryId
-		try {
-			queryId = params.id as Integer
-		} catch( Exception e ) {
+		def queryIds = params.list( 'id' );
+		queryIds = queryIds.findAll { it.isInteger() }.collect { Integer.valueOf( it ) }
+
+		if( queryIds.size() == 0 ) {
 			flash.error = "Incorrect search ID given to show"
 			redirect( action: "index" );
 			return
 		}
 
-		// Retrieve the search from session
-		Search s = retrieveSearch( queryId );
-		if( !s ) {
-			flash.message = "Specified search could not be found"
+		// Retrieve the searches from session
+		def params = [:]
+		queryIds.eachWithIndex { queryId, idx ->
+			Search s = retrieveSearch( queryId );
+			if( !s ) {
+				flash.message = "Specified search " + queryId + " could not be found"
+				return;
+			} else {
+				params[ "criteria." + idx + ".entityfield" ] = s.entity;
+				params[ "criteria." + idx + ".operator" ] = "in";
+				params[ "criteria." + idx + ".value" ] = queryId;
+			}
+		}
+
+		redirect( action: "index", params: params)
+	}
+
+	/**
+	 * Combines the results of multiple searches 
+	 * @param	id	queryIds of the searches to combine 
+	 */
+	def combine = {
+		def queryIds = params.list( 'id' );
+		queryIds = queryIds.findAll { it.isInteger() }.collect { Integer.valueOf( it ) }
+
+		if( queryIds.size() == 0 ) {
+			flash.error = "Incorrect search ID given to combine"
 			redirect( action: "index" );
+			return
+		}
+
+		// First determine whether the types match
+		def searches = [];
+		def type = "";
+		flash.error = "";
+		queryIds.eachWithIndex { queryId, idx ->
+			Search s = retrieveSearch( queryId );
+			if( !s ) {
+				return;
+			}
+
+			if( type ) {
+				if( type != s.entity ) {
+					flash.error = type + " and " + s.entity.toLowerCase() + " queries can't be combined. Selected queries of one type.";
+					return
+				}
+			} else {
+				type = s.entity
+			}
+		}
+
+		if( flash.error ) {
+			redirect( action: "list" );
 			return;
 		}
 
-		redirect( action: "index", params: [ "criteria.0.entityfield": s.entity, "criteria.0.operator": "in", "criteria.0.value": queryId ])
+		if( !type ) {
+			flash.error = "No correct query ids were given."
+			redirect( action: "list" );
+			return;
+		}
+
+		// Retrieve the searches from session
+		Search combined = determineSearch( type );
+		combined.searchMode = SearchMode.or;
+
+		queryIds.eachWithIndex { queryId, idx ->
+			Search s = retrieveSearch( queryId );
+			if( s ) {
+				combined.addCriterion( new Criterion( entity: type, field: null, operator: Operator.insearch, value: s ) );
+			}
+		}
+
+		// Execute search to combine the results
+		combined.execute();
+
+		def queryId = saveSearch( combined );
+		redirect( action: "show", id: queryId );
 	}
 
 	protected String determineView( String entity ) {
@@ -154,6 +280,20 @@ class AdvancedQueryController {
 			case "Study":	return "studyresults"; 	break;
 			case "Sample":	return "sampleresults";	break;
 			default:		return "results"; break;
+		}
+	}
+
+	/**
+	 * Returns the search object used for searching
+	 */
+	protected Search determineSearch( String entity ) {
+		switch( entity ) {
+			case "Study":	return new StudySearch();
+			case "Sample":	return new SampleSearch();
+
+			// This exception will only be thrown if the entitiesToSearchFor contains more entities than
+			// mentioned in this switch structure.
+			default:		throw new Exception( "Can't search for entities of type " + entity );
 		}
 	}
 
@@ -229,7 +369,7 @@ class AdvancedQueryController {
 		for( c in formCriteria ) {
 			if( c.key ==~ /[0-9]+/ ) {
 				def formCriterion = c.value;
-				
+
 				Criterion criterion = new Criterion();
 
 				// Split entity and field
@@ -250,19 +390,19 @@ class AdvancedQueryController {
 					flash.error += "Criterion could not be used: operator " + formCriterion.operator + " is not valid.<br />\n";
 					continue;
 				}
-				
+
 				// Special case of the 'in' operator
 				if( criterion.operator == Operator.insearch ) {
 					Search s
 					try {
 						s = retrieveSearch( Integer.parseInt( formCriterion.value ) );
 					} catch( Exception e ) {}
-					
+
 					if( !s ) {
 						flash.error += "Can't search within previous query: query not found";
 						continue;
 					}
-					
+
 					if( parseSearchIds ) {
 						criterion.value = s
 					} else {
@@ -272,7 +412,7 @@ class AdvancedQueryController {
 					// Copy value
 					criterion.value = formCriterion.value;
 				}
-				
+
 				list << criterion;
 			}
 		}
@@ -331,7 +471,7 @@ class AdvancedQueryController {
 
 		// First check whether a search with the same criteria is already present
 		def previousSearch = retrieveSearchByCriteria( s.getCriteria() );
-		
+
 		def id
 		if( previousSearch ) {
 			id = previousSearch.id;
@@ -339,11 +479,10 @@ class AdvancedQueryController {
 			// Determine unique id
 			id = ( session.queries*.key.max() ?: 0 ) + 1;
 		}
-		
+
 		s.id = id;
 		session.queries[ id ] = s;
 
-		println "On saveSearch: " + session.queries;
 		return id;
 	}
 
@@ -355,10 +494,10 @@ class AdvancedQueryController {
 	protected Search retrieveSearchByCriteria( List criteria ) {
 		if( !session.queries )
 			return null
-		
+
 		if( !criteria )
 			return null
-			
+
 		for( query in session.queries ) {
 			def key = query.key;
 			def value = query.value;
@@ -384,7 +523,6 @@ class AdvancedQueryController {
 		if( !( session.queries[ id ] instanceof Search ) )
 			return null;
 
-		println "On retrieveSearch: " + session.queries;
 		return (Search) session.queries[ id ]
 	}
 
@@ -401,7 +539,6 @@ class AdvancedQueryController {
 
 		session.queries.remove( id );
 
-		println "On discardSearch: " + session.queries;
 		if( !( sessionSearch instanceof Search ) )
 			return null;
 
@@ -418,4 +555,81 @@ class AdvancedQueryController {
 
 		return session.queries*.value.toList()
 	}
+
+	/**
+	 * Determine a list of actions that can be performed on specific entities
+	 * @param entity		Name of the entity that the actions could be performed on
+	 * @param selectedIds	List with ids of the selected items to perform an action on
+	 * @return
+	 */
+	protected List determineActions( Search s, def selectedIds = null ) {
+		return gscfActions( s, selectedIds ) + moduleActions( s, selectedIds );
+	}
+
+	/**
+	 * Determine a list of actions that can be performed on specific entities by GSCF
+	 * @param entity	Name of the entity that the actions could be performed on
+	 * @param selectedIds	List with ids of the selected items to perform an action on
+	 */
+	protected List gscfActions(Search s, def selectedIds = null) {
+		switch(s.entity) {
+			case "Study":
+				def exportParams = [:]
+				s.filterResults(selectedIds).each {
+					exportParams[ it.code ] = it.id;
+				}
+				return [[
+						module: "gscf",
+						name:"simpletox",
+						description: "Export as SimpleTox",
+						url: createLink( controller: "exporter", action: "export", params: exportParams )
+					]]
+			case "Sample":
+				return []
+			default:
+				return [];
+		}
+	}
+
+	/**
+	 * Determine a list of actions that can be performed on specific entities by other modules
+	 * @param entity	Name of the entity that the actions could be performed on
+	 */
+	protected List moduleActions(Search s, def selectedIds = null) {
+		def actions = []
+
+		if( !s.getResults() || s.getResults().size() == 0 )
+			return []
+
+		// Loop through all modules and check which actions can be performed on the
+		AssayModule.list().each { module ->
+			// Remove 'module' from module name
+			def moduleName = module.name.replace( 'module', '' ).trim()
+			try {
+				def callUrl = module.url + "/rest/getPossibleActions?entity=" + s.entity
+				def json = moduleCommunicationService.callModuleRestMethodJSON( module.url, callUrl );
+
+				// Check whether the entity is present in the return value
+				if( json[ s.entity ] ) {
+					json[ s.entity ].each { action ->
+						def url = module.url + "/action/" + action.name
+						url += "?entity=" + s.entity
+						url += "&" + s.filterResults(selectedIds).collect { "tokens=" + it.giveUUID() }.join( "&" )
+						actions << [
+									module: moduleName,
+									name: action.name,
+									description: action.description + " (" + moduleName + ")",
+									url: url
+								];
+					}
+				}
+			} catch( Exception e ) {
+				// Exception is thrown when the call to the module fails. No problems though.
+				log.error "Error while fetching possible actions from " + module.name + ": " + e.getMessage()
+			}
+		}
+
+		return actions;
+	}
+
 }

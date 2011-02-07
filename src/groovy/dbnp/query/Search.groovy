@@ -29,21 +29,47 @@ import dbnp.authentication.*
 
 import org.dbnp.gdt.*
 
+/**
+* Available boolean operators for searches
+* @author robert
+*
+*/
+enum SearchMode {
+   and, or
+}
+
 class Search {
-	public String entity;
 	public SecUser user;
 	public Date executionDate;
 	public int id;	// Is only used when this query is saved in session
 
+	public String entity;
+	public SearchMode searchMode = SearchMode.and
+	
 	protected List criteria;
 	protected List results;
 	protected Map resultFields = [:];
 
 	public List getCriteria() { return criteria; }
 	public void setCriteria( List c ) { criteria = c; }
+	public void addCriterion( Criterion c ) {
+		if( criteria ) 
+			criteria << c;
+		else
+			criteria = [c];
+	}
 
 	public List getResults() { return results; }
 	public void setResults( List r ) { results = r; }
+	public List filterResults( List selectedIds ) {
+		if( !selectedIds || !results )
+			return results
+			
+		return results.findAll {
+			selectedIds.contains( it.id )
+		}
+	}
+	
 	
 	public Map getResultFields() { return resultFields; }
 	public void setResultFields( Map r ) { resultFields = r; }
@@ -82,12 +108,36 @@ class Search {
 	}
 
 	/**
-	 * Executes a search based on the given criteria. Should be filled in by
-	 * subclasses searching for a specific entity
+	 * Executes a search based on the given criteria. 
 	 */
 	public void execute() {
 		this.executionDate = new Date();
+		
+		switch( searchMode ) {
+			case SearchMode.and:
+				executeAnd();
+				break;
+			case SearchMode.or:
+				executeOr();
+				break;
+		}
 	}
+	
+	/**
+	 * Executes an inclusive (AND) search based on the given criteria. Should be filled in by
+	 * subclasses searching for a specific entity
+	 */
+	public void executeAnd() {
+		
+	}
+	
+	/**
+	* Executes an exclusive (OR) search based on the given criteria. Should be filled in by
+	* subclasses searching for a specific entity
+	*/
+   public void executeOr() {
+	   
+   }
 
 	/**
 	 * Returns a list of criteria targeted on the given entity
@@ -111,16 +161,28 @@ class Search {
 	 */
 	protected List filterEntityList( List entities, List<Criterion> criteria, Closure check ) {
 		if( !entities || !criteria || criteria.size() == 0 ) {
-			return entities;
+			if( searchMode == SearchMode.and )
+				return entities;
+			else if( searchMode == SearchMode.or )
+				return []
 		}
-
+		
 		return entities.findAll { entity ->
-			for( criterion in criteria ) {
-				if( !check( entity, criterion ) ) {
-					return false;
+			if( searchMode == SearchMode.and ) {
+				for( criterion in criteria ) {
+					if( !check( entity, criterion ) ) {
+						return false;
+					}
 				}
+				return true;
+			} else if( searchMode == SearchMode.or ) {
+				for( criterion in criteria ) {
+					if( check( entity, criterion ) ) {
+						return true;
+					}
+				}
+				return false;
 			}
-			return true;
 		}
 	}
 	
@@ -132,6 +194,9 @@ class Search {
 	 * @return			The value of the field in the correct entity
 	 */
 	public static def prepare( def value, TemplateFieldType type ) {
+		if( value == null )
+			return value
+			
 		switch (type) {
 			case TemplateFieldType.DATE:
 				try {
@@ -184,8 +249,7 @@ class Search {
 				return value.toString();
 		}
 
-	}
-	
+	}	
 	
 	/**
 	 * Filters the given list of studies on the study criteria
@@ -200,8 +264,10 @@ class Search {
 		def checkCallback = { study, criterion ->
 			def value = valueCallback( study, criterion );
 			
-			if( value == null )
+			if( value == null ) {
 				return false
+			}
+
 			if( value instanceof Collection ) {
 				return criterion.matchAny( value )
 			} else {
@@ -229,7 +295,13 @@ class Search {
 		// is mocked in the tests, it can't be converted to a ApplicationContext object
 		def ctx = ApplicationHolder.getApplication().getMainContext();
 		def moduleCommunicationService = ctx.getBean("moduleCommunicationService");
-			
+		
+		def allEntities = [] 
+		if( searchMode == SearchMode.or ) {
+			allEntities += entities;
+			entities = [];
+		} 
+		
 		// Loop through all modules and check whether criteria have been given
 		// for that module
 		AssayModule.list().each { module ->
@@ -249,8 +321,7 @@ class Search {
 				try {
 					def json = moduleCommunicationService.callModuleRestMethodJSON( module.url, callUrl );
 
-					// The data has been retrieved. Now walk through all criteria to filter the samples
-					entities = filterEntityList( entities, moduleCriteria, { entity, criterion ->
+					Closure checkClosure = { entity, criterion ->
 						// Find the value of the field in this sample. That value is still in the
 						// JSON object
 						def token = entity.giveUUID()
@@ -267,22 +338,33 @@ class Search {
 							value = [ value ];
 						}
 						
-						// Loop through all values and match any
-						for( val in value ) {
-							// Convert numbers to a long or double in order to process them correctly
+						// Convert numbers to a long or double in order to process them correctly
+						def values = value.collect { val -> 
 							val = val.toString();
 							if( val.isLong() ) {
 								val = Long.parseLong( val );
 							} else if( val.isDouble() ) {
 								val = Double.parseDouble( val );
 							}
-							
+							return val;
+						}
+
+						// Loop through all values and match any
+						for( val in values ) {
 							if( criterion.match( val ) )
 								return true;
 						}
 						
 						return false;
-					});
+					}
+					
+					// The data has been retrieved. Now walk through all criteria to filter the samples
+					if( searchMode == SearchMode.and ) {
+						entities = filterEntityList( entities, moduleCriteria, checkClosure );
+					} else if( searchMode == SearchMode.or ) {
+						entities += filterEntityList( allEntities - entities, moduleCriteria, checkClosure );
+						entities = entities.unique();
+					} 
 										
 				} catch( Exception e ) {
 					log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
@@ -319,6 +401,14 @@ class Search {
 	protected void saveResultField( id, fieldName, value ) {
 		if( resultFields[ id ] == null )
 			resultFields[ id ] = [:]
+		
+		// Handle special cases
+		if( value == null )
+			value = "";
+		
+		if( value instanceof Collection ) {
+			value = value.findAll { it != null }
+		}
 		
 		resultFields[ id ][ fieldName ] = value;
 	}

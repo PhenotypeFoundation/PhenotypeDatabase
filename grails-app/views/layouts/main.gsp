@@ -20,6 +20,12 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
 	<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script></g:if>
+
+	<!--  Scripts for pagination using dataTables -->
+	<link rel="stylesheet" href="${resource(dir: 'css/datatables', file: 'demo_table_jui.css')}"/>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.dataTables.min.js')}"></script>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'paginate.js')}"></script>
+
 </head>
 <body>
 <g:render template="/common/login_panel"/>

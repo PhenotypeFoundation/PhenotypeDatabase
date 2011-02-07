@@ -4,6 +4,7 @@
 	<meta name="layout" content="main"/>
 	<title>Query results</title>
 	<link rel="stylesheet" href="<g:resource dir="css" file="advancedQuery.css" />" type="text/css"/>
+	<g:javascript src="advancedQueryResults.js" />
 </head>
 <body>
 
@@ -21,13 +22,12 @@
 		def resultFields = search.getShowableResultFields();
 		def extraFields = resultFields[ search.getResults()[ 0 ].id ]?.keySet();
 	%>
-
 	<table id="searchresults" class="paginate">
 		<thead>
 		<tr>
-			<th colspan="2"></th>
-			<th>Code</th>
+			<th class="nonsortable"></th>
 			<th>Title</th>
+			<th>Code</th>
 			<th>Subjects</th>
 			<th>Events</th>
 			<th>Assays</th>
@@ -39,13 +39,19 @@
 		<tbody>
 		<g:each in="${search.getResults()}" var="studyInstance" status="i">
 			<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-
-				<td><g:link controller="study" action="show" id="${studyInstance?.id}"><img src='${fam.icon(name: 'application_form_magnify')}' border="0" alt="view study" /></g:link></td>
-				<td><g:if test="${studyInstance.canWrite(loggedInUser)}"><g:link class="edit" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}"><img src='${fam.icon(name: 'application_form_edit')}' border="0" alt="edit study" /></g:link></g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> </td>
-				<td>${fieldValue(bean: studyInstance, field: "code")}</td>
-				<td>
-					${fieldValue(bean: studyInstance, field: "title")}
+				<td width="3%">
+					<% /* 
+						The value of this checkbox will be moved to the form (under this table) with javascript. This
+						way the user can select items from multiple pages of the paginated result list correctly. See
+						also http://datatables.net/examples/api/form.html and advancedQueryResults.js
+					*/ %>
+					<g:checkBox name="id" value="${studyInstance.id}" checked="${false}" />
 				</td>
+				<td>
+					<g:link controller="study" action="show" id="${studyInstance?.id}">${fieldValue(bean: studyInstance, field: "title")}</g:link>
+					
+				</td>
+				<td>${fieldValue(bean: studyInstance, field: "code")}</td>
 				<td>
 					<g:if test="${studyInstance.subjects.species.size()==0}">
 						-
@@ -81,10 +87,13 @@
 						<% 
 							def fieldValue = resultFields[ studyInstance.id ]?.get( fieldName );
 							if( fieldValue ) { 
-								if( fieldValue instanceof Collection )
+								if( fieldValue instanceof Collection ) {
 									fieldValue = fieldValue.collect { it.toString() }.findAll { it }.join( ', ' );
-								else
+								} else {
 									fieldValue = fieldValue.toString();
+								}
+							} else {
+								fieldValue = "";
 							}
 						%>
 						${fieldValue}
@@ -94,6 +103,7 @@
 		</g:each>
 		</tbody>
 	</table>
+	<g:render template="resultsform" />
 
 </g:if>
 <g:render template="resultbuttons" model="[queryId: queryId]" />

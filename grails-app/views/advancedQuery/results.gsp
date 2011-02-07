@@ -4,6 +4,7 @@
 	<meta name="layout" content="main"/>
 	<title>Query results</title>
 	<link rel="stylesheet" href="<g:resource dir="css" file="advancedQuery.css" />" type="text/css"/>
+	<g:javascript src="advancedQueryResults.js" />
 </head>
 <body>
 
@@ -12,15 +13,7 @@
 <p>
 	Your search for:
 </p>
-<ul id="criteria">
-	<g:each in="${search.getCriteria()}" var="criterion">
-		<li>
-			<span class="entityfield">${criterion.entityField()}</span>
-			<span class="operator">${criterion.operator}</span>
-			<span class="value">${criterion.value}</span>
-		</li>
-	</g:each>
-</ul>
+<g:render template="criteria" model="[criteria: search.getCriteria()]" />
 <p> 
 	resulted in ${search.getNumResults()} results.
 </p>
@@ -30,9 +23,10 @@
 		def resultFields = search.getShowableResultFields();
 		def extraFields = resultFields[ search.getResults()[ 0 ].id ]?.keySet();
 	%>
-	<table id="searchresults">
+	<table id="searchresults" class="paginate">
 		<thead>
 			<tr>
+				<th class="nonsortable"></th>
 				<th>Type</th>
 				<th>Id</th>
 				<g:each in="${extraFields}" var="fieldName">
@@ -42,6 +36,14 @@
 		</thead>
 		<g:each in="${search.getResults()}" var="result">
 			<tr>
+				<td width="3%">
+					<% /* 
+						The value of this checkbox will be moved to the form (under this table) with javascript. This
+						way the user can select items from multiple pages of the paginated result list correctly. See
+						also http://datatables.net/examples/api/form.html and advancedQueryResults.js
+					*/ %>
+					<g:checkBox name="id" value="${result.id}" checked="${false}" />
+				</td>			
 				<td>${search.entity}</td>
 				<td>${result.id}</td>
 				<g:each in="${extraFields}" var="fieldName">
@@ -49,10 +51,13 @@
 						<% 
 							def fieldValue = resultFields[ result.id ]?.get( fieldName );
 							if( fieldValue ) { 
-								if( fieldValue instanceof Collection )
+								if( fieldValue instanceof Collection ) {
 									fieldValue = fieldValue.collect { it.toString() }.findAll { it }.join( ', ' );
-								else
+								} else {
 									fieldValue = fieldValue.toString();
+								}
+							} else {
+								fieldValue = "";
 							}
 						%>
 						${fieldValue}

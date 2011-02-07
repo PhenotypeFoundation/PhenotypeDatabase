@@ -4,6 +4,7 @@
 	<meta name="layout" content="main"/>
 	<title>Query results</title>
 	<link rel="stylesheet" href="<g:resource dir="css" file="advancedQuery.css" />" type="text/css"/>
+	<g:javascript src="advancedQueryResults.js" />
 </head>
 <body>
 
@@ -25,8 +26,9 @@
 	<table id="searchresults" class="paginate">
 		<thead>
 		<tr>
-			<th>Study</th>
+			<th class="nonsortable"></th>			
 			<th>Name</th>
+			<th>Study</th>
 			<g:each in="${extraFields}" var="fieldName">
 				<th>${fieldName}</th>
 			</g:each>
@@ -35,17 +37,28 @@
 		<tbody>
 		<g:each in="${search.getResults()}" var="sampleInstance" status="i">
 			<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-				<td><g:link controller="study" action="show" id="${sampleInstance?.parent?.id}">${sampleInstance?.parent?.title}</g:link></td>
+				<td width="3%">
+					<% /* 
+						The value of this checkbox will be moved to the form (under this table) with javascript. This
+						way the user can select items from multiple pages of the paginated result list correctly. See
+						also http://datatables.net/examples/api/form.html and advancedQueryResults.js
+					*/ %>
+					<g:checkBox name="id" value="${sampleInstance.id}" checked="${false}" />
+				</td>
 				<td>${fieldValue(bean: sampleInstance, field: "name")}</td>
+				<td><g:link controller="study" action="show" id="${sampleInstance?.parent?.id}">${sampleInstance?.parent?.title}</g:link></td>
 				<g:each in="${extraFields}" var="fieldName">
 					<td>
 						<% 
 							def fieldValue = resultFields[ sampleInstance.id ]?.get( fieldName );
 							if( fieldValue ) { 
-								if( fieldValue instanceof Collection )
+								if( fieldValue instanceof Collection ) {
 									fieldValue = fieldValue.collect { it.toString() }.findAll { it }.join( ', ' );
-								else
+								} else {
 									fieldValue = fieldValue.toString();
+								}
+							} else {
+								fieldValue = "";
 							}
 						%>
 						${fieldValue}
@@ -55,6 +68,7 @@
 		</g:each>
 		</tbody>
 	</table>
+	<g:render template="resultsform" />
 
 </g:if>
 <g:render template="resultbuttons" model="[queryId: queryId]" />

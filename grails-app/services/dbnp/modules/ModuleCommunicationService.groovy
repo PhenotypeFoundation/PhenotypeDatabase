@@ -17,6 +17,7 @@ package dbnp.modules
 import dbnp.studycapturing.*
 import grails.converters.*
 import javax.servlet.http.HttpServletResponse
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class ModuleCommunicationService implements Serializable {
 	boolean transactional = false
@@ -32,7 +33,7 @@ class ModuleCommunicationService implements Serializable {
 	/**
 	 * Number of seconds to save the data in cache
 	 */
-	def numberOfSecondsInCache = 10 * 60;
+	def numberOfSecondsInCache = Integer.valueOf( ConfigurationHolder.config.modules.cacheDuration )
 
 	/**
 	 * Sends a notification to assay modules that some part of a study has changed.
@@ -146,7 +147,10 @@ class ModuleCommunicationService implements Serializable {
 	def retrieveFromCache( url ) {
 		def user = authenticationService.getLoggedInUser();
 		def userId = user ? user.id : -1;
-
+		
+		println "Retrieve from cache: " + url 
+		println "Seconds in cache: " + numberOfSecondsInCache
+		
 		if( cache[ userId ] && cache[ userId ][ url ] && ( System.currentTimeMillis() - cache[ userId ][ url ][ "timestamp" ] ) < numberOfSecondsInCache * 1000 ) {
 			return cache[ userId ][ url ];
 		} else {

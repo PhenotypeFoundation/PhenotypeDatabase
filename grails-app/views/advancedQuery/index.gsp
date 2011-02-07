@@ -13,9 +13,9 @@
 				<g:each in="${entity.value}" var="field">
 					<g:if test="${j > 0}">,</g:if>
 					{
-						value: "${entity.key.toString().encodeAsJavaScript()}.${field.toString().encodeAsJavaScript()}",
+						label: "${entity.key.toString().encodeAsJavaScript()}.${field.toString().encodeAsJavaScript()} ${entity.key.toString().encodeAsJavaScript()} ${field.toString().encodeAsJavaScript()}",
 						show: "${(field[0].toUpperCase() + field[1..-1]).encodeAsJavaScript()}",
-						label: "${entity.key.toString().encodeAsJavaScript()}.${field.toString().encodeAsJavaScript()}",
+						value: "${entity.key.toString().encodeAsJavaScript()}.${field.toString().encodeAsJavaScript()}",
 						entity: "${entity.key.toString().encodeAsJavaScript()}"
 					}
 					<g:set var="j" value="1" />
@@ -48,8 +48,6 @@
 		${flash.message.toString().encodeAsHTML()}
 	</div>
 </g:if>
-
-<a href="<g:createLink action="list" />">View previous queries</a>
 
 <form id="input_criteria">
 	<h2>Add criterium</h2>
@@ -90,6 +88,7 @@
 <div id="searchForm">
 	<g:form action="search" method="get">
 		<label for="entity">Search for</label><g:select from="${entitiesToSearchFor}" optionKey="key" optionValue="value" name="entity" /><br />
+		<label for="entity">Searchtype</label><g:select from="${searchModes}" name="operator" /><br />
 		<label for="criteria">Criteria</label>
 		<ul id="criteria">
 			<li class="emptyList">No criteria added. Use the form on the right to specify criteria to search on.</li>
@@ -98,7 +97,9 @@
 		<input type="submit" value="Run query" class="submitcriteria" disabled="disabled" />
 	</g:form>
 </div>
-
+<p class="options">
+	<g:link class="listPrevious" action="list">Previous searches</g:link>
+</p>
 <br  clear="all" />
 </body>
 </html>

@@ -22,3 +22,37 @@ label { display: inline-block; zoom: 1; *display: inline; width: 110px; margin-t
 #input_criteria .explanation { font-size: 10px; }
 
 .ui-menu-item .entity { color: #666; font-style: italic; }
+
+.options { float: left; width: 300px; }
+.options a {
+	font-size: 10px;
+	font-weight: bold;
+	margin-left: 3px;
+	margin-right: 3px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	line-height: 20px;
+	padding-left: 28px;	
+}
+
+.options a.performAction {
+	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/brick_go.png) 5px 50% no-repeat;
+}
+.options a.excel {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/page_excel.png);
+}
+.options a.searchIn {
+	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/arrow_branch.png) 5px 50% no-repeat;
+}
+.options a.search {
+	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/arrow_undo.png) 5px 50% no-repeat;
+}
+.options a.discard {
+	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/basket_remove.png) 5px 50% no-repeat;
+}
+.options a.listPrevious {
+	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/basket.png) 5px 50% no-repeat;
+}
+.options a.combine {
+	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/arrow_join.png) 5px 50% no-repeat;
+}

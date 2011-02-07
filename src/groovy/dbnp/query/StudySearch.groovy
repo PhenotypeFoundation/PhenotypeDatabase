@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 
 class StudySearch extends Search {
 	private static final log = LogFactory.getLog(this);
-	
+
 	public StudySearch() {
 		super();
 		this.entity = "Study";
@@ -62,9 +62,7 @@ class StudySearch extends Search {
 	 *	
 	 */
 	@Override
-	void execute() {
-		super.execute();
-
+	void executeAnd() {
 		def studies = Study.list().findAll { it.canRead( this.user ) };
 
 		// If no criteria are found, return all studies
@@ -80,8 +78,65 @@ class StudySearch extends Search {
 		studies = filterOnEventCriteria( studies );
 		studies = filterOnSamplingEventCriteria( studies );
 		studies = filterOnAssayCriteria( studies );
-		
+
 		studies = filterOnModuleCriteria( studies );
+
+		// Save matches
+		results = studies;
+	}
+
+	/**
+	 * Searches for studies based on the given criteria. Only one criteria have to be satisfied and
+	 * criteria for the different entities are satisfied as follows:
+	 *
+	 * 		Study.title = 'abc'
+	 * 				The returned study will have title 'abc'
+	 *
+	 * 		Subject.species = 'human'
+	 * 				The returned study will have one or more subjects with species = 'human'
+	 *
+	 * 		Sample.name = 'sample 1'
+	 * 				The returned study will have one or more samples with name = 'sample 1'
+	 *
+	 * 		Event.startTime = '0s'
+	 * 				The returned study will have one or more events with start time = '0s'
+	 *
+	 * 		Assay.module = 'metagenomics'
+	 * 				The returned study will have one or more assays with module = 'metagenomics'
+	 *
+	 * When searching the system doesn't look at the connections between different entities. This means,
+	 * the system doesn't look for human subjects having a sample with name 'sample 1'. The sample 1 might
+	 * as well belong to a mouse subject and still the study satisfies the criteria.
+	 *
+	 * When searching for more than one criterion per entity, these are taken separately. Searching for
+	 *
+	 * 		Subject.species = 'human'
+	 * 		Subject.name = 'Jan'
+	 *
+	 *  will result in all studies having a human subject or a subject named 'Jan'. Studies with only a 
+	 *  mouse subject named 'Jan' or a human subject named 'Kees' will satisfy the criteria.
+	 *
+	 */
+	@Override
+	void executeOr() {
+		def allStudies = Study.list().findAll { it.canRead( this.user ) };
+
+		// If no criteria are found, return all studies
+		if( !criteria || criteria.size() == 0 ) {
+			results = allStudies;
+			return;
+		}
+
+		// Perform filters
+		def studies = []
+		studies = ( studies + filterOnStudyCriteria( allStudies - studies ) ).unique();
+		studies = ( studies + filterOnSubjectCriteria( allStudies - studies ) ).unique();
+		studies = ( studies + filterOnSampleCriteria( allStudies - studies ) ).unique();
+		studies = ( studies + filterOnEventCriteria( allStudies - studies ) ).unique();
+		studies = ( studies + filterOnSamplingEventCriteria( allStudies - studies ) ).unique();
+		studies = ( studies + filterOnAssayCriteria( allStudies - studies ) ).unique();
+		
+		studies = ( studies + filterOnModuleCriteria( allStudies - studies ) ).unique();
 		
 		// Save matches
 		results = studies;
