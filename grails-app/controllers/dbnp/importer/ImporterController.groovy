@@ -110,40 +110,28 @@ class ImporterController {
 			}
 
             on("refresh") {
-                flash.importer_params = params                
+                flash.importer_params = params            
 				success()
 			}.to "pageOne"
 
 			on("next") {
 				flash.wizardErrors = [:]
+                //flash.importer_params = params
 
 				// Study selected?
 				flow.importer_study = (params.study) ? Study.get(params.study.id.toInteger()) : null
 
 				// Trying to import data into an existing study?
 				if (flow.importer_study)
-					if (flow.importer_study.canWrite(authenticationService.getLoggedInUser())) {
-						if (fileImportPage(flow, params)) {
-							success()
-						} else {
-							log.error ".importer wizard not all fields are filled in"
-							this.appendErrorMap(['error': "Not all fields are filled in, please fill in or select all fields"], flash.wizardErrors)
-							error()
-						}
-					} else {
+					if (flow.importer_study.canWrite(authenticationService.getLoggedInUser())) 
+						fileImportPage(flow, flash, params) ? success() : error()					
+					else {
 						log.error ".importer wizard wrong permissions"
 						this.appendErrorMap(['error': "You don't have the right permissions"], flash.wizardErrors)
-
 						error()
 					}
 				else {
-					if (fileImportPage(flow, params)) {
-						success()
-					} else {
-						log.error ".importer wizard not all fields are filled in"
-						this.appendErrorMap(['error': "Not all fields are filled in, please fill in or select all fields"], flash.wizardErrors)
-						error()
-					}
+					fileImportPage(flow, flash, params) ? success() : error()
 				}
 
 				// put your bussiness logic (if applicable) in here
@@ -298,13 +286,29 @@ class ImporterController {
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
 	 * @returns boolean true if correctly validated, otherwise false
 	 */
-	boolean fileImportPage(flow, params) {
+	boolean fileImportPage(flow, flash, params) {
 		def importedfile = fileService.get(params['importfile'])
 		//fileService.delete(YourFile)
 
-		if (params.entity && params.template_id && importedfile.exists()) {
-			// create a workbook instance of the file
-			session.importer_workbook = ImporterService.getWorkbook(new FileInputStream(importedfile))
+        if (importedfile.exists()) {
+            try {
+                session.importer_workbook = ImporterService.getWorkbook(new FileInputStream(importedfile))
+            } catch (Exception e) {
+                log.error ".importer wizard could not load file: " + e
+                this.appendErrorMap(['error': "Wrong file (format), the importer requires an Excel file as input"], flash.wizardErrors)
+                return false
+            }
+        }
+
+		if (params.entity && params.template_id) {            
+			
+            try {
+                session.importer_workbook = ImporterService.getWorkbook(new FileInputStream(importedfile))
+            } catch (Exception e) {
+                log.error ".importer wizard could not load file: " + e
+                this.appendErrorMap(['error': "Excel file required as input"], flash.wizardErrors)
+                return false
+            }
 
 			def selectedentities = []
 
@@ -344,6 +348,10 @@ class ImporterController {
 
 			return true
 		}
+
+        log.error ".importer wizard not all fields are filled in"
+        this.appendErrorMap(['error': "Not all fields are filled in, please fill in or select all fields"], flash.wizardErrors)
+        return false
 	}
 
 	/**
