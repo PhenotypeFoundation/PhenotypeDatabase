@@ -74,6 +74,7 @@ class StudySearchTests extends GrailsUnitTestCase {
 
     protected void tearDown() {
         super.tearDown()
+        ApplicationHolder.metaClass.static.getApplication = null
     }
 
 	void testExecute() {
