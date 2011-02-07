@@ -428,16 +428,14 @@ class ImporterController {
 					} else
 					if (field.type == org.dbnp.gdt.TemplateFieldType.ONTOLOGYTERM &&
 						params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] != "#invalidterm") {
-						if (entity) removeFailedCell(flow.importer_failedcells, entity, field)
-                        println "removedcellontology" + entity
+						if (entity) removeFailedCell(flow.importer_failedcells, entity, field)                       
 						entity.setFieldValue(field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
 					}
 					else
 
                     if (field.type == org.dbnp.gdt.TemplateFieldType.STRINGLIST &&
 						params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] != "#invalidterm") {
-						if (entity) removeFailedCell(flow.importer_failedcells, entity, field)
-                        println "removedcellstringlist" + entity.getIdentifier()
+						if (entity) removeFailedCell(flow.importer_failedcells, entity, field)                        
 						entity.setFieldValue(field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
                     } else
                     if (field.type == org.dbnp.gdt.TemplateFieldType.STRINGLIST &&

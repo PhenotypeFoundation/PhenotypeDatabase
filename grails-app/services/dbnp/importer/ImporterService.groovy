@@ -298,7 +298,6 @@ class ImporterService {
 						//if (entitystored==null)
 
 						study.addToSubjects(entity)
-                                        println "subject persisting" + entity.dump()
 
 						break
 					case Event: log.info ".importer wizard, persisting Event `" + entity + "`: "
