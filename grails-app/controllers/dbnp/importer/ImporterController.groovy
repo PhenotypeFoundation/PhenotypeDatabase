@@ -105,6 +105,7 @@ class ImporterController {
 
 				flow.page = 1
 				flow.studies = Study.findAllWhere(owner: authenticationService.getLoggedInUser())
+                flow.importer_fuzzymatching="false"
 
 				success()
 			}
@@ -149,6 +150,11 @@ class ImporterController {
 				flow.page = 2
 				success()
 			}
+            on("refresh") {
+                flow.importer_fuzzymatching="true"
+				success()
+			}.to "pageTwo"
+
 			on("next") {
 				if (propertiesPage(flow, flash, params)) {
 					success()

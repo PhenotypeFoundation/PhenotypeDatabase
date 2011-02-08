@@ -42,6 +42,19 @@
 
 			return false;
 		});
+
+         $('#fuzzymatchselect').click(function() {
+            refreshFlow()
+          });
+
+          // attach function to clear button to reset all selects to "don't import"
+          $('#clearselect').click(function() {
+            // for each select field on the page
+            $("select").each( function(){
+            // set its value to its first option
+            $(this).val($('option:first', this).val());
+            });
+          });
 	}
 
 	/**

@@ -40,32 +40,25 @@ $('select[name^=columnproperty.index.]').each ( function() {
  
 });
 
-$('#clearselect').click(function() {
-
-  // for each select field on the page
-  $("select").each( function(){
-    // set its value to its first option
-    $(this).val($('option:first', this).val());
-  });
-
-});
 
 
 });
 </script>
-<!-- saveproperties action was defined in the form --> 
+<!-- saveproperties action was defined in the form -->
     <table>
 	  <g:each var="stdentity" in ="${GdtService.cachedEntities}">
 	      <% if (importer_selectedentities.any { it.name.toLowerCase() == stdentity.entity.toLowerCase() } && stdentity.entity!="") { %>
             
 	      <tr><td colspan="3"><h4>${stdentity.name}</h4></td></tr>
 		<tr>
-            <td class="header" width="25px"><input id="clearselect" type="button" value="clear" name="clearselect"></td>
+            <td class="header" width="25px"><input id="clearselect" type="button" value="Clear" name="clearselect">
+              <input id="fuzzymatchselect" type="button" value="Match" name="fuzzymatchselect">
+            </td>
             <g:each var="selentity" in="${importer_selectedentities}">
               <g:if test="${selentity.name.toLowerCase()==stdentity.entity.toLowerCase()}">
 			    <td class="header" width="200px">
 				<b>${importer_header[selentity.columnindex.toInteger()].name}</b>
-                  <importer:propertyChooser name="columnproperty" mappingcolumn="${importer_header[selentity.columnindex.toInteger()]}" matchvalue="${importer_header[selentity.columnindex.toInteger()].name}" template_id="${importer_template_id}" allfieldtypes="true"/>
+                  <importer:propertyChooser name="columnproperty" mappingcolumn="${importer_header[selentity.columnindex.toInteger()]}" matchvalue="${importer_header[selentity.columnindex.toInteger()].name}" fuzzymatching="${importer_fuzzymatching}" template_id="${importer_template_id}" allfieldtypes="true"/>
 			    </td>			    		
               </g:if>
             </g:each>

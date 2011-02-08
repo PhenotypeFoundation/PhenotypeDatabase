@@ -93,6 +93,7 @@ class ImporterTagLib {
 	 * @param importtemplate_id template identifier where fields are retrieved from
 	 * @param matchvalue value which will be looked up via fuzzy matching against the list of options and will be selected
 	 * @param MappingColumn object containing all required information
+     * @param fuzzymatching boolean true if fuzzy matching should be used, otherwise false
 	 * @param allfieldtypes boolean true if all templatefields should be listed, otherwise only show filtered templatefields
 	 * @return chooser object
 	 * */
@@ -102,9 +103,10 @@ class ImporterTagLib {
 
 		def t = Template.get(attrs['template_id'])
 		def mc = attrs['mappingcolumn']
-		def allfieldtypes = attrs['allfieldtypes']
-		def matchvalue = attrs['matchvalue']
-		def domainfields = mc.entity.giveDomainFields().findAll { it.type == mc.templatefieldtype }
+		def allfieldtypes = attrs['allfieldtypes']		
+        def matchvalue = (attrs['fuzzymatching']=="true") ? attrs['matchvalue'] : ""
+
+        def domainfields = mc.entity.giveDomainFields().findAll { it.type == mc.templatefieldtype }
 		domainfields = domainfields.findAll { it.preferredIdentifier != mc.identifier}
 
 		//def templatefields = (allfieldtypes=="true") ? t.fields : t.fields.findAll { it.type == mc.templatefieldtype }
@@ -132,7 +134,7 @@ class ImporterTagLib {
 	 */
 	def createPropertySelect(String name, options, matchvalue, Integer columnIndex) {
 		// Determine which field in the options list matches the best with the matchvalue
-		def mostsimilar = ImporterService.mostSimilar(matchvalue, options)
+		def mostsimilar = (matchvalue) ? ImporterService.mostSimilar(matchvalue, options) : ""
 
 		def res = "<select style=\"font-size:10px\" id=\"${name}.index.${columnIndex}\" name=\"${name}.index.${columnIndex}\">"
 
