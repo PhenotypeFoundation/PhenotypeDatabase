@@ -1,6 +1,8 @@
 package gscf
 
 import grails.test.*
+import org.dbnp.bgdt.Ontology
+import org.dbnp.bgdt.Term
 
 /**
  * OntologyTests Test
@@ -190,7 +192,7 @@ class OntologyTests extends GrailsUnitTestCase {
 
 	public void testAddBioPortalOntology() {
 		// Add a new ontology
-		def ontology = dbnp.data.Ontology.getBioPortalOntology("1031")
+		def ontology = Ontology.getBioPortalOntology("1031")
 		// Validate and save ontology
 		if (!ontology.validate()) { ontology.errors.each { println it} }
 		assert ontology.validate()
@@ -198,7 +200,7 @@ class OntologyTests extends GrailsUnitTestCase {
 		assert Ontology.findByNcboId(1031).name.equals(ontology.name)
 
 		// Make sure that it is not possible to add an ontology twice
-		def addAgain = dbnp.data.Ontology.getBioPortalOntology("1031")
+		def addAgain = Ontology.getBioPortalOntology("1031")
 		assert !addAgain.validate()
 	}
 }

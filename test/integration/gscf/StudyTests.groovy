@@ -2,7 +2,7 @@ package gscf
 
 import grails.test.*
 import dbnp.studycapturing.*
-import dbnp.data.*
+import org.dbnp.gdt.Template
 
 /**
  * Test the creation of a Subject and its TemplateEntity functionality on data model level
@@ -21,6 +21,7 @@ class StudyTests extends GrailsUnitTestCase {
 	final String testStudyName = "Test study"
 	final String testStudyTemplateName = "Academic study"
 	final String testStudyCode = "AAA-Test"
+    final String testStudyDescription = "Description of Test Study"
 	final Date testStudyStartDate = Date.parse('yyyy-MM-dd','2007-12-11')
 	final Date testStudyStartDate2 = Date.parse('yyyy-MM-dd','2008-05-11')
 	final String testStudyStartDateString2 = "11-5-2008"
@@ -39,7 +40,8 @@ class StudyTests extends GrailsUnitTestCase {
 			title: testStudyName,
 			template: studyTemplate,
 			startDate: testStudyStartDate,
-			code: testStudyCode
+			code: testStudyCode,
+            description: testStudyDescription
 		)
 
 		if (!study.validate()) {

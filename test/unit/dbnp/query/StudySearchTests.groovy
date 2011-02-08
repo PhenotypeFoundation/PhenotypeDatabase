@@ -4,7 +4,8 @@ import dbnp.studycapturing.*
 import grails.test.*
 import org.dbnp.gdt.AssayModule
 import org.codehaus.groovy.grails.commons.ApplicationHolder
-import dbnp.authentication.*;
+import dbnp.authentication.*
+import groovy.mock.interceptor.MockFor;
 
 /**
  * SearchTests Test
@@ -21,6 +22,9 @@ import dbnp.authentication.*;
  * $Date$
  */
 class StudySearchTests extends GrailsUnitTestCase {
+
+    def mockApplicationHolder
+
     protected void setUp() {
         super.setUp()
 		
@@ -58,8 +62,10 @@ class StudySearchTests extends GrailsUnitTestCase {
 			it.owner = users[0]
 		}
 
+        mockApplicationHolder = new MockFor(ApplicationHolder)
+
         // some mocks to make sure test doesn't break on finding 'moduleCommunicationService'
-        ApplicationHolder.metaClass.static.getApplication = { [getMainContext: 
+        mockApplicationHolder.demand.getApplication(1..10) { [getMainContext:
 			{ [getBean:
 				{ what ->
 					if( what == "authenticationService" )
@@ -79,86 +85,98 @@ class StudySearchTests extends GrailsUnitTestCase {
 
 	void testExecute() {
 
-		List criteria = [
-			new Criterion( entity: "Study", field: "title", operator: Operator.contains, value: "TNO" ),
-			new Criterion( entity: "Study", field: "code", operator: Operator.equals, value: "abc" ),
-			new Criterion( entity: "Study", field: "code", operator: Operator.equals, value: "ghi" )
-		]
-		
-		def studySearch = new StudySearch();
+        mockApplicationHolder.use {
 
-		// Search without criteria
-		studySearch.setCriteria();
-		studySearch.execute();
-		
-		assert studySearch.getResults().size() == 4
-		assert studySearch.getResults()[0] instanceof Study
-		assert studySearch.getResults()*.code.contains( "abc" );
-		assert studySearch.getResults()*.code.contains( "def" );
-		assert studySearch.getResults()*.code.contains( "ghi" );
-		assert studySearch.getResults()*.code.contains( "jkl" );
+            List criteria = [
+                new Criterion( entity: "Study", field: "title", operator: Operator.contains, value: "TNO" ),
+                new Criterion( entity: "Study", field: "code", operator: Operator.equals, value: "abc" ),
+                new Criterion( entity: "Study", field: "code", operator: Operator.equals, value: "ghi" )
+            ]
 
-		studySearch.setCriteria( [ criteria[0] ] );
-		studySearch.execute();
-		assert studySearch.getResults().size() == 2
-		
-		assert studySearch.getResults()*.code.contains( "abc" );
-		assert studySearch.getResults()*.code.contains( "def" );
-		
-		studySearch.setCriteria( [ criteria[0], criteria[1] ] );
-		studySearch.execute();
-		assert studySearch.getResults().size() == 1
-		assert studySearch.getResults()[0].code == "abc"
-		
-		studySearch.setCriteria( [ criteria[0], criteria[2] ] );
-		studySearch.execute();
-		assert studySearch.getResults().size() == 0
+            def studySearch = new StudySearch();
 
-		studySearch.setCriteria( [ criteria[1], criteria[2] ] );
-		studySearch.execute();
-		assert studySearch.getResults().size() == 0
+            // Search without criteria
+            studySearch.setCriteria();
+            studySearch.execute();
+
+            assert studySearch.getResults().size() == 4
+            assert studySearch.getResults()[0] instanceof Study
+            assert studySearch.getResults()*.code.contains( "abc" );
+            assert studySearch.getResults()*.code.contains( "def" );
+            assert studySearch.getResults()*.code.contains( "ghi" );
+            assert studySearch.getResults()*.code.contains( "jkl" );
+
+            studySearch.setCriteria( [ criteria[0] ] );
+            studySearch.execute();
+            assert studySearch.getResults().size() == 2
+
+            assert studySearch.getResults()*.code.contains( "abc" );
+            assert studySearch.getResults()*.code.contains( "def" );
+
+            studySearch.setCriteria( [ criteria[0], criteria[1] ] );
+            studySearch.execute();
+            assert studySearch.getResults().size() == 1
+            assert studySearch.getResults()[0].code == "abc"
+
+            studySearch.setCriteria( [ criteria[0], criteria[2] ] );
+            studySearch.execute();
+            assert studySearch.getResults().size() == 0
+
+            studySearch.setCriteria( [ criteria[1], criteria[2] ] );
+            studySearch.execute();
+            assert studySearch.getResults().size() == 0
+        }
 	}
 	
 	void testExecuteDifferentCriteria() {
-		List criteria = [
-			new Criterion( entity: "Study", field: "title", operator: Operator.contains, value: "TNO-1" ),
-			new Criterion( entity: "Subject", field: "name", operator: Operator.contains, value: "1" ),
-			new Criterion( entity: "Sample", field: "name", operator: Operator.contains, value: "1" ),
-			new Criterion( entity: "Assay", field: "name", operator: Operator.contains, value: "1" ),
-			new Criterion( entity: "Event", field: "startTime", operator: Operator.equals, value: "3600" ),
-			new Criterion( entity: "SamplingEvent", field: "startTime", operator: Operator.equals, value: "3600" ),
-		]
-		
-		def studySearch = new StudySearch();
 
-		// All criteria should result in 1 study with code 'abc'
-		criteria.each {
-			println "Criterion " + it
-			studySearch.setCriteria( [ it ] );
-			studySearch.execute();
-			assert studySearch.getResults().size() == 1
-			assert studySearch.getResults()[0].code == "abc";
-		}
+        mockApplicationHolder.use {
+
+            List criteria = [
+                new Criterion( entity: "Study", field: "title", operator: Operator.contains, value: "TNO-1" ),
+                new Criterion( entity: "Subject", field: "name", operator: Operator.contains, value: "1" ),
+                new Criterion( entity: "Sample", field: "name", operator: Operator.contains, value: "1" ),
+                new Criterion( entity: "Assay", field: "name", operator: Operator.contains, value: "1" ),
+                new Criterion( entity: "Event", field: "startTime", operator: Operator.equals, value: "3600" ),
+                new Criterion( entity: "SamplingEvent", field: "startTime", operator: Operator.equals, value: "3600" ),
+            ]
+
+            def studySearch = new StudySearch();
+
+            // All criteria should result in 1 study with code 'abc'
+            criteria.each {
+                println "Criterion " + it
+                studySearch.setCriteria( [ it ] );
+                studySearch.execute();
+                assert studySearch.getResults().size() == 1
+                assert studySearch.getResults()[0].code == "abc";
+            }
+        }
 	}
 
 	void testExecuteNonExistingCriteria() {
-		List criteria = [
-			new Criterion( entity: "Study", field: "title", operator: Operator.contains, value: "TNO-3" ),
-			new Criterion( entity: "Subject", field: "name", operator: Operator.contains, value: "4" ),
-			new Criterion( entity: "Sample", field: "name", operator: Operator.contains, value: "5" ),
-			new Criterion( entity: "Assay", field: "name", operator: Operator.contains, value: "6" ),
-			new Criterion( entity: "Event", field: "startTime", operator: Operator.equals, value: "4800" ),
-			new Criterion( entity: "SamplingEvent", field: "startTime", operator: Operator.equals, value: "360" ),
-		]
-		
-		def studySearch = new StudySearch();
 
-		// All criteria should result in 1 study with code 'abc'
-		criteria.each {
-			println "Criterion " + it
-			studySearch.setCriteria( [ it ] );
-			studySearch.execute();
-			assert studySearch.getResults().size() == 0
-		}
+        mockApplicationHolder.use {
+
+            List criteria = [
+                new Criterion( entity: "Study", field: "title", operator: Operator.contains, value: "TNO-3" ),
+                new Criterion( entity: "Subject", field: "name", operator: Operator.contains, value: "4" ),
+                new Criterion( entity: "Sample", field: "name", operator: Operator.contains, value: "5" ),
+                new Criterion( entity: "Assay", field: "name", operator: Operator.contains, value: "6" ),
+                new Criterion( entity: "Event", field: "startTime", operator: Operator.equals, value: "4800" ),
+                new Criterion( entity: "SamplingEvent", field: "startTime", operator: Operator.equals, value: "360" ),
+            ]
+
+            def studySearch = new StudySearch();
+
+            // All criteria should result in 1 study with code 'abc'
+            criteria.each {
+                println "Criterion " + it
+                studySearch.setCriteria( [ it ] );
+                studySearch.execute();
+                assert studySearch.getResults().size() == 0
+            }
+
+        }
 	}
 }

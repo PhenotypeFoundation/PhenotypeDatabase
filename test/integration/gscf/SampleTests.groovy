@@ -1,6 +1,8 @@
 package gscf
 
 import dbnp.studycapturing.*
+import org.dbnp.gdt.Template
+import org.dbnp.gdt.TemplateFieldType
 
 /**
  * Test the creation of a Sample and its TemplateEntity functionality on data model level

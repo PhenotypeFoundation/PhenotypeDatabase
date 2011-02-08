@@ -1,6 +1,9 @@
 package gscf
 
 import dbnp.studycapturing.*
+import org.dbnp.bgdt.Term
+import org.dbnp.bgdt.Ontology
+import org.dbnp.gdt.Template
 
 /**
  * SubjectTests Test
