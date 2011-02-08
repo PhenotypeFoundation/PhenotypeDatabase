@@ -148,9 +148,6 @@ class ModuleCommunicationService implements Serializable {
 		def user = authenticationService.getLoggedInUser();
 		def userId = user ? user.id : -1;
 		
-		println "Retrieve from cache: " + url 
-		println "Seconds in cache: " + numberOfSecondsInCache
-		
 		if( cache[ userId ] && cache[ userId ][ url ] && ( System.currentTimeMillis() - cache[ userId ][ url ][ "timestamp" ] ) < numberOfSecondsInCache * 1000 ) {
 			return cache[ userId ][ url ];
 		} else {
