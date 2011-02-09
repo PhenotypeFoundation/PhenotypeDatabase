@@ -151,6 +151,7 @@ class ImporterController {
 				success()
 			}
             on("refresh") {
+                if (params.savepropertymapping) println "saved properties"
                 flow.importer_fuzzymatching="true"
 				success()
 			}.to "pageTwo"
@@ -269,6 +270,10 @@ class ImporterController {
 			}
 		}
 	}
+
+    def propertiesManager = {
+        render (view:"common/_propertiesManager")
+    }
 
 	/**
 	 * Return templates which belong to a certain entity type

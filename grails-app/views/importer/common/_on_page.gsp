@@ -43,8 +43,35 @@
 			return false;
 		});
 
+         // attach event to apply fuzzy matching
          $('#fuzzymatchselect').click(function() {
             refreshFlow()
+          });
+
+          $('#savepropertiesbutton').click(function() {            
+            var width = 800
+            var height = 400
+
+            // get all properties
+            //$('select[name^=columnproperty.index.]').each ( function() {
+            //}
+            
+            $('<iframe frameborder="0" src="' + baseUrl + "/importer/propertiesManager" + '" sanbox="allow-same-origin" seamless />').dialog({
+                    title       : "Properties manager",                    
+                    autoOpen    : true,                
+                    width       : width,
+                    height      : height,
+                    modal       : true,
+                    position    : 'center',
+                    buttons     : {
+                                    Close  : function() { $(this).dialog('close'); }
+                                  },
+                    close       : function() {
+                                    //onClose(this);
+                                    refreshFlow()
+                                  }
+                }).width(width - 10).height(height)
+
           });
 
           // attach function to clear button to reset all selects to "don't import"
@@ -54,6 +81,26 @@
             // set its value to its first option
             $(this).val($('option:first', this).val());
             });
+          });
+
+          // attach change event function to prevent duplicate selection of properties
+          $('select[name^=columnproperty.index.]').each ( function() {
+          $(this).bind('change', function(e) {
+              //console.log($(this).val())
+              var selection = $(this)
+
+              $('select[name^=columnproperty.index.] option:selected').each ( function() {
+                var selector = $(this)
+
+                if (selection.attr('id') != selector.parent().attr('id') && (selection.val()!="dontimport"))
+                  if ($(this).val() == selection.val()) {
+                    selection.val($('option:first', selection).val());
+
+                    alert("Property is already set for an other column, please choose a different property.")
+                    return false
+                  }
+              });
+          });
           });
 	}
 

@@ -13,37 +13,7 @@
 	 * $Date$
 	 */
 %>
-<script type="text/javascript">
 
-// for each select field on the page
-$(document).ready(function() {
-
-$('select[name^=columnproperty.index.]').each ( function() {
-
-  $(this).bind('change', function(e) {
-      //console.log($(this).val())      
-      var selection = $(this)
-
-      $('select[name^=columnproperty.index.] option:selected').each ( function() {
-        var selector = $(this)
-        
-        if (selection.attr('id') != selector.parent().attr('id') && (selection.val()!="dontimport"))
-          if ($(this).val() == selection.val()) {
-            selection.val($('option:first', selection).val());
-
-            alert("Property is already set for an other column, please choose a different property.")
-            return false
-          }
-      });      
-   
-  });
- 
-});
-
-
-
-});
-</script>
 <!-- saveproperties action was defined in the form -->
     <table>
 	  <g:each var="stdentity" in ="${GdtService.cachedEntities}">
@@ -51,8 +21,10 @@ $('select[name^=columnproperty.index.]').each ( function() {
             
 	      <tr><td colspan="3"><h4>${stdentity.name}</h4></td></tr>
 		<tr>
-            <td class="header" width="25px"><input id="clearselect" type="button" value="Clear" name="clearselect">
-              <input id="fuzzymatchselect" type="button" value="Match" name="fuzzymatchselect">
+            <td class="header" width="25px">
+              <input class="buttonsmall" id="clearselect" type="button" value="Clear" name="clearselect">
+              <input class="buttonsmall" id="fuzzymatchselect" type="button" value="Match" name="fuzzymatchselect">
+              <!-- <input class="buttonsmall" id="savepropertiesbutton" type="button" value="Save" name="savepropertiesbutton"> -->
             </td>
             <g:each var="selentity" in="${importer_selectedentities}">
               <g:if test="${selentity.name.toLowerCase()==stdentity.entity.toLowerCase()}">
