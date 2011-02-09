@@ -14,8 +14,9 @@
  */
 package dbnp.studycapturing
 
-class FileController {
+import org.dbnp.gdt.FileService
 
+class FileController {
     def fileService;
 
     /**
@@ -84,6 +85,4 @@ class FileController {
             render( "" );
         }
     }
-
-
 }

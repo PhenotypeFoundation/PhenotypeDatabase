@@ -94,7 +94,7 @@ class BootStrapTemplates {
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
 		def genotypeField = new TemplateField(
-			name: 'Genotype', type: TemplateFieldType.STRING,entity: Subject,
+			name: 'Genotype', type: TemplateFieldType.ONTOLOGYTERM,entity: Subject,
 			comment: 'If present, indicate the genetic variance of the subject (e.g., mutagenized populations,knock-out/in,transgene etc)')
 		.with { if (!validate()) { errors.each { println it} } else save()}
 
