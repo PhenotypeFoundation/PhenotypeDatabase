@@ -126,3 +126,9 @@ grails.plugins.springsecurity.controllerAnnotations.staticRules = [
 	'/requestmap/**': ['ROLE_ADMIN'],
 	'/securityinfo/**': ['ROLE_ADMIN']
 ]
+
+// Temporary directory to upload files to.
+// If the directory is given relative (e.g. 'fileuploads/temp'), it is taken relative to the web-app directory
+// Otherwise, it should be given as an absolute path (e.g. '/home/user/sequences')
+// The directory should be writable by the webserver user
+uploads.uploadDir = "fileuploads"

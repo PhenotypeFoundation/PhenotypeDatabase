@@ -273,7 +273,7 @@ function fileUploadField(field_id) {
 		autoSubmit: true,
 		onChange : function(file, ext) {
 			oldFile = $('#' + field_id).val();
-			if (oldFile != '') {
+			if (oldFile != '' && oldFile != 'existing*' && oldFile != '*deleted*' ) {
 				if (!confirm('The old file is deleted when uploading a new file. Do you want to continue?')) {
 					return false;
 				}

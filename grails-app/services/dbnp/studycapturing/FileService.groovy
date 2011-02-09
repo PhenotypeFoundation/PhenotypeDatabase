@@ -14,7 +14,10 @@
  */
 package dbnp.studycapturing
 
+import java.io.File;
+
 import org.codehaus.groovy.grails.commons.ApplicationHolder
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class FileService implements Serializable {
     // ApplicationContext applicationContext
@@ -28,14 +31,35 @@ class FileService implements Serializable {
      * path to the directory, if needed
      */
     def File getUploadDir() {
-        // Find the absolute path to the fileuploads directory. This code is found on
-        // http://stackoverflow.com/questions/491067/how-to-find-the-physical-path-of-a-gsp-file-in-a-deployed-grails-application
-        //
-        // The code used in NMC-DSP didn't work, because that code only works in
-        // controllers:
-        //    grailsAttributes.getApplicationContext().getResource("/fileuploads").getFile();
-        return ApplicationHolder.application.parentContext.getResource("fileuploads").getFile()
+		// Find the file upload directory name from the configuration
+		String dir = ConfigurationHolder.config.uploads.uploadDir
+
+		if( !dir )
+			dir = "fileuploads"
+
+		return absolutePath( dir );
     }
+
+	/**
+	* Returns the absolute path for the given pathname. If the pathname is relative, it is taken relative to the web-app directory
+	* @param pathname
+	* @return
+	*/
+   private File absolutePath( String pathname ) {
+	   if( pathname == null)
+	   		return null
+
+	   // Check if this is an absolute path
+	   File f = new File( pathname );
+
+	   if( f.isAbsolute() ) {
+		   return f
+	   } else {
+		   // Find the absolute path relative to the web-app directory. This code is found on
+		   // http://stackoverflow.com/questions/491067/how-to-find-the-physical-path-of-a-gsp-file-in-a-deployed-grails-application
+		   return ApplicationHolder.application.parentContext.getResource(pathname).getFile()
+	   }
+   }
 
     /**
      * Returns as File object to a given file
