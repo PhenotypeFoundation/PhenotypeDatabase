@@ -3,7 +3,7 @@ package dbnp.query
 import dbnp.modules.*
 import org.dbnp.gdt.*
 
-// TODO: Make use of the searchable-plugin possibilities instead of querying the database directly
+// TODO: Make use of the searchable-plugin or Lucene possibilities instead of querying the database directly
 
 /**
  * Basic web interface for searching within studies
@@ -112,6 +112,13 @@ class AdvancedQueryController {
 			flash.message = "Specified search could not be found"
 			redirect( action: "index" );
 			return;
+		}
+		
+		// Attach all objects to the current hibernate thread, because the
+		// object might be attached to an old thread, since the results are
+		// saved in session
+		s.getResults().each {
+			it.attach();
 		}
 
 		// Determine which view to show
@@ -612,8 +619,14 @@ class AdvancedQueryController {
 				// Check whether the entity is present in the return value
 				if( json[ s.entity ] ) {
 					json[ s.entity ].each { action ->
-						def url = module.url + "/action/" + action.name
-						url += "?entity=" + s.entity
+						def url = action.url ?: module.url + "/action/" + action.name
+						
+						if( url.find( /\?/ ) )
+							url += "&"
+						else
+							url += "?"
+						
+						url += "entity=" + s.entity
 						url += "&" + s.filterResults(selectedIds).collect { "tokens=" + it.giveUUID() }.join( "&" )
 						actions << [
 									module: moduleName,

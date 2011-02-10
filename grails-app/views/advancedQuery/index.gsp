@@ -49,7 +49,8 @@
 	</div>
 </g:if>
 
-<form id="input_criteria">
+<div id="searchForm">
+	<form id="input_criteria">
 	<h2>Add criterium</h2>
 	<p class="explanation">
 		N.B. Comparing numerical values is done without taking into
@@ -77,15 +78,13 @@
 			<option value="&gt;">Greater than</option>
 			<option value="&lt;">Lower than</option>
 			<option value="&lt;=">Lower than or equals</option>
-		</select> 
-
+		</select>
+	
 	<label for="value">Value</label>
 		<input class='text' type="text" name="value" />
 	
 	<input class="button" type="button" onClick="addCriterium();" value="Add" />
-</form>
-
-<div id="searchForm">
+	</form>
 	<g:form action="search" method="get">
 		<label for="entity">Search for</label><g:select from="${entitiesToSearchFor}" optionKey="key" optionValue="value" name="entity" /><br />
 		<label for="entity">Searchtype</label><g:select from="${searchModes}" name="operator" /><br />
@@ -96,6 +95,8 @@
 		
 		<input type="submit" value="Run query" class="submitcriteria" disabled="disabled" />
 	</g:form>
+	
+	<br clear="all" />
 </div>
 <p class="options">
 	<g:link class="listPrevious" action="list">Previous searches</g:link>

@@ -1,10 +1,12 @@
 label { display: inline-block; zoom: 1; *display: inline; width: 110px; margin-top: 10px;  }
 
+#searchForm { position: relative; border: 1px solid #666666; padding: 5px 10px; margin: 10px 0; }
+
 #searchForm ul#criteria { margin-left: 110px; padding-left: 0px; margin-top: -19px; list-style-type: none;  }
 #searchForm ul#criteria li { margin: 2px 0; padding-left: 0; }
 #searchForm ul#criteria li span, 
 #searchForm ul#criteria li a { display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 5px; }
-#searchForm ul#criteria li .entityfield { width: 200px; }
+#searchForm ul#criteria li .entityfield { width: 180px; }
 #searchForm ul#criteria li .operator { width: 100px; }
 #searchForm ul#criteria li .value { width: 240px; }
 
@@ -14,7 +16,7 @@ label { display: inline-block; zoom: 1; *display: inline; width: 110px; margin-t
 #searchForm ul#criteria li:hover { cursor: pointer; }
 #searchForm ul#criteria li:hover span { text-decoration: line-through; }
 
-#input_criteria { display: block; float: right; width: 260px; border: 1px solid #666; padding: 10px; }
+#input_criteria { display: block; float: right; width: 260px; border-left: 1px solid #666; padding: 10px; position: relative; height: 100%; }
 #input_criteria h2 { margin-top: 2px; margin-bottom: 8px; font-weight: bold; }
 #input_criteria label { width: 80px; margin-top: 8px; }
 #input_criteria input.text, #input_criteria select { width: 165px; }
@@ -23,17 +25,26 @@ label { display: inline-block; zoom: 1; *display: inline; width: 110px; margin-t
 
 .ui-menu-item .entity { color: #666; font-style: italic; }
 
-.options { float: left; width: 300px; }
+.searchoptions { font-size: 10px; margin-bottom: 3px; }
+.searchoptions label { margin-top: 4px; }
+.searchoptions ul#criteria { list-style-type: none; margin-left: 0; padding-left: 0; display: inline; }
+.searchoptions ul#criteria li { margin-left: 0; padding-left: 0; display: inline; }
+
+/** Options buttons **/
+.options { margin-top: 8px; }
+.options.multiple { float: left; width: 300px; }
+
 .options a {
 	font-size: 10px;
 	font-weight: bold;
-	margin-left: 3px;
-	margin-right: 3px;
+	margin-right: 10px;
 	padding-top: 2px;
 	padding-bottom: 2px;
 	line-height: 20px;
 	padding-left: 28px;	
 }
+
+#content .options a.disabled { color: #aaa; cursor: default; }
 
 .options a.performAction {
 	background: transparent url(../plugins/famfamfam-1.0.1/images/icons/brick_go.png) 5px 50% no-repeat;

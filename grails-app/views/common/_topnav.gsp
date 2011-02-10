@@ -47,6 +47,7 @@
 			<li><g:link controller="publication" action="create">Add publication</g:link></li>
 		</ul>
 	</li>
+	<li><g:link controller="advancedQuery">Query</g:link></li>
 	<sec:ifAllGranted roles="ROLE_ADMIN">
 		<li>
 			<a href="#"><img src="${fam.icon(name: 'user')}" alt="user administration"/></a>

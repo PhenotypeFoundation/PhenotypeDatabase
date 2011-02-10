@@ -2,7 +2,7 @@
 <ul id="criteria">
 	<g:each in="${criteria}" var="criterion" status="j">
 		<li>
-			<span class="entityfield">${criterion.entityField()}</span>
+			<span class="entityfield">${criterion.entityField().toLowerCase()}</span>
 			<span class="operator">${criterion.operator}</span>
 			<span class="value">
 				<g:if test="${criterion.value != null && criterion.value instanceof Search}">

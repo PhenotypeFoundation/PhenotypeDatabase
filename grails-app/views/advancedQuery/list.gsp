@@ -71,8 +71,8 @@
 				</td>
 				<td>${search.getNumResults()}</td>
 				<td><g:formatDate date="${search.executionDate}" format="HH:mm" /></td>
-				<td><g:link action="show" id="${search.id}">Show</g:link>
-				<td><g:link action="discard" id="${search.id}">Discard</g:link>
+				<td><g:link action="show" id="${search.id}"><img border="0" src="${fam.icon(name: 'application_form_magnify')}" alt="Show" /></g:link>
+				<td><g:link action="discard" id="${search.id}"><img border="0" src="${fam.icon(name: 'basket_remove')}" alt="Discard" /></g:link>
 			</tr>
 		</g:each>
 	</table>
@@ -80,11 +80,11 @@
 </g:if>
 
 <p class="options">
-	<a href="#" class="combine" onClick="combineResults( $( '#searchform' ) ); return false;">Combine results</a><br />
-	<a href="#" class="searchIn" onClick="searchWithinResults( $( '#searchform' ) ); return false;">Search within results</a><br />
-	<g:link class="search" action="index">Search again</g:link><br />
-	<a href="#" class="discard" onClick="discardResults( $( '#searchform' ) ); return false;">Discard results</a><br />
+	<a href="#" class="combine" onClick="combineResults( $( '#searchform' ) ); return false;">Combine results</a>
+	<a href="#" class="searchIn" onClick="searchWithinResults( $( '#searchform' ) ); return false;">Search within results</a>
+	<g:link class="search" action="index">Search again</g:link>
+	<a href="#" class="discard" onClick="discardResults( $( '#searchform' ) ); return false;">Discard results</a>
 </p>
-
+<br clear="all" />
 </body>
 </html>

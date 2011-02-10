@@ -10,14 +10,10 @@
 
 <h1>Query results</h1>
 
-<p>
-	Your search for:
-</p>
-<g:render template="criteria" model="[criteria: search.getCriteria()]" />
-<p> 
-	resulted in ${search.getNumResults()} results.
-</p>
-
+<div class="searchoptions">
+	${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">result</g:if><g:else>results</g:else> found with 
+	<g:render template="criteria" model="[criteria: search.getCriteria()]" />
+</div>
 <g:if test="${search.getNumResults() > 0}">
 	<% 
 		def resultFields = search.getShowableResultFields();

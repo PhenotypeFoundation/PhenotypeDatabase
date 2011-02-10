@@ -74,6 +74,7 @@ div.dataTables_wrapper .ui-widget-header {
 	font-weight: normal;
 }
 
+.dataTables_wrapper { font-size: 10px; }
 
 /*
  * Sort arrow icon positioning

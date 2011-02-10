@@ -418,14 +418,25 @@ class RestController {
  	 * 
  	 * Example 3: two sampleTokens given.
 	 * Query: 
-	 * http://localhost:8080/gscf/rest/getSamples/query?assayToken=PPSH-Glu-A&sampleToken=5_A
+	 * http://localhost:8080/gscf/rest/getSamples/query?assayToken=PPSH-Glu-A&sampleToken=5_A&sampleToken=6_A
  	 * 
  	 * Result: 
 	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 *  {"sampleToken":"6_A","material":"blood plasma","subject":"6","event":"Blood extraction","startTime":"4 days, 6 hours"}]
+	 *
+	 *
+ 	 * Example 4: no assaytoken given
+	 * Query: 
+	 * http://localhost:8080/gscf/rest/getSamples/query?sampleToken=5_A&sampleToken=6_A
+ 	 * 
+ 	 * Result: 
+	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 *  {"sampleToken":"6_A","material":"blood plasma","subject":"6","event":"Blood extraction","startTime":"4 days, 6 hours"}]
+	 *
 	 */
 	def getSamples = {
 		def items = []
+		def samples
 		if( params.assayToken ) {
  			def assay = Assay.findByAssayUUID( params.assayToken );
 
@@ -436,70 +447,72 @@ class RestController {
 					return false
 				}
 				
-				def samples = assay.getSamples() // on all samples
-
-				if( params.sampleToken ) {       // or on a subset of samples?
-					def sampleTokens = (params.sampleToken instanceof String) ? 
-						[params.sampleToken] : params.sampleToken
-					samples = []
-					sampleTokens.each{ sampleToken ->
-						samples.addAll(assay.getSamples().find{ sample -> sampleToken == sample.giveUUID() }) 
-					}
-				}
-
-				samples.each { sample ->
-
-					def item = [ 
-						'sampleToken' : sample.giveUUID(),
-						'material'	  : sample.material?.name,
-						'subject'	  : sample.parentSubject?.name,
-						'event'		  : sample.parentEvent?.template?.name,
-						'startTime'	  : sample.parentEvent?.getStartTimeString()
-					]
-
-					sample.giveFields().each { field ->
-						def name = field.name
-						def value = sample.getFieldValue( name )
-						if(name!='material')
-						{
-							item[name]=value
-						}
-					}
-
-					if(sample.parentEvent) {
-						def parentEvent = sample.parentEvent
-						def eventHash = [:]
-						parentEvent.giveFields().each { field ->
-							def name = field.name
-							if( name !='sampleTemplate' && name != 'fields') {
-								def value = parentEvent.getFieldValue( name )
-								eventHash[name]=value
-							}
-						}
-						item['eventObject'] = eventHash 
-					}
-
-					if(sample.parentSubject) {
-						def parentSubject = sample.parentSubject
-						def subject = [:]
-						parentSubject.giveFields().each { field ->
-							def name = field.name
-							if( name!='fields') {
-								def value = parentSubject.getFieldValue( name )
-								subject[name]=value
-							}
-						}
-						item['subjectObject'] = subject 
-					}
-
-					items.push item 
-				}
+				samples = assay.getSamples() // on all samples
 			} else {
 				// Assay not found
 				response.sendError(404)
 				return false
 			}
- 		}
+		} else {
+			// Find all samples from studies the user can read
+			def studies = Study.list().findAll { it.canRead( AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ) ) };
+			samples = studies*.getSamples().flatten();
+		}
+		
+		// Check whether only a subset of samples should be returned
+		if( params.sampleToken ) {
+			def sampleTokens = params.list( "sampleToken" );
+			samples = samples.findAll { sampleTokens.contains( it.giveUUID() ) } 
+		}
+
+		samples.each { sample ->
+
+			def item = [ 
+				'sampleToken' : sample.giveUUID(),
+				'material'	  : sample.material?.name,
+				'subject'	  : sample.parentSubject?.name,
+				'event'		  : sample.parentEvent?.template?.name,
+				'startTime'	  : sample.parentEvent?.getStartTimeString()
+			]
+
+			sample.giveFields().each { field ->
+				def name = field.name
+				def value = sample.getFieldValue( name )
+				if(name!='material')
+				{
+					item[name]=value
+				}
+			}
+
+			if(sample.parentEvent) {
+				def parentEvent = sample.parentEvent
+				def eventHash = [:]
+				parentEvent.giveFields().each { field ->
+					def name = field.name
+					if( name !='sampleTemplate' && name != 'fields') {
+						def value = parentEvent.getFieldValue( name )
+						eventHash[name]=value
+					}
+				}
+				item['eventObject'] = eventHash 
+			}
+
+			if(sample.parentSubject) {
+				def parentSubject = sample.parentSubject
+				def subject = [:]
+				parentSubject.giveFields().each { field ->
+					def name = field.name
+					if( name!='fields') {
+						def value = parentSubject.getFieldValue( name )
+						subject[name]=value
+					}
+				}
+				item['subjectObject'] = subject 
+			}
+
+			items.push item 
+		}
+
 		render items as JSON
 	}
 
