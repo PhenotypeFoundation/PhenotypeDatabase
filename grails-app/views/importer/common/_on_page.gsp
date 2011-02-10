@@ -48,29 +48,42 @@
             refreshFlow()
           });
 
-          $('#savepropertiesbutton').click(function() {            
-            var width = 800
-            var height = 400
+          $('#savepropertiesbutton').click(function() {
+            var width = 500
+            var height = 200
+            var vars = ""
+
+            $("#savemapping").toggle("scale")
+
+            if ($("#mappingname").val()) refreshFlow();
 
             // get all properties
             //$('select[name^=columnproperty.index.]').each ( function() {
-            //}
+            //}           
             
-            $('<iframe frameborder="0" src="' + baseUrl + "/importer/propertiesManager" + '" sanbox="allow-same-origin" seamless />').dialog({
-                    title       : "Properties manager",                    
-                    autoOpen    : true,                
+            /*$('#propertiesManager').dialog({
+                    title       : "Properties manager",
+                    autoOpen    : true,
                     width       : width,
+                    vars        : vars,
                     height      : height,
                     modal       : true,
                     position    : 'center',
                     buttons     : {
-                                    Close  : function() { $(this).dialog('close'); }
+                                    Save  : function() {
+                                                          //alert($(this).parent().$('input[name="mappingname"]').val())
+                                                          alert($(this))
+                                                          var p = $(this).parent().parent().parent()
+                                                          console.log(p.('input[name="mappingname"]').val())
+                                                          //alert(vars)
+                                                          $(this).dialog('close'); }
                                   },
                     close       : function() {
                                     //onClose(this);
                                     refreshFlow()
                                   }
                 }).width(width - 10).height(height)
+              */
 
           });
 
@@ -164,4 +177,3 @@
 	}
 
 </script>
-

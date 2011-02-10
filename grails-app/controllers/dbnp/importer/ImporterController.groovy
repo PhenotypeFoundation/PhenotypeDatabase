@@ -151,7 +151,11 @@ class ImporterController {
 				success()
 			}
             on("refresh") {
-                if (params.savepropertymapping) println "saved properties"
+                // a name was given to the current property mapping, try to store it
+                if (params.mappingname) {
+                    flash['mappingname'] = params.mappingname
+                    propertiesSaveImportMappingPage(flow, flash, params)
+                }
                 flow.importer_fuzzymatching="true"
 				success()
 			}.to "pageTwo"
@@ -364,6 +368,45 @@ class ImporterController {
         this.appendErrorMap(['error': "Not all fields are filled in, please fill in or select all fields"], flash.wizardErrors)
         return false
 	}
+
+    /**
+     * Save the properties as an import mapping.
+     *
+     * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean true if correctly validated, otherwise false
+	 */
+    boolean propertiesSaveImportMappingPage(flow, flash, params) {
+        flash.wizardErrors = [:]
+
+		// Find actual Template object from the chosen template name
+		def template = Template.get(flow.importer_template_id)
+        //def im = new ImportMapping(name:params.mappingname).save()
+
+		params.columnproperty.index.each { columnindex, property ->
+			// Create an actual class instance of the selected entity with the selected template
+			// This should be inside the closure because in some cases in the advanced importer, the fields can have different target entities
+			def entityClass = Class.forName(flow.importer_header[columnindex.toInteger()].entity.getName(), true, this.getClass().getClassLoader())
+			def entityObj = entityClass.newInstance(template: template)
+            def dontimport = (property == "dontimport") ? true : false
+
+            def mc = new MappingColumn (property:property, templatefieldtype:entityObj.giveFieldType(property), dontimport: dontimport )
+
+			// Store the selected property for this column into the column map for the ImporterService
+			/*flow.importer_header[columnindex.toInteger()].property = property
+
+			// Look up the template field type of the target TemplateField and store it also in the map
+			flow.importer_header[columnindex.toInteger()].templatefieldtype = entityObj.giveFieldType(property)
+
+			// Is a "Don't import" property assigned to the column?
+			flow.importer_header[columnindex.toInteger()].dontimport = (property == "dontimport") ? true : false
+
+			//if it's an identifier set the mapping column true or false
+			entityObj.giveFields().each {
+				(it.preferredIdentifier && (it.name == property)) ? flow.importer_header[columnindex.toInteger()].identifier = true : false
+			}*/
+		}
+    }
 
 	/**
 	 * Handle the property mapping page.
