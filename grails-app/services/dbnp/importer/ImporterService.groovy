@@ -40,7 +40,7 @@ class ImporterService {
 		def sheet = wb.getSheetAt(sheetindex)
 		def sheetrow = sheet.getRow(datamatrix_start)
 		//def header = []
-		def header = [:]
+		def header = []
 		def df = new DataFormatter()
 		def property = new String()
 

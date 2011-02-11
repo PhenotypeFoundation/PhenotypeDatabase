@@ -3,7 +3,7 @@ import org.dbnp.gdt.*
 
 class ImportMapping implements Serializable {
 
-	static hasMany = [columns: MappingColumn]    
+	static hasMany = [mappingcolumns: MappingColumn]
     Template template
     Class entity
 	String name

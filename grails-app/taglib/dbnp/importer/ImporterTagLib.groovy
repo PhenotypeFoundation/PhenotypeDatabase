@@ -83,9 +83,9 @@ class ImporterTagLib {
 	 */
 	def properties = { attrs ->
 		def header = attrs['header']
-		def entities = attrs['entities']
+		def entities = attrs['entities']        
 
-		out << render(template: "common/properties_horizontal")
+		out << render(template: "common/properties_horizontal", model: [header:header])
 	}
 
 	/**
@@ -94,6 +94,7 @@ class ImporterTagLib {
 	 * @param name name for the property chooser element
 	 * @param importtemplate_id template identifier where fields are retrieved from
 	 * @param matchvalue value which will be looked up via fuzzy matching against the list of options and will be selected
+     * @param selected value to be selected by default
 	 * @param MappingColumn object containing all required information
      * @param fuzzymatching boolean true if fuzzy matching should be used, otherwise false
 	 * @param allfieldtypes boolean true if all templatefields should be listed, otherwise only show filtered templatefields
@@ -107,6 +108,7 @@ class ImporterTagLib {
 		def mc = attrs['mappingcolumn']
 		def allfieldtypes = attrs['allfieldtypes']		
         def matchvalue = (attrs['fuzzymatching']=="true") ? attrs['matchvalue'] : ""
+        def selected = (attrs['selected']) ? attrs['selected'] : ""
 
         def domainfields = mc.entity.giveDomainFields().findAll { it.type == mc.templatefieldtype }
 		domainfields = domainfields.findAll { it.preferredIdentifier != mc.identifier}
@@ -122,7 +124,7 @@ class ImporterTagLib {
 
 		/*(mc.identifier) ? out << createPropertySelect(attrs['name'], prefcolumn, matchvalue, mc.index) :
 			out << createPropertySelect(attrs['name'], templatefields, matchvalue, mc.index)*/
-         out << createPropertySelect(attrs['name'], templatefields, matchvalue, mc.index)
+         out << createPropertySelect(attrs['name'], templatefields, matchvalue, selected, mc.index)
 	}
 
 	/**
@@ -134,7 +136,7 @@ class ImporterTagLib {
 	 * @param columnIndex column identifier (corresponding to position in header of the Excel sheet)
 	 * @return HTML select object
 	 */
-	def createPropertySelect(String name, options, matchvalue, Integer columnIndex) {
+	def createPropertySelect(String name, options, matchvalue, selected, Integer columnIndex) {
 		// Determine which field in the options list matches the best with the matchvalue
 		def mostsimilar = (matchvalue) ? ImporterService.mostSimilar(matchvalue, options) : ""
 
@@ -145,10 +147,11 @@ class ImporterTagLib {
 		options.each { f ->
 			res += "<option value=\"${f.name}\""
 
-			res += (mostsimilar.toString().toLowerCase() == f.name.toLowerCase()) ?
+			// mostsimilar string passed as argument or selected value passed?
+            res += (mostsimilar.toString().toLowerCase() == f.name.toLowerCase() || selected.toLowerCase() == f.name.toLowerCase() ) ?
 				" selected>" :
 				">"
-
+            
 			res += (f.preferredIdentifier) ?
 				"${f.name} (IDENTIFIER)</option>" :
 				"${f.name}</option>"

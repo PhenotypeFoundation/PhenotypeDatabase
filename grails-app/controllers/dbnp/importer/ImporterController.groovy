@@ -147,17 +147,25 @@ class ImporterController {
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_page_two.gsp".grom()
 
+                flow.importer_importmappings = ImportMapping.list()
+
 				flow.page = 2
 				success()
 			}
             on("refresh") {
+                flow.importer_importmappings = ImportMapping.list()
+
                 // a name was given to the current property mapping, try to store it
                 if (params.mappingname) {
-                    flash['mappingname'] = params.mappingname
-                    propertiesSaveImportMappingPage(flow, flash, params)
+                    flash.importer_columnproperty = params.columnproperty
+                    propertiesSaveImportMappingPage(flow, flash, params)                    
                 }
-                flow.importer_fuzzymatching="true"
-				success()
+                
+                if (params.fuzzymatching == "true")
+                    flow.importer_fuzzymatching="true" else
+                    flow.importer_fuzzymatching="false"
+
+                success()
 			}.to "pageTwo"
 
 			on("next") {
@@ -337,6 +345,7 @@ class ImporterController {
 			flow.importer_sheetindex = params.sheetindex.toInteger() - 1 // 0 == first sheet
 			flow.importer_datamatrix_start = params.datamatrix_start.toInteger() - 1 // 0 == first row
 			flow.importer_headerrow = params.headerrow.toInteger()
+            flow.importer_entityclass = entityClass.getClass()
 
 			// Get the header from the Excel file using the arguments given in the first step of the wizard
 			flow.importer_header = ImporterService.getHeader(session.importer_workbook,
@@ -344,13 +353,6 @@ class ImporterController {
 				flow.importer_headerrow,
 				flow.importer_datamatrix_start,
 				entityClass)
-
-			// Initialize 'selected entities', used to show entities above the columns
-			flow.importer_header.each {
-				selectedentities.add([name: entityName, columnindex: it.key.toInteger()])
-			}
-
-			flow.importer_selectedentities = selectedentities
 
 			session.importer_datamatrix = ImporterService.getDatamatrix(
 				session.importer_workbook, flow.importer_header,
@@ -378,33 +380,39 @@ class ImporterController {
 	 */
     boolean propertiesSaveImportMappingPage(flow, flash, params) {
         flash.wizardErrors = [:]
+        def isPreferredIdentifier = false
 
 		// Find actual Template object from the chosen template name
 		def template = Template.get(flow.importer_template_id)
-        //def im = new ImportMapping(name:params.mappingname).save()
+        
+        // Create new ImportMapping instance and persist it
+        def im = new ImportMapping(name:params.mappingname, entity: flow.importer_entityclass, template:template).save()
+        
 
 		params.columnproperty.index.each { columnindex, property ->
 			// Create an actual class instance of the selected entity with the selected template
-			// This should be inside the closure because in some cases in the advanced importer, the fields can have different target entities
-			def entityClass = Class.forName(flow.importer_header[columnindex.toInteger()].entity.getName(), true, this.getClass().getClassLoader())
-			def entityObj = entityClass.newInstance(template: template)
+			// This should be inside the closure because in some cases in the advanced importer, the fields can have different target entities			
+			def entityClass = GdtService.getInstanceByEntityName(flow.importer_header[columnindex.toInteger()].entity.getName())
+            def entityObj = entityClass.newInstance(template:template)
+
             def dontimport = (property == "dontimport") ? true : false
 
-            def mc = new MappingColumn (property:property, templatefieldtype:entityObj.giveFieldType(property), dontimport: dontimport )
+            // Loop through all fields and find the preferred identifier
+            entityObj.giveFields().each {                
+				isPreferredIdentifier = (it.preferredIdentifier && (it.name == property)) ? true : false
+			}
 
-			// Store the selected property for this column into the column map for the ImporterService
-			/*flow.importer_header[columnindex.toInteger()].property = property
+            // Create new MappingColumn instance
+            /*def mc = new MappingColumn (name: flow.importer_header[columnindex.toInteger()].name,
+                                        property:property,
+                                        index:columnindex,
+                                        entity:entityClass,
+                                        templatefieldtype:entityObj.giveFieldType(property),
+                                        dontimport: dontimport,
+                                        identifier:isPreferredIdentifier)
 
-			// Look up the template field type of the target TemplateField and store it also in the map
-			flow.importer_header[columnindex.toInteger()].templatefieldtype = entityObj.giveFieldType(property)
-
-			// Is a "Don't import" property assigned to the column?
-			flow.importer_header[columnindex.toInteger()].dontimport = (property == "dontimport") ? true : false
-
-			//if it's an identifier set the mapping column true or false
-			entityObj.giveFields().each {
-				(it.preferredIdentifier && (it.name == property)) ? flow.importer_header[columnindex.toInteger()].identifier = true : false
-			}*/
+            println "storing mapping: " + mc.validate()
+            im.addToMappingColumns(mc)*/
 		}
     }
 

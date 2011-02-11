@@ -45,9 +45,16 @@
 
          // attach event to apply fuzzy matching
          $('#fuzzymatchselect').click(function() {
+            $("#fuzzymatching").val("true")
             refreshFlow()
           });
 
+          // open load box
+          $('#loadpropertiesbutton').click(function() {
+            $("#loadmapping").toggle("scale")
+          });
+
+          // open save box
           $('#savepropertiesbutton').click(function() {
             var width = 500
             var height = 200
