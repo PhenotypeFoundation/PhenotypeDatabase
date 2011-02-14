@@ -2,6 +2,7 @@ package dbnp.query
 
 import dbnp.authentication.SecUser
 import dbnp.studycapturing.*
+import dbnp.configuration.*
 
 /**
  * SearchTests Test
@@ -115,7 +116,10 @@ class SampleSearchTests extends GroovyTestCase {
 //		Session session = SessionFactoryUtils.getSession(sessionFactory, true)
 //		session.flush();
 //		session.clear();
-
+		
+		BootStrapTemplates.initTemplateOntologies();
+		BootStrapTemplates.initTemplates()
+		BootStrapStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
     }
 
     protected void tearDown() {

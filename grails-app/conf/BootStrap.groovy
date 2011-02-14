@@ -1,3 +1,5 @@
+
+
 import dbnp.authentication.SecRole
 import dbnp.authentication.SecUser
 import org.codehaus.groovy.grails.commons.GrailsApplication
@@ -8,6 +10,7 @@ import dbnp.studycapturing.Subject
 import dbnp.studycapturing.Sample
 import dbnp.rest.common.CommunicationManager
 import org.codehaus.groovy.grails.commons.*
+import dbnp.configuration.*
 
 /**
  * Application Bootstrapper

@@ -7,6 +7,8 @@
  * $Author$
  * $Date$
  */
+package dbnp.configuration
+
 
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*

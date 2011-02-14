@@ -75,7 +75,9 @@ class SampleSearch extends Search {
 		// cost much time to process.
 		def samples = []
 		if( getEntityCriteria( 'Study' ).size() > 0 ) {
-			def studies = Study.findAll().findAll { it.canRead( this.user ) };
+			def studies = Study.list()
+			if( studies )
+				studies = studies.findAll { it.canRead( this.user ) };
 
 			studies = filterStudiesOnStudyCriteria( studies );
 
@@ -97,7 +99,9 @@ class SampleSearch extends Search {
 				return criterion.getFieldValue( sample.parent );
 			});
 		} else {
-			samples = Sample.findAll().findAll { it.parent?.canRead( this.user ) }
+			samples = Sample.list()
+			if( samples )
+				samples = samples.findAll { it.parent?.canRead( this.user ) }
 		}
 
 		samples = filterOnSubjectCriteria( samples );
