@@ -24,6 +24,7 @@ class ExportService
     static transactional = true
     static scope = "session"
 
+
     def grailsApplication
     /**
      *  List of classes that recursion does not go further into when building an XML  
@@ -31,7 +32,8 @@ class ExportService
 	 *  
 	 *  @see #getRelatedObjects().
      */ 
-	def static IgnoredClasses = [ String, long, Date, Boolean, Publication, SecUser ]
+	def static IgnoredClasses = [ String, long, Date, Boolean, SecUser, Publication, SecUser ]
+
 
     /**
      *  List of classes that recursion does not go further into when building an XML  
@@ -42,7 +44,6 @@ class ExportService
 	def static TerminalClasses = [ AssayModule, Identity, Ontology, PersonAffiliation, 
 			PersonRole, Template, TemplateField, 
 			TemplateFieldListItem, TemplateFieldType, Term ] 
-
 
 
 	/** 
@@ -59,7 +60,6 @@ class ExportService
 	def getDependentObjects( Study study ) {
 		return getRelatedObjects( study )
 	}
-
 
 
 	/** 
@@ -96,6 +96,14 @@ class ExportService
 			return objects 
 		}
 
+		if( domainClass.toString()==~/class dbnp.authentication.SecUser.+/ || 
+		    domainClass.toString()==~/class dbnp.studycapturing.Publication.+/ ) {
+			println "${domainClass} -- ${domainObject}"
+			return objects 
+		}
+
+
+
 		if( TerminalClasses.contains(domainClass) )  {
 			return [domainObject]
 		}
@@ -121,7 +129,6 @@ class ExportService
 		}
 		return objects.unique()
 	}
-
 
 
 	/** 
