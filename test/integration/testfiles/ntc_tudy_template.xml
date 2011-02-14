@@ -1,0 +1,484 @@
+<?xml version="1.0"?>
+<templates xmlns="gscf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="gscf http://www.nmcdsp.org/xml/template.xsd" count="1">
+  
+	<template>
+		<name>NTC Study</name>
+		<description>This template is meant for all studies performed in NTC.</description>
+		<entity>dbnp.studycapturing.Study</entity>
+
+		<templateFields>
+		  
+			<templateField>
+				<name>PrimaryContact</name>
+				<type>STRINGLIST</type>
+				<unit></unit>
+				<comment>Name of NTC member that will function as primary contact (e.g. biologist that performed the experiment)</comment>
+				<required>true</required>
+				<preferredIdentifier>false</preferredIdentifier>
+
+				
+				
+				  <listItems>
+					
+					  <listItem>
+						  <name>Ad Peijnenburg</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Ahmed Osman</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Ainhoa Ruiz - Aracama</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Alex Pines</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Anke van Summeren</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Anna Beker - van Woudenberg</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Anne Kienhuis</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Arjen Lommen</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Bert van der Horst</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Branko Misovic</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Charly John</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Daneida Lizarraga - Lopez</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Di Zi</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Dimitris Typas</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Edwin Mariman</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Eero Mella-Aho</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Erik Danen</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Eugene van Someren</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Ewa Szalowska</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Fabienne Calleja</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Filippo Tamanini</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Giel Hendriks</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Giulia Benedetti</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Harrie Kools</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Harry van Steeg</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Harry Vrieling</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Janine Ezendam</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Jeroen Pennings</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Jeroen Rijk</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Jia Shao</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Jochem van der Veen</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Johan Renes</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>John Meerman</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Joost van Delft</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Joris Pothof</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Josh Robinson</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Kasper Derks</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Kees Tensen</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>L von Stechow</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Leo Price</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Leo van der Ven</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Linda Rieswijk</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Mariam Alloul-Ramdhani</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Marja Driessen</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Martijs Jonker</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Mirjam Luijten</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Mirjam Schaap</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Nadya Velikova</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Oscar Volger</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Paul Wackers</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Peter Schmeits</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Philomeen Nilsson</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Ram Sidappa</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Rob Schlooz</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Rob Stierum</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Romana Nijman</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>S Ramaiahgari</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>S Saito</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Sanne Hermsen</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Si Wang</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Sjors Schulpen</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Stan Gaj</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Tessa Pronk</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Willem Schoonen</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Wim van den Hof</name>
+					  </listItem>
+					
+				  </listItems>
+				
+			</templateField>
+		  
+			<templateField>
+				<name>Institution</name>
+				<type>STRINGLIST</type>
+				<unit></unit>
+				<comment>Name of the institution that performed the experiment</comment>
+				<required>true</required>
+				<preferredIdentifier>false</preferredIdentifier>
+
+				
+				
+				  <listItems>
+					
+					  <listItem>
+						  <name>EMC</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>LUMC</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>RIKILT</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>RIVM</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>TNO</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>UM</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>LACDR</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>CBS_DUT</name>
+					  </listItem>
+					
+				  </listItems>
+				
+			</templateField>
+		  
+			<templateField>
+				<name>StudyID</name>
+				<type>STRING</type>
+				<unit></unit>
+				<comment>WP+&lt;subWPnrdotinsteadof.&gt;+E+&lt;expnr&gt;, e.g. WP5dot1E1</comment>
+				<required>true</required>
+				<preferredIdentifier>false</preferredIdentifier>
+
+				
+				
+			</templateField>
+		  
+			<templateField>
+				<name>StudyTitle</name>
+				<type>STRING</type>
+				<unit></unit>
+				<comment>Short description of study</comment>
+				<required>true</required>
+				<preferredIdentifier>false</preferredIdentifier>
+
+				
+				
+			</templateField>
+		  
+			<templateField>
+				<name>StudyMainSpecies</name>
+				<type>ONTOLOGYTERM</type>
+				<unit></unit>
+				<comment>Main species used in the study  (also try for in vitro and when mixing species)</comment>
+				<required>true</required>
+				<preferredIdentifier>false</preferredIdentifier>
+
+				
+				  <ontologies>
+					
+					  <ontology>
+						  <ncboId>1132</ncboId>
+						  <ncboVersionedId>38802</ncboVersionedId>
+						  <name>NCBI organismal classification</name>
+						  <description>A taxonomic classification of living organisms and associated artifacts for their controlled description within the context of databases.</description>
+						  <url>http://bioportal.bioontology.org/ontologies/38802</url>
+						  <versionNumber>1.2</versionNumber>
+					  </ontology>
+					
+				  </ontologies>
+				
+				
+			</templateField>
+		  
+			<templateField>
+				<name>StudyMainSource</name>
+				<type>ONTOLOGYTERM</type>
+				<unit></unit>
+				<comment>Give name of cells for in vitro (e.g. cell line) or body part for in vivo (e.g. organ or tissue)</comment>
+				<required>true</required>
+				<preferredIdentifier>false</preferredIdentifier>
+
+				
+				  <ontologies>
+					
+					  <ontology>
+						  <ncboId>1005</ncboId>
+						  <ncboVersionedId>40643</ncboVersionedId>
+						  <name>BRENDA tissue / enzyme source</name>
+						  <description>A structured controlled vocabulary for the source of an enzyme. It comprises terms for tissues, cell lines, cell types and cell cultures from uni- and multicellular organisms.</description>
+						  <url>http://bioportal.bioontology.org/ontologies/40643</url>
+						  <versionNumber>1.3</versionNumber>
+					  </ontology>
+					
+				  </ontologies>
+				
+				
+			</templateField>
+		  
+			<templateField>
+				<name>StudyType</name>
+				<type>STRINGLIST</type>
+				<unit></unit>
+				<comment>Description of the type of study</comment>
+				<required>true</required>
+				<preferredIdentifier>false</preferredIdentifier>
+
+				
+				
+				  <listItems>
+					
+					  <listItem>
+						  <name>Single Dose Toxicity</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Repeat Dose Toxicity</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Cell-based Study</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>Timecourse Study</name>
+					  </listItem>
+					
+				  </listItems>
+				
+			</templateField>
+		  
+			<templateField>
+				<name>AssayType</name>
+				<type>STRINGLIST</type>
+				<unit></unit>
+				<comment>Description of the type of assay (in vivo, in vitro or ex vivo)</comment>
+				<required>true</required>
+				<preferredIdentifier>false</preferredIdentifier>
+
+				
+				
+				  <listItems>
+					
+					  <listItem>
+						  <name>in vivo</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>in vitro</name>
+					  </listItem>
+					
+					  <listItem>
+						  <name>ex vivo</name>
+					  </listItem>
+					
+				  </listItems>
+				
+			</templateField>
+		  
+			<templateField>
+				<name>SubmissionDate</name>
+				<type>DATE</type>
+				<unit></unit>
+				<comment>Date of first submission of study info</comment>
+				<required>true</required>
+				<preferredIdentifier>false</preferredIdentifier>
+
+				
+				
+			</templateField>
+		  
+		</templateFields>
+	</template>
+  
+</templates>
