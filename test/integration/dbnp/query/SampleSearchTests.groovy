@@ -1,5 +1,6 @@
 package dbnp.query
 
+import dbnp.authentication.SecUser
 import dbnp.studycapturing.*
 
 /**
@@ -131,6 +132,9 @@ class SampleSearchTests extends GroovyTestCase {
 		
 		def search = new SampleSearch();
 
+		// Make sure the 'user' is logged in
+		search.user = SecUser.findByUsername('user');
+		
 		search.setCriteria( [ criteria[0] ] );
 		search.execute();
 		assert search.getResults().size() >= 2
@@ -166,6 +170,9 @@ class SampleSearchTests extends GroovyTestCase {
 		
 		def search = new SampleSearch();
 
+		// Make sure the 'user' is logged in
+		search.user = SecUser.findByUsername('user');
+
 		// All criteria should result in 1 sample with code 'abc'
 		criteria.each {
 			println "Criterion " + it
@@ -192,6 +199,9 @@ class SampleSearchTests extends GroovyTestCase {
 		
 		def search = new SampleSearch();
 
+		// Make sure the 'user' is logged in
+		search.user = SecUser.findByUsername('user');
+		
 		// All criteria should result in 1 study with code 'abc'
 		criteria.each {
 			println "Criterion " + it
