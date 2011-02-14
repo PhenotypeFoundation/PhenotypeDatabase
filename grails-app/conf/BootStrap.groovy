@@ -80,7 +80,7 @@ class BootStrap {
 			if (!Template.count()) BootStrapTemplates.initTemplates()
 
 			// add example studies?
-			if (!Study.count() && grails.util.GrailsUtil.environment != "demo") BootStrapStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
+			if (!Study.count() && grails.util.GrailsUtil.environment != "demo" && grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST) BootStrapStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
 		}
 
 		/**
