@@ -33,7 +33,7 @@ class ModuleCommunicationService implements Serializable {
 	/**
 	 * Number of seconds to save the data in cache
 	 */
-	def numberOfSecondsInCache = Integer.valueOf( ConfigurationHolder.config.modules.cacheDuration )
+	def numberOfSecondsInCache = ConfigurationHolder.config.modules.cacheDuration ? Integer.valueOf( ConfigurationHolder.config.modules.cacheDuration.toString() ) : 300;
 
 	/**
 	 * Sends a notification to assay modules that some part of a study has changed.
