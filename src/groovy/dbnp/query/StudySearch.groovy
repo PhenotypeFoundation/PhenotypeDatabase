@@ -14,6 +14,8 @@
  */
 package dbnp.query
 
+import groovy.lang.Closure;
+
 import java.util.List;
 import java.util.Map;
 
@@ -143,68 +145,36 @@ class StudySearch extends Search {
 	}
 
 	/**
-	 * Filters the given list of studies on the study criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the Study criteria
-	 */
-	protected List filterOnStudyCriteria( List studies ) {
-		return filterOnTemplateEntityCriteria(studies, "Study", { study, criterion -> return criterion.getFieldValue( study ) })
-	}
-
-	/**
-	 * Filters the given list of studies on the subject criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the Subject-criteria
-	 */
-	protected List filterOnSubjectCriteria( List studies ) {
-		return filterOnTemplateEntityCriteria(studies, "Subject", { study, criterion ->
-			return study.subjects?.collect { criterion.getFieldValue( it ); }
-		})
-	}
-
-	/**
-	 * Filters the given list of studies on the sample criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the sample-criteria
-	 */
-	protected List filterOnSampleCriteria( List studies ) {
-		return filterOnTemplateEntityCriteria(studies, "Sample", { study, criterion ->
-			return study.samples?.collect { criterion.getFieldValue( it ); }
-		})
-	}
-
-	/**
-	 * Filters the given list of studies on the event criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the event-criteria
-	 */
-	protected List filterOnEventCriteria( List studies ) {
-		return filterOnTemplateEntityCriteria(studies, "Event", { study, criterion ->
-			return study.events?.collect { criterion.getFieldValue( it ); }
-		})
-	}
-
-	/**
-	 * Filters the given list of studies on the sampling event criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the event-criteria
-	 */
-	protected List filterOnSamplingEventCriteria( List studies ) {
-		return filterOnTemplateEntityCriteria(studies, "SamplingEvent", { study, criterion ->
-			return study.samplingEvents?.collect { criterion.getFieldValue( it ); }
-		})
-	}
-
-	/**
-	 * Filters the given list of studies on the assay criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the assay-criteria
-	 */
-	protected List filterOnAssayCriteria( List studies ) {
-		return filterOnTemplateEntityCriteria(studies, "Assay", { study, criterion ->
-			return study.assays?.collect { criterion.getFieldValue( it ); }
-		})
-	}
+	* Returns a closure for the given entitytype that determines the value for a criterion
+	* on the given object. The closure receives two parameters: the object and a criterion.
+	*
+	* This method should be implemented by all searches
+	*
+	* For example:
+	* 		For a study search, the object given is a study. How to determine the value for that study of
+	* 		the criterion field of type sample? This is done by returning the field values for all
+	* 		samples in the study
+	* 			{ study, criterion -> return study.samples?.collect { criterion.getFieldValue( it ); } }
+	* @return
+	*/
+   protected Closure valueCallback( String entity ) {
+	   switch( entity ) {
+		   case "Study":
+			   return { study, criterion -> return criterion.getFieldValue( study ) }
+		   case "Subject":
+			   return { study, criterion -> return study.subjects?.collect { criterion.getFieldValue( it ); } }
+		   case "Sample":
+			   return { study, criterion -> return study.samples?.collect { criterion.getFieldValue( it ); } }
+		   case "Event":
+			   return { study, criterion -> return study.events?.collect { criterion.getFieldValue( it ); } }
+		   case "SamplingEvent":
+			   return { study, criterion -> return study.samplingEvents?.collect { criterion.getFieldValue( it ); } }
+		   case "Assay":
+			   return { study, criterion -> return study.assays?.collect { criterion.getFieldValue( it ); } }
+		   default:
+			   return super.valueCallback( entity );
+	   }
+   }
 
 	/**
 	 * Returns the saved field data that could be shown on screen. This means, the data

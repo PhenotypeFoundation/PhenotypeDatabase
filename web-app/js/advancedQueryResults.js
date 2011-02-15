@@ -1,3 +1,54 @@
+function checkAllPaginated( input ) {
+	var paginatedTable = $(input).closest( '.paginate' );
+	var dataTable = paginatedTable.closest( '.dataTables_wrapper' );
+	var checkAll = $( '#checkAll', paginatedTable );
+	
+	var oTable = paginatedTable.dataTable();
+	var inputs = $('input', oTable.fnGetNodes())
+	
+	// If any of the inputs is checked, uncheck all. Otherwise, check all
+	var check = false;
+	
+	for(var i = 0; i < inputs.length; i++ ) {
+		if( !$(inputs[i]).attr( 'checked' ) ) {
+			check = true;
+			break;
+		}
+	}
+	
+	inputs.each( function( idx, el ) {
+		$(el).attr( 'checked', check );
+	})
+	
+	updateCheckAll( checkAll );
+}
+
+function updateCheckAll( input ) {
+	var paginatedTable = $(input).closest( '.paginate' );
+	var dataTable = paginatedTable.closest( '.dataTables_wrapper' );
+	
+	var checkAll = $( '#checkAll', paginatedTable );
+	
+	var oTable = paginatedTable.dataTable();
+	var inputs = $('input', oTable.fnGetNodes())
+	
+	// Is none checked, are all checked or are some checked
+	var numChecked = 0
+	for(var i = 0; i < inputs.length; i++ ) {
+		if( $(inputs[i]).attr( 'checked' ) ) {
+			numChecked++;
+		}
+	}
+	
+	checkAll.attr( 'checked', numChecked > 0 );
+	
+	if( numChecked > 0 && numChecked < inputs.length - 1 ) {
+		checkAll.addClass( 'transparent' );
+	} else {
+		checkAll.removeClass( 'transparent' );
+	}
+}
+
 function submitForm( form, url ) {
 	if( form == undefined || !form )
 		return;

@@ -39,7 +39,7 @@
 	<table id="searchresults" class="paginate">
 		<thead>
 			<tr>
-				<th class="nonsortable"></th>
+				<th class="nonsortable"><input type="checkbox" id="checkAll" onClick="checkAllPaginated(this);" /></th>
 				<th>#</th>
 				<th>Type</th>
 				<th>Criteria</th>
@@ -51,7 +51,7 @@
 		</thead>
 		<g:each in="${searches}" var="search">
 			<tr>
-				<td><g:checkBox name="id" value="${search.id}" checked="${false}" /></td>
+				<td><g:checkBox name="id" value="${search.id}" checked="${false}" onClick="updateCheckAll(this);" /></td>
 				<td>${search.id}</td>
 				<td>${search.entity}</td>
 				<td>

@@ -152,7 +152,7 @@ class AdvancedQueryController {
 			return;
 		}
 
-		// Determine the possible actions
+		// Determine the possible actions and build correct urls
 		def actions = determineActions(s, selectedIds );
 
 		// Find the right action to perform
@@ -477,7 +477,7 @@ class AdvancedQueryController {
 			session.queries = [:]
 
 		// First check whether a search with the same criteria is already present
-		def previousSearch = retrieveSearchByCriteria( s.getCriteria() );
+		def previousSearch = retrieveSearchByCriteria( s.getCriteria(), s.searchMode );
 
 		def id
 		if( previousSearch ) {
@@ -498,7 +498,7 @@ class AdvancedQueryController {
 	 * @param criteria	List of criteria to search for
 	 * @return			Search that has this criteria, or null if no such search is found.
 	 */
-	protected Search retrieveSearchByCriteria( List criteria ) {
+	protected Search retrieveSearchByCriteria( List criteria, SearchMode searchMode = SearchMode.and ) {
 		if( !session.queries )
 			return null
 
@@ -509,7 +509,7 @@ class AdvancedQueryController {
 			def key = query.key;
 			def value = query.value;
 
-			if( value.criteria && value.criteria.containsAll( criteria ) && criteria.containsAll( value.criteria ) ) {
+			if( value.searchMode == searchMode && value.criteria && value.criteria.containsAll( criteria ) && criteria.containsAll( value.criteria ) ) {
 				return value;
 			}
 		}

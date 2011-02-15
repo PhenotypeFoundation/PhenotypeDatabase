@@ -17,12 +17,12 @@
 <g:if test="${search.getNumResults() > 0}">
 	<% 
 		def resultFields = search.getShowableResultFields();
-		def extraFields = resultFields[ search.getResults()[ 0 ].id ]?.keySet();
+		def extraFields = search.getShowableResultFieldNames(resultFields);
 	%>
 	<table id="searchresults" class="paginate">
 		<thead>
 			<tr>
-				<th class="nonsortable"></th>
+				<th class="nonsortable"><input type="checkbox" id="checkAll" onClick="checkAllPaginated(this);" /></th>
 				<th>Type</th>
 				<th>Id</th>
 				<g:each in="${extraFields}" var="fieldName">
@@ -38,7 +38,7 @@
 						way the user can select items from multiple pages of the paginated result list correctly. See
 						also http://datatables.net/examples/api/form.html and advancedQueryResults.js
 					*/ %>
-					<g:checkBox name="id" value="${result.id}" checked="${false}" />
+					<g:checkBox name="id" value="${result.id}" checked="${false}" onClick="updateCheckAll(this);" />
 				</td>			
 				<td>${search.entity}</td>
 				<td>${result.id}</td>

@@ -30,6 +30,14 @@ label { display: inline-block; zoom: 1; *display: inline; width: 110px; margin-t
 .searchoptions ul#criteria { list-style-type: none; margin-left: 0; padding-left: 0; display: inline; }
 .searchoptions ul#criteria li { margin-left: 0; padding-left: 0; display: inline; }
 
+input.transparent { 
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.3;
+	-moz-opacity: 0.3;
+	-khtml-opacity: 0.3;
+}
+	
 /** Options buttons **/
 .options { margin-top: 8px; }
 .options.multiple { float: left; width: 300px; }
