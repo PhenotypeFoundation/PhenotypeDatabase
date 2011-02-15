@@ -159,7 +159,12 @@ class ImporterController {
                 if (params.mappingname) {
                     flash.importer_columnproperty = params.columnproperty
                     propertiesSaveImportMappingPage(flow, flash, params)                    
+                } else // trying to load an existing import mapping
+                if (params.importmapping_id) {
+                    propertiesLoadImportMappingPage(flow, flash, params)
                 }
+
+
                 
                 if (params.fuzzymatching == "true")
                     flow.importer_fuzzymatching="true" else
@@ -372,6 +377,26 @@ class ImporterController {
 	}
 
     /**
+     * Load an existing import mapping
+     *
+     * @param Map LocalAttributeMap (the flow scope)
+	 * @param Map GrailsParameterMap (the flow parameters = form data)
+	 * @returns boolean true if correctly validated, otherwise false
+	 */
+    boolean propertiesLoadImportMappingPage(flow, flash, params) {
+        def im = ImportMapping.get(params.importmapping_id.toInteger())
+
+        flow.importer_header.each {
+            println "original=" + it.dump()
+        }
+
+        im.mappingcolumns.each { mappingcolumn ->
+            flow.importer_header[mappingcolumn.index.toInteger()] = mappingcolumn
+            println "adjusted=" + mappingcolumn.dump()
+        }
+    }
+
+    /**
      * Save the properties as an import mapping.
      *
      * @param Map LocalAttributeMap (the flow scope)
@@ -403,18 +428,48 @@ class ImporterController {
 			}
 
             // Create new MappingColumn instance
-            /*def mc = new MappingColumn (name: flow.importer_header[columnindex.toInteger()].name,
+            def mc = new MappingColumn (name: flow.importer_header[columnindex.toInteger()].name,
                                         property:property,
                                         index:columnindex,
-                                        entity:entityClass,
+                                        entity:flow.importer_header[columnindex.toInteger()].entity,
                                         templatefieldtype:entityObj.giveFieldType(property),
                                         dontimport: dontimport,
                                         identifier:isPreferredIdentifier)
 
-            println "storing mapping: " + mc.validate()
-            im.addToMappingColumns(mc)*/
+            // Save mappingcolumn
+            if (mc.validate()) {
+                im.addToMappingcolumns(mc)
+            }
+            else {
+                mc.errors.allErrors.each {
+                    println it
+                }
+            }
+
+            // Save importmapping
+            if (im.validate()) {
+                im.save(flush:true)
+            }
+            else {
+                im.errors.allErrors.each {
+                    println it
+                }
+            }
+            
 		}
     }
+
+    /*def importmappings = {
+        
+        ImportMapping.list().each { importmapping ->
+            importmapping.mappingcolumns.each { mappingcolumn ->
+                println "das"+mappingcolumn.dump()
+
+            }
+        }
+
+        render("leeg")
+    }*/
 
 	/**
 	 * Handle the property mapping page.

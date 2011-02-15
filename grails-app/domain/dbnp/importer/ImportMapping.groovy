@@ -8,7 +8,6 @@ class ImportMapping implements Serializable {
     Class entity
 	String name
 
-
 	static constraints = {
 	}
 }

@@ -33,13 +33,17 @@
               </div>
               <div id="loadmapping" style="display:none">
                 Select an existing mapping and press Load:
-                <g:select name="importmapping" from="${importer_importmappings}" optionValue="name"/>
+                <g:select name="importmapping_id" from="${importer_importmappings}" noSelection="['':'-Select mapping-']" optionValue="name" optionKey="id"/>
               </div>
             </td>           
             <g:each var="mappingcolumn" in="${importer_header}">
+              <!-- set selected values based on submitted columnproperties, actually refresh -->
               <g:if test="${importer_columnproperty}">
                 <g:set var="selected" value="${importer_columnproperty.index['' + mappingcolumn.index + '']}"/>
               </g:if>
+              <g:else>
+                <g:set var="selected" value="${mappingcolumn.property}"/>
+              </g:else>
 
 			  <td class="header" width="200px">
 				<b>${mappingcolumn.name}</b>

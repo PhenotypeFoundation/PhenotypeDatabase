@@ -51,7 +51,8 @@
 
           // open load box
           $('#loadpropertiesbutton').click(function() {
-            $("#loadmapping").toggle("scale")
+            $("#loadmapping").toggle("scale")            
+            if ($("#importmapping_id").val()) refreshFlow()
           });
 
           // open save box

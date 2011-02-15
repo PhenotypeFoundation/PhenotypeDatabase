@@ -3,6 +3,8 @@ package gscf
 import grails.test.*
 import org.springframework.core.io.*
 import grails.converters.*
+import dbnp.authentication.*
+import org.dbnp.gdt.*
 
 /**
  * ImporterTests Test
@@ -39,7 +41,8 @@ class ImporterTests extends GroovyTestCase {
     * Try to import an example Excel study and an XML study template
     */
     void testImportExcelAndXMLTemplateStudy() {
-        def xml
+        def xmltemplate
+        def user = SecUser.findByUsername( "user" );
         
         // Load the files from a subfolder in the integration test folder and setup input streams
         Resource resourceExcel = new ClassPathResource(testStudyExcelFile, getClass().classLoader)
@@ -58,12 +61,20 @@ class ImporterTests extends GroovyTestCase {
 
         // Parse XML
 		try {
-			xml = XML.parse(fisXML, "UTF-8")
+			xmltemplate = XML.parse(fisXML, "UTF-8")
 		} catch( Exception e ) {
 			println "Parsing failed" + e
 		}
 
-        assert xml
-        
+        assert xmltemplate
+
+        xmltemplate.template.each {
+            println it
+        }
+
+        // Parse the XML template
+        def t = Template.parse(xmltemplate.template, user);
+
+        assert t
     }
 }
