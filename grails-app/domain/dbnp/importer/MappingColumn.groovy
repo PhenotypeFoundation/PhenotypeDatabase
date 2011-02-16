@@ -22,7 +22,7 @@ class MappingColumn implements Serializable {
 	Boolean identifier
 	Boolean dontimport
 
-    static transients = [ "templatefieldtype", "entity" ]    
+    //static transients = [ "templatefieldtype", "entity" ]
 
     static constraints = {
 	    //name(unique: true)
