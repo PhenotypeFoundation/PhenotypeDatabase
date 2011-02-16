@@ -427,7 +427,8 @@ class ImporterController {
 			}
 
             // Create new MappingColumn instance
-            def mc = new MappingColumn (name: flow.importer_header[columnindex.toInteger()].name,
+            def mc = new MappingColumn (importmapping:im,
+                                        name: flow.importer_header[columnindex.toInteger()].name,
                                         property:property,
                                         index:columnindex,
                                         entityclass:flow.importer_entityclass,

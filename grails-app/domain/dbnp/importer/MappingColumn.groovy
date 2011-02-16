@@ -12,7 +12,6 @@ import org.dbnp.gdt.TemplateFieldType
 * identifier: true if this column is identifying (unique/primary key)
 */
 class MappingColumn implements Serializable {
-
 	String name
 	TemplateFieldType templatefieldtype
 	Class entityclass
@@ -22,10 +21,14 @@ class MappingColumn implements Serializable {
 	Boolean identifier
 	Boolean dontimport
 
+    static belongsTo = [importmapping:ImportMapping]
+
     //static transients = [ "templatefieldtype", "entity" ]
 
     static constraints = {
 	    //name(unique: true)
+        templatefieldtype(nullable:true)
+        identifier(default:false)
 	    dontimport(default:false)
         value(nullable:true)
     }
