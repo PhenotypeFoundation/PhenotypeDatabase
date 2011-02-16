@@ -350,7 +350,7 @@ class ImporterController {
 			flow.importer_sheetindex = params.sheetindex.toInteger() - 1 // 0 == first sheet
 			flow.importer_datamatrix_start = params.datamatrix_start.toInteger() - 1 // 0 == first row
 			flow.importer_headerrow = params.headerrow.toInteger()
-            flow.importer_entityclass = entityClass.getClass()
+            flow.importer_entityclass = entityClass
 
 			// Get the header from the Excel file using the arguments given in the first step of the wizard
 			flow.importer_header = ImporterService.getHeader(session.importer_workbook,
@@ -371,6 +371,7 @@ class ImporterController {
 			return true
 		}
 
+
         log.error ".importer wizard not all fields are filled in"
         this.appendErrorMap(['error': "Not all fields are filled in, please fill in or select all fields"], flash.wizardErrors)
         return false
@@ -385,14 +386,13 @@ class ImporterController {
 	 */
     boolean propertiesLoadImportMappingPage(flow, flash, params) {
         def im = ImportMapping.get(params.importmapping_id.toInteger())
-
-        flow.importer_header.each {
-            println "original=" + it.dump()
-        }
+        im.refresh()
 
         im.mappingcolumns.each { mappingcolumn ->
-            flow.importer_header[mappingcolumn.index.toInteger()] = mappingcolumn
-            println "adjusted=" + mappingcolumn.dump()
+            def mc = new MappingColumn()
+            mc.properties = mappingcolumn.properties
+
+            flow.importer_header[mappingcolumn.index.toInteger()] = mc         
         }
     }
 
@@ -417,8 +417,8 @@ class ImporterController {
 		params.columnproperty.index.each { columnindex, property ->
 			// Create an actual class instance of the selected entity with the selected template
 			// This should be inside the closure because in some cases in the advanced importer, the fields can have different target entities			
-			def entityClass = GdtService.getInstanceByEntityName(flow.importer_header[columnindex.toInteger()].entity.getName())
-            def entityObj = entityClass.newInstance(template:template)
+			//def entityClass = GdtService.getInstanceByEntityName(flow.importer_header[columnindex.toInteger()].entity.getName())            
+            def entityObj = flow.importer_entityclass.newInstance(template:template)
 
             def dontimport = (property == "dontimport") ? true : false
 
@@ -431,14 +431,14 @@ class ImporterController {
             def mc = new MappingColumn (name: flow.importer_header[columnindex.toInteger()].name,
                                         property:property,
                                         index:columnindex,
-                                        entity:flow.importer_header[columnindex.toInteger()].entity,
+                                        entityclass:flow.importer_entityclass,
                                         templatefieldtype:entityObj.giveFieldType(property),
                                         dontimport: dontimport,
                                         identifier:isPreferredIdentifier)
 
             // Save mappingcolumn
             if (mc.validate()) {
-                im.addToMappingcolumns(mc)
+                im.addToMappingcolumns(mc)                
             }
             else {
                 mc.errors.allErrors.each {
@@ -448,7 +448,7 @@ class ImporterController {
 
             // Save importmapping
             if (im.validate()) {
-                im.save(flush:true)
+                im.save(flush:true)                
             }
             else {
                 im.errors.allErrors.each {
@@ -487,7 +487,7 @@ class ImporterController {
 		params.columnproperty.index.each { columnindex, property ->
 			// Create an actual class instance of the selected entity with the selected template
 			// This should be inside the closure because in some cases in the advanced importer, the fields can have different target entities
-			def entityClass = Class.forName(flow.importer_header[columnindex.toInteger()].entity.getName(), true, this.getClass().getClassLoader())
+			def entityClass = Class.forName(flow.importer_header[columnindex.toInteger()].entityclass.getName(), true, this.getClass().getClassLoader())
 			def entityObj = entityClass.newInstance(template: template)
 
 			// Store the selected property for this column into the column map for the ImporterService
@@ -706,4 +706,5 @@ class ImporterController {
 
 		return errors
 	}
+
 }

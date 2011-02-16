@@ -75,7 +75,7 @@ class ImporterService {
 					header[columnindex] = new dbnp.importer.MappingColumn(name: df.formatCellValue(headercell),
 						templatefieldtype: fieldtype,
 						index: columnindex,
-						entity: theEntity,
+						entityclass: theEntity,
 						property: property);
 
 					break
@@ -106,21 +106,21 @@ class ImporterService {
 					header[columnindex] = new dbnp.importer.MappingColumn(name: df.formatCellValue(headercell),
 						templatefieldtype: fieldtype,
 						index: columnindex,
-						entity: theEntity,
+						entityclass: theEntity,
 						property: property);
 					break
 				case Cell.CELL_TYPE_BLANK:
 					header[columnindex] = new dbnp.importer.MappingColumn(name: df.formatCellValue(headercell),
 						templatefieldtype: TemplateFieldType.STRING,
 						index: columnindex,
-						entity: theEntity,
+						entityclass: theEntity,
 						property: property);
 					break
 				default:
 					header[columnindex] = new dbnp.importer.MappingColumn(name: df.formatCellValue(headercell),
 						templatefieldtype: TemplateFieldType.STRING,
 						index: columnindex,
-						entity: theEntity,
+						entityclass: theEntity,
 						property: property);
 					break
 			} // end of switch
@@ -441,22 +441,23 @@ class ImporterService {
 				}
 
 				try {
+                    println "importdata="+mc.entityclass
 					// which entity does the current cell (field) belong to?
-					switch (mc.entity) {
+					switch (mc.entityclass) {
 						case Study: // does the entity already exist in the record? If not make it so.
-							(record.any {it.getClass() == mc.entity}) ? 0 : record.add(study)
+							(record.any {it.getClass() == mc.entityclass}) ? 0 : record.add(study)
 							study.setFieldValue(mc.property, value)
 							break
-						case Subject: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(subject)
+						case Subject: (record.any {it.getClass() == mc.entityclass}) ? 0 : record.add(subject)
 							subject.setFieldValue(mc.property, value)
 							break
-						case SamplingEvent: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(samplingEvent)
+						case SamplingEvent: (record.any {it.getClass() == mc.entityclass}) ? 0 : record.add(samplingEvent)
 							samplingEvent.setFieldValue(mc.property, value)
 							break
-						case Event: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(event)
+						case Event: (record.any {it.getClass() == mc.entityclass}) ? 0 : record.add(event)
 							event.setFieldValue(mc.property, value)
 							break
-						case Sample: (record.any {it.getClass() == mc.entity}) ? 0 : record.add(sample)
+						case Sample: (record.any {it.getClass() == mc.entityclass}) ? 0 : record.add(sample)
 							sample.setFieldValue(mc.property, value)
 							break
 						case Object:   // don't import
@@ -467,7 +468,7 @@ class ImporterService {
 					// store the mapping column and value which failed
                     def identifier
 
-					switch (mc.entity) {
+					switch (mc.entityclass) {
 						case Study: identifier = "entity_" + study.getIdentifier() + "_" + mc.property
 							break
 						case Subject: identifier = "entity_" + subject.getIdentifier() + "_" + mc.property

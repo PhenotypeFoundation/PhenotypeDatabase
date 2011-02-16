@@ -15,7 +15,7 @@ class MappingColumn implements Serializable {
 
 	String name
 	TemplateFieldType templatefieldtype
-	Class entity
+	Class entityclass
 	String property
 	Integer index
 	String value
@@ -35,6 +35,6 @@ class MappingColumn implements Serializable {
     }
 
     String toString() {
-	return "Name:" + name + "/TemplateFieldType:" + templatefieldtype + "/Entity:" + entity + "/Property:" + property + "/Index:" + index + "/Value:" + value + "/Identifier:" + identifier
+	return "Name:" + name + "/TemplateFieldType:" + templatefieldtype + "/Entity:" + entityclass + "/Property:" + property + "/Index:" + index + "/Value:" + value + "/Identifier:" + identifier
     }
 }
