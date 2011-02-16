@@ -11,7 +11,7 @@
 <h1>Query results</h1>
 
 <div class="searchoptions">
-	${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">result</g:if><g:else>results</g:else> found with 
+	${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">result</g:if><g:else>results</g:else> found 
 	<g:render template="criteria" model="[criteria: search.getCriteria()]" />
 </div>
 <g:if test="${search.getNumResults() > 0}">
@@ -48,7 +48,7 @@
 							def fieldValue = resultFields[ result.id ]?.get( fieldName );
 							if( fieldValue ) { 
 								if( fieldValue instanceof Collection ) {
-									fieldValue = fieldValue.collect { it.toString() }.findAll { it }.join( ', ' );
+									fieldValue = fieldValue.collect { it.toString() }.findAll { it }.unique().join( ', ' );
 								} else {
 									fieldValue = fieldValue.toString();
 								}

@@ -7,7 +7,7 @@ $(function() {
 	// Replace the selectbox with a textfield
 	// By replacing it with javascript, users without javascript will still be able to use the select
 	$( '#queryFieldSelect' ).after( $( '<input type="text" class="text" id="queryFieldText">' ));
-	$( '#queryFieldText' ).after( $( '<input type="hidden" name="field" id="queryField"></span>' ));
+	$( '#queryFieldText' ).after( $( '<input type="hidden" name="criteria.0.entityfield" id="queryField"></span>' ));
 	$( '#queryFieldSelect' ).remove();
 
 	$( "#queryFieldText" ).autocomplete({
@@ -39,39 +39,27 @@ $(function() {
  ********************************************************/
 
 // Is used to keep track of a unique ID for all criteria.
-var criteriumId = 0;
+// ID = 0 is used for the input fields, in order to have them sent as well
+// when the user clicks 'run query'
+var criteriumId = 1;
 
 /**
  * Adds a criteria to the list of search criteria 
  */
-function addCriterium() {
-	var field_descriptor = $( '#input_criteria [name=field]' ).val();
-	var value = $( '#input_criteria input[name=value]' ).val();
-	var operator = $( '#input_criteria select[name=operator]' ).val();
+function addCriterion() {
+	var field_descriptor = $( '#searchForm #queryField' ).val();
+	var value = $( '#searchForm input#value' ).val();
+	var operator = $( '#searchForm select#operator' ).val();
 	
 	// Show the title and a remove button
 	showCriterium(field_descriptor, value, operator);
-	showHideNoCriteriaItem();
+	toggleSearchMode();
 	
 	// Clear the input form
-	$( '#input_criteria #queryFieldText' ).val( '' );
-	$( '#input_criteria [name=field]' ).val( '' );
-	$( '#input_criteria select[name=operator]' ).val( 'equals' );
-	$( '#input_criteria input[name=value]' ).val( '' );
-}
-
-function showHideNoCriteriaItem() {
-	remainingCriteria = $( '#criteria' ).children().length - 1; // -1 because one element is the 'empty' item
-
-	if( remainingCriteria == 0 ) {
-		// Show the 'none box'
-		$('#criteria .emptyList').show();
-		$('.submitcriteria' ).attr( 'disabled', 'disabled' );
-	} else {
-		// Hide the 'none box'
-		$('#criteria .emptyList').hide();
-		$('.submitcriteria' ).attr( 'disabled', '' );
-	}	
+	$( '#searchForm #queryFieldText' ).val( '' );
+	$( '#searchForm #queryField' ).val( '' );
+	$( '#searchForm select#operator' ).val( 'equals' );
+	$( '#searchForm input#value' ).val( '' );
 }
 
 /**
@@ -79,8 +67,17 @@ function showHideNoCriteriaItem() {
  */
 function removeCriterium(element) {
 	element.remove();
-	showHideNoCriteriaItem();
+	toggleSearchMode();
 }
+
+function toggleSearchMode() {
+	if( $('#criteria' ).children( 'li' ) - 2 == 0 ) {
+		$( '#searchMode' ).hide();
+	} else {
+		$( '#searchMode' ).show();
+	}
+}
+
 
 /**
  * Shows a criterium on the screen
@@ -97,21 +94,25 @@ function showCriterium( field,  value, operator ) {
 	else 
 		valueSpan = createCriteriumElement( 'value', value );
 	
+	var input = $( '<a href="#" onClick="return false;"><img src="../plugins/famfamfam-1.0.1/images/icons/delete.png" border="0"></a>' );
+	input.bind( 'click', function() {
+		if( confirm( "Are you sure you want to remove this criterium?" ) ) {
+			removeCriterium( $(this).closest( 'li' ) );
+			return false;
+		}
+	});
+	var span = $( '<span></span>' );
+	span.append( "\n" ).append( input );
+	
 	// Increase the criteriumID to ensure a unique number every time
 	criteriumId++;
 	
 	// Append them to a list item
 	var li = $( '<li></li>' );
-	li.append( fieldSpan ).append( operatorSpan ).append( valueSpan );
+	li.append( fieldSpan ).append( "\n" ).append( operatorSpan ).append( "\n" ).append( valueSpan ).append( "\n" ).append( span );
 	
-	li.bind( 'click', function() {
-		if( confirm( "Are you sure you want to remove this criterium?" ) ) {
-			removeCriterium( $(this) );
-			return false;
-		}
-	});
 
-	$('#criteria').append(li);
+	$('#criteria .newCriterion').before(li);
 }
 
 function createCriteriumElement( fieldname, fieldvalue ) {

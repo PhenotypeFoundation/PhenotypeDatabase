@@ -11,7 +11,7 @@
 <h1>Query results</h1>
 
 <div class="searchoptions">
-	${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">study</g:if><g:else>studies</g:else> found 
+	${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">assay</g:if><g:else>assays</g:else> found 
 	<g:render template="criteria" model="[criteria: search.getCriteria()]" />
 </div>
 <g:if test="${search.getNumResults() > 0}">
@@ -22,19 +22,16 @@
 	<table id="searchresults" class="paginate">
 		<thead>
 		<tr>
-			<th class="nonsortable"><input type="checkbox" id="checkAll" onClick="checkAllPaginated(this);" /></th>
-			<th>Title</th>
-			<th>Code</th>
-			<th>Subjects</th>
-			<th>Events</th>
-			<th>Assays</th>
+			<th class="nonsortable"><input type="checkbox" id="checkAll" onClick="checkAllPaginated(this);" /></th>			
+			<th>Name</th>
+			<th>Study</th>
 			<g:each in="${extraFields}" var="fieldName">
 				<th>${fieldName}</th>
-			</g:each>			
+			</g:each>
 		</tr>
 		</thead>
 		<tbody>
-		<g:each in="${search.getResults()}" var="studyInstance" status="i">
+		<g:each in="${search.getResults()}" var="assayInstance" status="i">
 			<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
 				<td width="3%">
 					<% /* 
@@ -42,47 +39,25 @@
 						way the user can select items from multiple pages of the paginated result list correctly. See
 						also http://datatables.net/examples/api/form.html and advancedQueryResults.js
 					*/ %>
-					<g:checkBox name="id" value="${studyInstance.id}" checked="${false}" onClick="updateCheckAll(this);" />
+					<g:checkBox name="id" value="${assayInstance.id}" checked="${false}" onClick="updateCheckAll(this);" />
 				</td>
 				<td>
-					<g:link controller="study" action="show" id="${studyInstance?.id}">${fieldValue(bean: studyInstance, field: "title")}</g:link>
-					
+				  	<g:if test="${assayInstance.module.openInFrame == null || assayInstance.module.openInFrame == Boolean.TRUE}">
+			          <jumpbar:link frameSource="${assayInstance.module.url}/assay/showByToken/${assayInstance.giveUUID()}" pageTitle="${assayInstance.module.name}">
+						${fieldValue(bean: assayInstance, field: "name")}
+					  </jumpbar:link>
+					 </g:if>
+					 <g:else>
+					 	<g:link url="${assayInstance.module.url}/assay/showByToken/${assayInstance.giveUUID()}">
+					 	${fieldValue(bean: assayInstance, field: "name")}
+					 	</g:link>
+					 </g:else>
 				</td>
-				<td>${fieldValue(bean: studyInstance, field: "code")}</td>
-				<td>
-					<g:if test="${studyInstance.subjects.species.size()==0}">
-						-
-					</g:if>
-					<g:else>
-						<g:each in="${studyInstance.subjects.species.unique()}" var="currentSpecies" status="j">
-							<g:if test="${j > 0}">,</g:if>
-							<%=studyInstance.subjects.findAll { return it.species == currentSpecies; }.size()%>
-							${currentSpecies}
-						</g:each>
-					</g:else>
-				</td>
-
-				<td>
-					<g:if test="${studyInstance.giveEventTemplates().size()==0}">
-						-
-					</g:if>
-					<g:else>
-						${studyInstance.giveEventTemplates().name.join(', ')}
-					</g:else>
-				</td>
-
-				<td>
-					<g:if test="${studyInstance.assays.size()==0}">
-						-
-					</g:if>
-					<g:else>
-						${studyInstance.assays.module.platform.unique().join(', ')}
-					</g:else>
-				</td>
+				<td><g:link controller="study" action="show" id="${assayInstance?.parent?.id}">${assayInstance?.parent?.title}</g:link></td>
 				<g:each in="${extraFields}" var="fieldName">
 					<td>
 						<% 
-							def fieldValue = resultFields[ studyInstance.id ]?.get( fieldName );
+							def fieldValue = resultFields[ assayInstance.id ]?.get( fieldName );
 							if( fieldValue ) { 
 								if( fieldValue instanceof Collection ) {
 									fieldValue = fieldValue.collect { it.toString() }.findAll { it }.unique().join( ', ' );

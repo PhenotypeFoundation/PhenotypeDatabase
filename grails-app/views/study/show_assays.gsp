@@ -32,7 +32,7 @@
 		  <td>${assay.module.platform}</td>
 		  <td>
 		  	<g:if test="${assay.module.openInFrame == null || assay.module.openInFrame == Boolean.TRUE}">
-	          <jumpbar:link frameSource="${assay.module.url}/assay/showByToken/${assay.giveUUID()}" pageTitle="Metabolomics Module">
+	          <jumpbar:link frameSource="${assay.module.url}/assay/showByToken/${assay.giveUUID()}" pageTitle="${assay.module.name}">
 				view
 			  </jumpbar:link>
 			 </g:if>

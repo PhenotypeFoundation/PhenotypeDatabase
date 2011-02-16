@@ -1,27 +1,24 @@
 label { display: inline-block; zoom: 1; *display: inline; width: 110px; margin-top: 10px;  }
 
-#searchForm { position: relative; border: 1px solid #666666; padding: 5px 10px; margin: 10px 0; }
+#searchForm { position: relative; margin: 10px 0; font-size: 11px; }
+#searchForm h3 { font-size: 13px; }
+#searchForm h3 .nummer { display: inline-block; zoom: 1; *display: inline; width: 25px; } 
 
-#searchForm ul#criteria { margin-left: 110px; padding-left: 0px; margin-top: -19px; list-style-type: none;  }
-#searchForm ul#criteria li { margin: 2px 0; padding-left: 0; }
+#searchForm p { margin-left: 25px; }
+
+#searchForm ul#criteria { margin-left: 25px; padding-left: 0px; list-style-type: none;  }
+#searchForm ul#criteria li { margin: 2px 0; padding: 2px 0; }
 #searchForm ul#criteria li span, 
 #searchForm ul#criteria li a { display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 5px; }
-#searchForm ul#criteria li .entityfield { width: 180px; }
+#searchForm ul#criteria li .entityfield { width: 200px; }
 #searchForm ul#criteria li .operator { width: 100px; }
 #searchForm ul#criteria li .value { width: 240px; }
+#searchForm ul#criteria li .addButton { margin: 4px 0; }
+#searchForm ul#criteria li input, #searchForm ul#criteria li select { font-size: 11px; }
 
-#searchForm ul#criteria li.emptyList { color: #666; }
-#searchForm ul#criteria li.emptyList:hover { cursor: default; }
+#searchForm ul#criteria li.titlerow { font-weight: bold; border-bottom: 1px solid #aaa; }
 
-#searchForm ul#criteria li:hover { cursor: pointer; }
-#searchForm ul#criteria li:hover span { text-decoration: line-through; }
-
-#input_criteria { display: block; float: right; width: 260px; border-left: 1px solid #666; padding: 10px; position: relative; height: 100%; }
-#input_criteria h2 { margin-top: 2px; margin-bottom: 8px; font-weight: bold; }
-#input_criteria label { width: 80px; margin-top: 8px; }
-#input_criteria input.text, #input_criteria select { width: 165px; }
-#input_criteria input.button {  margin-top: 8px; }
-#input_criteria .explanation { font-size: 10px; }
+#searchMode { display: none; }
 
 .ui-menu-item .entity { color: #666; font-style: italic; }
 

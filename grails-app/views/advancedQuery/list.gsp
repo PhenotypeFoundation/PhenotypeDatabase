@@ -55,8 +55,8 @@
 				<td>${search.id}</td>
 				<td>${search.entity}</td>
 				<td>
-					<g:each in="${search.getCriteria()}" var="criterion" status="j">
-						<g:if test="${j > 0}">, </g:if>
+					<g:set var="criteria" value="${search.getCriteria()}" />
+					<g:each in="${criteria}" var="criterion" status="j">
 						<span class="entityfield">${criterion.entityField()}</span>
 						<span class="operator">${criterion.operator}</span>
 						<span class="value">
@@ -67,6 +67,10 @@
 								${criterion.value}
 							</g:else>
 						</span>
+						<g:if test="${j < criteria.size() -1}">
+							<g:if test="${search.searchMode == SearchMode.and}">and</g:if>
+							<g:if test="${search.searchMode == SearchMode.or}">or</g:if>
+						</g:if>						
 					</g:each>
 				</td>
 				<td>${search.getNumResults()}</td>

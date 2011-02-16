@@ -70,54 +70,6 @@ class Search {
 	protected Map resultFields = [:];
 
 	/**
-	 * Returns a list of Criteria
-	 */
-	public List getCriteria() { return criteria; }
-
-	/**
-	 * Sets a new list of criteria
-	 * @param c	List with criteria objects
-	 */
-	public void setCriteria( List c ) { criteria = c; }
-
-	/**
-	 * Adds a criterion to this query
-	 * @param c	Criterion
-	 */
-	public void addCriterion( Criterion c ) {
-		if( criteria )
-			criteria << c;
-		else
-			criteria = [c];
-	}
-
-	/**
-	 * Retrieves the results found using this query. The result is empty is 
-	 * the query has not been executed yet.
-	 */
-	public List getResults() { return results; }
-
-	/**
-	 * Returns the results found using this query, filtered by a list of ids.
-	 * @param selectedIds	List with ids of the entities you want to return.
-	 * @return	A list with only those results for which the id is in the selectedIds
-	 */
-	public List filterResults( List selectedIds ) {
-		if( !selectedIds || !results )
-			return results
-
-		return results.findAll {
-			selectedIds.contains( it.id )
-		}
-	}
-
-	/**
-	 * Returns a list of fields for the results of this query. The fields returned are those
-	 * fields that the query searched for. 
-	 */
-	public Map getResultFields() { return resultFields; }
-
-	/**
 	 * Constructor of this search object. Sets the user field to the 
 	 * currently logged in user
 	 * @see #user
@@ -178,7 +130,7 @@ class Search {
 	 * Executes an inclusive (AND) search based on the given criteria. Should be filled in by
 	 * subclasses searching for a specific entity
 	 */
-	public void executeAnd() {
+	protected void executeAnd() {
 
 	}
 
@@ -186,16 +138,83 @@ class Search {
 	 * Executes an exclusive (OR) search based on the given criteria. Should be filled in by
 	 * subclasses searching for a specific entity
 	 */
-	public void executeOr() {
+	protected void executeOr() {
 
 	}
 
+	/**
+	 * Default implementation of an inclusive (AND) search. Can be called by subclasses in order
+	 * to simplify searches.
+	 * 
+	 * Filters the list of objects on study, subject, sample, event, samplingevent and assaycriteria,
+	 * based on the closures defined in valueCallback. Afterwards, the objects are filtered on module
+	 * criteria
+	 * 
+	 * @param objects	List of objects to search in
+	 */
+	protected void executeAnd( List objects ) {
+		// If no criteria are found, return all studies
+		if( !criteria || criteria.size() == 0 ) {
+			results = objects;
+			return;
+		}
+
+		// Perform filters
+		objects = filterOnStudyCriteria( objects );
+		objects = filterOnSubjectCriteria( objects );
+		objects = filterOnSampleCriteria( objects );
+		objects = filterOnEventCriteria( objects );
+		objects = filterOnSamplingEventCriteria( objects );
+		objects = filterOnAssayCriteria( objects );
+
+		objects = filterOnModuleCriteria( objects );
+
+		// Save matches
+		results = objects;
+	}
+
+	/**
+	* Default implementation of an exclusive (OR) search. Can be called by subclasses in order
+	* to simplify searches.
+	*
+	* Filters the list of objects on study, subject, sample, event, samplingevent and assaycriteria,
+	* based on the closures defined in valueCallback. Afterwards, the objects are filtered on module
+	* criteria
+	*
+	* @param allObjects	List of objects to search in
+	*/
+   protected void executeOr( List allObjects ) {
+		// If no criteria are found, return all studies
+		if( !criteria || criteria.size() == 0 ) {
+			results = allObjects;
+			return;
+		}
+
+		// Perform filters on those objects not yet found by other criteria
+		def objects = []
+		objects = ( objects + filterOnStudyCriteria( allObjects - objects ) ).unique();
+		objects = ( objects + filterOnSubjectCriteria( allObjects - objects ) ).unique();
+		objects = ( objects + filterOnSampleCriteria( allObjects - objects ) ).unique();
+		objects = ( objects + filterOnEventCriteria( allObjects - objects ) ).unique();
+		objects = ( objects + filterOnSamplingEventCriteria( allObjects - objects ) ).unique();
+		objects = ( objects + filterOnAssayCriteria( allObjects - objects ) ).unique();
+		
+		// All objects (including the ones already found by another criterion) are sent to
+		// be filtered on module criteria, in order to have the module give data about all
+		// objects (for showing purposes later on)
+		objects = ( objects + filterOnModuleCriteria( allObjects ) ).unique();
+		
+		// Save matches
+		results = objects;
+   }
+
+		
 	/************************************************************************
 	 * 
-	 * These methods are used in querying and should be overridden by subclasses
+	 * These methods are used in querying and can be overridden by subclasses
 	 * in order to provide custom searching
 	 * 
-	 */
+	 ************************************************************************/
 
 	/**
 	 * Returns a closure for the given entitytype that determines the value for a criterion
@@ -269,49 +288,12 @@ class Search {
 	protected List getEntityCriteria( String entity ) {
 		return criteria?.findAll { it.entity == entity }
 	}
-
-	/**
-	 * Filters a list with entities, based on the given criteria and a closure to check whether a criterion is matched
-	 * 
-	 * @param entities	Original list with entities to check for these criteria
-	 * @param criteria	List with criteria to match on
-	 * @param check		Closure to see whether a specific entity matches a criterion. Gets two arguments:
-	 * 						element		The element to check 
-	 * 						criterion	The criterion to check on.
-	 * 					Returns true if the criterion holds, false otherwise
-	 * @return			The filtered list of entities
-	 */
-	protected List filterEntityList( List entities, List<Criterion> criteria, Closure check ) {
-		if( !entities || !criteria || criteria.size() == 0 ) {
-			if( searchMode == SearchMode.and )
-				return entities;
-			else if( searchMode == SearchMode.or )
-				return []
-		}
-
-		return entities.findAll { entity ->
-			if( searchMode == SearchMode.and ) {
-				for( criterion in criteria ) {
-					if( !check( entity, criterion ) ) {
-						return false;
-					}
-				}
-				return true;
-			} else if( searchMode == SearchMode.or ) {
-				for( criterion in criteria ) {
-					if( check( entity, criterion ) ) {
-						return true;
-					}
-				}
-				return false;
-			}
-		}
-	}
-
+	
+	
 	/**
 	 * Prepares a value from a template entity for comparison, by giving it a correct type
 	 *
-	 * @param value		Value of the field 
+	 * @param value		Value of the field
 	 * @param type		TemplateFieldType	Type of the specific field
 	 * @return			The value of the field in the correct entity
 	 */
@@ -373,6 +355,51 @@ class Search {
 
 	}
 
+	/*****************************************************
+	*
+	* Methods for filtering lists based on specific (GSCF) criteria
+	*
+	*****************************************************/
+
+	
+	/**
+	 * Filters a list with entities, based on the given criteria and a closure to check whether a criterion is matched
+	 *
+	 * @param entities	Original list with entities to check for these criteria
+	 * @param criteria	List with criteria to match on
+	 * @param check		Closure to see whether a specific entity matches a criterion. Gets two arguments:
+	 * 						element		The element to check
+	 * 						criterion	The criterion to check on.
+	 * 					Returns true if the criterion holds, false otherwise
+	 * @return			The filtered list of entities
+	 */
+	protected List filterEntityList( List entities, List<Criterion> criteria, Closure check ) {
+		if( !entities || !criteria || criteria.size() == 0 ) {
+			if( searchMode == SearchMode.and )
+				return entities;
+			else if( searchMode == SearchMode.or )
+				return []
+		}
+
+		return entities.findAll { entity ->
+			if( searchMode == SearchMode.and ) {
+				for( criterion in criteria ) {
+					if( !check( entity, criterion ) ) {
+						return false;
+					}
+				}
+				return true;
+			} else if( searchMode == SearchMode.or ) {
+				for( criterion in criteria ) {
+					if( check( entity, criterion ) ) {
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+	}
+		
 	/**
 	 * Filters the given list of studies on the study criteria
 	 * @param studies		Original list of studies
@@ -459,6 +486,12 @@ class Search {
 		def entity = "Assay"
 		return filterOnTemplateEntityCriteria(studies, entity, valueCallback( entity ) )
 	}
+	
+	/********************************************************************
+	 * 
+	 * Methods for filtering object lists on module criteria
+	 * 
+	 ********************************************************************/
 
 	/**
 	 * Filters the given list of entities on the module criteria
@@ -689,7 +722,78 @@ class Search {
 		return fields.values()*.keySet().flatten().unique();
 	}
 
+	
+	/************************************************************************
+	 * 
+	 * Getters and setters
+	 * 
+	 ************************************************************************/
+	
+	/**
+	* Returns a list of Criteria
+	*/
+   public List getCriteria() { return criteria; }
+
+   /**
+	* Sets a new list of criteria
+	* @param c	List with criteria objects
+	*/
+   public void setCriteria( List c ) { criteria = c; }
+
+   /**
+	* Adds a criterion to this query
+	* @param c	Criterion
+	*/
+   public void addCriterion( Criterion c ) {
+	   if( criteria )
+		   criteria << c;
+	   else
+		   criteria = [c];
+   }
+
+   /**
+	* Retrieves the results found using this query. The result is empty is
+	* the query has not been executed yet.
+	*/
+   public List getResults() { return results; }
+
+   /**
+	* Returns the results found using this query, filtered by a list of ids.
+	* @param selectedIds	List with ids of the entities you want to return.
+	* @return	A list with only those results for which the id is in the selectedIds
+	*/
+   public List filterResults( List selectedIds ) {
+	   if( !selectedIds || !results )
+		   return results
+
+	   return results.findAll {
+		   selectedIds.contains( it.id )
+	   }
+   }
+
+   /**
+	* Returns a list of fields for the results of this query. The fields returned are those
+	* fields that the query searched for.
+	*/
+   public Map getResultFields() { return resultFields; }
+	
 	public String toString() {
 		return ( this.entity ? this.entity + " search" : "Search" ) + " " + this.id
+	}
+	
+	public boolean equals( Object o ) {
+		if( o == null )
+			return false
+		
+		if( !( o instanceof Search ) )  
+			return false
+			
+		Search s = (Search) o;
+		
+		return (	searchMode		== s.searchMode && 
+					entity 			== s.entity && 
+					criteria.size()	== s.criteria.size() && 
+					s.criteria.containsAll( criteria ) && 
+					criteria.containsAll( s.criteria ) );
 	}
 }

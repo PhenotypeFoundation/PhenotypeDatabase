@@ -70,10 +70,10 @@ class SampleSearch extends Search {
 			return;
 		}
 
-		// We expect the sample criteria to be the most discriminative, and discard
-		// the most samples. (e.g. by searching on sample title of sample type). For
+		// We expect the study criteria to be the most discriminative, and discard
+		// the most samples. (e.g. by searching on study title or study type). For
 		// that reason we first look through the list of studies. However, when the
-		// user didn't enter any sample criteria, this will be an extra step, but doesn't
+		// user didn't enter any study criteria, this will be an extra step, but doesn't
 		// cost much time to process.
 		def samples = []
 		if( getEntityCriteria( 'Study' ).size() > 0 ) {
@@ -151,31 +151,8 @@ class SampleSearch extends Search {
 	 */
 	@Override
 	void executeOr() {
-		// We expect the sample criteria to be the most discriminative, and discard
-		// the most samples. (e.g. by searching on sample title of sample type). For
-		// that reason we first look through the list of studies. However, when the
-		// user didn't enter any sample criteria, this will be an extra step, but doesn't
-		// cost much time to process.
-		def samples = []
 		def allSamples = Sample.list().findAll { it.parent?.canRead( this.user ) }.toList();
-
-		// If no criteria are found, return all samples
-		if( !criteria || criteria.size() == 0 ) {
-			results = allSamples
-			return;
-		}
-
-		samples = ( samples + filterOnStudyCriteria( allSamples - samples ) ).unique();
-		samples = ( samples + filterOnSubjectCriteria( allSamples - samples ) ).unique();
-		samples = ( samples + filterOnSampleCriteria( allSamples - samples ) ).unique();
-		samples = ( samples + filterOnEventCriteria( allSamples - samples ) ).unique();
-		samples = ( samples + filterOnSamplingEventCriteria( allSamples - samples ) ).unique();
-		samples = ( samples + filterOnAssayCriteria( allSamples - samples ) ).unique();
-
-		samples = ( samples + filterOnModuleCriteria( allSamples - samples ) ).unique();
-
-		// Save matches
-		results = samples;
+		executeOr( allSamples );
 	}
 
 	/**
@@ -202,7 +179,7 @@ class SampleSearch extends Search {
 					if( !sample || !sample.parentEventGroup || !sample.parentEventGroup.events || sample.parentEventGroup.events.size() == 0 )
 						return null
 
-					return criterion.getFieldValue( sample.parentEventGroup.events.toList() );
+					return sample.parentEventGroup.events?.collect { criterion.getFieldValue( it ) };
 				}
 			case "SamplingEvent":
 				return { sample, criterion -> return criterion.getFieldValue( sample.parentEvent ); }
@@ -257,6 +234,8 @@ class SampleSearch extends Search {
 			return criterion.matchEntity( assay );
 		});
 
+		println "Matching assays: " + assays
+	
 		// If no assays match these criteria, then no samples will match either
 		if( assays.size() == 0 )
 			return [];
@@ -267,12 +246,16 @@ class SampleSearch extends Search {
 				return false;
 
 			def studyAssays = assays.findAll { it.parent.equals( sample.parent ); }
-
+			
+			println "Assays for " + sample + " (based on study): " + studyAssays
+			
 			// See if this sample is present in any of the matching assays. If so,
 			// this sample matches the criteria
 			for( def assay in studyAssays ) {
 				if( assay.samples?.contains( sample ) )
 					return true;
+				
+				println "Assay " + assay + " with samples " + assay.samples + " doesn't contain " + sample;
 			}
 
 			return false;

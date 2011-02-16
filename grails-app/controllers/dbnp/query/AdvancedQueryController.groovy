@@ -14,7 +14,7 @@ class AdvancedQueryController {
 	def moduleCommunicationService;
 	def authenticationService
 
-	def entitiesToSearchFor = [ 'Study': 'Studies', 'Sample': 'Samples']
+	def entitiesToSearchFor = [ 'Study': 'Studies', 'Sample': 'Samples', 'Assay': 'Assays']
 
 	/**
 	 * Shows search screen
@@ -197,8 +197,8 @@ class AdvancedQueryController {
 		queryIds = queryIds.findAll { it.isInteger() }.collect { Integer.valueOf( it ) }
 
 		if( queryIds.size() == 0 ) {
-			flash.error = "Incorrect search ID given to show"
-			redirect( action: "index" );
+			flash.error = "Incorrect search ID given to search in"
+			redirect( action: "list" );
 			return
 		}
 
@@ -286,6 +286,7 @@ class AdvancedQueryController {
 		switch( entity ) {
 			case "Study":	return "studyresults"; 	break;
 			case "Sample":	return "sampleresults";	break;
+			case "Assay":	return "assayresults";	break;
 			default:		return "results"; break;
 		}
 	}
@@ -297,7 +298,8 @@ class AdvancedQueryController {
 		switch( entity ) {
 			case "Study":	return new StudySearch();
 			case "Sample":	return new SampleSearch();
-
+			case "Assay":	return new AssaySearch();
+			
 			// This exception will only be thrown if the entitiesToSearchFor contains more entities than
 			// mentioned in this switch structure.
 			default:		throw new Exception( "Can't search for entities of type " + entity );
@@ -374,7 +376,7 @@ class AdvancedQueryController {
 		flash.error = "";
 		// Loop through all keys of c and remove the non-numeric ones
 		for( c in formCriteria ) {
-			if( c.key ==~ /[0-9]+/ ) {
+			if( c.key ==~ /[0-9]+/ && c.value.entityfield ) {
 				def formCriterion = c.value;
 
 				Criterion criterion = new Criterion();
@@ -477,7 +479,7 @@ class AdvancedQueryController {
 			session.queries = [:]
 
 		// First check whether a search with the same criteria is already present
-		def previousSearch = retrieveSearchByCriteria( s.getCriteria(), s.searchMode );
+		def previousSearch = retrieveSearch( s );
 
 		def id
 		if( previousSearch ) {
@@ -495,23 +497,18 @@ class AdvancedQueryController {
 
 	/**
 	 * Retrieves a search from session with the same criteria as given
-	 * @param criteria	List of criteria to search for
+	 * @param s			Search that is used as an example to search for
 	 * @return			Search that has this criteria, or null if no such search is found.
 	 */
-	protected Search retrieveSearchByCriteria( List criteria, SearchMode searchMode = SearchMode.and ) {
+	protected Search retrieveSearch( Search s ) {
 		if( !session.queries )
 			return null
 
-		if( !criteria )
-			return null
-
 		for( query in session.queries ) {
-			def key = query.key;
 			def value = query.value;
 
-			if( value.searchMode == searchMode && value.criteria && value.criteria.containsAll( criteria ) && criteria.containsAll( value.criteria ) ) {
-				return value;
-			}
+			if( s.equals( value ) )
+				return value
 		}
 
 		return null;

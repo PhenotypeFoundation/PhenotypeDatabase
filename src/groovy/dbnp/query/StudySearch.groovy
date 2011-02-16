@@ -64,27 +64,10 @@ class StudySearch extends Search {
 	 *	
 	 */
 	@Override
-	void executeAnd() {
+	protected void executeAnd() {
 		def studies = Study.list().findAll { it.canRead( this.user ) };
 
-		// If no criteria are found, return all studies
-		if( !criteria || criteria.size() == 0 ) {
-			results = studies;
-			return;
-		}
-
-		// Perform filters
-		studies = filterOnStudyCriteria( studies );
-		studies = filterOnSubjectCriteria( studies );
-		studies = filterOnSampleCriteria( studies );
-		studies = filterOnEventCriteria( studies );
-		studies = filterOnSamplingEventCriteria( studies );
-		studies = filterOnAssayCriteria( studies );
-
-		studies = filterOnModuleCriteria( studies );
-
-		// Save matches
-		results = studies;
+		executeAnd( studies );
 	}
 
 	/**
@@ -120,28 +103,9 @@ class StudySearch extends Search {
 	 *
 	 */
 	@Override
-	void executeOr() {
+	protected void executeOr() {
 		def allStudies = Study.list().findAll { it.canRead( this.user ) };
-
-		// If no criteria are found, return all studies
-		if( !criteria || criteria.size() == 0 ) {
-			results = allStudies;
-			return;
-		}
-
-		// Perform filters
-		def studies = []
-		studies = ( studies + filterOnStudyCriteria( allStudies - studies ) ).unique();
-		studies = ( studies + filterOnSubjectCriteria( allStudies - studies ) ).unique();
-		studies = ( studies + filterOnSampleCriteria( allStudies - studies ) ).unique();
-		studies = ( studies + filterOnEventCriteria( allStudies - studies ) ).unique();
-		studies = ( studies + filterOnSamplingEventCriteria( allStudies - studies ) ).unique();
-		studies = ( studies + filterOnAssayCriteria( allStudies - studies ) ).unique();
-		
-		studies = ( studies + filterOnModuleCriteria( allStudies - studies ) ).unique();
-		
-		// Save matches
-		results = studies;
+		executeOr( allStudies );
 	}
 
 	/**
