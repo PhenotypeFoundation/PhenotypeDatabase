@@ -389,10 +389,10 @@ class ImporterController {
         im.refresh()
 
         im.mappingcolumns.each { mappingcolumn ->
-            def mc = new MappingColumn()
-            mc.properties = mappingcolumn.properties
+            //def mc = new MappingColumn()
+            //mc.properties = mappingcolumn.properties
 
-            flow.importer_header[mappingcolumn.index.toInteger()] = mc         
+            flow.importer_header[mappingcolumn.index.toInteger()] = mappingcolumn            
         }
     }
 
@@ -411,8 +411,7 @@ class ImporterController {
 		def template = Template.get(flow.importer_template_id)
         
         // Create new ImportMapping instance and persist it
-        def im = new ImportMapping(name:params.mappingname, entity: flow.importer_entityclass, template:template).save()
-        
+        def im = new ImportMapping(name:params.mappingname, entity: flow.importer_entityclass, template:template).save()        
 
 		params.columnproperty.index.each { columnindex, property ->
 			// Create an actual class instance of the selected entity with the selected template
