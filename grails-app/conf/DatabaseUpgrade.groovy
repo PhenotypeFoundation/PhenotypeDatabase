@@ -184,7 +184,7 @@ class DatabaseUpgrade {
 	   if (db == "org.postgresql.Driver") {
 		   try {
                 // Check if constraint still exists
-                if (sql.firstRow("SELECT * FROM pg_constraint WHERE contype='mapping_column_name_key"))
+                if (sql.firstRow("SELECT * FROM pg_constraint WHERE contype='mapping_column_name_key'"))
                     sql.execute("ALTER TABLE mapping_column DROP CONSTRAINT mapping_column_name_key")
                 else
                     println "changeMappingColumnNameConstraint exiting, constraint doesn't exist"
