@@ -32,6 +32,7 @@ class DatabaseUpgrade {
 		changeStudyDescriptionToText(sql, db)		// r1327
 		changeTemplateTextFieldSignatures(sql, db)	// prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
 		setAssayModuleDefaultValues(sql, db)		// 1490
+        dropMappingColumnNameConstraint(sql, db)
 	}
 
 	/**
@@ -171,4 +172,21 @@ class DatabaseUpgrade {
 		   }
 	   }
    }
+   
+    /**
+	 * Drop the unique constraint for the "name" column in the MappingColumn domain
+     * 
+	 * @param sql
+	 * @param db
+	 */
+    public static void dropMappingColumnNameConstraint(sql, db) {
+        // are we running postgreSQL ?
+	   if (db == "org.postgresql.Driver") {
+		   try {
+			   sql.execute("ALTER TABLE mapping_column DROP CONSTRAINT mapping_column_name_key")
+		   } catch (Exception e) {
+			   println "changeMappingColumnNameConstraint `name` field unique constraint couldn't be dropped: " + e.getMessage()
+		   }
+       }
+    }
 }
