@@ -183,7 +183,12 @@ class DatabaseUpgrade {
         // are we running postgreSQL ?
 	   if (db == "org.postgresql.Driver") {
 		   try {
-			   sql.execute("ALTER TABLE mapping_column DROP CONSTRAINT mapping_column_name_key")
+                // Check if constraint still exists
+                if (sql.firstRow("SELECT * FROM pg_constraint WHERE contype='mapping_column_name_key"))
+                    sql.execute("ALTER TABLE mapping_column DROP CONSTRAINT mapping_column_name_key")
+                else
+                    println "changeMappingColumnNameConstraint exiting, constraint doesn't exist"
+
 		   } catch (Exception e) {
 			   println "changeMappingColumnNameConstraint `name` field unique constraint couldn't be dropped: " + e.getMessage()
 		   }
