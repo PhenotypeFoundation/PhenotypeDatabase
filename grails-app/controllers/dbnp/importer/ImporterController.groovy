@@ -448,7 +448,13 @@ class ImporterController {
 
             // Save importmapping
             if (im.validate()) {
-                im.save(flush:true)                
+                try {
+                    im.save(flush:true)
+                } catch (Exception e) {
+                    //getNextException
+                    log.error "importer wizard save error: " + e
+                    log.error "importer wizard nextexception: " + e.getNextException()
+                }
             }
             else {
                 im.errors.allErrors.each {
