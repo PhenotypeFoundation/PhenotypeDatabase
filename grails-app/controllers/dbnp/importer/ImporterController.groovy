@@ -110,14 +110,18 @@ class ImporterController {
 				success()
 			}
 
-            on("refresh") {
-                println params.importfile
+            on("refresh") {                
 
                 if (params.entity) {
                     flash.importer_datatemplates = Template.findAllByEntity(GdtService.getInstanceByEntity(params.entity.decodeURL()))
                 }
                 
-                flash.importer_params = params
+                flash.importer_params = params                
+
+                // If the file already exists an "existing*" string is added, but we don't
+                // want that after a refresh of the first step in the import wizard, so remove
+                // that string
+                flash.importer_params.importfile = params.importfile.replace('existing*', '')
 
 				success()
 			}.to "pageOne"
