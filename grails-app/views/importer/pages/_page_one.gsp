@@ -81,7 +81,7 @@
 		<div id="datatemplate">Choose type of data template:</div>
 	    </td>
 	    <td>
-		<g:select rel="template" entity="none" name="template_id" optionKey="id" optionValue="name" from="[]" value="${importer_params?.template_id}"/>
+		<g:select rel="template" entity="none" name="template_id" optionKey="id" optionValue="name" from="${importer_datatemplates}" value="${importer_params?.template_id}"/>
 	    </td>
 	</tr>
 	</table>

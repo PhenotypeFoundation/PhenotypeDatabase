@@ -440,8 +440,7 @@ class ImporterService {
 					value = ""
 				}
 
-				try {
-                    println "importdata="+mc.entityclass
+				try {                    
 					// which entity does the current cell (field) belong to?
 					switch (mc.entityclass) {
 						case Study: // does the entity already exist in the record? If not make it so.

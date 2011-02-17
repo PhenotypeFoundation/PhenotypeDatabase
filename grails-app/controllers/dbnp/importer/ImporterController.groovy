@@ -111,13 +111,24 @@ class ImporterController {
 			}
 
             on("refresh") {
-                flash.importer_params = params            
+                println params.importfile
+
+                if (params.entity) {
+                    flash.importer_datatemplates = Template.findAllByEntity(GdtService.getInstanceByEntity(params.entity.decodeURL()))
+                }
+                
+                flash.importer_params = params
+
 				success()
 			}.to "pageOne"
 
 			on("next") {
 				flash.wizardErrors = [:]
-                //flash.importer_params = params
+                flash.importer_params = params
+
+                if (params.entity) {
+                    flash.importer_datatemplates = Template.findAllByEntity(GdtService.getInstanceByEntity(params.entity.decodeURL()))
+                }
 
 				// Study selected?
 				flow.importer_study = (params.study) ? Study.get(params.study.id.toInteger()) : null
@@ -144,16 +155,20 @@ class ImporterController {
 			render(view: "_page_two")
 			onRender {
 				log.info ".import wizard properties page"
+                
+                def template = Template.get(flow.importer_template_id)
+
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_page_two.gsp".grom()
 
-                flow.importer_importmappings = ImportMapping.list()
+                flow.importer_importmappings = ImportMapping.findAllByTemplate(template)
 
 				flow.page = 2
 				success()
 			}
             on("refresh") {
-                flow.importer_importmappings = ImportMapping.list()
+                def template = Template.get(flow.importer_template_id)
+                flow.importer_importmappings = ImportMapping.findAllByTemplate(template)
 
                 // a name was given to the current property mapping, try to store it
                 if (params.mappingname) {
@@ -163,8 +178,6 @@ class ImporterController {
                 if (params.importmapping_id) {
                     propertiesLoadImportMappingPage(flow, flash, params)
                 }
-
-
                 
                 if (params.fuzzymatching == "true")
                     flow.importer_fuzzymatching="true" else
@@ -452,8 +465,7 @@ class ImporterController {
                     im.save(flush:true)
                 } catch (Exception e) {
                     //getNextException
-                    log.error "importer wizard save error: " + e
-                    log.error "importer wizard nextexception: " + e.getNextException()
+                    log.error "importer wizard save importmapping error: " + e
                 }
             }
             else {
@@ -465,19 +477,7 @@ class ImporterController {
 		}
     }
 
-    /*def importmappings = {
-        
-        ImportMapping.list().each { importmapping ->
-            importmapping.mappingcolumns.each { mappingcolumn ->
-                println "das"+mappingcolumn.dump()
-
-            }
-        }
-
-        render("leeg")
-    }*/
-
-	/**
+ 	/**
 	 * Handle the property mapping page.
 	 *
 	 * @param Map LocalAttributeMap (the flow scope)
