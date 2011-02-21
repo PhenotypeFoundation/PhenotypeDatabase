@@ -129,6 +129,7 @@ class ImporterController {
 			on("next") {
 				flash.wizardErrors = [:]
                 flash.importer_params = params
+                flash.importer_params.importfile = params.importfile.replace('existing*', '')
 
                 if (params.entity) {
                     flash.importer_datatemplates = Template.findAllByEntity(GdtService.getInstanceByEntity(params.entity.decodeURL()))
