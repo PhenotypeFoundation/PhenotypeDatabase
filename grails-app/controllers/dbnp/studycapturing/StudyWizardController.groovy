@@ -1228,38 +1228,7 @@ class StudyWizardController {
 	 */
 	def handlePublications(flow, flash, params) {
 		flash.wizardErrors	= [:]
-
-		if (!flow.study.publications) flow.study.publications = []
-
-		// Check the ids of the pubblications that should be attached
-		// to this study. If they are already attached, keep 'm. If
-		// studies are attached that are not in the selected (i.e. the
-		// user deleted them), remove them
-		def publicationIDs = params.get('publication_ids')
-		if (publicationIDs) {
-			// Find the individual IDs and make integers
-			publicationIDs = publicationIDs.split(',').collect { Integer.parseInt(it, 10) }
-
-			// First remove the publication that are not present in the array
-			flow.study.publications.removeAll { publication -> !publicationIDs.find { id -> id == publication.id } }
-
-			// Add those publications not yet present in the database
-			publicationIDs.each { id ->
-				if (!flow.study.publications.find { publication -> id == publication.id }) {
-					def publication = Publication.get(id)
-					if (publication) {
-						flow.study.addToPublications(publication)
-					} else {
-						log.info('.publication with ID ' + id + ' not found in database.')
-					}
-				}
-			}
-
-		} else {
-			log.info('.no publications selected.')
-			flow.study.publications.clear()
-		}
-
+		handleStudyPublications( flow.study, params );
 	}
 
 	/**
@@ -1272,56 +1241,7 @@ class StudyWizardController {
 	def handleContacts(flow, flash, params) {
 		flash.wizardErrors	= [:]
 
-		if (!flow.study.persons) flow.study.persons = []
-
-		// Check the ids of the contacts that should be attached
-		// to this study. If they are already attached, keep 'm. If
-		// studies are attached that are not in the selected (i.e. the
-		// user deleted them), remove them
-
-		// Contacts are saved as [person_id]-[role_id]
-		def contactIDs = params.get('contacts_ids')
-		if (contactIDs) {
-			// Find the individual IDs and make integers
-			contactIDs = contactIDs.split(',').collect {
-				def parts = it.split('-')
-				return [person: Integer.parseInt(parts[0]), role: Integer.parseInt(parts[1])]
-			}
-
-			// First remove the contacts that are not present in the array
-			flow.study.persons.removeAll {
-				studyperson -> !contactIDs.find { ids -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }
-			}
-
-			// Add those contacts not yet present in the database
-			contactIDs.each { ids ->
-				if (!flow.study.persons.find { studyperson -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }) {
-					def person = Person.get(ids.person)
-					def role = PersonRole.get(ids.role)
-					if (person && role) {
-						// Find a studyperson object with these parameters
-						def studyPerson = StudyPerson.findAll().find { studyperson -> studyperson.person.id == person.id && studyperson.role.id == role.id }
-
-						// If if does not yet exist, save the example
-						if (!studyPerson) {
-							studyPerson = new StudyPerson(
-								person: person,
-								role: role
-							)
-							studyPerson.save(flush: true)
-						}
-
-						flow.study.addToPersons(studyPerson)
-					} else {
-						log.info('.person ' + ids.person + ' or Role ' + ids.role + ' not found in database.')
-					}
-				}
-			}
-		} else {
-			log.info('.no persons selected.')
-			flow.study.persons.clear()
-		}
-
+		handleStudyContacts( flow.study, params );
 	}
 
 	/**
@@ -1329,62 +1249,180 @@ class StudyWizardController {
 	 * @param Map LocalAttributeMap (the flow scope)
 	 * @param Map localAttributeMap (the flash scope)
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
-         * @param String    'readers' or 'writers'
+     * @param String    'readers' or 'writers'
 	 * @return boolean
 	 */
 	def handleUsers(flow, flash, params, type) {
 		flash.wizardErrors = [:]
-
-		def users = []
-
-		if (type == "readers" && flow.study.readers ) {
-			users += flow.study.readers
-		} else if (type == "writers" && flow.study.writers ) {
-			users += flow.study.writers
-		}
-
-		// Check the ids of the contacts that should be attached
-		// to this study. If they are already attached, keep 'm. If
-		// studies are attached that are not in the selected (i.e. the
-		// user deleted them), remove them
-
-		// Users are saved as user_id
-		def userIDs = params.get(type + '_ids')
-		if (userIDs) {
-			// Find the individual IDs and make integers
-			userIDs = userIDs.split(',').collect { Integer.parseInt(it, 10) }
-
-			// First remove the publication that are not present in the array
-			users.removeAll { user -> !userIDs.find { id -> id == user.id } }
-
-			// Add those publications not yet present in the database
-			userIDs.each { id ->
-				if (!users.find { user -> id == user.id }) {
-					def user = SecUser.get(id)
-					if (user) {
-						users.add(user)
-					} else {
-						log.info('.user with ID ' + id + ' not found in database.')
-					}
-				}
-			}
-
-		} else {
-			log.info('.no users selected.')
-			users.clear()
-		}
-
-		if (type == "readers") {
-			if (flow.study.readers)
-				flow.study.readers.clear()
-			users.each { flow.study.addToReaders(it) }
-		} else if (type == "writers") {
-			if (flow.study.writers)
-				flow.study.writers.clear()
-
-			users.each { flow.study.addToWriters(it) }
-		}
+		handleStudyUsers( flow.study, params, type );
 	}
+	
+	/**
+	* re-usable code for handling publications form data
+	* @param study	Study object to update
+	* @param params GrailsParameterMap (the flow parameters = form data)
+	* @returns boolean
+	*/
+   def handleStudyPublications(Study study,  params) {
+	   if (study.publications) study.publications = []
+
+	   // Check the ids of the pubblications that should be attached
+	   // to this study. If they are already attached, keep 'm. If
+	   // studies are attached that are not in the selected (i.e. the
+	   // user deleted them), remove them
+	   def publicationIDs = params.get('publication_ids')
+	   if (publicationIDs) {
+		   // Find the individual IDs and make integers
+		   publicationIDs = publicationIDs.split(',').collect { Integer.parseInt(it, 10) }
+
+		   // First remove the publication that are not present in the array
+		   if( study.publications )
+			   study.publications.removeAll { publication -> !publicationIDs.find { id -> id == publication.id } }
+
+		   // Add those publications not yet present in the database
+		   publicationIDs.each { id ->
+			   if (!study.publications.find { publication -> id == publication.id }) {
+				   def publication = Publication.get(id)
+				   if (publication) {
+					   study.addToPublications(publication)
+				   } else {
+					   log.info('.publication with ID ' + id + ' not found in database.')
+				   }
+			   }
+		   }
+
+	   } else {
+		   log.info('.no publications selected.')
+		   if( study.publications )
+			   study.publications.clear()
+	   }
+   }
+
+   /**
+	* re-usable code for handling contacts form data
+	* @param study	Study object to update
+	* @param Map GrailsParameterMap (the flow parameters = form data)
+	* @return boolean
+	*/
+   def handleStudyContacts(Study study, params) {
+	   if (!study.persons) study.persons = []
+
+	   // Check the ids of the contacts that should be attached
+	   // to this study. If they are already attached, keep 'm. If
+	   // studies are attached that are not in the selected (i.e. the
+	   // user deleted them), remove them
+
+	   // Contacts are saved as [person_id]-[role_id]
+	   def contactIDs = params.get('contacts_ids')
+	   if (contactIDs) {
+		   // Find the individual IDs and make integers
+		   contactIDs = contactIDs.split(',').collect {
+			   def parts = it.split('-')
+			   return [person: Integer.parseInt(parts[0]), role: Integer.parseInt(parts[1])]
+		   }
+
+		   // First remove the contacts that are not present in the array
+		   if( study.persons ) {
+			   study.persons.removeAll {
+				   studyperson -> !contactIDs.find { ids -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }
+			   }
+		   }
+
+		   // Add those contacts not yet present in the database
+		   contactIDs.each { ids ->
+			   if (!study.persons.find { studyperson -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }) {
+				   def person = Person.get(ids.person)
+				   def role = PersonRole.get(ids.role)
+				   if (person && role) {
+					   // Find a studyperson object with these parameters
+					   def studyPerson = StudyPerson.findAll().find { studyperson -> studyperson.person.id == person.id && studyperson.role.id == role.id }
+
+					   // If if does not yet exist, save the example
+					   if (!studyPerson) {
+						   studyPerson = new StudyPerson(
+								   person: person,
+								   role: role
+								   )
+						   studyPerson.save(flush: true)
+					   }
+
+					   study.addToPersons(studyPerson)
+				   } else {
+					   log.info('.person ' + ids.person + ' or Role ' + ids.role + ' not found in database.')
+				   }
+			   }
+		   }
+	   } else {
+		   log.info('.no persons selected.')
+		   if( study.persons )
+			   study.persons.clear()
+	   }
+   }
+
+   /**
+	* re-usable code for handling contacts form data
+	* @param study	Study object to update
+	* @param Map GrailsParameterMap (the flow parameters = form data)
+	* @param String    'readers' or 'writers'
+	* @return boolean
+	*/
+   def handleStudyUsers(Study study, params, type) {
+	   def users = []
+
+	   if (type == "readers" && study.readers ) {
+		   users += study.readers
+	   } else if (type == "writers" && study.writers ) {
+		   users += study.writers
+	   }
+
+	   // Check the ids of the contacts that should be attached
+	   // to this study. If they are already attached, keep 'm. If
+	   // studies are attached that are not in the selected (i.e. the
+	   // user deleted them), remove them
+
+	   // Users are saved as user_id
+	   def userIDs = params.get(type + '_ids')
+	   
+	   if (userIDs) {
+		   // Find the individual IDs and make integers
+		   userIDs = userIDs.split(',').collect { Long.valueOf(it, 10) }
+		   
+		   // First remove the publication that are not present in the array
+		   users.removeAll { user -> !userIDs.find { id -> id == user.id } }
+
+		   // Add those publications not yet present in the database
+		   userIDs.each { id ->
+			   if (!users.find { user -> id == user.id }) {
+				   def user = SecUser.get(id)
+				   if (user) {
+					   users.add(user)
+				   } else {
+					   log.info('.user with ID ' + id + ' not found in database.')
+				   }
+			   }
+		   }
+		   
+	   } else {
+		   log.info('.no users selected.')
+		   users.clear()
+	   }
+	   
+	   if (type == "readers") {
+		   if (study.readers)
+			   study.readers.clear()
+			   
+		   users.each { study.addToReaders(it) }
+	   } else if (type == "writers") {
+		   if (study.writers)
+			   study.writers.clear()
+
+		   users.each { study.addToWriters(it) }
+		   
+	   }
+   }
+	
+	
+		
 
 	/**
 	 * Handle the wizard subject page
