@@ -1337,10 +1337,10 @@ class StudyWizardController {
 
 		def users = []
 
-		if (type == "readers") {
-			users = flow.study.readers ?: []
-		} else if (type == "writers") {
-			users = flow.study.writers ?: []
+		if (type == "readers" && flow.study.readers ) {
+			users += flow.study.readers
+		} else if (type == "writers" && flow.study.writers ) {
+			users += flow.study.writers
 		}
 
 		// Check the ids of the contacts that should be attached
