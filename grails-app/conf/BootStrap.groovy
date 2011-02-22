@@ -75,13 +75,13 @@ class BootStrap {
 		//      - and/or studies
 		if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT || grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST || grails.util.GrailsUtil.environment == "dbnpdemo") {
 			// add ontologies?
-			if (!Ontology.count()) BootStrapTemplates.initTemplateOntologies()
+			if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
 
 			// add templates?
-			if (!Template.count()) BootStrapTemplates.initTemplates()
+			if (!Template.count()) ExampleTemplates.initTemplates()
 
 			// add example studies?
-			if (!Study.count() && grails.util.GrailsUtil.environment != "demo" && grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST) BootStrapStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
+			if (!Study.count() && grails.util.GrailsUtil.environment != "demo" && grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST) ExampleStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
 		}
 
 		/**

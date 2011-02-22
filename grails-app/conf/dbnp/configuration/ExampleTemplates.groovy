@@ -3,9 +3,9 @@
  * @Since Jun 25, 2010
  *
  * Revision information:
- * $Rev$
- * $Author$
- * $Date$
+ * $Rev: 1545 $
+ * $Author: work@osx.eu $
+ * $Date: 2011-02-22 13:47:28 +0100 (Tue, 22 Feb 2011) $
  */
 package dbnp.configuration
 
@@ -14,7 +14,7 @@ import dbnp.studycapturing.*
 import org.dbnp.gdt.*
 import org.codehaus.groovy.grails.commons.GrailsApplication
 
-class BootStrapTemplates {
+class ExampleTemplates {
 
 	/**
 	 * Add the ontologies that are necessary for the templates below manually

@@ -18,7 +18,7 @@ import dbnp.rest.common.CommunicationManager
 import org.codehaus.groovy.grails.commons.*
 
 
-class BootStrapStudies {
+class ExampleStudies {
 
 	/**
 	 * Add example studies. This function is meant to be called only in development mode
