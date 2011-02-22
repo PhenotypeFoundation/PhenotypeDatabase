@@ -5,7 +5,6 @@ import grails.plugins.springsecurity.Secured
 import dbnp.authentication.SecUser
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import org.dbnp.gdt.*
-import org.dbnp.bgdt.*
 
 /**
  * ajaxflow Controller

@@ -1,8 +1,7 @@
 package gscf
 
 import grails.test.*
-import org.dbnp.bgdt.Ontology
-import org.dbnp.bgdt.Term
+import org.dbnp.gdt.*
 
 /**
  * OntologyTests Test

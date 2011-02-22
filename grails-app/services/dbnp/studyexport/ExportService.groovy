@@ -13,8 +13,7 @@ package dbnp.studyexport
 import dbnp.authentication.*
 import dbnp.studycapturing.*
 import grails.converters.XML
-import org.codehaus.groovy.grails.web.converters.configuration.ConvertersConfigurationHolder;
-import org.dbnp.bgdt.*
+import org.codehaus.groovy.grails.web.converters.configuration.ConvertersConfigurationHolder
 import org.dbnp.gdt.*
 
 

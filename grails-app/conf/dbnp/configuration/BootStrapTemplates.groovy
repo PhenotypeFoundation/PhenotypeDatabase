@@ -12,7 +12,6 @@ package dbnp.configuration
 
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
-import org.dbnp.bgdt.*
 import org.codehaus.groovy.grails.commons.GrailsApplication
 
 class BootStrapTemplates {
