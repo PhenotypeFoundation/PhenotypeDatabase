@@ -81,7 +81,7 @@
 					<div class="firstColumn"></div>
 					<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 					<div class="column">
-						<g:textField name="eventGroup_${eventGroup.getIdentifier()}_${template.getIdentifier()}" value="${eventGroup.name}" />
+						<g:textField name="eventGroup_${eventGroup.getIdentifier()}_${template.getIdentifier()}" value="${eventGroup.name}" onKeyDown="return false;" />
 						<af:ajaxButton name="deleteEventGroup" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this eventgroup" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${eventGroup.getIdentifier()});" afterSuccess="onPage()" />
 					</div>
 					</g:each></g:if>
