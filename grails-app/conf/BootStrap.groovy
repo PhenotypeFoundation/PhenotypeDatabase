@@ -9,6 +9,7 @@ import dbnp.rest.common.CommunicationManager
 import org.codehaus.groovy.grails.commons.*
 import dbnp.configuration.*
 
+
 /**
  * Application Bootstrapper
  * @Author Jeroen Wesbeek
