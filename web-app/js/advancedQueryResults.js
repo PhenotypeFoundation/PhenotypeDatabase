@@ -4,7 +4,7 @@ function checkAllPaginated( input ) {
 	var checkAll = $( '#checkAll', paginatedTable );
 	
 	var oTable = paginatedTable.dataTable();
-	var inputs = $('input', oTable.fnGetNodes())
+	var inputs = $('input[type=checkbox]', oTable.fnGetNodes())
 	
 	// If any of the inputs is checked, uncheck all. Otherwise, check all
 	var check = false;
@@ -30,7 +30,7 @@ function updateCheckAll( input ) {
 	var checkAll = $( '#checkAll', paginatedTable );
 	
 	var oTable = paginatedTable.dataTable();
-	var inputs = $('input', oTable.fnGetNodes())
+	var inputs = $('input[type=checkbox]', oTable.fnGetNodes())
 	
 	// Is none checked, are all checked or are some checked
 	var numChecked = 0
@@ -42,7 +42,7 @@ function updateCheckAll( input ) {
 	
 	checkAll.attr( 'checked', numChecked > 0 );
 	
-	if( numChecked > 0 && numChecked < inputs.length - 1 ) {
+	if( numChecked > 0 && numChecked < inputs.length ) {
 		checkAll.addClass( 'transparent' );
 	} else {
 		checkAll.removeClass( 'transparent' );

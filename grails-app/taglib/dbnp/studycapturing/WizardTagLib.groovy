@@ -185,7 +185,19 @@ class WizardTagLib extends GdtTagLib {
 	}
 
 	def _publicationAddButton = { attrs, body ->
-
+		
+		if( attrs.get( 'noForm', false ) ) {
+			// Only show the add button. The dialog that is created with this method otherwise,
+			// should be created somewhere outside the form.
+		} else {
+			out << publicationDialog( attrs, body );
+		}
+	
+		out << '<input type="button" onClick="openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">';
+	}
+	
+	// Show the add publications dialog
+	def publicationDialog = { attrs, body ->
 		// Output the dialog for the publications
 		out << '<div id="' + attrs.name + '_dialog">';
 		out << '<p>Search for a publication on pubmed. You can search on a part of the title, authors or pubmed ID. </p>';
@@ -194,9 +206,8 @@ class WizardTagLib extends GdtTagLib {
 		out << '<script type="text/javascript">';
 		out << '  createPublicationDialog( "' + attrs.name + '" );'
 		out << '</script>';
-
-		out << '<input type="button" onClick="openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">';
 	}
+	
 
 	def ContactSelectElement = { attrs, body ->
 
@@ -420,7 +431,17 @@ class WizardTagLib extends GdtTagLib {
 	}
 
 	def _userAddButton = { attrs, body ->
+		if( attrs.get( 'noForm', false ) ) {
+			// Only show the add button. The dialog that is created with this method otherwise,
+			// should be created somewhere outside the form.
+		} else {
+			out << userDialog( attrs, body );
+		}
 
+		out << '<input type="button" onClick="openUserDialog(\'' + attrs.name + '\' );" value="Add User">';
+	}
+	
+	def userDialog = { attrs, body ->
 		// Output the dialog for the publications
 		out << '<div id="' + attrs.name + '_dialog">';
 		out << '<p>Select a user from the database.</p>';
@@ -429,8 +450,6 @@ class WizardTagLib extends GdtTagLib {
 		out << '<script type="text/javascript">';
 		out << '  createUserDialog( "' + attrs.name + '" );'
 		out << '</script>';
-
-		out << '<input type="button" onClick="openUserDialog(\'' + attrs.name + '\' );" value="Add User">';
 	}
 
 }

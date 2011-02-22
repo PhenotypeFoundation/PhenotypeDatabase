@@ -74,7 +74,7 @@ ul.topnav {
 	background: #222;
 	font-size: 1.2em;
 	background: url(../images/default_style/topnav/topnav_bg.gif) repeat-x;
-	z-index: 1005; /** Important: keeps submenu's on top of other elements in IE7. See http://www.shawnpreisz.com/css/z-index-internet-explorer-7-ie7#comment-547 */
+	z-index: 995; /** Important: keeps submenu's on top of other elements in IE7. See http://www.shawnpreisz.com/css/z-index-internet-explorer-7-ie7#comment-547 */
 }
 
 ul.topnav li {
@@ -82,7 +82,7 @@ ul.topnav li {
 	margin: 0;
 	padding: 0 15px 0 0;
 	position: relative; /*--Declare X and Y axis base--*/
-	z-index: 1004; /** Important: keeps submenu's on top of other elements in IE7. See http://www.shawnpreisz.com/css/z-index-internet-explorer-7-ie7#comment-547 */
+	z-index: 994; /** Important: keeps submenu's on top of other elements in IE7. See http://www.shawnpreisz.com/css/z-index-internet-explorer-7-ie7#comment-547 */
 }
 
 ul.topnav li img {
@@ -131,7 +131,7 @@ ul.topnav li ul.subnav {
 	-webkit-border-bottom-left-radius: 5px;
 	-webkit-border-bottom-right-radius: 5px;
 	border: 1px solid #111;
-	z-index: 1001; /** Important: keeps submenu's on top of other elements in IE7. See http://www.shawnpreisz.com/css/z-index-internet-explorer-7-ie7#comment-547 */
+	z-index: 991; /** Important: keeps submenu's on top of other elements in IE7. See http://www.shawnpreisz.com/css/z-index-internet-explorer-7-ie7#comment-547 */
 }
 
 ul.topnav li ul.subnav li {
@@ -142,7 +142,7 @@ ul.topnav li ul.subnav li {
 	clear: both;
 	width: 170px;
 	position:relative;
-	z-index: 1000; /** Important: keeps submenu's on top of other elements in IE7. See http://www.shawnpreisz.com/css/z-index-internet-explorer-7-ie7#comment-547 */
+	z-index: 990; /** Important: keeps submenu's on top of other elements in IE7. See http://www.shawnpreisz.com/css/z-index-internet-explorer-7-ie7#comment-547 */
 }
 
 html ul.topnav li ul.subnav li a {

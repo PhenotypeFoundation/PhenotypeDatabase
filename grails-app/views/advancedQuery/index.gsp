@@ -4,6 +4,7 @@
 	<meta name="layout" content="main"/>
 	<title>Query database</title>
 	<link rel="stylesheet" href="<g:resource dir="css" file="advancedQuery.css" />" type="text/css"/>
+	<link rel="stylesheet" href="<g:resource dir="css" file="buttons.css" />" type="text/css"/>
 	<g:javascript src="advancedQuery.js" />
 	<script type="text/javascript">
 		// Make a list of fields to search in

@@ -109,6 +109,7 @@ class ImporterTagLib {
 		def allfieldtypes = attrs['allfieldtypes']		
         def matchvalue = (attrs['fuzzymatching']=="true") ? attrs['matchvalue'] : ""
         def selected = (attrs['selected']) ? attrs['selected'] : ""
+		def fuzzyTreshold = attrs[ 'treshold' ] && attrs[ 'treshold' ].toString().isNumber() ? Float.valueOf( attrs[ 'treshold' ] ) : 0.1;
 
         def domainfields = mc.entityclass.giveDomainFields().findAll { it.type == mc.templatefieldtype }
 		domainfields = domainfields.findAll { it.preferredIdentifier != mc.identifier}
@@ -124,7 +125,8 @@ class ImporterTagLib {
 
 		/*(mc.identifier) ? out << createPropertySelect(attrs['name'], prefcolumn, matchvalue, mc.index) :
 			out << createPropertySelect(attrs['name'], templatefields, matchvalue, mc.index)*/
-         out << createPropertySelect(attrs['name'], templatefields, matchvalue, selected, mc.index)
+		
+         out << createPropertySelect(attrs['name'], templatefields, matchvalue, selected, mc.index, fuzzyTreshold)
 	}
 
 	/**
@@ -136,10 +138,10 @@ class ImporterTagLib {
 	 * @param columnIndex column identifier (corresponding to position in header of the Excel sheet)
 	 * @return HTML select object
 	 */
-	def createPropertySelect(String name, options, matchvalue, selected, Integer columnIndex) {
+	def createPropertySelect(String name, options, matchvalue, selected, Integer columnIndex, float fuzzyTreshold = 0.1f) {
 		// Determine which field in the options list matches the best with the matchvalue
-		def mostsimilar = (matchvalue) ? ImporterService.mostSimilar(matchvalue, options) : ""
-
+		def mostsimilar = (matchvalue) ? ImporterService.mostSimilar(matchvalue, options, fuzzyTreshold) : ""
+		
 		def res = "<select style=\"font-size:10px\" id=\"${name}.index.${columnIndex}\" name=\"${name}.index.${columnIndex}\">"
 
 		res += "<option value=\"dontimport\">Don't import</option>"
@@ -149,7 +151,7 @@ class ImporterTagLib {
 
 			// mostsimilar string passed as argument or selected value passed?
             res += (mostsimilar.toString().toLowerCase() == f.name.toLowerCase() || selected.toLowerCase() == f.name.toLowerCase() ) ?
-				" selected>" :
+				" selected='selected'>" :
 				">"
             
 			res += (f.preferredIdentifier) ?

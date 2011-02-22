@@ -1,0 +1,46 @@
+/** Options buttons **/
+.options { margin-top: 8px; }
+.options.multiple { float: left; width: 300px; }
+
+.options a {
+	font-size: 10px;
+	font-weight: bold;
+	margin-right: 10px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	line-height: 20px;
+	padding-left: 28px;	
+	background-position: 5px 50%;
+	background-repeat: no-repeat;
+}
+
+#content .options a.disabled { color: #aaa; cursor: default; }
+
+.options a.next {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/arrow_right.png);
+}
+.options a.previous {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/arrow_left.png);
+}
+
+.options a.performAction {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/brick_go.png);
+}
+.options a.excel {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/page_excel.png);
+}
+.options a.searchIn {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/arrow_branch.png);
+}
+.options a.search {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/arrow_undo.png);
+}
+.options a.discard {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/basket_remove.png);
+}
+.options a.listPrevious {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/basket.png);
+}
+.options a.combine {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/arrow_join.png);
+}
