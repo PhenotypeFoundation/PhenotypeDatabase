@@ -1,0 +1,38 @@
+/** GENERAL **/
+.simpleWizard .options { border-top: 1px solid #ccc; }
+.simpleWizard { font-size: 11px; } 
+
+/** STUDY PAGE **/
+.simpleWizard input, .simpleWizard select, .simpleWizard textarea { width: 220px; }
+.simpleWizard .tableEditor input, .simpleWizard .tableEditor  select { width: 100px; }
+
+div .simpleWizard .description { width: 170px; }
+.simpleWizard .error, .simpleWizard .required { background-position: 150px 2px; }
+
+/** Meta boxes **/
+.simpleWizard div.meta { float: right; display: block; position: relative; width: 280px; }
+.simpleWizard div.meta div.component { margin: 0 0 10px 0; border: 1px solid #555; display: block; }
+.simpleWizard div.component h2 { margin: 0; padding: 5px 5px; background-color: #F8FEFF;  font-weight: bold; }
+.simpleWizard div.component div.content { margin: 5px; }
+
+/** default selects for publications, contacts etc. should be changed to fit the simpleWizard layout **/
+.simpleWizard div.meta .element .input input { vertical-align: middle; width: 120px; }
+.simpleWizard div.meta .description { display: none; }
+
+.simpleWizard div ul.publication_list, 
+.simpleWizard div ul.contact_list { margin: 0; } 
+.simpleWizard div ul.user_list { margin: -22px 0 0 100px; }
+
+/* .simpleWizard .publication_list li .authors { overflow: hidden; max-height: 8px; text-overflow:ellipsis; } */
+
+.simpleWizard #contacts_dialog { margin: 4px; background-color: #f3f3f3; }
+.simpleWizard #contacts_dialog select { width: 200px; }
+
+.simpleWizard div#authorization .description { display: inline-block; *display: inline; width: 100px; margin-top: 6px; }
+
+/** SAMPLES PAGE **/
+.simpleWizard #samplesDialog table { border-width: 0; }
+
+/** COLUMNS PAGE **/
+.simpleWizard .importcolumns { position: relative; width: 100%; overflow: auto; border: 1px solid #ccc; }
+.simpleWizard .importcolumns table { border-width: 0; }

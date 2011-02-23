@@ -60,11 +60,11 @@ class ImporterService {
 
 			switch (datamatrix_celltype) {
 				case Cell.CELL_TYPE_STRING:
-					//parse cell value as double
+				//parse cell value as double
 					def doubleBoolean = true
 					def fieldtype = TemplateFieldType.STRING
 
-					// is this string perhaps a double?
+				// is this string perhaps a double?
 					try {
 						formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
 					} catch (NumberFormatException nfe) { doubleBoolean = false }
@@ -73,10 +73,10 @@ class ImporterService {
 					}
 
 					header[columnindex] = new dbnp.importer.MappingColumn(name: df.formatCellValue(headercell),
-						templatefieldtype: fieldtype,
-						index: columnindex,
-						entityclass: theEntity,
-						property: property);
+							templatefieldtype: fieldtype,
+							index: columnindex,
+							entityclass: theEntity,
+							property: property);
 
 					break
 				case Cell.CELL_TYPE_NUMERIC:
@@ -84,7 +84,7 @@ class ImporterService {
 					def doubleBoolean = true
 					def longBoolean = true
 
-					// is this cell really an integer?
+				// is this cell really an integer?
 					try {
 						Long.valueOf(datamatrix_celldata)
 					} catch (NumberFormatException nfe) { longBoolean = false }
@@ -92,7 +92,7 @@ class ImporterService {
 						if (longBoolean) fieldtype = TemplateFieldType.LONG
 					}
 
-					// it's not an long, perhaps a double?
+				// it's not an long, perhaps a double?
 					if (!longBoolean)
 						try {
 							formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
@@ -104,24 +104,24 @@ class ImporterService {
 					if (DateUtil.isCellDateFormatted(datamatrix_cell)) fieldtype = TemplateFieldType.DATE
 
 					header[columnindex] = new dbnp.importer.MappingColumn(name: df.formatCellValue(headercell),
-						templatefieldtype: fieldtype,
-						index: columnindex,
-						entityclass: theEntity,
-						property: property);
+							templatefieldtype: fieldtype,
+							index: columnindex,
+							entityclass: theEntity,
+							property: property);
 					break
 				case Cell.CELL_TYPE_BLANK:
 					header[columnindex] = new dbnp.importer.MappingColumn(name: df.formatCellValue(headercell),
-						templatefieldtype: TemplateFieldType.STRING,
-						index: columnindex,
-						entityclass: theEntity,
-						property: property);
+					templatefieldtype: TemplateFieldType.STRING,
+					index: columnindex,
+					entityclass: theEntity,
+					property: property);
 					break
 				default:
 					header[columnindex] = new dbnp.importer.MappingColumn(name: df.formatCellValue(headercell),
-						templatefieldtype: TemplateFieldType.STRING,
-						index: columnindex,
-						entityclass: theEntity,
-						property: property);
+					templatefieldtype: TemplateFieldType.STRING,
+					index: columnindex,
+					entityclass: theEntity,
+					property: property);
 					break
 			} // end of switch
 		} // end of cell loop
@@ -149,8 +149,8 @@ class ImporterService {
 			def row = []
 
 			(0..header.size() - 1).each { columnindex ->
-                if (sheet.getRow(rowindex))
-                    row.add( sheet.getRow(rowindex).getCell(columnindex, Row.CREATE_NULL_AS_BLANK) )
+				if (sheet.getRow(rowindex))
+					row.add( sheet.getRow(rowindex).getCell(columnindex, Row.CREATE_NULL_AS_BLANK) )
 			}
 
 			rows.add(row)
@@ -203,7 +203,7 @@ class ImporterService {
 		def template = Template.get(template_id)
 		def table = []
 		def failedcells = [] // list of records
-
+		
 		// walk through all rows and fill the table with records
 		(rowindex..sheet.getLastRowNum()).each { i ->
 			// Create an entity record based on a row read from Excel and store the cells which failed to be mapped
@@ -217,6 +217,60 @@ class ImporterService {
 		}
 
 		return [table, failedcells]
+	}
+
+	/**
+	 * Removes a cell from the failedCells list, based on the entity and field. If the entity and field didn't fail before
+	 * the method doesn't do anything.
+	 * 
+	 * @param failedcell 	list of cells that have failed previously
+	 * @param entity 		entity to remove from the failedcells list
+	 * @param field			field to remove the failed cell for. If no field is given, all cells for this entity will be removed
+	 * @return List			Updated list of cells that have failed
+	 */
+	def removeFailedCell(failedcells, entity, field = null ) {
+		if( !entity )
+			return failedcells;
+
+		def filterClosure
+		if( field ) {
+			def entityIdField = "entity_" + entity.getIdentifier() + "_" + field.name.toLowerCase()
+			filterClosure = { cell -> cell.entityidentifier != entityIdField }
+		} else {
+			def entityIdField = "entity_" + entity.getIdentifier() + "_"
+			filterClosure = { cell -> !cell.entityidentifier.startsWith( entityIdField ) }
+		}
+
+		failedcells.each { record ->
+			record.importcells = record.importcells.findAll( filterClosure )
+		}
+
+		return failedcells;
+	}
+
+	/**
+	 * Returns the name of an input field as it is used for a specific entity in HTML.
+	 *
+	 * @param entity 		entity to retrieve the field name for
+	 * @param field			field to retrieve the field name for
+	 * @return String		Name of the HTML field for the given entity and field. Can also be used in the map
+	 * 						of request parameters
+	 */
+	def getFieldNameInTableEditor(entity, field) {
+		if( field instanceof TemplateField )
+			field = field.escapedName();
+
+		return "entity_" + entity.getIdentifier() + "_" + field
+	}
+
+	/**
+	 * Retrieves a mapping column from a list based on the given fieldname
+	 * @param mappingColumns		List of mapping columns
+	 * @param fieldName			Field name to find
+	 * @return					Mapping column if a column is found, null otherwise
+	 */
+	def findMappingColumn( mappingColumns, String fieldName ) {
+		return mappingColumns.find { it.property == fieldName.toLowerCase() }
 	}
 
 	/** Method to put failed cells back into the datamatrix. Failed cells are cell values
@@ -277,25 +331,25 @@ class ImporterService {
 				switch (entity.getClass()) {
 					case Study: log.info ".importer wizard, persisting Study `" + entity + "`: "
 						entity.owner = authenticationService.getLoggedInUser()
-                        
-                        if (study.validate()) {
-                            if (!entity.save(flush:true)) {
-                                log.error ".importer wizard, study could not be saved: " + entity
-                                throw new Exception('.importer wizard, study could not be saved: ' + entity)
-                            }
-                        } else {
-                            log.error ".importer wizard, study could not be validated: " + entity
-                            throw new Exception('.importer wizard, study could not be validated: ' + entity)
-                        }
 
-                        break
+						if (study.validate()) {
+							if (!entity.save(flush:true)) {
+								log.error ".importer wizard, study could not be saved: " + entity
+								throw new Exception('.importer wizard, study could not be saved: ' + entity)
+							}
+						} else {
+							log.error ".importer wizard, study could not be validated: " + entity
+							throw new Exception('.importer wizard, study could not be validated: ' + entity)
+						}
+
+						break
 					case Subject: log.info ".importer wizard, persisting Subject `" + entity + "`: "
 
-						// is the current entity not already in the database?
-						//entitystored = isEntityStored(entity)
+					// is the current entity not already in the database?
+					//entitystored = isEntityStored(entity)
 
-						// this entity is new, so add it to the study
-						//if (entitystored==null)
+					// this entity is new, so add it to the study
+					//if (entitystored==null)
 
 						study.addToSubjects(entity)
 
@@ -305,7 +359,7 @@ class ImporterService {
 						break
 					case Sample: log.info ".importer wizard, persisting Sample `" + entity + "`: "
 
-						// is this sample validatable (sample name unique for example?)
+					// is this sample validatable (sample name unique for example?)
 						study.addToSamples(entity)
 
 						break
@@ -390,19 +444,16 @@ class ImporterService {
 	 */
 	boolean persistEntity(entity) {
 		/*log.info ".import wizard persisting ${entity}"
-
-		try {            
-			entity.save(flush: true)
-			return true
-
-		} catch (Exception e) {
-			def session = sessionFactory.currentSession
-			session.setFlushMode(org.hibernate.FlushMode.MANUAL)
-			log.error ".import wizard, failed to save entity:\n" + org.apache.commons.lang.exception.ExceptionUtils.getRootCauseMessage(e)
-		}
-
-		return true*/
-        //println "persistEntity"
+		 try {            
+		 entity.save(flush: true)
+		 return true
+		 } catch (Exception e) {
+		 def session = sessionFactory.currentSession
+		 session.setFlushMode(org.hibernate.FlushMode.MANUAL)
+		 log.error ".import wizard, failed to save entity:\n" + org.apache.commons.lang.exception.ExceptionUtils.getRootCauseMessage(e)
+		 }
+		 return true*/
+		//println "persistEntity"
 	}
 
 	/**
@@ -440,7 +491,7 @@ class ImporterService {
 					value = ""
 				}
 
-				try {                    
+				try {
 					// which entity does the current cell (field) belong to?
 					switch (mc.entityclass) {
 						case Study: // does the entity already exist in the record? If not make it so.
@@ -465,7 +516,7 @@ class ImporterService {
 				} catch (Exception iae) {
 					log.error ".import wizard error could not set property `" + mc.property + "` to value `" + value + "`"
 					// store the mapping column and value which failed
-                    def identifier
+					def identifier
 
 					switch (mc.entityclass) {
 						case Study: identifier = "entity_" + study.getIdentifier() + "_" + mc.property
@@ -502,7 +553,7 @@ class ImporterService {
 			case TemplateFieldType.STRING: return value.trim()
 			case TemplateFieldType.TEXT: return value.trim()
 			case TemplateFieldType.LONG: return (long) Double.valueOf(value)
-		//case TemplateFieldType.FLOAT	    :   return Float.valueOf(value.replace(",","."));
+			//case TemplateFieldType.FLOAT	    :   return Float.valueOf(value.replace(",","."));
 			case TemplateFieldType.DOUBLE: return Double.valueOf(value.replace(",", "."));
 			case TemplateFieldType.STRINGLIST: return value.trim()
 			case TemplateFieldType.ONTOLOGYTERM: return value.trim()
@@ -519,7 +570,7 @@ class ImporterService {
 		def r_histo = countNgramFrequency(r_seq, degree)
 
 		dotProduct(l_histo, r_histo) /
-			Math.sqrt(dotProduct(l_histo, l_histo) *
+				Math.sqrt(dotProduct(l_histo, l_histo) *
 				dotProduct(r_histo, r_histo))
 	}
 
@@ -545,8 +596,8 @@ class ImporterService {
 	static def stringSimilarity(l_str, r_str, degree = 2) {
 
 		similarity(l_str.toString().toLowerCase().toCharArray(),
-			r_str.toString().toLowerCase().toCharArray(),
-			degree)
+				r_str.toString().toLowerCase().toCharArray(),
+				degree)
 	}
 
 	static def mostSimilar(pattern, candidates, threshold = 0) {

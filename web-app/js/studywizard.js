@@ -147,7 +147,7 @@ function attachDateTimePickers() {
 // the cummalative width of the columns in the header
 function handleWizardTable() {
 	var that = this;
-	var wizardTables = $(".ajaxFlow").find('div.tableEditor');
+	var wizardTables = $('div.tableEditor');
 
 	wizardTables.each(function() {
 		var wizardTable = $(this);
