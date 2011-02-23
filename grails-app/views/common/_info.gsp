@@ -25,7 +25,7 @@
 			<td>: <span id="info-deployed" /></td>
 		</tr>
 		<tr>
-			<td>uptime</td>
+			<td>build age</td>
 			<td>: <span id="info-uptime" /></td>
 		</tr>
 	</table>
