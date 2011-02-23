@@ -110,7 +110,8 @@ class ImporterTagLib {
         def matchvalue = (attrs['fuzzymatching']=="true") ? attrs['matchvalue'] : ""
         def selected = (attrs['selected']) ? attrs['selected'] : ""
 		def fuzzyTreshold = attrs[ 'treshold' ] && attrs[ 'treshold' ].toString().isNumber() ? Float.valueOf( attrs[ 'treshold' ] ) : 0.1;
-
+        def returnmatchonly = attrs['returnmatchonly']
+        
         def domainfields = mc.entityclass.giveDomainFields().findAll { it.type == mc.templatefieldtype }
 		domainfields = domainfields.findAll { it.preferredIdentifier != mc.identifier}
 
@@ -125,8 +126,13 @@ class ImporterTagLib {
 
 		/*(mc.identifier) ? out << createPropertySelect(attrs['name'], prefcolumn, matchvalue, mc.index) :
 			out << createPropertySelect(attrs['name'], templatefields, matchvalue, mc.index)*/
-		
-         out << createPropertySelect(attrs['name'], templatefields, matchvalue, selected, mc.index, fuzzyTreshold)
+
+        //  Just return the matched value only
+        if (returnmatchonly)
+            out << ImporterService.mostSimilar(matchvalue, templatefields, fuzzyTreshold)
+        else // Return a selectbox
+            out << createPropertySelect(attrs['name'], templatefields, matchvalue, selected, mc.index, fuzzyTreshold)
+
 	}
 
 	/**

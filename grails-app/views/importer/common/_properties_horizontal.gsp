@@ -35,7 +35,10 @@
                 Select an existing mapping and press Load:
                 <g:select name="importmapping_id" from="${importer_importmappings}" noSelection="['':'-Select mapping-']" optionValue="name" optionKey="id"/>
               </div>
-            </td>           
+            </td>
+            
+            <g:set var="usedfuzzymatches" value="${'-'}"/>
+
             <g:each var="mappingcolumn" in="${importer_header}">
               <!-- set selected values based on submitted columnproperties, actually refresh -->
               <g:if test="${importer_columnproperty}">
@@ -45,10 +48,24 @@
                 <g:set var="selected" value="${mappingcolumn.property}"/>
               </g:else>
 
+              <g:set var="matchvalue" value="${mappingcolumn.name}"/>
+
 			  <td class="header" width="200px">
 				<b>${mappingcolumn.name}</b>
-                  <importer:propertyChooser name="columnproperty" mappingcolumn="${mappingcolumn}" matchvalue="${mappingcolumn.name}" selected="${selected}" fuzzymatching="${importer_fuzzymatching}" template_id="${importer_template_id}" "allfieldtypes="true"/>
-			  </td>			    		
+
+                <!-- store the found match -->
+                <g:set var="fuzzymatch" value="${importer.propertyChooser(name:columnproperty, mappingcolumn:mappingcolumn, matchvalue:mappingcolumn.name, selected:selected, fuzzymatching:importer_fuzzymatching, template_id:importer_template_id, returnmatchonly:'true')}"/>
+  
+                  <g:if test="${usedfuzzymatches.contains( fuzzymatch.toString() ) }">                       
+                       <g:set var="matchvalue" value=""/>
+                  </g:if>                  
+                
+                  <importer:propertyChooser name="columnproperty" mappingcolumn="${mappingcolumn}" matchvalue="${matchvalue}" selected="${selected}" fuzzymatching="${importer_fuzzymatching}" template_id="${importer_template_id}" allfieldtypes="true"/>
+			  </td>
+
+              <!-- build up a string with fuzzy matches used, to prevent duplicate fuzzy matching -->
+              <g:set var="usedfuzzymatches" value="${usedfuzzymatches + ',' + fuzzymatch.toString() }"/>
+
             </g:each>
 		</tr>
 
