@@ -192,7 +192,8 @@ class ImporterController {
 			}.to "pageTwo"
 
 			on("next") {
-				if (propertiesPage(flow, flash, params)) {
+                flow.importer_fuzzymatching="false"
+				if (propertiesPage(flow, flash, params)) {                    
 					success()
 				} else {
 					log.error ".import wizard, properties are set wrong"

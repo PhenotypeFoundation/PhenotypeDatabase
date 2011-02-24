@@ -22,11 +22,11 @@
 	      <tr><td colspan="3"><h4>defaultentity</h4></td></tr>
 		<tr>
             <td class="header" width="55px">
-              <input class="buttonsmall" id="clearselect" type="button" value="Clear" name="clearselect">
-              <input class="buttonsmall" id="fuzzymatchselect" type="button" value="Match" name="fuzzymatchselect">
+              <input class="buttonsmall" id="clearselect" type="button" value="Clear" name="clearselect" title="Clear all selections">
+              <input class="buttonsmall" id="fuzzymatchselect" type="button" value="Match" name="fuzzymatchselect" title="Automatically match columns to properties">
               <input type="hidden" name="fuzzymatching" id="fuzzymatching" value="false">
-              <input class="buttonsmall" id="savepropertiesbutton" type="button" value="Save" name="savepropertiesbutton">
-              <input class="buttonsmall" id="loadpropertiesbutton" type="button" value="Load" name="loadpropertiesbutton">
+              <input class="buttonsmall" id="savepropertiesbutton" type="button" value="Save" name="savepropertiesbutton" title="Save the currently set mappings">
+              <input class="buttonsmall" id="loadpropertiesbutton" type="button" value="Load" name="loadpropertiesbutton" title="Load previously saved mappings">
               <div id="savemapping" style="display:none">
                 Give current mapping a name and press Save:
                 <input type="text" name="mappingname" size="20" id="mappingname">
