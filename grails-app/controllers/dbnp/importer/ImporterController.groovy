@@ -259,12 +259,12 @@ class ImporterController {
 				// ajax flow.
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) ".persisting instances to the database...".grom()
+                
+                // Always delete the uploaded file in the save step to be sure it doesn't reside there anymore
+                fileService.delete(flow.importer_importedfile)
 
-				if (saveEntities(flow, params)) {
-					//if (ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata)) {
-					//log.error ".import wizard succesfully persisted all entities"
-					//def session = sessionFactory.getCurrentSession()
-					//session.clear()
+				// Save all entities
+                if (saveEntities(flow, params)) {					                                      
 					success()
 				} else {
 					log.error ".import wizard, could not save entities:\n" + e.dump()
@@ -333,9 +333,9 @@ class ImporterController {
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
 	 * @returns boolean true if correctly validated, otherwise false
 	 */
-	boolean fileImportPage(flow, flash, params) {
+	boolean fileImportPage(flow, flash, params) {        
 		def importedfile = fileService.get(params['importfile'])
-		//fileService.delete(YourFile)
+        flow.importer_importedfile = params['importfile']		
 
         if (importedfile.exists()) {
             try {
@@ -370,7 +370,8 @@ class ImporterController {
 			flow.importer_datamatrix_start = params.datamatrix_start.toInteger() - 1 // 0 == first row
 			flow.importer_headerrow = params.headerrow.toInteger()
             flow.importer_entityclass = entityClass
-
+            flow.importer_entity = GdtService.cachedEntities.find{ it.entity==entityName }
+         
 			// Get the header from the Excel file using the arguments given in the first step of the wizard
 			flow.importer_header = ImporterService.getHeader(session.importer_workbook,
 				flow.importer_sheetindex,
@@ -527,13 +528,13 @@ class ImporterController {
 		flow.importer_importeddata = table
 
         // loop through all entities to validate them and add them to wizardErrors flash when invalid
-        table.each { record ->
+        /*table.each { record ->
             record.each { entity ->
                 if (!entity.validate()) {
 				this.appendErrors(entity, flash.wizardErrors, 'entity_' + entity.getIdentifier() + '_')
                 }
             }
-        }
+        }*/
 
         flow.importer_failedcells = failedcells
 

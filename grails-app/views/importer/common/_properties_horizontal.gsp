@@ -15,11 +15,9 @@
 %>
 
 
-<!-- saveproperties action was defined in the form -->  
-  ${mappingname}
-
+<!-- saveproperties action was defined in the form -->    
     <table>
-	      <tr><td colspan="3"><h4>defaultentity</h4></td></tr>
+	      <tr><td colspan="3"><h4>${importer_entity.name}</h4></td></tr>
 		<tr>
             <td class="header" width="55px">
               <input class="buttonsmall" id="clearselect" type="button" value="Clear" name="clearselect" title="Clear all selections">
