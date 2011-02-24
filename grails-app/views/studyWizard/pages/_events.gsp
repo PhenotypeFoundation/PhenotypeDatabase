@@ -66,6 +66,11 @@
 
 		// handle selects
 		swapTemplate($('input:radio[name=eventType]:checked').val(),false);
+
+		// ignore enter key in event group name text fields
+		$('input[name^="eventGroup"]').bind('keydown',function(event) {
+		  return (event.keyCode != 13);
+		});
 	});
 	</script>
 
@@ -81,7 +86,7 @@
 					<div class="firstColumn"></div>
 					<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 					<div class="column">
-						<g:textField name="eventGroup_${eventGroup.getIdentifier()}_${template.getIdentifier()}" value="${eventGroup.name}" onKeyDown="return false;" />
+						<g:textField name="eventGroup_${eventGroup.getIdentifier()}_${template.getIdentifier()}" value="${eventGroup.name}" />
 						<af:ajaxButton name="deleteEventGroup" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this eventgroup" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${eventGroup.getIdentifier()});" afterSuccess="onPage()" />
 					</div>
 					</g:each></g:if>
