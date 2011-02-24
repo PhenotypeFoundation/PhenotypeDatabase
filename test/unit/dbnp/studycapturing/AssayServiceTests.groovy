@@ -6,6 +6,11 @@ import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.apache.poi.ss.usermodel.Cell
 import grails.converters.JSON
 import org.dbnp.gdt.*
+import org.dbnp.gdt.AssayModule
+import org.dbnp.gdt.TemplateEntity
+import groovy.mock.interceptor.MockFor
+import org.dbnp.gdt.GdtService
+import org.dbnp.gdt.TemplateStringField
 
 /**
  * AssayServiceTests Test
@@ -36,8 +41,11 @@ class AssayServiceTests extends GrailsUnitTestCase {
         mockDomain(Template,      [ new Template(id: 1, fields: [TemplateField.get(1), TemplateField.get(2)]),
                                     new Template(id: 2, fields: [TemplateField.get(3)])])
 
-        mockDomain(Subject,       [ new Subject(id: 1, name:'subject1', template: Template.get(1), species: Term.get(1)),
-                                    new Subject(id: 2, name:'subject2', template: Template.get(2), species: Term.get(1))])
+        def mockGdtService = [getTemplateFieldTypeByCasedName: { a -> TemplateStringField }]
+        def mockLog = [ info:{a->println a},error:{a->println "Error: $a"}]
+
+        mockDomain(Subject,       [ new Subject(gdtService: mockGdtService, id: 1, name:'subject1', template: Template.get(1), species: Term.get(1)),
+                                    new Subject(gdtService: mockGdtService, id: 2, name:'subject2', template: Template.get(2), species: Term.get(1))])
 
         mockDomain(SamplingEvent, [ new SamplingEvent(id:1, startTime: 2, duration: 5, sampleTemplate: new Template()),
                                     new SamplingEvent(id:2, startTime: 12, duration: 15, sampleTemplate: new Template())])
@@ -50,8 +58,12 @@ class AssayServiceTests extends GrailsUnitTestCase {
         mockDomain(Sample,        [ new Sample(id: 1, name:'sample1', parentSubject: Subject.get(1), parentEvent: SamplingEvent.get(1), parentEventGroup: EventGroup.get(1)),
                                     new Sample(id: 2, name:'sample2', parentSubject: Subject.get(2), parentEvent: SamplingEvent.get(2), parentEventGroup: EventGroup.get(2))])
 
-        mockDomain(Assay,         [ new Assay(id: 1, externalAssayID: 'assay1', samples:[Sample.get(1),Sample.get(2)]),
-                                    new Assay(id: 2, externalAssayID: 'assay1', samples:[])])
+        mockDomain(AssayModule,   [ new AssayModule(id: 1, url: 'http://www.example.com') ])
+
+        mockDomain(Assay,         [ new Assay(id: 1, externalAssayID: 'assay1', module: AssayModule.get(1), samples: [Sample.get(1),Sample.get(2)]),
+                                    new Assay(id: 2, externalAssayID: 'assay1', module: AssayModule.get(1), samples: [])])
+
+        Subject.get(1).metaClass.static.log = mockLog
 
         Subject.get(1).setFieldValue('tf1', 'tfv1')
         Subject.get(1).setFieldValue('tf2', 'tfv2')
@@ -185,18 +197,21 @@ class AssayServiceTests extends GrailsUnitTestCase {
 
         def assay = Assay.get(1)
 
-        def consumer = 'http://metabolomics.nmcdsp.nl'
 
-//        // mock URL's getText to be able to mock a http request
-//        URL.metaClass.getText = {
-//            new JSON ([['sample1', 'sample2', 'sample3'],
-//              ['measurement1','measurement2','measurement3','measurement4'],
-//              [1,2,3,4,5,6,7,8,9,10,11,12] ]).toString()
-//        }
+//        collectAssayData(assay, fieldMap, measurementTokens)
 
-        def assayData = service.collectAssayData(assay, consumer)
+        def fieldMap = [
+                'Subject Data':['tf1','tf2','tf3','species','name'],
+                'Sampling Event Data':['startTime','duration'],
+                'Sample Data':['name'],
+                'Event Group':['name']
+        ]
 
-        println assayData
+        def measurementTokens = [[name:'measurement1'], [name:'measurement2'], [name:'measurement3'], [name:'measurement4']]
+
+        String.metaClass.'encodeAsURL' = {delegate}
+
+        def assayData = service.collectAssayData(assay, fieldMap, measurementTokens)
 
         def sample1index = assayData.'Sample Data'.'name'.findIndexOf{it == 'sample1'}
         def sample2index = assayData.'Sample Data'.'name'.findIndexOf{it == 'sample2'}
@@ -209,7 +224,7 @@ class AssayServiceTests extends GrailsUnitTestCase {
 
         assertEquals 'Sampling event template fields', [2,12], assayData.'Sampling Event Data'.startTime[sample1index, sample2index]
         assertEquals 'Sampling event template fields', [5,15], assayData.'Sampling Event Data'.duration[sample1index, sample2index]
-        assertEquals 'Sampling event template fields', '[null, null]', assayData.'Sampling Event Data'.sampleTemplate.toString()
+//        assertEquals 'Sampling event template fields', '[null, null]', assayData.'Sampling Event Data'.sampleTemplate.toString()
         assertEquals 'Sample template fields', ['sample1', 'sample2'], assayData.'Sample Data'.name[sample1index, sample2index]
 
         assertEquals 'Event group names', ['EventGroup1', 'EventGroup2'], assayData.'Event Group'.name[sample1index, sample2index]

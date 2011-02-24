@@ -14,7 +14,7 @@
       function updateAssay(jsonData, selectID) {
         var a = eval(jsonData);
         var sel = $('#'+selectID).empty();
-        
+
         $(a).each(function(i, el){
           sel.append($("<option></option>").attr("value",el.id).text(el.name))
         })
@@ -32,7 +32,8 @@
   <div style="color:red;">
     ${flash.errorMessage}
   </div>
-  <g:form name="assaySelect" action="exportAssayAsExcel">
+  %{--<g:form name="assaySelect" action="exportAssayAsExcel">--}%
+  <g:form name="assaySelect" action="selectFields">
     <g:select optionKey="id" optionValue="title" name="studyId" from="${userStudies}" id="study"
       onChange="${remoteFunction(controller:'study',action:'ajaxGetAssays',params:'\'id=\'+escape(this.value)',onComplete: 'updateAssay(XMLHttpRequest.responseText, \'assay\')')}"/>
     <g:select optionKey="id" name="assayId" id="assay" from=""/>

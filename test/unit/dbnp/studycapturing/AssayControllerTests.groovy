@@ -25,16 +25,16 @@ class AssayControllerTests extends ControllerUnitTestCase {
     }
 
     void testWrongAssayID() {
-        mockParams.assayId = 3
+        mockFlash.assayId = 3
 
-        controller.exportAssayAsExcel()
+        controller.compileExportData()
 
         assertEquals 'Redirected action should match', [action: 'selectAssay'], redirectArgs
-        assertEquals 'Error message', 'No assay found with id: 3.', mockFlash.errorMessage
+        assertEquals 'Error message', 'No assay found with id: 3', mockFlash.errorMessage
     }
 
     void testExceptionHandling() {
-        mockParams.assayId = 1
+        mockFlash.assayId = 1
 
         controller.metaClass.'grailsApplication' = [
                 config: [modules: [metabolomics: [url: 'www.ab.com']]]
@@ -42,21 +42,27 @@ class AssayControllerTests extends ControllerUnitTestCase {
 
         controller.assayService = [
 
-                collectAssayData:                   {a, b -> throw new Exception('msg1') },
-                exportColumnWiseDataToExcelFile:    {a, b -> throw new Exception('msg2') }
+                collectAssayData:               {a, b, c -> throw new Exception('msg1') },
+                convertColumnToRowStructure:    {a -> throw new Exception('msg2')},
+                exportRowWiseDataToExcelFile:   {a, b -> throw new Exception('msg3') }
 
         ]
 
-        controller.exportAssayAsExcel()
+        controller.compileExportData()
 
         assertEquals 'Redirected action should match', [action: 'selectAssay'], redirectArgs
         assertEquals 'Error message', 'msg1', mockFlash.errorMessage
 
-        controller.assayService.collectAssayData = {a, b -> true}
-        controller.exportAssayAsExcel()
+        controller.assayService.collectAssayData = {a, b, c -> true}
+        controller.compileExportData()
 
         assertEquals 'Redirected action should match', [action: 'selectAssay'], redirectArgs
         assertEquals 'Error message', 'msg2', mockFlash.errorMessage
+
+        controller.doExport()
+
+        assertEquals 'Redirected action should match', [action: 'selectAssay'], redirectArgs
+        assertEquals 'Error message', 'msg3', mockFlash.errorMessage
 
     }
 

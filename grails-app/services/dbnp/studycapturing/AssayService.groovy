@@ -15,8 +15,6 @@ package dbnp.studycapturing
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
-import grails.converters.JSON
-import javax.servlet.http.HttpServletResponse
 
 class AssayService {
 
@@ -25,30 +23,14 @@ class AssayService {
     def moduleCommunicationService
 
     /**
-     * Gathers all assay related data, including measurements from the module,
-     * into 1 hash map containing: Subject Data, Sampling Event Data, Sample
-     * Data, and module specific measurement data.
-     * Data from each of the 4 hash map entries are themselves hash maps
-     * representing a descriptive header (field name) as key and the data as
-     * value.
+     * Collects the assay field names per category in a map as well as the
+     * module's measurements.
      *
-     * @param assay the assay to collect data for
-     * @consumer the module url
-     * @return The assay data structure as described above.
+     * @param assay the assay for which to collect the fields
+     * @return a map of categories as keys and field names or measurements as
+     *  values
      */
-    def collectAssayData(assay, consumer) throws Exception {
-
-        def path = "/rest/getMeasurementData?assayToken=$assay.assayUUID"
-
-        // check whether module is reachable
-        if (!moduleCommunicationService.isModuleReachable(consumer)) {
-
-            throw new Exception('Module is not reachable')
-
-        }
-
-        // Gather sample meta data from GSCF
-        def samples = assay.samples
+    def collectAssayTemplateFields(assay) throws Exception {
 
         def getUsedTemplateFieldNames = { templateEntities ->
 
@@ -60,6 +42,39 @@ class AssayService {
             }*.name
 
         }
+
+        // check whether module is reachable
+        if (!moduleCommunicationService.isModuleReachable(assay.module.url)) {
+
+            throw new Exception('Module is not reachable')
+
+        }
+
+        def samples = assay.samples
+
+        [   'Subject Data' :            getUsedTemplateFieldNames( samples*."parentSubject".unique() ),
+            'Sampling Event Data' :     getUsedTemplateFieldNames( samples*."parentEvent".unique() ),
+            'Sample Data' :             getUsedTemplateFieldNames( samples ),
+            'Event Group' :             ['name'],
+            'Module Measurement Data':  requestModuleMeasurementNames(assay)
+        ]
+
+    }
+
+    /**
+     * Gathers all assay related data, including measurements from the module,
+     * into 1 hash map containing: Subject Data, Sampling Event Data, Sample
+     * Data, and module specific measurement data.
+     * Data from each of the 4 hash map entries are themselves hash maps
+     * representing a descriptive header (field name) as key and the data as
+     * value.
+     *
+     * @param assay the assay to collect data for
+     * @fieldMap map with categories as keys and fields as values
+     * @measurementTokens selection of measurementTokens
+     * @return The assay data structure as described above.
+     */
+    def collectAssayData(assay, fieldMap, measurementTokens) throws Exception {
 
         def collectFieldValuesForTemplateEntities = { templateFieldNames, templateEntities ->
 
@@ -77,7 +92,7 @@ class AssayService {
 
         }
 
-        def getFieldValues = { templateEntities, propertyName = '' ->
+        def getFieldValues = { templateEntities, fieldNames, propertyName = '' ->
 
             def returnValue
 
@@ -85,7 +100,7 @@ class AssayService {
             // values of the template entities themselves
             if (propertyName == '') {
 
-                returnValue = collectFieldValuesForTemplateEntities(getUsedTemplateFieldNames(templateEntities), templateEntities)
+                returnValue = collectFieldValuesForTemplateEntities(fieldNames, templateEntities)
 
             } else {
 
@@ -95,16 +110,15 @@ class AssayService {
                 // propertyName can include duplicates. For example, for 10
                 // samples, there may be less than 10 parent subjects. Maybe
                 // there's only 1 parent subject. We don't want to collect field
-                // values for this subject 10 times ...
-                def fieldNames, fieldValues
+                // values for this single subject 10 times ...
+                def fieldValues
 
                 // we'll get the unique list of properties to make sure we're
                 // not getting the field values for identical template entity
                 // properties more then once.
                 def uniqueProperties = templateEntities*."$propertyName".unique()
 
-                fieldNames =    getUsedTemplateFieldNames(uniqueProperties)
-                fieldValues =   collectFieldValuesForTemplateEntities(fieldNames, uniqueProperties)
+                fieldValues = collectFieldValuesForTemplateEntities(fieldNames, uniqueProperties)
 
                 // prepare a lookup hashMap to be able to map an entities'
                 // property (e.g. a sample's parent subject) to an index value
@@ -136,23 +150,70 @@ class AssayService {
 
         }
 
-        [   'Subject Data' :            getFieldValues(samples, 'parentSubject'),
-            'Sampling Event Data' :     getFieldValues(samples, 'parentEvent'),
-            'Sample Data' :             getFieldValues(samples),
-            'Event Group' :             [name: samples*.parentEventGroup*.name.flatten()],
-            'Module Measurement Data':  requestModuleMeasurements(consumer, path)]
+        // check whether module is reachable
+        if (!moduleCommunicationService.isModuleReachable(assay.module.url)) {
+
+            throw new Exception('Module is not reachable')
+
+        }
+
+        def samples = assay.samples
+
+        def eventFieldMap = [:]
+
+        // check whether event group data was requested
+        if (fieldMap['Event Group']) {
+
+            def names = samples*.parentEventGroup*.name.flatten()
+
+            // only set name field when there's actual data
+            if (!names.every {!it}) eventFieldMap['name'] = names
+
+        }
+
+        [   'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
+            'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
+            'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']),
+            'Event Group' :             eventFieldMap,
+            'Module Measurement Data':  measurementTokens ? requestModuleMeasurements(assay, measurementTokens) : [:]
+        ]
+    }
+
+    /**
+     * Retrieves measurement names from the module through a rest call
+     *
+     * @param consumer the url of the module
+     * @param path path of the rest call to the module
+     * @return
+     */
+    def requestModuleMeasurementNames(assay) {
+
+        def moduleUrl = assay.module.url
+
+        def path = moduleUrl + "/rest/getMeasurementMetaData?assayToken=$assay.assayUUID"
+
+        moduleCommunicationService.callModuleRestMethodJSON(moduleUrl, path)
+
     }
 
     /**
      * Retrieves module measurement data through a rest call to the module
      *
      * @param consumer the url of the module
-     * @param path of the rest call to the module
+     * @param path path of the rest call to the module
      * @return
      */
-    def requestModuleMeasurements(consumer, path) {
+    def requestModuleMeasurements(assay, fields) {
 
-        def (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleRestMethodJSON(consumer, consumer+path)
+        def moduleUrl = assay.module.url
+
+        def tokenString = ''
+
+        fields.each{tokenString+="&measurementToken=${it.name.encodeAsURL()}"}
+
+        def path = moduleUrl + "/rest/getMeasurementData?assayToken=$assay.assayUUID" + tokenString
+        
+        def (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleRestMethodJSON(moduleUrl, path)
 
         if (!sampleTokens?.size()) return []
 
@@ -171,8 +232,7 @@ class AssayService {
     }
 
     /**
-     * Export column wise data in Excel format to a stream.
-     *
+     * Converts column
      * @param columnData multidimensional map containing column data.
      * On the top level, the data must be grouped by category. Each key is the
      * category title and the values are maps representing the columns. Each
@@ -193,20 +253,16 @@ class AssayService {
      * | 2          | 5         | 8         | 11        | 14        |
      * | 3          | 6         | 9         | 12        | 15        |
      *
-     * @param outputStream the stream to write to
-     * @param useOfficeOpenXML flag to specify xlsx (standard) or xls output
-     * @return
+     * @return row wise data
      */
-    def exportColumnWiseDataToExcelFile(columnData, outputStream, useOfficeOpenXML = true) {
-
-        def convertColumnToRowStructure = { data ->
+    def convertColumnToRowStructure(columnData) {
 
             // check if all columns have the dimensionality 2
-            if (data.every { it.value.every { it.value instanceof ArrayList } }) {
+            if (columnData.every { it.value.every { it.value instanceof ArrayList } }) {
 
                 def headers = [[],[]]
 
-                data.each { category ->
+                columnData.each { category ->
 
                     if (category.value.size()) {
 
@@ -224,13 +280,24 @@ class AssayService {
                 def d = []
 
                 // add all column wise data into 'd'
-                data.each { it.value.each { d << it.value } }
+                columnData.each { it.value.each { d << it.value } }
 
                 // transpose d into row wise data and combine with header rows
                 headers + d.transpose()
             }
 
         }
+
+    /**
+     * Export column wise data in Excel format to a stream.
+     *
+     * @param columnData Multidimensional map containing column data
+     * @param outputStream Stream to write to
+     * @param useOfficeOpenXML Flag to specify xlsx (standard) or xls output
+     * @return
+     */
+    def exportColumnWiseDataToExcelFile(columnData, outputStream, useOfficeOpenXML = true) {
+
         // transform data into row based structure for easy writing
         def rows = convertColumnToRowStructure(columnData)
 
@@ -249,9 +316,9 @@ class AssayService {
     /**
      * Export row wise data in Excel format to a stream
      *
-     * @param rowData a list of lists containing for each row all cell values
-     * @param outputStream the stream to write to
-     * @param useOfficeOpenXML flag to specify xlsx (standard) or xls output
+     * @param rowData List of lists containing for each row all cell values
+     * @param outputStream Stream to write to
+     * @param useOfficeOpenXML Flag to specify xlsx (standard) or xls output
      * @return
      */
     def exportRowWiseDataToExcelFile(rowData, outputStream, useOfficeOpenXML = true) {

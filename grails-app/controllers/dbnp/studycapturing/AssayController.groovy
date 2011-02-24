@@ -132,30 +132,99 @@ class AssayController {
     }
 
     /**
+     * Shows a page where individual fields for the different categories (ie.
+     * subject data, sampling events... etc.) can be selected for export
+     *
+     * @param params.id Assay id
+     */
+    def selectFields = {
+        // receives an assay id
+        def assay = Assay.get(params.assayId)
+
+        // obtain fields for each category
+        try {
+
+            def fieldMap = assayService.collectAssayTemplateFields(assay)
+            
+        } catch (Exception e) {
+
+            flash.errorMessage = e.message
+            redirect action: 'selectAssay'
+
+        }
+        def measurementTokens = fieldMap.remove('Module Measurement Data')
+
+        flash.fieldMap = fieldMap
+        flash.measurementTokens = measurementTokens
+        flash.assayId = params.assayId
+
+        [fieldMap: fieldMap, measurementTokens: measurementTokens*.name]
+    }
+
+    /**
      * Exports all assay information as an Excel file.
      *
      * @param params.id Assay id
      */
-    def exportAssayAsExcel = {
+    def compileExportData = {
 
-        Assay assay = Assay.get(params.assayId)
+        def fieldMap = flash.fieldMap
+        def measurementTokens = flash.measurementTokens
+
+        def fieldMapSelection = [:]
+
+        fieldMap.eachWithIndex { cat, cat_i ->
+
+            if (params."cat_$cat_i" == 'on') {
+                fieldMapSelection[cat.key] = []
+
+                cat.value.eachWithIndex { field, field_i ->
+
+                    if (params."cat_${cat_i}_${field_i}" == 'on') {
+
+                        fieldMapSelection[cat.key] += field
+
+                    }
+
+                }
+
+                if (fieldMapSelection[cat.key] == []) fieldMapSelection.remove(cat.key)
+
+            }
+
+        }
+
+        def measurementTokensSelection = []
+
+        if (params."cat_4" == 'on') {
+
+            measurementTokensSelection = params.measurementToken == 'null' ? measurementTokens : [ name: params.measurementToken]
+
+        }
+
+        Assay assay = Assay.get(flash.assayId)
 
         // check if assay exists
         if (!assay) {
-            flash.errorMessage = "No assay found with id: $params.assayId."
+
+            flash.errorMessage = flash.assayId ? "No assay found with id: ${flash.assayId}" : 'Assay has no value (null).'
             redirect action: 'selectAssay'
             return
+
         }
 
         try {
 
-            def assayData = assayService.collectAssayData(assay, grailsApplication.config.modules.metabolomics.url)
+            def assayData = assayService.collectAssayData(assay, fieldMapSelection, measurementTokensSelection)
 
-            def filename = 'export.xlsx'
-            response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
-            response.setContentType("application/octet-stream")
+            def rowData = assayService.convertColumnToRowStructure(assayData)
 
-            assayService.exportColumnWiseDataToExcelFile(assayData, response.outputStream)
+            flash.rowData = rowData
+
+            def assayDataPreview = rowData[0..4].collect{it[0..4]}
+
+
+            [assayDataPreview: assayDataPreview]
 
         } catch (Exception e) {
 
@@ -163,5 +232,24 @@ class AssayController {
             redirect action: 'selectAssay'
 
         }
+    }
+
+    def doExport = {
+
+        def filename = 'export.xlsx'
+        response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
+        response.setContentType("application/octet-stream")
+        try {
+            
+            assayService.exportRowWiseDataToExcelFile(flash.rowData, response.outputStream)
+
+        } catch (Exception e) {
+
+            flash.errorMessage = e.message
+            redirect action: 'selectAssay'
+
+        }
+
+
     }
 }
