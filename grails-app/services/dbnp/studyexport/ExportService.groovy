@@ -120,6 +120,7 @@ class ExportService
 		def domainClass = domainObject.class
 		def objects = []
 
+
 		if( IgnoredClasses.contains(domainClass) )   {
 			return objects 
 		}
@@ -130,12 +131,18 @@ class ExportService
 		}
 
 
-
-		if( TerminalClasses.contains(domainClass) )  {
-			return [domainObject]
+		if(domainObject instanceof TemplateEntity ) {
+			objects.push(domainObject.template)
+			domainObject.template.fields.each { objects.push(it) }
 		}
 
-		objects = [domainObject]
+
+		if( TerminalClasses.contains(domainClass) )  {
+			objects.push(domainObject)
+			return objects 
+		}
+
+		objects.push(domainObject)
 
 												// enter recursion with regular domain fields
 		domainObject.properties.domainFields.each { field ->
@@ -198,58 +205,60 @@ class ExportService
 	 *
 	 *  @return void
 	 */ 
-
 	def createStudy( List parseObjects ) {
-		parseObjects.each{ 
-			populateFields( it.domainObject, it.node, parseObjects )
-		}
 		parseObjects.each{ 
 			populateOneToManies( it.domainObject, it.node, parseObjects )
 		}
 		parseObjects.each{ 
-			populateTemplateFields( it.domainObject, it.node, parseObjects )
+			if( it.domainObject instanceof TemplateEntity ) {
+				addTemplateRelations( it.domainObject, it.node, parseObjects )
+				addTemplateFields( it.domainObject, it.node, parseObjects )
+			}
+		}
+	}
+
+
+	/** Set a TemplateEntity's template field. Find the right Template in the list  
+ 	  *	of ParseObjects based on parsed id. If the TemplateEntity instance does
+ 	  * not have an matching template in the list of ParseObjects, it remains empty.
+	  *
+	  * @param domainObject Some Template Entity
+	  *
+	  * @param node Node with parse information
+	  *
+	  * @param parseObjects List of ParseObjects 
+	  */
+	def addTemplateRelations( TemplateEntity domainObject, Node node, List parseObjects ) {
+		def id = node.children().find{it.name=='template'}?.attributes()?.id
+		if(id) {
+			def template = parseObjects.find{ it.theClass==Template && it.id==id }?.domainObject
+			if(template) {
+				domainObject.template = template
+			}
 		}
 	}
 
 
 
-	/** 
-	 *  Populate fields of a domainObject to be created.
-	 *  The fields of a new object are filled with simple Class objects.
-	 *  
-	 *  (For importing Study objects)
-	 *  
-	 *  @param domainObject   The Object to be fielled  
-	 *  
-	 *  @param  List of ParseObjects representing a Study. 
-	 *
-	 *  @return the new domainObject 
-	 */ 
-
-	def populateFields( domainObject, node, List parseObjects ) {
-
-		def fields = 
-			domainObject.getProperties().domainFields.collect { it.toString() }
-
-		def map = [:]
-		domainObject.metaClass.getProperties().each { property ->
-			def name = property.name
-			def field = fields.find{ it == name }
-
-			if(field) { 
-				def type = property.type
-				def value = node.children().find{ it.name == field }.text()
-
-				switch(type) {
-					case String: map[field]=value; break
-					case Date: map[field] = Date.parse( 'yyyy-MM-dd', value ); break
+	/** Set a TemplateEntity's template fields with values from a Node. 
+ 	  * The template fields are fields such as TemplateStringField or TemplateFieldType.
+	  *
+	  * @param domainObject Some Template Entity
+	  *
+	  * @param node Node with parse information
+	  *
+	  */
+	def addTemplateFields( TemplateEntity domainObject, Node node ) {
+		domainObject.metaClass.getProperties().each{ property ->
+			def name = property.name      // name of templateFields, e.g., templateStringFields
+			if( name ==~/template(.+)Fields/ ) {
+				node.children().find{it.name==name}?.children()?.each{ fieldNode ->	
+					def key = fieldNode.attributes()?.key
+					def value = fieldNode.text()
+					//domainObject.setFieldValue(key,value)  -> needs to be fixed based on class/type
 				}
 			}
 		}
-
-		def newDomainObject = domainObject.class.newInstance(map)
-		newDomainObject.id = 0
-		domainObject = newDomainObject
 	}
 
 
@@ -266,7 +275,6 @@ class ExportService
 	 *
 	 *  @return the new domainObject 
 	 */ 
-	
 	def populateOneToManies( domainObject, node, parseObjects ) {
 		if( !domainObject.class.metaClass.getProperties().find{ it.name=='hasMany' } ) {
 			return
@@ -291,14 +299,9 @@ class ExportService
 	}
 
 
-	def populateTemplateFields( domainObject, Node node, List parseObjects ) {
-	}
-
-
 
 	/** 
-	 *  Populate one-to-many maps of a new domainObject  
-	 *  from list of ParseObjects. 
+	 *  Populate one-to-many maps of a new domainObject  from list of ParseObjects. 
 	 *
 	 *  (For importing Study objects)
 	 *
@@ -314,8 +317,8 @@ class ExportService
 		String id
 		Class theClass 
 		Object domainObject
-		groovy.util.slurpersupport.Node node
-	
+		Node node
+
 
 		public ParseObject( node ){
 			tag = node.name()
@@ -326,13 +329,53 @@ class ExportService
 				id = node.attributes.id
 			}
 			this.node=node
+
+			if(theClass==Template) {
+								// Templates are suppsed to have been imported before 
+								// importing a study. Study.template is matched to a
+								// Template by the template's name.
+				def child = node.children.find{ "name"==it.name }
+				domainObject = Template.findByName( child.text() )
+			}
+			else { 
+				setSimpleFields()
+			}
 		}
 
-		private static getClassForTag( String tag ) {
-			def shortName = tag.replaceFirst( tag[0], tag[0].toUpperCase() )
-			return DomainClasses[ shortName ] 
+
+
+		/** 
+		 *  Populate this.domainObject's String and Date fields of 
+		 *  a domainObject from parsed XML node.
+		 */ 
+		private void setSimpleFields() {
+
+			def fields = 
+				domainObject.getProperties().domainFields.collect { it.toString() }
+
+			def map = [:]
+			domainObject.metaClass.getProperties().each { property ->
+				def name = property.name
+				def field = fields.find{ it == name }
+
+				if(field) { 
+					def type = property.type
+					def value = node.children().find{ it.name == field }.text()
+
+					switch(type) {
+						case String: map[field]=value; break
+						case Date: map[field] = Date.parse( 'yyyy-MM-dd', value ); break
+						//case Boolean: ???; break
+					}
+				}
+			}
+
+			def newDomainObject = domainObject.class.newInstance(map)
+			newDomainObject.id = 1  // neccessary?
+			domainObject = newDomainObject
 		}
 
 	}
+
 
 }
