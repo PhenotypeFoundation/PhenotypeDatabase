@@ -156,7 +156,7 @@ class Study extends TemplateEntity {
 	 * @return ArrayList
 	 */
 	def ArrayList giveAssaysForTemplate(Template template) {
-		assays.findAll { it.template.equals(template) }
+		assays.findAll { it && it.template.equals(template) }
 	}
 
 	/**
