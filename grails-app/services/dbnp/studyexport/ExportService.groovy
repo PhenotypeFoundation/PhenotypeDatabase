@@ -13,15 +13,8 @@ package dbnp.studyexport
 import dbnp.authentication.*
 import dbnp.studycapturing.*
 import grails.converters.XML
-import groovy.util.* 
 import groovy.util.slurpersupport.*
-import groovy.util.slurpersupport.Node as Node 
-import java.util.ArrayList 
-import org.codehaus.groovy.grails.web.converters.configuration.ConvertersConfigurationHolder
-import org.dbnp.bgdt.*
 import org.dbnp.gdt.*
-import org.exolab.castor.xml.Unmarshaller
-
 
 class ExportService 
 {
@@ -61,7 +54,6 @@ class ExportService
 			'SecUserSecRole':dbnp.authentication.SecUserSecRole,
 			'SessionAuthenticatedUser':dbnp.authentication.SessionAuthenticatedUser,
 			'Assay':dbnp.studycapturing.Assay,
-			'Book':dbnp.studycapturing.Book,
 			'Event':dbnp.studycapturing.Event, 'EventGroup':dbnp.studycapturing.EventGroup,
 			'PersonAffiliation':dbnp.studycapturing.PersonAffiliation,
 			'Person':dbnp.studycapturing.Person,
