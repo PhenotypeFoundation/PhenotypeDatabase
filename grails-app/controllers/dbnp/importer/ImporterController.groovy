@@ -558,6 +558,17 @@ class ImporterController {
 
 				// Set the fields for this entity by retrieving values from the params
 				entity.giveFields().each { field ->
+
+                    // field is a date field, try to set it with the value, if someone enters a non-date value it throws
+                    // an error, this should be caught to prevent a complete breakdown
+                    if (field.type == org.dbnp.gdt.TemplateFieldType.DATE) {
+                        try {
+                            entity.setFieldValue(field.toString(), params["entity_" + entity.getIdentifier() + "_" + field.escapedName()])
+                        } catch (Exception e)   { log.error ".importer wizard could not set date field with value: " +
+                                                    params["entity_" + entity.getIdentifier() + "_" + field.escapedName()]
+                                                }
+                    } else
+
 					// field of type ontology and value "#invalidterm"?
 					if (field.type == org.dbnp.gdt.TemplateFieldType.ONTOLOGYTERM &&
 						params["entity_" + entity.getIdentifier() + "_" + field.escapedName()] == "#invalidterm"
