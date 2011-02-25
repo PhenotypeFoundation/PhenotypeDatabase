@@ -30,7 +30,17 @@ class PublicationController {
             authorsList: params.get( 'publication-authorsList' ),
             pubMedID: params.get( 'publication-pubMedID' ),
             DOI: params.get( 'publication-doi' )
-        )
+        );
+	
+		// Check whether the autorsList is not too long. If it is, split it
+		println "authors length: " + publication.authorsList.size()
+		if( publication.authorsList.size() > 255 ) {
+			def postfix = " et al.";
+			def split = publication.authorsList[ 0..255 - postfix.size()].lastIndexOf( ", " );
+			publication.authorsList = publication.authorsList[ 0..split-1] + postfix;
+			
+			println "new authors list: " + publication.authorsList.size() + " - " + publication.authorsList
+		}
 
         def message;
         def errors = '';
@@ -159,7 +169,19 @@ class PublicationController {
                     authorsList: params.get( 'publication-authorsList' ),
                     pubMedID: params.get( 'publication-pubMedID' ),
                     DOI: params.get( 'publication-doi' )
-                ).save(flush:true);
+                );
+			
+				// Check whether the autorsList is not too long. If it is, split it
+				println "authors length: " + publication.authorsList.size()
+				if( publication.authorsList.size() > 255 ) {
+					def postfix = " et al.";
+					def split = publication.authorsList[ 0..255 - postfix.size()].lastIndexOf( ", " );
+					publication.authorsList = publication.authorsList[ 0..split-1] + postfix;
+					
+					println "new authors list: " + publication.authorsList.size() + " - " + publication.authorsList
+				}
+			
+				publication.save(flush:true);
             }
 
             // Return the ID

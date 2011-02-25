@@ -43,7 +43,7 @@
 				<div id="publications" class="component">
 					<h2>Publications</h2>
 					<div class="content">
-						<af:publicationSelectElement noForm=true name="publication" value="${study?.publications}"/>
+						<af:publicationSelectElement noForm="true" name="publication" value="${study?.publications}"/>
 					</div>
 				</div>
 				<div id="contacts" class="component">

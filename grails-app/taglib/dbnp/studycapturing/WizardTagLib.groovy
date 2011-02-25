@@ -106,15 +106,6 @@ class WizardTagLib extends GdtTagLib {
 			attrs,
 			body
 		)
-
-		attrs.description = '';
-
-		// render 'Add publication button'
-		baseElement.call(
-			'_publicationAddButton',
-			attrs,
-			body
-		)
 	}
 
 	/**
@@ -182,6 +173,8 @@ class WizardTagLib extends GdtTagLib {
 			ids = '';
 		}
 		out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
+		
+		out << _publicationAddButton( attrs, body );
 	}
 
 	def _publicationAddButton = { attrs, body ->
@@ -193,7 +186,7 @@ class WizardTagLib extends GdtTagLib {
 			out << publicationDialog( attrs, body );
 		}
 	
-		out << '<input type="button" onClick="openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">';
+		out << '<input class="addButton" type="button" onClick="openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">';
 	}
 	
 	// Show the add publications dialog
@@ -355,15 +348,6 @@ class WizardTagLib extends GdtTagLib {
 			attrs,
 			body
 		)
-
-		attrs.description = '';
-
-		// render 'Add user button'
-		baseElement.call(
-			'_userAddButton',
-			attrs,
-			body
-		)
 	}
 
 	/**
@@ -428,6 +412,8 @@ class WizardTagLib extends GdtTagLib {
 			ids = '';
 		}
 		out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
+		
+		out << _userAddButton( attrs, body );
 	}
 
 	def _userAddButton = { attrs, body ->
@@ -438,7 +424,7 @@ class WizardTagLib extends GdtTagLib {
 			out << userDialog( attrs, body );
 		}
 
-		out << '<input type="button" onClick="openUserDialog(\'' + attrs.name + '\' );" value="Add User">';
+		out << '<input class="addButton" type="button" onClick="openUserDialog(\'' + attrs.name + '\' );" value="Add User">';
 	}
 	
 	def userDialog = { attrs, body ->

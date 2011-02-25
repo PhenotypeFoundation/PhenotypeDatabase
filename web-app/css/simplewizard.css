@@ -5,6 +5,7 @@
 /** STUDY PAGE **/
 .simpleWizard input, .simpleWizard select, .simpleWizard textarea { width: 220px; }
 .simpleWizard .tableEditor input, .simpleWizard .tableEditor  select { width: 100px; }
+.simpleWizard .element .input .addButton { margin-left: 0px; }
 
 div .simpleWizard .description { width: 170px; }
 .simpleWizard .error, .simpleWizard .required { background-position: 150px 2px; }

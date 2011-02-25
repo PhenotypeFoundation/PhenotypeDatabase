@@ -94,6 +94,10 @@
     word-wrap: break-word;
 }
 
+.element .input .addButton {
+	margin-left: 255px;
+}
+
 .element .input .isExample {
     color: #006DBA;
     background-color: transparent;
