@@ -24,7 +24,7 @@
 	<% /* wizard:textFieldElement name="addNumber" description="Number of assays to add" error="addNumber" value="${values?.addNumber}" size="4" maxlength="4">
 		The number of assays to add to your study
 	</af:textFieldElement */ %>
-	<af:templateElement name="template" description="Template" value="${assay?.template}" entity="${dbnp.studycapturing.Assay}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
+	<af:templateElement name="template" description="Template" value="${(assay && assay instanceof dbnp.studycapturing.Assay) ? assay.template : ''}" entity="${dbnp.studycapturing.Assay}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
 		Choose the type of assay you would like to add
 	</af:templateElement>
 	<g:if test="${assay}">
