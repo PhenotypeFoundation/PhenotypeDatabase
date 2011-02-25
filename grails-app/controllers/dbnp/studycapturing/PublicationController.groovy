@@ -33,13 +33,10 @@ class PublicationController {
         );
 	
 		// Check whether the autorsList is not too long. If it is, split it
-		println "authors length: " + publication.authorsList.size()
 		if( publication.authorsList.size() > 255 ) {
 			def postfix = " et al.";
 			def split = publication.authorsList[ 0..255 - postfix.size()].lastIndexOf( ", " );
 			publication.authorsList = publication.authorsList[ 0..split-1] + postfix;
-			
-			println "new authors list: " + publication.authorsList.size() + " - " + publication.authorsList
 		}
 
         def message;
@@ -172,13 +169,10 @@ class PublicationController {
                 );
 			
 				// Check whether the autorsList is not too long. If it is, split it
-				println "authors length: " + publication.authorsList.size()
 				if( publication.authorsList.size() > 255 ) {
 					def postfix = " et al.";
 					def split = publication.authorsList[ 0..255 - postfix.size()].lastIndexOf( ", " );
 					publication.authorsList = publication.authorsList[ 0..split-1] + postfix;
-					
-					println "new authors list: " + publication.authorsList.size() + " - " + publication.authorsList
 				}
 			
 				publication.save(flush:true);

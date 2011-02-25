@@ -345,7 +345,7 @@ class RestController {
 				}
 
 				assays.each{ assay ->
-					if (assay.module.url.equals(params.consumer)) {
+					if (assay.module?.url && assay.module.url.equals(params.consumer)) {
 						if(assay) {
 							def map = [assayToken : assay.giveUUID()]
 							assay.giveFields().each { field ->

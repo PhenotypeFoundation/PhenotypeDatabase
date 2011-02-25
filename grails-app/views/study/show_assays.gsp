@@ -28,8 +28,8 @@
 		  </g:if>
 			<td>${assay.token}</td>
 		  <td>${assay.name}</td>
-		  <td>${assay.module.name}</td>
-		  <td>${assay.module.platform}</td>
+		  <td>${assay.module?.name}</td>
+		  <td>${assay.module?.platform}</td>
 		  <td>
 		  	<g:if test="${assay.module.openInFrame == null || assay.module.openInFrame == Boolean.TRUE}">
 	          <jumpbar:link frameSource="${assay.module.url}/assay/showByToken/${assay.giveUUID()}" pageTitle="${assay.module.name}">
