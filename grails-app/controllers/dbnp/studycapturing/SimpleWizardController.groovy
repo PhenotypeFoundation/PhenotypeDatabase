@@ -137,6 +137,10 @@ class SimpleWizardController extends StudyWizardController {
 				if( session.simpleWizard.imported.numInvalidEntities > 0 ) {
 					toPage( "missingFields" );
 				} else {
+					// The import of the excel file has finished. Now delete the excelfile
+					if( session.simpleWizard.sampleForm.importFile )
+						fileService.delete( session.simpleWizard.sampleForm.importFile );
+
 					toPage( "assays" );
 				}
 				return;
@@ -175,6 +179,11 @@ class SimpleWizardController extends StudyWizardController {
 			if( event == "next" && handleMissingFields( study, params ) ) {
 				if( session.simpleWizard.imported.numInvalidEntities == 0 ) {
 					// Only continue to the next page if the information entered is correct
+					
+					// The import of the excel file has finished. Now delete the excelfile
+					if( session.simpleWizard.sampleForm.importFile ) 
+						fileService.delete( session.simpleWizard.sampleForm.importFile );
+						
 					toPage( "assays" );
 					return;
 				}
@@ -502,8 +511,6 @@ class SimpleWizardController extends StudyWizardController {
 				session.simpleWizard.excel.sheetIndex - 1,
 				session.simpleWizard.excel.dataMatrixStart - 1,
 				session.simpleWizard.excel.data.header)
-
-
 
 		session.simpleWizard.imported = [
 					data: table,

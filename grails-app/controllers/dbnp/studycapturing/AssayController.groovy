@@ -142,14 +142,14 @@ class AssayController {
         def assay = Assay.get(params.assayId)
 
         // obtain fields for each category
+		def fieldMap
         try {
-
-            def fieldMap = assayService.collectAssayTemplateFields(assay)
-            
+            fieldMap = assayService.collectAssayTemplateFields(assay)
         } catch (Exception e) {
-
+			e.printStackTrace();
             flash.errorMessage = e.message
             redirect action: 'selectAssay'
+			return;
 
         }
         def measurementTokens = fieldMap.remove('Module Measurement Data')

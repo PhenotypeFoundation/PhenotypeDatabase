@@ -15,15 +15,18 @@
 package dbnp.modules
 
 import dbnp.studycapturing.*
+import dbnp.authentication.*
 import grails.converters.*
 import javax.servlet.http.HttpServletResponse
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.hibernate.*;
 
 class ModuleCommunicationService implements Serializable {
-	boolean transactional = false
+	static transactional = false
 	def authenticationService
 	def moduleNotificationService
-
+	SessionFactory sessionFactory
+	
 	/**
 	 * Cache containing the contents of different URLs. These urls are
 	 * saved per user, since the data could be different for different users.
@@ -97,8 +100,20 @@ class ModuleCommunicationService implements Serializable {
 		def sessionToken = UUID.randomUUID().toString()
 
 		// put the session token to work
-		authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
-
+		// This saving is done in a separate session, since that seems to be the only way to have grails/hibernate
+		// really save the object to the database. This is needed, since the module will start a new http request to GSCF
+		// and in that request the database object must exist. 
+		// Using session.flush(), save(flush:true) or transaction.commit() don't do the trick. If you know
+		// a better way to perform this trick, feel free to change it :) 
+		def hibernateSession = sessionFactory.openSession( sessionFactory.getCurrentSession().connection() );
+		def transaction = hibernateSession.beginTransaction();
+		
+		if( transaction ) {
+			authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
+			transaction.commit();
+		}
+		hibernateSession.flush();
+		
 		// Append the sessionToken to the URL
 		def url = restUrl
 		if( restUrl.indexOf( '?' ) > 0 ) {
@@ -108,7 +123,7 @@ class ModuleCommunicationService implements Serializable {
 			// The url itself doesn't have parameters
 			url += '?sessionToken=' + sessionToken
 		}
-
+		
 		// Perform a call to the url
 		def restResponse
 		try {
@@ -121,7 +136,7 @@ class ModuleCommunicationService implements Serializable {
 			throw new Exception( "An error occurred while fetching " + url + ".", e )
 		} finally {
 			// Dispose of the ephemeral session token
-			authenticationService.logOffRemotely(consumer, sessionToken)
+			//authenticationService.logOffRemotely(consumer, sessionToken)
 		}
 
 		// Store the response in cache
