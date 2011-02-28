@@ -26,22 +26,22 @@
 			  ${studyInstance.title}
 			</td>
 		  </g:if>
-			<td>${assay.token}</td>
-		  <td>${assay.name}</td>
-		  <td>${assay.module?.name}</td>
-		  <td>${assay.module?.platform}</td>
+			<td>${assay?.token}</td>
+		  <td>${assay?.name}</td>
+		  <td>${assay?.module?.name}</td>
+		  <td>${assay?.module?.platform}</td>
 		  <td>
-		  	<g:if test="${assay.module.openInFrame == null || assay.module.openInFrame == Boolean.TRUE}">
-	          <jumpbar:link frameSource="${assay.module.url}/assay/showByToken/${assay.giveUUID()}" pageTitle="${assay.module.name}">
+		  	<g:if test="${assay?.module.openInFrame == null || assay?.module.openInFrame == Boolean.TRUE}">
+	          <jumpbar:link frameSource="${assay?.module.url}/assay/showByToken/${assay?.giveUUID()}" pageTitle="${assay?.module.name}">
 				view
 			  </jumpbar:link>
 			 </g:if>
 			 <g:else>
-			 	<g:link url="${assay.module.url}/assay/showByToken/${assay.giveUUID()}">view</g:link>
+			 	<g:link url="${assay?.module.url}/assay/showByToken/${assay?.giveUUID()}">view</g:link>
 			 </g:else>
 		</td>
 		  <td>
-			<% sortedAssaySamples = assay.samples.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
+			<% sortedAssaySamples = assay?.samples.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
 			${sortedAssaySamples.name.join( ', ' )}
 		  </td>
 		</tr>
