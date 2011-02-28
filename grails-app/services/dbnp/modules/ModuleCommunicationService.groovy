@@ -100,19 +100,7 @@ class ModuleCommunicationService implements Serializable {
 		def sessionToken = UUID.randomUUID().toString()
 
 		// put the session token to work
-		// This saving is done in a separate session, since that seems to be the only way to have grails/hibernate
-		// really save the object to the database. This is needed, since the module will start a new http request to GSCF
-		// and in that request the database object must exist. 
-		// Using session.flush(), save(flush:true) or transaction.commit() don't do the trick. If you know
-		// a better way to perform this trick, feel free to change it :) 
-		def hibernateSession = sessionFactory.openSession( sessionFactory.getCurrentSession().connection() );
-		def transaction = hibernateSession.beginTransaction();
-		
-		if( transaction ) {
-			authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
-			transaction.commit();
-		}
-		hibernateSession.flush();
+		authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
 		
 		// Append the sessionToken to the URL
 		def url = restUrl

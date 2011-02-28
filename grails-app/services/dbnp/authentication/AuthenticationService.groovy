@@ -43,7 +43,10 @@ class AuthenticationService {
      * Logs a user in for a remote session
      */
     public boolean logInRemotely( String consumer, String token, SecUser user ) {
-        // Make sure there is no other logged in user anymore
+		// Remove expired users, otherwise they will be kept in the database forever
+		removeExpiredTokens()
+
+		// Make sure there is no other logged in user anymore
         logOffRemotely( consumer, token )
 
         def SAUser = new SessionAuthenticatedUser( consumer: consumer, token: token, secUser: user, expiryDate: createExpiryDate() )
@@ -67,9 +70,6 @@ class AuthenticationService {
      * given token
      */
     public boolean isRemotelyLoggedIn( String consumer, String token ) {
-        // Remove expired users, otherwise they will be kept in the database forever
-        removeExpiredTokens()
-
         // Check whether a user exists
         def user = getSessionAuthenticatedUser(consumer, token)
 
@@ -89,9 +89,6 @@ class AuthenticationService {
      * Returns the user that is logged in remotely
      */
     public SecUser getRemotelyLoggedInUser( String consumer, String token ) {
-        // Remove expired users, otherwise they will be kept in the database forever
-        removeExpiredTokens()
-
         // Check whether a user exists
         def user = getSessionAuthenticatedUser(consumer, token)
 

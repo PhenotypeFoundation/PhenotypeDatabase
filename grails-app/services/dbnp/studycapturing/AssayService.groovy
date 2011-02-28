@@ -18,7 +18,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook
 
 class AssayService {
 
-    boolean transactional = true
+    boolean transactional = false
     def authenticationService
     def moduleCommunicationService
 
