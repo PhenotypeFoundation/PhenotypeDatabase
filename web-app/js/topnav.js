@@ -1,20 +1,38 @@
-$(document).ready(function(){
-    $("ul.subnav").parent().append("<span></span>"); //Only shows drop down trigger when js is enabled (Adds empty span tag after ul.subnav*)
-    $("ul.topnav li").click(function() { //When trigger is clicked...
-        //Following events are applied to the subnav itself (moving subnav up and down)
-        $(this).find("ul.subnav").slideDown('fast').show(); //Drop down the subnav on click
-        $(this).parent().hover(function() {
-        }, function(){
-            $(this).parent().find("ul.subnav").slideUp('slow'); //When the mouse hovers out of the subnav, move it back up
-        });
+$(document).ready(function() {
+	$("ul.subnav").parent().append("<span></span>");
 
-        //Following events are applied to the trigger (Hover events for the trigger)
-        }).hover(function() {
-            $(this).addClass("subhover"); //On hover over, add class "subhover"
-        }, function(){  //On Hover Out
-            $(this).removeClass("subhover"); //On hover out, remove class "subhover"
-    });
+	// menu label
+	$("ul.topnav li span").parent().click(
+		function() {
+			$(this).find("ul.subnav").slideDown('fast').show();
+			$(this).hover(function() {
+			}, function() {
+				$(this).find("ul.subnav").slideUp('slow');
+			});
+		}).hover(function() {
+			$("span", this).addClass("subhover");
+		}, function() {
+			$("span", this).removeClass("subhover");
+		}
+	);
 
-    // make sure navigation is on top of everything
-    $("ul.subnav").css( { 'z-index': '1000' } );
-}); 
+	// menu icon
+	$("ul.topnav li span").click(
+		function() {
+			$(this).parent().find("ul.subnav").slideDown('fast').show();
+			$(this).parent().hover(function() {
+			}, function() {
+				$(this).parent().find("ul.subnav").slideUp('slow');
+			});
+		}).hover(function() {
+			$("a", $(this).parent()).addClass("tophover");
+			$(this).addClass("subhover");
+		}, function() {
+			$("a", $(this).parent()).removeClass("tophover");
+			$(this).removeClass("subhover");
+		}
+	);
+
+	// make sure navigation is on top of everything
+	$("ul.subnav").css({ 'z-index': '1000' });
+});

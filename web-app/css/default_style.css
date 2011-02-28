@@ -97,7 +97,7 @@ ul.topnav li a {
 	float: left;
 }
 
-ul.topnav li a:hover {
+ul.topnav li a:hover, ul.topnav li a.tophover {
 	background: url(../images/default_style/topnav/topnav_hover.gif) no-repeat center top;
 }
 
