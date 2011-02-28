@@ -2,7 +2,7 @@ body {
 	margin: 0;
 	padding: 0;
 	font: 10px normal Arial, Helvetica, sans-serif;
-	background: #fff url(../images/default_style/body_bg.gif) repeat-x;
+	background: #fff url(../images/default_style/body_bg_95px.gif) repeat-x;
 }
 
 /*a:link, a:visited, a:hover {
@@ -35,23 +35,24 @@ h2 {
 /** END :: container **/
 /** START :: header **/
 #header {
-	background: url(../images/default_style/header.png) no-repeat center top;
-	padding-top: 120px;
+	background: url(../images/default_style/header_60px.png) no-repeat center top;
+	padding-top: 60px;
 }
 
 #header .buildinfo {
 	color: #ff3333;
 	vertical-align: top;
 	align: right;
-	width: 400px;
-	margin: -140px 0px 0px 550px;
+	width: 240px;
+	margin: -83px 0px 0px -235px;
 	display: inline-block;
 	zoom: 1; /* IE 6 & 7 hack */
 	*display: inline; /* IE 6 & 7 hack */
 	background-color: #666;
 	border: 1px dotted red;
-	filter:alpha(opacity=80);
-	opacity: 0.8;
+	filter:alpha(opacity=70);
+	opacity: 0.7;
+	z-index: 1000;
 }
 
 #header .buildinfo table {
@@ -60,6 +61,7 @@ h2 {
 
 #header .buildinfo td {
 	padding: 0px;
+	font: 9px normal Arial, Helvetica, sans-serif;
 }
 
 

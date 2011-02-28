@@ -13,14 +13,6 @@
 			<td>: <g:meta name="app.grails.version"></g:meta></td>
 		</tr>
 		<tr>
-			<td>Groovy version</td>
-			<td>: ${org.codehaus.groovy.runtime.InvokerHelper.getVersion()}</td>
-		</tr>
-		<tr>
-			<td>JVM version</td>
-			<td>: ${System.getProperty('java.version')}</td>
-		</tr>
-		<tr>
 			<td>deployed</td>
 			<td>: <span id="info-deployed" /></td>
 		</tr>
