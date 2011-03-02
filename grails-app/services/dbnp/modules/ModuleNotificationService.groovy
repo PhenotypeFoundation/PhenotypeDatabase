@@ -8,9 +8,9 @@
  * @package	???
  *
  * Revision information:
- * $Rev: 1442 $
- * $Author: robert@isdat.nl $
- * $Date: 2011-01-26 17:02:05 +0100 (Wed, 26 Jan 2011) $
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 package dbnp.modules
 

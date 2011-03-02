@@ -3,9 +3,9 @@
  * @Since Jun 25, 2010
  *
  * Revision information:
- * $Rev: 1545 $
- * $Author: work@osx.eu $
- * $Date: 2011-02-22 13:47:28 +0100 (Tue, 22 Feb 2011) $
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 package dbnp.configuration
 

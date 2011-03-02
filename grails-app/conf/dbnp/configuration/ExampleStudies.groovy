@@ -5,9 +5,9 @@ package dbnp.configuration
  * @Since Jun 25, 2010
  *
  * Revision information:
- * $Rev: 1488 $
- * $Author: work@osx.eu $
- * $Date: 2011-02-03 16:46:41 +0100 (Thu, 03 Feb 2011) $
+ * $Rev$
+ * $Author$
+ * $Date$
  */
 
 import dbnp.studycapturing.*
