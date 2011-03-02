@@ -32,7 +32,9 @@
   <div style="color:red;">
     ${flash.errorMessage}
   </div>
-  %{--<g:form name="assaySelect" action="exportAssayAsExcel">--}%
+
+  <h1>Select the assay you want to export data from</h1>
+
   <g:form name="assaySelect" action="selectFields">
     <g:select optionKey="id" optionValue="title" name="studyId" from="${userStudies}" id="study"
       onChange="${remoteFunction(controller:'study',action:'ajaxGetAssays',params:'\'id=\'+escape(this.value)',onComplete: 'updateAssay(XMLHttpRequest.responseText, \'assay\')')}"/>

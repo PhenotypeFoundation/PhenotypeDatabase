@@ -32,14 +32,14 @@ class AssayService {
      */
     def collectAssayTemplateFields(assay) throws Exception {
 
-        def getUsedTemplateFieldNames = { templateEntities ->
+        def getUsedTemplateFields = { templateEntities ->
 
             // gather all unique and non null template fields that haves values
             templateEntities*.giveFields().flatten().unique().findAll{ field ->
 
                 field && templateEntities.any { it.fieldExists(field.name) && it.getFieldValue(field.name) }
 
-            }*.name
+            }.collect{[name: it.name, comment: it.comment]}
 
         }
 
@@ -52,10 +52,10 @@ class AssayService {
 
         def samples = assay.samples
 
-        [   'Subject Data' :            getUsedTemplateFieldNames( samples*."parentSubject".unique() ),
-            'Sampling Event Data' :     getUsedTemplateFieldNames( samples*."parentEvent".unique() ),
-            'Sample Data' :             getUsedTemplateFieldNames( samples ),
-            'Event Group' :             ['name'],
+        [   'Subject Data' :            getUsedTemplateFields( samples*."parentSubject".unique() ),
+            'Sampling Event Data' :     getUsedTemplateFields( samples*."parentEvent".unique() ),
+            'Sample Data' :             getUsedTemplateFields( samples ),
+            'Event Group' :             [[name: 'name', comment: 'Name of Event Group']],
             'Module Measurement Data':  requestModuleMeasurementNames(assay)
         ]
 
@@ -171,11 +171,11 @@ class AssayService {
 
         }
 
-        [   'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
-            'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
-            'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']),
+        [   'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data']*.name, 'parentSubject'),
+            'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data']*.name, 'parentEvent'),
+            'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']*.name),
             'Event Group' :             eventFieldMap,
-            'Module Measurement Data':  measurementTokens ? requestModuleMeasurements(assay, measurementTokens) : [:]
+            'Module Measurement Data':  measurementTokens*.name ? requestModuleMeasurements(assay, measurementTokens) : [:]
         ]
     }
 

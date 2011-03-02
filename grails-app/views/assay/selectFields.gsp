@@ -10,57 +10,55 @@
 <head>
   <meta name="layout" content="main" />
   <title>Select assay fields</title>
+  <script type="text/javascript" src="${resource(dir: 'js', file: 'tooltips.js', plugin: 'gdt')}"></script>
+  <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js', plugin: 'gdt')}"></script>
+  <link rel="stylesheet" href="${resource(dir: 'css', file: 'templates.css')}"/>
 
   <style type="text/css">
-
-    .selectCategoryDiv{
-      float: left;
-      width: auto;
+    .category{
+      margin-left: 5px;
     }
 
-    .selectFieldDiv{
+    .field{
+      margin-left: 20px;
     }
 
-    .clear {clear: both;}
-
+    .element .helpIcon{
+      margin-top: 0;
+    }
   </style>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      attachHelpTooltips();
+    })
+  </script>
 </head>
   <body>
   <div>
+
+    <h1>Select the columns that you want to be included in the resulting Excel file</h1>
+
     <g:form name="fieldSelectForm" action="compileExportData">
-      <div class="selectCategoryDiv">
 
-        <g:set var="catNum" value="${0}"/>
+      <g:set var="catNum" value="${0}"/>
+      <g:each in="${fieldMap}" var="entry">
 
-        <g:each in="${fieldMap + ['Measurement tokens':'']}">
+          <assayExporter:categorySelector category="${entry.key}" ref="cat_${catNum}"/>
 
-          <assay:categorySelector category="${it.key}" ref="cat_${catNum}"/><br/>
+          <assayExporter:fieldSelectors ref="cat_${catNum}" fields="${entry.value}"/>
+
           <g:set var="catNum" value="${catNum + 1}"/>
 
-        </g:each>
+      </g:each>
 
-      </div>
-
-      <div class="selectFieldDiv">
-
-        <g:set var="catNum" value="${0}"/>
-
-        <g:each in="${fieldMap}">
-
-          <assay:fieldSelector ref="cat_${catNum}" fieldNames="${it.value}"/><br/>
-          <g:set var="catNum" value="${catNum + 1}"/>
-
-        </g:each>
-
-        <g:select name="measurementToken" id="measurementToken" from="${measurementTokens}" noSelection="${[null:'All tokens']}"/>
-
-      </div>
-
-      <div class="clear"></div>
-
+      <assayExporter:categorySelector category="Measurements" ref="cat_${catNum}"/>
+      <g:select name="measurementToken" id="measurementToken" from="${measurementTokens}" class="field" multiple="true"/>
+      <br /><br />
       <g:submitButton name="submit" value="Submit"/>
 
     </g:form>
+
   </div>
   </body>
 </html>

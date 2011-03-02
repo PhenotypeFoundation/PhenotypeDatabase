@@ -149,7 +149,7 @@ class AssayController {
 			e.printStackTrace();
             flash.errorMessage = e.message
             redirect action: 'selectAssay'
-			return;
+			return
 
         }
         def measurementTokens = fieldMap.remove('Module Measurement Data')
@@ -158,7 +158,7 @@ class AssayController {
         flash.measurementTokens = measurementTokens
         flash.assayId = params.assayId
 
-        [fieldMap: fieldMap, measurementTokens: measurementTokens*.name]
+        [fieldMap: fieldMap, measurementTokens: measurementTokens.name]
     }
 
     /**
@@ -169,7 +169,6 @@ class AssayController {
     def compileExportData = {
 
         def fieldMap = flash.fieldMap
-        def measurementTokens = flash.measurementTokens
 
         def fieldMapSelection = [:]
 
@@ -198,7 +197,18 @@ class AssayController {
 
         if (params."cat_4" == 'on') {
 
-            measurementTokensSelection = params.measurementToken == 'null' ? measurementTokens : [ name: params.measurementToken]
+            def measurementToken = params.measurementToken
+
+            if (measurementToken) {
+
+                if (measurementToken instanceof String)
+                    measurementTokensSelection = [[name: measurementToken]]
+                else
+                    measurementTokensSelection = measurementToken.collect{[name: it]}
+
+            } else {
+                measurementTokensSelection = flash.measurementTokens
+            }
 
         }
 

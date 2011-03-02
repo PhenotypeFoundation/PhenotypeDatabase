@@ -13,6 +13,8 @@
   </head>
   <body>
 
+  <h1>Below you see a preview of the resulting Excel file, click OK to generate it</h1>
+
   <table>
     <g:each in="${assayDataPreview}" var="row">
 
