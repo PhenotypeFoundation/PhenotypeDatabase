@@ -19,7 +19,7 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
-	<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script></g:if>
+	<!--<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script></g:if>//-->
 
 	<!--  Scripts for pagination using dataTables -->
 	<link rel="stylesheet" href="${resource(dir: 'css/datatables', file: 'demo_table_jui.css')}"/>
@@ -44,9 +44,7 @@
 	</g:else>
 	<div id="footer">
 		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="http://dbnp.org">http://dbnp.org</a>.
-		<g:if env="development">( style: <%=session.style%> )</g:if>
 	</div>
-	<img src="${resource(dir: 'images', file: 'beta-stamp.png')}" alt="beta">
 </div>
 </body>
 </html>

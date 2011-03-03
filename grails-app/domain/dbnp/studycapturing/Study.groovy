@@ -519,12 +519,45 @@ class Study extends TemplateEntity {
 	}
 
 	/**
+	 * Returns the number of public studies
+	 * @return int
+	 */
+	public static countPublicStudies() { return countPublicStudies(true) }
+	public static countPublicStudies(boolean published) {
+		def c = Study.createCriteria()
+		return c.count {
+			and {
+				eq("published", published)
+				eq("publicstudy", true)
+			}
+		}
+	}
+
+	/**
+	 * Returns the number of private studies
+	 * @return int
+	 */
+	public static countPrivateStudies() { return countPrivateStudies(false) }
+	public static countPrivateStudies(boolean published) {
+		def c = Study.createCriteria()
+		return c.count {
+			and {
+				eq("publicstudy", false)
+			}
+			or {
+				eq("published", published)
+				eq("publicstudy", true)
+			}
+		}
+	}
+
+	/**
 	 * Returns the number of studies that are readable by the given user
 	 */
 	public static countReadableStudies(SecUser user) {
 		def c = Study.createCriteria()
 
-		// Administrators are allowed to read everything
+		// got a user?
 		if (user == null) {
 			return c.count {
 				and {
@@ -533,7 +566,8 @@ class Study extends TemplateEntity {
 				}
 			}
 		} else if (user.hasAdminRights()) {
-			return Study.count();
+			// Administrators are allowed to read everything
+			return Study.count()
 		} else {
 			return c.count {
 				or {
@@ -546,6 +580,29 @@ class Study extends TemplateEntity {
 							eq("id", user.id)
 						}
 						eq("published", true)
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns the number of studies that are readable & writable by the given user
+	 */
+	public static countReadableAndWritableStudies(SecUser user) {
+		def c = Study.createCriteria()
+
+		// got a user?
+		if (user == null) {
+			return 0
+		} else if (user.hasAdminRights()) {
+			return Study.count()
+		} else {
+			return c.count {
+				or {
+					eq("owner", user)
+					writers {
+						eq("id", user.id)
 					}
 				}
 			}

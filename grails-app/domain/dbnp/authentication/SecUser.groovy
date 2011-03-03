@@ -41,5 +41,4 @@ class SecUser implements Serializable {
 	public boolean hasAdminRights() {
 		return getAuthorities().contains(SecRole.findByAuthority('ROLE_ADMIN'));
 	}
-
 }

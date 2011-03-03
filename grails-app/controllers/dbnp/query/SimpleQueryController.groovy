@@ -15,8 +15,8 @@
 package dbnp.query
 
 import dbnp.data.*
-import dbnp.studycapturing.Study
-import dbnp.studycapturing.Assay
+import dbnp.studycapturing.*
+import org.dbnp.gdt.*
 import org.compass.core.engine.SearchEngineQueryParseException
 import dbnp.rest.common.CommunicationManager
 
