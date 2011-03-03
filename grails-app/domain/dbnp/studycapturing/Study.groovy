@@ -519,6 +519,59 @@ class Study extends TemplateEntity {
 	}
 
 	/**
+	 * perform a text search on studies
+	 * @param query
+	 * @return
+	 */
+	public static textSearchReadableStudies(SecUser user, String query) {
+		def c = Study.createCriteria()
+
+		if (user == null) {
+			// regular user
+			return c.list {
+				or {
+					ilike("title", "%${query}%")
+					ilike("description", "%${query}%")
+				}
+				and {
+					eq("published", true)
+					eq("publicstudy", true)
+				}
+			}
+		} else if (user.hasAdminRights()) {
+			// admin can search everything
+			return c.list {
+				or {
+					ilike("title", "%${query}%")
+					ilike("description", "%${query}%")
+				}
+			}
+		} else {
+			return c.list {
+				or {
+					ilike("title", "%${query}%")
+					ilike("description", "%${query}%")
+				}
+				and {
+					or {
+						eq("owner", user)
+						writers {
+							eq("id", user.id)
+						}
+						and {
+							readers {
+								eq("id", user.id)
+							}
+							eq("published", true)
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	/**
 	 * Returns the number of public studies
 	 * @return int
 	 */

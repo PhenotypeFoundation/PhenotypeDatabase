@@ -118,22 +118,7 @@ class HomeController {
 		def user	= authenticationService.getLoggedInUser()
 
 		// search studies
-		Study.createCriteria().list {
-			or {
-				ilike("title", "%${query}%")
-				ilike("description", "%${query}%")
-				eq("owner", user)
-				writers {
-					eq("id", user.id)
-				}
-				and {
-					readers {
-						eq("id", user.id)
-					}
-					eq("published", true)
-				}
-			}
-		}.each { study ->
+		Study.textSearchReadableStudies(user,query).each { study ->
 			result.data << [
 				link		: createLink(controller:'study', action:'show', id:study.id),
 			    name		: "${study.title}",
