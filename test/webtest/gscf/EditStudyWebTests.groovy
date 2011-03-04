@@ -16,7 +16,7 @@ class EditStudyWebTests extends grails.util.WebTest {
 		config(easyajax: true)
 
 		// login
-		invoke "http://localhost:8080/gscf/"
+		invoke "http://localhost:8080/gscf/?nostats=true"
 		clickLink(description: "Click link: Log In | Register", htmlId: "open")
 		setInputField(name: "j_username", value: "user")
 		setInputField(description: "Set password field j_password: useR123!", name: "j_password", value: "useR123!")

@@ -15,7 +15,7 @@
  */
 package dbnp.query
 
-import nl.grails.plugins.gdt.*
+import org.dbnp.gdt.*
 import java.util.List;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat
@@ -26,8 +26,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.codehaus.groovy.grails.commons.ApplicationHolder;
 
 import dbnp.authentication.*
-
-import org.dbnp.gdt.*
 
 /**
  * Available boolean operators for searches

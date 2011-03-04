@@ -25,6 +25,11 @@ class HomeController {
 	def gdtService
 
 	def index = {
+		// got a nostats parameter?
+		if (params.get('nostats')) {
+			session.nostats = (params.get('nostats') == "true") ? true : false
+		}
+
 		// create sql instance for advanced queries
 		def config = ConfigurationHolder.config
 		def sql = new groovy.sql.Sql(dataSource)
@@ -90,6 +95,9 @@ class HomeController {
 		}
 
 		[
+			// config
+			showstats					: (session?.nostats) ? !session.nostats : true,
+
 			// daily statistics
 			startDate					: startDate,
 			dailyStatistics				: dailyStatistics,

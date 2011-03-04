@@ -1,6 +1,6 @@
 package gscf
 
-
+import org.dbnp.gdt.*
 
 class CreateStudyWebTests extends grails.util.WebTest {
 
@@ -10,11 +10,13 @@ class CreateStudyWebTests extends grails.util.WebTest {
 	// e.g. test001XclassNameXListNewDelete
 
 	void testCreateStudy() {
+		// reset Identity to be able to predict identifiers
+		Identity.resetIdentifier()
 
 		// make sure Canoo waits for AJAX calls
 		config(easyajax: true)
 
-		invoke "http://localhost:8080/gscf/"
+		invoke "http://localhost:8080/gscf/?nostats=true"
 		clickLink(description: "Click link: Log In | Register", htmlId: "open")
 		setInputField(name: "j_username", value: "user")
 		setInputField(description: "Set password field j_password: useR123!", name: "j_password", value: "useR123!")
@@ -55,8 +57,8 @@ class CreateStudyWebTests extends grails.util.WebTest {
 		setSelectField(name: "compound", text: "glucose")
 		clickButton "Add"
 		clickButton "add a new eventgroup"
-		setCheckbox(name: "event_51_group_49")
-		setCheckbox(name: "event_51_group_52")
+		setCheckbox(name: "event_13_group_11") // 51_49
+		setCheckbox(name: "event_13_group_14") // 51_52
 		setRadioButton(description: "Check radio button eventType: sample", name: "eventType", value: "sample")
 		setSelectField(name: "sampleTemplate", text: "Blood extraction")
 		setSelectField(name: "sampletemplate", text: "Human blood sample")
@@ -65,14 +67,14 @@ class CreateStudyWebTests extends grails.util.WebTest {
 		setSelectField(name: "sampletemplate", text: "Human blood sample")
 		setInputField(name: "starttime", value: "1w")
 		clickButton "Add"
-		setCheckbox(name: "event_54_group_49")
-		setCheckbox(name: "event_55_group_52")
+		setCheckbox(name: "event_16_group_11") // 54_49
+		setCheckbox(name: "event_17_group_14") // 55_52
 		setRadioButton(description: "Check radio button eventType: event", name: "eventType", value: "event")
 		setSelectField(name: "eventTemplate", text: "Compound challenge")
 		setSelectField(name: "compound", text: "glucose")
 		clickButton "Add"
-		setCheckbox(name: "event_56_group_49")
-		setCheckbox(name: "event_56_group_52")
+		setCheckbox(name: "event_18_group_11")	// 56_49
+		setCheckbox(name: "event_18_group_14")  // 56_52
 
 		/* stub to test ontology term widget
 			   setSelectField(name: "event_20_compound", text: "add more...")
@@ -85,12 +87,12 @@ class CreateStudyWebTests extends grails.util.WebTest {
 		clickButton "next »"
 
 		// assign subjects to event groups
-		setCheckbox(name: "subject_39_group_49")
-		setCheckbox(name: "subject_40_group_49")
-		setCheckbox(name: "subject_41_group_49")
-		setCheckbox(name: "subject_42_group_52")
-		setCheckbox(name: "subject_43_group_52")
-		setCheckbox(name: "subject_44_group_52")
+		setCheckbox(name: "subject_1_group_11")	// 39_49
+		setCheckbox(name: "subject_2_group_11")	// 40_49
+		setCheckbox(name: "subject_3_group_11")	// 41_49
+		setCheckbox(name: "subject_4_group_14")	// 42_52
+		setCheckbox(name: "subject_5_group_14")	// 43_52
+		setCheckbox(name: "subject_6_group_14")	// 44_52
 		clickButton "next »"
 
 		// accept the generated samples, check if the right names are in place
@@ -113,7 +115,7 @@ class CreateStudyWebTests extends grails.util.WebTest {
 		clickButton "Add"
 		clickButton "next »"
 
-		setCheckbox(name: "sample_60_assay_63")
+		setCheckbox(name: "sample_22_assay_25") // 60_63
 		clickButton "next »"
 		clickButton "next »"
 

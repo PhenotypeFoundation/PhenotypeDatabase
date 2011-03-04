@@ -4,14 +4,15 @@
 	<meta property="og:title" content="Generic Study Capture Framework"/>
 	<meta property="og:description" content="A generic tool for planning scientific studies, and capturing study meta-data, integrating with analysis platform(s) / LIMS systems and searching relevant studies."/>
 	<meta name="layout" content="main"/>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'highcharts.js')}"></script>
+	<g:if test="${showstats}"><script type="text/javascript" src="${resource(dir: 'js', file: 'highcharts.js')}"></script></g:if>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt')}"></script>
 	<script type="text/javascript">
-		Highcharts.theme = { colors: ['#4572A7'] };
-		var highchartsOptions = Highcharts.getOptions();
-		var studiesPieChart, dailyStatistics;
-
 		$(document).ready(function() {
+<g:if test="${showstats}">
+			Highcharts.theme = { colors: ['#4572A7'] };
+			var highchartsOptions = Highcharts.getOptions();
+			var studiesPieChart, dailyStatistics;
+
 			studiesPieChart = new Highcharts.Chart({
 				chart: {
 					renderTo: 'studies-pie',
@@ -185,7 +186,7 @@
 				]
 			});
 			</g:if>
-
+</g:if>
 			$("#search_term").autocomplete({
 				source: function(request, response) {
 					$.ajax({
@@ -318,7 +319,7 @@
 	</div>
 </div>
 
-
+<g:if test="${showstats}">
 <div style="clear:both;display:block;padding-top:10px;">
 	<h1>Usage Statistics</h1>
 	<div id="graphs" style="display:block;border:1px solid #6c6f70;width:100%;height:300px;">
@@ -326,6 +327,7 @@
 		<div id="daily-statistics" style="margin:2px;width:476px;height:296px;display:inline-block;float:left;zoom:1;*display:inline;"></div>
 	</div>
 </div>
+</g:if>
 
 </body>
 </html>

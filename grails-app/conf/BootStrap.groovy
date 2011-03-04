@@ -69,12 +69,10 @@ class BootStrap {
 		// automatically handle database upgrades
 		DatabaseUpgrade.handleUpgrades(dataSource)
 
-		// developmental bootstrapping:
+		// developmental/test/demo bootstrapping:
 		//      - templates
 		//      - ontologies
 		//      - and/or studies
-
-
 		if (    grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT ||
                 grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST ||
                 grails.util.GrailsUtil.environment == "dbnpdemo") {
@@ -84,8 +82,12 @@ class BootStrap {
 			// add templates?
 			if (!Template.count()) ExampleTemplates.initTemplates()
 
+			// add data required for the webtests?
+			if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) ExampleStudies.addTestData()
+
 			// add example studies?
-			if (!Study.count() && grails.util.GrailsUtil.environment != "demo" && grails.util.GrailsUtil.environment != GrailsApplication.ENV_TEST) ExampleStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
+			if (!Study.count() && grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT)
+				ExampleStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
 		}
 
 		/**

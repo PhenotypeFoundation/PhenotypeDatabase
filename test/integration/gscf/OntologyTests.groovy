@@ -76,11 +76,7 @@ class OntologyTests extends GrailsUnitTestCase {
 		assert testOntology
 
 		// Create a new term
-		def term = new Term(
-		    name: testTermName,
-		    accession: testAccession,
-		    ontology: testOntology
-		)
+		def term = Term.getOrCreateTerm(testTermName, testOntology, testAccession)
 
 		assert term.validate()
 		assert term.save(flush: true)

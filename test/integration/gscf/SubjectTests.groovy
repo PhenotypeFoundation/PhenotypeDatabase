@@ -47,15 +47,11 @@ class SubjectTests extends StudyTests {
 		def humanTemplate = Template.findByName(testSubjectTemplateName)
 		assert humanTemplate
 
-		def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
-		def humanTerm = new Term(
-			name: 'Homo sapiens',
-			ontology: speciesOntology,
-			accession: '9606')
+		def humanTerm = Term.getOrCreateTerm('Homo sapiens',Ontology.getOrCreateOntologyByNcboId(1132),'9606')
 
-		assert humanTerm.validate()
-		assert humanTerm.save(flush:true)
-		assert humanTerm
+		//assert humanTerm.validate()
+		//assert humanTerm.save(flush:true)
+		//assert humanTerm
 
 		def subject = new Subject(
 			name: testSubjectName,
