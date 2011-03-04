@@ -717,7 +717,7 @@ class Study extends TemplateEntity {
 
 	// Send messages to modules about changes in this study
 	def beforeInsert = {
-        manualFlush{cd ..
+        manualFlush{
             moduleNotificationService.invalidateStudy( this )
         }
 	}
