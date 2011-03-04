@@ -17,17 +17,17 @@ package dbnp.authentication
 import org.codehaus.groovy.grails.plugins.springsecurity.GrailsUser
 
 class AuthenticationService {
-    def SpringSecurityService
+    def springSecurityService
     static final int expiryTime = 60; // Number of minutes a remotely logged in user remains active
 
-    boolean transactional = true
+    static transactional = true
 
     public boolean isLoggedIn() {
-        return SpringSecurityService.isLoggedIn();
+        return springSecurityService.isLoggedIn();
     }
 
     public SecUser getLoggedInUser() {
-      def principal = SpringSecurityService.getPrincipal()
+      def principal = springSecurityService.getPrincipal()
 
       // If the user is logged in, the principal should be a GrailsUser object.
       // If the user is not logged in, the principal is the 'anonymous username'

@@ -27,7 +27,7 @@ class LoginController {
 	/**
 	 * Dependency injection for the GSCF authentication service
 	 */
-	def AuthenticationService
+	def authenticationService
 
 	/**
 	 * Default action; redirects to 'defaultTargetUrl' if logged in, /login/auth otherwise.
@@ -74,7 +74,7 @@ class LoginController {
 
             // If the user is already authenticated with this session_id, redirect
             // him
-            if( AuthenticationService.isRemotelyLoggedIn( consumer, token ) ) {
+            if( authenticationService.isRemotelyLoggedIn( consumer, token ) ) {
                 if( returnUrl ) {
 					redirect url: returnUrl
                 } else {
@@ -84,8 +84,8 @@ class LoginController {
 
             // If the user is already logged in locally, we log him in and
             // immediately redirect him
-            if (AuthenticationService.isLoggedIn()) {
-				AuthenticationService.logInRemotely( consumer, token, AuthenticationService.getLoggedInUser() )
+            if (authenticationService.isLoggedIn()) {
+				authenticationService.logInRemotely( consumer, token, authenticationService.getLoggedInUser() )
 
 				if( returnUrl ) {
                     redirect url: returnUrl

@@ -26,9 +26,9 @@ class ImporterController {
 	def pluginManager
 	def authenticationService
 	def fileService
-	def ImporterService
+	def importerService
 	def validationTagLib = new ValidationTagLib()
-	def GdtService
+	def gdtService
 
 	/**
 	 * index method, redirect to the webflow
@@ -113,7 +113,7 @@ class ImporterController {
             on("refresh") {                
 
                 if (params.entity) {
-                    flash.importer_datatemplates = Template.findAllByEntity(GdtService.getInstanceByEntity(params.entity.decodeURL()))
+                    flash.importer_datatemplates = Template.findAllByEntity(gdtService.getInstanceByEntity(params.entity.decodeURL()))
                 }
                 
                 flash.importer_params = params                
@@ -132,7 +132,7 @@ class ImporterController {
                 flash.importer_params.importfile = params.importfile.replace('existing*', '')
 
                 if (params.entity) {
-                    flash.importer_datatemplates = Template.findAllByEntity(GdtService.getInstanceByEntity(params.entity.decodeURL()))
+                    flash.importer_datatemplates = Template.findAllByEntity(gdtService.getInstanceByEntity(params.entity.decodeURL()))
                 }
 
 				// Study selected?
@@ -319,7 +319,7 @@ class ImporterController {
 	 */
 	def ajaxGetTemplatesByEntity = {
 		// fetch all templates for a specific entity
-		def templates = Template.findAllByEntity(GdtService.getInstanceByEntity(params.entity.decodeURL()))
+		def templates = Template.findAllByEntity(gdtService.getInstanceByEntity(params.entity.decodeURL()))
 
 
 		// render as JSON
@@ -339,7 +339,7 @@ class ImporterController {
 
         if (importedfile.exists()) {
             try {
-                session.importer_workbook = ImporterService.getWorkbook(new FileInputStream(importedfile))
+                session.importer_workbook = importerService.getWorkbook(new FileInputStream(importedfile))
             } catch (Exception e) {
                 log.error ".importer wizard could not load file: " + e
                 this.appendErrorMap(['error': "Wrong file (format), the importer requires an Excel file as input"], flash.wizardErrors)
@@ -350,7 +350,7 @@ class ImporterController {
 		if (params.entity && params.template_id) {            
 			
             try {
-                session.importer_workbook = ImporterService.getWorkbook(new FileInputStream(importedfile))
+                session.importer_workbook = importerService.getWorkbook(new FileInputStream(importedfile))
             } catch (Exception e) {
                 log.error ".importer wizard could not load file: " + e
                 this.appendErrorMap(['error': "Excel file required as input"], flash.wizardErrors)
@@ -359,8 +359,8 @@ class ImporterController {
 
 			def selectedentities = []
 
-			def entityName = GdtService.decryptEntity(params.entity.decodeURL())
-			def entityClass = GdtService.getInstanceByEntityName(entityName)
+			def entityName = gdtService.decryptEntity(params.entity.decodeURL())
+			def entityClass = gdtService.getInstanceByEntityName(entityName)
 
 			// Initialize some session variables
 			//flow.importer_workbook = wb // workbook object must be serialized for this to work
@@ -370,16 +370,16 @@ class ImporterController {
 			flow.importer_datamatrix_start = params.datamatrix_start.toInteger() - 1 // 0 == first row
 			flow.importer_headerrow = params.headerrow.toInteger()
             flow.importer_entityclass = entityClass
-            flow.importer_entity = GdtService.cachedEntities.find{ it.entity==entityName }
+            flow.importer_entity = gdtService.cachedEntities.find{ it.entity==entityName }
          
 			// Get the header from the Excel file using the arguments given in the first step of the wizard
-			flow.importer_header = ImporterService.getHeader(session.importer_workbook,
+			flow.importer_header = importerService.getHeader(session.importer_workbook,
 				flow.importer_sheetindex,
 				flow.importer_headerrow,
 				flow.importer_datamatrix_start,
 				entityClass)
 
-			session.importer_datamatrix = ImporterService.getDatamatrix(
+			session.importer_datamatrix = importerService.getDatamatrix(
 				session.importer_workbook, flow.importer_header,
 				flow.importer_sheetindex,
 				flow.importer_datamatrix_start,
@@ -436,7 +436,7 @@ class ImporterController {
 		params.columnproperty.index.each { columnindex, property ->
 			// Create an actual class instance of the selected entity with the selected template
 			// This should be inside the closure because in some cases in the advanced importer, the fields can have different target entities			
-			//def entityClass = GdtService.getInstanceByEntityName(flow.importer_header[columnindex.toInteger()].entity.getName())            
+			//def entityClass = gdtService.getInstanceByEntityName(flow.importer_header[columnindex.toInteger()].entity.getName())
             def entityObj = flow.importer_entityclass.newInstance(template:template)
 
             def dontimport = (property == "dontimport") ? true : false
@@ -519,7 +519,7 @@ class ImporterController {
 		}
 
 		// Import the workbook and store the table with entity records and store the failed cells
-		def (table, failedcells) = ImporterService.importData(flow.importer_template_id,
+		def (table, failedcells) = importerService.importData(flow.importer_template_id,
 			session.importer_workbook,
 			flow.importer_sheetindex,
 			flow.importer_datamatrix_start,
@@ -660,7 +660,7 @@ class ImporterController {
 	boolean saveEntities(flow, params) {
 		//def (validatedSuccesfully, updatedEntities, failedToPersist) =
 		//try {
-		ImporterService.saveDatamatrix(flow.importer_study, flow.importer_importeddata, authenticationService, log)
+		importerService.saveDatamatrix(flow.importer_study, flow.importer_importeddata, authenticationService, log)
 
 		//}
 		//catch (Exception e) {

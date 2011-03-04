@@ -116,7 +116,7 @@ class EventGroupTests extends StudyTests {
 		assert !EventGroup.findByName(testEventGroupName)
 		assert EventGroup.count() == 0
 		assert study.eventGroups.size() == 0
-		
+
 	}
 
 	void testParentStudy() {

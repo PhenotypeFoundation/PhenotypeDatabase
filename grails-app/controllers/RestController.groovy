@@ -29,8 +29,8 @@ class RestController {
       /** Rest resources for Simple Assay Module (SAM) **/
      /**************************************************/
 
-	def AuthenticationService        
-	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
+	def authenticationService
+//	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
 	def credentials
 	def requestUser
 
@@ -44,7 +44,7 @@ class RestController {
 	 * @return  true if the user is remotely logged in, false otherwise
 	 */
 	private def auth() {
-		if( !AuthenticationService.isRemotelyLoggedIn( params.consumer, params.token ) ) {
+		if( !authenticationService.isRemotelyLoggedIn( params.consumer, params.token ) ) {
 			response.sendError(403)
 			return false
 		} else {
@@ -62,7 +62,7 @@ class RestController {
 	 * @return bool {"authenticated":true} when user/password is a valid GSCF account, {"authenticated":false} otherwise.
 	 */
 	def isUser = {
-		boolean isUser = AuthenticationService.isRemotelyLoggedIn( params.consumer, params.token )
+		boolean isUser = authenticationService.isRemotelyLoggedIn( params.consumer, params.token )
 		def reply = ['authenticated':isUser]
 		render reply as JSON
 	}
@@ -77,7 +77,7 @@ class RestController {
 	 * @return bool {"username": "...", "id": ... } when user/password is logged in.
 	 */
 	def getUser = {
-		SecUser user = AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
+		SecUser user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 		def reply = [username: user.username, id: user.id]
 		render reply as JSON
 	}
@@ -138,7 +138,7 @@ class RestController {
 		else if( params.studyToken instanceof String ) {
 			def study = Study.findByStudyUUID( params.studyToken ) 
 			if( study ) {
-				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
+				if( !study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
 					response.sendError(401)
 					return false
 				}
@@ -161,9 +161,9 @@ class RestController {
 
 		studies.each { study ->
 			if(study) {
-				def user = AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
+				def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 				// Check whether the person is allowed to read the data of this study
-				if( study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+				if( study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 
                     def items = [studyToken:study.giveUUID()]
                     study.giveFields().each { field ->
@@ -213,7 +213,7 @@ class RestController {
 		} else {
 			study = Study.findByStudyUUID( params.studyToken )
 			if( study ) {
-				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
+				if( !study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
 					response.sendError(401)
 					return false
 				}
@@ -248,7 +248,7 @@ class RestController {
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
-				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+				if( !study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 					response.sendError(401)
 					return false
 				}
@@ -320,7 +320,7 @@ class RestController {
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
-				if( !study.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+				if( !study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 					response.sendError(401)
 					return false
 				}
@@ -442,7 +442,7 @@ class RestController {
 
 			if( assay )  {
 				// Check whether the person is allowed to read the data of this study
-				if( !assay.parent.canRead(AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+				if( !assay.parent.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 					response.sendError(401)
 					return false
 				}
@@ -455,7 +455,7 @@ class RestController {
 			}
 		} else {
 			// Find all samples from studies the user can read
-			def studies = Study.list().findAll { it.canRead( AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token ) ) };
+			def studies = Study.list().findAll { it.canRead( authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ) ) };
 			samples = studies*.getSamples().flatten();
 		}
 		
@@ -536,7 +536,7 @@ class RestController {
 				return false
 			}
 
-			def user = AuthenticationService.getRemotelyLoggedInUser( params.consumer, params.token );
+			def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token );
 			def auth = ['isOwner': study.isOwner(user), 'canRead': study.canRead(user), 'canWrite': study.canWrite(user)];
 			log.trace "Authorization for study " + study.title + " and user " + user.username + ": " + auth
 			render auth as JSON;

@@ -72,7 +72,7 @@ class Sample extends TemplateEntity {
 
 		// The material domain field is optional
 		material(nullable: true)
-		
+
 		sampleUUID(nullable: true, unique: true)
 
 		// Check if the externalSampleId (currently defined as name) is really unique within each parent study of this sample.

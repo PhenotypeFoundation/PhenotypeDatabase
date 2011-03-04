@@ -21,7 +21,7 @@ import dbnp.studycapturing.*
 class ImporterService {
 	def authenticationService
 
-	boolean transactional = true
+	static transactional = true
 
 	/**
 	 * @param is input stream representing the (workbook) resource

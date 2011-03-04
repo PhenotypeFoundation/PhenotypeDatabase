@@ -16,7 +16,7 @@ import dbnp.authentication.*
  * $Date$
  */
 class RestControllerIntegrationTests extends ControllerUnitTestCase {
-	def AuthenticationService
+	def authenticationService
 
 	String consumer = "TEST"
 	String token = "abcdef"
@@ -28,7 +28,7 @@ class RestControllerIntegrationTests extends ControllerUnitTestCase {
     protected void setUp() {
         super.setUp()
 
-		controller.AuthenticationService = AuthenticationService
+		controller.authenticationService = authenticationService
     }
 
     protected void tearDown() {
@@ -45,7 +45,7 @@ class RestControllerIntegrationTests extends ControllerUnitTestCase {
 		user.save(flush: true)
 
 		// Check whether the user is really logged in
-		assert AuthenticationService.isRemotelyLoggedIn( consumer, token )
+		assert authenticationService.isRemotelyLoggedIn( consumer, token )
 
 		// Set authentication parameters
 		controller.params.consumer = consumer

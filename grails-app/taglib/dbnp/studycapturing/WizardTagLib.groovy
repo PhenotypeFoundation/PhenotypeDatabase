@@ -16,7 +16,7 @@ import org.dbnp.gdt.*
  * $Date$
  */
 class WizardTagLib extends GdtTagLib {
-	def AuthenticationService
+	def authenticationService
         
 	/**
 	 * Study form element
@@ -38,7 +38,7 @@ class WizardTagLib extends GdtTagLib {
 	 */
 	def studySelect = { attrs ->
 		// Find all studies the user has access to (max 100)
-		attrs.from = Study.giveWritableStudies(AuthenticationService.getLoggedInUser(), 100);
+		attrs.from = Study.giveWritableStudies(authenticationService().getLoggedInUser(), 100);
 
 		// got a name?
 		if (!attrs.name) {

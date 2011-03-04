@@ -1,7 +1,4 @@
-import dbnp.rest.common.CommunicationManager
-import org.apache.commons.lang.RandomStringUtils
-
-/**
+ /**
  * Application Configuration
  *
  * @author Jeroen Wesbeek 

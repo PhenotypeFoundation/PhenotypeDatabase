@@ -693,14 +693,42 @@ class Study extends TemplateEntity {
 		return this.id == s.id
 	}
 
+    // This closure is used in the before{Insert,Update,Delete} closures below.
+    // It is necessary to prevent flushing in the same session as a top level
+    // database action such as 'save' or 'addTo...'. This confuses hibernate and
+    // produces hard to trace errors.
+    // The same holds for flushing during validation (but that's not the case
+    // here).
+    // http://grails.1312388.n4.nabble.com/Grails-hibernate-flush-causes-IndexOutOfBoundsException-td3031979.html
+    static manualFlush(closure) {
+        withSession {session ->
+            def save
+            try {
+                save = session.flushMode
+                session.flushMode = org.hibernate.FlushMode.MANUAL
+                closure()
+            } finally {
+                if (save) {
+                    session.flushMode = save
+                }
+         }
+        }
+    }
+
 	// Send messages to modules about changes in this study
 	def beforeInsert = {
-		moduleNotificationService.invalidateStudy( this );
+        manualFlush{cd ..
+            moduleNotificationService.invalidateStudy( this )
+        }
 	}
 	def beforeUpdate = {
-		moduleNotificationService.invalidateStudy( this );
+        manualFlush{
+            moduleNotificationService.invalidateStudy( this )
+        }
 	}
 	def beforeDelete = {
-		moduleNotificationService.invalidateStudy( this );
+		manualFlush{
+            moduleNotificationService.invalidateStudy( this )
+        }
 	}
 }

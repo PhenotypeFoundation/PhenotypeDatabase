@@ -1,10 +1,9 @@
 package gscf
 
-import grails.test.*
 import org.springframework.core.io.*
 import grails.converters.*
 import dbnp.authentication.*
-import org.dbnp.gdt.*
+import org.dbnp.gdt.Template
 
 /**
  * ImporterTests Test
@@ -21,7 +20,7 @@ import org.dbnp.gdt.*
  * $Date$
  */
 class ImporterTests extends GroovyTestCase {
-    def ImporterService
+    def importerService
 
     static final String testStudyExcelFile = "testfiles/NTC_Experiment_test4.xls"
     static final String testStudyXMLTemplateFile = "testfiles/ntc_tudy_template.xml"

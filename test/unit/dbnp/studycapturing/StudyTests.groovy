@@ -1,8 +1,9 @@
 package dbnp.studycapturing
 
 import grails.test.*
-import groovy.util.GroovyTestCase
+
 class StudyTests extends GrailsUnitTestCase {
+
     protected void setUp() {
         super.setUp()
     }

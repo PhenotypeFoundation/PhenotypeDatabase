@@ -24,8 +24,8 @@ import org.apache.poi.ss.usermodel.DataFormatter
 
 class ImporterTagLib {
 	static namespace = 'importer'
-	def ImporterService
-	def GdtService
+	def importerService
+	def gdtService
 
 	/**
 	 * @param header string array containing header
@@ -129,7 +129,7 @@ class ImporterTagLib {
 
         //  Just return the matched value only
         if (returnmatchonly)
-            out << ImporterService.mostSimilar(matchvalue, templatefields, fuzzyTreshold)
+            out << importerService.mostSimilar(matchvalue, templatefields, fuzzyTreshold)
         else // Return a selectbox
             out << createPropertySelect(attrs['name'], templatefields, matchvalue, selected, mc.index, fuzzyTreshold)
 
@@ -146,7 +146,7 @@ class ImporterTagLib {
 	 */
 	def createPropertySelect(String name, options, matchvalue, selected, Integer columnIndex, float fuzzyTreshold = 0.1f) {
 		// Determine which field in the options list matches the best with the matchvalue
-		def mostsimilar = (matchvalue) ? ImporterService.mostSimilar(matchvalue, options, fuzzyTreshold) : ""
+		def mostsimilar = (matchvalue) ? importerService.mostSimilar(matchvalue, options, fuzzyTreshold) : ""
 		
 		def res = "<select style=\"font-size:10px\" id=\"${name}.index.${columnIndex}\" name=\"${name}.index.${columnIndex}\">"
 
@@ -185,7 +185,7 @@ class ImporterTagLib {
 
 		def res = "<select style=\"font-size:10px\" name=\"${name}.index.${custval}\">"
 
-		GdtService.getTemplateEntities().each { e ->
+		gdtService.getTemplateEntities().each { e ->
 			res += "<option value\"${e.name}\""
 			res += ">${e.name} bla</option>"
 		}

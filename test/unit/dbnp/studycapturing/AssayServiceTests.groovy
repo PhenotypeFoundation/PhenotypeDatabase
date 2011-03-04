@@ -201,10 +201,10 @@ class AssayServiceTests extends GrailsUnitTestCase {
 //        collectAssayData(assay, fieldMap, measurementTokens)
 
         def fieldMap = [
-                'Subject Data':['tf1','tf2','tf3','species','name'],
-                'Sampling Event Data':['startTime','duration'],
-                'Sample Data':['name'],
-                'Event Group':['name']
+                'Subject Data':[[name:'tf1'],[name:'tf2'],[name:'tf3'],[name:'species'],[name:'name']],
+                'Sampling Event Data':[[name:'startTime'],[name:'duration']],
+                'Sample Data':[[name:'name']],
+                'Event Group':[[name:'name']]
         ]
 
         def measurementTokens = [[name:'measurement1'], [name:'measurement2'], [name:'measurement3'], [name:'measurement4']]

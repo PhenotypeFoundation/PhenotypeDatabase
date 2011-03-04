@@ -36,21 +36,7 @@ class StudyTests extends GrailsUnitTestCase {
 		def studyTemplate = Template.findByName(testStudyTemplateName)
 		assert studyTemplate
 
-		def study = new Study(
-			title: testStudyName,
-			template: studyTemplate,
-			startDate: testStudyStartDate,
-			code: testStudyCode,
-            description: testStudyDescription
-		)
-
-		if (!study.validate()) {
-			study.errors.each { println it}
-		}
-		assert study.validate()
-
-
-		assert study.save(flush: true)
+        dbnp.configuration.ExampleStudies.addTestStudies()
 
 	}
 
@@ -82,7 +68,7 @@ class StudyTests extends GrailsUnitTestCase {
 		assert study.isDomainField('title')
 		assert study.isDomainField('startDate')
 		assert study.isDomainField('code')
-		
+
 	}
 
 	void testSetDate() {
@@ -93,19 +79,12 @@ class StudyTests extends GrailsUnitTestCase {
 		study.setFieldValue("startDate",testStudyStartDateString2)
 		assert study.validate()
 		assert study.save(flush:true)
-		assert study.getFieldValue("startDate").equals(testStudyStartDate2) 
+		assert study.getFieldValue("startDate").equals(testStudyStartDate2)
 
 	}
 
 	protected void tearDown() {
 
-		// Delete the created study
-		/*def study = Study.findByCode(testStudyCode)
-		assert study
-
-		study.delete()
-		assert Study.findByCode(testStudyCode) == null
-                */
 		super.tearDown()
 	}
 

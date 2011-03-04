@@ -10,7 +10,7 @@ import org.dbnp.gdt.RelTime
  * Controller class for studies
  */
 class StudyController {
-    def AuthenticationService
+    def authenticationService
     
     //static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
@@ -23,7 +23,7 @@ class StudyController {
      */
     def list = {
 
-        def user = AuthenticationService.getLoggedInUser()
+        def user = authenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
 		def offset = params.offset ? params.int( 'offset' ) : 0
         def studies = Study.giveReadableStudies( user, max, offset );
@@ -36,7 +36,7 @@ class StudyController {
      */
     @Secured(['IS_AUTHENTICATED_REMEMBERED'])
     def myStudies = {
-        def user = AuthenticationService.getLoggedInUser()
+        def user = authenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
 		def offset = params.offset ? params.int( 'offset' ) : 0
 		
@@ -87,7 +87,7 @@ class StudyController {
         }
         else {
             // Check whether the user may see this study
-            def loggedInUser = AuthenticationService.getLoggedInUser()
+            def loggedInUser = authenticationService.getLoggedInUser()
             if( !studyInstance.canRead(loggedInUser) ) {
                 flash.message = "You have no access to this study"
                 redirect(action: "list")
@@ -110,7 +110,7 @@ class StudyController {
 		if( !studyList )
 			return
 
-		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
     }
 
 	/**
@@ -123,7 +123,7 @@ class StudyController {
 		if( !studyList )
 			return
 
-		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
     }
 
 	/**
@@ -136,7 +136,7 @@ class StudyController {
 		if( !studyList )
 			return
 
-		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
     }
 
 	/**
@@ -149,7 +149,7 @@ class StudyController {
 		if( !studyList )
 			return
 
-		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
     }
 
 	/**
@@ -162,7 +162,7 @@ class StudyController {
 		if( !studyList )
 			return
 
-		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
     }
 
 	/**
@@ -175,7 +175,7 @@ class StudyController {
 		if( !studyList )
 			return
 
-		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
     }
 
 	/**
@@ -188,7 +188,7 @@ class StudyController {
 		if( !studyList )
 			return
 
-		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: AuthenticationService.getLoggedInUser() ]
+		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
     }
 
 	/**
@@ -235,7 +235,7 @@ class StudyController {
 
 		// Check whether the user may see these studies
 		def studiesAllowed = []
-        def loggedInUser = AuthenticationService.getLoggedInUser()
+        def loggedInUser = authenticationService.getLoggedInUser()
 
 		studyList.each { studyInstance ->
             if( studyInstance.canRead(loggedInUser) ) {
@@ -261,7 +261,7 @@ class StudyController {
         }
         else {
             // Check whether the user may see this study
-            def loggedInUser = AuthenticationService.getLoggedInUser()
+            def loggedInUser = authenticationService.getLoggedInUser()
             if( !studyInstance.canRead(loggedInUser) ) {
                 flash.message = "You have no access to this study"
                 redirect(action: "list")

@@ -1,5 +1,5 @@
 /**
- * ExporterController Controler
+ * ExporterController Controller
  *
  * Description of my controller
  *
@@ -31,8 +31,7 @@ import grails.plugins.springsecurity.Secured
 
 class ExporterController {
 
-    def AuthenticationService
-    def ImporterService
+    def authenticationService
 
     /*
      * List of all studies for selection the study to export
@@ -40,7 +39,7 @@ class ExporterController {
      */
     def index = {
 
-        def user = AuthenticationService.getLoggedInUser()
+        def user = authenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
 
         def c = dbnp.studycapturing.Study.createCriteria()
