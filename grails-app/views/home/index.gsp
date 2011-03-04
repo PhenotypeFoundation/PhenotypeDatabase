@@ -296,12 +296,12 @@
 </head>
 <body>
 
-<div style="clear:both;display:block;padding-top:10px;">
+<div style="clear:both;display:block;">
 	<div style="margin:2px;width:476px;display:inline-block;float:left;zoom:1;*display:inline;">
 		<h1>Lorem ipsum 1</h1>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut tincidunt auctor suscipit. Nam ultricies condimentum pulvinar. In magna orci, eleifend sit amet tincidunt eget, ultricies a justo. Vestibulum purus lorem, laoreet sit amet rutrum et, sollicitudin eget augue. Nulla consequat, mauris eget ornare fringilla, arcu enim mattis odio, rhoncus rutrum ante turpis vitae nulla. Sed et turpis vel urna venenatis sagittis. Sed sagittis vestibulum felis, vel ultricies tellus dictum ac. Nunc non massa et ligula gravida rutrum. Fusce porttitor, eros ac dictum suscipit, risus lacus aliquam justo, ut lobortis erat nulla sit amet risus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fermentum ultricies ipsum, at consequat elit pharetra auctor.
 	</div>
-	<div style="">
+	<div style="margin:2px;width:476px;display:inline-block;float:left;zoom:1;*display:inline;">
 		<h1>Quicksearch</h1>
 		<div id="simpleQuery" class="simplequery">
 		<g:form action="pages" name="simpleQueryForm" id="simpleQueryForm">
