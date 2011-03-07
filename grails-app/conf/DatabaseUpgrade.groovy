@@ -5,8 +5,8 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder
 /**
  * A script to automatically perform database changes
  *
- * @Author	Jeroen Wesbeek
- * @Since	20101209
+ * @Author Jeroen Wesbeek
+ * @Since 20101209
  *
  * Revision information:
  * $Rev$
@@ -31,9 +31,9 @@ class DatabaseUpgrade {
 		changeStudyDescription(sql, db)				// r1245 / r1246
 		changeStudyDescriptionToText(sql, db)		// r1327
 		changeTemplateTextFieldSignatures(sql, db)	// prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
-		setAssayModuleDefaultValues(sql, db)		// 1490
-        dropMappingColumnNameConstraint(sql, db)
-		alterStudyAndAssay(sql, db)					// 1594
+		setAssayModuleDefaultValues(sql, db)		// r1490
+		dropMappingColumnNameConstraint(sql, db)
+		alterStudyAndAssay(sql, db)					// r1594
 	}
 
 	/**
@@ -56,7 +56,7 @@ class DatabaseUpgrade {
 				sql.eachRow("SELECT study_id, template_text_fields_elt as description FROM study_template_text_fields WHERE template_text_fields_idx='Description'") { row ->
 					// migrate the template description to the study object itself
 					// so we don't have to bother with sql injections, etc
-					def study = Study.findById( row.study_id )
+					def study = Study.findById(row.study_id)
 					study.setFieldValue('description', row.description)
 					if (!(study.validate() && study.save())) {
 						throw new Exception("could not save study with id ${row.study_id}")
@@ -78,7 +78,7 @@ class DatabaseUpgrade {
 				// and delete the obsolete template field
 				sql.execute("DELETE FROM template_field WHERE id=${id}")
 			} catch (Exception e) {
-				"changeStudyDescription database upgrade failed: " + e.getMessage()
+				println "changeStudyDescription database upgrade failed: " + e.getMessage()
 			}
 		}
 	}
@@ -101,7 +101,7 @@ class DatabaseUpgrade {
 					// change the datatype of study::description to text
 					sql.execute("ALTER TABLE study ALTER COLUMN description TYPE text")
 				} catch (Exception e) {
-					"changeStudyDescriptionToText database upgrade failed: " + e.getMessage()
+					println "changeStudyDescriptionToText database upgrade failed: " + e.getMessage()
 				}
 			}
 		}
@@ -118,108 +118,117 @@ class DatabaseUpgrade {
 		if (db == "org.postgresql.Driver") {
 			// check if any TEXT template fields are of type 'text'
 			sql.eachRow("SELECT columns.table_name as tablename FROM information_schema.columns WHERE columns.table_schema::text = 'public'::text AND column_name='template_text_fields_elt' AND data_type != 'text';")
-			{ row ->
-				"performing database upgrade: ${row.tablename} template_text_fields_string/elt to text".grom()
-				try {
-					// change the datatype of text fields to text
-					sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_elt TYPE text", row.tablename))
-					sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_string TYPE text", row.tablename))
+				{ row ->
+					"performing database upgrade: ${row.tablename} template_text_fields_string/elt to text".grom()
+					try {
+						// change the datatype of text fields to text
+						sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_elt TYPE text", row.tablename))
+						sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_string TYPE text", row.tablename))
 
+					} catch (Exception e) {
+						println "changeTemplateTextFieldSignatures database upgrade failed: " + e.getMessage()
+					}
+				}
+		}
+	}
+
+	/**
+	 * The fields 'notify' and 'openInFrame' have been added to AssayModule. However, there
+	 * seems to be no method to setting the default values of these fields in the database. They
+	 * are set to NULL by default, so all existing fields have 'NULL' set.
+	 * This method sets the default values
+	 * @param sql
+	 * @param db
+	 */
+	public static void setAssayModuleDefaultValues(sql, db) {
+		// do we need to perform this upgrade?
+		if ((db == "org.postgresql.Driver" || db == "com.mysql.jdbc.Driver") &&
+			(sql.firstRow("SELECT * FROM assay_module WHERE notify IS NULL") || sql.firstRow("SELECT * FROM assay_module WHERE open_in_frame IS NULL"))
+		) {
+			"performing database upgrade: assay_module default values for boolean fields".grom()
+
+			try {
+				sql.execute("UPDATE assay_module SET notify=" + ((db == "org.postgresql.Driver") ? 'FALSE' : '0') + " WHERE notify IS NULL")
+			} catch (Exception e) {
+				println "setAssayModuleDefaultValues database upgrade failed, notify field couldn't be set to default value: " + e.getMessage()
+			}
+
+			// set open_in_frame?
+			try {
+				sql.execute("UPDATE assay_module SET open_in_frame=" + ((db == "org.postgresql.Driver") ? 'TRUE' : '1') + " WHERE open_in_frame IS NULL")
+			} catch (Exception e) {
+				// Maybe gdt plugin is not updated yet after revision 109 ?
+				println "setAssayModuleDefaultValues database upgrade failed, openInFrame field couldn't be set to default value: " + e.getMessage()
+			}
+		}
+	}
+
+	/**
+	 * Drop the unique constraint for the "name" column in the MappingColumn domain
+	 *
+	 * @param sql
+	 * @param db
+	 */
+	public static void dropMappingColumnNameConstraint(sql, db) {
+		// are we running postgreSQL ?
+		if (db == "org.postgresql.Driver") {
+			if (sql.firstRow("SELECT * FROM pg_constraint WHERE contype='mapping_column_name_key'")) {
+				"performing database upgrade: mapping column name constraint".grom()
+				try {
+					// Check if constraint still exists
+					sql.execute("ALTER TABLE mapping_column DROP CONSTRAINT mapping_column_name_key")
 				} catch (Exception e) {
-					"changeTemplateTextFieldSignatures database upgrade failed: " + e.getMessage()
+					println "dropMappingColumnNameConstraint database upgrade failed, `name` field unique constraint couldn't be dropped: " + e.getMessage()
 				}
 			}
 		}
 	}
-	
-	/**
-	* The fields 'notify' and 'openInFrame' have been added to AssayModule. However, there
-	* seems to be no method to setting the default values of these fields in the database. They
-	* are set to NULL by default, so all existing fields have 'NULL' set. 
-	* This method sets the default values
-	* @param sql
-	* @param db
-	*/
-   public static void setAssayModuleDefaultValues(sql, db) {
-	   "performing database upgrade: assay_module default values for boolean fields".grom()
 
-	   // are we running postgreSQL ?
-	   if (db == "org.postgresql.Driver") {
-		   try {
-			   sql.execute("UPDATE assay_module SET notify = FALSE WHERE notify IS NULL")
-		   } catch (Exception e) {
-			   println "setAssayModuleDefaultValues notify field couldn't be set to default value: " + e.getMessage()
-		   }
-		   try {
-			   sql.execute("UPDATE assay_module SET open_in_frame = TRUE WHERE open_in_frame IS NULL")
-		   } catch (Exception e) {
-			   println "setAssayModuleDefaultValues openInFrame field couldn't be set to default value: " + e.getMessage()
-			   println "Maybe gdt plugin is not updated yet after revision 109"
-		   }
-	   }
-	   
-	   // Are we running MySQL
-	   if( db == "com.mysql.jdbc.Driver" ) {
-		   try {
-			   sql.execute("UPDATE assay_module SET notify = 0 WHERE notify IS NULL")
-		   } catch (Exception e) {
-			   println "setAssayModuleDefaultValues notify field couldn't be set to default value: " + e.getMessage()
-		   }
-		   try {
-			   sql.execute("UPDATE assay_module SET open_in_frame = 1 WHERE open_in_frame IS NULL")
-		   } catch (Exception e) {
-			   println "setAssayModuleDefaultValues openInFrame field couldn't be set to default value: " + e.getMessage()
-			   println "Maybe gdt plugin is not updated yet after revision 109"
-		   }
-	   }
-   }
-   
-    /**
-	 * Drop the unique constraint for the "name" column in the MappingColumn domain
-     * 
+	/**
+	 * The field study.code has been set to be nullable
+	 * The field assay.externalAssayId has been removed
 	 * @param sql
 	 * @param db
 	 */
-    public static void dropMappingColumnNameConstraint(sql, db) {
-        // are we running postgreSQL ?
-	   if (db == "org.postgresql.Driver") {
-		   try {
-                // Check if constraint still exists
-                if (sql.firstRow("SELECT * FROM pg_constraint WHERE contype='mapping_column_name_key'")) {
-                	println "performing database upgrade: mapping column name constraint"
-                    sql.execute("ALTER TABLE mapping_column DROP CONSTRAINT mapping_column_name_key")
-				}
-		   } catch (Exception e) {
-			   println "changeMappingColumnNameConstraint `name` field unique constraint couldn't be dropped: " + e.getMessage()
-		   }
-       }
-    }
-	
-	/**
-	* The field study.code has been set to be nullable
-	* The field assay.externalAssayId has been removed
-	* @param sql
-	* @param db
-	*/
-   public static void alterStudyAndAssay(sql, db) {
-	   // are we running postgreSQL ?
-	   if (db == "org.postgresql.Driver") {
-		   try {
-			   sql.execute("ALTER TABLE assay DROP COLUMN external_assayid")
-		   } catch (Exception e) {
-			   println "alterStudyAndAssay externalAssayId could not be removed from assay: " + e.getMessage()
-		   }
-		   try {
-			   sql.execute("ALTER TABLE study ALTER COLUMN code DROP NOT NULL")
-		   } catch (Exception e) {
-			   println "alterStudyAndAssay study.code could not be set to accept null values: " + e.getMessage()
-		   }
-	   }
-	   
-	   // Load all studies and save them again. This prevents errors on saving later
-	   Study.list().each {
-		   it.save();
-	   }
-   }
+	public static void alterStudyAndAssay(sql, db) {
+		def updated = false
 
+		// are we running postgreSQL ?
+		if (db == "org.postgresql.Driver") {
+			// see if table assay contains a column external_assayid
+			if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='assay' AND columns.column_name='external_assayid'")) {
+				"performing database upgrade: dropping column 'external_assayid' from table 'assay'".grom()
+
+				try {
+					sql.execute("ALTER TABLE assay DROP COLUMN external_assayid")
+					updated = true
+				} catch (Exception e) {
+					println "alterStudyAndAssay database upgrade failed, externalAssayId could not be removed from assay: " + e.getMessage()
+				}
+
+			}
+
+			// see if table study contains a column code which is not nullable
+			if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='study' AND columns.column_name='code' AND is_nullable='NO'")) {
+				"performing database upgrade: dropping column 'code' from table 'study'".grom()
+
+				try {
+					sql.execute("ALTER TABLE study ALTER COLUMN code DROP NOT NULL")
+					updated = true
+				} catch (Exception e) {
+					println "alterStudyAndAssay database upgrade failed, study.code could not be set to accept null values: " + e.getMessage()
+				}
+			}
+
+			// Load all studies and save them again. This prevents errors on saving later
+			if (updated) {
+				"re-saving studies...".grom()
+
+				Study.list().each { study ->
+					"re-saving study: ${study}".grom()
+					study.save()
+				}
+			}
+		}
+	}
 }
