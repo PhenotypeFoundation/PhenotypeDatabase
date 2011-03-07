@@ -13,10 +13,6 @@ class Assay extends TemplateEntity {
 	// The dbNP module in which the assay omics data can be found. */
 	AssayModule module
 
-	// The assay ID which is used in the dbNP submodule which contains the actual omics data of this assay.
-	// This ID is generated in GSCF, but is used in the submodules to refer to this particular Assay.
-	String externalAssayID
-
 	/**
 	* UUID of this assay
 	*/
@@ -38,11 +34,6 @@ class Assay extends TemplateEntity {
 			name: 'module',
 			type: TemplateFieldType.MODULE,
 			required: true
-		),
-		new TemplateField(
-			name: 'externalAssayID',
-			type: TemplateFieldType.STRING,
-			required: true
 		)
 	]
 
@@ -53,7 +44,6 @@ class Assay extends TemplateEntity {
 	static hasMany = [samples: Sample]
 
 	static constraints = {
-		externalAssayID(nullable:false, blank:false, unique: true)
 		assayUUID(nullable:true, unique: true)
 	}
 

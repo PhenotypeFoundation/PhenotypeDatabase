@@ -77,7 +77,6 @@ class PilotController {
 		   def assayInstance = new Assay()
 		   assayInstance.name = "${studyInstance.title} - Metabolomics Assay"
 		   assayInstance.module = AssayModule.findByName("Metabolomics module")
-		   assayInstance.externalAssayID = assayInstance?.name?.encodeAsMD5()
 		   studyInstance.addToAssays(assayInstance)
 		   assayInstance.save(flush: true)
 		   		   

@@ -60,8 +60,8 @@ class AssayServiceTests extends GrailsUnitTestCase {
 
         mockDomain(AssayModule,   [ new AssayModule(id: 1, url: 'http://www.example.com') ])
 
-        mockDomain(Assay,         [ new Assay(id: 1, externalAssayID: 'assay1', module: AssayModule.get(1), samples: [Sample.get(1),Sample.get(2)]),
-                                    new Assay(id: 2, externalAssayID: 'assay1', module: AssayModule.get(1), samples: [])])
+        mockDomain(Assay,         [ new Assay(id: 1, module: AssayModule.get(1), samples: [Sample.get(1),Sample.get(2)]),
+                                    new Assay(id: 2, module: AssayModule.get(1), samples: [])])
 
         Subject.get(1).metaClass.static.log = mockLog
 

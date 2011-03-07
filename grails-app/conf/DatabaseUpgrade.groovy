@@ -33,6 +33,7 @@ class DatabaseUpgrade {
 		changeTemplateTextFieldSignatures(sql, db)	// prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
 		setAssayModuleDefaultValues(sql, db)		// 1490
         dropMappingColumnNameConstraint(sql, db)
+		alterStudyAndAssay(sql, db)					// 1594
 	}
 
 	/**
@@ -193,4 +194,32 @@ class DatabaseUpgrade {
 		   }
        }
     }
+	
+	/**
+	* The field study.code has been set to be nullable
+	* The field assay.externalAssayId has been removed
+	* @param sql
+	* @param db
+	*/
+   public static void alterStudyAndAssay(sql, db) {
+	   // are we running postgreSQL ?
+	   if (db == "org.postgresql.Driver") {
+		   try {
+			   sql.execute("ALTER TABLE assay DROP COLUMN external_assayid")
+		   } catch (Exception e) {
+			   println "alterStudyAndAssay externalAssayId could not be removed from assay: " + e.getMessage()
+		   }
+		   try {
+			   sql.execute("ALTER TABLE study ALTER COLUMN code DROP NOT NULL")
+		   } catch (Exception e) {
+			   println "alterStudyAndAssay study.code could not be set to accept null values: " + e.getMessage()
+		   }
+	   }
+	   
+	   // Load all studies and save them again. This prevents errors on saving later
+	   Study.list().each {
+		   it.save();
+	   }
+   }
+
 }

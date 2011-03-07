@@ -30,13 +30,6 @@
                         </tr>
                     
                         <tr class="prop">
-                            <td valign="top" class="name"><g:message code="assay.externalAssayID.label" default="External Assay ID" /></td>
-                            
-                            <td valign="top" class="value">${fieldValue(bean: assayInstance, field: "externalAssayID")}</td>
-                            
-                        </tr>
-                    
-                        <tr class="prop">
                             <td valign="top" class="name"><g:message code="assay.module.label" default="Module" /></td>
                             
                             <td valign="top" class="value"><g:link controller="assayModule" action="show" id="${assayInstance?.module?.id}">${assayInstance?.module?.encodeAsHTML()}</g:link></td>

@@ -831,21 +831,9 @@ class StudyWizardController {
 	            if (flow.assay) {
 		            // set template
 		            flow.assay.template = template
-		            if (template) {
-			            flow.assay.setFieldValue(
-				            'externalAssayID',
-				            ucwords(flow.study.code).replaceAll("([ ]{1,})", "") + '_' + ucwords(template.name).replaceAll("([ ]{1,})", "")
-			            )
-		            }
 	            } else {
 		            // create a new assay instance
 		            flow.assay = new Assay(template: template)
-		            if (template) {
-			            flow.assay.setFieldValue(
-				            'externalAssayID',
-				            ucwords(flow.study.code).replaceAll("([ ]{1,})", "") + '_' + ucwords(template.name).replaceAll("([ ]{1,})", "")
-			            )
-		            }
 	            }
 
 				// reset errors

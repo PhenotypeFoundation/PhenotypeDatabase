@@ -24,8 +24,6 @@
                         
                             <g:sortableColumn property="id" title="${message(code: 'assay.id.label', default: 'Id')}" />
                         
-                            <g:sortableColumn property="externalAssayID" title="${message(code: 'assay.externalAssayID.label', default: 'External Assay ID')}" />
-                        
                             <th><g:message code="assay.module.label" default="Module" /></th>
                    	    
                             <g:sortableColumn property="name" title="${message(code: 'assay.name.label', default: 'Name')}" />
@@ -39,8 +37,6 @@
                         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                         
                             <td><g:link action="show" id="${assayInstance.id}">${fieldValue(bean: assayInstance, field: "id")}</g:link></td>
-                        
-                            <td>${fieldValue(bean: assayInstance, field: "externalAssayID")}</td>
                         
                             <td>${fieldValue(bean: assayInstance, field: "module")}</td>
                         

@@ -8,7 +8,6 @@
 		<g:if test="${multipleStudies}">
 		  <th></th>
 		</g:if>
-		  <th width="100">Assay Code</th>
 		<th width="100">Assay Name</th>
 		<th width="100">Module</th>
 		<th width="150">Platform</th>
@@ -26,7 +25,6 @@
 			  ${studyInstance.title}
 			</td>
 		  </g:if>
-			<td>${assay?.token}</td>
 		  <td>${assay?.name}</td>
 		  <td>${assay?.module?.name}</td>
 		  <td>${assay?.module?.platform}</td>

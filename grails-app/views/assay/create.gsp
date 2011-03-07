@@ -29,15 +29,6 @@
                         
                             <tr class="prop">
                                 <td valign="top" class="name">
-                                    <label for="externalAssayID"><g:message code="assay.externalAssayID.label" default="External Assay ID" /></label>
-                                </td>
-                                <td valign="top" class="value ${hasErrors(bean: assayInstance, field: 'externalAssayID', 'errors')}">
-                                    <g:textField name="externalAssayID" value="${fieldValue(bean: assayInstance, field: 'externalAssayID')}" />
-                                </td>
-                            </tr>
-                        
-                            <tr class="prop">
-                                <td valign="top" class="name">
                                     <label for="module"><g:message code="assay.module.label" default="Module" /></label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean: assayInstance, field: 'module', 'errors')}">

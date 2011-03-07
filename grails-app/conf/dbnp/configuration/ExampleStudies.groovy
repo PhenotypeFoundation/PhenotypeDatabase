@@ -419,15 +419,13 @@ class ExampleStudies {
 		def lipidAssayRef = new Assay(
 			name: 'Lipid profiling',
 			template: ccAssayTemplate,
-			module: clinicalModule,
-			externalAssayID: 'PPS3_SAM'
+			module: clinicalModule
 		)
 
 		def metAssayRef = new Assay(
 			name: 'Lipidomics profile',
 			template: metAssayTemplate,
-			module: metabolomicsModule,
-			externalAssayID: 'PPS3_Lipidomics'
+			module: metabolomicsModule
 		).setFieldValue('Spectrometry technique', 'LC/MS')
 
 		mouseStudy.samples*.each {
@@ -442,29 +440,25 @@ class ExampleStudies {
 		def glucoseAssayBRef = new Assay(
 			name		: 'Glucose assay before',
 			template	: ccAssayTemplate,
-			module		: clinicalModule,
-			externalAssayID: 'PPSH-Glu-B'
+			module		: clinicalModule
 		)
 
 		def glucoseAssayARef = new Assay(
 			name		: 'Glucose assay after',
 			template	: ccAssayTemplate,
-			module		: clinicalModule,
-			externalAssayID: 'PPSH-Glu-A'
+			module		: clinicalModule
 		)
 
 		def metAssayRefB = new Assay(
 			name		: 'Lipidomics profile before',
 			template	: metAssayTemplate,
-			module		: metabolomicsModule,
-			externalAssayID: 'PPSH_Lipidomics_start'
+			module		: metabolomicsModule
 		).setFieldValue('Spectrometry technique', 'GC/MS')
 
 		def metAssayRefA = new Assay(
 			name		: 'Lipidomics profile after',
 			template	: metAssayTemplate,
-			module		: metabolomicsModule,
-			externalAssayID: 'PPSH_Lipidomics_end'
+			module		: metabolomicsModule
 		).setFieldValue('Spectrometry technique', 'GC/MS')
 
 
@@ -472,16 +466,14 @@ class ExampleStudies {
 		def sequencingAssay16SRef = new Assay(
 			name		: '16S Sequencing assay',
 			template	: ccAssayTemplate,
-			module		: metagenomicsModule,
-			externalAssayID: 'PPSH-SEQ-16S'
+			module		: metagenomicsModule
 		)
 
 		// Add sequencing (metagenomics) assays
 		def sequencingAssay18SRef = new Assay(
 			name		: '18S Sequencing assay',
 			template	: ccAssayTemplate,
-			module		: metagenomicsModule,
-			externalAssayID: 'PPSH-SEQ-18S'
+			module		: metagenomicsModule
 		)
 
 		humanStudy.samples*.each {
