@@ -35,7 +35,7 @@
 	</script>
 
 	<g:if test="${study.samples}">
-		<g:if test="${study.samples.findAll{!it.template}.size()}">
+		<g:if test="${study.samples.findAll{!it?.template}.size()}">
 		<h1>Samples that still need to have a template assigned</h1>
 		<div class="tableEditor">
 		<div class="header">
@@ -47,30 +47,30 @@
 		</div>
 		<g:set var="previousTemplate" value=""/>
 		<g:each var="sample" in="${study.samples}">
-			<g:if test="${!sample.template}">
+			<g:if test="${!sample?.template}">
 				<div class="row">
 					<div class="firstColumn">&nbsp;</div>
 					<div class="column">
-						<g:if test="${previousTemplate != sample.parentEvent.template.name}">
-							<g:set var="previousTemplate" value="${sample.parentEvent.template.name}"/>
-							${sample.parentEvent.template.name}
+						<g:if test="${previousTemplate != sample.parentEvent?.template?.name}">
+							<g:set var="previousTemplate" value="${sample.parentEvent?.template?.name}"/>
+							${sample.parentEvent?.template?.name}
 							<div class="helpIcon"></div>
 							<div class="helpContent">
-								<h1>${sample.parentEvent.template.name}</h1>
+								<h1>${sample.parentEvent?.template?.name}</h1>
 								<h2>Template Fields:</h2>
-								<g:each var="field" in="${sample.parentEvent.giveFields()}">
+								<g:each var="field" in="${sample.parentEvent?.giveFields()}">
 									${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
 								</g:each>
 							</div>
 						</g:if>
 					</div>
 					<div class="column">
-						${sample.parentSubject.name}
+						${sample.parentSubject?.name}
 						<div class="helpIcon"></div>
 						<div class="helpContent">
-							<h1>${sample.parentSubject.template.name}</h1>
+							<h1>${sample.parentSubject?.template?.name}</h1>
 							<h2>Template Fields:</h2>
-							<g:each var="field" in="${sample.parentSubject.giveFields()}">
+							<g:each var="field" in="${sample.parentSubject?.giveFields()}">
 								${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
 							</g:each>
 						</div>
@@ -108,32 +108,32 @@
 				<div class="row">
 					<div class="firstColumn"></div>
 					<div class="column">
-						<g:if test="${previousTemplate != sample.parentEvent.template.name}">
-							<g:set var="previousTemplate" value="${sample.parentEvent.template.name}"/>
-							${sample.parentEvent.template.name}
+						<g:if test="${previousTemplate != sample.parentEvent?.template?.name}">
+							<g:set var="previousTemplate" value="${sample.parentEvent?.template?.name}"/>
+							${sample.parentEvent?.template?.name}
 							<div class="helpIcon"></div>
 							<div class="helpContent">
-								<h1>${sample.parentEvent.template.name}</h1>
+								<h1>${sample.parentEvent?.template?.name}</h1>
 								<h2>Template Fields:</h2>
-								<g:each var="field" in="${sample.parentEvent.giveFields()}">
+								<g:each var="field" in="${sample.parentEvent?.giveFields()}">
 									${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
 								</g:each>
 							</div>
 						</g:if>
 					</div>
 					<div class="column">
-						${sample.parentSubject.name}
+						${sample.parentSubject?.name}
 						<div class="helpIcon"></div>
 						<div class="helpContent">
-							<h1>${sample.parentSubject.template.name}</h1>
+							<h1>${sample.parentSubject?.template?.name}</h1>
 							<h2>Template Fields:</h2>
-							<g:each var="field" in="${sample.parentSubject.giveFields()}">
+							<g:each var="field" in="${sample.parentSubject?.giveFields()}">
 								${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
 							</g:each>
 						</div>
 					</div>
 					<div class="column">
-						<af:templateSelect name="template_${sample.getIdentifier()}" entity="${dbnp.studycapturing.Sample}" value="${sample.template}" addDummy="true" tableEditorChangeEvent="switchTemplate(element);" />
+						<af:templateSelect name="template_${sample.getIdentifier()}" entity="${dbnp.studycapturing.Sample}" value="${sample?.template}" addDummy="true" tableEditorChangeEvent="switchTemplate(element);" />
 					</div>
 					<af:templateColumns name="sample_${sample.getIdentifier()}" class="column" id="1" entity="${sample}"/>
 				</div>

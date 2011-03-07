@@ -46,28 +46,34 @@
 			</script>
 			
 			<div class="wizard" id="wizard">
-			    <div class="tableEditor">
-				<g:set var="showHeader" value="${true}"/>
-				    <g:each status="index" var="table" in="${imported.data}">
-						<g:each status="i" var="entity" in="${table}">
-						    <g:if test="${showHeader}">
-								<g:set var="showHeader" value="${false}"/>
-								<div class="header">
-									<div class="firstColumn"></div>
-									<af:templateColumnHeaders entity="${entity}" class="column" />
-								</div>
-								<input type="hidden" name="entity" value="${entity.getClass().getName()}">
-						    </g:if>
-						    <div class="row">
+				<g:set var="showHeader" value="${true}" />
+				<g:set var="previousTemplate" value=""/>			
+				<div class="tableEditor">
+					<g:each var="record" in="${records}">
+						<g:if test="${showHeader}">
+							<g:set var="showHeader" value="${false}" />
+							<div class="header">
 								<div class="firstColumn"></div>
-								<af:templateColumns id="${entity.hashCode()}" entity="${entity}" template="${entity.template}" name="entity_${entity.getIdentifier()}" class="column" subject="${entity.hashCode()}" addDummy="true" />
-						    </div>
-						</g:each>
-				    </g:each>
-			    </div>
-			    <div class="sliderContainer">
-			      <div class="slider"></div>
-			    </div>
+								<g:each var="entity" in="${record}">
+									<g:if test="${entity.value}">
+										<af:templateColumnHeaders entity="${entity.value}" class="column" columnWidths="[Name:100]"/>
+									</g:if>
+								</g:each>
+							</div>
+						</g:if>
+						<div class="row">
+							<div class="firstColumn"></div>
+							<g:each var="entity" in="${record}">
+								<g:if test="${entity.value}">
+									<af:templateColumns  id="${entity.value.hashCode()}" name="${entity.key.toLowerCase()}_${entity.value.getIdentifier()}" template="${entity.value.template}" class="column" id="1" entity="${entity.value}" addDummy="true" subject="${entity.hashCode()}" />
+								</g:if>
+							</g:each>
+						</div>
+					</g:each>
+				</div>
+				<div class="sliderContainer">
+					<div class="slider" ></div>
+				</div>
 		    <div>
 		</g:form>
 			

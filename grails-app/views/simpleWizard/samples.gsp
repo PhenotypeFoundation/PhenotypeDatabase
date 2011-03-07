@@ -26,50 +26,12 @@
 		<g:form class="simpleWizard" name="samples" action="samples" controller="simpleWizard">
 			<input type="hidden" name="wizard" value="true" />
 			<input type="hidden" name="event" value="refresh" />
-		
-			<g:if test="${study.samples?.size()}">
-				<p>Current samples</p>
-				<g:each in="${study.samples}" var="sample">
-					${sample.name}<br />
-				</g:each>
-				
-				<p class="options">
-					<a href="#" onClick="$('#samplesDialog').dialog('open'); return false;" class="add">Add samples</a>
-					<a href="#" onClick="$('#samplesDialog').dialog('open'); return false;" class="update">Update samples</a>
-				</p>
-				
-				<% /* If samples are already present, the dialog should not be opened by default */ %>
-				<script type="text/javascript">
-					$( '#samplesDialog' ).dialog({
-						title   : "Add/update samples",
-						autoOpen: false,
-						width   : 800,
-						height  : 400,
-						modal   : true,
-						position: "center",
-						buttons : {
-							Add  : function() {
-								//addUser(element_id);
-								$(this).dialog("close");
-							},
-							Update  : function() {
-								//addUser(element_id);
-								$(this).dialog("close");
-							},
-							Close  : function() {
-								$(this).dialog("close");
-							}
-						},
-						close   : function() {
-							/* closeFunc(this); */
-						}
-					});		
-				</script>
-			</g:if>
+
 			<div id="samplesDialog">
 		    	<span class="info"> 
 					<span class="title">Import sample data</span> 
-					You can import your Excel data to the server by choosing a file from your local harddisk in the form below.
+					You can import your Excel data to the server by choosing a file from your local harddisk in the form below. The excel sheet should contain
+					data on the first sheet, and the sheet should contain one row with headers.
 				</span> 
 		    
 				<table border="0">
@@ -82,39 +44,14 @@
 				    </td>
 					</tr>
 					<tr>
-					    <td width="100px">
-						Use data from sheet:
-					    </td>
-					    <td width="100px">
-						<g:select name="sheetindex" from="${1..25}" value="${sampleForm?.sheetIndex}"/>
-					    </td>
-					</tr>
-					<tr>
-					    <td width="100px">
-						Columnheader starts at row:
-					    </td>
-					    <td width="100px">
-						<g:select name="headerrow" from="${1..10}" value="${sampleForm?.headerRow}"/>
-					    </td>
-					</tr>
-					<tr>
-					    <td width="100px">
-						Data starts at row:
-					    </td>
-					    <td width="100px">
-						<g:select name="datamatrix_start" from="${2..10}" value="${sampleForm?.dataMatrixStart}"/>
-					    </td>
-					</tr>	
-					<tr>
 					    <td>
 						<div id="datatemplate">Choose type of sample template:</div>
 					    </td>
 					    <td>
-							<g:select rel="template" entity="${encodedEntity}" name="template_id" optionKey="id" optionValue="name" from="${sampleTemplates}" value="${sampleForm?.templateId}"/>
+							<g:select rel="template" entity="${encodedEntity.Sample}" name="sample_template_id" optionKey="id" optionValue="name" from="${templates.Sample}"/>
 					    </td>
 					</tr>
 				</table>	
-			
 			</div>
 		
 		</g:form>

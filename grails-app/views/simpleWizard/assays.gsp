@@ -37,16 +37,15 @@
 		<g:form class="simpleWizard" name="assays" action="assays" controller="simpleWizard">
 			<input type="hidden" name="wizard" value="true" />
 			<input type="hidden" name="event" value="refresh" />
-		
 			<af:templateElement name="template" description="Template"
-				value="${assay?.template}" entity="${dbnp.studycapturing.Assay}"
+				value="${wizardAssay?.template}" entity="${dbnp.studycapturing.Assay}"
 				addDummy="true" onChange="if(\$( this ).val() != '') { submitForm( 'assays' ); }">
 				Choose the type of assay you would like to perform.
 				Depending on the chosen template specific fields can be filled out. If none of the templates contain all the necessary fields, a new template can be defined (based on other templates).
 			</af:templateElement>
 		
-			<g:if test="${assay}">
-				<af:templateElements ignore="externalassayid" entity="${assay}" />
+			<g:if test="${wizardAssay}">
+				<af:templateElements ignore="externalassayid" entity="${wizardAssay}" />
 			</g:if>
 		
 			<br clear="all" />

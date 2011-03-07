@@ -88,14 +88,28 @@
 		<br />
 		
 		<div class="element">
-			<div class="description">Sample template</div>${study.samples?.getAt(0)?.template?.name}
+			<div class="description">Samples</div>
+			
+			<g:if test="${study.samples?.size()}">
+				<g:each in="${study.samples.template.unique()}" var="currentSampleTemplate" status="j">
+					<g:if test="${currentSampleTemplate}">
+						<g:if test="${j > 0}">,</g:if>
+						<%=study.samples.findAll { return it.template == currentSampleTemplate; }.size()%>
+						${currentSampleTemplate.name}
+					</g:if>
+				</g:each>
+			</g:if>
+			<g:else>
+				-
+			</g:else>
 		</div>
-		<div class="element">
-			<div class="description"># samples</div>${study.samples?.size()}
-		</div>
-		<div class="element">
-			<div class="description">Assay template</div>${study.assays?.getAt(0)?.template?.name}
-		</div>
+		
+		<br />
+		<g:if test="${wizardAssay}">
+			<div class="element">
+				<div class="description">Assay template</div>${wizardAssay.template?.name}
+			</div>
+		</g:if>
 
 		<br clear="all" />
 

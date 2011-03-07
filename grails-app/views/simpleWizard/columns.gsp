@@ -42,10 +42,35 @@
 					</thead>
 					<tr class="matchWith">
 						<g:each in="${excel.data.header}" var="mappingcolumn" status="i">
+							<%
+								def selectedValue;
+								if( mappingcolumn.entityclass?.name && mappingcolumn.property )
+									selectedValue = mappingcolumn.entityclass.name[ mappingcolumn.entityclass.name.lastIndexOf( "." ) + 1 .. -1 ] + mappingcolumn.property;
+							%>
 							<td>
 								<g:set var="selected" value="${mappingcolumn.property}"/>
-								<importer:propertyChooser name="matches" mappingcolumn="${mappingcolumn}" matchvalue="${mappingcolumn.name}" 
-									selected="${selected}" fuzzymatching="true" treshold="0.8" template_id="${template.id}" "allfieldtypes="true"/>
+								<% /* Put a select box with template fields of multiple entities */ %>
+								<select name="matches.index.${mappingcolumn.index}" style="font-size: 10px;">
+									<option value="dontimport">Don't import</option>
+									<g:each in="${templates}" var="entityTemplates">
+										<g:if test="${entityTemplates.value}">
+											<optgroup label="${entityTemplates.key}">
+												<%
+													def allFields = domainFields[ entityTemplates.key ] + entityTemplates.value?.fields;
+												%>
+												<g:each in="${allFields}" var="field">
+													<% 
+														def value = entityTemplates.key + "||" + field.name
+														def selected = ( value == selectedValue );
+													%>
+													<option value="${value}" <g:if test="${selected}">selected="selected"</g:if>>
+														${field.name} <g:if test="${field.preferredIdentifier}">[identifier]</g:if>
+													
+												</g:each>
+											</optgroup>
+										</g:if>
+									</g:each>
+								</select>
 							</td>
 						</g:each>
 					</tr>
