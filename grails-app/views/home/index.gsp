@@ -299,7 +299,7 @@
 
 <div style="clear:both;display:block;">
 	<div style="margin:2px;width:476px;display:inline-block;float:left;zoom:1;*display:inline;">
-		<h1>Lorem ipsum 1</h1>
+		<h1>Introduction</h1>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut tincidunt auctor suscipit. Nam ultricies condimentum pulvinar. In magna orci, eleifend sit amet tincidunt eget, ultricies a justo. Vestibulum purus lorem, laoreet sit amet rutrum et, sollicitudin eget augue. Nulla consequat, mauris eget ornare fringilla, arcu enim mattis odio, rhoncus rutrum ante turpis vitae nulla. Sed et turpis vel urna venenatis sagittis. Sed sagittis vestibulum felis, vel ultricies tellus dictum ac. Nunc non massa et ligula gravida rutrum. Fusce porttitor, eros ac dictum suscipit, risus lacus aliquam justo, ut lobortis erat nulla sit amet risus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fermentum ultricies ipsum, at consequat elit pharetra auctor.
 	</div>
 	<div style="margin:2px;width:476px;display:inline-block;float:left;zoom:1;*display:inline;">
@@ -311,10 +311,11 @@
 				<div class="search">
 					<div class="begin"><span class="label">Search term</span></div><div class="middle"><g:textField name="search_term" id="search_term" class="searchfield" value="${preterm}"/></div><div class="end"><a onClick="$('#search_term').val('');"><img src="${resource(dir: 'images', file: 'simpleQuery/spotlight-end.png')}" value="Reset" alt="Reset" border="0"></a></div>
 				</div>
+				<span style="font-style:italic;color:#aaa;font-size:10px;">more advanced searches can be performed <g:link controller="advancedQuery">here</g:link>...</span>
 			</div>
 			</g:form>
 			<h1>Lorem ipsum 2</h1>
-			Vivamus varius ullamcorper neque, sit amet mollis lacus accumsan vel. Pellentesque in augue a arcu pretium egestas vel at elit. Duis nunc odio, mollis et faucibus vel, aliquam vel quam. Sed laoreet pharetra urna, venenatis porttitor neque sagittis et. Aenean at nisl nunc, in mattis mauris. Proin iaculis nunc in erat rhoncus consectetur. Nullam sit amet risus vitae eros condimentum pellentesque. Vestibulum sollicitudin turpis id felis viverra a bibendum magna varius. Ut tristique pellentesque convallis. Maecenas id sollicitudin lacus.
+			Vivamus varius ullamcorper neque, sit amet mollis lacus accumsan vel. Pellentesque in augue a arcu pretium egestas vel at elit. Duis nunc odio, mollis et faucibus vel, aliquam vel quam. Sed laoreet pharetra urna, venenatis porttitor neque sagittis et. Aenean at nisl nunc, in mattis mauris. Proin iaculis nunc in erat rhoncus consectetur. Nullam sit amet risus vitae eros condimentum pellentesque.
 		</div>
 	</div>
 </div>

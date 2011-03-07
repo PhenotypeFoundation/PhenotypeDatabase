@@ -14,7 +14,7 @@
 	<script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.7.custom.min.js')}" type="text/javascript"></script>
 	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.7.custom.css')}"/>
-	<g:if env="development"></g:if><g:else><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script></g:else>
+	<g:if env="production"><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script></g:if>
 	<g:layoutHead/>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.js')}"></script>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
@@ -35,13 +35,13 @@
 		<g:render template="/common/info"/>
 	</div>
 	<div id="content"><g:layoutBody/></div>
-	<g:if env="development"></g:if><g:else>
+	<g:if env="production">
 	<g:if test="${facebookLikeUrl}">
 	<div id="facebookConnect">
 		<fb:like href="${resource(absolute: true)}${facebookLikeUrl}" show_faces="true" width="450" action="recommend" font="arial"></fb:like>
 	</div>
 	</g:if>
-	</g:else>
+	</g:if>
 	<div id="footer">
 		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="http://dbnp.org">http://dbnp.org</a>.
 	</div>
