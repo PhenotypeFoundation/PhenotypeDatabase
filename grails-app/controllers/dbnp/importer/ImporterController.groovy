@@ -659,13 +659,11 @@ class ImporterController {
 
 	boolean saveEntities(flow, params) {
 		//def (validatedSuccesfully, updatedEntities, failedToPersist) =
-		//try {
-		importerService.saveDatamatrix(flow.importer_study, flow.importer_importeddata, authenticationService, log)
-
-		//}
-		//catch (Exception e) {
-//                log.error ".import wizard saveEntities error\n" + e.dump()
-//            }
+		try {
+			importerService.saveDatamatrix(flow.importer_study, flow.importer_importeddata, authenticationService, log)
+		} catch (Exception e) {
+			log.error ".import wizard saveEntities error\n" + e.dump()
+		}
 
 		//flow.importer_validatedsuccesfully = validatedSuccesfully
 		//flow.importer_failedtopersist = failedToPersist
