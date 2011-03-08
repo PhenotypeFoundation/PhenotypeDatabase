@@ -20,6 +20,7 @@ import dbnp.importer.ImportRecord
 import dbnp.importer.MappingColumn
 import dbnp.importer.ImportCell
 import dbnp.authentication.SecUser
+import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 
 class SimpleService {
 
