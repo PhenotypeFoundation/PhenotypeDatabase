@@ -20,8 +20,10 @@ var warnOnRedirect = false;
 function submitForm(id, action) {
 	var form = $( 'form#' + id );
 	
-	if( action != undefined )
+	if( action != undefined ) {
 		$( 'input[name=event]', form ).val( action );
+		$( 'input[name=_eventId]', form ).val( action );
+	}
 		
 	form.submit();
 }
