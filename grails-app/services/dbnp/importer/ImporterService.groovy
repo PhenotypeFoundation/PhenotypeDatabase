@@ -746,6 +746,11 @@ class ImporterService {
 								throw new Exception('.importer wizard, study could not be saved: ' + entity)
 							}
 						} else {
+println "---"
+study.errors.getAllErrors().each {
+	println it.dump()
+}
+println "---//"
 							log.error ".importer wizard, study could not be validated: " + entity
 							throw new Exception('.importer wizard, study could not be validated: ' + entity)
 						}
