@@ -726,12 +726,12 @@ class ImporterService {
 	 * @param study entity Study
 	 * @param datamatrix two dimensional array containing entities with values read from Excel file
 	 */
-	static saveDatamatrix(Study study, datamatrix, authenticationService, log) {
+	static saveDatamatrix(Study study, importerEntityType, datamatrix, authenticationService, log) {
 		def validatedSuccesfully = 0
 		def entitystored = null
 
 		// Study passed? Sync data
-		if (study != null) study.refresh()
+		if (study != null && importerEntityType != 'Study') study.refresh()
 
 		// go through the data matrix, read every record and validate the entity and try to persist it
 		datamatrix.each { record ->
@@ -740,17 +740,12 @@ class ImporterService {
 					case Study: log.info ".importer wizard, persisting Study `" + entity + "`: "
 						entity.owner = authenticationService.getLoggedInUser()
 
-						if (study.validate()) {
+						if (entity.validate()) {
 							if (!entity.save(flush:true)) {
 								log.error ".importer wizard, study could not be saved: " + entity
 								throw new Exception('.importer wizard, study could not be saved: ' + entity)
 							}
 						} else {
-println "---"
-study.errors.getAllErrors().each {
-	println it.dump()
-}
-println "---//"
 							log.error ".importer wizard, study could not be validated: " + entity
 							throw new Exception('.importer wizard, study could not be validated: ' + entity)
 						}
@@ -786,13 +781,15 @@ println "---//"
 		} // end datamatrix
 
 		// validate study
-		if (study.validate()) {
-			if (!study.save(flush: true)) {
-				//this.appendErrors(flow.study, flash.wizardErrors)
-				throw new Exception('.importer wizard [saveDatamatrix] error while saving study')
+		if (importerEntityType != 'Study') {
+			if (study.validate()) {
+				if (!study.save(flush: true)) {
+					//this.appendErrors(flow.study, flash.wizardErrors)
+					throw new Exception('.importer wizard [saveDatamatrix] error while saving study')
+				}
+			} else {
+				throw new Exception('.importer wizard [saveDatamatrix] study does not validate')
 			}
-		} else {
-			throw new Exception('.importer wizard [saveDatamatrix] study does not validate')
 		}
 
 		//persistEntity(study)
