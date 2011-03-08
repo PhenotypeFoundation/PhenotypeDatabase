@@ -267,7 +267,7 @@ class ImporterController {
                 if (saveEntities(flow, params)) {					                                      
 					success()
 				} else {
-					log.error ".import wizard, could not save entities:\n" + e.dump()
+					log.error ".import wizard, could not save entities:\n"
 					flow.page = 4
 					error()
 				}
