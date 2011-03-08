@@ -32,7 +32,8 @@ class DatabaseUpgrade {
 		changeStudyDescriptionToText(sql, db)		// r1327
 		changeTemplateTextFieldSignatures(sql, db)	// prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
 		setAssayModuleDefaultValues(sql, db)		// r1490
-		dropMappingColumnNameConstraint(sql, db)
+		dropMappingColumnNameConstraint(sql, db)	// r1525
+		makeMappingColumnValueNullable(sql, db)		// r1525
 		alterStudyAndAssay(sql, db)					// r1594
 	}
 
@@ -179,6 +180,27 @@ class DatabaseUpgrade {
 					sql.execute("ALTER TABLE mapping_column DROP CONSTRAINT mapping_column_name_key")
 				} catch (Exception e) {
 					println "dropMappingColumnNameConstraint database upgrade failed, `name` field unique constraint couldn't be dropped: " + e.getMessage()
+				}
+			}
+		}
+	}
+
+	/**
+	 * the importer requires the value field to be nullable
+	 * @param sql
+	 * @param db
+	 */
+	public static void makeMappingColumnValueNullable(sql, db) {
+		// are we running postgreSQL?
+		if (db == "org.postgresql.Driver") {
+			// do we need to perform this update?
+			if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='mapping_column' AND columns.column_name='value' AND is_nullable='NO'")) {
+				"performing database upgrade: making mapping_column::value nullable".grom()
+
+				try {
+					sql.execute("ALTER TABLE mapping_column ALTER COLUMN value DROP NOT NULL")
+				} catch (Exception e) {
+					println "makeMappingColumnValueNullable database upgrade failed: " + e.getMessage()
 				}
 			}
 		}
