@@ -80,8 +80,33 @@ class ModuleCommunicationService implements Serializable {
 	 * @param consumer	Consumer of that specific module
 	 * @param restUrl	Full URL for the method to call
 	 * @return			JSON 	JSON object of the parsed text
+	 * @deprecated		Use callModuleMethod instead
 	 */
 	def callModuleRestMethodJSON( consumer, restUrl ) throws Exception {
+		def parts = restUrl.split( /\?/ );
+		def url = "";
+		def query = "";
+		
+		if( parts.size() > 1 ) {
+			url = parts[ 0 ]
+			query = parts[ 1 ]
+		} else if( parts.size() > 0 ) { 
+			url = parts[ 0 ];
+		}
+		
+		return callModuleMethod( consumer, url, query );
+	}
+	
+	/**
+	* Calls a rest method on a module
+	*
+	* @param consumer	Consumer of that specific module
+	* @param restUrl	Full URL for the method to call, without query string
+	* @param args		Query string for the url to call (e.q. token=abc&field=xyz)
+	* @param requestMethod	GET or POST - HTTP request method to use
+	* @return			JSON 	JSON object of the parsed text
+	*/
+	def callModuleMethod( String consumer, String restUrl, String args = null, String requestMethod = "GET" ) {
 		if (!authenticationService.isLoggedIn()) {
 			// should not happen because we can only get here when a user is
 			// logged in...
@@ -89,7 +114,7 @@ class ModuleCommunicationService implements Serializable {
 		}
 
 		// Check whether the url is present in cache
-		def cacheData = retrieveFromCache( restUrl );
+		def cacheData = retrieveFromCache( restUrl, args );
 		if( cacheData && cacheData[ "success" ] )
 			return cacheData[ "contents" ];
 		else if( cacheData && !cacheData[ "success" ] )
@@ -103,43 +128,68 @@ class ModuleCommunicationService implements Serializable {
 		authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
 		
 		// Append the sessionToken to the URL
-		def url = restUrl
-		if( restUrl.indexOf( '?' ) > 0 ) {
-			// The url itself also has parameters
-			url += '&sessionToken=' + sessionToken
-		} else {
-			// The url itself doesn't have parameters
-			url += '?sessionToken=' + sessionToken
-		}
+		if( !args )
+			args = ""
+		
+		args += "&sessionToken=" + sessionToken
 		
 		// Perform a call to the url
 		def restResponse
 		try {
-			def textResponse = url.toURL().getText()
-			log.trace "GSCF call to " + consumer + " URL: " + url
+			log.trace "GSCF call (" + requestMethod + ") to " + consumer + " URL: " + restUrl + " (args: " + args + ")"
+
+			def textResponse
+			switch( requestMethod.toUpperCase() ) {
+				case "GET":
+					def url = restUrl + "?" + args;
+					def connection = url.toURL().openConnection();
+		
+					textResponse = url.toURL().getText()
+				
+					break
+				case "POST":
+					def connection = restUrl.toURL().openConnection()
+					connection.setRequestMethod( "POST" );
+					connection.doOutput = true
+					
+					def writer = new OutputStreamWriter( connection.outputStream )
+					writer.write( args );
+					writer.flush()
+					writer.close()
+					
+					connection.connect();
+					
+					textResponse = connection.content.text
+
+					break
+				default:
+					throw new Exception( "Unknown request method given. Use GET or POST" )
+			}
+
 			log.trace "GSCF response: " + textResponse
 			restResponse = JSON.parse( textResponse )
 		} catch (Exception e) {
-			storeErrorInCache( restUrl, e.getMessage() );
-			throw new Exception( "An error occurred while fetching " + url + ".", e )
+			storeErrorInCache( restUrl, e.getMessage(), args );
+			throw new Exception( "An error occurred while fetching " + restUrl + ".", e )
 		} finally {
 			// Dispose of the ephemeral session token
-			//authenticationService.logOffRemotely(consumer, sessionToken)
+			authenticationService.logOffRemotely(consumer, sessionToken)
 		}
 
 		// Store the response in cache
-		storeInCache( restUrl, restResponse );
+		storeInCache( restUrl, restResponse, args );
 		
 		return restResponse
-	}
 
+	}
+	
 	/**
 	 * Checks whether a specific url exists in cache
 	 * @param url	URL to call
 	 * @return		true if the url is present in cache
 	 */
-	def existsInCache( url ) {
-		return retrieveFromCache( url ) == null;
+	def existsInCache( url, args = null ) {
+		return retrieveFromCache( url, args ) == null;
 	}
 
 	/**
@@ -147,9 +197,11 @@ class ModuleCommunicationService implements Serializable {
 	 * @param url	URL to call
 	 * @return		JSON object with the contents of the URL or null if the url doesn't exist in cache
 	 */
-	def retrieveFromCache( url ) {
+	def retrieveFromCache( url, args = null ) {
 		def user = authenticationService.getLoggedInUser();
 		def userId = user ? user.id : -1;
+		
+		url = cacheUrl( url, args )
 		
 		if( cache[ userId ] && cache[ userId ][ url ] && ( System.currentTimeMillis() - cache[ userId ][ url ][ "timestamp" ] ) < numberOfSecondsInCache * 1000 ) {
 			return cache[ userId ][ url ];
@@ -163,14 +215,14 @@ class ModuleCommunicationService implements Serializable {
 	 * @param url		URL that has been called
 	 * @param contents	Contents of the URL
 	 */
-	def storeInCache( url, contents ) {
+	def storeInCache( url, contents, args = null ) {
 		def user = authenticationService.getLoggedInUser();
 		def userId = user ? user.id : -1;
 
 		if( !cache[ userId ] )
 			cache[ userId ] = [:]
 
-		cache[ userId ][ url ] = [
+		cache[ userId ][ cacheUrl( url, args ) ] = [
 			"timestamp": System.currentTimeMillis(),
 			"success": true,
 			"contents": contents
@@ -182,18 +234,34 @@ class ModuleCommunicationService implements Serializable {
 	* @param url		URL that has been called
 	* @param contents	Contents of the URL
 	*/
-   def storeErrorInCache( url, error ) {
+   def storeErrorInCache( url, error, args = null ) {
 	   def user = authenticationService.getLoggedInUser();
 	   def userId = user ? user.id : -1;
 
 	   if( !cache[ userId ] )
 		   cache[ userId ] = [:]
 
-	   cache[ userId ][ url ] = [
+	   cache[ userId ][ cacheUrl( url, args ) ] = [
 		   "timestamp": System.currentTimeMillis(),
 		   "success": false,
 		   "error": error
 	   ];
+   }
+   
+   /**
+    * Url used to save data in cache
+    */
+   def cacheUrl( url, args = null ) {
+		if( args ) {
+			// Remove sessionToken from args
+			args = args;
+			def sessionFound = ( args =~ /sessionToken=[^&]/ );
+			args = sessionFound.replaceAll( "sessionToken=" );
+			
+			url += '?' + args
+		}
+			
+		return url;
    }
 
 }

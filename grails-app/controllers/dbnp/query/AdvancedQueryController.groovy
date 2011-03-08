@@ -332,7 +332,7 @@ class AdvancedQueryController {
 		AssayModule.list().each { module ->
 			def callUrl = module.url + '/rest/getQueryableFields'
 			try {
-				def json = moduleCommunicationService.callModuleRestMethodJSON( module.url, callUrl );
+				def json = moduleCommunicationService.callModuleMethod( module.url, callUrl );
 				def moduleFields = [];
 				entitiesToSearchFor.each { entity ->
 					if( json[ entity.key ] ) {
@@ -635,7 +635,9 @@ class AdvancedQueryController {
 				}
 			} catch( Exception e ) {
 				// Exception is thrown when the call to the module fails. No problems though.
-				log.error "Error while fetching possible actions from " + module.name + ": " + e.getMessage()
+				//log.error "Error while fetching possible actions from " + module.name + ": " + e.getMessage()
+				e.printStackTrace()
+				throw e
 			}
 		}
 

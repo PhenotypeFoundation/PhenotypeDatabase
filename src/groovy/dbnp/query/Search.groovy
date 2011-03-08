@@ -516,14 +516,17 @@ class Search {
 					def moduleCriteria = getEntityCriteria( moduleName );
 		
 					if( moduleCriteria && moduleCriteria.size() > 0 ) {
-						def callUrl = moduleCriteriaUrl( module, entities, moduleCriteria );
+						def callUrl = moduleCriteriaUrl( module );
+						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						
 						try {
-							def json = moduleCommunicationService.callModuleRestMethodJSON( module.url, callUrl );
+							def json = moduleCommunicationService.callModuleMethod( module.url, callUrl, callArgs, "POST" );
 							Closure checkClosure = moduleCriterionClosure( json );
 							entities = filterEntityList( entities, moduleCriteria, checkClosure );
 						} catch( Exception e ) {
-							log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+							//log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+							e.printStackTrace()
+							throw e
 						}
 					}
 				}
@@ -540,17 +543,20 @@ class Search {
 					def moduleCriteria = getEntityCriteria( moduleName );
 		
 					if( moduleCriteria && moduleCriteria.size() > 0 ) {
-						def callUrl = moduleCriteriaUrl( module, entities, moduleCriteria );
+						def callUrl = moduleCriteriaUrl( module );
+						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						
 						try {
-							def json = moduleCommunicationService.callModuleRestMethodJSON( module.url, callUrl );
+							def json = moduleCommunicationService.callModuleMethod( module.url, callUrl, callArgs, "POST" );
 							Closure checkClosure = moduleCriterionClosure( json );
 							
 							resultingEntities += filterEntityList( entities, moduleCriteria, checkClosure );
 							resultingEntities = resultingEntities.unique();
 							
 						} catch( Exception e ) {
-							log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+							//log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+							e.printStackTrace()
+							throw e
 						}
 					}
 				}
@@ -607,12 +613,17 @@ class Search {
 		}
 	}
 	
-	protected String moduleCriteriaUrl( module, entities, moduleCriteria ) {
+	protected String moduleCriteriaUrl( module ) {
+		def callUrl = module.url + '/rest/getQueryableFieldData'
+		return callUrl;
+	}
+	
+	protected String moduleCriteriaArguments( module, entities, moduleCriteria ) {
 		// Retrieve the data from the module
 		def tokens = entities.collect { it.giveUUID() }.unique();
 		def fields = moduleCriteria.collect { it.field }.unique();
 	
-		def callUrl = module.url + '/rest/getQueryableFieldData?entity=' + this.entity
+		def callUrl = 'entity=' + this.entity
 		tokens.sort().each { callUrl += "&tokens=" + it.encodeAsURL() }
 		fields.sort().each { callUrl += "&fields=" + it.encodeAsURL() }
 
