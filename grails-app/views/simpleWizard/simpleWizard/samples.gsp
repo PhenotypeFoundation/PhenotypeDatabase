@@ -11,7 +11,7 @@
 <body>
 	<div class="simpleWizard">
 		<h1>Samples</h1>
-		
+
 		<g:if test="${flash.error}">
 			<div class="errormessage">
 				${flash.error.toString().encodeAsHTML()}
@@ -23,9 +23,8 @@
 			</div>
 		</g:if>	
 		
-		<g:form class="simpleWizard" name="samples" action="samples" controller="simpleWizard">
-			<input type="hidden" name="wizard" value="true" />
-			<input type="hidden" name="event" value="refresh" />
+		<g:form class="simpleWizard" name="samples" action="simpleWizard">
+			<input type="hidden" name="_eventId" value="refresh" />
 
 			<div id="samplesDialog">
 		    	<span class="info"> 
@@ -51,6 +50,14 @@
 							<g:select rel="template" entity="${encodedEntity.Sample}" name="sample_template_id" optionKey="id" optionValue="name" from="${templates.Sample}"/>
 					    </td>
 					</tr>
+					<tr>
+					    <td>
+						<div id="datatemplate">Choose type of subject template:</div>
+					    </td>
+					    <td>
+							<g:select rel="template" entity="${encodedEntity.Subject}" name="subject_template_id" optionKey="id" optionValue="name" from="${templates.Subject}"/>
+					    </td>
+					</tr>					
 				</table>	
 			</div>
 		
@@ -62,5 +69,6 @@
 			<a class="skip" href="#" onClick="submitForm( 'samples', 'skip' ); return false;">Skip</a>
 		</p>
 	</div>	
+
 </body>
 </html>

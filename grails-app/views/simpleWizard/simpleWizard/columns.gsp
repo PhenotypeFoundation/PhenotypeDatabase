@@ -10,24 +10,23 @@
 	<div class="simpleWizard">
 		<h1>Columns</h1>
 		
-		<g:if test="${flash.error}">
+		<g:if test="${error}">
 			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
+				${error.toString().encodeAsHTML()}
 			</div>
 		</g:if>
-		<g:if test="${flash.message}">
+		<g:if test="${message}">
 			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
+				${message.toString().encodeAsHTML()}
 			</div>
 		</g:if>			
 	
-		<g:form class="simpleWizard" name="columns" action="columns" controller="simpleWizard">
-			<input type="hidden" name="wizard" value="true" />
-			<input type="hidden" name="event" value="refresh" />
+		<g:form class="simpleWizard" name="columns" action="simpleWizard">
+			<input type="hidden" name="_eventId" value="refresh" />
 	
 		   	<span class="info"> 
 				<span class="title">Assign properties to columns</span> 
-				You uploaded: ${filename}. This list shows the first ${excel.data.dataMatrix?.size()} rows of the uploaded file for reference.
+				You uploaded: ${excel.filename}. This list shows the first ${excel.data.dataMatrix?.size()} rows of the uploaded file for reference.
 				Please match the columns from the excel file with the fields in the database.
 			</span> 
 			    
@@ -45,18 +44,18 @@
 							<%
 								def selectedValue;
 								if( mappingcolumn.entityclass?.name && mappingcolumn.property )
-									selectedValue = mappingcolumn.entityclass.name[ mappingcolumn.entityclass.name.lastIndexOf( "." ) + 1 .. -1 ] + mappingcolumn.property;
+									selectedValue = mappingcolumn.entityclass.name[ mappingcolumn.entityclass.name.lastIndexOf( "." ) + 1 .. -1 ] + "||"  + mappingcolumn.property;
 							%>
 							<td>
 								<g:set var="selected" value="${mappingcolumn.property}"/>
 								<% /* Put a select box with template fields of multiple entities */ %>
 								<select name="matches.index.${mappingcolumn.index}" style="font-size: 10px;">
 									<option value="dontimport">Don't import</option>
-									<g:each in="${templates}" var="entityTemplates">
+									<g:each in="${sampleForm.template}" var="entityTemplates">
 										<g:if test="${entityTemplates.value}">
 											<optgroup label="${entityTemplates.key}">
 												<%
-													def allFields = domainFields[ entityTemplates.key ] + entityTemplates.value?.fields;
+													def allFields = [] + domainFields[ entityTemplates.key ] + entityTemplates.value?.fields;
 												%>
 												<g:each in="${allFields}" var="field">
 													<% 

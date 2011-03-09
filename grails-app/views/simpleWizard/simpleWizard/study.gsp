@@ -35,10 +35,8 @@
 			</div>
 		</g:if>  
 		 
-		<g:form class="simpleWizard" name="study" action="study" controller="simpleWizard">
-			<input type="hidden" name="wizard" value="true" />
-			<input type="hidden" name="event" value="refresh" />
-		
+		<g:form class="simpleWizard" name="study" action="simpleWizard">
+			<input type="hidden" name="_eventId" value="refresh" />
 			<div class="meta">
 				<div id="publications" class="component">
 					<h2>Publications</h2>
@@ -89,7 +87,7 @@
 			<br clear="all" />
 
 			<p class="options">
-				<a class="next" href="#" onClick="submitForm( 'study', 'next' ); return false;">Next</a>
+				<a href="#" onClick="submitForm( 'study', 'next' ); return false;" class="next">Next</a>
 			</p>
 			
 		</g:form>

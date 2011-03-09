@@ -18,28 +18,28 @@
 			the 'Update using excel' button below.
 		</span>
 		
-		<g:if test="${flash.error}">
+		<g:if test="${error}">
 			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
+				${error.toString().encodeAsHTML()}
 			</div>
 		</g:if>
-		<g:if test="${flash.message}">
+		<g:if test="${message}">
 			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
+				${message.toString().encodeAsHTML()}
 			</div>
 		</g:if>	
 		
 		<g:if test="${flash.validationErrors}">
+			<% def uniqueMessages = flash.validationErrors.value.unique(); %>
 			<div class="errormessage">
-				<g:each var="error" in="${flash.validationErrors}">
+				<g:each var="error" in="${uniqueMessages}">
 					${error.value}<br />
 				</g:each>
 			</div>
 		</g:if>  		
 		
-		<g:form class="simpleWizard" name="existingSamples" action="existingSamples" controller="simpleWizard">
-			<input type="hidden" name="wizard" value="true" />
-			<input type="hidden" name="event" value="refresh" />
+		<g:form class="simpleWizard" name="existingSamples" action="simpleWizard">
+			<input type="hidden" name="_eventId" value="refresh" />
 		
 			<g:if test="${study.samples?.size()}">
 				<g:each var="templateCombination" in="${templateCombinations}">

@@ -10,24 +10,23 @@
 	<div class="simpleWizard">
 		<h1>Study overview</h1>
 		
-		<g:if test="${flash.error}">
+		<g:if test="${error}">
 			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
+				${error.toString().encodeAsHTML()}
 			</div>
 		</g:if>
-		<g:if test="${flash.message}">
+		<g:if test="${message}">
 			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
+				${message.toString().encodeAsHTML()}
 			</div>
-		</g:if>		
+		</g:if>	
 		
 		<span class="info"> 
 			<span class="title">Your study</span> 
 			This page shows an overview of the study you entered  
 		</span> 
-		<g:form class="simpleWizard" name="overview" action="overview" controller="simpleWizard">
-			<input type="hidden" name="wizard" value="true" />
-			<input type="hidden" name="event" value="refresh" />
+		<g:form class="simpleWizard" name="overview" action="simpleWizard">
+			<input type="hidden" name="_eventId" value="refresh" />
 		</g:form>
 		
 		<div class="meta">
@@ -103,11 +102,29 @@
 				-
 			</g:else>
 		</div>
+		<br />
+		
+		<div class="element">
+			<div class="description">Subjects</div>
+			
+			<g:if test="${study.subjects?.size()}">
+				<g:each in="${study.subjects.template.unique()}" var="currentSubjectTemplate" status="j">
+					<g:if test="${currentSubjectTemplate}">
+						<g:if test="${j > 0}">,</g:if>
+						<%=study.subjects.findAll { return it.template == currentSubjectTemplate; }.size()%>
+						${currentSubjectTemplate.name}
+					</g:if>
+				</g:each>
+			</g:if>
+			<g:else>
+				-
+			</g:else>
+		</div>
 		
 		<br />
-		<g:if test="${wizardAssay}">
+		<g:if test="${assay}">
 			<div class="element">
-				<div class="description">Assay template</div>${wizardAssay.template?.name}
+				<div class="description">Assay template</div>${assay.template?.name}
 			</div>
 		</g:if>
 

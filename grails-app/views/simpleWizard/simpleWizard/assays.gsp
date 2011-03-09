@@ -10,14 +10,14 @@
 	<div class="simpleWizard">
 		<h1>Assay</h1>
 		
-		<g:if test="${flash.error}">
+		<g:if test="${error}">
 			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
+				${error.toString().encodeAsHTML()}
 			</div>
 		</g:if>
-		<g:if test="${flash.message}">
+		<g:if test="${message}">
 			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
+				${message.toString().encodeAsHTML()}
 			</div>
 		</g:if>		
 		
@@ -34,18 +34,18 @@
 			</div>
 		</g:if>  
 		 		
-		<g:form class="simpleWizard" name="assays" action="assays" controller="simpleWizard">
-			<input type="hidden" name="wizard" value="true" />
-			<input type="hidden" name="event" value="refresh" />
+		<g:form class="simpleWizard" name="assays" action="simpleWizard">
+			<input type="hidden" name="_eventId" value="refresh" />
+			
 			<af:templateElement name="template" description="Template"
-				value="${wizardAssay?.template}" entity="${dbnp.studycapturing.Assay}"
+				value="${assay.template}" entity="${dbnp.studycapturing.Assay}"
 				addDummy="true" onChange="if(\$( this ).val() != '') { submitForm( 'assays' ); }">
 				Choose the type of assay you would like to perform.
 				Depending on the chosen template specific fields can be filled out. If none of the templates contain all the necessary fields, a new template can be defined (based on other templates).
 			</af:templateElement>
 		
-			<g:if test="${wizardAssay}">
-				<af:templateElements ignore="externalassayid" entity="${wizardAssay}" />
+			<g:if test="${assay}">
+				<af:templateElements ignore="externalassayid" entity="${assay}" />
 			</g:if>
 		
 			<br clear="all" />

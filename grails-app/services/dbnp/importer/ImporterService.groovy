@@ -22,7 +22,7 @@ import dbnp.studycapturing.*
 class ImporterService {
 	def authenticationService
 
-	static transactional = true
+	static transactional = false
 
 	/**
 	 * @param is input stream representing the (workbook) resource
@@ -338,8 +338,8 @@ class ImporterService {
 		if( importedRows )
 			importedEntities = importedRows.flatten().findAll { it.class == dbnp.studycapturing.Sample }.unique();
 
-		def importedSample = findEntityInImportedEntities( dbnp.studycapturing.Sample, excelRow, mcmap, importedEntities, df )
-		def imported = retrieveEntitiesBySample( importedSample );
+		def importedSample = null // findEntityInImportedEntities( dbnp.studycapturing.Sample, excelRow, mcmap, importedEntities, df )
+		def imported = [] // retrieveEntitiesBySample( importedSample );
 		
 		for( entity in entities ) {
 			// Check whether this entity should be added or updated
@@ -674,8 +674,8 @@ class ImporterService {
 	/**
 	 * Retrieves a mapping column from a list based on the given fieldname
 	 * @param mappingColumns		List of mapping columns
-	 * @param fieldName			Field name to find
-	 * @return					Mapping column if a column is found, null otherwise
+	 * @param fieldName				Field name to find
+	 * @return						Mapping column if a column is found, null otherwise
 	 */
 	def findMappingColumn( mappingColumns, String fieldName ) {
 		return mappingColumns.find { it.property == fieldName.toLowerCase() }
