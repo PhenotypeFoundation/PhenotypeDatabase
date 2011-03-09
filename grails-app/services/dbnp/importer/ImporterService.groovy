@@ -281,20 +281,50 @@ class ImporterService {
 
 		// walk through all rows and fill the table with records
 		for( int i = rowindex; i <= sheet.getLastRowNum(); i++ ) {
-			// Create an entity record based on a row read from Excel and store the cells which failed to be mapped
-			def (record, failed) = importOrUpdateRecord( templates, entities, sheet.getRow(i), mcmap, parent, table, existingEntities[i] );
-
-			// Setup the relationships between the imported entities
-			relateEntities( record );
-
-			// Add record with entities and its values to the table
-			table.add(record)
-
-			// If failed cells have been found, add them to the failed cells list
-			if (failed?.importcells?.size() > 0) failedcells.add(failed)
+			def row = sheet.getRow(i);
+			
+			if( row && !rowIsEmpty( row ) ) {
+				// Create an entity record based on a row read from Excel and store the cells which failed to be mapped
+				def (record, failed) = importOrUpdateRecord( templates, entities, row, mcmap, parent, table, existingEntities[i] );
+	
+				// Setup the relationships between the imported entities
+				relateEntities( record );
+	
+				// Add record with entities and its values to the table
+				table.add(record)
+	
+				// If failed cells have been found, add them to the failed cells list
+				if (failed?.importcells?.size() > 0) failedcells.add(failed)
+			}
 		}
 
 		return [ "table": table, "failedCells": failedcells ]
+	}
+	
+	/**
+	 * Checks whether an excel row is empty
+	 * @param row	Row from the excel sheet
+	 * @return		True if all cells in this row are empty or the given row is null. False otherwise
+	 */
+	def rowIsEmpty( Row excelRow ) {
+		if( !excelRow )
+			return true;
+		
+		def df = new DataFormatter();
+		for( int i = excelRow.getFirstCellNum(); i < excelRow.getLastCellNum(); i++ ) {
+			Cell cell = excelRow.getCell( i );
+			
+			try {
+				def value = df.formatCellValue(cell)
+				if( value )
+					return false
+			} catch (NumberFormatException nfe) {
+				// If the number can't be formatted, the row isn't empty
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	/**
@@ -343,8 +373,9 @@ class ImporterService {
 		if( importedRows )
 			importedEntities = importedRows.flatten().findAll { it.class == dbnp.studycapturing.Sample }.unique();
 
-		def importedSample = null // findEntityInImportedEntities( dbnp.studycapturing.Sample, excelRow, mcmap, importedEntities, df )
-		def imported = [] // retrieveEntitiesBySample( importedSample );
+		def importedSample = findEntityInImportedEntities( dbnp.studycapturing.Sample, excelRow, mcmap, importedEntities, df )
+		def imported = retrieveEntitiesBySample( importedSample );
+		
 		for( entity in entities ) {
 			// Check whether this entity should be added or updated
 			// The entity is updated is an entity with the same 'identifier' (field
@@ -371,7 +402,9 @@ class ImporterService {
 			entityObject.template = template;
 
 			// Go through the Excel row cell by cell
-			for (Cell cell: excelRow) {
+			for( int i = excelRow.getFirstCellNum(); i < excelRow.getLastCellNum(); i++ ) {
+				Cell cell = excelRow.getCell( i );
+				
 				// get the MappingColumn information of the current cell
 				def mc = mcmap[cell.getColumnIndex()]
 				def value
@@ -425,6 +458,9 @@ class ImporterService {
 	 * 			is not found there, the database is queried. If no entity is found at all, null is returned.
 	 */
 	def findEntityByRow( Class entity, Row excelRow, def mcmap, Study parent = null, List importedEntities = [], DataFormatter df = null ) {
+		if( !excelRow )
+			return
+		
 		if( df == null )
 			df = new DataFormatter();
 

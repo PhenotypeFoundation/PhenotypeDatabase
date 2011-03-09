@@ -68,12 +68,13 @@ class SimpleWizardController extends StudyWizardController {
 							'Event': Template.findAllByEntity( Event.class ),
 							'SamplingEvent': Template.findAllByEntity( SamplingEvent.class )
 				];
+			
 				flow.encodedEntity = [
 							'Sample': gdtService.encryptEntity( Sample.class.name ),
 							'Subject': gdtService.encryptEntity( Subject.class.name ),
 							'Event': gdtService.encryptEntity( Event.class.name ),
 							'SamplingEvent': gdtService.encryptEntity( SamplingEvent.class.name )
-						]
+				]
 
 				if (flow.study.samples)
 					checkStudySimplicity(flow.study) ? existingSamples() : complexStudy()
@@ -271,10 +272,6 @@ class SimpleWizardController extends StudyWizardController {
 				if( flow.assay && !flow.study.assays?.contains( flow.assay ) ) {
 					flow.study.addToAssays( flow.assay );
 				}
-				
-				println "Events: " + flow.study.events
-				println "Samples: " + flow.study.samples
-				println "Eventgroups" + flow.study.eventGroups
 				
 				if( flow.study.save( flush: true ) ) {
 					// Make sure all samples are attached to all assays
@@ -745,9 +742,19 @@ class SimpleWizardController extends StudyWizardController {
 							
 							break;
 						case Subject:
-							if( !preferredIdentifier || !study.subjects?.find( equalClosure ) ) {
-								study.addToSubjects( entity );
+							// Subjects should have unique names; if the user has entered the same name multiple times,
+							// the subject will be renamed
+							def subjectFound = study.subjects?.find( equalClosure ) ;
+							if( preferredIdentifier && subjectFound ) {
+								def baseName = entity.getFieldValue( preferredIdentifier.name )
+								def counter = 1;
+								
+								while( study.subjects?.find { it.getFieldValue( preferredIdentifier.name ) == entity.getFieldValue( preferredIdentifier.name ) } ) {
+									entity.setFieldValue( preferredIdentifier.name, baseName + " (" + counter++ + ")" )
+								}
 							}
+							study.addToSubjects( entity );
+							
 							break;
 						case Event:
 							if( !preferredIdentifier || !study.events?.find( equalClosure ) ) {
