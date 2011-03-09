@@ -114,7 +114,8 @@ class SimpleWizardController extends StudyWizardController {
 
 		samples {
 			on("next") {
-				handleSamples( flow.study, params, flow ) ? success() : error ()
+				if( !handleSamples( flow.study, params, flow ) )
+					return error();
 				
 				// Add domain fields for all entities
 				flow.domainFields = [:]
@@ -124,8 +125,31 @@ class SimpleWizardController extends StudyWizardController {
 						flow.domainFields[ it.key ] = it.value[0].entity.giveDomainFields();
 					}
 				}
-
+				
+				println flow.sampleForm.template
 			}.to "columns"
+			on("refresh") {
+				def filename = params.get( 'importfile' );
+		
+				// Handle 'existing*' in front of the filename. This is put in front to make a distinction between
+				// an already uploaded file test.txt (maybe moved to some other directory) and a newly uploaded file test.txt
+				// still being in the temporary directory.
+				// This import step doesn't have to make that distinction, since all files remain in the temporary directory.
+				if( filename == 'existing*' )
+					filename = '';
+				else if( filename[0..8] == 'existing*' )
+					filename = filename[9..-1]
+				
+				// Refresh the templates, since the template editor has been opened
+				flow.templates = [
+						'Sample': Template.findAllByEntity( Sample.class ),
+						'Subject': Template.findAllByEntity( Subject.class ),
+						'Event': Template.findAllByEntity( Event.class ),
+						'SamplingEvent': Template.findAllByEntity( SamplingEvent.class )
+				];
+										
+				flow.sampleForm = [ importFile: filename ]
+			}.to "samples"
 			on("previous").to "returnFromSamples"
 			on("study").to "study"
 			on("skip").to "startAssays"
@@ -456,13 +480,13 @@ class SimpleWizardController extends StudyWizardController {
 						'Sample': sampleTemplateId,
 						'Subject': subjectTemplateId,
 						'Event': eventTemplateId,
-						'SampingEvent': samplingEventTemplateId
+						'SamplingEvent': samplingEventTemplateId
 					],
 					template: [
 						'Sample': sampleTemplateId ? Template.get( sampleTemplateId ) : null,
 						'Subject': subjectTemplateId ? Template.get( subjectTemplateId ) : null,
 						'Event': eventTemplateId ? Template.get( eventTemplateId ) : null,
-						'SampingEvent': samplingEventTemplateId ? Template.get( samplingEventTemplateId ) : null
+						'SamplingEvent': samplingEventTemplateId ? Template.get( samplingEventTemplateId ) : null
 					],
 					sheetIndex: sheetIndex,
 					dataMatrixStart: dataMatrixStart,
@@ -662,8 +686,7 @@ class SimpleWizardController extends StudyWizardController {
 			flash.error = "The given file doesn't seem to be an excel file. Please provide an excel file for entering samples.";
 			return false
 		}
-		
-		
+			
 		def imported = importerService.importOrUpdateDataBySampleIdentifier(templates,
 				workbook,
 				flow.excel.sheetIndex - 1,
@@ -698,22 +721,22 @@ class SimpleWizardController extends StudyWizardController {
 					
 					switch( entity.class ) {
 						case Sample:
-							if( preferredIdentifier && !study.samples?.find( equalClosure ) ) {
+							if( !preferredIdentifier || !study.samples?.find( equalClosure ) ) {
 								study.addToSamples( entity );
 							}
 							break;
 						case Subject:
-							if( preferredIdentifier && !study.subjects?.find( equalClosure ) ) {
+							if( !preferredIdentifier || !study.subjects?.find( equalClosure ) ) {
 								study.addToSubjects( entity );
 							}
 							break;
 						case Event:
-							if( preferredIdentifier && !study.events?.find( equalClosure ) ) {
+							if( !preferredIdentifier || !study.events?.find( equalClosure ) ) {
 								study.addToEvents( entity );
 							}
 							break;
 						case SamplingEvent:
-							if( preferredIdentifier && !study.samplingEvents?.find( equalClosure ) ) {
+							if( !preferredIdentifier || !study.samplingEvents?.find( equalClosure ) ) {
 								study.addToSamplingEvents( entity );
 							}
 							break;

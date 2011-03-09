@@ -30,7 +30,7 @@
 				
 				<g:if test="${imported.errors}">
 					<br /><br />The following errors occurred:<br />
-					<g:each in="${imported.errors}" var="err">
+					<g:each in="${imported.errors.unique()}" var="err">
 						${err}<br />
 					</g:each>
 				</g:if> 

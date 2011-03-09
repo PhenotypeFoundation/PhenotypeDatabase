@@ -68,7 +68,9 @@ class ImporterService {
 				// is this string perhaps a double?
 					try {
 						formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
-					} catch (NumberFormatException nfe) { doubleBoolean = false }
+					} catch (NumberFormatException nfe) {
+						doubleBoolean = false
+					}
 					finally {
 						if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
 					}
@@ -88,7 +90,9 @@ class ImporterService {
 				// is this cell really an integer?
 					try {
 						Long.valueOf(datamatrix_celldata)
-					} catch (NumberFormatException nfe) { longBoolean = false }
+					} catch (NumberFormatException nfe) {
+						longBoolean = false
+					}
 					finally {
 						if (longBoolean) fieldtype = TemplateFieldType.LONG
 					}
@@ -97,7 +101,9 @@ class ImporterService {
 					if (!longBoolean)
 						try {
 							formatValue(datamatrix_celldata, TemplateFieldType.DOUBLE)
-						} catch (NumberFormatException nfe) { doubleBoolean = false }
+						} catch (NumberFormatException nfe) {
+							doubleBoolean = false
+						}
 						finally {
 							if (doubleBoolean) fieldtype = TemplateFieldType.DOUBLE
 						}
@@ -186,7 +192,7 @@ class ImporterService {
 		return System.currentTimeMillis() + Runtime.runtime.freeMemory()
 	}
 
-	
+
 	/**
 	 * Retrieves records with sample, subject, samplingevent etc. from a study
 	 * @param s		Study to retrieve records from
@@ -194,10 +200,10 @@ class ImporterService {
 	 */
 	protected def getRecords( Study s ) {
 		def records = [];
-		
+
 		s.samples?.each {
 			def record = [ 'objects': retrieveEntitiesBySample( it ) ];
-		
+
 			def templates = [:]
 			def templateCombination = [];
 			record.objects.each { entity ->
@@ -205,16 +211,16 @@ class ImporterService {
 				if( entity.value?.template )
 					templateCombination << entity.key + ": " + entity.value?.template?.name;
 			}
-			
+
 			record.templates = templates;
 			record.templateCombination = templateCombination.join( ', ' )
-			
+
 			records << record
 		}
-		
+
 		return records;
 	}
-	
+
 	/**
 	 * Returns a subject, event and samplingEvent that belong to this sample
 	 * @param s		Sample to find the information for
@@ -228,7 +234,7 @@ class ImporterService {
 			'Event': s?.parentEventGroup?.events?.getAt(0)
 		]
 	}
-	
+
 	/**
 	 * Imports data from a workbook into a list of ImportRecords. If some entities are already in the database,
 	 * these records are updated.
@@ -251,7 +257,7 @@ class ImporterService {
 	def importOrUpdateDataBySampleIdentifier( def templates, Workbook wb, int sheetindex, int rowindex, def mcmap, Study parent = null, boolean createAllEntities = true ) {
 		if( !mcmap )
 			return;
-			
+
 		// Check whether the rows should be imported in one or more entities
 		def entities
 		if( createAllEntities ) {
@@ -259,11 +265,10 @@ class ImporterService {
 		} else {
 			entities = mcmap.findAll{ !it.dontimport }.entityclass.unique();
 		}
-		
+
 		def sheet = wb.getSheetAt(sheetindex)
 		def table = []
 		def failedcells = [] // list of cells that have failed to import
-
 		// First check for each record whether an entity in the database should be updated,
 		// or a new entity should be added. This is done before any new object is created, since
 		// searching after new objects have been created (but not yet saved) will result in
@@ -273,42 +278,42 @@ class ImporterService {
 		for( int i = rowindex; i <= sheet.getLastRowNum(); i++ ) {
 			existingEntities[i] = findExistingEntities( entities, sheet.getRow(i), mcmap, parent );
 		}
-				
+
 		// walk through all rows and fill the table with records
 		for( int i = rowindex; i <= sheet.getLastRowNum(); i++ ) {
 			// Create an entity record based on a row read from Excel and store the cells which failed to be mapped
 			def (record, failed) = importOrUpdateRecord( templates, entities, sheet.getRow(i), mcmap, parent, table, existingEntities[i] );
-			
+
 			// Setup the relationships between the imported entities
 			relateEntities( record );
-			
+
 			// Add record with entities and its values to the table
 			table.add(record)
 
 			// If failed cells have been found, add them to the failed cells list
 			if (failed?.importcells?.size() > 0) failedcells.add(failed)
 		}
-		
+
 		return [ "table": table, "failedCells": failedcells ]
 	}
 
 	/**
-	* Checks whether entities in the given row already exist in the database
-	* they are updated.
-	*
-	* @param	entities	Entities that have to be imported for this row
-	* @param	excelRow	Excel row to import into this record
-	* @param	mcmap		Hashmap of mappingcolumns, with the first entry in the hashmap containing information about the first column, etc.
-	* @return	Map			Map with entities that have been found for this row. The key for the entities is the entity name (e.g.: [Sample: null, Subject: <subject object>]
-	*/
-   def findExistingEntities(def entities, Row excelRow, mcmap, parent ) {
-	   DataFormatter df = new DataFormatter();
+	 * Checks whether entities in the given row already exist in the database
+	 * they are updated.
+	 *
+	 * @param	entities	Entities that have to be imported for this row
+	 * @param	excelRow	Excel row to import into this record
+	 * @param	mcmap		Hashmap of mappingcolumns, with the first entry in the hashmap containing information about the first column, etc.
+	 * @return	Map			Map with entities that have been found for this row. The key for the entities is the entity name (e.g.: [Sample: null, Subject: <subject object>]
+	 */
+	def findExistingEntities(def entities, Row excelRow, mcmap, parent ) {
+		DataFormatter df = new DataFormatter();
 
-	   // Find entities based on sample identifier
-	   def sample = findEntityByRow( dbnp.studycapturing.Sample, excelRow, mcmap, parent, [], df );
-	   return retrieveEntitiesBySample( sample );
-   }
-   
+		// Find entities based on sample identifier
+		def sample = findEntityByRow( dbnp.studycapturing.Sample, excelRow, mcmap, parent, [], df );
+		return retrieveEntitiesBySample( sample );
+	}
+
 	/**
 	 * Imports a records from the excelsheet into the database. If the entities are already in the database
 	 * they are updated.
@@ -331,7 +336,7 @@ class ImporterService {
 		DataFormatter df = new DataFormatter();
 		def record = [] // list of entities and the read values
 		def failed = new ImportRecord() // map with entity identifier and failed mappingcolumn
-	
+
 		// Check whether this record mentions a sample that has been imported before. In that case,
 		// we update that record, in order to prevent importing the same sample multiple times
 		def importedEntities = [];
@@ -340,38 +345,37 @@ class ImporterService {
 
 		def importedSample = null // findEntityInImportedEntities( dbnp.studycapturing.Sample, excelRow, mcmap, importedEntities, df )
 		def imported = [] // retrieveEntitiesBySample( importedSample );
-		
 		for( entity in entities ) {
 			// Check whether this entity should be added or updated
 			// The entity is updated is an entity with the same 'identifier' (field
 			// specified to be the identifying field) is found in the database
 			def entityName = entity.name[ entity.name.lastIndexOf( '.' ) + 1..-1];
 			def template = templates[ entityName ];
-			
+
 			// If no template is specified for this entity, continue with the next
 			if( !template )
 				continue;
-			
+
 			// Check whether the object exists in the list of already imported entities
 			def entityObject = imported[ entityName ]
-			
+
 			// If it doesn't, search for the entity in the database
 			if( !entityObject && existingEntities )
 				entityObject = existingEntities[ entityName ];
-			
+
 			// Otherwise, create a new object
 			if( !entityObject )
 				entityObject = entity.newInstance();
-			
+
 			// Update the template
 			entityObject.template = template;
-			
+
 			// Go through the Excel row cell by cell
 			for (Cell cell: excelRow) {
 				// get the MappingColumn information of the current cell
 				def mc = mcmap[cell.getColumnIndex()]
 				def value
-	 
+
 				// Check if column must be imported
 				if (mc != null && !mc.dontimport && mc.entityclass == entity) {
 					try {
@@ -379,7 +383,7 @@ class ImporterService {
 					} catch (NumberFormatException nfe) {
 						value = ""
 					}
-	 
+
 					try {
 						entityObject.setFieldValue(mc.property, value)
 					} catch (Exception iae) {
@@ -387,25 +391,25 @@ class ImporterService {
 
 						// store the mapping column and value which failed
 						def identifier = entityName.toLowerCase() + "_" + entityObject.getIdentifier() + "_" + mc.property
-	 
+
 						def mcInstance = new MappingColumn()
 						mcInstance.properties = mc.properties
 						failed.addToImportcells(new ImportCell(mappingcolumn: mcInstance, value: value, entityidentifier: identifier))
 					}
 				} // end if
 			} // end for
-			
+
 			// If a Study is entered, use it as a 'parent' for other entities
 			if( entity == Study )
 				parent = entityObject;
-			
+
 			record << entityObject;
 		}
-		
+
 		// a failed column means that using the entity.setFieldValue() threw an exception
 		return [record, failed]
 	}
-	
+
 	/**
 	 * Looks into the database to find an object of the given entity that should be updated, given the excel row.
 	 * This is done by looking at the 'preferredIdentifier' field of the object. If it exists in the row, and the
@@ -423,13 +427,13 @@ class ImporterService {
 	def findEntityByRow( Class entity, Row excelRow, def mcmap, Study parent = null, List importedEntities = [], DataFormatter df = null ) {
 		if( df == null )
 			df = new DataFormatter();
-			
+
 		def identifierField = givePreferredIdentifier( entity );
-		
+
 		if( identifierField ) {
 			// Check whether the identifierField is chosen in the column matching
 			def identifierColumn = mcmap.find { it.entityclass == entity && it.property == identifierField.name };
-			
+
 			// If it is, find the identifier and look it up in the database
 			if( identifierColumn ) {
 				def identifierCell = excelRow.getCell( identifierColumn.index );
@@ -439,7 +443,7 @@ class ImporterService {
 				} catch (NumberFormatException nfe) {
 					identifier = null
 				}
-				
+
 				// Search for an existing object with the same identifier.
 				if( identifier ) {
 					// First search the already imported rows
@@ -448,16 +452,16 @@ class ImporterService {
 						if( imported )
 							return imported;
 					}
-					
+
 					def c = entity.createCriteria();
-					
+
 					// If the entity has a field 'parent', the search should be limited to
 					// objects with the same parent. The method entity.hasProperty( "parent" ) doesn't
 					// work, since the java.lang.Class entity doesn't know of the parent property.
 					if( entity.belongsTo?.containsKey( "parent" ) ) {
 						// If the entity requires a parent, but none is given, no
 						// results are given from the database. This prevents the user
-						// of changing data in another study 
+						// of changing data in another study
 						if( parent && parent.id ) {
 							println "Searching (with parent ) for " + entity.name + " with " + identifierField.name + " = " + identifier
 							return c.get {
@@ -474,48 +478,48 @@ class ImporterService {
 				}
 			}
 		}
-		
+
 		// No object is found
 		return null;
 	}
-	
+
 	/**
-	* Looks into the list of already imported entities to find an object of the given entity that should be 
-	* updated, given the excel row. This is done by looking at the 'preferredIdentifier' field of the object. 
-	* If it exists in the row, and the list of imported entities contains an object with the same
-	* identifier, the existing object is returned. Otherwise, null is returned
-	*
-	* @param	entity		Entity to search
-	* @param	excelRow	Excelrow to search for
-	* @param	mcmap		Map with MappingColumns
-	* @param	importedRows	List of entities that have been imported before. The function will first look through this list to find
-	* 							a matching entity.
-	* @return	An entity that has the same identifier as entered in the excelRow. The entity is first sought in the importedRows. If it
-	* 			is not found there, the database is queried. If no entity is found at all, null is returned.
-	*/
-   def findEntityInImportedEntities( Class entity, Row excelRow, def mcmap, List importedEntities = [], DataFormatter df = null ) {
-	   if( df == null )
-		   df = new DataFormatter();
-		   
-	   def allFields = entity.giveDomainFields();
-	   def identifierField = allFields.find { it.preferredIdentifier }
-	   
-	   if( identifierField ) {
-		   // Check whether the identifierField is chosen in the column matching
-		   def identifierColumn = mcmap.find { it.entityclass == entity && it.property == identifierField.name };
-		   
-		   // If it is, find the identifier and look it up in the database
-		   if( identifierColumn ) {
-			   def identifierCell = excelRow.getCell( identifierColumn.index );
-			   def identifier;
-			   try {
-				   identifier = formatValue(df.formatCellValue(identifierCell), identifierColumn.templatefieldtype)
-			   } catch (NumberFormatException nfe) {
-				   identifier = null
-			   }
-			   
-			   // Search for an existing object with the same identifier.
-			   if( identifier ) {
+	 * Looks into the list of already imported entities to find an object of the given entity that should be 
+	 * updated, given the excel row. This is done by looking at the 'preferredIdentifier' field of the object. 
+	 * If it exists in the row, and the list of imported entities contains an object with the same
+	 * identifier, the existing object is returned. Otherwise, null is returned
+	 *
+	 * @param	entity		Entity to search
+	 * @param	excelRow	Excelrow to search for
+	 * @param	mcmap		Map with MappingColumns
+	 * @param	importedRows	List of entities that have been imported before. The function will first look through this list to find
+	 * 							a matching entity.
+	 * @return	An entity that has the same identifier as entered in the excelRow. The entity is first sought in the importedRows. If it
+	 * 			is not found there, the database is queried. If no entity is found at all, null is returned.
+	 */
+	def findEntityInImportedEntities( Class entity, Row excelRow, def mcmap, List importedEntities = [], DataFormatter df = null ) {
+		if( df == null )
+			df = new DataFormatter();
+
+		def allFields = entity.giveDomainFields();
+		def identifierField = allFields.find { it.preferredIdentifier }
+
+		if( identifierField ) {
+			// Check whether the identifierField is chosen in the column matching
+			def identifierColumn = mcmap.find { it.entityclass == entity && it.property == identifierField.name };
+
+			// If it is, find the identifier and look it up in the database
+			if( identifierColumn ) {
+				def identifierCell = excelRow.getCell( identifierColumn.index );
+				def identifier;
+				try {
+					identifier = formatValue(df.formatCellValue(identifierCell), identifierColumn.templatefieldtype)
+				} catch (NumberFormatException nfe) {
+					identifier = null
+				}
+
+				// Search for an existing object with the same identifier.
+				if( identifier ) {
 					// First search the already imported rows
 					if( importedEntities ) {
 						def imported = importedEntities.find {
@@ -525,20 +529,19 @@ class ImporterService {
 								return fieldValue.toLowerCase() == identifier.toLowerCase();
 							else
 								return fieldValue == identifier
-
 						};
-					   if( imported )
-						   return imported;
-				   }
-			   }
-		   }
-	   }
-	   
-	   // No object is found
-	   return null;
-   }
+						if( imported )
+							return imported;
+					}
+				}
+			}
+		}
 
-	
+		// No object is found
+		return null;
+	}
+
+
 	/**
 	 * Creates relation between multiple entities that have been imported. The entities are
 	 * all created from one row in the excel sheet.
@@ -550,7 +553,7 @@ class ImporterService {
 		def event = entities.find { it instanceof Event }
 		def samplingEvent = entities.find { it instanceof SamplingEvent }
 		def assay = entities.find { it instanceof Assay }
-		
+
 		// A study object is found in the entity list
 		if( study ) {
 			if( subject ) {
@@ -562,7 +565,7 @@ class ImporterService {
 				study.addToSamples( sample );
 			}
 			if( event ) {
-				event.parent = study 
+				event.parent = study
 				study.addToEvents( event );
 			}
 			if( samplingEvent ) {
@@ -583,10 +586,10 @@ class ImporterService {
 				evGroup.addToEvents( event );
 				if( subject ) evGroup.addToSubjects( subject );
 				if( samplingEvent ) evGroup.addToSamplingEvents( samplingEvent );
-				
+
 				sample.parentEventGroup = evGroup;
 			}
-			
+
 			if( assay ) assay.addToSamples( sample );
 		}
 	}
@@ -609,7 +612,6 @@ class ImporterService {
 		def template = Template.get(template_id)
 		def table = []
 		def failedcells = [] // list of records
-		
 		// walk through all rows and fill the table with records
 		(rowindex..sheet.getLastRowNum()).each { i ->
 			// Create an entity record based on a row read from Excel and store the cells which failed to be mapped
@@ -664,11 +666,11 @@ class ImporterService {
 	 */
 	def getFieldNameInTableEditor(entity, field) {
 		def entityName = entity?.class.name[ entity?.class.name.lastIndexOf(".") + 1..-1]
-		
+
 		if( field instanceof TemplateField )
 			field = field.escapedName();
 
-		return entityName.toLowerCase() + "_" + entity.getIdentifier() + "_" + field
+		return entityName.toLowerCase() + "_" + entity.getIdentifier() + "_" + field.toLowerCase()
 	}
 
 	/**
@@ -927,17 +929,18 @@ class ImporterService {
 					log.error ".import wizard error could not set property `" + mc.property + "` to value `" + value + "`"
 					// store the mapping column and value which failed
 					def identifier
-
+					def fieldName = mc.property?.toLowerCase()
+					
 					switch (mc.entityclass) {
-						case Study: identifier = "entity_" + study.getIdentifier() + "_" + mc.property
+						case Study: identifier = "entity_" + study.getIdentifier() + "_" + fieldName
 							break
-						case Subject: identifier = "entity_" + subject.getIdentifier() + "_" + mc.property
+						case Subject: identifier = "entity_" + subject.getIdentifier() + "_" + fieldName
 							break
-						case SamplingEvent: identifier = "entity_" + samplingEvent.getIdentifier() + "_" + mc.property
+						case SamplingEvent: identifier = "entity_" + samplingEvent.getIdentifier() + "_" + fieldName
 							break
-						case Event: identifier = "entity_" + event.getIdentifier() + "_" + mc.property
+						case Event: identifier = "entity_" + event.getIdentifier() + "_" + fieldName
 							break
-						case Sample: identifier = "entity_" + sample.getIdentifier() + "_" + mc.property
+						case Sample: identifier = "entity_" + sample.getIdentifier() + "_" + fieldName
 							break
 						case Object:   // don't import
 							break
@@ -971,7 +974,7 @@ class ImporterService {
 			default: return value
 		}
 	}
-	
+
 	/**
 	 * Returns the preferred identifier field for a given entity or 
 	 * null if no preferred identifier is given

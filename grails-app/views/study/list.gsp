@@ -19,7 +19,7 @@
 			<table>
 				<thead>
 				<tr>
-					<th colspan="3"></th>
+					<th colspan="4"></th>
 					<g:sortableColumn property="code" title="${message(code: 'study.code.label', default: 'Code')}"/>
 					<th>Title</th>
 					<th>Subjects</th>
@@ -32,8 +32,17 @@
 					<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
 
 						<td><input type="checkbox" name="id" value="${studyInstance.id}" id="${studyInstance.title}"></td>
-						<td><g:link action="show" id="${studyInstance?.id}"><img src='${fam.icon(name: 'application_form_magnify')}' border="0" alt="view study" /></g:link></td>
-						<td><g:if test="${studyInstance.canWrite(loggedInUser)}"><g:link class="edit" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}"><img src='${fam.icon(name: 'application_form_edit')}' border="0" alt="edit study" /></g:link></g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> </td>
+						<td><g:link action="show" title="View study" id="${studyInstance?.id}"><img src='${fam.icon(name: 'application_form_magnify')}' border="0" alt="view study" /></g:link></td>
+						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
+							<g:link class="edit" title="Edit study using simple wizard" controller="simpleWizard" action="index" id="${studyInstance?.id}">
+								<img src='${fam.icon(name: 'pencil')}' border="0" alt="edit study" /></g:link>
+							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> 
+						</td>
+						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
+							<g:link class="edit" title="Edit study" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}">
+								<img src='${fam.icon(name: 'application_form_edit')}' border="0" alt="edit study" /></g:link>
+							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> 
+						</td>
 						<td>${fieldValue(bean: studyInstance, field: "code")}</td>
 						<td>
 							${fieldValue(bean: studyInstance, field: "title")}

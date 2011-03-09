@@ -58,12 +58,15 @@
 													def allFields = [] + domainFields[ entityTemplates.key ] + entityTemplates.value?.fields;
 												%>
 												<g:each in="${allFields}" var="field">
-													<% 
-														def value = entityTemplates.key + "||" + field.name
-														def selected = ( value == selectedValue );
-													%>
-													<option value="${value}" <g:if test="${selected}">selected="selected"</g:if>>
-														${field.name} <g:if test="${field.preferredIdentifier}">[identifier]</g:if>
+													<g:if test="${field}">
+														<% 
+															def value = entityTemplates.key + "||" + field.name
+															def selected = ( value == selectedValue );
+														%>
+														<option value="${value}" <g:if test="${selected}">selected="selected"</g:if>>
+															${field.name} <g:if test="${field.preferredIdentifier}">[identifier]</g:if>
+														</option>
+													</g:if>
 													
 												</g:each>
 											</optgroup>

@@ -47,7 +47,7 @@
 						<div id="datatemplate">Choose type of sample template:</div>
 					    </td>
 					    <td>
-							<g:select rel="template" entity="${encodedEntity.Sample}" name="sample_template_id" optionKey="id" optionValue="name" from="${templates.Sample}"/>
+							<g:select rel="template" entity="${encodedEntity.Sample}" name="sample_template_id" optionKey="id" optionValue="name" from="${templates.Sample}" value="${sampleForm?.templateId?.Sample}"/>
 					    </td>
 					</tr>
 					<tr>
@@ -55,9 +55,18 @@
 						<div id="datatemplate">Choose type of subject template:</div>
 					    </td>
 					    <td>
-							<g:select rel="template" entity="${encodedEntity.Subject}" name="subject_template_id" optionKey="id" optionValue="name" from="${templates.Subject}"/>
+							<g:select rel="template" entity="${encodedEntity.Subject}" name="subject_template_id" noSelection="${[null: '- no subject template -']}" optionKey="id" optionValue="name" from="${templates.Subject}"  value="${sampleForm?.templateId?.Subject}" />
 					    </td>
-					</tr>					
+					</tr>
+
+					<tr>
+					    <td>
+						<div id="datatemplate">Choose type of sampling event template:</div>
+					    </td>
+					    <td>
+							<g:select rel="template" entity="${encodedEntity.SamplingEvent}" name="samplingEvent_template_id" noSelection="${[null: '- no sampling event template -']}" optionKey="id" optionValue="name" from="${templates.SamplingEvent}"  value="${sampleForm?.templateId?.SamplingEvent}" />
+					    </td>
+					</tr>		
 				</table>	
 			</div>
 		

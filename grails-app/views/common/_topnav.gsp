@@ -13,6 +13,7 @@
 		</sec:ifNotLoggedIn>
 		<li><g:link controller="studyWizard" action="index" params="[jump:'create']">Create a new study</g:link></li>
 		<li><g:link controller="studyWizard" action="index" params="[jump:'edit']">Edit a study</g:link></li>
+		<li><g:link controller="simpleWizard" action="index">Simple wizard</g:link></li>
 		<li><g:link controller="importer" action="index">Import study data</g:link></li>
         <li><g:link controller="simpleQuery" action="index">Search study data</g:link></li>
         <li><g:link controller="exporter" action="index">Export as SimpleTox</g:link></li>
