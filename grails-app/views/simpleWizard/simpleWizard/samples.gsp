@@ -58,7 +58,14 @@
 							<g:select rel="template" entity="${encodedEntity.Subject}" name="subject_template_id" noSelection="${[null: '- no subject template -']}" optionKey="id" optionValue="name" from="${templates.Subject}"  value="${sampleForm?.templateId?.Subject}" />
 					    </td>
 					</tr>
-
+					<tr>
+					    <td>
+						<div id="datatemplate">Choose type of event template:</div>
+					    </td>
+					    <td>
+							<g:select rel="template" entity="${encodedEntity.Event}" name="event_template_id" noSelection="${[null: '- no event template -']}" optionKey="id" optionValue="name" from="${templates.Event}"  value="${sampleForm?.templateId?.Event}" />
+					    </td>
+					</tr>
 					<tr>
 					    <td>
 						<div id="datatemplate">Choose type of sampling event template:</div>

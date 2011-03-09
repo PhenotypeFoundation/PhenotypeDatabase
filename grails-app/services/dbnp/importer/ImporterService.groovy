@@ -231,7 +231,7 @@ class ImporterService {
 			'Sample': s,
 			'Subject': s?.parentSubject,
 			'SamplingEvent': s?.parentEvent,
-			'Event': s?.parentEventGroup?.events?.getAt(0)
+			'Event': s?.parentEventGroup?.events?.toList()?.getAt(0)
 		]
 	}
 

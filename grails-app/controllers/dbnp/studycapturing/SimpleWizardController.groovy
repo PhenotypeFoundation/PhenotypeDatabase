@@ -165,6 +165,7 @@ class SimpleWizardController extends StudyWizardController {
 		
 		columns {
 			on( "next" ) {
+				flow.editImportedData = params.get( 'editAfterwards' ) ? true : false;
 				handleColumns( flow.study, params, flow ) ? success() : error()
 			}.to "checkImportedEntities"
 			on( "previous" ).to "samples" 
@@ -173,7 +174,7 @@ class SimpleWizardController extends StudyWizardController {
 		checkImportedEntities {
 			action {
 				// Only continue to the next page if the information entered is correct
-				if( flow.imported.numInvalidEntities > 0 ) {
+				if( flow.editImportedData || flow.imported.numInvalidEntities > 0 ) {
 					missingFields();
 				} else {
 					// The import of the excel file has finished. Now delete the excelfile
@@ -270,6 +271,10 @@ class SimpleWizardController extends StudyWizardController {
 				if( flow.assay && !flow.study.assays?.contains( flow.assay ) ) {
 					flow.study.addToAssays( flow.assay );
 				}
+				
+				println "Events: " + flow.study.events
+				println "Samples: " + flow.study.samples
+				println "Eventgroups" + flow.study.eventGroups
 				
 				if( flow.study.save( flush: true ) ) {
 					// Make sure all samples are attached to all assays
@@ -724,6 +729,20 @@ class SimpleWizardController extends StudyWizardController {
 							if( !preferredIdentifier || !study.samples?.find( equalClosure ) ) {
 								study.addToSamples( entity );
 							}
+							
+							// If an eventgroup is created, add it to the study
+							// The eventgroup must have a unique name, but the user shouldn't be bothered with it
+							// Add 'group ' + samplename and it that is not unique, add a number to it
+							if( entity.parentEventGroup ) {
+								study.addToEventGroups( entity.parentEventGroup )
+
+								entity.parentEventGroup.name = "Group " + entity.name
+								while( !entity.parentEventGroup.validate() ) {
+									entity.parentEventGroup.getErrors().each { println it }
+									entity.parentEventGroup.name += "" + Math.floor( Math.random() * 100 )
+								}
+							}
+							
 							break;
 						case Subject:
 							if( !preferredIdentifier || !study.subjects?.find( equalClosure ) ) {
@@ -736,6 +755,12 @@ class SimpleWizardController extends StudyWizardController {
 							}
 							break;
 						case SamplingEvent:
+							// Sampling events have a 'sampleTemplate' value, which should be filled by the
+							// template that is chosen for samples.
+							if( !entity.getFieldValue( 'sampleTemplate' ) ) {
+								entity.setFieldValue( 'sampleTemplate', flow.sampleForm.template.Sample.name )
+							} 
+						
 							if( !preferredIdentifier || !study.samplingEvents?.find( equalClosure ) ) {
 								study.addToSamplingEvents( entity );
 							}
@@ -924,7 +949,7 @@ class SimpleWizardController extends StudyWizardController {
 					study.eventGroups.each { eventGroup ->
 						// If no id is given for the subject, it has been entered in this wizard, but
 						// not yet saved. In that case, it is always OK
-						if( subject.id && eventGroup.subjects[0]?.id == subject.id )
+						if( subject.id && eventGroup.subjects && eventGroup.subjects.toList()[0]?.id == subject.id )
 							numEventGroups++
 					}
 
@@ -943,7 +968,7 @@ class SimpleWizardController extends StudyWizardController {
 					// If no id is given for the subject, it has been entered in this wizard, but
 					// not yet saved. In that case, it is always OK
 					if( sample.parentSubject && sample.parentSubject.id) {
-						if( !sample.parentEventGroup.subjects || sample.parentEventGroup.subjects[0]?.id != sample.parentSubject.id ) {
+						if( !sample.parentEventGroup.subjects || sample.parentEventGroup.subjects.toList()[0]?.id != sample.parentSubject.id ) {
 							flash.message = "The structure of the eventgroups of one or more samples is too complex"
 							simplicity = false;
 						}
@@ -952,7 +977,7 @@ class SimpleWizardController extends StudyWizardController {
 					// If no id is given for the sampling event, it has been entered in this wizard, but
 					// not yet saved. In that case, it is always OK
 					if( sample.parentEvent && sample.parentEvent.id) {
-						if( !sample.parentEventGroup.samplingEvents || sample.parentEventGroup.samplingEvents[0]?.id != sample.parentEvent.id ) {
+						if( !sample.parentEventGroup.samplingEvents || sample.parentEventGroup.samplingEvents.toList()[0]?.id != sample.parentEvent.id ) {
 							flash.message = "The structure of the eventgroups of one or more samples is too complex"
 							simplicity = false;
 						}

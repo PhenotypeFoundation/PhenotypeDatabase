@@ -8,7 +8,7 @@
 </head>
 <body>
 	<div class="simpleWizard">
-		<h1>Missing properties</h1>
+		<h1>Edit properties</h1>
 	
 		<g:if test="${error}">
 			<div class="errormessage">
@@ -26,7 +26,12 @@
 	
 		   	<span class="info"> 
 				<span class="title">Fill in missing properties</span>
-				A number of records could not be succesfully imported. Fields giving an error are indicated by a red color. Please correct them before continuing.
+				<g:if test="${imported.numInvalidEntities > 0}">
+					A number of records could not be succesfully imported. Fields giving an error are indicated by a red color. Please correct them before continuing.
+				</g:if>
+				<g:else>
+					The imported data is shown below. You can edit the data before continuing.
+				</g:else>
 				
 				<g:if test="${imported.errors}">
 					<br /><br />The following errors occurred:<br />

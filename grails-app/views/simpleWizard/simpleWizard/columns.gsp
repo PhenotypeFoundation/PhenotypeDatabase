@@ -87,6 +87,10 @@
 					</g:each>
 				</table>
 			</div>
+			
+			<p>
+				<input type="checkbox" name="editAfterwards" value="1" /> Edit data after importing
+			</p>
 		</g:form>
 			
 		<p class="options">
