@@ -416,7 +416,6 @@ class ImporterService {
 							// The format for date template fields is dd/mm/yyyy
 							def date = cell.getDateCellValue();
 							value = date.format( "dd/MM/yyyy" )
-							println "Date value: " + value + " - " + formatValue(df.formatCellValue(cell), mc.templatefieldtype);
 						} else {
 							value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
 						}
@@ -506,14 +505,12 @@ class ImporterService {
 						// results are given from the database. This prevents the user
 						// of changing data in another study
 						if( parent && parent.id ) {
-							println "Searching (with parent ) for " + entity.name + " with " + identifierField.name + " = " + identifier
 							return c.get {
 								eq( identifierField.name, identifier )
 								eq( "parent", parent )
 							}
 						}
 					} else  {
-						println "Searching (without parent ) for " + entity.name + " with " + identifierField.name + " = " + identifier
 						return c.get {
 							eq( identifierField.name, identifier )
 						}
