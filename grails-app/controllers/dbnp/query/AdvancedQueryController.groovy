@@ -578,15 +578,16 @@ class AdvancedQueryController {
 	protected List gscfActions(Search s, def selectedIds = null) {
 		switch(s.entity) {
 			case "Study":
-				def exportParams = [:]
+				def ids = []
 				s.filterResults(selectedIds).each {
-					exportParams[ it.code ] = it.id;
+					ids << it.id
 				}
+				
 				return [[
 						module: "gscf",
 						name:"simpletox",
 						description: "Export as SimpleTox",
-						url: createLink( controller: "exporter", action: "export", params: exportParams )
+						url: createLink( controller: "exporter", action: "export", params: [ 'ids' : ids ] )
 					]]
 			case "Sample":
 				return []

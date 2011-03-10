@@ -7,9 +7,6 @@
     <g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}" />
     <title>SimpleTox Exporter</title>
 
-    
-
-
 </head>
 <body>
 
@@ -40,7 +37,7 @@
           <g:each in="${studyInstanceList}" var="studyInstance" status="i" >
               <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
 
-                  <td><input type="checkbox" name="${studyInstance.code}" id="checked_studies"></td>
+                  <td><input type="checkbox" name="ids" value="${studyInstance.id}" id="${studyInstance.title}"</td>
 
                   <td><g:link controller="study" action="show" id="${studyInstance.id}">${fieldValue(bean: studyInstance, field: "code")}</g:link></td>
 	              <td>

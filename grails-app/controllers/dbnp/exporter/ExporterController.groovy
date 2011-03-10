@@ -49,20 +49,23 @@ class ExporterController {
     }
 
     def export = {
-
+		def ids = params.list( 'ids' );
         def studies = []
-        for ( j in dbnp.studycapturing.Study.list() ){
-            if (params.containsKey(j.code)){
-                studies.add(j)
-            }
-        }
+		
+		ids.each {
+			if( it.toString().isLong() ) {
+				def study = Study.get( Long.valueOf( it ) );
+				if( study )
+					studies << study
+			}
+		}
         
         if(studies.size()>1){
             // Create a ZIP file containing all the SimpleTox files
             def files = []
             for (studyInstance in studies){
                 downloadFile(studyInstance,false)
-                files.add(new File("web-app/fileuploads/"+studyInstance.code+"_SimpleTox.xls"))
+                files.add(new File("web-app/fileuploads/"+studyInstance.id+"_SimpleTox.xls"))
             }
 
             response.setContentType( "application/zip" ) ;
@@ -165,7 +168,7 @@ class ExporterController {
         // Make the file downlodable
         if(dl) {
             println "Creation for downloading the file "+studyInstance.title+"_SimpleTox.xls"
-            response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.code}_SimpleTox.xls\"")
+            response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.title}_SimpleTox.xls\"")
             response.setContentType("application/octet-stream")
             wb.write(response.outputStream)
             response.outputStream.close()
@@ -173,7 +176,7 @@ class ExporterController {
 
         // Create the file and save into ZIP
         if(!dl){
-            FileOutputStream fileOut = new FileOutputStream("web-app/fileuploads/"+studyInstance.code+"_SimpleTox.xls", true)
+            FileOutputStream fileOut = new FileOutputStream("web-app/fileuploads/"+studyInstance.id+"_SimpleTox.xls", true)
             wb.write(fileOut)
             fileOut.close()
         }
