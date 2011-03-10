@@ -56,59 +56,59 @@ class LoginController {
 		String view = 'auth'
 		String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
 		render view: view, model: [postUrl: postUrl,
-		                           rememberMeParameter: config.rememberMe.parameter]
+			rememberMeParameter: config.rememberMe.parameter]
 	}
 
-        /**
-         * Shows the login page for users from a module
-         */
-        def auth_remote = {
-            def consumer    = params.consumer
-            def token       = params.token
+	/**
+	 * Shows the login page for users from a module
+	 */
+	def auth_remote = {
+		def consumer = params.consumer
+		def token = params.token
 
-			if( consumer == null || token == null ) {
-				throw new Exception( "Consumer and Token must be given!" );
+		if (consumer == null || token == null) {
+			throw new Exception("Consumer and Token must be given!");
+		}
+
+		def returnUrl = params.returnUrl
+
+		// If the user is already authenticated with this session_id, redirect
+		// him
+		if (authenticationService.isRemotelyLoggedIn(consumer, token)) {
+			if (returnUrl) {
+				redirect url: returnUrl
+			} else {
+				redirect controller: 'home'
 			}
+		}
 
-            def returnUrl   = params.returnUrl
+		// If the user is already logged in locally, we log him in and
+		// immediately redirect him
+		if (authenticationService.isLoggedIn()) {
+			authenticationService.logInRemotely(consumer, token, authenticationService.getLoggedInUser())
 
-            // If the user is already authenticated with this session_id, redirect
-            // him
-            if( authenticationService.isRemotelyLoggedIn( consumer, token ) ) {
-                if( returnUrl ) {
-					redirect url: returnUrl
-                } else {
-                    redirect controller: 'home'
-                }
-            }
+			if (returnUrl) {
+				redirect url: returnUrl
+			} else {
+				redirect controller: 'home'
+			}
+		}
 
-            // If the user is already logged in locally, we log him in and
-            // immediately redirect him
-            if (authenticationService.isLoggedIn()) {
-				authenticationService.logInRemotely( consumer, token, authenticationService.getLoggedInUser() )
+		// Otherwise we show the login screen
+		def config = SpringSecurityUtils.securityConfig
+		String view = 'auth'
+		String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
+		String redirectUrl = g.createLink(controller: 'login', action: 'auth_remote', params: [consumer: params.consumer, token: params.token, returnUrl: params.returnUrl], absolute: true)
+		render view: view, model: [postUrl: postUrl,
+			rememberMeParameter: config.rememberMe.parameter, redirectUrl: redirectUrl]
+	}
 
-				if( returnUrl ) {
-                    redirect url: returnUrl
-                } else {
-                    redirect controller: 'home'
-                }
-            }
-
-            // Otherwise we show the login screen
-			def config = SpringSecurityUtils.securityConfig
-            String view = 'auth'
-            String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
-            String redirectUrl = g.createLink( controller: 'login', action: 'auth_remote', params: [ consumer: params.consumer, token: params.token, returnUrl: params.returnUrl ], absolute: true )
-            render view: view, model: [postUrl: postUrl,
-                                       rememberMeParameter: config.rememberMe.parameter, redirectUrl: redirectUrl ]
-        }
-        
 	/**
 	 * Show denied page.
 	 */
 	def denied = {
 		if (springSecurityService.isLoggedIn() &&
-				authenticationTrustResolver.isRememberMe(SCH.context?.authentication)) {
+			authenticationTrustResolver.isRememberMe(SCH.context?.authentication)) {
 			// have cookie but the page is guarded with IS_AUTHENTICATED_FULLY
 			redirect action: full, params: params
 		}
@@ -121,7 +121,7 @@ class LoginController {
 		def config = SpringSecurityUtils.securityConfig
 		render view: 'auth', params: params,
 			model: [hasCookie: authenticationTrustResolver.isRememberMe(SCH.context?.authentication),
-			        postUrl: "${request.contextPath}${config.apf.filterProcessesUrl}"]
+				postUrl: "${request.contextPath}${config.apf.filterProcessesUrl}"]
 	}
 
 	/**
