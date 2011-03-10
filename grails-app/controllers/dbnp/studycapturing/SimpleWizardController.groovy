@@ -716,14 +716,14 @@ class SimpleWizardController extends StudyWizardController {
 				if( entity ) {
 					// Determine entity class and add a parent. Add the entity to the study
 					def preferredIdentifier = importerService.givePreferredIdentifier( entity.class );
-					def equalClosure = { it.getFieldValue( preferredIdentifier.name ) == entity.getFieldValue( preferredIdentifier.name ) }
+					def equalClosure = { it.getIdentifier() == entity.getIdentifier() }
 					def entityName = entity.class.name[ entity.class.name.lastIndexOf( "." ) + 1 .. -1 ]
 
 					entity.parent = study
 					
 					switch( entity.class ) {
 						case Sample:
-							if( !preferredIdentifier || !study.samples?.find( equalClosure ) ) {
+							if( !study.samples?.find( equalClosure ) ) {
 								study.addToSamples( entity );
 							}
 							
@@ -742,22 +742,30 @@ class SimpleWizardController extends StudyWizardController {
 							
 							break;
 						case Subject:
-							// Subjects should have unique names; if the user has entered the same name multiple times,
-							// the subject will be renamed
-							def subjectFound = study.subjects?.find( equalClosure ) ;
-							if( preferredIdentifier && subjectFound ) {
-								def baseName = entity.getFieldValue( preferredIdentifier.name )
-								def counter = 1;
+							if( !study.samples?.find( equalClosure ) ) {
 								
-								while( study.subjects?.find { it.getFieldValue( preferredIdentifier.name ) == entity.getFieldValue( preferredIdentifier.name ) } ) {
-									entity.setFieldValue( preferredIdentifier.name, baseName + " (" + counter++ + ")" )
+								if( preferredIdentifier ) {
+									// Subjects without a name should just be called 'subject'
+									if( !entity.getFieldValue( preferredIdentifier.name ) )
+										entity.setFieldValue( preferredIdentifier.name, "Subject" );
+								
+									// Subjects should have unique names; if the user has entered the same name multiple times,
+									// the subject will be renamed
+									def baseName = entity.getFieldValue( preferredIdentifier.name )
+									def counter = 2;
+									
+									while( study.subjects?.find { it.getFieldValue( preferredIdentifier.name ) == entity.getFieldValue( preferredIdentifier.name ) } ) {
+										entity.setFieldValue( preferredIdentifier.name, baseName + " (" + counter++ + ")" )
+									}
 								}
+								
+								study.addToSubjects( entity );
+							
 							}
-							study.addToSubjects( entity );
 							
 							break;
 						case Event:
-							if( !preferredIdentifier || !study.events?.find( equalClosure ) ) {
+							if( !study.events?.find( equalClosure ) ) {
 								study.addToEvents( entity );
 							}
 							break;
@@ -768,7 +776,7 @@ class SimpleWizardController extends StudyWizardController {
 								entity.setFieldValue( 'sampleTemplate', flow.sampleForm.template.Sample.name )
 							} 
 						
-							if( !preferredIdentifier || !study.samplingEvents?.find( equalClosure ) ) {
+							if( !study.samplingEvents?.find( equalClosure ) ) {
 								study.addToSamplingEvents( entity );
 							}
 							break;

@@ -412,7 +412,14 @@ class ImporterService {
 				// Check if column must be imported
 				if (mc != null && !mc.dontimport && mc.entityclass == entity) {
 					try {
-						value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
+						if( cell.getCellType() == Cell.CELL_TYPE_NUMERIC && DateUtil.isCellDateFormatted(cell) ) {
+							// The format for date template fields is dd/mm/yyyy
+							def date = cell.getDateCellValue();
+							value = date.format( "dd/MM/yyyy" )
+							println "Date value: " + value + " - " + formatValue(df.formatCellValue(cell), mc.templatefieldtype);
+						} else {
+							value = formatValue(df.formatCellValue(cell), mc.templatefieldtype)
+						}
 					} catch (NumberFormatException nfe) {
 						value = ""
 					}
