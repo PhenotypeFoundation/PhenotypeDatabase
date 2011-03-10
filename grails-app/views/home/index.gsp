@@ -187,8 +187,16 @@
 			});
 			</g:if>
 </g:if>
-			$("#search_term").autocomplete({
+			var quickSearch = $("#search_term");
+			quickSearch.autocomplete({
+				minLength: 2,
+				delay: 300,
+				search: function(event, ui) {
+					quickSearch.css({ 'background': 'url(${resource(dir: 'images', file: 'spinner.gif')}) no-repeat left top' });
+				},
 				source: function(request, response) {
+					quickSearch.css({ 'background': 'none' });
+
 					$.ajax({
 						//url: "http://ws.geonames.org/searchJSON",
 						url: "${createLink(action:'ajaxQuickSearch')}",
