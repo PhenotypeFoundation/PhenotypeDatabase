@@ -636,9 +636,7 @@ class AdvancedQueryController {
 				}
 			} catch( Exception e ) {
 				// Exception is thrown when the call to the module fails. No problems though.
-				//log.error "Error while fetching possible actions from " + module.name + ": " + e.getMessage()
-				e.printStackTrace()
-				throw e
+				log.error "Error while fetching possible actions from " + module.name + ": " + e.getMessage()
 			}
 		}
 
