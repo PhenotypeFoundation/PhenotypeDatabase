@@ -14,6 +14,8 @@
  * $Date$
  */
 class BaseFilters {
+	def authenticationService
+
 	// define filters
 	def filters = {
 		defineStyle(controller: '*', action: '*') {
@@ -26,6 +28,26 @@ class BaseFilters {
 
 				// set session lifetime to 1 week
 				session.setMaxInactiveInterval(604800)
+			}
+		}
+
+		// we need secUser in GDT::Template*, but we do not want GDT
+		// to rely on authentication. Therefore we handle it through
+		// a filter and store the loggedInUser in the session instead
+		templateEditor(controller: 'templateEditor', action: '*') {
+			// before every execution
+			before = {
+				// set the secUser in the session
+				def secUser = authenticationService.getLoggedInUser()
+				if (secUser) {
+					session.loggedInUser = secUser
+				} else {
+					// remove session variable
+					session.removeAttribute('loggedInUser')
+
+					// and redirect to login page
+					redirect(controller: 'login', action: 'auth')
+				}
 			}
 		}
 		
