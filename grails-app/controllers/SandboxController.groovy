@@ -7,7 +7,8 @@ class SandboxController {
         def oauthService
 
 	def index = {
-
+		println Study.list();
+		
 		// Get the example study in a lazy way
 		def st = Study.get(1)
 		println st.title

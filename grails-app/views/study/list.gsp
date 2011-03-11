@@ -86,6 +86,7 @@
 		<div class="buttons">
 			<sec:ifLoggedIn>
 				<span class="button"><g:link class="create" controller="studyWizard" params="[jump:'create']"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
+				<span class="button"><g:link class="create" controller="simpleWizard">Simple wizard</g:link></span>
 				<span class="button"><a class="compare" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span>
 			</sec:ifLoggedIn>
 			

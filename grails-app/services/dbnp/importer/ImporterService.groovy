@@ -405,6 +405,9 @@ class ImporterService {
 			for( int i = excelRow.getFirstCellNum(); i < excelRow.getLastCellNum(); i++ ) {
 				Cell cell = excelRow.getCell( i );
 				
+				if( !cell )
+					continue;
+					
 				// get the MappingColumn information of the current cell
 				def mc = mcmap[cell.getColumnIndex()]
 				def value

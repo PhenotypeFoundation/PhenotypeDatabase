@@ -459,7 +459,7 @@ class Study extends TemplateEntity {
 				maxResults(max)
 				order("title", "asc")
 				
-			}
+			}.unique()
 		}
 
 		return c.list {
@@ -471,7 +471,7 @@ class Study extends TemplateEntity {
 					eq("id", user.id)
 				}
 			}
-		}
+		}.unique()
 	}
 
 	/**
@@ -490,13 +490,13 @@ class Study extends TemplateEntity {
 					eq("published", true)
 					eq("publicstudy", true)
 				}
-			}
+			}.unique()
 		} else if (user.hasAdminRights()) {
 			return c.list {
 				maxResults(max)
 				firstResult(offset)
 				order("title", "asc")
-			}
+			}.unique()
 		} else {
 			return c.list {
 				maxResults(max)
@@ -514,7 +514,7 @@ class Study extends TemplateEntity {
 						eq("published", true)
 					}
 				}
-			}
+			}.unique()
 		}
 	}
 

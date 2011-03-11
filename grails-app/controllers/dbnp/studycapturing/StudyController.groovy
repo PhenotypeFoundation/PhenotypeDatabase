@@ -27,7 +27,7 @@ class StudyController {
         def max = Math.min(params.max ? params.int('max') : 10, 100)
 		def offset = params.offset ? params.int( 'offset' ) : 0
         def studies = Study.giveReadableStudies( user, max, offset );
-
+		println "Studies: " + studies
         [studyInstanceList: studies, studyInstanceTotal: Study.countReadableStudies( user ), loggedInUser: user]
     }
 

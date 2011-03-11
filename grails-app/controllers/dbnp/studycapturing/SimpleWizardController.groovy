@@ -192,6 +192,10 @@ class SimpleWizardController extends StudyWizardController {
 		}
 		
 		missingFields {
+			on( "refresh" ) {
+				handleMissingFields( flow.study, params, flow );
+				success();
+			}.to "missingFields"
 			on( "next" ) {
 				if( !handleMissingFields( flow.study, params, flow ) ) {
 					return error();
