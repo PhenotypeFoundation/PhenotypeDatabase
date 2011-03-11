@@ -45,8 +45,10 @@ class BaseFilters {
 					// remove session variable
 					session.removeAttribute('loggedInUser')
 
+					def returnURI = request.requestURL.toString().replace(".dispatch","").replace("/grails/","/") + '?' + request.queryString
+
 					// and redirect to login page
-					redirect(controller: 'login', action: 'auth')
+					redirect(controller: 'login', action: 'auth', params: [returnURI: returnURI, referer: request.getHeader('referer')] )
 				}
 			}
 		}
