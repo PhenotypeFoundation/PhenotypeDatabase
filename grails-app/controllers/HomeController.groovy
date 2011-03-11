@@ -135,7 +135,7 @@ class HomeController {
 		}
 
 		// search templates
-		Template.createCriteria().list {
+		Template.createCriteria().listDistinct {
 			or {
 				ilike("name", "%${query}%")
 				ilike("description", "%${query}%")
@@ -153,6 +153,15 @@ class HomeController {
 
 		// set total
 		result.total = result.data.size()
+
+		// got results?
+		if (!result.total) {
+			result.data << [
+			    link	: '',
+				name	: "no results",
+				category: ""
+			]
+		}
 
 		// render result
 		if (params.callback) {

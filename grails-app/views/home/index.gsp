@@ -219,8 +219,14 @@
 				},
 				minLength: 2,
 				select: function(event, ui) {
-					// redirect
-					window.location = ui.item.value;
+					// redirect ?
+					if (ui.item.value) {
+						// hide, so the URL does not show in the input field
+						quickSearch.css( { 'display': 'none' } );
+
+						// and redirect
+						window.location = ui.item.value;
+					}
 				},
 				open: function() {
 					$(this).removeClass("ui-corner-all").addClass("ui-corner-top");
