@@ -455,14 +455,14 @@ class Study extends TemplateEntity {
 
 		// Administrators are allowed to read everything
 		if (user.hasAdminRights()) {
-			return c.list {
+			return c.listDistinct {
 				maxResults(max)
 				order("title", "asc")
 				
 			}.unique()
 		}
 
-		return c.list {
+		return c.listDistinct {
 			maxResults(max)
 			order("title", "asc")
 			or {
@@ -482,7 +482,7 @@ class Study extends TemplateEntity {
 
 		// Administrators are allowed to read everything
 		if (user == null) {
-			return c.list {
+			return c.listDistinct {
 				maxResults(max)
 				firstResult(offset)
 				order("title", "asc")
@@ -492,13 +492,13 @@ class Study extends TemplateEntity {
 				}
 			}.unique()
 		} else if (user.hasAdminRights()) {
-			return c.list {
+			return c.listDistinct {
 				maxResults(max)
 				firstResult(offset)
 				order("title", "asc")
 			}.unique()
 		} else {
-			return c.list {
+			return c.listDistinct {
 				maxResults(max)
 				firstResult(offset)
 				order("title", "asc")
@@ -528,7 +528,7 @@ class Study extends TemplateEntity {
 
 		if (user == null) {
 			// regular user
-			return c.list {
+			return c.listDistinct {
 				or {
 					ilike("title", "%${query}%")
 					ilike("description", "%${query}%")
@@ -540,14 +540,14 @@ class Study extends TemplateEntity {
 			}
 		} else if (user.hasAdminRights()) {
 			// admin can search everything
-			return c.list {
+			return c.listDistinct {
 				or {
 					ilike("title", "%${query}%")
 					ilike("description", "%${query}%")
 				}
 			}
 		} else {
-			return c.list {
+			return c.listDistinct {
 				or {
 					ilike("title", "%${query}%")
 					ilike("description", "%${query}%")
@@ -578,12 +578,12 @@ class Study extends TemplateEntity {
 	public static countPublicStudies() { return countPublicStudies(true) }
 	public static countPublicStudies(boolean published) {
 		def c = Study.createCriteria()
-		return c.count {
+		return (c.listDistinct {
 			and {
 				eq("published", published)
 				eq("publicstudy", true)
 			}
-		}
+		}).size()
 	}
 
 	/**
@@ -593,7 +593,7 @@ class Study extends TemplateEntity {
 	public static countPrivateStudies() { return countPrivateStudies(false) }
 	public static countPrivateStudies(boolean published) {
 		def c = Study.createCriteria()
-		return c.count {
+		return (c.listDistinct {
 			and {
 				eq("publicstudy", false)
 			}
@@ -601,7 +601,7 @@ class Study extends TemplateEntity {
 				eq("published", published)
 				eq("publicstudy", true)
 			}
-		}
+		}).size()
 	}
 
 	/**
@@ -622,7 +622,7 @@ class Study extends TemplateEntity {
 			// Administrators are allowed to read everything
 			return Study.count()
 		} else {
-			return c.count {
+			return (c.listDistinct {
 				or {
 					eq("owner", user)
 					writers {
@@ -635,7 +635,7 @@ class Study extends TemplateEntity {
 						eq("published", true)
 					}
 				}
-			}
+			}).size()
 		}
 	}
 
@@ -651,14 +651,14 @@ class Study extends TemplateEntity {
 		} else if (user.hasAdminRights()) {
 			return Study.count()
 		} else {
-			return c.count {
+			return (c.listDistinct {
 				or {
 					eq("owner", user)
 					writers {
 						eq("id", user.id)
 					}
 				}
-			}
+			}).size()
 		}
 	}
 
