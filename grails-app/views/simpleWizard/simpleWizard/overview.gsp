@@ -48,7 +48,7 @@
 				<div class="content">
 					<g:if test="${study.persons}">
 						<g:each var="contact" in="${study?.persons}">
-							${contact.person?.lastName + ", " + contact.person?.firstName} as ${contact.role.name}
+							${contact.person?.lastName + ", " + contact.person?.firstName} as ${contact.role.name}<br />
 						</g:each>
 					</g:if>
 					<g:else>
