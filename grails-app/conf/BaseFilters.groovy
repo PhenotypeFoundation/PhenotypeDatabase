@@ -13,6 +13,8 @@
  * $Author$
  * $Date$
  */
+import org.codehaus.groovy.grails.commons.GrailsApplication
+
 class BaseFilters {
 	def authenticationService
 
@@ -49,6 +51,18 @@ class BaseFilters {
 
 					// and redirect to login page
 					redirect(controller: 'login', action: 'auth', params: [returnURI: returnURI, referer: request.getHeader('referer')] )
+				}
+			}
+		}
+
+		// disable all access to the query controller as this allows
+		// full access to the database
+		query(controller: 'query', action: '*') {
+			// before every execution
+			before = {
+				// only allow development
+				if (grails.util.GrailsUtil.environment != GrailsApplication.ENV_DEVELOPMENT) {
+					redirect(controller: 'home')
 				}
 			}
 		}
