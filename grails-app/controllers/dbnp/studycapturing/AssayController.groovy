@@ -169,6 +169,7 @@ class AssayController {
     def compileExportData = {
 
         def fieldMap = flash.fieldMap
+        def assayId = flash.assayId
 
         def fieldMapSelection = [:]
 
@@ -212,12 +213,12 @@ class AssayController {
 
         }
 
-        Assay assay = Assay.get(flash.assayId)
+        Assay assay = Assay.get(assayId)
 
         // check if assay exists
         if (!assay) {
 
-            flash.errorMessage = flash.assayId ? "No assay found with id: ${flash.assayId}" : 'Assay has no value (null).'
+            flash.errorMessage = assayId ? "No assay found with id: ${assayId}" : 'Assay has no value (null).'
             redirect action: 'selectAssay'
             return
 
@@ -232,7 +233,6 @@ class AssayController {
             flash.rowData = rowData
 
             def assayDataPreview = rowData[0..4].collect{it[0..4]}
-
 
             [assayDataPreview: assayDataPreview]
 
