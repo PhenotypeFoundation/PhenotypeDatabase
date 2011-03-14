@@ -139,39 +139,7 @@ class AssayController {
      */
     def selectFields = {
         // receives an assay id
-        def assay = Assay.get(params.assayId)
-
-        // obtain fields for each category
-		def fieldMap
-        try {
-            fieldMap = assayService.collectAssayTemplateFields(assay)
-        } catch (Exception e) {
-			e.printStackTrace();
-            flash.errorMessage = e.message
-            redirect action: 'selectAssay'
-			return
-
-        }
-        def measurementTokens = fieldMap.remove('Module Measurement Data')
-
-        flash.fieldMap = fieldMap
-        flash.measurementTokens = measurementTokens
-        flash.assayId = params.assayId
-
-        [fieldMap: fieldMap, measurementTokens: measurementTokens.name]
-    }
-
-    /**
-     * Exports all assay information as an Excel file.
-     *
-     * @param params.id Assay id
-     */
-    def compileExportData = {
-
-        def fieldMap = flash.fieldMap
-        def assayId = flash.assayId
-
-        println assayId
+        def assayId = params.assayId
 
         // did the assay id value come across?
         if (!assayId) {
@@ -188,7 +156,59 @@ class AssayController {
             flash.errorMessage = "No assay found with id: ${assayId}"
             redirect action: 'selectAssay'
             return
+        }
 
+        // obtain fields for each category
+		def fieldMap
+        try {
+            fieldMap = assayService.collectAssayTemplateFields(assay)
+        } catch (Exception e) {
+			e.printStackTrace();
+            flash.errorMessage = e.message
+            redirect action: 'selectAssay'
+			return
+
+        }
+        def measurementTokens = fieldMap.remove('Module Measurement Data')
+
+        flash.fieldMap = fieldMap
+        flash.measurementTokens = measurementTokens
+        flash.assayId = assayId
+
+        // remove me
+        println flash
+
+        [fieldMap: fieldMap, measurementTokens: measurementTokens.name]
+    }
+
+    /**
+     * Exports all assay information as an Excel file.
+     *
+     * @param params.id Assay id
+     */
+    def compileExportData = {
+
+        def fieldMap = flash.fieldMap
+        def assayId = flash.assayId
+
+        // remove me
+        println flash
+
+        // did the assay id value come across?
+        if (!assayId) {
+            flash.errorMessage = "An error occurred: assayId = ${assayId}."
+            redirect action: 'selectAssay'
+            return
+        }
+
+        Assay assay = Assay.get(assayId)
+
+        // check if assay exists
+        if (!assay) {
+
+            flash.errorMessage = "No assay found with id: ${assayId}"
+            redirect action: 'selectAssay'
+            return
         }
 
         def fieldMapSelection = [:]
