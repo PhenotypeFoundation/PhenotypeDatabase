@@ -171,6 +171,26 @@ class AssayController {
         def fieldMap = flash.fieldMap
         def assayId = flash.assayId
 
+        println assayId
+
+        // did the assay id value come across?
+        if (!assayId) {
+            flash.errorMessage = "An error occurred: assayId = ${assayId}."
+            redirect action: 'selectAssay'
+            return
+        }
+
+        Assay assay = Assay.get(assayId)
+
+        // check if assay exists
+        if (!assay) {
+
+            flash.errorMessage = "No assay found with id: ${assayId}"
+            redirect action: 'selectAssay'
+            return
+
+        }
+
         def fieldMapSelection = [:]
 
         fieldMap.eachWithIndex { cat, cat_i ->
@@ -210,17 +230,6 @@ class AssayController {
             } else {
                 measurementTokensSelection = flash.measurementTokens
             }
-
-        }
-
-        Assay assay = Assay.get(assayId)
-
-        // check if assay exists
-        if (!assay) {
-
-            flash.errorMessage = assayId ? "No assay found with id: ${assayId}" : 'Assay has no value (null).'
-            redirect action: 'selectAssay'
-            return
 
         }
 
