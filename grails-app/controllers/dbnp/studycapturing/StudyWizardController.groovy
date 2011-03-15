@@ -405,6 +405,7 @@ class StudyWizardController {
 				// get template
 				def type	= params.get('eventType')
 				def template= Template.findByName( params.get( type + 'Template' ) )
+				if (template) template.refresh()
 
 				// change template and/or instance?
 				if (!flow.event || (flow.event instanceof Event && type == "sample") || (flow.event instanceof SamplingEvent && type == "event")) {
@@ -429,7 +430,9 @@ class StudyWizardController {
 				}
 
 				// refresh event template
-				if (flow.event?.template) flow.event.template.refresh()
+				if (flow.event?.template) {
+					flow.event.template.refresh()
+				}
 
 				// reset errors
 				flash.wizardErrors = [:]
