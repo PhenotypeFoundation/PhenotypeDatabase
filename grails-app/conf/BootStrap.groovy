@@ -28,8 +28,8 @@ class BootStrap {
 	def dataSource
 
 	def init = { servletContext ->
-		// grom what's happening
-		"bootstrapping application".grom()
+		// Grom a development message
+		if (String.metaClass.getMetaMethod("grom")) "bootstrapping application".grom()
 
 		// get configuration
 		def config = ConfigurationHolder.config
@@ -60,8 +60,8 @@ class BootStrap {
 		// probably run WITH sam. GSCF should be able to run independently
 		// from other modules. Part of gscf ticket #185
 		if (config.modules) {
-			// register SAM REST methods
-			"Registering SAM REST methods".grom()
+			// Grom a development message
+			if (String.metaClass.getMetaMethod("grom")) "Registering SAM REST methods".grom()
 			CommunicationManager.registerModule('gscf', config.grails.serverURL, config.modules)
 			CommunicationManager.registerRestWrapperMethodsFromSAM()
 		}
@@ -101,6 +101,7 @@ class BootStrap {
 	}
 
 	def destroy = {
-		"stopping application...".grom()
+		// Grom a development message
+		if (String.metaClass.getMetaMethod("grom")) "stopping application...".grom()
 	}
 } 

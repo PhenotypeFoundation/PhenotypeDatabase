@@ -46,7 +46,7 @@ class DatabaseUpgrade {
 		// check if we need to perform this upgrade
 		if (sql.firstRow("SELECT count(*) as total FROM template_field WHERE templatefieldentity='dbnp.studycapturing.Study' AND templatefieldname='Description'").total > 0) {
 			// grom that we are performing the upgrade
-			"performing database upgrade: study description".grom()
+			if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: study description".grom()
 
 			// database upgrade required
 			try {
@@ -95,7 +95,7 @@ class DatabaseUpgrade {
 			// check if column 'description' in table 'study' is not of type 'text'
 			if (sql.firstRow("SELECT count(*) as total FROM information_schema.columns WHERE columns.table_schema::text = 'public'::text AND columns.table_name='study' AND column_name='description' AND data_type != 'text'").total > 0) {
 				// grom that we are performing the upgrade
-				"performing database upgrade: study description to text".grom()
+				if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: study description to text".grom()
 
 				// database upgrade required
 				try {
@@ -120,7 +120,7 @@ class DatabaseUpgrade {
 			// check if any TEXT template fields are of type 'text'
 			sql.eachRow("SELECT columns.table_name as tablename FROM information_schema.columns WHERE columns.table_schema::text = 'public'::text AND column_name='template_text_fields_elt' AND data_type != 'text';")
 				{ row ->
-					"performing database upgrade: ${row.tablename} template_text_fields_string/elt to text".grom()
+					if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: ${row.tablename} template_text_fields_string/elt to text".grom()
 					try {
 						// change the datatype of text fields to text
 						sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_elt TYPE text", row.tablename))
@@ -146,7 +146,7 @@ class DatabaseUpgrade {
 		if ((db == "org.postgresql.Driver" || db == "com.mysql.jdbc.Driver") &&
 			(sql.firstRow("SELECT * FROM assay_module WHERE notify IS NULL") || sql.firstRow("SELECT * FROM assay_module WHERE open_in_frame IS NULL"))
 		) {
-			"performing database upgrade: assay_module default values for boolean fields".grom()
+			if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: assay_module default values for boolean fields".grom()
 
 			try {
 				sql.execute("UPDATE assay_module SET notify=" + ((db == "org.postgresql.Driver") ? 'FALSE' : '0') + " WHERE notify IS NULL")
@@ -174,7 +174,7 @@ class DatabaseUpgrade {
 		// are we running postgreSQL ?
 		if (db == "org.postgresql.Driver") {
 			if (sql.firstRow("SELECT * FROM pg_constraint WHERE contype='mapping_column_name_key'")) {
-				"performing database upgrade: mapping column name constraint".grom()
+				if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: mapping column name constraint".grom()
 				try {
 					// Check if constraint still exists
 					sql.execute("ALTER TABLE mapping_column DROP CONSTRAINT mapping_column_name_key")
@@ -195,7 +195,7 @@ class DatabaseUpgrade {
 		if (db == "org.postgresql.Driver") {
 			// do we need to perform this update?
 			if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='mapping_column' AND columns.column_name='value' AND is_nullable='NO'")) {
-				"performing database upgrade: making mapping_column::value nullable".grom()
+				if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: making mapping_column::value nullable".grom()
 
 				try {
 					sql.execute("ALTER TABLE mapping_column ALTER COLUMN value DROP NOT NULL")
@@ -219,7 +219,7 @@ class DatabaseUpgrade {
 		if (db == "org.postgresql.Driver") {
 			// see if table assay contains a column external_assayid
 			if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='assay' AND columns.column_name='external_assayid'")) {
-				"performing database upgrade: dropping column 'external_assayid' from table 'assay'".grom()
+				if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: dropping column 'external_assayid' from table 'assay'".grom()
 
 				try {
 					sql.execute("ALTER TABLE assay DROP COLUMN external_assayid")
@@ -232,7 +232,7 @@ class DatabaseUpgrade {
 
 			// see if table study contains a column code which is not nullable
 			if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='study' AND columns.column_name='code' AND is_nullable='NO'")) {
-				"performing database upgrade: dropping column 'code' from table 'study'".grom()
+				if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: dropping column 'code' from table 'study'".grom()
 
 				try {
 					sql.execute("ALTER TABLE study ALTER COLUMN code DROP NOT NULL")
@@ -244,10 +244,10 @@ class DatabaseUpgrade {
 
 			// Load all studies and save them again. This prevents errors on saving later
 			if (updated) {
-				"re-saving studies...".grom()
+				if (String.metaClass.getMetaMethod("grom")) "re-saving studies...".grom()
 
 				Study.list().each { study ->
-					"re-saving study: ${study}".grom()
+					if (String.metaClass.getMetaMethod("grom")) "re-saving study: ${study}".grom()
 					study.save()
 				}
 			}

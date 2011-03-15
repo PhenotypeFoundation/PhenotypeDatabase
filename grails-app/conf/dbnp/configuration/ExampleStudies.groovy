@@ -65,7 +65,8 @@ class ExampleStudies {
 	 * Add example studies. This function is meant to be called only in development mode
 	 */
 	public static void addExampleStudies(dbnp.authentication.SecUser owner, dbnp.authentication.SecUser otherUser) {
-		"inserting initial studies".grom()
+		// Grom a development message
+		if (String.metaClass.getMetaMethod("grom")) "inserting initial studies".grom()
 
 		// get configuration
 		def config = ConfigurationHolder.config

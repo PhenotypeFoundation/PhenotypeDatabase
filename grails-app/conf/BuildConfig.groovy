@@ -23,14 +23,14 @@ grails.project.dependency.resolution = {
     repositories {
         grailsPlugins()
         grailsHome()
-//        mavenRepo "http://nmcdsp.org:8080/nexus-webapp-1.7.2/content/repositories/releases/"
-        mavenRepo "http://nexus.nmcdsp.org/content/repositories/releases"
         grailsCentral()
 
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
         //mavenLocal()
-        //mavenCentral()
+		mavenCentral()
+		mavenRepo 'http://repository.jboss.org/maven2/'
+		mavenRepo "http://nexus.nmcdsp.org/content/repositories/releases"
         //mavenRepo "http://snapshots.repository.codehaus.org"
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
@@ -38,8 +38,8 @@ grails.project.dependency.resolution = {
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
         // runtime 'mysql:mysql-connector-java:5.1.5'
+		build 'org.codehaus.gpars:gpars:0.11'
     }
 }
 

@@ -22,7 +22,8 @@ class ExampleTemplates {
 	 * (e.g. in development or automated test environments)
 	 */
 	public static void initTemplateOntologies() {
-		"inserting initial ontologies".grom()
+		// Grom a development message
+		if (String.metaClass.getMetaMethod("grom")) "inserting initial ontologies".grom()
 
 		// If running in development or test mode, add ontologies manually to speed up development and allow running offline
 		if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT || grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) {
@@ -83,7 +84,8 @@ class ExampleTemplates {
 	 * Add example templates, this function would normally be called on an empty database
 	 */
 	public static void initTemplates() {
-		"inserting initial templates".grom()
+		// Grom a development message
+		if (String.metaClass.getMetaMethod("grom")) "inserting initial templates".grom()
 
 		def genderField = new TemplateField(
 			name: 'Gender',type: TemplateFieldType.STRINGLIST, entity: Subject,
