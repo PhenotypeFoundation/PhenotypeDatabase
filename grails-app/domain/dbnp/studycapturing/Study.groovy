@@ -268,13 +268,16 @@ class Study extends TemplateEntity {
 	 * @void
 	 */
 	void deleteEvent(Event event) {
-		// remove event from the study
-		this.removeFromEvents(event)
-
 		// remove event from eventGroups
 		this.eventGroups.each() { eventGroup ->
 			eventGroup.removeFromEvents(event)
 		}
+
+		// remove event from the study
+		this.removeFromEvents(event)
+
+		// and perform a hard delete
+		event.delete()
 	}
 
 	/**
