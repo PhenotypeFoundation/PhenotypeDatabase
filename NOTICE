@@ -8,10 +8,14 @@ This software is licensed under the Apache License 2.0.
 Open source components contained therein may have different (but generally compatible) licenses like Apache License 1.1.
 Also, we use a set of Silk Icons from www.famfamfam.com, which are licensed under the Creative Commons Attribution 2.5 License.
 
-If you find any bugs, please report them in the bugtracker at https://gforge.nbic.nl/tracker/?atid=270&group_id=53&func=browse.
-The feature request tracker is at https://gforge.nbic.nl/tracker/?group_id=53&atid=273.
+If you find any bugs or you have feature requests, please report them in the bugtracker at https://trac.nbic.nl/gscf/query .
 
-Project contact person: Kees van Bochove - mail to business <at> keesvanbochove.nl
-Project website: www.dbnp.org
-Demo website: demo.dbnp.org
-Project hosting, sources and trackers: https://gforge.nbic.nl/projects/gscf
+Project contact person	: Kees van Bochove - mail to business <at> keesvanbochove.nl
+Project website			: www.dbnp.org
+Demo website			: demo.dbnp.org
+Issues/Bugs/Sources		: https://trac.nbic.nl/gscf
+SVN repository			: https://trac.nbic.nl/svn/gscf
+Development Statistics	: http://stats.nmcdsp.org
+Plugins					: https://trac.nbic.nl/grails-plugins
+                  		  http://www.grails.org/plugin/ajaxflow
+                  		  http://www.grails.org/plugin/grom
