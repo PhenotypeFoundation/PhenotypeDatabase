@@ -12,6 +12,7 @@
 
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
+//
 grails.config.locations = [
 	// the default per-environment configuration
 	// (e.g. src/java/config-development.properties)
