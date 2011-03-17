@@ -26,7 +26,7 @@
 		</g:else>
 
 		You can now <g:link controller="study" action="show" id="${study.id}">view the study</g:link>,
-		<g:link controller="studyWizard" params="[jump:'edit']" id="${study.id}">edit the study</g:link>
+		<g:link controller="studyWizard" params="[jump:((session.jump?.action == 'simpleedit') ? 'simpleedit' : 'edit')]" id="${study.id}">edit the study</g:link>
 		<g:if test="${quickSave}"> again</g:if> or
 		<g:link controller="studyWizard" params="[jump:'create']">create a new study</g:link>.
 

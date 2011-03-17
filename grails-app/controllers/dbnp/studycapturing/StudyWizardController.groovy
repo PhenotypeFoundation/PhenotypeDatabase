@@ -49,6 +49,12 @@ class StudyWizardController {
 						id		: params.get('id')
 					]
 					break
+				case 'simpleedit':
+					jump = [
+					    action	: 'simpleedit',
+						id		: params.get('id')
+					]
+					break
 				default:
 					break
 			}
@@ -85,18 +91,26 @@ class StudyWizardController {
 			// wizard tabs. Also see common/_tabs.gsp for more information
 			// define flow variables
 			flow.page = 0
-			flow.pages = [
-				//[title: 'Templates'],			// templates
-				[title: 'Start'],				// load or create a study
-				[title: 'Subjects'],			// subjects
-				[title: 'Events'],				// events and event grouping
-				//[title: 'Event Groups'],		// groups
-				[title: 'Samples'],				// samples
-				[title: 'Assays'],				// assays
-				//[title: 'Assay Groups'],		// assays
-				[title: 'Confirmation'],		// confirmation page
-				[title: 'Done']					// finish page
-			]
+
+			if (session.jump && session.jump?.action == 'simpleedit') {
+				flow.pages = [
+				    [title: 'Start'],
+					[title: 'Done']
+				]
+			} else {
+				flow.pages = [
+					//[title: 'Templates'],			// templates
+					[title: 'Start'],				// load or create a study
+					[title: 'Subjects'],			// subjects
+					[title: 'Events'],				// events and event grouping
+					//[title: 'Event Groups'],		// groups
+					[title: 'Samples'],				// samples
+					[title: 'Assays'],				// assays
+					//[title: 'Assay Groups'],		// assays
+					[title: 'Confirmation'],		// confirmation page
+					[title: 'Done']					// finish page
+				]
+			}
 			flow.jump = session.jump
 
 			success()
@@ -131,7 +145,7 @@ class StudyWizardController {
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) "entering handleJump".grom()
 
-				if (flow.jump && flow.jump.action == 'edit') {
+				if (flow.jump && flow.jump.action =~ 'edit') {
 					if (flow.jump.id) {
 						// load study
 						if (this.loadStudy(flow, flash, [studyid:flow.jump.id],authenticationService.getLoggedInUser())) {
@@ -265,13 +279,13 @@ class StudyWizardController {
 			}.to "start"
 			on("next") {
 				studyPage(flow, flash, params) ? success() : error()
-			}.to "subjects"
+			}.to "studyNext"
 			on("quickSave") {
 				studyPage(flow, flash, params) ? success() : error()
 			}.to "save"
 			on("toPageTwo") {
 				studyPage(flow, flash, params) ? success() : error()
-			}.to "subjects"
+			}.to "studyNext"
 			on("toPageThree") {
 				studyPage(flow, flash, params) ? success() : error()
 			}.to "events"
@@ -287,6 +301,19 @@ class StudyWizardController {
 			on("toPageSeven") {
 				studyPage(flow, flash, params) ? success() : error()
 			}.to "save"
+		}
+
+		// handle the second tab click on the study page
+		studyNext {
+			action {
+				if (session.jump?.action == 'simpleedit') {
+					toSave()
+				} else {
+					toPageTwo()
+				}
+			}
+			on("toSave").to "save"
+			on("toPageTwo").to "subjects"
 		}
 
 		// render and handle subjects page
