@@ -127,9 +127,11 @@
 	
 	<br clear="all" />
 </div>
+<g:if test="${session.queries?.size()}">
 <p class="options">
 	<g:link class="listPrevious" action="list">Previous searches</g:link>
 </p>
+</g:if>
 <br  clear="all" />
 </body>
 </html>
