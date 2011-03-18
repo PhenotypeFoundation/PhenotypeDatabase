@@ -2,6 +2,7 @@ package generic.installation
 
 import grails.plugins.springsecurity.Secured
 import dbnp.authentication.SecUser
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 /**
  * ajaxflow Controller
@@ -52,6 +53,32 @@ class SetupController {
 			// Grom a development message
 			if (pluginManager.getGrailsPlugin('grom')) "entering the WebFlow".grom()
 
+			// get configuration
+			def config = ConfigurationHolder.config
+			println config.dump()
+			println config.dataSource.dump()
+
+			def configPath = new File("/etc/${meta(name: 'app.name')}/")
+			if (configPath.exists()) {
+				println "path exists"
+			} else {
+				println "path does not exist"
+			}
+
+			if (configPath.canWrite()) {
+				println "path is writable"
+			} else {
+				println "path is not writable"
+			}
+
+			def configFile = new File("/etc/${meta(name: 'app.name')}/${grails.util.GrailsUtil.environment}.properties")
+			if (configFile.exists()) {
+				println "file exists"
+			} else {
+				println "file does not exist"
+			}
+
+
 			// define variables in the flow scope which is availabe
 			// throughout the complete webflow also have a look at
 			// the Flow Scopes section on http://www.grails.org/WebFlow
@@ -59,15 +86,36 @@ class SetupController {
 			// The following flow scope variables are used to generate
 			// wizard tabs. Also see common/_tabs.gsp for more information
 			flow.page = 0
+			//flow.config = ConfigurationHolder.config
 			flow.pages = [
-				[title: 'Page One'],
-				[title: 'Page Two'],
+				[title: 'Configuration Location'],
+				[title: 'Database'],
 				[title: 'Page Three'],
 				[title: 'Page Four'],
 				[title: 'Done']
 			]
-			flow.cancel = true;
-			flow.quickSave = true;
+			flow.cancel = true
+			flow.quickSave = true
+
+			// define famfamfam icons
+			flow.icons = [
+			    'true'	: 'accept',
+				false	: 'cancel'
+			]
+
+			// add configuration information to the flow scope
+			flow.configInfo = [
+			    path			: configPath,
+				pathExists		: configPath.exists(),
+				pathCanRead		: configPath.canRead(),
+				pathCanWrite	: configPath.canWrite(),
+				pathSummary		: (configPath.exists() && configPath.canRead() && configPath.canWrite()),
+				file			: configFile,
+				fileExists		: configFile.exists(),
+				fileCanRead		: configFile.canRead(),
+				fileCanWrite	: configFile.canWrite(),
+				fileSummary		: (configFile.exists() && configFile.canRead() && configFile.canWrite())
+			]
 
 			success()
 		}
@@ -86,15 +134,15 @@ class SetupController {
 				flow.page = 1
 				success()
 			}
-			on("next").to "pageOne"
+			on("next").to "configuration"
 		}
 
 		// first wizard page
-		pageOne {
-			render(view: "_page_one")
+		configuration {
+			render(view: "_configuration_location")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_page_one.gsp".grom()
+				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_database.gsp".grom()
 
 				flow.page = 1
 				success()
@@ -115,11 +163,13 @@ class SetupController {
 				// put your bussiness logic (if applicable) in here
 				flow.page = 5
 			}.to "save"
+			on("toConfigurationPath").to "configurationPath"
+			on("toConfigurationFile").to "configurationFile"
 		}
 
 		// second wizard page
-		pageTwo {
-			render(view: "_page_two")
+		database {
+			render(view: "_database")
 			onRender {
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_page_two.gsp".grom()

@@ -20,7 +20,10 @@ grails.config.locations = [
 
 	// the external configuration to override the default
 	// configuration (e.g. ~/.grails-config/ci-gscf.properties)
-	"file:${userHome}/.grails-config/${grails.util.GrailsUtil.environment}-${appName}.properties"
+	"file:${userHome}/.grails-config/${grails.util.GrailsUtil.environment}-${appName}.properties",
+
+	// or in /etc/gscf/ (e.g. /etc/gscf/ci.properties)
+	"file:/etc/${appName}/${grails.util.GrailsUtil.environment}.properties"
 ]
 
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format

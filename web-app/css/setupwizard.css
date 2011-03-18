@@ -1,0 +1,48 @@
+.checklist {
+	display: inline-block;
+	background-color: #c5d6e8;
+}
+
+.checklist ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	float: left;
+	width: 100%;
+	border-bottom: 1px solid white;
+}
+
+.checklist .header {
+	background-color: #006cc0;
+	font-weight: bold;
+    color: #FFFFFF !important;
+    text-shadow: 0 0 1px #333333;
+}
+
+.checklist ul li {
+	float: left;
+	margin: 0;
+	padding: 0 15px 0 0;
+	position: relative;
+	width: 50px;
+	font: 12px normal Arial, Helvetica, sans-serif;
+	text-align: center;
+	height: 20px;
+	line-height: 20px;
+	padding-top:2px;
+}
+
+.checklist ul li img {
+	border: none;
+}
+
+.checklist ul .path {
+	width: 400px;
+	text-align: left;
+}
+
+.checklist ul .summary {
+	text-align: right;
+	padding-left: 50px;
+	width: auto;
+}
