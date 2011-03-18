@@ -48,7 +48,7 @@
 			<li><g:link controller="publication" action="create">Add publication</g:link></li>
 		</ul>
 	</li>
-	<li><g:link controller="advancedQuery">Query</g:link></li>
+	<li><g:link controller="advancedQuery">Search</g:link></li>
 	<sec:ifAllGranted roles="ROLE_ADMIN">
 		<li>
 			<a href="#"><img src="${fam.icon(name: 'user')}" alt="user administration"/></a>
@@ -59,9 +59,6 @@
 			</ul>
 		</li>
 	</sec:ifAllGranted>
-	<g:if env="development">
-		<li><g:link controller="query" action="index"><img src="${fam.icon(name: 'database_gear')}" alt="query database"/></g:link></li>
-	</g:if>
 	<g:if test="${session.pilot == true}">
 		<li><g:link controller="pilot" action="index">Pilot</g:link></li>
 	</g:if>	

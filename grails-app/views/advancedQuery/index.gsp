@@ -36,7 +36,7 @@
 </head>
 <body>
 
-<h1>Query database</h1>
+<h1>Search database</h1>
 
 <g:if test="${flash.error}">
 	<div class="errormessage">
