@@ -58,27 +58,6 @@ class SetupController {
 			println config.dump()
 			println config.dataSource.dump()
 
-			def configPath = new File("/etc/${meta(name: 'app.name')}/")
-			if (configPath.exists()) {
-				println "path exists"
-			} else {
-				println "path does not exist"
-			}
-
-			if (configPath.canWrite()) {
-				println "path is writable"
-			} else {
-				println "path is not writable"
-			}
-
-			def configFile = new File("/etc/${meta(name: 'app.name')}/${grails.util.GrailsUtil.environment}.properties")
-			if (configFile.exists()) {
-				println "file exists"
-			} else {
-				println "file does not exist"
-			}
-
-
 			// define variables in the flow scope which is availabe
 			// throughout the complete webflow also have a look at
 			// the Flow Scopes section on http://www.grails.org/WebFlow
@@ -99,22 +78,8 @@ class SetupController {
 
 			// define famfamfam icons
 			flow.icons = [
-			    'true'	: 'accept',
+			    true	: 'accept',
 				false	: 'cancel'
-			]
-
-			// add configuration information to the flow scope
-			flow.configInfo = [
-			    path			: configPath,
-				pathExists		: configPath.exists(),
-				pathCanRead		: configPath.canRead(),
-				pathCanWrite	: configPath.canWrite(),
-				pathSummary		: (configPath.exists() && configPath.canRead() && configPath.canWrite()),
-				file			: configFile,
-				fileExists		: configFile.exists(),
-				fileCanRead		: configFile.canRead(),
-				fileCanWrite	: configFile.canWrite(),
-				fileSummary		: (configFile.exists() && configFile.canRead() && configFile.canWrite())
 			]
 
 			success()
@@ -145,6 +110,25 @@ class SetupController {
 				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_database.gsp".grom()
 
 				flow.page = 1
+
+				// config
+				def configPath = new File("/etc/${meta(name: 'app.name')}/")
+				def configFile = new File("/etc/${meta(name: 'app.name')}/${grails.util.GrailsUtil.environment}.properties")
+
+				// add configuration information to the flow scope
+				flow.configInfo = [
+					path: configPath,
+					pathExists: configPath.exists(),
+					pathCanRead: configPath.canRead(),
+					pathCanWrite: configPath.canWrite(),
+					pathSummary: (configPath.exists() && configPath.canRead() && configPath.canWrite()),
+					file: configFile,
+					fileExists: configFile.exists(),
+					fileCanRead: configFile.canRead(),
+					fileCanWrite: configFile.canWrite(),
+					fileSummary: (configFile.exists() && configFile.canRead() && configFile.canWrite())
+				]
+
 				success()
 			}
 			on("next") {
