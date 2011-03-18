@@ -332,6 +332,12 @@ class StudyWizardController {
 				// remember the params in the flash scope
 				flash.values = params
 
+				// handle form data
+				subjectPage(flow, flash, params)
+
+				// reset errors
+				flash.wizardErrors = [:]
+
 				// refresh templates
 				if (flow.study.subjects) {
 					flow.study.giveSubjectTemplates().each() {
