@@ -1,3 +1,4 @@
+<% response.contentType = "text/javascript" %>
 <%@ page import="dbnp.studycapturing.EventGroup" %>
 <%@ page import="dbnp.studycapturing.Subject" %>
 /*
