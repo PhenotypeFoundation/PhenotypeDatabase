@@ -51,11 +51,11 @@
 	<li><g:link controller="advancedQuery">Search</g:link></li>
 	<sec:ifAllGranted roles="ROLE_ADMIN">
 		<li>
-			<a href="#"><img src="${fam.icon(name: 'user')}" alt="user administration"/></a>
+			<a href="#">Admin</a>
 			<ul class="subnav">
-				<li><g:link controller="user" class="icon icon_user">List Users</g:link></li>
-				<li><g:link controller="user" action="create" class="icon icon_user_add">Create User</g:link></li>
-				<li><g:link controller="logout" class="icon icon_cross">Sign out</g:link></li>
+				<li><g:link controller="user" class="icon icon_user"><img src="${fam.icon(name: 'user')}" alt="user administration"/> List Users</g:link></li>
+				<li><g:link controller="user" action="create" class="icon icon_user_add"><img src="${fam.icon(name: 'user')}" alt="user administration"/> Create User</g:link></li>
+				<li><g:link controller="assayModule" action="list" class="icon icon_user_add"><img src="${fam.icon(name: 'disconnect')}" alt="module administration"/> Manage Modules</g:link></li>
 			</ul>
 		</li>
 	</sec:ifAllGranted>
