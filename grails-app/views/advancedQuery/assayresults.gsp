@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<h1>Query results</h1>
+<h1>Search results</h1>
 
 <div class="searchoptions">
 	${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">assay</g:if><g:else>assays</g:else> found 

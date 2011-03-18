@@ -121,7 +121,7 @@
 
 		<h3><span class="nummer">3</span>Run query</h3>
 		<p>
-			<input type="submit" value="Run query" class="submitcriteria" />
+			<input type="submit" value="Search" class="submitcriteria" />
 		</p>
 	</g:form>
 	
