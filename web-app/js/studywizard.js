@@ -295,6 +295,10 @@ function fileUploadField(field_id) {
 				$('#' + field_id + 'Example').html('<span class="error">Error uploading ' + createFileHTML(file) + '</span>');
 				$('#' + field_id + 'Delete').hide();
 			} else {
+				// Sometimes, the response is returned with HTML tags. 
+				// It is unknown why this happens, but the tags are not needed.
+				response = response.replace(/<\/?[^>]+>/gi, '');
+
 				$('#' + field_id).val(response);
 				$('#' + field_id + 'Example').html('Uploaded ' + createFileHTML(file));
 				$('#' + field_id + 'Delete').show();

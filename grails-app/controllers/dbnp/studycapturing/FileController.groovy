@@ -79,7 +79,7 @@ class FileController {
 
         // Return data to the user
         if( newfilename ) {
-            render( newfilename );
+            render( text: newfilename, contentType: "text/plain" );
         } else {
             response.status = 500;
             render( "" );
