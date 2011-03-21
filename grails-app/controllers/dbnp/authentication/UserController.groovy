@@ -183,7 +183,7 @@ class UserController {
 			}
 		}
 
-		render text: jsonData as JSON, contentType: 'text/plain'
+		render text: jsonData as JSON, contentType: 'application/json'
 	}
 
 	protected void addRoles(user) {

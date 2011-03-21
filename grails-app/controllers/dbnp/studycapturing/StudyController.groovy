@@ -348,6 +348,10 @@ class StudyController {
 				
 			}
         }
+
+		// set output header to json
+		response.contentType = 'application/json'
+
         render json as JSON
     }
 
@@ -374,8 +378,11 @@ class StudyController {
      * Renders assay names and id's as JSON
      */
     def ajaxGetAssays = {
-
         def study = Study.read(params.id)
+
+		// set output header to json
+		response.contentType = 'application/json'
+
         render study?.assays?.collect{[name: it.name, id: it.id]} as JSON
     }
 

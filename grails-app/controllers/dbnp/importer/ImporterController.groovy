@@ -323,6 +323,9 @@ class ImporterController {
 		// fetch all templates for a specific entity
 		def templates = Template.findAllByEntity(gdtService.getInstanceByEntity(params.entity.decodeURL()))
 
+		// set output header to json
+		response.contentType = 'application/json'
+
 		// render as JSON
 		render templates as JSON
 	}

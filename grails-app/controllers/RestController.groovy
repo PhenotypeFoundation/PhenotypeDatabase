@@ -64,6 +64,10 @@ class RestController {
 	def isUser = {
 		boolean isUser = authenticationService.isRemotelyLoggedIn( params.consumer, params.token )
 		def reply = ['authenticated':isUser]
+
+		// set output header to json
+		response.contentType = 'application/json'
+
 		render reply as JSON
 	}
 
@@ -79,9 +83,12 @@ class RestController {
 	def getUser = {
 		SecUser user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 		def reply = [username: user.username, id: user.id]
+
+		// set output header to json
+		response.contentType = 'application/json'
+
 		render reply as JSON
 	}
-
 
 	/**
  	 * REST resource for data modules.
@@ -180,7 +187,10 @@ class RestController {
 			}
 		}
 
- 		render returnStudies as JSON 
+		// set output header to json
+		response.contentType = 'application/json'
+
+		render returnStudies as JSON
 	}
 
 	/**
@@ -226,6 +236,9 @@ class RestController {
 		versionInfo[ 'studyToken' ] = params.studyToken;
 		versionInfo[ 'version' ] = study.version;
 
+		// set output header to json
+		response.contentType = 'application/json'
+
 		render versionInfo as JSON
 	}
 
@@ -259,7 +272,11 @@ class RestController {
 				return false
 			}
 		}
-		render subjects as JSON 
+
+		// set output header to json
+		response.contentType = 'application/json'
+
+		render subjects as JSON
 	}
 
 
@@ -304,13 +321,15 @@ class RestController {
  	 * Result: Same as result in Example 1.
 	 */
 	def getAssays = {
+		// set output header to json
+		response.contentType = 'application/json'
 
 		List returnList = []    // return list of hashes each containing fields and values belonging to an assay 
 
 		// Check if required parameters are present 
 		def validCall = CommunicationManager.hasValidParams( params, "consumer", "studyToken" )
 		if( !validCall ) { 
-			render "Error. Wrong or insufficient parameters." as JSON 
+			render "Error. Wrong or insufficient parameters." as JSON
 			return
 		}
 
@@ -364,7 +383,7 @@ class RestController {
 			}
 
  		}
-		render returnList as JSON 
+		render returnList as JSON
 	}
 
 	/**
@@ -513,6 +532,9 @@ class RestController {
 			items.push item 
 		}
 
+		// set output header to json
+		response.contentType = 'application/json'
+
 		render items as JSON
 	}
 
@@ -539,11 +561,14 @@ class RestController {
 			def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token );
 			def auth = ['isOwner': study.isOwner(user), 'canRead': study.canRead(user), 'canWrite': study.canWrite(user)];
 			log.trace "Authorization for study " + study.title + " and user " + user.username + ": " + auth
+
+			// set output header to json
+			response.contentType = 'application/json'
+
 			render auth as JSON;
 		} else {
 			response.sendError(400)
 			return false
 		}
     }
-
 }

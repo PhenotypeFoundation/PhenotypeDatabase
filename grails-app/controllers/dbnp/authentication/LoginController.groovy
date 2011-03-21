@@ -154,6 +154,9 @@ println "authfail"
 		}
 
 		if (springSecurityService.isAjax(request)) {
+			// set output header to json
+			response.contentType = 'application/json'
+
 			render([error: msg] as JSON)
 		}
 		else {
@@ -166,7 +169,9 @@ println "authfail"
 	 * The Ajax success redirect url.
 	 */
 	def ajaxSuccess = {
-println "ajaxsuccess"
+		// set output header to json
+		response.contentType = 'application/json'
+
 		render([success: true, username: springSecurityService.authentication.name] as JSON)
 	}
 
@@ -174,7 +179,9 @@ println "ajaxsuccess"
 	 * The Ajax denied redirect url.
 	 */
 	def ajaxDenied = {
-println "ajaxdenied"
+		// set output header to json
+		response.contentType = 'application/json'
+
 		render([error: 'access denied'] as JSON)
 	}
 }
