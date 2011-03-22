@@ -134,7 +134,6 @@ grails.plugins.springsecurity.controllerAnnotations.staticRules = [
 // The directory should be writable by the webserver user
 if (GrailsUtil.Environment.current == Environment.TEST) {
     uploads.uploadDir = "webtestfiles"
-} else
-if (GrailsUtil.Environment.current == Environment.DEVELOPMENT) {
+} else {
     uploads.uploadDir = (new File("/tmp")?.canWrite()) ? "/tmp" : "fileuploads"    
 }
