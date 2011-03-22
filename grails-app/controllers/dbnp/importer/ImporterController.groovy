@@ -5,6 +5,9 @@ import org.dbnp.gdt.*
 import grails.converters.JSON
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import grails.plugins.springsecurity.Secured
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.GrailsUtil
+
 
 /**
  * Wizard Controller
@@ -122,16 +125,17 @@ class ImporterController {
 				// want that after a refresh of the first step in the import wizard, so remove
 				// that string
 				flash.importer_params.importfile = params.importfile.replace('existing*', '')
-                flash.importer_params.importfile = new XmlSlurper().parseText(flash.importer_params.importfile[flash.importer_params.importfile.indexOf('<pre')..-1]).toString()
+                //flash.importer_params.importfile = new XmlSlurper().parseText(flash.importer_params.importfile[flash.importer_params.importfile.indexOf('<pre')..-1]).toString()
 
 				success()
 			}.to "pageOne"
 
 			on("next") {
 				flash.wizardErrors = [:]
+
 				flash.importer_params = params
-				flash.importer_params.importfile = params.importfile.replace('existing*', '')
-                flash.importer_params.importfile = new XmlSlurper().parseText(flash.importer_params.importfile[flash.importer_params.importfile.indexOf('<pre')..-1]).toString()
+				flash.importer_params.importfile = params.importfile.replace('existing*', '')                
+                //flash.importer_params.importfile = new XmlSlurper().parseText(flash.importer_params.importfile[flash.importer_params.importfile.indexOf('<pre')..-1]).toString()
 
 				if (params.entity) {
 					flash.importer_datatemplates = Template.findAllByEntity(gdtService.getInstanceByEntity(params.entity.decodeURL()))
@@ -265,7 +269,7 @@ class ImporterController {
 				if (pluginManager.getGrailsPlugin('grom')) ".persisting instances to the database...".grom()
 
 				// Always delete the uploaded file in the save step to be sure it doesn't reside there anymore
-				fileService.delete(flow.importer_importedfile)
+				if (GrailsUtil.environment != "test") fileService.delete(flow.importer_importedfile)
 
 				// Save all entities
 				if (saveEntities(flow, params)) {
@@ -339,11 +343,11 @@ class ImporterController {
 	 * @param Map GrailsParameterMap (the flow parameters = form data)
 	 * @returns boolean true if correctly validated, otherwise false
 	 */
-	boolean fileImportPage(flow, flash, params) {
+	boolean fileImportPage(flow, flash, params) {        
 		def importedfile = fileService.get(params['importfile'])
 		flow.importer_importedfile = params['importfile']
-
-		if (importedfile.exists()) {
+        
+        if (importedfile.exists()) {
 			try {
 				session.importer_workbook = importerService.getWorkbook(new FileInputStream(importedfile))
 			} catch (Exception e) {

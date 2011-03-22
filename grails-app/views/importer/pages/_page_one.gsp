@@ -21,8 +21,14 @@
 	    <td width="100px">
 		Choose your Excel file to import:
 	    </td>
-	    <td width="100px">
-		<af:fileFieldElement name="importfile" value="${importer_params?.importfile}"/>
+	    <td width="100px">		
+        <g:if env="test">
+          <input type="hidden" name="importfile" value="NTC_Experiment_test4.xls"/>
+        </g:if>
+        <g:elseif env="development">
+          <af:fileFieldElement name="importfile" value="${importer_params?.importfile}"/>
+        </g:elseif>
+
 	    </td>
 	</tr>
 	<tr>
