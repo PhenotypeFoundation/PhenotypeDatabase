@@ -35,6 +35,7 @@ class DatabaseUpgrade {
 		dropMappingColumnNameConstraint(sql, db)	// r1525
 		makeMappingColumnValueNullable(sql, db)		// r1525
 		alterStudyAndAssay(sql, db)					// r1594
+		fixDateCreatedAndLastUpdated(sql, db)
 	}
 
 	/**
@@ -249,6 +250,34 @@ class DatabaseUpgrade {
 				Study.list().each { study ->
 					if (String.metaClass.getMetaMethod("grom")) "re-saving study: ${study}".grom()
 					study.save()
+				}
+			}
+		}
+	}
+
+	/**
+	 * make sure all date_created and last_updated columns are NOT nullable, and
+	 * set values to now() of they are null
+	 * @param sql
+	 * @param db
+	 */
+	public static void fixDateCreatedAndLastUpdated(sql, db) {
+		// are we running PostgreSQL?
+		if (db == "org.postgresql.Driver") {
+			// see if we need to modify anything?
+			sql.eachRow("SELECT table_name,column_name FROM information_schema.columns WHERE column_name IN ('last_updated', 'date_created') AND is_nullable='YES'") { row ->
+				// grom what we are doing
+				if (String.metaClass.getMetaMethod("grom")) "fixing nullable for ${row.table_name}:${row.column_name}".grom()
+
+				// fix database
+				try {
+					// setting all null values to now()
+					sql.execute(sprintf("UPDATE %s SET %s=now() WHERE %s IS NULL",row.table_name,row.column_name,row.column_name))
+
+					// and alter the table to disallow null values
+					sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN %s SET NOT NULL",row.table_name,row.column_name))
+				} catch (Exception e) {
+					println "fixDateCreatedAndLastUpdated database upgrade failed: " + e.getMessage()
 				}
 			}
 		}
