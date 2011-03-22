@@ -122,6 +122,7 @@ class ImporterController {
 				// want that after a refresh of the first step in the import wizard, so remove
 				// that string
 				flash.importer_params.importfile = params.importfile.replace('existing*', '')
+                flash.importer_params.importfile = new XmlSlurper().parseText(flash.importer_params.importfile[flash.importer_params.importfile.indexOf('<pre')..-1]).toString()
 
 				success()
 			}.to "pageOne"
@@ -130,6 +131,7 @@ class ImporterController {
 				flash.wizardErrors = [:]
 				flash.importer_params = params
 				flash.importer_params.importfile = params.importfile.replace('existing*', '')
+                flash.importer_params.importfile = new XmlSlurper().parseText(flash.importer_params.importfile[flash.importer_params.importfile.indexOf('<pre')..-1]).toString()
 
 				if (params.entity) {
 					flash.importer_datatemplates = Template.findAllByEntity(gdtService.getInstanceByEntity(params.entity.decodeURL()))
