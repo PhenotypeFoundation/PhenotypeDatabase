@@ -733,4 +733,4 @@ class Study extends TemplateEntity {
             moduleNotificationService.invalidateStudy( this )
         }
 	}
-}
+    }

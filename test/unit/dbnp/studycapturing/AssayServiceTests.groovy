@@ -132,7 +132,7 @@ class AssayServiceTests extends GrailsUnitTestCase {
             readData[ri] = []
 
             row.eachWithIndex { cell, ci ->
-
+                // TODO: what happens when there are empty cells
                 readData[ri][ci] = (cell.cellType == Cell.CELL_TYPE_NUMERIC) ? cell.numericCellValue : cell.stringCellValue
 
             }

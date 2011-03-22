@@ -53,7 +53,7 @@
       </g:each>
 
       <assayExporter:categorySelector category="Measurements" ref="cat_${catNum}"/>
-      <g:select name="measurementToken" id="measurementToken" from="${measurementTokens}" class="field" multiple="true"/>
+      <g:select name="measurementToken" id="measurementToken" from="${measurementTokens}" value="${measurementTokens}" class="field" multiple="true" />
       <br /><br />
       <g:submitButton name="submit" value="Submit"/>
 

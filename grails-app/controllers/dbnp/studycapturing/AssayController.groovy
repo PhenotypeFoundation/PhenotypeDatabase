@@ -176,7 +176,9 @@ class AssayController {
         flash.assayId = assayId
 
         // remove me
+        println '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'
         println flash
+        println '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'
 
         [fieldMap: fieldMap, measurementTokens: measurementTokens.name]
     }
@@ -192,7 +194,9 @@ class AssayController {
         def assayId = flash.assayId
 
         // remove me
+        println '##############################################################'
         println flash
+        println '##############################################################'
 
         // did the assay id value come across?
         if (!assayId) {
@@ -247,8 +251,6 @@ class AssayController {
                 else
                     measurementTokensSelection = measurementToken.collect{[name: it]}
 
-            } else {
-                measurementTokensSelection = flash.measurementTokens
             }
 
         }

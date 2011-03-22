@@ -1279,7 +1279,7 @@ class StudyWizardController {
 		handleStudyUsers( flow.study, params, type );
 	}
 	
-	/**
+    /**
 	* re-usable code for handling publications form data
 	* @param study	Study object to update
 	* @param params GrailsParameterMap (the flow parameters = form data)
