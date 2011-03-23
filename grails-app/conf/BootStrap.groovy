@@ -6,9 +6,7 @@ import dbnp.studycapturing.Study
 import dbnp.studycapturing.Subject
 import dbnp.studycapturing.Sample
 import dbnp.rest.common.CommunicationManager
-import org.codehaus.groovy.grails.commons.*
 import dbnp.configuration.*
-
 
 /**
  * Application Bootstrapper
@@ -27,25 +25,37 @@ class BootStrap {
 	// inject the datasource
 	def dataSource
 
+	// inject the grails application
+	def grailsApplication
+
 	def init = { servletContext ->
 		// Grom a development message
 		if (String.metaClass.getMetaMethod("grom")) "bootstrapping application".grom()
 
 		// get configuration
-		def config = ConfigurationHolder.config
+		def config = grailsApplication.config
 
 		// set the mail configuration properties in runtime, as
 		// this is not definable in a .properties file due to the
 		// fact for the mail properties a map is used
 		if (config.grails.mail.username && config.grails.mail.password) {
-			// use TLS
-			config.grails.mail.port	= 465
-			config.grails.mail.props= [
-				"mail.smtp.auth": "true",
-				"mail.smtp.socketFactory.port": '465',
-				"mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-				"mail.smtp.socketFactory.fallback": "false"
-			]
+			if (config.grails.mail.host =~ 'live.com') {
+				// use microsoft hotmail
+				config.grails.mail.port = 587
+				config.grails.mail.props = [
+					"mail.smtp.starttls.enable"	: "true",
+					"mail.smtp.port"			: "587"
+				]
+			} else {
+				// assume gmail
+				config.grails.mail.port	= 465
+				config.grails.mail.props= [
+					"mail.smtp.auth"					: "true",
+					"mail.smtp.socketFactory.port"		: '465',
+					"mail.smtp.socketFactory.class"		: "javax.net.ssl.SSLSocketFactory",
+					"mail.smtp.socketFactory.fallback"	: "false"
+				]
+			}
 		}
 
 		// define timezone
