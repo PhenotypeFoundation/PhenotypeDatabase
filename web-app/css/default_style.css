@@ -177,16 +177,6 @@ html ul.topnav li ul.subnav li a:hover {
 	text-decoration: none;
 }
 
-#content p img {
-	display: run-in;
-	float: right;
-	padding: 2px;
-	border: 1px solid #006dba;
-	margin-left: 10px;
-	margin-bottom: 10px;
-	height: 120px;
-}
-
 #content .message {
 	border: 1px solid #ccc; /* #006dba; */
 	margin-bottom: 10px;

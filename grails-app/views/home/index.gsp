@@ -314,7 +314,21 @@
 <div style="clear:both;display:block;">
 	<div style="margin:2px;width:476px;display:inline-block;float:left;zoom:1;*display:inline;">
 		<h1>Introduction</h1>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut tincidunt auctor suscipit. Nam ultricies condimentum pulvinar. In magna orci, eleifend sit amet tincidunt eget, ultricies a justo. Vestibulum purus lorem, laoreet sit amet rutrum et, sollicitudin eget augue. Nulla consequat, mauris eget ornare fringilla, arcu enim mattis odio, rhoncus rutrum ante turpis vitae nulla. Sed et turpis vel urna venenatis sagittis. Sed sagittis vestibulum felis, vel ultricies tellus dictum ac. Nunc non massa et ligula gravida rutrum. Fusce porttitor, eros ac dictum suscipit, risus lacus aliquam justo, ut lobortis erat nulla sit amet risus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fermentum ultricies ipsum, at consequat elit pharetra auctor.
+		<p>
+			The phenotype database (dbNP) is an application that can store any biological study. It contains
+			templates which makes it possible to customize
+		</p>
+		<p>
+			In order to allow flexibility to capture all information you require within a study, <i>and</i> to
+			make it possible to compare studies or study data, the system uses customizable templates and ontologies.
+			It is especially designed to store complex study designs including cross-over designs and challenges.
+		</p>
+		<p>
+			The application facilitates sharing of data within a research group or consortium, as the study owner can
+			decide who can view or access the data. In addition, the application can stimulate collaborations by making
+			study information publically visible. New studies can be based on study data within the database, as
+			standardized storage is stimulated by the system.
+		</p>
 	</div>
 	<div style="margin:2px;width:476px;display:inline-block;float:left;zoom:1;*display:inline;">
 		<h1>Quicksearch</h1>
@@ -328,8 +342,17 @@
 				<span style="font-style:italic;color:#aaa;font-size:10px;">more advanced searches can be performed <g:link controller="advancedQuery">here</g:link>...</span>
 			</div>
 			</g:form>
-			<h1>Lorem ipsum 2</h1>
-			Vivamus varius ullamcorper neque, sit amet mollis lacus accumsan vel. Pellentesque in augue a arcu pretium egestas vel at elit. Duis nunc odio, mollis et faucibus vel, aliquam vel quam. Sed laoreet pharetra urna, venenatis porttitor neque sagittis et. Aenean at nisl nunc, in mattis mauris. Proin iaculis nunc in erat rhoncus consectetur. Nullam sit amet risus vitae eros condimentum pellentesque.
+			<h1>Quick Start</h1>
+			<p>
+				Through the <i>studies</i> menu you can either <i>create</i>, <i>view</i> or <i>import</i> studies (or
+				or study data). '<i>Create a new study</i>' will guide you through several steps to include your study
+				into the system where question marks (<img src="${fam.icon(name: 'help')}">) will explain what information is
+				required. You can (quick)save your study to complete it at another point in time, or use
+				<i>import study data</i> to import large datasets (for example: many subjects) from an excel sheet
+				into your study. Several data-types of different platforms (assays) can
+				be linked to your study, like <i>simple assays</i> (e.g. clinical chemistry or Western blot)
+				or <i>metabolomics</i>.
+			</p>
 		</div>
 	</div>
 </div>
