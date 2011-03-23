@@ -1219,9 +1219,7 @@ class StudyWizardController {
 		handleUsers(flow, flash, params, 'writers')
 
 		// handle public checkbox
-		if (params.get("publicstudy")) {
-			flow.study.publicstudy = params.get("publicstudy")
-		}
+		flow.study.publicstudy = (params.get("publicstudy") && params.get("publicstudy") == "on") ? true : false
 
 		// have we got a template?
 		if (flow.study.template && flow.study.template instanceof Template) {
