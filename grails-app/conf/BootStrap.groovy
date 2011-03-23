@@ -35,29 +35,6 @@ class BootStrap {
 		// get configuration
 		def config = grailsApplication.config
 
-		// set the mail configuration properties in runtime, as
-		// this is not definable in a .properties file due to the
-		// fact for the mail properties a map is used
-		if (config.grails.mail.username && config.grails.mail.password) {
-			if (config.grails.mail.host =~ 'live.com') {
-				// use microsoft hotmail
-				config.grails.mail.port = 587
-				config.grails.mail.props = [
-					"mail.smtp.starttls.enable"	: "true",
-					"mail.smtp.port"			: "587"
-				]
-			} else {
-				// assume gmail
-				config.grails.mail.port	= 465
-				config.grails.mail.props= [
-					"mail.smtp.auth"					: "true",
-					"mail.smtp.socketFactory.port"		: '465',
-					"mail.smtp.socketFactory.class"		: "javax.net.ssl.SSLSocketFactory",
-					"mail.smtp.socketFactory.fallback"	: "false"
-				]
-			}
-		}
-
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
