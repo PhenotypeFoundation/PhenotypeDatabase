@@ -312,7 +312,7 @@
 <body>
 
 <div style="clear:both;display:block;">
-	<div style="margin:2px;width:476px;display:inline-block;float:left;zoom:1;*display:inline;">
+	<div style="margin-right:8px;width:472px;display:inline-block;float:left;zoom:1;*display:inline;">
 		<h1>Introduction</h1>
 		<p>
 			The phenotype database (dbNP) is an application that can store any biological study. It contains
@@ -330,7 +330,7 @@
 			standardized storage is stimulated by the system.
 		</p>
 	</div>
-	<div style="margin:2px;width:476px;display:inline-block;float:left;zoom:1;*display:inline;">
+	<div style="margin-left:8px;width:472px;display:inline-block;float:left;zoom:1;*display:inline;">
 		<h1>Quicksearch</h1>
 		<div id="simpleQuery" class="simplequery">
 		<g:form action="pages" name="simpleQueryForm" id="simpleQueryForm">
