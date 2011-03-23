@@ -344,8 +344,8 @@
 			</g:form>
 			<h1>Quick Start</h1>
 			<p>
-				Through the <i>studies</i> menu you can either <i>create</i>, <i>view</i> or <i>import</i> studies (or
-				or study data). '<i>Create a new study</i>' will guide you through several steps to include your study
+				Through the <i>studies</i> menu you can either <i>create</i>, <i>view</i> or <i>import</i> studies
+				(or study data). '<g:link controller="studyWizard" action="index" params="[jump:'create']">Create a new study</g:link>' will guide you through several steps to include your study
 				into the system where question marks (<img src="${fam.icon(name: 'help')}">) will explain what information is
 				required. You can (quick)save your study to complete it at another point in time, or use
 				<i>import study data</i> to import large datasets (for example: many subjects) from an excel sheet
