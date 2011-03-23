@@ -39,7 +39,6 @@
 						Choose your Excel file to import:
 				    </td>
 				    <td width="100px">
-				    	${sampleForm?.importFile}
 						<af:fileField name="importfile" value="${sampleForm?.importFile}"/>
 				    </td>
 					</tr>

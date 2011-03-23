@@ -56,6 +56,7 @@ function submitForm( form, url ) {
 	form.attr( 'action', baseUrl + url );
 	form.submit();
 }
+
 function performAction( form, action, module ) {
 	// Make sure the data from the paginated table is submitted
 	// This is performed with javascript, because otherwise
