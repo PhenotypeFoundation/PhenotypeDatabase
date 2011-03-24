@@ -2006,16 +2006,21 @@ class StudyWizardController {
 
 		def url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
 		def util = params.remove( "_utility" )
+		
+		if( !util ) { 
+			response.setStatus( 404, "File not found" );
+			return;
+		}
+	
 		def paramString = params.collect { k, v -> k + '=' + v.encodeAsURL() }.join( '&' );
 
 		def fullUrl = url + '/' + util + '?' + paramString;
 
 		// Return the output of the request
-		// render fullUrl;
-		render(
-                    text:           new URL( fullUrl ).getText(),
-                    contentType:    "text/xml",
-                    encoding:       "UTF-8"
-                );
+		response.contentType = "text/xml"
+		response.characterEncoding = "UTF-8"
+		response <<  new URL( fullUrl ).openStream()
+		
+		render ""
 	}
 }

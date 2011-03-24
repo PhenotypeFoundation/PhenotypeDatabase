@@ -110,6 +110,7 @@ grails.plugins.springsecurity.securityConfigType = grails.plugins.springsecurity
 grails.plugins.springsecurity.successHandler.targetUrlParameter = 'spring-security-redirect'
 
 // Needed for the (copy of) the Spring Security UI plugin
+grails.mail.default.from = 'gscf@dbnp.org'
 grails.plugins.springsecurity.ui.forgotPassword.emailFrom = 'gscf@dbnp.org'
 grails.plugins.springsecurity.ui.forgotPassword.emailSubject = 'Password reset GSCF'
 
