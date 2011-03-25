@@ -56,7 +56,7 @@
 							{ name: 'Private', y: ${privateStudyCount}, color: '#AA4643' }
 						],
 						dataLabels: {
-							enabled: <sec:ifLoggedIn>false</sec:ifLoggedIn><sec:ifNotLoggedIn>true</sec:ifNotLoggedIn>,
+							enabled: <sec:ifLoggedIn>false</sec:ifLoggedIn><sec:ifNotLoggedIn>true</sec:ifNotLoggedIn>
 						}
 					},
 					{
