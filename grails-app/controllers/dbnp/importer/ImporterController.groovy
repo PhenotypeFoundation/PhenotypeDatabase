@@ -107,7 +107,9 @@ class ImporterController {
 				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_page_one.gsp".grom()
 
 				flow.page = 1
-				flow.studies = Study.findAllWhere(owner: authenticationService.getLoggedInUser())
+				flow.studies = Study.findAllByOwner(authenticationService.getLoggedInUser(), [sort:"code", order:"asc"]).each {
+                    it.code = (it.code == null) ? "[no code]" : it.code
+                }
 				flow.importer_fuzzymatching = "false"
 
 				success()
