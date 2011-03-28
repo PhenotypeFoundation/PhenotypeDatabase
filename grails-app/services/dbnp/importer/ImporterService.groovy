@@ -269,6 +269,7 @@ class ImporterService {
 		def sheet = wb.getSheetAt(sheetindex)
 		def table = []
 		def failedcells = [] // list of cells that have failed to import
+		
 		// First check for each record whether an entity in the database should be updated,
 		// or a new entity should be added. This is done before any new object is created, since
 		// searching after new objects have been created (but not yet saved) will result in
@@ -626,11 +627,13 @@ class ImporterService {
 			if( samplingEvent ) sample.parentEvent = samplingEvent;
 			if( event ) {
 				def evGroup = new EventGroup();
+
+				sample.parentEventGroup = evGroup;
 				evGroup.addToEvents( event );
+				
 				if( subject ) evGroup.addToSubjects( subject );
 				if( samplingEvent ) evGroup.addToSamplingEvents( samplingEvent );
 
-				sample.parentEventGroup = evGroup;
 			}
 
 			if( assay ) assay.addToSamples( sample );
