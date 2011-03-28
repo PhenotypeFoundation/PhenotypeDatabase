@@ -25,9 +25,9 @@
         <g:if env="test">
           <input type="hidden" name="importfile" value="NTC_Experiment_test4.xls"/>
         </g:if>
-        <g:elseif env="development">
+        <g:else>
           <af:fileFieldElement name="importfile" value="${importer_params?.importfile}"/>
-        </g:elseif>
+        </g:else>
 
 	    </td>
 	</tr>
