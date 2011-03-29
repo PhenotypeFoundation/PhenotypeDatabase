@@ -179,9 +179,11 @@ class PublicationController {
             }
 
             // Return the ID
+			response.contentType = "text/plain"
             render publication.id;
         } else {
             response.status = 500;
+			response.contentType = "text/plain"
             render "No pubMedID found in request";
         }
     }
