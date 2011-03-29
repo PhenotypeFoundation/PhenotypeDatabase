@@ -329,10 +329,13 @@ function createFileHTML(filename) {
  */
 function addPublication(element_id) {
 	/* Find publication ID and add to form */
+	alert( "Sending: " + $("#" + element_id + "_form").serialize() );
 	jQuery.ajax({
 		type:"GET",
 		url: baseUrl + "/publication/getID?" + $("#" + element_id + "_form").serialize(),
 		success: function(data, textStatus) {
+			alert( data );
+			
 			var id = parseInt(data);
 
 			// Put the ID in the array, but only if it does not yet exist
