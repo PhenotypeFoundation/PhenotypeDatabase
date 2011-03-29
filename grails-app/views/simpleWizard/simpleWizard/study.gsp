@@ -7,7 +7,7 @@
 	<g:render template="javascripts" />
 </head>
 <body>
-	<div class="simpleWizard">
+	<div class="simpleWizard studypage">
 		<h1>Study</h1>
 		
 		<g:if test="${flash.error}">
@@ -81,6 +81,13 @@
 			</af:templateElement>
 		
 			<g:if test="${study}">
+				<g:if test="${study.template?.description}">
+					<div class="element">
+						<div class="templatedescription">
+							${study.template?.description?.encodeAsHTML()}
+						</div>
+					</div>
+				</g:if>
 				<af:templateElements ignore="published" entity="${study}" />
 			</g:if>
 		

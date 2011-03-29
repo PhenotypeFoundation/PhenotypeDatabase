@@ -57,6 +57,18 @@ function markFailedField( cellname, cellvalue ) {
 	// Also try to handle the field if it is a textbox
 	element = $("input[name=" + cellname + "]");
 	element.addClass('error')
+}
+
+/**
+ * Shows the description of a selected template in a div. The div is hidden if no description is given
+ */
+function showTemplateDescription( id, description ) {
+	var el = $( '#' + id );
 	
-	
+	if( !description || description == "" ) {
+		el.hide();
+	} else {
+		el.text( description );
+		el.show();
+	}
 }

@@ -7,7 +7,7 @@
 	<g:render template="javascripts" />
 </head>
 <body>
-	<div class="simpleWizard">
+	<div class="simpleWizard assayspage">
 		<h1>Assay</h1>
 		
 		<g:if test="${error}">
@@ -45,6 +45,13 @@
 			</af:templateElement>
 		
 			<g:if test="${assay}">
+				<g:if test="${assay.template?.description}">
+					<div class="element">
+						<div class="templatedescription">
+							${assay.template?.description?.encodeAsHTML()}
+						</div>
+					</div>
+				</g:if>			
 				<af:templateElements ignore="externalassayid" entity="${assay}" />
 			</g:if>
 		

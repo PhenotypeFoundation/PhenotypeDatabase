@@ -21,6 +21,7 @@ import dbnp.authentication.SecUser
 import dbnp.importer.ImportCell
 import dbnp.importer.ImportRecord
 import dbnp.importer.MappingColumn
+import org.hibernate.SessionFactory;
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class SimpleWizardController extends StudyWizardController {
@@ -28,6 +29,7 @@ class SimpleWizardController extends StudyWizardController {
 	def fileService
 	def importerService
 	def gdtService = new GdtService()
+	def sessionFactory
 
 	/**
 	 * index closure
@@ -132,6 +134,8 @@ class SimpleWizardController extends StudyWizardController {
 			on("refresh") {
 				def filename = params.get( 'importfile' );
 		
+				handleSampleForm( flow.study, params, flow )
+
 				// Handle 'existing*' in front of the filename. This is put in front to make a distinction between
 				// an already uploaded file test.txt (maybe moved to some other directory) and a newly uploaded file test.txt
 				// still being in the temporary directory.
@@ -141,15 +145,19 @@ class SimpleWizardController extends StudyWizardController {
 				else if( filename[0..8] == 'existing*' )
 					filename = filename[9..-1]
 				
-				// Refresh the templates, since the template editor has been opened
+				flow.sampleForm.importFile = filename
+					
+				// Refresh the templates, since the template editor has been opened. To make this happen
+				// the hibernate session has to be cleared first
+				sessionFactory.getCurrentSession().clear();
+				
 				flow.templates = [
 						'Sample': Template.findAllByEntity( Sample.class ),
 						'Subject': Template.findAllByEntity( Subject.class ),
 						'Event': Template.findAllByEntity( Event.class ),
 						'SamplingEvent': Template.findAllByEntity( SamplingEvent.class )
 				];
-										
-				flow.sampleForm = [ importFile: filename ]
+			
 			}.to "samples"
 			on("previous").to "returnFromSamples"
 			on("study").to "study"
@@ -255,7 +263,16 @@ class SimpleWizardController extends StudyWizardController {
 
 			 }.to "overview"
 			on( "previous" ).to "returnFromAssays"
-			on("refresh") { handleAssays( flow.assay, params, flow ); success() }.to "assays"
+			on("refresh") { 
+				// Refresh the templates, since the template editor has been opened. To make this happen
+				// the hibernate session has to be cleared first
+				sessionFactory.getCurrentSession().clear();
+
+				handleAssays( flow.assay, params, flow ); 
+				
+				flow.assay?.template?.refresh()
+				success() 
+			}.to "assays"
 		}
 
 		returnFromAssays {
@@ -468,43 +485,24 @@ class SimpleWizardController extends StudyWizardController {
 		else if( filename[0..8] == 'existing*' )
 			filename = filename[9..-1]
 
-		def sampleTemplateId  = params.long( 'sample_template_id' )
-		def subjectTemplateId  = params.long( 'subject_template_id' )
-		def eventTemplateId  = params.long( 'event_template_id' )
-		def samplingEventTemplateId  = params.long( 'samplingEvent_template_id' )
+		handleSampleForm( study, params, flow );
 
+		// Check whether the template exists
+		if (!flow.sampleForm.template.Sample ){
+			log.error ".simple study wizard not all fields are filled in (sample template) "
+			flash.error = "No template was chosen. Please choose a template for the samples you provided."
+			return false
+		}
+		
 		// These fields have been removed from the form, so will always contain
 		// their default value. The code however remains like this for future use.
 		int sheetIndex = (params.int( 'sheetindex' ) ?: 1 )
 		int dataMatrixStart = (params.int( 'datamatrix_start' ) ?: 2 )
 		int headerRow = (params.int( 'headerrow' ) ?: 1 )
-
-		// Save form data in session
-		flow.sampleForm = [
-					importFile: filename,
-					templateId: [
-						'Sample': sampleTemplateId,
-						'Subject': subjectTemplateId,
-						'Event': eventTemplateId,
-						'SamplingEvent': samplingEventTemplateId
-					],
-					template: [
-						'Sample': sampleTemplateId ? Template.get( sampleTemplateId ) : null,
-						'Subject': subjectTemplateId ? Template.get( subjectTemplateId ) : null,
-						'Event': eventTemplateId ? Template.get( eventTemplateId ) : null,
-						'SamplingEvent': samplingEventTemplateId ? Template.get( samplingEventTemplateId ) : null
-					],
-					sheetIndex: sheetIndex,
-					dataMatrixStart: dataMatrixStart,
-					headerRow: headerRow
-				];
-
-		// Check whether the template exists
-		if (!sampleTemplateId || !Template.get( sampleTemplateId ) ){
-			log.error ".simple study wizard not all fields are filled in: " + sampleTemplateId
-			flash.error = "No template was chosen. Please choose a template for the samples you provided."
-			return false
-		}
+		
+		flow.sampleForm.sheetIndex = sheetIndex;
+		flow.sampleForm.dataMatrixStart = dataMatrixStart
+		flow.sampleForm.headerRow = headerRow
 		
 		def importedfile = fileService.get( filename )
 		def workbook
@@ -604,7 +602,36 @@ class SimpleWizardController extends StudyWizardController {
 
 		return true
 	}
+	
+	/**
+	 * Copies data from the submitted sample form to the flow
+	 * @param study
+	 * @param params
+	 * @param flow
+	 * @return
+	 */
+	protected def handleSampleForm( study, params, flow ) {
+		def sampleTemplateId  = params.long( 'sample_template_id' )
+		def subjectTemplateId  = params.long( 'subject_template_id' )
+		def eventTemplateId  = params.long( 'event_template_id' )
+		def samplingEventTemplateId  = params.long( 'samplingEvent_template_id' )
 
+		// Save form data in session
+		flow.sampleForm = [
+					templateId: [
+						'Sample': sampleTemplateId,
+						'Subject': subjectTemplateId,
+						'Event': eventTemplateId,
+						'SamplingEvent': samplingEventTemplateId
+					],
+					template: [
+						'Sample': sampleTemplateId ? Template.get( sampleTemplateId ) : null,
+						'Subject': subjectTemplateId ? Template.get( subjectTemplateId ) : null,
+						'Event': eventTemplateId ? Template.get( eventTemplateId ) : null,
+						'SamplingEvent': samplingEventTemplateId ? Template.get( samplingEventTemplateId ) : null
+					],
+				];
+	}
 	
 	/**
 	 * Handles the matching of template fields with excel columns by the user

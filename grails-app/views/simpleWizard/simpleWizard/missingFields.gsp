@@ -63,7 +63,7 @@
 								<div class="firstColumn"></div>
 								<g:each var="entity" in="${record}">
 									<g:if test="${entity}">
-										<af:templateColumnHeaders entity="${entity}" class="column" columnWidths="[Name:100]"/>
+										<af:templateColumnHeaders includeEntities="${true}" entity="${entity}" class="column" columnWidths="[Name:100]"/>
 									</g:if>
 								</g:each>
 							</div>

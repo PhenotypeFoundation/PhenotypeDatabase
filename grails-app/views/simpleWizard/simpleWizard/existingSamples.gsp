@@ -56,7 +56,7 @@
 									<g:each var="entity" in="${record.objects}">
 										<g:if test="${entity.value}">
 											<div class="column">${entity.key} template</div>
-											<af:templateColumnHeaders entity="${entity.value}" class="column" columnWidths="[Name:100]"/>
+											<af:templateColumnHeaders includeEntities="${true}" entity="${entity.value}" class="column" columnWidths="[Name:100]"/>
 										</g:if>
 									</g:each>
 								</div>

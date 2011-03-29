@@ -395,7 +395,7 @@ class AdvancedQueryController {
 				try {
 					criterion.operator = Criterion.parseOperator( formCriterion.operator );
 				} catch( Exception e) {
-					println "Operator " + formCriterion.operator + " could not be parsed: " + e.getMessage();
+					log.debug "Operator " + formCriterion.operator + " could not be parsed: " + e.getMessage();
 					flash.error += "Criterion could not be used: operator " + formCriterion.operator + " is not valid.<br />\n";
 					continue;
 				}

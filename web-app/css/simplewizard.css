@@ -24,6 +24,11 @@ div .simpleWizard .description { width: 170px; }
 .simpleWizard div ul.contact_list { margin: 0; } 
 .simpleWizard div ul.user_list { margin: -22px 0 0 100px; }
 
+/* template descriptions */
+.templatedescription {  display: block; padding: 3px; border: 1px solid #4CAAED; /* #006DBA; */ }
+.studypage .templatedescription, .assayspage .templatedescription{ width: 222px; margin: 5px 0 5px 174px; }
+.samplespage .templatedescription { width: 300px; }
+
 /* .simpleWizard .publication_list li .authors { overflow: hidden; max-height: 8px; text-overflow:ellipsis; } */
 
 .simpleWizard #contacts_dialog { margin: 4px; background-color: #f3f3f3; }
@@ -37,3 +42,7 @@ div .simpleWizard .description { width: 170px; }
 /** COLUMNS PAGE **/
 .simpleWizard .importcolumns { position: relative; width: 100%; overflow: auto; border: 1px solid #ccc; }
 .simpleWizard .importcolumns table { border-width: 0; }
+
+/** MISSING FIELDS PAGE / TABLE EDITOR **/
+.simpleWizard .tableEditor .header { height: auto; line-height: 15px; }
+.simpleWizard .tableEditor .fieldname { display: inline-block; *display: inline; zoom: 1; }
