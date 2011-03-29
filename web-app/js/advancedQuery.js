@@ -27,7 +27,7 @@ $(function() {
 	.data( "autocomplete" )._renderItem = function( ul, item ) {
 		return $( "<li></li>" )
 			.data( "item.autocomplete", item )
-			.append( "<a>" + item.show + " <span class='entity'>" + item.entity + "</a>" )
+			.append( "<a>" + item.show + " <span class='entity'>" + item.entity + "</span></a>" )
 			.appendTo( ul );
 	};
 });
