@@ -150,7 +150,7 @@ class PublicationController {
             redirect(action: "list")
         }
     }
-
+ 
     /**
      * Searches for an ID in the current database, based on the pubMedID
      * If the publication is not found in the database, it is added
