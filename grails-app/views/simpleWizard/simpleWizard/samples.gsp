@@ -12,6 +12,12 @@
 	<div class="simpleWizard samplespage">
 		<h1>Study data</h1>
 
+    	<span class="info"> 
+			<span class="title">Import study data</span> 
+			You can import your study data to the server by choosing an excel file from your local harddisk in the form below. The excel sheet should contain
+			data on the first sheet, and the sheet should contain one row with headers. Each line can contain sample, subject and event data.
+		</span> 
+				
 		<g:if test="${flash.error}">
 			<div class="errormessage">
 				${flash.error.toString().encodeAsHTML()}
@@ -21,22 +27,17 @@
 			<div class="message">
 				${flash.message.toString().encodeAsHTML()}
 			</div>
-		</g:if>	
+		</g:if>			
 		
 		<g:form class="simpleWizard" name="samples" action="simpleWizard">
 			<input type="hidden" name="_eventId" value="refresh" />
 
 			<div id="samplesDialog">
-		    	<span class="info"> 
-					<span class="title">Import study data</span> 
-					You can import your Excel data to the server by choosing a file from your local harddisk in the form below. The excel sheet should contain
-					data on the first sheet, and the sheet should contain one row with headers.
-				</span> 
 		    
 				<table border="0">
 			    	<tr>
-					    <td width="30%">
-							Choose your Excel file to import:
+					    <td width="15%" class="required">
+							Excel file to import:
 					    </td>
 					    <td width="25%">
 							<af:fileField name="importfile" value="${sampleForm?.importFile}"/>
@@ -44,8 +45,8 @@
 					    <td width="40%"></td>
 					</tr>
 					<tr>
-					    <td>
-						<div id="datatemplate">Choose type of sample template:</div>
+					    <td class="required">
+							<div id="datatemplate">Sample template:</div>
 					    </td>
 					    <td>
 					    	<% /* The select is written manually, since the grails select tag can't handle option titles */ %>
@@ -71,7 +72,7 @@
 					</tr>
 					<tr>
 					    <td>
-						<div id="datatemplate">Choose type of subject template:</div>
+						<div id="datatemplate">Subject template:</div>
 					    </td>
 					    <td>
 					    	<% /* The select is written manually, since the grails select tag can't handle option titles */ %>
@@ -97,7 +98,7 @@
 					</tr>
 					<tr>
 					    <td>
-						<div id="datatemplate">Choose type of event template:</div>
+						<div id="datatemplate">Event template:</div>
 					    </td>
 					    <td>
 					    	<% /* The select is written manually, since the grails select tag can't handle option titles */ %>
@@ -123,7 +124,7 @@
 					</tr>
 					<tr>
 					    <td>
-						<div id="datatemplate">Choose type of sampling event template:</div>
+						<div id="datatemplate">Sampling event template:</div>
 					    </td>
 					    <td>
 					    	<% /* The select is written manually, since the grails select tag can't handle option titles */ %>
