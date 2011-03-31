@@ -8,7 +8,7 @@
 </head>
 <body>
 	<div class="simpleWizard">
-		<h1>Columns</h1>
+		<h1>Imported file</h1>
 		
 		<g:if test="${error}">
 			<div class="errormessage">
@@ -25,21 +25,39 @@
 			<input type="hidden" name="_eventId" value="refresh" />
 	
 		   	<span class="info"> 
-				<span class="title">Assign properties to columns</span> 
+				<span class="title">Assign columns to template fields</span> 
 				You uploaded: ${excel.filename}. This list shows the first ${excel.data.dataMatrix?.size()} rows of the uploaded file for reference.
 				Please match the columns from the excel file with the fields in the database.
 			</span> 
 			    
-			<div class="importcolumns">
-				<table>
-					<thead>
-						<tr>
-							<g:each in="${excel.data.header}" var="header">
-								<th>${header.name}</th>
+			<div class="importcolumns">				
+				<table cellspacing="0">
+					<tr class="headerrow">
+						<td nowrap class="explanation">Excel columns</td>
+						<g:each in="${excel.data.header}" var="header">
+							<th>${header.name}</th>
+						</g:each>
+					</tr>
+					<g:each in="${excel.data.dataMatrix}" var="exampleRow" status="i"> 
+						<tr class="example">
+							<g:if test="${i == 0}">
+								<td nowrap class="explanation">Example data</td>
+							</g:if>
+							<g:else>
+								<td class="explanation"></td>
+							</g:else>
+							<g:each in="${exampleRow}" var="exampleCell">
+								<td class="exampleCell"><div>
+									${exampleCell}
+									</div>
+								</td>
 							</g:each>
 						</tr>
-					</thead>
+					</g:each>
+					
 					<tr class="matchWith">
+						<td nowrap class="explanation">Template field</td>
+					
 						<g:each in="${excel.data.header}" var="mappingcolumn" status="i">
 							<%
 								def selectedValue;
@@ -76,15 +94,7 @@
 							</td>
 						</g:each>
 					</tr>
-					<g:each in="${excel.data.dataMatrix}" var="exampleRow">
-						<tr class="example">
-							<g:each in="${exampleRow}" var="exampleCell">
-								<td>
-									${exampleCell}
-								</td>
-							</g:each>
-						</tr>
-					</g:each>
+					
 				</table>
 			</div>
 			

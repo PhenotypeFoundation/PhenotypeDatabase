@@ -8,18 +8,24 @@
 </head>
 <body>
 	<div class="simpleWizard studypage">
-		<h1>Study</h1>
-		
-		<g:if test="${flash.error}">
+		<h1>
+			<g:if test="${study.id}">
+				Edit study [${study.title?.encodeAsHTML()}]
+			</g:if>
+			<g:else>
+				Study
+			</g:else>
+		</h1>
+		<g:if test="${error}">
 			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
+				${error.toString().encodeAsHTML()}
 			</div>
 		</g:if>
-		<g:if test="${flash.message}">
+		<g:if test="${message}">
 			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
+				${message.toString().encodeAsHTML()}
 			</div>
-		</g:if>		
+		</g:if>	
 		
 		<span class="info"> 
 			<span class="title">Define the basic properties of your study</span> 
@@ -94,6 +100,7 @@
 			<br clear="all" />
 
 			<p class="options">
+				<a class="save" href="#" onClick="submitForm( 'study', 'save' ); return false;">Save</a>
 				<a href="#" onClick="submitForm( 'study', 'next' ); return false;" class="next">Next</a>
 			</p>
 			

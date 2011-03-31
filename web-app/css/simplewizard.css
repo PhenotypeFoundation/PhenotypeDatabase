@@ -26,8 +26,8 @@ div .simpleWizard .description { width: 170px; }
 .simpleWizard div ul.user_list { margin: -22px 0 0 100px; }
 
 /* template descriptions */
-.templatedescription {  display: block; padding: 3px; border: 1px solid #4CAAED; /* #006DBA; */ }
-.studypage .templatedescription, .assayspage .templatedescription{ width: 222px; margin: 5px 0 5px 174px; }
+.templatedescription {  display: block; padding: 2px 4px; border: 1px solid #4CAAED; /* #006DBA; */ }
+.studypage .templatedescription, .assayspage .templatedescription{ width: 220px; margin: 5px 0 5px 174px; }
 .samplespage .templatedescription { width: 300px; }
 
 /* .simpleWizard .publication_list li .authors { overflow: hidden; max-height: 8px; text-overflow:ellipsis; } */
@@ -39,10 +39,22 @@ div .simpleWizard .description { width: 170px; }
 
 /** SAMPLES PAGE **/
 .simpleWizard #samplesDialog table { border-width: 0; }
+.simpleWizard .upload_del { margin-left: 20px; }
+.simpleWizard .upload_info { width: 250px; overflow: hidden; }
 
 /** COLUMNS PAGE **/
 .simpleWizard .importcolumns { position: relative; width: 100%; overflow: auto; border: 1px solid #ccc; }
 .simpleWizard .importcolumns table { border-width: 0; }
+.simpleWizard .importcolumns .explanation { border-right: 1px solid black; background-color: #eee; }
+.simpleWizard .importcolumns .headerrow td, .simpleWizard .importcolumns .headerrow th { border-bottom: 1px solid #999; }
+.simpleWizard .importcolumns .matchWith td { border-top: 1px solid #999; }
+.simpleWizard .importcolumns td.exampleCell div {
+	white-space: nowrap;
+	width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.simpleWizard .importcolumns .matchWith select { width: auto; }
 
 /** MISSING FIELDS PAGE / TABLE EDITOR **/
 .simpleWizard .tableEditor .header { height: auto; line-height: 15px; }

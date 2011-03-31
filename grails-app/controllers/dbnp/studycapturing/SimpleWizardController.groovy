@@ -57,25 +57,37 @@ class SimpleWizardController extends StudyWizardController {
 				if( !validateObject( flow.study ) )
 					error()
 			}.to "decisionState"
-			on("refresh") { handleStudy( flow.study, params ); }.to "study"
-			on( "success" ) { handleStudy( flow.study, params ) }.to "study"
+			on("refresh") {  handleStudy( flow.study, params ); }.to "study"
+			on( "save" ) {
+				handleStudy( flow.study, params );
+				if( !validateObject( flow.study ) )
+					return error()
+				
+				if( flow.study.save( flush: true ) ) {
+					flash.message = "Your study is succesfully saved.";
+				} else {
+					flash.error = "An error occurred while saving your study: <br />"
+					flow.study.getErrors().each { flash.error += it.toString() + "<br />"}
+				}
+				success()		
+			}.to "study"
 		}
 
 		decisionState {
 			action {
 				// Create data in the flow
 				flow.templates = [
-							'Sample': Template.findAllByEntity( Sample.class ),
 							'Subject': Template.findAllByEntity( Subject.class ),
 							'Event': Template.findAllByEntity( Event.class ),
-							'SamplingEvent': Template.findAllByEntity( SamplingEvent.class )
+							'SamplingEvent': Template.findAllByEntity( SamplingEvent.class ),
+							'Sample': Template.findAllByEntity( Sample.class )
 				];
 			
 				flow.encodedEntity = [
-							'Sample': gdtService.encryptEntity( Sample.class.name ),
 							'Subject': gdtService.encryptEntity( Subject.class.name ),
 							'Event': gdtService.encryptEntity( Event.class.name ),
-							'SamplingEvent': gdtService.encryptEntity( SamplingEvent.class.name )
+							'SamplingEvent': gdtService.encryptEntity( SamplingEvent.class.name ),
+							'Sample': gdtService.encryptEntity( Sample.class.name )
 				]
 
 				if (flow.study.samples)
@@ -102,6 +114,19 @@ class SimpleWizardController extends StudyWizardController {
 			on("next") {
 				handleExistingSamples( flow.study, params, flow ) ? success() : error()
 			}.to "startAssays"
+			on( "save" ) {
+				if( !handleExistingSamples( flow.study, params, flow ) )
+					return error()
+				
+				if( flow.study.save( flush: true ) ) {
+					flash.message = "Your study is succesfully saved.";
+				} else {
+					flash.error = "An error occurred while saving your study: <br />"
+					flow.study.getErrors().each { flash.error += it.toString() + "<br />"}
+				}
+				success()
+			}.to "existingSamples"
+
 			on("previous").to "study"
 			on("update") {
 				handleExistingSamples( flow.study, params, flow ) ? success() : error()
@@ -152,10 +177,10 @@ class SimpleWizardController extends StudyWizardController {
 				sessionFactory.getCurrentSession().clear();
 				
 				flow.templates = [
-						'Sample': Template.findAllByEntity( Sample.class ),
 						'Subject': Template.findAllByEntity( Subject.class ),
 						'Event': Template.findAllByEntity( Event.class ),
-						'SamplingEvent': Template.findAllByEntity( SamplingEvent.class )
+						'SamplingEvent': Template.findAllByEntity( SamplingEvent.class ),
+						'Sample': Template.findAllByEntity( Sample.class )
 				];
 			
 			}.to "samples"
@@ -240,9 +265,14 @@ class SimpleWizardController extends StudyWizardController {
 		
 		startAssays {
 			action {
-				if( !flow.assay ) 
-					flow.assay = new Assay( parent: flow.study );
-					
+				if( !flow.assay ) {
+					if( flow.study.assays ) {
+						flow.assay = flow.study.assays[ 0 ]
+						println "Existing assay: " + flow.assay
+					} else {
+						flow.assay = new Assay( parent: flow.study );
+					}
+				}
 				success();
 			}
 			on( "success" ).to "assays"
@@ -251,8 +281,9 @@ class SimpleWizardController extends StudyWizardController {
 		assays {
 			on( "next" ) { 
 				handleAssays( flow.assay, params, flow );
-				if( !validateObject( flow.assay ) )
+				if( flow.assay.template && !validateObject( flow.assay ) )
 					error();
+					
 			 }.to "overview"
 			on( "skip" ) {
 				// In case the user has created an assay before he clicked 'skip', it should only be kept if it
@@ -266,8 +297,8 @@ class SimpleWizardController extends StudyWizardController {
 			on("refresh") { 
 				// Refresh the templates, since the template editor has been opened. To make this happen
 				// the hibernate session has to be cleared first
-				sessionFactory.getCurrentSession().clear();
-
+				//sessionFactory.getCurrentSession().clear();
+				
 				handleAssays( flow.assay, params, flow ); 
 				
 				flow.assay?.template?.refresh()
@@ -290,7 +321,7 @@ class SimpleWizardController extends StudyWizardController {
 		
 		saveStudy {
 			action {
-				if( flow.assay && !flow.study.assays?.contains( flow.assay ) ) {
+				if( flow.assay && flow.assay.template && !flow.study.assays?.contains( flow.assay ) ) {
 					flow.study.addToAssays( flow.assay );
 				}
 				
@@ -425,10 +456,10 @@ class SimpleWizardController extends StudyWizardController {
 		   events = eventgroups.events?.getAt(0);
 	   
 	   def objects = [
-		   'Sample': study.samples,
 		   'Subject': study.samples.parentSubject.findAll { it },
 		   'SamplingEvent': study.samples.parentEvent.findAll { it },
-		   'Event': events.flatten().findAll { it }
+		   'Event': events.flatten().findAll { it },
+		   'Sample': study.samples
 	   ];
 	   objects.each {
 		   def type = it.key;
@@ -503,6 +534,7 @@ class SimpleWizardController extends StudyWizardController {
 		flow.sampleForm.sheetIndex = sheetIndex;
 		flow.sampleForm.dataMatrixStart = dataMatrixStart
 		flow.sampleForm.headerRow = headerRow
+		flow.sampleForm.importFile = filename
 		
 		def importedfile = fileService.get( filename )
 		def workbook
@@ -617,20 +649,21 @@ class SimpleWizardController extends StudyWizardController {
 		def samplingEventTemplateId  = params.long( 'samplingEvent_template_id' )
 
 		// Save form data in session
-		flow.sampleForm = [
-					templateId: [
-						'Sample': sampleTemplateId,
+		if( !flow.sampleForm )
+			flow.sampleForm = [:]
+			
+		flow.sampleForm.templateId = [
 						'Subject': subjectTemplateId,
 						'Event': eventTemplateId,
-						'SamplingEvent': samplingEventTemplateId
-					],
-					template: [
-						'Sample': sampleTemplateId ? Template.get( sampleTemplateId ) : null,
+						'SamplingEvent': samplingEventTemplateId,
+						'Sample': sampleTemplateId
+		];
+		flow.sampleForm.template = [
 						'Subject': subjectTemplateId ? Template.get( subjectTemplateId ) : null,
 						'Event': eventTemplateId ? Template.get( eventTemplateId ) : null,
-						'SamplingEvent': samplingEventTemplateId ? Template.get( samplingEventTemplateId ) : null
-					],
-				];
+						'SamplingEvent': samplingEventTemplateId ? Template.get( samplingEventTemplateId ) : null,
+						'Sample': sampleTemplateId ? Template.get( sampleTemplateId ) : null
+		];
 	}
 	
 	/**

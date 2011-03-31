@@ -33,41 +33,13 @@
 			<input type="hidden" name="_eventId" value="refresh" />
 
 			<div id="samplesDialog">
-		    
 				<table border="0">
 			    	<tr>
 					    <td width="15%" class="required">
 							Excel file to import:
 					    </td>
-					    <td width="25%">
-							<af:fileField name="importfile" value="${sampleForm?.importFile}"/>
-					    </td>
-					    <td width="40%"></td>
-					</tr>
-					<tr>
-					    <td class="required">
-							<div id="datatemplate">Sample template:</div>
-					    </td>
-					    <td>
-					    	<% /* The select is written manually, since the grails select tag can't handle option titles */ %>
-							<select rel="template" entity="${encodedEntity.Sample}" onChange="showTemplateDescription( 'templateDescription_sample', $( 'option:selected', $(this) ).attr( 'title' ) ); " name="sample_template_id">
-								<g:each in="${templates.Sample}" var="templ">
-									<option 
-										value="${templ.id}"
-										<g:if test="${templ.id == sampleForm?.templateId?.Sample}">selected="selected"</g:if>
-										title="${templ.description?.encodeAsHTML()}"
-									>${templ.name?.encodeAsHTML()}</option>
-								</g:each>
-							</select>
-					    </td>
-					    <td>
-						    <%
-								def sampleTemplate = sampleForm?.template?.Sample ?: templates.Sample?.getAt(0)
-								def sampleTemplateDescription = sampleTemplate?.description
-							%>
-							<div class="templatedescription" id="templateDescription_sample" <g:if test="${!sampleTemplateDescription}">style="display: none;"</g:if>>
-								${sampleTemplateDescription?.encodeAsHTML()}
-							</div>
+					    <td colspan="2">
+							<af:fileField buttonText="Open" hideDelete="${true}" name="importfile" value="${sampleForm?.importFile}"/>
 					    </td>
 					</tr>
 					<tr>
@@ -147,7 +119,33 @@
 								${samplingEventTemplateDescription?.encodeAsHTML()}
 							</div>
 					    </td>						    
-					</tr>		
+					</tr>
+					<tr>
+					    <td class="required">
+							<div id="datatemplate">Sample template:</div>
+					    </td>
+					    <td width="25%">
+					    	<% /* The select is written manually, since the grails select tag can't handle option titles */ %>
+							<select rel="template" entity="${encodedEntity.Sample}" onChange="showTemplateDescription( 'templateDescription_sample', $( 'option:selected', $(this) ).attr( 'title' ) ); " name="sample_template_id">
+								<g:each in="${templates.Sample}" var="templ">
+									<option 
+										value="${templ.id}"
+										<g:if test="${templ.id == sampleForm?.templateId?.Sample}">selected="selected"</g:if>
+										title="${templ.description?.encodeAsHTML()}"
+									>${templ.name?.encodeAsHTML()}</option>
+								</g:each>
+							</select>
+					    </td>
+					    <td width="40%">
+						    <%
+								def sampleTemplate = sampleForm?.template?.Sample ?: templates.Sample?.getAt(0)
+								def sampleTemplateDescription = sampleTemplate?.description
+							%>
+							<div class="templatedescription" id="templateDescription_sample" <g:if test="${!sampleTemplateDescription}">style="display: none;"</g:if>>
+								${sampleTemplateDescription?.encodeAsHTML()}
+							</div>
+					    </td>
+					</tr>						
 				</table>	
 			</div>
 		
