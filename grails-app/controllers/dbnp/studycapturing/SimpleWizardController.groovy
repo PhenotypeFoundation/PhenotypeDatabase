@@ -46,6 +46,9 @@ class SimpleWizardController extends StudyWizardController {
 			action{
 				flow.study = getStudyFromRequest( params )
 				if (!flow.study) retrievalError()
+				
+				// Search for studies
+				flow.studies = Study.giveWritableStudies( authenticationService.getLoggedInUser(), 100 )
 			}
 			on("retrievalError").to "handleError"
 			on("success").to "study"
@@ -57,6 +60,16 @@ class SimpleWizardController extends StudyWizardController {
 				if( !validateObject( flow.study ) )
 					error()
 			}.to "decisionState"
+			on("open") {
+				// Send the user to the URL of the simple wizard in order
+				// to avoid code duplication for loading the study
+				if( params.study ) {
+					flow.openStudyId = params.study
+				} else {
+					flash.error = "No study selected";
+					return error();
+				}
+			}.to "openStudy"
 			on("refresh") {  handleStudy( flow.study, params ); }.to "study"
 			on( "save" ) {
 				handleStudy( flow.study, params );
@@ -71,6 +84,10 @@ class SimpleWizardController extends StudyWizardController {
 				}
 				success()		
 			}.to "study"
+		}
+		
+		openStudy {
+			redirect( action: "simpleWizard", id: flow.openStudyId );
 		}
 
 		decisionState {

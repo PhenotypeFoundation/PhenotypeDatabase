@@ -13,7 +13,7 @@
 				Edit study [${study.title?.encodeAsHTML()}]
 			</g:if>
 			<g:else>
-				Study
+				New study
 			</g:else>
 			<span class="stepNumber">(step 1 of 4)</span>
 		</h1>
@@ -102,7 +102,8 @@
 
 			<p class="options">
 				<a href="#" onClick="submitForm( 'study', 'next' ); return false;" class="next">Next</a>
-				<a class="save separator" href="#" onClick="submitForm( 'study', 'save' ); return false;">Save</a>
+				<a class="open separator" href="#" onClick="$( '#openStudyDialog' ).dialog( 'open' ); return false;">Open</a>
+				<a class="save" href="#" onClick="submitForm( 'study', 'save' ); return false;">Save</a>
 			</p>
 			
 		</g:form>
@@ -110,6 +111,40 @@
 		<af:publicationDialog name="publication" />
 		<af:userDialog name="readers" />
 		<af:userDialog name="writers" />
+		
+		<div id="openStudyDialog">
+			<p>
+				Please select the study you want to edit form the list below. If your study is not in the list, you might
+				not have sufficient privileges to edit the study.
+			</p>
+			
+			<g:form class="simpleWizard" name="openstudy" action="simpleWizard">
+				<input type="hidden" name="_eventId" value="open" />			
+				<g:select name="study" from="${studies}" optionKey="id" optionValue="title" />
+			</g:form>
+		</div>
+		<script type="text/javascript"> 
+			$("#openStudyDialog").dialog({
+				title   : "Open study",
+				autoOpen: false,
+				width   : 400,
+				height  : 200,
+				modal   : true,
+				position: "center",
+				buttons : {
+					Open: function() {
+						if( confirm( "By opening a new study, changes to the current study are lost. Do you want to continue?" ) ) {
+							submitForm( 'openstudy' );
+							$(this).dialog("close");
+						}
+					},
+					Close  : function() {
+						$(this).dialog("close");
+					}
+				},
+			})	
+		</script>
+		
 	</div>
 </body>
 </html>

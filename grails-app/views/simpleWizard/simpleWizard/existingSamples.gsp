@@ -87,7 +87,7 @@
 			<a href="#" onClick="submitForm( 'existingSamples', 'previous' ); return false;" class="previous">Previous</a>
 			<a href="#" onClick="submitForm( 'existingSamples', 'next' ); return false;" class="next">Next</a>
 
-			<a href="#" onClick="submitForm( 'existingSamples', 'save' ); return false;" class="save update">Save</a>
+			<a href="#" onClick="submitForm( 'existingSamples', 'save' ); return false;" class="save separator">Save</a>
 			<a href="#" onClick="submitForm( 'existingSamples', 'update' ); return false;" class="excel">Update using excel</a>
 			<a href="#" onClick="submitForm( 'existingSamples', 'skip' ); return false;" class="skip">Skip</a>
 		</p>

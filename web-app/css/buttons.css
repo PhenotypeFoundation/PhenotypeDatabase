@@ -29,6 +29,9 @@
 .options a.save {
 	background-image: url(../plugins/famfamfam-1.0.1/images/icons/page_save.png);
 }
+.options a.open {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/page.png);
+}
 .options a.skip {
 	background-image: url(../plugins/famfamfam-1.0.1/images/icons/control_end_blue.png);
 }
