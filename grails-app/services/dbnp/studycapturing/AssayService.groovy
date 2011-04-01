@@ -190,7 +190,7 @@ class AssayService {
 
         def moduleUrl = assay.module.url
 
-        def path = moduleUrl + "/rest/getMeasurementMetaData?assayToken=$assay.assayUUID"
+        def path = moduleUrl + "/rest/getMeasurementMetaData/query?assayToken=$assay.assayUUID"
 
         moduleCommunicationService.callModuleRestMethodJSON(moduleUrl, path)
 
@@ -211,7 +211,7 @@ class AssayService {
 
         fields.each{tokenString+="&measurementToken=${it.name.encodeAsURL()}"}
 
-        def path = moduleUrl + "/rest/getMeasurementData?assayToken=$assay.assayUUID" + tokenString
+        def path = moduleUrl + "/rest/getMeasurementData/query?assayToken=$assay.assayUUID" + tokenString
         
         def (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleRestMethodJSON(moduleUrl, path)
 
