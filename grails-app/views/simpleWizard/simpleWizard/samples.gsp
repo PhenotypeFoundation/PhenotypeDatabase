@@ -10,7 +10,10 @@
 </head>
 <body>
 	<div class="simpleWizard samplespage">
-		<h1>Study data</h1>
+		<h1>
+			Study data
+			<span class="stepNumber">(step 2 of 4)</span>
+		</h1>
 
     	<span class="info"> 
 			<span class="title">Import study data</span> 
@@ -153,8 +156,9 @@
 		
 		<p class="options">
 			<a href="#" onClick="submitForm( 'samples', 'previous' ); return false;" class="previous">Previous</a>
-			<a href="#" onClick="submitForm( 'samples', 'next' ); return false;" class="next">Next</a>
-			<a class="skip" href="#" onClick="submitForm( 'samples', 'skip' ); return false;">Skip</a>
+			<a href="#" onClick="submitForm( 'samples', 'next' ); return false;" class="next default">Next</a>
+
+			<a class="skip separator" href="#" onClick="submitForm( 'samples', 'skip' ); return false;">Skip</a>
 		</p>
 	</div>	
 

@@ -8,7 +8,10 @@
 </head>
 <body>
 	<div class="simpleWizard">
-		<h1>Edit properties</h1>
+		<h1>
+			Edit imported data
+			<span class="stepNumber">(step 2 of 4)</span>
+		</h1>
 	
 		<g:if test="${error}">
 			<div class="errormessage">

@@ -1,6 +1,7 @@
 /** GENERAL **/
 .simpleWizard .options { border-top: 1px solid #ccc; }
-.simpleWizard { font-size: 11px; } 
+.simpleWizard { font-size: 11px; }
+.simpleWizard .stepNumber { padding-left: 20px; color: #39A3ED; }
 
 /** STUDY PAGE **/
 .simpleWizard input, .simpleWizard select, .simpleWizard textarea { width: 220px; }

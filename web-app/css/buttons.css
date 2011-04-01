@@ -4,8 +4,8 @@
 
 .options a {
 	font-size: 10px;
-	font-weight: bold;
 	margin-right: 10px;
+	font-weight: bold;
 	padding-top: 2px;
 	padding-bottom: 2px;
 	line-height: 20px;
@@ -13,6 +13,9 @@
 	background-position: 5px 50%;
 	background-repeat: no-repeat;
 }
+
+.options a.default {}
+.options .separator { margin-left: 25px; }
 
 #content .options a.disabled { color: #aaa; cursor: default; }
 

@@ -8,7 +8,10 @@
 </head>
 <body>
 	<div class="simpleWizard assayspage">
-		<h1>Assay</h1>
+		<h1>
+			Assay
+			<span class="stepNumber">(step 3 of 4)</span>
+		</h1>
 		
 		<g:if test="${error}">
 			<div class="errormessage">
@@ -60,6 +63,7 @@
 			<p class="options">
 				<a class="previous" href="#" onClick="submitForm( 'assays', 'previous' ); return false;">Previous</a>
 				<a class="next" href="#" onClick="submitForm( 'assays', 'next' ); return false;">Next</a>
+				<a class="save separator" href="#" onClick="submitForm( 'assays', 'save' ); return false;">Save</a>
 				<a class="skip" href="#" onClick="submitForm( 'assays', 'skip' ); return false;">Skip</a>
 			</p>
 			

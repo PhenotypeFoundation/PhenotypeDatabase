@@ -10,7 +10,10 @@
 </head>
 <body>
 	<div class="simpleWizard">
-		<h1>Complex study</h1>
+		<h1>
+			Complex study
+			<span class="stepNumber">(step 2 of 4)</span>
+		</h1>
 		
 		<span class="info"> 
 			<span class="title">Complex study</span> 
@@ -31,7 +34,7 @@
 		
 		<p class="options">
 			<a href="#" onClick="submitForm( 'existingSamples', 'previous' ); return false;" class="previous">Previous</a>
-			<a href="#" onClick="submitForm( 'existingSamples', 'save' ); return false;" class="save">Save</a>
+			<a href="#" onClick="submitForm( 'existingSamples', 'save' ); return false;" class="save separator">Save</a>
 		</p>
 	</div>	
 </body>

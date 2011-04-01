@@ -15,6 +15,7 @@
 			<g:else>
 				Study
 			</g:else>
+			<span class="stepNumber">(step 1 of 4)</span>
 		</h1>
 		<g:if test="${error}">
 			<div class="errormessage">
@@ -100,8 +101,8 @@
 			<br clear="all" />
 
 			<p class="options">
-				<a class="save" href="#" onClick="submitForm( 'study', 'save' ); return false;">Save</a>
 				<a href="#" onClick="submitForm( 'study', 'next' ); return false;" class="next">Next</a>
+				<a class="save separator" href="#" onClick="submitForm( 'study', 'save' ); return false;">Save</a>
 			</p>
 			
 		</g:form>

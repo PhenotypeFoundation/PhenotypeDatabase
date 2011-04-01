@@ -126,8 +126,19 @@ class SimpleWizardController extends StudyWizardController {
 				}
 				success()
 			}.to "existingSamples"
-
 			on("previous").to "study"
+			on("refresh") {
+				if( !handleExistingSamples( flow.study, params, flow ) )
+					return error()
+
+				// Refresh the templates, since the template editor has been opened.
+				flow.templates = [
+						'Subject': Template.findAllByEntity( Subject.class ).collect { it.refresh(); return it },
+						'Event': Template.findAllByEntity( Event.class ).collect { it.refresh(); return it },
+						'SamplingEvent': Template.findAllByEntity( SamplingEvent.class ).collect { it.refresh(); return it },
+						'Sample': Template.findAllByEntity( Sample.class ).collect { it.refresh(); return it }
+				];
+			}.to "existingSamples"
 			on("update") {
 				handleExistingSamples( flow.study, params, flow ) ? success() : error()
 			}.to "samples"
@@ -172,17 +183,13 @@ class SimpleWizardController extends StudyWizardController {
 				
 				flow.sampleForm.importFile = filename
 					
-				// Refresh the templates, since the template editor has been opened. To make this happen
-				// the hibernate session has to be cleared first
-				sessionFactory.getCurrentSession().clear();
-				
+				// Refresh the templates, since the template editor has been opened. 
 				flow.templates = [
-						'Subject': Template.findAllByEntity( Subject.class ),
-						'Event': Template.findAllByEntity( Event.class ),
-						'SamplingEvent': Template.findAllByEntity( SamplingEvent.class ),
-						'Sample': Template.findAllByEntity( Sample.class )
+						'Subject': Template.findAllByEntity( Subject.class ).collect { it.refresh(); return it },
+						'Event': Template.findAllByEntity( Event.class ).collect { it.refresh(); return it },
+						'SamplingEvent': Template.findAllByEntity( SamplingEvent.class ).collect { it.refresh(); return it },
+						'Sample': Template.findAllByEntity( Sample.class ).collect { it.refresh(); return it }
 				];
-			
 			}.to "samples"
 			on("previous").to "returnFromSamples"
 			on("study").to "study"
@@ -294,11 +301,20 @@ class SimpleWizardController extends StudyWizardController {
 
 			 }.to "overview"
 			on( "previous" ).to "returnFromAssays"
+			on( "save" ) {
+				handleAssays( flow.assay, params, flow );
+				if( flow.assay.template && !validateObject( flow.assay ) )
+					error();
+
+				if( saveStudyToDatabase( flow ) ) {
+					flash.message = "Your study is succesfully saved.";
+				} else {
+					flash.error = "An error occurred while saving your study: <br />"
+					flow.study.getErrors().each { flash.error += it.toString() + "<br />"}
+					return error();
+				}
+			}.to "assays"
 			on("refresh") { 
-				// Refresh the templates, since the template editor has been opened. To make this happen
-				// the hibernate session has to be cleared first
-				//sessionFactory.getCurrentSession().clear();
-				
 				handleAssays( flow.assay, params, flow ); 
 				
 				flow.assay?.template?.refresh()
@@ -318,42 +334,14 @@ class SimpleWizardController extends StudyWizardController {
 			on( "save" ).to "saveStudy" 
 			on( "previous" ).to "startAssays"
 		}
-		
 		saveStudy {
 			action {
-				if( flow.assay && flow.assay.template && !flow.study.assays?.contains( flow.assay ) ) {
-					flow.study.addToAssays( flow.assay );
-				}
-				
-				if( flow.study.save( flush: true ) ) {
-					// Make sure all samples are attached to all assays
-					flow.study.assays.each { assay ->
-						def l = []+ assay.samples;
-						l.each { sample ->
-							if( sample )
-								assay.removeFromSamples( sample );
-						}
-						assay.samples?.clear();
-		
-						flow.study.samples.each { sample ->
-							assay.addToSamples( sample )
-						}
-					}
-			
+				if( saveStudyToDatabase( flow ) ) {
 					flash.message = "Your study is succesfully saved.";
-					
 					finish();
 				} else {
 					flash.error = "An error occurred while saving your study: <br />"
 					flow.study.getErrors().each { flash.error += it.toString() + "<br />"}
-					
-					// Remove the assay from the study again, since it is still available
-					// in the session
-					if( flow.assay ) {
-						flow.study.removeFromAssays( flow.assay );
-						flow.assay.parent = flow.study;
-					}
-					
 					overview();
 				}
 			}
@@ -365,6 +353,47 @@ class SimpleWizardController extends StudyWizardController {
 		
 		handleError{
 			redirect action: "errorPage"
+		}
+	}
+	
+	/**
+	 * Saves the study with assay
+	 * 
+	 * @param flow
+	 * @return true on success, false otherwise
+	 */
+	protected boolean saveStudyToDatabase( def flow ) {
+		// Save the assay to the study
+		if( flow.assay && flow.assay.template && !flow.study.assays?.contains( flow.assay ) ) {
+			flow.study.addToAssays( flow.assay );
+		}
+
+		if( flow.study.save( flush: true ) ) {
+			// Make sure all samples are attached to all assays
+			flow.study.assays.each { assay ->
+				def l = []+ assay.samples;
+				l.each { sample ->
+					if( sample )
+						assay.removeFromSamples( sample );
+				}
+				assay.samples?.clear();
+
+				flow.study.samples.each { sample ->
+					assay.addToSamples( sample )
+				}
+			}
+			
+			return true;
+	
+		} else {
+			// Remove the assay from the study again, since it is still available
+			// in the session
+			if( flow.assay ) {
+				flow.study.removeFromAssays( flow.assay );
+				flow.assay.parent = flow.study;
+			}
+			
+			return false;
 		}
 	}
 
