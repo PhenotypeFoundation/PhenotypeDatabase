@@ -1,3 +1,4 @@
+    <%@ page import="org.dbnp.gdt.AssayModule" %>
     <!-- TOPNAV //-->
     <ul class="topnav">
      <li><g:link controller="home" action="index">Home</g:link></li>
@@ -49,6 +50,16 @@
 		</ul>
 	</li>
 	<li><g:link controller="advancedQuery">Search</g:link></li>
+	<g:if test="${AssayModule.count()}">
+		<li>
+			<a href="#">Modules</a>
+			<ul class="subnav">
+				<g:each in="${AssayModule.list()}" var="assayModule">
+					<li><a href="${assayModule.url}">${assayModule.name}</a>
+				</g:each>
+			</ul>
+		</li>	
+	</g:if>
 	<sec:ifAllGranted roles="ROLE_ADMIN">
 		<li>
 			<a href="#">Admin</a>
