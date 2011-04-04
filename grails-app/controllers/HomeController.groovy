@@ -93,7 +93,7 @@ class HomeController {
 				date.setTime(date.getTime() + oneDay)
 			}
 		}
-
+	
 		[
 			// config
 			showstats					: (session?.nostats) ? !session.nostats : true,
