@@ -1,4 +1,5 @@
     <%@ page import="org.dbnp.gdt.AssayModule" %>
+    <%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
     <!-- TOPNAV //-->
     <ul class="topnav">
      <li><g:link controller="home" action="index">Home</g:link></li>
@@ -50,7 +51,7 @@
 		</ul>
 	</li>
 	<li><g:link controller="advancedQuery">Search</g:link></li>
-	<g:if test="${AssayModule.count()}">
+	<g:if test="${ConfigurationHolder.config.modules.showInMenu && AssayModule.count()}">
 		<li>
 			<a href="#">Modules</a>
 			<ul class="subnav">
