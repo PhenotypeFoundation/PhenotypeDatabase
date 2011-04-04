@@ -70,7 +70,7 @@
                       -
                     </g:if>
                     <g:else>
-                      ${studyInstance.assays.module.platform.unique().join( ', ' )}
+                      ${studyInstance.assays.module.name.unique().join( ', ' )}
                     </g:else>
                   </td>
               </tr>

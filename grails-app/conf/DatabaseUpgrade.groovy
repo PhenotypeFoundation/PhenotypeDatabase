@@ -36,6 +36,7 @@ class DatabaseUpgrade {
 		makeMappingColumnValueNullable(sql, db)		// r1525
 		alterStudyAndAssay(sql, db)					// r1594
 		fixDateCreatedAndLastUpdated(sql, db)
+		dropAssayModulePlatform(sql, db)			// r1689
 	}
 
 	/**
@@ -278,6 +279,28 @@ class DatabaseUpgrade {
 					sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN %s SET NOT NULL",row.table_name,row.column_name))
 				} catch (Exception e) {
 					println "fixDateCreatedAndLastUpdated database upgrade failed: " + e.getMessage()
+				}
+			}
+		}
+	}
+	
+	
+	/**
+	 * drops the field platform from assay modules
+	 * @param sql
+	 * @param db
+	 */
+	public static void dropAssayModulePlatform(sql, db) {
+		// are we running postgreSQL?
+		if (db == "org.postgresql.Driver") {
+			// do we need to perform this update?
+			if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='assay_module' AND columns.column_name='platform'")) {
+				if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: removing assayModule platform".grom()
+
+				try {
+					sql.execute("ALTER TABLE assay_module DROP COLUMN platform")
+				} catch (Exception e) {
+					println "dropAssayModulePlatform database upgrade failed: " + e.getMessage()
 				}
 			}
 		}

@@ -42,21 +42,18 @@ class ExampleStudies {
 		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
-			platform: 'clinical measurements',
 			url: config.modules.sam.url.toString()
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
 		def metabolomicsModule = new AssayModule(
 			name: 'Metabolomics module',
-			platform: 'GCMS/LCMS',
 			url: config.modules.metabolomics.url.toString()
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
 		def metagenomicsModule = new AssayModule(
 			name: 'Metagenomics module',
-			platform: 'High throughput sequencing',
 			url: config.modules.metagenomics.url.toString()
 		).save(failOnError:true)
 	}
@@ -399,21 +396,18 @@ class ExampleStudies {
 		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
-			platform: 'clinical measurements',
 			url: config.modules.sam.url.toString()
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
 		def metabolomicsModule = new AssayModule(
 			name: 'Metabolomics module',
-			platform: 'GCMS/LCMS',
 			url: config.modules.metabolomics.url.toString()
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
 		def metagenomicsModule = new AssayModule(
 			name: 'Metagenomics module',
-			platform: 'High throughput sequencing',
 			url: config.modules.metagenomics.url.toString()
 		).save(failOnError:true)
 
