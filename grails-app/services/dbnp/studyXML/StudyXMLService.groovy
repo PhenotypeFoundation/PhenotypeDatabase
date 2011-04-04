@@ -101,7 +101,7 @@ class StudyXMLService
 	 *  This method produces a list of all objects that need to be
 	 *  written out in order to get an XML representation of a Study object. 
 	 *  
-	 *  This is achieved by recursion. The recursion stops at objects whose
+	 *  This is done by recursion. The recursion stops at objects whose
 	 *  class is member of IgnoredClasses or TerminalClasses. 
 	 *  
 	 *	Example call: 
@@ -171,7 +171,6 @@ class StudyXMLService
 						objects.addAll( getRelatedObjects(it) )
 				}
 			}
-
 		}
 		return objects.unique()
 	}

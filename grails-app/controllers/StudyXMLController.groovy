@@ -15,6 +15,7 @@ import org.dbnp.gdt.*
 
 /**  This class is for testing and developing the StudyXML service.
  *   It should be merged into the service as soon as the service is operating.
+ *   Currently, this controller contains the methods required for importing.
  *   
  *   @author Jahn
  */
