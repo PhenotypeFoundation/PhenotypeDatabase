@@ -138,14 +138,11 @@ class StudyXMLService
 			objects.push(domainObject.template)
 			domainObject.template.fields.each { 
 					objects.push(it) 
-					if(domainClass==Assay)
-						println "${domainObject.class} ${it}"
 			}
 
 			if(domainClass==Assay) {
 				domainObject.domainFields.each { 
 					def memberClass = domainObject."$it".class
-					println "${it.class} ${it}. member class: ${memberClass}"
 				}
 			}
 
