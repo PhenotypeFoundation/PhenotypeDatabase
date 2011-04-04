@@ -1,11 +1,11 @@
 /**
- *  ExporterService 
+ *  This service is for exporting studies to a XML flat list and for
+ *  importing them back. 
  *  
  *  @author Jahn
  *  
- *  This service for exporting a Study and all domain objects depending on it to XML.
+ *  The file is used in combination with a controller. 
  */ 
-
 
 
 package dbnp.studyexport
@@ -14,6 +14,7 @@ import dbnp.authentication.*
 import dbnp.studycapturing.*
 import grails.converters.XML
 import groovy.util.slurpersupport.*
+import org.dbnp.bgdt.*
 import org.dbnp.gdt.*
 
 class ExportService 
@@ -49,29 +50,31 @@ class ExportService
     /**
      *  List of domain classes related to Study.
      */ 
-	def static DomainClasses = [ 'RegistrationCode':dbnp.authentication.RegistrationCode,
-			'SecRole':dbnp.authentication.SecRole, 'SecUser':dbnp.authentication.SecUser,
-			'SecUserSecRole':dbnp.authentication.SecUserSecRole,
-			'SessionAuthenticatedUser':dbnp.authentication.SessionAuthenticatedUser,
+	def static DomainClasses = [ 
 			'Assay':dbnp.studycapturing.Assay,
+			'AssayModule':org.dbnp.gdt.AssayModule,
 			'Event':dbnp.studycapturing.Event, 'EventGroup':dbnp.studycapturing.EventGroup,
+			'Identity':org.dbnp.gdt.Identity,
 			'PersonAffiliation':dbnp.studycapturing.PersonAffiliation,
 			'Person':dbnp.studycapturing.Person,
 			'PersonRole':dbnp.studycapturing.PersonRole,
 			'Publication':dbnp.studycapturing.Publication,
+			'RegistrationCode':dbnp.authentication.RegistrationCode,
+			'RelTime':org.dbnp.gdt.RelTime,
 			'Sample':dbnp.studycapturing.Sample,
 			'SamplingEvent':dbnp.studycapturing.SamplingEvent,
+			'SecRole':dbnp.authentication.SecRole, 'SecUser':dbnp.authentication.SecUser,
+			'SecUserSecRole':dbnp.authentication.SecUserSecRole,
+			'SessionAuthenticatedUser':dbnp.authentication.SessionAuthenticatedUser,
 			'Study':dbnp.studycapturing.Study,
 			'StudyPerson':dbnp.studycapturing.StudyPerson,
 			'Subject':dbnp.studycapturing.Subject,
-			'AssayModule':org.dbnp.gdt.AssayModule,
-			'Identity':org.dbnp.gdt.Identity,
-			'RelTime':org.dbnp.gdt.RelTime,
 			'TemplateEntity':org.dbnp.gdt.TemplateEntity,
-			'TemplateField':org.dbnp.gdt.TemplateField,
 			'TemplateFieldListItem':org.dbnp.gdt.TemplateFieldListItem,
+			'TemplateField':org.dbnp.gdt.TemplateField,
 			'TemplateFieldType':org.dbnp.gdt.TemplateFieldType,
 			'Template':org.dbnp.gdt.Template ]
+
 
 
 	/** 
@@ -133,7 +136,19 @@ class ExportService
 
 		if(domainObject instanceof TemplateEntity ) {
 			objects.push(domainObject.template)
-			domainObject.template.fields.each { objects.push(it) }
+			domainObject.template.fields.each { 
+					objects.push(it) 
+					if(domainClass==Assay)
+						println "${domainObject.class} ${it}"
+			}
+
+			if(domainClass==Assay) {
+				domainObject.domainFields.each { 
+					def memberClass = domainObject."$it".class
+					println "${it.class} ${it}. member class: ${memberClass}"
+				}
+			}
+
 		}
 
 
@@ -191,190 +206,6 @@ class ExportService
 			}		
 		def study = createStudy( parseObjects ) 
 		study.save()	
-	}
-
-
-
-
-	/** 
-	 *  Create Study from list of objects repesenting a Study. 
-	 *  
-	 *  (For importing Study objects)
-	 *  
-	 *  @param  List of objects representing a Study. 
-	 *
-	 *  @return void
-	 */ 
-	def createStudy( List parseObjects ) {
-		parseObjects.each{ 
-			populateOneToManies( it.domainObject, it.node, parseObjects )
-		}
-		parseObjects.each{ 
-			if( it.domainObject instanceof TemplateEntity ) {
-				addTemplateRelations( it.domainObject, it.node, parseObjects )
-				addTemplateFields( it.domainObject, it.node, parseObjects )
-			}
-		}
-	}
-
-
-	/** Set a TemplateEntity's template field. Find the right Template in the list  
- 	  *	of ParseObjects based on parsed id. If the TemplateEntity instance does
- 	  * not have an matching template in the list of ParseObjects, it remains empty.
-	  *
-	  * @param domainObject Some Template Entity
-	  *
-	  * @param node Node with parse information
-	  *
-	  * @param parseObjects List of ParseObjects 
-	  */
-	def addTemplateRelations( TemplateEntity domainObject, Node node, List parseObjects ) {
-		def id = node.children().find{it.name=='template'}?.attributes()?.id
-		if(id) {
-			def template = parseObjects.find{ it.theClass==Template && it.id==id }?.domainObject
-			if(template) {
-				domainObject.template = template
-			}
-		}
-	}
-
-
-
-	/** Set a TemplateEntity's template fields with values from a Node. 
- 	  * The template fields are fields such as TemplateStringField or TemplateFieldType.
-	  *
-	  * @param domainObject Some Template Entity
-	  *
-	  * @param node Node with parse information
-	  *
-	  */
-	def addTemplateFields( TemplateEntity domainObject, Node node ) {
-		domainObject.metaClass.getProperties().each{ property ->
-			def name = property.name      // name of templateFields, e.g., templateStringFields
-			if( name ==~/template(.+)Fields/ ) {
-				node.children().find{it.name==name}?.children()?.each{ fieldNode ->	
-					def key = fieldNode.attributes()?.key
-					def value = fieldNode.text()
-					//domainObject.setFieldValue(key,value)  -> needs to be fixed based on class/type
-				}
-			}
-		}
-	}
-
-
-
-	/** 
-	 *  Populate one-to-many maps of a new domainObject  
-	 *  from list of ParseObjects. 
-	 *  
-	 *  (For importing Study objects)
-	 *  
-	 *  @param domainObject   domainObject to be fielled  
-	 *  
-	 *  @param  List of parseObjects representing a Study. 
-	 *
-	 *  @return the new domainObject 
-	 */ 
-	def populateOneToManies( domainObject, node, parseObjects ) {
-		if( !domainObject.class.metaClass.getProperties().find{ it.name=='hasMany' } ) {
-			return
-		}
-
-		domainObject.class.hasMany.each{ name, theClass ->
-			node.children().each { child ->	
-				if(child.name==name) {
-					child.children().each { grandChild ->
-						def id = grandChild.attributes.id
-						if(id) {
-							def ref = parseObjects.find{ it.theClass==theClass && it.id==id }
-							if(ref) {
-								def addTo = "addTo" + name.replaceFirst(name[0],name[0].toUpperCase()) 
-								domainObject.invokeMethod(addTo,(Object) ref.domainObject )
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-
-
-	/** 
-	 *  Populate one-to-many maps of a new domainObject  from list of ParseObjects. 
-	 *
-	 *  (For importing Study objects)
-	 *
-	 *  @param domainObject   domainObject to be fielled  
-	 *  
-	 *  @param  List of parseObjects representing a Study. 
-	 *
-	 *  @return the new domainObject 
-	 */ 
-
-	private class ParseObject { 
-		String tag
-		String id
-		Class theClass 
-		Object domainObject
-		Node node
-
-
-		public ParseObject( node ){
-			tag = node.name()
-			theClass = getClassForTag( tag ) 
-			domainObject = theClass.newInstance() 
-			id = null
-			if(node.attributes && node.attributes.id) {
-				id = node.attributes.id
-			}
-			this.node=node
-
-			if(theClass==Template) {
-								// Templates are suppsed to have been imported before 
-								// importing a study. Study.template is matched to a
-								// Template by the template's name.
-				def child = node.children.find{ "name"==it.name }
-				domainObject = Template.findByName( child.text() )
-			}
-			else { 
-				setSimpleFields()
-			}
-		}
-
-
-
-		/** 
-		 *  Populate this.domainObject's String and Date fields of 
-		 *  a domainObject from parsed XML node.
-		 */ 
-		private void setSimpleFields() {
-
-			def fields = 
-				domainObject.getProperties().domainFields.collect { it.toString() }
-
-			def map = [:]
-			domainObject.metaClass.getProperties().each { property ->
-				def name = property.name
-				def field = fields.find{ it == name }
-
-				if(field) { 
-					def type = property.type
-					def value = node.children().find{ it.name == field }.text()
-
-					switch(type) {
-						case String: map[field]=value; break
-						case Date: map[field] = Date.parse( 'yyyy-MM-dd', value ); break
-						//case Boolean: ???; break
-					}
-				}
-			}
-
-			def newDomainObject = domainObject.class.newInstance(map)
-			newDomainObject.id = 1  // neccessary?
-			domainObject = newDomainObject
-		}
-
 	}
 
 
