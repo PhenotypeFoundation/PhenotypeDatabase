@@ -52,9 +52,9 @@ class ExampleStudies {
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
-		def metagenomicsModule = new AssayModule(
-			name: 'Metagenomics module',
-			url: config.modules.metagenomics.url.toString()
+		def massSequencingModule = new AssayModule(
+			name: 'Mass Sequencing module',
+			url: config.modules.massSequencing.url.toString()
 		).save(failOnError:true)
 	}
 
@@ -406,9 +406,9 @@ class ExampleStudies {
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
-		def metagenomicsModule = new AssayModule(
-			name: 'Metagenomics module',
-			url: config.modules.metagenomics.url.toString()
+		def massSequencingModule = new AssayModule(
+			name: 'Mass Sequencing module',
+			url: config.modules.massSequencing.url.toString()
 		).save(failOnError:true)
 
 		def lipidAssayRef = new Assay(
@@ -461,14 +461,14 @@ class ExampleStudies {
 		def sequencingAssay16SRef = new Assay(
 			name		: '16S Sequencing assay',
 			template	: ccAssayTemplate,
-			module		: metagenomicsModule
+			module		: massSequencingModule
 		)
 
 		// Add sequencing (metagenomics) assays
 		def sequencingAssay18SRef = new Assay(
 			name		: '18S Sequencing assay',
 			template	: ccAssayTemplate,
-			module		: metagenomicsModule
+			module		: massSequencingModule
 		)
 
 		humanStudy.samples*.each {
