@@ -9,7 +9,6 @@ function disableKeys() {
 	$('input:text').each(function() {
 		$(this).bind('keypress', function(e) {
 			if (e.keyCode == 13) {
-console.log('ignoring enter key!');
 				return false;
 			}
 		});
