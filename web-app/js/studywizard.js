@@ -21,6 +21,7 @@ function onStudyWizardPage() {
 	attachHelpTooltips();
 	attachDatePickers();
 	attachDateTimePickers();
+	disableKeys();
 
 	// handle and initialize table(s)
 	handleWizardTable();
