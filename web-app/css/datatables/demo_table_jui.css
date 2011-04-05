@@ -26,6 +26,12 @@
  *     ../../images/datatables - relative to this CSS file.
  */
 
+/** 
+	This hack is needed to have IE7 position
+	the headers of the paginated table correctly. See also
+	www.satzansatz.de/cssd/onhavinglayout.html
+**/
+.paginate { position: relative; zoom: 1; }
 
 /*
  * jQuery UI specific styling
@@ -81,7 +87,7 @@ div.dataTables_wrapper .ui-widget-header {
  */
 thead th div.DataTables_sort_wrapper {
 	position: relative;
-	padding-right: 20px;
+	zoom: 1; 
 	padding-right: 20px;
 }
 
