@@ -3,7 +3,10 @@ body {
 	padding: 0;
 	font: 10px normal Arial, Helvetica, sans-serif;
 	background: #fff url(../images/default_style/body_bg_95px.gif) repeat-x;
+	text-align: center; 
 }
+
+.container { margin: 0 auto; text-align: left; }
 
 /*a:link, a:visited, a:hover {
 	color: #ff7900;
