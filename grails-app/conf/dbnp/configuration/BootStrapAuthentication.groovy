@@ -28,7 +28,7 @@ class BootStrapAuthentication {
 		def config = ConfigurationHolder.config
 
 		// create the admin role
-		def adminRole = SecRole.findByAuthority('ROLE_ADMIN') ?: new SecRole(authority: 'ROLE_ADMIN').save(failOnError:true)
+		def adminRole = SecRole.findByAuthority('ROLE_ADMIN') ?: new SecRole(authority: 'ROLE_ADMIN').save(flush:true, failOnError:true)
 
 		// iterate through default users, see
 		//	- grails-app/conf/config-environment.properties
@@ -43,7 +43,7 @@ class BootStrapAuthentication {
 					email:values.email,
 					userConfirmed: true,
 					adminConfirmed: true
-				).save(failOnError: true)
+				).save(flush:true, failOnError: true)
 
 				// is this user an administrator?
 				if (values.administrator == 'true') {
