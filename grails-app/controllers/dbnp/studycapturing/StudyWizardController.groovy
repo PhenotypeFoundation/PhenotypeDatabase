@@ -2017,8 +2017,10 @@ class StudyWizardController {
 		def fullUrl = url + '/' + util + '?' + paramString;
 
 		// Return the output of the request
-		response.contentType = "text/xml"
-		response.characterEncoding = "UTF-8"
+		response.setContentType("text/html; charset=UTF-8")
+		//response.contentType = "text/xml"
+		//response.characterEncoding = "UTF-8"
+
 		response <<  new URL( fullUrl ).openStream()
 		
 		render ""
