@@ -2022,8 +2022,9 @@ class StudyWizardController {
 		//response.characterEncoding = "UTF-8"
 
 println fullUrl
-		response <<  new URL( fullUrl ).openStream()
-		
+		//response <<  new URL( fullUrl ).openStream()
+		response <<  new URL( fullUrl ).getText()
+
 		render ""
 	}
 }
