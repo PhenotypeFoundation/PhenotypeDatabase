@@ -192,7 +192,12 @@ class AssayService {
 
         def path = moduleUrl + "/rest/getMeasurementMetaData/query?assayToken=$assay.assayUUID"
 
-        moduleCommunicationService.callModuleRestMethodJSON(moduleUrl, path)
+        def jsonArray = moduleCommunicationService.callModuleRestMethodJSON(moduleUrl, path)
+
+        // convert the JSONArray of JSONObjects to an array of hash maps
+        jsonArray.collect{ jo -> // JSONObject
+            [(jo.keys()[0]): jo.values().toList()[0]]
+        }
 
     }
 
@@ -209,8 +214,10 @@ class AssayService {
 
         def tokenString = ''
 
-        fields.each{tokenString+="&measurementToken=${it.name.encodeAsURL()}"}
-
+        fields.each{
+            tokenString+="&measurementToken=${it.name.encodeAsURL()}"
+        }
+        
         def path = moduleUrl + "/rest/getMeasurementData/query?assayToken=$assay.assayUUID" + tokenString
         
         def (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleRestMethodJSON(moduleUrl, path)

@@ -41,8 +41,8 @@
 
   </table>
 
-  <a href="doExport">OK</a>
-  <a href="selectAssay">Cancel</a>
-  
+  <g:link action="excelExport" event="ok">OK</g:link>
+  <g:link action="excelExport" event="cancel">Cancel</g:link>
+
   </body>
 </html>

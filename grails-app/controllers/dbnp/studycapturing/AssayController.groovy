@@ -118,160 +118,84 @@ class AssayController {
         }
     }
 
-    /**
-     * Shows a page where an assay from a study can be selected
-     *
-     * @param none
-     */
-    def selectAssay = {
-        def user = authenticationService.getLoggedInUser()
-        def studies = Study.findAllByOwner(user)
-        def assays = Assay.findAllByParent(studies[0])
-
-        [userStudies: studies, assays: assays]
-    }
-
-    /**
-     * Shows a page where individual fields for the different categories (ie.
-     * subject data, sampling events... etc.) can be selected for export
-     *
-     * @param params.id Assay id
-     */
-    def selectFields = {
-        // receives an assay id
-        def assayId = params.assayId
-
-        // did the assay id value come across?
-        if (!assayId) {
-            flash.errorMessage = "An error occurred: assayId = ${assayId}."
-            redirect action: 'selectAssay'
-            return
+    def excelExportFlow = {
+        entry {
+            action{
+                def user            = authenticationService.getLoggedInUser()
+                flow.userStudies    = Study.findAllByOwner(user)
+            }
+            on("success").to "selectAssay"
         }
 
-        Assay assay = Assay.get(assayId)
+        selectAssay {
+            on ("submit"){
+                flow.assay = Assay.get(params.assayId)
 
-        // check if assay exists
-        if (!assay) {
+                // check if assay exists
+                if (!flow.assay) throw new Exception("No assay found with id: ${flow.assay.id}")
 
-            flash.errorMessage = "No assay found with id: ${assayId}"
-            redirect action: 'selectAssay'
-            return
+                // obtain fields for each category
+                flow.fieldMap = assayService.collectAssayTemplateFields(flow.assay)
+
+                flow.measurementTokens = flow.fieldMap.remove('Module Measurement Data')*.name
+            }.to "selectFields"
+
+            on(Exception).to "handleError"
         }
 
-        // obtain fields for each category
-		def fieldMap
-        try {
-            fieldMap = assayService.collectAssayTemplateFields(assay)
-        } catch (Exception e) {
-			e.printStackTrace();
-            flash.errorMessage = e.message
-            redirect action: 'selectAssay'
-			return
+        selectFields {
+            on ("submit"){
+                def fieldMapSelection = [:]
 
-        }
-        def measurementTokens = fieldMap.remove('Module Measurement Data')
+                flow.fieldMap.eachWithIndex { cat, cat_i ->
 
-        flash.fieldMap = fieldMap
-        flash.measurementTokens = measurementTokens
-        flash.assayId = assayId
+                    if (params."cat_$cat_i" == 'on') {
+                        fieldMapSelection[cat.key] = []
 
-        // remove me
-        println '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'
-        println flash
-        println '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'
+                        cat.value.eachWithIndex { field, field_i ->
 
-        [fieldMap: fieldMap, measurementTokens: measurementTokens.name]
-    }
+                            if (params."cat_${cat_i}_${field_i}" == 'on')
+                                fieldMapSelection[cat.key] += field
+                        }
 
-    /**
-     * Exports all assay information as an Excel file.
-     *
-     * @param params.id Assay id
-     */
-    def compileExportData = {
-
-        def fieldMap = flash.fieldMap
-        def assayId = flash.assayId
-
-        // remove me
-        println '##############################################################'
-        println flash
-        println '##############################################################'
-
-        // did the assay id value come across?
-        if (!assayId) {
-            flash.errorMessage = "An error occurred: assayId = ${assayId}."
-            redirect action: 'selectAssay'
-            return
-        }
-
-        Assay assay = Assay.get(assayId)
-
-        // check if assay exists
-        if (!assay) {
-
-            flash.errorMessage = "No assay found with id: ${assayId}"
-            redirect action: 'selectAssay'
-            return
-        }
-
-        def fieldMapSelection = [:]
-
-        fieldMap.eachWithIndex { cat, cat_i ->
-
-            if (params."cat_$cat_i" == 'on') {
-                fieldMapSelection[cat.key] = []
-
-                cat.value.eachWithIndex { field, field_i ->
-
-                    if (params."cat_${cat_i}_${field_i}" == 'on') {
-
-                        fieldMapSelection[cat.key] += field
-
+                        if (fieldMapSelection[cat.key] == [])
+                            fieldMapSelection.remove(cat.key)
                     }
-
                 }
 
-                if (fieldMapSelection[cat.key] == []) fieldMapSelection.remove(cat.key)
+                def measurementTokensSelection = []
 
-            }
+                if (params."cat_4" == 'on') {
 
+                    def measurementToken = params.measurementToken
+
+                    if (measurementToken)
+                        if (measurementToken instanceof String)
+                            measurementTokensSelection = [[name: measurementToken]]
+                        else
+                            measurementTokensSelection = measurementToken.collect{[name: it]}
+                }
+
+                def assayData           = assayService.collectAssayData(flow.assay, fieldMapSelection, measurementTokensSelection)
+                flow.rowData            = assayService.convertColumnToRowStructure(assayData)
+                flow.assayDataPreview   = flow.rowData[0..4].collect{ it[0..4] as ArrayList }
+
+            }.to "compileExportData"
+
+            on(Exception).to "handleError"
         }
 
-        def measurementTokensSelection = []
-
-        if (params."cat_4" == 'on') {
-
-            def measurementToken = params.measurementToken
-
-            if (measurementToken) {
-
-                if (measurementToken instanceof String)
-                    measurementTokensSelection = [[name: measurementToken]]
-                else
-                    measurementTokensSelection = measurementToken.collect{[name: it]}
-
-            }
-
+        compileExportData {
+            on ("ok"){session.rowData = flow.rowData}.to "export"
+            on ("cancel").to "selectAssay"
         }
 
-        try {
+        export {
+            redirect(action: 'doExport')
+        }
 
-            def assayData = assayService.collectAssayData(assay, fieldMapSelection, measurementTokensSelection)
-
-            def rowData = assayService.convertColumnToRowStructure(assayData)
-
-            flash.rowData = rowData
-
-            def assayDataPreview = rowData[0..4].collect{it[0..4]}
-
-            [assayDataPreview: assayDataPreview]
-
-        } catch (Exception e) {
-
-            flash.errorMessage = e.message
-            redirect action: 'selectAssay'
-
+        handleError() {
+            render(view: 'errorPage')
         }
     }
 
@@ -281,16 +205,19 @@ class AssayController {
         response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
         response.setContentType("application/octet-stream")
         try {
-            
-            assayService.exportRowWiseDataToExcelFile(flash.rowData, response.outputStream)
+
+            assayService.exportRowWiseDataToExcelFile(session.rowData, response.outputStream)
+            response.outputStream.flush()
 
         } catch (Exception e) {
 
             flash.errorMessage = e.message
-            redirect action: 'selectAssay'
+            redirect action: 'errorPage'
 
         }
+    }
 
-
+    def errorPage = {
+        render(view: 'excelExport/errorPage')
     }
 }

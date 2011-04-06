@@ -17,6 +17,7 @@
 		<li><g:link controller="studyWizard" action="index" params="[jump:'edit']">Edit a study</g:link></li>
 		<li><g:link controller="simpleWizard" action="index">Simple wizard</g:link></li>
 		<li><g:link controller="importer" action="index">Import study data</g:link></li>
+        <li><g:link controller="gdtImporter" action="index">Import study data (BETA)</g:link></li>
         <li><g:link controller="simpleQuery" action="index">Search study data</g:link></li>
         <li><g:link controller="exporter" action="index">Export as SimpleTox</g:link></li>
       </ul>
@@ -25,7 +26,7 @@
     <li>
       <a href="#">Assays</a>
       <ul class="subnav">
-        <li><g:link controller="assay" action="selectAssay">Export Data to Excel</g:link> </li>
+        <li><g:link controller="assay" action="excelExport">Export Data to Excel</g:link> </li>
       </ul>
     </li>
     </sec:ifLoggedIn>

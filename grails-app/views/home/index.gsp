@@ -316,7 +316,7 @@
 		<h1>Introduction</h1>
 		<p>
 			The phenotype database (dbNP) is an application that can store any biological study. It contains
-			templates which makes it possible to customize
+			templates which makes it possible to customize.
 		</p>
 		<p>
 			In order to allow flexibility to capture all information you require within a study, <i>and</i> to
@@ -326,7 +326,7 @@
 		<p>
 			The application facilitates sharing of data within a research group or consortium, as the study owner can
 			decide who can view or access the data. In addition, the application can stimulate collaborations by making
-			study information publically visible. New studies can be based on study data within the database, as
+			study information publicly visible. New studies can be based on study data within the database, as
 			standardized storage is stimulated by the system.
 		</p>
 	</div>
@@ -347,7 +347,7 @@
 				Through the <i>studies</i> menu you can either <i>create</i>, <i>view</i> or <i>import</i> studies
 				(or study data). '<g:link controller="studyWizard" action="index" params="[jump:'create']">Create a new study</g:link>' will guide you through several steps to include your study
 				into the system where question marks (<img src="${fam.icon(name: 'help')}">) will explain what information is
-				required. You can (quick)save your study to complete it at another point in time, or use
+				required. You can (quick) save your study to complete it at another point in time, or use
 				<i>import study data</i> to import large datasets (for example: many subjects) from an excel sheet
 				into your study. Several data-types of different platforms (assays) can
 				be linked to your study, like <i>simple assays</i> (e.g. clinical chemistry or Western blot)

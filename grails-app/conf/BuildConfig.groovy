@@ -47,3 +47,4 @@ grails.project.dependency.resolution = {
 //grails.plugin.location.'ajaxflow' = '../ajaxflow'
 //grails.plugin.location.'gdt' = '../gdt'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
+//grails.plugin.location.'gdtimporter' = '../gdtimporter'

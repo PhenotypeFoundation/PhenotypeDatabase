@@ -35,7 +35,7 @@
 
   <h1>Select the assay you want to export data from</h1>
 
-  <g:form name="assaySelect" action="selectFields">
+  <g:form name="assaySelect" action="excelExport">
     <g:select optionKey="id" optionValue="title" name="studyId" from="${userStudies}" id="study"
       onChange="${remoteFunction(controller:'study',action:'ajaxGetAssays',params:'\'id=\'+escape(this.value)',onComplete: 'updateAssay(XMLHttpRequest.responseText, \'assay\')')}"/>
     <g:select optionKey="id" name="assayId" id="assay" from=""/>
