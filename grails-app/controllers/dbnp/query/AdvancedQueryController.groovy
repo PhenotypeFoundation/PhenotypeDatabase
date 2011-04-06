@@ -321,9 +321,13 @@ class AdvancedQueryController {
 				def domainFields = entity.giveDomainFields();
 				def templateFields = TemplateField.findAllByEntity( entity )
 
-				def fieldNames = ( domainFields + templateFields ).collect { it.name }.unique() + 'Template'
+				def fieldNames = ( domainFields + templateFields ).collect { it.name }.unique() + 'Template' + '*'
 
-				fields[ it ] = fieldNames.sort { a, b -> a[0].toUpperCase() + a[1..-1] <=> b[0].toUpperCase() + b[1..-1] };
+				fields[ it ] = fieldNames.sort { a, b ->
+					def aUC = a.size() > 1 ? a[0].toUpperCase() + a[1..-1] : a;
+					def bUC = b.size() > 1 ? b[0].toUpperCase() + b[1..-1] : b;
+					aUC <=> bUC 
+				};
 			}
 		}
 
@@ -345,7 +349,7 @@ class AdvancedQueryController {
 				// Remove 'module' from module name
 				def moduleName = module.name.replace( 'module', '' ).trim()
 
-				fields[ moduleName ] = moduleFields.unique();
+				fields[ moduleName ] = moduleFields.unique() + '*';
 			} catch( Exception e ) {
 				log.error( "Error while retrieving queryable fields from " + module.name + ": " + e.getMessage() )
 			}

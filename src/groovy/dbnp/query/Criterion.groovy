@@ -37,6 +37,18 @@ class Criterion {
 	}
 	
 	/**
+	 * Retrieves a human readable description of the combination of the entity and field
+	 * @return
+	 */
+	public String humanReadableEntityField() {
+		if( field == '*' ) {
+			return "any field in " + entity.toString();
+		} else {
+			return entityField();
+		}
+	}
+	
+	/**
 	 * Retrieves the correct value for this criterion in the given object (with template)
 	 *
 	 * @param entity		Entity to check for value. Should be a child of template entity
@@ -53,10 +65,16 @@ class Criterion {
 				fieldValue = entity
 			} else if( field == "Template" ) {
 				fieldValue = entity.template?.name
+			} else if( field == "*" ) {
+				fieldValue = entity.giveFields().collect{ 
+					if( it && it.name ) {
+						Search.prepare( entity.getFieldValue( it.name ), entity.giveFieldType( it.name ) ) 
+					}
+				}
 			} else {
 				fieldValue = Search.prepare( entity.getFieldValue( field ), entity.giveFieldType( field ) )
 			}
-
+			
 			return fieldValue
 		} catch( Exception e ) {
 			// An exception occurs if the given field doesn't exist. In that case, this criterion will fail.
@@ -72,7 +90,7 @@ class Criterion {
 	 * @param criterion	Criterion to match on
 	 * @return			True iff there the entity satisfies the given criterion.
 	 */
-	public boolean matchEntity( TemplateEntity entity ) {
+	public boolean matchOneEntity( TemplateEntity entity ) {
 		def fieldValue = this.getFieldValue( entity );
 
 		// Null is returned, the given field doesn't exist. In that case, this criterion will fail.
@@ -162,22 +180,25 @@ class Criterion {
 		def classname = fieldValue.class.getName();
 		classname = classname[classname.lastIndexOf( '.' ) + 1..-1].toLowerCase();
 
+		def matches = false;
 		try {
 			switch( classname ) {
-				case "integer":					return longCompare( new Long( fieldValue.longValue() ) );
-				case "long":					return longCompare( fieldValue );
-				case "float":					return doubleCompare( new Long( fieldValue.doubleValue() ) );
-				case "double":					return doubleCompare( fieldValue );
-				case "boolean":					return booleanCompare( fieldValue );
-				case "date":					return dateCompare( fieldValue);
-				case "reltime":					return relTimeCompare( fieldValue );
+				case "integer":					matches = longCompare( new Long( fieldValue.longValue() ) ); break;
+				case "long":					matches = longCompare( fieldValue ); break;
+				case "float":					matches = doubleCompare( new Long( fieldValue.doubleValue() ) ); break;
+				case "double":					matches = doubleCompare( fieldValue ); break;
+				case "boolean":					matches = booleanCompare( fieldValue ); break;
+				case "date":					matches = dateCompare( fieldValue); break;
+				case "reltime":					matches = relTimeCompare( fieldValue ); break;
 				case "assaymodule":
 				case "template":
 				case "term":
 				case "templatefieldlistitem":
 				case "string":
-				default:						return compareValues( fieldValue.toString().trim().toLowerCase(), this.operator, value.toString().toLowerCase().trim() );
+				default:						matches = compareValues( fieldValue.toString().trim().toLowerCase(), this.operator, value.toString().toLowerCase().trim() ); break;
 			}
+			
+			return matches;
 		} catch( Exception e ) {
 			log.error e.class.getName() + ": " + e.getMessage();
 			return false;
@@ -251,7 +272,7 @@ class Criterion {
 				Double doubleCriterion = Double.parseDouble(value);
 				longCriterion = new Long( doubleCriterion.longValue() );
 			} catch( Exception e2 ) {
-				log.error e2.class.getName() + ": " + e2.getMessage();
+				log.debug "Can't convert value to long for comparison: " + e2.class.getName() + ": " + e2.getMessage();
 				return false;
 			}
 		}
@@ -269,7 +290,7 @@ class Criterion {
 			Double doubleCriterion = Double.parseDouble( value );
 			return compareValues( fieldValue, this.operator, doubleCriterion );
 		} catch( Exception e ) {
-			log.error e.class.getName() + ": " + e.getMessage();
+			log.debug "Can't convert value to double for comparison: " + e.class.getName() + ": " + e.getMessage();
 			return false;
 		}
 	}
@@ -283,10 +304,16 @@ class Criterion {
 	 */
 	protected boolean booleanCompare( Boolean fieldValue ) {
 		try {
+			// The comparison should only be performed iff the value
+			// contains 'true' or 'false' (case insensitive)
+			def lowerCaseValue = value.toString().toLowerCase();
+			if( lowerCaseValue != 'true' && lowerCaseValue != 'false' )
+				return false;
+				
 			Boolean booleanCriterion = Boolean.parseBoolean( value );
 			return compareValues( fieldValue, this.operator, booleanCriterion );
 		} catch( Exception e ) {
-			log.error e.class.getName() + ": " + e.getMessage();
+			log.debug "Can't convert value to boolean for comparison: " + e.class.getName() + ": " + e.getMessage();
 			return false;
 		}
 	}
@@ -310,7 +337,7 @@ class Criterion {
 
 			return compareValues( fieldValue, this.operator, rt );
 		} catch( Exception e ) {
-			log.error e.class.getName() + ": " + e.getMessage();
+			log.debug "Can't convert value to reltime for comparison: " + e.class.getName() + ": " + e.getMessage();
 			return false;
 		}
 	}

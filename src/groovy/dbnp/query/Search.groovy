@@ -302,7 +302,7 @@ class Search {
 		switch (type) {
 			case TemplateFieldType.DATE:
 				try {
-					return new SimpleDateFormat( "yyyy-MM-dd" ).parse( value )
+					return new SimpleDateFormat( "yyyy-MM-dd" ).parse( value.toString() )
 				} catch( Exception e ) {
 					return value.toString();
 				}
@@ -579,17 +579,31 @@ class Search {
 			// Find the value of the field in this sample. That value is still in the
 			// JSON object
 			def token = entity.giveUUID()
-			if( !json[ token ] || json[ token ][ criterion.field ] == null )
-				return false;
-
-			// Check whether a list or string is given
-			def value = json[ token ][ criterion.field ];
-
-			// Save the value of this entity for later use
-			saveResultField( entity.id, criterion.entity + " " + criterion.field, value )
-
-			if( !( value instanceof Collection ) ) {
-				value = [ value ];
+			def value
+			
+			if( criterion.field == '*' ) {
+				// Collect the values from all fields
+				value = [];
+				json[ token ].each { field ->
+					if( field.value instanceof Collection ) {
+						field.value.each { value << it }
+					} else {
+						value << field.value;
+					}
+				}
+			} else {
+				if( !json[ token ] || json[ token ][ criterion.field ] == null )
+					return false;
+	
+				// Check whether a list or string is given
+				value = json[ token ][ criterion.field ];
+	
+				// Save the value of this entity for later use
+				saveResultField( entity.id, criterion.entity + " " + criterion.field, value )
+	
+				if( !( value instanceof Collection ) ) {
+					value = [ value ];
+				}
 			}
 
 			// Convert numbers to a long or double in order to process them correctly
@@ -625,7 +639,13 @@ class Search {
 	
 		def callUrl = 'entity=' + this.entity
 		tokens.sort().each { callUrl += "&tokens=" + it.encodeAsURL() }
-		fields.sort().each { callUrl += "&fields=" + it.encodeAsURL() }
+		
+		// If all fields are searched, all fields should be retrieved
+		if( fields.contains( '*' ) ) {
+			
+		} else {
+			fields.sort().each { callUrl += "&fields=" + it.encodeAsURL() }
+		}
 
 		return callUrl;
 	}
@@ -646,7 +666,7 @@ class Search {
 			return
 
 		criteria.each { criterion ->
-			if( criterion.field ) {
+			if( criterion.field && criterion.field != '*' ) {
 				def valueCallback = valueCallback( criterion.entity );
 				
 				if( valueCallback != null ) {
@@ -671,7 +691,7 @@ class Search {
 	protected void saveResultFields( entities, criteria, valueCallback ) {
 		for( criterion in criteria ) {
 			for( entity in entities ) {
-				if( criterion.field )
+				if( criterion.field && criterion.field != '*' )
 					saveResultField( entity.id, criterion.entity + ' ' + criterion.field, valueCallback( entity, criterion ) )
 			}
 		}
@@ -691,11 +711,14 @@ class Search {
 		// Handle special cases
 		if( value == null )
 			value = "";
-
+		
+		if( fieldName == "*" )
+			return;
+			
 		if( value instanceof Collection ) {
 			value = value.findAll { it != null }
 		}
-
+		
 		resultFields[ id ][ fieldName ] = value;
 	}
 

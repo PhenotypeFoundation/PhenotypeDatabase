@@ -231,7 +231,7 @@ class SampleSearch extends Search {
 			if( !assay )
 				return false
 
-			return criterion.matchEntity( assay );
+			return criterion.matchOneEntity( assay );
 		});
 
 		println "Matching assays: " + assays

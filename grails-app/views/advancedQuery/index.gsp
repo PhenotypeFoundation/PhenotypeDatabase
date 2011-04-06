@@ -14,8 +14,18 @@
 				<g:each in="${entity.value}" var="field">
 					<g:if test="${j > 0}">,</g:if>
 					{
-						label: "${entity.key.toString().encodeAsJavaScript()}.${field.toString().encodeAsJavaScript()} ${entity.key.toString().encodeAsJavaScript()} ${field.toString().encodeAsJavaScript()}",
-						show: "${(field[0].toUpperCase() + field[1..-1]).encodeAsJavaScript()}",
+						label: "${(
+							entity.key.toString() + '.' + field.toString() + ' ' +
+							entity.key.toString() + ' ' + field.toString() + ' ' + 
+							(field == '*' ? 'any field' : '')
+							).encodeAsJavaScript()}",
+						show: "${
+							(field == '*' ? 
+								'[Any field in ' + entity.key.toString() + ']' : 
+								(field?.size() > 1 ? 
+									field[0].toUpperCase() + field[1..-1] : 
+									field)
+							).encodeAsJavaScript()}",
 						value: "${entity.key.toString().encodeAsJavaScript()}.${field.toString().encodeAsJavaScript()}",
 						entity: "${entity.key.toString().encodeAsJavaScript()}"
 					}
@@ -77,7 +87,12 @@
 							<optgroup label="${entity.key}">
 								<g:each in="${entity.value}" var="field">
 									<option value="${entity.key}.${field}">
-										${field[0].toUpperCase() + field[1..-1]}
+										<g:if test="${field?.size() > 1}">
+											${field[0].toUpperCase() + field[1..-1]}
+										</g:if>
+										<g:else>
+											${field}
+										</g:else>
 									</option>
 								</g:each>
 							</optgroup>
