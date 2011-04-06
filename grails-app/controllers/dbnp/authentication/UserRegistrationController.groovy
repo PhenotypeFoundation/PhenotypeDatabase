@@ -238,7 +238,8 @@ class UserRegistrationController {
 
 		String salt = user.username
 		RegistrationCode.withTransaction { status ->
-			user.password = springSecurityService.encodePassword(command.password, salt)
+			if( command.password != "" ) 
+				user.password = springSecurityService.encodePassword(command.password, salt)
 			user.email = command.email
 			user.save()
 		}
@@ -273,7 +274,7 @@ class UserRegistrationController {
 		if (password && password.length() >= 8 && password.length() <= 64 &&
 				(!password.matches('^.*\\p{Alpha}.*$') ||
 				!password.matches('^.*\\p{Digit}.*$') ||
-				!password.matches('^.*[!@#$%^&].*$'))) {
+				!password.matches('^.*[!@#$%+^&].*$'))) {
 			return 'command.password.error.strength'
 		}
 	}
