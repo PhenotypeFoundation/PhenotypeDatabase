@@ -2021,6 +2021,7 @@ class StudyWizardController {
 		//response.contentType = "text/xml"
 		//response.characterEncoding = "UTF-8"
 
+println fullUrl
 		response <<  new URL( fullUrl ).openStream()
 		
 		render ""
