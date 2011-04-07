@@ -122,7 +122,7 @@ class AssayController {
         entry {
             action{
                 def user            = authenticationService.getLoggedInUser()
-                flow.userStudies    = Study.findAllByOwner(user)
+                flow.userStudies    = Study.giveReadableStudies(user)
             }
             on("success").to "selectAssay"
         }

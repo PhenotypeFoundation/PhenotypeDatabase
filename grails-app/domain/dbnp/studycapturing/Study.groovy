@@ -448,7 +448,7 @@ class Study extends TemplateEntity {
 	/**
 	 * Returns a list of studies that are writable for the given user
 	 */
-	public static giveWritableStudies(SecUser user, int max) {
+	public static giveWritableStudies(SecUser user, int max = null) {
 		// User that are not logged in, are not allowed to write to a study
 		if (user == null)
 			return [];
@@ -458,14 +458,14 @@ class Study extends TemplateEntity {
 		// Administrators are allowed to read everything
 		if (user.hasAdminRights()) {
 			return c.listDistinct {
-				maxResults(max)
+				if (max != null) maxResults(max)
 				order("title", "asc")
 				
 			}
 		}
 
 		return c.listDistinct {
-			maxResults(max)
+			if (max != null) maxResults(max)
 			order("title", "asc")
 			or {
 				eq("owner", user)
@@ -479,13 +479,13 @@ class Study extends TemplateEntity {
 	/**
 	 * Returns a list of studies that are readable by the given user
 	 */
-	public static giveReadableStudies(SecUser user, int max, int offset = 0) {
+	public static giveReadableStudies(SecUser user, int max = null, int offset = 0) {
 		def c = Study.createCriteria()
 
 		// Administrators are allowed to read everything
 		if (user == null) {
 			return c.listDistinct {
-				maxResults(max)
+				if (max != null) maxResults(max)
 				firstResult(offset)
 				order("title", "asc")
 				and {
@@ -495,13 +495,13 @@ class Study extends TemplateEntity {
 			}
 		} else if (user.hasAdminRights()) {
 			return c.listDistinct {
-				maxResults(max)
+				if (max != null) maxResults(max)
 				firstResult(offset)
 				order("title", "asc")
 			}
 		} else {
 			return c.listDistinct {
-				maxResults(max)
+				if (max != null) maxResults(max)
 				firstResult(offset)
 				order("title", "asc")
 				or {
