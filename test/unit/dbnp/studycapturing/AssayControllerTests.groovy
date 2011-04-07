@@ -24,6 +24,9 @@ class AssayControllerTests extends ControllerUnitTestCase {
         super.tearDown()
     }
 
+	void testSomething() {
+	}
+
 
 // Disabled testing of controller since I made a webflow out of the excel export
 // testing might prove necessary later but tests need to be rewritten
