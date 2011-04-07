@@ -2019,7 +2019,7 @@ class StudyWizardController {
 		// Return the output of the request
 		response.setContentType("text/xml; charset=UTF-8")
 
-		response <<  new URL( fullUrl ).getText()
+		response <<  new URL( fullUrl ).getText('UTF-8')
 
 		render ""
 	}
