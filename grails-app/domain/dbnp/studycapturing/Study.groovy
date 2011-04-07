@@ -448,7 +448,7 @@ class Study extends TemplateEntity {
 	/**
 	 * Returns a list of studies that are writable for the given user
 	 */
-	public static giveWritableStudies(SecUser user, int max = null) {
+	public static giveWritableStudies(SecUser user, Integer max = null) {
 		// User that are not logged in, are not allowed to write to a study
 		if (user == null)
 			return [];
@@ -479,7 +479,7 @@ class Study extends TemplateEntity {
 	/**
 	 * Returns a list of studies that are readable by the given user
 	 */
-	public static giveReadableStudies(SecUser user, int max = null, int offset = 0) {
+	public static giveReadableStudies(SecUser user, Integer max = null, int offset = 0) {
 		def c = Study.createCriteria()
 
 		// Administrators are allowed to read everything
