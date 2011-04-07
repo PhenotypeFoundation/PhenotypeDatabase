@@ -226,16 +226,24 @@ class AssayService {
 
         def lastDataIndex   = moduleData.size() - 1
         def stepSize        = sampleTokens.size() + 1
+		
+		// Convert the three different maps into a map like: 
+		//
+		// [ "measurement 1": [ value1, value2, value3 ],
+		//   "measurement 2": [ value4, value5, value6 ]
+		//
+		def map = [:]
+		def numSamples = sampleTokens.size();
+		def idx = 0;
+		
+		// Loop through all measurementtokens, and get the right slice from the measurement list
+		measurementTokens.each { measurementToken ->
+			def startIndex = idx++ * numSamples;
+			def stopIndex = startIndex + numSamples - 1;
+			map[ measurementToken.toString() ] = moduleData[ startIndex..stopIndex ].collect { it.toString() }
+		}
 
-        // Transpose the data to order it by measurement (compound) so it can be
-        // written as 1 column
-        int i = 0
-        measurementTokens.inject([:]) { map, token ->
-
-            map + [(token): moduleData[(i++..lastDataIndex).step(stepSize)]]
-
-        }
-
+		return map;
     }
 
     /**
