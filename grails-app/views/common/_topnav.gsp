@@ -22,14 +22,12 @@
         <li><g:link controller="exporter" action="index">Export as SimpleTox</g:link></li>
       </ul>
     </li>
-    <sec:ifLoggedIn>
     <li>
       <a href="#">Assays</a>
       <ul class="subnav">
         <li><g:link controller="assay" action="excelExport">Export Data to Excel</g:link> </li>
       </ul>
     </li>
-    </sec:ifLoggedIn>
 	<li>
 		<a href="#">Templates</a>
 		<ul class="subnav">

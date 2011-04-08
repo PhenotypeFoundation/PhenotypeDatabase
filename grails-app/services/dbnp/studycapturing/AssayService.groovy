@@ -190,14 +190,11 @@ class AssayService {
 
         def moduleUrl = assay.module.url
 
-        def path = moduleUrl + "/rest/getMeasurementMetaData/query?assayToken=$assay.assayUUID"
+        def path = moduleUrl + "/rest/getMeasurements/query?assayToken=$assay.assayUUID"
 
         def jsonArray = moduleCommunicationService.callModuleRestMethodJSON(moduleUrl, path)
 
-        // convert the JSONArray of JSONObjects to an array of hash maps
-        jsonArray.collect{ jo -> // JSONObject
-            [(jo.keys()[0]): jo.values().toList()[0]]
-        }
+        jsonArray*.toString()
 
     }
 
@@ -230,7 +227,7 @@ class AssayService {
 		// Convert the three different maps into a map like: 
 		//
 		// [ "measurement 1": [ value1, value2, value3 ],
-		//   "measurement 2": [ value4, value5, value6 ]
+		//   "measurement 2": [ value4, value5, value6 ] ]
 		//
 		def map = [:]
 		def numSamples = sampleTokens.size();

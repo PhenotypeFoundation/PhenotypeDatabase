@@ -137,7 +137,7 @@ class AssayController {
                 // obtain fields for each category
                 flow.fieldMap = assayService.collectAssayTemplateFields(flow.assay)
 
-                flow.measurementTokens = flow.fieldMap.remove('Module Measurement Data')*.name
+                flow.measurementTokens = flow.fieldMap.remove('Module Measurement Data')
             }.to "selectFields"
 
             on(Exception).to "handleError"
