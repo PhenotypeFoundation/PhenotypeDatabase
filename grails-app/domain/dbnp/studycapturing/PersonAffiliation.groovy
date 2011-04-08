@@ -11,7 +11,6 @@ import org.dbnp.gdt.*
  * $Date$
  */
 class PersonAffiliation extends Identity {
-
 	String institute
 	String department
 

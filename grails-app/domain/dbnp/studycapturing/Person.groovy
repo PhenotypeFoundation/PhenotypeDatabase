@@ -45,5 +45,7 @@ class Person extends Identity {
 		sort 'firstName': 'asc'
     }
 
-
+	def String toString() {
+		return "${lastName}, ${firstName}"
+	}
 }

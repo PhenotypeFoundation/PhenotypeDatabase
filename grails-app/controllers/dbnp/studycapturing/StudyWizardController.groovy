@@ -1315,8 +1315,11 @@ class StudyWizardController {
 		   publicationIDs = publicationIDs.split(',').collect { Integer.parseInt(it, 10) }
 
 		   // First remove the publication that are not present in the array
-		   if( study.publications )
-			   study.publications.removeAll { publication -> !publicationIDs.find { id -> id == publication.id } }
+		   if( study.publications ) {
+			   study.publications.findAll { publication -> !publicationIDs.find { id -> id == publication.id } }.each {
+				   study.removeFromPublications(it)
+			   }
+		   }
 
 		   // Add those publications not yet present in the database
 		   publicationIDs.each { id ->
@@ -1332,8 +1335,11 @@ class StudyWizardController {
 
 	   } else {
 		   log.info('.no publications selected.')
-		   if( study.publications )
-			   study.publications.clear()
+		   if( study.publications ) {
+			   study.publications.each {
+				   study.removeFromPublications(it)
+			   }
+		   }
 	   }
    }
 
@@ -1362,8 +1368,11 @@ class StudyWizardController {
 
 		   // First remove the contacts that are not present in the array
 		   if( study.persons ) {
-			   study.persons.removeAll {
+			   study.persons.findAll {
 				   studyperson -> !contactIDs.find { ids -> (ids.person == studyperson.person.id) && (ids.role == studyperson.role.id) }
+			   }.each {
+				   study.removeFromPersons(it)
+				   it.delete()
 			   }
 		   }
 
@@ -1393,8 +1402,13 @@ class StudyWizardController {
 		   }
 	   } else {
 		   log.info('.no persons selected.')
-		   if( study.persons )
-			   study.persons.clear()
+		   if( study.persons ) {
+			   // removing persons from study
+			   study.persons.each {
+				   study.removeFromPersons(it)
+				   it.delete()
+			   }
+		   }
 	   }
    }
 
@@ -1452,8 +1466,11 @@ class StudyWizardController {
 			   
 		   users.each { study.addToReaders(it) }
 	   } else if (type == "writers") {
-		   if (study.writers)
-			   study.writers.clear()
+		   if (study.writers) {
+			   study.writers.each {
+					study.removeFromWriters(it)
+			   }
+		   }
 
 		   users.each { study.addToWriters(it) }
 		   
