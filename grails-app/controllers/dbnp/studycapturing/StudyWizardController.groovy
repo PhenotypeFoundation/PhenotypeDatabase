@@ -1092,7 +1092,7 @@ class StudyWizardController {
 				flash.wizardErrors = [:]
 
 				// persist data to the database
-//				try {
+				try {
 					// save study
 					// Grom a development message
 					if (pluginManager.getGrailsPlugin('grom')) "saving study".grom()
@@ -1109,15 +1109,15 @@ class StudyWizardController {
 					log.info ".saved study "+flow.study+" (id: "+flow.study.id+")"
 
 					success()
-//				} catch (Exception e) {
+				} catch (Exception e) {
 					// rollback
-//					this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace' ], flash.wizardErrors)
+					this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace' ], flash.wizardErrors)
 
 					// stacktrace in flash scope
-//					flash.debug = e.getStackTrace()
+					flash.debug = e.getStackTrace()
 
-//					error()
-//				}
+					error()
+				}
 			}
 			on("error").to "error"
 			on(Exception).to "error"
