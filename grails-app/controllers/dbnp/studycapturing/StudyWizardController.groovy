@@ -148,6 +148,25 @@ class StudyWizardController {
 					if (flow.jump.id) {
 						// load study
 						if (this.loadStudy(flow, flash, [studyid:flow.jump.id],authenticationService.getLoggedInUser())) {
+							// iterate through eventgroups and get their identifiers. Somehow
+							// we really need to do this here, otherwise (only!) the eventGroup's
+							// identifiers keep iterating in the events page, messing up the
+							// GET request, and deleting all samples
+							// 	use case:	1) load study
+							//				2) click samples tab
+							//				3) click events tab (eventGroup identifiers increases for the SAME
+							//				   eventGroup while you would expect the identifier for a eventGroup
+							//				   to remain stable)
+							//				4) click next or sample tab --> get parameters are wrong so all samples
+							//				   are deleted
+							//				5) click on the events tab --> the eventGroup identifiers are now stable?!
+							// The only thing that makes EventGroup different from the other entities is that
+							// EventGroup extends Identity directly, while the other entities extend TemplateEntity
+							// which in turn extends Identity.
+							//
+							// The following line fixed the issue, but it is extremely weird we even have to do this...
+							flow.study.eventGroups.each { it.getIdentifier() }
+
 							toStudyPage()
 						} else {
 							toStartPage()
