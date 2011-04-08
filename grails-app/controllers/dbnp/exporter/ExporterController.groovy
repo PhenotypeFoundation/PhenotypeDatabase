@@ -61,70 +61,72 @@ class ExporterController {
 		}
         
         if(studies.size()>1){
-            // Create a ZIP file containing all the SimpleTox files
-            def files = []
-            for (studyInstance in studies){
-                downloadFile(studyInstance,false)
-                files.add(new File("web-app/fileuploads/"+studyInstance.id+"_SimpleTox.xls"))
-            }
 
-            response.setContentType( "application/zip" ) ;
-            response.addHeader( "Content-Disposition", "attachment; filename=\"GSCF_SimpleToxStudies.zip\"" ) ;
+			// Send the right headers for the zip file to be downloaded
+			response.setContentType( "application/zip" ) ;
+			response.addHeader( "Content-Disposition", "attachment; filename=\"GSCF_SimpleToxStudies.zip\"" ) ;
 
-            // get a ZipOutputStream, so we can zip our files together
-            ZipOutputStream outZip = new ZipOutputStream( response.getOutputStream() );
-
-            // add SimpleTox files to the zip
-            for (outFiles in files){
-
-                FileInputStream inStream = null
-                try
-                {
-                    // Add ZIP entry to output stream.
-                    outZip.putNextEntry( new ZipEntry( outFiles.getName() ) ) ;
-
-                    inStream = new FileInputStream( outFiles )
-
-                    // Transfer bytes from the file to the ZIP file
-                    byte[] buf = new byte[ 4096 ] ;
-                    int len 
-                    while( ( len = inStream.read( buf ) ) > 0 )
-                    {
-                        outZip.write( buf, 0, len ) 
-                    }
-                }
-                catch( Exception ex ) {  }
-                finally
-                {
-                    // Complete the entry
-                    try{ outZip.closeEntry() } catch( Exception ex ) { }
-                    try{ inStream.close() } catch( Exception ex ) { }
-                }
-                outFiles.delete()
-            }
-            outZip.flush() 
-            outZip.close()
-        }
-
-
-        else {
+			// Create a ZIP file containing all the SimpleTox files
+			ZipOutputStream zipFile = new ZipOutputStream( new BufferedOutputStream( response.getOutputStream() ) );
+			BufferedWriter zipWriter = new BufferedWriter( new OutputStreamWriter( zipFile ) );
+			
+			// Loop through the given studies and export them
+			for (studyInstance in studies){
+				if( studyInstance.samples?.size() ) {
+					try {
+						zipFile.putNextEntry( new ZipEntry( studyInstance.title + "_SimpleTox.xls" ));
+						downloadFile(studyInstance, zipFile);
+						zipWriter.flush();
+						zipFile.closeEntry();
+					} catch( Exception e ) {
+						log.error "Error while writing excelfile for zip for study " + studyInstance?.title + ": " + e.getMessage();
+					} finally {
+						// Always close zip entry
+						try {
+							zipWriter.flush();
+							zipFile.closeEntry();
+						} catch( Exception e ) {
+							log.error "Error while closing excelfile for zip for study: " + e.getMessage();
+						}
+					}
+				} else {
+					log.trace "Study " + studyInstance?.title + " doesn't contain any samples, so is not exported to simpleTox"
+					
+					// Add a text file with explanation in the zip file
+					zipFile.putNextEntry(new ZipEntry( studyInstance.title + "_contains_no_samples.txt" ) );
+					zipFile.closeEntry();
+				}
+			}
+			
+			// Close zipfile and flush to the user
+			zipFile.close();
+			response.outputStream.flush();
+			
+        } else {
             def studyInstance = studies.getAt(0)
             // make the file downloadable
             if ((studyInstance!=null) && (studyInstance.samples.size()>0)){
-                downloadFile(studyInstance,true)
-            }
+	            response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.title}_SimpleTox.xls\"")
+	            response.setContentType("application/octet-stream")
+                downloadFile(studyInstance, response.getOutputStream())
+				response.getOutputStream().close()
+            } else if( studyInstance.samples.size() == 0 ) {
+				flash.message = "Given study doesn't contain any samples, so no excel file is created. Please choose another study.";
+				redirect( action: 'index' );
+			}
             else {
-                flash.message= "Error while exporting the file, please try again or choose another file"
-                redirect(action:index)
+                flash.message= "Error while exporting the file, please try again or choose another study."
+                redirect( action: 'index' )
             }
 
         }
 
     }
     /* 
-     * the export method will create a SimpleTox format for the selected study
+     * the export method will create a SimpleTox format for the selected study 
+     * and write the file to the given output stream
      */
-    def downloadFile(studyInstance, boolean dl) {
+    def downloadFile(studyInstance, OutputStream outStream) {
         // the attributes list for the SimpleTox format
         def attributes_list = ["SubjectID","DataFile","HybName","SampleName","ArrayType","Label","StudyTitle","Array_ID",
         "Species"]
@@ -165,21 +167,7 @@ class ExporterController {
             }
         }
 
-        // Make the file downlodable
-        if(dl) {
-            println "Creation for downloading the file "+studyInstance.title+"_SimpleTox.xls"
-            response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.title}_SimpleTox.xls\"")
-            response.setContentType("application/octet-stream")
-            wb.write(response.outputStream)
-            response.outputStream.close()
-        }
-
-        // Create the file and save into ZIP
-        if(!dl){
-            FileOutputStream fileOut = new FileOutputStream("web-app/fileuploads/"+studyInstance.id+"_SimpleTox.xls", true)
-            wb.write(fileOut)
-            fileOut.close()
-        }
+		wb.write( outStream );
     }
 
     def writeMandatoryFields(sub,sample,study) {
@@ -210,24 +198,32 @@ class ExporterController {
 
     // writing subject properties
     def writeSubjectProperties(sub,sample,row) {
-        println "----- SUBJECT -----"
-        for (u in 0..sample.parentSubject.giveFields().unique().size()-1){
-            TemplateField tf = sample.parentSubject.giveFields().getAt(u)
-            println tf.name
-            row.createCell((short)9+u).setCellValue(tf.name)
-            sample.parentSubject.getFieldValue(tf.name) ? sub.createCell((short)9+u).setCellValue(sample.parentSubject.getFieldValue(tf.name).toString()) : "not define"
-        }
+		if( sample.parentSubject ) {
+			log.trace "----- SUBJECT -----"
+	        for (u in 0..sample.parentSubject.giveFields().unique().size()-1){
+	            TemplateField tf = sample.parentSubject.giveFields().getAt(u)
+	            log.trace tf.name
+	            row.createCell((short)9+u).setCellValue(tf.name)
+	            sample.parentSubject.getFieldValue(tf.name) ? sub.createCell((short)9+u).setCellValue(sample.parentSubject.getFieldValue(tf.name).toString()) : "not define"
+	        }
+		} else {
+			log.trace "------ NO SUBJECT FOR SAMPLE " + sample.name + "-----";
+		}
     }
 
     // writing samplingEvent properties
     def writeSamplingEventProperties(sub,sample,row){
-        println "----- SAMPLING EVENT -----"
-        for (t in 0..sample.parentEvent.giveFields().unique().size()-1){
-            TemplateField tf =sample.parentEvent.giveFields().getAt(t)
-            println tf.name
-            row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue("samplingEvent-"+tf.name)
-            sample.parentEvent.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue(sample.parentEvent.getFieldValue(tf.name).toString()) : "not define"
-        }
+		if( sample.parentEvent ) {
+	        log.trace "----- SAMPLING EVENT -----"
+	        for (t in 0..sample.parentEvent.giveFields().unique().size()-1){
+	            TemplateField tf =sample.parentEvent.giveFields().getAt(t)
+	            log.trace tf.name
+	            row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue("samplingEvent-"+tf.name)
+	            sample.parentEvent.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue(sample.parentEvent.getFieldValue(tf.name).toString()) : "not define"
+	        }
+		} else {
+			log.trace "------ NO SAMPLING EVENT FOR SAMPLE " + sample.name + "-----";
+		}
     }
 
     // writing EventGroup properties
@@ -237,10 +233,10 @@ class ExporterController {
 
     // writing sample properties
     def writeSampleProperties(sub,sample,row){
-        println "----- SAMPLE -----"
+        log.trace "----- SAMPLE -----"
         for (v in 0..sample.giveFields().unique().size()-1){
             TemplateField tf =sample.giveFields().getAt(v)
-            println tf.name
+            log.trace tf.name
             row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.giveFields().unique().size()).setCellValue("sample-"+tf.name)
             sample.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.giveFields().unique().size()).setCellValue(sample.getFieldValue(tf.name).toString()) : "not define"
         }
