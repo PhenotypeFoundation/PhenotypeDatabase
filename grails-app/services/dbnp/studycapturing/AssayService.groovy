@@ -157,7 +157,8 @@ class AssayService {
 
         }
 
-        def samples = assay.samples
+        // Find samples and sort by name
+		def samples = assay.samples.toList().sort { it.name }
 
         def eventFieldMap = [:]
 
@@ -175,7 +176,7 @@ class AssayService {
             'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data']*.name, 'parentEvent'),
             'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']*.name),
             'Event Group' :             eventFieldMap,
-            'Module Measurement Data':  measurementTokens*.name ? requestModuleMeasurements(assay, measurementTokens) : [:]
+            'Module Measurement Data':  measurementTokens*.name ? requestModuleMeasurements(assay, measurementTokens, samples) : [:]
         ]
     }
 
@@ -201,11 +202,12 @@ class AssayService {
     /**
      * Retrieves module measurement data through a rest call to the module
      *
-     * @param consumer the url of the module
-     * @param path path of the rest call to the module
+     * @param assay		Assay for which the module measurements should be retrieved
+     * @param fields	List with the names of the fields to be retrieved. Format: [ [ name: 'measurementName1' ], [ name: 'measurementName2' ] ]
+     * @param samples	Samples for which the module 
      * @return
      */
-    def requestModuleMeasurements(assay, fields) {
+    def requestModuleMeasurements(assay, fields, samples) {
 
         def moduleUrl = assay.module.url
 
@@ -221,23 +223,39 @@ class AssayService {
 
         if (!sampleTokens?.size()) return []
 
-        def lastDataIndex   = moduleData.size() - 1
-        def stepSize        = sampleTokens.size() + 1
-		
 		// Convert the three different maps into a map like: 
 		//
 		// [ "measurement 1": [ value1, value2, value3 ],
 		//   "measurement 2": [ value4, value5, value6 ] ]
 		//
+		// The returned values should be in the same order as the given samples-list
 		def map = [:]
-		def numSamples = sampleTokens.size();
-		def idx = 0;
+		def numSampleTokens = sampleTokens.size();
 		
-		// Loop through all measurementtokens, and get the right slice from the measurement list
-		measurementTokens.each { measurementToken ->
-			def startIndex = idx++ * numSamples;
-			def stopIndex = startIndex + numSamples - 1;
-			map[ measurementToken.toString() ] = moduleData[ startIndex..stopIndex ].collect { it.toString() }
+		measurementTokens.eachWithIndex { measurementToken, measurementIndex ->
+			def measurements = [];
+			samples.each { sample ->
+
+				// Do measurements for this sample exist? If not, a null value is returned
+				// for this sample. Otherwise, the measurement is looked up in the list with
+				// measurements, based on the sample token
+				if( sampleTokens.collect{ it.toString() }.contains( sample.giveUUID() ) ) {
+					def tokenIndex = sampleTokens.indexOf( sample.giveUUID() );
+					def valueIndex = measurementIndex * numSampleTokens + tokenIndex;
+					
+					// If the module data is in the wrong format, show an error in the log file
+					// and return a null value for this measurement.
+					if( valueIndex >= moduleData.size() ) {
+						log.error "Module measurements given by module " + assay.module.name + " are not in the right format: " + measurementTokens?.size() + " measurements, " + sampleTokens?.size() + " samples, " + moduleData?.size() + " values"
+						measurements << null
+					}  else {
+						measurements << moduleData[ valueIndex ].toString();
+					}
+				} else {
+					measurements << null
+				}
+			}
+			map[ measurementToken.toString() ] = measurements
 		}
 
 		return map;
