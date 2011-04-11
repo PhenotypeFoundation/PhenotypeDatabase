@@ -25,7 +25,14 @@ class BaseFilters {
 			before = {
 				// set the default style in the session
 				if (!session.style) {
-					session.style = 'default_style'
+					def hostname = InetAddress.getLocalHost().getHostName()
+					if (hostname =~ 'nmcdsp.org') {
+						session.style = 'nmcdsp_style'
+					} else if (hostname =~ 'dbnp.org') {
+						session.style = 'dbnp_style'
+					} else {
+						session.style = 'default_style'
+					}
 				}
 
 				// set session lifetime to 1 week

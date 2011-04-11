@@ -20,6 +20,10 @@
 			<td>build age</td>
 			<td>: <span id="info-uptime" /></td>
 		</tr>
+		<tr>
+			<td>hostname</td>
+			<td>: ${InetAddress.getLocalHost().getHostName()}</td>
+		</tr>
 	</table>
 
 	<script type="text/javascript">
