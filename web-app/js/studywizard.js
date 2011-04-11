@@ -22,6 +22,7 @@ function onStudyWizardPage() {
 	attachDatePickers();
 	attachDateTimePickers();
 	disableKeys();
+	disableDatePickerKeys();
 
 	// handle and initialize table(s)
 	handleWizardTable();
@@ -85,6 +86,14 @@ function onStudyWizardPage() {
 
 	// initialize accordeon(s)
 	$("#accordion").accordion({autoHeight: false});
+}
+
+// disable all key presses in every text element which has a datapicker
+// attached
+function disableDatePickerKeys() {
+	$(".hasDatepicker").each(function() {
+		$(this).bind('keypress', function(e) { return false; });
+	});
 }
 
 // insert a redirect confirmation dialogue to all anchors leading the
