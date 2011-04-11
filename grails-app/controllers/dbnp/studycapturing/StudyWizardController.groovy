@@ -762,6 +762,7 @@ class StudyWizardController {
 			}
 			on("next").to "samples"
 			on("previous").to "groups"
+			on("quickSave").to "save"
 			on("toPageOne").to "study"
 			on("toPageTwo").to "subjects"
 			on("toPageThree").to "events"
