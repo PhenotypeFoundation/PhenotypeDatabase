@@ -92,7 +92,7 @@ function onStudyWizardPage() {
 // attached
 function disableDatePickerKeys() {
 	$(".hasDatepicker").each(function() {
-		$(this).bind('keypress', function(e) { return false; });
+		$(this).bind('keydown', function(e) { return false; });
 	});
 }
 
