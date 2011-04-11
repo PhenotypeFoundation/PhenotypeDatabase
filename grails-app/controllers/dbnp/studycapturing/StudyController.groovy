@@ -384,6 +384,43 @@ class StudyController {
 
         render study?.assays?.collect{[name: it.name, id: it.id]} as JSON
     }
+	
+	/**
+	 * Exports all data from the given studies to excel. This is done using a redirect to the 
+	 * assay controller
+	 * 
+	 * @param	ids				ids of the studies to export
+	 * @param	params.format	"list" in order to export all assays in one big excel sheet
+	 * 							"sheets" in order to export every assay on its own sheet (default)
+	 * @see		AssayController.exportToExcel
+	 */
+	def exportToExcel = {
+		def ids = params.list( 'ids' ).findAll { it.isLong() }.collect { Long.valueOf( it ) };
 
-
+		if( !ids ) {
+			flash.errorMessage = "No study ids given";
+			redirect( controller: "assay", action: "errorPage" );
+			return;
+		}
+		
+		// Find all assay ids for these studies
+		def assayIds = ids.collect { id ->
+			def study = Study.get( id );
+			if( study ) {
+				return study.assays.collect { assay -> assay.id }
+			} else {
+				return []
+			}
+		}.flatten()
+		
+		if( !assayIds ) {
+			flash.errorMessage = "No assays found for the given studies";
+			redirect( controller: "assay", action: "errorPage" );
+			return;
+		}
+		
+		// Create url to redirect to
+		def format = params.get( "format", "sheets" )
+		redirect( controller: "assay", action: "exportToExcel", params: [ "format": format, "ids": assayIds ] );
+	}
 }

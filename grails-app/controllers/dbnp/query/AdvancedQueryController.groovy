@@ -591,7 +591,24 @@ class AdvancedQueryController {
 						module: "gscf",
 						name:"simpletox",
 						description: "Export as SimpleTox",
-						url: createLink( controller: "exporter", action: "export", params: [ 'ids' : ids ] )
+						url: createLink( controller: "exporter", action: "export", params: [ 'format': 'list', 'ids' : ids ] )
+					], [
+						module: "gscf",
+						name:"excel",
+						description: "Export as Excel",
+						url: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] )
+					]]
+			case "Assay":
+				def ids = []
+				s.filterResults(selectedIds).each {
+					ids << it.id
+				}
+				
+				return [[
+						module: "gscf",
+						name:"excel",
+						description: "Export as Excel",
+						url: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] )
 					]]
 			case "Sample":
 				return []
