@@ -29,7 +29,7 @@
 		<p>
 		You are about to create a study containing ${(study.subjects) ? study.subjects.size() : 0} subjects,
 		${(study.events) ? study.events.size() : 0} events and ${(study.samplingEvents) ? study.samplingEvents.size(): 0} sampling events grouped into
-		${(study.eventGroups) ? study.eventGroups.size() : 0} event groups. The study is results in
+		${(study.eventGroups) ? study.eventGroups.size() : 0} event groups. The study results in
 		${(study.samples) ? study.samples.size() : 0} samples analyzed using ${(study.assays) ? study.assays.size() : 0} assays.
 		</p>
 	</div>
