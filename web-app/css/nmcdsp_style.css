@@ -7,7 +7,7 @@ body {
 }
 
 .container { margin: 0 auto; text-align: left; }
-.ui-widget { text-align: left; }
+.ui-widget, .simileAjax-bubble-container  { text-align: left; }
 
 /*a:link, a:visited, a:hover {
 	color: #ff7900;

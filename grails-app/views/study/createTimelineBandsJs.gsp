@@ -100,13 +100,13 @@ function createTimelineBands( timelineNr ) {
 		ArrayList<Subject> sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator );
 
 		// We can only show appr. 30 characters per line and as many lines as there are events
-		def charsPerLine = 30;
-		def numEvents = eventGroup.events?.size();
+		def charsPerLine = 40;
+		def numEvents = eventGroup.events?.size() + eventGroup.samplingEvents?.size();
 		Integer maxChars = new Integer( numEvents * charsPerLine );
-
+		
 		showSubjects = Subject.trimSubjectNames( sortedGroupSubjects, maxChars );
 	  %>
-	  
+
 	  bandTitleInfo[ timelineNr ][ ${bandNr} ] = {
 		title: "${eventGroup.name}",
 		className: "<g:if test="${ eventGroup.id == -1 || !eventGroup.id  }">no_group</g:if>",

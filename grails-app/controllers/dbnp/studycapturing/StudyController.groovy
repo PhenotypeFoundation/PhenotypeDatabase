@@ -334,7 +334,7 @@ class StudyController {
 					'end':      new Date( startDate + event.startTime * 1000 ),
 					'durationEvent': false,
 					'title': event.template.name,
-					'description': description
+					'description': "SampleTemplate = " + event.sampleTemplate + "<br />\n" + description
 				]
 			} else {
 				 json.events << [
