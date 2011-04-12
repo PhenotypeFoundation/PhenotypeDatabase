@@ -353,6 +353,9 @@
 				be linked to your study, like <i>simple assays</i> (e.g. clinical chemistry or Western blot)
 				or <i>metabolomics</i>.
 			</p>
+			<p>
+				<i>A more in depth quickstart guide is available for download <a href="${resource(dir:'downloads', file: 'quickstart_'+session.style+'.pdf')}">here</a>.</i>
+			</p>
 		</div>
 	</div>
 </div>
