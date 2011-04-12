@@ -357,7 +357,7 @@
 	</div>
 </div>
 
-<g:if test="${showstats}">
+<g:if test="${showstats && studyCount}">
 <div style="clear:both;display:block;padding-top:10px;">
 	<h1>Usage Statistics</h1>
 	<div id="graphs" style="display:block;border:1px solid #6c6f70;width:100%;height:300px;">
