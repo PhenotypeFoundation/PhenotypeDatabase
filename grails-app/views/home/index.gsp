@@ -357,15 +357,15 @@
 	</div>
 </div>
 
-<g:if test="${showstats && studyCount}">
 <div style="clear:both;display:block;padding-top:10px;">
+<g:if test="${showstats && studyCount}">
 	<h1>Usage Statistics</h1>
 	<div id="graphs" style="display:block;border:1px solid #6c6f70;width:100%;height:300px;">
 		<div id="studies-pie" style="margin:2px;width:476px;height:296px;display:inline-block;float:left;zoom:1;*display:inline;"></div>
 		<div id="daily-statistics" style="margin:2px;width:476px;height:296px;display:inline-block;float:left;zoom:1;*display:inline;"></div>
 	</div>
-</div>
 </g:if>
+</div>
 
 <g:if env="ci">
 <h1>DEBUG: Installed Plugins</h1>
