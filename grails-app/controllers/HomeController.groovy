@@ -52,7 +52,7 @@ class HomeController {
 		// daily statistics
 		def startDate, endDate, date, userTotal, studyTotal, templateTotal
 		def dailyStatistics = [:]
-		if (db == "org.postgresql.Driver") {
+		if (db == "org.postgresql.Driver" && studyCount) {
 			//sql.eachRow("SELECT b.*,(select cast( now() - '120 day'::interval * random() as date) FROM Template c WHERE c.id=b.id) as newDate FROM Template b WHERE b.id IN (SELECT id FROM Template a)") {sql.execute(sprintf("UPDATE Template SET date_created='%s' WHERE id=%s", it.newDate, it.id))}
 			def studiesPerDay	= sql.rows("SELECT DISTINCT date_trunc('day', a.date_created) as day, (SELECT count(b.*) FROM study b WHERE date_trunc('day', b.date_created) = date_trunc('day', a.date_created)) as count FROM study a ORDER BY day ASC")
 			def usersPerDay		= sql.rows("SELECT DISTINCT date_trunc('day', a.date_created) as day, (SELECT count(b.*) FROM sec_user b WHERE date_trunc('day', b.date_created) = date_trunc('day', a.date_created)) as count FROM sec_user a ORDER BY day ASC")
