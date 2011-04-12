@@ -8,7 +8,7 @@
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt')}"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
-<g:if test="${showstats}">
+<g:if test="${showstats && studyCount}">
 			Highcharts.theme = { colors: ['#4572A7'] };
 			var highchartsOptions = Highcharts.getOptions();
 			var studiesPieChart, dailyStatistics;
@@ -97,7 +97,7 @@
 				]
 			});
 
-			<g:if test="${startDate && dailyStatistics?.size()}">
+			<g:if test="${startDate && dailyStatistics?.size() && studyCount}">
 			dailyStatistics = new Highcharts.Chart({
 				chart: {
 					renderTo: 'daily-statistics',
