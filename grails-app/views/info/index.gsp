@@ -11,7 +11,7 @@
 			<h1>Application Status</h1>
 			<ul>
 				<li>App version: <g:meta name="app.version"></g:meta></li>
-				<li>App revision: <g:meta name="app.build.svn.revision"></g:meta></li>
+				<li>App revision: <a href="https://trac.nbic.nl/gscf/changeset/<g:meta name="app.build.svn.revision"></g:meta>" target="_new"><g:meta name="app.build.svn.revision"></g:meta></a></li>
 				<li>Grails version: <g:meta name="app.grails.version"></g:meta></li>
 				<li>Groovy version: ${org.codehaus.groovy.runtime.InvokerHelper.getVersion()}</li>
 				<li>JVM version: ${System.getProperty('java.version')}</li>
