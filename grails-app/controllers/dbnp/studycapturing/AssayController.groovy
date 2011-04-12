@@ -4,6 +4,7 @@ class AssayController {
 
 	def assayService
 	def authenticationService
+    def fileService
 
 	static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
@@ -199,8 +200,15 @@ class AssayController {
 		response.setContentType("application/octet-stream")
 		try {
 
-			assayService.exportRowWiseDataToExcelFile(session.rowData, response.outputStream)
-			response.outputStream.flush()
+            def file = fileService.get('tempAssayExportFile')
+            def os = file.newOutputStream()
+
+			assayService.exportRowWiseDataToExcelFile(session.rowData, os)
+			os.flush()
+
+            response.outputStream << file.newInputStream()
+
+            file.delete()
 
 		} catch (Exception e) {
 
