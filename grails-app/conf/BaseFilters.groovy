@@ -28,7 +28,7 @@ class BaseFilters {
 					def hostname = InetAddress.getLocalHost().getHostName()
 					if (hostname =~ 'nmcdsp.org') {
 						session.style = 'nmcdsp_style'
-					} else if (hostname =~ 'dbnp.org') {
+					} else if (hostname =~ 'nbx14') {
 						session.style = 'dbnp_style'
 					} else {
 						session.style = 'default_style'
