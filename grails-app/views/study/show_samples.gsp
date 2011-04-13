@@ -11,7 +11,7 @@
 
 		  <th>Parent Subject</th>
 		  <th>Parent Sampling Event</th>
-
+		  <th>Parent Event Group</th>
 
 		<g:each in="${new dbnp.studycapturing.Sample().giveDomainFields()}" var="field">
 		  <th>${field}</th>
@@ -81,7 +81,8 @@
 			</td>
 		  </g:if>
 			<td>${sample.parentSubject?.name}</td>
-			<td>${sample.parentEvent?.template?.name} at ${sample.parentEvent?.getStartTimeString()}</td>
+			<td><g:if test="${sample.parentEvent}">${sample.parentEvent?.template?.name} at ${sample.parentEvent?.getStartTimeString()}</g:if></td>
+			<td>${sample.parentEventGroup?.name}</td>
 		  <g:each in="${sample.giveDomainFields()}" var="field">
 			<td><af:showTemplateField field="${field}" entity="${sample}" /></td>
 		  </g:each>

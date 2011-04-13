@@ -119,10 +119,6 @@
 		  </g:if>
 
 		  <g:each in="${showTemplates}" var="currentEventTemplate">
-			<g:if test="${showProperties[ currentEventTemplate.name ].size() == 0}">
-			  <td>&nbsp;</td>
-			</g:if>
-			<g:else>
 			  <%
 				def templateEvents = (eventGroup.events + eventGroup.samplingEvents).findAll { it.template == currentEventTemplate }.sort { a, b -> a.startTime <=> b.startTime }.asType(List)
 				def event = templateEvents.size() >= n ? templateEvents[ n - 1 ] : null;
@@ -131,7 +127,6 @@
 			  <g:each in="${showProperties[ currentEventTemplate.name ]}" var="field">
 				<td class="templateFieldValue"><af:showTemplateField field="${field}" entity="${event}" /></td>
 			  </g:each>
-			</g:else>
 		  </g:each>
 
 		  <g:if test="${n == 1}">
