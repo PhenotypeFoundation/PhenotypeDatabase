@@ -11,6 +11,7 @@ import org.springframework.security.authentication.LockedException
 import org.springframework.security.core.context.SecurityContextHolder as SCH
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class LoginController {
 	/**
@@ -66,12 +67,20 @@ class LoginController {
 	def auth_remote = {
 		def consumer = params.consumer
 		def token = params.token
-
+		
 		if (consumer == null || token == null) {
 			throw new Exception("Consumer and Token must be given!");
 		}
 
-		def returnUrl = params.returnUrl
+		def returnUrl;
+		
+		// If no returnUrl is given, find the previous one from the session
+		if( params.returnUrl ) {
+			returnUrl = params.returnUrl;
+			session.authRemoteUrl = returnUrl;
+		} else if( session.authRemoteUrl ) {
+			returnUrl = session.authRemoteUrl;
+		}
 
 		// If the user is already authenticated with this session_id, redirect
 		// him
@@ -99,7 +108,8 @@ class LoginController {
 		def config = SpringSecurityUtils.securityConfig
 		String view = 'auth'
 		String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
-		String redirectUrl = g.createLink(controller: 'login', action: 'auth_remote', params: [consumer: params.consumer, token: params.token, returnUrl: params.returnUrl], absolute: true)
+		
+		String redirectUrl = g.createLink(controller: 'login', action: 'auth_remote', params: [consumer: params.consumer, token: params.token], absolute: true)
 		render view: view, model: [postUrl: postUrl,
 			rememberMeParameter: config.rememberMe.parameter, redirectUrl: redirectUrl]
 	}
