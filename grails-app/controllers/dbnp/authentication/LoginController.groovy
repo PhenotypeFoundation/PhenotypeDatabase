@@ -102,6 +102,7 @@ class LoginController {
 			} else {
 				redirect controller: 'home'
 			}
+			return;
 		}
 
 		// Otherwise we show the login screen
