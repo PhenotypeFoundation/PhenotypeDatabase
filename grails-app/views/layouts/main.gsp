@@ -8,6 +8,7 @@
 	<meta property="og:type" content="non_profit"/>
 	<meta property="og:image" content="${resource(dir: 'images', file: 'facebookLike.png', absolute: true)}"/>
 	<meta property="fb:admins" content="721482421"/>
+	<link rel="stylesheet" href="${resource(dir: 'css', file: 'default.css')}"/>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.css')}"/>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'login_panel.css')}"/>
 	<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
