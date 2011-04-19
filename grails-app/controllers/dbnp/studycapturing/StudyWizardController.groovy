@@ -2012,6 +2012,7 @@ class StudyWizardController {
 
 		try {
 			def reltime = RelTime.parseRelTime(params.reltime)
+			response.setContentType("text/plain; charset=UTF-8")
 			render reltime.toPrettyString()
 		} catch (IllegalArgumentException e) {
 			response.status = 400
