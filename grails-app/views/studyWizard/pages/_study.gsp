@@ -22,14 +22,14 @@
 		Only the fields with an asterisks are obligatory. Pick the study template of choice (currently a fixed set) and define your study values.
 	</span>
 
-	<af:templateElement name="template" description="Template" value="${study?.template}" entity="${dbnp.studycapturing.Study}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()">
+	<af:templateElement name="template" description="Template" value="${study?.template}" entity="${dbnp.studycapturing.Study}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" required="true" >
 		Choose the type of study you would like to create.
 		Depending on the chosen template specific fields can be filled out. If none of the templates contain all the necessary fields, a new template can be defined (based on other templates).
 	</af:templateElement>
 	<g:if test="${study}">
 		<af:templateElements entity="${study}"/>
 		<af:publicationSelectElement name="publication" value="${study?.publications}"/>
-		<af:contactSelectElement name="contacts" value="${study?.persons}"/>
+		<af:contactSelectElement name="contacts" value="${study?.persons}" />
 		<br/>
 		<div class="element">
 			<div class="description">Public</div>

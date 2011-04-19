@@ -203,18 +203,19 @@ class WizardTagLib extends GdtTagLib {
 	
 
 	def ContactSelectElement = { attrs, body ->
-
 		attrs.description = 'Contacts';
+
 		// render list with publications currently available
+		attrs['required']='true'
 		baseElement.call(
 			'_contactList',
 			attrs,
 			body
 		)
+		attrs.required 		= false
+		attrs.description	= '';
 
-		attrs.description = '';
-
-		// render 'publications list'
+		// render 'constacts list'
 		out << '<div id="' + attrs.name + '_dialog" class="contacts_dialog" style="display: none;">'
 		baseElement.call(
 			'_personSelect',

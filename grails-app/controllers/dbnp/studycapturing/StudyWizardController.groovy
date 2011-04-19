@@ -1260,7 +1260,7 @@ class StudyWizardController {
 	 */
 	def handlePublications(flow, flash, params) {
 		flash.wizardErrors	= [:]
-		handleStudyPublications( flow.study, params );
+		handleStudyPublications( flow.study, params )
 	}
 
 	/**
@@ -1273,7 +1273,7 @@ class StudyWizardController {
 	def handleContacts(flow, flash, params) {
 		flash.wizardErrors	= [:]
 
-		handleStudyContacts( flow.study, params );
+		handleStudyContacts( flow.study, params )
 	}
 
 	/**
@@ -1286,7 +1286,7 @@ class StudyWizardController {
 	 */
 	def handleUsers(flow, flash, params, type) {
 		flash.wizardErrors = [:]
-		handleStudyUsers( flow.study, params, type );
+		handleStudyUsers( flow.study, params, type )
 	}
 	
     /**

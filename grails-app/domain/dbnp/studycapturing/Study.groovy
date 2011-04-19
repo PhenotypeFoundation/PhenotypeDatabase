@@ -55,6 +55,7 @@ class Study extends TemplateEntity {
 		owner(nullable: true, blank: true)
 		code(nullable: true, blank: true, unique: true, maxSize: 255)
 		studyUUID(nullable:true, unique:true, maxSize: 255)
+		persons(size:1..1000)
 		// TODO: add custom validator for 'published' to assess whether the study meets all quality criteria for publication
 		// tested by SampleTests.testStudyPublish
 	}
