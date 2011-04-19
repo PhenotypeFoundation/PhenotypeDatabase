@@ -51,7 +51,7 @@ class Study extends TemplateEntity {
 	]
 
 	static constraints = {
-		title(nullable:false, blank: false, maxSize: 255)
+		title(nullable:false, blank: false, unique:true, maxSize: 255)
 		owner(nullable: true, blank: true)
 		code(nullable: true, blank: true, unique: true, maxSize: 255)
 		studyUUID(nullable:true, unique:true, maxSize: 255)

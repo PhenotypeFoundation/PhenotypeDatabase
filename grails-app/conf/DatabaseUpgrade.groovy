@@ -37,6 +37,7 @@ class DatabaseUpgrade {
 		alterStudyAndAssay(sql, db)					// r1594
 		fixDateCreatedAndLastUpdated(sql, db)
 		dropAssayModulePlatform(sql, db)			// r1689
+		makeStudyTitleUnique(sql, db)				// #401
 	}
 
 	/**
@@ -301,6 +302,33 @@ class DatabaseUpgrade {
 					sql.execute("ALTER TABLE assay_module DROP COLUMN platform")
 				} catch (Exception e) {
 					println "dropAssayModulePlatform database upgrade failed: " + e.getMessage()
+				}
+			}
+		}
+	}
+
+	/**
+	 * Make sure the study title is unique
+	 * @param sql
+	 * @param db
+	 */
+	public static void makeStudyTitleUnique(sql, db) {
+		def titleCount,title,newTitle
+
+		// are we running postgreSQL?
+		if (db == "org.postgresql.Driver") {
+			// yes, find all duplicate study titles
+			sql.eachRow("SELECT DISTINCT a.title FROM Study a WHERE (SELECT count(*) FROM Study b WHERE b.title=a.title) > 1") { row ->
+				// grom what we are doing
+				if (String.metaClass.getMetaMethod("grom")) "making study title '${row.title}' unique".grom()
+
+				// iterate through studies that use this duplicate title
+				titleCount	= 1
+				title		= row.title.replace("'","\'")
+				sql.eachRow(sprintf("SELECT id FROM Study WHERE title='%s'", title)) { studyRow ->
+					newTitle = "${title} - ${titleCount}"
+					sql.execute(sprintf("UPDATE Study SET title='%s' WHERE id=%d",newTitle,studyRow.id))
+					titleCount++
 				}
 			}
 		}
