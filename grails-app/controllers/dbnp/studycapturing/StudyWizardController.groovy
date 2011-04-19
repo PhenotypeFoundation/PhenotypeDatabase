@@ -1176,8 +1176,8 @@ class StudyWizardController {
 			// loading the study seems to solve the issues.
 			// See #367, #397 and #398
 			flow.study.hasMany.each { name, instance ->
-				if (flow.study."${name}"?.size() && flow.study."${name}"?.first().hasProperty('template')) {
-					flow.study."${name}"?.each { it.getIdentifier() }
+				flow.study."${name}"?.each {
+					if (it.hasProperty('template')) it.getIdentifier()
 				}
 			}
 
