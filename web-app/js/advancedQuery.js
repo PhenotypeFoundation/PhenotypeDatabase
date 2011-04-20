@@ -18,10 +18,33 @@ $(function() {
 			return false;
 		},
 		select: function( event, ui ) {
-			$( "#queryFieldText" ).val( ui.item.show );
-			$( "#queryField" ).val( ui.item.value );
+			selectQueryableFieldItem( ui.item );
 			//$( "#queryFieldEntity" ).html( ui.item.entity );
 			return false;
+		},
+		change: function( event, ui ) {
+			// If the user has left the field blank, remove the field that has been selected
+			if( $( '#queryFieldText' ).val().trim() == "" ) {
+				selectQueryableFieldItem( null );
+			}
+			// If no item is selected and the user has entered some text, select the first one
+			// See https://github.com/scottgonzalez/jquery-ui-extensions/blob/master/autocomplete/jquery.ui.autocomplete.selectFirst.js
+			else if( ui.item == null ) {
+				var el = $( '#queryFieldText' ).autocomplete().data( "autocomplete" );
+				
+				// Check how many fields are in the list. However, if the user first enters
+				// a term that shows items, and afterwards continues typing, the menu items 
+				// will remain in the list, but are hidden.
+				// For that reason we perform an extra check to see whether the value of the
+				// first item matches the entered text
+				var searchResults = $.ui.autocomplete.filter( queryableFields, $( '#queryFieldText' ).val() );
+				if( searchResults && searchResults.length > 0 ) {
+					selectQueryableFieldItem( searchResults[ 0 ] );
+				} else {
+					// Clear the input field if nothing is in the list
+					selectQueryableFieldItem( null );
+				}
+			}
 		}
 	})
 	.data( "autocomplete" )._renderItem = function( ul, item ) {
@@ -31,6 +54,50 @@ $(function() {
 			.appendTo( ul );
 	};
 });
+
+/**
+ * Selects a field in the select combo box
+ * @param item	THe selected item or null if nothing is selected
+ */
+function selectQueryableFieldItem( item ) {
+	var show = "";
+	var value = "";
+	
+	if( item != null ) {
+		show = item.show;
+		value = item.value;
+
+		// Only hide the text if something is chosen. Otherwise, the entered
+		// text remains
+		$( "#queryFieldText" ).val( show );
+	}
+	
+	$( "#queryField" ).val( value );
+	
+	if( value == "" ) {
+		$( "#queryFieldText" ).css( "background-color", "#FDD" );
+		$( ".newCriterion .addButton a" ).addClass( "disabled" );
+	} else {
+		$( "#queryFieldText" ).css( "background-color", "white" );
+		$( ".newCriterion .addButton a" ).removeClass( "disabled" );
+	}
+	
+	// Enable or disabled the search button
+	toggleSearchButton()
+}
+
+/**
+ * Enables or disabled the search button, based on the number of criteria
+ * and the state of the input field
+ */
+function toggleSearchButton() {
+	if( $( "#criteria li:not(.newCriterion):not(.titlerow)" ).length == 0 && $( "#queryField" ).val() == "" ) {
+		$( '.submitcriteria' ).attr( 'disabled', 'disabled' );
+	} else {
+		$( '.submitcriteria' ).attr( 'disabled', '' );
+	}
+	
+}
 
 /********************************************************
  * 
@@ -51,6 +118,11 @@ function addCriterion() {
 	var value = $( '#searchForm input#value' ).val();
 	var operator = $( '#searchForm select#operator' ).val();
 	
+	if( field_descriptor == "" ) {
+		alert( "Please select a field to search in." );
+		return;
+	}
+	
 	// Show the title and a remove button
 	showCriterium(field_descriptor, value, operator);
 	toggleSearchMode();
@@ -60,6 +132,8 @@ function addCriterion() {
 	$( '#searchForm #queryField' ).val( '' );
 	$( '#searchForm select#operator' ).val( 'equals' );
 	$( '#searchForm input#value' ).val( '' );
+	$( "#searchForm .newCriterion .addButton a" ).addClass( "disabled" );
+	
 }
 
 /**
@@ -68,10 +142,11 @@ function addCriterion() {
 function removeCriterium(element) {
 	element.remove();
 	toggleSearchMode();
+	toggleSearchButton();
 }
 
 function toggleSearchMode() {
-	if( $('#criteria' ).children( 'li' ) - 2 == 0 ) {
+	if( $( "#criteria li:not(.newCriterion):not(.titlerow)" ).length == 0 ) {
 		$( '#searchMode' ).hide();
 	} else {
 		$( '#searchMode' ).show();

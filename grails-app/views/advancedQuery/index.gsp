@@ -40,6 +40,12 @@
 				<g:each in="${criteria}" var="criterion">
 					showCriterium("${criterion.entityField().encodeAsJavaScript()}", "${criterion.value.toString().encodeAsJavaScript()}", "${criterion.operator.toString().encodeAsJavaScript()}");
 				</g:each>
+							
+				// Show or hide the 'search mode' box (AND or OR)
+				toggleSearchMode()
+
+				// Enable or disable the search button
+				toggleSearchButton()
 			});
 		</g:if>
 	</script>
@@ -113,7 +119,7 @@
 					<input class='text' type="text" id="value" name="criteria.0.value" />
 				</span>
 				<span class="addButton">
-					<a href="#" onClick="addCriterion(); return false;">
+					<a class="disabled" href="#" onClick="addCriterion(); return false;">
 						<img src="${fam.icon( name: 'add' )}" border="0">
 					</a>
 				</span>
@@ -136,7 +142,7 @@
 
 		<h3><span class="nummer">3</span>Run query</h3>
 		<p>
-			<input type="submit" value="Search" class="submitcriteria" />
+			<input type="submit" disabled="disabled" value="Search" class="submitcriteria" />
 		</p>
 	</g:form>
 	
