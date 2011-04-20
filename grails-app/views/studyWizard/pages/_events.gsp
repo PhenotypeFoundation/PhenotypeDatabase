@@ -15,24 +15,18 @@
  */
 %>
 <af:page>
-	<g:if env="development">
-		<af:ajaxButtonElement description="Development feature (clear events)" name="clear" value="clear events" afterSuccess="onPage()">
-			This functionality is only available in development mode for debugging purposes and will not show in test and production environments
-		</af:ajaxButtonElement>
-	</g:if>
-
 	<span class="info">
 		<span class="title">Define all events that occur in your study</span>
 		An event is any change ‘forced’ upon a subject, such as treatment, challenge, sampling. Choose an event type an define the different parameters of the event.		
 	</span>
 
-	<af:radioElement name="eventType" description="Type" elements="['event','sample']" value="${values?.eventType}">
-		Type of event
+	<af:radioElement name="eventType" description="Choose the type of event" elements="[event:'treatment, challenge, etc.',sample:'sampling event']" class="eventradio" elementclass="label_radio" value="${values?.eventType}">
+		The type of event can be either a sampling event (e.g. taking a sample) or anything that acts upon a subject (e.g. a treatment or a challenge)
 	</af:radioElement>
-	<af:templateElement name="eventTemplate" elementId="eventTemplate" description="Event Template" value="${event?.template}" entity="${dbnp.studycapturing.Event}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
+	<af:templateElement required="true" name="eventTemplate" elementId="eventTemplate" description="Event Template" value="${event?.template}" entity="${dbnp.studycapturing.Event}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
 		The template to use for this event
 	</af:templateElement>
-	<af:templateElement name="sampleTemplate" elementId="sampleTemplate" description="Sampling Event Template" value="${event?.template}" entity="${dbnp.studycapturing.SamplingEvent}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
+	<af:templateElement  required="true" name="sampleTemplate" elementId="sampleTemplate" description="Sampling Event Template" value="${event?.template}" entity="${dbnp.studycapturing.SamplingEvent}" addDummy="true" ajaxOnChange="switchTemplate" afterSuccess="onPage()" >
 		The template to use for this sampling event
 	</af:templateElement>
 	<g:if test="${event?.template}">
@@ -71,7 +65,32 @@
 		$('input[name^="eventGroup"]').bind('keydown',function(event) {
 		  return (event.keyCode != 13);
 		});
+
+		$('body').addClass('has-js');
+		$('.label_check, .label_radio').click(function(){
+			setupLabel();
+		});
+		setupLabel();
 	});
+
+    function setupLabel() {
+        if ($('.label_check input').length) {
+            $('.label_check').each(function(){
+                $(this).removeClass('c_on');
+            });
+            $('.label_check input:checked').each(function(){
+                $(this).parent('label').addClass('c_on');
+            });
+        }
+        if ($('.label_radio input').length) {
+            $('.label_radio').each(function(){
+                $(this).removeClass('r_on');
+            });
+            $('.label_radio input:checked').each(function(){
+                $(this).parent('label').addClass('r_on');
+            });
+        }
+    }
 	</script>
 
 	<g:if test="${study.events || study.samplingEvents}">
