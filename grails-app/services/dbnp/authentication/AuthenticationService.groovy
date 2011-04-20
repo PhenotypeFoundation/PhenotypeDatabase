@@ -18,7 +18,7 @@ import org.codehaus.groovy.grails.plugins.springsecurity.GrailsUser
 
 class AuthenticationService {
     def springSecurityService
-    static final int expiryTime = 60; // Number of minutes a remotely logged in user remains active
+    static final int expiryTime = 12 * 60; // Number of minutes a remotely logged in user remains active
 
     static transactional = true
 
