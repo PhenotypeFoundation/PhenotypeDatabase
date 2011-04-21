@@ -140,3 +140,11 @@ if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) {
 } else {
     uploads.uploadDir = (new File("/tmp")?.canWrite()) ? "/tmp" : "fileuploads"    
 }
+
+// Required configuration variables for gdtImporter plugin
+// Does the parent entity have an owner (SecUser in GSCF)
+gdtImporter.parentEntityHasOwner = true
+// How do children refer to the parent (belongsTo)
+gdtImporter.childEntityParentName = "parent"
+// What is the class name of the parent entity
+gdtImporter.parentEntityClassName = "dbnp.studycapturing.Study"
