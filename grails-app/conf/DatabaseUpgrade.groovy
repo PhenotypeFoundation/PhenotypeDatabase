@@ -28,16 +28,16 @@ class DatabaseUpgrade {
 		def db = config.dataSource.driverClassName
 
 		// execute per-change check and upgrade code
-		changeStudyDescription(sql, db)				// r1245 / r1246
-		changeStudyDescriptionToText(sql, db)		// r1327
-		changeTemplateTextFieldSignatures(sql, db)	// prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
-		setAssayModuleDefaultValues(sql, db)		// r1490
-		dropMappingColumnNameConstraint(sql, db)	// r1525
-		makeMappingColumnValueNullable(sql, db)		// r1525
-		alterStudyAndAssay(sql, db)					// r1594
+		changeStudyDescription(sql, db)					// r1245 / r1246
+		changeStudyDescriptionToText(sql, db)			// r1327
+		changeTemplateTextFieldSignatures(sql, db)		// prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
+		setAssayModuleDefaultValues(sql, db)			// r1490
+		dropMappingColumnNameConstraint(sql, db)		// r1525
+		makeMappingColumnValueNullable(sql, db)			// r1525
+		alterStudyAndAssay(sql, db)						// r1594
 		fixDateCreatedAndLastUpdated(sql, db)
-		dropAssayModulePlatform(sql, db)			// r1689
-		makeStudyTitleUnique(sql, db)				// #401
+		dropAssayModulePlatform(sql, db)				// r1689
+		makeStudyTitleAndTemplateNamesUnique(sql, db)	// #401, #406
 	}
 
 	/**
@@ -308,27 +308,70 @@ class DatabaseUpgrade {
 	}
 
 	/**
-	 * Make sure the study title is unique
+	 * Make sure the study title, template name and template field names are unique
 	 * @param sql
 	 * @param db
 	 */
-	public static void makeStudyTitleUnique(sql, db) {
-		def titleCount,title,newTitle
+	public static void makeStudyTitleAndTemplateNamesUnique(sql, db) {
+		def titleCount,title,newTitle,templateFieldTypeCount,templateFieldUnitCount
+		def grom = false
 
 		// are we running postgreSQL?
 		if (db == "org.postgresql.Driver") {
 			// yes, find all duplicate study titles
-			sql.eachRow("SELECT DISTINCT a.title FROM Study a WHERE (SELECT count(*) FROM Study b WHERE b.title=a.title) > 1") { row ->
-				// grom what we are doing
-				if (String.metaClass.getMetaMethod("grom")) "making study title '${row.title}' unique".grom()
+			sql.eachRow("	SELECT DISTINCT a.title, 'study' as tablename, '' as entity FROM study a WHERE (SELECT count(*) FROM study b WHERE b.title=a.title) > 1\
+							UNION SELECT DISTINCT d.name as title, 'template' as tablename, d.entity FROM template d WHERE (SELECT count(*) FROM template c WHERE d.name=c.name AND d.entity=c.entity) > 1\
+							UNION SELECT DISTINCT e.templatefieldname as title, 'template_field' as tablename, e.templatefieldentity as entity FROM template_field e WHERE (SELECT count(*) FROM template_field f WHERE e.templatefieldname=f.templatefieldname AND e.templatefieldentity=f.templatefieldentity) > 1\
+							") { row ->
 
-				// iterate through studies that use this duplicate title
+				// grom what we are doing
+				if (String.metaClass.getMetaMethod("grom") && !grom) {
+					"making study titles, template names and template_field names unique".grom()
+					grom = true
+				}
+
+				// set work variables
 				titleCount	= 1
 				title		= row.title.replace("'","\'")
-				sql.eachRow(sprintf("SELECT id FROM Study WHERE title='%s'", title)) { studyRow ->
-					newTitle = "${title} - ${titleCount}"
-					sql.execute(sprintf("UPDATE Study SET title='%s' WHERE id=%d",newTitle,studyRow.id))
-					titleCount++
+
+				// check what we are updating
+				switch (row.tablename) {
+					case "study":
+						// update study titles
+						sql.eachRow(sprintf("SELECT id FROM study WHERE title='%s'", title)) { studyRow ->
+							newTitle = title + ((titleCount>1) ? " - ${titleCount}" : "")
+							sql.execute(sprintf("UPDATE study SET title='%s' WHERE id=%d",newTitle,studyRow.id))
+							titleCount++
+						}
+						break
+					case "template":
+						// update template names
+						sql.eachRow(sprintf("SELECT id FROM template WHERE name='%s' AND entity='%s'", title, row.entity)) { templateRow ->
+							newTitle = title + ((titleCount>1) ? " - ${titleCount}" : "")
+							sql.execute(sprintf("UPDATE template SET name='%s' WHERE id=%d",newTitle,templateRow.id))
+							titleCount++
+						}
+						break
+					case "template_field":
+						templateFieldTypeCount = [:]
+						templateFieldUnitCount = [:]
+
+						// update template_field names
+						sql.eachRow(sprintf("SELECT id,templatefieldunit as unit,templatefieldtype as type FROM template_field WHERE templatefieldname='%s' AND templatefieldentity='%s'", title, row.entity)) { templateFieldRow ->
+							if (templateFieldRow.unit) {
+								templateFieldUnitCount[ templateFieldRow.unit ] = (templateFieldUnitCount[ templateFieldRow.unit ]) ? templateFieldUnitCount[ templateFieldRow.unit ]+1 : 1
+								newTitle = "${title} (${templateFieldRow.unit})" + ((templateFieldUnitCount[ templateFieldRow.unit ]>1) ? " - ${templateFieldUnitCount[ templateFieldRow.unit ]}" : "")
+							} else {
+								templateFieldTypeCount[ templateFieldRow.type ] = (templateFieldTypeCount[ templateFieldRow.type ]) ? templateFieldTypeCount[ templateFieldRow.type ]+1 : 1
+								newTitle = "${title} (${templateFieldRow.type})" + ((templateFieldTypeCount[ templateFieldRow.type ]>1) ? " - ${templateFieldTypeCount[ templateFieldRow.type ]}" : "")
+								titleCount++
+							}
+							sql.execute(sprintf("UPDATE template_field SET templatefieldname='%s' WHERE id=%d",newTitle,templateFieldRow.id))
+						}
+						break
+					default:
+						// this shouldn't happen
+						break
 				}
 			}
 		}
