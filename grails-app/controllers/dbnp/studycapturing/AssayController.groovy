@@ -119,7 +119,7 @@ class AssayController {
 		}
 	}
 
-	def excelExportFlow = {
+	def assayExportFlow = {
 		entry {
 			action{
 				def user            = authenticationService.getLoggedInUser()
@@ -133,7 +133,7 @@ class AssayController {
 				flow.assay = Assay.get(params.assayId)
 
 				// check if assay exists
-				if (!flow.assay) throw new Exception("No assay found with id: ${flow.assay.id}")
+				if (!flow.assay) throw new Exception("No assay found with id: ${params.assayId}")
 
 				// obtain fields for each category
 				flow.fieldMap = assayService.collectAssayTemplateFields(flow.assay)
@@ -172,7 +172,11 @@ class AssayController {
 
 				def assayData           = assayService.collectAssayData(flow.assay, fieldMapSelection, measurementTokens)
 				flow.rowData            = assayService.convertColumnToRowStructure(assayData)
-				flow.assayDataPreview   = flow.rowData[0..4].collect{ it[0..4] as ArrayList }
+
+                def previewRows         = Math.min(flow.rowData.size()    as int, 5) - 1
+                def previewCols         = Math.min(flow.rowData[0].size() as int, 5) - 1
+
+				flow.assayDataPreview   = flow.rowData[0..previewRows].collect{ it[0..previewCols] as ArrayList }
 
 			}.to "compileExportData"
 
@@ -193,22 +197,22 @@ class AssayController {
 		}
 	}
 
+    /**
+     * Export the row data in session.rowData to the outputStream of the http
+     * response.
+     */
 	def doExport = {
 
-		def filename = 'export.xlsx'
+		def filename = 'export.csv'
 		response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
 		response.setContentType("application/octet-stream")
 		try {
 
-            def file = fileService.get('tempAssayExportFile')
-            def os = file.newOutputStream()
+//			assayService.exportRowWiseDataToExcelFile(session.rowData, response.outputStream)
+			assayService.exportRowWiseDataToCSVFile(session.rowData, response.outputStream)
 
-			assayService.exportRowWiseDataToExcelFile(session.rowData, os)
-			os.flush()
-
-            response.outputStream << file.newInputStream()
-
-            file.delete()
+            // clear the data from the session
+            session.removeAttribute('rowData')
 
 		} catch (Exception e) {
 
@@ -344,6 +348,6 @@ class AssayController {
 
 
 	def errorPage = {
-		render(view: 'excelExport/errorPage')
+		render(view: 'assayExport/errorPage')
 	}
 }

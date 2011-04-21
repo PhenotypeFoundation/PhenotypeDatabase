@@ -25,7 +25,7 @@
     <li>
       <a href="#">Assays</a>
       <ul class="subnav">
-        <li><g:link controller="assay" action="excelExport">Export Data to Excel</g:link> </li>
+        <li><g:link controller="assay" action="assayExport">Export Data</g:link> </li>
       </ul>
     </li>
 	<li>

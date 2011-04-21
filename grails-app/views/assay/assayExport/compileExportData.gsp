@@ -41,8 +41,8 @@
 
   </table>
 
-  <g:link action="excelExport" event="ok">OK</g:link>
-  <g:link action="excelExport" event="cancel">Cancel</g:link>
+  <g:link action="assayExport" event="ok">OK</g:link>
+  <g:link action="assayExport" event="cancel">Cancel</g:link>
 
   </body>
 </html>

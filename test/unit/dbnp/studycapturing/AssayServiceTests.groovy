@@ -232,4 +232,34 @@ class AssayServiceTests extends GrailsUnitTestCase {
         assertEquals 'Module Measurement Data', ['measurement1': [1,5,9], 'measurement2': [2,6,10], 'measurement3': [3,7,11], 'measurement4': [4,8,12]], assayData.'Module Measurement Data'
     }
 
+//    // Test for out of memory exception when exporting large excel workbooks
+//    // - xls format can handle max 256 columns
+//    // - but, xls format can handle more data (1000000 cells, no problem -> 27.2 MB)
+//    // - we'll need a good method to overcome the xlsx heap space problem
+//    void testExportLargeExcelWorkbook() {
+//
+//        def file    = new File( '/tmp', 'tmpFile.xls' )
+//
+//        def os      = file.newOutputStream()
+//
+//        def rowData = (0..1).collect { row ->
+//
+//            (0..256).collect { col ->
+//                "$row - $col"
+//            }
+//
+//        }
+//
+////        try {
+//            service.exportRowWiseDataToExcelFile rowData, os, false
+////        } catch (Exception e) {
+////            e.printStackTrace()
+////            assert false
+////        } finally {
+//            os.flush()
+////            file.delete()
+////        }
+//    }
+
+
 }

@@ -15,7 +15,9 @@ package dbnp.studycapturing
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
-import org.codehaus.groovy.grails.web.json.JSONObject;
+import org.codehaus.groovy.grails.web.json.JSONObject
+import org.dbnp.gdt.RelTime
+import org.dbnp.gdt.TemplateFieldType;
 
 class AssayService {
 
@@ -38,18 +40,17 @@ class AssayService {
 			// gather all unique and non null template fields that haves values
 			templateEntities*.giveFields().flatten().unique().findAll{ field ->
 
-				field && templateEntities.any { it && it.fieldExists(field.name) && it.getFieldValue(field.name) }
+				field && templateEntities.any { it?.fieldExists(field.name) && it.getFieldValue(field.name) != null }
 
-			}.collect{[name: it.name, comment: it.comment]}
-
+			}.collect{[name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')]}
 		}
 
 		def samples = assay.samples
 		[   		'Subject Data' :            getUsedTemplateFields( samples*."parentSubject".unique() ),
 					'Sampling Event Data' :     getUsedTemplateFields( samples*."parentEvent".unique() ),
 					'Sample Data' :             getUsedTemplateFields( samples ),
-					'Event Group' :             [[name: 'name', comment: 'Name of Event Group']],
-					
+					'Event Group' :             [[name: 'name', comment: 'Name of Event Group', displayName: 'name']],
+
 					// If module is not reachable, only the field 'module error' is returned, and is filled later on.
 					'Module Measurement Data':  moduleCommunicationService.isModuleReachable(assay.module.url) ? requestModuleMeasurementNames(assay) : [ [ name: "Module error" ] ]
 		]
@@ -71,23 +72,34 @@ class AssayService {
 	 */
 	def collectAssayData(assay, fieldMap, measurementTokens) throws Exception {
 
-		def collectFieldValuesForTemplateEntities = { templateFieldNames, templateEntities ->
+		def collectFieldValuesForTemplateEntities = { headerFields, templateEntities ->
 
 			// return a hash map with for each field name all values from the
 			// template entity list
-			templateFieldNames.inject([:]) { map, fieldName ->
+			headerFields.inject([:]) { map, headerField ->
 
-				map + [(fieldName): templateEntities.collect {
+				map + [(headerField.displayName): templateEntities.collect {
 
-						it?.fieldExists(fieldName) ? it.getFieldValue(fieldName) : ''
+                    // default to an empty string
+                    def val = ''
 
-					}]
+                    def field
+                    try {
 
+                        val = it.getFieldValue(headerField.name)
+                        
+                        // Convert RelTime fields to human readable strings
+                        field = it.getField(headerField.name)
+                        if (field.type == TemplateFieldType.RELTIME)
+                            val = new RelTime( val as long )
+
+                    } catch (NoSuchFieldException e) { /* pass */ }
+
+                    val.toString()}]
 			}
-
 		}
 
-		def getFieldValues = { templateEntities, fieldNames, propertyName = '' ->
+		def getFieldValues = { templateEntities, headerFields, propertyName = '' ->
 
 			def returnValue
 
@@ -95,7 +107,7 @@ class AssayService {
 			// values of the template entities themselves
 			if (propertyName == '') {
 
-				returnValue = collectFieldValuesForTemplateEntities(fieldNames, templateEntities)
+				returnValue = collectFieldValuesForTemplateEntities(headerFields, templateEntities)
 
 			} else {
 
@@ -113,7 +125,7 @@ class AssayService {
 				// properties more then once.
 				def uniqueProperties = templateEntities*."$propertyName".unique()
 
-				fieldValues = collectFieldValuesForTemplateEntities(fieldNames, uniqueProperties)
+				fieldValues = collectFieldValuesForTemplateEntities(headerFields, uniqueProperties)
 
 				// prepare a lookup hashMap to be able to map an entities'
 				// property (e.g. a sample's parent subject) to an index value
@@ -123,7 +135,7 @@ class AssayService {
 
 				// prepare the return value so that it has an entry for field
 				// name. This will be the column name (second header line).
-				returnValue = fieldNames.inject([:]) { map, item -> map + [(item):[]] }
+				returnValue = headerFields*.displayName.inject([:]) { map, item -> map + [(item):[]] }
 
 				// finally, fill map the unique field values to the (possibly
 				// not unique) template entity properties. In our example with
@@ -131,7 +143,7 @@ class AssayService {
 				// field values to all 10 samples.
 				templateEntities.each{ te ->
 
-					fieldNames.each{
+					headerFields*.displayName.each{
 
 						returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te[propertyName]]]
 
@@ -158,20 +170,20 @@ class AssayService {
 			// only set name field when there's actual data
 			if (!names.every {!it}) eventFieldMap['name'] = names
 
-		} 
+		}
 
-		[   		'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data']*.name, 'parentSubject'),
-					'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data']*.name, 'parentEvent'),
-					'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']*.name),
-					'Event Group' :             eventFieldMap,
+		[       'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
+				'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
+                'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']),
+                'Event Group' :             eventFieldMap,
 
-					// If module is not reachable, only the message 'module not reachable' is given for each sample
-					'Module Measurement Data':  moduleCommunicationService.isModuleReachable(assay.module.url) ?
-													( measurementTokens ? requestModuleMeasurements(assay, measurementTokens, samples) : [:] ) :
-													[ "Module error": [ "Module not reachable" ] * samples.size() ]
+                // If module is not reachable, only the message 'module not reachable' is given for each sample
+                'Module Measurement Data':  moduleCommunicationService.isModuleReachable(assay.module.url) ?
+                                                ( measurementTokens ? requestModuleMeasurements(assay, measurementTokens, samples) : [:] ) :
+                                                [ "Module error": [ "Module not reachable" ] * samples.size() ]
 				]
 	}
-	
+
 	/**
 	 * Prepend data from study to the data structure
 	 * @param assayData		Column wise data structure of samples
@@ -182,13 +194,13 @@ class AssayService {
 	def prependStudyData( inputData, Assay assay, numValues ) {
 		if( !assay )
 			return inputData;
-			
+
 		// Retrieve study data
 		def studyData =[:]
-		assay.parent?.giveFields().each { 
+		assay.parent?.giveFields().each {
 			def value = assay.parent.getFieldValue( it.name )
-			if( value ) 
-				studyData[ it.name ] = [value] * numValues 
+			if( value )
+				studyData[ it.name ] = [value] * numValues
 		}
 
 		return [
@@ -206,13 +218,13 @@ class AssayService {
 	def prependAssayData( inputData, Assay assay, numValues ) {
 		if( !assay )
 			return inputData;
-			
+
 		// Retrieve assay data
 		def assayData = [:]
 		assay.giveFields().each {
 			def value = assay.getFieldValue( it.name )
-			if( value ) 
-				assayData[ it.name ] = [value] * numValues 
+			if( value )
+				assayData[ it.name ] = [value] * numValues
 		}
 
 		return [
@@ -249,7 +261,7 @@ class AssayService {
 	 *
 	 * @param assay				Assay for which the module measurements should be retrieved
 	 * @param measurementTokens	List with the names of the fields to be retrieved. Format: [ 'measurementName1', 'measurementName2' ]
-	 * @param samples			Samples for which the module  
+	 * @param samples			Samples for which the module
 	 * @return
 	 */
 	def requestModuleMeasurements(assay, inputMeasurementTokens, samples) {
@@ -308,18 +320,18 @@ class AssayService {
 
 	/**
 	 * Merges the data from multiple studies into a structure that can be exported to an excel file. The format for each assay is
-	 * 
+	 *
 	 * 	[Category1:
 	 *      [Column1: [1,2,3], Column2: [4,5,6]],
 	 *   Category2:
 	 *      [Column3: [7,8,9], Column4: [10,11,12], Column5: [13,14,15]]]
-	 *      
+	 *
 	 * Where the category describes the category of data that is presented (e.g. subject, sample etc.) and the column names describe
 	 * the fields that are present. Each entry in the lists shows the value for that column for an entity. In this case, 3 entities are described.
-	 * Each field should give values for all entities, so the length of all value-lists should be the same. 
+	 * Each field should give values for all entities, so the length of all value-lists should be the same.
 	 *
 	 * Example: If the following input is given (2 assays)
-	 * 
+	 *
 	 * 	[
 	 *    [Category1:
 	 *      [Column1: [1,2,3], Column2: [4,5,6]],
@@ -330,9 +342,9 @@ class AssayService {
 	 *     Category3:
 	 *      [Column3: [20,21], Column8: [22,23]]]
 	 * ]
-	 * 
+	 *
 	 * the output will be (5 entries for each column, empty values for fields that don't exist in some assays)
-	 * 
+	 *
 	 * 	[
 	 *    [Category1:
 	 *      [Column1: [1,2,3,16,17], Column2: [4,5,6,,], Column6: [,,,18,19]],
@@ -341,8 +353,8 @@ class AssayService {
 	 *     Category3:
 	 *      [Column3: [,,,20,21], Column8: [,,,22,23]]
 	 * ]
-	 * 
-	 * 
+	 *
+	 *
 	 * @param columnWiseAssayData	List with each entry being the column wise data of an assay. The format for each
 	 * 								entry is described above
 	 * @return	Hashmap				Combined assay data, in the same structure as each input entry. Empty values are given as an empty string.
@@ -362,17 +374,17 @@ class AssayService {
 					}
 				}
 			}
-			
+
 			return 0;
 		}
-		
+
 		// Merge categories from all assays. Create a list for all categories
 		def categories = columnWiseAssayData*.keySet().toList().flatten().unique();
 		def mergedColumnWiseData = [:]
 		categories.each { category ->
 			// Only work with this category for all assays
 			def categoryData = columnWiseAssayData*.getAt( category );
-			
+
 			// Find the different fields in all assays
 			def categoryFields = categoryData.findAll{ it }*.keySet().toList().flatten().unique();
 
@@ -395,10 +407,10 @@ class AssayService {
 
 			mergedColumnWiseData[ category ] = categoryValues
 		}
-		
+
 		return mergedColumnWiseData;
 	}
-	
+
 	/**
 	 * Converts column
 	 * @param columnData multidimensional map containing column data.
@@ -500,6 +512,23 @@ class AssayService {
 	}
 
 	/**
+	 * Export row wise data in CSV to a stream. All values are surrounded with
+     * double quotes (" ").
+	 *
+	 * @param rowData List of lists containing for each row all cell values
+	 * @param outputStream Stream to write to
+	 * @return
+	 */
+	def exportRowWiseDataToCSVFile(rowData, outputStream) {
+
+        outputStream << rowData.collect { row ->
+          row.collect{ it ? "\"$it\"" : '""' }.join(',')
+        }.join('\n')
+
+		outputStream.close()
+	}
+
+	/**
 	 * Export row wise data for multiple assays in Excel format (separate sheets) to a stream
 	 *
 	 * @param rowData 	List of structures with rowwise data for each assay
@@ -524,7 +553,7 @@ class AssayService {
 	 * Export row wise data in Excel format to a given sheet in an excel workbook
 	 *
 	 * @param rowData 	List of lists containing for each row all cell values
-	 * @param sheet		Excel sheet to append the 
+	 * @param sheet		Excel sheet to append the
 	 * @return
 	 */
 	def exportRowWiseDataToExcelSheet(rowData, Sheet sheet) {
@@ -535,18 +564,18 @@ class AssayService {
 			if( rowData[ ri ] ) {
 				// create appropriate number of cells for this row
 				rowData[ri].size().times { row.createCell it }
-	
+
 				row.eachWithIndex { Cell cell, ci ->
-	
+
 					// Numbers and values of type boolean, String, and Date can be
 					// written as is, other types need converting to String
 					def value = rowData[ri][ci]
-	
+
 					value = (value instanceof Number | value?.class in [boolean.class, String.class, Date.class]) ? value : value?.toString()
-	
+
 					// write the value (or an empty String if null) to the cell
 					cell.setCellValue(value ?: '')
-	
+
 				}
 			}
 		}

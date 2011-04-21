@@ -1,10 +1,9 @@
 package dbnp.studycapturing
 
-import grails.converters.*
 import grails.plugins.springsecurity.Secured
 import org.dbnp.gdt.TemplateFieldType
 import org.dbnp.gdt.RelTime
-
+import grails.converters.JSON
 
 /**
  * Controller class for studies
@@ -382,7 +381,7 @@ class StudyController {
 		// set output header to json
 		response.contentType = 'application/json'
 
-        render study?.assays?.collect{[name: it.name, id: it.id]} as JSON
+        render ((study?.assays?.collect{[name: it.name, id: it.id]} ?: []) as JSON)
     }
 	
 	/**

@@ -39,7 +39,9 @@
 
     <h1>Select the columns that you want to be included in the resulting Excel file</h1>
 
-    <g:form name="fieldSelectForm" action="excelExport">
+    In this step you can make a selection from the available fields stored in the database related to the samples, including measurement data from a module (if available).
+
+    <g:form name="fieldSelectForm" action="assayExport">
 
       <g:set var="catNum" value="${0}"/>
       <g:each in="${fieldMap}" var="entry">
