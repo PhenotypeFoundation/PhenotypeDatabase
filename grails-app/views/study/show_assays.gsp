@@ -1,3 +1,4 @@
+<%@ page import="dbnp.studycapturing.Sample" %>
 <g:if test="${studyList*.assays?.flatten()?.size()==0}">
   No assays in these studies
 </g:if>
@@ -38,7 +39,7 @@
 		</td>
 		  <td>
 			<% sortedAssaySamples = assay?.samples.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
-			${sortedAssaySamples.name.join( ', ' )}
+			${Sample.trimSampleNames( sortedAssaySamples, 400 )}
 		  </td>
 		</tr>
 		<g:set var="i" value="${i + 1}" />

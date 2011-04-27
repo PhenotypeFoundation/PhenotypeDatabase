@@ -1,4 +1,6 @@
 package dbnp.studycapturing
+import java.util.ArrayList;
+
 import org.dbnp.gdt.*
 
 /**
@@ -159,4 +161,46 @@ class Sample extends TemplateEntity {
 		
 		return this.sampleUUID;
 	}
+	
+	/**
+	* Returns a human readable string of a list of samples, with a maximum number
+	* of characters
+	*
+	* @param sampleList List with Sample objects
+	* @param maxChars maximum number of characters returned
+	* @return human readble string with at most maxChars characters, representing the samples given.
+	*/
+   public static String trimSampleNames(ArrayList sampleList, Integer maxChars) {
+	   def simpleSamples = sampleList.name.join(', ');
+	   def showSamples
+
+	   // If the subjects will fit, show them all
+	   if (!maxChars || simpleSamples.size() < maxChars) {
+		   showSamples = simpleSamples;
+	   } else {
+		   // Always add the first name
+		   def sampleNames = sampleList[0]?.name;
+
+		   // Continue adding names until the length is to long
+		   def id = 0;
+		   sampleList.each { sample ->
+			   if (id > 0) {
+				   if (sampleNames?.size() + sample.name?.size() < maxChars - 15) {
+					   sampleNames += ", " + sample.name;
+				   } else {
+					   return;
+				   }
+			   }
+			   id++;
+		   }
+
+		   // Add a postfix
+		   sampleNames += " and " + (sampleList?.size() - id) + " more";
+
+		   showSamples = sampleNames;
+	   }
+
+	   return showSamples
+   }
+
 }
