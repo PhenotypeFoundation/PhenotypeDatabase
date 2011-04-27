@@ -29,7 +29,7 @@ def speciesOntologies = dbnp.studycapturing.Subject.giveDomainFields().find { it
 	<af:textFieldElement name="addNumber" description="Number of subjects to add" error="addNumber" value="${values?.addNumber}" size="4" maxlength="4">
 		The number of subjects to add to your study
 	</af:textFieldElement>
-	<af:termElement name="species" description="of species" value="${values?.species}" ontologies="1132" addDummy="true">
+	<af:termElement name="species" description="of species" value="${values?.species}" ontologies="${speciesOntologies.join(',')}" addDummy="true">
 		The species of the subjects you would like to add to your study
 	</af:termElement>
 	<af:templateElement name="template" description="with template" value="${values?.template}" error="template" entity="${dbnp.studycapturing.Subject}" ontologies="${speciesOntologies.join( ',' )}" addDummy="true">
