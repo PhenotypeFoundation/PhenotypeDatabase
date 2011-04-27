@@ -13,6 +13,8 @@
  * $Author$
  * $Date$
  */
+
+def speciesOntologies = dbnp.studycapturing.Subject.giveDomainFields().find { it.name == 'species' }.ontologies.collect { it.ncboId }
 %>
 <af:page>
 	<span class="info">
@@ -30,7 +32,7 @@
 	<af:termElement name="species" description="of species" value="${values?.species}" ontologies="1132" addDummy="true">
 		The species of the subjects you would like to add to your study
 	</af:termElement>
-	<af:templateElement name="template" description="with template" value="${values?.template}" error="template" entity="${dbnp.studycapturing.Subject}" ontologies="1132" addDummy="true">
+	<af:templateElement name="template" description="with template" value="${values?.template}" error="template" entity="${dbnp.studycapturing.Subject}" ontologies="${speciesOntologies.join( ',' )}" addDummy="true">
 		The template to use for these subjects
 	</af:templateElement>
 	<af:ajaxButtonElement name="add" value="Add" afterSuccess="onPage()">

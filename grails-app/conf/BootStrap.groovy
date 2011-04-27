@@ -83,8 +83,13 @@ class BootStrap {
 		 * @see dbnp.studycapturing.Subject
 		 * @see dbnp.studycapturing.Sample
 		 */
-		TemplateEntity.getField(Subject.domainFields, 'species').ontologies = [Ontology.getOrCreateOntologyByNcboId(1132)]
-		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [Ontology.getOrCreateOntologyByNcboId(1005)]
+		TemplateEntity.getField(Subject.domainFields, 'species').ontologies = [
+			Ontology.getOrCreateOntologyByNcboId(1132),		// NCBI Organismal Classification
+			Ontology.getOrCreateOntologyByNcboId(1069)		// Environmental Ontology
+		]
+		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [
+			Ontology.getOrCreateOntologyByNcboId(1005)		// BRENDA Tissue / enzyme source
+		]
 	}
 
 	def destroy = {
