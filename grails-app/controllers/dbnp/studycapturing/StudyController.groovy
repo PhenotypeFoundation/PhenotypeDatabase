@@ -60,7 +60,7 @@ class StudyController {
 		def long_ids = []
 		ids.each { long_ids.add( Long.parseLong( it ) ) }
 
-		println( long_ids )
+		//println( long_ids )
 
         def startTime = System.currentTimeMillis()
 		def c = Study.createCriteria()

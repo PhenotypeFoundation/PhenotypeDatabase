@@ -51,8 +51,6 @@ class PersonAffiliationController {
      * Fires after every action and determines the layout of the page
      */
     def afterInterceptor = { model, modelAndView ->
-      println( params );
-
       if ( params['dialog'] ) {
         model.layout = 'dialog';
         model.extraparams = [ 'dialog': 'true' ] ;

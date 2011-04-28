@@ -182,7 +182,7 @@ class SimpleWizardController extends StudyWizardController {
 					}
 				}
 				
-				println flow.sampleForm.template
+				//println flow.sampleForm.template
 			}.to "columns"
 			on("refresh") {
 				def filename = params.get( 'importfile' );
@@ -292,7 +292,7 @@ class SimpleWizardController extends StudyWizardController {
 				if( !flow.assay ) {
 					if( flow.study.assays ) {
 						flow.assay = flow.study.assays[ 0 ]
-						println "Existing assay: " + flow.assay
+						//println "Existing assay: " + flow.assay
 					} else {
 						flow.assay = new Assay( parent: flow.study );
 					}
@@ -775,7 +775,7 @@ class SimpleWizardController extends StudyWizardController {
 		}
 
 		// Import the workbook and store the table with entity records and store the failed cells
-		println "Importing samples for study " + study + " (" + study.id + ")";
+		//println "Importing samples for study " + study + " (" + study.id + ")";
 		
 		def importedfile = fileService.get( flow.excel.filename )
 		def workbook
@@ -845,7 +845,7 @@ class SimpleWizardController extends StudyWizardController {
 
 								entity.parentEventGroup.name = "Group " + entity.name
 								while( !entity.parentEventGroup.validate() ) {
-									entity.parentEventGroup.getErrors().each { println it }
+									//entity.parentEventGroup.getErrors().each { println it }
 									entity.parentEventGroup.name += "" + Math.floor( Math.random() * 100 )
 								}
 							}

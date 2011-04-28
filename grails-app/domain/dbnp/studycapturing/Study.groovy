@@ -60,6 +60,12 @@ class Study extends TemplateEntity {
 		// tested by SampleTests.testStudyPublish
 	}
 
+	// see org.dbnp.gdt.FuzzyStringMatchController and Service
+	static fuzzyStringMatchable = [
+	    "title",
+		"code"
+	]
+
 	static mapping = {
 		autoTimestamp true
 		sort "title"

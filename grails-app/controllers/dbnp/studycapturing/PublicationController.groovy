@@ -44,15 +44,9 @@ class PublicationController {
 
         // validate term
         if (publication.validate()) {
-            println "Publication validated correctly"
             publication.save()
             message = "Publication added to the system"
         } else {
-            println "Publication validation failed"
-            println "errors:"
-            publication.errors.getAllErrors().each() {
-                println it
-            }
             errors = publications.errors.getAllErrors().join( ', ' );
             message = "Publication addition failed"
         }

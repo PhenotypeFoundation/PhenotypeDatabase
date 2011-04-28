@@ -130,8 +130,8 @@ class ExporterController {
         // the attributes list for the SimpleTox format
         def attributes_list = ["SubjectID","DataFile","HybName","SampleName","ArrayType","Label","StudyTitle","Array_ID",
         "Species"]
-        println studyInstance.samples.size()
-        println "StudyInstance :" + studyInstance
+        //println studyInstance.samples.size()
+        //println "StudyInstance :" + studyInstance
                 
         // The first row contains the attributes names
         HSSFWorkbook wb = new HSSFWorkbook()
@@ -163,7 +163,7 @@ class ExporterController {
                 writeSampleProperties(sub,sample,row)
             }
             catch (Exception e){
-                println "Error adding properties"
+                //println "Error adding properties"
             }
         }
 

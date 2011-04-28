@@ -57,7 +57,7 @@ class RegisterController {
 
 		def registrationCode = new RegistrationCode(username: user.username, expiryDate: new Date() + 1 )
 		if( !registrationCode.save() ) {
-			println registrationCode.errors
+			//println registrationCode.errors
 			flash.userError = "Your password could not be reset because of database errors. Please contact the system administrator."
 			return
 		}

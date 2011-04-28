@@ -100,7 +100,7 @@ class StudyXMLController {
 		try{
 			study.save()
 		} catch (Exception e) {
-			println e
+			//println e
 		}
 
 		render "added study with code ${study.code}<br>"

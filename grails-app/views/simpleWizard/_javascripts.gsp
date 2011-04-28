@@ -21,6 +21,9 @@
 <script type="text/javascript" src="${resource(dir: 'js', file: 'ajaxupload.3.6.js')}"></script>
 <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt')}"></script>
 
+<% /* fuzzy matching */ %>
+<script type="text/javascript" src="${resource(dir: 'js', file: 'fuzzyStringMatch.js', plugin: 'gdt')}"></script>
+
 <% /* Specific simplewizard stuff */ %>
 <script type="text/javascript" src="${resource(dir: 'js', file: 'simpleWizard.js' )}"></script>
 <link rel="stylesheet" href="${resource(dir: 'css', file: 'simplewizard.css')}" />

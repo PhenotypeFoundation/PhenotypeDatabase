@@ -474,7 +474,7 @@ class ImporterController {
 			}
 			else {
 				mc.errors.allErrors.each {
-					println it
+					//println it
 				}
 			}
 
@@ -489,7 +489,7 @@ class ImporterController {
 			}
 			else {
 				im.errors.allErrors.each {
-					println it
+					//println it
 				}
 			}
 

@@ -84,6 +84,9 @@ function onStudyWizardPage() {
 		}
 	});
 
+	// handle fuzzy matching
+	new FuzzyStringMatcher().init({});
+
 	// initialize accordeon(s)
 	$("#accordion").accordion({autoHeight: false});
 }
