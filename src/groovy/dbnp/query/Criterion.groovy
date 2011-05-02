@@ -42,7 +42,11 @@ class Criterion {
 	 */
 	public String humanReadableEntityField() {
 		if( field == '*' ) {
-			return "any field in " + entity.toString();
+			if( entity == '*' ) {
+				return "any field in any object"
+			} else {
+				return "any field in " + entity.toString();
+			}
 		} else {
 			return entityField();
 		}

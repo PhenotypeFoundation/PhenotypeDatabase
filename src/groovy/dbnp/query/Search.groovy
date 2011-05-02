@@ -165,6 +165,10 @@ class Search {
 		objects = filterOnSamplingEventCriteria( objects );
 		objects = filterOnAssayCriteria( objects );
 
+		// Filter on criteria for which the entity is unknown
+		objects = filterOnAllFieldsCriteria( objects );
+		
+		// Filter on module criteria
 		objects = filterOnModuleCriteria( objects );
 
 		// Save matches
@@ -196,6 +200,9 @@ class Search {
 		objects = ( objects + filterOnEventCriteria( allObjects - objects ) ).unique();
 		objects = ( objects + filterOnSamplingEventCriteria( allObjects - objects ) ).unique();
 		objects = ( objects + filterOnAssayCriteria( allObjects - objects ) ).unique();
+		
+		// Filter on criteria for which the entity is unknown
+		objects = ( objects + filterOnAllFieldsCriteria( allObjects - objects ) ).unique();
 		
 		// All objects (including the ones already found by another criterion) are sent to
 		// be filtered on module criteria, in order to have the module give data about all
@@ -483,6 +490,48 @@ class Search {
 	protected List filterOnAssayCriteria( List studies ) {
 		def entity = "Assay"
 		return filterOnTemplateEntityCriteria(studies, entity, valueCallback( entity ) )
+	}
+	
+	
+	/**
+	 * Filters the given list of entities on criteria that mention all fields (e.g. search for studies with 'bacteria' in any field)
+	 * @param objects	Original list of entities.
+	 * @return			List of all entities that match the given criteria
+	 */
+	protected List filterOnAllFieldsCriteria( List objects ) {
+		def criteria = getEntityCriteria( "*" );
+		
+		// Find methods to determine a value for a criterion, based on all entities
+		def valueCallbacks = [:];
+		def entities = [ "Study", "Subject", "Sample", "Event", "SamplingEvent", "Assay" ];
+		entities.each {
+			valueCallbacks[ it ] = valueCallback( it );
+		}
+		
+		// Create a closure that checks all entities
+		def checkCallback = { object, criterion ->
+			def value = "";
+			for( def entity in entities ) {
+				value = valueCallbacks[ entity ]( object, criterion );
+				
+				if( value == null ) {
+					continue;
+				}
+	
+				if( value instanceof Collection ) {
+					if( criterion.matchAny( value ) )
+						return true;
+				} else {
+					if( criterion.match( value ) )
+						return true;
+				}
+			}
+			
+			// If no match is found, return
+			return false;
+		}
+
+		return filterEntityList( objects, criteria, checkCallback);
 	}
 	
 	/********************************************************************

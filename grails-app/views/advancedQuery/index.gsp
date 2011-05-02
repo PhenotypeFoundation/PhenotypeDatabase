@@ -17,11 +17,12 @@
 						label: "${(
 							entity.key.toString() + '.' + field.toString() + ' ' +
 							entity.key.toString() + ' ' + field.toString() + ' ' + 
-							(field == '*' ? 'any field' : '')
+							(field == '*' ? 'any field' : '') + ' ' +
+							(field == '*' && entity.key == '*' ? 'any field in any object' : '')
 							).encodeAsJavaScript()}",
 						show: "${
 							(field == '*' ? 
-								'[Any field in ' + entity.key.toString() + ']' : 
+								( entity.key == '*' ? '[Any field in any object]' : '[Any field in ' + entity.key.toString() + ']' ) : 
 								(field?.size() > 1 ? 
 									field[0].toUpperCase() + field[1..-1] : 
 									field)

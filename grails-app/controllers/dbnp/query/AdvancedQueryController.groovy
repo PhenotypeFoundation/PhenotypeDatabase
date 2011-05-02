@@ -264,7 +264,7 @@ class AdvancedQueryController {
 	 * @return
 	 */
 	protected def getSearchableFields() {
-		def fields = [:];
+		def fields = [ '*' : [ '*' ] ];	// Searches for all fields in all objects
 
 		// Retrieve all local search fields
 		getEntities().each {
@@ -307,7 +307,7 @@ class AdvancedQueryController {
 				log.error( "Error while retrieving queryable fields from " + module.name + ": " + e.getMessage() )
 			}
 		}
-
+		
 		return fields;
 	}
 
@@ -331,6 +331,7 @@ class AdvancedQueryController {
 	protected List parseCriteria( def formCriteria, def parseSearchIds = true ) {
 		ArrayList list = [];
 		flash.error = "";
+		
 		// Loop through all keys of c and remove the non-numeric ones
 		for( c in formCriteria ) {
 			if( c.key ==~ /[0-9]+/ && c.value.entityfield ) {

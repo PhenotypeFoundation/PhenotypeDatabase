@@ -121,24 +121,24 @@ class StudySearch extends Search {
 	* 			{ study, criterion -> return study.samples?.collect { criterion.getFieldValue( it ); } }
 	* @return
 	*/
-   protected Closure valueCallback( String entity ) {
-	   switch( entity ) {
-		   case "Study":
-			   return { study, criterion -> return criterion.getFieldValue( study ) }
-		   case "Subject":
-			   return { study, criterion -> return study.subjects?.collect { criterion.getFieldValue( it ); } }
-		   case "Sample":
-			   return { study, criterion -> return study.samples?.collect { criterion.getFieldValue( it ); } }
-		   case "Event":
-			   return { study, criterion -> return study.events?.collect { criterion.getFieldValue( it ); } }
-		   case "SamplingEvent":
-			   return { study, criterion -> return study.samplingEvents?.collect { criterion.getFieldValue( it ); } }
-		   case "Assay":
-			   return { study, criterion -> return study.assays?.collect { criterion.getFieldValue( it ); } }
-		   default:
-			   return super.valueCallback( entity );
-	   }
-   }
+	protected Closure valueCallback( String entity ) {
+		switch( entity ) {
+			case "Study":
+				return { study, criterion -> return criterion.getFieldValue( study ) }
+			case "Subject":
+				return { study, criterion -> return study.subjects?.collect { criterion.getFieldValue( it ); } }
+			case "Sample":
+				return { study, criterion -> return study.samples?.collect { criterion.getFieldValue( it ); } }
+			case "Event":
+				return { study, criterion -> return study.events?.collect { criterion.getFieldValue( it ); } }
+			case "SamplingEvent":
+				return { study, criterion -> return study.samplingEvents?.collect { criterion.getFieldValue( it ); } }
+			case "Assay":
+				return { study, criterion -> return study.assays?.collect { criterion.getFieldValue( it ); } }
+			default:
+				return super.valueCallback( entity );
+		}
+	}
 
 	/**
 	 * Returns the saved field data that could be shown on screen. This means, the data

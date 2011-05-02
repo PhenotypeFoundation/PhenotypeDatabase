@@ -111,7 +111,11 @@ class SampleSearch extends Search {
 		samples = filterOnEventCriteria( samples );
 		samples = filterOnSamplingEventCriteria( samples );
 		samples = filterOnAssayCriteria( samples );
-
+		
+		// Filter on criteria for which the entity is unknown
+		samples = filterOnAllFieldsCriteria( samples );
+		
+		// Filter on module criteria
 		samples = filterOnModuleCriteria( samples );
 
 		// Save matches
@@ -185,7 +189,6 @@ class SampleSearch extends Search {
 				return { sample, criterion -> return criterion.getFieldValue( sample.parentEvent ); }
 			case "Assay":
 				return { sample, criterion ->
-					println "Find value for " + sample + " and " + criterion
 					def sampleAssays = Assay.findByParent( sample.parent ).findAll { it.samples?.contains( sample ) };
 					if( sampleAssays && sampleAssays.size() > 0 )
 						return sampleAssays.collect { criterion.getFieldValue( it ) }
