@@ -291,13 +291,8 @@ class AssayController {
 		if( !assays )
 			return;
 
-		// If only 1 assay is asked for, don't bother with merging multiple assays.
-		// In that case just use the export method to export one assay per sheet
-		if( assays.size() == 1 )
-			return exportToExcelAsSheets( params );
-
 		// Send headers to the browser so the user can download the file
-		def filename = 'export.xlsx'
+		def filename = 'export.csv'
 		response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
 		response.setContentType("application/octet-stream")
 
@@ -325,7 +320,7 @@ class AssayController {
 			def mergedColumnWiseData = assayService.mergeColumnWiseDataOfMultipleStudies( columnWiseAssayData );
 
 			def rowData   = assayService.convertColumnToRowStructure(mergedColumnWiseData)
-			assayService.exportRowWiseDataToExcelFile( rowData, response.getOutputStream() )
+			assayService.exportRowWiseDataToCSVFile( rowData, response.getOutputStream() )
 
 			response.outputStream.flush()
 

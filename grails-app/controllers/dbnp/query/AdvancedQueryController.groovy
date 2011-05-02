@@ -552,7 +552,7 @@ class AdvancedQueryController {
 					], [
 						module: "gscf",
 						name:"excel",
-						description: "Export as Excel",
+						description: "Export as CSV",
 						url: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] ),
 						submitUrl: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list' ] ),
 						paramString: paramString
@@ -568,7 +568,7 @@ class AdvancedQueryController {
 				return [[
 						module: "gscf",
 						name:"excel",
-						description: "Export as Excel",
+						description: "Export as CSV",
 						url: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] ),
 						submitUrl: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list' ] ),
 						paramString: paramString
