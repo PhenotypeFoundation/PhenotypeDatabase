@@ -17,7 +17,7 @@
 			<a href="#" onClick="return false;" class="performAction ${action.name} disabled">${action.description}</a>
 		</g:if>
 		<g:else>
-			<a class="performAction ${action.name}" href="${action.url}" onClick="performAction( $('form#results'), '${action.name}', '${action.module}' ); return false;">${action.description}</a>
+			<a class="performAction ${action.name}" href="${action.url}" onClick="performAction( $('form#results'), '${action.name}', '${action.module}', '${action.submitUrl}' ); return false;">${action.description}</a>
 		</g:else>
 		<br />
 	</g:each>

@@ -125,53 +125,6 @@ class AdvancedQueryController {
 		def view = determineView( s.entity );
 		render( view: view, model: [search: s, queryId: queryId, actions: determineActions(s)] );
 	}
-
-	/**
-	 * Performs an action on specific searchResults 
-	 * @param 	queryId		queryId of the search to show
-	 * @param	id			list with the ids of the results to perform the action on
-	 * @param	actionName	Name of the action to perform
-	 */
-	def performAction = {
-		def queryId = params.int( 'queryId' );
-		def selectedIds = params.list( 'id' ).findAll { it.isLong() }.collect { Long.parseLong(it) }
-		def actionName = params.actionName;
-		def moduleName = params.moduleName;
-
-		if( !queryId ) {
-			flash.error = "Incorrect search ID given to show"
-			redirect( action: "index" );
-			return
-		}
-		
-		// Retrieve the search from session
-		Search s = retrieveSearch( queryId );
-		if( !s ) {
-			flash.message = "Specified search could not be found"
-			redirect( action: "list" );
-			return;
-		}
-
-		// Determine the possible actions and build correct urls
-		def actions = determineActions(s, selectedIds );
-
-		// Find the right action to perform
-		def redirectUrl;
-		for( action in actions ) {
-			if( action.module == moduleName && action.name == actionName ) {
-				redirectUrl = action.url;
-				break;
-			}
-		}
-		
-		if( !redirectUrl ) {
-			flash.error = "No valid action is given to perform";
-			redirect( action: "show", id: queryId );
-			return;
-		}
-		
-		redirect( url: redirectUrl );
-	}
 	
 	/**
 	 * Shows a list of searches that have been saved in session
@@ -577,38 +530,48 @@ class AdvancedQueryController {
 	/**
 	 * Determine a list of actions that can be performed on specific entities by GSCF
 	 * @param entity	Name of the entity that the actions could be performed on
-	 * @param selectedIds	List with ids of the selected items to perform an action on
+	 * @param selectedTokens	List with tokens (UUID) of the selected items to perform an action on
 	 */
-	protected List gscfActions(Search s, def selectedIds = null) {
+	protected List gscfActions(Search s, def selectedTokens = null) {
 		switch(s.entity) {
 			case "Study":
 				def ids = []
-				s.filterResults(selectedIds).each {
+				s.filterResults(selectedTokens).each {
 					ids << it.id
 				}
+
+				def paramString = ids.collect { return 'ids=' + it }.join( '&' );
 				
 				return [[
 						module: "gscf",
 						name:"simpletox",
 						description: "Export as SimpleTox",
-						url: createLink( controller: "exporter", action: "export", params: [ 'format': 'list', 'ids' : ids ] )
+						url: createLink( controller: "exporter", action: "export", params: [ 'format': 'list', 'ids' : ids ] ),
+						submitUrl: createLink( controller: "exporter", action: "export", params: [ 'format': 'list' ] ),
+						paramString: paramString
 					], [
 						module: "gscf",
 						name:"excel",
 						description: "Export as Excel",
-						url: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] )
+						url: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] ),
+						submitUrl: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list' ] ),
+						paramString: paramString
 					]]
 			case "Assay":
 				def ids = []
-				s.filterResults(selectedIds).each {
+				s.filterResults(selectedTokens).each {
 					ids << it.id
 				}
+
+				def paramString = ids.collect { return 'ids=' + it }.join( '&' );
 				
 				return [[
 						module: "gscf",
 						name:"excel",
 						description: "Export as Excel",
-						url: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] )
+						url: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] ),
+						submitUrl: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list' ] ),
+						paramString: paramString
 					]]
 			case "Sample":
 				return []
@@ -621,7 +584,7 @@ class AdvancedQueryController {
 	 * Determine a list of actions that can be performed on specific entities by other modules
 	 * @param entity	Name of the entity that the actions could be performed on
 	 */
-	protected List moduleActions(Search s, def selectedIds = null) {
+	protected List moduleActions(Search s, def selectedTokens = null) {
 		def actions = []
 
 		if( !s.getResults() || s.getResults().size() == 0 )
@@ -638,20 +601,25 @@ class AdvancedQueryController {
 				// Check whether the entity is present in the return value
 				if( json[ s.entity ] ) {
 					json[ s.entity ].each { action ->
-						def url = action.url ?: module.url + "/action/" + action.name
+						def baseUrl = action.url ?: module.url + "/action/" + action.name
+						def paramString = s.filterResults(selectedTokens).collect { "tokens=" + it.giveUUID() }.join( "&" )
 						
-						if( url.find( /\?/ ) )
-							url += "&"
+						if( baseUrl.find( /\?/ ) )
+							baseUrl += "&"
 						else
-							url += "?"
+							baseUrl += "?"
 						
-						url += "entity=" + s.entity
-						url += "&" + s.filterResults(selectedIds).collect { "tokens=" + it.giveUUID() }.join( "&" )
+						baseUrl += "entity=" + s.entity
+						
+						def url = baseUrl;
+						
 						actions << [
 									module: moduleName,
 									name: action.name,
 									description: action.description + " (" + moduleName + ")",
-									url: url
+									url: url + "&" + paramString,
+									submitUrl: baseUrl,
+									paramString: paramString
 								];
 					}
 				}

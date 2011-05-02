@@ -794,12 +794,12 @@ class Search {
 	* @param selectedIds	List with ids of the entities you want to return.
 	* @return	A list with only those results for which the id is in the selectedIds
 	*/
-   public List filterResults( List selectedIds ) {
-	   if( !selectedIds || !results )
+   public List filterResults( List selectedTokens ) {
+	   if( !selectedTokens || !results )
 		   return results
 
 	   return results.findAll {
-		   selectedIds.contains( it.id )
+		   selectedTokens.contains( it.giveUUID() )
 	   }
    }
 

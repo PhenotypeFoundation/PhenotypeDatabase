@@ -50,6 +50,7 @@ class ExporterController {
 
     def export = {
 		def ids = params.list( 'ids' );
+		def tokens = params.list( 'tokens' );
         def studies = []
 		
 		ids.each {
@@ -58,6 +59,13 @@ class ExporterController {
 				if( study )
 					studies << study
 			}
+		}
+		
+		// Also accept tokens for defining studies
+		tokens.each {
+			def study = Study.findByStudyUUID( it );
+			if( study )
+				studies << study;
 		}
         
         if(studies.size()>1){

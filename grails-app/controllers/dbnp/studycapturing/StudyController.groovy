@@ -395,23 +395,30 @@ class StudyController {
 	 */
 	def exportToExcel = {
 		def ids = params.list( 'ids' ).findAll { it.isLong() }.collect { Long.valueOf( it ) };
+		def tokens = params.list( 'tokens' );
 
-		if( !ids ) {
+		if( !ids && !tokens ) {
 			flash.errorMessage = "No study ids given";
 			redirect( controller: "assay", action: "errorPage" );
 			return;
 		}
 		
 		// Find all assay ids for these studies
-		def assayIds = ids.collect { id ->
+		def assayIds = [];
+		ids.each { id ->
 			def study = Study.get( id );
 			if( study ) {
-				return study.assays.collect { assay -> assay.id }
-			} else {
-				return []
+				assayIds += study.assays.collect { assay -> assay.id }
 			}
-		}.flatten()
+		}
 		
+		// Also accept tokens for defining studies
+ 		tokens.each { token ->
+			def study = Study.findByStudyUUID( token );
+			if( study )
+				assayIds += study.assays.collect { assay -> assay.id }
+		}
+		 
 		if( !assayIds ) {
 			flash.errorMessage = "No assays found for the given studies";
 			redirect( controller: "assay", action: "errorPage" );

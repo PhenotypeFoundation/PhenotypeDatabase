@@ -4,7 +4,7 @@ class AssayController {
 
 	def assayService
 	def authenticationService
-    def fileService
+	def fileService
 
 	static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
@@ -173,8 +173,8 @@ class AssayController {
 				def assayData           = assayService.collectAssayData(flow.assay, fieldMapSelection, measurementTokens)
 				flow.rowData            = assayService.convertColumnToRowStructure(assayData)
 
-                def previewRows         = Math.min(flow.rowData.size()    as int, 5) - 1
-                def previewCols         = Math.min(flow.rowData[0].size() as int, 5) - 1
+				def previewRows         = Math.min(flow.rowData.size()    as int, 5) - 1
+				def previewCols         = Math.min(flow.rowData[0].size() as int, 5) - 1
 
 				flow.assayDataPreview   = flow.rowData[0..previewRows].collect{ it[0..previewCols] as ArrayList }
 
@@ -197,10 +197,10 @@ class AssayController {
 		}
 	}
 
-    /**
-     * Export the row data in session.rowData to the outputStream of the http
-     * response.
-     */
+	/**
+	 * Export the row data in session.rowData to the outputStream of the http
+	 * response.
+	 */
 	def doExport = {
 
 		def filename = 'export.csv'
@@ -208,11 +208,11 @@ class AssayController {
 		response.setContentType("application/octet-stream")
 		try {
 
-//			assayService.exportRowWiseDataToExcelFile(session.rowData, response.outputStream)
+			//			assayService.exportRowWiseDataToExcelFile(session.rowData, response.outputStream)
 			assayService.exportRowWiseDataToCSVFile(session.rowData, response.outputStream)
 
-            // clear the data from the session
-            session.removeAttribute('rowData')
+			// clear the data from the session
+			session.removeAttribute('rowData')
 
 		} catch (Exception e) {
 
@@ -244,16 +244,10 @@ class AssayController {
 	 * @param	params.ids		One or more assay IDs to export
 	 */
 	def exportToExcelAsSheets = {
-		def ids = params.list( 'ids' ).findAll { it.isLong() }.collect { Long.valueOf( it ) };
-
-		if( !ids ) {
-			flash.errorMessage = "No assay ids given";
-			redirect( action: "errorPage" );
+		def assays = getAssaysFromParams( params );
+		
+		if( !assays )
 			return;
-		}
-
-		// Find all assays for the given ids
-		def assays = ids.unique().collect { id -> Assay.get( id ) }.findAll { it }
 
 		// Send headers to the browser so the user can download the file
 		def filename = 'export.xlsx'
@@ -292,21 +286,15 @@ class AssayController {
 	 * @param	params.ids		One or more assay IDs to export
 	 */
 	def exportToExcelAsList = {
-		def ids = params.list( 'ids' ).findAll { it.isLong() }.collect { Long.valueOf( it ) };
-
-		if( !ids ) {
-			flash.errorMessage = "No assay ids given";
-			redirect( action: "errorPage" );
+		def assays = getAssaysFromParams( params );
+		
+		if( !assays )
 			return;
-		}
 
 		// If only 1 assay is asked for, don't bother with merging multiple assays.
 		// In that case just use the export method to export one assay per sheet
-		if( ids.size() == 1 )
+		if( assays.size() == 1 )
 			return exportToExcelAsSheets( params );
-
-		// Find all assays for the given ids
-		def assays = ids.unique().collect { id -> Assay.get( id ) }.findAll { it }
 
 		// Send headers to the browser so the user can download the file
 		def filename = 'export.xlsx'
@@ -324,15 +312,15 @@ class AssayController {
 
 				// Retrieve row based data for this assay
 				def assayData = assayService.collectAssayData( assay, fieldMap, measurementTokens );
-				
+
 				// Prepend study and assay data to the list
 				assayData = assayService.prependAssayData( assayData, assay, assay.samples?.size() )
 				assayData = assayService.prependStudyData( assayData, assay, assay.samples?.size() )
-				
+
 				// Put each assay on another sheet
 				columnWiseAssayData << assayData;
 			}
-			
+
 			// Merge data from all assays
 			def mergedColumnWiseData = assayService.mergeColumnWiseDataOfMultipleStudies( columnWiseAssayData );
 
@@ -346,6 +334,39 @@ class AssayController {
 		}
 	}
 
+	def getAssaysFromParams( params ) {
+		def ids = params.list( 'ids' ).findAll { it.isLong() }.collect { Long.valueOf( it ) };
+		def tokens = params.list( 'tokens' );
+
+		if( !ids && !tokens ) {
+			flash.errorMessage = "No assay ids given";
+			redirect( action: "errorPage" );
+			return [];
+		}
+
+		// Find all assays for the given ids
+		def assays = [];
+		ids.each { id ->
+			def assay = Assay.get( id );
+			if( assay )
+				assays << assay;
+		}
+
+		// Also accept tokens for defining studies
+		tokens.each { token ->
+			def assay = Assay.findByAssayUUID( token );
+			if( assay )
+				assays << assay;
+		}
+		
+		if( !assays ) {
+			flash.errorMessage = "No assays found";
+			redirect( action: "errorPage" );
+			return [];
+		}
+		
+		return assays.unique();
+	}
 
 	def errorPage = {
 		render(view: 'assayExport/errorPage')

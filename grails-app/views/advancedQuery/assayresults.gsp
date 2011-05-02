@@ -40,7 +40,7 @@
 						way the user can select items from multiple pages of the paginated result list correctly. See
 						also http://datatables.net/examples/api/form.html and advancedQueryResults.js
 					*/ %>
-					<g:checkBox name="id" value="${assayInstance.id}" checked="${false}" onClick="updateCheckAll(this);" />
+					<g:checkBox name="uuid" value="${assayInstance.giveUUID()}" checked="${false}" onClick="updateCheckAll(this);" />
 				</td>
 				<td>
 				  	<g:if test="${assayInstance.module.openInFrame == null || assayInstance.module.openInFrame == Boolean.TRUE}">
