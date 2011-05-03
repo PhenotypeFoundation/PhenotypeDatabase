@@ -10,6 +10,7 @@
 
 div .simpleWizard .description { width: 170px; }
 .simpleWizard .error, .simpleWizard .required { background-position: 150px 2px; }
+#contacts .required { background-position: 2px 4px; padding-left: 20px; }
 .samplespage td.required { background-position: 160px 6px; }
 
 /** Meta boxes **/

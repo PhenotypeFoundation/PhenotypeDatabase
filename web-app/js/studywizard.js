@@ -359,7 +359,7 @@ function addPublication(element_id) {
 				showPublication(element_id, id, $("#" + element_id + "_form").find('[name=publication-title]').val(), $("#" + element_id + "_form").find('[name=publication-authorsList]').val(), ids.length - 1);
 
 				// Hide the 'none box'
-				$('#' + element_id + '_none').css('display', 'none');
+				$('#' + element_id + '_none').hide();
 			}
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
@@ -388,7 +388,7 @@ function removePublication(element_id, id) {
 
 		// Show the 'none box' if needed
 		if (ids.length == 0) {
-			$('#' + element_id + '_none').css('display', 'inline');
+			$('#' + element_id + '_none').show();
 		}
 
 	}
@@ -561,7 +561,7 @@ function addContact(element_id) {
 		showContact(element_id, combination, $("#" + element_id + "_person  :selected").text(), $("#" + element_id + "_role :selected").text(), ids.length - 1);
 
 		// Hide the 'none box'
-		$('#' + element_id + '_none').css('display', 'none');
+		$('#' + element_id + '_none').hide();
 	}
 
 	return true;
@@ -586,7 +586,7 @@ function removeContact(element_id, combination) {
 
 		// Show the 'none box' if needed
 		if (ids.length == 0) {
-			$('#' + element_id + '_none').css('display', 'inline');
+			$('#' + element_id + '_none').show();
 		}
 
 	}

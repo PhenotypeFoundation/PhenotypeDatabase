@@ -142,8 +142,8 @@ class WizardTagLib extends GdtTagLib {
 		// Add a unordered list
 		out << '<ul class="publication_list" id="' + attrs.name + '_list">';
 
-		out << '<li>';
-		out << '<span class="publication_none" id="' + attrs.name + '_none" style="display: ' + display_none + ';">';
+		out << '<li class="empty" id="' + attrs.name + '_none" >';
+		out << '<span class="publication_none" style="display: ' + display_none + ';">';
 		out << 'No publications selected';
 		out << '</span>';
 		out << '</li>';
@@ -251,8 +251,8 @@ class WizardTagLib extends GdtTagLib {
 		// Add a unordered list
 		out << '<ul class="contact_list" id="' + attrs.name + '_list">';
 
-		out << '<li>';
-		out << '<span class="contacts_none" id="' + attrs.name + '_none" style="display: ' + display_none + ';">';
+		out << '<li class="empty" id="' + attrs.name + '_none">';
+		out << '<span class="contacts_none" style="display: ' + display_none + ';">';
 		out << 'No contacts selected';
 		out << '</span>';
 		out << '</li>';
