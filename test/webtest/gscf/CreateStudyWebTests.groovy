@@ -29,6 +29,10 @@ class CreateStudyWebTests extends grails.util.WebTest {
 		setInputField(name: "description", value: "Test study from CreateStudyWebTests.testCreateStudy()")
 		setInputField(name: "code", value: "TESTCREATE")
 		setInputField(name: "startdate", value: "01/01/2011")
+		clickButton "Add Contact"
+		setSelectField(name: "contacts_person", text: "Scientist, John")
+		setSelectField(name: "contacts_role", text: "Principal Investigator")
+		clickButton "Add"
 		clickButton "next »"
 
 		// Add 10 human subjects
