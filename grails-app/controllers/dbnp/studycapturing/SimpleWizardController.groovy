@@ -1229,4 +1229,102 @@ class SimpleWizardController extends StudyWizardController {
 
 		return errors
 	}
+
+    // TEMPORARY ACTION TO TEST CORRECT STUDY DESIGN INFERRING: SHOULD BE REMOVED WHEN DONE
+    def testMethod = {
+
+        def data = [//['sample name',         'subject',         'timepoint'],
+                    [ '97___N_151_HAKA_1',    'N_151_HAKA',    '0w'],
+                    [ '98___N_163_QUJO_3',    'N_163_QUJO',    '2w'],
+                    [ '99___N_151_HAKA_2',    'N_151_HAKA',    '1w'],
+                    ['100___N_163_QUJO_4',    'N_163_QUJO',    '3w'],
+                    ['101___N_151_HAKA_3',    'N_151_HAKA',    '2w'],
+                    ['102___N_163_QUJO_2',    'N_163_QUJO',    '1w'],
+                    ['103___U_031_SMGI_1',    'U_031_SMGI',    '0w'],
+                    ['104___U_031_SMGI_3',    'U_031_SMGI',    '2w'],
+                    ['105___N_163_QUJO_1',    'N_163_QUJO',    '0w'],
+                    ['106___U_031_SMGI_4',    'U_031_SMGI',    '3w'],
+                    ['107___N_151_HAKA_4',    'N_151_HAKA',    '3w'],
+                    ['108___U_031_SMGI_2',    'U_031_SMGI',    '1w'],
+                    ['109___N_021_THAA_2',    'N_021_THAA',    '1w'],
+                    ['110___U_029_DUJA_2',    'U_029_DUJA',    '1w'],
+                    ['111___U_029_DUJA_3',    'U_029_DUJA',    '2w'],
+                    ['112___N_021_THAA_3',    'N_021_THAA',    '2w'],
+                    ['113___U_029_DUJA_4',    'U_029_DUJA',    '3w'],
+                    ['114___N_045_SNSU_1',    'N_045_SNSU',    '0w'],
+                    ['115___N_021_THAA_1',    'N_021_THAA',    '0w'],
+                    ['116___N_045_SNSU_2',    'N_045_SNSU',    '1w'],
+                    ['117___N_045_SNSU_3',    'N_045_SNSU',    '2w'],
+                    ['118___N_045_SNSU_4',    'N_045_SNSU',    '3w'],
+                    ['119___N_021_THAA_4',    'N_021_THAA',    '3w'],
+                    ['120___U_029_DUJA_1',    'U_029_DUJA',    '0w'],
+                    ['121___U_060_BRGE_3',    'U_060_BRGE',    '2w'],
+                    ['122___N_018_WIHA_1',    'N_018_WIHA',    '0w'],
+                    ['123___N_022_HUCA_3',    'N_022_HUCA',    '2w'],
+                    ['124___N_022_HUCA_2',    'N_022_HUCA',    '1w']]
+
+        def sampleTemplate = Template.findByName 'Human blood sample'
+        def subjectTemplate = Template.findByName 'Human'
+        def samplingEventTemplate = Template.findByName 'Blood extraction'
+        def eventTemplate = Template.findByName 'Diet treatment'
+
+
+        // Table is a collection of records. A records contains entities of type
+        // Sample, Subject, and SamplingEvent. This mimics the output of
+        // importerService.importOrUpdateDataBySampleIdentifier
+        def table = data.collect { row ->
+
+            [       new Sample( name: row[0], template: sampleTemplate),
+                    new Subject(name: row[1], template: subjectTemplate),
+                    new SamplingEvent(template: samplingEventTemplate).setFieldValue('startTime', row[2])
+//                    new Event(template: eventTemplate)
+            ]
+
+        }
+
+        // collect unique subjects and sampling events from table
+        def uniqueSubjects = table.collect{it[1]}.unique()
+        def uniqueSamplingEvents = table.collect{it[2]}.unique()
+
+        // create an event group for each unique sampling event (not much of a group, is it ...)
+        def eventGroups = uniqueSamplingEvents.collect{
+            def eventGroup = new EventGroup(name: "Sampling_${it.name}_${it.startTime}").addToSamplingEvents(it)
+            //study.addToEventGroups eventGroup
+            eventGroup
+        }
+        //TODO: add event groups to study
+
+//        uniqueSubjects.each {
+//            eventGroup.addToSubjects it
+//            // study.addToSubject it
+//        }
+
+        table.each{ record ->
+
+            Sample sample = record[0]
+
+            // gather all sample related entities
+            def correspondingSamplingEvent  = uniqueSamplingEvents.findByStartTime(record[2].startTime)
+            def correspondingSubject        = uniqueSubjects.findByName(record[1].name)
+            def correspondingEventGroup     = correspondingSamplingEvent.eventGroup
+
+            correspondingSamplingEvent.addToSamples sample
+            correspondingEventGroup.addToSamples    sample
+            correspondingEventGroup.addToSubjects   correspondingSubject
+            sample.parentSubject =                  correspondingSubject
+
+
+
+
+            // study.addToSamples sample
+            uniqueSamplingEvents.findByStartTime(record[2].startTime).addToSamples(sample)
+            sample.addToSubjects(uniqueSubjects.findByName(record[1].name))
+
+        }
+
+
+        println 'hoi'
+        render 'bla'
+
+    }
 }
