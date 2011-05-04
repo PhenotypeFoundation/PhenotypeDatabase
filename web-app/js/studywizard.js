@@ -25,15 +25,12 @@ function onStudyWizardPage() {
 	disableDatePickerKeys();
 
 	// handle and initialize table(s)
-	/*
-	handleWizardTable();
 	new TableEditor().init({
 		tableIdentifier : 'div.tableEditor',
 		rowIdentifier   : 'div.row',
 		columnIdentifier: 'div.column',
 		headerIdentifier: 'div.header'
 	});
-	*/
 
 	// initialize the ontology chooser
 	new OntologyChooser().init();
@@ -157,85 +154,8 @@ function attachDateTimePickers() {
 	});
 }
 
-// if the wizard page contains a table, the width of
-// the header and the rows is automatically scaled to
-// the cummalative width of the columns in the header
-function handleWizardTable() {
-	var that = this;
-	var wizardTables = $('div.tableEditor');
-
-	wizardTables.each(function() {
-		var wizardTable = $(this);
-		var sliderContainer = (wizardTable.next().attr('class') == 'sliderContainer') ? wizardTable.next() : null;
-		var header = wizardTable.find('div.header');
-		var width = 20;
-		var column = 0;
-		var columns = [];
-		var resized = [];
-
-		// calculate total width of elements in header
-		header.children().each(function() {
-			// calculate width per column
-			var c = $(this);
-			var columnWidth = c.width();
-			var paddingWidth = parseInt(c.css("padding-left"), 10) + parseInt(c.css("padding-right"), 10);
-			var marginWidth = parseInt(c.css("margin-left"), 10) + parseInt(c.css("margin-right"), 10);
-			var borderWidth = parseInt(c.css("borderLeftWidth"), 10) + parseInt(c.css("borderRightWidth"), 10);
-
-			// add width...
-			if (paddingWidth) columnWidth += paddingWidth;
-			if (marginWidth) columnWidth += marginWidth;
-			if (borderWidth) columnWidth += borderWidth;
-			width += columnWidth;
-
-			// remember column
-			resized[ column ] = (c.attr('rel') == 'resized');
-			columns[ column ] = c.width();
-			column++;
-		});
-
-		// resize the header
-		header.css({ width: width + 'px' });
-
-		// set table row width and assume column widths are
-		// identical to those in the header (css!)
-		wizardTable.find('div.row').each(function() {
-			var row = $(this);
-			var column = 0;
-			row.children().each(function() {
-				var child = $(this);
-				child.css({ width: columns[ column] + 'px' });
-				if (resized[ column ]) {
-					$(':input', child).each(function() {
-						$(this).css({width: (columns[ column ] - 10) + 'px'});
-					});
-				}
-				column++;
-			});
-			row.css({ width: width + 'px' });
-		});
-
-		// got a slider for this table?
-		if (sliderContainer) {
-			// handle slider
-			if (header.width() < wizardTable.width()) {
-				// no, so hide it
-				sliderContainer.hide();
-			} else {
-				sliderContainer.slider({
-					value   : 1,
-					min	 : 1,
-					max	 : header.width() - wizardTable.width(),
-					step	: 1,
-					slide: function(event, ui) {
-						wizardTable.find('div.header, div.row').css({ 'margin-left': ( 1 - ui.value ) + 'px' });
-					}
-				});
-			}
-		}
-	});
-}
-
+// obsolete, left here for backwards compatibility
+function handleWizardTable() {}
 
 /*************************************************
  *

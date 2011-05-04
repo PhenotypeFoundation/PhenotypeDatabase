@@ -55,9 +55,6 @@
 				</div>
 			</g:each>
 			</div>
-			<div class="sliderContainer">
-				<div class="slider"></div>
-			</div>
 		</g:each>
 	</g:if>
 </af:page>

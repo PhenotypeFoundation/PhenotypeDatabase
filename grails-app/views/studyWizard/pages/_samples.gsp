@@ -84,9 +84,6 @@
 			</g:if>
 		</g:each>
 		</div>
-		<div class="sliderContainer">
-			<div class="slider" ></div>
-		</div>
 		</g:if> 
 
 		<g:each var="sampleTemplate" in="${study.giveSampleTemplates()}">
@@ -138,9 +135,6 @@
 					<af:templateColumns name="sample_${sample.getIdentifier()}" class="column" id="1" entity="${sample}"/>
 				</div>
 			</g:each>
-			</div>
-			<div class="sliderContainer">
-				<div class="slider" ></div>
 			</div>
 		</g:each>
 	</g:if>

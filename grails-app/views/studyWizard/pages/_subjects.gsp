@@ -59,9 +59,6 @@ def speciesOntologies = dbnp.studycapturing.Subject.giveDomainFields().find { it
 				</div>
 			</g:each>
 			</div>
-			<div class="sliderContainer">
-				<div class="slider" ></div>
-			</div>
 		</g:each>
 	</g:if>
 </af:page>
