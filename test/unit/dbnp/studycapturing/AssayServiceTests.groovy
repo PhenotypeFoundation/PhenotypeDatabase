@@ -261,5 +261,22 @@ class AssayServiceTests extends GrailsUnitTestCase {
 ////        }
 //    }
 
+    void testCSVOutput() {
 
+        // We're testing:
+        // - strings containing any newlines, comma's, or double quotes should
+        //   be surrounded with double quotes
+        // - double quotes should be escaped by double quotes ( " -> "" )
+        // - other strings and numbers should remain 'quoteless'
+
+        def rowData = [["""a
+b""","a,b","a\"b", "abc"],[1,2.0,"3,1"]]
+
+        def baos = new ByteArrayOutputStream()
+
+        service.exportRowWiseDataToCSVFile rowData, baos
+
+        assertEquals 'CSV Output', '"a\nb","a,b","a""b",abc\n1,2.0,"3,1"', baos.toString()
+
+    }
 }

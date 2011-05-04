@@ -522,7 +522,28 @@ class AssayService {
 	def exportRowWiseDataToCSVFile(rowData, outputStream) {
 
         outputStream << rowData.collect { row ->
-          row.collect{ it ? "\"$it\"" : '""' }.join(',')
+          row.collect{
+
+              // omit quotes in case of numeric values
+              if (it instanceof Number) return it
+
+              def s = it.toString()
+
+              def addQuotes = false
+
+              // escape double quotes with double quotes if they exist and
+              // enable surround with quotes
+              if (s.contains('"')) {
+                  addQuotes = true
+                  s = s.replaceAll('"','""')
+              } else {
+                  // enable surround with quotes in case of comma's
+                  if (s.contains(',') || s.contains('\n')) addQuotes = true
+              }
+
+              addQuotes ? "\"$s\"" : s
+
+          }.join(',')
         }.join('\n')
 
 		outputStream.close()
