@@ -44,6 +44,7 @@ class BootStrapAuthentication {
 					userConfirmed: true,
 					adminConfirmed: true
 				).save(flush:true, failOnError: true)
+				if (String.metaClass.getMetaMethod("grom")) "adding user ${values.username}".grom()
 
 				// is this user an administrator?
 				if (values.administrator == 'true') {
