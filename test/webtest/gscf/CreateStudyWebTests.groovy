@@ -30,6 +30,7 @@ class CreateStudyWebTests extends grails.util.WebTest {
 		setInputField(name: "code", value: "TESTCREATE")
 		setInputField(name: "startdate", value: "01/01/2011")
 		clickButton "Add Contact"
+		verifyListPage(0)    // <- internal method call for extracting common steps
 		setSelectField(name: "contacts_person", text: "Scientist, John")
 		setSelectField(name: "contacts_role", text: "Principal Investigator")
 		clickButton "Add"
