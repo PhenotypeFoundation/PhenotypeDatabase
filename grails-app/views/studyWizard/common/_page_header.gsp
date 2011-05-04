@@ -119,6 +119,12 @@ TableEditor.prototype = {
 
 		// add 'select all' buttons
 		this.addSelectAllButton(table);
+
+		// style the table
+		this.resizeTableColumns(table);
+
+		// make sure the header stays in view when scrolling up or down
+		this.keepHeaderInView(table);
 	},
 
 	/**
@@ -357,10 +363,108 @@ TableEditor.prototype = {
 
         // and unset flag
         this.allSelected = false;
-    }
+    },
+
+    /**
+     * resize the table columns so that they lineup properly
+     * @param table
+	 */
+    resizeTableColumns: function(table) {
+		var header	= $(this.options.headerIdentifier, table);
+		var width	= 20;		// default column width
+		var column	= 0;
+		var columns	= [];
+		var resized	= [];
+
+		// calculate total width of elements in header
+		header.children().each(function() {
+			// calculate width per column
+			var c = $(this);
+
+			// if a column header contains help icons / helptext, make sure
+			// to handle them before initializing the table otherwise the
+			// widths are calculations are off...
+			var columnWidth	= c.outerWidth(true);
+
+            width += columnWidth;
+
+			// remember column
+			resized[ column ] = (c.attr('rel') == 'resized');
+			columns[ column ] = c.width();
+			column++;
+		});
+
+		console.log(columns);
+
+		// resize the header
+		header.css({ width: width + 'px' });
+
+		// set table row width and assume column widths are
+		// identical to those in the header (css!)
+		$(this.options.rowIdentifier, table).each(function() {
+			var row = $(this);
+			var column = 0;
+			row.children().each(function() {
+				var child = $(this);
+				child.css({ width: columns[ column] + 'px' });
+				if (resized[ column ]) {
+					$(':input', child).each(function() {
+						$(this).css({width: (columns[ column ] - 10) + 'px'});
+					});
+				}
+				column++;
+			});
+			row.css({ width: width + 'px' });
+		});
+
+		// add sliders?
+		if (header.width() > table.width()) {
+			// yes, add a top and a bottom slider
+            this.addSlider(table, 'before');
+            this.addSlider(table, 'after');
+		}
+    },
+
+   	/**
+   	 * add a slider to a table (either before or after the table)
+   	 * @param table
+   	 * @param location
+	 */
+   	addSlider: function(table, location) {
+   		var that	= this;
+   		var header	= $(this.options.headerIdentifier, table);
+		var sliderContainer = $(document.createElement('div'));
+
+		// add to table
+		sliderContainer.addClass('sliderContainer');
+
+		// where?
+		if (location == 'before') {
+			table.before(sliderContainer);
+		} else {
+			table.after(sliderContainer);
+		}
+
+		// initialize slider
+		sliderContainer.slider({
+			value	: 1,
+			min		: 1,
+			max		: header.width() - table.width(),
+			step	: 1,
+			slide	: function(event, ui) {
+				$(that.options.headerIdentifier + ', ' + that.options.rowIdentifier, table).css({ 'margin-left': ( 1 - ui.value ) + 'px' });
+			}
+		});
+   	},
+
+   	keepHeaderInView: function(table) {
+        $('window').scroll(function() {
+        	console.log('scrolling...');
+        });
+   	}
 }
 
-handleWizardTable();
+attachHelpTooltips();
 new TableEditor().init({
 	tableIdentifier : 'div.tableEditor',
 	rowIdentifier   : 'div.row',
