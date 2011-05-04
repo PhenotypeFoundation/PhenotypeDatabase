@@ -8,26 +8,35 @@
 	<meta property="og:type" content="non_profit"/>
 	<meta property="og:image" content="${resource(dir: 'images', file: 'facebookLike.png', absolute: true)}"/>
 	<meta property="fb:admins" content="721482421"/>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'default.css')}"/>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.css')}"/>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'login_panel.css')}"/>
 	<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
-	<g:javascript library="jquery" plugin="jquery"/>	
+	<g:javascript library="jquery" plugin="jquery"/>
 	<script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.7.custom.min.js')}" type="text/javascript"></script>
 	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.7.custom.css')}"/>
 	<g:if env="production"><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script></g:if>
+	<g:if env="development">
+		<link rel="stylesheet" href="${resource(dir: 'css', file: 'default.css')}"/>
+		<link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.css')}"/>
+		<link rel="stylesheet" href="${resource(dir: 'css', file: 'login_panel.css')}"/>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.js')}"></script>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
+		<link rel="stylesheet" href="${resource(dir: 'css/datatables', file: 'demo_table_jui.css')}"/>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.dataTables.min.js')}"></script>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'paginate.js')}"></script>
+	</g:if>
+	<g:else>
+		<link rel="stylesheet" href="${resource(dir: 'css', file: 'default.min.css')}"/>
+		<link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.min.css')}"/>
+		<link rel="stylesheet" href="${resource(dir: 'css', file: 'login_panel.min.css')}"/>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.min.js')}"></script>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.min.js')}"></script>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.min.js')}"></script>
+		<link rel="stylesheet" href="${resource(dir: 'css/datatables', file: 'demo_table_jui.css')}"/>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.dataTables.min.js')}"></script>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'paginate.min.js')}"></script>
+	</g:else>
 	<g:layoutHead/>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.js')}"></script>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
-	<!--<g:if env="development"><script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script></g:if>//-->
-
-	<!--  Scripts for pagination using dataTables -->
-	<link rel="stylesheet" href="${resource(dir: 'css/datatables', file: 'demo_table_jui.css')}"/>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.dataTables.min.js')}"></script>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'paginate.js')}"></script>
-
 </head>
 <body>
 <g:render template="/common/login_panel"/>
