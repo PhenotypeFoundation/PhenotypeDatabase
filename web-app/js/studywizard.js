@@ -25,6 +25,7 @@ function onStudyWizardPage() {
 	disableDatePickerKeys();
 
 	// handle and initialize table(s)
+	/*
 	handleWizardTable();
 	new TableEditor().init({
 		tableIdentifier : 'div.tableEditor',
@@ -32,6 +33,7 @@ function onStudyWizardPage() {
 		columnIdentifier: 'div.column',
 		headerIdentifier: 'div.header'
 	});
+	*/
 
 	// initialize the ontology chooser
 	new OntologyChooser().init();
