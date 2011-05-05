@@ -25,9 +25,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 class RestController {
 
-       /**************************************************/
-      /** Rest resources for Simple Assay Module (SAM) **/
-     /**************************************************/
+	/**************************************************/
+	/** Rest resources for Simple Assay Module (SAM) **/
+	/**************************************************/
 
 	def authenticationService
 	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
@@ -91,9 +91,9 @@ class RestController {
 	}
 
 	/**
- 	 * REST resource for data modules.
- 	 * Consumer and token should be supplied via URL parameters.
- 	 * Provide a list of all studies owned by the supplied user.
+	 * REST resource for data modules.
+	 * Consumer and token should be supplied via URL parameters.
+	 * Provide a list of all studies owned by the supplied user.
 	 *
 	 * @param	studyToken  optional parameter. If no studyToken is given, all studies available to user are returned.
 	 *                      Otherwise, the studies for which the studyTokens are given are be returned. 
@@ -136,35 +136,35 @@ class RestController {
 	 */
 	def getStudies = {
 
-		List returnStudies = [] 
-		List studies = [] 
+		List returnStudies = []
+		List studies = []
 
 		if( !params.studyToken ) {
 			studies = Study.findAll()
 		}
 		else if( params.studyToken instanceof String ) {
-			def study = Study.findByStudyUUID( params.studyToken ) 
+			def study = Study.findByStudyUUID( params.studyToken )
 			if( study ) {
 				if( !study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
 					response.sendError(401)
 					return false
 				}
-				
-				studies.push study 
+
+				studies.push study
 			} else {
 				response.sendError(404)
 				return false
 			}
-	
+
 		}
-		else { 
+		else {
 			params.studyToken.each{ studyToken ->
 				def study = Study.findByStudyUUID( studyToken );
 				if( study )
-					studies.push study 
+					studies.push study
 			}
 		}
-		
+
 
 		studies.each { study ->
 			if(study) {
@@ -172,18 +172,18 @@ class RestController {
 				// Check whether the person is allowed to read the data of this study
 				if( study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 
-                    def items = [studyToken:study.giveUUID()]
-                    study.giveFields().each { field ->
-                        def name = field.name
-                        def value = study.getFieldValue( name )
-                        items[name] = value
-                    }
-					
-					// Add study version number 
+					def items = [studyToken:study.giveUUID()]
+					study.giveFields().each { field ->
+						def name = field.name
+						def value = study.getFieldValue( name )
+						items[name] = value
+					}
+
+					// Add study version number
 					items['version'] = study.version;
-					
-                    returnStudies.push items
-                }
+
+					returnStudies.push items
+				}
 			}
 		}
 
@@ -216,7 +216,7 @@ class RestController {
 
 		def versionInfo = [:];
 		def study
-		
+
 		if( !params.studyToken || !(params.studyToken instanceof String)) {
 			response.sendError(400)
 			return false
@@ -255,9 +255,9 @@ class RestController {
 	 * @return JSON object list of subject names
 	 */
 	def getSubjects = {
-		List subjects = [] 
+		List subjects = []
 		if( params.studyToken ) {
- 			def study = Study.findByStudyUUID( params.studyToken)
+			def study = Study.findByStudyUUID( params.studyToken)
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
@@ -291,13 +291,13 @@ class RestController {
 	 * @param	consumer	consumer name of the calling module
 	 * @return list of assays in the study as JSON object list, filtered to only contain assays
 	 *         for the specified module, with 'assayToken' and 'name' for each assay
- 	 *
- 	 *
- 	 * Example 1. REST call without assayToken 
- 	 *            http://localhost:8080/gscf/rest/getAssays/aas?studyToken=PPSH
+	 *
+	 *
+	 * Example 1. REST call without assayToken 
+	 *            http://localhost:8080/gscf/rest/getAssays/aas?studyToken=PPSH
 	 *				&consumer=http://localhost:8182/sam
- 	 *
- 	 * Result: [{"name":"Glucose assay after",
+	 *
+	 * Result: [{"name":"Glucose assay after",
 	 *		        "module":{"class":"dbnp.studycapturing.AssayModule","id":1,"name":"SAM module for clinical data",
 	 *				"platform":"clinical measurements","url":"http://localhost:8182/sam"},
 	 *			"externalAssayID":"PPSH-Glu-A", "Description":null,"parentStudyToken":"PPSH"},
@@ -305,37 +305,39 @@ class RestController {
 	 *				"module":{"class":"dbnp.studycapturing.AssayModule","id":1,"name":"SAM module for clinical data",
 	 *				"platform":"clinical measurements","url":"http://localhost:8182/sam"},
 	 *				"externalAssayID":"PPSH-Glu-B","Description":null,"parentStudyToken":"PPSH"}]
- 	 *
- 	 *
- 	 * Example 2. REST call with one assayToken 
- 	 * 			  http://localhost:8080/gscf/rest/getAssays/queryOneTokenz?studyToken=PPSH
+	 *
+	 *
+	 * Example 2. REST call with one assayToken 
+	 * 			  http://localhost:8080/gscf/rest/getAssays/queryOneTokenz?studyToken=PPSH
 	 *				&consumer=http://localhost:8182/sam&assayToken=PPSH-Glu-A
- 	 *
+	 *
 	 * Result: [{"name":"Glucose assay after","module":{"class":"dbnp.studycapturing.AssayModule","id":1,
 	 *			"name":"SAM module for clinical data","platform":"clinical measurements","url":"http://localhost:8182/sam"},
 	 *			"externalAssayID":"PPSH-Glu-A","Description":null,"parentStudyToken":"PPSH"}]
 	 *
- 	 *
- 	 * Example 3. REST call with two assayTokens.
 	 *
- 	 * Result: Same as result in Example 1.
+	 * Example 3. REST call with two assayTokens.
+	 *
+	 * Result: Same as result in Example 1.
 	 */
 	def getAssays = {
 		// set output header to json
 		response.contentType = 'application/json'
 
-		List returnList = []    // return list of hashes each containing fields and values belonging to an assay 
+		List returnList = []    // return list of hashes each containing fields and values belonging to an assay
 
-		// Check if required parameters are present 
-		def validCall = CommunicationManager.hasValidParams( params, "consumer", "studyToken" )
-		if( !validCall ) { 
+		// Check if required parameters are present
+		def validCall = CommunicationManager.hasValidParams( params, "consumer" )
+		if( !validCall ) {
 			render "Error. Wrong or insufficient parameters." as JSON
 			return
 		}
-
+		
+		def assays = []
+		
 		if( params.studyToken ) {
 
- 			def study = Study.findByStudyUUID(params.studyToken)
+			def study = Study.findByStudyUUID(params.studyToken)
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
@@ -344,14 +346,13 @@ class RestController {
 					return false
 				}
 
-				def assays = []
 				if(params.assayToken==null) {
 					assays = study.assays
 				}
-				else if( params.assayToken instanceof String ) { 
+				else if( params.assayToken instanceof String ) {
 					def assay = study.assays.find{ it.giveUUID() == params.assayToken }
 					if( assay ) {
-						 assays.push assay
+						assays.push assay
 					}
 				}
 				else { 													// there are multiple assayTokens instances
@@ -363,26 +364,32 @@ class RestController {
 					}
 				}
 
-				assays.each{ assay ->
-					if (assay.module?.url && assay.module.url.equals(params.moduleURL)) {
-						if(assay) {
-							def map = [assayToken : assay.giveUUID()]
-							assay.giveFields().each { field ->
-								def name = field.name
-								def value = assay.getFieldValue( name )
-								map[name] = value
-							}
-							map["parentStudyToken"] = assay.parent.giveUUID()
-							returnList.push( map )
-						}
-					}
-				}
-        	} else {
+			} else {
 				response.sendError(404)
 				return false
 			}
 
- 		}
+		} else {
+			// Return all assays for the given module
+			assays = Assay.list().findAll{ it.parent.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ) ) }
+		}
+
+		// Create data for all assays
+		assays.each{ assay ->
+			if (assay.module?.url && assay.module.url.equals(params.moduleURL)) {
+				if(assay) {
+					def map = [assayToken : assay.giveUUID()]
+					assay.giveFields().each { field ->
+						def name = field.name
+						def value = assay.getFieldValue( name )
+						map[name] = value
+					}
+					map["parentStudyToken"] = assay.parent.giveUUID()
+					returnList.push( map )
+				}
+			}
+		}
+
 		render returnList as JSON
 	}
 
@@ -404,15 +411,15 @@ class RestController {
 	 * @return 'event' (the name of the template of the SamplingEvent describing the sampling)
 	 * @return 'startTime' (the time the sample was taken relative to the start of the study, as a string)
 	 * @return additional template fields are returned
- 	 * 
- 	 * 
- 	 * 
- 	 * Example 1: no sampleTokens given.
+	 * 
+	 * 
+	 * 
+	 * Example 1: no sampleTokens given.
 	 * Query: 
- 	 * http://localhost:8080/gscf/rest/getSamples/query?assayToken=PPSH-Glu-A
- 	 * 
+	 * http://localhost:8080/gscf/rest/getSamples/query?assayToken=PPSH-Glu-A
+	 * 
 	 * Result: 
- 	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 * {"sampleToken":"6_A","material":"blood plasma","subject":"6","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 * {"sampleToken":"10_A","material":"blood plasma","subject":"10","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 * {"sampleToken":"2_A","material":"blood plasma","subject":"2","event":"Blood extraction","startTime":"4 days, 6 hours"},
@@ -423,32 +430,32 @@ class RestController {
 	 * {"sampleToken":"8_A","material":"blood plasma","subject":"8","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 * {"sampleToken":"7_A","material":"blood plasma","subject":"7","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 * {"sampleToken":"3_A","material":"blood plasma","subject":"3","event":"Blood extraction","startTime":"4 days, 6 hours"}]
- 	 * 
- 	 * 
- 	 * 
- 	 * Example 2: one sampleToken given.
+	 * 
+	 * 
+	 * 
+	 * Example 2: one sampleToken given.
 	 * Query: 
 	 * http://localhost:8080/gscf/rest/getSamples/query?assayToken=PPSH-Glu-A&sampleToken=5_A
- 	 * 
- 	 * Result: 
+	 * 
+	 * Result: 
 	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"}]
- 	 * 
- 	 * 
- 	 * 
- 	 * Example 3: two sampleTokens given.
+	 * 
+	 * 
+	 * 
+	 * Example 3: two sampleTokens given.
 	 * Query: 
 	 * http://localhost:8080/gscf/rest/getSamples/query?assayToken=PPSH-Glu-A&sampleToken=5_A&sampleToken=6_A
- 	 * 
- 	 * Result: 
+	 * 
+	 * Result: 
 	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 *  {"sampleToken":"6_A","material":"blood plasma","subject":"6","event":"Blood extraction","startTime":"4 days, 6 hours"}]
 	 *
 	 *
- 	 * Example 4: no assaytoken given
+	 * Example 4: no assaytoken given
 	 * Query: 
 	 * http://localhost:8080/gscf/rest/getSamples/query?sampleToken=5_A&sampleToken=6_A
- 	 * 
- 	 * Result: 
+	 * 
+	 * Result: 
 	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 *  {"sampleToken":"6_A","material":"blood plasma","subject":"6","event":"Blood extraction","startTime":"4 days, 6 hours"}]
 	 *
@@ -457,7 +464,7 @@ class RestController {
 		def items = []
 		def samples
 		if( params.assayToken ) {
- 			def assay = Assay.findByAssayUUID( params.assayToken );
+			def assay = Assay.findByAssayUUID( params.assayToken );
 
 			if( assay )  {
 				// Check whether the person is allowed to read the data of this study
@@ -465,7 +472,7 @@ class RestController {
 					response.sendError(401)
 					return false
 				}
-				
+
 				samples = assay.getSamples() // on all samples
 			} else {
 				// Assay not found
@@ -477,22 +484,22 @@ class RestController {
 			def studies = Study.list().findAll { it.canRead( authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ) ) };
 			samples = studies*.getSamples().flatten();
 		}
-		
+
 		// Check whether only a subset of samples should be returned
 		if( params.sampleToken ) {
 			def sampleTokens = params.list( "sampleToken" );
-			samples = samples.findAll { sampleTokens.contains( it.giveUUID() ) } 
+			samples = samples.findAll { sampleTokens.contains( it.giveUUID() ) }
 		}
 
 		samples.each { sample ->
 
-			def item = [ 
-				'sampleToken' : sample.giveUUID(),
-				'material'	  : sample.material?.name,
-				'subject'	  : sample.parentSubject?.name,
-				'event'		  : sample.parentEvent?.template?.name,
-				'startTime'	  : sample.parentEvent?.getStartTimeString()
-			]
+			def item = [
+						'sampleToken' : sample.giveUUID(),
+						'material'	  : sample.material?.name,
+						'subject'	  : sample.parentSubject?.name,
+						'event'		  : sample.parentEvent?.template?.name,
+						'startTime'	  : sample.parentEvent?.getStartTimeString()
+					]
 
 			sample.giveFields().each { field ->
 				def name = field.name
@@ -513,7 +520,7 @@ class RestController {
 						eventHash[name]=value
 					}
 				}
-				item['eventObject'] = eventHash 
+				item['eventObject'] = eventHash
 			}
 
 			if(sample.parentSubject) {
@@ -526,10 +533,10 @@ class RestController {
 						subject[name]=value
 					}
 				}
-				item['subjectObject'] = subject 
+				item['subjectObject'] = subject
 			}
 
-			items.push item 
+			items.push item
 		}
 
 		// set output header to json
@@ -551,7 +558,7 @@ class RestController {
 	 */
 	def getAuthorizationLevel = {
 		if( params.studyToken ) {
- 			def study = Study.findByStudyUUID(params.studyToken)
+			def study = Study.findByStudyUUID(params.studyToken)
 
 			if( !study ) {
 				response.sendError(404)
@@ -570,5 +577,5 @@ class RestController {
 			response.sendError(400)
 			return false
 		}
-    }
+	}
 }
