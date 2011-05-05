@@ -21,7 +21,7 @@ import dbnp.configuration.*
 class BootStrap {
 	// user spring security
 	def springSecurityService
- 
+
 	// inject the datasource
 	def dataSource
 
