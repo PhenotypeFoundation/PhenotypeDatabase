@@ -28,7 +28,7 @@ function onStudyWizardPage() {
 	new TableEditor().init({
 		tableIdentifier : 'div.tableEditor',
 		rowIdentifier   : 'div.row',
-		columnIdentifier: 'div.column',
+		columnIdentifier: 'div.firstColumn, div.column',
 		headerIdentifier: 'div.header'
 	});
 
