@@ -329,6 +329,7 @@ class RestController {
 		// Check if required parameters are present
 		def validCall = CommunicationManager.hasValidParams( params, "consumer" )
 		if( !validCall ) {
+			response.status = 500;
 			render "Error. Wrong or insufficient parameters." as JSON
 			return
 		}
