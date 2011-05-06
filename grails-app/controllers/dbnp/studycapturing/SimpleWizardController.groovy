@@ -1263,10 +1263,10 @@ class SimpleWizardController extends StudyWizardController {
                     ['123___N_022_HUCA_3',    'N_022_HUCA',    '2w'],
                     ['124___N_022_HUCA_2',    'N_022_HUCA',    '1w']]
 
-        def sampleTemplate = Template.findByName 'Human blood sample'
-        def subjectTemplate = Template.findByName 'Human'
-        def samplingEventTemplate = Template.findByName 'Blood extraction'
-        def eventTemplate = Template.findByName 'Diet treatment'
+        def sampleTemplate = Template.findByName ('Human blood sample')
+        def subjectTemplate = Template.findByName ('Human')
+        def samplingEventTemplate = Template.findByName ('Blood extraction')
+        def eventTemplate = Template.findByName ('Diet treatment')
 
 
         // Table is a collection of records. A records contains entities of type
