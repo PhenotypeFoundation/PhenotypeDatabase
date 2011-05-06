@@ -32,81 +32,6 @@ class AssaySearch extends Search {
 	}
 
 	/**
-	 * Searches for assays based on the given criteria. All criteria have to be satisfied and 
-	 * criteria for the different entities are satisfied as follows:
-	 * 
-	 * 		Study.title = 'abc'		
-	 * 				Only assays are returned from studies with title 'abc'
-	 * 		
-	 * 		Subject.species = 'human'
-	 * 				Only assays are returned with samples from subjects with species = 'human'  
-	 * 
-	 * 		Sample.name = 'sample 1'
-	 * 				Only assays are returned with samples with name = 'sample 1'
-	 * 
-	 * 		Event.startTime = '0s'
-	 * 				Only assays are returned with samples from subjects that have had an event with start time = '0s'  
-	 * 
-	 * 		SamplingEvent.startTime = '0s'
-	 * 				Only assays are returned with samples that have originated from a sampling event with start time = '0s'  
-	 * 
-	 * 		Assay.module = 'metagenomics'
-	 * 				Only assays are returned with module = metagenomics  
-	 * 
-	 * When searching for more than one criterion per entity, these are taken combined. Searching for
-	 * 
-	 * 		Subject.species = 'human'
-	 * 		Subject.name = 'Jan'
-	 * 
-	 *  will result in all samples from a human subject named 'Jan'. Samples from a mouse subject 
-	 *  named 'Jan' or a human subject named 'Kees' won't satisfy the criteria. 
-	 *	
-	 */
-	@Override
-	protected void executeAnd() {
-		def assays = Assay.list().findAll { it.parent?.canRead( this.user ) };
-
-		executeAnd( assays );
-	}
-
-	/**
-	 * Searches for samples based on the given criteria. Only one of the criteria have to be satisfied and
-	 * criteria for the different entities are satisfied as follows:
-	 * 
-	 * 		Study.title = 'abc'		
-	 * 				Only assays are returned from studies with title 'abc'
-	 * 		
-	 * 		Subject.species = 'human'
-	 * 				Only assays are returned with samples from subjects with species = 'human'  
-	 * 
-	 * 		Sample.name = 'sample 1'
-	 * 				Only assays are returned with samples with name = 'sample 1'
-	 * 
-	 * 		Event.startTime = '0s'
-	 * 				Only assays are returned with samples from subjects that have had an event with start time = '0s'  
-	 * 
-	 * 		SamplingEvent.startTime = '0s'
-	 * 				Only assays are returned with samples that have originated from a sampling event with start time = '0s'  
-	 * 
-	 * 		Assay.module = 'metagenomics'
-	 * 				Only assays are returned with module = metagenomics  
-	 *
-	 * When searching for more than one criterion per entity, these are taken separately. Searching for
-	 *
-	 * 		Subject.species = 'human'
-	 * 		Subject.name = 'Jan'
-	 *
-	 *  will result in all samples from a human subject or a subject named 'Jan'. Samples from a mouse subject
-	 *  named 'Jan' or a human subject named 'Kees' will also satisfy the criteria.
-	 *
-	 */
-	@Override
-	void executeOr() {
-		def allAssays = Assay.list().findAll { it.parent?.canRead( this.user ) }.toList();
-		executeOr( allAssays );
-	}
-
-	/**
 	 * Returns a closure for the given entitytype that determines the value for a criterion
 	 * on the given object. The closure receives two parameters: the object and a criterion.
 	 *
@@ -144,6 +69,66 @@ class AssaySearch extends Search {
 		}
 	}
 
+	
+	/**
+	 * Returns the HQL name for the element or collections to be searched in, for the given entity name
+	 * For example: when searching for Subject.age > 50 with Study results, the system must search in all study.subjects for age > 50.
+	 * But when searching for Sample results, the system must search in sample.parentSubject for age > 50
+	 *
+	 * @param entity	Name of the entity of the criterion
+	 * @return			HQL name for this element or collection of elements
+	 */
+	protected String elementName( String entity ) {
+		switch( entity ) {
+			case "Assay":			return "assay"
+			case "Sample":			return "assay.samples"
+			case "Study": 			return "assay.parent"
+			
+			case "Subject":			return "assay.samples.parentSubject"			// Will not be used, since entityClause() is overridden
+			case "SamplingEvent":	return "assay.samples.parentEvent"				// Will not be used, since entityClause() is overridden
+			case "Event":			return "assay.samples.parentEventGroup.events"	// Will not be used, since entityClause() is overridden
+			default:				return null;
+		}
+	}
+
+	/**
+	 * Returns the a where clause for the given entity name
+	 * For example: when searching for Subject.age > 50 with Study results, the system must search
+	 *
+	 * 	WHERE EXISTS( FROM study.subjects subject WHERE subject IN (...)
+	 *
+	 * The returned string is fed to sprintf with 3 string parameters:
+	 * 		from (in this case 'study.subjects'
+	 * 		alias (in this case 'subject'
+	 * 		paramName (in this case '...')
+	 *
+	 * @param entity		Name of the entity of the criterion
+	 * @return			HQL where clause for this element or collection of elements
+	 */
+	protected String entityClause( String entity ) {
+		switch( entity ) {
+			case "Subject":
+				return 'EXISTS( FROM assay.samples sample WHERE sample.parentSubject IN (:%3$s) )'
+			case "SamplingEvent":
+				return 'EXISTS( FROM assay.samples sample WHERE sample.parentEvent IN (:%3$s) )'
+			case "Event":
+				return 'EXISTS( FROM assay.samples sample WHERE EXISTS( FROM sample.parentEventGroup.events event WHERE event IN (:%3$s) ) )'
+			default:
+				return super.entityClause( entity );
+		}
+	}
+
+	/**
+	 * Returns true iff the given entity is accessible by the user currently logged in
+	 *
+	 * @param entity		Study to determine accessibility for.
+	 * @return			True iff the user is allowed to access this study
+	 */
+	protected boolean isAccessible( def entity ) {
+		return entity?.parent?.canRead( this.user );
+	}
+
+	
 	/**
 	 * Returns the saved field data that could be shown on screen. This means, the data 
 	 * is filtered to show only data of the query results. Also, the study title and assay

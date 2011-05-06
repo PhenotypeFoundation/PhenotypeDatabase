@@ -111,108 +111,79 @@ class Search {
 	public void execute() {
 		this.executionDate = new Date();
 
-		switch( searchMode ) {
-			case SearchMode.and:
-				executeAnd();
-				break;
-			case SearchMode.or:
-				executeOr();
-				break;
-		}
+		// Execute the search
+		executeSearch();
 
 		// Save the value of this results for later use
 		saveResultFields();
 	}
 
 	/**
-	 * Executes an inclusive (AND) search based on the given criteria. Should be filled in by
-	 * subclasses searching for a specific entity
+	 * Executes a query
 	 */
-	protected void executeAnd() {
+	protected void executeSearch() {
+		// Create HQL query for criteria for the entity being sought
+		def selectClause = "" 
+		def fullHQL = createHQLForEntity( this.entity );
 
-	}
+		// Create SQL for other entities, by executing a subquery first, and
+		// afterwards selecting the study based on the entities found
+		def resultsFound
 
-	/**
-	 * Executes an exclusive (OR) search based on the given criteria. Should be filled in by
-	 * subclasses searching for a specific entity
-	 */
-	protected void executeOr() {
-
-	}
-
-	/**
-	 * Default implementation of an inclusive (AND) search. Can be called by subclasses in order
-	 * to simplify searches.
-	 * 
-	 * Filters the list of objects on study, subject, sample, event, samplingevent and assaycriteria,
-	 * based on the closures defined in valueCallback. Afterwards, the objects are filtered on module
-	 * criteria
-	 * 
-	 * @param objects	List of objects to search in
-	 */
-	protected void executeAnd( List objects ) {
-		// If no criteria are found, return all studies
-		if( !criteria || criteria.size() == 0 ) {
-			results = objects;
-			return;
+		def entityNames = [ "Study", "Subject", "Sample", "Assay", "Event", "SamplingEvent" ];
+		for( entityToSearch in entityNames ) {
+			// Add conditions for all criteria for the given entity. However,
+			// the conditions for the 'main' entity (the entity being sought) are already added
+			if( entity != entityToSearch ) {
+				resultsFound = addEntityConditions( 
+					entityToSearch,															// Name of the entity to search in 
+					TemplateEntity.parseEntity( 'dbnp.studycapturing.' + entityToSearch ), 	// Class of the entity to search in
+					elementName( entityToSearch ), 											// HQL name of the collection to search in 
+					entityToSearch[0].toLowerCase() + entityToSearch[1..-1], 				// Alias for the entity to search in
+					fullHQL 																// Current HQL statement
+				)
+				
+				// If no results are found, and we are searching 'inclusive', there will be no 
+				// results whatsoever. So we can quit this method now.
+				if( !resultsFound && searchMode == SearchMode.and ) {
+					return
+				}
+			}
 		}
-
-		// Perform filters
-		objects = filterOnStudyCriteria( objects );
-		objects = filterOnSubjectCriteria( objects );
-		objects = filterOnSampleCriteria( objects );
-		objects = filterOnEventCriteria( objects );
-		objects = filterOnSamplingEventCriteria( objects );
-		objects = filterOnAssayCriteria( objects );
-
-		// Filter on criteria for which the entity is unknown
-		objects = filterOnAllFieldsCriteria( objects );
-		
-		// Filter on module criteria
-		objects = filterOnModuleCriteria( objects );
-
-		// Save matches
-		results = objects;
-	}
-
-	/**
-	* Default implementation of an exclusive (OR) search. Can be called by subclasses in order
-	* to simplify searches.
-	*
-	* Filters the list of objects on study, subject, sample, event, samplingevent and assaycriteria,
-	* based on the closures defined in valueCallback. Afterwards, the objects are filtered on module
-	* criteria
-	*
-	* @param allObjects	List of objects to search in
-	*/
-   protected void executeOr( List allObjects ) {
-		// If no criteria are found, return all studies
-		if( !criteria || criteria.size() == 0 ) {
-			results = allObjects;
-			return;
+			
+		// Search in all entities
+		resultsFound = addWildcardConditions( fullHQL, entityNames )
+		if( !resultsFound && searchMode == SearchMode.and ) {
+			return
 		}
-
-		// Perform filters on those objects not yet found by other criteria
-		def objects = []
-		objects = ( objects + filterOnStudyCriteria( allObjects - objects ) ).unique();
-		objects = ( objects + filterOnSubjectCriteria( allObjects - objects ) ).unique();
-		objects = ( objects + filterOnSampleCriteria( allObjects - objects ) ).unique();
-		objects = ( objects + filterOnEventCriteria( allObjects - objects ) ).unique();
-		objects = ( objects + filterOnSamplingEventCriteria( allObjects - objects ) ).unique();
-		objects = ( objects + filterOnAssayCriteria( allObjects - objects ) ).unique();
 		
-		// Filter on criteria for which the entity is unknown
-		objects = ( objects + filterOnAllFieldsCriteria( allObjects - objects ) ).unique();
+		// Combine all parts to generate a full HQL query
+		def hqlQuery = selectClause + " " + fullHQL.from + ( fullHQL.where ? "  WHERE " + fullHQL.where.join( " " + searchMode.toString() + " "  ) : "" );
 		
-		// All objects (including the ones already found by another criterion) are sent to
-		// be filtered on module criteria, in order to have the module give data about all
-		// objects (for showing purposes later on)
-		objects = ( objects + filterOnModuleCriteria( allObjects ) ).unique();
+		// Find all objects 
+		def entities = entityClass().findAll( hqlQuery, fullHQL.parameters );
 		
-		// Save matches
-		results = objects;
-   }
-
+		// Find criteria that match one or more 'complex' fields
+		// These criteria must be checked extra, since they are not correctly handled
+		// by the HQL criteria. See also Criterion.manyToManyWhereCondition and
+		// http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
+		entities = filterForComplexCriteria( entities, getEntityCriteria( this.entity ) );
+		
+		// Filter on module criteria. If the search is 'and', only the entities found until now
+		// should be queried in the module. Otherwise, all entities are sent, in order to retrieve
+		// data (to show on screen) for all entities
+		if( hasModuleCriteria() ) {
+			if( searchMode == SearchMode.and ) {
+				entities = filterOnModuleCriteria( entities );
+			} else {
+				entities = filterOnModuleCriteria( entityClass().list().findAll { this.isAccessible( it ) } )
+			}
+		}
+		
+		// Determine which studies can be read
+		results = entities;
+		
+	}
 		
 	/************************************************************************
 	 * 
@@ -278,7 +249,208 @@ class Search {
 				return null;
 		}
 	}
+	
+	/**
+	* Returns the HQL name for the element or collections to be searched in, for the given entity name
+	* For example: when searching for Subject.age > 50 with Study results, the system must search in all study.subjects for age > 50.
+	* But when searching for Sample results, the system must search in sample.parentSubject for age > 50
+	* 
+	* This method should be overridden in child classes
+	*
+	* @param entity	Name of the entity of the criterion
+	* @return			HQL name for this element or collection of elements
+	*/
+   protected String elementName( String entity ) {
+	   switch( entity ) {
+		   case "Study": 			
+		   case "Subject":			
+		   case "Sample":			
+		   case "Event":			
+		   case "SamplingEvent":	
+		   case "Assay":			
+		   		return entity[ 0 ].toLowerCase() + entity[ 1 .. -1 ]
+		   default:				return null;
+	   }
+   }
+   
+	/**
+	* Returns the a where clause for the given entity name
+	* For example: when searching for Subject.age > 50 with Study results, the system must search 
+	* 		
+	* 	WHERE EXISTS( FROM study.subjects subject WHERE subject IN (...)
+	* 
+	* The returned string is fed to sprintf with 3 string parameters:
+	* 		from (in this case 'study.subjects'
+	* 		alias (in this case 'subject'
+	* 		paramName (in this case '...')
+	* 
+	* This method can be overridden in child classes to enable specific behaviour
+	*
+	* @param entity		Name of the entity of the criterion
+	* @return			HQL where clause for this element or collection of elements
+	*/
+   protected String entityClause( String entity ) {
+	   return ' EXISTS( FROM %1$s %2$s WHERE %2$s IN (:%3$s) )'
+   }
+   
+   /**
+    * Returns true iff the given entity is accessible by the user currently logged in
+    * 
+    * This method should be overridden in child classes, since the check is different for every type of search
+    * 
+    * @param entity		Entity to determine accessibility for. The entity is of the type 'this.entity'
+    * @return			True iff the user is allowed to access this entity
+    */
+   protected boolean isAccessible( def entity ) {
+	   return false
+   }
 
+	/****************************************************
+	 * 
+	 * Helper methods for generating HQL statements
+	 * 
+	 ****************************************************/
+	
+	/**
+	 * Add all conditions for criteria for a specific entity
+	 *
+	 * @param entityName	Name of the entity to search in
+	 * @param entityClass	Class of the entity to search
+	 * @param from			Name of the HQL collection to search in (e.g. study.subjects)
+	 * @param alias			Alias of the HQL collection objects (e.g. 'subject')
+	 * @param fullHQL		Original HQL map to be extended (fields 'from', 'where' and 'parameters')
+	 * @param determineParentId	Closure to determine the id of the final entity to search, based on these objects
+	 * @param entityCriteria	(optional) list of criteria to create the HQL for. If no criteria are given, all criteria for the entity are found
+	 * @return				True if one ore more entities are found, false otherwise
+	 */
+	protected boolean addEntityConditions( String entityName, def entityClass, String from, String alias, def fullHQL, def entityCriteria = null ) {
+		if( entityCriteria == null )
+			entityCriteria = getEntityCriteria( entityName )
+		
+		// Create HQL for these criteria
+		def entityHQL = createHQLForEntity( entityName, entityCriteria );
+		
+		// If any clauses are generated for these criteria, find entities that match these criteria
+		def whereClauses = entityHQL.where?.findAll { it && it?.trim() != "" }
+		if( whereClauses ) {
+			// First find all entities that match these criteria
+			def hqlQuery = entityHQL.from + " WHERE " + whereClauses.join( searchMode == SearchMode.and ? " AND " : " OR " );			
+			def entities = entityClass.findAll( hqlQuery, entityHQL.parameters )
+			
+			// If there are entities matching these criteria, put a where clause in the full HQL query 
+			if( entities ) {
+				// Find criteria that match one or more 'complex' fields
+				// These criteria must be checked extra, since they are not correctly handled
+				// by the HQL criteria. See also Criterion.manyToManyWhereCondition and
+				// http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
+				entities = filterForComplexCriteria( entities, entityCriteria );
+				
+				def paramName = from.replaceAll( /\W/, '' );
+				fullHQL.where << sprintf( entityClause( entityName ), from, alias, paramName );
+				fullHQL.parameters[ paramName ] = entities
+				return true;
+			} else {
+				results = [];
+				return false
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Add all conditions for a wildcard search (all fields in a given entity)
+	 * @param fullHQL	Original HQL map to be extended (fields 'from', 'where' and 'parameters')
+	 * @return			True if the addition worked
+	 */
+	protected boolean addWildcardConditions( def fullHQL, def entities) {
+		// Append study criteria
+		def entityCriteria = getEntityCriteria( "*" );
+		
+		// If no wildcard criteria are found, return immediately
+		if( !entityCriteria )
+			return true
+			
+		// Wildcards should be checked within each entity
+		def wildcardHQL = createHQLForEntity( this.entity );
+		
+		// Create SQL for other entities, by executing a subquery first, and
+		// afterwards selecting the study based on the entities found
+		entities.each { entityToSearch ->
+			// Add conditions for all criteria for the given entity. However,
+			// the conditions for the 'main' entity (the entity being sought) are already added
+			if( entity != entityToSearch ) {
+				addEntityConditions(
+					entityToSearch,															// Name of the entity to search in
+					TemplateEntity.parseEntity( 'dbnp.studycapturing.' + entityToSearch ), 	// Class of the entity to search in
+					elementName( entityToSearch ), 											// HQL name of the collection to search in
+					entityToSearch[0].toLowerCase() + entityToSearch[1..-1], 				// Alias for the entity to search in
+					wildcardHQL, 															// Current HQL statement
+					entityCriteria															// Only create HQL for these criteria
+				)
+			}
+		}
+		
+		// Add these clauses to the full HQL statement
+		def whereClauses = wildcardHQL.where.findAll { it };
+
+		if( whereClauses ) {
+			fullHQL.from += wildcardHQL.from
+			fullHQL.where << whereClauses.join( " OR " )
+			 
+			wildcardHQL[ "parameters" ].each {
+				fullHQL.parameters[ it.key ] = it.value
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Create HQL statement for the given criteria and a specific entity
+	 * @param entityName		Name of the entity
+	 * @param entityCriteria	(optional) list of criteria to create the HQL for. If no criteria are given, all criteria for the entity are found
+	 * @param includeFrom		(optional) If set to true, the 'FROM entity' is prepended to the from clause. Defaults to true
+	 * @return
+	 */
+	def createHQLForEntity( String entityName, def entityCriteria = null, includeFrom = true ) {
+		def fromClause = includeFrom ? "FROM " + entityName + " " + entityName.toLowerCase() : ""
+		def whereClause = []
+		def parameters = [:]
+		def criterionNum = 0;
+		
+		// Append study criteria
+		if( entityCriteria == null )
+			entityCriteria = getEntityCriteria( entityName );
+		
+		entityCriteria.each {
+			def criteriaHQL = it.toHQL( "criterion" +entityName + criterionNum++, entityName.toLowerCase() );
+			fromClause += " " + criteriaHQL[ "join" ]
+			whereClause << criteriaHQL[ "where" ]
+			criteriaHQL[ "parameters" ].each {
+				parameters[ it.key ] = it.value
+			}
+		}
+		
+		// Add a filter such that only readable studies are returned
+		if( entityName == "Study" ) {
+			
+			if( this.user == null ) {
+				// Anonymous readers are only given access when published and public
+				whereClause << "( study.publicstudy = true AND study.published = true )"
+			} else if( !this.user.hasAdminRights() ) {
+				// Administrators are allowed to read every study
+
+				// Owners and writers are allowed to read this study
+				// Readers are allowed to read this study when it is published
+				whereClause << "( study.owner = :sessionUser OR :sessionUser member of study.writers OR ( :sessionUser member of study.readers AND study.published = true ) )"
+				parameters[ "sessionUser" ] = this.user
+			}
+		}
+		
+		return [ "from": fromClause, "where": whereClause, "parameters": parameters ]
+	}
+	
 	/*****************************************************
 	 * 
 	 * The other methods are helper functions for the execution of queries in subclasses
@@ -404,142 +576,56 @@ class Search {
 			}
 		}
 	}
-		
-	/**
-	 * Filters the given list of studies on the study criteria
-	 * @param studies		Original list of studies
-	 * @param entity		Name of the entity to check the criteria for
-	 * @param valueCallback	Callback having a study and criterion as input, returning the value of the field to check on
-	 * @return				List with all studies that match the Criteria
-	 */
-	protected List filterOnTemplateEntityCriteria( List studies, String entityName, Closure valueCallback ) {
-		def criteria = getEntityCriteria( entityName );
-
-		def checkCallback = { study, criterion ->
-			def value = valueCallback( study, criterion );
-
-			if( value == null ) {
-				return false
-			}
-
-			if( value instanceof Collection ) {
-				return criterion.matchAny( value )
-			} else {
-				return criterion.match( value );
-			}
-		}
-
-		return filterEntityList( studies, criteria, checkCallback);
-	}
-
-	/**
-	 * Filters the given list of studies on the study criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the Study criteria
-	 */
-	protected List filterOnStudyCriteria( List studies ) {
-		def entity = "Study"
-		return filterOnTemplateEntityCriteria(studies, entity, valueCallback( entity ) )
-	}
-
-	/**
-	 * Filters the given list of studies on the subject criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the Subject-criteria
-	 */
-	protected List filterOnSubjectCriteria( List studies ) {
-		def entity = "Subject"
-		return filterOnTemplateEntityCriteria(studies, entity, valueCallback( entity ) )
-	}
-
-	/**
-	 * Filters the given list of studies on the sample criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the sample-criteria
-	 */
-	protected List filterOnSampleCriteria( List studies ) {
-		def entity = "Sample"
-		return filterOnTemplateEntityCriteria(studies, entity, valueCallback( entity ) )
-	}
-
-	/**
-	 * Filters the given list of studies on the event criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the event-criteria
-	 */
-	protected List filterOnEventCriteria( List studies ) {
-		def entity = "Event"
-		return filterOnTemplateEntityCriteria(studies, entity, valueCallback( entity ) )
-	}
-
-	/**
-	 * Filters the given list of studies on the sampling event criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the event-criteria
-	 */
-	protected List filterOnSamplingEventCriteria( List studies ) {
-		def entity = "SamplingEvent"
-		return filterOnTemplateEntityCriteria(studies, entity, valueCallback( entity ) )
-	}
-
-	/**
-	 * Filters the given list of studies on the assay criteria
-	 * @param studies	Original list of studies
-	 * @return			List with all studies that match the assay-criteria
-	 */
-	protected List filterOnAssayCriteria( List studies ) {
-		def entity = "Assay"
-		return filterOnTemplateEntityCriteria(studies, entity, valueCallback( entity ) )
-	}
-	
 	
 	/**
-	 * Filters the given list of entities on criteria that mention all fields (e.g. search for studies with 'bacteria' in any field)
-	 * @param objects	Original list of entities.
-	 * @return			List of all entities that match the given criteria
+	 * Filters an entity list manually on complex criteria found in the criteria list.
+	 * This method is needed because hibernate contains a bug in the HQL INDEX() function.
+	 * See also Criterion.manyToManyWhereCondition and
+	 *http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
+	 * 
+	 * @param entities			List of entities
+	 * @param entityCriteria	List of criteria that apply to the type of entities given	(e.g. Subject criteria for Subjects)
+	 * @return					Filtered entity list
 	 */
-	protected List filterOnAllFieldsCriteria( List objects ) {
-		def criteria = getEntityCriteria( "*" );
-		
-		// Find methods to determine a value for a criterion, based on all entities
-		def valueCallbacks = [:];
-		def entities = [ "Study", "Subject", "Sample", "Event", "SamplingEvent", "Assay" ];
-		entities.each {
-			valueCallbacks[ it ] = valueCallback( it );
-		}
-		
-		// Create a closure that checks all entities
-		def checkCallback = { object, criterion ->
-			def value = "";
-			for( def entity in entities ) {
-				value = valueCallbacks[ entity ]( object, criterion );
-				
+	protected filterForComplexCriteria( def entities, def entityCriteria ) {
+		def complexCriteria = entityCriteria.findAll { it.isComplexCriterion() }
+		if( complexCriteria ) {
+			def checkCallback = { entity, criterion ->
+				def value = criterion.getFieldValue( entity )
+
 				if( value == null ) {
-					continue;
+					return false
 				}
-	
+
 				if( value instanceof Collection ) {
-					if( criterion.matchAny( value ) )
-						return true;
+					return criterion.matchAny( value )
 				} else {
-					if( criterion.match( value ) )
-						return true;
+					return criterion.match( value );
 				}
 			}
-			
-			// If no match is found, return
-			return false;
-		}
 
-		return filterEntityList( objects, criteria, checkCallback);
+			entities = filterEntityList( entities, complexCriteria, checkCallback );
+		}
+		
+		return entities;
 	}
-	
+
 	/********************************************************************
 	 * 
 	 * Methods for filtering object lists on module criteria
 	 * 
 	 ********************************************************************/
 
+	protected boolean hasModuleCriteria() {
+		
+		return AssayModule.list().any { module ->
+			// Remove 'module' from module name
+			def moduleName = module.name.replace( 'module', '' ).trim()
+			def moduleCriteria = getEntityCriteria( moduleName );
+			return moduleCriteria?.size() > 0
+		}
+	}
+	
 	/**
 	 * Filters the given list of entities on the module criteria
 	 * @param entities	Original list of entities. Entities should expose a giveUUID() method to give the token.
@@ -610,8 +696,6 @@ class Search {
 					}
 				}
 		
-				println this.resultFields;
-				
 				return resultingEntities;
 			default:
 				return [];
@@ -877,4 +961,20 @@ class Search {
 					s.criteria.containsAll( criteria ) && 
 					criteria.containsAll( s.criteria ) );
 	}
+	
+	/**
+	* Returns the class for the entity being searched
+	* @return
+	*/
+	public Class entityClass() {
+		if( !this.entity )
+			return null;
+			
+		try {
+			return TemplateEntity.parseEntity( 'dbnp.studycapturing.' + this.entity)
+		} catch( Exception e ) {
+			throw new Exception( "Unknown entity for criterion " + this, e );
+		}
+	}
+	
 }

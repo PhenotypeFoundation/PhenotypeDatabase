@@ -29,13 +29,29 @@ class Criterion {
 	public def value
 
 	/**
+	 * Returns the class for the entity of this criterion
+	 * @return	
+	 */
+	public Class entityClass() {
+		if( this.entity == '*' )
+			return null;
+		
+			
+		try {
+			return TemplateEntity.parseEntity( 'dbnp.studycapturing.' + this.entity)
+		} catch( Exception e ) {
+			throw new Exception( "Unknown entity for criterion " + this, e );
+		}
+	}
+	
+	/**
 	 * Retrieves a combination of the entity and field
 	 * @return
 	 */
 	public String entityField() {
 		return entity.toString() + ( field ? "." + field.toString() : "" );
 	}
-	
+
 	/**
 	 * Retrieves a human readable description of the combination of the entity and field
 	 * @return
@@ -51,7 +67,401 @@ class Criterion {
 			return entityField();
 		}
 	}
+
+	/**
+	 * Returns the type of criterion when searching. Multiple types can be returned, since fields
+	 * with the same name might have different types.
+	 *  
+	 * @return	List of strings determining the type of this criterion. Possibilities are:
+	 * 		[STRING,BOOLEAN,..]:The criterion references a template field that contains a 'simple' 
+	 * 							value (boolean, double, long, string, reltime, date)
+	 * 		[STRINGLIST,...]: 	The criterion references a template field that contains a 'complex'
+	 * 							value (listitem, ontologyterm, template, module) referencing another
+	 * 							database table
+	 * 		Wildcard:			The criterion references all fields
+	 */
+	protected List<String> criterionType() {
+		if( this.entity == '*' || this.field == '*' ) {
+			return [
+				 'String',
+				 'Text',
+				 'File',
+				 'Date',
+				 'RelTime',
+				 'Double',
+				 'Long',
+				 'Boolean',
+				 'StringList',
+				 'ExtendableStringList',
+				 'Term',
+				 'Template',
+				 'Module'
+			]
+		}
+
+		// Determine domain fields of the entity
+		def domainFields = entityClass().giveDomainFields();
+		def domainField = domainFields.find { it.name == this.field };
+		if( domainField )
+			return [domainField.type?.casedName];
+
+		// If this field is not a domain field, search for the field in the database
+		def entityClass = entityClass()
+
+		if( !entityClass || !this.field )
+			return null;
+
+		// Find all fields with this name and entity
+		def fields = TemplateField.findAllByName( this.field ).findAll { it.entity == entityClass };
+
+		// If the field is not found, return null
+		if( !fields )
+			return null
+
+		// Return the (unique) String value of the types
+		return fields*.type.unique()*.casedName;
+	}
+
+	/**
+	 * Determines whether the field in this criterion is a domain field
+	 *
+	 * @return	True iff the field is a domain field, false otherwise
+	 */
+	protected boolean isDomainCriterion() {
+		def entityClass = entityClass()
+		
+		if( !entityClass )
+			return false;
+			
+		// Determine domain fields of the entity
+		def domainFields = entityClass.giveDomainFields();
+		def domainField = domainFields.find { it.name == this.field };
+
+		return (domainField ? true : false)
+	}
 	
+	/**
+	 * Determines whether this criterion references a 'complex' field (i.e. a field that 
+	 * contains a complex type like Term, ListItem etc.)
+	 * 
+	 * @return
+	 */
+	public boolean isComplexCriterion() {
+		if( isDomainCriterion() )
+			return false;
+			
+		def types = criterionType();
+		
+		return types.any { type -> 
+			switch( type ) {
+				case 'StringList':
+				case 'ExtendableStringList':
+				case 'Term':
+				case 'Template':
+				case 'Module':
+					return true;
+			}
+			
+			return false;
+		}
+	}
+
+	/**
+	 * Case the field value to search on to the given type
+	 * @param fieldType	Name of the template field type
+	 * @return			Value casted to the right value
+	 */
+	protected def castValue( String fieldType ) {
+		switch( fieldType ) {
+
+			case 'String':
+			case 'Text':
+			case 'StringList':
+			case 'ExtendableStringList':
+			case 'Term':
+			case 'Template':
+			case 'Module':
+				return value?.toString();
+			case 'File':
+				return null; // Never search in filenames, since they are not very descriptive
+			case 'Date':
+				// The comparison with date values should only be performed iff the value
+				// contains a parsable date
+				// and the operator is equals, gte, gt, lt or lte
+				if( operator == Operator.insearch || operator == Operator.contains )
+					return null
+
+				try {
+					Date dateCriterion = new SimpleDateFormat( "yyyy-MM-dd" ).parse( value );
+					return dateCriterion
+				} catch( Exception e ) {
+					return null;
+				}
+
+			case 'RelTime':
+				// The comparison with date values should only be performed iff the value
+				// contains a long number
+				// and the operator is equals, gte, gt, lt or lte
+				if( operator == Operator.insearch || operator == Operator.contains )
+					return null
+
+				try {
+					RelTime rt
+
+					// Numbers are taken to be seconds, if a non-numeric value is given, try to parse it
+					if( value.toString().isLong() ) {
+						rt = new RelTime( Long.parseLong( value.toString() ) );
+					} else {
+						rt = new RelTime( value.toString() );
+					}
+
+					return rt.getValue()
+				} catch( Exception e ) {
+					return null;
+				}
+			case 'Double':
+				// The comparison with date values should only be performed iff the value
+				// contains a double number
+				// and the operator is equals, gte, gt, lt or lte
+				if( operator == Operator.insearch || operator == Operator.contains )
+					return null
+
+				if( value.isDouble() ) {
+					return Double.parseDouble( value )
+				} else {
+					return null;
+				}
+			case 'Long':
+				// The comparison with date values should only be performed iff the value
+				// contains a long number
+				// and the operator is equals, gte, gt, lt or lte
+				if( operator == Operator.insearch || operator == Operator.contains )
+					return null
+
+				if( value.isLong() ) {
+					return Long.parseLong( value )
+				} else {
+					return null;
+				}
+			case 'Boolean':
+				// The comparison with boolean values should only be performed iff the value
+				// contains 'true' or 'false' (case insensitive)
+				// and the operator is equals
+				if( operator != Operator.equals )
+					return null
+
+				def lowerCaseValue = value.toString().toLowerCase();
+				if( lowerCaseValue == 'true' || lowerCaseValue == 'false' ) {
+					return Boolean.parseBoolean( this.value )
+				} else {
+					return null
+				}
+		}
+	}
+
+	/**
+	 * Create a HQL where clause from this criterion, in order to be used within a larger HQL statement
+	 * 
+	 * @param	objectToSearchIn	HQL name of the object to search in
+	 * @return	Map with 3 keys:   'join' and'where' with the HQL join and where clause for this criterion and 'parameters' for the query named parameters
+	 */
+	public Map toHQL( String prefix, String objectToSearchIn = "object" ) {
+		List whereClause = []
+		String joinClause = "";
+		Map parameters = [:];
+		def emptyCriterion = [ "join": null, "where": null, "parameters": null ];
+
+		// If this criterion is used to search within another search result, we use a special piece of HQL
+		if( this.operator == Operator.insearch ) {
+			if( this.value?.results ) {
+				parameters[ prefix + "SearchResults" ] = this.value?.results
+
+				return [ "join": "", "where": "( " + objectToSearchIn + " in (:" + prefix + "SearchResults) )" , "parameters": parameters ];
+			} else {
+				return emptyCriterion;
+			}
+		}
+		
+		// If no value is given, don't do anything
+		if( !value )
+			return emptyCriterion;
+		
+		// Check whether the field is a domain field
+		if( isDomainCriterion() ) {
+			// Determine the types of this criterion, but there will be only 1 for a domain field
+			def criterionType = criterionType()[0];
+			
+			// Some domain fields don't contain a value, but a reference to another table
+			// These should be handled differently
+			def fieldName = this.field
+			
+			if( 
+				( objectToSearchIn == "subject" && fieldName == "species" ) || 
+				( objectToSearchIn == "sample" && fieldName == "material" ) ||
+				( objectToSearchIn == "assay" && fieldName == "module" ) ||
+				( objectToSearchIn == "samplingEvent" && fieldName == "sampleTemplate" ) ) {
+				fieldName += ".name"
+			}
+				
+			def query = extendWhereClause( "( %s )", objectToSearchIn + "." + fieldName, prefix, criterionType, castValue( criterionType ) );
+			return [ "join": "", "where": query.where, "parameters": query.parameters  ]
+		}
+
+		// Determine the type of this criterion
+		def criterionTypes = criterionType();
+		
+		if( !criterionTypes )
+			return emptyCriterion;			
+
+		
+		// Several types of criteria are handled differently.
+		// The 'wildcard' is handled by searching for all types.
+		// The 'simple' types (string, double) are handled by searching in the associated table 
+		// The 'complex' types (stringlist, template etc., referencing another
+		// database table) can't be handled correctly, since the HQL INDEX() function doesn't work on those relations.
+		// We do a search for these types to see whether any field with that type fits this criterion, in order to 
+		// filter out false positives later on.	
+		criterionTypes.findAll { it }.each { criterionType ->
+			// Cast criterion value to the right type
+			def currentValue = castValue( criterionType );
+
+			// Determine field name
+			def fieldName = "template" + criterionType + 'Fields'
+			
+			switch( criterionType ) {
+				case "Wildcard":
+					// Wildcard search is handled by 
+					break;
+
+				case 'String':
+				case 'Text':
+				case 'File':
+				case 'Date':
+				case 'RelTime':
+				case 'Double':
+				case 'Long':
+				case 'Boolean':
+					// 'Simple' field types
+					if( currentValue != null ) {
+						joinClause += " left join " + objectToSearchIn + "." + fieldName + " as " + prefix + "_" + fieldName + " ";
+	
+						def condition = this.oneToManyWhereCondition( prefix + "_" + fieldName, prefix, criterionType, currentValue )
+						whereClause += condition[ "where" ];
+	
+						condition[ "parameters" ].each {
+							parameters[ it.key ] = it.value;
+						}
+					}
+					break;
+					
+				case 'StringList':
+				case 'ExtendableStringList':
+				case 'Term':
+				case 'Template':
+				case 'Module':
+					// 'Complex' field types
+					def condition = this.manyToManyWhereCondition( objectToSearchIn, fieldName, prefix, "name", currentValue )
+					whereClause += condition[ "where" ];
+	
+					condition[ "parameters" ].each {
+						parameters[ it.key ] = it.value;
+					}
+				default:
+					break;
+			}
+		}
+
+		def where = whereClause?.findAll { it } ? "( " + whereClause.join( " OR " ) + " )" : ""
+		
+		return [ "join": joinClause, "where": where , "parameters": parameters ];
+	}
+
+	/**
+	 * Extends a given condition with a where clause of this criterion. If you supply "select * from Study where %s", %s will
+	 * be replaced by the where clause for the given field. Also, the parameters map will be extended (if needed)
+	 * 
+	 * @param hql			Initial HQL string where the clause will be put into
+	 * @param fieldName		Name of the field that should be referenced 
+	 * @param uniquePrefix	Unique prefix for this criterion
+	 * @param fieldType		Type of field value to search for
+	 * @param fieldValue	Field value to search for
+	 * @return				Map with 'where' key referencing the extended where clause and 'parameters' key referencing a map with parameters.
+	 */
+	protected Map extendWhereClause( String hql, String fieldName, String uniquePrefix, String fieldType, def fieldValue ) {
+		def parameters = [:]
+
+		switch( this.operator ) {
+			case Operator.contains:
+				hql = sprintf( hql, fieldName + " like :" + uniquePrefix + "ValueLike" );
+				parameters[ uniquePrefix + "ValueLike" ] = "%" + fieldValue + "%"
+				break;
+			case Operator.equals:
+			case Operator.gte:
+			case Operator.gt:
+			case Operator.lte:
+			case Operator.lt:
+				hql = sprintf( hql, fieldName + " "  + this.operator.name + " :" + uniquePrefix + "Value" + fieldType );
+				parameters[ uniquePrefix + "Value" + fieldType ] = fieldValue
+				break;
+		}
+
+		return [ "where": hql, "parameters": parameters]
+	}
+
+	/**
+	 * Creates a condition for this criterion, for a given fieldName and value. The fieldName should reference a collection that has a one-to-many
+	 * relation with the object being sought
+	 *  
+	 * @param fieldName		Name to search in
+	 * @param uniquePrefix	Unique prefix for this criterion
+	 * @param currentValue	Map with 'value' referencing the value being sought and 'type' referencing 
+	 * 						the type of the value as string. The value should be be casted to the right class for this field.
+	 * @return				Map with 'where' key referencing the where clause and 'parameters' key referencing a map with parameters.
+	 */
+	protected Map oneToManyWhereCondition( String fieldName, String uniquePrefix, String fieldType, def fieldValue ) {
+		// Create the where condition for checking the value
+		// First check the name of the field, if needed
+		def condition
+		def parameters = [:]
+
+		if( this.field != '*' ) {
+			condition = "( %s AND index(" + fieldName + ") = :" + uniquePrefix + "Field )"
+			parameters[ uniquePrefix + "Field" ] = this.field
+		} else {
+			condition = "%s";
+		}
+
+		def whereClause = extendWhereClause( condition, fieldName, uniquePrefix, fieldType, fieldValue );
+		parameters.each {
+			whereClause.parameters[ it.key ] = it.value;
+		}
+
+		return whereClause;
+	}
+
+	/**
+	 * Creates a condition for this criterion, for a given fieldName and value. The fieldName should 
+	 * reference a collection that has a many-to-many relation with the object being sought (e.g. templateTermFields).
+	 * 
+	 * Unfortunately, there is no way to determine the name of the field in HQL for this many-to-many collections, since the
+	 * INDEX() function in HQL doesn't work for many-to-many collections.
+	 * @see http://opensource.atlassian.com/projects/hibernate/browse/HHH-4879
+	 * @see http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
+	 *  
+	 * @param fieldName		Name to search in
+	 * @param uniquePrefix	Unique prefix for this criterion
+	 * @param currentValue	Map with 'value' referencing the value being sought and 'type' referencing 
+	 * 						the type of the value as string. The value should be be casted to the right class for this field.
+	 * @return				Map with 'where' key referencing the where clause and 'parameters' key referencing a map with parameters.
+	 */
+	protected Map manyToManyWhereCondition( String objectToSearchIn, String collection, String uniquePrefix, String searchField, def value ) {
+		// exists( FROM [objectToSearchIn].[collection] as [uniquePrefix][collection] WHERE [searchField] LIKE [value] )
+		// Create the where condition for checking the value
+		def condition = "exists ( FROM " + objectToSearchIn + "." + collection + " as " + uniquePrefix + "_" + collection + " WHERE %s )";
+
+		return extendWhereClause( condition, uniquePrefix + "_" + collection + "." + searchField, uniquePrefix, "STRING", value );
+	}
+
 	/**
 	 * Retrieves the correct value for this criterion in the given object (with template)
 	 *
@@ -70,99 +480,21 @@ class Criterion {
 			} else if( field == "Template" ) {
 				fieldValue = entity.template?.name
 			} else if( field == "*" ) {
-				fieldValue = entity.giveFields().collect{ 
+				fieldValue = entity.giveFields().collect{
 					if( it && it.name ) {
-						Search.prepare( entity.getFieldValue( it.name ), entity.giveFieldType( it.name ) ) 
+						Search.prepare( entity.getFieldValue( it.name ), entity.giveFieldType( it.name ) )
 					}
 				}
 			} else {
 				fieldValue = Search.prepare( entity.getFieldValue( field ), entity.giveFieldType( field ) )
 			}
-			
+
 			return fieldValue
 		} catch( Exception e ) {
 			// An exception occurs if the given field doesn't exist. In that case, this criterion will fail.
 			// TODO: Maybe give the user a choice whether he want's to include these studies or not
 			return null;
 		}
-	}
-
-	/**
-	 * Checks if the given object (with template) that satisfies the given criterion.
-	 *
-	 * @param entity		Entity to check for criterion satisfaction. Should be a child of template entity
-	 * @param criterion	Criterion to match on
-	 * @return			True iff there the entity satisfies the given criterion.
-	 */
-	public boolean matchOneEntity( TemplateEntity entity ) {
-		def fieldValue = this.getFieldValue( entity );
-
-		// Null is returned, the given field doesn't exist. In that case, this criterion will fail.
-		// TODO: Maybe give the user a choice whether he want's to include these studies or not
-		if( fieldValue == null )
-			return false;
-
-		return this.match( fieldValue );
-	}
-
-	/**
-	 * Checks for all entities in the given entityList, if there is any object that satisfies the given criterion.
-	 *
-	 * @param entityList	List with entities. The entities should be child classes of TemplateEntity
-	 * @param criterion		Criterion to match on
-	 * @return				True iff there is any entity in the list that satisfies the given criterion.
-	 */
-	public boolean matchAnyEntity( List<TemplateEntity> entityList ) {
-		for( entity in entityList ) {
-			if( matchOneEntity( entity ) )
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Checks for all entities in the given entityList, if all objects satisfy the given criterion.
-	 *
-	 * @param entityList	List with entities. The entities should be child classes of TemplateEntity
-	 * @param criterion		Criterion to match on
-	 * @return				True iff all entities satisfy the given criterion.
-	 */
-	public boolean matchAllEntities( List<TemplateEntity> entityList ) {
-		for( entity in entityList ) {
-			if( !matchOneEntity( entity ) )
-				return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Checks for all values in the given List, if there is any value that satisfies the given criterion.
-	 *
-	 * @param entityList		List with values.
-	 * @param criterion		Criterion to match on
-	 * @return				True iff there is any value in the list that satisfies the given criterion.
-	 */
-	public boolean matchAny( List valueList ) {
-		for( value in valueList ) {
-			if( match( value ) )
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Checks for all values in the given List, if all values satisfy the given criterion.
-	 *
-	 * @param entityList		List with values.
-	 * @param criterion		Criterion to match on
-	 * @return				True iff all values satisfy the given criterion.
-	 */
-	public boolean matchAll( List entityList ) {
-		for( value in valueList ) {
-			if( !match( value ) )
-				return false;
-		}
-		return true;
 	}
 
 	/**
@@ -174,12 +506,12 @@ class Criterion {
 	public boolean match( def fieldValue ) {
 		if( fieldValue == null )
 			return false;
-		
+
 		// in-search criteria have to be handled separately
 		if( this.operator == Operator.insearch ) {
 			return this.value?.getResults()?.contains( fieldValue );
-		}	
-		
+		}
+
 		// Other criteria are handled based on the class of the value given.
 		def classname = fieldValue.class.getName();
 		classname = classname[classname.lastIndexOf( '.' ) + 1..-1].toLowerCase();
@@ -201,7 +533,7 @@ class Criterion {
 				case "string":
 				default:						matches = compareValues( fieldValue.toString().trim().toLowerCase(), this.operator, value.toString().toLowerCase().trim() ); break;
 			}
-			
+
 			return matches;
 		} catch( Exception e ) {
 			log.error e.class.getName() + ": " + e.getMessage();
@@ -228,7 +560,7 @@ class Criterion {
 			case Operator.lte:
 				return fieldValue <= criterionValue;
 			case Operator.contains:
-				// Contains operator can only be used on string values
+			// Contains operator can only be used on string values
 				return fieldValue.toString().contains( criterionValue.toString() );
 			case Operator.equals:
 			default:
@@ -313,7 +645,7 @@ class Criterion {
 			def lowerCaseValue = value.toString().toLowerCase();
 			if( lowerCaseValue != 'true' && lowerCaseValue != 'false' )
 				return false;
-				
+
 			Boolean booleanCriterion = Boolean.parseBoolean( value );
 			return compareValues( fieldValue, this.operator, booleanCriterion );
 		} catch( Exception e ) {
@@ -345,41 +677,41 @@ class Criterion {
 			return false;
 		}
 	}
-	
+
 	public static Operator parseOperator( String name ) throws Exception {
 		switch( name.trim() ) {
-			case "=":  
-			case "equals":		return Operator.equals; 
-			case "contains": 	return Operator.contains; 
-			case ">=": 
-			case "gte":			return Operator.gte; 
-			case ">": 
-			case "gt":			return Operator.gt; 
-			case "<=": 
-			case "lte":			return Operator.lte; 
-			case "<": 
-			case "lt":			return Operator.lt; 
+			case "=":
+				case "equals":		return Operator.equals;
+			case "contains": 	return Operator.contains;
+			case ">=":
+				case "gte":			return Operator.gte;
+			case ">":
+				case "gt":			return Operator.gt;
+			case "<=":
+				case "lte":			return Operator.lte;
+			case "<":
+				case "lt":			return Operator.lt;
 			case "in": 			return Operator.insearch;
 			default:
-				throw new Exception( "Operator not found" ); 
+				throw new Exception( "Operator not found" );
 		}
 	}
 
 	public String toString() {
 		return "[Criterion " + entityField() + " " + operator + " " + value + "]";
 	}
-	
+
 	public boolean equals( Object o ) {
 		if( o == null )
 			return false;
-		
-		if( !( o instanceof Criterion ) ) 
+
+		if( !( o instanceof Criterion ) )
 			return false;
-			
+
 		Criterion otherCriterion = (Criterion) o;
 		return 	this.entity == otherCriterion.entity &&
-				this.field == otherCriterion.field && 
-				this.operator == otherCriterion.operator &&
-				this.value == otherCriterion.value;
+		this.field == otherCriterion.field &&
+		this.operator == otherCriterion.operator &&
+		this.value == otherCriterion.value;
 	}
 }

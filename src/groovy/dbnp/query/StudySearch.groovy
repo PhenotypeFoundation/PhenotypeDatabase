@@ -32,83 +32,6 @@ class StudySearch extends Search {
 	}
 
 	/**
-	 * Searches for studies based on the given criteria. All criteria have to be satisfied and 
-	 * criteria for the different entities are satisfied as follows:
-	 * 
-	 * 		Study.title = 'abc'		
-	 * 				All returned studies will have title 'abc'
-	 * 		
-	 * 		Subject.species = 'human'
-	 * 				All returned studies will have one or more subjects with species = 'human'  
-	 * 
-	 * 		Sample.name = 'sample 1'
-	 * 				All returned studies will have one or more samples with name = 'sample 1'
-	 * 
-	 * 		Event.startTime = '0s'
-	 * 				All returned studies will have one or more events with start time = '0s'  
-	 * 
-	 * 		Assay.module = 'metagenomics'
-	 * 				All returned studies will have one or more assays with module = 'metagenomics'  
-	 *
-	 * When searching the system doesn't look at the connections between different entities. This means,
-	 * the system doesn't look for human subjects having a sample with name 'sample 1'. The sample 1 might
-	 * as well belong to a mouse subject and still the study satisfies the criteria.
-	 * 
-	 * When searching for more than one criterion per entity, these are taken combined. Searching for
-	 * 
-	 * 		Subject.species = 'human'
-	 * 		Subject.name = 'Jan'
-	 * 
-	 *  will result in all studies having a human subject named 'Jan'. Studies with only a mouse subject 
-	 *  named 'Jan' or a human subject named 'Kees' won't satisfy the criteria. 
-	 *	
-	 */
-	@Override
-	protected void executeAnd() {
-		def studies = Study.list().findAll { it.canRead( this.user ) };
-
-		executeAnd( studies );
-	}
-
-	/**
-	 * Searches for studies based on the given criteria. Only one criteria have to be satisfied and
-	 * criteria for the different entities are satisfied as follows:
-	 *
-	 * 		Study.title = 'abc'
-	 * 				The returned study will have title 'abc'
-	 *
-	 * 		Subject.species = 'human'
-	 * 				The returned study will have one or more subjects with species = 'human'
-	 *
-	 * 		Sample.name = 'sample 1'
-	 * 				The returned study will have one or more samples with name = 'sample 1'
-	 *
-	 * 		Event.startTime = '0s'
-	 * 				The returned study will have one or more events with start time = '0s'
-	 *
-	 * 		Assay.module = 'metagenomics'
-	 * 				The returned study will have one or more assays with module = 'metagenomics'
-	 *
-	 * When searching the system doesn't look at the connections between different entities. This means,
-	 * the system doesn't look for human subjects having a sample with name 'sample 1'. The sample 1 might
-	 * as well belong to a mouse subject and still the study satisfies the criteria.
-	 *
-	 * When searching for more than one criterion per entity, these are taken separately. Searching for
-	 *
-	 * 		Subject.species = 'human'
-	 * 		Subject.name = 'Jan'
-	 *
-	 *  will result in all studies having a human subject or a subject named 'Jan'. Studies with only a 
-	 *  mouse subject named 'Jan' or a human subject named 'Kees' will satisfy the criteria.
-	 *
-	 */
-	@Override
-	protected void executeOr() {
-		def allStudies = Study.list().findAll { it.canRead( this.user ) };
-		executeOr( allStudies );
-	}
-
-	/**
 	* Returns a closure for the given entitytype that determines the value for a criterion
 	* on the given object. The closure receives two parameters: the object and a criterion.
 	*
@@ -136,10 +59,40 @@ class StudySearch extends Search {
 			case "Assay":
 				return { study, criterion -> return study.assays?.collect { criterion.getFieldValue( it ); } }
 			default:
-				return super.valueCallback( entity );
+				return null;
 		}
 	}
-
+	
+	/**
+	 * Returns the HQL name for the element or collections to be searched in, for the given entity name
+	 * For example: when searching for Subject.age > 50 with Study results, the system must search in all study.subjects for age > 50.
+     * But when searching for Sample results, the system must search in sample.parentSubject for age > 50
+	 * 
+     * @param entity	Name of the entity of the criterion
+	 * @return			HQL name for this element or collection of elements
+	 */
+	protected String elementName( String entity ) {
+		switch( entity ) {
+			case "Study": 			return "study"
+			case "Subject":			return "study.subjects"
+			case "Sample":			return "study.samples"
+			case "Event":			return "study.events"
+			case "SamplingEvent":	return "study.samplingEvents"
+			case "Assay":			return "study.assays"
+			default:				return null;
+		}
+	} 
+	
+	/**
+	 * Returns true iff the given entity is accessible by the user currently logged in
+	 *
+	 * @param entity		Study to determine accessibility for. 
+	 * @return			True iff the user is allowed to access this study
+	 */
+	protected boolean isAccessible( def entity ) {
+		return entity?.canRead( this.user );
+	}
+	
 	/**
 	 * Returns the saved field data that could be shown on screen. This means, the data
 	 * is filtered to show only data of the query results. Also, the study title and sample
