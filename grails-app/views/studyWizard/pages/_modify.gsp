@@ -20,7 +20,7 @@
 		Select the study you would like to modify.
 	</span>
 
-	<af:studyElement name="study" description="Study" error="study" value="">
+	<af:studyElement name="studyid" description="Study" error="study" value="">
 		The study you would like to load and edit
 	</af:studyElement>
 </af:page>

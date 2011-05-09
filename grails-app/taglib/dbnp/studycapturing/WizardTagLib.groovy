@@ -38,7 +38,15 @@ class WizardTagLib extends GdtTagLib {
 	 */
 	def studySelect = { attrs ->
 		// Find all studies the user has access to (max 100)
-		attrs.from = Study.giveWritableStudies(authenticationService.getLoggedInUser(), 100);
+		attrs.from = []
+		attrs.optionKey		= 'id'
+		attrs.optionValue	= 'title'
+		Study.giveWritableStudies(authenticationService.getLoggedInUser(), 100).each {
+			attrs.from[ attrs.from.size() ] = [
+				id		:	it.properties.id,
+				title	:	it.toString()
+			]
+		}
 
 		// got a name?
 		if (!attrs.name) {
