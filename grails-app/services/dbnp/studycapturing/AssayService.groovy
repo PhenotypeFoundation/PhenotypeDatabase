@@ -519,7 +519,7 @@ class AssayService {
 	 * @param outputStream Stream to write to
 	 * @return
 	 */
-	def exportRowWiseDataToCSVFile(rowData, outputStream) {
+	def exportRowWiseDataToCSVFile(rowData, outputStream, outputDelimiter = '\t') {
 
         outputStream << rowData.collect { row ->
           row.collect{
@@ -543,7 +543,7 @@ class AssayService {
 
               addQuotes ? "\"$s\"" : s
 
-          }.join(',')
+          }.join(outputDelimiter)
         }.join('\n')
 
 		outputStream.close()

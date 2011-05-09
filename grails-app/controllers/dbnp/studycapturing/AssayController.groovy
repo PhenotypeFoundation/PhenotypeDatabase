@@ -170,13 +170,18 @@ class AssayController {
 					measurementTokens = params.list( "measurementToken" )
 				}
 
+                // collect the assay data according to user selecting
 				def assayData           = assayService.collectAssayData(flow.assay, fieldMapSelection, measurementTokens)
 				flow.rowData            = assayService.convertColumnToRowStructure(assayData)
 
+                // prepare the assay data preview
 				def previewRows         = Math.min(flow.rowData.size()    as int, 5) - 1
 				def previewCols         = Math.min(flow.rowData[0].size() as int, 5) - 1
 
 				flow.assayDataPreview   = flow.rowData[0..previewRows].collect{ it[0..previewCols] as ArrayList }
+
+                // store the selected file type in the flow
+                flow.exportFileType = params.exportFileType
 
 			}.to "compileExportData"
 
@@ -184,7 +189,10 @@ class AssayController {
 		}
 
 		compileExportData {
-			on ("ok"){session.rowData = flow.rowData}.to "export"
+			on ("ok"){
+                session.rowData = flow.rowData
+                session.exportFileType = flow.exportFileType
+            }.to "export"
 			on ("cancel").to "selectAssay"
 		}
 
@@ -203,16 +211,38 @@ class AssayController {
 	 */
 	def doExport = {
 
-		def filename = 'export.csv'
+        // make sure we're coming from the export flow, otherwise redirect there
+        if (!(session.rowData && session.exportFileType))
+            redirect(action: 'assayExportFlow')
+
+        // process requested output file type
+        def outputDelimiter, outputFileExtension
+
+        switch(session.exportFileType) {
+            case 2: // Comma delimited csv
+                outputDelimiter = ','
+                outputFileExtension = '.csv'
+                break
+            case 3: // Semicolon delimited csv
+                outputDelimiter = ';'
+                outputFileExtension = '.csv'
+                break
+            default: // Tab delimited with .txt extension
+                outputDelimiter = '\t'
+                outputFileExtension = '.txt'
+        }
+
+		def filename = "export.$outputFileExtension"
 		response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
 		response.setContentType("application/octet-stream")
 		try {
 
-			//			assayService.exportRowWiseDataToExcelFile(session.rowData, response.outputStream)
-			assayService.exportRowWiseDataToCSVFile(session.rowData, response.outputStream)
+			// assayService.exportRowWiseDataToExcelFile(session.rowData, response.outputStream)
+			assayService.exportRowWiseDataToCSVFile(session.rowData, response.outputStream, outputDelimiter)
 
 			// clear the data from the session
 			session.removeAttribute('rowData')
+			session.removeAttribute('exportFileType')
 
 		} catch (Exception e) {
 

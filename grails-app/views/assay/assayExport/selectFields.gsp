@@ -57,6 +57,11 @@
       <assayExporter:categorySelector category="Measurements" ref="cat_${catNum}"/>
       <g:select name="measurementToken" id="measurementToken" from="${measurementTokens}" value="${measurementTokens}" class="field" multiple="true" />
       <br /><br />
+
+      <h1>Select type of resulting file</h1>
+      <g:radioGroup name="exportFileType" labels="['Tab delimited (.txt)', 'Comma Separated: USA/UK (.csv)', 'Semicolon Separated: European (.csv)']" values="[1,2,3]" value="1" >
+        <p>${it.radio} ${it.label}</p>
+      </g:radioGroup>
       <g:submitButton name="submit" value="Submit"/>
 
     </g:form>
