@@ -150,13 +150,17 @@ class Search {
 				}
 			}
 		}
-			
+		
+		println fullHQL;
+		
 		// Search in all entities
 		resultsFound = addWildcardConditions( fullHQL, entityNames )
 		if( !resultsFound && searchMode == SearchMode.and ) {
 			return
 		}
 		
+		println fullHQL;
+
 		// Combine all parts to generate a full HQL query
 		def hqlQuery = selectClause + " " + fullHQL.from + ( fullHQL.where ? "  WHERE " + fullHQL.where.join( " " + searchMode.toString() + " "  ) : "" );
 		
@@ -372,7 +376,7 @@ class Search {
 			return true
 			
 		// Wildcards should be checked within each entity
-		def wildcardHQL = createHQLForEntity( this.entity );
+		def wildcardHQL = createHQLForEntity( this.entity, null, false );
 		
 		// Create SQL for other entities, by executing a subquery first, and
 		// afterwards selecting the study based on the entities found
@@ -598,7 +602,7 @@ class Search {
 				}
 
 				if( value instanceof Collection ) {
-					return criterion.matchAny( value )
+					return value.any { criterion.match( it ) }
 				} else {
 					return criterion.match( value );
 				}
