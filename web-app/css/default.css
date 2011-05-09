@@ -169,6 +169,13 @@ html ul.topnav li ul.subnav li a:hover {
 	background: #222 url(../images/default_style/topnav/dropdown_linkbg.gif) no-repeat 10px center;
 }
 
+ul.topnav ul.childnav {
+	list-style: none;
+	margin-left: 130px;
+	position: absolute;
+	margin-top: -1px;
+}
+
 /** END :: topnav **/
 /** START :: content **/
 #content {

@@ -2,7 +2,7 @@
     <%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
     <!-- TOPNAV //-->
     <ul class="topnav">
-     <li><g:link controller="home" action="index">Home</g:link></li>
+    <li><g:link controller="home" action="index">Home</g:link></li>
     <li>
       <a href="#">Create</a>
       <ul class="subnav">
@@ -35,21 +35,24 @@
 			<sec:ifNotLoggedIn>
 			<li><g:link controller="study" action="list">View studies</g:link></li>
 			</sec:ifNotLoggedIn>
-            <a href="#">Templates</a>
-		    <ul>
-				<af:templateEditorMenu wrap="li" />
-			</ul>
-		    <a href="#">Contacts</a>
-            <ul>
-				<li><g:link controller="person" action="list">View persons</g:link></li>
-				<li><g:link controller="personAffiliation" action="list">View affiliations</g:link></li>
-				<li><g:link controller="personRole" action="list">View roles</g:link></li>
-			</ul>
-		    <a href="#">Publications</a>
-			<ul>
-				<li><g:link controller="publication" action="list">View publications</g:link></li>
-				<li><g:link controller="publication" action="create">Add publication</g:link></li>
-			</ul>
+            <li><a href="#">Templates</a>
+		    	<ul class="childnav">
+					<af:templateEditorMenu wrap="li" />
+				</ul>
+		    </li>
+			<li><a href="#">Contacts</a>
+            	<ul class="childnav">
+					<li><g:link controller="person" action="list">View persons</g:link></li>
+					<li><g:link controller="personAffiliation" action="list">View affiliations</g:link></li>
+					<li><g:link controller="personRole" action="list">View roles</g:link></li>
+				</ul>
+		    </li>
+			<li><a href="#">Publications</a>
+				<ul class="childnav">
+					<li><g:link controller="publication" action="list">View publications</g:link></li>
+					<li><g:link controller="publication" action="create">Add publication</g:link></li>
+				</ul>
+			</li>
 		</ul>
 	</li>
 	<li>
