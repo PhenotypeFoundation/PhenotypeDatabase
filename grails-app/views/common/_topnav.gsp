@@ -86,5 +86,5 @@
 	<g:if test="${session.pilot == true}">
 		<li><g:link controller="pilot" action="index">Pilot</g:link></li>
 	</g:if>	
-</ul>
-<!-- /TOPNAV //-->
+	</ul>
+	<!-- /TOPNAV //-->
