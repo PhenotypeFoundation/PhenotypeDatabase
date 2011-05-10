@@ -17,7 +17,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.dbnp.gdt.RelTime
-import org.dbnp.gdt.TemplateFieldType;
+import org.dbnp.gdt.TemplateFieldType
+import java.text.DecimalFormat
+import java.text.NumberFormat
 
 class AssayService {
 
@@ -243,9 +245,17 @@ class AssayService {
 
 		def moduleUrl = assay.module.url
 
-		def path = moduleUrl + "/rest/getMeasurements/query?assayToken=$assay.assayUUID"
+		def path = moduleUrl + "/rest/getMeasurements/query"
+        def query = "assayToken=$assay.assayUUID"
+        def jsonArray
 
-		def jsonArray = moduleCommunicationService.callModuleRestMethodJSON(moduleUrl, path)
+        try {
+            jsonArray = moduleCommunicationService.callModuleMethod(moduleUrl, path, query)
+        } catch (e) {
+            throw new Exception("An error occured while trying to get the measurement tokens from the $assay.module.name. \
+             This means the module containing the measurement data is not available right now. Please try again \
+             later or notify the system administrator if the problem persists. URL: $path?$query.")
+        }
 
 		jsonArray.collect {
 			if( it == JSONObject.NULL )
@@ -274,9 +284,19 @@ class AssayService {
 			tokenString+="&measurementToken=${it.encodeAsURL()}"
 		}
 
-		def path = moduleUrl + "/rest/getMeasurementData/query?assayToken=$assay.assayUUID" + tokenString
+		def path = moduleUrl + "/rest/getMeasurementData/query"
 
-		def (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleRestMethodJSON(moduleUrl, path)
+        def query = "assayToken=$assay.assayUUID$tokenString"
+
+		def sampleTokens = [], measurementTokens = [], moduleData = []
+
+        try {
+            (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleMethod(moduleUrl, path, query)
+        } catch (e) {
+            throw new Exception("An error occured while trying to get the measurement data from the $assay.module.name. \
+             This means the module containing the measurement data is not available right now. Please try again \
+             later or notify the system administrator if the problem persists. URL: $path?$query.")
+        }
 
 		if (!sampleTokens?.size()) return []
 
@@ -306,7 +326,7 @@ class AssayService {
 						log.error "Module measurements given by module " + assay.module.name + " are not in the right format: " + measurementTokens?.size() + " measurements, " + sampleTokens?.size() + " samples, " + moduleData?.size() + " values"
 						measurements << null
 					}  else {
-						measurements << ( moduleData[ valueIndex ] == JSONObject.NULL ? "" : moduleData[ valueIndex ].toString() );
+						measurements << ( moduleData[ valueIndex ] == JSONObject.NULL ? "" : moduleData[ valueIndex ].toDouble() );
 					}
 				} else {
 					measurements << null
@@ -519,13 +539,16 @@ class AssayService {
 	 * @param outputStream Stream to write to
 	 * @return
 	 */
-	def exportRowWiseDataToCSVFile(rowData, outputStream, outputDelimiter = '\t') {
+	def exportRowWiseDataToCSVFile(rowData, outputStream, outputDelimiter = '\t', locale = java.util.Locale.US) {
+
+        def formatter = NumberFormat.getNumberInstance(locale)
+        formatter.setGroupingUsed false // we don't want grouping (thousands) separators
 
         outputStream << rowData.collect { row ->
           row.collect{
 
-              // omit quotes in case of numeric values
-              if (it instanceof Number) return it
+              // omit quotes in case of numeric values and format using chosen locale
+              if (it instanceof Number) return formatter.format(it)
 
               def s = it?.toString() ?: ''
 

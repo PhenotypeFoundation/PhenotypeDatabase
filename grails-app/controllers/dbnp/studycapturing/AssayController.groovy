@@ -216,7 +216,7 @@ class AssayController {
             redirect(action: 'assayExportFlow')
 
         // process requested output file type
-        def outputDelimiter, outputFileExtension
+        def outputDelimiter, outputFileExtension, locale = java.util.Locale.US
 
         switch(session.exportFileType) {
             case '2': // Comma delimited csv
@@ -226,6 +226,7 @@ class AssayController {
             case '3': // Semicolon delimited csv
                 outputDelimiter = ';'
                 outputFileExtension = 'csv'
+                locale = java.util.Locale.GERMAN // force use of comma as decimal separator
                 break
             default: // Tab delimited with .txt extension
                 outputDelimiter = '\t'
@@ -237,8 +238,7 @@ class AssayController {
 		response.setContentType("application/octet-stream")
 		try {
 
-			// assayService.exportRowWiseDataToExcelFile(session.rowData, response.outputStream)
-			assayService.exportRowWiseDataToCSVFile(session.rowData, response.outputStream, outputDelimiter)
+			assayService.exportRowWiseDataToCSVFile(session.rowData, response.outputStream, outputDelimiter, locale)
 
 			// clear the data from the session
 			session.removeAttribute('rowData')
