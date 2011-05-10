@@ -269,24 +269,25 @@ class AssayServiceTests extends GrailsUnitTestCase {
         // - double quotes should be escaped by double quotes ( " -> "" )
         // - other strings and numbers should remain 'quoteless'
         // - is the custom delimiter (e.g. tab, comma, semicolon) correctly handled
+        // - null values are exported as empty strings
 
         def rowData = [["""a
-b""","a,b","a\"b", "abc"],[1,2.0,"3,1"]]
+b""","a,b","a\"b", "abc"],[1,2.0,"3,1"],[null,2]]
 
         def baos = new ByteArrayOutputStream()
 
         service.exportRowWiseDataToCSVFile rowData, baos, '\t'
-        assertEquals 'CSV Output', '"a\nb"\t"a,b"\t"a""b"\tabc\n1\t2.0\t"3,1"', baos.toString()
+        assertEquals 'CSV Output', '"a\nb"\t"a,b"\t"a""b"\tabc\n1\t2.0\t"3,1"\n\t2', baos.toString()
 
         baos.reset()
 
         service.exportRowWiseDataToCSVFile rowData, baos, ','
-        assertEquals 'CSV Output', '"a\nb","a,b","a""b",abc\n1,2.0,"3,1"', baos.toString()
+        assertEquals 'CSV Output', '"a\nb","a,b","a""b",abc\n1,2.0,"3,1"\n,2', baos.toString()
 
         baos.reset()
 
         service.exportRowWiseDataToCSVFile rowData, baos, ';'
-        assertEquals 'CSV Output', '"a\nb";"a,b";"a""b";abc\n1;2.0;"3,1"', baos.toString()
+        assertEquals 'CSV Output', '"a\nb";"a,b";"a""b";abc\n1;2.0;"3,1"\n;2', baos.toString()
 
 
     }

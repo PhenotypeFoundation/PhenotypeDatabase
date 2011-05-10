@@ -219,17 +219,17 @@ class AssayController {
         def outputDelimiter, outputFileExtension
 
         switch(session.exportFileType) {
-            case 2: // Comma delimited csv
+            case '2': // Comma delimited csv
                 outputDelimiter = ','
-                outputFileExtension = '.csv'
+                outputFileExtension = 'csv'
                 break
-            case 3: // Semicolon delimited csv
+            case '3': // Semicolon delimited csv
                 outputDelimiter = ';'
-                outputFileExtension = '.csv'
+                outputFileExtension = 'csv'
                 break
             default: // Tab delimited with .txt extension
                 outputDelimiter = '\t'
-                outputFileExtension = '.txt'
+                outputFileExtension = 'txt'
         }
 
 		def filename = "export.$outputFileExtension"

@@ -527,7 +527,7 @@ class AssayService {
               // omit quotes in case of numeric values
               if (it instanceof Number) return it
 
-              def s = it.toString()
+              def s = it?.toString() ?: ''
 
               def addQuotes = false
 
