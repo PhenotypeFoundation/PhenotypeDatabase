@@ -209,12 +209,14 @@ class Study extends TemplateEntity {
 	}
 
 	/**
-	 * Return all samples for a specific template
+	 * Return all samples for a specific template, sorted by subject name
 	 * @param Template
 	 * @return ArrayList
 	 */
 	def ArrayList<Subject> giveSamplesForTemplate(Template template) {
-		samples.findAll { it.template.equals(template) }
+		samples.findAll { it.template.equals(template) }.sort {
+			it.parentSubject.name
+		}
 	}
 
 	/**

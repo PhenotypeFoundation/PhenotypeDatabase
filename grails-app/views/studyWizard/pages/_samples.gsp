@@ -14,6 +14,7 @@
  * $Date$
  */
 %>
+<%@ page import="org.dbnp.gdt.RelTime" %>
 <af:page>
 
 	<% /* g:if env="development">
@@ -96,7 +97,7 @@
 					<g:set var="showHeader" value="${false}" />
 					<div class="header">
 						<div class="firstColumn"></div>
-						<div class="column">Sampling Event</div>
+						<div class="column" style="width:200px;">Sampling Event</div>
 						<div class="column">Subject</div>
 						<div class="column">Template</div>
 						<af:templateColumnHeaders entity="${sample}" class="column" columnWidths="[Name:250]"/>
@@ -108,6 +109,7 @@
 						<g:if test="${previousTemplate != sample.parentEvent?.template?.name}">
 							<g:set var="previousTemplate" value="${sample.parentEvent?.template?.name}"/>
 							${sample.parentEvent?.template?.name}
+							(${new RelTime(sample.parentEvent?.startTime)})
 							<div class="helpIcon"></div>
 							<div class="helpContent">
 								<h1>${sample.parentEvent?.template?.name}</h1>
