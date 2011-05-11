@@ -36,10 +36,11 @@ class SimpleWizardController extends StudyWizardController {
 	 * index closure
 	 */
 	def index = {
-		if( params.id )
-			redirect( action: "simpleWizard", id: params.id );
-		else
-			redirect( action: "simpleWizard" );
+//		if( params.id )
+//			redirect( action: "simpleWizard", id: params.id );
+//		else
+//			redirect( action: "simpleWizard" );
+        redirect action: 'simpleWizard', params: params
 	}
 
 	def simpleWizardFlow = {
@@ -47,7 +48,8 @@ class SimpleWizardController extends StudyWizardController {
 			action{
 				flow.study = getStudyFromRequest( params )
 				if (!flow.study) retrievalError()
-				
+
+                flow.inferDesign = params.inferDesign
 				// Search for studies
 				flow.studies = Study.giveWritableStudies( authenticationService.getLoggedInUser(), 100 )
 			}
@@ -816,100 +818,205 @@ class SimpleWizardController extends StudyWizardController {
 			data: table,
 			failedCells: failedcells
 		];
-	
-		// loop through all entities to validate them and add them to failedcells if an error occurs
-		def numInvalidEntities = 0;
-		def errors = [];
 
-		// Add all samples
-		table.each { record ->
-			record.each { entity ->
-				if( entity ) {
-					// Determine entity class and add a parent. Add the entity to the study
-					def preferredIdentifier = importerService.givePreferredIdentifier( entity.class );
-					def equalClosure = { it.getIdentifier() == entity.getIdentifier() }
-					def entityName = entity.class.name[ entity.class.name.lastIndexOf( "." ) + 1 .. -1 ]
+        // loop through all entities to validate them and add them to failedcells if an error occurs
+        def numInvalidEntities = 0;
+        def errors = [];
 
-					entity.parent = study
-					
-					switch( entity.class ) {
-						case Sample:
-							if( !study.samples?.find( equalClosure ) ) {
-								study.addToSamples( entity );
-							}
-							
-							// If an eventgroup is created, add it to the study
-							// The eventgroup must have a unique name, but the user shouldn't be bothered with it
-							// Add 'group ' + samplename and it that is not unique, add a number to it
-							if( entity.parentEventGroup ) {
-								study.addToEventGroups( entity.parentEventGroup )
+        if (flow.inferDesign) {
 
-								entity.parentEventGroup.name = "Group " + entity.name
-								while( !entity.parentEventGroup.validate() ) {
-									//entity.parentEventGroup.getErrors().each { println it }
-									entity.parentEventGroup.name += "" + Math.floor( Math.random() * 100 )
-								}
-							}
-							
-							break;
-						case Subject:
-							if( !study.samples?.find( equalClosure ) ) {
-								
-								if( preferredIdentifier ) {
-									// Subjects without a name should just be called 'subject'
-									if( !entity.getFieldValue( preferredIdentifier.name ) )
-										entity.setFieldValue( preferredIdentifier.name, "Subject" );
-								
-									// Subjects should have unique names; if the user has entered the same name multiple times,
-									// the subject will be renamed
-									def baseName = entity.getFieldValue( preferredIdentifier.name )
-									def counter = 2;
-									
-									while( study.subjects?.find { it.getFieldValue( preferredIdentifier.name ) == entity.getFieldValue( preferredIdentifier.name ) } ) {
-										entity.setFieldValue( preferredIdentifier.name, baseName + " (" + counter++ + ")" )
-									}
-								}
-								
-								study.addToSubjects( entity );
-							
-							}
-							
-							break;
-						case Event:
-							if( !study.events?.find( equalClosure ) ) {
-								study.addToEvents( entity );
-							}
-							break;
-						case SamplingEvent:
-							// Sampling events have a 'sampleTemplate' value, which should be filled by the
-							// template that is chosen for samples.
-							if( !entity.getFieldValue( 'sampleTemplate' ) ) {
-								entity.setFieldValue( 'sampleTemplate', flow.sampleForm.template.Sample.name )
-							} 
-						
-							if( !study.samplingEvents?.find( equalClosure ) ) {
-								study.addToSamplingEvents( entity );
-							}
-							break;
-					}
-					
-					if (!entity.validate()) {
-						numInvalidEntities++;
-						
-						// Add this field to the list of failed cells, in order to give the user feedback
-						failedcells = addNonValidatingCells( failedcells, entity, flow )
-	
-						// Also create a full list of errors
-						def currentErrors = getHumanReadableErrors( entity )
-						if( currentErrors ) {
-							currentErrors.each {
-								errors += "(" + entityName + ") " + it.value;
-							}
-						}
-					}
-				}
-			}
-		}
+            println 'Entered infer design...'
+
+            // find the indices of the classes of interest in the records
+            def sampleIdx           = table[0].findIndexOf{it.class.name == 'dbnp.studycapturing.Sample'}
+            def samplingEventIdx    = table[0].findIndexOf{it.class.name == 'dbnp.studycapturing.SamplingEvent'}
+            def subjectIdx          = table[0].findIndexOf{it.class.name == 'dbnp.studycapturing.Subject'}
+
+            // Check for duplicate samples
+            def samples = table.collect{it[sampleIdx]}
+
+            def uniques     = [] as Set
+            def duplicates  = [] as Set
+
+            // this approach separates the unique from the duplicate entries
+            samples*.name.each {
+                uniques.add(it) || duplicates.add(it)
+            }
+
+            duplicates.each{ duplicateName ->
+                samples.findAll{it.name == duplicateName}.each{ sample ->
+                    numInvalidEntities++
+                    failedcells = addNonValidatingCells(failedcells, sample, flow)
+                    errors += "(Sample) duplicate name: $duplicateName"
+                }
+            }
+
+            // A closure that returns a sub list of entities from a list that have
+            // unique values of a property indicated by propertyName
+            def uniqueEntitiesByProperty = { entities, propertyName ->
+
+               entities*."$propertyName".unique().collect { uniquePropertyValue ->
+
+                    entities.find{ it."$propertyName" == uniquePropertyValue }
+
+                }
+            }
+
+            def addToCollectionIfNonexistent = { parent, collectionName, entity, propertyName ->
+
+                if (!parent[collectionName].find{it[propertyName] == entity[propertyName]})
+                    parent."addTo${collectionName.capitalize()}" entity
+
+            }
+
+            // collect unique subjects and sampling events from table
+            def uniqueSubjects =
+                uniqueEntitiesByProperty(table.collect{it[subjectIdx]}, 'name')
+            uniqueSubjects.each{
+                addToCollectionIfNonexistent study, 'subjects', it, 'name'
+                it.species = Term.findByName('Homo sapiens')
+            }
+
+            def uniqueSamplingEvents =
+                uniqueEntitiesByProperty(table.collect{it[samplingEventIdx]}, 'startTime')
+            uniqueSamplingEvents.each{
+                it.setFieldValue( 'sampleTemplate', flow.sampleForm.template.Sample.name )
+            }
+
+            // create an event group for each unique sampling event (not much of a group, is it ...)
+            def eventGroups = uniqueSamplingEvents.collect{
+
+                def eventGroupName = "Sampling_${it.sampleTemplate.name}_${new RelTime(it.startTime).toString()}"
+
+                def eventGroup = study.eventGroups.find{it.name == eventGroupName} ?: //EventGroup.findByParentAndName(study, eventGroupName) ?:
+                    new EventGroup(name: eventGroupName)
+
+                eventGroup.addToSamplingEvents it
+
+                if (!study.eventGroups.find{it == eventGroup})
+                    study.addToEventGroups eventGroup
+
+                if (!it.parent) study.addToSamplingEvents it
+
+                println eventGroup.name
+
+                eventGroup
+
+            }
+
+            table.each{ record ->
+
+                Sample sample = record[sampleIdx]
+
+                // gather all sample related entities
+                def correspondingSamplingEvent  = uniqueSamplingEvents.find {it.startTime == record[samplingEventIdx].startTime}
+                def correspondingSubject        = uniqueSubjects.find{it.name == record[subjectIdx].name}
+                def correspondingEventGroup     = eventGroups.find{correspondingSamplingEvent in it.samplingEvents}
+
+                addToCollectionIfNonexistent correspondingSamplingEvent, 'samples', sample, 'name'
+
+                sample.parentSubject = correspondingSubject
+
+                correspondingEventGroup.addToSamplingEvents correspondingSamplingEvent
+
+                if (!correspondingEventGroup.subjects.find{it.name == correspondingSubject.name})
+                    correspondingEventGroup.addToSubjects correspondingSubject
+
+                addToCollectionIfNonexistent study, 'samples', sample, 'name'
+
+            }
+
+        } else {
+            // Add all samples
+            table.each { record ->
+                record.each { entity ->
+                    if( entity ) {
+                        // Determine entity class and add a parent. Add the entity to the study
+                        def preferredIdentifier = importerService.givePreferredIdentifier( entity.class );
+                        def equalClosure = { it.getIdentifier() == entity.getIdentifier() }
+                        def entityName = entity.class.name[ entity.class.name.lastIndexOf( "." ) + 1 .. -1 ]
+
+                        entity.parent = study
+
+                        switch( entity.class ) {
+                            case Sample:
+                                if( !study.samples?.find( equalClosure ) ) {
+                                    study.addToSamples( entity );
+                                }
+
+                                // If an eventgroup is created, add it to the study
+                                // The eventgroup must have a unique name, but the user shouldn't be bothered with it
+                                // Add 'group ' + samplename and it that is not unique, add a number to it
+                                if( entity.parentEventGroup ) {
+                                    study.addToEventGroups( entity.parentEventGroup )
+
+                                    entity.parentEventGroup.name = "Group " + entity.name
+                                    while( !entity.parentEventGroup.validate() ) {
+                                        //entity.parentEventGroup.getErrors().each { println it }
+                                        entity.parentEventGroup.name += "" + Math.floor( Math.random() * 100 )
+                                    }
+                                }
+
+                                break;
+                            case Subject:
+                                if( !study.samples?.find( equalClosure ) ) {
+
+                                    if( preferredIdentifier ) {
+                                        // Subjects without a name should just be called 'subject'
+                                        if( !entity.getFieldValue( preferredIdentifier.name ) )
+                                            entity.setFieldValue( preferredIdentifier.name, "Subject" );
+
+                                        // Subjects should have unique names; if the user has entered the same name multiple times,
+                                        // the subject will be renamed
+                                        def baseName = entity.getFieldValue( preferredIdentifier.name )
+                                        def counter = 2;
+
+                                        while( study.subjects?.find { it.getFieldValue( preferredIdentifier.name ) == entity.getFieldValue( preferredIdentifier.name ) } ) {
+                                            entity.setFieldValue( preferredIdentifier.name, baseName + " (" + counter++ + ")" )
+                                        }
+                                    }
+
+                                    study.addToSubjects( entity );
+
+                                }
+
+                                break;
+                            case Event:
+                                if( !study.events?.find( equalClosure ) ) {
+                                    study.addToEvents( entity );
+                                }
+                                break;
+                            case SamplingEvent:
+                                // Sampling events have a 'sampleTemplate' value, which should be filled by the
+                                // template that is chosen for samples.
+                                if( !entity.getFieldValue( 'sampleTemplate' ) ) {
+                                    entity.setFieldValue( 'sampleTemplate', flow.sampleForm.template.Sample.name )
+                                }
+
+                                if( !study.samplingEvents?.find( equalClosure ) ) {
+                                    study.addToSamplingEvents( entity );
+                                }
+                                break;
+                        }
+
+                        if (!entity.validate()) {
+                            numInvalidEntities++;
+
+                            // Add this field to the list of failed cells, in order to give the user feedback
+                            failedcells = addNonValidatingCells( failedcells, entity, flow )
+
+                            // Also create a full list of errors
+                            def currentErrors = getHumanReadableErrors( entity )
+                            if( currentErrors ) {
+                                currentErrors.each {
+                                    errors += "(" + entityName + ") " + it.value;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 		flow.imported.numInvalidEntities = numInvalidEntities + failedcells?.size();
 		flow.imported.errors = errors;
@@ -1230,144 +1337,4 @@ class SimpleWizardController extends StudyWizardController {
 
 		return errors
 	}
-
-    // TEMPORARY ACTION TO TEST CORRECT STUDY DESIGN INFERRING: SHOULD BE REMOVED WHEN DONE
-    def testMethod = {
-
-        ////////////////////////////////////////////////////////////////////////
-        // Functionality mimics intermediate results from simple wizard       //
-        ////////////////////////////////////////////////////////////////////////
-
-        def data = [//['sample name',         'subject',         'timepoint'],
-                    [ '97___N_151_HAKA_1',    'N_151_HAKA',    '0w'],
-                    [ '98___N_163_QUJO_3',    'N_163_QUJO',    '2w'],
-                    [ '99___N_151_HAKA_2',    'N_151_HAKA',    '1w'],
-                    ['100___N_163_QUJO_4',    'N_163_QUJO',    '3w'],
-                    ['101___N_151_HAKA_3',    'N_151_HAKA',    '2w'],
-                    ['102___N_163_QUJO_2',    'N_163_QUJO',    '1w'],
-                    ['103___U_031_SMGI_1',    'U_031_SMGI',    '0w'],
-                    ['104___U_031_SMGI_3',    'U_031_SMGI',    '2w'],
-                    ['105___N_163_QUJO_1',    'N_163_QUJO',    '0w'],
-                    ['106___U_031_SMGI_4',    'U_031_SMGI',    '3w'],
-                    ['107___N_151_HAKA_4',    'N_151_HAKA',    '3w'],
-                    ['108___U_031_SMGI_2',    'U_031_SMGI',    '1w'],
-                    ['109___N_021_THAA_2',    'N_021_THAA',    '1w'],
-                    ['110___U_029_DUJA_2',    'U_029_DUJA',    '1w'],
-                    ['111___U_029_DUJA_3',    'U_029_DUJA',    '2w'],
-                    ['112___N_021_THAA_3',    'N_021_THAA',    '2w'],
-                    ['113___U_029_DUJA_4',    'U_029_DUJA',    '3w'],
-                    ['114___N_045_SNSU_1',    'N_045_SNSU',    '0w'],
-                    ['115___N_021_THAA_1',    'N_021_THAA',    '0w'],
-                    ['116___N_045_SNSU_2',    'N_045_SNSU',    '1w'],
-                    ['117___N_045_SNSU_3',    'N_045_SNSU',    '2w'],
-                    ['118___N_045_SNSU_4',    'N_045_SNSU',    '3w'],
-                    ['119___N_021_THAA_4',    'N_021_THAA',    '3w'],
-                    ['120___U_029_DUJA_1',    'U_029_DUJA',    '0w'],
-                    ['121___U_060_BRGE_3',    'U_060_BRGE',    '2w'],
-                    ['122___N_018_WIHA_1',    'N_018_WIHA',    '0w'],
-                    ['123___N_022_HUCA_3',    'N_022_HUCA',    '2w'],
-                    ['124___N_022_HUCA_2',    'N_022_HUCA',    '1w']]
-
-        def sampleTemplate = Template.findByName ('Human blood sample')
-        def subjectTemplate = Template.findByName ('Human')
-        def samplingEventTemplate = Template.findByName ('Blood extraction')
-//        def eventTemplate = Template.findByName ('Diet treatment')
-
-
-        // Table is a collection of records. A records contains entities of type
-        // Sample, Subject, and SamplingEvent. This mimics the output of
-        // importerService.importOrUpdateDataBySampleIdentifier
-        def table = data.collect { row ->
-
-            [       new Sample( name: row[0], template: sampleTemplate),
-                    new Subject(name: row[1], template: subjectTemplate),
-                    new SamplingEvent(template: samplingEventTemplate).setFieldValue('startTime', row[2])
-//                    new Event(template: eventTemplate)
-            ]
-
-        }
-
-        ////////////////////////////////////////////////////////////////////////
-        // Functionality below should be inserted into simple wizard
-        // We'll assume entities with pre-existing preferred identifiers have
-        // already been loaded from the db so that updating will work.
-        ////////////////////////////////////////////////////////////////////////
-
-        def inferStudyDesign = { study ->
-
-            // Check for duplicate samples
-            def samples = table.collect{it[0]}
-
-            def uniques     = [] as Set
-            def duplicates  = [] as Set
-
-            // this approach separates the unique from the duplicate entries
-            samples*.name.each {
-                uniques.add(it) || duplicates.add(it)
-            }
-
-            duplicates.each{ duplicateName ->
-                samples.findAllByName(duplicateName).each{ sample ->
-                    numInvalidEntities++
-                    failedcells = addNonValidatingCells(failedcells, sample, flow)
-                    errors += "(Sample) duplicate name: $duplicateName"
-                }
-            }
-
-            // A closure that returns a sub list of entities from a list that have
-            // unique values of a property indicated by propertyName
-            def uniqueEntitiesByProperty = { entities, propertyName ->
-
-               entities*."$propertyName".unique().collect { uniquePropertyValue ->
-
-                    entities.find{ it."$propertyName" == uniquePropertyValue }
-
-                }
-            }
-
-            // collect unique subjects and sampling events from table
-            def uniqueSubjects =
-                uniqueEntitiesByProperty(table.collect{it[1]}, 'name')
-            def uniqueSamplingEvents =
-                uniqueEntitiesByProperty(table.collect{it[2]}, 'startTime')
-
-            // create an event group for each unique sampling event (not much of a group, is it ...)
-            uniqueSamplingEvents.each{
-                new EventGroup(name: "Sampling_${it.name}_${it.startTime}").addToSamplingEvents(it)
-                study.addToEventGroups eventGroup
-            }
-
-            def addToCollectionIfNecessary = { parent, collectionName, entity, propertyName ->
-
-                if (!parent.'collectionName'.find{it.'propertyName' == entity.'propertyName'})
-                    parent."addTo${collectionName.toUpperCase()}" entity
-
-            }
-
-            table.each{ record ->
-
-                Sample sample = record[0]
-
-                // gather all sample related entities
-                def correspondingSamplingEvent  = uniqueSamplingEvents.findByStartTime(record[2].startTime)
-                def correspondingSubject        = uniqueSubjects.findByName(record[1].name)
-                def correspondingEventGroup     = correspondingSamplingEvent.eventGroup
-
-                correspondingSamplingEvent.addToSamples sample
-                correspondingSubject.addToSamples       sample
-                correspondingEventGroup.addToSamples    sample
-
-                if (!correspondingEventGroup.subjects.find{it.name == correspondingSubject.name})
-                    correspondingEventGroup.addToSubjects correspondingSubject
-
-                study.addToSamples sample
-            }
-        }
-
-        // inferStudyDesign(study)
-
-        println 'hoi'
-        render 'bla'
-
-    }
 }
