@@ -21,7 +21,8 @@ import dbnp.authentication.SecUser
 import dbnp.importer.ImportCell
 import dbnp.importer.ImportRecord
 import dbnp.importer.MappingColumn
-import org.hibernate.SessionFactory;
+import org.hibernate.SessionFactory
+import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass;
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class SimpleWizardController extends StudyWizardController {
@@ -1233,6 +1234,10 @@ class SimpleWizardController extends StudyWizardController {
     // TEMPORARY ACTION TO TEST CORRECT STUDY DESIGN INFERRING: SHOULD BE REMOVED WHEN DONE
     def testMethod = {
 
+        ////////////////////////////////////////////////////////////////////////
+        // Functionality mimics intermediate results from simple wizard       //
+        ////////////////////////////////////////////////////////////////////////
+
         def data = [//['sample name',         'subject',         'timepoint'],
                     [ '97___N_151_HAKA_1',    'N_151_HAKA',    '0w'],
                     [ '98___N_163_QUJO_3',    'N_163_QUJO',    '2w'],
@@ -1266,7 +1271,7 @@ class SimpleWizardController extends StudyWizardController {
         def sampleTemplate = Template.findByName ('Human blood sample')
         def subjectTemplate = Template.findByName ('Human')
         def samplingEventTemplate = Template.findByName ('Blood extraction')
-        def eventTemplate = Template.findByName ('Diet treatment')
+//        def eventTemplate = Template.findByName ('Diet treatment')
 
 
         // Table is a collection of records. A records contains entities of type
@@ -1282,46 +1287,84 @@ class SimpleWizardController extends StudyWizardController {
 
         }
 
-        // collect unique subjects and sampling events from table
-        def uniqueSubjects = table.collect{it[1]}.unique()
-        def uniqueSamplingEvents = table.collect{it[2]}.unique()
+        ////////////////////////////////////////////////////////////////////////
+        // Functionality below should be inserted into simple wizard
+        // We'll assume entities with pre-existing preferred identifiers have
+        // already been loaded from the db so that updating will work.
+        ////////////////////////////////////////////////////////////////////////
 
-        // create an event group for each unique sampling event (not much of a group, is it ...)
-        def eventGroups = uniqueSamplingEvents.collect{
-            def eventGroup = new EventGroup(name: "Sampling_${it.name}_${it.startTime}").addToSamplingEvents(it)
-            //study.addToEventGroups eventGroup
-            eventGroup
+        def inferStudyDesign = { study ->
+
+            // Check for duplicate samples
+            def samples = table.collect{it[0]}
+
+            def uniques     = [] as Set
+            def duplicates  = [] as Set
+
+            // this approach separates the unique from the duplicate entries
+            samples*.name.each {
+                uniques.add(it) || duplicates.add(it)
+            }
+
+            duplicates.each{ duplicateName ->
+                samples.findAllByName(duplicateName).each{ sample ->
+                    numInvalidEntities++
+                    failedcells = addNonValidatingCells(failedcells, sample, flow)
+                    errors += "(Sample) duplicate name: $duplicateName"
+                }
+            }
+
+            // A closure that returns a sub list of entities from a list that have
+            // unique values of a property indicated by propertyName
+            def uniqueEntitiesByProperty = { entities, propertyName ->
+
+               entities*."$propertyName".unique().collect { uniquePropertyValue ->
+
+                    entities.find{ it."$propertyName" == uniquePropertyValue }
+
+                }
+            }
+
+            // collect unique subjects and sampling events from table
+            def uniqueSubjects =
+                uniqueEntitiesByProperty(table.collect{it[1]}, 'name')
+            def uniqueSamplingEvents =
+                uniqueEntitiesByProperty(table.collect{it[2]}, 'startTime')
+
+            // create an event group for each unique sampling event (not much of a group, is it ...)
+            uniqueSamplingEvents.each{
+                new EventGroup(name: "Sampling_${it.name}_${it.startTime}").addToSamplingEvents(it)
+                study.addToEventGroups eventGroup
+            }
+
+            def addToCollectionIfNecessary = { parent, collectionName, entity, propertyName ->
+
+                if (!parent.'collectionName'.find{it.'propertyName' == entity.'propertyName'})
+                    parent."addTo${collectionName.toUpperCase()}" entity
+
+            }
+
+            table.each{ record ->
+
+                Sample sample = record[0]
+
+                // gather all sample related entities
+                def correspondingSamplingEvent  = uniqueSamplingEvents.findByStartTime(record[2].startTime)
+                def correspondingSubject        = uniqueSubjects.findByName(record[1].name)
+                def correspondingEventGroup     = correspondingSamplingEvent.eventGroup
+
+                correspondingSamplingEvent.addToSamples sample
+                correspondingSubject.addToSamples       sample
+                correspondingEventGroup.addToSamples    sample
+
+                if (!correspondingEventGroup.subjects.find{it.name == correspondingSubject.name})
+                    correspondingEventGroup.addToSubjects correspondingSubject
+
+                study.addToSamples sample
+            }
         }
-        //TODO: add event groups to study
 
-//        uniqueSubjects.each {
-//            eventGroup.addToSubjects it
-//            // study.addToSubject it
-//        }
-
-        table.each{ record ->
-
-            Sample sample = record[0]
-
-            // gather all sample related entities
-            def correspondingSamplingEvent  = uniqueSamplingEvents.findByStartTime(record[2].startTime)
-            def correspondingSubject        = uniqueSubjects.findByName(record[1].name)
-            def correspondingEventGroup     = correspondingSamplingEvent.eventGroup
-
-            correspondingSamplingEvent.addToSamples sample
-            correspondingEventGroup.addToSamples    sample
-            correspondingEventGroup.addToSubjects   correspondingSubject
-            sample.parentSubject =                  correspondingSubject
-
-
-
-
-            // study.addToSamples sample
-            uniqueSamplingEvents.findByStartTime(record[2].startTime).addToSamples(sample)
-            sample.addToSubjects(uniqueSubjects.findByName(record[1].name))
-
-        }
-
+        // inferStudyDesign(study)
 
         println 'hoi'
         render 'bla'
