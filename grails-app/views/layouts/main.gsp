@@ -24,6 +24,7 @@
 		<link rel="stylesheet" href="${resource(dir: 'css/datatables', file: 'demo_table_jui.css')}"/>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.dataTables.min.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'paginate.js')}"></script>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'removeWebflowExecutionFromMenu.min.js')}"></script>
 	</g:if>
 	<g:else>
 		<link rel="stylesheet" href="${resource(dir: 'css', file: 'default.min.css')}"/>
@@ -35,6 +36,7 @@
 		<link rel="stylesheet" href="${resource(dir: 'css/datatables', file: 'demo_table_jui.css')}"/>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.dataTables.min.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'paginate.min.js')}"></script>
+		<script type="text/javascript" src="${resource(dir: 'js', file: 'removeWebflowExecutionFromMenu.js')}"></script>
 	</g:else>
 	<g:layoutHead/>
 </head>
