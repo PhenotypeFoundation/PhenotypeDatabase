@@ -22,7 +22,7 @@
     <li>
       <a href="#">Export</a>
       <ul class="subnav">
-        <li><g:link controller="assay" action="assayExport">Export Assay Data to Excel</g:link> </li>
+        <li><g:link controller="assay" action="assayExport">Export Assay Data to File</g:link> </li>
 	    <li><g:link controller="exporter" action="index">Export studies as SimpleTox Excel file</g:link></li>
       </ul>
     </li>

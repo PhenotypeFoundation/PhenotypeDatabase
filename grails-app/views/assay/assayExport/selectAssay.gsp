@@ -37,7 +37,7 @@
 
   <h1>Select the assay you want to export data from</h1>
 
-  With this exporter you can export (meta) data about samples from an assay to an Excel file.
+  With this exporter you can export (meta) data about samples from an assay to a file.
   First, select a study from the first list and then select an assay from that study from the second list.<br />
 
   <g:form name="assaySelect" action="assayExport">

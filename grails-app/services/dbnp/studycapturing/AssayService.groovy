@@ -20,6 +20,8 @@ import org.dbnp.gdt.RelTime
 import org.dbnp.gdt.TemplateFieldType
 import java.text.DecimalFormat
 import java.text.NumberFormat
+import org.dbnp.gdt.Template
+import org.dbnp.gdt.TemplateField
 
 class AssayService {
 
@@ -89,7 +91,7 @@ class AssayService {
                     try {
 
                         val = it.getFieldValue(headerField.name)
-                        
+
                         // Convert RelTime fields to human readable strings
                         field = it.getField(headerField.name)
                         if (field.type == TemplateFieldType.RELTIME)
@@ -97,7 +99,7 @@ class AssayService {
 
                     } catch (NoSuchFieldException e) { /* pass */ }
 
-                    val.toString()}]
+                    (val instanceof Number) ? val : val.toString()}]
 			}
 		}
 
@@ -624,5 +626,4 @@ class AssayService {
 			}
 		}
 	}
-
 }

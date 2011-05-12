@@ -37,7 +37,7 @@
   <body>
   <div>
 
-    <h1>Select the columns that you want to be included in the resulting Excel file</h1>
+    <h1>Select the columns that you want to be included in the resulting file</h1>
 
     In this step you can make a selection from the available fields stored in the database related to the samples, including measurement data from a module (if available).
 
