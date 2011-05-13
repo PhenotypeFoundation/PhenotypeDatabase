@@ -23,10 +23,34 @@
  */
 %>
 <script type="text/javascript">
-        function onPage() {
-                if (console) {
-                        console.log('calling onPage() which can be used to attach generic javascript handlers to DOM elements of a rendered page / partial');
-                }
-        }
+	function onPage() {
+		if (console) {
+			attachHelpTooltips();
+
+			// syntax highlighting
+			function path() {
+				var args = arguments,result = [];
+				for(var i = 0; i < args.length; i++) result.push(args[i].replace('@', 'http://alexgorbatchev.com/pub/sh/current/scripts/'));
+				return result
+			}
+
+			SyntaxHighlighter.autoloader.apply(null, path(
+			  'applescript            @shBrushAppleScript.js',
+			  'bash shell             @shBrushBash.js',
+			  'css                    @shBrushCss.js',
+			  'diff patch pas         @shBrushDiff.js',
+			  'groovy                 @shBrushGroovy.js',
+			  'java                   @shBrushJava.js',
+			  'jfx javafx             @shBrushJavaFX.js',
+			  'js jscript javascript  @shBrushJScript.js',
+			  'php                    @shBrushPhp.js',
+			  'text plain             @shBrushPlain.js',
+			  'py python              @shBrushPython.js',
+			  'sql                    @shBrushSql.js',
+			  'xml xhtml xslt html    @shBrushXml.js'
+			));
+			SyntaxHighlighter.all();
+		}
+	}
 </script>
 

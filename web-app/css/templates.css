@@ -8,6 +8,11 @@
     margin: 10px 0px 10px 0px;
 }
 
+.info li {
+	padding-left: 10px;
+	list-style-position: inside;
+}
+
 .info .title {
     color:#006DBA;
     font-size:14px;
@@ -56,6 +61,16 @@
     margin-bottom: 5px;
     padding-left: 20px;
     background: url(../plugins/famfamfam-1.0.1/images/icons/eye.png) no-repeat center left;
+}
+
+.info .okay {
+    color:#006DBA;
+    font-size:14px;
+    font-weight:normal;
+    display: block;
+    margin-bottom: 5px;
+    padding-left: 20px;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/accept.png) no-repeat center left;
 }
 
 .famfamfam {

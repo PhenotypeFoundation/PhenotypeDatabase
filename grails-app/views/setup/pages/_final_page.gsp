@@ -12,8 +12,9 @@
  */
 %>
 <af:page>
-<h1>Final Page</h1>
-<p>
-This concludes the example wizard. You can click <g:link action="index">here</g:link> to restart the wizard.
-</p>
+	<h1>Final Page</h1>
+
+	This concludes the configuration wizard. Make sure to restart your tomcat container to load the new configuration.
+	After restart you can <g:link controller="assayModule" action="list" class="icon icon_user_add">Manage Your Modules</g:link>
+	(if you have any).
 </af:page>

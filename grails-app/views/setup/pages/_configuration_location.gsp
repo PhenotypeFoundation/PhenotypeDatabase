@@ -3,7 +3,7 @@
  * Configuration Location
  *
  * @author Jeroen Wesbeek
- * @since  20110318
+ * @since  20110513
  *
  * Revision information:
  * $Rev:  66849 $
@@ -14,12 +14,26 @@
 <af:page>
 <h1>Configuration file</h1>
 
-<font color="red"><b><i>NOTE: this wizard is in development!</i></b></font>
-
 <g:if test="${configInfo.pathSummary && configInfo.fileSummary}">
-	OK!
-</g:if>
-<g:else>
+	<span class="info">
+		<span class="okay">The configuration file and path are okay!</span>
+		Click next to continue...
+	</span>
+</g:if><g:else>
+	<span class="info">
+		<span class="warning">
+			You need to fix the configuration
+			<g:if test="${!configInfo.pathSummary && !configInfo.fileSummary}">path and file</g:if>
+			<g:elseif test="${!configInfo.pathSummary}">path</g:elseif>
+			<g:elseif test="${!configInfo.fileSummary}">file</g:elseif>
+			in order to continue
+		</span>
+		The application is currently using the default ${grails.util.GrailsUtil.environment} configuration. In the following
+		steps you will configure the application to use a specific database and (if required) insert default templates and
+		data.
+	</span>
+</g:else>
+
 <div class="checklist">
 	<ul class="header">
 		<li class="path">Path</li>
@@ -42,6 +56,5 @@
 		<li class="summary"><g:if test="${!configInfo.fileSummary}"><img src="${fam.icon(name: 'arrow_right')}"/><af:ajaxButton name="toConfigurationFile" value="resolve issues" afterSuccess="onPage();" class="prevnext" /></g:if></li>
 	</ul>
 </div>
-</g:else>
 
 </af:page>
