@@ -210,7 +210,7 @@
 						success: function(data) {
 							response($.map(data.data, function(item) {
 								return {
-									label		: '<span class="about">'+item.category+'</div> <span class="from">'+item.name+'</span>',
+									label		: '<span class="about">'+item.category+'</span> <span class="from">'+item.name+'</span>',
 									value		: item.link
 								}
 							}));
