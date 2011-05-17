@@ -151,16 +151,12 @@ class Search {
 			}
 		}
 		
-		println fullHQL;
-		
 		// Search in all entities
 		resultsFound = addWildcardConditions( fullHQL, entityNames )
 		if( !resultsFound && searchMode == SearchMode.and ) {
 			return
 		}
 		
-		println fullHQL;
-
 		// Combine all parts to generate a full HQL query
 		def hqlQuery = selectClause + " " + fullHQL.from + ( fullHQL.where ? "  WHERE " + fullHQL.where.join( " " + searchMode.toString() + " "  ) : "" );
 		
@@ -585,7 +581,7 @@ class Search {
 	 * Filters an entity list manually on complex criteria found in the criteria list.
 	 * This method is needed because hibernate contains a bug in the HQL INDEX() function.
 	 * See also Criterion.manyToManyWhereCondition and
-	 *http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
+	 * http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
 	 * 
 	 * @param entities			List of entities
 	 * @param entityCriteria	List of criteria that apply to the type of entities given	(e.g. Subject criteria for Subjects)
@@ -593,6 +589,7 @@ class Search {
 	 */
 	protected filterForComplexCriteria( def entities, def entityCriteria ) {
 		def complexCriteria = entityCriteria.findAll { it.isComplexCriterion() }
+
 		if( complexCriteria ) {
 			def checkCallback = { entity, criterion ->
 				def value = criterion.getFieldValue( entity )

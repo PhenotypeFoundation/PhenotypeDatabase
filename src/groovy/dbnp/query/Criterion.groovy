@@ -147,6 +147,9 @@ class Criterion {
 	 * @return
 	 */
 	public boolean isComplexCriterion() {
+		if( this.field == '*' )
+			return false;
+
 		if( isDomainCriterion() )
 			return false;
 			
@@ -389,10 +392,16 @@ class Criterion {
 	 */
 	protected Map extendWhereClause( String hql, String fieldName, String uniquePrefix, String fieldType, def fieldValue ) {
 		def parameters = [:]
-
+		def textFieldTypes = [ 'String', 'Text', 'File', 'StringList', 'ExtendableStringList', 'Term', 'Template', 'Module' ];
+		
 		switch( this.operator ) {
 			case Operator.contains:
-				hql = sprintf( hql, fieldName + " like :" + uniquePrefix + "ValueLike" );
+				// Text fields should be handled case insensitive
+				if( textFieldTypes.contains( fieldType ) ) {
+					hql = sprintf( hql, "lower( " + fieldName + ") like lower( :" + uniquePrefix + "ValueLike )" );
+				} else {
+					hql = sprintf( hql, fieldName + " like :" + uniquePrefix + "ValueLike" );
+				}
 				parameters[ uniquePrefix + "ValueLike" ] = "%" + fieldValue + "%"
 				break;
 			case Operator.equals:
@@ -400,7 +409,11 @@ class Criterion {
 			case Operator.gt:
 			case Operator.lte:
 			case Operator.lt:
-				hql = sprintf( hql, fieldName + " "  + this.operator.name + " :" + uniquePrefix + "Value" + fieldType );
+				if( textFieldTypes.contains( fieldType ) ) {
+					hql = sprintf( hql, "lower( " + fieldName + " ) "  + this.operator.name + " lower( :" + uniquePrefix + "Value" + fieldType + ")" );
+				} else {
+					hql = sprintf( hql, fieldName + " "  + this.operator.name + " :" + uniquePrefix + "Value" + fieldType );
+				}
 				parameters[ uniquePrefix + "Value" + fieldType ] = fieldValue
 				break;
 		}
