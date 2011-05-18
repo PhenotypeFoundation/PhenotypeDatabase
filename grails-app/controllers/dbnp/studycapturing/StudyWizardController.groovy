@@ -1736,7 +1736,8 @@ class StudyWizardController {
 						eventGroup.samplingEvents.each() { samplingEvent ->
 							def samplingEventName = ucwords(samplingEvent.template.name)
 							def eventGroupName = ucwords(eventGroup.name)
-							def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(samplingEvent.startTime).toString()).replaceAll("([ ]{1,})", "")
+							def sampleTemplateName = (samplingEvent.sampleTemplate) ? ucwords(samplingEvent.sampleTemplate.name) : ''
+							def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(samplingEvent.startTime).toString() + sampleTemplateName).replaceAll("([ ]{1,})", "")
 							def tempSampleIterator = 0
 							def tempSampleName = sampleName
 
