@@ -252,7 +252,7 @@ class AssayService {
         def jsonArray
 
         try {
-            jsonArray = moduleCommunicationService.callModuleMethod(moduleUrl, path, query)
+            jsonArray = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST")
         } catch (e) {
             throw new Exception("An error occured while trying to get the measurement tokens from the $assay.module.name. \
              This means the module containing the measurement data is not available right now. Please try again \
@@ -293,7 +293,7 @@ class AssayService {
 		def sampleTokens = [], measurementTokens = [], moduleData = []
 
         try {
-            (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleMethod(moduleUrl, path, query)
+            (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST")
         } catch (e) {
             throw new Exception("An error occured while trying to get the measurement data from the $assay.module.name. \
              This means the module containing the measurement data is not available right now. Please try again \
