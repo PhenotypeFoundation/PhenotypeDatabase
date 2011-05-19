@@ -127,11 +127,14 @@ class ModuleCommunicationService implements Serializable {
 		// put the session token to work
 		authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
 		
-		// Append the sessionToken to the URL
-		if( !args )
+		// Append the sessionToken to the parameters
+		if( !args ) {
 			args = ""
+		} else {
+			args += "&"
+		}
 		
-		args += "&sessionToken=" + sessionToken
+		args += "sessionToken=" + sessionToken
 		
 		// Perform a call to the url
 		def restResponse
