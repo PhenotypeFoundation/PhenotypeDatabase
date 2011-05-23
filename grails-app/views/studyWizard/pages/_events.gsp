@@ -1,3 +1,4 @@
+<%@ page import="dbnp.studycapturing.SamplingEvent" %>
 <%
 /**
  * Events page
@@ -96,7 +97,7 @@
 	<g:if test="${study.events || study.samplingEvents}">
 		<g:each var="template" in="${study.giveAllEventTemplates()}">
 			<g:set var="showHeader" value="${true}" />
-			<h1>${template}</h1>
+			<h1>${template} (<g:if test="${template.entity == SamplingEvent}">sampling event</g:if><g:else>treatment, challenge, etc.</g:else>)</h1>
 			<div class="tableEditor">
 			<g:each var="event" in="${study.giveEventsForTemplate(template)}">
 				<g:if test="${showHeader}">

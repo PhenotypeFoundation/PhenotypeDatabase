@@ -49,7 +49,7 @@
 	  </g:if>
 	  <th></th>
 	  <g:each in="${showTemplates}" var="eventTemplate">
-		<th colspan="${[1, showProperties[ eventTemplate.name ].size() + 1 ].max()}">${eventTemplate.name}</th>
+		<th colspan="${[1, showProperties[ eventTemplate.name ].size() + 1 ].max()}">${eventTemplate.name} (<g:if test="${eventTemplate.entity == SamplingEvent}">sampling </g:if>event)</th>
 	  </g:each>
 	  <th></th>
 	</tr>
