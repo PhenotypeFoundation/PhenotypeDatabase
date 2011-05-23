@@ -215,7 +215,7 @@ class Study extends TemplateEntity {
 	 */
 	def ArrayList<Subject> giveSamplesForTemplate(Template template) {
 		samples.findAll { it.template.equals(template) }.sort {
-			it.parentSubject.name
+			[it.parentEvent?.template, it.parentEvent?.startTime, it.parentSubject?.name]
 		}
 	}
 
