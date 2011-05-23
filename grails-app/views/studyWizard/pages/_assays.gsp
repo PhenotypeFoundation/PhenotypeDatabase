@@ -43,13 +43,17 @@
 				<g:set var="showHeader" value="${false}" />
 				<div class="header">
 					<div class="firstColumn"></div>
+					<div class="firstColumn"></div>
 					<af:templateColumnHeaders class="column" entity="${assay}" />
 				</div>
 				</g:if>
 
-				<div class="row">
+				<div class="row" identifier="${assay.getIdentifier()}">
 					<div class="firstColumn">
-						<af:ajaxButton name="deleteAssay" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this assay" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${assay.getIdentifier()});" afterSuccess="onPage()"/>
+						<input type="button" value="" action="deleteAssay" class="delete" identifier="${assay.getIdentifier()}" />
+					</div>
+					<div class="firstColumn">
+						<input type="button" value="" action="duplicate" class="clone" identifier="${assay.getIdentifier()}" />
 					</div>
 					<af:templateColumns class="column" entity="${assay}" name="assay_${assay.getIdentifier()}" />
 				</div>
@@ -57,4 +61,21 @@
 			</div>
 		</g:each>
 	</g:if>
+
+	<script type="text/javascript">
+	$(document).ready(function() {
+		if (tableEditor) {
+			tableEditor.registerActionCallback('deleteAssay', function() {
+				if (confirm('are you sure you want to delete ' + ((this.length>1) ? 'these '+this.length+' assays?' : 'this assay?'))) {
+					$('input[name="do"]').val(this);
+					<af:ajaxSubmitJs name="deleteAssay" afterSuccess="onPage()" />
+				}
+			});
+			tableEditor.registerActionCallback('duplicate', function() {
+				$('input[name="do"]').val(this);
+				<af:ajaxSubmitJs name="duplicate" afterSuccess="onPage()" />
+			});
+		}
+	});
+	</script>
 </af:page>

@@ -92,3 +92,17 @@ div .contacts_dialog {
 }
 /** END :: study page publication, contact and users lists **/
 
+/** START :: table editor button styles **/
+.tableEditor input[type=button] {
+	border: none;
+	width: 16px;
+	height: 16px;
+	background-color: transparent;
+}
+.tableEditor input.delete {
+	background: url(../plugins/famfamfam-1.0.1/images/icons/delete.png) no-repeat left top;
+}
+.tableEditor input.clone {
+	background: url(../plugins/famfamfam-1.0.1/images/icons/application_put.png) no-repeat left top;
+}
+/** END :: table editor button styles **/

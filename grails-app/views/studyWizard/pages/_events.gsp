@@ -117,9 +117,9 @@
 				</div>
 				</g:if>
 
-				<div class="row">
+				<div class="row" identifier="${event.getIdentifier()}">
 					<div class="firstColumn">
-						<af:ajaxButton name="deleteEvent" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this event" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onPage()"/>
+						<input type="button" value="" action="deleteEvent" class="delete" identifier="${event.getIdentifier()}" />
 					</div>
 					<g:if test="${study.eventGroups}"><g:each var="eventGroup" in="${study.eventGroups}">
 					<div class="column">
@@ -131,7 +131,7 @@
 					</div>
 					</g:each></g:if>
 					<div class="firstColumn">
-						<af:ajaxButton name="duplicate" src="${resource(dir: 'images/icons', file: 'application_put.png', plugin: 'famfamfam')}" alt="duplicate this event" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${event.getIdentifier()});" afterSuccess="onPage()" />
+						<input type="button" value="" action="duplicate" class="clone" identifier="${event.getIdentifier()}" />
 					</div>
 					<af:templateColumns class="column" entity="${event}" name="event_${event.getIdentifier()}" />
 				</div>
@@ -140,4 +140,21 @@
 			</div>
 		</g:each>
 	</g:if>
+
+	<script type="text/javascript">
+	$(document).ready(function() {
+		if (tableEditor) {
+			tableEditor.registerActionCallback('deleteEvent', function() {
+				if (confirm('are you sure you want to delete ' + ((this.length>1) ? 'these '+this.length+' events?' : 'this event?'))) {
+					$('input[name="do"]').val(this);
+					<af:ajaxSubmitJs name="deleteEvent" afterSuccess="onPage()" />
+				}
+			});
+			tableEditor.registerActionCallback('duplicate', function() {
+				$('input[name="do"]').val(this);
+				<af:ajaxSubmitJs name="duplicate" afterSuccess="onPage()" />
+			});
+		}
+	});
+	</script>
 </af:page>

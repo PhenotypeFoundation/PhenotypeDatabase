@@ -51,9 +51,9 @@ def speciesOntologies = dbnp.studycapturing.Subject.giveDomainFields().find { it
 				  <af:templateColumnHeaders class="column" entity="${subject}" columnWidths="[Name:200, Species: 150]" />
 				</div>
 				</g:if>
-				<div class="row">
+				<div class="row" identifier="${subject.getIdentifier()}">
 					<div class="firstColumn">
-						<af:ajaxButton name="delete" src="${resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam')}" alt="delete this subject" class="famfamfam" value="-" before="\$(\'input[name=do]\').val(${subject.getIdentifier()});" afterSuccess="onPage()" />
+						<input type="button" value="" action="delete" class="delete" identifier="${subject.getIdentifier()}" />
 					</div>
 					<af:templateColumns class="column" entity="${subject}" name="subject_${subject.getIdentifier()}" />
 				</div>
@@ -61,4 +61,17 @@ def speciesOntologies = dbnp.studycapturing.Subject.giveDomainFields().find { it
 			</div>
 		</g:each>
 	</g:if>
+
+	<script type="text/javascript">
+	$(document).ready(function() {
+		if (tableEditor) {
+			tableEditor.registerActionCallback('delete', function() {
+				if (confirm('are you sure you want to delete ' + ((this.length>1) ? 'these '+this.length+' subjects?' : 'this subject?'))) {
+					$('input[name="do"]').val(this);
+					<af:ajaxSubmitJs name="delete" afterSuccess="onPage()" />
+				}
+			});
+		}
+	});
+	</script>
 </af:page>

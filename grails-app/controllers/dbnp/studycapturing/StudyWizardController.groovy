@@ -361,10 +361,10 @@ class StudyWizardController {
 				// reset errors
 				flash.wizardErrors = [:]
 
-				// remove subject
-				def subjectToRemove = flow.study.subjects.find { it.identifier == (params.get('do') as int) }
-				if (subjectToRemove) {
-					flow.study.deleteSubject( subjectToRemove )
+				// remove subject(s)
+				params.get('do').split(",").each { identifier ->
+					def subjectToRemove = flow.study.subjects.find { it.identifier == (identifier as int) }
+					if (subjectToRemove) flow.study.deleteSubject( subjectToRemove )
 				}
 			}.to "subjects"
 			on("previous") {
@@ -514,13 +514,16 @@ class StudyWizardController {
 				// reset errors
 				flash.wizardErrors = [:]
 
-				// find matching (sampling) event
-				def event 			= flow.study.events.find { it.getIdentifier() == (params.get('do') as int) }
-				def samplingEvent	= flow.study.samplingEvents.find { it.getIdentifier() == (params.get('do') as int) }
+				// delete event(s)
+				params.get('do').split(",").each { identifier ->
+					// find matching (sampling) event
+					def event = flow.study.events.find { it.getIdentifier() == (identifier as int) }
+					def samplingEvent = flow.study.samplingEvents.find { it.getIdentifier() == (identifier as int) }
 
-				// perform delete
-				if (event) flow.study.deleteEvent( event )
-				if (samplingEvent) flow.study.deleteSamplingEvent( samplingEvent )
+					// perform delete
+					if (event) flow.study.deleteEvent( event )
+					if (samplingEvent) flow.study.deleteSamplingEvent( samplingEvent )
+				}
 			}.to "events"
 			on("addEventGroup") {
 				// handle form data
@@ -573,25 +576,29 @@ class StudyWizardController {
 
 				// clone event
 				def event = null
-				(((flow.study.events) ? flow.study.events : []) + ((flow.study.samplingEvents) ? flow.study.samplingEvents : [])).find { it.getIdentifier() == (params.get('do') as int) }.each {
-					event = (it instanceof SamplingEvent) ? new SamplingEvent() : new Event()
 
-					// set template
-					event.template = it.template
+				// clone event(s)
+				params.get('do').split(",").each { identifier ->
+					(((flow.study.events) ? flow.study.events : []) + ((flow.study.samplingEvents) ? flow.study.samplingEvents : [])).find { it.getIdentifier() == (identifier as int) }.each {
+						event = (it instanceof SamplingEvent) ? new SamplingEvent() : new Event()
 
-					// copy data
-					it.giveFields().each() { field ->
-						event.setFieldValue(
-							field.name,
-							it.getFieldValue(field.name)
-						)
-					}
+						// set template
+						event.template = it.template
 
-					// assign duplicate event to study
-					if (event instanceof SamplingEvent) {
-						flow.study.addToSamplingEvents(event)
-					} else {
-						flow.study.addToEvents(event)
+						// copy data
+						it.giveFields().each() { field ->
+							event.setFieldValue(
+								field.name,
+								it.getFieldValue(field.name)
+							)
+						}
+
+						// assign duplicate event to study
+						if (event instanceof SamplingEvent) {
+							flow.study.addToSamplingEvents(event)
+						} else {
+							flow.study.addToEvents(event)
+						}
 					}
 				}
 
@@ -911,11 +918,42 @@ class StudyWizardController {
 				// reset errors
 				flash.wizardErrors = [:]
 
-				// find this assay
-				def assay = flow.study.assays.find { it.getIdentifier() == (params.get('do') as int) }
+				// delete assays
+				params.get('do').split(",").each { identifier ->
+					// find this assay
+					def assay = flow.study.assays.find { it.getIdentifier() == (identifier as int) }
 
-				// perform delete
-				if (assay) flow.study.deleteAssay( assay )
+					// perform delete
+					if (assay) flow.study.deleteAssay( assay )
+				}
+			}.to "assays"
+			on("duplicate") {
+				// handle form data
+				assayPage(flow, flash, params)
+
+				// reset errors
+				flash.wizardErrors = [:]
+
+				// clone event
+				def assay = null
+				params.get('do').split(",").each { identifier ->
+					flow.study.assays.find { it.getIdentifier() == (identifier as int) }.each {
+						assay = new Assay(template: it.template)
+
+						// copy data
+						it.giveFields().each() { field ->
+							assay.setFieldValue(
+								field.name,
+								it.getFieldValue(field.name)
+							)
+						}
+
+						// assign duplicate assay to study
+						flow.study.addToAssays(assay)
+					}
+				}
+
+				success()
 			}.to "assays"
 			on("previous") {
 				// handle form data

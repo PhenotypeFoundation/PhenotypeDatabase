@@ -10,6 +10,7 @@
  * $Author$
  * $Date$
  */
+var tableEditor = null;		// in global namespace
 var warnOnRedirect = true;
 $(document).ready(function() {
 	insertOnRedirectWarning();
@@ -25,7 +26,7 @@ function onStudyWizardPage() {
 	disableDatePickerKeys();
 
 	// handle and initialize table(s)
-	new TableEditor().init({
+	tableEditor = new TableEditor().init({
 		tableIdentifier : 'div.tableEditor',
 		rowIdentifier   : 'div.row',
 		columnIdentifier: 'div.firstColumn, div.column',
