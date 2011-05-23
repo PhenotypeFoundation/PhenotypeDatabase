@@ -21,6 +21,6 @@ class EventGroup extends Identity {
 
 	static constraints = {
 		// Ensure that the event group name is unique within the study
-		name(unique:['parent'])	
+		name(unique:['parent'])
 	}
 }

@@ -14,8 +14,6 @@
  */
 package dbnp.modules
 
-import dbnp.studycapturing.*
-import dbnp.authentication.*
 import grails.converters.*
 import javax.servlet.http.HttpServletResponse
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
@@ -74,7 +72,7 @@ class ModuleCommunicationService implements Serializable {
 		}
 	}
 
-	/**
+    /**
 	 * Calls a rest method on a module
 	 * 
 	 * @param consumer	Consumer of that specific module

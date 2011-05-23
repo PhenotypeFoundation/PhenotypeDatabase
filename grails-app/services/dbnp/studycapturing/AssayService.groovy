@@ -49,14 +49,21 @@ class AssayService {
 			}.collect{[name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')]}
 		}
 
+        def moduleError = '', moduleMeasurements = []
+
+        try {
+            moduleMeasurements = requestModuleMeasurementNames(assay)
+        } catch (e) {
+            moduleError = e.message
+        }
+
 		def samples = assay.samples
 		[   		'Subject Data' :            getUsedTemplateFields( samples*."parentSubject".unique() ),
 					'Sampling Event Data' :     getUsedTemplateFields( samples*."parentEvent".unique() ),
 					'Sample Data' :             getUsedTemplateFields( samples ),
 					'Event Group' :             [[name: 'name', comment: 'Name of Event Group', displayName: 'name']],
-
-					// If module is not reachable, only the field 'module error' is returned, and is filled later on.
-					'Module Measurement Data':  moduleCommunicationService.isModuleReachable(assay.module.url) ? requestModuleMeasurementNames(assay) : [ [ name: "Module error" ] ]
+					'Module Measurement Data':  moduleMeasurements,
+                    'ModuleError':              moduleError
 		]
 
 	}
@@ -82,22 +89,24 @@ class AssayService {
 			// template entity list
 			headerFields.inject([:]) { map, headerField ->
 
-				map + [(headerField.displayName): templateEntities.collect {
+				map + [(headerField.displayName): templateEntities.collect { entity ->
 
                     // default to an empty string
                     def val = ''
 
-                    def field
-                    try {
+                    if (entity) {
+                        def field
+                        try {
 
-                        val = it.getFieldValue(headerField.name)
+                            val = entity.getFieldValue(headerField.name)
 
-                        // Convert RelTime fields to human readable strings
-                        field = it.getField(headerField.name)
-                        if (field.type == TemplateFieldType.RELTIME)
-                            val = new RelTime( val as long )
+                            // Convert RelTime fields to human readable strings
+                            field = entity.getField(headerField.name)
+                            if (field.type == TemplateFieldType.RELTIME)
+                                val = new RelTime( val as long )
 
-                    } catch (NoSuchFieldException e) { /* pass */ }
+                        } catch (NoSuchFieldException e) { /* pass */ }
+                    }
 
                     (val instanceof Number) ? val : val.toString()}]
 			}
@@ -176,15 +185,25 @@ class AssayService {
 
 		}
 
+		def moduleError = '', moduleMeasurementData = [:]
+
+		if (measurementTokens) {
+
+            try {
+                moduleMeasurementData = requestModuleMeasurements(assay, measurementTokens, samples)
+            } catch (e) {
+                moduleMeasurementData = ['error' : ['Module error, module not available or unknown assay'] * samples.size() ]
+                moduleError =  e.message
+            }
+
+		}
+
 		[       'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
 				'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
                 'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']),
                 'Event Group' :             eventFieldMap,
-
-                // If module is not reachable, only the message 'module not reachable' is given for each sample
-                'Module Measurement Data':  moduleCommunicationService.isModuleReachable(assay.module.url) ?
-                                                ( measurementTokens ? requestModuleMeasurements(assay, measurementTokens, samples) : [:] ) :
-                                                [ "Module error": [ "Module not reachable" ] * samples.size() ]
+                'Module Measurement Data' : moduleMeasurementData,
+                'ModuleError' :             moduleError
 				]
 	}
 
@@ -248,7 +267,7 @@ class AssayService {
 		def moduleUrl = assay.module.url
 
 		def path = moduleUrl + "/rest/getMeasurements/query"
-        def query = "assayToken=$assay.assayUUID"
+        def query = "assayToken=${assay.giveUUID()}"
         def jsonArray
 
         try {
@@ -273,7 +292,7 @@ class AssayService {
 	 *
 	 * @param assay				Assay for which the module measurements should be retrieved
 	 * @param measurementTokens	List with the names of the fields to be retrieved. Format: [ 'measurementName1', 'measurementName2' ]
-	 * @param samples			Samples for which the module
+	 * @param samples			Samples to collect measurements for
 	 * @return
 	 */
 	def requestModuleMeasurements(assay, inputMeasurementTokens, samples) {
@@ -328,7 +347,15 @@ class AssayService {
 						log.error "Module measurements given by module " + assay.module.name + " are not in the right format: " + measurementTokens?.size() + " measurements, " + sampleTokens?.size() + " samples, " + moduleData?.size() + " values"
 						measurements << null
 					}  else {
-						measurements << ( moduleData[ valueIndex ] == JSONObject.NULL ? "" : moduleData[ valueIndex ].toDouble() );
+
+                        def val
+                        def measurement = moduleData[ valueIndex ]
+
+                        if          (measurement == JSONObject.NULL)    val = ""
+                        else if     (measurement instanceof Number)     val = measurement
+                        else if     (measurement.isDouble())            val = measurement.toDouble()
+                        else val =   measurement.toString()
+						measurements << val
 					}
 				} else {
 					measurements << null
@@ -486,7 +513,7 @@ class AssayService {
 
 			// transpose d into row wise data and combine with header rows
 			headers + d.transpose()
-		}
+		} else []
 
 	}
 

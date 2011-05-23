@@ -39,6 +39,10 @@
 
     <h1>Select the columns that you want to be included in the resulting file</h1>
 
+    <g:if test="${errorMessage}">
+    <div class="errormessage">${errorMessage}</div>
+    </g:if>
+
     In this step you can make a selection from the available fields stored in the database related to the samples, including measurement data from a module (if available).
 
     <g:form name="fieldSelectForm" action="assayExport">
@@ -46,7 +50,7 @@
       <g:set var="catNum" value="${0}"/>
       <g:each in="${fieldMap}" var="entry">
 
-          <assayExporter:categorySelector category="${entry.key}" ref="cat_${catNum}"/>
+          <assayExporter:categorySelector category="${entry.key}" name="cat_${catNum}" value="${true}" />
 
           <assayExporter:fieldSelectors ref="cat_${catNum}" fields="${entry.value}"/>
 
@@ -54,7 +58,7 @@
 
       </g:each>
 
-      <assayExporter:categorySelector category="Measurements" ref="cat_${catNum}"/>
+      <assayExporter:categorySelector category="Measurements" name="cat_${catNum}" value="${measurementTokens as Boolean}" />
       <g:select name="measurementToken" id="measurementToken" from="${measurementTokens}" value="${measurementTokens}" class="field" multiple="true" />
       <br /><br />
 

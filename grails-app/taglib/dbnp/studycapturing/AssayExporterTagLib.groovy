@@ -20,9 +20,11 @@ class AssayExporterTagLib {
 
     def categorySelector = {attrs, body ->
 
+        def categoryName = attrs.remove('category')
+        attrs['class'] = 'category'
         out << '<div class="element">'
-        out << g.checkBox(name: attrs.ref, value: true, class: 'category')
-        out << attrs.category
+        out << g.checkBox(attrs)
+        out << categoryName
         out << '</div>'
 
     }

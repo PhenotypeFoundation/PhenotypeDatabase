@@ -14,7 +14,7 @@
       <a href="#">Import</a>
       <ul class="subnav">
 		<li><g:link controller="simpleWizard" action="index">A complete study with straightforward design</g:link></li>
-		<li><g:link controller="simpleWizard" action="index" params="[inferDesign: true]">A complete study with inferred design</g:link></li>
+		%{--<li><g:link controller="simpleWizard" action="index" params="[inferDesign: true]">A complete study with inferred design</g:link></li>--}%
 	    <li><g:link controller="gdtImporter" action="index">A part of the study design</g:link></li>
 	    <li><g:link controller="gdtImporter" action="index">A list of studies (choose Study)</g:link></li>
       </ul>

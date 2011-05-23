@@ -138,6 +138,7 @@ class AssayController {
 				// obtain fields for each category
 				flow.fieldMap = assayService.collectAssayTemplateFields(flow.assay)
 
+                flash.errorMessage = flow.fieldMap.remove('ModuleError')
 				flow.measurementTokens = flow.fieldMap.remove('Module Measurement Data')
 			}.to "selectFields"
 
@@ -146,6 +147,7 @@ class AssayController {
 
 		selectFields {
 			on ("submit"){
+                
 				def fieldMapSelection = [:]
 
 				flow.fieldMap.eachWithIndex { cat, cat_i ->
@@ -172,6 +174,9 @@ class AssayController {
 
                 // collect the assay data according to user selecting
 				def assayData           = assayService.collectAssayData(flow.assay, fieldMapSelection, measurementTokens)
+
+                flash.errorMessage      = assayData.remove('ModuleError')
+
 				flow.rowData            = assayService.convertColumnToRowStructure(assayData)
 
                 // prepare the assay data preview

@@ -13,7 +13,11 @@
   </head>
   <body>
 
-  <h1>Below you see a preview of the resulting file, click OK to generate it</h1>
+  <h1>Below you see a preview of the resulting file, click OK to download</h1>
+
+  <g:if test="${errorMessage}">
+  <div class="errormessage">${errorMessage}</div>
+  </g:if>
 
   <table>
     <g:each in="${assayDataPreview}" var="row">
