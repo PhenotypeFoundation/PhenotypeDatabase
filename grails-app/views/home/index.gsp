@@ -312,6 +312,9 @@
 <body>
 
 <div style="clear:both;display:block;">
+	<g:if env="development" test="${db == "org.hsqldb.jdbcDriver"}"></g:if><g:else test="${db == "org.hsqldb.jdbcDriver"}">
+	<div style="width:100%;font-size:14pt;color:#ff6f20;text-align:justify;">Warning: You are currently using the in-memory database! Click <g:link controller="home" action="setup">here</g:link> to configure your application.</div>
+	</g:else>
 	<div style="margin-right:8px;width:472px;display:inline-block;float:left;zoom:1;*display:inline;">
 		<h1>Introduction</h1>
 		<p>

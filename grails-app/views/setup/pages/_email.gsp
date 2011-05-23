@@ -20,7 +20,7 @@
 		configure what email adress will be used to send out emails to the users.
 	</span>
 
-	<af:textFieldElement name="grails.plugins.springsecurity.ui.forgotPassword.emailFrom" description="from address" error="grails.plugins.springsecurity.ui.forgotPassword.emailFrom" value="${configInfo?.properties.getProperty('grails.plugins.springsecurity.ui.forgotPassword.emailFrom')}" style="width: 300px;">
+	<af:textFieldElement name="grails.plugins.springsecurity.ui.forgotPassword.emailFrom" description="from address" error="grails.plugins.springsecurity.ui.forgotPassword.emailFrom" value="${((configInfo?.properties.getProperty('grails.plugins.springsecurity.ui.forgotPassword.emailFrom')) ? configInfo?.properties.getProperty('grails.plugins.springsecurity.ui.forgotPassword.emailFrom') : 'info@mydomain.com')}" style="width: 300px;">
 		The from address used for communication to the users.
 	</af:textFieldElement>
 
@@ -32,7 +32,7 @@
 		<li>running from Apache or Tomcat at port 80: http://my.url</li>
 	</span>
 
-	<af:textFieldElement name="grails.serverURL" description="serverl url" error="grails.serverURL" value="${configInfo?.properties.getProperty('grails.serverURL')}" style="width: 300px;">
+	<af:textFieldElement name="grails.serverURL" description="serverl url" error="grails.serverURL" value="${((configInfo?.properties.getProperty('grails.serverURL')) ? configInfo?.properties.getProperty('grails.serverURL') : 'http://localhost:8080')}" style="width: 300px;">
 		The server URL this application will be served on.
 	</af:textFieldElement>
 

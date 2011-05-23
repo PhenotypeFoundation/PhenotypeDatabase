@@ -12,6 +12,51 @@
  */
 %>
 <af:page>
+	<script type="text/javascript">
+		var previous = "";
+		var presetValues = {
+			'org.postgresql.Driver' : {
+				'url'		: 'jdbc:postgresql://localhost:5432/${meta(name: 'app.name')}-${grails.util.GrailsUtil.environment}',
+				'username'	: '${meta(name: 'app.name')}',
+				'password'	: 'dbnp'
+			},
+			'org.hsqldb.jdbcDriver' : {
+				'url'		: 'jdbc:hsqldb:mem:${grails.util.GrailsUtil.environment}Database',
+				'username'	: 'sa',
+				'password'	: ''
+			}
+		}
+
+		$(document).ready(function(){
+			var select = $('select[name="dataSource.driverClassName"]');
+			select.bind('change',function() {
+				prefilFields($(this));
+			});
+			prefilFields(select);
+		});
+
+		function prefilFields(selectElement) {
+			var url			= $('input[name="dataSource.url"]');
+			var username	= $('input[name="dataSource.username"]');
+			var password	= $('input[name="dataSource.password"]');
+			var db			= $('option:selected',selectElement).val();
+
+			// remember values?
+			if (previous) {
+				if (url.val()) presetValues[previous]['url'] = url.val();
+				if (username.val()) presetValues[previous]['username'] = username.val();
+				if (password.val()) presetValues[previous]['password'] = password.val();
+			}
+
+			// change input fields
+			url.val(presetValues[db]['url']);
+			username.val(presetValues[db]['username']);
+			password.val(presetValues[db]['password']);
+
+			// remember selection
+			previous = db;
+		}
+	</script>
 	<h1>Database configuration</h1>
 
 	<af:selectElement name="dataSource.driverClassName" description="database type" error="driver" optionKey="name" optionValue="description" from="[[name:'org.postgresql.Driver', description:'PostgreSQL (prefered)'],[name:'org.hsqldb.jdbcDriver', description: 'In memory']]" value="${configInfo?.properties.getProperty('dataSource.driverClassName')}">

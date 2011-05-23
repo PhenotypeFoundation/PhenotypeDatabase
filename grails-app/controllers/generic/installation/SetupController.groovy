@@ -319,7 +319,7 @@ class SetupController {
 				// put some logic in here
 				flow.page = 6
 			}.to "save"
-			on("previous").to "pageThree"
+			on("previous").to "email"
 			on("toPageOne").to "configuration"
 			on("toPageTwo").to "database"
 			on("toPageThree").to "email"
@@ -474,8 +474,8 @@ class SetupController {
 	 */
 	def loadPropertiesFile(flow) {
 		// config
-		def configPath = new File("${System.getProperty("user.home")}/etc/${meta(name: 'app.name')}/")
-		def configFile = new File("${System.getProperty("user.home")}/etc/${meta(name: 'app.name')}/${grails.util.GrailsUtil.environment}.properties")
+		def configPath = new File("${System.getProperty("user.home")}/.${meta(name: 'app.name')}/")
+		def configFile = new File("${System.getProperty("user.home")}/.${meta(name: 'app.name')}/${grails.util.GrailsUtil.environment}.properties")
 
 		// add configuration information to the flow scope
 		flow.configInfo = [

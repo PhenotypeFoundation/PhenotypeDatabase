@@ -20,6 +20,7 @@ import org.dbnp.gdt.Template
  * $Date$
  */
 class HomeController {
+	def springSecurityService
 	def authenticationService
 	def dataSource
 	def gdtService
@@ -116,10 +117,14 @@ class HomeController {
 			readableTemplates			: org.dbnp.gdt.Template.count(),
 
 			// miscelaneous
-			facebookLikeUrl				: '/'
+			facebookLikeUrl				: '/',
+			db							: db
 		]
 	}
 
+	/**
+	 * Quicksearch Closure
+	 */
 	def ajaxQuickSearch = {
 		def query	= params.name_startsWith
 		def result	= [ total: 0, data: [] ]
@@ -172,5 +177,28 @@ class HomeController {
 		} else {
 			render result as JSON
 		}
+	}
+
+	/**
+	 * Log the user in as admin and jump to the setup wizard
+	 */
+	def setup = {
+		def config	= ConfigurationHolder.config
+		def db		= config.dataSource.driverClassName
+		def user	= authenticationService.getLoggedInUser()
+
+		// are we using the in-memory database in a non-development environment?
+		if (db == "org.hsqldb.jdbcDriver" && grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
+			// log in as administrator
+			springSecurityService.reauthenticate(
+				config.authentication.users.admin.username,
+				config.authentication.users.admin.password
+			)
+
+			// and jump to the setup controller
+			redirect(controller:"setup")
+		}
+
+		redirect(controller:"home")
 	}
 }
