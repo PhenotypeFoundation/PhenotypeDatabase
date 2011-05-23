@@ -245,6 +245,9 @@ class StudyWizardController {
 				// studies which will create garbage in out database.
 				flow.quickSave = true
 
+				// got a study owner?
+				if (!flow.study.owner && flow.study) flow.study.owner = authenticationService.getLoggedInUser()
+
 				success()
 			}
 			on("refresh") {
