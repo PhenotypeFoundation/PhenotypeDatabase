@@ -109,14 +109,6 @@ class Event extends TemplateEntity {
 	}
 
 	/**
-	 *    Return whether this is SamplingEvent
-	 * @return    boolean
-	 */
-	def isSamplingEvent() {
-		return (this instanceof SamplingEvent)
-	}
-
-	/**
 	 * Checks whether this Event is part of one or more of the given EventGroups
 	 * @param groups
 	 * @return
