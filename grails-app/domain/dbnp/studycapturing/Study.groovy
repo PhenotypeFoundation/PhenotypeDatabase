@@ -214,8 +214,10 @@ class Study extends TemplateEntity {
 	 * @return ArrayList
 	 */
 	def ArrayList<Subject> giveSamplesForTemplate(Template template) {
+		// sort in a concatenated string as sorting on 3 seperate elements
+		// in a map does not seem to work properly
 		samples.findAll { it.template.equals(template) }.sort {
-			[it.parentEvent?.template, it.parentEvent?.startTime, it.parentSubject?.name]
+			"${it.parentEvent?.template}|${it.parentEvent?.startTime}|${it.parentSubject?.name}"
 		}
 	}
 
