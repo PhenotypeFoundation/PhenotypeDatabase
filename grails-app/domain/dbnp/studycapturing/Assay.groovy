@@ -28,11 +28,13 @@ class Assay extends TemplateEntity {
 			name: 'name',
 			type: TemplateFieldType.STRING,
 			preferredIdentifier: true,
+			comment: 'The name you give here is used to discern this assay within the study (e.g. \'liver transcriptomics\', \'blood lipidomics\')',
 			required: true
 		),
 		new TemplateField(
 			name: 'module',
 			type: TemplateFieldType.MODULE,
+			comment: 'Select the dbNP module where the actual assay measurement data is stored',
 			required: true
 		)
 	]
