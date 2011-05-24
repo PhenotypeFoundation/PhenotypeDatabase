@@ -99,6 +99,10 @@ class Criterion {
 			]
 		}
 
+		// Template fields are string fields
+		if( this.field == 'Template' ) 
+			return [ "String" ]
+		
 		// Determine domain fields of the entity
 		def domainFields = entityClass().giveDomainFields();
 		def domainField = domainFields.find { it.name == this.field };
@@ -132,6 +136,10 @@ class Criterion {
 		
 		if( !entityClass )
 			return false;
+		
+		// Template fields should be handled as domain criteria
+		if( this.field == "Template" )
+			return true;
 			
 		// Determine domain fields of the entity
 		def domainFields = entityClass.giveDomainFields();
@@ -297,8 +305,13 @@ class Criterion {
 			// Some domain fields don't contain a value, but a reference to another table
 			// These should be handled differently
 			def fieldName = this.field
-			
+
+			// Make sure the Template field is referenced as lowercase
+			if( fieldName == "Template" )
+				fieldName = "template";
+							
 			if( 
+				( fieldName == "template" ) ||
 				( objectToSearchIn == "subject" && fieldName == "species" ) || 
 				( objectToSearchIn == "sample" && fieldName == "material" ) ||
 				( objectToSearchIn == "assay" && fieldName == "module" ) ||
@@ -315,7 +328,6 @@ class Criterion {
 		
 		if( !criterionTypes )
 			return emptyCriterion;			
-
 		
 		// Several types of criteria are handled differently.
 		// The 'wildcard' is handled by searching for all types.
