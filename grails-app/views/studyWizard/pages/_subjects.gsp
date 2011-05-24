@@ -66,7 +66,8 @@ def speciesOntologies = dbnp.studycapturing.Subject.giveDomainFields().find { it
 	$(document).ready(function() {
 		if (tableEditor) {
 			tableEditor.registerActionCallback('delete', function() {
-				if (confirm('are you sure you want to delete ' + ((this.length>1) ? 'these '+this.length+' subjects?' : 'this subject?'))) {
+				var subjects = (this.length>1) ? 'these ' + this.length + ' subjects' : 'this subject';
+				if (confirm('are you sure you want to delete ' + subjects +'? Note that samples for ' + subjects + ' will also be deleted!')) {
 					$('input[name="do"]').val(this);
 					<af:ajaxSubmitJs name="delete" afterSuccess="onPage()" />
 				}
