@@ -92,9 +92,9 @@ function selectQueryableFieldItem( item ) {
  */
 function toggleSearchButton() {
 	if( $( "#criteria li:not(.newCriterion):not(.titlerow)" ).length == 0 && $( "#queryField" ).val() == "" ) {
-		$( '.submitcriteria' ).attr( 'disabled', 'disabled' );
+		$( '.submitcriteria' ).attr( 'disabled', true );
 	} else {
-		$( '.submitcriteria' ).attr( 'disabled', '' );
+		$( '.submitcriteria' ).removeAttr("disabled");
 	}
 	
 }
