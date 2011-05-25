@@ -21,8 +21,6 @@
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
-		<link rel="stylesheet" href="${resource(dir: 'css/datatables', file: 'demo_table_jui.css')}"/>
-		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.dataTables.min.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'paginate.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'removeWebflowExecutionFromMenu.min.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script>
@@ -34,8 +32,6 @@
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.min.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.min.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.min.js')}"></script>
-		<link rel="stylesheet" href="${resource(dir: 'css/datatables', file: 'demo_table_jui.css')}"/>
-		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.dataTables.min.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'paginate.min.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'removeWebflowExecutionFromMenu.js')}"></script>
 	</g:else>
