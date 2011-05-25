@@ -55,12 +55,13 @@ class AssayServiceTests extends GrailsUnitTestCase {
         mockDomain(EventGroup,    [ new EventGroup(id:1, name: 'EventGroup1', events: [Event.get(1)], samplingEvents: [SamplingEvent.get(1)]),
                                     new EventGroup(id:2, name: 'EventGroup2', events: [Event.get(2)], samplingEvents: [SamplingEvent.get(2)])])
 
-        mockDomain(Sample,        [ new Sample(id: 1, name:'sample1', parentSubject: Subject.get(1), parentEvent: SamplingEvent.get(1), parentEventGroup: EventGroup.get(1)),
-                                    new Sample(id: 2, name:'sample2', parentSubject: Subject.get(2), parentEvent: SamplingEvent.get(2), parentEventGroup: EventGroup.get(2))])
+        mockDomain(Sample,        [ new Sample(id: 1, name:'sample1', parentSubject: Subject.get(1), parentEvent: SamplingEvent.get(1), parentEventGroup: EventGroup.get(1), sampleUUID: 'uuid1'),
+                                    new Sample(id: 2, name:'sample2', parentSubject: Subject.get(2), parentEvent: SamplingEvent.get(2), parentEventGroup: EventGroup.get(2), sampleUUID: 'uuid2'),
+                                    new Sample(id: 3, name:'sample3', parentSubject: Subject.get(2), parentEvent: SamplingEvent.get(2), parentEventGroup: EventGroup.get(2), sampleUUID: 'uuid3')])
 
         mockDomain(AssayModule,   [ new AssayModule(id: 1, url: 'http://www.example.com') ])
 
-        mockDomain(Assay,         [ new Assay(id: 1, module: AssayModule.get(1), samples: [Sample.get(1),Sample.get(2)]),
+        mockDomain(Assay,         [ new Assay(id: 1, module: AssayModule.get(1), samples: [Sample.get(1),Sample.get(2), Sample.get(3)]),
                                     new Assay(id: 2, module: AssayModule.get(1), samples: [])])
 
         Subject.get(1).metaClass.static.log = mockLog
@@ -80,8 +81,8 @@ class AssayServiceTests extends GrailsUnitTestCase {
         // mock moduleCommunicationService
         service.moduleCommunicationService = [
                 isModuleReachable: { a -> true },
-                callModuleRestMethodJSON: { consumer, path ->
-                    [['sample1', 'sample2', 'sample3'],
+                callModuleMethod: { consumer, path, c, d ->
+                    [['uuid1', 'uuid2', 'uuid3'],
                      ['measurement1','measurement2','measurement3','measurement4'],
                      [1,2,3,4,5,6,7,8,9,10,11,12] ]
                 }
@@ -197,17 +198,14 @@ class AssayServiceTests extends GrailsUnitTestCase {
 
         def assay = Assay.get(1)
 
-
-//        collectAssayData(assay, fieldMap, measurementTokens)
-
         def fieldMap = [
-                'Subject Data':[[name:'tf1'],[name:'tf2'],[name:'tf3'],[name:'species'],[name:'name']],
-                'Sampling Event Data':[[name:'startTime'],[name:'duration']],
-                'Sample Data':[[name:'name']],
-                'Event Group':[[name:'name']]
+                'Subject Data':[[name:'tf1', displayName: 'tf1'],[name:'tf2', displayName: 'tf2'],[name:'tf3', displayName: 'tf3'],[name:'species', displayName: 'species'],[name:'name', displayName: 'name']],
+                'Sampling Event Data':[[name:'startTime', displayName: 'startTime'],[name:'duration', displayName: 'duration']],
+                'Sample Data':[[name:'name', displayName: 'name']],
+                'Event Group':[[name:'name', displayName: 'name']]
         ]
 
-        def measurementTokens = [[name:'measurement1'], [name:'measurement2'], [name:'measurement3'], [name:'measurement4']]
+        def measurementTokens = ['measurement1', 'measurement2', 'measurement3', 'measurement4']
 
         String.metaClass.'encodeAsURL' = {delegate}
 
@@ -219,17 +217,17 @@ class AssayServiceTests extends GrailsUnitTestCase {
         assertEquals 'Subject template field', ['tfv1',''], assayData.'Subject Data'.tf1[sample1index, sample2index]
         assertEquals 'Subject template field', ['tfv2',''], assayData.'Subject Data'.tf2[sample1index, sample2index]
         assertEquals 'Subject template field', ['','tfv3'], assayData.'Subject Data'.tf3[sample1index, sample2index]
-        assertEquals 'Subject species template field', ['Human', 'Human'], assayData.'Subject Data'.species*.toString()
+        assertEquals 'Subject species template field', ['Human', 'Human', 'Human'], assayData.'Subject Data'.species*.toString()
         assertEquals 'Subject name template field', ['subject1','subject2'], assayData.'Subject Data'.name[sample1index, sample2index]
 
-        assertEquals 'Sampling event template fields', [2,12], assayData.'Sampling Event Data'.startTime[sample1index, sample2index]
-        assertEquals 'Sampling event template fields', [5,15], assayData.'Sampling Event Data'.duration[sample1index, sample2index]
+        assertEquals 'Sampling event template fields', ['2s','12s'], assayData.'Sampling Event Data'.startTime[sample1index, sample2index]
+        assertEquals 'Sampling event template fields', ['5s','15s'], assayData.'Sampling Event Data'.duration[sample1index, sample2index]
 //        assertEquals 'Sampling event template fields', '[null, null]', assayData.'Sampling Event Data'.sampleTemplate.toString()
         assertEquals 'Sample template fields', ['sample1', 'sample2'], assayData.'Sample Data'.name[sample1index, sample2index]
 
         assertEquals 'Event group names', ['EventGroup1', 'EventGroup2'], assayData.'Event Group'.name[sample1index, sample2index]
 
-        assertEquals 'Module Measurement Data', ['measurement1': [1,5,9], 'measurement2': [2,6,10], 'measurement3': [3,7,11], 'measurement4': [4,8,12]], assayData.'Module Measurement Data'
+        assertEquals 'Module Measurement Data', ['measurement1': [1,2,3], 'measurement2': [4,5,6], 'measurement3': [7,8,9], 'measurement4': [10,11,12]], assayData.'Module Measurement Data'
     }
 
 //    // Test for out of memory exception when exporting large excel workbooks
