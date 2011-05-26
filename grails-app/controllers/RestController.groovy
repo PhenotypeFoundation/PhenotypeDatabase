@@ -547,36 +547,43 @@ class RestController {
 	}
 
 	/**
-	 * Returns the authorization level the user has for a given study.
+	 * Returns the authorization level the user has for a given study or assay.
 	 *
-	 * If no studyToken is given, a 400 (Bad Request) error is given.
-	 * If the given study doesn't exist, a 404 (Not found) error is given.
+	 * If no studyToken or assayToken is given, a 400 (Bad Request) error is given.
+	 * If both a studyToken and assayToken are given, the studyToken is used and the assayToken is ignored.
+	 * If the given assay or study doesn't exist, a 404 (Not found) error is given.
 	 *
 	 * @param	consumer	consumer name of the calling module
 	 * @param	token		token for the authenticated user (e.g. session_id)
+	 * @param 	studyToken	token of the study for which the authorization is asked
+	 * @param 	assayToken	token of the study for which the authorization is asked
 	 * @return	JSON Object
 	 * @return  { isOwner: true/false, 'canRead': true/false, 'canWrite': true/false }
 	 */
 	def getAuthorizationLevel = {
+		def study
+		
 		if( params.studyToken ) {
-			def study = Study.findByStudyUUID(params.studyToken)
-
-			if( !study ) {
-				response.sendError(404)
-				return false
-			}
-
-			def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token );
-			def auth = ['isOwner': study.isOwner(user), 'canRead': study.canRead(user), 'canWrite': study.canWrite(user)];
-			log.trace "Authorization for study " + study.title + " and user " + user.username + ": " + auth
-
-			// set output header to json
-			response.contentType = 'application/json'
-
-			render auth as JSON;
+			study = Study.findByStudyUUID(params.studyToken);
+		} else if( params.assayToken ) {
+			study = Assay.findByAssayUUID(params.assayToken)?.parent;
 		} else {
 			response.sendError(400)
 			return false
 		}
+
+		if( !study ) {
+			response.sendError(404)
+			return false
+		}
+
+		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token );
+		def auth = ['isOwner': study.isOwner(user), 'canRead': study.canRead(user), 'canWrite': study.canWrite(user)];
+		log.trace "Authorization for study " + study.title + " and user " + user.username + ": " + auth
+
+		// set output header to json
+		response.contentType = 'application/json'
+
+		render auth as JSON;
 	}
 }
