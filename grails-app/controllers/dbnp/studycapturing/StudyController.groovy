@@ -332,7 +332,7 @@ class StudyController {
 					'start':    new Date( startDate + event.startTime * 1000 ),
 					'end':      new Date( startDate + event.startTime * 1000 ),
 					'durationEvent': false,
-					'title': event.template.name,
+					'title': event.template?.name,
 					'description': "SampleTemplate = " + event.sampleTemplate + "<br />\n" + description
 				]
 			} else {
@@ -340,7 +340,7 @@ class StudyController {
 					'start':    new Date( startDate + event.startTime * 1000 ),
 					'end':      new Date( startDate + event.endTime * 1000 ),
 					'durationEvent': true,
-					'title': event.template.name,
+					'title': event.template?.name,
 					'description': description
 				]
 				

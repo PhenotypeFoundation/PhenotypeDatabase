@@ -68,7 +68,6 @@ function createTimelineBands( timelineNr ) {
 
 	%>
 	<g:each in="${sortedEventGroups}" var="eventGroup" status="i">
-
 	  //------------- Eventgroup ${bandNr} ---------------
 
 	  // Create an eventsource for all events
@@ -97,14 +96,18 @@ function createTimelineBands( timelineNr ) {
 
 	  // Add a title to the bandinfo
 	  <%
-		ArrayList<Subject> sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator );
+		if (eventGroup.subjects) {
+			ArrayList<Subject> sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator );
 
-		// We can only show appr. 30 characters per line and as many lines as there are events
-		def charsPerLine = 40;
-		def numEvents = eventGroup.events?.size() + eventGroup.samplingEvents?.size();
-		Integer maxChars = new Integer( numEvents * charsPerLine );
-		
-		showSubjects = Subject.trimSubjectNames( sortedGroupSubjects, maxChars );
+			// We can only show appr. 30 characters per line and as many lines as there are events
+			def charsPerLine = 40;
+			def numEvents = eventGroup.events?.size() + eventGroup.samplingEvents?.size();
+			Integer maxChars = new Integer( numEvents * charsPerLine );
+
+			showSubjects = Subject.trimSubjectNames( sortedGroupSubjects, maxChars );
+		} else {
+			showSubjects = ''
+		}
 	  %>
 
 	  bandTitleInfo[ timelineNr ][ ${bandNr} ] = {
