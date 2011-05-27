@@ -27,7 +27,7 @@
 		<div class="header">
 			<div class="firstColumn"></div>
 			<div class="column" style="width:150px;">Sample Type</div>
-			<div class="column" style="width:200px;">Sample Name</div>
+			<div class="column" style="width:350px;">Sample Name</div>
 			<g:each var="assay" in="${study.assays}">
 			<div class="column">${assay}</div>
 			</g:each>

@@ -46,14 +46,14 @@
 			<div class="column">Template</div>
 			<div class="column" style="width:200px;">Name</div>
 		</div>
-		<g:set var="previousTemplate" value=""/>
+		<g:set var="previousEventIdentifier" value=""/>
 		<g:each var="sample" in="${study.samples}">
 			<g:if test="${!sample?.template}">
 				<div class="row">
 					<div class="firstColumn">&nbsp;</div>
 					<div class="column">
-						<g:if test="${previousTemplate != sample.parentEvent?.template?.name}">
-							<g:set var="previousTemplate" value="${sample.parentEvent?.template?.name}"/>
+						<g:if test="${previousEventIdentifier != sample.parentEvent?.getIdentifier()}">
+							<g:set var="previousEventIdentifier" value="${sample.parentEvent?.getIdentifier()}"/>
 							${sample.parentEvent?.template?.name}
 							<div class="helpIcon"></div>
 							<div class="helpContent">
@@ -90,7 +90,7 @@
 		<g:each var="sampleTemplate" in="${study.giveSampleTemplates()}">
 			<h1>${sampleTemplate.name}</h1>
 			<g:set var="showHeader" value="${true}" />
-			<g:set var="previousTemplate" value=""/>			
+			<g:set var="previousEventIdentifier" value=""/>
 			<div class="tableEditor">
 			<g:each var="sample" in="${study.giveSamplesForTemplate(sampleTemplate)}">
 				<g:if test="${showHeader}">
@@ -106,8 +106,8 @@
 				<div class="row">
 					<div class="firstColumn"></div>
 					<div class="column">
-						<g:if test="${previousTemplate != sample.parentEvent?.template?.name}">
-							<g:set var="previousTemplate" value="${sample.parentEvent?.template?.name}"/>
+						<g:if test="${previousEventIdentifier != sample.parentEvent?.getIdentifier()}">
+							<g:set var="previousEventIdentifier" value="${sample.parentEvent?.getIdentifier()}"/>
 							${sample.parentEvent?.template?.name}
 							(${new RelTime(sample.parentEvent?.startTime)})
 							<div class="helpIcon"></div>

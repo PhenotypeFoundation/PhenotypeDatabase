@@ -25,7 +25,6 @@
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'paginate.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'removeWebflowExecutionFromMenu.min.js')}"></script>
-		<script type="text/javascript" src="${resource(dir: 'js', file: 'development.js')}"></script>
 	</g:if>
 	<g:else>
 		<link rel="stylesheet" href="${resource(dir: 'css', file: 'default.min.css')}"/>
