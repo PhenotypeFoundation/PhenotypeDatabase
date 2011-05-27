@@ -606,11 +606,7 @@ class StudyWizardController {
 			}.to "events"
 			on("previous") {
 				// handle form data
-				eventPage(flow, flash, params)
-
-				// reset errors
-				flash.wizardErrors = [:]
-				success()
+				eventPage(flow, flash, params) ? success() : error()
 			}.to "subjects"
 			on("next") {
 				// handle form data
