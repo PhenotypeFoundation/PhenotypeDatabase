@@ -1,8 +1,5 @@
 <html>
 <head>
-	<title>Generic Study Capture Framework</title>
-	<meta property="og:title" content="Generic Study Capture Framework"/>
-	<meta property="og:description" content="A generic tool for planning scientific studies, and capturing study meta-data, integrating with analysis platform(s) / LIMS systems and searching relevant studies."/>
 	<meta name="layout" content="main"/>
 	<g:if test="${showstats}"><script type="text/javascript" src="${resource(dir: 'js', file: 'highcharts.js')}"></script></g:if>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt')}"></script>
@@ -318,7 +315,7 @@
 	<div style="margin-right:8px;width:472px;display:inline-block;float:left;zoom:1;*display:inline;">
 		<h1>Introduction</h1>
 		<p>
-			The phenotype database (dbNP) is an application that can store any biological study. It contains
+			${grailsApplication.config.application.title} is an application that can store any biological study. It contains
 			templates which makes it possible to customize.
 		</p>
 		<p>
@@ -327,10 +324,10 @@
 			It is especially designed to store complex study designs including cross-over designs and challenges.
 		</p>
 		<p>
-			The application facilitates sharing of data within a research group or consortium, as the study owner can
-			decide who can view or access the data. In addition, the application can stimulate collaborations by making
-			study information publicly visible. New studies can be based on study data within the database, as
-			standardized storage is stimulated by the system.
+			${grailsApplication.config.application.title} facilitates sharing of data within a research group or consortium,
+			as the study owner can decide who can view or access the data. In addition, ${grailsApplication.config.application.title}
+			can stimulate collaborations by making study information publicly visible. New studies can be based on study
+			data within the database, as standardized storage is stimulated by the system.
 		</p>
 	</div>
 	<div style="margin-left:8px;width:472px;display:inline-block;float:left;zoom:1;*display:inline;">

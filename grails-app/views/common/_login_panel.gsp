@@ -3,8 +3,8 @@
 	<div id="panel">
 		<div class="content clearfix">
 			<div class="left">
-				<h1>Welcome to the Metabolomics Data Support Platform</h1>
-				<h2>version <b>${meta(name: 'app.version')}</b></h2>
+				<h1>Welcome to the ${grailsApplication.config.application.title}</h1>
+				<h2>Version <b>${meta(name: 'app.version')}, build #<g:meta name="app.build.svn.revision"/></b></h2>
 				<p class="grey">Please use the forms on the right to either log in if you already have an account, or sign up if you think this data support platform suits your needs.</p>
 				<g:if test="${flash.message}"><p class="red">${flash.message}</p></g:if>
 			</div>

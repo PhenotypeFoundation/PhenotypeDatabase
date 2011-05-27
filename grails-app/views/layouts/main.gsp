@@ -3,8 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-EN" xml:lang="en-EN">
 <head>
-	<title><g:layoutTitle default="GSCF"/></title>
+	<title><g:layoutTitle default="${grailsApplication.config.application.title}"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta property="og:title" content="${grailsApplication.config.application.title}"/>
+	<meta property="og:description" content="A generic tool for planning scientific studies, and capturing study meta-data, integrating with analysis platform(s) / LIMS systems and searching relevant studies."/>
 	<meta property="og:type" content="non_profit"/>
 	<meta property="og:image" content="${resource(dir: 'images', file: 'facebookLike.png', absolute: true)}"/>
 	<meta property="fb:admins" content="721482421"/>

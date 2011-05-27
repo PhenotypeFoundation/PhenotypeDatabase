@@ -145,3 +145,6 @@ gdtImporter.parentEntityHasOwner = true
 gdtImporter.childEntityParentName = "parent"
 // What is the class name of the parent entity
 gdtImporter.parentEntityClassName = "dbnp.studycapturing.Study"
+
+// default application title
+application.title = "Generic Study Capture Framework"
