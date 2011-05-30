@@ -14,7 +14,7 @@
 		<link rel="stylesheet" href="${resource(dir: 'css', file: 'dialog.min.css')}"/>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.min.js')}"></script>
 	</g:else>
-	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.7.custom.css')}"/>
+	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.13.custom.css')}"/>
   <g:layoutHead/>
  </head>
  <body>
