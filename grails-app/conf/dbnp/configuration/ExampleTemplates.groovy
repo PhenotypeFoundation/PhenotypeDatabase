@@ -122,7 +122,7 @@ class ExampleTemplates {
 
 		// Nutritional study template
 		def studyTemplate = new Template(
-			name: 'Academic study',
+			name: 'NMC Study',
 			entity: dbnp.studycapturing.Study
 		)
 		.addToFields(new TemplateField(name: 'Objectives',type: TemplateFieldType.TEXT,entity: Study,comment:'Fill out the aim or questions of the study'))
