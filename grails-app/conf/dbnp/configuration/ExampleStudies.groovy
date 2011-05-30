@@ -75,7 +75,7 @@ class ExampleStudies {
 		def chebiOntology				= Ontology.getOrCreateOntologyByNcboId(1007)
 
 		// Look up the used templates which should also be in the database by now
-		def studyTemplate				= Template.findByName("Academic study")
+		def studyTemplate				= Template.findByName("NMC Study")
 		def mouseTemplate				= Template.findByName("Mouse")
 		def humanTemplate				= Template.findByName("Human")
 		def dietTreatmentTemplate		= Template.findByName("Diet treatment")
@@ -499,7 +499,7 @@ class ExampleStudies {
     static addTestStudies() {
 
         final String testStudyName = "Test study"
-        final String testStudyTemplateName = "Academic study"
+        final String testStudyTemplateName = "NMC Study"
         final String testStudyCode = "AAA-Test"
         final String testStudyDescription = "Description of Test Study"
         final Date testStudyStartDate = Date.parse('yyyy-MM-dd','2007-12-11')

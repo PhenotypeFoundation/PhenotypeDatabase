@@ -19,7 +19,7 @@ import org.dbnp.gdt.Template
 class StudyTests extends GrailsUnitTestCase {
 
 	final String testStudyName = "Test study"
-	final String testStudyTemplateName = "Academic study"
+	final String testStudyTemplateName = "NMC Study"
 	final String testStudyCode = "AAA-Test"
     final String testStudyDescription = "Description of Test Study"
 	final Date testStudyStartDate = Date.parse('yyyy-MM-dd','2007-12-11')

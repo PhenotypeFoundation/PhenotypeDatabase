@@ -24,7 +24,7 @@ class CreateStudyWebTests extends grails.util.WebTest {
 		clickLink "Studies"
 
 		clickLink "Create a new study"
-		setSelectField(name: "template", text: "Academic study")
+		setSelectField(name: "template", text: "NMC Study")
 		setInputField(name: "title", value: "Test create study")
 		setInputField(name: "description", value: "Test study from CreateStudyWebTests.testCreateStudy()")
 		setInputField(name: "code", value: "TESTCREATE")
