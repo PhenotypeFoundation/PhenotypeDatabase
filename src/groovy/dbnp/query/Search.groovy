@@ -338,21 +338,24 @@ class Search {
 			def entities = entityClass.findAll( hqlQuery, entityHQL.parameters )
 			
 			// If there are entities matching these criteria, put a where clause in the full HQL query 
-			if( entities && entities.findAll { it } ) {
+			if( entities ) {
 				// Find criteria that match one or more 'complex' fields
 				// These criteria must be checked extra, since they are not correctly handled
 				// by the HQL criteria. See also Criterion.manyToManyWhereCondition and
 				// http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
 				entities = filterForComplexCriteria( entities, entityCriteria );
 				
-				def paramName = from.replaceAll( /\W/, '' );
-				fullHQL.where << sprintf( entityClause( entityName ), from, alias, paramName );
-				fullHQL.parameters[ paramName ] = entities
-				return true;
-			} else {
-				results = [];
-				return false
+				if( entities ) {
+					def paramName = from.replaceAll( /\W/, '' );
+					fullHQL.where << sprintf( entityClause( entityName ), from, alias, paramName );
+					fullHQL.parameters[ paramName ] = entities
+					return true;
+				} 
 			}
+			
+			// No results are found.
+			results = [];
+			return false
 		}
 		
 		return true;
