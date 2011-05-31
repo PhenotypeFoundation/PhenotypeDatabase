@@ -336,7 +336,7 @@ class Search {
 			// First find all entities that match these criteria
 			def hqlQuery = entityHQL.from + " WHERE " + whereClauses.join( searchMode == SearchMode.and ? " AND " : " OR " );			
 			def entities = entityClass.findAll( hqlQuery, entityHQL.parameters )
-			
+
 			// If there are entities matching these criteria, put a where clause in the full HQL query 
 			if( entities ) {
 				// Find criteria that match one or more 'complex' fields
@@ -592,11 +592,11 @@ class Search {
 	 */
 	protected filterForComplexCriteria( def entities, def entityCriteria ) {
 		def complexCriteria = entityCriteria.findAll { it.isComplexCriterion() }
-
+		
 		if( complexCriteria ) {
 			def checkCallback = { entity, criterion ->
 				def value = criterion.getFieldValue( entity )
-
+				
 				if( value == null ) {
 					return false
 				}
@@ -607,7 +607,7 @@ class Search {
 					return criterion.match( value );
 				}
 			}
-
+			
 			entities = filterEntityList( entities, complexCriteria, checkCallback );
 		}
 		

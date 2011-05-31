@@ -484,7 +484,7 @@ class Criterion {
 		// Create the where condition for checking the value
 		def condition = "exists ( FROM " + objectToSearchIn + "." + collection + " as " + uniquePrefix + "_" + collection + " WHERE %s )";
 
-		return extendWhereClause( condition, uniquePrefix + "_" + collection + "." + searchField, uniquePrefix, "STRING", value );
+		return extendWhereClause( condition, uniquePrefix + "_" + collection + "." + searchField, uniquePrefix, "String", value );
 	}
 
 	/**
