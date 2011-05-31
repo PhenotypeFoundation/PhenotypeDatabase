@@ -338,7 +338,7 @@ class Search {
 			def entities = entityClass.findAll( hqlQuery, entityHQL.parameters )
 			
 			// If there are entities matching these criteria, put a where clause in the full HQL query 
-			if( entities ) {
+			if( entities && entities.findAll { it } ) {
 				// Find criteria that match one or more 'complex' fields
 				// These criteria must be checked extra, since they are not correctly handled
 				// by the HQL criteria. See also Criterion.manyToManyWhereCondition and

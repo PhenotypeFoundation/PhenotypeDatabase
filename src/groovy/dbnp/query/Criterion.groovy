@@ -312,10 +312,10 @@ class Criterion {
 							
 			if( 
 				( fieldName == "template" ) ||
-				( objectToSearchIn == "subject" && fieldName == "species" ) || 
-				( objectToSearchIn == "sample" && fieldName == "material" ) ||
-				( objectToSearchIn == "assay" && fieldName == "module" ) ||
-				( objectToSearchIn == "samplingEvent" && fieldName == "sampleTemplate" ) ) {
+				( objectToSearchIn.toLowerCase() == "subject" && fieldName.toLowerCase() == "species" ) || 
+				( objectToSearchIn.toLowerCase() == "sample" && fieldName.toLowerCase() == "material" ) ||
+				( objectToSearchIn.toLowerCase() == "assay" && fieldName.toLowerCase() == "module" ) ||
+				( objectToSearchIn.toLowerCase() == "samplingevent" && fieldName.toLowerCase() == "sampletemplate" ) ) {
 				fieldName += ".name"
 			}
 				
