@@ -1,3 +1,4 @@
+<%@ page import="dbnp.query.Operator" %>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -45,7 +46,21 @@
 			// Show given criteria
 			$(function() {
 				<g:each in="${criteria}" var="criterion">
-					showCriterium("${criterion.entityField().encodeAsJavaScript()}", "${criterion.value.toString().encodeAsJavaScript()}", "${criterion.operator.toString().encodeAsJavaScript()}");
+					<g:if test="${criterion.operator == Operator.insearch}">
+							/* ${previousSearches?.getAt( criterion.value )?.url} */
+							showCriterium( 
+								"${criterion.entityField().encodeAsJavaScript()}", 
+								{ 
+									'id': ${criterion.value}, 
+									'description': "<g:if test="${previousSearches?.getAt( criterion.value )}">${previousSearches[ criterion.value ].toString().encodeAsJavaScript()}</g:if><g:else>Search ${criterion.value}</g:else>", 
+									'url': "<g:if test="${previousSearches?.getAt( criterion.value )?.url}">${previousSearches[ criterion.value ].url.encodeAsJavaScript()}</g:if><g:else><g:createLink controller='advancedQuery' action='show' id="${criterion.value}" /></g:else>" 
+								}, 
+								"${criterion.operator.toString().encodeAsJavaScript()}"
+							);
+					</g:if>
+					<g:else>
+						showCriterium("${criterion.entityField().encodeAsJavaScript()}", "${criterion.value.toString().encodeAsJavaScript()}", "${criterion.operator.toString().encodeAsJavaScript()}");
+					</g:else>
 				</g:each>
 							
 				// Show or hide the 'search mode' box (AND or OR)

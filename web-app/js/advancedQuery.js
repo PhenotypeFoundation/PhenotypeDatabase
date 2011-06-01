@@ -153,7 +153,6 @@ function toggleSearchMode() {
 	}
 }
 
-
 /**
  * Shows a criterium on the screen
  */
@@ -203,11 +202,11 @@ function createCriteriumElement( fieldname, fieldvalue ) {
 }
 
 function createInSearchElement( fieldname, fieldvalue ) {
-	var a  = $( '<a class="' + fieldname + '" href="' + baseUrl + '/advancedQuery/show/' + fieldvalue + '"></a>')
-	a.text( "Search " + fieldvalue );
+	var a  = $( '<a class="' + fieldname + '" href="' + fieldvalue.url  + '"></a>')
+	a.text( fieldvalue.description );
 	
 	var inputField = $( '<input type="hidden" name="criteria.' + criteriumId + '.' + fieldname + '" />' );
-	inputField.val( fieldvalue );
+	inputField.val( fieldvalue.id );
 	
 	a.append( inputField );
 

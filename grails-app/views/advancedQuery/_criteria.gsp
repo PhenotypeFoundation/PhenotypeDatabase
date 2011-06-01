@@ -8,7 +8,7 @@
 				<span class="operator">${criterion.operator}</span>
 				<span class="value">
 					<g:if test="${criterion.value != null && criterion.value instanceof Search}">
-						<g:link action="show" id="${criterion.value.id}">${criterion.value}</g:link>
+						<g:link url="${criterion.value.url}">${criterion.value.toString()}</g:link>
 					</g:if>
 					<g:else>
 						${criterion.value}

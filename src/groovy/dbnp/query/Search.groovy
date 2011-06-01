@@ -51,6 +51,16 @@ class Search {
 	 * Public identifier of this search. Is only used when this query is saved in session
 	 */
 	public int id;
+	
+	/**
+	 * Description of this search. Defaults to 'Search <id>'
+	 */
+	public String description;
+	
+	/**
+	 * URL to view the results of this search
+	 */
+	public String url;
 
 	/**
 	 * Human readable entity name of the entities that can be found using this search
@@ -947,7 +957,13 @@ class Search {
    public Map getResultFields() { return resultFields; }
 	
 	public String toString() {
-		return ( this.entity ? this.entity + " search" : "Search" ) + " " + this.id
+		if( this.description ) {
+			return this.description
+		} else if( this.entity ) {
+			return this.entity + " search " + this.id;
+		} else {
+			return "Search " + this.id
+		}
 	}
 	
 	public boolean equals( Object o ) {
@@ -959,11 +975,20 @@ class Search {
 			
 		Search s = (Search) o;
 		
+		// Determine criteria equality
+		def criteriaEqual = false;
+		if( !criteria && !s.criteria ) {
+			criteriaEqual = true;
+		} else if( criteria && s.criteria ) {
+			criteriaEqual =	criteria.size()== s.criteria.size() && 
+							s.criteria.containsAll( criteria ) && 
+							criteria.containsAll( s.criteria ) 
+		}
+			
 		return (	searchMode		== s.searchMode && 
-					entity 			== s.entity && 
-					criteria.size()	== s.criteria.size() && 
-					s.criteria.containsAll( criteria ) && 
-					criteria.containsAll( s.criteria ) );
+					entity 			== s.entity &&
+					criteriaEqual 
+		);
 	}
 	
 	/**
@@ -981,4 +1006,38 @@ class Search {
 		}
 	}
 	
+	/**
+	 * Registers a query that has been performed somewhere else, but used in GSCF (e.g. refined)
+	 * 
+	 * @param description	Description of the search	
+	 * @param url			Url to view the search results
+	 * @param entity		Entity that has been sought
+	 * @param results		List of 
+	 * @return
+	 */
+	public static Search register( String description, String url, String entity, def results ) {
+		Search s;
+		
+		// Determine entity
+		switch( entity ) {
+			case "Study":
+				s = new StudySearch();
+				break;
+			case "Assay":
+				s = new AssaySearch();
+				break;
+			case "Sample":
+				s = new SampleSearch();
+				break;
+			default:
+				return null;
+		}
+		
+		// Set properties
+		s.description = description;
+		s.url = url
+		s.results = results
+		
+		return s;
+	}
 }

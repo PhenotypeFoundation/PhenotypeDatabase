@@ -62,7 +62,7 @@
 						<span class="operator">${criterion.operator}</span>
 						<span class="value">
 							<g:if test="${criterion.value instanceof Search}">
-								<g:link action="show" id="${criterion.value.id}">${criterion.value}</g:link>
+								<a href="${criterion.value.url}">${criterion.value?.toString()}</a>
 							</g:if>
 							<g:else>
 								${criterion.value}

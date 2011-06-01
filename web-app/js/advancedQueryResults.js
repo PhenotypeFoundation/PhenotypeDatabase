@@ -57,7 +57,16 @@ function submitForm( form, url ) {
 	form.submit();
 }
 
-function performAction( form, action, module, url ) {
+/**
+ * Submits the form with selected elements to a given URL
+ * 
+ * @param form					JQuery object representing the form to be submitted
+ * @param action				Name of the action to perform
+ * @param module				Name of the module to perform the action on
+ * @param url					Url to post the form to
+ * @param allIfNothingSelected	If set to true, the action will be performed on all elements if none is selected
+ */
+function performAction( form, action, module, url, allIfNothingSelected ) {
 	// Make sure the data from the paginated table is submitted
 	// This is performed with javascript, because otherwise
 	// checkboxes of hidden rows won't be taken into account
@@ -65,6 +74,9 @@ function performAction( form, action, module, url ) {
 	
 	if( url == undefined )
 		url = '/advancedQuery/performAction';
+
+	if( allIfNothingSelected == undefined )
+		allIfNothingSelected = false;
 	
 	// First remove all previously created inputs, in order to avoid any collissions
 	$( 'input.created' ).remove();
@@ -83,8 +95,19 @@ function performAction( form, action, module, url ) {
 	})
 
 	if( !checked ) {
-		alert( "Please pick at least one result to perform this action on." );
-		return;
+		if( allIfNothingSelected ) {
+			// Submit all search results, instead of nothing
+			$('input', oTable.fnGetNodes()).each(function(idx,el) {
+				var $el = $(el);
+				if( $el.attr( 'name' ) == "uuid" ) {
+					checked = true;
+					form.append( $( '<input type="hidden" name="tokens" value="' + $el.attr( 'value' ) + '" class="created" />' ) );
+				}
+			})
+		} else {
+			alert( "Please pick at least one result to perform this action on." );
+			return;
+		}
 	}
 	
 	// Fill action and module names

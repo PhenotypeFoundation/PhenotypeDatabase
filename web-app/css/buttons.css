@@ -48,6 +48,9 @@
 .options a.performAction {
 	background-image: url(../plugins/famfamfam-1.0.1/images/icons/brick_go.png);
 }
+.options a.refineSearch {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/magnifier.png);
+}
 .options a.excel {
 	background-image: url(../plugins/famfamfam-1.0.1/images/icons/page_excel.png);
 }

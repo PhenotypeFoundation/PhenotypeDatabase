@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<h1>Query results</h1>
+<h1>Query results: ${search.toString()}</h1>
 
 <div class="searchoptions">
 	${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">sample</g:if><g:else>samples</g:else> found 

@@ -2,8 +2,7 @@ package dbnp.query
 
 import dbnp.modules.*
 import org.dbnp.gdt.*
-
-// TODO: Make use of the searchable-plugin or Lucene possibilities instead of querying the database directly
+import dbnp.studycapturing.*;
 
 /**
  * Basic web interface for searching within studies
@@ -25,7 +24,7 @@ class AdvancedQueryController {
 		if( params.criteria ) {
 			criteria = parseCriteria( params.criteria, false )
 		}
-		[searchModes: SearchMode.values(), entitiesToSearchFor: entitiesToSearchFor, searchableFields: getSearchableFields(), criteria: criteria]
+		[searchModes: SearchMode.values(), entitiesToSearchFor: entitiesToSearchFor, searchableFields: getSearchableFields(), criteria: criteria, previousSearches: session.queries ]
 	}
 
 	/**
@@ -233,6 +232,50 @@ class AdvancedQueryController {
 
 		def queryId = saveSearch( combined );
 		redirect( action: "show", id: queryId );
+	}
+	
+	/**
+	 * Registers a search from a module with GSCF, in order to be able to refine the searches
+	 */
+	def refineExternal = {
+		// Determine parameters and retrieve objects based on the tokens
+		def name = params.name
+		def url = params.url
+		def entity = params.entity
+		def tokens = params.list( 'tokens' );
+		def results
+		
+		switch( entity ) {
+			case "Study":
+				results = Study.findAll( "from Study s where s.studyUUID IN (:tokens)", [ 'tokens': tokens ] )
+				break;
+			case "Assay":
+				results = Assay.findAll( "from Assay a where a.assayUUID IN (:tokens)", [ 'tokens': tokens ] )
+				break;
+			case "Sample":
+				results = Sample.findAll( "from Sample s where s.sampleUUID IN (:tokens)", [ 'tokens': tokens ] )
+				break;
+			default:
+				response.sendError( 400 );
+				render "The given entity is not supported. Choose one of Study, Assay or Sample"
+				return;
+		}
+		
+		// Register and save search
+		Search s = Search.register( name, url, entity, results );
+		int searchId = saveSearch( s );
+		
+		println "Params: " + params.url
+		println "Search: " + s.url
+		
+		// Redirect to the search screen
+		def params = [
+			"criteria.0.entityfield": s.entity,
+			"criteria.0.operator": "in",
+			"criteria.0.value": searchId
+		];
+
+		redirect( action: "index", params: params)
 	}
 
 	protected String determineView( String entity ) {
@@ -448,6 +491,10 @@ class AdvancedQueryController {
 		}
 
 		s.id = id;
+		
+		if( !s.url )
+			s.url = g.createLink( controller: "advancedQuery", action: "show", id: id );
+		
 		session.queries[ id ] = s;
 
 		return id;
@@ -546,6 +593,7 @@ class AdvancedQueryController {
 				return [[
 						module: "gscf",
 						name:"simpletox",
+						type: "export",
 						description: "Export as SimpleTox",
 						url: createLink( controller: "exporter", action: "export", params: [ 'format': 'list', 'ids' : ids ] ),
 						submitUrl: createLink( controller: "exporter", action: "export", params: [ 'format': 'list' ] ),
@@ -553,6 +601,7 @@ class AdvancedQueryController {
 					], [
 						module: "gscf",
 						name:"excel",
+						type: "export",
 						description: "Export as CSV",
 						url: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] ),
 						submitUrl: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list' ] ),
@@ -569,6 +618,7 @@ class AdvancedQueryController {
 				return [[
 						module: "gscf",
 						name:"excel",
+						type: "export",
 						description: "Export as CSV",
 						url: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] ),
 						submitUrl: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list' ] ),
@@ -617,6 +667,7 @@ class AdvancedQueryController {
 						actions << [
 									module: moduleName,
 									name: action.name,
+									type: action.type ?: 'default',
 									description: action.description + " (" + moduleName + ")",
 									url: url + "&" + paramString,
 									submitUrl: baseUrl,
