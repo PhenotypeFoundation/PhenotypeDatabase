@@ -557,7 +557,7 @@ class SimpleWizardController extends StudyWizardController {
 		// This import step doesn't have to make that distinction, since all files remain in the temporary directory.
 		if( filename == 'existing*' )
 			filename = '';
-		else if( filename[0..8] == 'existing*' )
+		else if( filename.size() > 9 && filename[0..8] == 'existing*' )
 			filename = filename[9..-1]
 
 		handleSampleForm( study, params, flow );
