@@ -32,16 +32,16 @@
 					<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
 
 						<td><input type="checkbox" name="id" value="${studyInstance.id}" id="${studyInstance.title}"></td>
-						<td><g:link action="show" title="View study" id="${studyInstance?.id}"><img src='${fam.icon(name: 'application_form_magnify')}' border="0" alt="view study" /></g:link></td>
+						<td><g:link action="show" title="View study" id="${studyInstance?.id}"><img src='${fam.icon(name: 'page')}' border="0" alt="view study" /></g:link></td>
 						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
-							<g:link class="edit" title="Edit study using simple wizard" controller="simpleWizard" action="index" id="${studyInstance?.id}">
-								<img src='${fam.icon(name: 'pencil')}' border="0" alt="Edit study using simple wizard" /></g:link>
+							<g:link class="edit" title="Edit study" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}">
+								<img src='${fam.icon(name: 'page_edit')}' border="0" alt="Edit study" /></g:link>
 							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> 
 						</td>
 						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
-							<g:link class="edit" title="Edit study" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}">
-								<img src='${fam.icon(name: 'application_form_edit')}' border="0" alt="Edit study" /></g:link>
-							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> 
+							<g:link class="edit" title="Edit study using simple wizard" controller="simpleWizard" action="index" id="${studyInstance?.id}">
+								<img src='${fam.icon(name: 'page_paintbrush')}' border="0" alt="Edit study using simple wizard" /></g:link>
+							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else>
 						</td>
 						<td>${fieldValue(bean: studyInstance, field: "code")}</td>
 						<td>
