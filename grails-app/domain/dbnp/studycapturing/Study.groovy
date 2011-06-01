@@ -359,6 +359,7 @@ class Study extends TemplateEntity {
 				//		2. object identifiers or,
 				//		3. objects itself
 				//   this seems now to work as expected
+				// - event group comparison: in progress, doesn't always seem to work but doesn't fail either?
 				this.samples.findAll { sample ->
 					(
 							(eventGroup.subjects.findAll {
@@ -374,7 +375,9 @@ class Study extends TemplateEntity {
 										it.equals(sample.parentEvent)
 										)
 							})
-							)
+							&&
+							eventGroup.equals(sample.parentEventGroup)
+					)
 				}.each() { sample ->
 					// remove sample from study
 					this.deleteSample(sample)
