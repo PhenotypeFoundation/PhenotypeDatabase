@@ -45,8 +45,10 @@ class StudyWizardController {
 				case 'edit':
 					jump = [
 					    action	: 'edit',
-						id		: params.get('id')
+						id		: params.get('id'),
+						tab		: params.get('tab')
 					]
+
 					break
 				case 'simpleedit':
 					jump = [
@@ -148,7 +150,21 @@ class StudyWizardController {
 					if (flow.jump.id) {
 						// load study
 						if (this.loadStudy(flow, flash, [studyid:flow.jump.id],authenticationService.getLoggedInUser())) {
-							toStudyPage()
+							switch (flow.jump.tab) {
+								case 'subjects':
+									toSubjectsPage()
+									break
+								case 'events':
+									toEventsPage()
+									break
+								case 'assays':
+									toAssayPage()
+									break
+								case 'study':
+								default:
+									toStudyPage()
+									break
+							}
 						} else {
 							toStartPage()
 						}
@@ -164,6 +180,9 @@ class StudyWizardController {
 			}
 			on("toStartPage").to "start"
 			on("toStudyPage").to "study"
+			on("toSubjectsPage").to "subjects"
+			on("toEventsPage").to "events"
+			on("toAssaysPage").to "assays"
 			on("toModifyPage").to "modify"
 		}
 
