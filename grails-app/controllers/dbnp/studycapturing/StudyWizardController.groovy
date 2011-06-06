@@ -1730,7 +1730,13 @@ class StudyWizardController {
 						// iterate through subjects (if we have them)
 						eventGroup.subjects.each() { subject ->
 							// find all samples for this subject / event
-							flow.study.samples.findAll { (it.parentEvent.equals(event) && it.parentSubject.equals(subject) ) }.each() {
+							flow.study.samples.findAll {
+								(
+									it.parentEvent.equals(event) &&
+									it.parentSubject.equals(subject) &&
+									it.parentEventGroup.equals(eventGroup)
+								)
+							}.each() {
 								// delete this sample
 								flow.study.deleteSample( it )
 							}

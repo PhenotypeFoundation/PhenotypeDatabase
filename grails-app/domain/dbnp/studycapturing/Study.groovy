@@ -347,58 +347,12 @@ class Study extends TemplateEntity {
 	 * @void
 	 */
 	void deleteEventGroup(EventGroup eventGroup) {
-println "deleting eventgroup: ${eventGroup}"
-
 		// If the event group contains sampling events
 		if (eventGroup.samplingEvents) {
-println "got sampling events?"
 			// remove all samples that originate from this eventGroup
 			if (eventGroup.samplingEvents.size()) {
-println "yes"
-				// find all samples related to this eventGroup
-				// - subject comparison is relatively straightforward and
-				//   behaves as expected
-				// - event comparison behaves strange, so now we compare
-				//		1. database id's or,
-				//		2. object identifiers or,
-				//		3. objects itself
-				//   this seems now to work as expected
-				// - event group comparison: in progress, doesn't always seem to work but doesn't fail either?
-/*
-				this.samples.findAll { sample ->
-					(
-							(
-								(sample.parentEventGroup.id && eventGroup.id && sample.parentEventGroup.id == eventGroup.id)
-								||
-								(sample.parentEventGroup.getIdentifier() == eventGroup.getIdentifier())
-								||
-								sample.parentEventGroup.equals(eventGroup)
-							)
-							&&
-							(eventGroup.subjects.findAll {
-								it.equals(sample.parentSubject)
-							})
-							&&
-							(eventGroup.samplingEvents.findAll {
-								(
-										(it.id && sample.parentEvent.id && it.id == sample.parentEvent.id)
-										||
-										(it.getIdentifier() == sample.parentEvent.getIdentifier())
-										||
-										it.equals(sample.parentEvent)
-										)
-							})
-					)
-				}
-*/
 				// find all samples that
 				//	- are part of this study
-println "check samples:"
-this.samples.each { sample ->
-	println "sample ${sample}: ${(sample.parentEventGroup.id && eventGroup.id && sample.parentEventGroup.id == eventGroup.id)} - ${(sample.parentEventGroup.getIdentifier() == eventGroup.getIdentifier())} - ${sample.parentEventGroup.equals(eventGroup)}"
-}
-
-println "delete samples:"
 				this.samples.findAll { sample ->
 					(
 						// - belong to this eventGroup
@@ -413,38 +367,29 @@ println "delete samples:"
 				}
 				.each() { sample ->
 					// remove sample from study
-println sample
 					this.deleteSample(sample)
 				}
 			}
 
 			// remove all samplingEvents from this eventGroup
-println "remove sampling events from this eventgroup:"
 			eventGroup.samplingEvents.findAll {}.each() {
-println it
 				eventGroup.removeFromSamplingEvents(it)
 			}
 		}
 
 		// If the event group contains subjects
-println "got subjects?"
 		if (eventGroup.subjects) {
-println "yes, remove subjects from eventgroup:"
 			// remove all subject from this eventGroup
 			eventGroup.subjects.findAll {}.each() {
-println it
 				eventGroup.removeFromSubjects(it)
 			}
 		}
 
 		// remove the eventGroup from the study
-println "remove eventgroup from study"
 		this.removeFromEventGroups(eventGroup)
 
 		// Also here, contrary to documentation, an extra delete() is needed
 		// otherwise cascaded deletes are not properly performed
-println "final delete..."
-println "-----"
 		eventGroup.delete()
 	}
 
