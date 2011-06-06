@@ -170,6 +170,7 @@ class Search {
 		// Combine all parts to generate a full HQL query
 		def hqlQuery = selectClause + " " + fullHQL.from + ( fullHQL.where ? "  WHERE " + fullHQL.where.join( " " + searchMode.toString() + " "  ) : "" );
 		
+		
 		// Find all objects 
 		def entities = entityClass().findAll( hqlQuery, fullHQL.parameters );
 		

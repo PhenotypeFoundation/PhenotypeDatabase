@@ -493,7 +493,7 @@ class AdvancedQueryController {
 		s.id = id;
 		
 		if( !s.url )
-			s.url = g.createLink( controller: "advancedQuery", action: "show", id: id );
+			s.url = g.createLink( controller: "advancedQuery", action: "show", id: id, absolute: true );
 		
 		session.queries[ id ] = s;
 
@@ -655,14 +655,14 @@ class AdvancedQueryController {
 						def baseUrl = action.url ?: module.url + "/action/" + action.name
 						def paramString = s.filterResults(selectedTokens).collect { "tokens=" + it.giveUUID() }.join( "&" )
 						
-						if( baseUrl.find( /\?/ ) )
-							baseUrl += "&"
-						else
-							baseUrl += "?"
-						
-						baseUrl += "entity=" + s.entity
-						
 						def url = baseUrl;
+
+						if( url.find( /\?/ ) )
+							url += "&"
+						else
+							url += "?"
+						
+						paramString += "&entity=" + s.entity
 						
 						actions << [
 									module: moduleName,

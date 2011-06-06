@@ -2,6 +2,7 @@ package dbnp.query
 
 import java.text.SimpleDateFormat
 import org.dbnp.gdt.*
+import dbnp.studycapturing.*
 import org.apache.commons.logging.LogFactory;
 
 /**
@@ -385,10 +386,68 @@ class Criterion {
 					break;
 			}
 		}
+		
+		// Wildcard searches must also search the fixed domain fields of all entities.
+		if( this.field == '*' ) {
+			def condition = wildcardDomainFields( prefix, objectToSearchIn )
+			
+			whereClause += condition[ "where" ];
+			condition[ "parameters" ].each {
+				parameters[ it.key ] = it.value;
+			}
+		}
 
 		def where = whereClause?.findAll { it } ? "( " + whereClause.join( " OR " ) + " )" : ""
 		
 		return [ "join": joinClause, "where": where , "parameters": parameters ];
+	}
+	
+	protected Map wildcardDomainFields( String prefix, String objectToSearchIn ) {
+		def whereClause = [];
+		def parameters = [:];
+		
+		// Determine all domain fields
+		def domainFields 
+		
+		switch( objectToSearchIn.toLowerCase() ) {
+			case "study":	domainFields = Study.giveDomainFields();	break;
+			case "subject":	domainFields = Subject.giveDomainFields();	break;
+			case "event":	domainFields = Event.giveDomainFields();	break;
+			case "sample":	domainFields = Sample.giveDomainFields();	break;
+			case "assay":	domainFields = Assay.giveDomainFields();	break;
+			case "samplingevent":	domainFields = SamplingEvent.giveDomainFields();	break;
+		}
+		
+		domainFields.each { field ->
+			def criterionType = field.type?.casedName;
+			
+			def fieldName = field.name;
+			
+			if(	( objectToSearchIn.toLowerCase() == "subject" && fieldName.toLowerCase() == "species" ) ||
+				( objectToSearchIn.toLowerCase() == "sample" && fieldName.toLowerCase() == "material" ) ||
+				( objectToSearchIn.toLowerCase() == "assay" && fieldName.toLowerCase() == "module" ) ||
+				( objectToSearchIn.toLowerCase() == "samplingevent" && fieldName.toLowerCase() == "sampletemplate" ) ) {
+				fieldName += ".name"
+			}
+			
+			// Search in template name
+			def condition = extendWhereClause( "( %s )", objectToSearchIn + "." + fieldName, prefix, criterionType, castValue( criterionType ) );
+			whereClause += condition[ "where" ];
+	
+			condition[ "parameters" ].each {
+				parameters[ it.key ] = it.value;
+			}
+		}
+		
+		// Also search in template name
+		def condition = extendWhereClause( "( %s )", objectToSearchIn + ".template.name", prefix, "String", castValue( "String" ) );
+		whereClause += condition[ "where" ];
+
+		condition[ "parameters" ].each {
+			parameters[ it.key ] = it.value;
+		}
+		
+		return [ "where": whereClause, "parameters": parameters]
 	}
 
 	/**
