@@ -14,6 +14,7 @@
  * $Date$
  */
 %>
+
 <g:if test="${wizardErrors}">
 	<div id="wizardError" class="error" title="errors">
 		<g:each in="${wizardErrors}" var="error" status="e">
