@@ -265,9 +265,6 @@ class AdvancedQueryController {
 		Search s = Search.register( name, url, entity, results );
 		int searchId = saveSearch( s );
 		
-		println "Params: " + params.url
-		println "Search: " + s.url
-		
 		// Redirect to the search screen
 		def params = [
 			"criteria.0.entityfield": s.entity,
