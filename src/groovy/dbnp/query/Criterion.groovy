@@ -193,9 +193,8 @@ class Criterion {
 			case 'Term':
 			case 'Template':
 			case 'Module':
-				return value?.toString();
 			case 'File':
-				return null; // Never search in filenames, since they are not very descriptive
+				return value?.toString();
 			case 'Date':
 				// The comparison with date values should only be performed iff the value
 				// contains a parsable date
@@ -295,7 +294,7 @@ class Criterion {
 		}
 		
 		// If no value is given, don't do anything
-		if( !value )
+		if( value == null )
 			return emptyCriterion;
 		
 		// Check whether the field is a domain field
@@ -397,7 +396,7 @@ class Criterion {
 			}
 		}
 
-		def where = whereClause?.findAll { it } ? "( " + whereClause.join( " OR " ) + " )" : ""
+		def where = whereClause?.findAll { it } ? "( " + whereClause.findAll { it }.join( " OR " ) + " )" : ""
 		
 		return [ "join": joinClause, "where": where , "parameters": parameters ];
 	}
@@ -422,16 +421,28 @@ class Criterion {
 			def criterionType = field.type?.casedName;
 			
 			def fieldName = field.name;
+			def condition
 			
+			// Searching in (complex) domain fields with value NULL will result in the whole
+			// where clause to fail. e.g.:
+			//
+			// SELECT * FROM Sample sample WHERE sample.material LIKE '%m%' OR 1 = 1
+			// should result in all samples. However, it only results in those samples
+			// with sample.material =! NULL.
+			//
+			// For that reason, we use a subquery to select those  
 			if(	( objectToSearchIn.toLowerCase() == "subject" && fieldName.toLowerCase() == "species" ) ||
 				( objectToSearchIn.toLowerCase() == "sample" && fieldName.toLowerCase() == "material" ) ||
 				( objectToSearchIn.toLowerCase() == "assay" && fieldName.toLowerCase() == "module" ) ||
 				( objectToSearchIn.toLowerCase() == "samplingevent" && fieldName.toLowerCase() == "sampletemplate" ) ) {
+				
+				condition = manyToManyWhereCondition( objectToSearchIn, fieldName, prefix, "name", value );
 				fieldName += ".name"
+			} else {
+				condition = extendWhereClause( "( %s )", objectToSearchIn + "." + fieldName, prefix, criterionType, castValue( criterionType ) );
 			}
-			
-			// Search in template name
-			def condition = extendWhereClause( "( %s )", objectToSearchIn + "." + fieldName, prefix, criterionType, castValue( criterionType ) );
+
+			// Search in fields
 			whereClause += condition[ "where" ];
 	
 			condition[ "parameters" ].each {
@@ -467,12 +478,19 @@ class Criterion {
 		
 		switch( this.operator ) {
 			case Operator.contains:
+				// Every field contains an empty string, so we don't search on it
+				if( !fieldValue )
+					return [ "where": "", "parameters": [:] ]
+					
 				// Text fields should be handled case insensitive
+				def clause
 				if( textFieldTypes.contains( fieldType ) ) {
-					hql = sprintf( hql, "lower( " + fieldName + ") like lower( :" + uniquePrefix + "ValueLike )" );
+					clause = "lower( " + fieldName + ") like lower( :" + uniquePrefix + "ValueLike )"
 				} else {
-					hql = sprintf( hql, fieldName + " like :" + uniquePrefix + "ValueLike" );
+					clause = fieldName + " like :" + uniquePrefix + "ValueLike";
 				}
+				
+				hql = sprintf( hql, clause );
 				parameters[ uniquePrefix + "ValueLike" ] = "%" + fieldValue + "%"
 				break;
 			case Operator.equals:
@@ -480,11 +498,20 @@ class Criterion {
 			case Operator.gt:
 			case Operator.lte:
 			case Operator.lt:
+				// Text fields should be handled case insensitive
+				def clause;
 				if( textFieldTypes.contains( fieldType ) ) {
-					hql = sprintf( hql, "lower( " + fieldName + " ) "  + this.operator.name + " lower( :" + uniquePrefix + "Value" + fieldType + ")" );
+					clause = "lower( " + fieldName + " ) "  + this.operator.name + " lower( :" + uniquePrefix + "Value" + fieldType + ")"
 				} else {
-					hql = sprintf( hql, fieldName + " "  + this.operator.name + " :" + uniquePrefix + "Value" + fieldType );
+					clause = fieldName + " "  + this.operator.name + " :" + uniquePrefix + "Value" + fieldType
 				}
+				
+				// If the user searches for an empty string, it should also match the database NULL value
+				if( operator == Operator.equals && !fieldValue ) {
+					clause += " OR " + fieldName + " IS NULL"
+				}
+				
+				hql = sprintf( hql, clause );
 				parameters[ uniquePrefix + "Value" + fieldType ] = fieldValue
 				break;
 		}
@@ -508,6 +535,7 @@ class Criterion {
 		def condition
 		def parameters = [:]
 
+		// If looking for a specific field, that field should also be mentioned in the where clause
 		if( this.field != '*' ) {
 			condition = "( %s AND index(" + fieldName + ") = :" + uniquePrefix + "Field )"
 			parameters[ uniquePrefix + "Field" ] = this.field

@@ -167,9 +167,29 @@ class Search {
 			return
 		}
 		
-		// Combine all parts to generate a full HQL query
-		def hqlQuery = selectClause + " " + fullHQL.from + ( fullHQL.where ? "  WHERE " + fullHQL.where.join( " " + searchMode.toString() + " "  ) : "" );
+		// Generate where clause
+		def whereClause = " WHERE ";
+		if( fullHQL.where ) {
+			whereClause += " ( " + fullHQL.where.join( " " + searchMode.toString() + " "  ) + " ) "
+			whereClause += " AND ";
+		} 
 		
+		// Add a filter such that only readable studies are returned
+		def studyName = elementName( "Study" );
+		if( this.user == null ) {
+			// Anonymous readers are only given access when published and public
+			whereClause +=  " ( " + studyName + ".publicstudy = true AND " + studyName + ".published = true )"
+		} else if( !this.user.hasAdminRights() ) {
+			// Administrators are allowed to read every study
+
+			// Owners and writers are allowed to read this study
+			// Readers are allowed to read this study when it is published
+			whereClause += " ( " + studyName + ".owner = :sessionUser OR :sessionUser member of " + studyName + ".writers OR ( :sessionUser member of " + studyName + ".readers AND " + studyName + ".published = true ) )"
+			fullHQL.parameters[ "sessionUser" ] = this.user
+		}
+		
+		// Combine all parts to generate a full HQL query
+		def hqlQuery = selectClause + " " + fullHQL.from + whereClause;
 		
 		// Find all objects 
 		def entities = entityClass().findAll( hqlQuery, fullHQL.parameters );
@@ -386,7 +406,7 @@ class Search {
 			return true
 			
 		// Wildcards should be checked within each entity
-		def wildcardHQL = createHQLForEntity( this.entity, null, false );
+		def wildcardHQL = createHQLForEntity( this.entity, entityCriteria, false );
 		
 		// Create SQL for other entities, by executing a subquery first, and
 		// afterwards selecting the study based on the entities found
@@ -410,7 +430,7 @@ class Search {
 
 		if( whereClauses ) {
 			fullHQL.from += wildcardHQL.from
-			fullHQL.where << whereClauses.join( " OR " )
+			fullHQL.where << whereClauses.findAll { it }.join( " OR " )
 			 
 			wildcardHQL[ "parameters" ].each {
 				fullHQL.parameters[ it.key ] = it.value
@@ -439,26 +459,15 @@ class Search {
 		
 		entityCriteria.each {
 			def criteriaHQL = it.toHQL( "criterion" +entityName + criterionNum++, entityName.toLowerCase() );
-			fromClause += " " + criteriaHQL[ "join" ]
-			whereClause << criteriaHQL[ "where" ]
+			
+			if( criteriaHQL[ "join" ] )
+				fromClause += " " + criteriaHQL[ "join" ]
+				
+			if( criteriaHQL[ "where" ] )
+				whereClause << criteriaHQL[ "where" ]
+				
 			criteriaHQL[ "parameters" ].each {
 				parameters[ it.key ] = it.value
-			}
-		}
-		
-		// Add a filter such that only readable studies are returned
-		if( entityName == "Study" ) {
-			
-			if( this.user == null ) {
-				// Anonymous readers are only given access when published and public
-				whereClause << "( study.publicstudy = true AND study.published = true )"
-			} else if( !this.user.hasAdminRights() ) {
-				// Administrators are allowed to read every study
-
-				// Owners and writers are allowed to read this study
-				// Readers are allowed to read this study when it is published
-				whereClause << "( study.owner = :sessionUser OR :sessionUser member of study.writers OR ( :sessionUser member of study.readers AND study.published = true ) )"
-				parameters[ "sessionUser" ] = this.user
 			}
 		}
 		
