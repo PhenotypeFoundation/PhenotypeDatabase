@@ -90,6 +90,17 @@ class BaseFilters {
 			}
 		}
 
+        // Mapping filter for the gdtImporter-plugin
+        gdtImporter(controller:'gdtImporter', action:'*') {
+             before = {
+                if(!authenticationService.getLoggedInUser()) {
+                      redirect(controller:'home')
+                    return false
+                }
+             }
+
+        }
+
 	}
 }
 

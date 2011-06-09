@@ -1,5 +1,6 @@
 package dbnp.studycapturing
 
+import grails.plugins.springsecurity.Secured
 /**
  * Publications controller
  *
@@ -7,6 +8,7 @@ package dbnp.studycapturing
  * @since	20100519
  * @package	studycapturing
  */
+
 class PublicationController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
@@ -59,6 +61,7 @@ class PublicationController {
         [publicationInstanceList: Publication.list(params), publicationInstanceTotal: Publication.count()]
     }
 
+    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
     def create = {
         def publicationInstance = new Publication()
         publicationInstance.properties = params

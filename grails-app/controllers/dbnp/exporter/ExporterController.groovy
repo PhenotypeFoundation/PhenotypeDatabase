@@ -29,6 +29,7 @@ import javax.servlet.ServletOutputStream
 
 import grails.plugins.springsecurity.Secured
 
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ExporterController {
 
     def authenticationService

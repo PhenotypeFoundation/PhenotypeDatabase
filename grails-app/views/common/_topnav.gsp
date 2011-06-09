@@ -3,6 +3,7 @@
     <!-- TOPNAV //-->
     <ul class="topnav">
     <li><g:link controller="home" action="index">Home</g:link></li>
+    <sec:ifLoggedIn>
     <li>
       <a href="#">Create</a>
       <ul class="subnav">
@@ -26,6 +27,7 @@
 	    <li><g:link controller="exporter" action="index">Export studies as SimpleTox Excel file</g:link></li>
       </ul>
     </li>
+    </sec:ifLoggedIn>
 	<li>
 		<a href="#">Browse</a>
 	    <ul class="subnav">
@@ -36,11 +38,14 @@
 			<sec:ifNotLoggedIn>
 			<li><g:link controller="study" action="list">View studies</g:link></li>
 			</sec:ifNotLoggedIn>
+            <sec:ifLoggedIn>
             <li><a href="#">Templates</a>
 		    	<ul class="childnav">
 					<af:templateEditorMenu wrap="li" />
 				</ul>
 		    </li>
+            </sec:ifLoggedIn>
+            <sec:ifLoggedIn>
 			<li><a href="#">Contacts</a>
             	<ul class="childnav">
 					<li><g:link controller="person" action="list">View persons</g:link></li>
@@ -48,10 +53,13 @@
 					<li><g:link controller="personRole" action="list">View roles</g:link></li>
 				</ul>
 		    </li>
+            </sec:ifLoggedIn>
 			<li><a href="#">Publications</a>
 				<ul class="childnav">
 					<li><g:link controller="publication" action="list">View publications</g:link></li>
+                    <sec:ifLoggedIn>
 					<li><g:link controller="publication" action="create">Add publication</g:link></li>
+                    </sec:ifLoggedIn>
 				</ul>
 			</li>
 		</ul>
@@ -62,6 +70,7 @@
             <li><g:link controller="advancedQuery">Advanced search</g:link></li>
 		</ul>
 	</li>
+    <sec:ifLoggedIn>
 	<g:if test="${ConfigurationHolder.config.modules.showInMenu && AssayModule.count()}">
 		<li>
 			<a href="#">Modules</a>
@@ -72,6 +81,7 @@
 			</ul>
 		</li>	
 	</g:if>
+    </sec:ifLoggedIn>
 	<sec:ifAllGranted roles="ROLE_ADMIN">
 		<li>
 			<a href="#">Admin</a>

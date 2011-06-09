@@ -15,7 +15,9 @@
 package dbnp.studycapturing
 
 import org.dbnp.gdt.FileService
+import grails.plugins.springsecurity.Secured
 
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class FileController {
     def fileService;
 

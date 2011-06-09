@@ -1,5 +1,8 @@
 package dbnp.studycapturing
 
+import grails.plugins.springsecurity.Secured
+
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class AssayController {
 
 	def assayService
