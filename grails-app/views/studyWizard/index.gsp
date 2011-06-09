@@ -17,6 +17,8 @@
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.css')}"/>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'studywizard.css')}"/>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'templates.css')}"/>
+	<link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
 
 	<g:if env="development">
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'studywizard.js')}"></script>
