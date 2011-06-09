@@ -319,7 +319,11 @@ class ExampleStudies {
 			ecCode			: "unknown",
 			startDate		: Date.parse('yyyy-MM-dd', '2008-01-14'),
 			owner			: owner
-		).addToWriters(otherUser).save(failOnError:true)
+		).save(failOnError:true)
+
+		humanStudy.addToWriters(otherUser)
+
+		humanStudy.save(failOnError:true)
 
 		def rootGroup = new EventGroup(name: 'Root group')
 
