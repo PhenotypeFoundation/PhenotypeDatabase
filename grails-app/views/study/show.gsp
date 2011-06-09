@@ -9,7 +9,13 @@
 	</g:if>
 	<g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}"/>
 	<title><g:message code="default.show.label" args="[entityName]"/></title>
-  	<script type="text/javascript">
+	<link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("a.linktips").tipTip();
+		});
+
 	    // Flag whether the timelines have been loaded
         var timelineloaded = false;
 
@@ -62,14 +68,14 @@
 	<div class="dialog">
 		<div id="tabs">
 			<ul>
-				<li><a href="#study">Study Information</a></li>
-				<li><a href="<g:createLink action="show_subjects" id="${studyList.id.join(',')}"/>" title="Subjects"><span>Subjects</span></a></li>
-				<li><a href="#events-timeline"><span>Events timeline</span></a></li>
-				<li><a href="<g:createLink action="show_events_table" id="${studyList.id.join(',')}"/>" title="Events table"><span>Events table</span></a></li>
-				<li><a href="<g:createLink action="show_assays" id="${studyList.id.join(',')}"/>" title="Assays"><span>Assays</span></a></li>
-				<li><a href="<g:createLink action="show_samples" id="${studyList.id.join(',')}"/>" title="Samples"><span>Samples</span></a></li>
-				<li><a href="<g:createLink action="show_persons" id="${studyList.id.join(',')}"/>" title="Persons"><span>Persons</span></a></li>
-				<li><a href="<g:createLink action="show_publications" id="${studyList.id.join(',')}"/>" title="Publications"><span>Publications</span></a></li>
+				<li tab="study"><a href="#study">Study Information</a></li>
+				<li tab="subjects"><a href="<g:createLink action="show_subjects" id="${studyList.id.join(',')}"/>" title="Subjects"><span>Subjects</span></a></li>
+				<li tab="events"><a href="#events-timeline"><span>Events timeline</span></a></li>
+				<li tab="events"><a href="<g:createLink action="show_events_table" id="${studyList.id.join(',')}"/>" title="Events table"><span>Events table</span></a></li>
+				<li tab="assays"><a href="<g:createLink action="show_assays" id="${studyList.id.join(',')}"/>" title="Assays"><span>Assays</span></a></li>
+				<li tab="samples"><a href="<g:createLink action="show_samples" id="${studyList.id.join(',')}"/>" title="Samples"><span>Samples</span></a></li>
+				<li tab="study"><a href="<g:createLink action="show_persons" id="${studyList.id.join(',')}"/>" title="Persons"><span>Persons</span></a></li>
+				<li tab="study"><a href="<g:createLink action="show_publications" id="${studyList.id.join(',')}"/>" title="Publications"><span>Publications</span></a></li>
 			</ul>
 
 			<div id="study">
@@ -214,13 +220,26 @@
 				<g:set var="studyInstance" value="${studyList[0]}"/>
 				<g:hiddenField name="id" value="${studyInstance?.id}"/>
 				<g:if test="${studyInstance.canWrite(loggedInUser)}">
-					<span class="button"><g:link class="edit" controller="simpleWizard" action="index" id="${studyInstance?.id}">Simple edit</g:link></span>
-					<span class="button"><g:link class="edit" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}">${message(code: 'default.button.edit.label', default: 'Edit')}</g:link></span>
+					<span class="button">
+						<g:link class="edit linktips" title="Edit this stuy" onclick="getTab(); return false;">
+							${message(code: 'default.button.edit.label', default: 'Edit')}
+						</g:link>
+					</span>
+					<span class="button"><g:link class="edit linktips" title="Edit the basic properties of this study" controller="simpleWizard" action="index" id="${studyInstance?.id}">Simple edit</g:link></span>
 				</g:if>
 				<g:if test="${studyInstance.isOwner(loggedInUser)}">
 					<span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');"/></span>
 				</g:if>
 			</g:if>
+
+			<script type="text/javascript">
+				function getTab() {
+					var tab = $('li.ui-state-active', $('ul.ui-tabs-nav')).attr('tab');
+					var url = '<g:createLink controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}" />&tab='+tab;
+					document.location = url;
+				}
+			</script>
+
 			<span class="button"><g:link class="backToList" action="list">Back to list</g:link></span>
 		</g:form>
 	</div>

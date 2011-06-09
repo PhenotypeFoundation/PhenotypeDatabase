@@ -5,6 +5,13 @@
 	<meta name="layout" content="main"/>
 	<g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}"/>
 	<title><g:message code="default.list.label" args="[entityName]"/></title>
+	<link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
+	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("a.linktips").tipTip();
+		});
+	</script>
 </head>
 <body>
 
@@ -30,17 +37,16 @@
 				<tbody>
 				<g:each in="${studyInstanceList}" var="studyInstance" status="i">
 					<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-
 						<td><input type="checkbox" name="id" value="${studyInstance.id}" id="${studyInstance.title}"></td>
-						<td><g:link action="show" title="View study" id="${studyInstance?.id}"><img src='${fam.icon(name: 'page')}' border="0" alt="view study" /></g:link></td>
+						<td><g:link class="linktips" action="show" title="View this study" id="${studyInstance?.id}"><img src='${fam.icon(name: 'magnifier')}' border="0" alt="view study" /></g:link></td>
 						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
-							<g:link class="edit" title="Edit study" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}">
-								<img src='${fam.icon(name: 'page_edit')}' border="0" alt="Edit study" /></g:link>
+							<g:link class="edit linktips" title="Edit this study" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}">
+								<img src='${fam.icon(name: 'wand')}' border="0" alt="Edit this study" /></g:link>
 							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> 
 						</td>
 						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
-							<g:link class="edit" title="Edit study using simple wizard" controller="simpleWizard" action="index" id="${studyInstance?.id}">
-								<img src='${fam.icon(name: 'page_paintbrush')}' border="0" alt="Edit study using simple wizard" /></g:link>
+							<g:link class="edit linktips" title="Import straightforward study data into this study" controller="simpleWizard" action="index" id="${studyInstance?.id}">
+								<img src='${fam.icon(name: 'pencil')}' border="0" alt="Import a study with a straightforward design" /></g:link>
 							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else>
 						</td>
 						<td>${fieldValue(bean: studyInstance, field: "code")}</td>
@@ -85,11 +91,10 @@
 		</div>
 		<div class="buttons">
 			<sec:ifLoggedIn>
-				<span class="button"><g:link class="create" controller="studyWizard" params="[jump:'create']"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
-				<span class="button"><g:link class="create" controller="simpleWizard">Simple wizard</g:link></span>
-				<span class="button"><a class="compare" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span>
+				<span class="button"><g:link class="create linktips" title="Create a new study" controller="studyWizard" params="[jump:'create']"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
+				<span class="button"><g:link class="create linktips" title="Import a new study with a straightforward design" controller="simpleWizard">Simple Study Import</g:link></span>
+				<span class="button"><a class="compare linktips" title="Compare the selected studies" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span>
 			</sec:ifLoggedIn>
-			
 		</div>
 		<div class="paginateButtons">
 			<g:paginate max="10" total="${studyInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next"/>
