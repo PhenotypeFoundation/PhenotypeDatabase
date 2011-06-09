@@ -1,4 +1,5 @@
-import groovy.sql.Sql
+package dbnp.configuration
+
 import dbnp.studycapturing.Study
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 

@@ -11,10 +11,6 @@ import org.dbnp.gdt.*
  * $Date$
  */
 class Subject extends TemplateEntity {
-	// uncommented due to searchable issue
-	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
-	//static searchable = { [only: ['name']] }
-
 	// A Subject always belongs to one Study
 	static belongsTo = [parent: Study]
 

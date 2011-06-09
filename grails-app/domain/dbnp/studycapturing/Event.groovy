@@ -12,13 +12,7 @@ import org.dbnp.gdt.*
  * $Date$
  */
 class Event extends TemplateEntity {
-
-	// uncommented due to searchable issue
-	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
-	// Enabling this causes the error: Trying to marshall a null id [id] for alias [Event] in the study create wizard when you add events
-	//static searchable = true
-
-	static belongsTo = [parent : Study]	
+	static belongsTo = [parent : Study]
 
 	/** Start time of the event, relative to the start time of the study */
 	long startTime

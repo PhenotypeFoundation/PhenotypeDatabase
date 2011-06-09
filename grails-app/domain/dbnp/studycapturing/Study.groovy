@@ -11,8 +11,6 @@ import dbnp.authentication.SecUser
  * $Date$
  */
 class Study extends TemplateEntity {
-	static searchable = true
-
 	def moduleNotificationService
 
 	SecUser owner		// The owner of the study. A new study is automatically owned by its creator.

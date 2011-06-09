@@ -12,10 +12,6 @@ import org.dbnp.gdt.*
  * $Date$
  */
 class Sample extends TemplateEntity {
-	// uncommented due to searchable issue
-	// @see http://jira.codehaus.org/browse/GRAILSPLUGINS-1577
-	//static searchable = { [only: ['name']] }
-
 	static belongsTo = [
 		// A Sample always belongs to one study.
 		parent			: Study,
