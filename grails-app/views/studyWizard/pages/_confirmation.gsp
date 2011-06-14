@@ -67,7 +67,7 @@
 					<i><g:if test="${(event.getClass() == 'SamplingEvent')}">Sampling </g:if>Event</i>
 					<ul>
 				<g:each var="field" in="${event?.giveFields()}">
-						<li>${field} - ${event.getFieldValue(field.name)}</li>
+						<li>${field} - ${(field.type.toString() == "RELTIME") ? new org.dbnp.gdt.RelTime(event.getFieldValue(field.name)) : event.getFieldValue(field.name)}</li>
 				</g:each>
 					</ul>
 				</li>
