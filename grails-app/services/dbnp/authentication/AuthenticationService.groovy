@@ -94,6 +94,16 @@ class AuthenticationService {
 
         return user ? user.secUser : null
     }
+	
+	/**
+	 * Remove all remote sessions for a user
+	 * @param user
+	 */
+	public void deleteRemoteSessions( SecUser user ) {
+        if( user ) {
+			SessionAuthenticatedUser.executeUpdate("delete SessionAuthenticatedUser u where u.secUser = :secUser", [ secUser: user ])
+        } 
+	}
 
     /**
      * Removes all tokens for remote logins that have expired

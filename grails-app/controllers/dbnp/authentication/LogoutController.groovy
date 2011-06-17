@@ -14,7 +14,11 @@ class LogoutController {
 		} else {
 			redirect uri: SpringSecurityUtils.securityConfig.logout.filterProcessesUrl // '/j_spring_security_logout'
 		}
-		// TODO  put any pre-logout code here
+
+		// Remove all remote sessions for this user.
+		def user = authenticationService.getLoggedInUser();
+		if( user )
+			authenticationService.deleteRemoteSessions( user );
 		
 		// Remove all queries from session
 		session.queries = [];
@@ -34,9 +38,6 @@ class LogoutController {
 		} else {
 			returnUrl = g.createLink(controller: 'home', absolute: true)
 		}
-		
-		println "REDIRECT: " + returnUrl;
-		println "parameters: " + params
 		
 		// Try to rest the redirect url
 		if( params[ SpringSecurityUtils.securityConfig.successHandler.targetUrlParameter ] ) {
