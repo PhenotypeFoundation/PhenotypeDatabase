@@ -46,6 +46,11 @@ class LogoutController {
 			redirect uri: SpringSecurityUtils.securityConfig.logout.filterProcessesUrl + "?spring-security-redirect=" + returnUrl?.encodeAsURL() // '/j_spring_security_logout'
 		}
 
+		// Remove all remote sessions for this user.
+		def user = authenticationService.getLoggedInUser();
+		if( user )
+			authenticationService.deleteRemoteSessions( user );
+		
 		// Remove all queries from session
 		session.queries = [];
 	}
