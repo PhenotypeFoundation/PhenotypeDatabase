@@ -197,6 +197,9 @@ class AssayService {
             }
 
 		}
+		
+		println "Module measurement data: " + moduleMeasurementData;
+		
 
 		[       'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
 				'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
@@ -278,13 +281,18 @@ class AssayService {
              later or notify the system administrator if the problem persists. URL: $path?$query.")
         }
 
-		jsonArray.collect {
+		log.trace "Requesting module measurements: " + moduleUrl + " - " + path + " - " + query
+		
+		def result = jsonArray.collect {
 			if( it == JSONObject.NULL )
 				return ""
 			else
 				return it.toString()
 		}
-
+		
+		log.trace "Answer: " + result
+			
+		return result
 	}
 
 	/**
