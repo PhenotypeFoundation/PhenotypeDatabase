@@ -16,8 +16,11 @@ package dbnp.modules
 
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
+import org.springframework.web.context.request.RequestContextHolder
 
 class ModuleNotificationService implements Serializable {
+	def remoteAuthenticationService
+	
     static transactional = false
 	
     /**
@@ -41,11 +44,44 @@ class ModuleNotificationService implements Serializable {
 
 		def modules = AssayModule.findByNotify(true);
 		
-		def urls = []
-		modules.each { module ->
-			urls << module.url + '/rest/notifyStudyChange?studyToken=' + study.giveUUID()
+		// If no modules are set to notify, return
+		if( !modules )
+			return
+			
+			
+		// Try to see which user is logged in. If no user is logged in (or no http session exists yet)
+		// we send no authentication parameters
+		def user
+		try {
+			user = RequestContextHolder.currentRequestAttributes().getSession().gscfUser
+			
+			if( !user )
+				throw new Exception( "No user is logged in" );
+				
+		} catch( Exception e ) {
+			log.warn "Sending study change notification without authentication, because an exception occurred: " + e.getMessage();
 		}
 		
+		def urls = []
+		modules.each { module ->
+			// create a random session token that will be used to allow to module to
+			// sync with gscf prior to presenting the measurement data
+			def sessionToken = UUID.randomUUID().toString()
+			def consumer = module.url
+			
+			// Create a URL to call
+			def authenticationParameters = "";
+			if( user ) {
+				// put the session token to work (for 15 minutes)
+				remoteAuthenticationService.logInRemotely( consumer, sessionToken, user, 15 * 60 )
+
+				authenticationParameters = "consumer=" + consumer + "&sessionToken=" + sessionToken;
+			}
+				
+			urls << module.url + '/rest/notifyStudyChange?studyToken=' + study.giveUUID() + ( authenticationParameters ? "&" + authenticationParameters : "" )
+		}
+		
+		// Notify the module in a separate thread, so the user doesn't have to wait for it
 		Thread.start { 
 			urls.each { url ->
 				try {

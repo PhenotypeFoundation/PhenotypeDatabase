@@ -15,7 +15,7 @@
  */
 package dbnp.authentication
 
-class SessionAuthenticatedUser {
+class SessionAuthenticatedUser implements Serializable {
     String  consumer
     String  token
     Date    expiryDate

@@ -39,6 +39,24 @@ class BaseFilters {
 				session.setMaxInactiveInterval(604800)
 			}
 		}
+		
+		// Save a reference to the logged in user in the session,
+		// in order to use it later on. This is needed, because webflows are not capable of retrieving 
+		// the logged in user from the authenticationService, since that service (more specific: spring security) 
+		// is not serializable.
+		saveUser(controller: '*', action: '*' ) {
+			before = { 
+				// set the secUser in the session
+				def secUser = authenticationService.getLoggedInUser()
+				if (secUser) {
+					session.gscfUser = secUser
+				} else {
+					// remove session variable
+					if( session?.gscfUser )
+						session.removeAttribute('gscfUser')
+				}
+			}
+		}
 
 		// we need secUser in GDT::Template*, but we do not want GDT
 		// to rely on authentication. Therefore we handle it through

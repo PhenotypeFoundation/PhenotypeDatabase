@@ -41,4 +41,11 @@ class SecUser implements Serializable {
 	public boolean hasAdminRights() {
 		return getAuthorities().contains(SecRole.findByAuthority('ROLE_ADMIN'));
 	}
+	
+	/**
+	 * Delete all remote logins for this user as well.
+	 */
+	def beforeDelete = {
+		executeUpdate( "DELETE FROM SessionAuthenticatedUser sau WHERE sau.secUser = :secUser", [ "secUser": this ] );
+	}
 }

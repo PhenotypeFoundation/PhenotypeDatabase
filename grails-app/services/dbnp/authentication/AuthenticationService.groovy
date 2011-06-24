@@ -18,7 +18,7 @@ import org.codehaus.groovy.grails.plugins.springsecurity.GrailsUser
 
 class AuthenticationService {
     def springSecurityService
-    static final int expiryTime = 12 * 60; // Number of minutes a remotely logged in user remains active
+	def remoteAuthenticationService
 
     static transactional = true
 
@@ -43,26 +43,11 @@ class AuthenticationService {
      * Logs a user in for a remote session
      */
     public boolean logInRemotely( String consumer, String token, SecUser user ) {
-		// Remove expired users, otherwise they will be kept in the database forever
-		removeExpiredTokens()
-
-		// Make sure there is no other logged in user anymore
-        logOffRemotely( consumer, token )
-
-        def SAUser = new SessionAuthenticatedUser( consumer: consumer, token: token, secUser: user, expiryDate: createExpiryDate() )
-
-        return SAUser.save(flush: true)
+		remoteAuthenticationService.logInRemotely( consumer, token, user );
     }
     
     public boolean logOffRemotely( String consumer, String token ) {
-        def user = getSessionAuthenticatedUser(consumer, token)
-
-        if( user ) {
-            user.refresh()
-            user.delete()
-        }
-        
-        return true
+		remoteAuthenticationService.logOffRemotely( consumer, token );
     }
 
     /**
@@ -70,29 +55,14 @@ class AuthenticationService {
      * given token
      */
     public boolean isRemotelyLoggedIn( String consumer, String token ) {
-        // Check whether a user exists
-        def user = getSessionAuthenticatedUser(consumer, token)
-
-        // Check whether the user is logged in. Since we don't want to return a
-        // user, we explicitly return true or false
-        if( user ) {
-			// The expiry date should be reset
-			updateExpiryDate( user )
-
-            return true
-		} else {
-            return false
-		}
+		remoteAuthenticationService.isRemotelyLoggedIn( consumer, token );
     }
 
     /**
      * Returns the user that is logged in remotely
      */
     public SecUser getRemotelyLoggedInUser( String consumer, String token ) {
-        // Check whether a user exists
-        def user = getSessionAuthenticatedUser(consumer, token)
-
-        return user ? user.secUser : null
+		remoteAuthenticationService.getRemotelyLoggedInUser( consumer, token );
     }
 	
 	/**
@@ -100,55 +70,6 @@ class AuthenticationService {
 	 * @param user
 	 */
 	public void deleteRemoteSessions( SecUser user ) {
-        if( user ) {
-			SessionAuthenticatedUser.executeUpdate("delete SessionAuthenticatedUser u where u.secUser = :secUser", [ secUser: user ])
-        } 
-	}
-
-    /**
-     * Removes all tokens for remote logins that have expired
-     */
-    protected boolean removeExpiredTokens() {
-        SessionAuthenticatedUser.executeUpdate("delete SessionAuthenticatedUser u where u.expiryDate < :expiryDate", [ expiryDate: new Date() ])
-    }
-
-    /**
-	 * Returns the currently logged in user from the database or null if no user is logged in
-	 */
-	protected SessionAuthenticatedUser getSessionAuthenticatedUser( String consumer, String token ) {
-        def c = SessionAuthenticatedUser.createCriteria()
-        def result = c.get {
-                and {
-                        eq( "consumer", consumer)
-                        eq( "token", token)
-                        gt( "expiryDate", new Date())
-                }
-        }
-
-        if( result )
-            return result
-        else
-            return null
-    }
-
-	/**
-	 * Returns the expiry date for a user that is active now.
-	 */
-	protected Date createExpiryDate() {
-		// Compute expiryDate
-		long now = new Date().getTime();
-		return new Date( now + AuthenticationService.expiryTime * 60 * 1000 );
-
-	}
-
-	/**
-	 * Resets the expiry date of the given user. This should be called every time
-	 * an action occurs with this user. That way, if (in case of a timeout of 60 minutes)
-	 * he logs in and returns 50 minutes later, he will keep a timeout value of
-	 * 60 minutes, instead of only 10 minutes.
-	 */
-	protected boolean updateExpiryDate( SessionAuthenticatedUser user ) {
-		user.expiryDate = createExpiryDate()
-		return user.save( flush: true )
+		remoteAuthenticationService.deleteRemoteSessions( user );
 	}
 }
