@@ -168,7 +168,7 @@ class Search {
 		}
 		
 		// Generate where clause
-		def whereClause = " WHERE ";
+		def whereClause = "";
 		if( fullHQL.where ) {
 			whereClause += " ( " + fullHQL.where.join( " " + searchMode.toString() + " "  ) + " ) "
 			whereClause += " AND ";
@@ -189,7 +189,7 @@ class Search {
 		}
 		
 		// Combine all parts to generate a full HQL query
-		def hqlQuery = selectClause + " " + fullHQL.from + whereClause;
+		def hqlQuery = selectClause + " " + fullHQL.from + ( whereClause ? " WHERE " + whereClause : "" );
 		
 		// Find all objects 
 		def entities = entityClass().findAll( hqlQuery, fullHQL.parameters );
