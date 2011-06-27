@@ -40,9 +40,9 @@ class ModuleNotificationService implements Serializable {
 		if( !study )
 			return
 			
-		log.info( "Invalidate " + study.code )
+		log.info( "Invalidate " + study )
 
-		def modules = AssayModule.findByNotify(true);
+		def modules = AssayModule.findAllByNotify(true);
 		
 		// If no modules are set to notify, return
 		if( !modules )
@@ -84,6 +84,7 @@ class ModuleNotificationService implements Serializable {
 		// Notify the module in a separate thread, so the user doesn't have to wait for it
 		Thread.start { 
 			urls.each { url ->
+				log.info( "GSCF NOTIFY MODULE OF STUDY CHANGE: ${url}")
 				try {
 					def connection = url.toURL().openConnection()
 					if( connection.responseCode == 200 ) {

@@ -135,7 +135,8 @@ class RestController {
 	 * Result: same as result of Example 1. 
 	 */
 	def getStudies = {
-
+		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
+		
 		List returnStudies = []
 		List studies = []
 
@@ -168,7 +169,6 @@ class RestController {
 
 		studies.each { study ->
 			if(study) {
-				def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 				// Check whether the person is allowed to read the data of this study
 				if( study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 
@@ -242,6 +242,43 @@ class RestController {
 		render versionInfo as JSON
 	}
 
+	/**
+	* REST resource for data modules.
+	* Consumer and token should be supplied via URL parameters.
+	* Provides the version number of all studies readable by this user
+	*
+	* @param	consumer	consumer name of the calling module
+	* @param	token		token for the authenticated user (e.g. session_id)
+	* @return  JSON object list containing studies with 'studyToken', and 'version'
+	*
+	* A 404 error might occur if the study doesn't exist, and a 401 error if the user is not
+	* authorized to access this study.
+	*
+	* Example. REST call with one studyToken.
+	*
+	* Call: http://localhost:8080/gscf/rest/getStudyVersions
+	*
+	* Result: [{"studyToken":"PPSH","version":31},{"studyToken":"Other study", "version":3}]
+	*/
+   def getStudyVersions = {
+	   // Check which user has been logged in
+	   def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
+	   
+	   def jsonList = []
+	   
+		Study.giveReadableStudies( user ).each { study ->
+			if(study) {
+				jsonList << [studyToken:study.giveUUID(), version: study.version]
+			}
+		}
+
+		// set output header to json
+		response.contentType = 'application/json'
+
+		render jsonList as JSON
+   }
+
+	
 	/**
 	 * REST resource for data modules.
 	 * Consumer and token should be supplied via URL parameters.
