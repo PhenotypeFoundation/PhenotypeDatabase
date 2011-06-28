@@ -158,7 +158,7 @@ class StudyWizardController {
 									toEventsPage()
 									break
 								case 'assays':
-									toAssayPage()
+									toAssaysPage()
 									break
 								case 'study':
 								default:
