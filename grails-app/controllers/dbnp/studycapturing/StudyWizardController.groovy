@@ -1453,7 +1453,10 @@ class StudyWizardController {
 		   log.info('.no persons selected.')
 		   if( study.persons ) {
 			   // removing persons from study
-			   study.persons.each {
+			   // Create a clone of persons list in order to avoid
+			   // concurrentModification exceptions. See http://blog.springsource.com/2010/07/02/gorm-gotchas-part-2/
+			   def persons = [] + study.persons;
+			   ersons.each {
 				   study.removeFromPersons(it)
 				   it.delete()
 			   }
@@ -1510,15 +1513,15 @@ class StudyWizardController {
 	   }
 	   
 	   if (type == "readers") {
-		   if (study.readers)
-			   study.readers.clear()
+		   if (study.readers) {
+			   study.readers.clear();
+		   }
 			   
 		   users.each { study.addToReaders(it) }
 	   } else if (type == "writers") {
+			   
 		   if (study.writers) {
-			   study.writers.each {
-					study.removeFromWriters(it)
-			   }
+			   study.writers.clear();
 		   }
 
 		   users.each { study.addToWriters(it) }

@@ -76,8 +76,8 @@
 				</td>
 				<td>${search.getNumResults()}</td>
 				<td><g:formatDate date="${search.executionDate}" format="HH:mm" /></td>
-				<td><g:link action="show" id="${search.id}"><img border="0" src="${fam.icon(name: 'application_form_magnify')}" alt="Show" /></g:link>
-				<td><g:link action="discard" id="${search.id}"><img border="0" src="${fam.icon(name: 'basket_remove')}" alt="Discard" /></g:link>
+				<td><a href="${search.url.encodeAsHTML()}"><img border="0" src="${fam.icon(name: 'application_form_magnify')}" alt="Show" /></a></td>
+				<td><g:link action="discard" id="${search.id}"><img border="0" src="${fam.icon(name: 'basket_remove')}" alt="Discard" /></g:link></td>
 			</tr>
 		</g:each>
 	</table>
