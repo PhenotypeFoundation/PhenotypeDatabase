@@ -610,6 +610,7 @@ class SimpleWizardController extends StudyWizardController {
 		// Get the header from the Excel file using the arguments given in the first step of the wizard
 		def importerHeader;
 		def importerDataMatrix;
+		def numDataRows;
 
 		try {		
 			importerHeader = importerService.getHeader(workbook,
@@ -624,6 +625,10 @@ class SimpleWizardController extends StudyWizardController {
 					sheetIndex - 1, 		// 0 == first sheet
 					dataMatrixStart - 1, 	// 0 == first row
 					5)
+			
+			// Determine the number of rows to be imported
+			def sheet = workbook.getSheetAt(sheetIndex - 1)
+			numDataRows = sheet.getLastRowNum() - ( dataMatrixStart - 1 ) + 1;
 		} catch( Exception e ) {
 			// An error occurred while reading the excel file.
 			log.error ".simple study wizard error while reading the excel file";
@@ -670,6 +675,7 @@ class SimpleWizardController extends StudyWizardController {
 					sheetIndex: sheetIndex,
 					dataMatrixStart: dataMatrixStart,
 					headerRow: headerRow,
+					numDataRows: numDataRows,
 					data: [
 						header: importerHeader,
 						dataMatrix: dataMatrix
@@ -830,7 +836,16 @@ class SimpleWizardController extends StudyWizardController {
                     entity.parent = study
 
                     switch( entity.class ) {
-                        case Sample:
+                        case Sample:							// instantiate a sample
+							def newSample = new Sample(
+									parentSubject	: subject,
+									parentEvent		: samplingEvent,
+									parentEventGroup: eventGroup,
+									name			: sampleName,
+									template		: (samplingEvent.sampleTemplate) ? samplingEvent.sampleTemplate : ''
+								)
+
+							flow.study.addToSamples(newSample)
                             if( !study.samples?.find( equalClosure ) ) {
                                 study.addToSamples( entity );
                             }
