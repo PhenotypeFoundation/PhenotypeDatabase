@@ -141,7 +141,7 @@ class Sample extends TemplateEntity {
 	   
 	   Sample s = (Sample) o;
 	   
-	   return this.id == s.id
+	   return this.is(s) || this.id == s.id
    }
 	
 	/**

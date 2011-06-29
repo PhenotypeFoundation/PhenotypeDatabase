@@ -32,12 +32,12 @@
 				You uploaded: ${excel.filename}. This list shows the first ${excel.data.dataMatrix?.size()} rows of the uploaded file for reference.
 				Please match the columns from the excel file with the fields in the database.
 			</span> 
-		   	<g:if test="${excel.numDataRows > 200}">
+		   	<g:if test="${excel.numDataRows > 300}">
 			   	<span class="info">
-			   		<span class="error" style="background-position: 0 50%;">Too many samples in excel file</span> 
-					Your uploaded excel file contains more than 200 samples. This wizard might become very slow when importing that many samples.<br />
-					The best you can do is to save your study (go back to the first page of the wizard and click save), and use the <i>Import</i> -&gt; 
-					<i>A part or a study design</i> menu option.
+			   		<span class="error" style="background-position: 0 50%;">Many samples in excel file</span> 
+					Your uploaded excel file contains more than 300 samples. This wizard might become less responsive when importing that many samples, but
+					will still be working properly.<br />
+					Please be patient when importing the data and saving your study.
 				</span> 
 			</g:if>
 			    

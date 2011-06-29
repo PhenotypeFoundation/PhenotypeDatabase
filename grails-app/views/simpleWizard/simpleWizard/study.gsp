@@ -34,6 +34,15 @@
 			filled out, the more valuable the system will be.
 		</span>
 		
+	   	<g:if test="${numExistingSamples > 300}">
+		   	<span class="info">
+		   		<span class="error" style="background-position: 0 50%;">Many samples in study</span> 
+				Your study contains more than 300 samples. This wizard might become less responsive when editing that many samples, but will still function properly.<br />
+				Please be patient when editing samples and saving your study.
+			</span> 
+		</g:if>
+		
+		
 		<g:if test="${flash.validationErrors}">
 			<div class="errormessage">
 				<g:each var="error" in="${flash.validationErrors}">

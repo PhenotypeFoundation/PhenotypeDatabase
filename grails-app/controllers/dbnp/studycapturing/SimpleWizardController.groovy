@@ -44,7 +44,13 @@ class SimpleWizardController extends StudyWizardController {
 			action{
 				flow.study = getStudyFromRequest( params )
 				if (!flow.study) retrievalError()
-
+				
+				// Save number of samples in flow
+				flow.numExistingSamples = 0
+				if( flow.study.id ) {
+					flow.numExistingSamples = Sample.countByParent( flow.study );
+				}
+				
 				// Search for studies
 				flow.studies = Study.giveWritableStudies( authenticationService.getLoggedInUser(), 100 )
 			}
@@ -822,11 +828,12 @@ class SimpleWizardController extends StudyWizardController {
 
         // loop through all entities to validate them and add them to failedcells if an error occurs
         def numInvalidEntities = 0;
-        def errors = [];
+        def entityErrors = [];
 
         // Add all samples
         table.each { record ->
             record.each { entity ->
+				
                 if( entity ) {
                     // Determine entity class and add a parent. Add the entity to the study
                     def preferredIdentifier = importerService.givePreferredIdentifier( entity.class );
@@ -837,19 +844,10 @@ class SimpleWizardController extends StudyWizardController {
 
                     switch( entity.class ) {
                         case Sample:							// instantiate a sample
-							def newSample = new Sample(
-									parentSubject	: subject,
-									parentEvent		: samplingEvent,
-									parentEventGroup: eventGroup,
-									name			: sampleName,
-									template		: (samplingEvent.sampleTemplate) ? samplingEvent.sampleTemplate : ''
-								)
-
-							flow.study.addToSamples(newSample)
                             if( !study.samples?.find( equalClosure ) ) {
                                 study.addToSamples( entity );
                             }
-
+							
                             // If an eventgroup is created, add it to the study
                             // The eventgroup must have a unique name, but the user shouldn't be bothered with it
                             // Add 'group ' + samplename and it that is not unique, add a number to it
@@ -862,11 +860,11 @@ class SimpleWizardController extends StudyWizardController {
                                     entity.parentEventGroup.name += "" + Math.floor( Math.random() * 100 )
                                 }
                             }
-
+							
                             break;
                         case Subject:
-                            if( !study.samples?.find( equalClosure ) ) {
-
+							if( !study.subjects?.find( equalClosure ) ) {
+	
                                 if( preferredIdentifier ) {
                                     // Subjects without a name should just be called 'subject'
                                     if( !entity.getFieldValue( preferredIdentifier.name ) )
@@ -883,8 +881,7 @@ class SimpleWizardController extends StudyWizardController {
                                 }
 
                                 study.addToSubjects( entity );
-
-                            }
+                            } 
 
                             break;
                         case Event:
@@ -904,7 +901,7 @@ class SimpleWizardController extends StudyWizardController {
                             }
                             break;
                     }
-
+					
                     if (!entity.validate()) {
                         numInvalidEntities++;
 
@@ -915,7 +912,7 @@ class SimpleWizardController extends StudyWizardController {
                         def currentErrors = getHumanReadableErrors( entity )
                         if( currentErrors ) {
                             currentErrors.each {
-                                errors += "(" + entityName + ") " + it.value;
+                                entityErrors += "(" + entityName + ") " + it.value;
                             }
                         }
                     }
@@ -924,7 +921,7 @@ class SimpleWizardController extends StudyWizardController {
         }
 
 		flow.imported.numInvalidEntities = numInvalidEntities + failedcells?.size();
-		flow.imported.errors = errors;
+		flow.imported.errors = entityErrors;
 
 		return true
 	}
@@ -940,7 +937,7 @@ class SimpleWizardController extends StudyWizardController {
 	 */
 	def handleMissingFields( study, params, flow ) {
 		def numInvalidEntities = 0;
-		def errors = [];
+		def entityErrors = [];
 
 		// Check which fields failed previously
 		def failedCells = flow.imported.failedCells
@@ -988,7 +985,7 @@ class SimpleWizardController extends StudyWizardController {
 					def currentErrors = getHumanReadableErrors( entity )
 					if( currentErrors ) {
 						currentErrors.each {
-							errors += "(" + entityName + ") " + it.value;
+							entityErrors += "(" + entityName + ") " + it.value;
 						}
 					}
 					
@@ -1001,7 +998,7 @@ class SimpleWizardController extends StudyWizardController {
 
 		flow.imported.failedCells = newFailedCells
 		flow.imported.numInvalidEntities = numInvalidEntities;
-		flow.imported.errors = errors;
+		flow.imported.errors = entityErrors;
 
 		return numInvalidEntities == 0
 	}

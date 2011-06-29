@@ -21,6 +21,7 @@ import dbnp.studycapturing.*
 
 class ImporterService {
 	def authenticationService
+	def sessionFactory
 
 	static transactional = false
 
@@ -257,6 +258,8 @@ class ImporterService {
 	def importOrUpdateDataBySampleIdentifier( def templates, Workbook wb, int sheetindex, int rowindex, def mcmap, Study parent = null, boolean createAllEntities = true ) {
 		if( !mcmap )
 			return;
+			
+		def hibernateSession = sessionFactory.getCurrentSession() 
 
 		// Check whether the rows should be imported in one or more entities
 		def entities
@@ -268,6 +271,7 @@ class ImporterService {
 
 		def sheet = wb.getSheetAt(sheetindex)
 		def table = []
+		def samples = []
 		def failedcells = [] // list of cells that have failed to import
 		
 		// First check for each record whether an entity in the database should be updated,
@@ -286,16 +290,21 @@ class ImporterService {
 			
 			if( row && !rowIsEmpty( row ) ) {
 				// Create an entity record based on a row read from Excel and store the cells which failed to be mapped
-				def (record, failed) = importOrUpdateRecord( templates, entities, row, mcmap, parent, table, existingEntities[i] );
-	
+				def (record, failed) = importOrUpdateRecord( templates, entities, row, mcmap, parent, samples, existingEntities[i] );
+
 				// Setup the relationships between the imported entities
 				relateEntities( record );
-	
+
 				// Add record with entities and its values to the table
 				table.add(record)
-	
+
 				// If failed cells have been found, add them to the failed cells list
 				if (failed?.importcells?.size() > 0) failedcells.add(failed)
+				
+				// Add a sample to the list of samples if possible
+				def sample = record.find { it instanceof dbnp.studycapturing.Sample }
+				if( sample && !samples.contains( sample ) )
+					samples << sample
 			}
 		}
 
@@ -356,23 +365,25 @@ class ImporterService {
 	 * @param	excelRow	Excel row to import into this record
 	 * @param	mcmap		Hashmap of mappingcolumns, with the first entry in the hashmap containing information about the first column, etc.
 	 * @param	parent		Study to import all data into. Is used for determining which sample/event/subject/assay to update
-	 * @param	importedRows	Rows that have been imported before this row. These rows might contain the same entities as are
-	 * 							imported in this row. These entities should be used again, to avoid importing duplicates.
+	 * @param	importedSamples	Samples that have been imported before this row. These entities should be used again if possible, 
+	 * 							to avoid importing duplicates.
 	 * @return	List		List with two entries:
 	 * 			0			List with ImportRecords, one for each row in the excelsheet
 	 * 			1			List with ImportCell objects, mentioning the cells that could not be correctly imported
 	 * 						(because the value in the excelsheet can't be entered into the template field)
 	 */
-	def importOrUpdateRecord(def templates, def entities, Row excelRow, mcmap, Study parent = null, List importedRows, Map existingEntities ) {
+	def importOrUpdateRecord(def templates, def entities, Row excelRow, mcmap, Study parent = null, List importedSamples, Map existingEntities ) {
 		DataFormatter df = new DataFormatter();
 		def record = [] // list of entities and the read values
 		def failed = new ImportRecord() // map with entity identifier and failed mappingcolumn
 
+		def currentTime = System.currentTimeMillis();
+		
 		// Check whether this record mentions a sample that has been imported before. In that case,
 		// we update that record, in order to prevent importing the same sample multiple times
 		def importedEntities = [];
-		if( importedRows )
-			importedEntities = importedRows.flatten().findAll { it.class == dbnp.studycapturing.Sample }.unique();
+		if( importedSamples )
+			importedEntities = importedSamples
 
 		def importedSample = findEntityInImportedEntities( dbnp.studycapturing.Sample, excelRow, mcmap, importedEntities, df )
 		def imported = retrieveEntitiesBySample( importedSample );
