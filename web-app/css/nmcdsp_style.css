@@ -1,5 +1,28 @@
-/** Header of nmcdsp has a specific header image **/
+body {
+	background: #fff url(../images/nmcdsp_style/body_bg_95px.gif) repeat-x;
+}
+
 #header {
 	background: url(../images/nmcdsp_style/header_60px.png) no-repeat center top;
 	padding-top: 60px;
 }
+
+/** start :: topnav **/
+ul.topnav {
+	background: url(../images/nmcdsp_style/topnav/topnav_bg.gif) repeat-x;
+}
+
+ul.topnav li a {
+	text-align: center;
+	min-width:48px;
+	padding: 15px 5px;
+}
+
+ul.topnav li a:hover, ul.topnav li a.tophover {
+	background: url(../images/nmcdsp_style/topnav/topnav_hover.gif) no-repeat center top;
+}
+
+ul.topnav li span {
+	background: url(../images/nmcdsp_style/topnav/subnav_btn.gif) no-repeat center top;
+}
+/** end :: topnav **/
