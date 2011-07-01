@@ -39,6 +39,8 @@ class DatabaseUpgrade {
 		fixDateCreatedAndLastUpdated(sql, db)
 		dropAssayModulePlatform(sql, db)				// r1689
 		makeStudyTitleAndTemplateNamesUnique(sql, db)	// #401, #406
+        //renameGdtMappingColumnIndex(sql, db)            // 'index' column in GdtImporter MappingColumn is a reserved keyword in MySQL
+                                                        // GdtImporter now by default uses 'columnindex' as domain field name
 	}
 
 	/**
@@ -184,6 +186,27 @@ class DatabaseUpgrade {
 					sql.execute("ALTER TABLE mapping_column DROP CONSTRAINT mapping_column_name_key")
 				} catch (Exception e) {
 					println "dropMappingColumnNameConstraint database upgrade failed, `name` field unique constraint couldn't be dropped: " + e.getMessage()
+				}
+			}
+		}
+	}
+
+    /**
+	 * Rename the column 'index' (reserved keyword in MySQL) from GdtImporterMapping to 'columnindex'
+	 *
+	 * @param sql
+	 * @param db
+	 */
+	public static void renameGdtMappingColumnIndex(sql, db) {
+		// are we running postgreSQL ?
+		if (db == "org.postgresql.Driver") {
+			if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='gdt_mapping_column' AND columns.column_name='index'")) {
+				if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: GDT mapping column rename `index` to `columnindex`".grom()
+				try {
+					// Rename column 'index' to 'columnindex' in Gdt Mapping Column
+					sql.execute("ALTER TABLE gdt_mapping_column RENAME COLUMN index TO columnindex;")
+				} catch (Exception e) {
+					println "renameGdtMappingColumnIndex database upgrade failed, `index` field couldn't be renamed to `columnindex`: " + e.getMessage()
 				}
 			}
 		}
