@@ -355,11 +355,14 @@ class Study extends TemplateEntity {
 					(
 						// - belong to this eventGroup
 						(
-							(sample.parentEventGroup.id && eventGroup.id && sample.parentEventGroup.id == eventGroup.id)
-							||
-							(sample.parentEventGroup.getIdentifier() == eventGroup.getIdentifier())
-							||
-							sample.parentEventGroup.equals(eventGroup)
+							sample.parentEventGroup &&
+							(
+								(sample.parentEventGroup.id && eventGroup.id && sample.parentEventGroup.id == eventGroup.id)
+								||
+								(sample.parentEventGroup.getIdentifier() == eventGroup.getIdentifier())
+								||
+								sample.parentEventGroup.equals(eventGroup)
+							)
 						)
 					)
 				}
