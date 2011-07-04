@@ -39,7 +39,7 @@ class DatabaseUpgrade {
 		fixDateCreatedAndLastUpdated(sql, db)
 		dropAssayModulePlatform(sql, db)				// r1689
 		makeStudyTitleAndTemplateNamesUnique(sql, db)	// #401, #406
-        //renameGdtMappingColumnIndex(sql, db)            // 'index' column in GdtImporter MappingColumn is a reserved keyword in MySQL
+        renameGdtMappingColumnIndex(sql, db)            // 'index' column in GdtImporter MappingColumn is a reserved keyword in MySQL
                                                         // GdtImporter now by default uses 'columnindex' as domain field name
 	}
 
