@@ -3,6 +3,7 @@ package dbnp.query
 import dbnp.modules.*
 import org.dbnp.gdt.*
 import dbnp.studycapturing.*;
+import grails.converters.JSON
 
 /**
  * Basic web interface for searching within studies
@@ -112,7 +113,7 @@ class AdvancedQueryController {
 			redirect( action: "index" );
 			return;
 		}
-		
+
 		// Attach all objects to the current hibernate thread, because the
 		// object might be attached to an old thread, since the results are
 		// saved in session
@@ -124,7 +125,7 @@ class AdvancedQueryController {
 		def view = determineView( s.entity );
 		render( view: view, model: [search: s, queryId: queryId, actions: determineActions(s)] );
 	}
-	
+
 	/**
 	 * Shows a list of searches that have been saved in session
 	 * @param 	id	queryId of the search to show
@@ -233,7 +234,7 @@ class AdvancedQueryController {
 		def queryId = saveSearch( combined );
 		redirect( action: "show", id: queryId );
 	}
-	
+
 	/**
 	 * Registers a search from a module with GSCF, in order to be able to refine the searches
 	 */
@@ -244,7 +245,7 @@ class AdvancedQueryController {
 		def entity = params.entity
 		def tokens = params.list( 'tokens' );
 		def results
-		
+
 		switch( entity ) {
 			case "Study":
 				results = Study.findAll( "from Study s where s.studyUUID IN (:tokens)", [ 'tokens': tokens ] )
@@ -260,19 +261,121 @@ class AdvancedQueryController {
 				render "The given entity is not supported. Choose one of Study, Assay or Sample"
 				return;
 		}
-		
+
 		// Register and save search
 		Search s = Search.register( name, url, entity, results );
 		int searchId = saveSearch( s );
-		
+
 		// Redirect to the search screen
 		def params = [
-			"criteria.0.entityfield": s.entity,
-			"criteria.0.operator": "in",
-			"criteria.0.value": searchId
-		];
+					"criteria.0.entityfield": s.entity,
+					"criteria.0.operator": "in",
+					"criteria.0.value": searchId
+				];
 
 		redirect( action: "index", params: params)
+	}
+
+	/**
+	 * Retrieves a list of distinct values that have been entered for the given field.
+	 */
+	def getFieldValues = {
+		def entityField = params.entityfield;
+		entityField = entityField.split( /\./ );
+		def entity = entityField[ 0 ];
+		def field = entityField[ 1 ];
+		
+		def term = params.term
+		def termLike = "%" + term + "%"
+		
+		// Skip searching all fields
+		if( entity == "*" || field == "*" ) {
+			render [] as JSON
+			return;
+		}
+		
+		def entityClass = TemplateEntity.parseEntity( 'dbnp.studycapturing.' + entity)
+		
+		// Domain fields can be easily found
+		if( field == "Template" ) {
+			render Template.executeQuery( "select distinct t.name FROM Template t where t.entity = :entity AND t.name LIKE :term", [ "entity": entityClass, "term": termLike ] ) as JSON
+			return;
+		}
+		
+		// Determine domain fields of the entity
+		def domainFields = entityClass.giveDomainFields();
+		def domainField = domainFields.find { it.name == field };
+		
+		// The values of a domainfield can be determined easily
+		if( domainField ) {
+			render entityClass.executeQuery( "select distinct e." + field + " FROM " + entity + " e WHERE e." + field + " LIKE :term", [ "term": termLike ] ) as JSON
+			return;
+		}
+		
+		// Find all fields with this name and entity, in order to determine the type of the field
+		def fields = TemplateField.findAll( "FROM TemplateField t WHERE t.name = :name AND t.entity = :entity", [ "name": field, "entity": entityClass ] );
+
+		// If the field is not found, return an empty list
+		def listValues = [];
+		if( !fields ) {
+			render listValues as JSON
+		}
+
+		// Determine the type (or types) of the field
+		def fieldTypes = fields*.type.unique()*.casedName;
+		
+		// Now create a list of possible values, based on the fieldType(s)
+		
+		// Several types of fields are handled differently.
+		// The 'simple' types (string, double) are handled by searching in the associated 'templateXXXXFields' table
+		// The 'complex' types (stringlist, template etc., referencing another database table) can't be 
+		// handled correctly (the same way), since the HQL INDEX() function doesn't work on those relations.
+		// We do a search for these types to see whether any field with that type fits this criterion, in order to
+		// filter out false positives later on.
+		fieldTypes.each { type ->
+			// Determine field name
+			def fieldName = "template" + type + 'Fields'
+
+			switch( type ) {
+				case 'String':
+				case 'Text':
+				case 'File':
+					// 'Simple' field types (string values)
+					listValues += entityClass.executeQuery( "SELECT DISTINCT f FROM " + entity + " s left join s." + fieldName + " f WHERE index(f) = :field AND f LIKE :term", [ "field": field, "term": termLike ] );
+					break;
+					
+				case 'Date':
+				case 'Double':
+				case 'Long':
+					// 'Simple' field types that can be converted to string and compared
+					listValues += entityClass.executeQuery( "SELECT DISTINCT f FROM " + entity + " s left join s." + fieldName + " f WHERE index(f) = :field AND str(f) LIKE :term", [ "field": field, "term": termLike ] );
+					break;
+				case 'Boolean':
+					// Simple field types that don't support like
+					listValues += entityClass.executeQuery( "SELECT DISTINCT f FROM " + entity + " s left join s." + fieldName + " f WHERE index(f) = :field", [ "field": field ] );
+					break;
+				
+				case 'RelTime':
+					// RelTime values should be formatted before returning
+					def reltimes = entityClass.executeQuery( "SELECT DISTINCT f FROM " + entity + " s left join s." + fieldName + " f WHERE index(f) = :field", [ "field": field ] );
+					listValues += reltimes.collect { def rt = new RelTime( it ); return rt.toString(); }
+					break;
+
+				case 'StringList':
+				case 'ExtendableStringList':
+				case 'Term':
+				case 'Template':
+				case 'Module':
+					// 'Complex' field types: select all possible names for the given field, that have ever been used
+					// (i.e. all ontologies that have ever been used in any field). We have to do it this way, because the HQL
+					// index() function (see simple fields) doesn't work on many-to-many relations
+					listValues += entityClass.executeQuery( "SELECT DISTINCT f.name FROM " + entity + " s left join s." + fieldName + " f WHERE f.name LIKE :term", [ "term": termLike ] );
+				default:
+					break;
+			}
+		}
+		
+		render listValues as JSON
 	}
 
 	protected String determineView( String entity ) {
@@ -292,7 +395,7 @@ class AdvancedQueryController {
 			case "Study":	return new StudySearch();
 			case "Sample":	return new SampleSearch();
 			case "Assay":	return new AssaySearch();
-			
+
 			// This exception will only be thrown if the entitiesToSearchFor contains more entities than
 			// mentioned in this switch structure.
 			default:		throw new Exception( "Can't search for entities of type " + entity );
@@ -319,7 +422,7 @@ class AdvancedQueryController {
 				fields[ it ] = fieldNames.sort { a, b ->
 					def aUC = a.size() > 1 ? a[0].toUpperCase() + a[1..-1] : a;
 					def bUC = b.size() > 1 ? b[0].toUpperCase() + b[1..-1] : b;
-					aUC <=> bUC 
+					aUC <=> bUC
 				};
 			}
 		}
@@ -347,7 +450,7 @@ class AdvancedQueryController {
 				log.error( "Error while retrieving queryable fields from " + module.name + ": " + e.getMessage() )
 			}
 		}
-		
+
 		return fields;
 	}
 
@@ -371,7 +474,7 @@ class AdvancedQueryController {
 	protected List parseCriteria( def formCriteria, def parseSearchIds = true ) {
 		ArrayList list = [];
 		flash.error = "";
-		
+
 		// Loop through all keys of c and remove the non-numeric ones
 		for( c in formCriteria ) {
 			if( c.key ==~ /[0-9]+/ && c.value.entityfield ) {
@@ -488,10 +591,10 @@ class AdvancedQueryController {
 		}
 
 		s.id = id;
-		
+
 		if( !s.url )
 			s.url = g.createLink( controller: "advancedQuery", action: "show", id: id, absolute: true );
-		
+
 		session.queries[ id ] = s;
 
 		return id;
@@ -586,7 +689,7 @@ class AdvancedQueryController {
 				}
 
 				def paramString = ids.collect { return 'ids=' + it }.join( '&' );
-				
+
 				return [[
 						module: "gscf",
 						name:"simpletox",
@@ -611,7 +714,7 @@ class AdvancedQueryController {
 				}
 
 				def paramString = ids.collect { return 'ids=' + it }.join( '&' );
-				
+
 				return [[
 						module: "gscf",
 						name:"excel",
@@ -651,16 +754,16 @@ class AdvancedQueryController {
 					json[ s.entity ].each { action ->
 						def baseUrl = action.url ?: module.url + "/action/" + action.name
 						def paramString = s.filterResults(selectedTokens).collect { "tokens=" + it.giveUUID() }.join( "&" )
-						
+
 						def url = baseUrl;
 
 						if( url.find( /\?/ ) )
 							url += "&"
 						else
 							url += "?"
-						
+
 						paramString += "&entity=" + s.entity
-						
+
 						actions << [
 									module: moduleName,
 									name: action.name,

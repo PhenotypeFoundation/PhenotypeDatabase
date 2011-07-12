@@ -72,6 +72,8 @@ class LoginController {
 			throw new Exception("Consumer and Token must be given!");
 		}
 
+		log.info( "Remote authentication with " + consumer + " and " + token )
+		
 		def returnUrl;
 		
 		// If no returnUrl is given, find the previous one from the session

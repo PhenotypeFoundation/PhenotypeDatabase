@@ -1,5 +1,6 @@
 package dbnp.authentication
 
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.codehaus.groovy.grails.plugins.springsecurity.SpringSecurityUtils
 
 class LogoutController {
@@ -36,7 +37,8 @@ class LogoutController {
 		if( params.returnUrl ) {
 			returnUrl = params.returnUrl;
 		} else {
-			returnUrl = g.createLink(controller: 'home', absolute: true)
+			// Return to baseURL
+			returnUrl = ConfigurationHolder.config.grails.serverURL
 		}
 		
 		// Try to rest the redirect url

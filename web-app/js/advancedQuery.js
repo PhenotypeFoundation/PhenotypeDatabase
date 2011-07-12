@@ -45,6 +45,8 @@ $(function() {
 					selectQueryableFieldItem( null );
 				}
 			}
+			
+			updateAutocomplete();
 		}
 	})
 	.data( "autocomplete" )._renderItem = function( ul, item ) {
@@ -134,6 +136,8 @@ function addCriterion() {
 	$( '#searchForm input#value' ).val( '' );
 	$( "#searchForm .newCriterion .addButton a" ).addClass( "disabled" );
 	
+	// Update value autocomplete
+	updateAutocomplete();
 }
 
 /**
@@ -217,4 +221,28 @@ function createInSearchElement( fieldname, fieldvalue ) {
 	});	
 	
 	return a;
+}
+
+/**
+ * Update the autocomplete on the value field
+ */
+var autoCompleteExists = false;
+function updateAutocomplete() {
+	if( $( '#operator' ).val() == "equals" && $( "#queryFieldText" ).val() != "" ) {
+		// Add an autocomplete to the value textfield. If one exists, remove the old one
+		if( autoCompleteExists ) {
+			$( '#searchForm input#value' ).autocomplete( 'destroy' );
+			autoCompleteExists = false;
+		}
+		
+		$( '#searchForm input#value' ).autocomplete({
+			source: baseUrl + "/advancedQuery/getFieldValues?entityfield=" + $( '#queryField' ).val()
+		});
+		
+		autoCompleteExists = true;
+	} else {
+		// Remove autocomplete from the value textfield
+		$( '#searchForm input#value' ).autocomplete( 'destroy' );
+		autoCompleteExists = false;
+	}
 }

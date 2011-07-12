@@ -109,7 +109,7 @@
 			</li>
 			<li class="newCriterion">
 				<span class="entityfield">
-					<select name="criteria.0.entityfield" id="queryFieldSelect">
+					<select name="criteria.0.entityfield" id="queryFieldSelect" onChange="updateAutocomplete()">
 						<option value=""></option>
 						<g:each in="${searchableFields}" var="entity">
 							<optgroup label="${entity.key}">
@@ -128,7 +128,7 @@
 					</select>
 				</span>
 				<span class="operator">
-					<select id="operator" name="criteria.0.operator">
+					<select id="operator" name="criteria.0.operator" onChange="updateAutocomplete();">
 						<option value="equals">Equals</option>
 						<option value="contains">Contains</option>
 						<option value="&gt;=">&gt;=</option>
