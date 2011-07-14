@@ -179,9 +179,10 @@ class Search {
 		if( this.user == null ) {
 			// Anonymous readers are only given access when published and public
 			whereClause +=  " ( " + studyName + ".publicstudy = true AND " + studyName + ".published = true )"
-		} else if( !this.user.hasAdminRights() ) {
+		} else if( this.user.hasAdminRights() ) {
 			// Administrators are allowed to read every study
-
+			whereClause += " (1 = 1)"
+		} else {
 			// Owners and writers are allowed to read this study
 			// Readers are allowed to read this study when it is published
 			whereClause += " ( " + studyName + ".owner = :sessionUser OR :sessionUser member of " + studyName + ".writers OR ( :sessionUser member of " + studyName + ".readers AND " + studyName + ".published = true ) )"
