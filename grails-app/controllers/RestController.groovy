@@ -81,6 +81,9 @@ class RestController {
 	 * @return bool {"username": "...", "id": ... } when user/password is logged in.
 	 */
 	def getUser = {
+		if( !auth() )
+			return;
+		
 		SecUser user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 		def reply = [username: user.username, id: user.id, isAdministrator: user.hasAdminRights() ]
 
@@ -146,7 +149,7 @@ class RestController {
 		else if( params.studyToken instanceof String ) {
 			def study = Study.findByStudyUUID( params.studyToken )
 			if( study ) {
-				if( !study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
+				if( !study.canRead(user) ) {
 					response.sendError(401)
 					return false
 				}
@@ -170,7 +173,7 @@ class RestController {
 		studies.each { study ->
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
-				if( study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+				if( study.canRead(user)) {
 
 					def items = [studyToken:study.giveUUID(), 'public': study.publicstudy]
 					study.giveFields().each { field ->
@@ -213,7 +216,8 @@ class RestController {
 	 * Result: {"studyToken":"PPSH","version":31}
 	 */
 	def getStudyVersion = {
-
+		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
+		
 		def versionInfo = [:];
 		def study
 
@@ -223,7 +227,7 @@ class RestController {
 		} else {
 			study = Study.findByStudyUUID( params.studyToken )
 			if( study ) {
-				if( !study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )) ) {
+				if( !study.canRead(user) ) {
 					response.sendError(401)
 					return false
 				}
@@ -292,13 +296,16 @@ class RestController {
 	 * @return JSON object list of subject names
 	 */
 	def getSubjects = {
+		// Check which user has been logged in
+		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
+ 
 		List subjects = []
 		if( params.studyToken ) {
 			def study = Study.findByStudyUUID( params.studyToken)
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
-				if( !study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+				if( !study.canRead(user) ) {
 					response.sendError(401)
 					return false
 				}
@@ -358,6 +365,9 @@ class RestController {
 	 * Result: Same as result in Example 1.
 	 */
 	def getAssays = {
+		// Check which user has been logged in
+		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
+ 
 		// set output header to json
 		response.contentType = 'application/json'
 
@@ -379,7 +389,7 @@ class RestController {
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
-				if( !study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+				if( !study.canRead(user)) {
 					response.sendError(401)
 					return false
 				}
@@ -409,7 +419,7 @@ class RestController {
 
 		} else {
 			// Return all assays for the given module
-			assays = Assay.list().findAll{ it.parent.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ) ) }
+			assays = Assay.list().findAll{ it.parent.canRead( user ) }
 		}
 
 		// Create data for all assays
@@ -458,7 +468,7 @@ class RestController {
 	 * 
 	 * Result: 
 	 * [{"sampleToken":"5_A","material":"blood plasma","subject":"5","event":"Blood extraction","startTime":"4 days, 6 hours"},
-	 * {"sampleToken":"6_A","material":"blood plasma","subject":"6","event":"Blood extraction","startTime":"4 days, 6 hours"},
+	 * {"sampleToken":"6_A","mateauthenticationService.getRemotelyLoggedInUser( params.consumer, params.token )rial":"blood plasma","subject":"6","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 * {"sampleToken":"10_A","material":"blood plasma","subject":"10","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 * {"sampleToken":"2_A","material":"blood plasma","subject":"2","event":"Blood extraction","startTime":"4 days, 6 hours"},
 	 * {"sampleToken":"11_A","material":"blood plasma","subject":"11","event":"Blood extraction","startTime":"4 days, 6 hours"},
@@ -499,6 +509,9 @@ class RestController {
 	 *
 	 */
 	def getSamples = {
+		// Check which user has been logged in
+		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
+
 		def items = []
 		def samples
 		if( params.assayToken ) {
@@ -506,7 +519,7 @@ class RestController {
 
 			if( assay )  {
 				// Check whether the person is allowed to read the data of this study
-				if( !assay.parent.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
+				if( !assay.parent.canRead( user )) {
 					response.sendError(401)
 					return false
 				}
@@ -519,7 +532,7 @@ class RestController {
 			}
 		} else {
 			// Find all samples from studies the user can read
-			def studies = Study.list().findAll { it.canRead( authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ) ) };
+			def studies = Study.list().findAll { it.canRead( user ) };
 			samples = studies*.getSamples().flatten();
 		}
 
@@ -616,7 +629,7 @@ class RestController {
 
 		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token );
 		def auth = ['isOwner': study.isOwner(user), 'canRead': study.canRead(user), 'canWrite': study.canWrite(user)];
-		log.trace "Authorization for study " + study.title + " and user " + user.username + ": " + auth
+		log.trace "Authorization for study " + study.title + " and user " + user?.username + ": " + auth
 
 		// set output header to json
 		response.contentType = 'application/json'
