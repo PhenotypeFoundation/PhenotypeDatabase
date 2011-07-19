@@ -172,7 +172,7 @@ class RestController {
 				// Check whether the person is allowed to read the data of this study
 				if( study.canRead(authenticationService.getRemotelyLoggedInUser( params.consumer, params.token ))) {
 
-					def items = [studyToken:study.giveUUID()]
+					def items = [studyToken:study.giveUUID(), 'public': study.publicstudy]
 					study.giveFields().each { field ->
 						def name = field.name
 						def value = study.getFieldValue( name )
