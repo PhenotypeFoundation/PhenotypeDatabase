@@ -123,6 +123,14 @@ class Sample extends TemplateEntity {
 		return  Sample.findAll( 'from Sample s where s.parentEvent =:event', [event:event] )
 	}
 
+	/**
+	 * Returns all assays this samples has been processed in 
+	 * @return	List of assays
+	 */
+	public List getAssays() {
+		return Assay.executeQuery( 'select distinct a from Assay a inner join a.samples s where s = :sample', ['sample': this] )
+	}
+	
 	def String toString() {
 		return name
 	}

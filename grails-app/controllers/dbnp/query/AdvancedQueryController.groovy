@@ -725,7 +725,22 @@ class AdvancedQueryController {
 						paramString: paramString
 					]]
 			case "Sample":
-				return []
+				def ids = []
+				s.filterResults(selectedTokens).each {
+					ids << it.id
+				}
+
+				def paramString = ids.collect { return 'ids=' + it }.join( '&' );
+
+				return [[
+						module: "gscf",
+						name:"excel",
+						type: "export",
+						description: "Export as CSV",
+						url: createLink( controller: "assay", action: "exportToSamplesToCsv", params: [ 'ids' : ids ] ),
+						submitUrl: createLink( controller: "assay", action: "exportSamplesToCsv" ),
+						paramString: paramString
+					]]
 			default:
 				return [];
 		}

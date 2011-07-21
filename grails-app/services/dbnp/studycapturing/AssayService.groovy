@@ -33,11 +33,12 @@ class AssayService {
 	 * Collects the assay field names per category in a map as well as the
 	 * module's measurements.
 	 *
-	 * @param assay the assay for which to collect the fields
+	 * @param assay 	the assay for which to collect the fields
+	 * @param samples	list of samples to retrieve the field names for. If not given, all samples from the assay are used.
 	 * @return a map of categories as keys and field names or measurements as
 	 *  values
 	 */
-	def collectAssayTemplateFields(assay) throws Exception {
+	def collectAssayTemplateFields(assay, samples = null) throws Exception {
 
 		def getUsedTemplateFields = { templateEntities ->
 
@@ -49,22 +50,24 @@ class AssayService {
 			}.collect{[name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')]}
 		}
 
-        def moduleError = '', moduleMeasurements = []
+		def moduleError = '', moduleMeasurements = []
 
-        try {
-            moduleMeasurements = requestModuleMeasurementNames(assay)
-        } catch (e) {
-            moduleError = e.message
-        }
+		try {
+			moduleMeasurements = requestModuleMeasurementNames(assay)
+		} catch (e) {
+			moduleError = e.message
+		}
 
-		def samples = assay.samples
+		if( !samples )
+			samples = assay.samples
+
 		[   		'Subject Data' :            getUsedTemplateFields( samples*."parentSubject".unique() ),
 					'Sampling Event Data' :     getUsedTemplateFields( samples*."parentEvent".unique() ),
 					'Sample Data' :             getUsedTemplateFields( samples ),
 					'Event Group' :             [[name: 'name', comment: 'Name of Event Group', displayName: 'name']],
 					'Module Measurement Data':  moduleMeasurements,
-                    'ModuleError':              moduleError
-		]
+					'ModuleError':              moduleError
+				]
 
 	}
 
@@ -79,9 +82,11 @@ class AssayService {
 	 * @param assay 				the assay to collect data for
 	 * @param fieldMap 				map with categories as keys and fields as values
 	 * @param measurementTokens 	selection of measurementTokens
+	 * @param samples				list of samples for which the data should be retrieved. 
+	 * 								Defaults to all samples from this assay.
 	 * @return 				The assay data structure as described above.
 	 */
-	def collectAssayData(assay, fieldMap, measurementTokens) throws Exception {
+	def collectAssayData(assay, fieldMap, measurementTokens, samples = null) throws Exception {
 
 		def collectFieldValuesForTemplateEntities = { headerFields, templateEntities ->
 
@@ -91,24 +96,24 @@ class AssayService {
 
 				map + [(headerField.displayName): templateEntities.collect { entity ->
 
-                    // default to an empty string
-                    def val = ''
+						// default to an empty string
+						def val = ''
 
-                    if (entity) {
-                        def field
-                        try {
+						if (entity) {
+							def field
+							try {
 
-                            val = entity.getFieldValue(headerField.name)
+								val = entity.getFieldValue(headerField.name)
 
-                            // Convert RelTime fields to human readable strings
-                            field = entity.getField(headerField.name)
-                            if (field.type == TemplateFieldType.RELTIME)
-                                val = new RelTime( val as long )
+								// Convert RelTime fields to human readable strings
+								field = entity.getField(headerField.name)
+								if (field.type == TemplateFieldType.RELTIME)
+									val = new RelTime( val as long )
 
-                        } catch (NoSuchFieldException e) { /* pass */ }
-                    }
+							} catch (NoSuchFieldException e) { /* pass */ }
+						}
 
-                    (val instanceof Number) ? val : val.toString()}]
+						(val instanceof Number) ? val : val.toString()}]
 			}
 		}
 
@@ -171,7 +176,8 @@ class AssayService {
 		}
 
 		// Find samples and sort by name
-		def samples = assay.samples.toList().sort { it.name }
+		if( !samples )
+			samples = assay.samples.toList().sort { it.name }
 
 		def eventFieldMap = [:]
 
@@ -189,21 +195,21 @@ class AssayService {
 
 		if (measurementTokens) {
 
-            try {
-                moduleMeasurementData = requestModuleMeasurements(assay, measurementTokens, samples)
-            } catch (e) {
-                moduleMeasurementData = ['error' : ['Module error, module not available or unknown assay'] * samples.size() ]
-                moduleError =  e.message
-            }
+			try {
+				moduleMeasurementData = requestModuleMeasurements(assay, measurementTokens, samples)
+			} catch (e) {
+				moduleMeasurementData = ['error' : ['Module error, module not available or unknown assay'] * samples.size() ]
+				moduleError =  e.message
+			}
 
 		}
-		
+
 		[       'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
-				'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
-                'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']),
-                'Event Group' :             eventFieldMap,
-                'Module Measurement Data' : moduleMeasurementData,
-                'ModuleError' :             moduleError
+					'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
+					'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']),
+					'Event Group' :             eventFieldMap,
+					'Module Measurement Data' : moduleMeasurementData,
+					'ModuleError' :             moduleError
 				]
 	}
 
@@ -267,16 +273,16 @@ class AssayService {
 		def moduleUrl = assay.module.url
 
 		def path = moduleUrl + "/rest/getMeasurements/query"
-        def query = "assayToken=${assay.giveUUID()}"
-        def jsonArray
+		def query = "assayToken=${assay.giveUUID()}"
+		def jsonArray
 
-        try {
-            jsonArray = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST")
-        } catch (e) {
-            throw new Exception("An error occured while trying to get the measurement tokens from the $assay.module.name. \
+		try {
+			jsonArray = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST")
+		} catch (e) {
+			throw new Exception("An error occured while trying to get the measurement tokens from the $assay.module.name. \
              This means the module containing the measurement data is not available right now. Please try again \
              later or notify the system administrator if the problem persists. URL: $path?$query.")
-        }
+		}
 
 		def result = jsonArray.collect {
 			if( it == JSONObject.NULL )
@@ -284,7 +290,7 @@ class AssayService {
 			else
 				return it.toString()
 		}
-			
+
 		return result
 	}
 
@@ -308,17 +314,17 @@ class AssayService {
 
 		def path = moduleUrl + "/rest/getMeasurementData/query"
 
-        def query = "assayToken=$assay.assayUUID$tokenString"
+		def query = "assayToken=$assay.assayUUID$tokenString"
 
 		def sampleTokens = [], measurementTokens = [], moduleData = []
 
-        try {
-            (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST")
-        } catch (e) {
-            throw new Exception("An error occured while trying to get the measurement data from the $assay.module.name. \
+		try {
+			(sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST")
+		} catch (e) {
+			throw new Exception("An error occured while trying to get the measurement data from the $assay.module.name. \
              This means the module containing the measurement data is not available right now. Please try again \
              later or notify the system administrator if the problem persists. URL: $path?$query.")
-        }
+		}
 
 		if (!sampleTokens?.size()) return []
 
@@ -349,13 +355,13 @@ class AssayService {
 						measurements << null
 					}  else {
 
-                        def val
-                        def measurement = moduleData[ valueIndex ]
+						def val
+						def measurement = moduleData[ valueIndex ]
 
-                        if          (measurement == JSONObject.NULL)    val = ""
-                        else if     (measurement instanceof Number)     val = measurement
-                        else if     (measurement.isDouble())            val = measurement.toDouble()
-                        else val =   measurement.toString()
+						if          (measurement == JSONObject.NULL)    val = ""
+						else if     (measurement instanceof Number)     val = measurement
+						else if     (measurement.isDouble())            val = measurement.toDouble()
+						else val =   measurement.toString()
 						measurements << val
 					}
 				} else {
@@ -462,6 +468,114 @@ class AssayService {
 	}
 
 	/**
+	 * Merges the data from multiple studies into a structure that can be exported to an excel file. The format for each assay is
+	 *
+	 * 	[Category1:
+	 *      [Column1: [1,2,3], Column2: [4,5,6]],
+	 *   Category2:
+	 *      [Column3: [7,8,9], Column4: [10,11,12], Column5: [13,14,15]]]
+	 *
+	 * Where the category describes the category of data that is presented (e.g. subject, sample etc.) and the column names describe
+	 * the fields that are present. Each entry in the lists shows the value for that column for an entity. In this case, 3 entities are described.
+	 * Each field should give values for all entities, so the length of all value-lists should be the same.
+	 *
+	 * Example: If the following input is given (2 assays)
+	 *
+	 * 	[
+	 *    [Category1:
+	 *      [Column1: [1,2,3], Column2: [4,5,6]],
+	 *     Category2:
+	 *      [Column3: [7,8,9], Column4: [10,11,12], Column5: [13,14,15]]],
+	 *    [Category1:
+	 *      [Column1: [16,17], Column6: [18,19]],
+	 *     Category3:
+	 *      [Column3: [20,21], Column8: [22,23]]]
+	 * ]
+	 *
+	 * the output will be (5 entries for each column, empty values for fields that don't exist in some assays)
+	 *
+	 * 	[
+	 *    [Category1:
+	 *      [Column1: [1,2,3,16,17], Column2: [4,5,6,,], Column6: [,,,18,19]],
+	 *     Category2:
+	 *      [Column3: [7,8,9,,], Column4: [10,11,12,,], Column5: [13,14,15,,]],
+	 *     Category3:
+	 *      [Column3: [,,,20,21], Column8: [,,,22,23]]
+	 * ]
+	 *
+	 *
+	 * @param columnWiseAssayData	List with each entry being the column wise data of an assay. The format for each
+	 * 								entry is described above. The data MUST have a category named 'Sample Data' and in that map a field
+	 * 								named 'id'. This field is used for matching rows. However, the column is removed, unless 
+	 * 								removeIdColumn is set to false
+	 * @param removeIdColumn		If set to true (default), the values for the sample id are removed from the output.
+	 * @return	Hashmap				Combined assay data, in the same structure as each input entry. Empty values are given as an empty string.
+	 * 								So for input entries
+	 */
+	def mergeColumnWiseDataOfMultipleStudiesForASetOfSamples(def columnWiseAssayData, boolean removeIdColumn = true ) {
+		// Merge all assays and studies into one list
+		def mergedData = mergeColumnWiseDataOfMultipleStudies( columnWiseAssayData )
+
+		// A map with keys being the sampleIds, and the values are the indices of that sample in the values list
+		def idMap = [:]
+		
+		// A map with the key being an index in the value list, and the value is the index the values should be copied to
+		def convertMap = [:]
+
+		for( int i = 0; i < mergedData[ "Sample Data" ][ "id" ].size(); i++ ) {
+			def id = mergedData[ "Sample Data" ][ "id" ][ i ];
+
+			if( idMap[ id ] == null ) {
+				// This id occurs for the first time
+				idMap[ id ] = i;
+				convertMap[ i ] = i;
+			} else {
+				convertMap[ i ] = idMap[ id ];
+			}
+		}
+		
+		/*
+		 * Example output: 
+		 * idMap:      [ 12: 0, 24: 1, 26: 3 ]
+		 * convertMap: [ 0: 0, 1: 1, 2: 0, 3: 3, 4: 3 ]	
+		 *   (meaning: rows 0, 1 and 3 should remain, row 2 should be merged with row 0 and row 4 should be merged with row 3)
+		 *   
+		 * The value in the convertMap is always lower than its key. So we sort the convertMap on the keys. That way, we can
+		 * loop through the values and remove the row that has been merged.
+		 */
+		
+		convertMap.sort { a, b -> b.key <=> a.key }.each { 
+			def row = it.key;
+			def mergeWith = it.value;
+			
+			if( row != mergeWith ) {
+				// Combine the data on row [row] with the data on row [mergeWith]
+				
+				mergedData.each { 
+					def cat = it.key; def fields = it.value;
+					fields.each { fieldData ->
+						def fieldName = fieldData.key; 
+						def fieldValues = fieldData.value;
+						
+						// If one of the fields to merge is empty, use the other one
+						// Otherwise the values should be the same (e.g. study, subject, sample data)
+						fieldValues[ mergeWith ] = ( fieldValues[ mergeWith ] == null || fieldValues[ mergeWith ] == "" ) ? fieldValues[ row ] : fieldValues[ mergeWith ]
+						
+						// Remove the row from this list
+						fieldValues.remove( row );
+					}
+				}
+			}
+		}
+		
+		// Remove sample id if required
+		if( removeIdColumn )
+			mergedData[ "Sample Data" ].remove( "id" );
+		
+		return mergedData
+	}
+
+	/**
 	 * Converts column
 	 * @param columnData multidimensional map containing column data.
 	 * On the top level, the data must be grouped by category. Each key is the
@@ -563,7 +677,7 @@ class AssayService {
 
 	/**
 	 * Export row wise data in CSV to a stream. All values are surrounded with
-     * double quotes (" ").
+	 * double quotes (" ").
 	 *
 	 * @param rowData List of lists containing for each row all cell values
 	 * @param outputStream Stream to write to
@@ -571,33 +685,33 @@ class AssayService {
 	 */
 	def exportRowWiseDataToCSVFile(rowData, outputStream, outputDelimiter = '\t', locale = java.util.Locale.US) {
 
-        def formatter = NumberFormat.getNumberInstance(locale)
-        formatter.setGroupingUsed false // we don't want grouping (thousands) separators
+		def formatter = NumberFormat.getNumberInstance(locale)
+		formatter.setGroupingUsed false // we don't want grouping (thousands) separators
 
-        outputStream << rowData.collect { row ->
-          row.collect{
+		outputStream << rowData.collect { row ->
+			row.collect{
 
-              // omit quotes in case of numeric values and format using chosen locale
-              if (it instanceof Number) return formatter.format(it)
+				// omit quotes in case of numeric values and format using chosen locale
+				if (it instanceof Number) return formatter.format(it)
 
-              def s = it?.toString() ?: ''
+				def s = it?.toString() ?: ''
 
-              def addQuotes = false
+				def addQuotes = false
 
-              // escape double quotes with double quotes if they exist and
-              // enable surround with quotes
-              if (s.contains('"')) {
-                  addQuotes = true
-                  s = s.replaceAll('"','""')
-              } else {
-                  // enable surround with quotes in case of comma's
-                  if (s.contains(',') || s.contains('\n')) addQuotes = true
-              }
+				// escape double quotes with double quotes if they exist and
+				// enable surround with quotes
+				if (s.contains('"')) {
+					addQuotes = true
+					s = s.replaceAll('"','""')
+				} else {
+					// enable surround with quotes in case of comma's
+					if (s.contains(',') || s.contains('\n')) addQuotes = true
+				}
 
-              addQuotes ? "\"$s\"" : s
+				addQuotes ? "\"$s\"" : s
 
-          }.join(outputDelimiter)
-        }.join('\n')
+			}.join(outputDelimiter)
+		}.join('\n')
 
 		outputStream.close()
 	}

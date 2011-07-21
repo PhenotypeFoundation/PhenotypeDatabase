@@ -141,7 +141,7 @@ class AssayController {
 				// obtain fields for each category
 				flow.fieldMap = assayService.collectAssayTemplateFields(flow.assay)
 
-                flash.errorMessage = flow.fieldMap.remove('ModuleError')
+				flash.errorMessage = flow.fieldMap.remove('ModuleError')
 				flow.measurementTokens = flow.fieldMap.remove('Module Measurement Data')
 			}.to "selectFields"
 
@@ -150,7 +150,7 @@ class AssayController {
 
 		selectFields {
 			on ("submit"){
-                
+
 				def fieldMapSelection = [:]
 
 				flow.fieldMap.eachWithIndex { cat, cat_i ->
@@ -175,21 +175,21 @@ class AssayController {
 					measurementTokens = params.list( "measurementToken" )
 				}
 
-                // collect the assay data according to user selecting
+				// collect the assay data according to user selecting
 				def assayData           = assayService.collectAssayData(flow.assay, fieldMapSelection, measurementTokens)
 
-                flash.errorMessage      = assayData.remove('ModuleError')
+				flash.errorMessage      = assayData.remove('ModuleError')
 
 				flow.rowData            = assayService.convertColumnToRowStructure(assayData)
 
-                // prepare the assay data preview
+				// prepare the assay data preview
 				def previewRows         = Math.min(flow.rowData.size()    as int, 5) - 1
 				def previewCols         = Math.min(flow.rowData[0].size() as int, 5) - 1
 
 				flow.assayDataPreview   = flow.rowData[0..previewRows].collect{ it[0..previewCols] as ArrayList }
 
-                // store the selected file type in the flow
-                flow.exportFileType = params.exportFileType
+				// store the selected file type in the flow
+				flow.exportFileType = params.exportFileType
 
 			}.to "compileExportData"
 
@@ -198,9 +198,9 @@ class AssayController {
 
 		compileExportData {
 			on ("ok"){
-                session.rowData = flow.rowData
-                session.exportFileType = flow.exportFileType
-            }.to "export"
+				session.rowData = flow.rowData
+				session.exportFileType = flow.exportFileType
+			}.to "export"
 			on ("cancel").to "selectAssay"
 		}
 
@@ -219,27 +219,27 @@ class AssayController {
 	 */
 	def doExport = {
 
-        // make sure we're coming from the export flow, otherwise redirect there
-        if (!(session.rowData && session.exportFileType))
-            redirect(action: 'assayExportFlow')
+		// make sure we're coming from the export flow, otherwise redirect there
+		if (!(session.rowData && session.exportFileType))
+			redirect(action: 'assayExportFlow')
 
-        // process requested output file type
-        def outputDelimiter, outputFileExtension, locale = java.util.Locale.US
+		// process requested output file type
+		def outputDelimiter, outputFileExtension, locale = java.util.Locale.US
 
-        switch(session.exportFileType) {
-            case '2': // Comma delimited csv
-                outputDelimiter = ','
-                outputFileExtension = 'csv'
-                break
-            case '3': // Semicolon delimited csv
-                outputDelimiter = ';'
-                outputFileExtension = 'csv'
-                locale = java.util.Locale.GERMAN // force use of comma as decimal separator
-                break
-            default: // Tab delimited with .txt extension
-                outputDelimiter = '\t'
-                outputFileExtension = 'txt'
-        }
+		switch(session.exportFileType) {
+			case '2': // Comma delimited csv
+				outputDelimiter = ','
+				outputFileExtension = 'csv'
+				break
+			case '3': // Semicolon delimited csv
+				outputDelimiter = ';'
+				outputFileExtension = 'csv'
+				locale = java.util.Locale.GERMAN // force use of comma as decimal separator
+				break
+			default: // Tab delimited with .txt extension
+				outputDelimiter = '\t'
+				outputFileExtension = 'txt'
+		}
 
 		def filename = "export.$outputFileExtension"
 		response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
@@ -283,7 +283,7 @@ class AssayController {
 	 */
 	def exportToExcelAsSheets = {
 		def assays = getAssaysFromParams( params );
-		
+
 		if( !assays )
 			return;
 
@@ -325,7 +325,7 @@ class AssayController {
 	 */
 	def exportToExcelAsList = {
 		def assays = getAssaysFromParams( params );
-		
+
 		if( !assays )
 			return;
 
@@ -367,6 +367,88 @@ class AssayController {
 		}
 	}
 
+	/**
+	 * Method to export one or more samples to csv in separate sheets.
+	 *
+	 * @param	params.ids		One or more sample ids to export
+	 */
+	def exportSamplesToCsv = {
+		def samples = getSamplesFromParams( params );
+
+		if( !samples ) {
+			return;
+		}
+
+		// Determine a list of assays these samples have been involved in. That way, we can
+		// retrieve the data for that assay once, and save precious time doing HTTP calls 
+		def assays = [:];
+		
+		samples.each { sample ->
+			def thisAssays = sample.getAssays();
+			
+			// Loop through all assays. If it already exists, add the sample it to the list
+			thisAssays.each { assay ->
+				if( !assays[ assay.id ] ) {
+					assays[ assay.id ] = [ 'assay': assay, 'samples': [] ]
+				}
+				
+				assays[ assay.id ].samples << sample
+			}
+		}
+		
+		// Now collect data for all assays
+		try {
+			// Loop through all assays to collect the data
+			def columnWiseAssayData = [];
+
+			assays.each { assayInfo ->
+				def assay = assayInfo.value.assay;
+				def assaySamples = assayInfo.value.samples;
+				
+				// Determine which fields should be exported for this assay
+				def fieldMap = assayService.collectAssayTemplateFields(assay)
+				def measurementTokens = fieldMap.remove('Module Measurement Data')
+				
+				// Retrieve row based data for this assay
+				def assayData = assayService.collectAssayData( assay, fieldMap, measurementTokens, assaySamples );
+				
+				// Prepend study and assay data to the list
+				assayData = assayService.prependAssayData( assayData, assay, assaySamples.size() )
+				assayData = assayService.prependStudyData( assayData, assay, assaySamples.size() )
+				
+				// Make sure the assay data can be distinguished later
+				assayData.put( "Assay data - " + assay.name, assayData.remove( "Assay Data") )
+				assayData.put( "Module measurement data - " + assay.name, assayData.remove( "Module Measurement Data") )
+				
+				// Add the sample IDs to the list, in order to be able to combine
+				// data for a sample that has been processed in multiple assays
+				assayData[ "Sample Data" ][ "id" ] = assaySamples*.id;
+				
+				println "Assay data"
+				assayData.each { println it }
+
+				columnWiseAssayData << assayData;
+			}
+			
+			def mergedColumnWiseData = assayService.mergeColumnWiseDataOfMultipleStudiesForASetOfSamples( columnWiseAssayData );
+
+			def rowData   = assayService.convertColumnToRowStructure(mergedColumnWiseData)
+			
+			// Send headers to the browser so the user can download the file
+			def filename = 'export.csv'
+			response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
+			response.setContentType("application/octet-stream")
+	
+			assayService.exportRowWiseDataToCSVFile( rowData, response.getOutputStream() )
+
+			response.outputStream.flush()
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+
 	def getAssaysFromParams( params ) {
 		def ids = params.list( 'ids' ).findAll { it.isLong() }.collect { Long.valueOf( it ) };
 		def tokens = params.list( 'tokens' );
@@ -391,16 +473,51 @@ class AssayController {
 			if( assay )
 				assays << assay;
 		}
-		
+
 		if( !assays ) {
 			flash.errorMessage = "No assays found";
 			redirect( action: "errorPage" );
 			return [];
 		}
-		
+
 		return assays.unique();
 	}
 
+	def getSamplesFromParams( params ) {
+		def ids = params.list( 'ids' ).findAll { it.isLong() }.collect { Long.valueOf( it ) };
+		def tokens = params.list( 'tokens' );
+
+		if( !ids && !tokens ) {
+			flash.errorMessage = "No sample ids given";
+			redirect( action: "errorPage" );
+			return [];
+		}
+
+		// Find all assays for the given ids
+		def samples = [];
+		ids.each { id ->
+			def sample = Sample.get( id );
+			if( sample )
+				samples << sample;
+		}
+
+		// Also accept tokens for defining studies
+		tokens.each { token ->
+			def sample = Sample.findBySampleUUID( token );
+			if( sample )
+				samples << sample;
+		}
+
+		if( !samples ) {
+			flash.errorMessage = "No assays found";
+			redirect( action: "errorPage" );
+			return [];
+		}
+
+		return samples.unique();
+	}
+
+	
 	def errorPage = {
 		render(view: 'assayExport/errorPage')
 	}
