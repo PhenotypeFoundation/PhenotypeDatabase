@@ -30,7 +30,7 @@ class RestController {
 	/**************************************************/
 
 	def authenticationService
-	def beforeInterceptor = [action:this.&auth,except:["isUser"]]
+	//def beforeInterceptor = [action:this.&auth,except:["isUser"]]
 	def credentials
 	def requestUser
 
