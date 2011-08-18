@@ -1147,6 +1147,14 @@ class StudyWizardController {
 					log.info ".saved study "+flow.study+" (id: "+flow.study.id+")"
 
 					success()
+				} catch (org.springframework.dao.OptimisticLockingFailureException e) {
+					// rollback
+					this.appendErrorMap(['exception': 'This study has been changed by another user while you were editing. Unfortunately, we can\'t save your changes. Please restart the wizard.' ], flash.wizardErrors)
+
+					// stacktrace in flash scope
+					flash.debug = e.getStackTrace()
+
+					error()
 				} catch (Exception e) {
 					// rollback
 					this.appendErrorMap(['exception': e.toString() + ', see log for stacktrace' ], flash.wizardErrors)
@@ -1967,6 +1975,9 @@ class StudyWizardController {
 				}
 			}
 		}
+		
+		// Mark study as dirty
+		flow.study.version++
 
 		return !errors
 	}

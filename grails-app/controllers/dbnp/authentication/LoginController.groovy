@@ -68,6 +68,10 @@ class LoginController {
 		def consumer = params.consumer
 		def token = params.token
 		
+		// Silent means that the user will be sent back, regardless of his login state. He will not
+		// be redirected to the login page.
+		def silent = params.silent ? Boolean.valueOf( params.silent ) : false;
+		
 		if (consumer == null || token == null) {
 			throw new Exception("Consumer and Token must be given!");
 		}
@@ -106,7 +110,16 @@ class LoginController {
 			}
 			return;
 		}
-
+		
+		// On silent login, the user should be sent back anyway
+		if( silent ) {
+			if (returnUrl) {
+				redirect url: returnUrl
+			} else {
+				redirect controller: 'home'
+			}
+		}
+		
 		// Otherwise we show the login screen
 		def config = SpringSecurityUtils.securityConfig
 		String view = 'auth'
