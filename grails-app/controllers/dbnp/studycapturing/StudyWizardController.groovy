@@ -160,6 +160,9 @@ class StudyWizardController {
 								case 'assays':
 									toAssaysPage()
 									break
+                                case 'samples':
+                                    toSamplesPage()
+                                    break
 								case 'study':
 								default:
 									toStudyPage()
@@ -183,6 +186,7 @@ class StudyWizardController {
 			on("toSubjectsPage").to "subjects"
 			on("toEventsPage").to "events"
 			on("toAssaysPage").to "assays"
+            on("toSamplesPage").to "samples"
 			on("toModifyPage").to "modify"
 		}
 
@@ -1464,7 +1468,7 @@ class StudyWizardController {
 			   // Create a clone of persons list in order to avoid
 			   // concurrentModification exceptions. See http://blog.springsource.com/2010/07/02/gorm-gotchas-part-2/
 			   def persons = [] + study.persons;
-			   ersons.each {
+			   persons.each {
 				   study.removeFromPersons(it)
 				   it.delete()
 			   }
