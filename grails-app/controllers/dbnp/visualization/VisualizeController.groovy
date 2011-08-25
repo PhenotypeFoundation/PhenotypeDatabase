@@ -40,9 +40,6 @@ class VisualizeController {
 		
 		entities.each { entity ->
 			def entityFields = TemplateField.findAll( "from TemplateField where entity = ?", [ entity ] );
-			
-			println "Entity " + entity + " -> " + entityFields
-			
 			def domainFields = entity.giveDomainFields();
 			
 			( domainFields + entityFields ).each { field ->

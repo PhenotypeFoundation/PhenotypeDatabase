@@ -147,7 +147,16 @@
 			margin-top: 10px;
 		
 			background: #ffe0e0 url(${fam.icon( name: 'error' )}) 10px 10px no-repeat;
-			padding: 10px 10px 10px 33px;		
+			padding: 10px 10px 10px 33px;
+		}
+		
+		label { display: inline-block; zoom: 1; *display: inline; width: 110px; margin-top: 10px;  }
+
+		#visualizationForm { position: relative; margin: 10px 0; font-size: 11px; }
+		#visualizationForm h3 { font-size: 13px; }
+		#visualizationForm h3 .nummer { display: inline-block; zoom: 1; *display: inline; width: 25px; } 
+		
+		#visualizationForm p { margin-left: 25px; }
 	</style>
 </head>
 <body>
@@ -173,12 +182,14 @@
 		<p class="explanation">
 			Choose a study to visualize
 		</p>
-		<g:select from="${studies}" optionKey="id" optionValue="title" name="study" onChange="changeStudy();"/>
+		<p>
+			<label>Study</label><g:select from="${studies}" optionKey="id" optionValue="title" name="study" onChange="changeStudy();"/>
+		</p>
 		
 		<div id="step2">
 			<h3><span class="nummer">2</span>Variables</h3>
 			<p>
-				<label for="rows">Rows</label> <select id="rows" name="rows" onChange="changeFields();"></select>
+				<label for="rows">Rows</label> <select id="rows" name="rows" onChange="changeFields();"></select><br />
 				<label for="columns">Columns</label> <select id="columns" name="columns" onChange="changeFields();"></select>
 			</p>
 		</div>
