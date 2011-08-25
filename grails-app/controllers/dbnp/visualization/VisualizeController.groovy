@@ -56,7 +56,29 @@ class VisualizeController {
 	}
 	
 	def getData = {
-		def data = [[3,7,9,1,4,6,8,2,5]];
+		def data = 	[
+				"type": "barchart",
+				"x": [ "0", "1", "6", "9", "12" ],
+				"xaxis": [ "title": "time", "unit": "weeks" ],
+				"yaxis": [ "title": "adipose tissue", "unit": "mg" ],
+				"series": [
+					[
+						"name": "epididymal",
+						"y": [ 200, 400, 390, 405, 500 ],
+						"error": [ 0.5, 0.2, 0.4, 0.5 ]
+					],
+					[
+						"name": "visceral",
+						"y": [ 160, 200, 220, 220, 600 ],
+						"error": [ 0.5, 0.2, 0.4, 0.5 ]
+					],
+					[
+						"name": "subcutaneous",
+						"y": [ 160, 200, 230, 300, 600 ],
+						"error": [ 0.5, 0.2, 0.4, 0.5 ]
+					],
+				]
+			]
 		
 		render data as JSON
 	}
