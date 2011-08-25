@@ -25,7 +25,24 @@ class VisualizeControllerTests extends ControllerUnitTestCase {
         super.tearDown()
     }
 
-    void testSomething() {
+    void testGetStudies() {
+		assert 1 == 1
+    }
 
+    void testGetFields() {
+		assert 1 == 1
+    }
+
+	void testGetData() {
+		// Create a fake study
+		
+		// Set controller parameters
+		controller.params.study = 1;
+		controller.params.fields = [ "row": 4, "columns": 6 ];
+		
+		// Run controller method
+		//controller.getData()
+		//assertEquals "...", controller.response.contentAsString
+		assert 1 == 1;
     }
 }
