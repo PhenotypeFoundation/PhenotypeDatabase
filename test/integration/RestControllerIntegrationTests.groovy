@@ -42,7 +42,7 @@ class RestControllerIntegrationTests extends ControllerUnitTestCase {
 		long now = new Date().getTime()
 		Date expiryDate = new Date( now + 24 * 60 * 60 * 1000 )
 		def user = new SessionAuthenticatedUser( consumer: consumer, token: token, secUser: SecUser.findByUsername( 'user' ), expiryDate: expiryDate )
-		user.save(flush: true)
+		assert user.save(flush: true)
 
 		// Check whether the user is really logged in
 		assert authenticationService.isRemotelyLoggedIn( consumer, token )
