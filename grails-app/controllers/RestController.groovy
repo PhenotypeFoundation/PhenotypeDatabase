@@ -442,6 +442,7 @@ class RestController {
 			if (assay.module?.url) {
 				assayModuleURL = new URL(assay.module.url)
 				assayModuleInet = InetAddress.getByName(assayModuleURL.getHost())
+				println "assay module check: ${moduleInet.hostAddress == assayModuleInet.hostAddress}, ${moduleURL.path == assayModuleURL.path}, ${assay}"
 
 				if (
 					moduleInet.hostAddress == assayModuleInet.hostAddress &&	// match ip addresses
