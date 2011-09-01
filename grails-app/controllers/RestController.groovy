@@ -365,6 +365,8 @@ class RestController {
 	 * Result: Same as result in Example 1.
 	 */
 	def getAssays = {
+		def moduleURL, moduleInet, assayModuleURL, assayModuleInet
+
 		// Check which user has been logged in
 		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
  
@@ -380,11 +382,10 @@ class RestController {
 			render "Error. Wrong or insufficient parameters." as JSON
 			return
 		}
-		
+
 		def assays = []
 		
 		if( params.studyToken ) {
-
 			def study = Study.findByStudyUUID(params.studyToken)
 
 			if(study) {
@@ -423,15 +424,38 @@ class RestController {
 		}
 
 		// Create data for all assays
+		moduleURL = new URL(params.moduleURL)
+		moduleInet = InetAddress.getByName(moduleURL.getHost())
 		assays.each{ assay ->
-			if (assay.module?.url && assay.module.url.equals(params.moduleURL)) {
-				if(assay) {
+			/**
+			 * assay.module.url does not necessarily have to match the moduleURL
+			 * completely (e.g. when using a hosts file vs ip), especially when using
+			 * localhost, 127.0.01 or a host name that aliasses localhost.
+			 *
+			 * Therefore we will resolve the host names and compare the resulting ip
+			 * addresses and see if they match
+			 *
+			 * future improvement: do not use the module URL for matching at all. Perhaps
+			 * a module identifier or a 'module token' would be better as this is not
+			 * url dependant.
+			 */
+			if (assay.module?.url) {
+				assayModuleURL = new URL(assay.module.url)
+				assayModuleInet = InetAddress.getByName(assayModuleURL.getHost())
+
+				if (
+					moduleInet.hostAddress == assayModuleInet.hostAddress &&	// match ip addresses
+					moduleURL.path == assayModuleURL.path &&					// match host path
+					assay                                                       // got assay?
+				) {
 					def map = [assayToken : assay.giveUUID()]
+
 					assay.giveFields().each { field ->
 						def name = field.name
 						def value = assay.getFieldValue( name )
 						map[name] = value
 					}
+
 					map["parentStudyToken"] = assay.parent.giveUUID()
 					returnList.push( map )
 				}
