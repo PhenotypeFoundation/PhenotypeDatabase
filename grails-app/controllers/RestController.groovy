@@ -438,38 +438,47 @@ class RestController {
 			 * future improvement: do not use the module URL for matching at all. Perhaps
 			 * a module identifier or a 'module token' would be better as this is not
 			 * url dependant.
+			 *
+			 * check if:
+			 *  1. we've for a module url
+			 * 	2. we've got an assay
+			 *	3. the calling module is the same as the assay's module by checking if:
+			 *		a. the module urls match, or
+			 *		b. the (resolved) ip addresses and path part of the module's url match
 			 */
-			if (assay.module?.url) {
-				assayModuleURL = new URL(assay.module.url)
-				assayModuleInet = InetAddress.getByName(assayModuleURL.getHost())
+			if (
+				assay.module?.url &&
+				assay &&
+				(
+					assay.module.url.equals(params.moduleURL) ||
+					this.doesModuleMatch(assay, moduleURL, moduleInet)
+				)
+			) {
+				def map = [assayToken: assay.giveUUID()]
 
-				// check if
-				// 	1. we've got an assay
-				// 	2. ip address of module matches
-				// 	3. the path part of the module matches
-				if (
-					assay &&
-					moduleInet.hostAddress == assayModuleInet.hostAddress &&
-					(
-						moduleURL.path.replaceAll(/[^a-zA-Z0-9]/,"") ==
-						assayModuleURL.path.replaceAll(/[^a-zA-Z0-9]/,"")
-					)
-				) {
-					def map = [assayToken : assay.giveUUID()]
-
-					assay.giveFields().each { field ->
-						def name = field.name
-						def value = assay.getFieldValue( name )
-						map[name] = value
-					}
-
-					map["parentStudyToken"] = assay.parent.giveUUID()
-					returnList.push( map )
+				assay.giveFields().each { field ->
+					def name = field.name
+					def value = assay.getFieldValue(name)
+					map[name] = value
 				}
+
+				map["parentStudyToken"] = assay.parent.giveUUID()
+				returnList.push(map)
 			}
 		}
 
 		render returnList as JSON
+	}
+
+	def doesModuleMatch = { assay, moduleURL, moduleInet ->
+		// only resolve hosts if the urls do not match identically
+		def assayModuleURL = new URL(assay.module.url)
+		def assayModuleInet = InetAddress.getByName(assayModuleURL.getHost())
+
+		return (
+			moduleInet.hostAddress == assayModuleInet.hostAddress &&
+			(moduleURL.path.replaceAll(/[^a-zA-Z0-9]/, "") == assayModuleURL.path.replaceAll(/[^a-zA-Z0-9]/, ""))
+		)
 	}
 
 	/**
