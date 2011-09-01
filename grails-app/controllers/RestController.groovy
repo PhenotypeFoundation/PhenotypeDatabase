@@ -442,14 +442,18 @@ class RestController {
 			if (assay.module?.url) {
 				assayModuleURL = new URL(assay.module.url)
 				assayModuleInet = InetAddress.getByName(assayModuleURL.getHost())
-				println "assay module check: ${moduleInet.hostAddress == assayModuleInet.hostAddress}, ${moduleURL.path.replaceAll("/","") == assayModuleURL.path.replaceAll("/","")}, ${assay}"
-				println "modulePath: ${moduleURL.path}"
-				println "assayModulePath: ${assayModuleURL.path}"
 
+				// check if
+				// 	1. we've got an assay
+				// 	2. ip address of module matches
+				// 	3. the path part of the module matches
 				if (
-					moduleInet.hostAddress == assayModuleInet.hostAddress &&						// match ip addresses
-					moduleURL.path.replaceAll("/","") == assayModuleURL.path.replaceAll("/","") &&	// match host path
-					assay                                                       					// got assay?
+					assay &&
+					moduleInet.hostAddress == assayModuleInet.hostAddress &&
+					(
+						moduleURL.path.replaceAll(/[^a-zA-Z0-9]/,"") ==
+						assayModuleURL.path.replaceAll(/[^a-zA-Z0-9]/,"")
+					)
 				) {
 					def map = [assayToken : assay.giveUUID()]
 
