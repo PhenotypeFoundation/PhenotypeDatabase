@@ -142,6 +142,7 @@ class ModuleCommunicationService implements Serializable {
 			def textResponse
 			switch( requestMethod.toUpperCase() ) {
 				case "GET":
+					log.trace( "Using GET method" );
 					def url = restUrl + "?" + args;
 					def connection = url.toURL().openConnection();
 		
@@ -149,6 +150,7 @@ class ModuleCommunicationService implements Serializable {
 				
 					break
 				case "POST":
+					log.trace( "Using POST method" );
 					def connection = restUrl.toURL().openConnection()
 					connection.setRequestMethod( "POST" );
 					connection.doOutput = true
