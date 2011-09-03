@@ -425,7 +425,13 @@ class RestController {
 
 		// Create data for all assays
 		moduleURL = new URL(params.moduleURL)
-		moduleInet = InetAddress.getByName(moduleURL.getHost())
+		try {
+			moduleInet = InetAddress.getByName(moduleURL.getHost())
+		}
+		catch(Exception e) {
+			moduleInet = moduleURL.host
+		}
+
 		assays.each{ assay ->
 			/**
 			 * assay.module.url does not necessarily have to match the moduleURL
@@ -471,14 +477,23 @@ class RestController {
 	}
 
 	def doesModuleMatch = { assay, moduleURL, moduleInet ->
-		// only resolve hosts if the urls do not match identically
-		def assayModuleURL = new URL(assay.module.url)
-		def assayModuleInet = InetAddress.getByName(assayModuleURL.getHost())
 
-		return (
-			moduleInet.hostAddress == assayModuleInet.hostAddress &&
-			(moduleURL.path.replaceAll(/[^a-zA-Z0-9]/, "") == assayModuleURL.path.replaceAll(/[^a-zA-Z0-9]/, ""))
-		)
+		try {
+
+			// only resolve hosts if the urls do not match identically
+			def assayModuleURL = new URL(assay.module.url)
+			def assayModuleInet = InetAddress.getByName(assayModuleURL.getHost())
+
+			return (
+				moduleInet.hostAddress == assayModuleInet.hostAddress &&
+				(moduleURL.path.replaceAll(/[^a-zA-Z0-9]/, "") == assayModuleURL.path.replaceAll(/[^a-zA-Z0-9]/, ""))
+			)
+		}
+		catch (Exception e) {
+			// If for some reason an error occurs (e.g. because the hostname is invalid and throws an UnknownHostException)
+			// assume the calling module does not equal the assay module considered
+			return false
+		}
 	}
 
 	/**
