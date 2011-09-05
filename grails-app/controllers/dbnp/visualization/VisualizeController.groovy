@@ -23,6 +23,7 @@ import org.dbnp.gdt.*
 class VisualizeController {
 	def authenticationService
 	def moduleCommunicationService
+    def infoMessage = ""
 
 	/**
 	 * Shows the visualization screen
@@ -33,7 +34,7 @@ class VisualizeController {
 
 	def getStudies = {
 		def studies = Study.giveReadableStudies( authenticationService.getLoggedInUser() );
-		render studies as JSON
+        returnResults(studies)
 	}
 
 	def getFields = {
@@ -41,6 +42,7 @@ class VisualizeController {
 		def studies
 
 		try{
+            // TODO: fix this
 			input_object = JSON.parse(params.get('data'))
 			studies = input_object.get('studies').id
 		} catch(Exception e) {
@@ -94,12 +96,24 @@ class VisualizeController {
 			// TODO: Maybe we should add study's own fields
 		}
 
-		render fields as JSON
+		returnResults(fields)
 	}
 
 	def getVisualizationTypes = {
+        def inputData = parseGetDataParams();
+        println "inputData: "+inputData
+
+
+        // TODO: handle the case of multiple fields on an axis
+        println "Checking type of row data"
+        def rowType = determineFieldType(inputData.studyIds[0], inputData.rowIds[0])
+        println "Checking type of column data"
+        def columnType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0])
+
+        println "getVisualizationTypes: row contains data of type "+rowType+" and column contains data of type "+columnType
+
 		def types = [ [ "id": "barchart", "name": "Barchart"] ];
-		render types as JSON
+		returnResults(types)
 	}
 
     def getFields(source, assay){
@@ -272,7 +286,7 @@ class VisualizeController {
 		// Format data so it can be rendered as JSON
 		def returnData = formatData( groupedData, fields );
 
-		render returnData as JSON
+		returnResults(returnData)
 	}
 
 	/**
@@ -409,7 +423,7 @@ class VisualizeController {
 						
 						if( index > -1 ) {
 							data << measurements[ index ];
-						} else {[ "x": inputData.columnIds[ 0 ], "y": inputData.rowIds[ 0 ] ]
+						} else {
 							data << null
 						}
 					}
@@ -722,4 +736,115 @@ class VisualizeController {
         response.sendError(code , msg)
     }
 
+    protected String determineFieldType(studyId, fieldId){
+        // Parse the fieldId as given by the user
+		def parsedField = parseFieldId( fieldId );
+
+        def study = Study.get(studyId)
+        println "study: "+study+", parsedField: "+parsedField
+
+		def data = []
+
+		if( parsedField.source == "GSCF" ) {
+            if(parsedField.id.isNumber()){
+                // Templatefield
+                // ask for tf by id, ask for .type
+                println "GSCF, dunno yet"
+            } else {
+                // Domainfield or memberclass
+                switch( parsedField.type ) {
+                    case "Study":
+                    case "studies":
+                        def cat = determineCategoryFromClass(Study[parsedField.name].class)
+                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
+                        return cat
+                        break
+                    case "Subject":
+                    case "subjects":
+                        def cat = determineCategoryFromClass(Subject[parsedField.name].class)
+                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
+                        return cat
+                        break
+                    case "Sample":
+                    case "samples":
+                        def cat = determineCategoryFromClass(Sample[parsedField.name].class)
+                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
+                        return cat
+                        break
+                    case "Event":
+                    case "events":
+                        def cat = determineCategoryFromClass(Event[parsedField.name].class)
+                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
+                        return cat
+                        break
+                    case "SamplingEvent":
+                    case "samplingEvents":
+                        def cat = determineCategoryFromClass(SamplingEvent[parsedField.name].class)
+                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
+                        return cat
+                        break
+                    case "Assay":
+                    case "assays":
+                        def cat = determineCategoryFromClass(Assay[parsedField.name].class)
+                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
+                        return cat
+                        break
+                }
+            }
+
+            // Check parsedField.id == number
+		} else {
+            data = getModuleData( study, study.getSamples(), parsedField.source, parsedField.name );
+            def cat = determineCategoryFromData(data)
+            return cat
+		}
+    }
+
+    protected String determineCategoryFromClass(inputObject){
+        println "determineCategoryFromClass: "+inputObject+", class: "+inputObject.class
+        if(inputObject==java.lang.String){
+            return "cat"
+            // TODO: make this a final
+        } else {
+            return "num"
+            // TODO: make this a final
+        }
+    }
+
+    protected String determineCategoryFromData(inputObject){
+        def results = []
+        if(inputObject instanceof Collection){
+            // More complex datatype, call outselves again
+            inputObject.each {
+                results << determineCategoryFromData(it)
+            }
+        } else {
+            if(inputObject.toString().isDouble()){
+                results << "num"
+                // TODO: make this a final
+            } else {
+                results << "cat"
+                // TODO: make this a final
+            }
+        }
+
+        results.unique()
+
+        if(results.size()>1){
+            //log.error("VisualizeController: determineCategoryFromData: Category list contains more than one category! List: "+results+", inputObject: "+inputObject)
+            results[0] = "cat"
+            // TODO: make this a final
+        }
+
+        return results[0]
+    }
+
+    protected void returnResults(returnData){
+        def results = [:]
+        if(infoMessage!=""){
+            results.put("infoMessage", returnData)
+        }
+        results.put("returnData", returnData)
+        render results as JSON
+    }
 }
