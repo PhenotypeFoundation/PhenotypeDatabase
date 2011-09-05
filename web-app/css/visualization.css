@@ -11,10 +11,121 @@
 
 label { display: inline-block; zoom: 1; *display: inline; width: 110px; margin-top: 10px;  }
 
-#visualizationForm { position: relative; margin: 10px 0; font-size: 11px; }
-#visualizationForm h3 { font-size: 13px; }
-#visualizationForm h3 .nummer { display: inline-block; zoom: 1; *display: inline; width: 25px; } 
-
-#visualizationForm p { margin-left: 25px; }
-
 table.jqplot-table-legend { width: 100px; }
+
+#visualization {
+    width: 100%;
+}
+
+#messages {
+    width: 840px;
+    height: 60px;
+    overflow: hidden;
+}
+
+/** START :: VISUALIZATION MENU **/
+
+#data {
+    position: relative;
+    width: 960px;
+}
+
+#menu_container {
+    width : 60px;
+    background-color: #ddd;
+    border-top-right-radius: 10px;
+    -moz-border-radius-topright: 10px;
+    -webkit-border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    border-right-style: inset;
+    border-right-width: 5px;
+    z-index: 5;
+}
+
+.menu_item {
+    position: relative;
+    width : 88px;
+    margin-right: 4px;
+    padding: 4px;
+    border-top-right-radius: 10px;
+    -moz-border-radius-topright: 10px;
+    -webkit-border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    border-style: solid solid solid none;
+    border-width: 2px;
+    font-size: medium;
+    background-color: #AAAAAA;
+    border-color: #888;
+    z-index: 10;
+}
+
+.menu_arrow {
+    background-image: url('../images/visualization/down_arrow.png');
+    background-repeat: no-repeat;
+    margin: 6px;
+    height: 48px;
+}
+
+.menu_spacer {
+    height: 40px;
+}
+
+.menu_item_done {
+    background-color: #00CC00;
+    border-color: green;
+}
+
+.menu_item_error {
+    background-color: pink;
+    border-color: red;
+}
+
+.menu_item_warning {
+    background-color: yellow;
+    border-color: #ffa07a;
+}
+
+.menu_item_fill {
+    background-color: #87cefa;
+    border-color: blue;
+}
+
+.menu_item_info {
+    font-size: 9px;
+    width: 80px;
+    overflow-x: hidden;
+}
+
+.menu_item:hover {
+    background-color: white;
+}
+
+#visualization_container {
+    position: absolute;
+    left: 120px;
+    width: 840px;
+    top: 0px;
+
+}
+
+.formulier {
+    position: absolute;
+    display: none;
+    left: 140px;
+    top: -2px;
+    width: 500px;
+    height: 100px;
+    border-style: solid;
+    border-color: inherit;
+    border-width: 2px;
+    background: white;
+    padding: 40px;
+}
+
+.spinner {
+    display: none;
+}

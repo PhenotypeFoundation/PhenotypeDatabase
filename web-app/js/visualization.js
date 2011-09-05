@@ -3,23 +3,46 @@
  */
 var visualization = null;
 
+$(document).ready(function() {
+    $(".menu_item").mouseover(
+        function() {
+            $( this ).css("width","150px");
+            $(this).find("div.formulier").show();
+		}
+    ).mouseout(
+        function() {
+            $( this ).find("div.formulier").hide();
+            $( this ).css("width","88px");
+		}
+    );
+});
+
 /**
  * Retrieve new fields based on the study that the user has selected.
  */
 function changeStudy() {
+    $( "#menu_study" ).find("div.formulier").hide();
+    $( "#menu_study" ).find("img.spinner").show();
+    $( "#menu_study" ).find("div.menu_item_info").html("<br />"+$( '#study option:selected' ).text());
+
 	executeAjaxCall( "getFields", {
 		"errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
 		"success": function( data, textStatus, jqXHR ) {
 			// Remove all previous entries from the list
 			$( '#rows, #columns' ).empty();
+            $( '#rows, #columns' ).append( $( "<option>" ).val( "" ).text( "[SELECT OPTION]" ) );
 
 			// Add all fields to the lists
-			$.each( data, function( idx, field ) {
+            var returndata = data.returnData;
+			$.each( returndata, function( idx, field ) {
 				$( '#rows, #columns' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
 			});
 			
-			$( "#step2" ).show();
-			$( "#step3" ).hide();
+            $( "#menu_study" ).find("img.spinner").hide();
+            $( "#menu_study" ).removeClass("menu_item_fill");
+            $( "#menu_study" ).addClass("menu_item_done");
+            $( "#menu_row" ).addClass("menu_item_fill");
+            $( "#menu_column" ).addClass("menu_item_fill");
 		}
 	});
 }
@@ -27,22 +50,61 @@ function changeStudy() {
 /**
  * Retrieve the possible visualization types based on the fields that the user has selected.
  */
-function changeFields() {
+function changeFields(divid) {
+    $( "#"+divid ).find("img.spinner").show();
+    $( "#"+divid ).find("div.formulier").hide();
+
+    var type = "rows";
+    if(divid=="menu_column") type = "columns";
+
+    $( "#"+divid ).find("div.menu_item_info").html("<br />"+$( '#'+type+' option:selected' ).text());
 	executeAjaxCall( "getVisualizationTypes", {
 		"errorMessage": "An error occurred while retrieving visualization types from the server. Please try again or contact a system administrator.",
 		"success": function( data, textStatus, jqXHR ) {
 			// Remove all previous entries from the list
+            var oldSelect = $( '#types option:selected' ).text();
+            var intSelect = 0;
+            var iOptionNum = 0;
 			$( '#types' ).empty();
 
+            $( '#types' ).append( $( "<option>" ).val( "" ).text( "[SELECT OPTION]" ) );
 			// Add all fields to the lists
-			$.each( data, function( idx, field ) {
+            var returndata = data.returnData;
+
+			$.each( returndata, function( idx, field ) {
+                if(field.name==oldSelect) {
+                    intSelect = iOptionNum;
+                }
+                iOptionNum = iOptionNum + 1;
 				$( '#types' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
 			});
 
-			$( "#step3" ).show();
+            $( '#types' ).selectedIndex = intSelect;
+
+            $( "#"+divid ).find("img.spinner").hide();
+            $( "#"+divid ).addClass("menu_item_done");
+            $( "#"+divid ).removeClass("menu_item_fill");
+            if(!$( "#menu_vis" ).hasClass("menu_item_done") && $( "#menu_row" ).hasClass("menu_item_done") && $( "#menu_column" ).hasClass("menu_item_done")) {
+                $( "#menu_vis" ).addClass("menu_item_fill");
+            }
 		}
 	});
 }
+
+/**
+ *
+ */
+function changeVis() {
+    $( "#menu_vis" ).find("div.formulier").hide();
+    $( "#menu_vis" ).removeClass("menu_item_fill");
+    $( "#menu_vis" ).addClass("menu_item_done");
+    $( "#menu_vis" ).find("div.menu_item_info").html("<br />"+$( '#types option:selected' ).text());
+    if($("#autovis").attr("checked")=="checked") {
+        visualize();
+    }
+
+}
+
 
 /**
  * Create a visualization based on the parameters entered in the form
@@ -57,7 +119,7 @@ function visualize() {
 				visualization.destroy();
 
 			// Handle erroneous data
-			if( !checkCorrectData( data ) ) {
+			if( !checkCorrectData( returndata ) ) {
 				showError( "Unfortunately the server returned data in a format that we did not expect." );
 				return;
 			}
@@ -66,10 +128,15 @@ function visualize() {
 			var dataPoints = [];
 			var series = [];
 
-			$.each(data.series, function(idx, element ) {
+
+            var returndata = data.returnData;
+			$.each(returndata.series, function(idx, element ) {
 				dataPoints[ dataPoints.length ] = element.y;
 				series[ series.length ] = { "label": element.name };
 			});
+
+            var xlabel = returndata[ "xaxis" ].unit=="" ? returndata[ "xaxis" ].title : returndata[ "xaxis" ].title + " (" + returndata[ "xaxis" ].unit + ")";
+            var ylabel = returndata[ "yaxis" ].unit=="" ? returndata[ "yaxis" ].title : returndata[ "yaxis" ].title + " (" + returndata[ "yaxis" ].unit + ")";
 			
 			// TODO: create a chart based on the data that is sent by the user and the type of chart
 			// chosen by the user
@@ -91,12 +158,12 @@ function visualize() {
 				axes: {
 					xaxis: {
 							renderer: $.jqplot.CategoryAxisRenderer,
-							ticks: data.x,
-							label: data[ "xaxis" ].title + " (" + data[ "xaxis" ].unit + ")",
+							ticks: returndata.x,
+							label: xlabel,
 							labelRenderer: $.jqplot.CanvasAxisLabelRenderer
 					},
 					yaxis: {
-						label: data[ "yaxis" ].title + " (" + data[ "yaxis" ].unit + ")",
+						label: ylabel,
 						labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
 					}
 				}
