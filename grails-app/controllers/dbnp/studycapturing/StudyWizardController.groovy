@@ -1981,7 +1981,10 @@ class StudyWizardController {
 		}
 		
 		// Mark study as dirty
-		flow.study.version++
+		if( flow.study.version )
+			flow.study.version++
+		else	
+			flow.study.version = 1
 
 		return !errors
 	}
