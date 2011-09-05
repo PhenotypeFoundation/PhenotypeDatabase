@@ -333,6 +333,10 @@ class RestController {
 	 *
 	 * @param	studyToken	String The external study id (code) of the target GSCF Study object
 	 * @param	consumer	consumer name of the calling module
+	 * @param   moduleURL   URL of the calling module - NOTE: this is used as identifier for the module!
+	 * The moduleURL that is passed on from the module should match exactly with the module URL that is specified in GSCF.
+	 * Otherwise the module assays will not be visible.
+	 *
 	 * @return list of assays in the study as JSON object list, filtered to only contain assays
 	 *         for the specified module, with 'assayToken' and 'name' for each assay
 	 *
@@ -365,8 +369,6 @@ class RestController {
 	 * Result: Same as result in Example 1.
 	 */
 	def getAssays = {
-		def moduleURL, moduleInet, assayModuleURL, assayModuleInet
-
 		// Check which user has been logged in
 		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
  
@@ -382,10 +384,11 @@ class RestController {
 			render "Error. Wrong or insufficient parameters." as JSON
 			return
 		}
-
+		
 		def assays = []
 		
 		if( params.studyToken ) {
+
 			def study = Study.findByStudyUUID(params.studyToken)
 
 			if(study) {
@@ -424,76 +427,22 @@ class RestController {
 		}
 
 		// Create data for all assays
-		moduleURL = new URL(params.moduleURL)
-		try {
-			moduleInet = InetAddress.getByName(moduleURL.getHost())
-		}
-		catch(Exception e) {
-			moduleInet = moduleURL.host
-		}
-
 		assays.each{ assay ->
-			/**
-			 * assay.module.url does not necessarily have to match the moduleURL
-			 * completely (e.g. when using a hosts file vs ip), especially when using
-			 * localhost, 127.0.01 or a host name that aliasses localhost.
-			 *
-			 * Therefore we will resolve the host names and compare the resulting ip
-			 * addresses and see if they match
-			 *
-			 * future improvement: do not use the module URL for matching at all. Perhaps
-			 * a module identifier or a 'module token' would be better as this is not
-			 * url dependant.
-			 *
-			 * check if:
-			 *  1. we've for a module url
-			 * 	2. we've got an assay
-			 *	3. the calling module is the same as the assay's module by checking if:
-			 *		a. the module urls match, or
-			 *		b. the (resolved) ip addresses and path part of the module's url match
-			 */
-			if (
-				assay.module?.url &&
-				assay &&
-				(
-					assay.module.url.equals(params.moduleURL) ||
-					this.doesModuleMatch(assay, moduleURL, moduleInet)
-				)
-			) {
-				def map = [assayToken: assay.giveUUID()]
-
-				assay.giveFields().each { field ->
-					def name = field.name
-					def value = assay.getFieldValue(name)
-					map[name] = value
+			if (assay.module?.url && assay.module.url.equals(params.moduleURL)) {
+				if(assay) {
+					def map = [assayToken : assay.giveUUID()]
+					assay.giveFields().each { field ->
+						def name = field.name
+						def value = assay.getFieldValue( name )
+						map[name] = value
+					}
+					map["parentStudyToken"] = assay.parent.giveUUID()
+					returnList.push( map )
 				}
-
-				map["parentStudyToken"] = assay.parent.giveUUID()
-				returnList.push(map)
 			}
 		}
 
 		render returnList as JSON
-	}
-
-	def doesModuleMatch = { assay, moduleURL, moduleInet ->
-
-		try {
-
-			// only resolve hosts if the urls do not match identically
-			def assayModuleURL = new URL(assay.module.url)
-			def assayModuleInet = InetAddress.getByName(assayModuleURL.getHost())
-
-			return (
-				moduleInet.hostAddress == assayModuleInet.hostAddress &&
-				(moduleURL.path.replaceAll(/[^a-zA-Z0-9]/, "") == assayModuleURL.path.replaceAll(/[^a-zA-Z0-9]/, ""))
-			)
-		}
-		catch (Exception e) {
-			// If for some reason an error occurs (e.g. because the hostname is invalid and throws an UnknownHostException)
-			// assume the calling module does not equal the assay module considered
-			return false
-		}
 	}
 
 	/**
