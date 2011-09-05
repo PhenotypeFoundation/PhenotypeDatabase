@@ -44,8 +44,8 @@ class VisualizeController {
 			input_object = JSON.parse(params.get('data'))
 			studies = input_object.get('studies').id
 		} catch(Exception e) {
-			// TODO: properly handle this exception
-			println e
+			returnError(400, "An error occured while retrieving the user input.")
+            log.error("VisualizationController: getFields: "+e)
 		}
 
 		def fields = [];
@@ -69,25 +69,27 @@ class VisualizeController {
 			fields += getFields(study, "samples", "domainfields")
 			fields += getFields(study, "samples", "domainfields")
 
-			/*
-			 Gather fields related to this study from modules.
-			 This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
-			 It does not actually return measurements (the getMeasurementData call does).
-			 The getFields method (or rather, the getMeasurements service) requires one or more assays and will return all measurement
-			 types related to these assays.
-			 So, the required variables for such a call are:
-			 - a source variable, which can be obtained from AssayModule.list() (use the 'name' field)
-			 - a list of assays, which can be obtained with study.getAssays()
-			 */
-			AssayModule.list().each { module ->
-				def list = []
-				list = getFields(module.name, study.getAssays())
-				if(list!=null){
-					if(list.size()!=0){
-						fields += list
-					}
-				}
-			}
+            /*
+            Gather fields related to this study from modules.
+            This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
+            It does not actually return measurements (the getMeasurementData call does).
+            The getFields method (or rather, the getMeasurements service) requires one or more assays and will return all measurement
+            types related to these assays.
+            So, the required variables for such a call are:
+              - a source variable, which can be obtained from AssayModule.list() (use the 'name' field)
+              - an assay, which can be obtained with study.getAssays()
+             */
+
+            study.getAssays().each { assay ->
+                def list = []
+                list = getFields(assay.module.id, assay)
+                if(list!=null){
+                    if(list.size()!=0){
+                        fields += list
+
+                    }
+                }
+            }
 
 			// TODO: Maybe we should add study's own fields
 		}
@@ -100,121 +102,148 @@ class VisualizeController {
 		render types as JSON
 	}
 
-	def getFields(source, assays){
-		/*
-		 Gather fields related to this study from modules.
-		 This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
-		 It does not actually return measurements (the getMeasurementData call does).
-		 The getFields method (or rather, the getMeasurements service) requires one or more assays and will return all measurement
-		 types related to these assays.
-		 So, the required variables for such a call are:
-		 - a source variable, which can be obtained from AssayModule.list() (use the 'name' field)
-		 - a list of assays, which can be obtained with study.getAssays()
-		 */
-		def collection = []
-		def callUrl = ""
+    def getFields(source, assay){
+        /*
+        Gather fields related to this study from modules.
+        This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
+        getMeasurements does not actually return measurements (the getMeasurementData call does).
+        The getFields method (or rather, the getMeasurements service) requires one or more assays and will return all measurement
+        types related to these assays.
+        So, the required variables for such a call are:
+          - a source variable, which can be obtained from AssayModule.list() (use the 'name' field)
+          - a list of assays, which can be obtained with study.getAssays()
 
-		// Making a different call for each assay
-		// TODO: Change this to one call that requests fields for all assays, when you get that to work (in all cases)
-		assays.each { assay ->
-			def urlVars = "assayToken="+assay.assayUUID
-			AssayModule.list().each { module ->
-				if(source==module.name){
-					try {
-						callUrl = module.url + "/rest/getMeasurements/query?"+urlVars
-						def json = moduleCommunicationService.callModuleRestMethodJSON( module.url, callUrl );
-						json.each{ jason ->
-							collection.add(jason)
-						}
-					} catch(Exception e){
-						// Todo: properly handle this exception
-						println "No success with\n\t"+callUrl+"\n"+e
-						return null
-					}
-				}
-			}
-		}
+        Output is a list of items. Each item contains
+          - an 'id'
+          - a 'source', which is a module identifier
+          - a 'category', which indicates where the field can be found. When dealing with module data as we are here, this is the assay name(s)
+          - a 'name', which is the the name of the field
+         */
+        def fields = []
+        def callUrl = ""
 
-		def fields = []
-		// Formatting the data
-		collection.each { field ->
-			fields << [ "id": createFieldId( name: field, source: source, type: "feature" ), "source": source, "category": "feature", "name": source+" feature "+field ]
-		}
-		return fields
-	}
+        // Making a different call for each assay
+        // TODO: Change this to one call that requests fields for all assays, when you get that to work (in all cases)
 
-	def getFields(study, category, type){
-		/*
-		 Gather fields related to this study from GSCF.
-		 This requires:
-		 - a study.
-		 - a category variable, e.g. "events".
-		 - a type variable, either "domainfields" or "templatefields".
-		 */
+        def urlVars = "assayToken="+assay.assayUUID
+        try {
+            callUrl = ""+assay.module.url + "/rest/getMeasurements/query?"+urlVars
+            def json = moduleCommunicationService.callModuleRestMethodJSON( assay.module.url /* consumer */, callUrl );
+            def collection = []
+            json.each{ jason ->
+                collection.add(jason)
+            }
+            // Formatting the data
+            collection.each { field ->
+                // For getting this field from this assay
+                fields << [ "id": createFieldId( id: field, name: field, source: assay.id, type: ""+assay.name), "source": source, "category": ""+assay.name, "name": field ]
+            }
+        } catch(Exception e){
+            returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
+            log.error("VisualizationController: getFields: "+e)
+        }
 
-		// Collecting the data from it's source
-		def collection
-		def fields = []
-		def source = "GSCF"
+        return fields
+    }
 
-		// Gathering the data
-		if(category=="subjects"){
-			if(type=="domainfields"){
-				collection = Subject.giveDomainFields()
-			}
-			if(type=="templatefields"){
-				collection = study.giveSubjectTemplates().fields
-			}
-		}
-		if(category=="events"){
-			if(type=="domainfields"){
-				collection = Event.giveDomainFields()
-			}
-			if(type=="templatefields"){
-				collection = study.giveEventTemplates().fields
-			}
-		}
-		if(category=="samplingEvents"){
-			if(type=="domainfields"){
-				collection = SamplingEvent.giveDomainFields()
-			}
-			if(type=="templatefields"){
-				collection = study.giveSamplingEventTemplates().fields
-			}
-		}
-		if(category=="samples"){
-			if(type=="domainfields"){
-				collection = Sample.giveDomainFields()
-			}
-			if(type=="templatefields"){
-				collection = study.giveEventTemplates().fields
-			}
-		}
-		if(category=="assays"){
-			if(type=="domainfields"){
-				collection = Event.giveDomainFields()
-			}
-			if(type=="templatefields"){
-				collection = study.giveEventTemplates().fields
-			}
-		}
+   def getFields(study, category, type){
+        /*
+        Gather fields related to this study from GSCF.
+        This requires:
+          - a study.
+          - a category variable, e.g. "events".
+          - a type variable, either "domainfields" or "templatefields".
 
-		// Formatting the data
-		if(type=="domainfields"){
-			collection.each { field ->
-				fields << [ "id": createFieldId( name: field.name, source: source, type: category ), "source": source, "category": category, "name": category.capitalize()+" "+field.name ]
-			}
-		}
-		if(type=="templatefields"){
-			collection.each { field ->
-				for(int i = 0; i < field.size(); i++){
-					fields << [ "id": createFieldId( id: field[i].id, name: field[i].name, source: source, type: category ), "source": source, "category": category, "name": category.capitalize()+" "+field[i].name ]
-				}
-			}
-		}
+        Output is a list of items, which are formatted by the formatGSCFFields function.
+        */
 
-		return fields
-	}
+        // Collecting the data from it's source
+        def collection
+        def fields = []
+        def source = "GSCF"
+
+        // Gathering the data
+        if(category=="subjects"){
+            if(type=="domainfields"){
+                collection = Subject.giveDomainFields()
+            }
+            if(type=="templatefields"){
+                collection = study?.samples?.parentSubject?.template?.fields
+            }
+        }
+        if(category=="events"){
+            if(type=="domainfields"){
+                collection = Event.giveDomainFields()
+            }
+            if(type=="templatefields"){
+                collection = study?.samples?.parentEventGroup?.events?.template?.fields
+            }
+        }
+        if(category=="samplingEvents"){
+            if(type=="domainfields"){
+                collection = SamplingEvent.giveDomainFields()
+            }
+            if(type=="templatefields"){
+                collection = study?.samples?.parentEventGroup?.samplingEvents?.template?.fields
+            }
+        }
+        if(category=="samples"){
+            if(type=="domainfields"){
+                collection = Sample.giveDomainFields()
+            }
+            if(type=="templatefields"){
+                collection = study?.samples?.template?.fields
+            }
+        }
+        if(category=="assays"){
+            if(type=="domainfields"){
+                collection = Assay.giveDomainFields()
+            }
+            if(type=="templatefields"){
+                collection = study?.assays?.template?.fields
+            }
+        }
+
+        collection.unique()
+
+        // Formatting the data
+        fields += formatGSCFFields(type, collection, source, category)
+
+        return fields
+    }
+
+    def formatGSCFFields(type, inputObject, source, category){
+        /*  The formatGSCFFields function can receive both lists of fields and single fields. If it receives a list, it calls itself again for each item in the list. This way, the original formatGSCFFields call will return single fields regardless of it's input.
+
+        Output is a list of items. Each item contains
+          - an 'id'
+          - a 'source', which in this case will be "GSCF"
+          - a 'category', which indicates where the field can be found, e.g. "subjects", "samplingEvents"
+          - a 'name', which is the the name of the field
+         */
+        if(inputObject==null || inputObject == []){
+            return []
+        }
+        def fields = []
+        if(inputObject instanceof Collection){
+            // Apparently this field is actually a list of fields.
+            // We will call ourselves again with the list's elements as input.
+            // These list elements will themselves go through this check again, effectively flattening the original input
+            for(int i = 0; i < inputObject.size(); i++){
+                fields += formatGSCFFields(type, inputObject[i], source, category)
+            }
+            return fields
+        } else {
+            // This is a single field. Format it and return the result.
+            if(type=="domainfields"){
+                fields << [ "id": createFieldId( id: inputObject.name, name: inputObject.name, source: source, type: category ), "source": source, "category": category, "name": inputObject.name ]
+            }
+            if(type=="templatefields"){
+                fields << [ "id": createFieldId( id: inputObject.id, name: inputObject.name, source: source, type: category ), "source": source, "category": category, "name": inputObject.name ]
+            }
+            return fields
+        }
+    }
 
 	/**
 	 * Retrieves data for the visualization itself.
@@ -239,10 +268,10 @@ class VisualizeController {
 		// Group data based on the y-axis if categorical axis is selected
 		// TODO: handle categories and continuous data
 		def groupedData = groupFieldData( data );
-		
+
 		// Format data so it can be rendered as JSON
 		def returnData = formatData( groupedData, fields );
-		
+
 		render returnData as JSON
 	}
 
@@ -268,8 +297,8 @@ class VisualizeController {
 			columnIds = input_object.get('columns')*.id
 			visualizationType = "barchart"
 		} catch(Exception e) {
-			// TODO: properly handle this exception
-			println e
+			returnError(400, "An error occured while retrieving the user input")
+			log.error("VisualizationController: parseGetDataParams: "+e)
 		}
 
 		return [ "studyIds" : studyIds, "rowIds": rowIds, "columnIds": columnIds, "visualizationType": visualizationType ];
@@ -329,6 +358,7 @@ class VisualizeController {
 				// TODO: Handle error properly
 				// Closure could not be retrieved, probably because the type is incorrect
 				data = samples.collect { return null }
+                log.error("VisualizationController: getFieldData: Requested wrong field type: "+parsedField.type+". Parsed field: "+parsedField)
 			}
 		} else {
 			// Data must be retrieved from a module
@@ -352,8 +382,7 @@ class VisualizeController {
 		def data = []
 		
 		// TODO: Handle values that should be retrieved from multiple assays
-		// TODO: Use Assay ID or AssayModule ID in field-ids, instead of names
-		def assay = study.assays.find { it.module.name == source_module };
+		def assay = Assay.get(source_module);
 		
 		if( assay ) {
 			// Request for a particular assay and a particular feature
@@ -391,12 +420,8 @@ class VisualizeController {
 				}
 				
 			} catch(Exception e){
-				// TODO: handle this exception properly
-				println "No success with\n\t"+callUrl+"\n"+e
-				e.printStackTrace();
-				
-				// Returns an empty list with as many elements as there are samples
-				data = samples.collect { return null }
+                returnError(404, "An error occured while trying to collect data from a module. Most likely, this module is offline.")
+                log.error("VisualizationController: getFields: "+e)
 			}
 		} else {
 			// TODO: Handle error correctly
@@ -684,7 +709,7 @@ class VisualizeController {
 	 * @see parseFieldId
 	 */
 	protected String createFieldId( Map attrs ) {
-		// TODO: What is one of the attributes contains a comma?
+		// TODO: What if one of the attributes contains a comma?
 		def name = attrs.name;
 		def id = attrs.id ?: name;
 		def source = attrs.source;
@@ -692,5 +717,9 @@ class VisualizeController {
 		
 		return id + "," + name + "," + source + "," + type;
 	}
+
+    protected void returnError(code, msg){
+        response.sendError(code , msg)
+    }
 
 }
