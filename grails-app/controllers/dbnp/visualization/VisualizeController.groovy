@@ -114,10 +114,6 @@ class VisualizeController {
 
 	def getVisualizationTypes = {
         def inputData = parseGetDataParams();
-        println "inputData: "
-        inputData.each{
-            println "\t"+it
-        }
 
         if(inputData.columnIds == null || inputData.columnIds == [] || inputData.columnIds[0] == null || inputData.columnIds[0] == ""){
             infoMessage = "Please select columndata."
@@ -131,19 +127,30 @@ class VisualizeController {
 
         // TODO: handle the case of multiple fields on an axis
         // Determine data types
-        println "Checking type of row data ("+inputData.rowIds[0]+")"
         def rowType = determineFieldType(inputData.studyIds[0], inputData.rowIds[0])
-        println "Checking type of column data ("+inputData.columnIds[0]+")"
         def columnType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0])
-
-        println "getVisualizationTypes: row contains data of type "+rowType+" and column contains data of type "+columnType
-
 
         // Determine possible visualization types
         // TODO: Determine possible visualization types
+        def types = []
+        if(rowType==categoricalData){
+            if(columnType==categoricalData){
+                types = [ [ "id": "table", "name": "Table"] ];
+            }
+            if(columnType==numericalData){
+                types = [ [ "id": "horizontal_barchart", "name": "Horizontal barchart"] ];
+            }
+        }
+        if(rowType==numericalData){
+            if(columnType==categoricalData){
+                types = [ [ "id": "barchart", "name": "Barchart"], [ "id": "linechart", "name": "Linechart"] ];
+            }
+            if(columnType==numericalData){
+                types = [ [ "id": "scatterplot", "name": "Scatterplot"], [ "id": "linechart", "name": "Linechart"] ];
+            }
+        }
 
-		def types = [ [ "id": "barchart", "name": "Barchart"] ];
-		return sendResults(types)
+        return sendResults(types)
 	}
 
     def getFields(source, assay){
@@ -298,7 +305,6 @@ class VisualizeController {
 		// TODO: handle erroneous input data
 		def inputData = parseGetDataParams();
 
-        println "getData's inputData: "+inputData
         if(inputData.columnIds == null || inputData.rowIds == null){
             infoMessage = "Please select row and columndata."
             return sendInfoMessage()
@@ -348,7 +354,7 @@ class VisualizeController {
 			columnIds = input_object.get('columns')*.id
 			visualizationType = "barchart"
 		} catch(Exception e) {
-            /* TODO: Find a way to handle exceptions without breaking the user interface.
+            /* TODO: Find a way to handle these kinds of exceptions without breaking the user interface.
                 Doing things in this way results in the user interface getting a 400.
 			returnError(400, "An error occured while retrieving the user input")
             infoMessage = "An error occured while retrieving the user input."
@@ -477,7 +483,7 @@ class VisualizeController {
 				
 			} catch(Exception e){
                 log.error("VisualizationController: getFields: "+e)
-                send returnError(404, "An error occured while trying to collect data from a module. Most likely, this module is offline.")
+                return returnError(404, "An error occured while trying to collect data from a module. Most likely, this module is offline.")
 			}
 		} else {
 			// TODO: Handle error correctly
@@ -778,12 +784,11 @@ class VisualizeController {
         response.sendError(code , msg)
     }
 
-    protected def determineFieldType(studyId, fieldId){
+    protected int determineFieldType(studyId, fieldId){
         // Parse the fieldId as given by the user
 		def parsedField = parseFieldId( fieldId );
 
         def study = Study.get(studyId)
-        println "study: "+study+", parsedField: "+parsedField
 
 		def data = []
 
@@ -791,10 +796,8 @@ class VisualizeController {
             if(parsedField.id.isNumber()){
                 // Templatefield
                 // ask for tf by id, ask for .type
-                println "GSCF TF, dunno yet. input: "+studyId+", "+parsedField
                 try{
                     TemplateField tf = TemplateField.get(parsedField.id)
-                    println "tf.type: "+tf.type
                     if(tf.type=="DOUBLE" || tf.type=="LONG" || tf.type=="DATE" || tf.type=="RELTIME"){
                         return numericalData
                     } else {
@@ -802,6 +805,8 @@ class VisualizeController {
                     }
                 } catch(Exception e){
                     log.error("VisualizationController: determineFieldType: "+e)
+                    // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
+                    return categoricalData
                 }
             } else {
                 // Domainfield or memberclass
@@ -821,7 +826,7 @@ class VisualizeController {
                             break
                         case "Event":
                         case "events":
-                            return determineCategoryFromClass(Event.getField(parsedField.name).class)
+                            return determineCategoryFromClass(Event[parsedField.name].class)
                             break
                         case "SamplingEvent":
                         case "samplingEvents":
@@ -833,6 +838,8 @@ class VisualizeController {
                             break
                     }
                 } catch(Exception e){
+                    log.error("VisualizationController: determineFieldType: "+e)
+                    // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
                     return categoricalData
                 }
             }
@@ -845,8 +852,7 @@ class VisualizeController {
 		}
     }
 
-    protected String determineCategoryFromClass(inputObject){
-        println "determineCategoryFromClass: "+inputObject+", class: "+inputObject.class
+    protected int determineCategoryFromClass(inputObject){
         if(inputObject==java.lang.String){
             return categoricalData
         } else {
@@ -854,10 +860,10 @@ class VisualizeController {
         }
     }
 
-    protected String determineCategoryFromData(inputObject){
+    protected int determineCategoryFromData(inputObject){
         def results = []
         if(inputObject instanceof Collection){
-            // More complex datatype, call outselves again
+            // This data is more complex than a single value, so we will call ourselves again so we c
             inputObject.each {
                 results << determineCategoryFromData(it)
             }
@@ -872,7 +878,7 @@ class VisualizeController {
         results.unique()
 
         if(results.size()>1){
-            //log.error("VisualizeController: determineCategoryFromData: Category list contains more than one category! List: "+results+", inputObject: "+inputObject)
+            // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
             results[0] = categoricalData
         }
 
@@ -886,7 +892,6 @@ class VisualizeController {
             infoMessage = ""
         }
         results.put("returnData", returnData)
-        println "Returning "+results
         render results as JSON
     }
 
@@ -894,7 +899,6 @@ class VisualizeController {
         def results = [:]
         results.put("infoMessage", infoMessage)
         infoMessage = ""
-        println "Returning "+results
         render results as JSON
     }
 }
