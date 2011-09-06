@@ -16,7 +16,6 @@ package dbnp.visualization
 
 import dbnp.studycapturing.*;
 import grails.converters.JSON
-import groovy.lang.Closure;
 
 import org.dbnp.gdt.*
 
@@ -24,6 +23,8 @@ class VisualizeController {
 	def authenticationService
 	def moduleCommunicationService
     def infoMessage = ""
+    final int categoricalData = 0
+    final int numericalData = 1
 
 	/**
 	 * Shows the visualization screen
@@ -34,7 +35,7 @@ class VisualizeController {
 
 	def getStudies = {
 		def studies = Study.giveReadableStudies( authenticationService.getLoggedInUser() );
-        returnResults(studies)
+        return sendResults(studies)
 	}
 
 	def getFields = {
@@ -42,34 +43,43 @@ class VisualizeController {
 		def studies
 
 		try{
-            // TODO: fix this
-			input_object = JSON.parse(params.get('data'))
-			studies = input_object.get('studies').id
+			input_object = parseGetDataParams();
 		} catch(Exception e) {
-			returnError(400, "An error occured while retrieving the user input.")
-            log.error("VisualizationController: getFields: "+e)
+			log.error("VisualizationController: getFields: "+e)
+            return returnError(400, "An error occured while retrieving the user input.")
 		}
 
+        // Check to see if we have enough information
+        if(input_object==null || input_object?.studyIds==null){
+            infoMessage = "Please select a study."
+            return sendInfoMessage()
+        } else {
+            studies = input_object.studyIds[0]
+        }
+
 		def fields = [];
-		studies.each {
-			/*
-			 Gather fields related to this study from GSCF.
-			 This requires:
-			 - a study.
-			 - a category variable, e.g. "events".
-			 - a type variable, either "domainfields" or "templatefields".
-			 */
-			def study = Study.get(it)
-			fields += getFields(study, "subjects", "domainfields")
-			fields += getFields(study, "subjects", "templatefields")
-			fields += getFields(study, "events", "domainfields")
-			fields += getFields(study, "events", "templatefields")
-			fields += getFields(study, "samplingEvents", "domainfields")
-			fields += getFields(study, "samplingEvents", "templatefields")
-			fields += getFields(study, "assays", "domainfields")
-			fields += getFields(study, "assays", "templatefields")
-			fields += getFields(study, "samples", "domainfields")
-			fields += getFields(study, "samples", "domainfields")
+
+        /*
+         Gather fields related to this study from GSCF.
+         This requires:
+         - a study.
+         - a category variable, e.g. "events".
+         - a type variable, either "domainfields" or "templatefields".
+         */
+        // TODO: Handle multiple studies
+        def study = Study.get(studies)
+
+        if(study!=null){
+            fields += getFields(study, "subjects", "domainfields")
+            fields += getFields(study, "subjects", "templatefields")
+            fields += getFields(study, "events", "domainfields")
+            fields += getFields(study, "events", "templatefields")
+            fields += getFields(study, "samplingEvents", "domainfields")
+            fields += getFields(study, "samplingEvents", "templatefields")
+            fields += getFields(study, "assays", "domainfields")
+            fields += getFields(study, "assays", "templatefields")
+            fields += getFields(study, "samples", "domainfields")
+            fields += getFields(study, "samples", "domainfields")
 
             /*
             Gather fields related to this study from modules.
@@ -93,27 +103,47 @@ class VisualizeController {
                 }
             }
 
-			// TODO: Maybe we should add study's own fields
-		}
+            // TODO: Maybe we should add study's own fields
+        } else {
+            log.error("VisualizationController: getFields: The requested study could not be found. Id: "+studies)
+            return returnError(404, "The requested study could not be found.")
+        }
 
-		returnResults(fields)
+		return sendResults(fields)
 	}
 
 	def getVisualizationTypes = {
         def inputData = parseGetDataParams();
-        println "inputData: "+inputData
+        println "inputData: "
+        inputData.each{
+            println "\t"+it
+        }
+
+        if(inputData.columnIds == null || inputData.columnIds == [] || inputData.columnIds[0] == null || inputData.columnIds[0] == ""){
+            infoMessage = "Please select columndata."
+            return sendInfoMessage()
+        }
+        if(inputData.rowIds == null || inputData.rowIds == [] ||  inputData.rowIds[0] == null ||   inputData.rowIds[0] == ""){
+            infoMessage = "Please select rowdata."
+            return sendInfoMessage()
+        }
 
 
         // TODO: handle the case of multiple fields on an axis
-        println "Checking type of row data"
+        // Determine data types
+        println "Checking type of row data ("+inputData.rowIds[0]+")"
         def rowType = determineFieldType(inputData.studyIds[0], inputData.rowIds[0])
-        println "Checking type of column data"
+        println "Checking type of column data ("+inputData.columnIds[0]+")"
         def columnType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0])
 
         println "getVisualizationTypes: row contains data of type "+rowType+" and column contains data of type "+columnType
 
+
+        // Determine possible visualization types
+        // TODO: Determine possible visualization types
+
 		def types = [ [ "id": "barchart", "name": "Barchart"] ];
-		returnResults(types)
+		return sendResults(types)
 	}
 
     def getFields(source, assay){
@@ -153,7 +183,8 @@ class VisualizeController {
                 fields << [ "id": createFieldId( id: field, name: field, source: assay.id, type: ""+assay.name), "source": source, "category": ""+assay.name, "name": field ]
             }
         } catch(Exception e){
-            returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
+            //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
+            infoMessage = "An error occured while trying to collect field data from a module. Most likely, this module is offline."
             log.error("VisualizationController: getFields: "+e)
         }
 
@@ -172,7 +203,7 @@ class VisualizeController {
         */
 
         // Collecting the data from it's source
-        def collection
+        def collection = []
         def fields = []
         def source = "GSCF"
 
@@ -266,6 +297,12 @@ class VisualizeController {
 		// Extract parameters
 		// TODO: handle erroneous input data
 		def inputData = parseGetDataParams();
+
+        println "getData's inputData: "+inputData
+        if(inputData.columnIds == null || inputData.rowIds == null){
+            infoMessage = "Please select row and columndata."
+            return sendInfoMessage()
+        }
 		
 		// TODO: handle the case that we have multiple studies
 		def studyId = inputData.studyIds[ 0 ];
@@ -286,7 +323,7 @@ class VisualizeController {
 		// Format data so it can be rendered as JSON
 		def returnData = formatData( groupedData, fields );
 
-		returnResults(returnData)
+		return sendResults(returnData)
 	}
 
 	/**
@@ -311,8 +348,13 @@ class VisualizeController {
 			columnIds = input_object.get('columns')*.id
 			visualizationType = "barchart"
 		} catch(Exception e) {
+            /* TODO: Find a way to handle exceptions without breaking the user interface.
+                Doing things in this way results in the user interface getting a 400.
 			returnError(400, "An error occured while retrieving the user input")
+            infoMessage = "An error occured while retrieving the user input."
 			log.error("VisualizationController: parseGetDataParams: "+e)
+            return sendInfoMessage()
+            */
 		}
 
 		return [ "studyIds" : studyIds, "rowIds": rowIds, "columnIds": columnIds, "visualizationType": visualizationType ];
@@ -434,8 +476,8 @@ class VisualizeController {
 				}
 				
 			} catch(Exception e){
-                returnError(404, "An error occured while trying to collect data from a module. Most likely, this module is offline.")
                 log.error("VisualizationController: getFields: "+e)
+                send returnError(404, "An error occured while trying to collect data from a module. Most likely, this module is offline.")
 			}
 		} else {
 			// TODO: Handle error correctly
@@ -736,7 +778,7 @@ class VisualizeController {
         response.sendError(code , msg)
     }
 
-    protected String determineFieldType(studyId, fieldId){
+    protected def determineFieldType(studyId, fieldId){
         // Parse the fieldId as given by the user
 		def parsedField = parseFieldId( fieldId );
 
@@ -749,46 +791,49 @@ class VisualizeController {
             if(parsedField.id.isNumber()){
                 // Templatefield
                 // ask for tf by id, ask for .type
-                println "GSCF, dunno yet"
+                println "GSCF TF, dunno yet. input: "+studyId+", "+parsedField
+                try{
+                    TemplateField tf = TemplateField.get(parsedField.id)
+                    println "tf.type: "+tf.type
+                    if(tf.type=="DOUBLE" || tf.type=="LONG" || tf.type=="DATE" || tf.type=="RELTIME"){
+                        return numericalData
+                    } else {
+                        return categoricalData
+                    }
+                } catch(Exception e){
+                    log.error("VisualizationController: determineFieldType: "+e)
+                }
             } else {
                 // Domainfield or memberclass
-                switch( parsedField.type ) {
-                    case "Study":
-                    case "studies":
-                        def cat = determineCategoryFromClass(Study[parsedField.name].class)
-                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
-                        return cat
-                        break
-                    case "Subject":
-                    case "subjects":
-                        def cat = determineCategoryFromClass(Subject[parsedField.name].class)
-                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
-                        return cat
-                        break
-                    case "Sample":
-                    case "samples":
-                        def cat = determineCategoryFromClass(Sample[parsedField.name].class)
-                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
-                        return cat
-                        break
-                    case "Event":
-                    case "events":
-                        def cat = determineCategoryFromClass(Event[parsedField.name].class)
-                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
-                        return cat
-                        break
-                    case "SamplingEvent":
-                    case "samplingEvents":
-                        def cat = determineCategoryFromClass(SamplingEvent[parsedField.name].class)
-                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
-                        return cat
-                        break
-                    case "Assay":
-                    case "assays":
-                        def cat = determineCategoryFromClass(Assay[parsedField.name].class)
-                        println "parsedField.type: "+parsedField.type+", outcome: "+cat
-                        return cat
-                        break
+                try{
+                    switch( parsedField.type ) {
+                        case "Study":
+                        case "studies":
+                            return determineCategoryFromClass(Study[parsedField.name].class)
+                            break
+                        case "Subject":
+                        case "subjects":
+                            return determineCategoryFromClass(Subject[parsedField.name].class)
+                            break
+                        case "Sample":
+                        case "samples":
+                            return determineCategoryFromClass(Sample[parsedField.name].class)
+                            break
+                        case "Event":
+                        case "events":
+                            return determineCategoryFromClass(Event.getField(parsedField.name).class)
+                            break
+                        case "SamplingEvent":
+                        case "samplingEvents":
+                            return determineCategoryFromClass(SamplingEvent[parsedField.name].class)
+                            break
+                        case "Assay":
+                        case "assays":
+                            return determineCategoryFromClass(Assay[parsedField.name].class)
+                            break
+                    }
+                } catch(Exception e){
+                    return categoricalData
                 }
             }
 
@@ -803,11 +848,9 @@ class VisualizeController {
     protected String determineCategoryFromClass(inputObject){
         println "determineCategoryFromClass: "+inputObject+", class: "+inputObject.class
         if(inputObject==java.lang.String){
-            return "cat"
-            // TODO: make this a final
+            return categoricalData
         } else {
-            return "num"
-            // TODO: make this a final
+            return numericalData
         }
     }
 
@@ -820,11 +863,9 @@ class VisualizeController {
             }
         } else {
             if(inputObject.toString().isDouble()){
-                results << "num"
-                // TODO: make this a final
+                results << numericalData
             } else {
-                results << "cat"
-                // TODO: make this a final
+                results << categoricalData
             }
         }
 
@@ -832,19 +873,28 @@ class VisualizeController {
 
         if(results.size()>1){
             //log.error("VisualizeController: determineCategoryFromData: Category list contains more than one category! List: "+results+", inputObject: "+inputObject)
-            results[0] = "cat"
-            // TODO: make this a final
+            results[0] = categoricalData
         }
 
         return results[0]
     }
 
-    protected void returnResults(returnData){
+    protected void sendResults(returnData){
         def results = [:]
         if(infoMessage!=""){
-            results.put("infoMessage", returnData)
+            results.put("infoMessage", infoMessage)
+            infoMessage = ""
         }
         results.put("returnData", returnData)
+        println "Returning "+results
+        render results as JSON
+    }
+
+    protected void sendInfoMessage(){
+        def results = [:]
+        results.put("infoMessage", infoMessage)
+        infoMessage = ""
+        println "Returning "+results
         render results as JSON
     }
 }
