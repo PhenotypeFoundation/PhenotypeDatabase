@@ -33,8 +33,8 @@ function changeStudy() {
             $( '#rows, #columns' ).append( $( "<option>" ).val( "" ).text( "[SELECT OPTION]" ) );
 
 			// Add all fields to the lists
-            var returndata = data.returnData;
-			$.each( returndata, function( idx, field ) {
+            var returnData = data.returnData;
+			$.each( returnData, function( idx, field ) {
 				$( '#rows, #columns' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
 			});
 			
@@ -69,9 +69,9 @@ function changeFields(divid) {
 
             $( '#types' ).append( $( "<option>" ).val( "" ).text( "[SELECT OPTION]" ) );
 			// Add all fields to the lists
-            var returndata = data.returnData;
+            var returnData = data.returnData;
 
-			$.each( returndata, function( idx, field ) {
+			$.each( returnData, function( idx, field ) {
                 if(field.name==oldSelect) {
                     intSelect = iOptionNum;
                 }
@@ -119,24 +119,24 @@ function visualize() {
 				visualization.destroy();
 
 			// Handle erroneous data
-			if( !checkCorrectData( returndata ) ) {
+			/*if( !checkCorrectData( data.returnData ) ) {
 				showError( "Unfortunately the server returned data in a format that we did not expect." );
 				return;
-			}
+			}*/
 			
 			// Retrieve the datapoints from the json object
 			var dataPoints = [];
 			var series = [];
 
 
-            var returndata = data.returnData;
-			$.each(returndata.series, function(idx, element ) {
+            var returnData = data.returnData;
+			$.each(returnData.series, function(idx, element ) {
 				dataPoints[ dataPoints.length ] = element.y;
 				series[ series.length ] = { "label": element.name };
 			});
 
-            var xlabel = returndata[ "xaxis" ].unit=="" ? returndata[ "xaxis" ].title : returndata[ "xaxis" ].title + " (" + returndata[ "xaxis" ].unit + ")";
-            var ylabel = returndata[ "yaxis" ].unit=="" ? returndata[ "yaxis" ].title : returndata[ "yaxis" ].title + " (" + returndata[ "yaxis" ].unit + ")";
+            var xlabel = returnData[ "xaxis" ].unit=="" ? returnData[ "xaxis" ].title : returnData[ "xaxis" ].title + " (" + returnData[ "xaxis" ].unit + ")";
+            var ylabel = returnData[ "yaxis" ].unit=="" ? returnData[ "yaxis" ].title : returnData[ "yaxis" ].title + " (" + returnData[ "yaxis" ].unit + ")";
 			
 			// TODO: create a chart based on the data that is sent by the user and the type of chart
 			// chosen by the user
@@ -158,7 +158,7 @@ function visualize() {
 				axes: {
 					xaxis: {
 							renderer: $.jqplot.CategoryAxisRenderer,
-							ticks: returndata.x,
+							ticks: returnData.x,
 							label: xlabel,
 							labelRenderer: $.jqplot.CanvasAxisLabelRenderer
 					},
@@ -282,6 +282,6 @@ function executeAjaxCall( action, ajaxParameters ) {
 	$.ajax($.extend({
 		url: visualizationUrls[ action ],
 		data: "data=" + JSON.stringify( data ),
-		dataType: "json",
+		dataType: "json"
 	}, ajaxParameters ) );
 }
