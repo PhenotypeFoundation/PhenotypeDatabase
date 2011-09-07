@@ -92,16 +92,63 @@ class VisualizeController {
               - an assay, which can be obtained with study.getAssays()
              */
 
+            def moduleFields = []
             study.getAssays().each { assay ->
                 def list = []
                 list = getFields(assay.module.id, assay)
                 if(list!=null){
                     if(list.size()!=0){
                         fields += list
-
+                        moduleFields += list
                     }
                 }
             }
+
+            // Creating the option to select composite fields (fields that all occur on one module)
+            AssayModule.list().each { am ->
+                def list = []
+                moduleFields.each { mf ->
+                    if(mf.source==am.id){
+                        list << mf
+                    }
+                }
+                if(list!=[]){
+                    def compositeId = ""
+                    def compositeIdId = ""
+                    def compositeIdName = ""
+                    def compositeIdSource = ""
+                    def compositeIdType = ""
+                    def source = am.id
+                    def compositeCategory = ""
+                    def compositeName = ""
+
+                    for(int i = 0; i < list.size(); i++){
+                        def singleAssayId = list[i].id.split(',')[2]
+                        if(i==0){
+                            compositeIdType += list[i].category
+                            compositeCategory += list[i].category
+                            compositeIdSource += "compositeId"+singleAssayId
+                            compositeIdName += list[i].name
+                            compositeName += list[i].name
+                        } else {
+                            compositeIdType += "@SEP@"+list[i].category
+                            compositeCategory += "@SEP@"+list[i].category
+                            compositeIdSource += "@SEP@"+singleAssayId
+                            compositeIdName += "@SEP@"+list[i].name
+                            if(list.size()>1 && i==(list.size()-1)){
+                                compositeName += " and "+list[i].name
+                            } else {
+                                compositeName += ", "+list[i].name
+                            }
+                        }
+                    }
+                    compositeId = createFieldId(id: compositeIdId, name: compositeIdName, source: compositeIdSource, type: compositeIdType)
+                    def compositeField = ["id": compositeId, "source": source, "category": compositeCategory, "name": compositeName]
+                    fields << compositeField
+                    //println "compositeField: "+compositeField
+                }
+            }
+
 
             // TODO: Maybe we should add study's own fields
         } else {
@@ -323,13 +370,36 @@ class VisualizeController {
 		def data = getAllFieldData( study, samples, fields );
 
 		// Group data based on the y-axis if categorical axis is selected
-		// TODO: handle categories and continuous data
-		def groupedData = groupFieldData( data );
 
-		// Format data so it can be rendered as JSON
-		def returnData = formatData( groupedData, fields );
+        // Detecting if, on the y-axis, we have categories (multiple fields on an axis)
+        // For some reason, the class of the elements will be considered null incase of categories
+        // I'd rather have filtered on being an instance of Collection, or something along those lines
+        if(data['y'][0].class==null && data['y'][0]['category']!=null){
+            // We are dealing with multiple categories
+            def groupedData = []
+            def returnData = []
 
-		return sendResults(returnData)
+            data['y'].each{
+                def tmp_GFdat = groupFieldData(['x': data['x'], 'y': it['category']['data']] );
+                groupedData << tmp_GFdat
+
+                // Format data so it can be rendered as JSON
+                def tmp_Fdat = formatData( tmp_GFdat, ['x': fields['x'], 'y': "a,"+it['category']['name']+",a,a"] );
+                //println "\tmp_Fdat: "+tmp_Fdat
+                returnData << tmp_Fdat
+            }
+
+            // Format data so it can be rendered as JSON
+            def returnDataWithMultipleCategories = formatCategoryData(returnData)
+            return sendResults(returnDataWithMultipleCategories)
+        } else {
+            // We are dealing with a single category
+            def groupedData = groupFieldData( data );
+    
+            // Format data so it can be rendered as JSON
+            def returnData = formatData( groupedData, fields );
+            return sendResults(returnData)
+        }
 	}
 
 	/**
@@ -440,59 +510,73 @@ class VisualizeController {
 	 * 						could not be retrieved for a sample, null is returned. Examples:
 	 * 							[ 3, 6, null, 10 ] or [ "male", "male", "female", "female" ]
 	 */
-	def getModuleData( study, samples, source_module, fieldName ) {
+	def getModuleData( study, samples, assay_id, fieldName ) {
 		def data = []
-		
+		//println "assay_id: "+assay_id+", fieldName: "+fieldName
 		// TODO: Handle values that should be retrieved from multiple assays
-		def assay = Assay.get(source_module);
-		
-		if( assay ) {
-			// Request for a particular assay and a particular feature
-			def urlVars = "assayToken=" + assay.assayUUID + "&measurementToken="+fieldName
-			urlVars += "&" + samples.collect { "sampleToken=" + it.sampleUUID }.join( "&" );
-			
-			def callUrl
-			try {
-				callUrl = assay.module.url + "/rest/getMeasurementData"
-				def json = moduleCommunicationService.callModuleMethod( assay.module.url, callUrl, urlVars, "POST" );
-				
-				if( json ) {
-					// First element contains sampletokens
-					// Second element contains the featurename
-					// Third element contains the measurement value
-					def sampleTokens = json[ 0 ]
-					def measurements = json[ 2 ]
-					
-					// Loop through the samples
-					samples.each { sample ->
-						// Search for this sampletoken
-						def sampleToken = sample.sampleUUID;
-						def index = sampleTokens.findIndexOf { it == sampleToken }
-						
-						if( index > -1 ) {
-							data << measurements[ index ];
-						} else {
-							data << null
-						}
-					}
-				} else {
-					// TODO: handle error
-					// Returns an empty list with as many elements as there are samples
-					data = samples.collect { return null }
-				}
-				
-			} catch(Exception e){
-                log.error("VisualizationController: getFields: "+e)
-                return returnError(404, "An error occured while trying to collect data from a module. Most likely, this module is offline.")
-			}
-		} else {
-			// TODO: Handle error correctly
-			// Returns an empty list with as many elements as there are samples
-			data = samples.collect { return null }
-		}
-		
-		return data
+        // Check if this id starts with "compositeId", which indicates that the request concerns multiple assays from the same source module
+        if(assay_id.toString().startsWith("compositeId")){
+            //println "composite data request."
+            // This assay_id is a composite, meaning that the user is requesting data from multiple assays
+            //data = [:]
+            def ids = assay_id.toString().substring("compositeId".length()).split("@SEP@")
+            def names = fieldName.split("@SEP@")
+            ids.eachWithIndex { it, i ->
+                //println "data request decomposition:"
+                data << ['category': ['name': names[i], 'data': getModuleData(study, samples, it, names[i])]]
+            }
+        } else {
+            def assay = Assay.get(assay_id);
 
+            if( assay ) {
+                // Request for a particular assay and a particular feature
+                def urlVars = "assayToken=" + assay.assayUUID + "&measurementToken="+fieldName
+                urlVars += "&" + samples.collect { "sampleToken=" + it.sampleUUID }.join( "&" );
+
+                def callUrl
+                try {
+                    callUrl = assay.module.url + "/rest/getMeasurementData"
+                    def json = moduleCommunicationService.callModuleMethod( assay.module.url, callUrl, urlVars, "POST" );
+
+                    if( json ) {
+                        // First element contains sampletokens
+                        // Second element contains the featurename
+                        // Third element contains the measurement value
+                        def sampleTokens = json[ 0 ]
+                        def measurements = json[ 2 ]
+
+                        // Loop through the samples
+                        samples.each { sample ->
+                            // Search for this sampletoken
+                            def sampleToken = sample.sampleUUID;
+                            def index = sampleTokens.findIndexOf { it == sampleToken }
+
+                            if( index > -1 ) {
+                                data << measurements[ index ];
+                            } else {
+                                data << null
+                            }
+                        }
+                    } else {
+                        // TODO: handle error
+                        // Returns an empty list with as many elements as there are samples
+                        data = samples.collect { return null }
+                    }
+
+                } catch(Exception e){
+                    log.error("VisualizationController: getFields: "+e)
+                    return returnError(404, "An error occured while trying to collect data from a module. Most likely, this module is offline.")
+                }
+            } else {
+                // TODO: Handle error correctly
+                // Returns an empty list with as many elements as there are samples
+                data = samples.collect { return null }
+            }
+        }
+
+
+        //println "\t data request: "+data
+		return data
 	}
 
 	/**
@@ -523,14 +607,11 @@ class VisualizeController {
 		def groups = data[ groupAxis ]
 						.flatten()
 						.unique { it == null ? "null" : it.class.name + it.toString() }
-		
 		// Make sure the null category is last
 		groups = groups.findAll { it != null } + groups.findAll { it == null }
-		
 		// Gather names for the groups. Most of the times, the group names are just the names, only with
 		// a null value, the unknownName must be used
 		def groupNames = groups.collect { it != null ? it : unknownName }
-		
 		// Generate the output object
 		def outputData = [:]
 		outputData[ valueAxis ] = [];
@@ -549,7 +630,6 @@ class VisualizeController {
 			outputData[ valueAxis ] << dataForGroup.value
 			outputData[ errorName ] << dataForGroup.error 
 		}
-
 		return outputData
 	}
 	
@@ -900,5 +980,22 @@ class VisualizeController {
         results.put("infoMessage", infoMessage)
         infoMessage = ""
         render results as JSON
+    }
+
+    /*
+        Combine several blocks of formatted data into one
+     */
+    protected def formatCategoryData(inputData){
+        def series = []
+        inputData.eachWithIndex { it, i ->
+            series << ['name': it['yaxis']['title'], 'y': it['series']['y'][0], 'error': it['series']['error'][0]]
+        }
+        def ret = [:]
+        ret.put('type', inputData[0]['type'])
+        ret.put('x', inputData[0]['x'])
+        ret.put('yaxis',['title': 'title', 'unit': ''])
+        ret.put('xaxis', inputData[0]['xaxis'])
+        ret.put('series', series)
+        return ret
     }
 }
