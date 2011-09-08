@@ -23,8 +23,8 @@ class VisualizeController {
 	def authenticationService
 	def moduleCommunicationService
     def infoMessage = ""
-    final int categoricalData = 0
-    final int numericalData = 1
+    final int CATEGORICALDATA = 0
+    final int NUMERICALDATA = 1
 
 	/**
 	 * Shows the visualization screen
@@ -38,7 +38,13 @@ class VisualizeController {
         return sendResults(studies)
 	}
 
-	def getFields = {
+	/**
+	 * Based on the study id contained in the parameters given by the user, a list of 'fields' is returned. This list can be used to select what data should be visualized
+	 * @return List containing fields
+     * @see parseGetDataParams
+	 * @see getFields
+	 */
+    def getFields = {
 		def input_object
 		def studies
 
@@ -111,6 +117,16 @@ class VisualizeController {
 		return sendResults(fields)
 	}
 
+	/**
+	 * Based on the field ids contained in the parameters given by the user, a list of possible visualization types is returned. This list can be used to select how data should be visualized.
+	 * @return List containing the possible visualization types, with each element containing
+     *          - a unique id
+     *          - a unique name
+     *         For example: ["id": "barchart", "name": "Barchart"]
+     * @see parseGetDataParams
+	 * @see determineFieldType
+     * @see determineVisualizationTypes
+	 */
 	def getVisualizationTypes = {
         def inputData = parseGetDataParams();
 
@@ -129,45 +145,25 @@ class VisualizeController {
         def columnType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0])
 
         // Determine possible visualization types
-        // TODO: Determine possible visualization types
-        def types = []
-        if(rowType==categoricalData){
-            if(columnType==categoricalData){
-                types = [ [ "id": "table", "name": "Table"] ];
-            }
-            if(columnType==numericalData){
-                types = [ [ "id": "horizontal_barchart", "name": "Horizontal barchart"] ];
-            }
-        }
-        if(rowType==numericalData){
-            if(columnType==categoricalData){
-                types = [ [ "id": "barchart", "name": "Barchart"], [ "id": "linechart", "name": "Linechart"] ];
-            }
-            if(columnType==numericalData){
-                types = [ [ "id": "scatterplot", "name": "Scatterplot"], [ "id": "linechart", "name": "Linechart"] ];
-            }
-        }
+       def types = determineVisualizationTypes(rowType, columnType)
 
+        println "types: "+types
         return sendResults(types)
 	}
 
-    def getFields(source, assay){
-        /*
-        Gather fields related to this study from modules.
+    /**
+     * Gather fields related to this study from modules.
         This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
         getMeasurements does not actually return measurements (the getMeasurementData call does).
-        The getFields method (or rather, the getMeasurements service) requires one or more assays and will return all measurement
-        types related to these assays.
-        So, the required variables for such a call are:
-          - a source variable, which can be obtained from AssayModule.list() (use the 'name' field)
-          - a list of assays, which can be obtained with study.getAssays()
-
-        Output is a list of items. Each item contains
-          - an 'id'
-          - a 'source', which is a module identifier
-          - a 'category', which indicates where the field can be found. When dealing with module data as we are here, this is the assay name(s)
-          - a 'name', which is the the name of the field
-         */
+     * @param source    The id of the module that is the source of the requested fields, as can be obtained from AssayModule.list() (use the 'id' field)
+     * @param assay     The assay that the source module and the requested fields belong to
+     * @return  A list of map objects, containing the following:
+     *           - a key 'id' with a value formatted by the createFieldId function
+     *           - a key 'source' with a value equal to the input parameter 'source'
+     *           - a key 'category' with a value equal to the 'name' field of the input paramater 'assay'
+     *           - a key 'name' with a value equal to the name of the field in question, as determined by the source value
+     */
+    def getFields(source, assay){
         def fields = []
         def callUrl = ""
 
@@ -194,17 +190,14 @@ class VisualizeController {
         return fields
     }
 
-   def getFields(study, category, type){
-        /*
-        Gather fields related to this study from GSCF.
-        This requires:
-          - a study.
-          - a category variable, e.g. "events".
-          - a type variable, either "domainfields" or "templatefields".
-
-        Output is a list of items, which are formatted by the formatGSCFFields function.
-        */
-
+    /**
+     * Gather fields related to this study from GSCF.
+     * @param study The study that is the source of the requested fields
+     * @param category  The domain that a field (a property in this case) belongs to, e.g. "subjects", "samplingEvents"
+     * @param type A string that indicates the type of field, either "domainfields" or "templatefields".
+     * @return A list of map objects, formatted by the formatGSCFFields function
+     */
+    def getFields(study, category, type){
         // Collecting the data from it's source
         def collection = []
         def fields = []
@@ -239,34 +232,39 @@ class VisualizeController {
         return fields
     }
 
-    def formatGSCFFields(type, inputObject, source, category){
-        /*  The formatGSCFFields function can receive both lists of fields and single fields. If it receives a list, it calls itself again for each item in the list. This way, the original formatGSCFFields call will return single fields regardless of it's input.
+    /**
+     * Format the data contained in the input parameter 'collection' for use as so-called fields, that will be used by the user interface to allow the user to select data from GSCF for visualization
+     * @param type A string that indicates the type of field, either "domainfields" or "templatefields".
+     * @param collectionOfFields A collection of fields, which could also contain only one item
+     * @param source Likely to be "GSCF"
+     * @param category The domain that a field (a property in this case) belongs to, e.g. "subjects", "samplingEvents"
+     * @return A list containing list objects, containing the following:
+     *           - a key 'id' with a value formatted by the createFieldId function
+     *           - a key 'source' with a value equal to the input parameter 'source'
+     *           - a key 'category' with a value equal to the input parameter 'category'
+     *           - a key 'name' with a value equal to the name of the field in question, as determined by the source value
+     */
+    def formatGSCFFields(type, collectionOfFields, source, category){
 
-        Output is a list of items. Each item contains
-          - an 'id'
-          - a 'source', which in this case will be "GSCF"
-          - a 'category', which indicates where the field can be found, e.g. "subjects", "samplingEvents"
-          - a 'name', which is the the name of the field
-         */
-        if(inputObject==null || inputObject == []){
+        if(collectionOfFields==null || collectionOfFields == []){
             return []
         }
         def fields = []
-        if(inputObject instanceof Collection){
+        if(collectionOfFields instanceof Collection){
             // Apparently this field is actually a list of fields.
             // We will call ourselves again with the list's elements as input.
             // These list elements will themselves go through this check again, effectively flattening the original input
-            for(int i = 0; i < inputObject.size(); i++){
-                fields += formatGSCFFields(type, inputObject[i], source, category)
+            for(int i = 0; i < collectionOfFields.size(); i++){
+                fields += formatGSCFFields(type, collectionOfFields[i], source, category)
             }
             return fields
         } else {
             // This is a single field. Format it and return the result.
             if(type=="domainfields"){
-                fields << [ "id": createFieldId( id: inputObject.name, name: inputObject.name, source: source, type: category ), "source": source, "category": category, "name": inputObject.name ]
+                fields << [ "id": createFieldId( id: collectionOfFields.name, name: collectionOfFields.name, source: source, type: category ), "source": source, "category": category, "name": collectionOfFields.name ]
             }
             if(type=="templatefields"){
-                fields << [ "id": createFieldId( id: inputObject.id, name: inputObject.name, source: source, type: category ), "source": source, "category": category, "name": inputObject.name ]
+                fields << [ "id": createFieldId( id: collectionOfFields.id, name: collectionOfFields.name, source: source, type: category ), "source": source, "category": category, "name": collectionOfFields.name ]
             }
             return fields
         }
@@ -274,6 +272,15 @@ class VisualizeController {
 
 	/**
 	 * Retrieves data for the visualization itself.
+     * Returns, based on the field ids contained in the parameters given by the user, a map containing the actual data and instructions on how the data should be visualized.
+     * @return A map containing containing (at least, in the case of a barchart) the following:
+     *           - a key 'type' containing the type of chart that will be visualized
+     *           - a key 'xaxis' containing the title and unit that should be displayed for the x-axis
+     *           - a key 'yaxis' containing the title and unit that should be displayed for the y-axis*
+     *           - a key 'series' containing a list, that contains one or more maps, which contain the following:
+     *                - a key 'name', containing, for example, a feature name or field name
+     *                - a key 'y', containing a list of y-values
+     *                - a key 'error', containing a list of, for example, standard deviation or standard error of the mean values, each having the same index as the 'y'-values they are associated with
 	 */
 	def getData = {
 		// Extract parameters
@@ -749,10 +756,21 @@ class VisualizeController {
 		return id + "," + name + "," + source + "," + type;
 	}
 
+    /**
+     * Set the response code and an error message
+     * @param code HTTP status code
+     * @param msg Error message, string
+     */
     protected void returnError(code, msg){
         response.sendError(code , msg)
     }
 
+    /**
+     * Determines what type of data a field contains
+     * @param studyId An id that can be used with Study.get/1 to retrieve a study from the database
+     * @param fieldId The field id as returned from the client, will be used to retrieve the data required to determine the type of data a field contains
+     * @return Either CATEGORICALDATA of NUMERICALDATA
+     */
     protected int determineFieldType(studyId, fieldId){
         // Parse the fieldId as given by the user
 		def parsedField = parseFieldId( fieldId );
@@ -768,14 +786,14 @@ class VisualizeController {
                 try{
                     TemplateField tf = TemplateField.get(parsedField.id)
                     if(tf.type=="DOUBLE" || tf.type=="LONG" || tf.type=="DATE" || tf.type=="RELTIME"){
-                        return numericalData
+                        return NUMERICALDATA
                     } else {
-                        return categoricalData
+                        return CATEGORICALDATA
                     }
                 } catch(Exception e){
                     log.error("VisualizationController: determineFieldType: "+e)
                     // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
-                    return categoricalData
+                    return CATEGORICALDATA
                 }
             } else {
                 // Domainfield or memberclass
@@ -783,37 +801,36 @@ class VisualizeController {
                     switch( parsedField.type ) {
                         case "Study":
                         case "studies":
-                            return determineCategoryFromClass(Study.fields[parsedField.name].type)
+                            return determineCategoryFromClass(Study.class.getDeclaredField(parsedField.name).type)
                             break
                         case "Subject":
                         case "subjects":
-                            return determineCategoryFromClass(Subject.fields[parsedField.name].type)
+                            return determineCategoryFromClass(Subject.class.getDeclaredField(parsedField.name).type)
                             break
                         case "Sample":
                         case "samples":
-                            return determineCategoryFromClass(Sample.fields[parsedField.name].type)
+                            return determineCategoryFromClass(Sample.class.getDeclaredField(parsedField.name).type)
                             break
                         case "Event":
                         case "events":
-                            return determineCategoryFromClass(Event.fields[parsedField.name].type)
+                            return determineCategoryFromClass(Event.class.getDeclaredField(parsedField.name).type)
                             break
                         case "SamplingEvent":
                         case "samplingEvents":
-                            return determineCategoryFromClass(SamplingEvent.fields[parsedField.name].type)
+                            return determineCategoryFromClass(SamplingEvent.class.getDeclaredField(parsedField.name).type)
                             break
                         case "Assay":
                         case "assays":
-                            return determineCategoryFromClass(Assay.fields[parsedField.name].type)
+                            return determineCategoryFromClass(Assay.class.getDeclaredField(parsedField.name).type)
                             break
                     }
                 } catch(Exception e){
                     log.error("VisualizationController: determineFieldType: "+e)
+                    e.printStackTrace()
                     // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
-                    return categoricalData
+                    return CATEGORICALDATA
                 }
             }
-
-            // Check parsedField.id == number
 		} else {
             data = getModuleData( study, study.getSamples(), parsedField.source, parsedField.name );
             println "Data: " + data
@@ -822,14 +839,25 @@ class VisualizeController {
 		}
     }
 
-    protected int determineCategoryFromClass(inputObject){
-        if(inputObject==java.lang.String){
-            return categoricalData
+    /**
+     * Determines a field category, based on the input parameter 'classObject', which is an instance of type 'class'
+     * @param classObject
+     * @return Either CATEGORICALDATA of NUMERICALDATA
+     */
+    protected int determineCategoryFromClass(classObject){
+        println "classObject: "+classObject+", of class: "+classObject.class
+        if(classObject==java.lang.String){
+            return CATEGORICALDATA
         } else {
-            return numericalData
+            return NUMERICALDATA
         }
     }
 
+    /**
+     * Determines a field category based on the actual data contained in the field. The parameter 'inputObject' can be a single item with a toString() function, or a collection of such items.
+     * @param inputObject Either a single item, or a collection of items
+     * @return Either CATEGORICALDATA of NUMERICALDATA
+     */
     protected int determineCategoryFromData(inputObject){
         def results = []
         if(inputObject instanceof Collection){
@@ -840,9 +868,9 @@ class VisualizeController {
             }
         } else {
             if(inputObject.toString().isDouble()){
-                results << numericalData
+                results << NUMERICALDATA
             } else {
-                results << categoricalData
+                results << CATEGORICALDATA
             }
         }
 
@@ -850,12 +878,18 @@ class VisualizeController {
 
         if(results.size()>1){
             // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
-            results[0] = categoricalData
+            results[0] = CATEGORICALDATA
         }
 
         return results[0]
     }
 
+
+    /**
+     * Properly formats the object that will be returned to the client. Also adds an informational message, if that message has been set by a function. Resets the informational message to the empty String.
+     * @param returnData The object containing the data
+     * @return results A JSON object
+     */
     protected void sendResults(returnData){
         def results = [:]
         if(infoMessage!=""){
@@ -866,6 +900,11 @@ class VisualizeController {
         render results as JSON
     }
 
+    /**
+     * Properly formats an informational message that will be returned to the client. Resets the informational message to the empty String.
+     * @param returnData The object containing the data
+     * @return results A JSON object
+     */
     protected void sendInfoMessage(){
         def results = [:]
         results.put("infoMessage", infoMessage)
@@ -873,8 +912,13 @@ class VisualizeController {
         render results as JSON
     }
 
-    /*
-        Combine several blocks of formatted data into one
+    /**
+     * Combine several blocks of formatted data into one. These blocks have been formatted by the formatData function.
+     * @param inputData Contains a list of maps, of the following format
+     *          - a key 'series' containing a list, that contains one or more maps, which contain the following:
+     *            - a key 'name', containing, for example, a feature name or field name
+     *            - a key 'y', containing a list of y-values
+     *            - a key 'error', containing a list of, for example, standard deviation or standard error of the mean values,
      */
     protected def formatCategoryData(inputData){
         def series = []
@@ -888,5 +932,32 @@ class VisualizeController {
         ret.put('xaxis', inputData[0]['xaxis'])
         ret.put('series', series)
         return ret
+    }
+
+    /**
+     * Given two objects of either CATEGORICALDATA or NUMERICALDATA
+     * @param rowType The type of the data that has been selected for the row, either CATEGORICALDATA or NUMERICALDATA
+     * @param columnType The type of the data that has been selected for the column, either CATEGORICALDATA or NUMERICALDATA
+     * @return
+     */
+    protected def determineVisualizationTypes(rowType, columnType){
+         def types = []
+        if(rowType==CATEGORICALDATA){
+            if(columnType==CATEGORICALDATA){
+                types = [ [ "id": "table", "name": "Table"] ];
+            }
+            if(columnType==NUMERICALDATA){
+                types = [ [ "id": "horizontal_barchart", "name": "Horizontal barchart"] ];
+            }
+        }
+        if(rowType==NUMERICALDATA){
+            if(columnType==CATEGORICALDATA){
+                types = [ [ "id": "barchart", "name": "Barchart"], [ "id": "linechart", "name": "Linechart"] ];
+            }
+            if(columnType==NUMERICALDATA){
+                types = [ [ "id": "scatterplot", "name": "Scatterplot"], [ "id": "linechart", "name": "Linechart"] ];
+            }
+        }
+        return types
     }
 }
