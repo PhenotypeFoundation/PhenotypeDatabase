@@ -85,7 +85,7 @@ class VisualizeController {
             fields += getFields(study, "assays", "domainfields")
             fields += getFields(study, "assays", "templatefields")
             fields += getFields(study, "samples", "domainfields")
-            fields += getFields(study, "samples", "domainfields")
+            fields += getFields(study, "samples", "templatefields")
 
             /*
             Gather fields related to this study from modules.
@@ -639,10 +639,10 @@ class VisualizeController {
 			  return study?.samples
 		  case "Event":
 		  case "events":
-			   return study?.samples?.parentEventGroup?.events
+			   return study?.samples?.parentEventGroup?.events?.flatten()
 		  case "SamplingEvent":
 		  case "samplingEvents":
-			  return study?.samples?.parentEventGroup?.samplingEvents
+			  return study?.samples?.parentEvent
 		  case "Assay":
 		  case "assays":
 				  return study?.assays
