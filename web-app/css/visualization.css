@@ -145,9 +145,6 @@ table.jqplot-table-legend { width: 100px; }
 }
 
 #button_visualize {
-    border-style: outset;
-    border-width: 2px;
-    border-color: gray;
     margin: 4px;
     padding: 10px;
     text-align: center;

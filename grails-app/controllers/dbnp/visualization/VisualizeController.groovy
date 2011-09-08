@@ -202,27 +202,11 @@ class VisualizeController {
         def collection = []
         def fields = []
         def source = "GSCF"
-
-		def domainObjects = [ 
-			"subjects": Subject, 
-			"events": Event, 
-			"samples": Sample, 
-			"samplingEvents": SamplingEvent, 
-			"assays": Assay, 
-			"studies": Study ]
-		
-		def templateObjects = [ 
-			"subjects": study?.samples?.parentSubject, 
-			"events": study?.samples?.parentEventGroup?.events, 
-			"samples": study?.samples, 
-			"samplingEvents": study?.samples?.parentEventGroup?.samplingEvents, 
-			"assays": study?.assays, 
-			"studies": study ]
 		
 		if( type == "domainfields" ) 
-			collection = domainObjects[ category ]?.giveDomainFields();
+			collection = domainObjectCallback( category )?.giveDomainFields();
 		else 
-			collection = templateObjects[ category ]?.template?.fields
+			collection = templateObjectCallback( category, study )?.template?.fields
 
         collection?.unique()
 
@@ -325,23 +309,10 @@ class VisualizeController {
 	def parseGetDataParams() {
 		def studyIds, rowIds, columnIds, visualizationType;
 		
-		def inputData = params.get( 'data' );
-		try{
-			def input_object = JSON.parse(inputData)
-			
-			studyIds = input_object.get('studies')*.id
-			rowIds = input_object.get('rows')*.id
-			columnIds = input_object.get('columns')*.id
-			visualizationType = "barchart"
-		} catch(Exception e) {
-            /* TODO: Find a way to handle these kinds of exceptions without breaking the user interface.
-                Doing things in this way results in the user interface getting a 400.
-			returnError(400, "An error occured while retrieving the user input")
-            infoMessage = "An error occured while retrieving the user input."
-			log.error("VisualizationController: parseGetDataParams: "+e)
-            return sendInfoMessage()
-            */
-		}
+		studyIds = params.list( 'study' );
+		rowIds = params.list( 'rows' );
+		columnIds = params.list( 'columns' );
+		visualizationType = params.get( 'types')
 
 		return [ "studyIds" : studyIds, "rowIds": rowIds, "columnIds": columnIds, "visualizationType": visualizationType ];
 	}
@@ -617,6 +588,68 @@ class VisualizeController {
 	}
 	
 	/**
+	* Returns the domain object that should be used with the given entity string 
+	*
+	* For example:
+	* 		What object should be consulted if the user asks for "studies"
+	* 		Response: Study
+	* @return	Domain object that should be used with the given entity string
+	*/
+   protected def domainObjectCallback( String entity ) {
+	   switch( entity ) {
+		   case "Study":
+		   case "studies":
+			   return Study
+		   case "Subject":
+		   case "subjects":
+			   return Subject
+		   case "Sample":
+		   case "samples":
+			   return Sample
+		   case "Event":
+		   case "events":
+		        return Event
+		   case "SamplingEvent":
+		   case "samplingEvents":
+			   return SamplingEvent
+		   case "Assay":
+		   case "assays":
+		   		return Assay
+	   }
+   }
+
+   /**
+   * Returns the objects within the given study that should be used with the given entity string
+   *
+   * For example:
+   * 		What object should be consulted if the user asks for "samples"
+   * 		Response: study.samples
+   * @return	List of domain objects that should be used with the given entity string
+   */
+  protected def templateObjectCallback( String entity, Study study ) {
+	  switch( entity ) {
+		  case "Study":
+		  case "studies":
+			  return study
+		  case "Subject":
+		  case "subjects":
+			  return study?.samples?.parentSubject
+		  case "Sample":
+		  case "samples":
+			  return study?.samples
+		  case "Event":
+		  case "events":
+			   return study?.samples?.parentEventGroup?.events
+		  case "SamplingEvent":
+		  case "samplingEvents":
+			  return study?.samples?.parentEventGroup?.samplingEvents
+		  case "Assay":
+		  case "assays":
+				  return study?.assays
+	  }
+  }
+	
+	/**
 	 * Computes the mean value and Standard Error of the mean (SEM) for the given values
 	 * @param values	List of values to compute the mean and SEM for. Strings and null 
 	 * 					values are ignored 
@@ -798,32 +831,7 @@ class VisualizeController {
             } else {
                 // Domainfield or memberclass
                 try{
-                    switch( parsedField.type ) {
-                        case "Study":
-                        case "studies":
-                            return determineCategoryFromClass(Study.class.getDeclaredField(parsedField.name).type)
-                            break
-                        case "Subject":
-                        case "subjects":
-                            return determineCategoryFromClass(Subject.class.getDeclaredField(parsedField.name).type)
-                            break
-                        case "Sample":
-                        case "samples":
-                            return determineCategoryFromClass(Sample.class.getDeclaredField(parsedField.name).type)
-                            break
-                        case "Event":
-                        case "events":
-                            return determineCategoryFromClass(Event.class.getDeclaredField(parsedField.name).type)
-                            break
-                        case "SamplingEvent":
-                        case "samplingEvents":
-                            return determineCategoryFromClass(SamplingEvent.class.getDeclaredField(parsedField.name).type)
-                            break
-                        case "Assay":
-                        case "assays":
-                            return determineCategoryFromClass(Assay.class.getDeclaredField(parsedField.name).type)
-                            break
-                    }
+					return determineCategoryFromClass(domainObjectCallback( parsedField.type )?.fields[parsedField.name].type)
                 } catch(Exception e){
                     log.error("VisualizationController: determineFieldType: "+e)
                     e.printStackTrace()

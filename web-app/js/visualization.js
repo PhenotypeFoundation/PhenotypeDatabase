@@ -16,14 +16,6 @@ $(document).ready(function() {
 		}
     );
     $("#menu_go").unbind('mouseover').unbind('mouseout');
-
-    $('#button_visualize').mousedown(function() {
-        $('#button_visualize').css("border-style", 'inset');
-    });
-    $('#button_visualize').mouseup(function() {
-        $('#button_visualize').css("border-style", 'outset');
-    });
-
 });
 
 /**
@@ -47,16 +39,19 @@ function changeStudy() {
                     showError(data.infoMessage,"warning");
                 }
 
-                // Add all fields to the lists
-                var returnData = data.returnData;
-                $.each( returnData, function( idx, field ) {
-                    $( '#rows, #columns' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
-                });
-
                 clearStep(".menu_item");
-                $( "#menu_study" ).find("div.menu_item_info").html("<br />"+$( '#study option:selected' ).text());
-                $( "#menu_study" ).addClass("menu_item_done");
-                $( "#menu_row, #menu_column" ).addClass("menu_item_fill");
+                
+                // Add all fields to the lists
+                if( data.returnData ) {
+	                var returnData = data.returnData;
+	                $.each( returnData, function( idx, field ) {
+	                    $( '#rows, #columns' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
+	                });
+	                
+	                $( "#menu_study" ).find("div.menu_item_info").html("<br />"+$( '#study option:selected' ).text());
+	                $( "#menu_study" ).addClass("menu_item_done");
+	                $( "#menu_row, #menu_column" ).addClass("menu_item_fill");
+                }
             }
         },'menu_study');
     } else {
@@ -279,34 +274,9 @@ function checkCorrectData( data ) {
  * @return Object		Object with the data to be sent to the server
  */
 function gatherData( type ) {
-	var data = {};
-
-	// different types of request require different data arrays
-	// However, some data is required for all types. For that reason, 
-	// the fallthrough option in the switch statement is used.
-	switch( type ) {
-		case "getData":
-			var typeElement = $( '#type' );
-			data[ "type" ] = { "id": typeElement.val() }; 					
-		case "getVisualizationTypes":
-			var rowsElement = $( '#rows' );
-			var columnsElement = $( '#columns' );
-			data[ "rows" ] = [
-				{ "id": rowsElement.val() }
-			]; 					
-			data[ "columns" ] = [
-					{ "id": columnsElement.val() }
-			]; 					
-		case "getFields":
-			var studyElement = $( '#study' );
-			data[ "studies" ] = [
-				{ "id": studyElement.val() }
-			]; 					
-			
-		case "getStudies":
-	}
-
-	return data;
+	// For simplicity, we send the whole form to the server. In the
+	// future this might be enhanced, based on the given type
+	return $( 'form#visualizationForm' ).serialize();
 }
 
 /**
@@ -346,7 +316,7 @@ function executeAjaxCall( action, ajaxParameters, divid ) {
 	// based on the study we chose
 	$.ajax($.extend({
 		url: visualizationUrls[ action ],
-		data: "data=" + JSON.stringify( data ),
+		data: data,
 		dataType: "json",
 	}, ajaxParameters ) );
 }

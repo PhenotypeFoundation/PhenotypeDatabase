@@ -65,7 +65,7 @@
                 </div>
                 <div class="menu_arrow"> </div>
                 <div class="menu_item" id="menu_go">
-                    <div id="button_visualize" onClick="visualize();">Visualize</div>
+                    <button id="button_visualize" onClick="visualize(); return false;" >Visualize</button>
                     <input type="checkbox" name="autovis" id="autovis" CHECKED/><span style="font-size: small;">auto</span></div>
                 <div class="menu_spacer"> </div>
             </form>
