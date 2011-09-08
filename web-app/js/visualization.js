@@ -53,16 +53,16 @@ function changeStudy() {
                     $( '#rows, #columns' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
                 });
 
-                $( "#menu_study" ).find("img.spinner").hide();
-                $( "#menu_study" ).removeClass().addClass("menu_item menu_item_done");
+                clearStep(".menu_item");
+                $( "#menu_study" ).find("div.menu_item_info").html("<br />"+$( '#study option:selected' ).text());
+                $( "#menu_study" ).addClass("menu_item_done");
                 $( "#menu_row, #menu_column" ).addClass("menu_item_fill");
             }
         },'menu_study');
     } else {
         $( '#rows, #columns' ).empty();
-        $( ".menu_item" ).removeClass().addClass("menu_item");
+        clearStep(".menu_item");
         $( "#menu_study" ).addClass("menu_item_fill");
-        $( '.menu_item' ).find(".menu_item_info").html("");
     }
 }
 
@@ -79,7 +79,6 @@ function changeFields(divid) {
 
         $( "#"+divid ).find("img.spinner").show();
 
-        $( "#"+divid ).find("div.menu_item_info").html("<br />"+$( '#'+type+' option:selected' ).text());
         executeAjaxCall( "getVisualizationTypes", {
             "errorMessage": "An error occurred while retrieving visualization types from the server. Please try again or contact a system administrator.",
             "success": function( data, textStatus, jqXHR ) {
@@ -98,26 +97,25 @@ function changeFields(divid) {
                         $( '#types' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
                     });
 
-                    $( '#menu_vis' ).removeClass().addClass("menu_item");
-                    $( '#menu_vis' ).find(".menu_item_info").html("");
+                    clearStep("#menu_vis");
                 }
 
-                $( "#"+divid ).find("img.spinner").hide();
-                $( "#"+divid ).removeClass().addClass("menu_item menu_item_done");
+                clearStep("#"+divid);
+                $( "#"+divid ).find("div.menu_item_info").html("<br />"+$( '#'+type+' option:selected' ).text());
+                $( "#"+divid ).addClass("menu_item_done");
 
                 if((!$( "#menu_vis" ).hasClass("menu_item_done")) &&
                         ($( "#menu_row" ).hasClass("menu_item_done") || divid=="menu_row") &&
                         ($( "#menu_column" ).hasClass("menu_item_done") || divid=="menu_column")
                         ) {
+                    clearStep("#menu_vis");
                     $( "#menu_vis" ).addClass("menu_item_fill");
                 }
             }
         },divid);
     } else {
-        $( '#menu_vis' ).removeClass().addClass("menu_item");
-        $( "#"+divid ).removeClass().addClass("menu_item menu_item_fill");
-        $( "#"+divid ).find(".menu_item_info").html("");
-        $( '#menu_vis' ).find(".menu_item_info").html("");
+        clearStep("#menu_vis, #"+divid);
+        $( "#"+divid ).addClass("menu_item_fill");
     }
 }
 
@@ -236,6 +234,17 @@ function showError( message, strClass ) {
         $( '#message' ).html("");
         $(document).unbind('click');
     });
+}
+
+
+/**
+ * Clears one or multiple steps
+ * @param data
+ */
+function clearStep(strSelector) {
+    $( strSelector ).removeClass().addClass("menu_item");
+    $( strSelector ).find(".menu_item_info").html("");
+    $( strSelector ).find("img.spinner").hide();
 }
 
 /** 
