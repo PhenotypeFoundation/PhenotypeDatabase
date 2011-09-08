@@ -16,6 +16,14 @@ $(document).ready(function() {
 		}
     );
     $("#menu_go").unbind('mouseover').unbind('mouseout');
+
+    $('#button_visualize').mousedown(function() {
+        $('#button_visualize').css("border-style", 'inset');
+    });
+    $('#button_visualize').mouseup(function() {
+        $('#button_visualize').css("border-style", 'outset');
+    });
+
 });
 
 /**
@@ -137,71 +145,82 @@ function changeVis() {
  * The data for the visualization is retrieved from the serverside getData method
  */ 
 function visualize() {
-	executeAjaxCall( "getData", {
-		"errorMessage": "An error occurred while retrieving data from the server. Please try again or contact a system administrator.",
-		"success": function( data, textStatus, jqXHR ) {
-			// Remove old chart, if available
-			if( visualization )
-				visualization.destroy();
 
-            if(data.infoMessage!=null) {
-                showError(data.infoMessage,"warning");
+    if(!$( "#menu_vis" ).hasClass("menu_item_done") ||
+        !$( "#menu_row" ).hasClass("menu_item_done") ||
+        !$( "#menu_row" ).hasClass("menu_item_done") ||
+        !$( "#menu_row" ).hasClass("menu_item_done") ) {
+
+        $( ".menu_item" ).not(".menu_item_done").removeClass().addClass("menu_item menu_item_warning");
+    } else {
+
+
+        executeAjaxCall( "getData", {
+            "errorMessage": "An error occurred while retrieving data from the server. Please try again or contact a system administrator.",
+            "success": function( data, textStatus, jqXHR ) {
+                // Remove old chart, if available
+                if( visualization )
+                    visualization.destroy();
+
+                if(data.infoMessage!=null) {
+                    showError(data.infoMessage,"warning");
+                }
+                // Handle erroneous data
+                /*if( !checkCorrectData( data.returnData ) ) {
+                    showError( "Unfortunately the server returned data in a format that we did not expect.", "error" );
+                    return;
+                }*/
+
+                // Retrieve the datapoints from the json object
+                var dataPoints = [];
+                var series = [];
+
+
+                var returnData = data.returnData;
+                $.each(returnData.series, function(idx, element ) {
+                    dataPoints[ dataPoints.length ] = element.y;
+                    series[ series.length ] = { "label": element.name };
+                });
+
+                var xlabel = returnData[ "xaxis" ].unit=="" ? returnData[ "xaxis" ].title : returnData[ "xaxis" ].title + " (" + returnData[ "xaxis" ].unit + ")";
+                var ylabel = returnData[ "yaxis" ].unit=="" ? returnData[ "yaxis" ].title : returnData[ "yaxis" ].title + " (" + returnData[ "yaxis" ].unit + ")";
+
+                // TODO: create a chart based on the data that is sent by the user and the type of chart
+                // chosen by the user
+                visualization = $.jqplot('visualization', dataPoints, {
+                    // Tell the plot to stack the bars.
+                    stackSeries: true,
+                    seriesDefaults:{
+                        renderer:$.jqplot.BarRenderer,
+                        rendererOptions: {
+                                // Put a 30 pixel margin between bars.
+                                barMargin: 30,
+                                // Highlight bars when mouse button pressed.
+                                // Disables default highlighting on mouse over.
+                                highlightMouseDown: true
+                        },
+                        pointLabels: {show: true}
+                    },
+                    series: series,
+                    axes: {
+                        xaxis: {
+                                renderer: $.jqplot.CategoryAxisRenderer,
+                                ticks: returnData.x,
+                                label: xlabel,
+                                labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                        },
+                        yaxis: {
+                            label: ylabel,
+                            labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                        }
+                    }
+
+                });
+
+                $( "#visualization" ).show();
             }
-			// Handle erroneous data
-			/*if( !checkCorrectData( data.returnData ) ) {
-				showError( "Unfortunately the server returned data in a format that we did not expect.", "error" );
-				return;
-			}*/
-			
-			// Retrieve the datapoints from the json object
-			var dataPoints = [];
-			var series = [];
-
-
-            var returnData = data.returnData;
-			$.each(returnData.series, function(idx, element ) {
-				dataPoints[ dataPoints.length ] = element.y;
-				series[ series.length ] = { "label": element.name };
-			});
-
-            var xlabel = returnData[ "xaxis" ].unit=="" ? returnData[ "xaxis" ].title : returnData[ "xaxis" ].title + " (" + returnData[ "xaxis" ].unit + ")";
-            var ylabel = returnData[ "yaxis" ].unit=="" ? returnData[ "yaxis" ].title : returnData[ "yaxis" ].title + " (" + returnData[ "yaxis" ].unit + ")";
-			
-			// TODO: create a chart based on the data that is sent by the user and the type of chart
-			// chosen by the user
-			visualization = $.jqplot('visualization', dataPoints, {
-				// Tell the plot to stack the bars.
-				stackSeries: true,
-				seriesDefaults:{
-					renderer:$.jqplot.BarRenderer,
-					rendererOptions: {
-							// Put a 30 pixel margin between bars.
-							barMargin: 30,
-							// Highlight bars when mouse button pressed.
-							// Disables default highlighting on mouse over.
-							highlightMouseDown: true	 
-					},
-					pointLabels: {show: true}
-				},
-				series: series,
-				axes: {
-					xaxis: {
-							renderer: $.jqplot.CategoryAxisRenderer,
-							ticks: returnData.x,
-							label: xlabel,
-							labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-					},
-					yaxis: {
-						label: ylabel,
-						labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-					}
-				}
-		
-			});
-			
-			$( "#visualization" ).show();
-		}
-	}, "menu_go");
+        }, "menu_go");
+    }
 }
 
 /**
