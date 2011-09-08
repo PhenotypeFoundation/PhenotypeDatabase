@@ -103,7 +103,7 @@ function changeFields(divid) {
                 }
 
                 $( "#"+divid ).find("img.spinner").hide();
-                $( "#"+divid ).removeClass.addClass("menu_item menu_item_done");
+                $( "#"+divid ).removeClass().addClass("menu_item menu_item_done");
 
                 if((!$( "#menu_vis" ).hasClass("menu_item_done")) &&
                         ($( "#menu_row" ).hasClass("menu_item_done") || divid=="menu_row") &&
