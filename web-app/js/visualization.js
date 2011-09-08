@@ -54,7 +54,7 @@ function changeStudy() {
                 });
 
                 $( "#menu_study" ).find("img.spinner").hide();
-                $( "#menu_study" ).switchClass("menu_item_fill","menu_item_done",1000);
+                $( "#menu_study" ).removeClass().addClass("menu_item menu_item_done");
                 $( "#menu_row, #menu_column" ).addClass("menu_item_fill");
             }
         },'menu_study');
@@ -103,7 +103,7 @@ function changeFields(divid) {
                 }
 
                 $( "#"+divid ).find("img.spinner").hide();
-                $( "#"+divid ).switchClass("menu_item_fill","menu_item_done",1000);
+                $( "#"+divid ).removeClass.addClass("menu_item menu_item_done");
 
                 if((!$( "#menu_vis" ).hasClass("menu_item_done")) &&
                         ($( "#menu_row" ).hasClass("menu_item_done") || divid=="menu_row") &&
@@ -127,7 +127,7 @@ function changeFields(divid) {
 function changeVis() {
     $( "#menu_vis" ).find("div.formulier").hide();
     if($( '#types option:selected' ).val()!="") {
-        $( "#menu_vis" ).switchClass("menu_item_fill","menu_item_done",1000);
+        $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_done");
         $( "#menu_vis" ).find("div.menu_item_info").html("<br />"+$( '#types option:selected' ).text());
     } else {
         $( "#menu_vis" ).find("div.menu_item_info").html("");
@@ -229,8 +229,7 @@ function visualize() {
  */
 function showError( message, strClass ) {
 	$( '#message' ).html( message );
-    $( '#message' ).removeClass();
-    $( '#message' ).addClass(strClass);
+    $( '#message' ).removeClass().addClass(strClass);
 	$( '#message' ).fadeIn();
     $(document).bind('click',function() {
         $( '#message' ).removeClass();
