@@ -17,6 +17,12 @@
 
 	<g:javascript src="visualization.js" />
 	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css' />" />
+    <style type="text/css">
+        /** NEEDED FOR RESOURCES PLUGIN **/
+        .menu_arrow {background-image: url('./images/visualization/down_arrow.png'); }
+        .error { background: #ffe0e0 url(${fam.icon( name: 'exclamation' )}) 10px 10px no-repeat; }
+        .warning{ background: #eee url(${fam.icon( name: 'information' )}) 10px 10px no-repeat; }
+    </style>
 	
 	<script type="text/javascript">
 		// We store urls here because they depend on the grails configuration.
@@ -59,7 +65,8 @@
                 </div>
                 <div class="menu_arrow"> </div>
                 <div class="menu_item" id="menu_go">
-                    <input type="button" value="Visualize" onClick="visualize();"/><br /><input type="checkbox" name="autovis" id="autovis" CHECKED/><span style="font-size: small;">auto</span></div>
+                    <div id="button_visualize" onClick="visualize();">Visualize</div>
+                    <input type="checkbox" name="autovis" id="autovis" CHECKED/><span style="font-size: small;">auto</span></div>
                 <div class="menu_spacer"> </div>
             </form>
         </div>
@@ -68,20 +75,13 @@
 
             <h1>Visualize your study</h1>
 
-            <div id="messages">
+            <div id="message" class="error">
                 <g:if test="${flash.error}">
-                    <div class="errormessage">
-                        ${flash.error.toString().encodeAsHTML()}
-                    </div>
+                    ${flash.error.toString().encodeAsHTML()}
                 </g:if>
                 <g:if test="${flash.message}">
-                    <div class="message">
-                        ${flash.message.toString().encodeAsHTML()}
-                    </div>
+                    ${flash.message.toString().encodeAsHTML()}
                 </g:if>
-
-                <div id="ajaxError">
-                </div>
             </div>
 
             <div id="visualization">

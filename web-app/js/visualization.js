@@ -15,6 +15,7 @@ $(document).ready(function() {
             $( this ).css("width","88px");
 		}
     );
+    $("#menu_go").unbind('mouseover').unbind('mouseout');
 });
 
 /**
@@ -22,73 +23,94 @@ $(document).ready(function() {
  */
 function changeStudy() {
     $( "#menu_study" ).find("div.formulier").hide();
-    $( "#menu_study" ).find("img.spinner").show();
-    $( "#menu_study" ).find("div.menu_item_info").html("<br />"+$( '#study option:selected' ).text());
 
-	executeAjaxCall( "getFields", {
-		"errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
-		"success": function( data, textStatus, jqXHR ) {
-			// Remove all previous entries from the list
-			$( '#rows, #columns' ).empty();
-            $( '#rows, #columns' ).append( $( "<option>" ).val( "" ).text( "[SELECT OPTION]" ) );
+    if($( '#study option:selected' ).val()!="") {
+        $( "#menu_study" ).find("img.spinner").show();
+        $( "#menu_study" ).find("div.menu_item_info").html("<br />"+$( '#study option:selected' ).text());
 
-			// Add all fields to the lists
-            var returnData = data.returnData;
-			$.each( returnData, function( idx, field ) {
-				$( '#rows, #columns' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
-			});
-			
-            $( "#menu_study" ).find("img.spinner").hide();
-            $( "#menu_study" ).removeClass("menu_item_fill");
-            $( "#menu_study" ).addClass("menu_item_done");
-            $( "#menu_row" ).addClass("menu_item_fill");
-            $( "#menu_column" ).addClass("menu_item_fill");
-		}
-	});
+        executeAjaxCall( "getFields", {
+            "errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
+            "success": function( data, textStatus, jqXHR ) {
+                // Remove all previous entries from the list
+                $( '#rows, #columns' ).empty();
+                $( '#rows, #columns' ).append( $( "<option>" ).val( "" ).text( "[SELECT OPTION]" ) );
+
+                if(data.infoMessage) {
+                    showError(data.infoMessage,"warning");
+                }
+
+                // Add all fields to the lists
+                var returnData = data.returnData;
+                $.each( returnData, function( idx, field ) {
+                    $( '#rows, #columns' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
+                });
+
+                $( "#menu_study" ).find("img.spinner").hide();
+                $( "#menu_study" ).switchClass("menu_item_fill","menu_item_done",1000);
+                $( "#menu_row, #menu_column" ).addClass("menu_item_fill");
+            }
+        },'menu_study');
+    } else {
+        $( '#rows, #columns' ).empty();
+        $( ".menu_item" ).removeClass().addClass("menu_item");
+        $( "#menu_study" ).addClass("menu_item_fill");
+        $( '.menu_item' ).find(".menu_item_info").html("");
+    }
 }
 
 /**
  * Retrieve the possible visualization types based on the fields that the user has selected.
  */
 function changeFields(divid) {
-    $( "#"+divid ).find("img.spinner").show();
     $( "#"+divid ).find("div.formulier").hide();
 
     var type = "rows";
     if(divid=="menu_column") type = "columns";
 
-    $( "#"+divid ).find("div.menu_item_info").html("<br />"+$( '#'+type+' option:selected' ).text());
-	executeAjaxCall( "getVisualizationTypes", {
-		"errorMessage": "An error occurred while retrieving visualization types from the server. Please try again or contact a system administrator.",
-		"success": function( data, textStatus, jqXHR ) {
-			// Remove all previous entries from the list
-            var oldSelect = $( '#types option:selected' ).text();
-            var intSelect = 0;
-            var iOptionNum = 0;
-			$( '#types' ).empty();
+    if($( '#'+type+' option:selected' ).val()!="") {
 
-            $( '#types' ).append( $( "<option>" ).val( "" ).text( "[SELECT OPTION]" ) );
-			// Add all fields to the lists
-            var returnData = data.returnData;
+        $( "#"+divid ).find("img.spinner").show();
 
-			$.each( returnData, function( idx, field ) {
-                if(field.name==oldSelect) {
-                    intSelect = iOptionNum;
+        $( "#"+divid ).find("div.menu_item_info").html("<br />"+$( '#'+type+' option:selected' ).text());
+        executeAjaxCall( "getVisualizationTypes", {
+            "errorMessage": "An error occurred while retrieving visualization types from the server. Please try again or contact a system administrator.",
+            "success": function( data, textStatus, jqXHR ) {
+                // Remove all previous entries from the list
+                $( '#types' ).empty();
+
+                if(data.infoMessage!=null) {
+                    showError(data.infoMessage,"warning");
+                } else {
+
+                    $( '#types' ).append( $( "<option>" ).val( "" ).text( "[SELECT OPTION]" ) );
+                    // Add all fields to the lists
+                    var returnData = data.returnData;
+
+                    $.each( returnData, function( idx, field ) {
+                        $( '#types' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
+                    });
+
+                    $( '#menu_vis' ).removeClass().addClass("menu_item");
+                    $( '#menu_vis' ).find(".menu_item_info").html("");
                 }
-                iOptionNum = iOptionNum + 1;
-				$( '#types' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
-			});
 
-            $( '#types' ).selectedIndex = intSelect;
+                $( "#"+divid ).find("img.spinner").hide();
+                $( "#"+divid ).switchClass("menu_item_fill","menu_item_done",1000);
 
-            $( "#"+divid ).find("img.spinner").hide();
-            $( "#"+divid ).addClass("menu_item_done");
-            $( "#"+divid ).removeClass("menu_item_fill");
-            if(!$( "#menu_vis" ).hasClass("menu_item_done") && $( "#menu_row" ).hasClass("menu_item_done") && $( "#menu_column" ).hasClass("menu_item_done")) {
-                $( "#menu_vis" ).addClass("menu_item_fill");
+                if((!$( "#menu_vis" ).hasClass("menu_item_done")) &&
+                        ($( "#menu_row" ).hasClass("menu_item_done") || divid=="menu_row") &&
+                        ($( "#menu_column" ).hasClass("menu_item_done") || divid=="menu_column")
+                        ) {
+                    $( "#menu_vis" ).addClass("menu_item_fill");
+                }
             }
-		}
-	});
+        },divid);
+    } else {
+        $( '#menu_vis' ).removeClass().addClass("menu_item");
+        $( "#"+divid ).removeClass().addClass("menu_item menu_item_fill");
+        $( "#"+divid ).find(".menu_item_info").html("");
+        $( '#menu_vis' ).find(".menu_item_info").html("");
+    }
 }
 
 /**
@@ -96,9 +118,13 @@ function changeFields(divid) {
  */
 function changeVis() {
     $( "#menu_vis" ).find("div.formulier").hide();
-    $( "#menu_vis" ).removeClass("menu_item_fill");
-    $( "#menu_vis" ).addClass("menu_item_done");
-    $( "#menu_vis" ).find("div.menu_item_info").html("<br />"+$( '#types option:selected' ).text());
+    if($( '#types option:selected' ).val()!="") {
+        $( "#menu_vis" ).switchClass("menu_item_fill","menu_item_done",1000);
+        $( "#menu_vis" ).find("div.menu_item_info").html("<br />"+$( '#types option:selected' ).text());
+    } else {
+        $( "#menu_vis" ).find("div.menu_item_info").html("");
+        $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_fill");
+    }
     if($("#autovis").attr("checked")=="checked") {
         visualize();
     }
@@ -118,9 +144,12 @@ function visualize() {
 			if( visualization )
 				visualization.destroy();
 
+            if(data.infoMessage!=null) {
+                showError(data.infoMessage,"warning");
+            }
 			// Handle erroneous data
 			/*if( !checkCorrectData( data.returnData ) ) {
-				showError( "Unfortunately the server returned data in a format that we did not expect." );
+				showError( "Unfortunately the server returned data in a format that we did not expect.", "error" );
 				return;
 			}*/
 			
@@ -164,24 +193,31 @@ function visualize() {
 					},
 					yaxis: {
 						label: ylabel,
-						labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+						labelRenderer: $.jqplot.CanvasAxisLabelRenderer
 					}
 				}
 		
 			});
 			
 			$( "#visualization" ).show();
-		},
-	});
+		}
+	}, "menu_go");
 }
 
 /**
  * Shows an error message in a proper way
  * @param message	String	Message to show
  */
-function showError( message ) {
-	$( '#ajaxError' ).text( message );
-	$( '#ajaxError' ).show();
+function showError( message, strClass ) {
+	$( '#message' ).html( message );
+    $( '#message' ).removeClass();
+    $( '#message' ).addClass(strClass);
+	$( '#message' ).fadeIn();
+    $(document).bind('click',function() {
+        $( '#message' ).removeClass();
+        $( '#message' ).html("");
+        $(document).unbind('click');
+    });
 }
 
 /** 
@@ -259,7 +295,7 @@ function gatherData( type ) {
  * @see visualizationUrls
  * @see jQuery.ajax
  */
-function executeAjaxCall( action, ajaxParameters ) {
+function executeAjaxCall( action, ajaxParameters, divid ) {
 	var data = gatherData( action );
 
 	// If no parameters are given, create an empty map
@@ -270,7 +306,9 @@ function executeAjaxCall( action, ajaxParameters ) {
 		var message = ajaxParameters[ "errorMessage" ];
 		ajaxParameters[ "error" ] = function( jqXHR, textStatus, errorThrown ) {
 			// An error occurred while retrieving fields from the server
-			showError( "An error occurred while retrieving variables from the server. Please try again or contact a system administrator." );
+			showError( "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.<br />"+textStatus, "error" );
+            $( "#"+divid ).removeClass().addClass('menu_item menu_item_error');
+            $( "#"+divid ).find("img.spinner").hide();
 		}
 
 		// Remove the error message
@@ -282,6 +320,6 @@ function executeAjaxCall( action, ajaxParameters ) {
 	$.ajax($.extend({
 		url: visualizationUrls[ action ],
 		data: "data=" + JSON.stringify( data ),
-		dataType: "json"
+		dataType: "json",
 	}, ajaxParameters ) );
 }
