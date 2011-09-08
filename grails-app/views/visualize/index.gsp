@@ -19,7 +19,7 @@
 	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css' />" />
     <style type="text/css">
         /** NEEDED FOR RESOURCES PLUGIN **/
-        .menu_arrow {background-image: url('./images/visualization/down_arrow.png'); }
+        .menu_arrow {background-image: url(${resource(dir: 'images/visualization', file: 'down_arrow.png')}); }
         .error { background: #ffe0e0 url(${fam.icon( name: 'exclamation' )}) 10px 10px no-repeat; }
         .warning{ background: #eee url(${fam.icon( name: 'information' )}) 10px 10px no-repeat; }
     </style>
@@ -42,24 +42,24 @@
             <form id="visualizationForm">
                 <div class="menu_spacer"> </div>
                 <div class="menu_item menu_item_fill" id="menu_study">
-                    <div class="menu_item_label">Studies <img src="./images/spinner.gif" class="spinner" /></div>
+                    <div class="menu_item_label">Studies <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
                     <div class="formulier"><label for="study">Study</label><g:select from="${studies}" optionKey="id" optionValue="title" name="study" onChange="changeStudy();" noSelection="${['':'[SELECT OPTION]']}"/></div>
                 </div>
                 <div class="menu_arrow"> </div>
                 <div class="menu_item" id="menu_row">
-                    <div class="menu_item_label">Rows <img src="./images/spinner.gif" class="spinner" /></div>
+                    <div class="menu_item_label">Rows <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
                     <div class="formulier"><label for="rows">Rows</label> <select id="rows" name="rows" onChange="changeFields('menu_row');"></select></div>
                 </div>
                 <div class="menu_item" id="menu_column">
-                    <div class="menu_item_label">Columns <img src="./images/spinner.gif" class="spinner" /></div>
+                    <div class="menu_item_label">Columns <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
                     <div class="formulier"><label for="columns">Columns</label> <select id="columns" name="columns" onChange="changeFields('menu_column');"></select></div>
                 </div>
                 <div class="menu_arrow"> </div>
                 <div class="menu_item" id="menu_vis">
-                    <div class="menu_item_label">Type <img src="./images/spinner.gif" class="spinner" /></div>
+                    <div class="menu_item_label">Type <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
                     <div class="formulier"><label for="types">Type</label><select id="types" name="types" onChange="changeVis();"></select></div>
                 </div>
