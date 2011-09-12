@@ -22,7 +22,8 @@ import org.dbnp.gdt.*
 class VisualizeController {
 	def authenticationService
 	def moduleCommunicationService
-    def infoMessage = ""
+    def infoMessage = []
+    def infoMessageOfflineModules = []
     final int CATEGORICALDATA = 0
     final int NUMERICALDATA = 1
 
@@ -57,7 +58,7 @@ class VisualizeController {
 
         // Check to see if we have enough information
         if(input_object==null || input_object?.studyIds==null){
-            infoMessage = "Please select a study."
+            setInfoMessage("Please select a study.")
             return sendInfoMessage()
         } else {
             studies = input_object.studyIds[0]
@@ -107,6 +108,9 @@ class VisualizeController {
                 }
             }
 
+            // Make sure any informational messages regarding offline modules are submitted to the client
+            setInfoMessageOfflineModules()
+
 
             // TODO: Maybe we should add study's own fields
         } else {
@@ -131,11 +135,11 @@ class VisualizeController {
         def inputData = parseGetDataParams();
 
         if(inputData.columnIds == null || inputData.columnIds == [] || inputData.columnIds[0] == null || inputData.columnIds[0] == ""){
-            infoMessage = "Please select a data source for the x-axis."
+            setInfoMessage("Please select a data source for the x-axis.")
             return sendInfoMessage()
         }
         if(inputData.rowIds == null || inputData.rowIds == [] ||  inputData.rowIds[0] == null ||   inputData.rowIds[0] == ""){
-            infoMessage = "Please select a data source for the y-axis."
+            setInfoMessage("Please select a data source for the y-axis.")
             return sendInfoMessage()
         }
 
@@ -183,7 +187,7 @@ class VisualizeController {
             }
         } catch(Exception e){
             //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
-            infoMessage = "Unfortunately, "+assay.module.name+" could not be reached. As a result, we cannot at this time visualize data contained in this module."
+            infoMessageOfflineModules.add(assay.module.name)
             log.error("VisualizationController: getFields: "+e)
         }
 
@@ -619,36 +623,36 @@ class VisualizeController {
 	   }
    }
 
-   /**
-   * Returns the objects within the given study that should be used with the given entity string
-   *
-   * For example:
-   * 		What object should be consulted if the user asks for "samples"
-   * 		Response: study.samples
-   * @return	List of domain objects that should be used with the given entity string
-   */
-  protected def templateObjectCallback( String entity, Study study ) {
-	  switch( entity ) {
-		  case "Study":
-		  case "studies":
-			  return study
-		  case "Subject":
-		  case "subjects":
-			  return study?.samples?.parentSubject
-		  case "Sample":
-		  case "samples":
-			  return study?.samples
-		  case "Event":
-		  case "events":
-			   return study?.samples?.parentEventGroup?.events?.flatten()
-		  case "SamplingEvent":
-		  case "samplingEvents":
-			  return study?.samples?.parentEvent
-		  case "Assay":
-		  case "assays":
-				  return study?.assays
-	  }
-  }
+    /**
+    * Returns the objects within the given study that should be used with the given entity string
+    *
+    * For example:
+    * 		What object should be consulted if the user asks for "samples"
+    * 		Response: study.samples
+    * @return	List of domain objects that should be used with the given entity string
+    */
+    protected def templateObjectCallback( String entity, Study study ) {
+      switch( entity ) {
+          case "Study":
+          case "studies":
+              return study
+          case "Subject":
+          case "subjects":
+              return study?.samples?.parentSubject
+          case "Sample":
+          case "samples":
+              return study?.samples
+          case "Event":
+          case "events":
+               return study?.samples?.parentEventGroup?.events?.flatten()
+          case "SamplingEvent":
+          case "samplingEvents":
+              return study?.samples?.parentEvent
+          case "Assay":
+          case "assays":
+                  return study?.assays
+      }
+    }
 	
 	/**
 	 * Computes the mean value and Standard Error of the mean (SEM) for the given values
@@ -700,28 +704,28 @@ class VisualizeController {
 	* 					will be computed using the computeMean method
 	* @return			Standard error of the mean of the values or 0 if no values can be used.
 	*/
-   protected def computeSEM( List values, def mean = null ) {
-	   if( mean == null )
-	   		mean = computeMean( values )
-	   
-	   def sumOfDifferences = 0;
-	   def sizeOfValues = 0;
-	   values.each { value ->
-		   def num = getNumericValue( value );
-		   if( num != null ) {
-			   sumOfDifferences += Math.pow( num - mean, 2 );
-			   sizeOfValues++
-		   }
-	   }
+    protected def computeSEM( List values, def mean = null ) {
+       if( mean == null )
+            mean = computeMean( values )
 
-	   if( sizeOfValues > 0 ) {
-		   def std = Math.sqrt( sumOfDifferences / sizeOfValues );
-		   return std / Math.sqrt( sizeOfValues );
-	   } else {
-		   return 0;
-	   }
-   }
-   Exception e
+       def sumOfDifferences = 0;
+       def sizeOfValues = 0;
+       values.each { value ->
+           def num = getNumericValue( value );
+           if( num != null ) {
+               sumOfDifferences += Math.pow( num - mean, 2 );
+               sizeOfValues++
+           }
+       }
+
+       if( sizeOfValues > 0 ) {
+           def std = Math.sqrt( sumOfDifferences / sizeOfValues );
+           return std / Math.sqrt( sizeOfValues );
+       } else {
+           return 0;
+       }
+    }
+    Exception e
 	/**
 	 * Return the numeric value of the given object, or null if no numeric value could be returned
 	 * @param 	value	Object to return the value for
@@ -901,9 +905,9 @@ class VisualizeController {
      */
     protected void sendResults(returnData){
         def results = [:]
-        if(infoMessage!=""){
+        if(infoMessage.size()!=0){
             results.put("infoMessage", infoMessage)
-            infoMessage = ""
+            infoMessage = []
         }
         results.put("returnData", returnData)
         render results as JSON
@@ -917,8 +921,45 @@ class VisualizeController {
     protected void sendInfoMessage(){
         def results = [:]
         results.put("infoMessage", infoMessage)
-        infoMessage = ""
+        infoMessage = []
         render results as JSON
+    }
+
+    /**
+     * Adds a new message to the infoMessage
+     * @param message The information that needs to be added to the infoMessage
+     */
+    protected void setInfoMessage(message){
+        infoMessage.add([message])
+        println "setInfoMessage: "+infoMessage
+    }
+
+    /**
+     * Adds a message to the infoMessage that gives the client information about offline modules
+     */
+    protected void setInfoMessageOfflineModules(){
+        if(infoMessageOfflineModules.size()>0){
+            String message = "Unfortunately"
+            infoMessageOfflineModules.eachWithIndex{ it, index ->
+                if(index==(infoMessageOfflineModules.size()-2)){
+                    message += ', the '+it+' and '
+                } else {
+                    if(index==(infoMessageOfflineModules.size()-1)){
+                        message += 'the '+it
+                    } else {
+                        message += ', the '+it
+                    }
+                }
+            }
+            message += " could not be reached. As a result, we cannot at this time visualize data contained in "
+            if(infoMessageOfflineModules.size()>1){
+                message += "these modules."
+            } else {
+                message += "this module."
+            }
+            setInfoMessage(message)
+        }
+        infoMessageOfflineModules = []
     }
 
     /**
