@@ -1,5 +1,5 @@
 /* #step2, #step3 { display: none; } */
-label { display: inline-block; zoom: 1; *display: inline; width: 110px; margin-top: 10px;  }
+label { display: inline-block; }
 
 table.jqplot-table-legend { width: 100px; }
 
@@ -69,6 +69,7 @@ table.jqplot-table-legend { width: 100px; }
     background-color: #AAAAAA;
     border-color: #888;
     z-index: 10;
+    min-height: 60px;
 }
 
 .menu_arrow {
@@ -121,21 +122,35 @@ table.jqplot-table-legend { width: 100px; }
 
 #menu_go {
     background-color: white;
-    width: 120px;
+    width: 110px;
 }
 
 .formulier {
     position: absolute;
     display: none;
-    left: 140px;
+    left: 130px;
     top: -2px;
-    width: 500px;
-    height: 100px;
+    width: 360px;
+    height: 170px;
     border-style: solid;
     border-color: inherit;
     border-width: 2px;
     background: white;
     padding: 40px;
+}
+
+.formulier .info {
+    font-size: 11px;
+    color: #555;
+}
+
+.formulier label {
+    font-size: 14px;
+    color: #006DBA;
+}
+
+.formulier select {
+    width: 100%;
 }
 
 .spinner {

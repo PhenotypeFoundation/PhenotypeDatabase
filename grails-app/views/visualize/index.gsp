@@ -44,28 +44,32 @@
                 <div class="menu_item menu_item_fill" id="menu_study">
                     <div class="menu_item_label">Studies <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
-                    <div class="formulier"><label for="study">Study</label><g:select from="${studies}" optionKey="id" optionValue="title" name="study" onChange="changeStudy();" noSelection="${['':'[SELECT OPTION]']}"/></div>
+                    <div class="formulier"><g:render template="formStudy" /></div>
                 </div>
                 <div class="menu_arrow"> </div>
-                <div class="menu_item" id="menu_row">
-                    <div class="menu_item_label">Rows <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
-                    <div class="menu_item_info"></div>
-                    <div class="formulier"><label for="rows">Rows</label> <select id="rows" name="rows" onChange="changeFields('menu_row');"></select></div>
-                </div>
                 <div class="menu_item" id="menu_column">
-                    <div class="menu_item_label">Columns <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
+                    <div class="menu_item_label">X-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
-                    <div class="formulier"><label for="columns">Columns</label> <select id="columns" name="columns" onChange="changeFields('menu_column');"></select></div>
+                    <div class="formulier"><g:render template="formColumns" /></div>
+                </div>
+                <div class="menu_item" id="menu_row">
+                    <div class="menu_item_label">Y-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
+                    <div class="menu_item_info"></div>
+                    <div class="formulier"><g:render template="formRows" /></div>
                 </div>
                 <div class="menu_arrow"> </div>
                 <div class="menu_item" id="menu_vis">
                     <div class="menu_item_label">Type <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
-                    <div class="formulier"><label for="types">Type</label><select id="types" name="types" onChange="changeVis();"></select></div>
+                    <div class="formulier"><g:render template="formType" /></div>
                 </div>
                 <div class="menu_arrow"> </div>
                 <div class="menu_item" id="menu_go">
-                    <button id="button_visualize" onClick="visualize(); return false;" >Visualize</button>
+                    <button id="button_visualize" onClick="visualize(); return false;" >
+                        Visualize<br />
+                        <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" />
+                        <span style="height: 16px;">&nbsp;</span>
+                    </button>
                     <input type="checkbox" name="autovis" id="autovis" CHECKED/><span style="font-size: small;">auto</span></div>
                 <div class="menu_spacer"> </div>
             </form>

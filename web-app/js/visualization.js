@@ -33,7 +33,6 @@ function changeStudy() {
             "success": function( data, textStatus, jqXHR ) {
                 // Remove all previous entries from the list
                 $( '#rows, #columns' ).empty();
-                $( '#rows, #columns' ).append( $( "<option>" ).val( "" ).text( "[SELECT OPTION]" ) );
 
                 if(data.infoMessage) {
                     showError(data.infoMessage,"warning");
@@ -43,8 +42,21 @@ function changeStudy() {
                 
                 // Add all fields to the lists
                 if( data.returnData ) {
-	                var returnData = data.returnData;
+                    var returnData = data.returnData;
+
+                    var prevCat = "";
 	                $.each( returnData, function( idx, field ) {
+                        if(field.category!=prevCat) {
+                            $( '#rows, #columns' )
+                                    .append( $( "<option>" )
+                                    .val( "" )
+                                    .text( field.source+": "+field.category )
+                                    .attr("disabled","disabled")
+                                    .css("font-weight","bold")
+                                    .css("color","white")
+                                    .css("background-color","#333") );
+                            prevCat = field.category;
+                        }
 	                    $( '#rows, #columns' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
 	                });
 	                
@@ -84,7 +96,6 @@ function changeFields(divid) {
                     showError(data.infoMessage,"warning");
                 } else {
 
-                    $( '#types' ).append( $( "<option>" ).val( "" ).text( "[SELECT OPTION]" ) );
                     // Add all fields to the lists
                     var returnData = data.returnData;
 
@@ -105,7 +116,13 @@ function changeFields(divid) {
                         ) {
                     clearStep("#menu_vis");
                     $( "#menu_vis" ).addClass("menu_item_fill");
+                    if($( '#types option' ).length==1) {
+                        $( '#types :first-child' ).attr("selected","selected");
+                        changeVis();
+                    }
                 }
+
+
             }
         },divid);
     } else {
@@ -147,6 +164,7 @@ function visualize() {
         $( ".menu_item" ).not(".menu_item_done").removeClass().addClass("menu_item menu_item_warning");
     } else {
 
+        $( "#menu_go" ).find("img.spinner").show();
 
         executeAjaxCall( "getData", {
             "errorMessage": "An error occurred while retrieving data from the server. Please try again or contact a system administrator.",
@@ -211,6 +229,7 @@ function visualize() {
                 });
 
                 $( "#visualization" ).show();
+                $( "#menu_go" ).find("img.spinner").hide();
             }
         }, "menu_go");
     }
@@ -317,6 +336,6 @@ function executeAjaxCall( action, ajaxParameters, divid ) {
 	$.ajax($.extend({
 		url: visualizationUrls[ action ],
 		data: data,
-		dataType: "json",
+		dataType: "json"
 	}, ajaxParameters ) );
 }
