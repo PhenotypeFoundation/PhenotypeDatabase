@@ -2,6 +2,7 @@
  * This variable holds the currently displayed visualization
  */
 var visualization = null;
+var visType = null;
 
 $(document).ready(function() {
     $(".menu_item").mouseover(
@@ -32,10 +33,13 @@ function changeStudy() {
             "errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
             "success": function( data, textStatus, jqXHR ) {
                 // Remove all previous entries from the list
-                $( '#rows, #columns' ).empty();
+                $( '#rows, #columns, #types' ).empty();
+
+                if( visualization )
+                    visualization.destroy();
 
                 if(data.infoMessage) {
-                    showError(data.infoMessage,"warning");
+                    showError(data.infoMessage,"message_warning");
                 }
 
                 clearStep(".menu_item");
@@ -47,18 +51,13 @@ function changeStudy() {
                     var prevCat = "";
 	                $.each( returnData, function( idx, field ) {
                         if(field.category!=prevCat) {
-                            $( '#rows, #columns' )
-                                    .append( $( "<option>" )
-                                    .val( "" )
-                                    .text( field.source+": "+field.category )
-                                    .attr("disabled","disabled")
-                                    .css("font-weight","bold")
-                                    .css("color","white")
-                                    .css("background-color","#333") );
+                            if(prevCat.length>0) $( '#rows, #columns' ).append( "</optgroup>" );
+                            $( '#rows, #columns' ).append( "<optgroup label='"+field.source+": "+field.category+"' onClick='return false;'>" );
                             prevCat = field.category;
                         }
 	                    $( '#rows, #columns' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
 	                });
+                    $( '#rows, #columns' ).append( "</optgroup>" );
 	                
 	                $( "#menu_study" ).find("div.menu_item_info").html("<br />"+$( '#study option:selected' ).text());
 	                $( "#menu_study" ).addClass("menu_item_done");
@@ -67,8 +66,9 @@ function changeStudy() {
             }
         },'menu_study');
     } else {
-        $( '#rows, #columns' ).empty();
+        $( '#rows, #columns, #types' ).empty();
         clearStep(".menu_item");
+
         $( "#menu_study" ).addClass("menu_item_fill");
     }
 }
@@ -93,7 +93,7 @@ function changeFields(divid) {
                 $( '#types' ).empty();
 
                 if(data.infoMessage!=null) {
-                    showError(data.infoMessage,"warning");
+                    showError(data.infoMessage,"message_warning");
                 } else {
 
                     // Add all fields to the lists
@@ -101,6 +101,7 @@ function changeFields(divid) {
 
                     $.each( returnData, function( idx, field ) {
                         $( '#types' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
+                        if(field.name==visType) {$( '#types option:last' ).attr("selected","selected");};
                     });
 
                     clearStep("#menu_vis");
@@ -116,8 +117,13 @@ function changeFields(divid) {
                         ) {
                     clearStep("#menu_vis");
                     $( "#menu_vis" ).addClass("menu_item_fill");
+                    if( visualization )
+                        visualization.destroy();
+                    
                     if($( '#types option' ).length==1) {
                         $( '#types :first-child' ).attr("selected","selected");
+                    }
+                    if($( '#types option:selected' ).length>0) {
                         changeVis();
                     }
                 }
@@ -138,7 +144,8 @@ function changeVis() {
     $( "#menu_vis" ).find("div.formulier").hide();
     if($( '#types option:selected' ).val()!="") {
         $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_done");
-        $( "#menu_vis" ).find("div.menu_item_info").html("<br />"+$( '#types option:selected' ).text());
+        visType = $( '#types option:selected' ).text();
+        $( "#menu_vis" ).find("div.menu_item_info").html("<br />"+visType);
     } else {
         $( "#menu_vis" ).find("div.menu_item_info").html("");
         $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_fill");
@@ -174,11 +181,11 @@ function visualize() {
                     visualization.destroy();
 
                 if(data.infoMessage!=null) {
-                    showError(data.infoMessage,"warning");
+                    showError(data.infoMessage,"message_warning");
                 }
                 // Handle erroneous data
                 /*if( !checkCorrectData( data.returnData ) ) {
-                    showError( "Unfortunately the server returned data in a format that we did not expect.", "error" );
+                    showError( ["Unfortunately the server returned data in a format that we did not expect."], "message_error" );
                     return;
                 }*/
 
@@ -237,17 +244,33 @@ function visualize() {
 
 /**
  * Shows an error message in a proper way
- * @param message	String	Message to show
+ * @param messages	array of Strings
+ * @param strClass  the Class the messages get
  */
-function showError( message, strClass ) {
-	$( '#message' ).html( message );
-    $( '#message' ).removeClass().addClass(strClass);
-	$( '#message' ).fadeIn();
-    $(document).bind('click',function() {
-        $( '#message' ).removeClass();
-        $( '#message' ).html("");
-        $(document).unbind('click');
-    });
+function showError( messages, strClass ) {
+    for (index in messages) {
+        var newClose = $( "<div>" ).css("position","absolute").css("top","3px").css("right","10px").html("<a href='#' onclick='removeError(this); return false;'>x</a>");
+	    $( '#message_container' ).prepend( $( "<div>" ).addClass("message_box "+strClass).html( messages[index] ).css("position","relative").fadeIn().append(newClose) );
+    }
+    $( '#message_counter' ).addClass("message_newmessage");
+    $( '#message_counter' ).switchClass("message_newmessage","",2000);
+    $( '#message_counter' ).html($('.message_box').length);
+}
+
+function errorDiv() {
+    if($( '#message_container' ).css("display")=="none") {
+        $( '#message_container' ).show("fast");
+    } else {
+        $( '#message_container' ).hide("fast");
+    }
+}
+
+function removeError(strSelector) {
+    $( strSelector ).closest(".message_box").remove();
+    $( "#message_counter" ).html($(".message_box").length);
+    if($(".message_box").length==0) {
+        errorDiv();
+    }
 }
 
 
@@ -322,7 +345,7 @@ function executeAjaxCall( action, ajaxParameters, divid ) {
 		var message = ajaxParameters[ "errorMessage" ];
 		ajaxParameters[ "error" ] = function( jqXHR, textStatus, errorThrown ) {
 			// An error occurred while retrieving fields from the server
-			showError( "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.<br />"+textStatus, "error" );
+			showError( ["An error occurred while retrieving variables from the server. Please try again or contact a system administrator.<br />"+textStatus], "message_error" );
             $( "#"+divid ).removeClass().addClass('menu_item menu_item_error');
             $( "#"+divid ).find("img.spinner").hide();
 		}

@@ -10,25 +10,47 @@ table.jqplot-table-legend { width: 100px; }
 
 /** START :: MESSAGES**/
 
-#message {
-    width: 840px;
-    height: 40px;
-    overflow: hidden;
+#message_container {
     display: none;
 }
 
-.error {
-	border: 1px solid #f99; /* #006dba; */
-	margin-bottom: 10px;
-	margin-top: 10px;
-	padding: 10px 10px 10px 33px;
+.message_box {
+    width: 750px;
+    padding: 5px 35px;
+    margin: 2px 10px;
+    display: none;
 }
 
-.warning {
-	border: 1px solid #06C; /* #006dba; */
-	margin-bottom: 10px;
-	margin-top: 10px;
-    padding: 10px 10px 10px 33px;
+.message_error {
+	border: 1px solid #f99;
+}
+
+.message_warning {
+	border: 1px solid #06C;
+
+}
+
+#message_counter {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 3px;
+    width: 18px;
+    height: 18px;
+    border: 2px solid gray;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#message_counter:hover {
+    text-decoration: underline;
+    background: #87cefa;
+}
+
+div#message_counter.message_newmessage {
+    width: 150px;
+    height: 150px;
+    background-color: pink;
 }
 
 /** START :: VISUALIZATION MENU **/

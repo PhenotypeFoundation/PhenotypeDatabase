@@ -20,8 +20,8 @@
     <style type="text/css">
         /** NEEDED FOR RESOURCES PLUGIN **/
         .menu_arrow {background-image: url(${resource(dir: 'images/visualization', file: 'down_arrow.png')}); }
-        .error { background: #ffe0e0 url(${fam.icon( name: 'exclamation' )}) 10px 10px no-repeat; }
-        .warning{ background: #eee url(${fam.icon( name: 'information' )}) 10px 10px no-repeat; }
+        .message_error { background: #ffe0e0 url(${fam.icon( name: 'exclamation' )}) 10px 5px no-repeat; }
+        .message_warning { background: #eee url(${fam.icon( name: 'information' )}) 10px 5px no-repeat; }
     </style>
 	
 	<script type="text/javascript">
@@ -79,12 +79,18 @@
 
             <h1>Visualize your study</h1>
 
-            <div id="message" class="error">
+            <div id="message_counter" onclick="errorDiv(); return false;">0</div>
+
+            <div id="message_container">
                 <g:if test="${flash.error}">
-                    ${flash.error.toString().encodeAsHTML()}
+                    <div class="message_box message_error">
+                        ${flash.error.toString().encodeAsHTML()}
+                    </div>
                 </g:if>
                 <g:if test="${flash.message}">
-                    ${flash.message.toString().encodeAsHTML()}
+                    <div class="message_box message_warning">
+                        ${flash.message.toString().encodeAsHTML()}
+                    </div>
                 </g:if>
             </div>
 
