@@ -183,7 +183,7 @@ class VisualizeController {
             }
         } catch(Exception e){
             //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
-            infoMessage = "An error occured while trying to collect field data from a module. Most likely, this module is offline."
+            infoMessage = "Unfortunately, "+assay.module.name+" could not be reached. As a result, we cannot at this time visualize data contained in this module."
             log.error("VisualizationController: getFields: "+e)
         }
 
@@ -434,7 +434,8 @@ class VisualizeController {
 
             } catch(Exception e){
                 log.error("VisualizationController: getFields: "+e)
-                return returnError(404, "An error occured while trying to collect data from a module. Most likely, this module is offline.")
+                //return returnError(404, "An error occured while trying to collect data from a module. Most likely, this module is offline.")
+                return returnError(404, "Unfortunately, "+assay.module.name+" could not be reached. As a result, we cannot at this time visualize data contained in this module.")
             }
         } else {
             // TODO: Handle error correctly
