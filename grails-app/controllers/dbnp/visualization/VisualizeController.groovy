@@ -149,7 +149,7 @@ class VisualizeController {
         def columnType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0])
 
         // Determine possible visualization types
-       def types = determineVisualizationTypes(rowType, columnType)
+        def types = determineVisualizationTypes(rowType, columnType)
 
         println "types: "+types
         return sendResults(types)
@@ -930,7 +930,7 @@ class VisualizeController {
      * @param message The information that needs to be added to the infoMessage
      */
     protected void setInfoMessage(message){
-        infoMessage.add([message])
+        infoMessage.add(message)
         println "setInfoMessage: "+infoMessage
     }
 
@@ -938,8 +938,9 @@ class VisualizeController {
      * Adds a message to the infoMessage that gives the client information about offline modules
      */
     protected void setInfoMessageOfflineModules(){
+        infoMessageOfflineModules.unique()
         if(infoMessageOfflineModules.size()>0){
-            String message = "Unfortunately"
+            String message = "Unfortunately "
             infoMessageOfflineModules.eachWithIndex{ it, index ->
                 if(index==(infoMessageOfflineModules.size()-2)){
                     message += ', the '+it+' and '
