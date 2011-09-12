@@ -131,11 +131,11 @@ class VisualizeController {
         def inputData = parseGetDataParams();
 
         if(inputData.columnIds == null || inputData.columnIds == [] || inputData.columnIds[0] == null || inputData.columnIds[0] == ""){
-            infoMessage = "Please select columndata."
+            infoMessage = "Please select a data source for the x-axis."
             return sendInfoMessage()
         }
         if(inputData.rowIds == null || inputData.rowIds == [] ||  inputData.rowIds[0] == null ||   inputData.rowIds[0] == ""){
-            infoMessage = "Please select rowdata."
+            infoMessage = "Please select a data source for the y-axis."
             return sendInfoMessage()
         }
 
@@ -272,7 +272,7 @@ class VisualizeController {
 		def inputData = parseGetDataParams();
 
         if(inputData.columnIds == null || inputData.rowIds == null){
-            infoMessage = "Please select row and columndata."
+            infoMessage = "Please select data sources for the y- and x-axes."
             return sendInfoMessage()
         }
 		
