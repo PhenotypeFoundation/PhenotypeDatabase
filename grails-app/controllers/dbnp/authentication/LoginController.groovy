@@ -96,6 +96,7 @@ class LoginController {
 			} else {
 				redirect controller: 'home'
 			}
+			return;
 		}
 
 		// If the user is already logged in locally, we log him in and
