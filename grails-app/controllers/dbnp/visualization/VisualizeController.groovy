@@ -118,7 +118,7 @@ class VisualizeController {
             return returnError(404, "The requested study could not be found.")
         }
 
-		return sendResults(fields)
+		return sendResults(['studyIds': studies, 'fields': fields])
 	}
 
 	/**
@@ -151,7 +151,7 @@ class VisualizeController {
         // Determine possible visualization types
         def types = determineVisualizationTypes(rowType, columnType)
 
-        println "types: "+types
+        println "types: "+types+", determined this based on "+rowType+" and "+columnType
         return sendResults(types)
 	}
 

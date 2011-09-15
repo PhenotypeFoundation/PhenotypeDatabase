@@ -79,7 +79,7 @@
 
             <h1>Visualize your study</h1>
 
-            <div id="message_counter" onclick="errorDiv(); return false;">0</div>
+            <div id="message_counter" onClick="errorDiv(); return false;">0</div>
 
             <div id="message_container">
                 <g:if test="${flash.error}">

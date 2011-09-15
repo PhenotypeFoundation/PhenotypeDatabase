@@ -24,6 +24,13 @@ $(document).ready(function() {
  */
 function changeStudy() {
     $( "#menu_study" ).find("div.formulier").hide();
+    $( '#rows, #columns, #types' ).empty();
+    clearStep(".menu_item");
+
+    if( visualization )
+        visualization.destroy();
+
+    $( "#menu_study" ).addClass("menu_item_fill");
 
     if($( '#study option:selected' ).val()!="") {
         $( "#menu_study" ).find("img.spinner").show();
@@ -32,21 +39,17 @@ function changeStudy() {
         executeAjaxCall( "getFields", {
             "errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
             "success": function( data, textStatus, jqXHR ) {
-                // Remove all previous entries from the list
-                $( '#rows, #columns, #types' ).empty();
 
-                if( visualization )
-                    visualization.destroy();
 
                 if(data.infoMessage) {
                     showError(data.infoMessage,"message_warning");
                 }
 
-                clearStep(".menu_item");
-                
                 // Add all fields to the lists
-                if( data.returnData ) {
-                    var returnData = data.returnData;
+                if( data.returnData.studyIds==$( '#study option:selected' ).val() ) {
+                    var returnData = data.returnData.fields;
+
+                    clearStep("#menu_study");
 
                     var prevCat = "";
 	                $.each( returnData, function( idx, field ) {
@@ -65,11 +68,6 @@ function changeStudy() {
                 }
             }
         },'menu_study');
-    } else {
-        $( '#rows, #columns, #types' ).empty();
-        clearStep(".menu_item");
-
-        $( "#menu_study" ).addClass("menu_item_fill");
     }
 }
 
