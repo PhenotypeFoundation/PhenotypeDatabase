@@ -44,24 +44,36 @@
                 <div class="menu_item menu_item_fill" id="menu_study">
                     <div class="menu_item_label">Studies <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
-                    <div class="formulier"><g:render template="formStudy" /></div>
+                    <div class="formulier">
+                        <g:render template="formStudy" />
+                        <div style="position: absolute; top: 3px; right: 10px;"><a onClick="hideForm('#menu_study'); return false;" href="#">x</a></div>
+                    </div>
                 </div>
                 <div class="menu_arrow"> </div>
                 <div class="menu_item" id="menu_column">
                     <div class="menu_item_label">X-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
-                    <div class="formulier"><g:render template="formColumns" /></div>
+                    <div class="formulier">
+                        <g:render template="formColumns" />
+                        <div style="position: absolute; top: 3px; right: 10px;"><a onClick="hideForm('#menu_column'); return false;" href="#">x</a></div>
+                    </div>
                 </div>
                 <div class="menu_item" id="menu_row">
                     <div class="menu_item_label">Y-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
-                    <div class="formulier"><g:render template="formRows" /></div>
+                    <div class="formulier">
+                        <g:render template="formRows" />
+                        <div style="position: absolute; top: 3px; right: 10px;"><a onClick="hideForm('#menu_row'); return false;" href="#">x</a></div>
+                    </div>
                 </div>
                 <div class="menu_arrow"> </div>
                 <div class="menu_item" id="menu_vis">
                     <div class="menu_item_label">Type <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                     <div class="menu_item_info"></div>
-                    <div class="formulier"><g:render template="formType" /></div>
+                    <div class="formulier">
+                        <g:render template="formType" />
+                        <div style="position: absolute; top: 3px; right: 10px;"><a onClick="hideForm('#menu_vis'); return false;" href="#">x</a></div>
+                    </div>
                 </div>
                 <div class="menu_arrow"> </div>
                 <div class="menu_item" id="menu_go">

@@ -44,6 +44,7 @@ table.jqplot-table-legend { width: 100px; }
 #message_counter:hover {
     text-decoration: underline;
     background: #87cefa;
+    cursor:pointer;
 }
 
 div#message_counter.message_newmessage {
@@ -127,10 +128,6 @@ div#message_counter.message_newmessage {
     font-size: 9px;
     width: 80px;
     overflow-x: hidden;
-}
-
-.menu_item:hover {
-    background-color: white;
 }
 
 #visualization_container {

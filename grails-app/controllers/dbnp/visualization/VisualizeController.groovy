@@ -152,7 +152,7 @@ class VisualizeController {
         def types = determineVisualizationTypes(rowType, columnType)
 
         println "types: "+types+", determined this based on "+rowType+" and "+columnType
-        return sendResults(types)
+        return sendResults(['types':types,'rowIds':inputData.rowIds[0],'columnIds':inputData.columnIds[0]])
 	}
 
     /**

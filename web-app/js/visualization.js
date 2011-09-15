@@ -3,27 +3,42 @@
  */
 var visualization = null;
 var visType = null;
+var openForm = null;
 
 $(document).ready(function() {
     $(".menu_item").mouseover(
         function() {
-            $( this ).css("width","150px");
-            $(this).find("div.formulier").show();
-		}
-    ).mouseout(
-        function() {
-            $( this ).find("div.formulier").hide();
-            $( this ).css("width","88px");
+            showForm(this);
 		}
     );
-    $("#menu_go").unbind('mouseover').unbind('mouseout');
+
+    $("#menu_go").unbind('mouseover');
+
+    $("#menu_go, .menu_arrow").mouseover(
+        function() {
+            if(openForm!=null){
+                hideForm(openForm);
+            }
+        }
+    );
+
+    $(document).keyup(
+        function(event) {
+            if ( event.which == 27 && openForm!=null ) {
+                hideForm(openForm);
+            }
+        }
+    );
+    
 });
 
 /**
  * Retrieve new fields based on the study that the user has selected.
  */
 function changeStudy() {
-    $( "#menu_study" ).find("div.formulier").hide();
+
+    hideForm("#menu_study");
+
     $( '#rows, #columns, #types' ).empty();
     clearStep(".menu_item");
 
@@ -46,21 +61,23 @@ function changeStudy() {
                 }
 
                 // Add all fields to the lists
-                if( data.returnData.studyIds==$( '#study option:selected' ).val() ) {
+                if( data.returnData && data.returnData.studyIds==$( '#study option:selected' ).val() ) {
                     var returnData = data.returnData.fields;
 
                     clearStep("#menu_study");
 
                     var prevCat = "";
+                    var strOptions = "";
 	                $.each( returnData, function( idx, field ) {
                         if(field.category!=prevCat) {
-                            if(prevCat.length>0) $( '#rows, #columns' ).append( "</optgroup>" );
-                            $( '#rows, #columns' ).append( "<optgroup label='"+field.source+": "+field.category+"' onClick='return false;'>" );
+                            if(prevCat.length>0) strOptions += "</optgroup>";
+                            strOptions += "<optgroup label='"+field.source+": "+field.category+"' onClick='return false;'>";
                             prevCat = field.category;
                         }
-	                    $( '#rows, #columns' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
+	                    strOptions += "<option value='"+field.id+"'>"+field.name+"</option>";
 	                });
-                    $( '#rows, #columns' ).append( "</optgroup>" );
+                    strOptions += "</optgroup>";
+                    $( "#rows, #columns" ).html(strOptions);
 	                
 	                $( "#menu_study" ).find("div.menu_item_info").html("<br />"+$( '#study option:selected' ).text());
 	                $( "#menu_study" ).addClass("menu_item_done");
@@ -75,7 +92,8 @@ function changeStudy() {
  * Retrieve the possible visualization types based on the fields that the user has selected.
  */
 function changeFields(divid) {
-    $( "#"+divid ).find("div.formulier").hide();
+
+    hideForm("#"+divid);
 
     var type = "rows";
     if(divid=="menu_column") type = "columns";
@@ -90,29 +108,25 @@ function changeFields(divid) {
                 // Remove all previous entries from the list
                 $( '#types' ).empty();
 
-                if(data.infoMessage!=null) {
+                if( data.infoMessage!=null ) {
                     showError(data.infoMessage,"message_warning");
-                } else {
+                }
 
+                if( data.returnData && data.returnData.rowIds==$( '#rows option:selected' ).val() && data.returnData.columnIds==$( '#columns option:selected' ).val() ) {
                     // Add all fields to the lists
-                    var returnData = data.returnData;
+                    var returnData = data.returnData.types;
 
                     $.each( returnData, function( idx, field ) {
                         $( '#types' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
-                        if(field.name==visType) {$( '#types option:last' ).attr("selected","selected");};
+                        if( field.name==visType ) { $( '#types option:last' ).attr("selected","selected"); };
                     });
-
-                    clearStep("#menu_vis");
                 }
 
                 clearStep("#"+divid);
                 $( "#"+divid ).find("div.menu_item_info").html("<br />"+$( '#'+type+' option:selected' ).text());
                 $( "#"+divid ).addClass("menu_item_done");
 
-                if((!$( "#menu_vis" ).hasClass("menu_item_done")) &&
-                        ($( "#menu_row" ).hasClass("menu_item_done") || divid=="menu_row") &&
-                        ($( "#menu_column" ).hasClass("menu_item_done") || divid=="menu_column")
-                        ) {
+                if( $( '#types option' ).length>0 ) {
                     clearStep("#menu_vis");
                     $( "#menu_vis" ).addClass("menu_item_fill");
                     if( visualization )
@@ -139,7 +153,9 @@ function changeFields(divid) {
  *
  */
 function changeVis() {
-    $( "#menu_vis" ).find("div.formulier").hide();
+
+    hideForm("#menu_vis");
+
     if($( '#types option:selected' ).val()!="") {
         $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_done");
         visType = $( '#types option:selected' ).text();
@@ -269,6 +285,23 @@ function removeError(strSelector) {
     if($(".message_box").length==0) {
         errorDiv();
     }
+}
+
+function showForm(strSelector) {
+    if(openForm!=null) {
+        hideForm(openForm);
+    }
+    $( strSelector ).css("width","150px");
+    $( strSelector ).css("background-color","white");
+    $( strSelector ).find("div.formulier").show();
+    openForm = strSelector;
+}
+
+function hideForm(strSelector) {
+    $( strSelector ).css("width","88px");
+    $( strSelector ).css("background-color","");
+    $( strSelector ).find("div.formulier").hide();
+    openForm = null;
 }
 
 
