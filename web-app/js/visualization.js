@@ -14,7 +14,7 @@ $(document).ready(function() {
 
     $("#menu_go").unbind('mouseover');
 
-    $("#menu_go, .menu_arrow").mouseover(
+    $("#menu_go").mouseover(
         function() {
             if(openForm!=null){
                 hideForm(openForm);
@@ -27,6 +27,19 @@ $(document).ready(function() {
             if ( event.which == 27 && openForm!=null ) {
                 hideForm(openForm);
             }
+        }
+    );
+    $(document).click(
+        function(event) {
+            if(openForm!=null) {
+                hideForm(openForm);
+            }
+        }
+    );
+    $(".menu_item").click(
+        function(event) {
+            event.stopPropagation();
+            return false;
         }
     );
     
@@ -266,8 +279,8 @@ function showError( messages, strClass ) {
         var newClose = $( "<div>" ).css("position","absolute").css("top","3px").css("right","10px").html("<a href='#' onclick='removeError(this); return false;'>x</a>");
 	    $( '#message_container' ).prepend( $( "<div>" ).addClass("message_box "+strClass).html( messages[index] ).css("position","relative").fadeIn().append(newClose) );
     }
-    $( '#message_counter' ).addClass("message_newmessage");
-    $( '#message_counter' ).switchClass("message_newmessage","",2000);
+    $( '#message_counter' ).addClass(strClass+"new");
+    $( '#message_counter' ).switchClass(strClass+"new","",2000);
     $( '#message_counter' ).html($('.message_box').length);
 }
 
