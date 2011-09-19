@@ -533,14 +533,17 @@ class VisualizeController {
 	 */
 	def formatData( groupedData, fields, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
 		// TODO: Handle name and unit of fields correctly
+		def xAxis = groupedData[ groupAxis ].collect { it.toString() };
+		def yName = parseFieldId( fields[ valueAxis ] ).name;
 		
 		def return_data = [:]
 		return_data[ "type" ] = "barchart"
-		return_data[ "x" ] = groupedData[ groupAxis ].collect { it.toString() }
-		return_data.put("yaxis", ["title" : parseFieldId( fields[ valueAxis ] ).name, "unit" : "" ])
+		return_data[ "x" ] = xAxis
+		return_data.put("yaxis", ["title" : yName, "unit" : "" ])
 		return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "" ])
 		return_data.put("series", [[
-			"name": "Y",
+			"name": yName,
+			"x": xAxis,
 			"y": groupedData[ valueAxis ],
 			"error": groupedData[ errorName ]
 		]])
