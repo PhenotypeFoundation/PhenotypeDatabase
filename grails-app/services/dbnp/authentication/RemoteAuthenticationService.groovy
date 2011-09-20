@@ -135,7 +135,8 @@ class RemoteAuthenticationService implements Serializable {
 	 */
 	protected boolean updateExpiryDate( SessionAuthenticatedUser user ) {
 		user.expiryDate = createExpiryDate()
-		return user.save()
+		user.save()
+		user.refresh()
 	}
 
 }
