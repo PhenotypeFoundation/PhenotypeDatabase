@@ -212,6 +212,106 @@ class AssayController {
 			render(view: 'errorPage')
 		}
 	}
+	
+	/**
+	 * This method is called when a user wants to fetch data from GSCF
+	 */
+	def galaxyExport = {
+		def galaxy_url = params.get( "GALAXY_URL" );
+		def tool_id = params.get( "tool_id" );
+		
+		// Without galaxy url, we can't do anything
+		if( !galaxy_url || !tool_id ) {
+			redirect( action: "assayExport" );
+		}
+		
+		def user            = authenticationService.getLoggedInUser()
+		def userStudies    = Study.giveReadableStudies(user)
+		
+		[ galaxy_url: galaxy_url, tool_id: tool_id, userStudies: userStudies ]
+	}
+	
+	def sendToGalaxy = {
+		// Generate the url to redirect the user to
+		def galaxy_url = params.get( "GALAXY_URL" );
+		def tool_id = params.get( "tool_id" );
+		
+		// Without galaxy url, we can't do anything
+		if( !galaxy_url || !tool_id  ) {
+			redirect( action: "assayExport" );
+		}
+		
+		def assayId = params.long( "assayId" );
+		def assay = assayId ? Assay.get( assayId ) : null;
+		
+		// If no assay is given, return to galaxyExport screen
+		if( !assay ) {
+			redirect( action: "galaxyExport", params: [ "GALAXY_URL": galaxy_url ] );
+		}
+		
+		// create a random session token that will be used to allow to module to
+		// sync with gscf prior to presenting the measurement data
+		def sessionToken = UUID.randomUUID().toString()
+		def consumer = "galaxy";
+
+		// put the session token to work
+		authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
+		
+		// Create a url where the data can be fetched
+		def fetchUrl = g.createLink( absolute: true, controller: "assay", action: "fetchGalaxyData", params: [ assayToken: assay.assayUUID, sessionToken: sessionToken ] );
+		
+		// Generate url to redirect the user to
+		def url = galaxy_url + "?tool_id=" + URLEncoder.encode( tool_id.toString(), "UTF-8" ) + "&URL=" + URLEncoder.encode( fetchUrl.toString(), "UTF-8" ) 
+		
+		log.trace "Redirecting galaxy user back to " + url;
+		
+		redirect( url: url );
+	}
+	
+	// This method is accessible for each user. However, he should return with a valid
+	// session token
+	@Secured(['true'])
+	def fetchGalaxyData = {
+		// Check accessibility
+		def consumer = "galaxy";
+		def user = authenticationService.getRemotelyLoggedInUser( consumer, params.sessionToken );
+		if( !user ) {
+			response.status = 401;
+			render "You must be logged in";
+			return
+		}
+		
+		// Invalidate session token
+		authenticationService.logOffRemotely( consumer, params.sessionToken );
+		
+		// retrieve assay
+		def assay = Assay.findByAssayUUID( params.assayToken );
+		
+		if( !assay ) {
+			response.status = 404;
+			render "No assay found";
+			return
+		}
+		
+		// Return assay data
+		def fieldMap = assayService.collectAssayTemplateFields( assay )
+		def measurementTokens = fieldMap.remove('Module Measurement Data');
+		def assayData = assayService.collectAssayData(assay, fieldMap, measurementTokens)
+		def rowData            = assayService.convertColumnToRowStructure(assayData)
+				
+		def outputDelimiter = '\t'
+		def outputFileExtension = 'txt'
+
+		def filename = "export.$outputFileExtension"
+		response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
+		response.setContentType("application/octet-stream")
+		try {
+			assayService.exportRowWiseDataToCSVFile(rowData, response.outputStream, outputDelimiter, java.util.Locale.US)
+		} catch (Exception e) {
+			flash.errorMessage = e.message
+			redirect action: 'errorPage'
+		}
+	}
 
 	/**
 	 * Export the row data in session.rowData to the outputStream of the http
