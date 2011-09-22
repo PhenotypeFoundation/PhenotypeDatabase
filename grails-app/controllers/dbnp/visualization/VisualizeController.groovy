@@ -296,7 +296,7 @@ class VisualizeController {
         def groupedData = groupFieldData( data );
     
         // Format data so it can be rendered as JSON
-        def returnData = formatData( groupedData, fields );
+        def returnData = formatData( inputData.visualizationType, groupedData, fields );
         return sendResults(returnData)
 	}
 
@@ -518,27 +518,26 @@ class VisualizeController {
 	 * 
 	  		{
 				"type": "barchart",
-				"x": [ "Q1", "Q2", "Q3", "Q4" ],
 				"xaxis": { "title": "quarter 2011", "unit": "" },
 				"yaxis": { "title": "temperature", "unit": "degrees C" },
 				"series": [
 					{
 						"name": "series name",
 						"y": [ 5.1, 3.1, 20.6, 15.4 ],
+                        "x": [ "Q1", "Q2", "Q3", "Q4" ],
 						"error": [ 0.5, 0.2, 0.4, 0.5 ]
 					},
 				]
 			}
 	 * 
 	 */
-	def formatData( groupedData, fields, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
+	def formatData( type, groupedData, fields, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
 		// TODO: Handle name and unit of fields correctly
 		def xAxis = groupedData[ groupAxis ].collect { it.toString() };
 		def yName = parseFieldId( fields[ valueAxis ] ).name;
 		
 		def return_data = [:]
-		return_data[ "type" ] = "barchart"
-		return_data[ "x" ] = xAxis
+		return_data[ "type" ] = type
 		return_data.put("yaxis", ["title" : yName, "unit" : "" ])
 		return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "" ])
 		return_data.put("series", [[
@@ -728,7 +727,7 @@ class VisualizeController {
            return 0;
        }
     }
-    Exception e
+    
 	/**
 	 * Return the numeric value of the given object, or null if no numeric value could be returned
 	 * @param 	value	Object to return the value for
@@ -900,7 +899,6 @@ class VisualizeController {
         return results[0]
     }
 
-
     /**
      * Properly formats the object that will be returned to the client. Also adds an informational message, if that message has been set by a function. Resets the informational message to the empty String.
      * @param returnData The object containing the data
@@ -975,6 +973,7 @@ class VisualizeController {
      *            - a key 'error', containing a list of, for example, standard deviation or standard error of the mean values,
      */
     protected def formatCategoryData(inputData){
+        // NOTE: This function is no longer up to date with the current inputData layout.
         def series = []
         inputData.eachWithIndex { it, i ->
             series << ['name': it['yaxis']['title'], 'y': it['series']['y'][0], 'error': it['series']['error'][0]]
