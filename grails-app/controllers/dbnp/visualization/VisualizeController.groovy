@@ -23,6 +23,7 @@ class VisualizeController {
 	def authenticationService
 	def moduleCommunicationService
     def infoMessage = []
+    def offlineModules = []
     def infoMessageOfflineModules = []
     final int CATEGORICALDATA = 0
     final int NUMERICALDATA = 1
@@ -100,13 +101,16 @@ class VisualizeController {
              */
             study.getAssays().each { assay ->
                 def list = []
-                list = getFields(assay.module.id, assay)
-                if(list!=null){
-                    if(list.size()!=0){
-                        fields += list
+                if(!offlineModules.contains(assay.module.id)){
+                    list = getFields(assay.module.id, assay)
+                    if(list!=null){
+                        if(list.size()!=0){
+                            fields += list
+                        }
                     }
                 }
             }
+            offlineModules = []
 
             // Make sure any informational messages regarding offline modules are submitted to the client
             setInfoMessageOfflineModules()
@@ -280,6 +284,13 @@ class VisualizeController {
         if(inputData.columnIds == null || inputData.rowIds == null){
             infoMessage = "Please select data sources for the y- and x-axes."
             return sendInfoMessage()
+        }
+
+        // Handle the case that we are gathering data for a horizontal barchart
+        if(inputData.visualizationType=='horizontal_barchart'){
+            def tmp = inputData.columnIds
+            inputData.columnIds = inputData.rowIds
+            inputData.rowIds = tmp
         }
 		
 		// TODO: handle the case that we have multiple studies
