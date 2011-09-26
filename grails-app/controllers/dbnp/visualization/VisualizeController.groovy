@@ -145,7 +145,9 @@ class VisualizeController {
 
         // TODO: handle the case of multiple fields on an axis
         // Determine data types
+        println "Determining rowType: "+inputData.rowIds[0]
         def rowType = determineFieldType(inputData.studyIds[0], inputData.rowIds[0])
+        println "Determining columnType: "+inputData.columnIds[0]
         def columnType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0])
 
         // Determine possible visualization types
@@ -532,22 +534,38 @@ class VisualizeController {
 	 * 
 	 */
 	def formatData( type, groupedData, fields, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
-		// TODO: Handle name and unit of fields correctly
-		def xAxis = groupedData[ groupAxis ].collect { it.toString() };
-		def yName = parseFieldId( fields[ valueAxis ] ).name;
-		
-		def return_data = [:]
-		return_data[ "type" ] = type
-		return_data.put("yaxis", ["title" : yName, "unit" : "" ])
-		return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "" ])
-		return_data.put("series", [[
-			"name": yName,
-			"x": xAxis,
-			"y": groupedData[ valueAxis ],
-			"error": groupedData[ errorName ]
-		]])
-		
-		return return_data;
+        // TODO: Handle name and unit of fields correctly
+        if(type=="table"){
+            def xAxis = groupedData[ groupAxis ].collect { it.toString() };
+            def yName = parseFieldId( fields[ valueAxis ] ).name;
+
+            def return_data = [:]
+            return_data[ "type" ] = type
+            return_data.put("yaxis", ["title" : yName, "unit" : "" ])
+            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "" ])
+            return_data.put("x", [])
+            return_data.put("y", [])
+            return_data.put("data", [])
+            return_data.put("error", [])
+
+            return return_data;
+        } else {
+            def xAxis = groupedData[ groupAxis ].collect { it.toString() };
+            def yName = parseFieldId( fields[ valueAxis ] ).name;
+
+            def return_data = [:]
+            return_data[ "type" ] = type
+            return_data.put("yaxis", ["title" : yName, "unit" : "" ])
+            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "" ])
+            return_data.put("series", [[
+                "name": yName,
+                "x": xAxis,
+                "y": groupedData[ valueAxis ],
+                "error": groupedData[ errorName ]
+            ]])
+
+            return return_data;
+        }
 	}
 
 	/**
@@ -825,9 +843,11 @@ class VisualizeController {
                 // ask for tf by id, ask for .type
                 try{
                     TemplateField tf = TemplateField.get(parsedField.id)
-                    if(tf.type=="DOUBLE" || tf.type=="LONG" || tf.type=="DATE" || tf.type=="RELTIME"){
+                    if(tf.type==TemplateFieldType.DOUBLE || tf.type==TemplateFieldType.LONG || tf.type==TemplateFieldType.DATE || tf.type==TemplateFieldType.RELTIME){
+                        println "GSCF templatefield: NUMERICALDATA ("+NUMERICALDATA+") (based on "+tf.type+")"
                         return NUMERICALDATA
                     } else {
+                        println "GSCF templatefield: CATEGORICALDATA ("+CATEGORICALDATA+") (based on "+tf.type+")"
                         return CATEGORICALDATA
                     }
                 } catch(Exception e){
