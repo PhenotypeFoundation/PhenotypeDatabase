@@ -210,59 +210,104 @@ function visualize() {
                 if(data.infoMessage!=null) {
                     showError(data.infoMessage,"message_warning");
                 }
+                
                 // Handle erroneous data
-                /*if( !checkCorrectData( data.returnData ) ) {
+                if( !checkCorrectData( data.returnData ) ) {
                     showError( ["Unfortunately the server returned data in a format that we did not expect."], "message_error" );
+                    $( "#menu_go" ).find("img.spinner").hide();
                     return;
-                }*/
+                }
 
                 // Retrieve the datapoints from the json object
                 var dataPoints = [];
                 var series = [];
 
-
                 var returnData = data.returnData;
                 $.each(returnData.series, function(idx, element ) {
-                    dataPoints[ dataPoints.length ] = element.y;
-                    series[ series.length ] = { "label": element.name };
+                	if( element.y && element.y.length > 0 ) {
+	                    dataPoints[ dataPoints.length ] = element.y;
+	                    series[ series.length ] = { "label": element.name };
+                	}
                 });
 
+                // If no datapoints are found, return an error
+                if( dataPoints.length == 0 ) {
+                    showError( ["Unfortunately the server returned data without any measurements"], "message_error" );
+                    $( "#menu_go" ).find("img.spinner").hide();
+                    return;
+                }
+                
                 var xlabel = returnData[ "xaxis" ].unit=="" ? returnData[ "xaxis" ].title : returnData[ "xaxis" ].title + " (" + returnData[ "xaxis" ].unit + ")";
                 var ylabel = returnData[ "yaxis" ].unit=="" ? returnData[ "yaxis" ].title : returnData[ "yaxis" ].title + " (" + returnData[ "yaxis" ].unit + ")";
 
                 // TODO: create a chart based on the data that is sent by the user and the type of chart
                 // chosen by the user
-                visualization = $.jqplot('visualization', dataPoints, {
-                    // Tell the plot to stack the bars.
-                    stackSeries: true,
-                    seriesDefaults:{
-                        renderer:$.jqplot.BarRenderer,
-                        rendererOptions: {
-                                // Put a 30 pixel margin between bars.
-                                barMargin: 30,
-                                // Highlight bars when mouse button pressed.
-                                // Disables default highlighting on mouse over.
-                                highlightMouseDown: true
-                        },
-                        pointLabels: {show: true}
-                    },
-                    series: series,
-                    axes: {
-                        xaxis: {
-                                renderer: $.jqplot.CategoryAxisRenderer,
-                                ticks: returnData.x,
-                                label: xlabel,
-                                labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-                        },
-                        yaxis: {
-                            label: ylabel,
-                            labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-                        }
-                    }
+                var plotOptions = null;
+                
+                switch( returnData.type ) {
+                	case "horizontal_barchart":
+                	case "scatterplot":
+                		alert( "I'm sorry, this visualization type is not implemented yet.")
+                		break;
+                	case "linechart":
+                        plotOptions = {
+                            series: series,
+                            axes: {
+                                xaxis: {
+                                        renderer: $.jqplot.CategoryAxisRenderer,
+                                        ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
+                                        label: xlabel,
+                                        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                },
+                                yaxis: {
+                                    label: ylabel,
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                }
+                            }
+                        };                		
+                		break;
+                	case "barchart":
+                        plotOptions = {
+                            // Tell the plot to stack the bars.
+                            stackSeries: true,
+                            seriesDefaults:{
+                                renderer:$.jqplot.BarRenderer,
+                                rendererOptions: {
+                                        // Put a 30 pixel margin between bars.
+                                        barMargin: 30,
+                                        // Highlight bars when mouse button pressed.
+                                        // Disables default highlighting on mouse over.
+                                        highlightMouseDown: true
+                                },
+                                pointLabels: {show: true}
+                            },
+                            series: series,
+                            axes: {
+                                xaxis: {
+                                        renderer: $.jqplot.CategoryAxisRenderer,
+                                        ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
+                                        label: xlabel,
+                                        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                },
+                                yaxis: {
+                                    label: ylabel,
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                }
+                            }
 
-                });
+                        };                		
+                		
+                	case "table":
+                		alert( "I'm sorry, this visualization type is not implemented yet.")
+                		break;
+                }
+                
+                // If a chart has been created, show it
+                if( plotOptions != null ) {
+                    visualization = $.jqplot('visualization', dataPoints, plotOptions );           		
+                    $( "#visualization" ).show();
+                }
 
-                $( "#visualization" ).show();
                 $( "#menu_go" ).find("img.spinner").hide();
             }
         }, "menu_go");
@@ -338,12 +383,12 @@ function checkCorrectData( data ) {
 	Data expected:
 	{
 		"type": "barchart",
-		"x": [ "Q1", "Q2", "Q3", "Q4" ],
 		"xaxis": { "title": "quarter 2011", "unit": "" },
 		"yaxis": { "title": "temperature", "unit": "degrees C" },
 		"series": [
 			{
 				"name": "series name",
+				"x": [ "Q1", "Q2", "Q3", "Q4" ],
 				"y": [ 5.1, 3.1, 20.6, 15.4 ],
 				"error": [ 0.5, 0.2, 0.4, 0.5 ]
 			},
@@ -351,7 +396,7 @@ function checkCorrectData( data ) {
 	}
 	*/
 
-	return ( "type" in data && "x" in data && "xaxis" in data && "yaxis" in data && "series" in data && $.isArray( data.series ) );
+	return ( "type" in data && "xaxis" in data && "yaxis" in data && "series" in data && $.isArray( data.series ) );
 }
 
 /**

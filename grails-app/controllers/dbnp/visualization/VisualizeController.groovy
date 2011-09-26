@@ -640,16 +640,16 @@ class VisualizeController {
               return study
           case "Subject":
           case "subjects":
-              return study?.samples?.parentSubject
+              return study?.subjects
           case "Sample":
           case "samples":
               return study?.samples
           case "Event":
           case "events":
-               return study?.samples?.parentEventGroup?.events?.flatten()
+               return study?.events
           case "SamplingEvent":
           case "samplingEvents":
-              return study?.samples?.parentEvent
+              return study?.samplingEvents
           case "Assay":
           case "assays":
                   return study?.assays
@@ -838,7 +838,12 @@ class VisualizeController {
             } else {
                 // Domainfield or memberclass
                 try{
-					return determineCategoryFromClass(domainObjectCallback( parsedField.type )?.fields[parsedField.name].type)
+					def field = domainObjectCallback( parsedField.type )?.declaredFields.find { it.name == parsedField.name };
+					if( field ) {
+						return determineCategoryFromClass( field.getType() )
+					} else {
+						log.error( "The user asked for field " + parsedField.type + " - " + parsedField.name + ", but it doesn't exist." );
+					}
                 } catch(Exception e){
                     log.error("VisualizationController: determineFieldType: "+e)
                     e.printStackTrace()
