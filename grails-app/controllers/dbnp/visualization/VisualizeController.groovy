@@ -193,6 +193,7 @@ class VisualizeController {
             }
         } catch(Exception e){
             //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
+            offlineModules.add(assay.module.id)
             infoMessageOfflineModules.add(assay.module.name)
             log.error("VisualizationController: getFields: "+e)
         }
@@ -977,7 +978,7 @@ class VisualizeController {
     protected void setInfoMessageOfflineModules(){
         infoMessageOfflineModules.unique()
         if(infoMessageOfflineModules.size()>0){
-            String message = "Unfortunately "
+            String message = "Unfortunately"
             infoMessageOfflineModules.eachWithIndex{ it, index ->
                 if(index==(infoMessageOfflineModules.size()-2)){
                     message += ', the '+it+' and '
