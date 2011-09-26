@@ -13,7 +13,9 @@
 	<g:javascript src="jqplot/plugins/jqplot.categoryAxisRenderer.min.js" />
 	<g:javascript src="jqplot/plugins/jqplot.pointLabels.min.js" />	
 	<g:javascript src="jqplot/plugins/jqplot.canvasTextRenderer.min.js" />	
-	<g:javascript src="jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js" />	
+	<g:javascript src="jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js" />
+    <g:javascript src="jqplot/plugins/jqplot.ohlcRenderer.min.js" />
+    <g:javascript src="jqplot/plugins/jqplot.highlighter.min.js" />
 
 	<g:javascript src="visualization.js" />
 	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css' />" />

@@ -246,22 +246,66 @@ function visualize() {
                 
                 switch( returnData.type ) {
                 	case "horizontal_barchart":
+                        plotOptions = {
+                            // Tell the plot to stack the bars.
+                            stackSeries: true,
+                            seriesDefaults:{
+                                renderer:$.jqplot.BarRenderer,
+                                rendererOptions: {
+                                    // Put a 30 pixel margin between bars.
+                                    barMargin: 30,
+                                    // Highlight bars when mouse button pressed.
+                                    // Disables default highlighting on mouse over.
+                                    highlightMouseDown: true,
+                                    barDirection: 'horizontal'
+                                }
+                            },
+                            highlighter: {
+                                show: true,
+                                sizeAdjust: 7.5
+                            },
+                            series: series,
+                            axes: {
+                                xaxis: {
+                                    //ticks: returnData.series[ 0 ].y,		// Use the x-axis of the first serie
+                                    label: ylabel,
+                                    formatString:'%.2f',
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                },
+                                yaxis: {
+                                    renderer: $.jqplot.CategoryAxisRenderer,
+                                    label: xlabel,
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                }
+                            }
+
+                        };
+                		break;
                 	case "scatterplot":
                 		alert( "I'm sorry, this visualization type is not implemented yet.")
                 		break;
                 	case "linechart":
                         plotOptions = {
+                            stackSeries: true,
+                            seriesDefaults:{
+                                renderer:$.jqplot.LineRenderer
+                            },
                             series: series,
+                            highlighter: {
+                                show: true,
+                                sizeAdjust: 7.5
+                            },
                             axes: {
                                 xaxis: {
-                                        renderer: $.jqplot.CategoryAxisRenderer,
-                                        ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
-                                        label: xlabel,
-                                        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                    renderer: $.jqplot.CategoryAxisRenderer,
+                                    ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
+                                    label: xlabel,
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                                 },
                                 yaxis: {
                                     label: ylabel,
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                                    formatString:'%.2f'
                                 }
                             }
                         };                		
@@ -278,25 +322,29 @@ function visualize() {
                                         // Highlight bars when mouse button pressed.
                                         // Disables default highlighting on mouse over.
                                         highlightMouseDown: true
-                                },
-                                pointLabels: {show: true}
+                                }
+                            },
+                            highlighter: {
+                                show: true,
+                                sizeAdjust: 7.5
                             },
                             series: series,
                             axes: {
                                 xaxis: {
-                                        renderer: $.jqplot.CategoryAxisRenderer,
-                                        ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
-                                        label: xlabel,
-                                        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                    renderer: $.jqplot.CategoryAxisRenderer,
+                                    ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
+                                    label: xlabel,
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                                 },
                                 yaxis: {
                                     label: ylabel,
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                                    formatString:'%.2f'
                                 }
                             }
 
                         };                		
-                		
+                		break;
                 	case "table":
                 		alert( "I'm sorry, this visualization type is not implemented yet.")
                 		break;
