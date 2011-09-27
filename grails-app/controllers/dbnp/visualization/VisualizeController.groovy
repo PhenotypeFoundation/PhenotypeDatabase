@@ -583,6 +583,9 @@ class VisualizeController {
 	 */
 	def formatData( type, groupedData, fields, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
         // TODO: Handle name and unit of fields correctly
+
+        groupedData[groupAxis] = renderTimesAndDatesHumanReadable(groupedData[groupAxis], fields[groupAxis])
+
         if(type=="table"){
             def yName = parseFieldId( fields[ valueAxis ] ).name;
 
@@ -614,6 +617,34 @@ class VisualizeController {
             return return_data;
         }
 	}
+
+    /**
+     * If the input variable 'data' contains dates or times according to input variable 'fieldInfo', these dates and times are converted to a human-readable version.
+     * @param data  The list of items that needs to be checked/converted
+     * @param fieldInfo This variable contains a fieldId, e.g. 
+     * @return The input variable 'data', with it's date and time elements converted.
+     */
+    def renderTimesAndDatesHumanReadable(data, fieldInfo){
+        /* Perhaps this should be replaced with a more structured approach.
+         * TODO: Handle the human-readable rendering of dates and times in a more structured fashion */
+        if(fieldInfo.startsWith("startTime") || fieldInfo.startsWith("endTime") || fieldInfo.startsWith("duration")){
+            def tmpTimeContainer = []
+            data. each {
+                if(it instanceof Number) {
+                    try{
+                        tmpTimeContainer << new RelTime( it ).toPrettyString()
+                    } catch(IllegalArgumentException e){
+                        tmpTimeContainer << it
+                    }
+                } else {
+                    tmpTimeContainer << it // To handle items such as 'unknown'
+                }
+            }
+            return tmpTimeContainer
+        } else {
+            return data
+        }
+    }
 
 	/**
 	 * Returns a closure for the given entitytype that determines the value for a criterion
