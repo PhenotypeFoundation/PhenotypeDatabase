@@ -302,9 +302,9 @@ class VisualizeController {
 		// Group data based on the y-axis if categorical axis is selected
         def groupedData
         if(inputData.visualizationType=='horizontal_barchart'){
-            groupedData = groupFieldData( data, "y", "x" ); // Indicate non-standard axis ordering
+            groupedData = groupFieldData( inputData.visualizationType, data, "y", "x" ); // Indicate non-standard axis ordering
         } else {
-            groupedData = groupFieldData( data ); // Don't indicate axis ordering, standard <"x", "y"> will be used
+            groupedData = groupFieldData( inputData.visualizationType, data ); // Don't indicate axis ordering, standard <"x", "y"> will be used
         }
     
         // Format data so it can be rendered as JSON
@@ -471,7 +471,8 @@ class VisualizeController {
 	/**
 	 * Group the field data on the values of the specified axis. For example, for a bar chart, the values 
 	 * on the x-axis should be grouped. Currently, the values for each group are averaged, and the standard
-	 * error of the mean is returned in the 'error' property 
+	 * error of the mean is returned in the 'error' property
+     * @param visualizationType Some types require a different formatting/grouping of the data, such as 'table'
 	 * @param data		Data for both group- and value axis. The output of getAllFieldData fits this input
 	 * @param groupAxis	Name of the axis to group on. Defaults to "x"
 	 * @param valueAxis	Name of the axis where the values are. Defaults to "y"
@@ -486,7 +487,7 @@ class VisualizeController {
 	 * 					As you can see: null values in the valueAxis are ignored. Null values in the 
 	 * 					group axis are combined into a 'unknown' category.
 	 */
-	def groupFieldData( data, groupAxis = "x", valueAxis = "y", errorName = "error", unknownName = "unknown" ) {
+	def groupFieldData( visualizationType, data, groupAxis = "x", valueAxis = "y", errorName = "error", unknownName = "unknown" ) {
 		// Create a unique list of values in the groupAxis. First flatten the list, since it might be that a
 		// sample belongs to multiple groups. In that case, the group names should not be the lists, but the list
 		// elements. A few lines below, this case is handled again by checking whether a specific sample belongs
@@ -506,19 +507,51 @@ class VisualizeController {
 		outputData[ valueAxis ] = [];
 		outputData[ errorName ] = [];
 		outputData[ groupAxis ] = groupNames;
-		
 		// Loop through all groups, and gather the values for this group
-		groups.each { group ->
-			// Find the indices of the samples that belong to this group. if a sample belongs to multiple groups (i.e. if
-			// the samples groupAxis contains multiple values, is a collection), the value should be used in all groups.
-			def indices= data[ groupAxis ].findIndexValues { it instanceof Collection ? it.contains( group ) : it == group };
-			def values = data[ valueAxis ][ indices ]
-			
-			def dataForGroup = computeMeanAndError( values );
-			
-			outputData[ valueAxis ] << dataForGroup.value
-			outputData[ errorName ] << dataForGroup.error 
-		}
+        // A visualization of type 'table' is a special case. There, the counts of two combinations of 'groupAxis' and 'valueAxis' items are computed
+        if(visualizationType=='table'){
+            // For each 'valueAxis' item and 'groupAxis' item combination, count how often they appear together.
+            def counts = [:]
+            // The 'counts' list uses keys like this: ['item1':group, 'item2':value]
+            // The value will be an integer (the count)
+            data[ groupAxis ].eachWithIndex { group, index ->
+                def value =  data[ valueAxis ][index]
+                if(!counts.get(['item1':group, 'item2':value])){
+                    counts[['item1':group, 'item2':value]] = 1
+                } else {
+                    counts[['item1':group, 'item2':value]] = counts[['item1':group, 'item2':value]] + 1
+                }
+            }
+            outputData[valueAxis] =  data[ valueAxis ]
+                                        .flatten()
+                                        .unique { it == null ? "null" : it.class.name + it.toString() }
+            // Because we are collecting counts, we do not set the 'errorName' item of the 'outputData' map.
+            // We do however set the 'data' map to contain the counts. We set it in such a manner that it has a 'table' layout with respect to 'groupAxis' and 'valueAxis'.
+            def rows = []
+            outputData[groupAxis].each{ group ->
+                def row = []
+                outputData[valueAxis].each{ value ->
+                    row << counts[['item1':group, 'item2':value]]
+                }
+                while(row.contains(null)){
+                    row[row.indexOf(null)] = 0
+                } // 'null' should count as '0'. Items of count zero have never been added to the 'counts' list and as such will appear as a 'null' value.
+                if(row!=[]) rows << row
+            }
+            outputData['data']= rows
+        } else {
+            groups.each { group ->
+                // Find the indices of the samples that belong to this group. if a sample belongs to multiple groups (i.e. if
+                // the samples groupAxis contains multiple values, is a collection), the value should be used in all groups.
+                def indices= data[ groupAxis ].findIndexValues { it instanceof Collection ? it.contains( group ) : it == group };
+                def values = data[ valueAxis ][ indices ]
+
+                def dataForGroup = computeMeanAndError( values );
+
+                outputData[ valueAxis ] << dataForGroup.value
+                outputData[ errorName ] << dataForGroup.error
+            }
+        }
 		return outputData
 	}
 	
@@ -551,19 +584,17 @@ class VisualizeController {
 	def formatData( type, groupedData, fields, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
         // TODO: Handle name and unit of fields correctly
         if(type=="table"){
-            // TODO: implement this
-            def xAxis = groupedData[ groupAxis ].collect { it.toString() };
             def yName = parseFieldId( fields[ valueAxis ] ).name;
 
             def return_data = [:]
             return_data[ "type" ] = type
-            return_data.put("yaxis", ["title" : yName, "unit" : "" ])
-            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "" ])
-            return_data.put("x", [])
-            return_data.put("y", [])
-            return_data.put("data", [])
-            return_data.put("error", [])
-
+            return_data.put("yaxis", ["title" : "", "unit" : "" ])
+            return_data.put("xaxis", ["title" : "", "unit": "" ])
+            return_data.put("series", [[
+                    "x": groupedData[ groupAxis ].collect { it.toString() },
+                    "y": groupedData[ valueAxis ].collect { it.toString() },
+                    "data": groupedData["data"]
+            ]])
             return return_data;
         } else {
             def xAxis = groupedData[ groupAxis ].collect { it.toString() };
@@ -865,7 +896,6 @@ class VisualizeController {
                 }
             } else {
                 data = getModuleData( study, study.getSamples(), parsedField.source, parsedField.name );
-                println "Data: " + data
                 def cat = determineCategoryFromData(data)
                 return cat
             }
@@ -985,7 +1015,7 @@ class VisualizeController {
                     message += ', the '+it+' and '
                 } else {
                     if(index==(infoMessageOfflineModules.size()-1)){
-                        message += 'the '+it
+                        message += ' the '+it
                     } else {
                         message += ', the '+it
                     }
