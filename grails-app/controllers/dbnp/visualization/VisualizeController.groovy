@@ -287,13 +287,6 @@ class VisualizeController {
             return sendInfoMessage()
         }
 
-        // Handle the case that we are gathering data for a horizontal barchart
-        if(inputData.visualizationType=='horizontal_barchart'){
-            def tmp = inputData.columnIds
-            inputData.columnIds = inputData.rowIds
-            inputData.rowIds = tmp
-        }
-		
 		// TODO: handle the case that we have multiple studies
 		def studyId = inputData.studyIds[ 0 ];
 		def study = Study.get( studyId as Integer );
@@ -307,10 +300,20 @@ class VisualizeController {
 		def data = getAllFieldData( study, samples, fields );
 
 		// Group data based on the y-axis if categorical axis is selected
-        def groupedData = groupFieldData( data );
+        def groupedData
+        if(inputData.visualizationType=='horizontal_barchart'){
+            groupedData = groupFieldData( data, "y", "x" ); // Indicate non-standard axis ordering
+        } else {
+            groupedData = groupFieldData( data ); // Don't indicate axis ordering, standard <"x", "y"> will be used
+        }
     
         // Format data so it can be rendered as JSON
-        def returnData = formatData( inputData.visualizationType, groupedData, fields );
+        def returnData
+        if(inputData.visualizationType=='horizontal_barchart'){
+            returnData = formatData( inputData.visualizationType, groupedData, fields, "y", "x" ); // Indicate non-standard axis ordering
+        } else {
+            returnData = formatData( inputData.visualizationType, groupedData, fields); // Don't indicate axis ordering, standard <"x", "y"> will be used
+        }
         return sendResults(returnData)
 	}
 
@@ -548,6 +551,7 @@ class VisualizeController {
 	def formatData( type, groupedData, fields, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
         // TODO: Handle name and unit of fields correctly
         if(type=="table"){
+            // TODO: implement this
             def xAxis = groupedData[ groupAxis ].collect { it.toString() };
             def yName = parseFieldId( fields[ valueAxis ] ).name;
 
@@ -842,53 +846,35 @@ class VisualizeController {
      * @return Either CATEGORICALDATA of NUMERICALDATA
      */
     protected int determineFieldType(studyId, fieldId){
-        // Parse the fieldId as given by the user
 		def parsedField = parseFieldId( fieldId );
-
         def study = Study.get(studyId)
-
 		def data = []
 
-		if( parsedField.source == "GSCF" ) {
-            if(parsedField.id.isNumber()){
-                // Templatefield
-                // ask for tf by id, ask for .type
-                try{
-                    TemplateField tf = TemplateField.get(parsedField.id)
-                    if(tf.type==TemplateFieldType.DOUBLE || tf.type==TemplateFieldType.LONG || tf.type==TemplateFieldType.DATE || tf.type==TemplateFieldType.RELTIME){
-                        println "GSCF templatefield: NUMERICALDATA ("+NUMERICALDATA+") (based on "+tf.type+")"
-                        return NUMERICALDATA
+        try{
+            if( parsedField.source == "GSCF" ) {
+                if(parsedField.id.isNumber()){
+                        return determineCategoryFromTemplateField(parsedField.id)
+                } else { // Domainfield or memberclass
+                    def field = domainObjectCallback( parsedField.type )?.declaredFields.find { it.name == parsedField.name };
+                    if( field ) {
+                        return determineCategoryFromClass( field.getType() )
                     } else {
-                        println "GSCF templatefield: CATEGORICALDATA ("+CATEGORICALDATA+") (based on "+tf.type+")"
-                        return CATEGORICALDATA
+                        // TODO: how do we communicate this to the user? Do we allow the process to proceed?
+                        log.error( "The user asked for field " + parsedField.type + " - " + parsedField.name + ", but it doesn't exist." );
                     }
-                } catch(Exception e){
-                    log.error("VisualizationController: determineFieldType: "+e)
-                    // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
-                    return CATEGORICALDATA
                 }
             } else {
-                // Domainfield or memberclass
-                try{
-					def field = domainObjectCallback( parsedField.type )?.declaredFields.find { it.name == parsedField.name };
-					if( field ) {
-						return determineCategoryFromClass( field.getType() )
-					} else {
-						log.error( "The user asked for field " + parsedField.type + " - " + parsedField.name + ", but it doesn't exist." );
-					}
-                } catch(Exception e){
-                    log.error("VisualizationController: determineFieldType: "+e)
-                    e.printStackTrace()
-                    // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
-                    return CATEGORICALDATA
-                }
+                data = getModuleData( study, study.getSamples(), parsedField.source, parsedField.name );
+                println "Data: " + data
+                def cat = determineCategoryFromData(data)
+                return cat
             }
-		} else {
-            data = getModuleData( study, study.getSamples(), parsedField.source, parsedField.name );
-            println "Data: " + data
-			def cat = determineCategoryFromData(data)
-            return cat
-		}
+        } catch(Exception e){
+            log.error("VisualizationController: determineFieldType: "+e)
+            e.printStackTrace()
+            // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
+            return CATEGORICALDATA
+        }
     }
 
     /**
@@ -936,6 +922,21 @@ class VisualizeController {
         return results[0]
     }
 
+    /**
+     * Determines a field category, based on the TemplateFieldType of a Templatefield
+     * @param id A database ID for a TemplateField
+     * @return Either CATEGORICALDATA of NUMERICALDATA
+     */
+    protected int determineCategoryFromTemplateField(id){
+        TemplateField tf = TemplateField.get(id)
+        if(tf.type==TemplateFieldType.DOUBLE || tf.type==TemplateFieldType.LONG || tf.type==TemplateFieldType.DATE || tf.type==TemplateFieldType.RELTIME){
+            println "GSCF templatefield: NUMERICALDATA ("+NUMERICALDATA+") (based on "+tf.type+")"
+            return NUMERICALDATA
+        } else {
+            println "GSCF templatefield: CATEGORICALDATA ("+CATEGORICALDATA+") (based on "+tf.type+")"
+            return CATEGORICALDATA
+        }
+    }
     /**
      * Properly formats the object that will be returned to the client. Also adds an informational message, if that message has been set by a function. Resets the informational message to the empty String.
      * @param returnData The object containing the data
