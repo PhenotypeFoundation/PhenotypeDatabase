@@ -318,6 +318,9 @@ class VisualizeController {
         } else {
             groupedData = groupFieldData( inputData.visualizationType, data ); // Don't indicate axis ordering, standard <"x", "y"> will be used
         }
+		
+		println "Data: " + data;
+		println "Grouped: " + groupedData
 
         // Format data so it can be rendered as JSON
         def returnData
@@ -504,6 +507,9 @@ class VisualizeController {
 	 * 					group axis are combined into a 'unknown' category.
 	 */
 	def groupFieldData( visualizationType, data, groupAxis = "x", valueAxis = "y", errorName = "error", unknownName = "unknown" ) {
+		// TODO: Give the user the possibility to change this value in the user interface
+		def showEmptyCategories = false;
+		
 		// Create a unique list of values in the groupAxis. First flatten the list, since it might be that a
 		// sample belongs to multiple groups. In that case, the group names should not be the lists, but the list
 		// elements. A few lines below, this case is handled again by checking whether a specific sample belongs
@@ -513,21 +519,26 @@ class VisualizeController {
 		def groups = data[ groupAxis ]
 						.flatten()
 						.unique { it == null ? "null" : it.class.name + it.toString() }
+						
 		// Make sure the null category is last
 		groups = groups.findAll { it != null } + groups.findAll { it == null }
-		// Gather names for the groups. Most of the times, the group names are just the names, only with
-		// a null value, the unknownName must be used
-		def groupNames = groups.collect { it != null ? it : unknownName }
+		
+		println "TEST";
+		groups.each { println "" + it + " - " + it?.class?.toString() }
+		
 		// Generate the output object
 		def outputData = [:]
 		outputData[ valueAxis ] = [];
 		outputData[ errorName ] = [];
-		outputData[ groupAxis ] = groupNames;
+		outputData[ groupAxis ] = [];
+		
 		// Loop through all groups, and gather the values for this group
-        // A visualization of type 'table' is a special case. There, the counts of two combinations of 'groupAxis' and 'valueAxis' items are computed
-        if(visualizationType=='table'){
+        // A visualization of type 'table' is a special case. There, the counts of two combinations of 'groupAxis'
+		// and 'valueAxis' items are computed
+        if( visualizationType=='table' ){
             // For each 'valueAxis' item and 'groupAxis' item combination, count how often they appear together.
             def counts = [:]
+			
             // The 'counts' list uses keys like this: ['item1':group, 'item2':value]
             // The value will be an integer (the count)
             data[ groupAxis ].eachWithIndex { group, index ->
@@ -538,11 +549,31 @@ class VisualizeController {
                     counts[['item1':group, 'item2':value]] = counts[['item1':group, 'item2':value]] + 1
                 }
             }
-            outputData[valueAxis] =  data[ valueAxis ]
+            
+			def valueData =  data[ valueAxis ]
                                         .flatten()
                                         .unique { it == null ? "null" : it.class.name + it.toString() }
+													
+			// Now we will first check whether any of the categories is empty. If some of the rows
+			// or columns are empty, don't include them in the output
+			if( !showEmptyCategories ) {
+				groups.eachWithIndex { group, index ->
+					if( counts.findAll { it.key.item1 == group } )
+						outputData[groupAxis] << group
+				}
+				
+				valueData.each { value ->
+					if( counts.findAll { it.key.item2 == value } )
+						outputData[valueAxis] << value
+				}
+			} else {
+				outputData[groupAxis] = groups.collect { it != null ? it : unknownName }
+				ouputData[valueAxis] = valueData
+			}
+																
             // Because we are collecting counts, we do not set the 'errorName' item of the 'outputData' map.
-            // We do however set the 'data' map to contain the counts. We set it in such a manner that it has a 'table' layout with respect to 'groupAxis' and 'valueAxis'.
+            // We do however set the 'data' map to contain the counts. We set it in such a manner that it has 
+			// a 'table' layout with respect to 'groupAxis' and 'valueAxis'.
             def rows = []
             outputData[groupAxis].each{ group ->
                 def row = []
@@ -555,19 +586,30 @@ class VisualizeController {
                 if(row!=[]) rows << row
             }
             outputData['data']= rows
+			
+			// Convert groups to group names
+			outputData[ groupAxis ] = outputData[ groupAxis ].collect { it != null ? it : unknownName }
         } else {
             groups.each { group ->
                 // Find the indices of the samples that belong to this group. if a sample belongs to multiple groups (i.e. if
                 // the samples groupAxis contains multiple values, is a collection), the value should be used in all groups.
-                def indices= data[ groupAxis ].findIndexValues { it instanceof Collection ? it.contains( group ) : it == group };
-                def values = data[ valueAxis ][ indices ]
+                def indices = data[ groupAxis ].findIndexValues { it instanceof Collection ? it.contains( group ) : it == group };
+                def values  = data[ valueAxis ][ indices ]
 
-                def dataForGroup = computeMeanAndError( values );
+				// The computation for mean and error will return null if no (numerical) values are found
+				// In that case, the user won't see this category
+				def dataForGroup = computeMeanAndError( values );
 
-                outputData[ valueAxis ] << dataForGroup.value
-                outputData[ errorName ] << dataForGroup.error
+				if( showEmptyCategories || dataForGroup.value != null ) {
+					// Gather names for the groups. Most of the times, the group names are just the names, only with
+					// a null value, the unknownName must be used
+					outputData[ groupAxis ] << ( group != null ? group : unknownName )
+	                outputData[ valueAxis ] << dataForGroup.value ?: 0
+	                outputData[ errorName ] << dataForGroup.error ?: 0
+				}
             }
         }
+		
 		return outputData
 	}
 	
@@ -839,7 +881,7 @@ class VisualizeController {
 		if( sizeOfValues > 0 )
 			return sumOfValues / sizeOfValues;
 		else
-			return 0; 
+			return null; 
 	}
 
 	/**
@@ -869,7 +911,7 @@ class VisualizeController {
            def std = Math.sqrt( sumOfDifferences / sizeOfValues );
            return std / Math.sqrt( sizeOfValues );
        } else {
-           return 0;
+           return null;
        }
     }
     
@@ -965,7 +1007,7 @@ class VisualizeController {
         try{
             if( parsedField.source == "GSCF" ) {
                 if(parsedField.id.isNumber()){
-                        return determineCategoryFromTemplateField(parsedField.id)
+                        return determineCategoryFromTemplateFieldId(parsedField.id)
                 } else { // Domainfield or memberclass
                     def callback = domainObjectCallback( parsedField.type )
 
