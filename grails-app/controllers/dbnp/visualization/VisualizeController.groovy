@@ -122,6 +122,16 @@ class VisualizeController {
             return returnError(404, "The requested study could not be found.")
         }
 
+        fields.unique() // Todo: find out root cause of why some fields occur more than once
+        fields.sort { a, b ->
+            def sourceEquality = a.source.toString().toLowerCase().compareTo(b.source.toString().toLowerCase())
+            if( sourceEquality == 0 ) {
+                def categoryEquality = a.category.toString().toLowerCase().compareTo(b.category.toString().toLowerCase())
+                if( categoryEquality == 0 ){
+                    a.name.toString().toLowerCase().compareTo(b.name.toString().toLowerCase())
+                } else return categoryEquality
+            } else return sourceEquality
+        }
 		return sendResults(['studyIds': studies, 'fields': fields])
 	}
 
@@ -282,6 +292,8 @@ class VisualizeController {
 		// TODO: handle erroneous input data
 		def inputData = parseGetDataParams();
 
+        println ": "+params
+
         if(inputData.columnIds == null || inputData.rowIds == null){
             infoMessage = "Please select data sources for the y- and x-axes."
             return sendInfoMessage()
@@ -306,13 +318,17 @@ class VisualizeController {
         } else {
             groupedData = groupFieldData( inputData.visualizationType, data ); // Don't indicate axis ordering, standard <"x", "y"> will be used
         }
-    
+
         // Format data so it can be rendered as JSON
         def returnData
         if(inputData.visualizationType=='horizontal_barchart'){
-            returnData = formatData( inputData.visualizationType, groupedData, fields, "y", "x" ); // Indicate non-standard axis ordering
+            def valueAxisType = determineFieldType(inputData.studyIds[0], inputData.rowIds[0], groupedData["x"])
+            def groupAxisType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0], groupedData["y"])
+            returnData = formatData( inputData.visualizationType, groupedData, fields, groupAxisType, valueAxisType , "y", "x" ); // Indicate non-standard axis ordering
         } else {
-            returnData = formatData( inputData.visualizationType, groupedData, fields); // Don't indicate axis ordering, standard <"x", "y"> will be used
+            def valueAxisType = determineFieldType(inputData.studyIds[0], inputData.rowIds[0], groupedData["y"])
+            def groupAxisType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0], groupedData["x"])
+            returnData = formatData( inputData.visualizationType, groupedData, fields, groupAxisType, valueAxisType ); // Don't indicate axis ordering, standard <"x", "y"> will be used
         }
         return sendResults(returnData)
 	}
@@ -561,6 +577,8 @@ class VisualizeController {
 	 * @param groupedData	Data that has been grouped using the groupFields method
 	 * @param fields		Map with key-value pairs determining the name and fieldId to retrieve data for. Example:
 	 * 							[ "x": "field-id-1", "y": "field-id-3" ]
+     * @param groupAxisType Integer, either CATEGORICAL or NUMERIACAL
+     * @param valueAxisType Integer, either CATEGORICAL or NUMERIACAL
 	 * @param groupAxis		Name of the axis to with group data. Defaults to "x"
 	 * @param valueAxis		Name of the axis where the values are stored. Defaults to "y"
 	 * @param errorName		Key in the output map where 'error' values (SEM) are stored. Defaults to "error" 	 * 
@@ -581,18 +599,18 @@ class VisualizeController {
 			}
 	 * 
 	 */
-	def formatData( type, groupedData, fields, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
+	def formatData( type, groupedData, fields, groupAxisType, valueAxisType, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
         // TODO: Handle name and unit of fields correctly
 
+        def valueAxisTypeString = (valueAxisType==CATEGORICALDATA ? "categorical" : "numerical")
+        def groupAxisTypeString = (groupAxisType==CATEGORICALDATA ? "categorical" : "numerical")
         groupedData[groupAxis] = renderTimesAndDatesHumanReadable(groupedData[groupAxis], fields[groupAxis])
 
         if(type=="table"){
-            def yName = parseFieldId( fields[ valueAxis ] ).name;
-
             def return_data = [:]
             return_data[ "type" ] = type
-            return_data.put("yaxis", ["title" : "", "unit" : "" ])
-            return_data.put("xaxis", ["title" : "", "unit": "" ])
+            return_data.put("yaxis", ["title" : parseFieldId( fields[ valueAxis ] ).name, "unit" : "", "type":valueAxisTypeString ])
+            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "", "type":groupAxisTypeString ])
             return_data.put("series", [[
                     "x": groupedData[ groupAxis ].collect { it.toString() },
                     "y": groupedData[ valueAxis ].collect { it.toString() },
@@ -605,8 +623,8 @@ class VisualizeController {
 
             def return_data = [:]
             return_data[ "type" ] = type
-            return_data.put("yaxis", ["title" : yName, "unit" : "" ])
-            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "" ])
+            return_data.put("yaxis", ["title" : yName, "unit" : "", "type":valueAxisTypeString ])
+            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "", "type":groupAxisTypeString  ])
             return_data.put("series", [[
                 "name": yName,
                 "x": xAxis,
@@ -905,9 +923,10 @@ class VisualizeController {
      * Determines what type of data a field contains
      * @param studyId An id that can be used with Study.get/1 to retrieve a study from the database
      * @param fieldId The field id as returned from the client, will be used to retrieve the data required to determine the type of data a field contains
+     * @param inputData Optional parameter that contains the data we are computing the type of. When including in the function call we do not need to request data from a module, should the data belong to a module
      * @return Either CATEGORICALDATA of NUMERICALDATA
      */
-    protected int determineFieldType(studyId, fieldId){
+    protected int determineFieldType(studyId, fieldId, inputData = null){
 		def parsedField = parseFieldId( fieldId );
         def study = Study.get(studyId)
 		def data = []
@@ -926,9 +945,12 @@ class VisualizeController {
                     }
                 }
             } else {
-                data = getModuleData( study, study.getSamples(), parsedField.source, parsedField.name );
-                def cat = determineCategoryFromData(data)
-                return cat
+                if(inputData == null){ // If we did not get data, we need to request it from the module first
+                    data = getModuleData( study, study.getSamples(), parsedField.source, parsedField.name );
+                    return determineCategoryFromData(data)
+                } else {
+                    return determineCategoryFromData(inputData)
+                }
             }
         } catch(Exception e){
             log.error("VisualizationController: determineFieldType: "+e)
