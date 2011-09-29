@@ -282,8 +282,34 @@ function visualize() {
                         };
                 		break;
                 	case "scatterplot":
-                		alert( "I'm sorry, this visualization type is not implemented yet.")
-                		break;
+
+                        series[0].showLine = false;
+                        series[0].markerOptions = { "size": 5, "style":"filledCircle" };
+
+                		plotOptions = {
+                            stackSeries: true,
+                            seriesDefaults:{
+                                renderer:$.jqplot.LineRenderer
+                            },
+                            series: series,
+                            highlighter: {
+                                show: true,
+                                sizeAdjust: 7.5
+                            },
+                            axes: {
+                                xaxis: {
+                                    renderer: $.jqplot.CategoryAxisRenderer,
+                                    ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                                    label: xlabel
+                                },
+                                yaxis: {
+                                    label: ylabel,
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                                    formatString:'%.2f'
+                                }
+                            }
+                        };
                 	case "linechart":
                         plotOptions = {
                             stackSeries: true,
@@ -299,8 +325,8 @@ function visualize() {
                                 xaxis: {
                                     renderer: $.jqplot.CategoryAxisRenderer,
                                     ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
-                                    label: xlabel,
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                                    label: xlabel
                                 },
                                 yaxis: {
                                     label: ylabel,
@@ -317,11 +343,11 @@ function visualize() {
                             seriesDefaults:{
                                 renderer:$.jqplot.BarRenderer,
                                 rendererOptions: {
-                                        // Put a 30 pixel margin between bars.
-                                        barMargin: 30,
-                                        // Highlight bars when mouse button pressed.
-                                        // Disables default highlighting on mouse over.
-                                        highlightMouseDown: true
+                                    // Put a 30 pixel margin between bars.
+                                    barMargin: 30,
+                                    // Highlight bars when mouse button pressed.
+                                    // Disables default highlighting on mouse over.
+                                    highlightMouseDown: true
                                 }
                             },
                             highlighter: {
@@ -346,13 +372,57 @@ function visualize() {
                         };                		
                 		break;
                 	case "table":
-                		alert( "I'm sorry, this visualization type is not implemented yet.")
+                        // create table
+                        var table = $("<table>").addClass("tablevis");
+
+                        // create caption-row
+                        var row = $("<tr>");
+                        // create empty top-left-field
+                        row.append("<td class='caption' colspan='2' rowspan='2'>&nbsp;</td>");
+                        // create caption
+                        row.append("<td class='caption' colspan='"+returnData.series[0].x.length+"'>"+xlabel+"</td>");
+                        row.appendTo(table);
+
+                        // create header-row
+                        var row = $("<tr>");
+                        // create headers
+                        for(j=0; j<returnData.series[0].x.length; j++) {
+                            row.append("<th>"+returnData.series[0].x[j]+"</th>");
+                        }
+                        row.appendTo(table);
+
+                        // create data-rows
+                        for(i=0; i<returnData.series[0].y.length; i++) {
+                            var row = $("<tr>");
+                            for(j=-1; j<returnData.series[0].x.length; j++) {
+                                if(j<0) {
+                                    if(i==0) {
+                                        // create caption-column
+                                        row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+ylabel+"</td>");
+                                    }
+
+                                    // create row-header
+                                    row.append("<th>"+returnData.series[0].y[i]+"</th>");
+                                } else {
+                                    // row-data
+                                    row.append("<td>"+returnData.series[0].data[j][i]+"</td>");
+                                }
+                            }
+                            row.appendTo(table);
+                        }
+
+                        plotOptions = table;
                 		break;
                 }
                 
                 // If a chart has been created, show it
                 if( plotOptions != null ) {
-                    visualization = $.jqplot('visualization', dataPoints, plotOptions );           		
+                    $( "#visualization" ).empty();
+                    if(returnData.type=="table") {
+                        $( "#visualization" ).html(plotOptions);
+                    } else {
+                        visualization = $.jqplot('visualization', dataPoints, plotOptions );
+                    }
                     $( "#visualization" ).show();
                 }
 

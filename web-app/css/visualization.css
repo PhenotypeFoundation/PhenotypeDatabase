@@ -7,6 +7,31 @@ table.jqplot-table-legend { width: 100px; }
     width: 100%;
 }
 
+/** START :: TABLE VISUALIZATION **/
+
+table.tablevis {
+    border-style: none;
+}
+
+table.tablevis th {
+    font-weight: bold;
+    padding: 5px 6px;
+    background: none;
+    background-color: #fafad2;
+    border: 1px solid #CCCCCC;
+    color: #444444;
+}
+
+table.tablevis td {
+    border: 1px solid #CCCCCC;
+}
+
+table.tablevis td.caption {
+    border-style: none;
+    text-align: center;
+    vertical-align: middle;
+    font-style: italic;
+}
 
 /** START :: MESSAGES**/
 
