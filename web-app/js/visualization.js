@@ -36,7 +36,7 @@ $(document).ready(function() {
             }
         }
     );
-    $(".menu_item").click(
+    $(".menu_item:not(#menu_go)").click(
         function(event) {
             event.stopPropagation();
             return false;
