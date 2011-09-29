@@ -34,6 +34,11 @@ class VisualizeController {
 	 * Shows the visualization screen
 	 */
 	def index = {
+		println determineCategoryFromData( [ 0, 10, 20, null ] )
+		println determineCategoryFromData( [ null ] )
+		println determineCategoryFromData( [ 0, 10, 20, null ] )
+		println determineCategoryFromData( [ 0, 10, 20, null ] )
+		
 		[ studies: Study.giveReadableStudies( authenticationService.getLoggedInUser() )]
 	}
 
@@ -401,7 +406,7 @@ class VisualizeController {
 					// Retrieve the value for the selected field for this sample
 					def value = closure( sample, parsedField.name );
 					
-					if( value ) {
+					if( value != null ) {
 						data << value;
 					} else {
 						// Return null if the value is not found
@@ -1083,10 +1088,15 @@ class VisualizeController {
 
         results.unique()
 
-        if(results.size() != 1){
+        if(results.size() > 1) {
             // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
             results[0] = CATEGORICALDATA
-        }
+        } else if( results.size() == 0 ) {
+			// If the list is empty, return the numerical type. If it is the only value, if will
+			// be discarded later on. If there are more entries (e.g part of a collection)
+			// the values will be regarded as numerical, if the other values are numerical	
+			results[ 0 ] = NUMERICALDATA
+    	}
 
         return results[0]
     }
