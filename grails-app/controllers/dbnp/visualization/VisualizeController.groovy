@@ -161,15 +161,16 @@ class VisualizeController {
 
         // TODO: handle the case of multiple fields on an axis
         // Determine data types
-        println "Determining rowType: "+inputData.rowIds[0]
+        log.trace "Determining rowType: "+inputData.rowIds[0]
         def rowType = determineFieldType(inputData.studyIds[0], inputData.rowIds[0])
-        println "Determining columnType: "+inputData.columnIds[0]
+        
+		log.trace "Determining columnType: "+inputData.columnIds[0]
         def columnType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0])
 
         // Determine possible visualization types
         def types = determineVisualizationTypes(rowType, columnType)
 
-        println "types: "+types+", determined this based on "+rowType+" and "+columnType
+        log.trace  "types: "+types+", determined this based on "+rowType+" and "+columnType
         return sendResults(['types':types,'rowIds':inputData.rowIds[0],'columnIds':inputData.columnIds[0]])
 	}
 
@@ -522,9 +523,6 @@ class VisualizeController {
 						
 		// Make sure the null category is last
 		groups = groups.findAll { it != null } + groups.findAll { it == null }
-		
-		println "TEST";
-		groups.each { println "" + it + " - " + it?.class?.toString() }
 		
 		// Generate the output object
 		def outputData = [:]
@@ -1052,7 +1050,7 @@ class VisualizeController {
      * @return Either CATEGORICALDATA of NUMERICALDATA
      */
     protected int determineCategoryFromClass(classObject){
-        println "classObject: "+classObject+", of class: "+classObject.class
+        log.trace "Determine category from class: "+classObject+", of class: "+classObject?.class
         if(classObject==java.lang.String){
             return CATEGORICALDATA
         } else {
@@ -1074,16 +1072,18 @@ class VisualizeController {
                 	results << determineCategoryFromData(it)
             }
         } else {
-            if(inputObject.toString().isDouble()){
-                results << NUMERICALDATA
-            } else {
-                results << CATEGORICALDATA
-            }
+			if( inputObject != null ) {
+	            if(inputObject.toString().isDouble()){
+	                results << NUMERICALDATA
+	            } else {
+	                results << CATEGORICALDATA
+	            }
+			}
         }
 
         results.unique()
 
-        if(results.size()>1){
+        if(results.size() != 1){
             // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
             results[0] = CATEGORICALDATA
         }
@@ -1108,18 +1108,18 @@ class VisualizeController {
      */
     protected int determineCategoryFromTemplateField(tf){
         if(tf.type==TemplateFieldType.DOUBLE || tf.type==TemplateFieldType.LONG){
-            println "GSCF templatefield: NUMERICALDATA ("+NUMERICALDATA+") (based on "+tf.type+")"
+            log.trace "GSCF templatefield: NUMERICALDATA ("+NUMERICALDATA+") (based on "+tf.type+")"
             return NUMERICALDATA
         }
         if(tf.type==TemplateFieldType.DATE){
-            println "GSCF templatefield: DATE ("+DATE+") (based on "+tf.type+")"
+            log.trace "GSCF templatefield: DATE ("+DATE+") (based on "+tf.type+")"
             return DATE
         }
         if(tf.type==TemplateFieldType.RELTIME){
-            println "GSCF templatefield: RELTIME ("+RELTIME+") (based on "+tf.type+")"
+            log.trace "GSCF templatefield: RELTIME ("+RELTIME+") (based on "+tf.type+")"
             return RELTIME
         }
-        println "GSCF templatefield: CATEGORICALDATA ("+CATEGORICALDATA+") (based on "+tf.type+")"
+        log.trace "GSCF templatefield: CATEGORICALDATA ("+CATEGORICALDATA+") (based on "+tf.type+")"
         return CATEGORICALDATA
     }
     /**
@@ -1155,7 +1155,7 @@ class VisualizeController {
      */
     protected void setInfoMessage(message){
         infoMessage.add(message)
-        println "setInfoMessage: "+infoMessage
+        log.trace "setInfoMessage: "+infoMessage
     }
 
     /**
