@@ -262,7 +262,8 @@ function visualize() {
                             },
                             highlighter: {
                                 show: true,
-                                sizeAdjust: 7.5
+                                sizeAdjust: 7.5,
+                                tooltipAxes: "y"
                             },
                             series: series,
                             axes: {
@@ -284,7 +285,7 @@ function visualize() {
                 	case "scatterplot":
 
                         series[0].showLine = false;
-                        series[0].markerOptions = { "size": 5, "style":"filledCircle" };
+                        series[0].markerOptions = { "size": 7, "style":"filledCircle" };
 
                 		plotOptions = {
                             stackSeries: true,
@@ -294,7 +295,8 @@ function visualize() {
                             series: series,
                             highlighter: {
                                 show: true,
-                                sizeAdjust: 7.5
+                                sizeAdjust: 7.5,
+                                tooltipAxes: "y"
                             },
                             axes: {
                                 xaxis: {
@@ -319,7 +321,8 @@ function visualize() {
                             series: series,
                             highlighter: {
                                 show: true,
-                                sizeAdjust: 7.5
+                                sizeAdjust: 7.5,
+                                tooltipAxes: "y"
                             },
                             axes: {
                                 xaxis: {
@@ -352,7 +355,8 @@ function visualize() {
                             },
                             highlighter: {
                                 show: true,
-                                sizeAdjust: 7.5
+                                sizeAdjust: 7.5,
+                                tooltipAxes: "y"
                             },
                             series: series,
                             axes: {
