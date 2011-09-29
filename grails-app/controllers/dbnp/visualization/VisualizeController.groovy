@@ -27,6 +27,8 @@ class VisualizeController {
     def infoMessageOfflineModules = []
     final int CATEGORICALDATA = 0
     final int NUMERICALDATA = 1
+    final int RELTIME = 2
+    final int DATE = 3
 
 	/**
 	 * Shows the visualization screen
@@ -291,8 +293,6 @@ class VisualizeController {
 		// Extract parameters
 		// TODO: handle erroneous input data
 		def inputData = parseGetDataParams();
-
-        println ": "+params
 
         if(inputData.columnIds == null || inputData.rowIds == null){
             infoMessage = "Please select data sources for the y- and x-axes."
@@ -602,9 +602,10 @@ class VisualizeController {
 	def formatData( type, groupedData, fields, groupAxisType, valueAxisType, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
         // TODO: Handle name and unit of fields correctly
 
-        def valueAxisTypeString = (valueAxisType==CATEGORICALDATA ? "categorical" : "numerical")
-        def groupAxisTypeString = (groupAxisType==CATEGORICALDATA ? "categorical" : "numerical")
-        groupedData[groupAxis] = renderTimesAndDatesHumanReadable(groupedData[groupAxis], fields[groupAxis])
+        def valueAxisTypeString = (valueAxisType==CATEGORICALDATA || valueAxisType==DATE || valueAxisType==RELTIME ? "categorical" : "numerical")
+        def groupAxisTypeString = (groupAxisType==CATEGORICALDATA || groupAxisType==DATE || groupAxisType==RELTIME ? "categorical" : "numerical")
+        groupedData[groupAxis] = renderTimesAndDatesHumanReadable(groupedData[groupAxis], groupAxisType)
+        groupedData[valueAxis] = renderTimesAndDatesHumanReadable(groupedData[valueAxis], valueAxisType)
 
         if(type=="table"){
             def return_data = [:]
@@ -639,31 +640,61 @@ class VisualizeController {
     /**
      * If the input variable 'data' contains dates or times according to input variable 'fieldInfo', these dates and times are converted to a human-readable version.
      * @param data  The list of items that needs to be checked/converted
-     * @param fieldInfo This variable contains a fieldId, e.g. 
+     * @param axisType As determined by determineFieldType
      * @return The input variable 'data', with it's date and time elements converted.
+     * @see determineFieldType
      */
-    def renderTimesAndDatesHumanReadable(data, fieldInfo){
-        /* Perhaps this should be replaced with a more structured approach.
-         * TODO: Handle the human-readable rendering of dates and times in a more structured fashion */
-        if(fieldInfo.startsWith("startTime") || fieldInfo.startsWith("endTime") || fieldInfo.startsWith("duration")){
-            def tmpTimeContainer = []
-            data. each {
-                if(it instanceof Number) {
-                    try{
-                        tmpTimeContainer << new RelTime( it ).toPrettyString()
-                    } catch(IllegalArgumentException e){
-                        tmpTimeContainer << it
-                    }
-                } else {
-                    tmpTimeContainer << it // To handle items such as 'unknown'
-                }
-            }
-            return tmpTimeContainer
-        } else {
-            return data
+    def renderTimesAndDatesHumanReadable(data, axisType){
+        if(axisType==RELTIME){
+            data = renderTimesHumanReadable(data)
         }
+        if(axisType==DATE){
+           data = renderDatesHumanReadable(data)
+        }
+        return data
     }
 
+    /**
+     * Takes a one-dimensional list, returns the list with the appropriate items converted to a human readable string
+     * @param data
+     * @return
+     */
+    def renderTimesHumanReadable(data){
+        def tmpTimeContainer = []
+        data. each {
+            if(it instanceof Number) {
+                try{
+                    tmpTimeContainer << new RelTime( it ).toPrettyString()
+                } catch(IllegalArgumentException e){
+                    tmpTimeContainer << it
+                }
+            } else {
+                tmpTimeContainer << it // To handle items such as 'unknown'
+            }
+        }
+        return tmpTimeContainer
+    }
+
+    /**
+     * Takes a one-dimensional list, returns the list with the appropriate items converted to a human readable string
+     * @param data
+     * @return
+     */
+    def renderDatesHumanReadable(data) {
+        def tmpDateContainer = []
+        data. each {
+            if(it instanceof Number) {
+                try{
+                    tmpDateContainer << new java.util.Date( it ).toString()
+                } catch(IllegalArgumentException e){
+                    tmpDateContainer << it
+                }
+            } else {
+                tmpDateContainer << it // To handle items such as 'unknown'
+            }
+        }
+        return tmpDateContainer
+    }
 	/**
 	 * Returns a closure for the given entitytype that determines the value for a criterion
 	 * on the given object. The closure receives two parameters: the sample and a field.
@@ -924,7 +955,7 @@ class VisualizeController {
      * @param studyId An id that can be used with Study.get/1 to retrieve a study from the database
      * @param fieldId The field id as returned from the client, will be used to retrieve the data required to determine the type of data a field contains
      * @param inputData Optional parameter that contains the data we are computing the type of. When including in the function call we do not need to request data from a module, should the data belong to a module
-     * @return Either CATEGORICALDATA of NUMERICALDATA
+     * @return Either CATEGORICALDATA, NUMERICALDATA, DATE or RELTIME
      */
     protected int determineFieldType(studyId, fieldId, inputData = null){
 		def parsedField = parseFieldId( fieldId );
@@ -936,7 +967,20 @@ class VisualizeController {
                 if(parsedField.id.isNumber()){
                         return determineCategoryFromTemplateField(parsedField.id)
                 } else { // Domainfield or memberclass
-                    def field = domainObjectCallback( parsedField.type )?.declaredFields.find { it.name == parsedField.name };
+                    def callback = domainObjectCallback( parsedField.type )
+
+                    // Can the field be found in the domainFields as well? If so, treat it as a template field, so that dates and times can be properly rendered in a human-readable fashion
+                    if(callback?.giveDomainFields().name.contains(parsedField.name.toString())){
+                        // Use the associated templateField to determine the field type
+                        return determineCategoryFromTemplateField(
+                                callback?.giveDomainFields()[
+                                    callback?.giveDomainFields().name.indexOf(parsedField.name.toString())
+                                ]
+                        )
+                    }
+                    // Apparently it is not a templatefield as well as a memberclass
+
+                    def field = callback?.declaredFields.find { it.name == parsedField.name };
                     if( field ) {
                         return determineCategoryFromClass( field.getType() )
                     } else {
@@ -1006,19 +1050,35 @@ class VisualizeController {
     }
 
     /**
+     * Determines a field category, based on the TemplateFieldId of a Templatefield
+     * @param id A database ID for a TemplateField
+     * @return Either CATEGORICALDATA of NUMERICALDATA
+     */
+    protected int determineCategoryFromTemplateFieldId(id){
+        TemplateField tf = TemplateField.get(id)
+        return determineCategoryFromTemplateField(tf)
+    }
+
+    /**
      * Determines a field category, based on the TemplateFieldType of a Templatefield
      * @param id A database ID for a TemplateField
      * @return Either CATEGORICALDATA of NUMERICALDATA
      */
-    protected int determineCategoryFromTemplateField(id){
-        TemplateField tf = TemplateField.get(id)
-        if(tf.type==TemplateFieldType.DOUBLE || tf.type==TemplateFieldType.LONG || tf.type==TemplateFieldType.DATE || tf.type==TemplateFieldType.RELTIME){
+    protected int determineCategoryFromTemplateField(tf){
+        if(tf.type==TemplateFieldType.DOUBLE || tf.type==TemplateFieldType.LONG){
             println "GSCF templatefield: NUMERICALDATA ("+NUMERICALDATA+") (based on "+tf.type+")"
             return NUMERICALDATA
-        } else {
-            println "GSCF templatefield: CATEGORICALDATA ("+CATEGORICALDATA+") (based on "+tf.type+")"
-            return CATEGORICALDATA
         }
+        if(tf.type==TemplateFieldType.DATE){
+            println "GSCF templatefield: DATE ("+DATE+") (based on "+tf.type+")"
+            return DATE
+        }
+        if(tf.type==TemplateFieldType.RELTIME){
+            println "GSCF templatefield: RELTIME ("+RELTIME+") (based on "+tf.type+")"
+            return RELTIME
+        }
+        println "GSCF templatefield: CATEGORICALDATA ("+CATEGORICALDATA+") (based on "+tf.type+")"
+        return CATEGORICALDATA
     }
     /**
      * Properly formats the object that will be returned to the client. Also adds an informational message, if that message has been set by a function. Resets the informational message to the empty String.
@@ -1116,8 +1176,8 @@ class VisualizeController {
      */
     protected def determineVisualizationTypes(rowType, columnType){
          def types = []
-        if(rowType==CATEGORICALDATA){
-            if(columnType==CATEGORICALDATA){
+        if(rowType==CATEGORICALDATA || DATE || RELTIME){
+            if(columnType==CATEGORICALDATA || DATE || RELTIME){
                 types = [ [ "id": "table", "name": "Table"] ];
             }
             if(columnType==NUMERICALDATA){
@@ -1125,7 +1185,7 @@ class VisualizeController {
             }
         }
         if(rowType==NUMERICALDATA){
-            if(columnType==CATEGORICALDATA){
+            if(columnType==CATEGORICALDATA || DATE || RELTIME){
                 types = [ [ "id": "barchart", "name": "Barchart"], [ "id": "linechart", "name": "Linechart"] ];
             }
             if(columnType==NUMERICALDATA){
