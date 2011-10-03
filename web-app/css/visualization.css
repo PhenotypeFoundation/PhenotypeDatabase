@@ -1,3 +1,7 @@
+/* Overall layout: use whole page width */
+.container { width: auto; }
+#header{ position: relative; width: 960px; margin: 0 auto; }
+
 /* #step2, #step3 { display: none; } */
 label { display: inline-block; }
 
