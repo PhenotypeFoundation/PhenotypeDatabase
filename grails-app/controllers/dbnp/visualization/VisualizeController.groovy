@@ -34,11 +34,6 @@ class VisualizeController {
 	 * Shows the visualization screen
 	 */
 	def index = {
-		println determineCategoryFromData( [ 0, 10, 20, null ] )
-		println determineCategoryFromData( [ null ] )
-		println determineCategoryFromData( [ 0, 10, 20, null ] )
-		println determineCategoryFromData( [ 0, 10, 20, null ] )
-		
 		[ studies: Study.giveReadableStudies( authenticationService.getLoggedInUser() )]
 	}
 
@@ -325,9 +320,6 @@ class VisualizeController {
             groupedData = groupFieldData( inputData.visualizationType, data ); // Don't indicate axis ordering, standard <"x", "y"> will be used
         }
 		
-		println "Data: " + data;
-		println "Grouped: " + groupedData
-
         // Format data so it can be rendered as JSON
         def returnData
         if(inputData.visualizationType=='horizontal_barchart'){
@@ -439,7 +431,7 @@ class VisualizeController {
 	 */
 	def getModuleData( study, samples, assay_id, fieldName ) {
 		def data = []
-		//println "assay_id: "+assay_id+", fieldName: "+fieldName
+		
 		// TODO: Handle values that should be retrieved from multiple assays
         def assay = Assay.get(assay_id);
 
@@ -645,12 +637,19 @@ class VisualizeController {
 	 * 
 	 */
 	def formatData( type, groupedData, fields, groupAxisType, valueAxisType, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
+		// We want to sort the data based on the group-axis, but keep the values on the value-axis in sync. 
+		// The only way seems to be to combine data from both axes.
+		def combined = []
+		groupedData[ groupAxis ].eachWithIndex { group, i ->
+			combined << [ "group": group, "value": groupedData[ valueAxis ][ i ] ]
+		}
+		combined.sort { it.group }
+		
         // TODO: Handle name and unit of fields correctly
-
         def valueAxisTypeString = (valueAxisType==CATEGORICALDATA || valueAxisType==DATE || valueAxisType==RELTIME ? "categorical" : "numerical")
         def groupAxisTypeString = (groupAxisType==CATEGORICALDATA || groupAxisType==DATE || groupAxisType==RELTIME ? "categorical" : "numerical")
-        groupedData[groupAxis] = renderTimesAndDatesHumanReadable(groupedData[groupAxis], groupAxisType)
-        groupedData[valueAxis] = renderTimesAndDatesHumanReadable(groupedData[valueAxis], valueAxisType)
+        groupedData[groupAxis] = renderTimesAndDatesHumanReadable(combined*.group, groupAxisType)
+        groupedData[valueAxis] = renderTimesAndDatesHumanReadable(combined*.value, valueAxisType)
 
         if(type=="table"){
             def return_data = [:]
@@ -1070,6 +1069,7 @@ class VisualizeController {
      */
     protected int determineCategoryFromData(inputObject){
         def results = []
+		
         if(inputObject instanceof Collection){
             // This data is more complex than a single value, so we will call ourselves again so we c
             inputObject.each {
@@ -1077,7 +1077,9 @@ class VisualizeController {
                 	results << determineCategoryFromData(it)
             }
         } else {
-			if( inputObject != null ) {
+			// Unfortunately, the JSON null object doesn't resolve to false or equals null. For that reason, we 
+			// exclude those objects explicitly here.
+			if( inputObject != null && inputObject?.class != org.codehaus.groovy.grails.web.json.JSONObject$Null ) {
 	            if(inputObject.toString().isDouble()){
 	                results << NUMERICALDATA
 	            } else {
@@ -1098,7 +1100,7 @@ class VisualizeController {
 			results[ 0 ] = NUMERICALDATA
     	}
 
-        return results[0]
+		return results[0]
     }
 
     /**

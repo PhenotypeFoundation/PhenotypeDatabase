@@ -62,6 +62,8 @@
                     </sec:ifLoggedIn>
 				</ul>
 			</li>
+			<li><g:link controller="visualize" action="index">Visualizations</g:link></li>
+			
 		</ul>
 	</li>
 	<li>
