@@ -21,7 +21,7 @@
 	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css' />" />
     <style type="text/css">
         /** NEEDED FOR RESOURCES PLUGIN **/
-        .menu_arrow {background-image: url(${resource(dir: 'images/visualization', file: 'down_arrow.png')}); }
+        .menu_seperator {background-image: url(${resource(dir: 'images/visualization', file: 'seperator.gif')}); }
         .message_error { background: #ffe0e0 url(${fam.icon( name: 'exclamation' )}) 10px 5px no-repeat; }
         .message_warning { background: #eee url(${fam.icon( name: 'information' )}) 10px 5px no-repeat; }
     </style>
@@ -38,79 +38,108 @@
 	</script>
 </head>
 <body>
-	
+
     <div id="data">
-        <div id="menu_container">
-            <form id="visualizationForm">
-                <div class="menu_spacer"> </div>
-                <div class="menu_item menu_item_fill" id="menu_study">
-                    <div class="menu_item_label">Studies <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
-                    <div class="menu_item_info"></div>
-                    <div class="formulier">
-                        <g:render template="formStudy" />
-                        <div style="position: absolute; top: 3px; right: 10px;"><a onClick="hideForm('#menu_study'); return false;" href="#">x</a></div>
-                    </div>
-                </div>
-                <div class="menu_arrow"> </div>
-                <div class="menu_item" id="menu_column">
-                    <div class="menu_item_label">X-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
-                    <div class="menu_item_info"></div>
-                    <div class="formulier">
-                        <g:render template="formColumns" />
-                        <div style="position: absolute; top: 3px; right: 10px;"><a onClick="hideForm('#menu_column'); return false;" href="#">x</a></div>
-                    </div>
-                </div>
-                <div class="menu_item" id="menu_row">
-                    <div class="menu_item_label">Y-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
-                    <div class="menu_item_info"></div>
-                    <div class="formulier">
-                        <g:render template="formRows" />
-                        <div style="position: absolute; top: 3px; right: 10px;"><a onClick="hideForm('#menu_row'); return false;" href="#">x</a></div>
-                    </div>
-                </div>
-                <div class="menu_arrow"> </div>
-                <div class="menu_item" id="menu_vis">
-                    <div class="menu_item_label">Type <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
-                    <div class="menu_item_info"></div>
-                    <div class="formulier">
-                        <g:render template="formType" />
-                        <div style="position: absolute; top: 3px; right: 10px;"><a onClick="hideForm('#menu_vis'); return false;" href="#">x</a></div>
-                    </div>
-                </div>
-                <div class="menu_arrow"> </div>
-                <div class="menu_item" id="menu_go">
-                    <button id="button_visualize" onClick="visualize(); return false;" >
-                        Visualize<br />
-                        <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" />
-                        <span style="height: 16px;">&nbsp;</span>
-                    </button>
-                    <input type="checkbox" name="autovis" id="autovis" CHECKED/><span style="font-size: small;">auto</span></div>
-                <div class="menu_spacer"> </div>
-            </form>
-        </div>
+        <form id="visualizationForm">
+            <div id="top_container">
 
-        <div id="visualization_container">
+                <span class="menu_seperator">&nbsp;</span>
 
-            <h1>Visualize your study</h1>
-
-            <div id="message_counter" onClick="errorDiv(); return false;">0</div>
-
-            <div id="message_container">
-                <g:if test="${flash.error}">
-                    <div class="message_box message_error">
-                        ${flash.error.toString().encodeAsHTML()}
+                <span class="topmenu_item" id="menu_study">
+                    <span class="topmenu_item_label"><img src="${fam.icon( name: 'report' )}" style="vertical-align: text-bottom; display: inline-block;"/>&nbsp;Study<img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" />:</span>
+                    <span class="topmenu_item_info">no study selected</span>
+                    <img src="${fam.icon( name: 'bullet_arrow_down' )}" style="vertical-align: text-bottom; display: inline-block;"/>
+                    <div class="formulier">
+                        <p class="info">Select a study from the list below.</p>
+                        <p>
+                            <g:select from="${studies}" size="4" optionKey="id" optionValue="title" name="study" onChange="changeStudy();"/>
+                        </p>
                     </div>
-                </g:if>
-                <g:if test="${flash.message}">
-                    <div class="message_box message_warning">
-                        ${flash.message.toString().encodeAsHTML()}
+                </span>
+
+               
+
+                <span class="menu_seperator">&nbsp;</span>
+
+                <span class="topmenu_item" id="menu_advanced">
+                    <span class="topmenu_item_label"><img src="${fam.icon( name: 'cog' )}" style="vertical-align: text-bottom; display: inline-block;"/>&nbsp;Advanced settings</span>
+                    <img src="${fam.icon( name: 'bullet_arrow_down' )}" style="vertical-align: text-bottom; display: inline-block;"/>
+                    <div class="formulier">
+                        <p class="info">Advanced settings.</p>
+                        <p>
+                            Visualize the data as soon as enough parameters are known.
+                            <input type="checkbox" name="autovis" id="autovis" CHECKED/>
+                        </p>
                     </div>
-                </g:if>
+                </span>
+
+                <span class="menu_seperator">&nbsp;</span>
+
+                <span class="topmenu_item" id="message_counter" onClick="; return false;">
+                    <span class="topmenu_item_label"><img src="${fam.icon( name: 'email_error' )}" style="vertical-align: text-bottom; display: inline-block;"/>&nbsp;Messages:</span>
+                    <span class="topmenu_item_info">0</span>
+                    <img src="${fam.icon( name: 'bullet_arrow_down' )}" style="vertical-align: text-bottom; display: inline-block;"/>
+                    <div class="formulier">
+                        <p class="info">Messages:</p>
+                        <div id="message_container">
+                        <g:if test="${flash.error}">
+                            <div class="message_box message_error">
+                                ${flash.error.toString().encodeAsHTML()}
+                            </div>
+                        </g:if>
+                        <g:if test="${flash.message}">
+                            <div class="message_box message_warning">
+                                ${flash.message.toString().encodeAsHTML()}
+                            </div>
+                        </g:if>
+                        </div>
+                    </div>
+                </span>
+
+                <span class="menu_seperator">&nbsp;</span>
+                    
             </div>
 
-            <div id="visualization">
+            <div id="bottom_container">
+
+                <div id="menu_container">
+                    <div class="menu_item" id="menu_column">
+                        <div class="menu_item_label">X-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
+                        <p class="info">Select a field for the X-Axis from the list below. This field will be visible as columns in the table visualization.</p>
+                        <p>
+                            <select id="columns" name="columns" size="6" onChange="changeFields('menu_column');"></select>
+                        </p>
+                    </div>
+                    <div class="menu_item" id="menu_row">
+                        <div class="menu_item_label">Y-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
+                        <p class="info">Select a field for the Y-Axis from the list below. This field will be visible as rows in the table visualization.</p>
+                        <p>
+                            <select id="rows" name="rows" size="6" onChange="changeFields('menu_row');"></select>
+                        </p>
+                    </div>
+                    <div class="menu_item" id="menu_vis">
+                        <div class="menu_item_label">Type <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
+                        <p class="info">Select visualization type.</p>
+                        <p>
+                            <select id="types" name="types"  size="3" onChange="changeVis();"></select>
+                        </p>
+                    </div>
+                    <div class="menu_item" id="menu_go">
+                        <button id="button_visualize" onClick="visualize(); return false;" >
+                            VISUALIZE
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="visualization_container">
+                    <div id="visualization"><div style="padding: 30px">Select a study to start.</div>
+                    </div>
+                </div>
+
+                <br clear="all"/>
+
             </div>
-        </div>
+        </form>
     </div>
 </body>
 </html>

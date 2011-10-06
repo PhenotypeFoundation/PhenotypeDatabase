@@ -6,42 +6,40 @@ var visType = null;
 var openForm = null;
 
 $(document).ready(function() {
-    $(".menu_item").mouseover(
-        function() {
-            showForm(this);
-		}
-    );
 
-    $("#menu_go").unbind('mouseover');
-
-    $("#menu_go").mouseover(
-        function() {
-            if(openForm!=null){
-                hideForm(openForm);
+    $(".topmenu_item").click(
+        function(event) {
+            if(openForm!=null && this!=openForm) {
+                $(openForm).children('.formulier').hide();
             }
-        }
+            $(this).children('.formulier').toggle();
+            openForm = this;
+            return false;
+		}
     );
 
     $(document).keyup(
         function(event) {
             if ( event.which == 27 && openForm!=null ) {
-                hideForm(openForm);
+                $(openForm).children('.formulier').hide();
+                openForm = null;
             }
         }
     );
+    
     $(document).click(
-        function(event) {
+        function() {
             if(openForm!=null) {
-                hideForm(openForm);
+                $(openForm).children('.formulier').hide();
+                openForm = null;
             }
         }
     );
-    $(".menu_item:not(#menu_go)").click(
-        function(event) {
-            event.stopPropagation();
-            return false;
-        }
-    );
+
+    $(".formulier").click(function(event) {
+        event.stopPropagation();
+    });
+
     
 });
 
@@ -50,7 +48,9 @@ $(document).ready(function() {
  */
 function changeStudy() {
 
-    hideForm("#menu_study");
+
+    $("#menu_study").children('.formulier').hide();
+    openForm = null;
 
     $( '#rows, #columns, #types' ).empty();
     clearStep(".menu_item");
@@ -58,11 +58,9 @@ function changeStudy() {
     if( visualization )
         visualization.destroy();
 
-    $( "#menu_study" ).addClass("menu_item_fill");
-
-    if($( '#study option:selected' ).val()!="") {
-        $( "#menu_study" ).find("img.spinner").show();
-        $( "#menu_study" ).find("div.menu_item_info").html("<br />"+$( '#study option:selected' ).text());
+    if($( '#study option:selected' ).length>0) {
+        $( "#menu_row, #menu_column" ).find("img.spinner").show();
+        $( "#menu_study" ).find("span.topmenu_item_info").html($( '#study option:selected' ).text());
 
         executeAjaxCall( "getFields", {
             "errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
@@ -77,8 +75,6 @@ function changeStudy() {
                 if( data.returnData && data.returnData.studyIds==$( '#study option:selected' ).val() ) {
                     var returnData = data.returnData.fields;
 
-                    clearStep("#menu_study");
-
                     var prevCat = "";
                     var strOptions = "";
 	                $.each( returnData, function( idx, field ) {
@@ -92,8 +88,8 @@ function changeStudy() {
                     strOptions += "</optgroup>";
                     $( "#rows, #columns" ).html(strOptions);
 	                
-	                $( "#menu_study" ).find("div.menu_item_info").html("<br />"+$( '#study option:selected' ).text());
-	                $( "#menu_study" ).addClass("menu_item_done");
+	                $( "#menu_study" ).find("span.topmenu_item_info").html($( '#study option:selected' ).text());
+                    $( "#menu_row, #menu_column" ).find("img.spinner").hide();
 	                $( "#menu_row, #menu_column" ).addClass("menu_item_fill");
                 }
             }
@@ -106,14 +102,15 @@ function changeStudy() {
  */
 function changeFields(divid) {
 
-    hideForm("#"+divid);
-
     var type = "rows";
     if(divid=="menu_column") type = "columns";
 
-    if($( '#'+type+' option:selected' ).val()!="") {
+    clearStep("#"+divid);
+    $( "#"+divid ).addClass("menu_item_done");
 
-        $( "#"+divid ).find("img.spinner").show();
+    if($( '#rows option:selected' ).length>0 && $( '#columns option:selected' ).length>0) {
+
+        $( "#menu_vis" ).find("img.spinner").show();
 
         executeAjaxCall( "getVisualizationTypes", {
             "errorMessage": "An error occurred while retrieving visualization types from the server. Please try again or contact a system administrator.",
@@ -135,10 +132,6 @@ function changeFields(divid) {
                     });
                 }
 
-                clearStep("#"+divid);
-                $( "#"+divid ).find("div.menu_item_info").html("<br />"+$( '#'+type+' option:selected' ).text());
-                $( "#"+divid ).addClass("menu_item_done");
-
                 if( $( '#types option' ).length>0 ) {
                     clearStep("#menu_vis");
                     $( "#menu_vis" ).addClass("menu_item_fill");
@@ -153,12 +146,10 @@ function changeFields(divid) {
                     }
                 }
 
+                $( "#menu_vis" ).find("img.spinner").hide();
 
             }
         },divid);
-    } else {
-        clearStep("#menu_vis, #"+divid);
-        $( "#"+divid ).addClass("menu_item_fill");
     }
 }
 
@@ -167,16 +158,13 @@ function changeFields(divid) {
  */
 function changeVis() {
 
-    hideForm("#menu_vis");
-
-    if($( '#types option:selected' ).val()!="") {
+    if($( '#types option:selected' ).length>0) {
         $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_done");
         visType = $( '#types option:selected' ).text();
-        $( "#menu_vis" ).find("div.menu_item_info").html("<br />"+visType);
     } else {
-        $( "#menu_vis" ).find("div.menu_item_info").html("");
         $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_fill");
     }
+    $( "#menu_go" ).removeClass().addClass("menu_item");
     if($("#autovis").attr("checked")=="checked") {
         visualize();
     }
@@ -192,13 +180,10 @@ function visualize() {
 
     if(!$( "#menu_vis" ).hasClass("menu_item_done") ||
         !$( "#menu_row" ).hasClass("menu_item_done") ||
-        !$( "#menu_row" ).hasClass("menu_item_done") ||
-        !$( "#menu_row" ).hasClass("menu_item_done") ) {
-
+        !$( "#menu_column" ).hasClass("menu_item_done")
+       ) {
         $( ".menu_item" ).not(".menu_item_done").removeClass().addClass("menu_item menu_item_warning");
     } else {
-
-        $( "#menu_go" ).find("img.spinner").show();
 
         executeAjaxCall( "getData", {
             "errorMessage": "An error occurred while retrieving data from the server. Please try again or contact a system administrator.",
@@ -446,44 +431,17 @@ function showError( messages, strClass ) {
         var newClose = $( "<div>" ).css("position","absolute").css("top","3px").css("right","10px").html("<a href='#' onclick='removeError(this); return false;'>x</a>");
 	    $( '#message_container' ).prepend( $( "<div>" ).addClass("message_box "+strClass).html( messages[index] ).css("position","relative").fadeIn().append(newClose) );
     }
-    $( '#message_counter' ).addClass(strClass+"new");
-    $( '#message_counter' ).switchClass(strClass+"new","",2000);
-    $( '#message_counter' ).html($('.message_box').length);
-}
-
-function errorDiv() {
-    if($( '#message_container' ).css("display")=="none") {
-        $( '#message_container' ).show("fast");
-    } else {
-        $( '#message_container' ).hide("fast");
-    }
+    $( '#message_counter' ).children(".topmenu_item_info").html($('.message_box').length);
 }
 
 function removeError(strSelector) {
     $( strSelector ).closest(".message_box").remove();
-    $( "#message_counter" ).html($(".message_box").length);
+    $( '#message_counter' ).children(".topmenu_item_info").html($(".message_box").length);
     if($(".message_box").length==0) {
-        errorDiv();
+        $( '#message_counter' ).children(".formulier").toggle();
+        openForm = null;
     }
 }
-
-function showForm(strSelector) {
-    if(openForm!=null) {
-        hideForm(openForm);
-    }
-    $( strSelector ).css("width","150px");
-    $( strSelector ).css("background-color","white");
-    $( strSelector ).find("div.formulier").show();
-    openForm = strSelector;
-}
-
-function hideForm(strSelector) {
-    $( strSelector ).css("width","88px");
-    $( strSelector ).css("background-color","");
-    $( strSelector ).find("div.formulier").hide();
-    openForm = null;
-}
-
 
 /**
  * Clears one or multiple steps
