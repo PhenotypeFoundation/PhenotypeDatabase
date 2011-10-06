@@ -17,7 +17,8 @@ package dbnp.modules
 import grails.converters.*
 import javax.servlet.http.HttpServletResponse
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import org.hibernate.*;
+import org.hibernate.*
+import dbnp.authentication.SecUser;
 
 class ModuleCommunicationService implements Serializable {
 	static transactional = false
@@ -104,8 +105,8 @@ class ModuleCommunicationService implements Serializable {
 	* @param requestMethod	GET or POST - HTTP request method to use
 	* @return			JSON 	JSON object of the parsed text
 	*/
-	def callModuleMethod( String consumer, String restUrl, String args = null, String requestMethod = "GET" ) {
-		if (!authenticationService.isLoggedIn()) {
+	def callModuleMethod( String consumer, String restUrl, String args = null, String requestMethod = "GET", SecUser remoteUser = null) {
+		if (!remoteUser && !authenticationService.isLoggedIn()) {
 			// should not happen because we can only get here when a user is
 			// logged in...
 			throw new Exception('User is not logged in.')
@@ -123,8 +124,8 @@ class ModuleCommunicationService implements Serializable {
 		def sessionToken = UUID.randomUUID().toString()
 
 		// put the session token to work
-		authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
-		
+		authenticationService.logInRemotely( consumer, sessionToken, remoteUser ?: authenticationService.getLoggedInUser())
+
 		// Append the sessionToken to the parameters
 		if( !args ) {
 			args = ""

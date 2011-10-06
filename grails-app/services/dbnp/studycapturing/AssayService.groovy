@@ -18,10 +18,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.dbnp.gdt.RelTime
 import org.dbnp.gdt.TemplateFieldType
-import java.text.DecimalFormat
 import java.text.NumberFormat
-import org.dbnp.gdt.Template
-import org.dbnp.gdt.TemplateField
+import dbnp.authentication.SecUser
 
 class AssayService {
 
@@ -38,7 +36,7 @@ class AssayService {
 	 * @return a map of categories as keys and field names or measurements as
 	 *  values
 	 */
-	def collectAssayTemplateFields(assay, samples = null) throws Exception {
+	def collectAssayTemplateFields(assay, samples, SecUser remoteUser = null) throws Exception {
 
 		def getUsedTemplateFields = { templateEntities ->
 
@@ -53,7 +51,7 @@ class AssayService {
 		def moduleError = '', moduleMeasurements = []
 
 		try {
-			moduleMeasurements = requestModuleMeasurementNames(assay)
+			moduleMeasurements = requestModuleMeasurementNames(assay, remoteUser)
 		} catch (e) {
 			moduleError = e.message
 		}
@@ -66,7 +64,7 @@ class AssayService {
 					'Sample Data' :             getUsedTemplateFields( samples ),
 					'Event Group' :             [[name: 'name', comment: 'Name of Event Group', displayName: 'name']],
 					'Module Measurement Data':  moduleMeasurements,
-					'ModuleError':              moduleError
+					'Module Error':             moduleError
 				]
 
 	}
@@ -86,7 +84,7 @@ class AssayService {
 	 * 								Defaults to all samples from this assay.
 	 * @return 				The assay data structure as described above.
 	 */
-	def collectAssayData(assay, fieldMap, measurementTokens, samples = null) throws Exception {
+	def collectAssayData(assay, fieldMap, measurementTokens, samples = null, SecUser remoteUser = null) throws Exception {
 
 		def collectFieldValuesForTemplateEntities = { headerFields, templateEntities ->
 
@@ -196,7 +194,7 @@ class AssayService {
 		if (measurementTokens) {
 
 			try {
-				moduleMeasurementData = requestModuleMeasurements(assay, measurementTokens, samples)
+				moduleMeasurementData = requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
 			} catch (e) {
 				moduleMeasurementData = ['error' : ['Module error, module not available or unknown assay'] * samples.size() ]
 				moduleError =  e.message
@@ -204,13 +202,13 @@ class AssayService {
 
 		}
 
-		[       'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
-					'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
-					'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']),
-					'Event Group' :             eventFieldMap,
-					'Module Measurement Data' : moduleMeasurementData,
-					'ModuleError' :             moduleError
-				]
+		[   'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
+			'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
+			'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']),
+			'Event Group' :             eventFieldMap,
+			'Module Measurement Data' : moduleMeasurementData,
+			'Module Error' :            moduleError
+		]
 	}
 
 	/**
@@ -268,7 +266,7 @@ class AssayService {
 	 * @param path path of the rest call to the module
 	 * @return
 	 */
-	def requestModuleMeasurementNames(assay) {
+	def requestModuleMeasurementNames(assay, SecUser remoteUser = null) {
 
 		def moduleUrl = assay.module.url
 
@@ -277,7 +275,7 @@ class AssayService {
 		def jsonArray
 
 		try {
-			jsonArray = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST")
+			jsonArray = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST", remoteUser)
 		} catch (e) {
 			throw new Exception("An error occured while trying to get the measurement tokens from the $assay.module.name. \
              This means the module containing the measurement data is not available right now. Please try again \
@@ -302,7 +300,7 @@ class AssayService {
 	 * @param samples			Samples to collect measurements for
 	 * @return
 	 */
-	def requestModuleMeasurements(assay, inputMeasurementTokens, samples) {
+	def requestModuleMeasurements(assay, inputMeasurementTokens, samples, SecUser remoteUser = null) {
 
 		def moduleUrl = assay.module.url
 
@@ -319,7 +317,7 @@ class AssayService {
 		def sampleTokens = [], measurementTokens = [], moduleData = []
 
 		try {
-			(sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST")
+			(sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST", remoteUser)
 		} catch (e) {
 			throw new Exception("An error occured while trying to get the measurement data from the $assay.module.name. \
              This means the module containing the measurement data is not available right now. Please try again \

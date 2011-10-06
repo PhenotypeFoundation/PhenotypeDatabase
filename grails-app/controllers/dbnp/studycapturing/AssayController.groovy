@@ -139,9 +139,9 @@ class AssayController {
 				if (!flow.assay) throw new Exception("No assay found with id: ${params.assayId}")
 
 				// obtain fields for each category
-				flow.fieldMap = assayService.collectAssayTemplateFields(flow.assay)
+				flow.fieldMap = assayService.collectAssayTemplateFields(flow.assay, null)
 
-				flash.errorMessage = flow.fieldMap.remove('ModuleError')
+				flash.errorMessage = flow.fieldMap.remove('Module Error')
 				flow.measurementTokens = flow.fieldMap.remove('Module Measurement Data')
 			}.to "selectFields"
 
@@ -178,7 +178,7 @@ class AssayController {
 				// collect the assay data according to user selecting
 				def assayData           = assayService.collectAssayData(flow.assay, fieldMapSelection, measurementTokens)
 
-				flash.errorMessage      = assayData.remove('ModuleError')
+				flash.errorMessage      = assayData.remove('Module Error')
 
 				flow.rowData            = assayService.convertColumnToRowStructure(assayData)
 
@@ -274,16 +274,13 @@ class AssayController {
 	def fetchGalaxyData = {
 		// Check accessibility
 		def consumer = "galaxy";
-		def user = authenticationService.getRemotelyLoggedInUser( consumer, params.sessionToken );
-		if( !user ) {
+		def remoteUser = authenticationService.getRemotelyLoggedInUser( consumer, params.sessionToken );
+		if( !remoteUser ) {
 			response.status = 401;
 			render "You must be logged in";
 			return
 		}
-		
-		// Invalidate session token
-		authenticationService.logOffRemotely( consumer, params.sessionToken );
-		
+
 		// retrieve assay
 		def assay = Assay.findByAssayUUID( params.assayToken );
 		
@@ -294,10 +291,15 @@ class AssayController {
 		}
 		
 		// Return assay data
-		def fieldMap = assayService.collectAssayTemplateFields( assay )
+		def fieldMap = assayService.collectAssayTemplateFields( assay, null, remoteUser )
+
 		def measurementTokens = fieldMap.remove('Module Measurement Data');
-		def assayData = assayService.collectAssayData(assay, fieldMap, measurementTokens)
-		def rowData            = assayService.convertColumnToRowStructure(assayData)
+		def assayData = assayService.collectAssayData(assay, fieldMap, measurementTokens, null, remoteUser)
+
+		def rowData   = assayService.convertColumnToRowStructure(assayData)
+
+		// Invalidate session token
+		authenticationService.logOffRemotely( consumer, params.sessionToken );
 				
 		def outputDelimiter = '\t'
 		def outputFileExtension = 'txt'
@@ -398,7 +400,7 @@ class AssayController {
 
 			assays.each { assay ->
 				// Determine which fields should be exported for this assay
-				def fieldMap = assayService.collectAssayTemplateFields(assay)
+				def fieldMap = assayService.collectAssayTemplateFields(assay, null)
 				def measurementTokens = fieldMap.remove('Module Measurement Data')
 
 				// Retrieve row based data for this assay
@@ -440,7 +442,7 @@ class AssayController {
 
 			assays.each { assay ->
 				// Determine which fields should be exported for this assay
-				def fieldMap = assayService.collectAssayTemplateFields(assay)
+				def fieldMap = assayService.collectAssayTemplateFields(assay, null)
 				def measurementTokens = fieldMap.remove('Module Measurement Data')
 
 				// Retrieve row based data for this assay
@@ -506,7 +508,7 @@ class AssayController {
 				def assaySamples = assayInfo.value.samples;
 				
 				// Determine which fields should be exported for this assay
-				def fieldMap = assayService.collectAssayTemplateFields(assay)
+				def fieldMap = assayService.collectAssayTemplateFields(assay, null)
 				def measurementTokens = fieldMap.remove('Module Measurement Data')
 				
 				// Retrieve row based data for this assay
@@ -616,7 +618,6 @@ class AssayController {
 
 		return samples.unique();
 	}
-
 	
 	def errorPage = {
 		render(view: 'assayExport/errorPage')
