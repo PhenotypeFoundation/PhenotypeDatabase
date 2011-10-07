@@ -376,6 +376,7 @@ class AssayController {
 			exportToExcelAsList( params );
 		} else {
 			exportToExcelAsSheets( params );
+		}
 	}
 
 	/**
