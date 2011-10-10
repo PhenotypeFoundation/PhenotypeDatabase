@@ -229,13 +229,25 @@ class VisualizeController {
 		
 		if( type == "domainfields" ) 
 			collection = domainObjectCallback( category )?.giveDomainFields();
-		else 
+		else
 			collection = templateObjectCallback( category, study )?.template?.fields
 
         collection?.unique()
 
         // Formatting the data
         fields += formatGSCFFields(type, collection, source, category)
+
+        // Here we will remove those fields, whose set of datapoints only contain null
+        def fieldsToBeRemoved = []
+        fields.each{ field ->
+            def fieldData = getFieldData( study, study.samples, field.id )
+            fieldData.removeAll([null])
+            if(fieldData==[]){
+                // Field only contained nulls, so don't show it as a visualization option
+                fieldsToBeRemoved << field
+            }
+        }
+        fields.removeAll(fieldsToBeRemoved)
 
         return fields
     }
