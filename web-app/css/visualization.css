@@ -112,10 +112,6 @@ div#message_counter_container.message_errornew {
     font-size: 10px;
 }
 
-.menu_item:hover {
-    background-color: #EEE;
-}
-
 .menu_item_done {
     background-color: #67E667;
     border-color: green;
@@ -182,6 +178,8 @@ div#message_counter_container.message_errornew {
     display: inline-block;
     position: relative;
     padding: 3px;
+    height: 14px;
+    vertical-align: top;
 }
 
 .topmenu_item:hover {
@@ -190,17 +188,25 @@ div#message_counter_container.message_errornew {
 }
 
 .topmenu_item_label {
+    display: inline-block;
+    vertical-align: text-bottom;
     color: #000033;
 }
 
 .topmenu_item_info {
+    display: inline-block;
+    vertical-align: top;
     color: #000066;
+    overflow: hidden;
+    width:auto;
+    max-width: 200px;
+    max-height: 18px;
 }
 
 .formulier {
     font-size: 10px;
     position: absolute;
-    top: 22px;
+    top: 21px;
     left: 0px;
     display: none;
     padding: 10px;
@@ -213,6 +219,19 @@ div#message_counter_container.message_errornew {
 .formulier select {
     width: 100%;
     font-size: 10px;
+}
+
+.formulier table {
+    border-style: none;
+}
+
+.formulier table td {
+    font-size: 10px;
+    padding: 6px 2px;
+}
+
+#menu_advanced .formulier {
+    width: 300px;
 }
 
 .menu_seperator {

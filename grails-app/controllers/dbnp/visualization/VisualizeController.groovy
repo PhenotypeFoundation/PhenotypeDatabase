@@ -404,7 +404,7 @@ class VisualizeController {
 		if( parsedField.source == "GSCF" ) {
 			// Retrieve data from GSCF itself
 			def closure = valueCallback( parsedField.type )
-			
+
 			if( closure ) {
 				samples.each { sample ->
 					// Retrieve the value for the selected field for this sample
@@ -605,7 +605,29 @@ class VisualizeController {
 
 				// The computation for mean and error will return null if no (numerical) values are found
 				// In that case, the user won't see this category
-				def dataForGroup = computeMeanAndError( values );
+                def dataForGroup = null;
+                switch( params.get( 'aggregation') ) {
+			        case "average":
+                        dataForGroup = computeMeanAndError( values );
+                        break;
+                    case "count":
+                        dataForGroup = computeCount( values );
+                        break;
+                    case "median":
+                        dataForGroup = computeMedian( values );
+                        break;
+                    case "none":
+                        // Currently disabled, create another function
+                        dataForGroup = computeMeanAndError( values );
+                        break;
+                    case "sum":
+                        dataForGroup = computeSum( values );
+                        break;
+                    default:
+                        // Default is "average"
+                        dataForGroup = computeMeanAndError( values );
+                }
+
 
 				if( showEmptyCategories || dataForGroup.value != null ) {
 					// Gather names for the groups. Most of the times, the group names are just the names, only with
@@ -741,7 +763,7 @@ class VisualizeController {
         data. each {
             if(it instanceof Number) {
                 try{
-                    tmpDateContainer << new java.util.Date( it ).toString()
+                    tmpDateContainer << new java.util.Date( (Long) it ).toString()
                 } catch(IllegalArgumentException e){
                     tmpDateContainer << it
                 }
@@ -877,7 +899,7 @@ class VisualizeController {
 	
 	/**
 	 * Computes the mean of the given values. Values that can not be parsed to a number
-	 * are ignored. If no values are given, the mean of 0 is returned.
+	 * are ignored. If no values are given, null is returned.
 	 * @param values	List of values to compute the mean for
 	 * @return			Arithmetic mean of the values
 	 */
@@ -889,19 +911,19 @@ class VisualizeController {
 			if( num != null ) {
 				sumOfValues += num;
 				sizeOfValues++
-			} 
+			}
 		}
 
 		if( sizeOfValues > 0 )
 			return sumOfValues / sizeOfValues;
 		else
-			return null; 
+			return null;
 	}
 
 	/**
 	* Computes the standard error of mean of the given values. 
 	* Values that can not be parsed to a number are ignored. 
-	* If no values are given, the standard deviation of 0 is returned.
+	* If no values are given, null is returned.
 	* @param values		List of values to compute the standard deviation for
 	* @param mean		Mean of the list (if already computed). If not given, the mean 
 	* 					will be computed using the computeMean method
@@ -928,6 +950,84 @@ class VisualizeController {
            return null;
        }
     }
+
+    /**
+	 * Computes the median of the given values. Values that can not be parsed to a number
+	 * are ignored. If no values are given, null is returned.
+	 * @param values	List of values to compute the median for
+	 * @return			Median of the values
+	 */
+	protected def computeMedian( List values ) {
+		def listOfValues = [];
+		values.each { value ->
+			def num = getNumericValue( value );
+			if( num != null ) {
+				listOfValues << num;
+			}
+		}
+
+        listOfValues.sort();
+
+        def listSize = listOfValues.size();
+
+		if( listSize > 0 ) {
+            def listHalf = (int) Math.abs(listSize/2);
+            if(listSize%2==0) {
+                // If the list is of an even size, take the mean of the middle two value's
+                return ["value": (listOfValues.get(listHalf)+listOfValues.get(listHalf-1))/2];
+            } else {
+                // If the list is of an odd size, take the middle value
+                return ["value": listOfValues.get(listHalf-1)];
+            }
+        } else
+			return ["value": null];
+	}
+
+    /**
+	 * Computes the count of the given values. Values that can not be parsed to a number
+	 * are ignored. If no values are given, null is returned.
+	 * @param values	List of values to compute the count for
+	 * @return			Count of the values
+	 */
+	protected def computeCount( List values ) {
+		def sumOfValues = 0;
+		def sizeOfValues = 0;
+		values.each { value ->
+			def num = getNumericValue( value );
+			if( num != null ) {
+				sumOfValues += num;
+				sizeOfValues++
+			}
+		}
+
+		if( sizeOfValues > 0 )
+			return ["value": sizeOfValues];
+		else
+			return ["value": null];
+	}
+
+    /**
+	 * Computes the sum of the given values. Values that can not be parsed to a number
+	 * are ignored. If no values are given, null is returned.
+	 * @param values	List of values to compute the sum for
+	 * @return			Arithmetic sum of the values
+	 */
+	protected def computeSum( List values ) {
+		def sumOfValues = 0;
+		def sizeOfValues = 0;
+		values.each { value ->
+			def num = getNumericValue( value );
+			if( num != null ) {
+				sumOfValues += num;
+				sizeOfValues++
+			}
+		}
+
+		if( sizeOfValues > 0 )
+			return ["value": sumOfValues];
+		else
+			return ["value": null];
+	}
     
 	/**
 	 * Return the numeric value of the given object, or null if no numeric value could be returned

@@ -9,30 +9,26 @@ $(document).ready(function() {
 
     $(".topmenu_item").click(
         function(event) {
-            if(openForm!=null && this!=openForm) {
-                $(openForm).children('.formulier').hide();
+            if(this!=openForm) {
+                toggleForm(this, "open");
+            } else {
+                toggleForm(this, "close");
             }
-            $(this).children('.formulier').toggle();
-            openForm = this;
             return false;
 		}
     );
 
     $(document).keyup(
         function(event) {
-            if ( event.which == 27 && openForm!=null ) {
-                $(openForm).children('.formulier').hide();
-                openForm = null;
+            if ( event.which == 27 ) {
+                toggleForm(openForm, "close");
             }
         }
     );
     
     $(document).click(
         function() {
-            if(openForm!=null) {
-                $(openForm).children('.formulier').hide();
-                openForm = null;
-            }
+            toggleForm(openForm, "close");
         }
     );
 
@@ -48,11 +44,9 @@ $(document).ready(function() {
  */
 function changeStudy() {
 
+    toggleForm(openForm, "close");
 
-    $("#menu_study").children('.formulier').hide();
-    openForm = null;
-
-    $( '#rows, #columns, #types' ).empty();
+    $( '#rows, #columns, #types, #visualization' ).empty();
     clearStep(".menu_item");
 
     if( visualization )
@@ -60,7 +54,7 @@ function changeStudy() {
 
     if($( '#study option:selected' ).length>0) {
         $( "#menu_row, #menu_column" ).find("img.spinner").show();
-        $( "#menu_study" ).find("span.topmenu_item_info").html($( '#study option:selected' ).text());
+        $( "#menu_study" ).find("div.topmenu_item_info").html($( '#study option:selected' ).text());
 
         executeAjaxCall( "getFields", {
             "errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
@@ -88,7 +82,7 @@ function changeStudy() {
                     strOptions += "</optgroup>";
                     $( "#rows, #columns" ).html(strOptions);
 	                
-	                $( "#menu_study" ).find("span.topmenu_item_info").html($( '#study option:selected' ).text());
+	                $( "#menu_study" ).find("div.topmenu_item_info").html($( '#study option:selected' ).text());
                     $( "#menu_row, #menu_column" ).find("img.spinner").hide();
 	                $( "#menu_row, #menu_column" ).addClass("menu_item_fill");
                 }
@@ -101,9 +95,6 @@ function changeStudy() {
  * Retrieve the possible visualization types based on the fields that the user has selected.
  */
 function changeFields(divid) {
-
-    var type = "rows";
-    if(divid=="menu_column") type = "columns";
 
     clearStep("#"+divid);
     $( "#"+divid ).addClass("menu_item_done");
@@ -162,7 +153,9 @@ function changeVis() {
         $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_done");
         visType = $( '#types option:selected' ).text();
     } else {
-        $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_fill");
+        if( $( "#menu_row" ).hasClass("menu_item_done") && $( "#menu_column" ).hasClass("menu_item_done") ) {
+            $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_fill");
+        }
     }
     $( "#menu_go" ).removeClass().addClass("menu_item");
     if($("#autovis").attr("checked")=="checked") {
@@ -178,13 +171,10 @@ function changeVis() {
  */ 
 function visualize() {
 
-    if(!$( "#menu_vis" ).hasClass("menu_item_done") ||
-        !$( "#menu_row" ).hasClass("menu_item_done") ||
-        !$( "#menu_column" ).hasClass("menu_item_done")
+    if($( "#menu_vis" ).hasClass("menu_item_done") &&
+        $( "#menu_row" ).hasClass("menu_item_done") &&
+        $( "#menu_column" ).hasClass("menu_item_done")
        ) {
-        $( ".menu_item" ).not(".menu_item_done").removeClass().addClass("menu_item menu_item_warning");
-    } else {
-
         executeAjaxCall( "getData", {
             "errorMessage": "An error occurred while retrieving data from the server. Please try again or contact a system administrator.",
             "success": function( data, textStatus, jqXHR ) {
@@ -228,6 +218,8 @@ function visualize() {
                 // TODO: create a chart based on the data that is sent by the user and the type of chart
                 // chosen by the user
                 var plotOptions = null;
+
+                var showDataValues = $("#showvalues").attr("checked")=="checked" ? true : false;
                 
                 switch( returnData.type ) {
                 	case "horizontal_barchart":
@@ -243,23 +235,24 @@ function visualize() {
                                     // Disables default highlighting on mouse over.
                                     highlightMouseDown: true,
                                     barDirection: 'horizontal'
-                                }
+                                },
+                                pointLabels: {show: showDataValues}
                             },
                             highlighter: {
-                                show: true,
+                                show: !showDataValues,
                                 sizeAdjust: 7.5,
-                                tooltipAxes: "y"
+                                tooltipAxes: "x"
                             },
                             series: series,
                             axes: {
                                 xaxis: {
-                                    //ticks: returnData.series[ 0 ].y,		// Use the x-axis of the first serie
                                     label: ylabel,
                                     formatString:'%.2f',
                                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                                 },
                                 yaxis: {
                                     renderer: $.jqplot.CategoryAxisRenderer,
+                                    ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
                                     label: xlabel,
                                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                                 }
@@ -275,11 +268,12 @@ function visualize() {
                 		plotOptions = {
                             stackSeries: true,
                             seriesDefaults:{
-                                renderer:$.jqplot.LineRenderer
+                                renderer:$.jqplot.LineRenderer,
+                                pointLabels: {show: showDataValues}
                             },
                             series: series,
                             highlighter: {
-                                show: true,
+                                show: !showDataValues,
                                 sizeAdjust: 7.5,
                                 tooltipAxes: "y"
                             },
@@ -301,11 +295,12 @@ function visualize() {
                         plotOptions = {
                             stackSeries: true,
                             seriesDefaults:{
-                                renderer:$.jqplot.LineRenderer
+                                renderer:$.jqplot.LineRenderer,
+                                pointLabels: {show: showDataValues}
                             },
                             series: series,
                             highlighter: {
-                                show: true,
+                                show: !showDataValues,
                                 sizeAdjust: 7.5,
                                 tooltipAxes: "y"
                             },
@@ -336,10 +331,11 @@ function visualize() {
                                     // Highlight bars when mouse button pressed.
                                     // Disables default highlighting on mouse over.
                                     highlightMouseDown: true
-                                }
+                                },
+                                pointLabels: {show: showDataValues}
                             },
                             highlighter: {
-                                show: true,
+                                show: !showDataValues,
                                 sizeAdjust: 7.5,
                                 tooltipAxes: "y"
                             },
@@ -440,6 +436,19 @@ function removeError(strSelector) {
     if($(".message_box").length==0) {
         $( '#message_counter' ).children(".formulier").toggle();
         openForm = null;
+    }
+}
+
+function toggleForm(selector, action) {
+    if( action=="close" || openForm !=null ) {
+        $(openForm).children('.formulier').hide();
+        $(openForm).removeClass("topmenu_item_selected");
+        openForm = null;
+    }
+    if( action=="open" ) {
+        $(selector).children('.formulier').show();
+        $(selector).addClass("topmenu_item_selected");
+        openForm = selector;
     }
 }
 

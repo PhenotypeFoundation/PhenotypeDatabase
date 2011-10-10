@@ -46,8 +46,8 @@
                 <span class="menu_seperator">&nbsp;</span>
 
                 <span class="topmenu_item" id="menu_study">
-                    <span class="topmenu_item_label"><img src="${fam.icon( name: 'report' )}" style="vertical-align: text-bottom; display: inline-block;"/>&nbsp;Study<img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" />:</span>
-                    <span class="topmenu_item_info">no study selected</span>
+                    <div class="topmenu_item_label"><img src="${fam.icon( name: 'report' )}" style="vertical-align: text-bottom; display: inline-block;"/>&nbsp;Study<img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" />:</div>
+                    <div class="topmenu_item_info">no study selected</div>
                     <img src="${fam.icon( name: 'bullet_arrow_down' )}" style="vertical-align: text-bottom; display: inline-block;"/>
                     <div class="formulier">
                         <p class="info">Select a study from the list below.</p>
@@ -57,7 +57,25 @@
                     </div>
                 </span>
 
-               
+                <span class="menu_seperator">&nbsp;</span>
+
+                <span class="topmenu_item" id="menu_aggregation">
+                    <span class="topmenu_item_label"><img src="${fam.icon( name: 'server_chart' )}" style="vertical-align: text-bottom; display: inline-block;"/>&nbsp;Aggregation:</span>
+                    <span class="topmenu_item_info">AVERAGE</span>
+                    <img src="${fam.icon( name: 'bullet_arrow_down' )}" style="vertical-align: text-bottom; display: inline-block;"/>
+                    <div class="formulier">
+                        <p class="info">Select a way to aggregate the data.</p>
+                        <p>
+                            <select name="aggregation" size="5" onchange="$('#menu_aggregation').children('.topmenu_item_info').html($(this).val().toUpperCase()); changeVis();">
+                                <option value="average" SELECTED>Average</option>
+                                <option value="count">Count</option>
+                                <option value="median">Median</option>
+                                <option value="none" disabled>No aggregation</option>
+                                <option value="sum">Sum</option>
+                            </select>
+                        </p>
+                    </div>
+                </span>
 
                 <span class="menu_seperator">&nbsp;</span>
 
@@ -65,11 +83,16 @@
                     <span class="topmenu_item_label"><img src="${fam.icon( name: 'cog' )}" style="vertical-align: text-bottom; display: inline-block;"/>&nbsp;Advanced settings</span>
                     <img src="${fam.icon( name: 'bullet_arrow_down' )}" style="vertical-align: text-bottom; display: inline-block;"/>
                     <div class="formulier">
-                        <p class="info">Advanced settings.</p>
-                        <p>
-                            Visualize the data as soon as enough parameters are known.
-                            <input type="checkbox" name="autovis" id="autovis" CHECKED/>
-                        </p>
+                        <table>
+                            <tr>
+                                <td>Visualize the data as soon as enough parameters are known.</td>
+                                <td><input type="checkbox" name="autovis" id="autovis" CHECKED/></td>
+                            </tr>
+                            <tr>
+                                <td>Always show values in the graph.<br />(if this box is unchecked, value's are only shown when you hover over a datapoint)</td>
+                                <td><input type="checkbox" name="showvalues" id="showvalues" onClick="changeVis();"/></td>
+                            </tr>
+                        </table>
                     </div>
                 </span>
 
