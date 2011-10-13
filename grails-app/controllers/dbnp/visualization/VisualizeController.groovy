@@ -331,7 +331,6 @@ class VisualizeController {
         } else {
             groupedData = groupFieldData( inputData.visualizationType, data ); // Don't indicate axis ordering, standard <"x", "y"> will be used
         }
-		
         // Format data so it can be rendered as JSON
         def returnData
         if(inputData.visualizationType=='horizontal_barchart'){
@@ -343,6 +342,7 @@ class VisualizeController {
             def groupAxisType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0], groupedData["x"])
             returnData = formatData( inputData.visualizationType, groupedData, fields, groupAxisType, valueAxisType ); // Don't indicate axis ordering, standard <"x", "y"> will be used
         }
+        println "returnData: "+returnData
         return sendResults(returnData)
 	}
 
@@ -673,17 +673,27 @@ class VisualizeController {
 	def formatData( type, groupedData, fields, groupAxisType, valueAxisType, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
 		// We want to sort the data based on the group-axis, but keep the values on the value-axis in sync. 
 		// The only way seems to be to combine data from both axes.
-		def combined = []
-		groupedData[ groupAxis ].eachWithIndex { group, i ->
-			combined << [ "group": group, "value": groupedData[ valueAxis ][ i ] ]
-		}
-		combined.sort { it.group }
-		
+        def combined = []
+        if(type=="table"){
+            groupedData[ groupAxis ].eachWithIndex { group, i ->
+                combined << [ "group": group, "data": groupedData[ 'data' ][ i ] ]
+            }
+            combined.sort { it.group }
+            groupedData[groupAxis] = renderTimesAndDatesHumanReadable(combined*.group, groupAxisType)
+            groupedData[valueAxis] = renderTimesAndDatesHumanReadable(groupedData[valueAxis], valueAxisType)
+            groupedData["data"] = combined*.data
+        } else {
+            groupedData[ groupAxis ].eachWithIndex { group, i ->
+                combined << [ "group": group, "value": groupedData[ valueAxis ][ i ] ]
+            }
+            combined.sort { it.group }
+            groupedData[groupAxis] = renderTimesAndDatesHumanReadable(combined*.group, groupAxisType)
+            groupedData[valueAxis] = renderTimesAndDatesHumanReadable(combined*.value, valueAxisType)
+        }
+
         // TODO: Handle name and unit of fields correctly
         def valueAxisTypeString = (valueAxisType==CATEGORICALDATA || valueAxisType==DATE || valueAxisType==RELTIME ? "categorical" : "numerical")
         def groupAxisTypeString = (groupAxisType==CATEGORICALDATA || groupAxisType==DATE || groupAxisType==RELTIME ? "categorical" : "numerical")
-        groupedData[groupAxis] = renderTimesAndDatesHumanReadable(combined*.group, groupAxisType)
-        groupedData[valueAxis] = renderTimesAndDatesHumanReadable(combined*.value, valueAxisType)
 
         if(type=="table"){
             def return_data = [:]
@@ -724,11 +734,14 @@ class VisualizeController {
      */
     def renderTimesAndDatesHumanReadable(data, axisType){
         if(axisType==RELTIME){
+            println "RELTIME"
             data = renderTimesHumanReadable(data)
         }
         if(axisType==DATE){
+            println "DATE"
            data = renderDatesHumanReadable(data)
         }
+        println "NO JOY"
         return data
     }
 
@@ -740,6 +753,7 @@ class VisualizeController {
     def renderTimesHumanReadable(data){
         def tmpTimeContainer = []
         data. each {
+            println "\t"+it
             if(it instanceof Number) {
                 try{
                     tmpTimeContainer << new RelTime( it ).toPrettyString()
@@ -761,6 +775,7 @@ class VisualizeController {
     def renderDatesHumanReadable(data) {
         def tmpDateContainer = []
         data. each {
+            println "\t"+it
             if(it instanceof Number) {
                 try{
                     tmpDateContainer << new java.util.Date( (Long) it ).toString()
