@@ -319,6 +319,11 @@ class VisualizeController {
 		// Find out what samples are involved
 		def samples = study.samples
 
+        // If the user is requesting data that concerns only subjects, then make sure those subjects appear only once
+        if(parseFieldId( inputData.columnIds[ 0 ] ).type=='subjects' && parseFieldId( inputData.rowIds[ 0 ] ).type=='subjects'){
+            samples.unique { it.parentSubject }
+        }
+        
 		// Retrieve the data for both axes for all samples
 		// TODO: handle the case of multiple fields on an axis
 		def fields = [ "x": inputData.columnIds[ 0 ], "y": inputData.rowIds[ 0 ] ];
@@ -342,6 +347,11 @@ class VisualizeController {
             def groupAxisType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0], groupedData["x"])
             returnData = formatData( inputData.visualizationType, groupedData, fields, groupAxisType, valueAxisType ); // Don't indicate axis ordering, standard <"x", "y"> will be used
         }
+
+        // Make sure no changes are written to the database
+        study.discard()
+        samples*.discard()
+        
         return sendResults(returnData)
 	}
 
