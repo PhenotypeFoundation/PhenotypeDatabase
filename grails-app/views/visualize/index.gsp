@@ -52,7 +52,7 @@
                     <div class="formulier">
                         <p class="info">Select a study from the list below.</p>
                         <p>
-                            <g:select from="${studies}" size="4" optionKey="id" optionValue="title" name="study" onChange="changeStudy();"/>
+                            <g:select from="${studies}" size="10" optionKey="id" optionValue="title" name="study" onChange="changeStudy();"/>
                         </p>
                     </div>
                 </span>

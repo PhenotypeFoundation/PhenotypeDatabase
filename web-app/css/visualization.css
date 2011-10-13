@@ -51,7 +51,7 @@ table.tablevis td.caption {
 
 #message_container {
     position: relative;
-    min-width: 300px;
+    width: 100%;
 }
 
 .message_box {
@@ -96,7 +96,7 @@ div#message_counter_container.message_errornew {
 
 #menu_container {
     float: left;
-    width : 19%;
+    width : 24%;
     margin: 0% 0% 0% 0.5%;
 }
 
@@ -109,7 +109,7 @@ div#message_counter_container.message_errornew {
     border: #006dba solid 1px;
     background-color: white;
     min-height: 60px;
-    font-size: 10px;
+    font-size: 11px;
 }
 
 .menu_item_done {
@@ -140,18 +140,18 @@ div#message_counter_container.message_errornew {
 #visualization_container {
     position: relative;
     display: block;
-    width: 79.5%;
+    width: 74.5%;
     min-height: 500px;
     padding: 0px;
     margin-top: 5px;
-    margin-left: 20%;
+    margin-left: 25%;
     border: #006dba solid 1px;
     background-color: white;
 }
 
 .menu_item select {
     width: 100%;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .menu_item p {
@@ -169,6 +169,7 @@ div#message_counter_container.message_errornew {
     width: 100%;
     background-color: #D0DEF0;
     border-bottom: #006dba solid 1px;
+    margin-top: 5px;
     padding-top: 5px;
     height: 25px;
     vertical-align: middle;
@@ -204,7 +205,8 @@ div#message_counter_container.message_errornew {
 }
 
 .formulier {
-    font-size: 10px;
+    width: 300px;
+    font-size: 11px;
     position: absolute;
     top: 21px;
     left: 0px;
@@ -218,7 +220,7 @@ div#message_counter_container.message_errornew {
 
 .formulier select {
     width: 100%;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .formulier table {
@@ -230,13 +232,10 @@ div#message_counter_container.message_errornew {
     padding: 6px 2px;
 }
 
-#menu_advanced .formulier {
-    width: 300px;
-}
-
 .menu_seperator {
     background-position: center center;
     background-repeat: no-repeat;
+    padding-bottom: 5px;
     width: 4px;
     overflow: hidden;
     height: 100%;
