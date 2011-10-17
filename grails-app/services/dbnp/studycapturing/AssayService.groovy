@@ -686,6 +686,7 @@ class AssayService {
 
 		def formatter = NumberFormat.getNumberInstance(locale)
 		formatter.setGroupingUsed false // we don't want grouping (thousands) separators
+		formatter.setMaximumFractionDigits(15)
 
 		outputStream << rowData.collect { row ->
 			row.collect{
