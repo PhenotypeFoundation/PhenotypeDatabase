@@ -983,17 +983,20 @@ class VisualizeController {
 
         def listSize = listOfValues.size();
 
+        def objReturn = null;
+
 		if( listSize > 0 ) {
             def listHalf = (int) Math.abs(listSize/2);
             if(listSize%2==0) {
                 // If the list is of an even size, take the mean of the middle two value's
-                return ["value": (listOfValues.get(listHalf)+listOfValues.get(listHalf-1))/2];
+                objReturn = (listOfValues.get(listHalf)+listOfValues.get(listHalf-1))/2;
             } else {
                 // If the list is of an odd size, take the middle value
-                return ["value": listOfValues.get(listHalf-1)];
+                objReturn = listOfValues.get(listHalf);
             }
-        } else
-			return ["value": null];
+        }
+
+		return ["value": objReturn];
 	}
 
     /**
