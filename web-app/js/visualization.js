@@ -260,6 +260,9 @@ function visualize() {
                                     label: xlabel,
                                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                                 }
+                            },
+                            axesDefaults: {
+                                pad: 1.4
                             }
 
                         };
@@ -293,6 +296,9 @@ function visualize() {
                                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                                     formatString:'%.2f'
                                 }
+                            },
+                            axesDefaults: {
+                                pad: 1.4
                             }
                         };
                 	case "linechart":
@@ -320,6 +326,9 @@ function visualize() {
                                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                                     formatString:'%.2f'
                                 }
+                            },
+                            axesDefaults: {
+                                pad: 1.4
                             }
                         };                		
                 		break;
@@ -356,6 +365,9 @@ function visualize() {
                                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                                     formatString:'%.2f'
                                 }
+                            },
+                            axesDefaults: {
+                                pad: 1.4
                             }
 
                         };                		

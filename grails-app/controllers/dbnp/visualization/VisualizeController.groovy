@@ -688,9 +688,9 @@ class VisualizeController {
             groupedData["data"] = combined*.data
         } else {
             groupedData[ groupAxis ].eachWithIndex { group, i ->
-                combined << [ "group": group, "value": groupedData[ valueAxis ][ i ] ]
+                combined << [ "group": (groupAxisType==CATEGORICALDATA ? group.toString() : group), "value": groupedData[ valueAxis ][ i ] ]
             }
-            combined.sort { it.group.toString() }
+            combined.sort { it.group }
             groupedData[groupAxis] = renderTimesAndDatesHumanReadable(combined*.group, groupAxisType)
             groupedData[valueAxis] = renderTimesAndDatesHumanReadable(combined*.value, valueAxisType)
         }
