@@ -52,9 +52,9 @@ function changeStudy() {
     if( visualization )
         visualization.destroy();
 
-    if($( '#study option:selected' ).length>0) {
+    if($( '#study' ).find( 'option:selected' ).length>0) {
         $( "#menu_row, #menu_column" ).find("img.spinner").show();
-        $( "#menu_study" ).find("div.topmenu_item_info").html($( '#study option:selected' ).text());
+        $( "#menu_study" ).find(".topmenu_item_info").html($( '#study').find( 'option:selected' ).text());
 
         executeAjaxCall( "getFields", {
             "errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
@@ -79,11 +79,15 @@ function changeStudy() {
                         }
 	                    strOptions += "<option value='"+field.id+"'>"+field.name+"</option>";
 	                });
-                    strOptions += "</optgroup>";
-                    $( "#rows, #columns" ).html(strOptions);
+                    if(strOptions.length>0) {
+                        strOptions += "</optgroup>";
+                        $( "#rows, #columns" ).html(strOptions);
+                    } else {
+                        $("#visualization").html('<div style="padding: 30px">No fields could be found. This visualization prototype requires studies with samples.</div>');
+                    }
 	                
-	                $( "#menu_study" ).find("div.topmenu_item_info").html($( '#study option:selected' ).text());
-                    $( "#menu_row, #menu_column" ).find("img.spinner").hide();
+	                $( "#menu_study" ).find(".topmenu_item_info").html($( '#study').find( 'option:selected' ).text());
+                    $( "#menu_row, #menu_column" ).find(".spinner").hide();
 	                $( "#menu_row, #menu_column" ).addClass("menu_item_fill");
                 }
             }
@@ -99,9 +103,9 @@ function changeFields(divid) {
     clearStep("#"+divid);
     $( "#"+divid ).addClass("menu_item_done");
 
-    if($( '#rows option:selected' ).length>0 && $( '#columns option:selected' ).length>0) {
+    if($( '#rows' ).find( 'option:selected' ).length>0 && $( '#columns' ).find( 'option:selected' ).length>0) {
 
-        $( "#menu_vis" ).find("img.spinner").show();
+        $( "#menu_vis" ).find(".spinner").show();
 
         executeAjaxCall( "getVisualizationTypes", {
             "errorMessage": "An error occurred while retrieving visualization types from the server. Please try again or contact a system administrator.",
@@ -119,7 +123,7 @@ function changeFields(divid) {
 
                     $.each( returnData, function( idx, field ) {
                         $( '#types' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
-                        if( field.name==visType ) { $( '#types option:last' ).attr("selected","selected"); };
+                        if( field.name==visType ) { $( '#types').find( 'option:last' ).attr("selected","selected"); };
                     });
                 }
 
@@ -129,15 +133,15 @@ function changeFields(divid) {
                     if( visualization )
                         visualization.destroy();
                     
-                    if($( '#types option' ).length==1) {
+                    if($( '#types' ).find( 'option' ).length==1) {
                         $( '#types :first-child' ).attr("selected","selected");
                     }
-                    if($( '#types option:selected' ).length>0) {
+                    if($( '#types').find( 'option:selected' ).length>0) {
                         changeVis();
                     }
                 }
 
-                $( "#menu_vis" ).find("img.spinner").hide();
+                $( "#menu_vis" ).find(".spinner").hide();
 
             }
         },divid);
@@ -149,7 +153,7 @@ function changeFields(divid) {
  */
 function changeVis() {
 
-    if($( '#types option:selected' ).length>0) {
+    if($( '#types' ).find( 'option:selected' ).length>0) {
         $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_done");
         visType = $( '#types option:selected' ).text();
     } else {
@@ -189,7 +193,7 @@ function visualize() {
                 // Handle erroneous data
                 if( !checkCorrectData( data.returnData ) ) {
                     showError( ["Unfortunately the server returned data in a format that we did not expect."], "message_error" );
-                    $( "#menu_go" ).find("img.spinner").hide();
+                    $( "#menu_go" ).find(".spinner").hide();
                     return;
                 }
 
@@ -208,7 +212,7 @@ function visualize() {
                 // If no datapoints are found, return an error
                 if( dataPoints.length == 0 ) {
                     showError( ["Unfortunately the server returned data without any measurements"], "message_error" );
-                    $( "#menu_go" ).find("img.spinner").hide();
+                    $( "#menu_go" ).find(".spinner").hide();
                     return;
                 }
                 
@@ -411,7 +415,7 @@ function visualize() {
                     $( "#visualization" ).show();
                 }
 
-                $( "#menu_go" ).find("img.spinner").hide();
+                $( "#menu_go" ).find(".spinner").hide();
             }
         }, "menu_go");
     }
@@ -496,7 +500,7 @@ function checkCorrectData( data ) {
 function gatherData( type ) {
 	// For simplicity, we send the whole form to the server. In the
 	// future this might be enhanced, based on the given type
-	return $( 'form#visualizationForm' ).serialize();
+	return $( '#visualizationForm' ).serialize();
 }
 
 /**
@@ -524,8 +528,8 @@ function executeAjaxCall( action, ajaxParameters, divid ) {
 		ajaxParameters[ "error" ] = function( jqXHR, textStatus, errorThrown ) {
 			// An error occurred while retrieving fields from the server
 			showError( ["An error occurred while retrieving variables from the server. Please try again or contact a system administrator.<br />"+textStatus], "message_error" );
-            $( "#"+divid ).removeClass().addClass('menu_item menu_item_error');
-            $( "#"+divid ).find("img.spinner").hide();
+            $( "#"+divid ).removeClass().addClass('menu_item_error');
+            $( "#"+divid ).find(".spinner").hide();
 		}
 
 		// Remove the error message

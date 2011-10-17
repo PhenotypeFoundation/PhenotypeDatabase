@@ -186,7 +186,7 @@ class VisualizeController {
      *           - a key 'category' with a value equal to the 'name' field of the input paramater 'assay'
      *           - a key 'name' with a value equal to the name of the field in question, as determined by the source value
      */
-    def getFields(source, assay){
+    def getFields(source, assay) {
         def fields = []
         def callUrl = ""
 
@@ -418,13 +418,8 @@ class VisualizeController {
 				samples.each { sample ->
 					// Retrieve the value for the selected field for this sample
 					def value = closure( sample, parsedField.name );
-					
-					if( value != null ) {
-						data << value;
-					} else {
-						// Return null if the value is not found
-						data << null
-					}
+
+                    data << value;
 				}
 			} else {
 				// TODO: Handle error properly

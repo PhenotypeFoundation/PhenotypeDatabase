@@ -85,11 +85,15 @@
                     <div class="formulier">
                         <table>
                             <tr>
-                                <td>Visualize the data as soon as enough parameters are known.</td>
+                                <td><label for="autovis">Visualize the data as soon as enough parameters are known.</label></td>
                                 <td><input type="checkbox" name="autovis" id="autovis" CHECKED/></td>
                             </tr>
                             <tr>
-                                <td>Always show values in the graph.<br />(if this box is unchecked, value's are only shown when you hover over a datapoint)</td>
+                                <td><label for="errorbars">Show errorbars in graph.<br />(only available with aggregation set to average)</label></td>
+                                <td><input type="checkbox" name="errorbars" id="errorbars" CHECKED/></td>
+                            </tr>
+                            <tr>
+                                <td><label for="showvalues">Always show values in the graph.<br />(if this box is unchecked, value's are only shown when you hover over a datapoint)</label></td>
                                 <td><input type="checkbox" name="showvalues" id="showvalues" onClick="changeVis();"/></td>
                             </tr>
                         </table>
