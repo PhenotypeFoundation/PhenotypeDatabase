@@ -541,6 +541,9 @@ function executeAjaxCall( action, ajaxParameters, divid ) {
 			// An error occurred while retrieving fields from the server
 			showError( ["An error occurred while retrieving variables from the server. Please try again or contact a system administrator.<br />"+textStatus], "message_error" );
             $( "#"+divid ).removeClass().addClass('menu_item_error');
+            if(divid!="menu_study") {
+                $( "#"+divid ).addClass('menu_item');
+            }
             $( "#"+divid ).find(".spinner").hide();
 		}
 
@@ -552,6 +555,7 @@ function executeAjaxCall( action, ajaxParameters, divid ) {
 	// based on the study we chose
 	$.ajax($.extend({
 		url: visualizationUrls[ action ],
+        type: 'POST',
 		data: data,
 		dataType: "json"
 	}, ajaxParameters ) );
