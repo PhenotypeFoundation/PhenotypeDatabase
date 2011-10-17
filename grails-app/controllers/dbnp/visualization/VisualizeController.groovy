@@ -82,8 +82,8 @@ class VisualizeController {
         if(study!=null){
             fields += getFields(study, "subjects", "domainfields")
             fields += getFields(study, "subjects", "templatefields")
-            fields += getFields(study, "events", "domainfields")
-            fields += getFields(study, "events", "templatefields")
+            /*fields += getFields(study, "events", "domainfields")
+            fields += getFields(study, "events", "templatefields")*/
             fields += getFields(study, "samplingEvents", "domainfields")
             fields += getFields(study, "samplingEvents", "templatefields")
             fields += getFields(study, "assays", "domainfields")
@@ -104,7 +104,7 @@ class VisualizeController {
             study.getAssays().each { assay ->
                 def list = []
                 if(!offlineModules.contains(assay.module.id)){
-                    list = getFields(assay.module.id, assay)
+                    list = getFields(assay.module.toString(), assay)
                     if(list!=null){
                         if(list.size()!=0){
                             fields += list
