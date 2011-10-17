@@ -81,10 +81,11 @@ class AssayService {
 	 * @param fieldMap 				map with categories as keys and fields as values
 	 * @param measurementTokens 	selection of measurementTokens
 	 * @param samples				list of samples for which the data should be retrieved. 
-	 * 								Defaults to all samples from this assay.
+	 * 								Defaults to all samples from this assay. Supply [] or
+	 * 								null to include all samples.
 	 * @return 				The assay data structure as described above.
 	 */
-	def collectAssayData(assay, fieldMap, measurementTokens, samples = null, SecUser remoteUser = null) throws Exception {
+	def collectAssayData(assay, fieldMap, measurementTokens, samples, SecUser remoteUser = null) throws Exception {
 
 		def collectFieldValuesForTemplateEntities = { headerFields, templateEntities ->
 

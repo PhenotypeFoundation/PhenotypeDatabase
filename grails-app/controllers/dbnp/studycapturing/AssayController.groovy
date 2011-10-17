@@ -176,7 +176,7 @@ class AssayController {
 				}
 
 				// collect the assay data according to user selecting
-				def assayData           = assayService.collectAssayData(flow.assay, fieldMapSelection, measurementTokens)
+				def assayData           = assayService.collectAssayData(flow.assay, fieldMapSelection, measurementTokens, [])
 
 				flash.errorMessage      = assayData.remove('Module Error')
 
@@ -294,7 +294,7 @@ class AssayController {
 		def fieldMap = assayService.collectAssayTemplateFields( assay, null, remoteUser )
 
 		def measurementTokens = fieldMap.remove('Module Measurement Data');
-		def assayData = assayService.collectAssayData(assay, fieldMap, measurementTokens, null, remoteUser)
+		def assayData = assayService.collectAssayData(assay, fieldMap, measurementTokens, [], remoteUser)
 
 		def rowData   = assayService.convertColumnToRowStructure(assayData)
 
@@ -405,7 +405,7 @@ class AssayController {
 				def measurementTokens = fieldMap.remove('Module Measurement Data')
 
 				// Retrieve row based data for this assay
-				def assayData = assayService.collectAssayData( assay, fieldMap, measurementTokens );
+				def assayData = assayService.collectAssayData( assay, fieldMap, measurementTokens, [] );
 				def rowData   = assayService.convertColumnToRowStructure(assayData)
 
 				// Put each assay on another sheet
@@ -447,7 +447,7 @@ class AssayController {
 				def measurementTokens = fieldMap.remove('Module Measurement Data')
 
 				// Retrieve row based data for this assay
-				def assayData = assayService.collectAssayData( assay, fieldMap, measurementTokens );
+				def assayData = assayService.collectAssayData( assay, fieldMap, measurementTokens, [] );
 
 				// Prepend study and assay data to the list
 				assayData = assayService.prependAssayData( assayData, assay, assay.samples?.size() )

@@ -4,12 +4,8 @@ import grails.test.*
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.apache.poi.ss.usermodel.Cell
-import grails.converters.JSON
 import org.dbnp.gdt.*
 import org.dbnp.gdt.AssayModule
-import org.dbnp.gdt.TemplateEntity
-import groovy.mock.interceptor.MockFor
-import org.dbnp.gdt.GdtService
 import org.dbnp.gdt.TemplateStringField
 
 /**
@@ -209,7 +205,7 @@ class AssayServiceTests extends GrailsUnitTestCase {
 
         String.metaClass.'encodeAsURL' = {delegate}
 
-        def assayData = service.collectAssayData(assay, fieldMap, measurementTokens)
+        def assayData = service.collectAssayData(assay, fieldMap, measurementTokens, [])
 
         def sample1index = assayData.'Sample Data'.'name'.findIndexOf{it == 'sample1'}
         def sample2index = assayData.'Sample Data'.'name'.findIndexOf{it == 'sample2'}

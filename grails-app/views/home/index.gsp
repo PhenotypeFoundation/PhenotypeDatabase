@@ -354,7 +354,7 @@
 				or <i>metabolomics</i>.
 			</p>
 			<p>
-				<i>A more in depth quickstart guide is available for download <a href="${resource(dir:'downloads', file: 'quickstart_'+session.style+'.pdf')}">here</a>.</i>
+				<i>A more in depth user guide is available for download <a href="${resource(dir:'downloads', file: 'gscf_user_guide.pdf')}">here</a>.</i>
 			</p>
 		</div>
 	</div>
