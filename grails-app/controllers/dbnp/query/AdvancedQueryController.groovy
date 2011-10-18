@@ -290,7 +290,8 @@ class AdvancedQueryController {
 		
 		// Skip searching all fields
 		if( entity == "*" || field == "*" ) {
-			render [] as JSON
+			def emptyList = []
+			render emptyList as JSON
 			return;
 		}
 		
