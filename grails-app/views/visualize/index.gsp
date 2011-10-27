@@ -52,8 +52,13 @@
                     <img src="${fam.icon( name: 'bullet_arrow_down' )}" style="vertical-align: text-bottom; display: inline-block;"/>
                     <div class="formulier">
                         <p class="info">Select a study from the list below.</p>
-                        <p>
+                        <p style="margin-bottom: 0px;">
                             <g:select from="${studies}" size="10" optionKey="id" optionValue="title" name="study" onChange="changeStudy();"/>
+                            <div class="block_search">
+                                <img src="${fam.icon( name: 'magnifier' )}" alt="search"/>:
+                                <input type="text" onKeyUp="doSearch('menu_study');" />
+                                <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_study');" alt="clear search"/>
+                            </div>
                         </p>
                     </div>
                 </span>
@@ -136,6 +141,11 @@
                         <p class="info">Select a field for the X-Axis from the list below. This field will be visible as columns in the table visualization.</p>
                         <p>
                             <select id="columns" name="columns" size="6" onChange="changeFields('menu_column');"></select>
+                            <div class="block_search">
+                                <img src="${fam.icon( name: 'magnifier' )}" alt="search"/>:
+                                <input type="text" onKeyUp="doSearch('menu_column');" />
+                                <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_column');" alt="clear search"/>
+                            </div>
                         </p>
                     </div>
                     <div class="menu_item" id="menu_row">
@@ -143,6 +153,11 @@
                         <p class="info">Select a field for the Y-Axis from the list below. This field will be visible as rows in the table visualization.</p>
                         <p>
                             <select id="rows" name="rows" size="6" onChange="changeFields('menu_row');"></select>
+                            <div class="block_search">
+                                <img src="${fam.icon( name: 'magnifier' )}" alt="search"/>:
+                                <input type="text" onKeyUp="doSearch('menu_row');" />
+                                <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_row');" alt="clear search"/>
+                            </div>
                         </p>
                     </div>
                     <div class="menu_item" id="menu_vis">

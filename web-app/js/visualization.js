@@ -5,6 +5,10 @@ var visualization = null;
 var visType = null;
 var openForm = null;
 
+jQuery.expr[':'].Contains = function(a, i, m) {
+  return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+};
+
 $(document).ready(function() {
 
     $(".topmenu_item").click(
@@ -483,6 +487,17 @@ function toggleForm(selector, action) {
         $(selector).addClass("topmenu_item_selected");
         openForm = selector;
     }
+}
+
+function doSearch(menuId) {
+    var searchVal = $('#'+menuId).find('.block_search').children('input').val();
+    $('#'+menuId).find('option').hide();
+    $('#'+menuId).find('option:Contains("'+searchVal+'")').show();
+}
+
+function clearSearch(menuId) {
+    $('#'+menuId).find('option').show();
+    $('#'+menuId).find('.block_search').children('input').val('');
 }
 
 /**
