@@ -94,7 +94,7 @@ table.tablevis td.caption {
     margin: 0%;
     margin-bottom: 5px;
     padding: 2%;
-    border: #006dba solid 1px;
+    border: 1px solid #006dba;
     background-color: white;
     min-height: 60px;
     font-size: 11px;
@@ -176,7 +176,7 @@ table.tablevis td.caption {
     position: relative;
     width: 100%;
     background-color: #D0DEF0;
-    border-bottom: #006dba solid 1px;
+    border-bottom: 1px solid #006dba;
     margin-top: 5px;
     padding-top: 5px;
     height: 25px;
@@ -194,6 +194,11 @@ table.tablevis td.caption {
 .topmenu_item:hover {
     background-color: white;
     cursor: pointer;
+}
+
+.topmenu_item_selected {
+    background-color: white;
+    border: 1px solid #006dba;
 }
 
 .topmenu_item_label {
@@ -216,13 +221,13 @@ table.tablevis td.caption {
     width: 300px;
     font-size: 11px;
     position: absolute;
-    top: 21px;
-    left: 0px;
+    top: 20px;
+    left: -1px;
     display: none;
     padding: 10px;
     margin: 0px;
     background-color: white;
-    border: #006dba double 1px;
+    border: 1px solid #006dba;
     z-index: 10;
 }
 

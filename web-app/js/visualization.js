@@ -11,7 +11,7 @@ jQuery.expr[':'].Contains = function(a, i, m) {
 
 $(document).ready(function() {
 
-    openForm = $("#menu_study");
+    toggleForm($("#menu_study"), "open");
 
     $(".topmenu_item").click(
         function(event) {
@@ -61,6 +61,7 @@ function changeStudy() {
     if($( '#study' ).find( 'option:selected' ).length>0) {
         $( "#menu_row, #menu_column" ).find("img.spinner").show();
         $( "#menu_study" ).find(".topmenu_item_info").html($( '#study').find( 'option:selected' ).text());
+        clearSearch("menu_column, #menu_row");
 
         executeAjaxCall( "getFields", {
             "errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
@@ -482,6 +483,9 @@ function toggleForm(selector, action) {
     if( action=="close" || openForm !=null ) {
         $(openForm).children('.formulier').hide();
         $(openForm).removeClass("topmenu_item_selected");
+        if($(openForm).attr('id')=='menu_study') {
+            clearSearch('menu_study');
+        }
         openForm = null;
     }
     if( action=="open" ) {

@@ -50,7 +50,7 @@
                     <div class="topmenu_item_label"><img src="${fam.icon( name: 'report' )}" style="vertical-align: text-bottom; display: inline-block;"/>&nbsp;Study<img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" />:</div>
                     <div class="topmenu_item_info">no study selected</div>
                     <img src="${fam.icon( name: 'bullet_arrow_down' )}" style="vertical-align: text-bottom; display: inline-block;"/>
-                    <div class="formulier" style="display: block">
+                    <div class="formulier">
                         <div class="menu_item_label_count">1</div><div class="menu_item_label">Study</div>
                         <p class="info">Select a study from the list below.</p>
                         <p style="margin-bottom: 0px;">
