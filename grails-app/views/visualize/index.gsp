@@ -14,6 +14,7 @@
 	<g:javascript src="jqplot/plugins/jqplot.pointLabels.min.js" />	
 	<g:javascript src="jqplot/plugins/jqplot.canvasTextRenderer.min.js" />	
 	<g:javascript src="jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js" />
+    <g:javascript src="jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js" />
     <g:javascript src="jqplot/plugins/jqplot.ohlcRenderer.min.js" />
     <g:javascript src="jqplot/plugins/jqplot.highlighter.min.js" />
 
@@ -91,6 +92,10 @@
                             <tr>
                                 <td><label for="showvalues">Always show values in the graph.<br />(if this box is unchecked, value's are only shown when you hover over a datapoint. Note that hover on a barchart with value 0 isn't possible)</label></td>
                                 <td><input type="checkbox" name="showvalues" id="showvalues" CHECKED onClick="changeVis();"/></td>
+                            </tr>
+                            <tr>
+                                <td><label for="anglelabels">Angle labels on the x-axis.<br />(if this box is checked, labels are shown at a 45&deg; angle)</label></td>
+                                <td><input type="checkbox" name="anglelabels" id="anglelabels" CHECKED onClick="changeVis();"/></td>
                             </tr>
                         </table>
                     </div>

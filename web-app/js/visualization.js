@@ -224,7 +224,8 @@ function visualize() {
                 var plotOptions = null;
 
                 var showDataValues = $("#showvalues").attr("checked")=="checked" ? true : false;
-                
+                var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
+
                 switch( returnData.type ) {
                 	case "horizontal_barchart":
                         plotOptions = {
@@ -252,7 +253,11 @@ function visualize() {
                                 xaxis: {
                                     label: ylabel,
                                     formatString:'%.2f',
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                    tickOptions: {
+                                        angle: xangle
+                                    }
                                 },
                                 yaxis: {
                                     renderer: $.jqplot.CategoryAxisRenderer,
@@ -289,7 +294,11 @@ function visualize() {
                                     renderer: $.jqplot.CategoryAxisRenderer,
                                     ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
                                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    label: xlabel
+                                    label: xlabel,
+                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                    tickOptions: {
+                                        angle: xangle
+                                    }
                                 },
                                 yaxis: {
                                     label: ylabel,
@@ -319,7 +328,11 @@ function visualize() {
                                     renderer: $.jqplot.CategoryAxisRenderer,
                                     ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
                                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    label: xlabel
+                                    label: xlabel,
+                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                    tickOptions: {
+                                        angle: xangle
+                                    }
                                 },
                                 yaxis: {
                                     label: ylabel,
@@ -358,7 +371,11 @@ function visualize() {
                                     renderer: $.jqplot.CategoryAxisRenderer,
                                     ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
                                     label: xlabel,
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                    tickOptions: {
+                                        angle: xangle
+                                    }
                                 },
                                 yaxis: {
                                     label: ylabel,
