@@ -11,6 +11,8 @@ jQuery.expr[':'].Contains = function(a, i, m) {
 
 $(document).ready(function() {
 
+    openForm = $("#menu_study");
+
     $(".topmenu_item").click(
         function(event) {
             if(this!=openForm) {

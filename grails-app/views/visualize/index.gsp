@@ -50,10 +50,11 @@
                     <div class="topmenu_item_label"><img src="${fam.icon( name: 'report' )}" style="vertical-align: text-bottom; display: inline-block;"/>&nbsp;Study<img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" />:</div>
                     <div class="topmenu_item_info">no study selected</div>
                     <img src="${fam.icon( name: 'bullet_arrow_down' )}" style="vertical-align: text-bottom; display: inline-block;"/>
-                    <div class="formulier">
+                    <div class="formulier" style="display: block">
+                        <div class="menu_item_label_count">1</div><div class="menu_item_label">Study</div>
                         <p class="info">Select a study from the list below.</p>
                         <p style="margin-bottom: 0px;">
-                            <g:select from="${studies}" size="10" optionKey="id" optionValue="title" name="study" onChange="changeStudy();"/>
+                            <g:select from="${studies}" size="6" optionKey="id" name="study" onChange="changeStudy();"/>
                             <div class="block_search">
                                 <img src="${fam.icon( name: 'magnifier' )}" alt="search"/>:
                                 <input type="text" onKeyUp="doSearch('menu_study');" />
@@ -137,7 +138,7 @@
 
                 <div id="menu_container">
                     <div class="menu_item" id="menu_column">
-                        <div class="menu_item_label">X-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
+                        <div class="menu_item_label_count"><span>2</span></div><div class="menu_item_label">X-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                         <p class="info">Select a field for the X-Axis from the list below. This field will be visible as columns in the table visualization.</p>
                         <p>
                             <select id="columns" name="columns" size="6" onChange="changeFields('menu_column');"></select>
@@ -149,7 +150,7 @@
                         </p>
                     </div>
                     <div class="menu_item" id="menu_row">
-                        <div class="menu_item_label">Y-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
+                        <div class="menu_item_label_count">3</div><div class="menu_item_label">Y-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                         <p class="info">Select a field for the Y-Axis from the list below. This field will be visible as rows in the table visualization.</p>
                         <p>
                             <select id="rows" name="rows" size="6" onChange="changeFields('menu_row');"></select>
@@ -161,7 +162,7 @@
                         </p>
                     </div>
                     <div class="menu_item" id="menu_vis">
-                        <div class="menu_item_label">Type <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
+                        <div class="menu_item_label_count">4</div><div class="menu_item_label">Type <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
                         <p class="info">Select visualization type.</p>
                         <p>
                             <select id="types" name="types"  size="3" onChange="changeVis();"></select>
@@ -175,7 +176,7 @@
                 </div>
                 
                 <div id="visualization_container">
-                    <div id="visualization"><div style="padding: 30px">Select a study to start.</div>
+                    <div id="visualization"><div style="padding: 30px">Click on the study menu and select a study to start.</div>
                     </div>
                 </div>
 
