@@ -31,6 +31,13 @@
 
 			</ul>
 
+			<h1>Available Controllers:</h1>
+			<ul>
+				<g:each var="c" in="${grailsApplication.controllerClasses.sort { it.fullName } }">
+					<li class="controller"><g:link controller="${c.logicalPropertyName}">${c.fullName}</g:link></li>
+				</g:each>
+			</ul>
+
 			<h1>Request headers:</h1>
  			<ul>
 				<g:each in="${request.headerNames}" var="r">
