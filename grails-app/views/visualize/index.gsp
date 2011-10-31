@@ -57,8 +57,8 @@
                             <g:select from="${studies}" size="6" optionKey="id" name="study" onChange="changeStudy();"/>
                             <div class="block_search">
                                 <img src="${fam.icon( name: 'magnifier' )}" alt="search"/>:
-                                <input type="text" onKeyUp="doSearch('menu_study');" />
-                                <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_study');" alt="clear search"/>
+                                <input type="text" onKeyUp="doSearch('menu_study','study');" />
+                                <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_study','study');" alt="clear search"/>
                             </div>
                         </p>
                     </div>
@@ -144,8 +144,8 @@
                             <select id="columns" name="columns" size="6" onChange="changeFields('menu_column');"></select>
                             <div class="block_search">
                                 <img src="${fam.icon( name: 'magnifier' )}" alt="search"/>:
-                                <input type="text" onKeyUp="doSearch('menu_column');" />
-                                <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_column');" alt="clear search"/>
+                                <input type="text" onKeyUp="doSearch('menu_column','columns');" />
+                                <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_column','columns');" alt="clear search"/>
                             </div>
                         </p>
                     </div>
@@ -156,8 +156,8 @@
                             <select id="rows" name="rows" size="6" onChange="changeFields('menu_row');"></select>
                             <div class="block_search">
                                 <img src="${fam.icon( name: 'magnifier' )}" alt="search"/>:
-                                <input type="text" onKeyUp="doSearch('menu_row');" />
-                                <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_row');" alt="clear search"/>
+                                <input type="text" onKeyUp="doSearch('menu_row','rows');" />
+                                <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_row','rows');" alt="clear search"/>
                             </div>
                         </p>
                     </div>

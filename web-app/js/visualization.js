@@ -4,6 +4,7 @@
 var visualization = null;
 var visType = null;
 var openForm = null;
+var selectCache = new Array();
 
 jQuery.expr[':'].Contains = function(a, i, m) {
   return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
@@ -41,6 +42,8 @@ $(document).ready(function() {
     $(".formulier").click(function(event) {
         event.stopPropagation();
     });
+
+    selectCache['study'] = $('#study').html();
 
     
 });
@@ -89,8 +92,12 @@ function changeStudy() {
                     if(strOptions.length>0) {
                         strOptions += "</optgroup>";
                         $( "#rows, #columns" ).html(strOptions);
+                        selectCache['rows'] = $('#rows').html();
+                        selectCache['columns'] = $('#columns').html();
                     } else {
                         $("#visualization").html('<div style="padding: 30px">No fields could be found. This visualization prototype requires studies with samples.</div>');
+                        selectCache['rows'] = null;
+                        selectCache['columns'] = null;
                     }
 	                
 	                $( "#menu_study" ).find(".topmenu_item_info").html($( '#study').find( 'option:selected' ).text());
@@ -215,6 +222,10 @@ function visualize() {
 	                    series[ series.length ] = { "label": element.name };
                 	}
                 });
+
+                if($("#errorbars").attr("checked")=="checked" && returnData.series[ 0 ].error!=null) {
+                    alert("Errorbars aren't implemented yet");
+                }
 
                 // If no datapoints are found, return an error
                 if( dataPoints.length == 0 ) {
@@ -474,8 +485,7 @@ function removeError(strSelector) {
     $( strSelector ).closest(".message_box").remove();
     $( '#message_counter' ).children(".topmenu_item_info").html($(".message_box").length);
     if($(".message_box").length==0) {
-        $( '#message_counter' ).children(".formulier").toggle();
-        openForm = null;
+        toggleForm('#message_counter', 'close');
     }
 }
 
@@ -495,14 +505,14 @@ function toggleForm(selector, action) {
     }
 }
 
-function doSearch(menuId) {
+function doSearch(menuId, selectId) {
     var searchVal = $('#'+menuId).find('.block_search').children('input').val();
-    $('#'+menuId).find('option').hide();
-    $('#'+menuId).find('option:Contains("'+searchVal+'")').show();
+    $('#'+selectId).html(selectCache[selectId]);
+    $('#'+selectId).find('option:not(:Contains("'+searchVal+'"))').remove();
 }
 
-function clearSearch(menuId) {
-    $('#'+menuId).find('option').show();
+function clearSearch(menuId, selectId) {
+    $('#'+selectId).html(selectCache[selectId]);
     $('#'+menuId).find('.block_search').children('input').val('');
 }
 
