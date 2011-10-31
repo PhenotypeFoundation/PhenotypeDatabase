@@ -32,13 +32,11 @@
 			</ul>
 
 			<h1>Request headers:</h1>
- 			<g:each in="${request.headerNames}" var="r">
-				 <li>${r} : ${request.getHeader(r)}</li>
- 			</g:each>
-
-
-
-
+ 			<ul>
+				<g:each in="${request.headerNames}" var="r">
+					 <li>${r} : ${request.getHeader(r)}</li>
+				</g:each>
+			 </ul>
 		</div>
 		<div class="panelBtm"></div>
 	</div>
