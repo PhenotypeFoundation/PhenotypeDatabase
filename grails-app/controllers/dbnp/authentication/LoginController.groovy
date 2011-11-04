@@ -72,7 +72,10 @@ class LoginController {
 
 				// does a user exist with this username?
 				def user				= SecUser.findByUsername(shibPersistentId)
+println "user: "
+println user
 				if (!user) {
+println "creating user"
 					// no, create a new user
 					user = new SecUser()
 					user.username		= shibPersistentId
@@ -88,11 +91,12 @@ class LoginController {
 					user.accountExpired	= false
 					user.accountLocked	= false
 					user.save(failOnError:true)
+println user
 				}
 
 				// login user
 				springSecurityService.reauthenticate(user.username, user.password)
-
+println "bla"
 				// redirect user
 				if (params.returnURI) {
 					// see basefilters
