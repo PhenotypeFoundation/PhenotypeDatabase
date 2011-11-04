@@ -69,13 +69,12 @@ class LoginController {
 				def shibEmail			= request.getHeader(request.getHeaderNames().find{ it.toLowerCase() == 'Shib-InetOrgPerson-mail'.toLowerCase() })
 				def shibOrganization	= request.getHeader(request.getHeaderNames().find{ it.toLowerCase() == 'schacHomeOrganization'.toLowerCase() })
 				def shibDisplayName		= request.getHeader(request.getHeaderNames().find{ it.toLowerCase() == 'displayName'.toLowerCase() })
+				def shibVoName			= request.getHeader(request.getHeaderNames().find{ it.toLowerCase() == 'coin-vo-name'.toLowerCase() })
+				def shibUserStatus		= request.getHeader(request.getHeaderNames().find{ it.toLowerCase() == 'coin-user-status'.toLowerCase() })
 
 				// does a user exist with this username?
 				def user				= SecUser.findByUsername(shibPersistentId)
-println "user: "
-println user
 				if (!user) {
-println "creating user"
 					// no, create a new user
 					user = new SecUser()
 					user.username		= shibPersistentId
@@ -83,7 +82,9 @@ println "creating user"
 					user.email			= shibEmail
 					user.displayName	= shibDisplayName
 					user.organization	= shibOrganization
+					user.voName			= shibVoName
 					user.uid			= shibUid
+					user.userStatus		= shibUserStatus
 					user.shibbolethUser	= true
 					user.enabled		= true
 					user.userConfirmed	= true
@@ -91,12 +92,10 @@ println "creating user"
 					user.accountExpired	= false
 					user.accountLocked	= false
 					user.save(failOnError:true, flush: true)
-println user
 				}
 
 				// login user
 				springSecurityService.reauthenticate(user.username, user.password)
-println "bla"
 				// redirect user
 				if (params.returnURI) {
 					// see basefilters
@@ -105,8 +104,6 @@ println "bla"
 					redirect uri: config.successHandler.defaultTargetUrl
 				}
 			}
-		} else {
-			println "nope..."
 		}
 
 		String view = 'auth'

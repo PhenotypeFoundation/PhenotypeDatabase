@@ -21,6 +21,12 @@
 				<td>Organization</td>
 				<td>${user.organization}</td>
 			</tr>
+			<sec:ifAllGranted roles="ROLE_ADMIN">
+			<tr>
+				<td>Administrator</td>
+				<td><b>You are an administrator</b></td>
+			</tr>
+			</sec:ifAllGranted>
 		</table>
 	</g:if>
 	<g:else>

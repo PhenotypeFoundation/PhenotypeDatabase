@@ -30,8 +30,12 @@ class UserController {
 	static defaultAction = 'search'
 
 	def create = {
-		def user = new SecUser(params)
-		[user: user, authorityList: sortedRoles()]
+		if (!session.gscfUser.shibbolethUser) {
+			def user = new SecUser(params)
+			[user: user, authorityList: sortedRoles()]
+		} else {
+			response.sendError(404)
+		}
 	}
 
 	def save = {
