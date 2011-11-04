@@ -73,12 +73,8 @@
 			<li id="toggle">
 				<sec:ifLoggedIn><g:link controller="logout" action="index">sign out</g:link></sec:ifLoggedIn>
 				<sec:ifNotLoggedIn>
-					<g:if test="${request.getHeaderNames().find{ it == 'UseShibboleth' }}">
-						<g:if test="${request.getHeaderNames().find{ it == 'Shib-AuthnContext-Class' }}">
-						Welome ${request.getHeader("displayName")}
-						</g:if><g:else>
+					<g:if test="${request.getHeaderNames().find{ it.toLowerCase() == 'UseShibboleth'.toLowerCase() }}">
 						<g:link class="open" controller="login">Log in</g:link>
-						</g:else>
 					</g:if>
 					<g:else>
 						<a id="open" class="open" href="#">Log In | Register</a>

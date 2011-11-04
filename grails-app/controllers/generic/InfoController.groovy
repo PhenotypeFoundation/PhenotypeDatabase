@@ -17,7 +17,7 @@ package generic
 import grails.plugins.springsecurity.Secured
 import dbnp.authentication.SecUser
 
-@Secured(['ROLE_ADMIN'])
+//@Secured(['ROLE_ADMIN'])
 class InfoController {
 	/**
 	 * index closure

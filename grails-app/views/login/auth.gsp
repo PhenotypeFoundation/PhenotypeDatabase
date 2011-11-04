@@ -75,7 +75,7 @@
 
 	</div>
 </div>
-<g:if test="${!request.getHeaderNames().find{ it == 'UseShibboleth' }}">
+<g:if test="${!request.getHeaderNames().find{ it.toLowerCase() == 'UseShibboleth'.toLowerCase() }}">
 <script type='text/javascript'>
 	<!--
 	(function() {

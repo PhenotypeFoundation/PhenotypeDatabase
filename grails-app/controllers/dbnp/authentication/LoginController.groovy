@@ -13,6 +13,8 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
+import dbnp.authentication.*
+
 class LoginController {
 	/**
 	 * Dependency injection for the authenticationTrustResolver.
@@ -46,6 +48,7 @@ class LoginController {
 	 */
 	def auth = {
 		def config = SpringSecurityUtils.securityConfig
+
 		if (springSecurityService.isLoggedIn()) {
 			if (params.returnURI) {
 				// see basefilters
@@ -54,6 +57,37 @@ class LoginController {
 				redirect uri: config.successHandler.defaultTargetUrl
 			}
 			return
+		} else if (request.getHeaderNames().find{ it.toLowerCase() == 'useShibboleth' }) {
+			// authenticated through shibboleth?
+			if (request.getHeaderNames().find{ it.toLowerCase() == 'persistent-id'.toLowerCase() }) {
+				// get shibboleth data
+				def shibPersistentId 	= request.getHeader("persistent-id")
+				def shibUid				= request.getHeader("uid")
+				def shibEmail			= request.getHeader("Shib-InetOrgPerson-mail")
+				def shibOrganization	= request.getHeader("schacHomeOrganization")
+				def shibDisplayName		= request.getHeader("displayName")
+
+				// does a user exist with this username?
+				def user				= SecUser.findByUsername(shibPersistentId)
+				if (!user) {
+					// no, create a new user
+					user = new SecUser()
+					user.username		= shibPersistentId
+					user.enabled		= true
+					user.userConfirmed	= true
+					user.adminConfirmed	= true
+					user.accountExpired	= false
+					user.accountLocked	= false
+					user.save()
+
+					// refresh user
+					user.refresh()
+				}
+
+				// login user
+				//user.
+
+			}
 		}
 
 		String view = 'auth'
