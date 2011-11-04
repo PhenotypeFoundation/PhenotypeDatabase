@@ -57,15 +57,18 @@ class LoginController {
 				redirect uri: config.successHandler.defaultTargetUrl
 			}
 			return
-		} else if (request.getHeaderNames().find{ it.toLowerCase() == 'useShibboleth' }) {
+		} else if (request.getHeaderNames().find{ it.toLowerCase() == 'useShibboleth'.toLowerCase() }) {
 			// authenticated through shibboleth?
 			if (request.getHeaderNames().find{ it.toLowerCase() == 'persistent-id'.toLowerCase() }) {
 				// get shibboleth data
-				def shibPersistentId 	= request.getHeader("persistent-id")
+				// note: sometimes apache makes the request headers lowercase, sometimes
+				//		 it doesn't. To make sure it always works we use a case insensitive
+				//		 finder to find the request header name
+				def shibPersistentId 	= request.getHeader(request.getHeaderNames().find{ it.toLowerCase() == 'persistent-id'.toLowerCase() })
 				def shibUid				= request.getHeader("uid")
-				def shibEmail			= request.getHeader("Shib-InetOrgPerson-mail")
-				def shibOrganization	= request.getHeader("schacHomeOrganization")
-				def shibDisplayName		= request.getHeader("displayName")
+				def shibEmail			= request.getHeader(request.getHeaderNames().find{ it.toLowerCase() == 'Shib-InetOrgPerson-mail'.toLowerCase() })
+				def shibOrganization	= request.getHeader(request.getHeaderNames().find{ it.toLowerCase() == 'schacHomeOrganization'.toLowerCase() })
+				def shibDisplayName		= request.getHeader(request.getHeaderNames().find{ it.toLowerCase() == 'displayName'.toLowerCase() })
 
 				// does a user exist with this username?
 				def user				= SecUser.findByUsername(shibPersistentId)
@@ -73,21 +76,33 @@ class LoginController {
 					// no, create a new user
 					user = new SecUser()
 					user.username		= shibPersistentId
+					user.password		= springSecurityService.encodePassword("myDummyPassword", shibPersistentId)
+					user.email			= shibEmail
+					user.displayName	= shibDisplayName
+					user.organization	= shibOrganization
+					user.uid			= shibUid
+					user.shibbolethUser	= true
 					user.enabled		= true
 					user.userConfirmed	= true
 					user.adminConfirmed	= true
 					user.accountExpired	= false
 					user.accountLocked	= false
-					user.save()
-
-					// refresh user
-					user.refresh()
+					user.save(failOnError:true)
 				}
 
 				// login user
-				//user.
+				springSecurityService.reauthenticate(user.username, user.password)
 
+				// redirect user
+				if (params.returnURI) {
+					// see basefilters
+					redirect uri: params.returnURI
+				} else {
+					redirect uri: config.successHandler.defaultTargetUrl
+				}
 			}
+		} else {
+			println "nope..."
 		}
 
 		String view = 'auth'

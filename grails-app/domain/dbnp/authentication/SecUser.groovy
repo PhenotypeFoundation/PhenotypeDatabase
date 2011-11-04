@@ -1,11 +1,16 @@
 package dbnp.authentication
 
 class SecUser implements Serializable {
-
-	String username
-	String password
+	String username         // for shibboleth this is request header: persistent-id
+	String password         // for shibboleth this is springSecurityService.encodePassword("myDummyPassword", shibPersistentId)
+	String displayName		// shibboleth request header: displayName
+	String organization		// shibboleth request header: schacHomeOrganization
+	String uid				// shibboleth request header: uid
+	String voName			// shibboleth request header: coin-vo-name
+	String userStatus		// shibboleth request header: coin-user-status
 	String email
 	Date dateCreated
+	boolean shibbolethUser = false
 	boolean enabled
 	boolean accountExpired
 	boolean accountLocked
@@ -15,8 +20,13 @@ class SecUser implements Serializable {
 
 	static constraints = {
 		username blank: false, unique: true
-		password blank: false
+		password blank: true
 		email blank: false
+		displayName nullable: true
+		organization nullable: true
+		uid nullable: true
+		voName nullable: true
+		userStatus nullable: true
 	}
 
 	static mapping = {

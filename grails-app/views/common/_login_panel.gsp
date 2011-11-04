@@ -61,7 +61,13 @@
 	<div class="tab">
 		<ul class="login">
 			<li class="left">&nbsp;</li>
-			<li>Hello <sec:ifLoggedIn><sec:username/></sec:ifLoggedIn>
+			<li>Hello <sec:ifLoggedIn>
+				<g:if test="${session.gscfUser.shibbolethUser && session.gscfUser.displayName}">
+					${session.gscfUser.displayName}
+				</g:if><g:else>
+					<sec:username/>
+				</g:else>
+			</sec:ifLoggedIn>
 			<sec:ifNotLoggedIn>Guest</sec:ifNotLoggedIn>!</li>
 			<sec:ifLoggedIn>
 				<li class="sep">|</li>
