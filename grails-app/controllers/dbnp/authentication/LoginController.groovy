@@ -90,7 +90,7 @@ println "creating user"
 					user.adminConfirmed	= true
 					user.accountExpired	= false
 					user.accountLocked	= false
-					user.save(failOnError:true)
+					user.save(failOnError:true, flush: true)
 println user
 				}
 
