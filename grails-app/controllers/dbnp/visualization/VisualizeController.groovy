@@ -284,7 +284,7 @@ class VisualizeController {
                 fields << [ "id": createFieldId( id: collectionOfFields.name, name: collectionOfFields.name, source: source, type: category ), "source": source, "category": category, "name": collectionOfFields.name ]
             }
             if(type=="templatefields"){
-                fields << [ "id": createFieldId( id: collectionOfFields.id, name: collectionOfFields.name, source: source, type: category ), "source": source, "category": category, "name": collectionOfFields.name ]
+                fields << [ "id": createFieldId( id: collectionOfFields.id.toString(), name: collectionOfFields.name, source: source, type: category ), "source": source, "category": category, "name": collectionOfFields.name ]
             }
             return fields
         }
@@ -1086,15 +1086,18 @@ class VisualizeController {
 	 */
 	protected Map parseFieldId( String fieldId ) {
 		def attrs = [:]
-		
-		def parts = fieldId.split(",")
+
+		def parts = fieldId.split(",",5)
 		
 		attrs = [
-			"id": parts[ 0 ],
-			"name": parts[ 1 ],
-			"source": parts[ 2 ],
-			"type": parts[ 3 ]
+			"id": new String(parts[ 0 ].decodeBase64()),
+			"name": new String(parts[ 1 ].decodeBase64()),
+			"source": new String(parts[ 2 ].decodeBase64()),
+			"type": new String(parts[ 3 ].decodeBase64()),
+            "unit": parts.length>4? new String(parts[ 4 ].decodeBase64()) : null
 		]
+
+        return attrs
 	}
 	
 	/**
@@ -1109,8 +1112,13 @@ class VisualizeController {
 		def id = attrs.id ?: name;
 		def source = attrs.source;
 		def type = attrs.type ?: ""
-		
-		return id + "," + name + "," + source + "," + type;
+        def unit = attrs.unit ?: ""
+
+		return id.bytes.encodeBase64().toString() + "," +
+                name.bytes.encodeBase64().toString() + "," +
+                source.bytes.encodeBase64().toString() + "," +
+                type.bytes.encodeBase64().toString() + "," +
+                unit.bytes.encodeBase64().toString();
 	}
 
     /**
