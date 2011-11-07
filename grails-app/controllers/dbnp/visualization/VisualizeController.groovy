@@ -193,9 +193,9 @@ class VisualizeController {
         // Making a different call for each assay
         def urlVars = "assayToken="+assay.assayUUID
         try {
-            callUrl = ""+assay.module.url + "/rest/getMeasurements/query?"+urlVars
+            callUrl = ""+assay.module.url + "/rest/getMeasurementMetaData/query?"+urlVars
             def json = moduleCommunicationService.callModuleRestMethodJSON( assay.module.url /* consumer */, callUrl );
-
+            println(callUrl)
             def collection = []
             json.each{ jason ->
                 collection.add(jason)
@@ -203,7 +203,7 @@ class VisualizeController {
             // Formatting the data
             collection.each { field ->
                 // For getting this field from this assay
-                fields << [ "id": createFieldId( id: field, name: field, source: assay.id, type: ""+assay.name), "source": source, "category": ""+assay.name, "name": field ]
+                fields << [ "id": createFieldId( id: field.name, name: field.name, source: ""+assay.id, type: ""+assay.name, unit: (field.unit?:"")), "source": source, "category": ""+assay.name, "name": field.name + (field.unit?" ("+field.unit+")":"")  ]
             }
         } catch(Exception e){
             //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
@@ -282,10 +282,10 @@ class VisualizeController {
         } else {
             // This is a single field. Format it and return the result.
             if(type=="domainfields"){
-                fields << [ "id": createFieldId( id: collectionOfFields.name, name: collectionOfFields.name, source: source, type: category ), "source": source, "category": category, "name": collectionOfFields.name ]
+                fields << [ "id": createFieldId( id: collectionOfFields.name, name: collectionOfFields.name, source: source, type: category, unit: (collectionOfFields.unit?:"") ), "source": source, "category": category, "name": collectionOfFields.name + (collectionOfFields.unit?" ("+collectionOfFields.unit+")":"") ]
             }
             if(type=="templatefields"){
-                fields << [ "id": createFieldId( id: collectionOfFields.id.toString(), name: collectionOfFields.name, source: source, type: category ), "source": source, "category": category, "name": collectionOfFields.name ]
+                fields << [ "id": createFieldId( id: collectionOfFields.id.toString(), name: collectionOfFields.name, source: source, type: category, unit: (collectionOfFields.unit?:"") ), "source": source, "category": category, "name": collectionOfFields.name + (collectionOfFields.unit?" ("+collectionOfFields.unit+")":"")]
             }
             return fields
         }
@@ -702,8 +702,8 @@ class VisualizeController {
         if(type=="table"){
             def return_data = [:]
             return_data[ "type" ] = type
-            return_data.put("yaxis", ["title" : parseFieldId( fields[ valueAxis ] ).name, "unit" : "", "type":valueAxisTypeString ])
-            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "", "type":groupAxisTypeString ])
+            return_data.put("yaxis", ["title" : parseFieldId( fields[ valueAxis ] ).name, "unit" : parseFieldId( fields[ valueAxis ] ).unit, "type":valueAxisTypeString ])
+            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": parseFieldId( fields[ groupAxis ] ).unit, "type":groupAxisTypeString ])
             return_data.put("series", [[
                     "x": groupedData[ groupAxis ].collect { it.toString() },
                     "y": groupedData[ valueAxis ].collect { it.toString() },
@@ -716,8 +716,8 @@ class VisualizeController {
 
             def return_data = [:]
             return_data[ "type" ] = type
-            return_data.put("yaxis", ["title" : yName, "unit" : "", "type":valueAxisTypeString ])
-            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": "", "type":groupAxisTypeString  ])
+            return_data.put("yaxis", ["title" : yName, "unit" : parseFieldId( fields[ valueAxis ] ).unit, "type":valueAxisTypeString ])
+            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": parseFieldId( fields[ groupAxis ] ).unit, "type":groupAxisTypeString  ])
             return_data.put("series", [[
                 "name": yName,
                 "x": xAxis,
