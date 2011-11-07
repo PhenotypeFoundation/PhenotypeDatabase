@@ -369,13 +369,18 @@ class WizardTagLib extends GdtTagLib {
 		if (attrs.get('description') == null) {
 			attrs.description = '';
 		}
-                
+
+		def userList = []
+		SecUser.findAll().each {
+			userList[ userList.size() ] = ['name':(it.shibbolethUser) ? it.displayName : it.username, 'id':it.id]
+		}
+
 		out << '<form id="' + attrs.name + '_form" onSubmit="return false;">';
 		out << select(
 			name: attrs.get("name"),
 			value: '',
-                        from: SecUser.list(),
-                        optionValue: 'username',
+                        from: userList,
+                        optionValue: 'name',
                         optionKey: 'id',
 			style: 'width: 400px;'
 		);

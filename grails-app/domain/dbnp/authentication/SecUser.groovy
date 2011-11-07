@@ -58,4 +58,16 @@ class SecUser implements Serializable {
 	def beforeDelete = {
 		executeUpdate( "DELETE FROM SessionAuthenticatedUser sau WHERE sau.secUser = :secUser", [ "secUser": this ] );
 	}
+
+	/**
+	 * return the text representation of this user
+	 * @return
+	 */
+	def String toString() {
+		if (shibbolethUser) {
+			return displayName
+		} else {
+			return username
+		}
+	}
 }
