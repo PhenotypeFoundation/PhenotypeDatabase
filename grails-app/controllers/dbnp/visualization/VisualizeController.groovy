@@ -203,6 +203,7 @@ class VisualizeController {
             // Formatting the data
             collection.each { field ->
                 // For getting this field from this assay
+                println("FIELD: "+field);
                 fields << [ "id": createFieldId( id: field.name, name: field.name, source: ""+assay.id, type: ""+assay.name, unit: (field.unit?:"")), "source": source, "category": ""+assay.name, "name": field.name + (field.unit?" ("+field.unit+")":"")  ]
             }
         } catch(Exception e){
