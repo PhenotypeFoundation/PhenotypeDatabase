@@ -41,6 +41,7 @@ class DatabaseUpgrade {
 		makeStudyTitleAndTemplateNamesUnique(sql, db)	// #401, #406
         renameGdtMappingColumnIndex(sql, db)            // 'index' column in GdtImporter MappingColumn is a reserved keyword in MySQL
                                                         // GdtImporter now by default uses 'columnindex' as domain field name
+		fixShibbolethSecUser(sql, db)					// fix shibboleth user
 	}
 
 	/**
@@ -326,6 +327,30 @@ class DatabaseUpgrade {
 					sql.execute("ALTER TABLE assay_module DROP COLUMN platform")
 				} catch (Exception e) {
 					println "dropAssayModulePlatform database upgrade failed: " + e.getMessage()
+				}
+			}
+		}
+	}
+
+	/**
+	 * After adding shibboleth support, a boolean field should be set to false
+	 * @param sql
+	 * @param db
+	 */
+	public static void fixShibbolethSecUser(sql, db) {
+		if (db == "org.postgresql.Driver") {
+			// do we have shibboleth support available
+			if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='sec_user' AND columns.column_name='shibboleth_user'")) {
+				// do we have null values?
+				if (sql.firstRow("SELECT * FROM sec_user WHERE shibboleth_user IS NULL")) {
+					// update null values to false
+					if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: setting shibboleth boolean to false (default)".grom()
+
+					try {
+						sql.execute("UPDATE sec_user SET shibboleth_user='f' WHERE shibboleth_user IS NULL")
+					} catch (Exception e) {
+						println "fixShibbolethSecUser database upgrade failed: " + e.getMessage()
+					}
 				}
 			}
 		}
