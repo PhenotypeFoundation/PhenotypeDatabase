@@ -195,6 +195,7 @@ class VisualizeController {
         try {
             callUrl = ""+assay.module.url + "/rest/getMeasurements/query?"+urlVars
             def json = moduleCommunicationService.callModuleRestMethodJSON( assay.module.url /* consumer */, callUrl );
+
             def collection = []
             json.each{ jason ->
                 collection.add(jason)
@@ -453,7 +454,7 @@ class VisualizeController {
 
         if( assay ) {
             // Request for a particular assay and a particular feature
-            def urlVars = "assayToken=" + assay.assayUUID + "&measurementToken="+fieldName
+            def urlVars = "assayToken=" + assay.assayUUID + "&measurementToken="+fieldName.encodeAsURL()
             urlVars += "&" + samples.collect { "sampleToken=" + it.sampleUUID }.join( "&" );
 
             def callUrl
