@@ -195,7 +195,7 @@ class VisualizeController {
         try {
             callUrl = ""+assay.module.url + "/rest/getMeasurementMetaData/query?"+urlVars
             def json = moduleCommunicationService.callModuleRestMethodJSON( assay.module.url /* consumer */, callUrl );
-            println(callUrl)
+            println("JSON:"+json)
             def collection = []
             json.each{ jason ->
                 collection.add(jason)
@@ -203,7 +203,6 @@ class VisualizeController {
             // Formatting the data
             collection.each { field ->
                 // For getting this field from this assay
-                println("FIELD: "+field);
                 fields << [ "id": createFieldId( id: field.name, name: field.name, source: ""+assay.id, type: ""+assay.name, unit: (field.unit?:"")), "source": source, "category": ""+assay.name, "name": field.name + (field.unit?" ("+field.unit+")":"")  ]
             }
         } catch(Exception e){
@@ -1110,11 +1109,11 @@ class VisualizeController {
 	 */
 	protected String createFieldId( Map attrs ) {
 		// TODO: What if one of the attributes contains a comma?
-		def name = new String(attrs.name);
-		def id = new String(attrs.id ?: name);
-		def source = new String(attrs.source);
-		def type = new String(attrs.type ?: "");
-        def unit = new String(attrs.unit ?: "");
+		def name = attrs.name+"";
+		def id = (attrs.id ?: name)+"";
+		def source = attrs.source+"";
+		def type = (attrs.type ?: "")+"";
+        def unit = (attrs.unit ?: "")+"";
 
 		return id.bytes.encodeBase64().toString() + "," +
                 name.bytes.encodeBase64().toString() + "," +
