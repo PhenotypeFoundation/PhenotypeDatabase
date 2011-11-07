@@ -235,6 +235,10 @@ table.tablevis td.caption {
     width: 600px;
 }
 
+#menu_study select {
+    height: 200px;
+}
+
 .formulier select {
     width: 100%;
     height: 120px;
