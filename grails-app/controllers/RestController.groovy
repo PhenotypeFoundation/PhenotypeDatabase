@@ -85,7 +85,10 @@ class RestController {
 			return;
 		
 		SecUser user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
-		def reply = [username: user.username, id: user.id, isAdministrator: user.hasAdminRights() ]
+
+		def username = user.shibbolethUser ? user.displayName : user.username
+
+		def reply = [username: username, id: user.id, isAdministrator: user.hasAdminRights() ]
 
 		// set output header to json
 		response.contentType = 'application/json'

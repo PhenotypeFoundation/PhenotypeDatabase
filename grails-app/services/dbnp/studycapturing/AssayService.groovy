@@ -163,15 +163,10 @@ class AssayService {
 					headerFields*.displayName.each{
 
 						returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te[propertyName]]]
-
 					}
-
 				}
-
 			}
-
 			returnValue
-
 		}
 
 		// Find samples and sort by name

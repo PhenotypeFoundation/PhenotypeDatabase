@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import grails.plugins.springsecurity.Secured
+import grails.converters.JSON
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class AssayController {
@@ -8,51 +9,6 @@ class AssayController {
 	def assayService
 	def authenticationService
 	def fileService
-
-	static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
-
-	def index = {
-		redirect(action: "list", params: params)
-	}
-
-	def list = {
-		params.max = Math.min(params.max ? params.int('max') : 10, 100)
-		[assayInstanceList: Assay.list(params), assayInstanceTotal: Assay.count()]
-	}
-
-	def create = {
-		def assayInstance = new Assay()
-		assayInstance.properties = params
-		return [assayInstance: assayInstance]
-	}
-
-	def save = {
-		def assayInstance = new Assay(params)
-
-		// The following lines deviate from the generate-all generated code.
-		// See http://jira.codehaus.org/browse/GRAILS-3783 for why we have this shameful workaround...
-		def study = assayInstance.parent
-		study.addToAssays(assayInstance)
-
-		if (assayInstance.save(flush: true)) {
-			flash.message = "${message(code: 'default.created.message', args: [message(code: 'assay.label', default: 'Assay'), assayInstance.id])}"
-			redirect(action: "show", id: assayInstance.id)
-		}
-		else {
-			render(view: "create", model: [assayInstance: assayInstance])
-		}
-	}
-
-	def show = {
-		def assayInstance = Assay.get(params.id)
-		if (!assayInstance) {
-			flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
-			redirect(action: "list")
-		}
-		else {
-			[assayInstance: assayInstance]
-		}
-	}
 
 	def showByToken = {
 		def assayInstance = Assay.findByAssayUUID(params.id)
@@ -65,68 +21,15 @@ class AssayController {
 		}
 	}
 
-	def edit = {
-		def assayInstance = Assay.get(params.id)
-		if (!assayInstance) {
-			flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
-			redirect(action: "list")
-		}
-		else {
-			return [assayInstance: assayInstance]
-		}
-	}
-
-	def update = {
-		def assayInstance = Assay.get(params.id)
-		if (assayInstance) {
-			if (params.version) {
-				def version = params.version.toLong()
-				if (assayInstance.version > version) {
-
-					assayInstance.errors.rejectValue("version", "default.optimistic.locking.failure", [message(code: 'assay.label', default: 'Assay')] as Object[], "Another user has updated this Assay while you were editing")
-					render(view: "edit", model: [assayInstance: assayInstance])
-					return
-				}
-			}
-			assayInstance.properties = params
-			if (!assayInstance.hasErrors() && assayInstance.save(flush: true)) {
-				flash.message = "${message(code: 'default.updated.message', args: [message(code: 'assay.label', default: 'Assay'), assayInstance.id])}"
-				redirect(action: "show", id: assayInstance.id)
-			}
-			else {
-				render(view: "edit", model: [assayInstance: assayInstance])
-			}
-		}
-		else {
-			flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
-			redirect(action: "list")
-		}
-	}
-
-	def delete = {
-		def assayInstance = Assay.get(params.id)
-		if (assayInstance) {
-			try {
-				assayInstance.delete(flush: true)
-				flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
-				redirect(action: "list")
-			}
-			catch (org.springframework.dao.DataIntegrityViolationException e) {
-				flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
-				redirect(action: "show", id: params.id)
-			}
-		}
-		else {
-			flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
-			redirect(action: "list")
-		}
-	}
-
 	def assayExportFlow = {
 		entry {
 			action{
 				def user            = authenticationService.getLoggedInUser()
 				flow.userStudies    = Study.giveReadableStudies(user)
+
+				// store Galaxy parameters in the flow. Will be null when not in galaxy mode.
+				flow.GALAXY_URL = params.GALAXY_URL
+				flow.tool_id = params.tool_id
 			}
 			on("success").to "selectAssay"
 		}
@@ -151,36 +54,13 @@ class AssayController {
 		selectFields {
 			on ("submit"){
 
-				def fieldMapSelection = [:]
+				def (fieldMapSelection, measurementTokens) = processExportSelection(flow.assay, flow.fieldMap, params)
 
-				flow.fieldMap.eachWithIndex { cat, cat_i ->
+				// interpret the params set and gather the data
+				flow.rowData = collectAssayData(flow.assay, fieldMapSelection, measurementTokens, [])
 
-					if (params."cat_$cat_i" == 'on') {
-						fieldMapSelection[cat.key] = []
-
-						cat.value.eachWithIndex { field, field_i ->
-
-							if (params."cat_${cat_i}_${field_i}" == 'on')
-								fieldMapSelection[cat.key] += field
-						}
-
-						if (fieldMapSelection[cat.key] == [])
-							fieldMapSelection.remove(cat.key)
-					}
-				}
-
-				def measurementTokens = []
-
-				if (params."cat_4" == 'on') {
-					measurementTokens = params.list( "measurementToken" )
-				}
-
-				// collect the assay data according to user selecting
-				def assayData           = assayService.collectAssayData(flow.assay, fieldMapSelection, measurementTokens, [])
-
-				flash.errorMessage      = assayData.remove('Module Error')
-
-				flow.rowData            = assayService.convertColumnToRowStructure(assayData)
+				// remember the selected file type
+				flow.exportFileType = params.exportFileType
 
 				// prepare the assay data preview
 				def previewRows         = Math.min(flow.rowData.size()    as int, 5) - 1
@@ -188,18 +68,42 @@ class AssayController {
 
 				flow.assayDataPreview   = flow.rowData[0..previewRows].collect{ it[0..previewCols] as ArrayList }
 
-				// store the selected file type in the flow
-				flow.exportFileType = params.exportFileType
-
 			}.to "compileExportData"
+
+			on("submitToGalaxy") {
+
+				def (fieldMapSelection, measurementTokens) = processExportSelection(flow.assay, flow.fieldMap, params)
+
+				// create a random session token that will be used to allow to module to
+				// sync with gscf prior to presenting the measurement data
+				def sessionToken = UUID.randomUUID().toString()
+				def consumer = "galaxy"
+
+				// put the session token to work
+				authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
+
+				// create a link to the galaxy fetch action where galaxy can fetch the data from
+				flow.fetchUrl = g.createLink(
+					absolute: true,
+					controller: "assay",
+					action: "fetchGalaxyData",
+					params: [
+						assayToken: flow.assay.assayUUID,
+						sessionToken: sessionToken,
+						fieldMapSelection: fieldMapSelection as JSON,
+						measurementTokens: measurementTokens as JSON] )
+
+			}.to "galaxySubmitPage"
 
 			on(Exception).to "handleError"
 		}
 
 		compileExportData {
 			on ("ok"){
+
 				session.rowData = flow.rowData
 				session.exportFileType = flow.exportFileType
+
 			}.to "export"
 			on ("cancel").to "selectAssay"
 		}
@@ -208,99 +112,87 @@ class AssayController {
 			redirect(action: 'doExport')
 		}
 
-		handleError() {
+		handleError {
 			render(view: 'errorPage')
 		}
-	}
-	
-	/**
-	 * This method is called when a user wants to fetch data from GSCF
-	 */
-	def galaxyExport = {
-		def galaxy_url = params.get( "GALAXY_URL" );
-		def tool_id = params.get( "tool_id" );
-		
-		// Without galaxy url, we can't do anything
-		if( !galaxy_url || !tool_id ) {
-			redirect( action: "assayExport" );
-		}
-		
-		def user            = authenticationService.getLoggedInUser()
-		def userStudies    = Study.giveReadableStudies(user)
-		
-		[ galaxy_url: galaxy_url, tool_id: tool_id, userStudies: userStudies ]
-	}
-	
-	def sendToGalaxy = {
-		// Generate the url to redirect the user to
-		def galaxy_url = params.get( "GALAXY_URL" );
-		def tool_id = params.get( "tool_id" );
-		
-		// Without galaxy url, we can't do anything
-		if( !galaxy_url || !tool_id  ) {
-			redirect( action: "assayExport" );
-		}
-		
-		def assayId = params.long( "assayId" );
-		def assay = assayId ? Assay.get( assayId ) : null;
-		
-		// If no assay is given, return to galaxyExport screen
-		if( !assay ) {
-			redirect( action: "galaxyExport", params: [ "GALAXY_URL": galaxy_url ] );
-		}
-		
-		// create a random session token that will be used to allow to module to
-		// sync with gscf prior to presenting the measurement data
-		def sessionToken = UUID.randomUUID().toString()
-		def consumer = "galaxy";
 
-		// put the session token to work
-		authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
-		
-		// Create a url where the data can be fetched
-		def fetchUrl = g.createLink( absolute: true, controller: "assay", action: "fetchGalaxyData", params: [ assayToken: assay.assayUUID, sessionToken: sessionToken ] );
-		
-		// Generate url to redirect the user to
-		def url = galaxy_url + "?tool_id=" + URLEncoder.encode( tool_id.toString(), "UTF-8" ) + "&URL=" + URLEncoder.encode( fetchUrl.toString(), "UTF-8" ) 
-		
-		log.trace "Redirecting galaxy user back to " + url;
-		
-		redirect( url: url );
+		// renders a page that directly POSTs a form to galaxy
+		galaxySubmitPage()
+
 	}
-	
+
+	def processExportSelection(assay, fieldMap, params) {
+
+		def fieldMapSelection = [:]
+
+		fieldMap.eachWithIndex { category, categoryIndex ->
+
+			if (params."cat_$categoryIndex" == 'on') {
+				fieldMapSelection[category.key] = []
+
+				category.value.eachWithIndex { field, field_i ->
+
+				if (params."cat_${categoryIndex}_${field_i}" == 'on')
+					fieldMapSelection[category.key] += field
+				}
+
+				if (fieldMapSelection[category.key] == [])
+					fieldMapSelection.remove(category.key)
+			}
+		}
+
+		def measurementTokens = []
+
+		if (params."cat_4" == 'on') {
+			measurementTokens = params.list( "measurementToken" )
+		}
+
+		[fieldMapSelection, measurementTokens]
+	}
+
+	def collectAssayData(assay, fieldMapSelection, measurementTokens, samples, remoteUser = null) {
+		// collect the assay data according to user selection
+		def assayData           = assayService.collectAssayData(assay, fieldMapSelection, measurementTokens, samples, remoteUser)
+
+		flash.errorMessage      = assayData.remove('Module Error')
+
+		assayService.convertColumnToRowStructure(assayData)
+	}
+
 	// This method is accessible for each user. However, he should return with a valid
 	// session token
 	@Secured(['true'])
 	def fetchGalaxyData = {
+
+		def fieldMapSelection = JSON.parse((String) params.fieldMapSelection)
+		def measurementTokens = JSON.parse((String) params.measurementTokens)
+
+		println fieldMapSelection
+		println measurementTokens
+
 		// Check accessibility
-		def consumer = "galaxy";
-		def remoteUser = authenticationService.getRemotelyLoggedInUser( consumer, params.sessionToken );
+		def consumer = "galaxy"
+		def remoteUser = authenticationService.getRemotelyLoggedInUser( consumer, params.sessionToken )
 		if( !remoteUser ) {
-			response.status = 401;
-			render "You must be logged in";
+			response.status = 401
+			render "You must be logged in"
 			return
 		}
 
 		// retrieve assay
-		def assay = Assay.findByAssayUUID( params.assayToken );
-		
+		def assay = Assay.findByAssayUUID( params.assayToken )
+
 		if( !assay ) {
-			response.status = 404;
-			render "No assay found";
+			response.status = 404
+			render "No assay found"
 			return
 		}
-		
-		// Return assay data
-		def fieldMap = assayService.collectAssayTemplateFields( assay, null, remoteUser )
 
-		def measurementTokens = fieldMap.remove('Module Measurement Data');
-		def assayData = assayService.collectAssayData(assay, fieldMap, measurementTokens, [], remoteUser)
-
-		def rowData   = assayService.convertColumnToRowStructure(assayData)
+		def rowData = collectAssayData(assay, fieldMapSelection, measurementTokens, [], remoteUser)
 
 		// Invalidate session token
-		authenticationService.logOffRemotely( consumer, params.sessionToken );
-				
+		authenticationService.logOffRemotely( consumer, params.sessionToken )
+
 		def outputDelimiter = '\t'
 		def outputFileExtension = 'txt'
 
@@ -365,7 +257,7 @@ class AssayController {
 
 	/**
 	 * Method to export one or more assays to excel in separate sheets.
-	 * 
+	 *
 	 * @param	params.ids		One or more assay IDs to export
 	 * @param	params.format	"list" in order to export all assays in one big excel sheet
 	 * 							"sheets" in order to export every assay on its own sheet (default)
@@ -381,7 +273,7 @@ class AssayController {
 
 	/**
 	 * Method to export one or more assays to excel in separate sheets.
-	 * 
+	 *
 	 * @param	params.ids		One or more assay IDs to export
 	 */
 	def exportToExcelAsSheets = {
@@ -483,22 +375,22 @@ class AssayController {
 		}
 
 		// Determine a list of assays these samples have been involved in. That way, we can
-		// retrieve the data for that assay once, and save precious time doing HTTP calls 
+		// retrieve the data for that assay once, and save precious time doing HTTP calls
 		def assays = [:];
-		
+
 		samples.each { sample ->
 			def thisAssays = sample.getAssays();
-			
+
 			// Loop through all assays. If it already exists, add the sample it to the list
 			thisAssays.each { assay ->
 				if( !assays[ assay.id ] ) {
 					assays[ assay.id ] = [ 'assay': assay, 'samples': [] ]
 				}
-				
+
 				assays[ assay.id ].samples << sample
 			}
 		}
-		
+
 		// Now collect data for all assays
 		try {
 			// Loop through all assays to collect the data
@@ -507,41 +399,38 @@ class AssayController {
 			assays.each { assayInfo ->
 				def assay = assayInfo.value.assay;
 				def assaySamples = assayInfo.value.samples;
-				
+
 				// Determine which fields should be exported for this assay
 				def fieldMap = assayService.collectAssayTemplateFields(assay, null)
 				def measurementTokens = fieldMap.remove('Module Measurement Data')
-				
+
 				// Retrieve row based data for this assay
 				def assayData = assayService.collectAssayData( assay, fieldMap, measurementTokens, assaySamples );
-				
+
 				// Prepend study and assay data to the list
 				assayData = assayService.prependAssayData( assayData, assay, assaySamples.size() )
 				assayData = assayService.prependStudyData( assayData, assay, assaySamples.size() )
-				
+
 				// Make sure the assay data can be distinguished later
 				assayData.put( "Assay data - " + assay.name, assayData.remove( "Assay Data") )
 				assayData.put( "Module measurement data - " + assay.name, assayData.remove( "Module Measurement Data") )
-				
+
 				// Add the sample IDs to the list, in order to be able to combine
 				// data for a sample that has been processed in multiple assays
 				assayData[ "Sample Data" ][ "id" ] = assaySamples*.id;
-				
-				println "Assay data"
-				assayData.each { println it }
 
 				columnWiseAssayData << assayData;
 			}
-			
+
 			def mergedColumnWiseData = assayService.mergeColumnWiseDataOfMultipleStudiesForASetOfSamples( columnWiseAssayData );
 
 			def rowData   = assayService.convertColumnToRowStructure(mergedColumnWiseData)
-			
+
 			// Send headers to the browser so the user can download the file
 			def filename = 'export.csv'
 			response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
 			response.setContentType("application/octet-stream")
-	
+
 			assayService.exportRowWiseDataToCSVFile( rowData, response.getOutputStream() )
 
 			response.outputStream.flush()
@@ -619,7 +508,7 @@ class AssayController {
 
 		return samples.unique();
 	}
-	
+
 	def errorPage = {
 		render(view: 'assayExport/errorPage')
 	}
