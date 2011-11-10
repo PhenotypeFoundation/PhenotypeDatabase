@@ -275,7 +275,8 @@ function visualize() {
                                     tickRenderer: $.jqplot.CanvasAxisTickRenderer,
                                     tickOptions: {
                                         angle: xangle
-                                    }
+                                    },
+                            		min: 0
                                 },
                                 yaxis: {
                                     renderer: $.jqplot.CategoryAxisRenderer,
