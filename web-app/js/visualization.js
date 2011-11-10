@@ -5,6 +5,7 @@ var visualization = null;
 var visType = null;
 var openForm = null;
 var selectCache = new Array();
+var selectVal = new Array();
 
 jQuery.expr[':'].Contains = function(a, i, m) {
   return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
@@ -509,13 +510,22 @@ function toggleForm(selector, action) {
 
 function doSearch(menuId, selectId) {
     var searchVal = $('#'+menuId).find('.block_search').children('input').val();
+    var currentVal = $('#'+selectId).find( 'option:selected' ).val();
+    if(currentVal!==undefined) {
+        selectVal[selectId] = currentVal;
+    }
+    if(selectVal[selectId]!=null) {
+        currentVal = selectVal[selectId];
+    }
     $('#'+selectId).html(selectCache[selectId]);
+    $('#'+selectId).find('option[value="'+currentVal+'"]').attr('selected','selected');
     $('#'+selectId).find('option:not(:Contains("'+searchVal+'"))').remove();
 }
 
 function clearSearch(menuId, selectId) {
-    $('#'+selectId).html(selectCache[selectId]);
+    
     $('#'+menuId).find('.block_search').children('input').val('');
+    doSearch(menuId, selectId);
 }
 
 /**
