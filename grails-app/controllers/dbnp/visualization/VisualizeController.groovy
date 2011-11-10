@@ -195,7 +195,7 @@ class VisualizeController {
         try {
             callUrl = ""+assay.module.url + "/rest/getMeasurementMetaData/query?"+urlVars
             def json = moduleCommunicationService.callModuleRestMethodJSON( assay.module.url /* consumer */, callUrl );
-            println("JSON:"+json)
+
             def collection = []
             json.each{ jason ->
                 collection.add(jason)
@@ -1114,8 +1114,6 @@ class VisualizeController {
 		def source = attrs.source.toString();
 		def type = (attrs.type ?: "").toString();
         def unit = (attrs.unit ?: "").toString();
-
-        println("--------  createFieldId: ["+name+"] ["+id+"] ["+source+"] ["+type+"] ["+unit+"] -------")
 
 		return id.bytes.encodeBase64().toString() + "," +
                 name.bytes.encodeBase64().toString() + "," +
