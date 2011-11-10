@@ -1109,11 +1109,13 @@ class VisualizeController {
 	 */
 	protected String createFieldId( Map attrs ) {
 		// TODO: What if one of the attributes contains a comma?
-		def name = attrs.name+"";
-		def id = (attrs.id ?: name)+"";
-		def source = attrs.source+"";
-		def type = (attrs.type ?: "")+"";
-        def unit = (attrs.unit ?: "")+"";
+		def name = attrs.name.toString();
+		def id = (attrs.id ?: name).toString();
+		def source = attrs.source.toString();
+		def type = (attrs.type ?: "").toString();
+        def unit = (attrs.unit ?: "").toString();
+
+        println("--------  createFieldId: ["+name+"] ["+id+"] ["+source+"] ["+type+"] ["+unit+"] -------")
 
 		return id.bytes.encodeBase64().toString() + "," +
                 name.bytes.encodeBase64().toString() + "," +
