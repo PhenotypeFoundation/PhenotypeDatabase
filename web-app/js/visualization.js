@@ -398,7 +398,8 @@ function visualize() {
                                 yaxis: {
                                     label: ylabel,
                                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    formatString:'%.2f'
+                                    formatString:'%.2f',
+                                    min: 0
                                 }
                             },
                             axesDefaults: {
