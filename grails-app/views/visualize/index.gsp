@@ -77,7 +77,7 @@
                                 <option value="average" SELECTED>Average</option>
                                 <option value="count">Count</option>
                                 <option value="median">Median</option>
-                                <option value="none" disabled>No aggregation</option>
+                                <option value="none">No aggregation</option>
                                 <option value="sum">Sum</option>
                             </select>
                         </p>

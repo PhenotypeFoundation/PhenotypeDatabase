@@ -167,11 +167,40 @@ class VisualizeController {
 		log.trace "Determining columnType: "+inputData.columnIds[0]
         def columnType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0])
 
-        // Determine possible visualization types
-        def types = determineVisualizationTypes(rowType, columnType)
+		log.trace "Determining groupType: "+inputData.groupIds[0]
+		def groupType = determineFieldType(inputData.studyIds[0], inputData.groupIds[0])
+		
+		        // Determine possible visualization- and aggregationtypes
+        def visualizationTypes = determineVisualizationTypes(rowType, columnType)
+		def aggregationTypes = determineAggregationTypes(rowType, columnType, groupType)
+		
+        log.trace  "visualization types: " + visualizationTypes + ", determined this based on "+rowType+" and "+columnType
+		log.trace  "aggregation   types: " + aggregationTypes + ", determined this based on "+rowType+" and "+columnType + " and " + groupType
+		
+		def fieldData = [ 'x': parseFieldId( inputData.columnIds[ 0 ] ), 'y': parseFieldId( inputData.rowIds[ 0 ] ) ];
+		
+        return sendResults([
+			'types': visualizationTypes,
+			'aggregations': aggregationTypes,
+			
+			// TODO: Remove these ids when the view has been updated. Use xaxis.id and yaxis.id instead
+			'rowIds':inputData.rowIds[0],
+			'columnIds':inputData.columnIds[0],
+			
+			'xaxis': [ 
+				'id': fieldData.x.fieldId,
+				'name': fieldData.x.name,
+				'unit': fieldData.x.unit,
+				'type': dataTypeString( columnType )
+			],
+			'yaxis': [
+				'id': fieldData.y.fieldId,
+				'name': fieldData.y.name,
+				'unit': fieldData.y.unit,
+				'type': dataTypeString( rowType )
+			],
 
-        log.trace  "types: "+types+", determined this based on "+rowType+" and "+columnType
-        return sendResults(['types':types,'rowIds':inputData.rowIds[0],'columnIds':inputData.columnIds[0]])
+		])
 	}
 
     /**
@@ -327,28 +356,32 @@ class VisualizeController {
         
 		// Retrieve the data for both axes for all samples
 		// TODO: handle the case of multiple fields on an axis
-		def fields = [ "x": inputData.columnIds[ 0 ], "y": inputData.rowIds[ 0 ] ];
+		def fields = [ "x": inputData.columnIds[ 0 ], "y": inputData.rowIds[ 0 ], "group": inputData.groupIds[ 0 ] ];
+		def fieldInfo = [:]
+		fields.each { 
+			fieldInfo[ it.key ] = parseFieldId( it.value ) 
+			
+			if( fieldInfo[ it.key ] )
+				fieldInfo[ it.key ].fieldType = determineFieldType( study.id, it.value );
+		}
+		
+		// If the groupAxis is numerical, we should ignore it, unless a table is asked for
+		if( fieldInfo.group && fieldInfo.group.fieldType == NUMERICALDATA && inputData.visualizationType != "table" ) {
+			fields.group = null;
+			fieldInfo.group = null;
+		}
+		
+		// Fetch all data from the system. data will be in the format:
+		// 		[ "x": [ 3, 6, null, 10 ], "y": [ "male", "male", "female", "female" ], "group": [ "US", "NL", "NL", "NL" ]
+		//	If a field is not given, the data will be NULL
 		def data = getAllFieldData( study, samples, fields );
 
-		// Group data based on the y-axis if categorical axis is selected
-        def groupedData
-        if(inputData.visualizationType=='horizontal_barchart'){
-            groupedData = groupFieldData( inputData.visualizationType, data, "y", "x" ); // Indicate non-standard axis ordering
-        } else {
-            groupedData = groupFieldData( inputData.visualizationType, data ); // Don't indicate axis ordering, standard <"x", "y"> will be used
-        }
-        // Format data so it can be rendered as JSON
-        def returnData
-        if(inputData.visualizationType=='horizontal_barchart'){
-            def valueAxisType = determineFieldType(inputData.studyIds[0], inputData.rowIds[0], groupedData["x"])
-            def groupAxisType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0], groupedData["y"])
-            returnData = formatData( inputData.visualizationType, groupedData, fields, groupAxisType, valueAxisType , "y", "x" ); // Indicate non-standard axis ordering
-        } else {
-            def valueAxisType = determineFieldType(inputData.studyIds[0], inputData.rowIds[0], groupedData["y"])
-            def groupAxisType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0], groupedData["x"])
-            returnData = formatData( inputData.visualizationType, groupedData, fields, groupAxisType, valueAxisType ); // Don't indicate axis ordering, standard <"x", "y"> will be used
-        }
+		// Aggregate the data based on the requested aggregation  
+		def aggregatedData = aggregateData( data, fieldInfo, inputData.aggregation );
 
+		// No convert the aggregated data into a format we can use
+		def returnData = formatData( inputData.visualizationType, aggregatedData, fieldInfo );
+		
         // Make sure no changes are written to the database
         study.discard()
         samples*.discard()
@@ -367,14 +400,14 @@ class VisualizeController {
 	 * @see getVisualizationTypes
 	 */
 	def parseGetDataParams() {
-		def studyIds, rowIds, columnIds, visualizationType;
-		
-		studyIds = params.list( 'study' );
-		rowIds = params.list( 'rows' );
-		columnIds = params.list( 'columns' );
-		visualizationType = params.get( 'types')
+		def studyIds = params.list( 'study' );
+		def rowIds = params.list( 'rows' );
+		def columnIds = params.list( 'columns' );
+		def groupIds = params.list( 'groups' ); 
+		def visualizationType = params.get( 'types');
+		def aggregation = params.get( 'aggregation' );
 
-		return [ "studyIds" : studyIds, "rowIds": rowIds, "columnIds": columnIds, "visualizationType": visualizationType ];
+		return [ "studyIds" : studyIds, "rowIds": rowIds, "columnIds": columnIds, "groupIds": groupIds, "visualizationType": visualizationType, "aggregation": aggregation ];
 	}
 
 	/**
@@ -382,16 +415,23 @@ class VisualizeController {
 	 * @param study		Study for which the data should be retrieved
 	 * @param samples	Samples for which the data should be retrieved
 	 * @param fields	Map with key-value pairs determining the name and fieldId to retrieve data for. Example:
-	 * 						[ "x": "field-id-1", "y": "field-id-3" ]
+	 * 						[ "x": "field-id-1", "y": "field-id-3", "group": "field-id-6" ]
 	 * @return			A map with the same keys as the input fields. The values in the map are lists of values of the
 	 * 					selected field for all samples. If a value could not be retrieved for a sample, null is returned. Example:
-	 * 						[ "x": [ 3, 6, null, 10 ], "y": [ "male", "male", "female", "female" ] ]
+	 * 						[ "numValues": 4, "x": [ 3, 6, null, 10 ], "y": [ "male", "male", "female", "female" ], "group": [ "US", "NL", "NL", "NL" ] ]
 	 */
 	def getAllFieldData( study, samples, fields ) {
 		def fieldData = [:]
+		def numValues = 0;
 		fields.each{ field ->
-			fieldData[ field.key ] = getFieldData( study, samples, field.value );
+			def fieldId = field.value ?: null;
+			fieldData[ field.key ] = getFieldData( study, samples, fieldId );
+			
+			if( fieldData[ field.key ] )
+				numValues = Math.max( numValues, fieldData[ field.key ].size() );
 		}
+		
+		fieldData.numValues = numValues;
 		
 		return fieldData;
 	}
@@ -406,6 +446,9 @@ class VisualizeController {
 	* 						[ 3, 6, null, 10 ] or [ "male", "male", "female", "female" ]
 	*/
 	def getFieldData( study, samples, fieldId ) {
+		if( !fieldId )
+			return null
+			
 		// Parse the fieldId as given by the user
 		def parsedField = parseFieldId( fieldId );
 		
@@ -501,162 +544,163 @@ class VisualizeController {
         //println "\t data request: "+data
 		return data
 	}
-
+	
 	/**
-	 * Group the field data on the values of the specified axis. For example, for a bar chart, the values 
-	 * on the x-axis should be grouped. Currently, the values for each group are averaged, and the standard
-	 * error of the mean is returned in the 'error' property
-     * @param visualizationType Some types require a different formatting/grouping of the data, such as 'table'
-	 * @param data		Data for both group- and value axis. The output of getAllFieldData fits this input
-	 * @param groupAxis	Name of the axis to group on. Defaults to "x"
-	 * @param valueAxis	Name of the axis where the values are. Defaults to "y"
-	 * @param errorName	Key in the output map where 'error' values (SEM) are stored. Defaults to "error" 
-	 * @param unknownName	Name of the group for all null groups. Defaults to "unknown"
-	 * @return			A map with the keys 'groupAxis', 'valueAxis' and 'errorName'. The values in the map are lists of values of the
-	 * 					selected field for all groups. For example, if the input is
-	 * 						[ "x": [ "male", "male", "female", "female", null, "female" ], "y": [ 3, 6, null, 10, 4, 5 ] ]
-	 * 					the output will be:
-	 * 						[ "x": [ "male", "female", "unknown" ], "y": [ 4.5, 7.5, 4 ], "error": [ 1.5, 2.5, 0 ] ]
-	 *
-	 * 					As you can see: null values in the valueAxis are ignored. Null values in the 
-	 * 					group axis are combined into a 'unknown' category.
+	 * Aggregates the data based on the requested aggregation on the categorical fields
+	 * @param data			Map with data for each dimension as retrieved using getAllFieldData. For example:
+	 * 							[ "x": [ 3, 6, 8, 10 ], "y": [ "male", "male", "female", "female" ], "group": [ "US", "NL", "NL", "NL" ] ]
+	 * @param fieldInfo		Map with field information for each dimension. For example:
+	 * 							[ "x": [ id: "abc", "type": NUMERICALDATA ], "y": [ "id": "def", "type": CATEGORICALDATA ] ]
+	 * @param aggregation	Kind of aggregation requested
+	 * @return				Data that is aggregated on the categorical fields
+	 * 							[ "x": [ 3, 6, null, 9 ], "y": [ "male", "male", "female", "female" ], "group": [ "US", "NL", "US", "NL" ] ]
+	 * 
 	 */
-	def groupFieldData( visualizationType, data, groupAxis = "x", valueAxis = "y", errorName = "error", unknownName = "unknown" ) {
-		// TODO: Give the user the possibility to change this value in the user interface
-		def showEmptyCategories = false;
-		
-		// Create a unique list of values in the groupAxis. First flatten the list, since it might be that a
-		// sample belongs to multiple groups. In that case, the group names should not be the lists, but the list
-		// elements. A few lines below, this case is handled again by checking whether a specific sample belongs
-		// to this group. 
-		// After flattening, the list is uniqued. The closure makes sure that values with different classes are
-		// always treated as different items (e.g. "" should not equal 0, but it does if using the default comparator)
-		def groups = data[ groupAxis ]
-						.flatten()
-						.unique { it == null ? "null" : it.class.name + it.toString() }
-						
-		// Make sure the null category is last
-		groups = groups.findAll { it != null } + groups.findAll { it == null }
-		
-		// Generate the output object
-		def outputData = [:]
-		outputData[ valueAxis ] = [];
-		outputData[ errorName ] = [];
-		outputData[ groupAxis ] = [];
-		
-		// Loop through all groups, and gather the values for this group
-        // A visualization of type 'table' is a special case. There, the counts of two combinations of 'groupAxis'
-		// and 'valueAxis' items are computed
-        if( visualizationType=='table' ){
-            // For each 'valueAxis' item and 'groupAxis' item combination, count how often they appear together.
-            def counts = [:]
-			
-            // The 'counts' list uses keys like this: ['item1':group, 'item2':value]
-            // The value will be an integer (the count)
-            data[ groupAxis ].eachWithIndex { group, index ->
-                def value =  data[ valueAxis ][index]
-                if(!counts.get(['item1':group, 'item2':value])){
-                    counts[['item1':group, 'item2':value]] = 1
-                } else {
-                    counts[['item1':group, 'item2':value]] = counts[['item1':group, 'item2':value]] + 1
-                }
-            }
-            
-			def valueData =  data[ valueAxis ]
-                                        .flatten()
-                                        .unique { it == null ? "null" : it.class.name + it.toString() }
-													
-			// Now we will first check whether any of the categories is empty. If some of the rows
-			// or columns are empty, don't include them in the output
-			if( !showEmptyCategories ) {
-				groups.eachWithIndex { group, index ->
-					if( counts.findAll { it.key.item1 == group } )
-						outputData[groupAxis] << group
+	def aggregateData( data, fieldInfo, aggregation ) {
+		// Determine the categorical fields
+		def dimensions = [ "categorical": [], "numerical": [] ];
+		fieldInfo.each { 
+			// If fieldInfo value is NULL, the field is not requested
+			if( it && it.value ) {
+				if( [ CATEGORICALDATA, RELTIME, DATE ].contains( it.value.fieldType ) ) {
+					dimensions.categorical << it.key
+				} else {
+					dimensions.numerical << it.key
 				}
-				
-				valueData.each { value ->
-					if( counts.findAll { it.key.item2 == value } )
-						outputData[valueAxis] << value
-				}
-			} else {
-				outputData[groupAxis] = groups.collect { it != null ? it : unknownName }
-				ouputData[valueAxis] = valueData
 			}
-																
-            // Because we are collecting counts, we do not set the 'errorName' item of the 'outputData' map.
-            // We do however set the 'data' map to contain the counts. We set it in such a manner that it has 
-			// a 'table' layout with respect to 'groupAxis' and 'valueAxis'.
-            def rows = []
-            outputData[groupAxis].each{ group ->
-                def row = []
-                outputData[valueAxis].each{ value ->
-                    row << counts[['item1':group, 'item2':value]]
-                }
-                while(row.contains(null)){
-                    row[row.indexOf(null)] = 0
-                } // 'null' should count as '0'. Items of count zero have never been added to the 'counts' list and as such will appear as a 'null' value.
-                if(row!=[]) rows << row
-            }
-            outputData['data']= rows
-			
-			// Convert groups to group names
-			outputData[ groupAxis ] = outputData[ groupAxis ].collect { it != null ? it : unknownName }
-        } else {
-            groups.each { group ->
-                // Find the indices of the samples that belong to this group. if a sample belongs to multiple groups (i.e. if
-                // the samples groupAxis contains multiple values, is a collection), the value should be used in all groups.
-                def indices = data[ groupAxis ].findIndexValues { it instanceof Collection ? it.contains( group ) : it == group };
-                def values  = data[ valueAxis ][ indices ]
-
-				// The computation for mean and error will return null if no (numerical) values are found
-				// In that case, the user won't see this category
-                def dataForGroup = null;
-                switch( params.get( 'aggregation') ) {
-			        case "average":
-                        dataForGroup = computeMeanAndError( values );
-                        break;
-                    case "count":
-                        dataForGroup = computeCount( values );
-                        break;
-                    case "median":
-                        dataForGroup = computeMedian( values );
-                        break;
-                    case "none":
-                        // Currently disabled, create another function
-                        dataForGroup = computeMeanAndError( values );
-                        break;
-                    case "sum":
-                        dataForGroup = computeSum( values );
-                        break;
-                    default:
-                        // Default is "average"
-                        dataForGroup = computeMeanAndError( values );
-                }
-
-
-				if( showEmptyCategories || dataForGroup.value != null ) {
-					// Gather names for the groups. Most of the times, the group names are just the names, only with
-					// a null value, the unknownName must be used
-					outputData[ groupAxis ] << ( group != null ? group : unknownName )
-	                outputData[ valueAxis ] << dataForGroup.value ?: 0
-	                outputData[ errorName ] << dataForGroup.error ?: 0
-				}
-            }
-        }
+		}
 		
-		return outputData
+		// Compose a map with aggregated data
+		def aggregatedData = [:];
+		fieldInfo.each { aggregatedData[ it.key ] = [] }
+		
+		// Loop through all categorical fields and aggregate the values for each combination
+		if( dimensions.categorical.size() > 0 ) {
+			return aggregate( data, dimensions.categorical, dimensions.numerical, aggregation, fieldInfo );
+		} else {
+			// No categorical dimensions. Just compute the aggregation for all values together
+			def returnData = [ "count": [ data.numValues ] ];
+		 
+			// Now compute the correct aggregation for each numerical dimension.
+			dimensions.numerical.each { numericalDimension ->
+				def currentData = data[ numericalDimension ];
+				returnData[ numericalDimension ] = [ computeAggregation( aggregation, currentData ).value ];
+			}
+			
+			return returnData;
+		}
 	}
 	
+	/**
+	 * Aggregates the given data on the categorical dimensions.
+	 * @param data					Initial data
+	 * @param categoricalDimensions	List of categorical dimensions to group  by
+	 * @param numericalDimensions	List of all numerical dimensions to compute the aggregation for
+	 * @param aggregation			Type of aggregation requested
+	 * @param fieldInfo				Information about the fields requested by the user	(e.g. [ "x": [ "id": 1, "fieldType": CATEGORICALDATA ] ] )
+	 * @param criteria				The criteria the current aggregation must keep (e.g. "x": "male")
+	 * @param returnData			Initial return object with the same keys as the data object, plus 'count' 
+	 * @return
+	 */
+	protected def aggregate( Map data, Collection categoricalDimensions, Collection numericalDimensions, String aggregation, fieldInfo, criteria = [:], returnData = null ) {
+		if( !categoricalDimensions )
+			return data;
+			
+		// If no returndata is given, initialize the map
+		if( returnData == null ) {
+			returnData = [ "count": [] ]
+			data.each { returnData[ it.key ] = [] }
+		}
+		
+		def dimension = categoricalDimensions.head();
+		
+		// Determine the unique values on the categorical axis and sort by toString method
+		def unique = data[ dimension ].flatten()
+					.unique { it == null ? "null" : it.class.name + it.toString() }
+					.sort {
+						// Sort categoricaldata on its string value, but others (numerical, reltime, date) 
+						// on its real value
+						switch( fieldInfo[ dimension ].fieldType ) {
+							case CATEGORICALDATA:
+								return it.toString()
+							default:
+								return it
+						} 
+					};
+					
+		// Make sure the null category is last
+		unique = unique.findAll { it != null } + unique.findAll { it == null }
+		
+		unique.each { el ->
+			// Use this element to search on
+			criteria[ dimension ] = el;
+			
+			// If the list of categoricalDimensions is empty after this dimension, do the real work
+			if( categoricalDimensions.size() == 1 ) {
+				// Search for all elements in the numericaldimensions that belong to the current group
+				// The current group is defined by the criteria object
+				
+				// We start with all indices belonging to this group
+				def indices = 0..data.numValues;
+				criteria.each { criterion ->
+					// Find the indices of the samples that belong to this group. if a sample belongs to multiple groups (i.e. if
+					// the samples groupAxis contains multiple values, is a collection), the value should be used in all groups.
+					def currentIndices = data[ criterion.key ].findIndexValues { it instanceof Collection ? it.contains( criterion.value ) : it == criterion.value };
+					indices = indices.intersect( currentIndices );
+					
+					// Store the value for the criterion in the returnData object
+					returnData[ criterion.key ] << criterion.value;
+				}
+				
+				// If no numericalDimension is asked for, no aggregation is possible. For that reason, we 
+				// also return counts
+				returnData[ "count" ] << indices.size();
+				 
+				// Now compute the correct aggregation for each numerical dimension.
+				numericalDimensions.each { numericalDimension ->
+					def currentData = data[ numericalDimension ][ indices ]; 
+					returnData[ numericalDimension ] << computeAggregation( aggregation, currentData ).value;
+				}
+				
+			} else {
+				returnData = aggregate( data, categoricalDimensions.tail(), numericalDimensions, aggregation, fieldInfo, criteria, returnData );
+			}
+		}
+		
+		return returnData;
+	}
+	
+	/**
+	 * Compute the aggregation for a list of values
+	 * @param aggregation
+	 * @param currentData
+	 * @return
+	 */
+	def computeAggregation( String aggregation, List currentData ) {
+		switch( aggregation ) {
+			case "count":
+				return computeCount( currentData );
+				break;
+			case "median":
+				return computeMedian( currentData );
+				break;
+			case "sum":
+				return computeSum( currentData );
+				break;
+			case "average":
+			default:
+				// Default is "average"
+				return computeMeanAndError( currentData );
+				break;
+		}
+	}
+
 	/**
 	 * Formats the grouped data in such a way that the clientside visualization method 
 	 * can handle the data correctly.
 	 * @param groupedData	Data that has been grouped using the groupFields method
-	 * @param fields		Map with key-value pairs determining the name and fieldId to retrieve data for. Example:
-	 * 							[ "x": "field-id-1", "y": "field-id-3" ]
-     * @param groupAxisType Integer, either CATEGORICAL or NUMERIACAL
-     * @param valueAxisType Integer, either CATEGORICAL or NUMERIACAL
-	 * @param groupAxis		Name of the axis to with group data. Defaults to "x"
-	 * @param valueAxis		Name of the axis where the values are stored. Defaults to "y"
+	 * @param fieldData		Map with key-value pairs determining the name and fieldId to retrieve data for. Example:
+	 * 							[ "x": { "id": ... }, "y": { "id": "field-id-3" }, "group": { "id": "field-id-6" } ]
 	 * @param errorName		Key in the output map where 'error' values (SEM) are stored. Defaults to "error" 	 * 
 	 * @return				A map like the following:
 	 * 
@@ -675,58 +719,150 @@ class VisualizeController {
 			}
 	 * 
 	 */
-	def formatData( type, groupedData, fields, groupAxisType, valueAxisType, groupAxis = "x", valueAxis = "y", errorName = "error" ) {
-		// We want to sort the data based on the group-axis, but keep the values on the value-axis in sync.
-		// The only way seems to be to combine data from both axes.
-        def combined = []
-        if(type=="table"){
-            groupedData[ groupAxis ].eachWithIndex { group, i ->
-                combined << [ "group": group, "data": groupedData[ 'data' ][ i ] ]
-            }
-            combined.sort { it.group.toString() }
-            groupedData[groupAxis] = renderTimesAndDatesHumanReadable(combined*.group, groupAxisType)
-            groupedData[valueAxis] = renderTimesAndDatesHumanReadable(groupedData[valueAxis], valueAxisType)
-            groupedData["data"] = combined*.data
-        } else {
-            groupedData[ groupAxis ].eachWithIndex { group, i ->
-                combined << [ "group": (groupAxisType==CATEGORICALDATA ? group.toString() : group), "value": groupedData[ valueAxis ][ i ] ]
-            }
-            combined.sort { it.group }
-            groupedData[groupAxis] = renderTimesAndDatesHumanReadable(combined*.group, groupAxisType)
-            groupedData[valueAxis] = renderTimesAndDatesHumanReadable(combined*.value, valueAxisType)
-        }
-        // TODO: Handle name and unit of fields correctly
-        def valueAxisTypeString = (valueAxisType==CATEGORICALDATA || valueAxisType==DATE || valueAxisType==RELTIME ? "categorical" : "numerical")
-        def groupAxisTypeString = (groupAxisType==CATEGORICALDATA || groupAxisType==DATE || groupAxisType==RELTIME ? "categorical" : "numerical")
+	def formatData( type, groupedData, fieldInfo, xAxis = "x", yAxis = "y", serieAxis = "group", errorName = "error" ) {
+		// Format categorical axes by setting the names correct
+		fieldInfo.each { field, info ->
+			if( field && info ) {
+				groupedData[ field ] = renderFieldsHumanReadable( groupedData[ field ], info.fieldType)
+			}
+		}
+		
+		// TODO: Handle name and unit of fields correctly
+		def xAxisTypeString = dataTypeString( fieldInfo[ xAxis ]?.fieldType )
+		def yAxisTypeString = dataTypeString( fieldInfo[ yAxis ]?.fieldType )
+		def serieAxisTypeString = dataTypeString( fieldInfo[ serieAxis ]?.fieldType )
+		
+		// Create a return object
+		def return_data = [:]
+		return_data[ "type" ] = type
+		return_data.put("xaxis", ["title" : fieldInfo[ xAxis ]?.name, "unit": fieldInfo[ xAxis ]?.unit, "type": xAxisTypeString ])
+		return_data.put("yaxis", ["title" : fieldInfo[ yAxis ]?.name, "unit" : fieldInfo[ yAxis ]?.unit, "type": yAxisTypeString ])
+		return_data.put("groupaxis", ["title" : fieldInfo[ serieAxis ]?.name, "unit" : fieldInfo[ serieAxis ]?.unit, "type": serieAxisTypeString ])
+		
+		if(type=="table"){
+			// Determine the lists on both axes. The strange addition is done because the unique() method
+			// alters the object itself, instead of only returning a unique list
+			def xAxisData = ([] + groupedData[ xAxis ]).unique()
+			def yAxisData = ([] + groupedData[ yAxis ]).unique()
 
-        if(type=="table"){
-            def return_data = [:]
-            return_data[ "type" ] = type
-            return_data.put("yaxis", ["title" : parseFieldId( fields[ valueAxis ] ).name, "unit" : parseFieldId( fields[ valueAxis ] ).unit, "type":valueAxisTypeString ])
-            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": parseFieldId( fields[ groupAxis ] ).unit, "type":groupAxisTypeString ])
-            return_data.put("series", [[
-                    "x": groupedData[ groupAxis ].collect { it.toString() },
-                    "y": groupedData[ valueAxis ].collect { it.toString() },
-                    "data": groupedData["data"]
-            ]])
-            return return_data;
-        } else {
-            def xAxis = groupedData[ groupAxis ].collect { it.toString() };
-            def yName = parseFieldId( fields[ valueAxis ] ).name;
+			if( !fieldInfo[ serieAxis ] ) {
+				// If no value has been chosen on the serieAxis, we should show the counts for only one serie
+				def tableData = formatTableData( groupedData, xAxisData, yAxisData, xAxis, yAxis, "count" );
+				
+				return_data.put("series", [[
+					"name": "count",
+					"x": xAxisData,
+					"y": yAxisData,
+					"data": tableData
+				]])
+			} else if( fieldInfo[ serieAxis ].fieldType == NUMERICALDATA ) {
+				// If no value has been chosen on the serieAxis, we should show the counts for only one serie
+				def tableData = formatTableData( groupedData, xAxisData, yAxisData, xAxis, yAxis, serieAxis );
 
-            def return_data = [:]
-            return_data[ "type" ] = type
-            return_data.put("yaxis", ["title" : yName, "unit" : parseFieldId( fields[ valueAxis ] ).unit, "type":valueAxisTypeString ])
-            return_data.put("xaxis", ["title" : parseFieldId( fields[ groupAxis ] ).name, "unit": parseFieldId( fields[ groupAxis ] ).unit, "type":groupAxisTypeString  ])
-            return_data.put("series", [[
-                "name": yName,
-                "x": xAxis,
-                "y": groupedData[ valueAxis ],
-                "error": groupedData[ errorName ]
-            ]])
+				// If a numerical field has been chosen on the serieAxis, we should show the requested aggregation 
+				// for only one serie
+				return_data.put("series", [[
+					"name": fieldInfo[ xAxis ].name,
+					"x": xAxisData,
+					"y": yAxisData,
+					"data": groupedData[ serieAxis ]
+				]])
+			} else {
+				// If a categorical field has been chosen on the serieAxis, we should create a table for each serie
+				// with counts as data. That table should include all data for that serie
+				return_data[ "series" ] = [];
+				
+				// The strange addition is done because the unique() method
+				// alters the object itself, instead of only returning a unique list
+				def uniqueSeries = ([] + groupedData[ serieAxis ]).unique();
+				
+				uniqueSeries.each { serie -> 
+					def indices = groupedData[ serieAxis ].findIndexValues { it == serie }
+					
+					// If no value has been chosen on the serieAxis, we should show the counts for only one serie
+					def tableData = formatTableData( groupedData, xAxisData, yAxisData, xAxis, yAxis, "count", indices );
+	
+					return_data[ "series" ] << [
+						"name": serie,
+						"x": xAxisData,
+						"y": yAxisData,
+						"data": tableData,
+					]
+				}
+			}
+			
+		} else {
+			// For a horizontal barchart, the two axes should be swapped
+			if( type == "horizontal_barchart" ) { 
+				def tmp = xAxis
+				xAxis = yAxis
+				yAxis = tmp
+			}
+		
+			if( !fieldInfo[ serieAxis ] ) {
+				// If no series field has defined, we return all data in one serie
+				return_data.put("series", [[
+					"name": "count",
+					"x": groupedData[ xAxis ],
+					"y": groupedData[ yAxis ],
+				]])
+			} else if( fieldInfo[ serieAxis ].fieldType == NUMERICALDATA ) {
+				// No numerical series field is allowed in a chart. 
+				throw new Exception( "No numerical series field is allowed here." );
+			} else {
+				// If a categorical field has been chosen on the serieAxis, we should create a group for each serie
+				// with the correct values, belonging to that serie.
+				return_data[ "series" ] = [];
+				
+				def uniqueSeries = groupedData[ serieAxis ].unique();
+				
+				uniqueSeries.each { serie ->
+					def indices = groupedData[ serieAxis ].findIndexValues { it == serie }
+					return_data[ "series" ] << [
+						"name": serie,
+						"x": groupedData[ xAxis ][ indices ],
+						"y": groupedData[ yAxis ][ indices ]
+					]
+				}
+			}
+		}
+		
+		return return_data;
+	}
 
-            return return_data;
-        }
+	/**
+	 * Formats the requested data for a table	
+	 * @param groupedData
+	 * @param xAxisData
+	 * @param yAxisData
+	 * @param xAxis
+	 * @param yAxis
+	 * @param dataAxis
+	 * @return
+	 */
+	def formatTableData( groupedData, xAxisData, yAxisData, xAxis, yAxis, dataAxis, serieIndices = null ) {
+		def tableData = []
+		
+		xAxisData.each { x ->
+			def colData = []
+			
+			def indices = groupedData[ xAxis ].findIndexValues { it == x }
+			
+			// If serieIndices are given, intersect the indices
+			if( serieIndices != null )
+				indices = indices.intersect( serieIndices );
+			
+			yAxisData.each { y ->
+				def index = indices.intersect( groupedData[ yAxis ].findIndexValues { it == y } );
+				
+				if( index.size() ) {
+					colData << groupedData[ dataAxis ][ (int) index[ 0 ] ]
+				}
+			}
+			tableData << colData;
+		}
+		
+		return tableData;
 	}
 
     /**
@@ -736,14 +872,18 @@ class VisualizeController {
      * @return The input variable 'data', with it's date and time elements converted.
      * @see determineFieldType
      */
-    def renderTimesAndDatesHumanReadable(data, axisType){
-        if(axisType==RELTIME){
-            data = renderTimesHumanReadable(data)
-        }
-        if(axisType==DATE){
-           data = renderDatesHumanReadable(data)
-        }
-        return data
+    def renderFieldsHumanReadable(data, axisType){
+        switch( axisType ) {
+			case RELTIME:
+				return renderTimesHumanReadable(data)
+			case DATE:
+				return renderDatesHumanReadable(data)
+			case CATEGORICALDATA:
+				return data.collect { it.toString() }
+			case NUMERICALDATA:
+			default:
+				return data;
+		}
     }
 
     /**
@@ -1088,6 +1228,9 @@ class VisualizeController {
 	protected Map parseFieldId( String fieldId ) {
 		def attrs = [:]
 
+		if( !fieldId ) 
+			return null;
+		
 		def parts = fieldId.split(",",5)
 		
 		attrs = [
@@ -1095,10 +1238,20 @@ class VisualizeController {
 			"name": new String(parts[ 1 ].decodeBase64()),
 			"source": new String(parts[ 2 ].decodeBase64()),
 			"type": new String(parts[ 3 ].decodeBase64()),
-            "unit": parts.length>4? new String(parts[ 4 ].decodeBase64()) : null
+            "unit": parts.length>4? new String(parts[ 4 ].decodeBase64()) : null,
+			"fieldId": fieldId
 		]
 
         return attrs
+	}
+	
+	/**
+	 * Returns a string representation of the given fieldType, which can be sent to the userinterface
+	 * @param fieldType	CATEGORICALDATA, DATE, RELTIME, NUMERICALDATA
+	 * @return	String representation
+	 */
+	protected String dataTypeString( fieldType ) {
+		return (fieldType==CATEGORICALDATA || fieldType==DATE || fieldType==RELTIME ? "categorical" : "numerical")
 	}
 	
 	/**
@@ -1142,6 +1295,11 @@ class VisualizeController {
 		def parsedField = parseFieldId( fieldId );
         def study = Study.get(studyId)
 		def data = []
+		
+		// If the fieldId is incorrect, or the field is not asked for, return 
+		// CATEGORICALDATA
+		if( !parsedField )
+			return CATEGORICALDATA;
 
         try{
             if( parsedField.source == "GSCF" ) {
@@ -1366,23 +1524,66 @@ class VisualizeController {
      * @return
      */
     protected def determineVisualizationTypes(rowType, columnType){
-         def types = []
-        if(rowType==CATEGORICALDATA || DATE || RELTIME){
-            if(columnType==CATEGORICALDATA || DATE || RELTIME){
-                types = [ [ "id": "table", "name": "Table"] ];
-            }
-            if(columnType==NUMERICALDATA){
+		def types = []
+		
+        if(rowType == CATEGORICALDATA || rowType == DATE || rowType == RELTIME){
+            if(columnType == CATEGORICALDATA || columnType == DATE || columnType == RELTIME){
+				types = [ [ "id": "table", "name": "Table"] ];
+            } else {	// NUMERICALDATA
                 types = [ [ "id": "horizontal_barchart", "name": "Horizontal barchart"] ];
             }
-        }
-        if(rowType==NUMERICALDATA){
-            if(columnType==CATEGORICALDATA || DATE || RELTIME){
+        } else {	// NUMERICALDATA
+            if(columnType == CATEGORICALDATA || columnType == DATE || columnType == RELTIME){
                 types = [ [ "id": "barchart", "name": "Barchart"], [ "id": "linechart", "name": "Linechart"] ];
-            }
-            if(columnType==NUMERICALDATA){
+            } else {
                 types = [ [ "id": "scatterplot", "name": "Scatterplot"], [ "id": "linechart", "name": "Linechart"] ];
             }
         }
         return types
     }
+	
+	/**
+	* Returns the types of aggregation possible for the given two objects of either CATEGORICALDATA or NUMERICALDATA
+	* @param rowType The type of the data that has been selected for the row, either CATEGORICALDATA or NUMERICALDATA
+	* @param columnType The type of the data that has been selected for the column, either CATEGORICALDATA or NUMERICALDATA
+	* @param groupType The type of the data that has been selected for the grouping, either CATEGORICALDATA or NUMERICALDATA
+	* @return
+	*/
+	protected def determineAggregationTypes(rowType, columnType, groupType = null ){
+		// A list of all aggregation types. By default, every item is possible
+		def types = [
+			[ "id": "average", "name": "Average", "disabled": false ],
+			[ "id": "count", "name": "Count", "disabled": false ],
+			[ "id": "median", "name": "Median", "disabled": false ],
+			[ "id": "none", "name": "No aggregation", "disabled": false ],
+			[ "id": "sum", "name": "Sum", "disabled": false ],
+		]
+
+		// Normally, all aggregation types are possible, with three exceptions:
+		// 		Categorical data on both axes. In that case, we don't have anything to aggregate, so we can only count
+		//		Grouping on a numerical field is not possible. In that case, it is ignored
+		//			Grouping on a numerical field with categorical data on both axes (table) enabled aggregation,
+		//			In that case we can aggregate on the numerical field. 
+		
+		if(rowType == CATEGORICALDATA || rowType == DATE || rowType == RELTIME){
+			if(columnType == CATEGORICALDATA || columnType == DATE || columnType == RELTIME){
+				
+				if( groupType == NUMERICALDATA ) {
+					// Disable 'none', since that can not be visualized
+					types.each {
+						if( it.id == "none" )
+							it.disabled = true
+					}
+				} else {
+					// Disable everything but 'count'
+					types.each { 
+						if( it.id != "count" )  
+							it.disabled = true
+					}
+				}
+			}
+		}
+		
+		return types
+   }
 }
