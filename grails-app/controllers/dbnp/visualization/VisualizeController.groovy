@@ -563,6 +563,10 @@ class VisualizeController {
 	 * 
 	 */
 	def aggregateData( data, fieldInfo, aggregation ) {
+		// If no aggregation is requested, we just return the original object
+		if( aggregation == "none" )
+			return data
+		
 		// Determine the categorical fields
 		def dimensions = [ "categorical": [], "numerical": [] ];
 		fieldInfo.each { 
