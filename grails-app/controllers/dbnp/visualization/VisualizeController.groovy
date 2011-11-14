@@ -378,10 +378,16 @@ class VisualizeController {
 
 		// Aggregate the data based on the requested aggregation  
 		def aggregatedData = aggregateData( data, fieldInfo, inputData.aggregation );
-
+		
+		println "Aggregated Data: "
+		aggregatedData.each { println it }
+		
 		// No convert the aggregated data into a format we can use
 		def returnData = formatData( inputData.visualizationType, aggregatedData, fieldInfo );
 
+		println "Returndata: " 
+		returnData.each { println it }
+		
         // Make sure no changes are written to the database
         study.discard()
         samples*.discard()
@@ -765,7 +771,7 @@ class VisualizeController {
 					"name": fieldInfo[ xAxis ].name,
 					"x": xAxisData,
 					"y": yAxisData,
-					"data": groupedData[ serieAxis ]
+					"data": tableData
 				]])
 			} else {
 				// If a categorical field has been chosen on the serieAxis, we should create a table for each serie
