@@ -103,6 +103,10 @@
                                 <td><label for="anglelabels">Angle labels on the x-axis.<br />(if this box is checked, labels are shown at a 45&deg; angle)</label></td>
                                 <td><input type="checkbox" name="anglelabels" id="anglelabels" CHECKED onClick="changeVis();"/></td>
                             </tr>
+                            <tr>
+                                <td><label for="legendplacement">Place legend outside the graph.<br />(legend is only shown when the group-by option is used)</label></td>
+                                <td><input type="checkbox" name="legendplacement" id="legendplacement" CHECKED onClick="changeVis();"/></td>
+                            </tr>
                         </table>
                     </div>
                 </span>

@@ -218,7 +218,6 @@ function visualize() {
                 var dataPoints = [];
                 var series = [];
 
-                //data = JSON.parse('{"returnData":{"type":"table","groupaxis":{"title":"BlaNr","unit":"int","type":"categorical"},"yaxis":{"title":"Gender","unit":"","type":"categorical"},"xaxis":{"title":"Gender","unit":"","type":"categorical"},"series":[{"name":"bla1","x":["Female","Male"],"y":["Male","Female"],"data":[[0,4],[7,0]]},{"name":"bla2","x":["Female","Male"],"y":["Male","Female"],"data":[[6,5],[1,2]]}]}}');
                 var returnData = data.returnData;
 
                 $.each(returnData.series, function(idx, element ) {
@@ -250,14 +249,16 @@ function visualize() {
                 // chosen by the user
                 var plotOptions = null;
 
-                var showDataValues = $("#showvalues").attr("checked")=="checked" ? true : false;
+                var blnShowDataValues = $("#showvalues").attr("checked")=="checked";
+                var blnShowLegend = returnData.series.length>1;
+                var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" ? "outsideGrid" : "insideGrid";
                 var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
 
                 switch( returnData.type ) {
                 	case "horizontal_barchart":
                         plotOptions = {
                             // Tell the plot to stack the bars.
-                            stackSeries: true,
+                            stackSeries: false,
                             seriesDefaults:{
                                 renderer:$.jqplot.BarRenderer,
                                 rendererOptions: {
@@ -268,12 +269,16 @@ function visualize() {
                                     highlightMouseDown: true,
                                     barDirection: 'horizontal'
                                 },
-                                pointLabels: {show: showDataValues}
+                                pointLabels: {show: blnShowDataValues}
                             },
                             highlighter: {
-                                show: !showDataValues,
+                                show: !blnShowDataValues,
                                 sizeAdjust: 7.5,
                                 tooltipAxes: "x"
+                            },
+                            legend: {
+                                show: blnShowLegend,
+                                placement: strLegendPlacement
                             },
                             series: series,
                             axes: {
@@ -302,20 +307,26 @@ function visualize() {
                 		break;
                 	case "scatterplot":
 
-                        series[0].showLine = false;
-                        series[0].markerOptions = { "size": 7, "style":"filledCircle" };
+                        $.each(returnData.series, function(idx, element ) {
+                            series[idx].showLine = false;
+                            series[idx].markerOptions = { "size": 7, "style":"filledCircle" };
+                        });
 
                 		plotOptions = {
-                            stackSeries: true,
+                            stackSeries: false,
                             seriesDefaults:{
                                 renderer:$.jqplot.LineRenderer,
-                                pointLabels: {show: showDataValues}
+                                pointLabels: {show: blnShowDataValues}
                             },
                             series: series,
                             highlighter: {
-                                show: !showDataValues,
+                                show: !blnShowDataValues,
                                 sizeAdjust: 7.5,
                                 tooltipAxes: "y"
+                            },
+                            legend: {
+                                show: blnShowLegend,
+                                placement: strLegendPlacement
                             },
                             axes: {
                                 xaxis: {
@@ -340,16 +351,20 @@ function visualize() {
                         };
                 	case "linechart":
                         plotOptions = {
-                            stackSeries: true,
+                            stackSeries: false,
                             seriesDefaults:{
                                 renderer:$.jqplot.LineRenderer,
-                                pointLabels: {show: showDataValues}
+                                pointLabels: {show: blnShowDataValues}
                             },
                             series: series,
                             highlighter: {
-                                show: !showDataValues,
+                                show: !blnShowDataValues,
                                 sizeAdjust: 7.5,
                                 tooltipAxes: "y"
+                            },
+                            legend: {
+                                show: blnShowLegend,
+                                placement: strLegendPlacement
                             },
                             axes: {
                                 xaxis: {
@@ -376,7 +391,7 @@ function visualize() {
                 	case "barchart":
                         plotOptions = {
                             // Tell the plot to stack the bars.
-                            stackSeries: true,
+                            stackSeries: false,
                             seriesDefaults:{
                                 renderer:$.jqplot.BarRenderer,
                                 rendererOptions: {
@@ -386,12 +401,16 @@ function visualize() {
                                     // Disables default highlighting on mouse over.
                                     highlightMouseDown: true
                                 },
-                                pointLabels: {show: showDataValues}
+                                pointLabels: {show: blnShowDataValues}
                             },
                             highlighter: {
-                                show: !showDataValues,
+                                show: !blnShowDataValues,
                                 sizeAdjust: 7.5,
                                 tooltipAxes: "y"
+                            },
+                            legend: {
+                                show: blnShowLegend,
+                                placement: strLegendPlacement
                             },
                             series: series,
                             axes: {
