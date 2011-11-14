@@ -139,34 +139,42 @@
                 <div id="menu_container">
                     <div class="menu_item" id="menu_column">
                         <div class="menu_item_label_count"><span>2</span></div><div class="menu_item_label">X-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
-                        <p class="info">Select a field for the X-Axis from the list below. This field will be visible as columns in the table visualization.</p>
-                        <p>
+                        <div>
                             <select id="columns" name="columns" size="6" onChange="changeFields('menu_column');"></select>
                             <div class="block_search">
                                 <img src="${fam.icon( name: 'magnifier' )}" alt="search"/>:
                                 <input type="text" onKeyUp="doSearch('menu_column','columns');" />
                                 <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_column','columns');" alt="clear search"/>
                             </div>
-                        </p>
+                        </div>
                     </div>
                     <div class="menu_item" id="menu_row">
                         <div class="menu_item_label_count">3</div><div class="menu_item_label">Y-Axis <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
-                        <p class="info">Select a field for the Y-Axis from the list below. This field will be visible as rows in the table visualization.</p>
-                        <p>
+                        <div>
                             <select id="rows" name="rows" size="6" onChange="changeFields('menu_row');"></select>
                             <div class="block_search">
                                 <img src="${fam.icon( name: 'magnifier' )}" alt="search"/>:
                                 <input type="text" onKeyUp="doSearch('menu_row','rows');" />
                                 <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_row','rows');" alt="clear search"/>
                             </div>
-                        </p>
+                        </div>
+                    </div>
+                    <div class="menu_item" id="menu_groups">
+                        <div class="menu_item_label_count">4</div><div class="menu_item_label">Group by<img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div> (<a href='#' onclick="clearSelect(); return false;">clear</a>)
+                        <div>
+                            <select id="groups" name="groups" size="6" onChange="changeFields('menu_groups');"></select>
+                            <div class="block_search">
+                                <img src="${fam.icon( name: 'magnifier' )}" alt="search"/>:
+                                <input type="text" onKeyUp="doSearch('menu_groups','groups');" />
+                                <img src="${fam.icon( name: 'cancel' )}" class="imgbutton" onClick="clearSearch('menu_groups','groups');" alt="clear search"/>
+                            </div>
+                        </div>
                     </div>
                     <div class="menu_item" id="menu_vis">
-                        <div class="menu_item_label_count">4</div><div class="menu_item_label">Type <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
-                        <p class="info">Select visualization type.</p>
-                        <p>
+                        <div class="menu_item_label_count">5</div><div class="menu_item_label">Type <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></div>
+                        <div>
                             <select id="types" name="types"  size="3" onChange="changeVis();"></select>
-                        </p>
+                        </div>
                     </div>
                     <div class="menu_item" id="menu_go">
                         <button id="button_visualize" onClick="visualize(); return false;" >

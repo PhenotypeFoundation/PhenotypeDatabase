@@ -56,16 +56,16 @@ function changeStudy() {
 
     toggleForm(openForm, "close");
 
-    $( '#rows, #columns, #types, #visualization' ).empty();
+    $( '#rows, #columns, #groups, #types, #visualization' ).empty();
     clearStep(".menu_item");
 
     if( visualization )
         visualization.destroy();
 
     if($( '#study' ).find( 'option:selected' ).length>0) {
-        $( "#menu_row, #menu_column" ).find("img.spinner").show();
+        $( "#menu_row, #menu_column, #menu_groups" ).find("img.spinner").show();
         $( "#menu_study" ).find(".topmenu_item_info").html($( '#study').find( 'option:selected' ).text());
-        clearSearch("menu_column, #menu_row");
+        clearSearch("menu_column, #menu_row, #menu_groups");
 
         executeAjaxCall( "getFields", {
             "errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
@@ -92,17 +92,19 @@ function changeStudy() {
 	                });
                     if(strOptions.length>0) {
                         strOptions += "</optgroup>";
-                        $( "#rows, #columns" ).html(strOptions);
+                        $( "#rows, #columns, #groups" ).html(strOptions);
                         selectCache['rows'] = $('#rows').html();
                         selectCache['columns'] = $('#columns').html();
+                        selectCache['groups'] = $('#groups').html();
                     } else {
                         $("#visualization").html('<div style="padding: 30px">No fields could be found. This visualization prototype requires studies with samples.</div>');
                         selectCache['rows'] = null;
                         selectCache['columns'] = null;
+                        selectCache['groups'] = null;
                     }
 	                
 	                $( "#menu_study" ).find(".topmenu_item_info").html($( '#study').find( 'option:selected' ).text());
-                    $( "#menu_row, #menu_column" ).find(".spinner").hide();
+                    $( "#menu_row, #menu_column, #menu_groups" ).find(".spinner").hide();
 	                $( "#menu_row, #menu_column" ).addClass("menu_item_fill");
                 }
             }
@@ -216,7 +218,9 @@ function visualize() {
                 var dataPoints = [];
                 var series = [];
 
+                //data = JSON.parse('{"returnData":{"type":"table","groupaxis":{"title":"BlaNr","unit":"int","type":"categorical"},"yaxis":{"title":"Gender","unit":"","type":"categorical"},"xaxis":{"title":"Gender","unit":"","type":"categorical"},"series":[{"name":"bla1","x":["Female","Male"],"y":["Male","Female"],"data":[[0,4],[7,0]]},{"name":"bla2","x":["Female","Male"],"y":["Male","Female"],"data":[[6,5],[1,2]]}]}}');
                 var returnData = data.returnData;
+
                 $.each(returnData.series, function(idx, element ) {
                 	if( element.y && element.y.length > 0 ) {
 	                    dataPoints[ dataPoints.length ] = element.y;
@@ -237,6 +241,10 @@ function visualize() {
                 
                 var xlabel = returnData[ "xaxis" ].unit=="" ? returnData[ "xaxis" ].title : returnData[ "xaxis" ].title + " (" + returnData[ "xaxis" ].unit + ")";
                 var ylabel = returnData[ "yaxis" ].unit=="" ? returnData[ "yaxis" ].title : returnData[ "yaxis" ].title + " (" + returnData[ "yaxis" ].unit + ")";
+                var grouplabel = "";
+                if(returnData[ "groupaxis" ]!==undefined) {
+                    grouplabel = returnData[ "groupaxis" ].unit=="" ? returnData[ "groupaxis" ].title : returnData[ "groupaxis" ].title + " (" + returnData[ "groupaxis" ].unit + ")";
+                }
 
                 // TODO: create a chart based on the data that is sent by the user and the type of chart
                 // chosen by the user
@@ -417,7 +425,11 @@ function visualize() {
                         // create caption-row
                         var row = $("<tr>");
                         // create empty top-left-field
-                        row.append("<td class='caption' colspan='2' rowspan='2'>&nbsp;</td>");
+                        if(series.length==1) {
+                            row.append("<td class='caption' colspan='2' rowspan='2'>&nbsp;</td>");
+                        } else {
+                            row.append("<td class='caption' colspan='2'>&nbsp;</td>");
+                        }
                         // create caption
                         row.append("<td class='caption' colspan='"+returnData.series[0].x.length+"'>"+xlabel+"</td>");
                         row.appendTo(table);
@@ -425,29 +437,39 @@ function visualize() {
                         // create header-row
                         var row = $("<tr>");
                         // create headers
+                        if(series.length>1) {
+                            row.append("<td class='caption'>"+grouplabel+"</td>");
+                            row.append("<td class='caption'>"+ylabel+"</td>");
+                        }
                         for(j=0; j<returnData.series[0].x.length; j++) {
                             row.append("<th>"+returnData.series[0].x[j]+"</th>");
                         }
                         row.appendTo(table);
 
+                        for(k=0; k<returnData.series.length; k++) {
                         // create data-rows
-                        for(i=0; i<returnData.series[0].y.length; i++) {
-                            var row = $("<tr>");
-                            for(j=-1; j<returnData.series[0].x.length; j++) {
-                                if(j<0) {
-                                    if(i==0) {
-                                        // create caption-column
-                                        row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+ylabel+"</td>");
-                                    }
+                            for(i=0; i<returnData.series[0].y.length; i++) {
+                                var row = $("<tr>");
+                                for(j=-1; j<returnData.series[0].x.length; j++) {
+                                    if(j<0) {
+                                        if(i==0) {
+                                            if(series.length==1) {
+                                            // create caption-column
+                                                row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+ylabel+"</td>");
+                                            } else {
+                                                row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+returnData.series[k].name+"</td>");
+                                            }
+                                        }
 
-                                    // create row-header
-                                    row.append("<th>"+returnData.series[0].y[i]+"</th>");
-                                } else {
-                                    // row-data
-                                    row.append("<td>"+returnData.series[0].data[j][i]+"</td>");
+                                        // create row-header
+                                        row.append("<th>"+returnData.series[k].y[i]+"</th>");
+                                    } else {
+                                        // row-data
+                                        row.append("<td>"+returnData.series[k].data[j][i]+"</td>");
+                                    }
                                 }
+                                row.appendTo(table);
                             }
-                            row.appendTo(table);
                         }
 
                         plotOptions = table;
@@ -492,6 +514,13 @@ function removeError(strSelector) {
     }
 }
 
+function clearSelect() {
+    clearStep("#menu_groups");
+    $('#groups').html(selectCache['groups']);
+    selectVal['groups'] = null;
+    changeVis();
+}
+
 function toggleForm(selector, action) {
     if( action=="close" || openForm !=null ) {
         $(openForm).children('.formulier').hide();
@@ -523,7 +552,6 @@ function doSearch(menuId, selectId) {
 }
 
 function clearSearch(menuId, selectId) {
-    
     $('#'+menuId).find('.block_search').children('input').val('');
     doSearch(menuId, selectId);
 }
