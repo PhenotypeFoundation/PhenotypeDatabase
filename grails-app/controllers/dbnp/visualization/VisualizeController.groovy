@@ -381,7 +381,7 @@ class VisualizeController {
 
 		// No convert the aggregated data into a format we can use
 		def returnData = formatData( inputData.visualizationType, aggregatedData, fieldInfo );
-		
+
         // Make sure no changes are written to the database
         study.discard()
         samples*.discard()
@@ -814,7 +814,9 @@ class VisualizeController {
 				// with the correct values, belonging to that serie.
 				return_data[ "series" ] = [];
 				
-				def uniqueSeries = groupedData[ serieAxis ].unique();
+				// The unique method alters the original object, so we 
+				// create a new object
+				def uniqueSeries = ([] + groupedData[ serieAxis ]).unique();
 				
 				uniqueSeries.each { serie ->
 					def indices = groupedData[ serieAxis ].findIndexValues { it == serie }
