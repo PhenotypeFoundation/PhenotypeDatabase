@@ -75,7 +75,7 @@
 
 	</div>
 </div>
-<g:if test="${!request.getHeaderNames().find{ it.toLowerCase() == 'UseShibboleth'.toLowerCase() }}">
+<g:if test="${!grailsApplication.config.authentication.shibboleth.toBoolean()}">
 <script type='text/javascript'>
 	<!--
 	(function() {

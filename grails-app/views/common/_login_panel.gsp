@@ -1,3 +1,4 @@
+<%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
 <!-- LOGIN PANEL -->
 <div id="toppanel" class="toppanel">
 	<div id="panel">
@@ -79,7 +80,7 @@
 			<li id="toggle">
 				<sec:ifLoggedIn><g:link controller="logout" action="index">sign out</g:link></sec:ifLoggedIn>
 				<sec:ifNotLoggedIn>
-					<g:if test="${request.getHeaderNames().find{ it.toLowerCase() == 'UseShibboleth'.toLowerCase() }}">
+					<g:if test="${grailsApplication.config.authentication.shibboleth.toBoolean()}">
 						<g:link class="open" controller="login">Log in</g:link>
 					</g:if>
 					<g:else>
