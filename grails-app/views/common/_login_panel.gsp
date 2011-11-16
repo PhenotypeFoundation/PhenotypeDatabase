@@ -80,7 +80,7 @@
 			<li id="toggle">
 				<sec:ifLoggedIn><g:link controller="logout" action="index">sign out</g:link></sec:ifLoggedIn>
 				<sec:ifNotLoggedIn>
-					<g:if test="${grailsApplication.config.authentication.shibboleth.toBoolean()}">
+					<g:if test="${grailsApplication.config.authentication.shibboleth.toString().toBoolean()}">
 						<g:link class="open" controller="login">Log in</g:link>
 					</g:if>
 					<g:else>

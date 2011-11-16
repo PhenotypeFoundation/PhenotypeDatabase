@@ -75,7 +75,7 @@
 
 	</div>
 </div>
-<g:if test="${!grailsApplication.config.authentication.shibboleth.toBoolean()}">
+<g:if test="${!grailsApplication.config.authentication.shibboleth.toString().toBoolean()}">
 <script type='text/javascript'>
 	<!--
 	(function() {

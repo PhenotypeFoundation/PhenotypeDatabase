@@ -57,7 +57,7 @@ class LoginController {
 				redirect uri: config.successHandler.defaultTargetUrl
 			}
 			return
-		} else if (grailsApplication.config.authentication.shibboleth.toBoolean()) {
+		} else if (grailsApplication.config.authentication.shibboleth.toString().toBoolean()) {
 			// authenticated through shibboleth?
 			if (request.getHeaderNames().find{ it.toLowerCase() == 'persistent-id'.toLowerCase() }) {
 				// get shibboleth data
