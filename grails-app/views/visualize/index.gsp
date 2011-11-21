@@ -36,13 +36,6 @@
 			"getVisualizationTypes": "<g:createLink action="getVisualizationTypes" />", 
 			"getData": "<g:createLink action="getData" />" 
 		};
-
-        var lstStudies = [
-            <g:each in="${books}">
-     <p>Title: ${it.title}</p>
-     <p>Author: ${it.author}</p>
-</g:each>
-        ];
 	</script>
 </head>
 <body>
