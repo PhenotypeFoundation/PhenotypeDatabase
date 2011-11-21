@@ -20,13 +20,6 @@
 	    <li><g:link controller="gdtImporter" action="index">A list of studies (choose Study)</g:link></li>
       </ul>
     </li>
-    <li>
-      <a href="#">Export</a>
-      <ul class="subnav">
-        <li><g:link controller="assay" action="assayExport">Export Assay Data to File</g:link> </li>
-	    <li><g:link controller="exporter" action="index">Export studies as SimpleTox Excel file</g:link></li>
-      </ul>
-    </li>
     </sec:ifLoggedIn>
 	<li>
 		<a href="#">Browse</a>
@@ -62,17 +55,23 @@
                     </sec:ifLoggedIn>
 				</ul>
 			</li>
-			<li><g:link controller="visualize" action="index">Visualizations</g:link></li>
-			
 		</ul>
 	</li>
 	<li>
-		<a href="#">Search</a>
+		<a href="#">Analyze</a>
 	    <ul class="subnav">
-            <li><g:link controller="advancedQuery">Advanced search</g:link></li>
+			<li><g:link controller="advancedQuery">Search</g:link></li>
+			<li><g:link controller="visualize" action="index">Visualize</g:link></li>
 		</ul>
 	</li>
     <sec:ifLoggedIn>
+    <li>
+      <a href="#">Export</a>
+      <ul class="subnav">
+        <li><g:link controller="assay" action="assayExport">Export Assay Data to File</g:link> </li>
+	    <li><g:link controller="exporter" action="index">Export studies as SimpleTox Excel file</g:link></li>
+      </ul>
+    </li>
 	<g:if test="${ConfigurationHolder.config.modules.showInMenu && AssayModule.count()}">
 		<li>
 			<a href="#">Modules</a>
