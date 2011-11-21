@@ -2,10 +2,8 @@
  * This variable holds the currently displayed visualization
  */
 var visualization = null;
-var visType = null;
-var openForm = null;
-var selectCache = new Array();
-var selectVal = new Array();
+var currType = null;
+var currAggr = null;
 
 jQuery.expr[':'].Contains = function(a, i, m) {
   return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
@@ -13,40 +11,25 @@ jQuery.expr[':'].Contains = function(a, i, m) {
 
 $(document).ready(function() {
 
-    toggleForm($("#menu_study"), "open");
-
-    $(".topmenu_item").click(
-        function(event) {
-            if(this!=openForm) {
-                toggleForm(this, "open");
-            } else {
-                toggleForm(this, "close");
-            }
-            return false;
-		}
-    );
-
-    $(document).keyup(
-        function(event) {
-            if ( event.which == 27 ) {
-                toggleForm(openForm, "close");
+    $( "#dialog_messages, #dialog_advanced_settings" ).dialog({
+        autoOpen: false, // don't open on startup
+        modal: true, // set dialogs as modal
+        resizable: false, // don't allow resize
+        show: "slide", // open effect is slide
+        hide: "slide", // close effect is slide
+        zIndex: 10002, // 1 higher than the login panel
+        buttons: {
+            Ok: function() {
+                $( this ).dialog( "close" );
             }
         }
-    );
-    
-    $(document).click(
-        function() {
-            toggleForm(openForm, "close");
-        }
-    );
-
-    $(".formulier").click(function(event) {
-        event.stopPropagation();
     });
 
-    selectCache['study'] = $('#study').html();
+    $( "#select_study" ).combobox();
+    $( "#select_rows" ).combobox();
+    $( "#select_columns" ).combobox();
+    $( "#select_groups" ).combobox();
 
-    
 });
 
 /**
@@ -54,34 +37,28 @@ $(document).ready(function() {
  */
 function changeStudy() {
 
-    toggleForm(openForm, "close");
-
-    $( '#rows, #columns, #groups, #types, #visualization' ).empty();
-    clearStep(".menu_item");
+    $( '#select_rows, #select_columns, #select_groups' ).empty();
 
     if( visualization )
         visualization.destroy();
 
-    if($( '#study' ).find( 'option:selected' ).length>0) {
-        $( "#menu_row, #menu_column, #menu_groups" ).find("img.spinner").show();
-        $( "#menu_study" ).find(".topmenu_item_info").html($( '#study').find( 'option:selected' ).text());
-        clearSearch("menu_column, #menu_row, #menu_groups");
+    if($( '#select_study' ).find( 'option:selected' ).length>0) {
+        $( "#select_rows, #select_columns, #select_groups" ).parents(".menu_header").find("img.spinner").show();
 
-        executeAjaxCall( "getFields", {
+        executeAjaxCall( "getFields", 'menu_study', {
             "errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
             "success": function( data, textStatus, jqXHR ) {
-
 
                 if(data.infoMessage) {
                     showError(data.infoMessage,"message_warning");
                 }
 
                 // Add all fields to the lists
-                if( data.returnData && data.returnData.studyIds==$( '#study option:selected' ).val() ) {
+                if( data.returnData && data.returnData.studyIds==$( '#select_study option:selected' ).val() ) {
                     var returnData = data.returnData.fields;
 
                     var prevCat = "";
-                    var strOptions = "";
+                    var strOptions = "<option value=''>Select One...</option>";
 	                $.each( returnData, function( idx, field ) {
                         if(field.category!=prevCat) {
                             if(prevCat.length>0) strOptions += "</optgroup>";
@@ -92,93 +69,119 @@ function changeStudy() {
 	                });
                     if(strOptions.length>0) {
                         strOptions += "</optgroup>";
-                        $( "#rows, #columns, #groups" ).html(strOptions);
-                        selectCache['rows'] = $('#rows').html();
-                        selectCache['columns'] = $('#columns').html();
-                        selectCache['groups'] = $('#groups').html();
+                        $( "#select_rows, #select_columns, #select_groups" ).html(strOptions);
                     } else {
                         $("#visualization").html('<div style="padding: 30px">No fields could be found. This visualization prototype requires studies with samples.</div>');
-                        selectCache['rows'] = null;
-                        selectCache['columns'] = null;
-                        selectCache['groups'] = null;
                     }
-	                
-	                $( "#menu_study" ).find(".topmenu_item_info").html($( '#study').find( 'option:selected' ).text());
-                    $( "#menu_row, #menu_column, #menu_groups" ).find(".spinner").hide();
-	                $( "#menu_row, #menu_column" ).addClass("menu_item_fill");
+                    $( "#select_study" ).parents(".menu_header").find(".menu_header_count").switchClass("menu_fill", "menu_done", 1000);
+                    $( "#select_rows, #select_columns, #select_groups" ).parents(".menu_header").find("img.spinner").hide();
+	                $( "#select_rows, #select_columns, #select_groups" ).parents(".menu_header").find(".menu_header_count").addClass("menu_fill");
                 }
             }
-        },'menu_study');
+        });
     }
 }
 
 /**
  * Retrieve the possible visualization types based on the fields that the user has selected.
  */
-function changeFields(divid) {
+function changeFields(selectid) {
 
-    clearStep("#"+divid);
-    $( "#"+divid ).addClass("menu_item_done");
+    $( "#"+selectid ).parents(".menu_header").find(".menu_header_count").switchClass("menu_fill", "menu_done", 1000);
 
-    if($( '#rows' ).find( 'option:selected' ).length>0 && $( '#columns' ).find( 'option:selected' ).length>0) {
+    if($( '#select_rows' ).find( 'option:selected' ).val().length>0 && $( '#select_columns' ).find( 'option:selected' ).val().length>0) {
 
-        $( "#menu_vis" ).find(".spinner").show();
+        $( "#select_types, #select_aggregation" ).parents(".menu_header").find("img.spinner").show();
 
-        executeAjaxCall( "getVisualizationTypes", {
+        executeAjaxCall( "getVisualizationTypes", selectid, {
             "errorMessage": "An error occurred while retrieving visualization types from the server. Please try again or contact a system administrator.",
             "success": function( data, textStatus, jqXHR ) {
                 // Remove all previous entries from the list
-                $( '#types' ).empty();
 
                 if( data.infoMessage!=null ) {
                     showError(data.infoMessage,"message_warning");
                 }
 
-                if( data.returnData && data.returnData.rowIds==$( '#rows option:selected' ).val() && data.returnData.columnIds==$( '#columns option:selected' ).val() ) {
+                if( data.returnData && data.returnData.rowIds==$( '#select_rows option:selected' ).val() && data.returnData.columnIds==$( '#select_columns option:selected' ).val() ) {
                     // Add all fields to the lists
-                    var returnData = data.returnData.types;
+                    var returnDataTypes = data.returnData.types;
+                    var returnDataAggregation = data.returnData.aggregations;
 
-                    $.each( returnData, function( idx, field ) {
-                        $( '#types' ).append( $( "<option>" ).val( field.id ).text( field.name ) );
-                        if( field.name==visType ) { $( '#types').find( 'option:last' ).attr("selected","selected"); };
+                    if(currAggr==null) {
+                        currAggr = "average";
+                    } else {
+                        currAggr = $("#select_aggregation input:checked").val();
+                    }
+                    currType = $("#select_types input:checked").val();
+
+                    $( "#select_types, #select_aggregation" )
+                        .parents(".menu_header")
+                        .find(".menu_header_count")
+                        .addClass("menu_fill");
+
+                    // Disable all aggregation- and visualizationoptions
+                    $("#select_aggregation input, #select_types input").each(function(index) {
+                        $(this).attr("disabled","disabled");
                     });
+
+                    // Enable some visualizationoptions
+                    $.each( returnDataTypes, function( idx, field ) {
+                        $("#vis_"+field.id).attr("disabled",false);
+                        if( field.id==currType || returnDataTypes.length==1 ) {
+                            currType = field.id;
+                            $("#vis_"+field.id).attr("checked","checked");
+                            $( "#select_types" )
+                                .parents(".menu_header")
+                                .find(".menu_header_count")
+                                .switchClass("menu_fill", "menu_done", 1000);
+                        };
+                    });
+
+                    // Enable some aggregationoptions
+                    $.each( returnDataAggregation, function( idx, field ) {
+                        if(!field.disabled)
+                            $("#aggr_"+field.id).attr("disabled",false);
+                            if( field.id==currAggr || returnDataAggregation.length==1 ) {
+                                currAggr = field.id;
+                                $("#aggr_"+field.id).attr("checked","checked");
+                                $( "#select_aggregation" )
+                                    .parents(".menu_header")
+                                    .find(".menu_header_count")
+                                    .switchClass("menu_fill", "menu_done", 1000);
+                            };
+                    });
+
+                    if($("#autovis").attr("checked")=="checked") {
+                        visualize();
+                    }
                 }
 
-                if( $( '#types option' ).length>0 ) {
-                    clearStep("#menu_vis");
-                    $( "#menu_vis" ).addClass("menu_item_fill");
-                    if( visualization )
-                        visualization.destroy();
-                    
-                    if($( '#types' ).find( 'option' ).length==1) {
-                        $( '#types :first-child' ).attr("selected","selected");
-                    }
-                    if($( '#types').find( 'option:selected' ).length>0) {
-                        changeVis();
-                    }
-                }
-
-                $( "#menu_vis" ).find(".spinner").hide();
+                $( "#select_types, #select_aggregation" ).parents(".menu_header").find("img.spinner").hide();
 
             }
-        },divid);
+        });
     }
 }
 
 /**
  *
  */
-function changeVis() {
+function changeRadio(that) {
 
-    if($( '#types' ).find( 'option:selected' ).length>0) {
-        $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_done");
-        visType = $( '#types option:selected' ).text();
+    if($(that).attr("name")=="aggregation") {
+        $( "#select_aggregation" )
+            .parents(".menu_header")
+            .find(".menu_header_count")
+            .switchClass("menu_fill", "menu_done", 1000);
+        currAggr = $(that).id;
     } else {
-        if( $( "#menu_row" ).hasClass("menu_item_done") && $( "#menu_column" ).hasClass("menu_item_done") ) {
-            $( "#menu_vis" ).removeClass().addClass("menu_item menu_item_fill");
-        }
+        $( "#select_types" )
+            .parents(".menu_header")
+            .find(".menu_header_count")
+            .switchClass("menu_fill", "menu_done", 1000);
+        currType = $(that).id;
     }
-    $( "#menu_go" ).removeClass().addClass("menu_item");
+
     if($("#autovis").attr("checked")=="checked") {
         visualize();
     }
@@ -192,11 +195,15 @@ function changeVis() {
  */ 
 function visualize() {
 
-    if($( "#menu_vis" ).hasClass("menu_item_done") &&
-        $( "#menu_row" ).hasClass("menu_item_done") &&
-        $( "#menu_column" ).hasClass("menu_item_done")
+    if($( "#select_rows" ).val() &&
+        $( "#select_columns" ).val() &&
+        $( "#select_types input:checked" ).length>0 &&
+        $( "#select_aggregation input:checked" ).length>0
        ) {
-        executeAjaxCall( "getData", {
+
+        $( "#menu_go" ).find(".spinner").show();
+
+        executeAjaxCall( "getData", "menu_go", {
             "errorMessage": "An error occurred while retrieving data from the server. Please try again or contact a system administrator.",
             "success": function( data, textStatus, jqXHR ) {
                 // Remove old chart, if available
@@ -206,30 +213,34 @@ function visualize() {
                 if(data.infoMessage!=null) {
                     showError(data.infoMessage,"message_warning");
                 }
-                
+
                 // Handle erroneous data
                 if( !checkCorrectData( data.returnData ) ) {
                     showError( ["Unfortunately the server returned data in a format that we did not expect."], "message_error" );
-                    $( "#menu_go" ).find(".spinner").hide();
                     return;
                 }
 
                 // Retrieve the datapoints from the json object
-                var dataPoints = [];
+                var dataPoints = new Array();
                 var series = [];
 
                 var returnData = data.returnData;
 
                 $.each(returnData.series, function(idx, element ) {
                 	if( element.y && element.y.length > 0 ) {
-	                    dataPoints[ dataPoints.length ] = element.y;
+                        if(returnData.type=="horizontal_barchart") {
+                            // The horizontal barchart needs special dataPoints
+                            var newArr = new Array();
+                            for(var i=0; i<element.y.length; i++) {
+                                newArr[ newArr.length ] = new Array(element.y[i],i+1);
+                            }
+                            dataPoints[ dataPoints.length ] = newArr;
+                        } else {
+                            dataPoints[ dataPoints.length ] = element.y;
+                        }
 	                    series[ series.length ] = { "label": element.name };
                 	}
                 });
-
-                if($("#errorbars").attr("checked")=="checked" && returnData.series[ 0 ].error!=null) {
-                    alert("Errorbars aren't implemented yet");
-                }
 
                 // If no datapoints are found, return an error
                 if( dataPoints.length == 0 ) {
@@ -251,104 +262,17 @@ function visualize() {
 
                 var blnShowDataValues = $("#showvalues").attr("checked")=="checked";
                 var blnShowLegend = returnData.series.length>1;
-                var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" ? "outsideGrid" : "insideGrid";
+                var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" && blnShowLegend ? "outsideGrid" : "insideGrid";
                 var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
 
                 switch( returnData.type ) {
-                	case "horizontal_barchart":
-                        plotOptions = {
-                            // Tell the plot to stack the bars.
-                            stackSeries: false,
-                            seriesDefaults:{
-                                renderer:$.jqplot.BarRenderer,
-                                rendererOptions: {
-                                    // Put a 30 pixel margin between bars.
-                                    barMargin: 30,
-                                    // Highlight bars when mouse button pressed.
-                                    // Disables default highlighting on mouse over.
-                                    highlightMouseDown: true,
-                                    barDirection: 'horizontal'
-                                },
-                                pointLabels: {show: blnShowDataValues}
-                            },
-                            highlighter: {
-                                show: !blnShowDataValues,
-                                sizeAdjust: 7.5,
-                                tooltipAxes: "x"
-                            },
-                            legend: {
-                                show: blnShowLegend,
-                                placement: strLegendPlacement
-                            },
-                            series: series,
-                            axes: {
-                                xaxis: {
-                                    label: ylabel,
-                                    formatString:'%.2f',
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                                    tickOptions: {
-                                        angle: xangle
-                                    },
-                            		min: 0
-                                },
-                                yaxis: {
-                                    renderer: $.jqplot.CategoryAxisRenderer,
-                                    ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
-                                    label: xlabel,
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-                                }
-                            },
-                            axesDefaults: {
-                                pad: 1.4
-                            }
-
-                        };
-                		break;
                 	case "scatterplot":
 
                         $.each(returnData.series, function(idx, element ) {
                             series[idx].showLine = false;
                             series[idx].markerOptions = { "size": 7, "style":"filledCircle" };
                         });
-
-                		plotOptions = {
-                            stackSeries: false,
-                            seriesDefaults:{
-                                renderer:$.jqplot.LineRenderer,
-                                pointLabels: {show: blnShowDataValues}
-                            },
-                            series: series,
-                            highlighter: {
-                                show: !blnShowDataValues,
-                                sizeAdjust: 7.5,
-                                tooltipAxes: "y"
-                            },
-                            legend: {
-                                show: blnShowLegend,
-                                placement: strLegendPlacement
-                            },
-                            axes: {
-                                xaxis: {
-                                    renderer: $.jqplot.CategoryAxisRenderer,
-                                    ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    label: xlabel,
-                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                                    tickOptions: {
-                                        angle: xangle
-                                    }
-                                },
-                                yaxis: {
-                                    label: ylabel,
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    formatString:'%.2f'
-                                }
-                            },
-                            axesDefaults: {
-                                pad: 1.4
-                            }
-                        };
+                        // No break, scatterplot gets the plotoptions of the linechart
                 	case "linechart":
                         plotOptions = {
                             stackSeries: false,
@@ -387,6 +311,61 @@ function visualize() {
                                 pad: 1.4
                             }
                         };                		
+                		break;
+                    case "horizontal_barchart":
+                        plotOptions = {
+                            // Tell the plot to stack the bars.
+                            stackSeries: false,
+                            seriesDefaults:{
+                                renderer:$.jqplot.BarRenderer,
+                                rendererOptions: {
+                                    // Put a 30 pixel margin between bars.
+                                    barMargin: 30,
+                                    // Highlight bars when mouse button pressed.
+                                    // Disables default highlighting on mouse over.
+                                    highlightMouseDown: true,
+                                    barDirection: 'horizontal'
+                                },
+                                pointLabels: {show: blnShowDataValues}
+                            },
+                            highlighter: {
+                                show: !blnShowDataValues,
+                                sizeAdjust: 7.5,
+                                tooltipAxes: "x"
+                            },
+                            legend: {
+                                show: blnShowLegend,
+                                placement: strLegendPlacement
+                            },
+                            series: series,
+                            axes: {
+                                xaxis: {
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                                    label: xlabel,
+                                    
+                                    formatString:'%.2f',
+                                    min: 0,
+
+                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                    tickOptions: {
+                                        angle: xangle
+                                    }
+
+                                },
+                                yaxis: {
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                                    label: ylabel,
+
+                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                    ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
+
+                                    renderer: $.jqplot.CategoryAxisRenderer
+                                }
+                            },
+                            axesDefaults: {
+                                pad: 1.4
+                            }
+                        };
                 		break;
                 	case "barchart":
                         plotOptions = {
@@ -434,8 +413,7 @@ function visualize() {
                             axesDefaults: {
                                 pad: 1.4
                             }
-
-                        };                		
+                        };
                 		break;
                 	case "table":
                         // create table
@@ -501,6 +479,7 @@ function visualize() {
                     if(returnData.type=="table") {
                         $( "#visualization" ).html(plotOptions);
                     } else {
+                        console.log(dataPoints);
                         visualization = $.jqplot('visualization', dataPoints, plotOptions );
                     }
                     $( "#visualization" ).show();
@@ -508,7 +487,7 @@ function visualize() {
 
                 $( "#menu_go" ).find(".spinner").hide();
             }
-        }, "menu_go");
+        });
     }
 }
 
@@ -522,70 +501,48 @@ function showError( messages, strClass ) {
         var newClose = $( "<div>" ).css("position","absolute").css("top","3px").css("right","10px").html("<a href='#' onclick='removeError(this); return false;'>x</a>");
 	    $( '#message_container' ).prepend( $( "<div>" ).addClass("message_box "+strClass).html( messages[index] ).css("position","relative").fadeIn().append(newClose) );
     }
-    $( '#message_counter' ).children(".topmenu_item_info").html($('.message_box').length);
+    var newMessage = "&nbsp;" + $('.message_box').length + " message";
+    if($('.message_box').length!=1) {
+        newMessage = newMessage + "s";
+    }
+    $( '#messages_link' ).html(newMessage);
 }
 
 function removeError(strSelector) {
     $( strSelector ).closest(".message_box").remove();
-    $( '#message_counter' ).children(".topmenu_item_info").html($(".message_box").length);
+    var newMessage = "&nbsp;" + $('.message_box').length + " message";
+    if($('.message_box').length!=1) {
+        newMessage = newMessage + "s";
+    }
+    $( '#messages_link' ).html(newMessage);
     if($(".message_box").length==0) {
-        toggleForm('#message_counter', 'close');
+        $('#dialog_messages').dialog('close');
     }
 }
 
-function clearSelect() {
-    clearStep("#menu_groups");
-    $('#groups').html(selectCache['groups']);
-    selectVal['groups'] = null;
-    changeVis();
-}
+function clearSelect(that, stepNr) {
 
-function toggleForm(selector, action) {
-    if( action=="close" || openForm !=null ) {
-        $(openForm).children('.formulier').hide();
-        $(openForm).removeClass("topmenu_item_selected");
-        if($(openForm).attr('id')=='menu_study') {
-            clearSearch('menu_study');
-        }
-        openForm = null;
-    }
-    if( action=="open" ) {
-        $(selector).children('.formulier').show();
-        $(selector).addClass("topmenu_item_selected");
-        openForm = selector;
-    }
-}
+    var block = $(that).parents(".menu_header").find(".block_variable");
+    $(block).children("input, select").val("");
+    $(block).children("input").data( "autocomplete" ).term = "";
 
-function doSearch(menuId, selectId) {
-    var searchVal = $('#'+menuId).find('.block_search').children('input').val();
-    var currentVal = $('#'+selectId).find( 'option:selected' ).val();
-    if(currentVal!==undefined) {
-        selectVal[selectId] = currentVal;
-    }
-    if(selectVal[selectId]!=null) {
-        currentVal = selectVal[selectId];
-    }
-    $('#'+selectId).html(selectCache[selectId]);
-    $('#'+selectId).find('option[value="'+currentVal+'"]').attr('selected','selected');
-    $('#'+selectId).find('option:not(:Contains("'+searchVal+'"))').remove();
-}
+    if(stepNr==1) {
+        $(that).parents(".menu_item").children(".menu_header").each(function(index) {
 
-function clearSearch(menuId, selectId) {
-    $('#'+menuId).find('.block_search').children('input').val('');
-    doSearch(menuId, selectId);
+            if($(this).find("select").val()!=null && $(this).find("select").val()!="") {
+                clearSelect($(this).find("select"),0);
+                $(this).find("select").empty();
+                $(this).children(".menu_header_count").removeClass().addClass("menu_header_count");
+            }
+            
+        });
+    }
+    if(stepNr>=1) {
+        $(that).parents(".menu_header").children(".menu_header_count").removeClass().addClass("menu_header_count menu_fill");
+    }
 }
 
 /**
- * Clears one or multiple steps
- * @param data
- */
-function clearStep(strSelector) {
-    $( strSelector ).removeClass().addClass("menu_item");
-    $( strSelector ).find(".menu_item_info").html("");
-    $( strSelector ).find("img.spinner").hide();
-}
-
-/** 
  * Checks whether the data in the getData call can be handled correctly
  * @param	JSON object to check
  * @return	boolean	True if the data is correctly formatted, false otherwise
@@ -635,7 +592,7 @@ function gatherData( type ) {
  * @see visualizationUrls
  * @see jQuery.ajax
  */
-function executeAjaxCall( action, ajaxParameters, divid ) {
+function executeAjaxCall( action, selectid, ajaxParameters ) {
 	var data = gatherData( action );
 
 	// If no parameters are given, create an empty map
@@ -647,11 +604,8 @@ function executeAjaxCall( action, ajaxParameters, divid ) {
 		ajaxParameters[ "error" ] = function( jqXHR, textStatus, errorThrown ) {
 			// An error occurred while retrieving fields from the server
 			showError( ["An error occurred while retrieving variables from the server. Please try again or contact a system administrator.<br />"+textStatus], "message_error" );
-            $( "#"+divid ).removeClass().addClass('menu_item_error');
-            if(divid!="menu_study") {
-                $( "#"+divid ).addClass('menu_item');
-            }
-            $( "#"+divid ).find(".spinner").hide();
+            $( "#"+selectid ).parents(".menu_header").find(".menu_header_count").switchClass("menu_fill", "menu_error", 1000);
+            $( "#"+selectid ).parents(".menu_header").find("img.spinner").hide();
 		}
 
 		// Remove the error message
@@ -667,3 +621,101 @@ function executeAjaxCall( action, ajaxParameters, divid ) {
 		dataType: "json"
 	}, ajaxParameters ) );
 }
+
+
+/*
+ * Create autocomplete with a select
+ * From : http://jqueryui.com/demos/autocomplete/#combobox
+ */
+(function( $ ) {
+    $.widget( "ui.combobox", $.ui.autocomplete, {
+        _create: function() {
+            var self = this,
+                select = this.element.hide(),
+                selected = select.children( ":selected" ),
+                value = selected.val() ? selected.text() : "";
+            var input = this.input = $( "<input>" )
+                .insertAfter( select )
+                .val( value )
+                .autocomplete({
+                    delay: 0,
+                    minLength: 0,
+                    source: function( request, response ) {
+                        var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+                        var currCat = "";
+                        response( select.find( "option, optgroup" ).map(function() {
+                            if(this.nodeName=="OPTION") {
+                                var text = $( this ).text();
+                                if ( this.value && ( !request.term || matcher.test(text) ) ) {
+                                    return {
+                                        category: currCat,
+                                        label: text.replace(
+                                            new RegExp(
+                                                "(?![^&;]+;)(?!<[^<>]*)(" +
+                                                $.ui.autocomplete.escapeRegex(request.term) +
+                                                ")(?![^<>]*>)(?![^&;]+;)", "gi"
+                                            ), "<strong>$1</strong>" ),
+                                        value: text,
+                                        option: this
+                                    };
+                                }
+                            } else {
+                                currCat = $( this ).attr("label");
+                            }
+                        }) );
+                    },
+                    select: function( event, ui ) {
+                        ui.item.option.selected = true;
+                        self._trigger( "selected", event, {
+                            item: ui.item.option
+                        });
+                        select.trigger("change");
+                    },
+                    change: function( event, ui ) {
+                        if ( !ui.item ) {
+                            var matcher = new RegExp( "^" + $.ui.autocomplete.escapeRegex( $(this).val() ) + "$", "i" ),
+                                valid = false;
+                            select.children( "option" ).each(function() {
+                                if ( $( this ).text().match( matcher ) ) {
+                                    this.selected = valid = true;
+                                    return false;
+                                }
+                            });
+                            if ( !valid ) {
+                                // remove invalid value, as it didn't match anything
+                                $( this ).val( "" );
+                                select.val( "" );
+                                input.data( "autocomplete" ).term = "";
+                                return false;
+                            }
+                        }
+                    }
+                });
+
+            input.data( "autocomplete" )._renderMenu = function( ul, items ) {
+                var self = this,
+                    currentCategory = "";
+                $.each( items, function( index, item ) {
+                    if ( item.category != currentCategory ) {
+                        ul.append( "<li class='ui-autocomplete-category'>" + item.category + "</li>" );
+                        currentCategory = item.category;
+                    }
+                    self._renderItem( ul, item );
+                });
+            };
+
+            input.data( "autocomplete" )._renderItem = function( ul, item ) {
+                return $( "<li></li>" )
+                    .data( "item.autocomplete", item )
+                    .append( "<a>" + item.label + "</a>" )
+                    .appendTo( ul );
+            };
+        },
+
+        destroy: function() {
+            this.input.remove();
+            this.element.show();
+            $.Widget.prototype.destroy.call( this );
+        }
+    });
+})( jQuery );

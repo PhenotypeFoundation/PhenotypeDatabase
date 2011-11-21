@@ -806,7 +806,7 @@ class VisualizeController {
 			
 		} else {
 			// For a horizontal barchart, the two axes should be swapped
-			if( type == "horizontal_barchart" ) { 
+			if( type == "horizontal_barchart" ) {
 				def tmp = xAxis
 				xAxis = yAxis
 				yAxis = tmp

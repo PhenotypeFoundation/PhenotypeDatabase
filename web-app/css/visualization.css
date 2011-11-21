@@ -12,19 +12,22 @@ table.jqplot-table-legend { width: 100px; }
 
 #visualization {
     width: 100%;
+    height: 100%;
 }
 
 #data {
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: #DFE8F6;
+    background-color: #E9F0FB;
+    padding-top: 2px;
 }
 
 /** START :: TABLE VISUALIZATION **/
 
 table.tablevis {
     border-style: none;
+    font-size: small;
 }
 
 table.tablevis th {
@@ -104,41 +107,41 @@ table.tablevis tr:not(:first-child) td:first-child.caption {
     font-size: 11px;
 }
 
-.menu_item_done {
+span.menu_done {
     background-color: #67E667;
-    border-color: green;
 }
 
-.menu_item_error {
+span.menu_error {
     background-color: pink;
-    border-color: red;
 }
 
-.menu_item_warning {
-    background-color: yellow;
-    border-color: #ffa07a;
+span.menu_warning {
+    background-color: #ffa07a;
 }
 
-.menu_item_fill {
+span.menu_fill {
     background-color: #A5DCFD;
-    border-color: blue;
 }
 
-.menu_item_label {
+.menu_header_label {
     display: inline-block;
-    font-size: 20px;
+    font-size: 17px;
     color: #006DBA;
-    vertical-align: bottom;
+    vertical-align: baseline;
 }
 
-.menu_item_label_count {
+.menu_header_clear, .menu_header_clear a {
+    font-size: 10px;
+}
+
+.menu_header_count {
     display: inline-block;
     height: 22px;
     width: 25px;
     margin-right: 5px;
     font-size: 16px;
     font-weight: bold;
-    background-color: #006DBA;
+    background-color: #DDD;
     color: white;
     text-align: center;
     padding-top: 3px;
@@ -157,116 +160,17 @@ table.tablevis tr:not(:first-child) td:first-child.caption {
     vertical-align: middle;
 }
 
-.menu_item select {
-    width: 100%;
-    height: 120px;
-    margin-top: 3px;
-    font-size: 12px;
-}
-
-.menu_item select#types {
-    height: 60px;
-}
-
-.menu_item p {
-    margin-bottom: 0px;
-}
-
 #menu_go {
     background-color: white;
     text-align: center;
 }
 
-/* START :: Top menu */
-#top_container {
-    position: relative;
-    width: 100%;
-    background-color: #D0DEF0;
-    border-bottom: 1px solid #006dba;
-    margin-top: 5px;
-    padding-top: 5px;
-    height: 25px;
-    vertical-align: middle;
+.settings {
+    margin-top: 10px;
 }
 
-.topmenu_item {
-    display: inline-block;
-    position: relative;
-    padding: 3px;
-    height: 14px;
-    vertical-align: top;
-}
-
-.topmenu_item:hover {
-    background-color: white;
-    cursor: pointer;
-}
-
-.topmenu_item_selected {
-    background-color: white;
-    border: 1px solid #006dba;
-}
-
-.topmenu_item_label {
-    display: inline-block;
-    vertical-align: text-bottom;
-    color: #000033;
-}
-
-.topmenu_item_info {
-    display: inline-block;
-    vertical-align: top;
-    color: #000066;
-    overflow: hidden;
-    width:auto;
-    max-width: 200px;
-    max-height: 18px;
-}
-
-.formulier {
-    width: 300px;
-    font-size: 11px;
-    position: absolute;
-    top: 20px;
-    left: -1px;
-    display: none;
-    padding: 10px;
-    margin: 0px;
-    background-color: white;
-    border: 1px solid #006dba;
-    z-index: 10;
-}
-
-#menu_study .formulier {
-    width: 600px;
-}
-
-#menu_study select {
-    height: 200px;
-}
-
-.formulier select {
-    width: 100%;
-    height: 120px;
-    font-size: 12px;
-}
-
-.formulier table {
-    border-style: none;
-}
-
-.formulier table td {
-    font-size: 10px;
-    padding: 6px 2px;
-}
-
-.menu_seperator {
-    background-position: center center;
-    background-repeat: no-repeat;
-    padding-bottom: 5px;
-    width: 4px;
-    overflow: hidden;
-    height: 100%;
+.settings img {
+    border: 0px solid #000000;
 }
 
 /** START :: MISC */
@@ -291,38 +195,37 @@ table.tablevis tr:not(:first-child) td:first-child.caption {
     font-size: 16pt;
 }
 
-div.formulier {
-    -moz-box-shadow: 3px 3px 4px #000; /* Firefox/Mozilla */
-    -webkit-box-shadow: 3px 3px 4px #000; /*Safari/Chrome */
-    box-shadow: 3px 3px 4px #000; /* Opera & hoe het zou moeten */
-    /* Voor IE 8 */
-    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000')";
-    /* Voor IE 5.5 - 7 */
-    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
+.ui-autocomplete-category {
+    font-weight: bold;
+    padding: .2em .4em;
+    margin: .8em 0 .2em;
+    line-height: 1.5;
 }
 
-/* START :: Block search */
-.block_search {
+.settingInfo {
+    font-size: smaller;
+    color: #999;
+}
+
+/* START :: Block variable */
+.block_variable {
 	position: relative;
-	width: 96%;
-	border: 1px solid gray;
-	border-top-style: none;
-	text-align: left;
-	padding: 3px 2%;
+	width: 100%;
+    padding: 2px 0px 5px;
 }
 
-.block_search img {
-	vertical-align: text-bottom;
-	padding-left: 1px;
+.block_variable .ui-autocomplete-input {
+	width: 98%;
 }
 
-.imgbutton {
-	cursor: pointer;
+.block_variable input[disabled='disabled'] {
+    background-color: #DDD;
 }
 
-.block_search input {
-    background-color: inherit;
-	border-style: none;
-	border-bottom: 1px solid gray;
-	width: 80%;
+.block_variable input[type='radio'] {
+    margin-right: 5%;
+}
+
+.block_variable label {
+    width: 35%;
 }
