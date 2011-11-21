@@ -97,6 +97,10 @@ ul.topnav li {
 	z-index: 994; /** Important: keeps submenu's on top of other elements in IE7. See http://www.shawnpreisz.com/css/z-index-internet-explorer-7-ie7#comment-547 */
 }
 
+ul.topnav li.distinct {
+	margin-left: 40px;
+}
+
 ul.topnav li img {
 	border: none;
 }

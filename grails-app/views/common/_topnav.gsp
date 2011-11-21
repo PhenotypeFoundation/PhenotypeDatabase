@@ -73,7 +73,7 @@
       </ul>
     </li>
 	<g:if test="${ConfigurationHolder.config.modules.showInMenu && AssayModule.count()}">
-		<li>
+		<li class="distinct">
 			<a href="#">Modules</a>
 			<ul class="subnav">
 				<g:each in="${AssayModule.list()}" var="assayModule">
@@ -84,7 +84,7 @@
 	</g:if>
     </sec:ifLoggedIn>
 	<sec:ifAllGranted roles="ROLE_ADMIN">
-		<li>
+		<li class="distinct">
 			<a href="#">Admin</a>
 			<ul class="subnav">
 				<li><g:link controller="user" class="icon icon_user"><img src="${fam.icon(name: 'user')}" alt="user administration"/> List Users</g:link></li>
