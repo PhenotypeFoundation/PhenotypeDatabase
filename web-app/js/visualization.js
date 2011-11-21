@@ -30,6 +30,14 @@ $(document).ready(function() {
     $( "#select_columns" ).combobox();
     $( "#select_groups" ).combobox();
 
+    $(".ui-autocomplete-input").click(function() {
+        $( this ).blur();
+        // pass empty string as value to search for, displaying all results
+        $( this ).autocomplete( "search", "" );
+        $( this ).focus();
+    });
+
+
 });
 
 /**
