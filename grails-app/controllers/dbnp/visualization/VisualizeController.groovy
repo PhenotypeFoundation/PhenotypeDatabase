@@ -91,6 +91,9 @@ class VisualizeController {
             fields += getFields(study, "samples", "domainfields")
             fields += getFields(study, "samples", "templatefields")
 
+			// Also make sure the user can select eventGroup to visualize
+			fields += formatGSCFFields( "domainfields", [ name: "name" ], "GSCF", "eventGroups" );
+			
             /*
             Gather fields related to this study from modules.
             This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
@@ -968,6 +971,19 @@ class VisualizeController {
 
 					return sample.parentEventGroup.events?.collect { getFieldValue( it, field ) };
 				}
+			case "EventGroup":
+			case "eventGroups":
+				return { sample, field ->
+					if( !sample || !sample.parentEventGroup )
+						return null
+
+					// For eventgroups only the name is supported
+					if( field == "name" )
+						return sample.parentEventGroup.name
+					else
+						return null 
+				}
+	
 			case "SamplingEvent":
 			case "samplingEvents":
 				return { sample, field -> return getFieldValue( sample.parentEvent, field ); }
@@ -1011,6 +1027,10 @@ class VisualizeController {
 		   case "Assay":
 		   case "assays":
 		   		return Assay
+		   case "EventGroup":
+		   case "eventGroups":
+				   return EventGroup
+		
 	   }
    }
 
@@ -1319,9 +1339,9 @@ class VisualizeController {
                         return determineCategoryFromTemplateFieldId(parsedField.id)
                 } else { // Domainfield or memberclass
                     def callback = domainObjectCallback( parsedField.type )
-
+					
                     // Can the field be found in the domainFields as well? If so, treat it as a template field, so that dates and times can be properly rendered in a human-readable fashion
-                    if(callback?.giveDomainFields().name.contains(parsedField.name.toString())){
+                    if(callback.metaClass.methods.contains( "giveDomainFields" ) && callback?.giveDomainFields()?.name?.contains(parsedField.name.toString())){
                         // Use the associated templateField to determine the field type
                         return determineCategoryFromTemplateField(
                                 callback?.giveDomainFields()[
