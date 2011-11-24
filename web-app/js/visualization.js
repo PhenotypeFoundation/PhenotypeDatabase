@@ -547,6 +547,7 @@ function clearSelect(that, stepNr) {
     }
     if(stepNr>=1) {
         $(that).parents(".menu_header").children(".menu_header_count").removeClass().addClass("menu_header_count menu_fill");
+        visualize();
     }
 }
 
