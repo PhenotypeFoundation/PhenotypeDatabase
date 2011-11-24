@@ -19,7 +19,7 @@
     <g:javascript src="jqplot/plugins/jqplot.highlighter.min.js" />
 
 	<g:javascript src="visualization.js" />
-	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css'/>" console.log("1:: "+$("#select_study").parent(".block_variable").find("input").val()); />
+	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css'/>"/>
     <style type="text/css">
         /** NEEDED FOR RESOURCES PLUGIN **/
         .menu_seperator {background-image: url(${resource(dir: 'images/visualization', file: 'seperator.gif')}); }
