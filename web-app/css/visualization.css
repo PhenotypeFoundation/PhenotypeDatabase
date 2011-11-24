@@ -182,7 +182,6 @@ span.menu_fill {
     display: none;
     width: 16px;
     height: 16px;
-    vertical-align: text-bottom;
 }
 
 #button_visualize {
@@ -190,7 +189,7 @@ span.menu_fill {
     padding: 10px;
     width: 90%;
     text-align: center;
-    background-color: #DD0a0a;
+    background-color: #367BA4;
     color: white;
     font-size: 16pt;
 }

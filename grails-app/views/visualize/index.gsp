@@ -19,7 +19,7 @@
     <g:javascript src="jqplot/plugins/jqplot.highlighter.min.js" />
 
 	<g:javascript src="visualization.js" />
-	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css' />" />
+	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css'/>" console.log("1:: "+$("#select_study").parent(".block_variable").find("input").val()); />
     <style type="text/css">
         /** NEEDED FOR RESOURCES PLUGIN **/
         .menu_seperator {background-image: url(${resource(dir: 'images/visualization', file: 'seperator.gif')}); }
@@ -104,7 +104,9 @@
                     </div>
                     <div class="menu_item" id="menu_go">
                         <button id="button_visualize" onClick="visualize(); return false;" >
+                            <img src="${resource(dir: 'images/ajaxflow', file: 'spacer.gif')}" class="spinner" />
                             VISUALIZE
+                            <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" />
                         </button>
                     </div>
 

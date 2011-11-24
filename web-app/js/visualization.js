@@ -483,6 +483,7 @@ function visualize() {
                 
                 // If a chart has been created, show it
                 if( plotOptions != null ) {
+
                     $( "#visualization" ).empty();
                     if(returnData.type=="table") {
                         $( "#visualization" ).html(plotOptions);
@@ -540,6 +541,7 @@ function clearSelect(that, stepNr) {
             if($(this).find("select").val()!=null && $(this).find("select").val()!="") {
                 clearSelect($(this).find("select"),0);
                 $(this).find("select").empty();
+                $(this).find("input").val("");
                 $(this).children(".menu_header_count").removeClass().addClass("menu_header_count");
             }
             
@@ -655,7 +657,7 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
                         response( select.find( "option, optgroup" ).map(function() {
                             if(this.nodeName=="OPTION") {
                                 var text = $( this ).text();
-                                if ( this.value && ( !request.term || matcher.test(text) ) ) {
+                                if ( this.value && (( !request.term || matcher.test(text) ) || matcher.test(currCat)) ) {
                                     return {
                                         category: currCat,
                                         label: text.replace(
@@ -697,7 +699,7 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
                                 input.data( "autocomplete" ).term = "";
                                 return false;
                             }
-                        }
+                        } 
                     }
                 });
 
