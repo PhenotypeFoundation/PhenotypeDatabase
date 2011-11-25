@@ -170,8 +170,8 @@ class AssayService {
 		}
 
 		// Find samples and sort by name
-		if( !samples )
-			samples = assay.samples.toList().sort { it.name }
+		if ( !samples ) samples = assay.samples.toList()
+		samples = samples.sort { it.name }
 
 		def eventFieldMap = [:]
 
@@ -193,6 +193,7 @@ class AssayService {
 				moduleMeasurementData = requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
 			} catch (e) {
 				moduleMeasurementData = ['error' : ['Module error, module not available or unknown assay'] * samples.size() ]
+				e.printStackTrace()
 				moduleError =  e.message
 			}
 
@@ -310,11 +311,16 @@ class AssayService {
 
 		def query = "assayToken=$assay.assayUUID$tokenString"
 
+		if (samples) {
+			 query += '&' + samples*.sampleUUID.collect { "sampleToken=$it" }.join('&')
+		}
+
 		def sampleTokens = [], measurementTokens = [], moduleData = []
 
 		try {
 			(sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST", remoteUser)
 		} catch (e) {
+			e.printStackTrace()
 			throw new Exception("An error occured while trying to get the measurement data from the $assay.module.name. \
              This means the module containing the measurement data is not available right now. Please try again \
              later or notify the system administrator if the problem persists. URL: $path?$query.")

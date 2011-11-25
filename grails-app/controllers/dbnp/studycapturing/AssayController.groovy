@@ -57,7 +57,7 @@ class AssayController {
 				def (fieldMapSelection, measurementTokens) = processExportSelection(flow.assay, flow.fieldMap, params)
 
 				// interpret the params set and gather the data
-				flow.rowData = collectAssayData(flow.assay, fieldMapSelection, measurementTokens, [])
+				flow.rowData = collectAssayData(flow.assay, fieldMapSelection, measurementTokens, flow.assay.samples)
 
 				// remember the selected file type
 				flow.exportFileType = params.exportFileType

@@ -182,7 +182,7 @@ class ModuleCommunicationService implements Serializable {
 
 		// Store the response in cache
 		storeInCache( restUrl, restResponse, args );
-		
+
 		return restResponse
 
 	}
@@ -204,7 +204,7 @@ class ModuleCommunicationService implements Serializable {
 	def retrieveFromCache( url, args = null ) {
 		def user = authenticationService.getLoggedInUser();
 		def userId = user ? user.id : -1;
-		
+
 		url = cacheUrl( url, args )
 		
 		if( cache[ userId ] && cache[ userId ][ url ] && ( System.currentTimeMillis() - cache[ userId ][ url ][ "timestamp" ] ) < numberOfSecondsInCache * 1000 ) {
