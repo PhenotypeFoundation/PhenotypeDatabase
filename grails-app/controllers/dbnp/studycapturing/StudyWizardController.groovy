@@ -1613,7 +1613,7 @@ class StudyWizardController {
 		def errors		= false
 		def number		= params.get('addNumber') as int
 		def species		= Term.findByName(params.get('species'))
-		def template	= Template.findByName(params.get('template'))
+		def template	= Template.findAllByName( params.get('template')).find { it.entity == dbnp.studycapturing.Subject }
 
 		// can we add subjects?
 		if (number > 0 && species && template) {
@@ -1897,7 +1897,7 @@ class StudyWizardController {
 			// has the template changed?
 			def templateName = params.get('template_' + sample.getIdentifier())
 			if (templateName && sample.template?.name != templateName) {
-				sample.template = Template.findByName(templateName)
+				sample.template = Template.findAllByName(params.get(templateName)).find { it.entity == dbnp.studycapturing.Sample }
 			}
 
 			// validate sample
