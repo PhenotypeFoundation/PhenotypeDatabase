@@ -462,9 +462,14 @@ class StudyWizardController {
 
 				// get template
 				def type	= params.get('eventType')
-				def template= Template.findByName( params.get( type + 'Template' ) )
-				if (template) template.refresh()
+				def template= null
+				if (type =="event") {
+					template = Template.findAllByName( params.get( type + 'Template' ) ).find { it.entity == dbnp.studycapturing.Event }
+				} else if (type == "sample") {
+					template = Template.findAllByName( params.get( type + 'Template' ) ).find { it.entity == dbnp.studycapturing.SamplingEvent }
+				}
 
+				if (template) template.refresh()
 				// change template and/or instance?
 				if (!flow.event || (flow.event instanceof Event && type == "sample") || (flow.event instanceof SamplingEvent && type == "event")) {
 					// create new instance
@@ -892,7 +897,8 @@ class StudyWizardController {
 	            assayPage(flow, flash, params)
 
 	            // find assay template
-	            def template = Template.findByName(params.get('template'))
+				def template = Template.findAllByName( params.get( 'template' ) ).find { it.entity == dbnp.studycapturing.Assay }
+
 	            if (flow.assay) {
 		            // set template
 		            flow.assay.template = template
@@ -1276,7 +1282,7 @@ class StudyWizardController {
 		// did the study template change?
 		if (params.get('template').size() && flow.study.template?.name != params.get('template')) {
 			// set the template
-			flow.study.template = Template.findByName(params.remove('template'))
+			flow.study.template = Template.findAllByName( params.remove('template')).find { it.entity == dbnp.studycapturing.Study }
 		}
 
 		// does the study have a template set?

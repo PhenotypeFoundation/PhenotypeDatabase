@@ -36,7 +36,7 @@
 	<g:if test="${event?.template}"><af:buttonElement name="add" value="Add" afterSuccess="onPage()"/></g:if>
 	</div>
 	</g:if>
-	
+
 	<script type="text/javascript">
 	function swapTemplate(value,refresh) {
 		$("div[id$='Template'],div[id$='TemplateFields']").each(function() {
