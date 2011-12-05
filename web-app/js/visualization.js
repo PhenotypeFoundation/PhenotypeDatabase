@@ -294,8 +294,6 @@ function visualize() {
                 var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" && blnShowLegend ? "outsideGrid" : "insideGrid";
                 var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
 
-                returnData.type = "boxplot";
-
                 switch( returnData.type ) {
                 	case "scatterplot":
 
@@ -548,6 +546,10 @@ function visualize() {
                     $( "#visualization" ).css("height",$( "#visualization_container" ).innerHeight()-2);
 
                     $( "#visualization" ).empty();
+                    if(bx!==undefined) {
+                        bx.destroy();
+                    }
+                    
                     if(returnData.type=="table") {
                         $( "#visualization" ).html(plotOptions);
                     } else if(returnData.type=="boxplot") {
