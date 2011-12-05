@@ -18,6 +18,10 @@
     <g:javascript src="jqplot/plugins/jqplot.ohlcRenderer.min.js" />
     <g:javascript src="jqplot/plugins/jqplot.highlighter.min.js" />
 
+    <!-- canvasXpress for boxplots -->
+    <!--[if IE]><g:javascript src="canvasxpress/excanvas.js" /><![endif]-->
+    <g:javascript src="canvasxpress/canvasXpress.min.js" />
+
 	<g:javascript src="visualization.js" />
 	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css'/>"/>
     <style type="text/css">
@@ -99,6 +103,7 @@
                                 <label for="vis_linechart">Linechart</label><input type="radio" name="types" id="vis_linechart" value="linechart" onClick="changeRadio(this);"/>
                                 <label for="vis_scatterplot">Scatterplot</label><input type="radio" name="types" id="vis_scatterplot" value="scatterplot" onClick="changeRadio(this);"/>
                                 <label for="vis_table">Table</label><input type="radio" name="types" id="vis_table" value="table" onClick="changeRadio(this);"/>
+                                <label for="vis_boxplot">Boxplot</label><input type="radio" name="types" id="vis_boxplot" value="boxplot" onClick="changeRadio(this);"/>
                             </div>
                         </div>
                     </div>

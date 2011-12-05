@@ -1566,7 +1566,7 @@ class VisualizeController {
             }
         } else {	// NUMERICALDATA
             if(columnType == CATEGORICALDATA || columnType == DATE || columnType == RELTIME){
-                types = [ [ "id": "barchart", "name": "Barchart"], [ "id": "linechart", "name": "Linechart"] ];
+                types = [ [ "id": "barchart", "name": "Barchart"], [ "id": "linechart", "name": "Linechart"], [ "id": "boxplot", "name": "Boxplot"] ];
             } else {
                 types = [ [ "id": "scatterplot", "name": "Scatterplot"], [ "id": "linechart", "name": "Linechart"] ];
             }

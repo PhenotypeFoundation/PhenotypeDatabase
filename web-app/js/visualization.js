@@ -182,13 +182,31 @@ function changeRadio(that) {
             .parents(".menu_header")
             .find(".menu_header_count")
             .switchClass("menu_fill", "menu_done", 1000);
-        currAggr = $(that).id;
+        currAggr = $(that).val();
+
+        if(currAggr!="none") {
+            $("#vis_boxplot").attr("disabled","disabled");
+            if(currType=="boxplot") {
+                $("#vis_boxplot").attr("checked",false);
+            }
+        } else {
+            $("#vis_boxplot").attr("disabled",false);
+        }
     } else {
         $( "#select_types" )
             .parents(".menu_header")
             .find(".menu_header_count")
             .switchClass("menu_fill", "menu_done", 1000);
-        currType = $(that).id;
+        currType = $(that).val();
+
+        if($(that).val()=="boxplot") {
+            $( "#select_aggregation input[value=none]" ).attr("checked","checked");
+            $( "#select_aggregation" )
+                .parents(".menu_header")
+                .find(".menu_header_count")
+                .switchClass("menu_fill", "menu_done", 1000);
+            currAggr = "none";
+        }
     }
 
     if($("#autovis").attr("checked")=="checked") {
@@ -232,6 +250,8 @@ function visualize() {
                 // Retrieve the datapoints from the json object
                 var dataPoints = new Array();
                 var series = [];
+                
+                //data = {"returnData":{"type":null,"xaxis":{"title":"Gender","unit":"","type":"categorical"},"yaxis":{"title":"Weight","unit":"kg","type":"numerical"},"groupaxis":{"title":null,"unit":null,"type":"numerical"},"series":[{"name":"count","x":["Male","Male","Female","Male","Male","Male","Male","Male","Female","Female","Female"],"y":[1,2,3,4,2,2,3,1,2,3,5]}]}}
 
                 var returnData = data.returnData;
 
@@ -273,6 +293,8 @@ function visualize() {
                 var blnShowLegend = returnData.series.length>1;
                 var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" && blnShowLegend ? "outsideGrid" : "insideGrid";
                 var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
+
+                returnData.type = "boxplot";
 
                 switch( returnData.type ) {
                 	case "scatterplot":
@@ -480,11 +502,39 @@ function visualize() {
 
                         plotOptions = table;
                 		break;
+                    case "boxplot":
+                        var arrSmps = new Array();
+                        for(i=0; i<returnData.series[0].x.length; i++) {
+                            arrSmps[i] = "Smp"+i;
+                        }
+                        plotOptions = {
+                              x: {xdata: returnData.series[0].x},
+                              y: {vars:  ['blabla'],
+                                   smps:  arrSmps,
+                                   desc:  [ylabel],
+                                   data:  [returnData.series[0].y]
+                                 }
+                        };
+                        var plotOptions2 = {
+                            graphType: 'Boxplot',
+                            graphOrientation: 'vertical',
+                            showDataValues: true,
+                            //title: 'Boxplots',
+                            maxTextSize: 5,
+                            colorScheme: 'basic',
+                            blockFactor: 1.5,
+                            smpLabelRotate: -xangle,
+                            legendBackgroundColor: false,
+                            blockSeparationFactor: 2,
+                            //showLegend: blnShowLegend
+                            showLegend: false
+                        };
+                        break;
                 }
                 
                 // If a chart has been created, show it
                 if( plotOptions != null ) {
-
+                    /*
                     if(returnData.type!="table") {
                         if(returnData.xaxis.type=="numerical" && plotOptions.axes.xaxis.renderer==$.jqplot.CategoryAxisRenderer) {
                             delete plotOptions.axes.xaxis.renderer;
@@ -492,11 +542,21 @@ function visualize() {
                         if(returnData.yaxis.type=="numerical" && plotOptions.axes.yaxis.renderer==$.jqplot.CategoryAxisRenderer) {
                             delete plotOptions.axes.yaxis.renderer;
                         }
-                    }
+                    }*/
+
+                    $( "#visualization" ).css("width",$( "#visualization_container" ).innerWidth()-2);
+                    $( "#visualization" ).css("height",$( "#visualization_container" ).innerHeight()-2);
 
                     $( "#visualization" ).empty();
                     if(returnData.type=="table") {
                         $( "#visualization" ).html(plotOptions);
+                    } else if(returnData.type=="boxplot") {
+                        $( "#visualization" ).html('<canvas id="boxplotcanvas"></canvas>');
+                        $( "#boxplotcanvas" ).css("width",$( "#visualization" ).innerWidth()-2);
+                        $( "#boxplotcanvas" ).css("height",$( "#visualization" ).innerHeight()-2);
+                        var bx = new CanvasXpress('boxplotcanvas',plotOptions, plotOptions2);
+                        bx.groupSamples(['xdata'], 'iqr');
+                        bx.draw();
                     } else {
                         console.log(dataPoints);
                         visualization = $.jqplot('visualization', dataPoints, plotOptions );
