@@ -526,8 +526,11 @@ class VisualizeController {
                         // Search for this sampletoken
                         def sampleToken = sample.sampleUUID;
                         def index = sampleTokens.findIndexOf { it == sampleToken }
-
-                        if( index > -1 ) {
+						
+						// Store the measurement value if found and if it is not JSONObject$Null
+						// See http://grails.1312388.n4.nabble.com/The-groovy-truth-of-JSONObject-Null-td3661040.html
+						// for this comparison
+                        if( index > -1  && !measurements[ index ].equals( null ) ) {
                             data << measurements[ index ];
                         } else {
                             data << null
@@ -566,9 +569,32 @@ class VisualizeController {
 	 * 
 	 */
 	def aggregateData( data, fieldInfo, aggregation ) {
-		// If no aggregation is requested, we just return the original object
-		if( aggregation == "none" )
-			return data
+		// If no aggregation is requested, we just return the original object (but filtering out null values)
+		if( aggregation == "none" ) {
+			def filteredData = [:];
+			
+			// Create a copy of the data object
+			data.each { 
+				filteredData[ it.key ] = it.value;
+			}
+			
+			// Loop through all values and return all null-values (and the same indices on other elements
+			fieldInfo.keySet().each { fieldName ->
+				// If values are found, do filtering. If not, skip this one
+				if( fieldInfo[ fieldName ] != null ) {
+					// Find all non-null values in this list
+					def indices = filteredData[ fieldName ].findIndexValues { it != null };
+					
+					// Remove the non-null values from each data object
+					filteredData.each { key, value ->
+						if( value && value instanceof Collection )
+							filteredData[ key ] = value[ indices ];
+					}
+				}
+			}
+			 
+			return filteredData
+		}
 		
 		// Determine the categorical fields
 		def dimensions = [ "categorical": [], "numerical": [] ];
