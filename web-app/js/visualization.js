@@ -46,6 +46,7 @@ $(document).ready(function() {
 function changeStudy() {
 
     $( '#select_rows, #select_columns, #select_groups' ).empty();
+    $( '#select_rows, #select_columns, #select_groups' ).next().val("");
 
     if( visualization )
         visualization.destroy();
@@ -483,6 +484,15 @@ function visualize() {
                 
                 // If a chart has been created, show it
                 if( plotOptions != null ) {
+
+                    if(returnData.type!="table") {
+                        if(returnData.xaxis.type=="numerical" && plotOptions.axes.xaxis.renderer==$.jqplot.CategoryAxisRenderer) {
+                            delete plotOptions.axes.xaxis.renderer;
+                        }
+                        if(returnData.yaxis.type=="numerical" && plotOptions.axes.yaxis.renderer==$.jqplot.CategoryAxisRenderer) {
+                            delete plotOptions.axes.yaxis.renderer;
+                        }
+                    }
 
                     $( "#visualization" ).empty();
                     if(returnData.type=="table") {
