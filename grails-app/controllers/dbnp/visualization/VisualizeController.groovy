@@ -339,7 +339,7 @@ class VisualizeController {
 		// Extract parameters
 		// TODO: handle erroneous input data
 		def inputData = parseGetDataParams();
-
+		
         if(inputData.columnIds == null || inputData.rowIds == null){
             infoMessage = "Please select data sources for the y- and x-axes."
             return sendInfoMessage()
@@ -363,9 +363,9 @@ class VisualizeController {
 		def fieldInfo = [:]
 		fields.each { 
 			fieldInfo[ it.key ] = parseFieldId( it.value ) 
-			
 			if( fieldInfo[ it.key ] )
 				fieldInfo[ it.key ].fieldType = determineFieldType( study.id, it.value );
+				
 		}
 		
 		// If the groupAxis is numerical, we should ignore it, unless a table is asked for
@@ -373,13 +373,19 @@ class VisualizeController {
 			fields.group = null;
 			fieldInfo.group = null;
 		}
-		
+
+		println "Fields: "
+		fieldInfo.each { println it }
+
 		// Fetch all data from the system. data will be in the format:
 		// 		[ "x": [ 3, 6, null, 10 ], "y": [ "male", "male", "female", "female" ], "group": [ "US", "NL", "NL", "NL" ]
 		//	If a field is not given, the data will be NULL
 		def data = getAllFieldData( study, samples, fields );
 
-		// Aggregate the data based on the requested aggregation  
+		println "All Data: "
+		data.each { println it }
+
+				// Aggregate the data based on the requested aggregation  
 		def aggregatedData = aggregateData( data, fieldInfo, inputData.aggregation );
 		
 		println "Aggregated Data: "
@@ -571,29 +577,7 @@ class VisualizeController {
 	def aggregateData( data, fieldInfo, aggregation ) {
 		// If no aggregation is requested, we just return the original object (but filtering out null values)
 		if( aggregation == "none" ) {
-			def filteredData = [:];
-			
-			// Create a copy of the data object
-			data.each { 
-				filteredData[ it.key ] = it.value;
-			}
-			
-			// Loop through all values and return all null-values (and the same indices on other elements
-			fieldInfo.keySet().each { fieldName ->
-				// If values are found, do filtering. If not, skip this one
-				if( fieldInfo[ fieldName ] != null ) {
-					// Find all non-null values in this list
-					def indices = filteredData[ fieldName ].findIndexValues { it != null };
-					
-					// Remove the non-null values from each data object
-					filteredData.each { key, value ->
-						if( value && value instanceof Collection )
-							filteredData[ key ] = value[ indices ];
-					}
-				}
-			}
-			 
-			return filteredData
+			return sortNonAggregatedData( filterNullValues( data ), [ 'x', 'group' ] );
 		}
 		
 		// Determine the categorical fields
@@ -628,6 +612,103 @@ class VisualizeController {
 			
 			return returnData;
 		}
+	}
+	
+	/**
+	 * Sort the data that has not been aggregated by the given columns
+	 * @param data
+	 * @param sortBy
+	 * @return
+	 */
+	protected def sortNonAggregatedData( data, sortBy ) {
+		if( !sortBy )
+			return data;
+			
+		// First combine the lists within the data
+		def combined = [];
+		for( int i = 0; i < data.numValues; i++ ) {
+			def element = [:]
+			data.each {
+				if( it.value instanceof Collection && i < it.value.size() ) {
+					element[ it.key ] = it.value[ i ];
+				}
+			}
+			
+			combined << element;
+		}
+		
+		// Now sort the combined element with a comparator
+		def comparator = { a, b ->
+			for( column in sortBy ) {
+				if( a[ column ] != null ) {
+					if( a[ column ] != b[ column ] ) {
+						if( a[ column ] instanceof Number )
+							return a[ column ] <=> b[ column ];
+						else
+							return a[ column ].toString() <=> b[ column ].toString();
+					}
+				}
+			}
+		
+			return 0;
+		}
+		
+		combined.sort( comparator as Comparator );
+		
+		// Put the elements back again. First empty the original lists
+		data.each {
+			if( it.value instanceof Collection ) {
+				it.value = [];
+			}
+		}
+		
+		combined.each { element ->
+			element.each { key, value ->
+				data[ key ] << value;
+			} 
+		}
+
+		return data;
+	}
+	
+	/**
+	 * Filter null values from the different lists of data. The associated values in other lists will also be removed
+	 * @param data	
+	 * @return	Filtered data.
+	 * 
+	 * [ 'x': [0, 2, 4], 'y': [1,null,2] ] will result in [ 'x': [0, 4], 'y': [1, 2] ] 
+	 * [ 'x': [0, 2, 4], 'y': [1,null,2], 'z': [4, null, null] ] will result in [ 'x': [0], 'y': [1], 'z': [4] ] 
+	 */
+	protected def filterNullValues( data ) {
+		def filteredData = [:];
+		
+		// Create a copy of the data object
+		data.each {
+			filteredData[ it.key ] = it.value;
+		}
+		
+		// Loop through all values and return all null-values (and the same indices on other elements
+		int num = filteredData.numValues;
+		filteredData.keySet().each { fieldName ->
+			// If values are found, do filtering. If not, skip this one
+			if( filteredData[ fieldName ] != null && filteredData[ fieldName ] instanceof Collection ) {
+				// Find all non-null values in this list
+				def indices = filteredData[ fieldName ].findIndexValues { it != null };
+				
+				// Remove the non-null values from each data object
+				filteredData.each { key, value ->
+					if( value && value instanceof Collection )
+						filteredData[ key ] = value[ indices ];
+				}
+				
+				// Store the number of values
+				num = indices.size();
+			}
+		}
+		
+		filteredData.numValues = num;
+		 
+		return filteredData
 	}
 	
 	/**
@@ -1407,12 +1488,15 @@ class VisualizeController {
      * @return Either CATEGORICALDATA of NUMERICALDATA
      */
     protected int determineCategoryFromClass(classObject){
-        log.trace "Determine category from class: "+classObject+", of class: "+classObject?.class
-        if(classObject==java.lang.String){
-            return CATEGORICALDATA
-        } else {
-            return NUMERICALDATA
-        }
+        log.trace "Determine category from class: " + classObject
+        switch( classObject ) {
+			case java.lang.String:
+			case org.dbnp.gdt.Term:
+			case org.dbnp.gdt.TemplateFieldListItem:
+				return CATEGORICALDATA;
+			default:
+				return NUMERICALDATA;
+		}
     }
 
     /**
