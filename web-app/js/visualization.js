@@ -37,7 +37,7 @@ $(document).ready(function() {
         $( this ).focus();
     });
 
-
+    $.jqplot.config.enablePlugins = true;
 });
 
 /**
@@ -160,9 +160,7 @@ function changeFields(selectid) {
                             };
                     });
 
-                    if($("#autovis").attr("checked")=="checked") {
-                        visualize();
-                    }
+                    changeVis();
                 }
 
                 $( "#select_types, #select_aggregation" ).parents(".menu_header").find("img.spinner").hide();
@@ -209,10 +207,14 @@ function changeRadio(that) {
         }
     }
 
+    changeVis();
+
+}
+
+function changeVis() {
     if($("#autovis").attr("checked")=="checked") {
         visualize();
     }
-
 }
 
 
@@ -242,7 +244,7 @@ function visualize() {
                 }
 
                 // Handle erroneous data
-                if( !checkCorrectData( data.returnData ) ) {
+                if( !checkCorrectData( data.returnData ) && data.returnData.type!="boxplot" ) {
                     showError( ["Unfortunately the server returned data in a format that we did not expect."], "message_error" );
                     return;
                 }
@@ -264,6 +266,8 @@ function visualize() {
                                 newArr[ newArr.length ] = new Array(element.y[i],i+1);
                             }
                             dataPoints[ dataPoints.length ] = newArr;
+                        } else if(returnData.type=="boxplot")  {
+                            dataPoints[ dataPoints.length ] = element.y;
                         } else {
                             dataPoints[ dataPoints.length ] = element.y;
                         }
@@ -501,6 +505,7 @@ function visualize() {
                         plotOptions = table;
                 		break;
                     case "boxplot":
+                        /* code for canvasXpress
                         var arrSmps = new Array();
                         for(i=0; i<returnData.series[0].x.length; i++) {
                             arrSmps[i] = "Smp"+i;
@@ -518,7 +523,7 @@ function visualize() {
                             graphOrientation: 'vertical',
                             showDataValues: true,
                             //title: 'Boxplots',
-                            maxTextSize: 5,
+                            //maxTextSize: 5,
                             colorScheme: 'basic',
                             blockFactor: 1.5,
                             smpLabelRotate: -xangle,
@@ -526,40 +531,65 @@ function visualize() {
                             blockSeparationFactor: 2,
                             //showLegend: blnShowLegend
                             showLegend: false
+                        };*/
+                        dataPoints = [dataPoints];
+
+                        plotOptions = {
+                            series: [{
+                                renderer: $.jqplot.BoxplotRenderer,
+                                rendererOptions: {
+
+                                }
+                            }]/*,
+                            seriesDefaults:{
+                                pointLabels: {show: blnShowDataValues}
+                            }*/,
+                            highlighter: {
+                                show: !blnShowDataValues,
+                                sizeAdjust: 7.5
+                            },
+                            axesDefaults: {
+                                pad: 1.4
+                            },
+                            axes: {
+                                xaxis: {
+                                    renderer: $.jqplot.CategoryAxisRenderer,
+                                    label: xlabel,
+                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                    tickOptions: {
+                                        angle: xangle
+                                    }
+                                },
+                                yaxis: {
+                                    min: 0
+                                }
+                            }
                         };
                         break;
                 }
                 
                 // If a chart has been created, show it
                 if( plotOptions != null ) {
-                    /*
-                    if(returnData.type!="table") {
-                        if(returnData.xaxis.type=="numerical" && plotOptions.axes.xaxis.renderer==$.jqplot.CategoryAxisRenderer) {
-                            delete plotOptions.axes.xaxis.renderer;
-                        }
-                        if(returnData.yaxis.type=="numerical" && plotOptions.axes.yaxis.renderer==$.jqplot.CategoryAxisRenderer) {
-                            delete plotOptions.axes.yaxis.renderer;
-                        }
-                    }*/
 
                     $( "#visualization" ).css("width",$( "#visualization_container" ).innerWidth()-2);
                     $( "#visualization" ).css("height",$( "#visualization_container" ).innerHeight()-2);
 
                     $( "#visualization" ).empty();
-                    if(bx!==undefined) {
+                    /*if(bx!==undefined) {
                         bx.destroy();
-                    }
+                    }*/
                     
                     if(returnData.type=="table") {
                         $( "#visualization" ).html(plotOptions);
-                    } else if(returnData.type=="boxplot") {
+                    } /* else if(returnData.type=="boxplot") {
                         $( "#visualization" ).html('<canvas id="boxplotcanvas"></canvas>');
                         $( "#boxplotcanvas" ).css("width",$( "#visualization" ).innerWidth()-2);
                         $( "#boxplotcanvas" ).css("height",$( "#visualization" ).innerHeight()-2);
                         var bx = new CanvasXpress('boxplotcanvas',plotOptions, plotOptions2);
                         bx.groupSamples(['xdata'], 'iqr');
                         bx.draw();
-                    } else {
+                    } */ else  {
                         console.log(dataPoints);
                         visualization = $.jqplot('visualization', dataPoints, plotOptions );
                     }
@@ -704,7 +734,6 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
 		dataType: "json"
 	}, ajaxParameters ) );
 }
-
 
 /*
  * Create autocomplete with a select

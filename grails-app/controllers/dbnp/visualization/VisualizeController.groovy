@@ -385,7 +385,7 @@ class VisualizeController {
 		println "All Data: "
 		data.each { println it }
 
-				// Aggregate the data based on the requested aggregation  
+        // Aggregate the data based on the requested aggregation
 		def aggregatedData = aggregateData( data, fieldInfo, inputData.aggregation );
 		
 		println "Aggregated Data: "
@@ -802,7 +802,7 @@ class VisualizeController {
 				return computeCount( currentData );
 				break;
 			case "median":
-				return computeMedian( currentData );
+				return computePercentile( currentData, 50 );
 				break;
 			case "sum":
 				return computeSum( currentData );
@@ -911,7 +911,43 @@ class VisualizeController {
 				}
 			}
 			
-		} else {
+		} else if(type=="boxplot") {
+            return_data[ "series" ] = [];
+            HashMap dataMap = new HashMap();
+            groupedData[ xAxis ].eachWithIndex { category, i ->
+                if(!dataMap.containsKey(category)) {
+                    dataMap.put(category, []);
+                }
+                dataMap.put(category, dataMap.get(category)+groupedData[ yAxis ][i]);
+            }
+
+            for ( String key : dataMap.keySet() ) {
+                double dblMEAN = computeMean(dataMap.get(key));
+                double dblSEM = computeSEM(dataMap.get(key),dblMEAN);
+
+                double Q1 = computePercentile(dataMap.get(key),25).get("value");
+                double Q3 = computePercentile(dataMap.get(key),75).get("value");
+
+                /* DEBUG
+                println("---");
+                println("  dataMap["+key+"]:: "+dataMap.get(key));
+                println("  dblMEAN:: "+dblMEAN);
+                println("  dblSEM:: "+dblSEM);
+                println("  Q1:: "+Q1);
+                println("  Q3:: "+Q3);
+                println("---");
+                */
+
+                return_data[ "series" ] << [
+                        "name": key,
+                        "y" : [key, (dblMEAN-dblSEM), Q1, dblMEAN, Q3, (dblMEAN+dblSEM)]
+                ];
+            }
+
+            println(return_data);
+
+
+        } else {
 			// For a horizontal barchart, the two axes should be swapped
 			if( type == "horizontal_barchart" ) {
 				def tmp = xAxis
@@ -1245,12 +1281,16 @@ class VisualizeController {
     }
 
     /**
-	 * Computes the median of the given values. Values that can not be parsed to a number
+	 * Computes value of a percentile of the given values. Values that can not be parsed to a number
 	 * are ignored. If no values are given, null is returned.
-	 * @param values	List of values to compute the median for
-	 * @return			Median of the values
+	 * @param values	 List of values to compute the percentile for
+     * @param Percentile Integer that indicates which percentile to calculae
+     *                   Example: Percentile=50 calculates the median,
+     *                            Percentile=25 calculates Q1
+     *                            Percentile=75 calculates Q3
+	 * @return			The value at the Percentile of the values
 	 */
-	protected def computeMedian( List values ) {
+	protected def computePercentile( List values, int Percentile ) {
 		def listOfValues = [];
 		values.each { value ->
 			def num = getNumericValue( value );
@@ -1265,13 +1305,15 @@ class VisualizeController {
 
         def objReturn = null;
 
+        def dblFactor = Percentile/100;
+
 		if( listSize > 0 ) {
-            def listHalf = (int) Math.abs(listSize/2);
-            if(listSize%2==0) {
-                // If the list is of an even size, take the mean of the middle two value's
+            def listHalf = (int) Math.abs(listSize*dblFactor);
+            if(listHalf==listSize*dblFactor) {
+                // If we don't exactly end up at an item, take the mean of the 2 adjecent values
                 objReturn = (listOfValues.get(listHalf)+listOfValues.get(listHalf-1))/2;
             } else {
-                // If the list is of an odd size, take the middle value
+                // If we exactly end up at an item, take this item
                 objReturn = listOfValues.get(listHalf);
             }
         }

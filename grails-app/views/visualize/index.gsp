@@ -15,12 +15,8 @@
 	<g:javascript src="jqplot/plugins/jqplot.canvasTextRenderer.min.js" />	
 	<g:javascript src="jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js" />
     <g:javascript src="jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js" />
-    <g:javascript src="jqplot/plugins/jqplot.ohlcRenderer.min.js" />
+    <g:javascript src="jqplot/plugins/jqplot.boxplotRenderer.js" />
     <g:javascript src="jqplot/plugins/jqplot.highlighter.min.js" />
-
-    <!-- canvasXpress for boxplots -->
-    <!--[if IE]><g:javascript src="canvasxpress/excanvas.js" /><![endif]-->
-    <g:javascript src="canvasxpress/canvasXpress.min.js" />
 
 	<g:javascript src="visualization.js" />
 	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css'/>"/>
