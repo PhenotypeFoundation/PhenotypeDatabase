@@ -2806,8 +2806,10 @@ Timeline._Impl.prototype._distributeWidths=function(){
                 var objElem = $("#timeline-band-"+F).find(".timeline-event-label");
                 $("#timeline-band-"+F).find(".timeline-event-label").each(function() {
                     arrTops.push($(this).css("top"));
+
                 })
-                D = 15 + (18 * arrTops.length);
+                D = 20 * arrTops.length;
+                console.log("new width:: "+D);
             }
         }
         J.setBandShiftAndWidth(C,D);
