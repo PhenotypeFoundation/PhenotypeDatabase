@@ -31,15 +31,15 @@ function loadTimeline( divID, titleDivID, timelineNr ) {
     totalEvents[ timelineNr ] = 0;
     bandTitleInfo[ timelineNr ] = new Array();
 
-    // Initialize timeline bands (function to be written in the view)
-    var bandInfos = createTimelineBands( timelineNr );
-
     // Create the timeline itself and show the div
     var timelineDiv = document.getElementById(divID + postfix);
 
     // Display the timeline
     timelineDiv.style.display = 'block';
     document.getElementById( titleDivID + postfix ).style.display = 'block';
+
+    // Initialize timeline bands (function to be written in the view)
+    var bandInfos = createTimelineBands( timelineNr );
 
     // Create the timeline itself
     timeline[ timelineNr ] = Timeline.create(timelineDiv, bandInfos);
@@ -88,13 +88,17 @@ function setBandWidth( timelineNr, bandNr, numEventsCurrentBand )
  * functions and adds titles to the timeline
  */
 function afterLoad( timelineNr ) {
-    setTotalHeight( timelineNr );
+
     addTitles( timelineNr );
+    setTotalHeight( timelineNr );
 
     timeline[ timelineNr ].layout();
 
+    adjustTitles( timelineNr );
+
     // The center can only be set when the tab is visible
-    setCenter( timelineNr, firstDate );
+    // EXECUTING setCenter yields and error in simile-ajax-bundle.js on line 2398
+    //setCenter( timelineNr, firstDate );
 }
 
 /*
@@ -168,6 +172,52 @@ function addTitles( timelineNr ) {
     }
 }
 
+/**
+ *
+ */
+function adjustTitles( timelineNr ) {
+        var postfix = "";
+    if( timelineNr != undefined ) {
+        postfix = "-" + timelineNr;
+    }
+
+    // Top starts at 1px because of the border around the timeline
+    var top = 41;
+    var height = 0;
+    var titlesDiv = document.getElementById( 'eventtitles' + postfix );
+    var iBand = 1;
+
+    $(titlesDiv).children().each(function () {
+        if(!$(this).hasClass("studytitle")) {
+
+            var heightBand = $("#timeline-band-"+iBand).innerHeight()-10;
+
+            var heightTitle = $(this).children(":first").innerHeight()+3+20;
+
+            var heightMax = heightBand;
+            if(heightTitle > heightBand) {
+                heightMax = heightTitle;
+                timeline[ timelineNr ].getBand(iBand).setBandShiftAndWidth(top, heightMax);
+                heightMax = heightMax - 10;
+            }
+
+            $(this).css("height",heightMax);
+            $(this).css("top",top);
+
+            top = top + heightMax + 10;
+
+            iBand++;
+        }
+    });
+
+    // Set total width
+    document.getElementById( 'eventstimeline' + postfix ).style.height = top + "px";
+
+    //Remove copyright image ('cause it's ugly)
+    $("img.timeline-copyright").hide();
+}
+
+
 /*
  *  Can be called in the onResize of the body. Adjusts the autowidth of the div
  */
@@ -214,4 +264,26 @@ Timeline.EmptyEtherPainter.prototype.setHighlight=function(A,B){this._highlight.
 };
 Timeline.EmptyEtherPainter.prototype.paint=function(){};
 Timeline.EmptyEtherPainter.prototype.softPaint=function(){};
+
+Timeline.EmptyEtherPainter.prototype.zoom = function(zoomIn) {
+  var netIntervalChange = 0;
+  var currentZoomIndex = this._band._zoomIndex;
+  var newZoomIndex = currentZoomIndex;
+
+  if (zoomIn && (currentZoomIndex > 0)) {
+    newZoomIndex = currentZoomIndex - 1;
+  }
+
+  if (!zoomIn && (currentZoomIndex < (this._band._zoomSteps.length - 1))) {
+    newZoomIndex = currentZoomIndex + 1;
+  }
+
+  this._band._zoomIndex = newZoomIndex;
+  this._interval = SimileAjax.DateTime.gregorianUnitLengths[this._band._zoomSteps[newZoomIndex].unit];
+  this._pixelsPerInterval = this._band._zoomSteps[newZoomIndex].pixelsPerInterval;
+  netIntervalChange = this._band._zoomSteps[newZoomIndex].unit - this._band._zoomSteps[currentZoomIndex].unit;
+
+  return netIntervalChange;
+};
+
 

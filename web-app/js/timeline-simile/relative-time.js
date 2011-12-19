@@ -132,6 +132,12 @@ Timeline.RelativeDateEtherPainter.prototype.setHighlight = function(startDate, e
     this._highlight.position(startDate, endDate);
 }
 
+Timeline.RelativeDateEtherPainter.prototype.zoom = function(netIntervalChange) {
+  if (netIntervalChange != 0) {
+    this._unit += netIntervalChange;
+  }
+};
+
 Timeline.RelativeDateEtherPainter.prototype.paint = function() {
     if (this._markerLayer) {
         this._band.removeLayerDiv(this._markerLayer);

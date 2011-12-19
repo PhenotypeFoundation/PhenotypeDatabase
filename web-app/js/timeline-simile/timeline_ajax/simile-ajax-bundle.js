@@ -2391,12 +2391,23 @@ SimileAjax.NativeDateUnit.toNumber=function(A){return A.getTime();
 };
 SimileAjax.NativeDateUnit.fromNumber=function(A){return new Date(A);
 };
-SimileAjax.NativeDateUnit.compare=function(D,C){var B,A;
-if(typeof D=="object"){B=D.getTime();
-}else{B=Number(D);
-}if(typeof C=="object"){A=C.getTime();
-}else{A=Number(C);
-}return B-A;
+SimileAjax.NativeDateUnit.compare=function(D,C){
+    var B,A;
+    if(typeof D=="object"){
+        try {
+            B=D.getTime();
+        } catch(err) {
+            console.log(err);
+        }
+    }else{
+        B=Number(D);
+    }
+    if(typeof C=="object"){
+        A=C.getTime();
+    }else{
+        A=Number(C);
+    }
+    return B-A;
 };
 SimileAjax.NativeDateUnit.earlier=function(B,A){return SimileAjax.NativeDateUnit.compare(B,A)<0?B:A;
 };

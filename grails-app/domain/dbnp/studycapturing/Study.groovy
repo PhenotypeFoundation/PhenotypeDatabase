@@ -702,6 +702,36 @@ class Study extends TemplateEntity {
 		return this.id == s.id
 	}
 
+    /**
+     * Returns the minimum and maximum date of the events of this study
+     * @return  A map containing absolute minDate and maxDate (not relative)
+     */
+    def getMinMaxEventDate() {
+        long minDate = Long.MAX_VALUE;
+        long maxDate = Long.MIN_VALUE;
+        this.events.each {
+            if(it.startTime < minDate) {
+                minDate = it.startTime;
+            }
+            if(it.endTime > maxDate) {
+                maxDate = it.endTime;
+            }
+            if(it.startTime > maxDate) {
+                maxDate = it.startTime;
+            }
+        }
+        this.samplingEvents.each {
+            if(it.startTime < minDate) {
+                minDate = it.startTime;
+            }
+            if(it.startTime > maxDate) {
+                maxDate = it.startTime;
+            }
+        }
+        long lngStartDate  = (Long) this.startDate.getTime();
+        return ["minDate" : new Date( lngStartDate + minDate * 1000 ), "maxDate" : new Date( lngStartDate + maxDate * 1000 )];
+    }
+
     // This closure is used in the before{Insert,Update,Delete} closures below.
     // It is necessary to prevent flushing in the same session as a top level
     // database action such as 'save' or 'addTo...'. This confuses hibernate and
@@ -740,4 +770,4 @@ class Study extends TemplateEntity {
             moduleNotificationService.invalidateStudy( this )
         }
 	}
-    }
+}

@@ -13,6 +13,7 @@ function createTimelineBands( timelineNr ) {
 
   // The way the timeline should look. See http://www.linuxjournal.com/article/9301
   var theme = Timeline.ClassicTheme.create();
+  //theme.mouseWheel = 'zoom';  // Code needed for zooming
   var emptyEtherPainter = new Timeline.EmptyEtherPainter( { theme: theme } )
 
   // Now create the bands for all studies, and add them to one timeline
@@ -20,28 +21,63 @@ function createTimelineBands( timelineNr ) {
   <g:set var="bandNr" value="${0}" />
   <g:each in="${studyList}" var="study" status="timelineNr">
 
-	// The date that the timeline should start on
-	var dateStr = "<g:formatDate format="yyyy/MM/dd HH:mm:ss" date="${study.startDate}"/>";
-	firstDate = new Date ( dateStr );
+	// The date that the timeline should start and finish on
+	<%
+	    def dateMap = study.getMinMaxEventDate();
+	%>
+	var firstDate = new Date ( "<g:formatDate format="yyyy/MM/dd HH:mm:ss" date="${dateMap.minDate}"/>" );
+	var lastDate = new Date ( "<g:formatDate format="yyyy/MM/dd HH:mm:ss" date="${dateMap.maxDate}"/>" );
+
+    // Calculate number of pixels per interval
+    var intTotalWidth = jQuery(".eventstimeline").innerWidth();
+
+    var intDays = days_between(firstDate,lastDate);
+
+    var meanDay = days_mean(firstDate,lastDate);
+
+    if(intDays<=0) {
+        intDays = 1;
+    }
+
+    var intIntervalPixels = Math.floor(intTotalWidth/intDays);
+
+    // Make sure the header is displaying weeks if there is to little space for days
+    var objUnit = Timeline.DateTime.DAY;
+    if(intIntervalPixels<20) {
+        objUnit = Timeline.DateTime.WEEK;
+    }
 
 	//------------- Eventgroup overview ---------------
-
 	<g:set var="datesBandNr" value="${bandNr}" />
 	// Add an empty band to show the dates
 	bandInfos[${bandNr}] =
 		   Timeline.createBandInfo({
 			  width:          40,
 			  intervalUnit:   Timeline.DateTime.DAY,
-			  intervalPixels: 40,
+			  intervalPixels: intIntervalPixels,
 			  showEventText:  false,
-			  date:           firstDate,
+			  date:           meanDay,
 			  timeZone:       +1,
 			  layout:         'original',
-			  theme:          theme
+			  theme:          theme/*, // Code needed for zooming
+			  zoomIndex:      10,
+              zoomSteps:      new Array(
+                  {pixelsPerInterval: 280,  unit: Timeline.DateTime.HOUR},
+                  {pixelsPerInterval: 140,  unit: Timeline.DateTime.HOUR},
+                  {pixelsPerInterval:  70,  unit: Timeline.DateTime.HOUR},
+                  {pixelsPerInterval:  35,  unit: Timeline.DateTime.HOUR},
+                  {pixelsPerInterval: 400,  unit: Timeline.DateTime.DAY},
+                  {pixelsPerInterval: 200,  unit: Timeline.DateTime.DAY},
+                  {pixelsPerInterval: 100,  unit: Timeline.DateTime.DAY},
+                  {pixelsPerInterval:  50,  unit: Timeline.DateTime.DAY},
+                  {pixelsPerInterval: 400,  unit: Timeline.DateTime.MONTH},
+                  {pixelsPerInterval: 200,  unit: Timeline.DateTime.MONTH},
+                  {pixelsPerInterval: 100,  unit: Timeline.DateTime.MONTH} // DEFAULT zoomIndex
+              )*/
 		   });
 
 	// Make sure the date is printed using the relative time
-	bandInfos[${bandNr}].etherPainter = new Timeline.RelativeDateEtherPainter( { theme: theme, startDate: firstDate, unit: Timeline.DateTime.DAY } );
+	bandInfos[${bandNr}].etherPainter = new Timeline.RelativeDateEtherPainter( { theme: theme, startDate: firstDate, unit: objUnit } );
 	bandInfos[${bandNr}].labeller = new Timeline.RelativeDateLabeller( "en", 0, firstDate );
 
 	bandTitleInfo[ timelineNr ][ ${bandNr} ] = {
@@ -83,12 +119,26 @@ function createTimelineBands( timelineNr ) {
 				 eventSource:    eventSources[${bandNr}],
 				 width:          30,
 				 intervalUnit:   Timeline.DateTime.DAY,
-				 intervalPixels: 40,
-				 date:           firstDate,
+				 intervalPixels: intIntervalPixels,
+				 date:           meanDay,
 				 timeZone:       +1,
 				 syncWith:       1,
 				 layout:         'original',
-				 theme:          theme
+				 theme:          theme/*,  // Code needed for zooming
+                 zoomIndex:      10,
+                 zoomSteps:      new Array(
+                     {pixelsPerInterval: 280,  unit: Timeline.DateTime.HOUR},
+                     {pixelsPerInterval: 140,  unit: Timeline.DateTime.HOUR},
+                     {pixelsPerInterval:  70,  unit: Timeline.DateTime.HOUR},
+                     {pixelsPerInterval:  35,  unit: Timeline.DateTime.HOUR},
+                     {pixelsPerInterval: 400,  unit: Timeline.DateTime.DAY},
+                     {pixelsPerInterval: 200,  unit: Timeline.DateTime.DAY},
+                     {pixelsPerInterval: 100,  unit: Timeline.DateTime.DAY},
+                     {pixelsPerInterval:  50,  unit: Timeline.DateTime.DAY},
+                     {pixelsPerInterval: 400,  unit: Timeline.DateTime.MONTH},
+                     {pixelsPerInterval: 200,  unit: Timeline.DateTime.MONTH},
+                     {pixelsPerInterval: 100,  unit: Timeline.DateTime.MONTH} // DEFAULT zoomIndex
+                 )*/
 			 });
 
 	  // Make sure the date isn't printed by using the empty ether painter
@@ -127,4 +177,35 @@ function createTimelineBands( timelineNr ) {
   </g:each>
 
   return bandInfos;
+}
+
+// http://www.mcfedries.com/javascript/daysbetween.asp
+function days_between(date1, date2) {
+
+    // The number of milliseconds in one day
+    var ONE_DAY = 1000 * 60 * 60 * 24
+
+    // Convert both dates to milliseconds
+    var date1_ms = date1.getTime()
+    var date2_ms = date2.getTime()
+
+    // Calculate the difference in milliseconds
+    var difference_ms = Math.abs(date1_ms - date2_ms)
+
+    // Convert back to days and return
+    return Math.round(difference_ms/ONE_DAY)
+
+}
+
+function days_mean(date1, date2) {
+    // Convert both dates to milliseconds
+    var date1_ms = date1.getTime()
+    var date2_ms = date2.getTime()
+
+    // Mean date
+    var date_mean = (date1_ms+date2_ms)/2;
+    date_mean = Math.floor(date_mean);
+
+    // Convert back to Date()
+    return new Date(date_mean);
 }

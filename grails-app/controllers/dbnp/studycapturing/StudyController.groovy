@@ -27,6 +27,7 @@ class StudyController {
 		def offset = params.offset ? params.int( 'offset' ) : 0
         def studies = Study.giveReadableStudies( user, max, offset );
         [studyInstanceList: studies, studyInstanceTotal: Study.countReadableStudies( user ), loggedInUser: user]
+
     }
 
     /**
@@ -77,6 +78,8 @@ class StudyController {
      */
     def show = {
         def startTime = System.currentTimeMillis()
+
+
 
         def studyInstance = Study.get( params.long( "id" ) )
         if (!studyInstance) {
