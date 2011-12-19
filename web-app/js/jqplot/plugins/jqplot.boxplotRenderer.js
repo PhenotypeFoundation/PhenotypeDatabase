@@ -76,17 +76,20 @@
         if (this.show) {
             for (var i=0, di=d[i]; i<d.length; di=d[++i]) {
                var  x = xp(di[0]),
-                  min = yp(di[1]),
-                   q1 = yp(di[2]),
-                  med = yp(di[3]),
-                   q3 = yp(di[4]),
-                  max = yp(di[5]);
+                  min = yp(di[6]),
+                   q1 = yp(di[5]),
+                  med = yp(di[4]),
+                   q3 = yp(di[3]),
+                  max = yp(di[2]);
 
                 var endL = x - endW/2; // start (left) x coord of min/max ticks
                 var endR = x + endW/2; // end (right) x coord of min/max ticks
                 var medL = x - boxW/2; // start (left) x coord of median tick
                 var medR = x + boxW/2; // end (right) x coord of median tick
 
+                // median tick is full box width
+                r.shapeRenderer.draw(ctx, [[medL, med], [medR, med]], options);
+                
                 // draw whiskers
                 r.shapeRenderer.draw(ctx, [[x, min], [x, q1]], options);
                 r.shapeRenderer.draw(ctx, [[x, q3], [x, max]], options);
@@ -94,8 +97,6 @@
                 // draw min and max ticks
                 r.shapeRenderer.draw(ctx, [[endL, min], [endR, min]], options);
                 r.shapeRenderer.draw(ctx, [[endL, max], [endR, max]], options);
-                // median tick is full box width
-                r.shapeRenderer.draw(ctx, [[medL, med], [medR, med]], options);
 
                 // draw box
                 boxH = q1 - q3;
@@ -117,13 +118,15 @@
         hldefaults = {
             showMarker: true,
             tooltipAxes: 'y',
-            yvalues: 5,
+            yvalues: 7,
             formatString: '<table class="jqplot-highlighter">' +
-                          '<tr><td>min:</td><td>%s</td></tr>' +
-                          '<tr><td>q1:</td><td>%s</td></tr>' +
-                          '<tr><td>med:</td><td>%s</td></tr>' +
-                          '<tr><td>q3:</td><td>%s</td></tr>' +
-                          '<tr><td>max:</td><td>%s</td></tr>' +
+                          '<tr><td>Maximum:</td><td>%s</td></tr>' +
+                          '<tr><td>Median + 1.5*IQR:</td><td>%s</td></tr>' +
+                          '<tr><td>Q3:</td><td>%s</td></tr>' +
+                          '<tr><td>Median:</td><td>%s</td></tr>' +
+                          '<tr><td>Q1:</td><td>%s</td></tr>' +
+                          '<tr><td>Median - 1.5*IQR:</td><td>%s</td></tr>' +
+                          '<tr><td>Minimum:</td><td>%s</td></tr>' +
                           '</table>'
             };
         if (!options.highlighter)

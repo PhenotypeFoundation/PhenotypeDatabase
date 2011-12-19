@@ -5,7 +5,7 @@
 	<title>Visualization</title>
 	
 	<!--[if lt IE 9]><g:javascript src="jqplot/excanvas.min.js" /><![endif]-->
-	<g:javascript src="jqplot/jquery.jqplot.min.js" />
+	<g:javascript src="jqplot/jquery.jqplot.js" />
 	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='jquery.jqplot.min.css' />" />
 	
 	<!-- jqPlot plugins -->
@@ -73,7 +73,7 @@
                         </div>
                         <div class="menu_header">
                             <span class="menu_header_count">4</span>
-                            <span class="menu_header_label">Group by <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></span>
+                            <span class="menu_header_label"><span style="font-size: small">OPTIONAL:</span> Group by <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" /></span>
                             <span class="menu_header_clear">(<a href='#' onclick="clearSelect(this, 4); return false;">clear</a>)</span>
                             <div class="block_variable">
                                 <select id="select_groups" name="groups" onChange="changeFields('select_groups');"></select>
@@ -122,7 +122,6 @@
                 
                 <div id="visualization_container">
                     <div id="visualization"></div>
-                    <br clear="all" />
                 </div>
 
                 <br clear="all"/>

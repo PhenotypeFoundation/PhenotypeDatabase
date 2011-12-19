@@ -922,17 +922,19 @@ class VisualizeController {
             }
 
             for ( String key : dataMap.keySet() ) {
-                double dblMEAN = computeMean(dataMap.get(key));
-                double dblSEM = computeSEM(dataMap.get(key),dblMEAN);
-
+                def objInfos = computePercentile(dataMap.get(key),50);
+                double dblMEDIAN = objInfos.get("value");
                 double Q1 = computePercentile(dataMap.get(key),25).get("value");
                 double Q3 = computePercentile(dataMap.get(key),75).get("value");
 
-                /* DEBUG
+                // Calcultate 1.5* inter-quartile-distance
+                double dblIQD = (Q3-Q1)*1.5;
+
+                /* // DEBUG
                 println("---");
                 println("  dataMap["+key+"]:: "+dataMap.get(key));
-                println("  dblMEAN:: "+dblMEAN);
-                println("  dblSEM:: "+dblSEM);
+                println("  dblMEDIAN:: "+dblMEDIAN);
+                println("  dblIQD:: "+dblIQD);
                 println("  Q1:: "+Q1);
                 println("  Q3:: "+Q3);
                 println("---");
@@ -940,11 +942,11 @@ class VisualizeController {
 
                 return_data[ "series" ] << [
                         "name": key,
-                        "y" : [key, (dblMEAN-dblSEM), Q1, dblMEAN, Q3, (dblMEAN+dblSEM)]
+                        "y" : [key, objInfos.get("max"), (dblMEDIAN+dblIQD), Q3, dblMEDIAN, Q1, (dblMEDIAN-dblIQD), objInfos.get("min")]
                 ];
             }
 
-            println(return_data);
+            //println(return_data);
 
 
         } else {
@@ -1301,24 +1303,29 @@ class VisualizeController {
 
         listOfValues.sort();
 
-        def listSize = listOfValues.size();
+        def listSize = listOfValues.size()-1;
 
         def objReturn = null;
+        def objMin = null;
+        def objMax = null;
 
         def dblFactor = Percentile/100;
 
-		if( listSize > 0 ) {
-            def listHalf = (int) Math.abs(listSize*dblFactor);
-            if(listHalf==listSize*dblFactor) {
-                // If we don't exactly end up at an item, take the mean of the 2 adjecent values
-                objReturn = (listOfValues.get(listHalf)+listOfValues.get(listHalf-1))/2;
-            } else {
+		if( listSize >= 0 ) {
+            def intPointer = (int) Math.abs(listSize*dblFactor);
+            if(intPointer==listSize*dblFactor) {
                 // If we exactly end up at an item, take this item
-                objReturn = listOfValues.get(listHalf);
+                objReturn = listOfValues.get(intPointer);
+            } else {
+                // If we don't exactly end up at an item, take the mean of the 2 adjecent values
+                objReturn = (listOfValues.get(intPointer)+listOfValues.get(intPointer+1))/2;
             }
+
+            objMin = listOfValues.get(0);
+            objMax = listOfValues.get(listSize);
         }
 
-		return ["value": objReturn];
+		return ["value": objReturn, "min": objMin, "max": objMax];
 	}
 
     /**
