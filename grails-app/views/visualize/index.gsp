@@ -5,7 +5,7 @@
 	<title>Visualization</title>
 	
 	<!--[if lt IE 9]><g:javascript src="jqplot/excanvas.min.js" /><![endif]-->
-	<g:javascript src="jqplot/jquery.jqplot.js" />
+	<g:javascript src="jqplot/jquery.jqplot.min.js" />
 	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='jquery.jqplot.min.css' />" />
 	
 	<!-- jqPlot plugins -->

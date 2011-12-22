@@ -34,7 +34,10 @@
     $.jqplot.BoxplotRenderer.prototype.constructor = $.jqplot.BoxplotRenderer;
     
     // called with scope of series.
-    $.jqplot.BoxplotRenderer.prototype.init = function(options) {
+    $.jqplot.BoxplotRenderer.prototype.init = function(options, plot) {
+
+        plot.postDrawHooks.add($.jqplot.BoxplotRenderer.removePointerLabels);
+
         this.lineWidth = options.lineWidth || this.renderer.lineWidth;
         $.jqplot.LineRenderer.prototype.init.call(this, options);
         // set the yaxis data bounds here to account for high and low values
@@ -60,6 +63,7 @@
     $.jqplot.BoxplotRenderer.prototype.draw = function(ctx, gd, options) {
         var d = this.data;
         var r = this.renderer;
+        // set the shape renderer options
         var xp = this._xaxis.series_u2p;
         var yp = this._yaxis.series_u2p;
         if (!options)
@@ -72,36 +76,39 @@
             boxW = Math.min(r._boxMaxWidth, 0.6 * ctx.canvas.width/d.length);
         var endW = boxW / 2; // min and max ticks are half the box width
         boxW -= this.lineWidth*2;
+
+        var sctx = this.canvas._ctx;
+
         ctx.save();
         if (this.show) {
             for (var i=0, di=d[i]; i<d.length; di=d[++i]) {
                var  x = xp(di[0]),
-                  min = yp(di[6]),
-                   q1 = yp(di[5]),
-                  med = yp(di[4]),
-                   q3 = yp(di[3]),
-                  max = yp(di[2]);
+                  min = yp(di[7]),
+                   q1 = yp(di[6]),
+                  med = yp(di[5]),
+                   q3 = yp(di[4]),
+                  max = yp(di[3]);
 
-                var endL = x - endW/2; // start (left) x coord of min/max ticks
-                var endR = x + endW/2; // end (right) x coord of min/max ticks
-                var medL = x - boxW/2; // start (left) x coord of median tick
-                var medR = x + boxW/2; // end (right) x coord of median tick
+               var endL = x - endW/2; // start (left) x coord of min/max ticks
+               var endR = x + endW/2; // end (right) x coord of min/max ticks
+               var medL = x - boxW/2; // start (left) x coord of median tick
+               var medR = x + boxW/2; // end (right) x coord of median tick
 
-                // median tick is full box width
-                r.shapeRenderer.draw(ctx, [[medL, med], [medR, med]], options);
+               // median tick is full box width
+               r.shapeRenderer.draw(ctx, [[medL, med], [medR, med]], options);
                 
-                // draw whiskers
-                r.shapeRenderer.draw(ctx, [[x, min], [x, q1]], options);
-                r.shapeRenderer.draw(ctx, [[x, q3], [x, max]], options);
+               // draw whiskers
+               r.shapeRenderer.draw(ctx, [[x, min], [x, q1]], options);
+               r.shapeRenderer.draw(ctx, [[x, q3], [x, max]], options);
 
-                // draw min and max ticks
-                r.shapeRenderer.draw(ctx, [[endL, min], [endR, min]], options);
-                r.shapeRenderer.draw(ctx, [[endL, max], [endR, max]], options);
+               // draw min and max ticks
+               r.shapeRenderer.draw(ctx, [[endL, min], [endR, min]], options);
+               r.shapeRenderer.draw(ctx, [[endL, max], [endR, max]], options);
 
-                // draw box
-                boxH = q1 - q3;
-                boxpoints = [medL, q3, boxW, boxH];
-                r.shapeRenderer.draw(ctx, boxpoints, boxopts);
+               // draw box
+               boxH = q1 - q3;
+               boxpoints = [medL, q3, boxW, boxH];
+               r.shapeRenderer.draw(ctx, boxpoints, boxopts);
             }
         }
         ctx.restore();
@@ -111,38 +118,12 @@
         // This is a no-op, shadows drawn with lines.
     };
     
-    // called with scope of plot.
-    $.jqplot.BoxplotRenderer.checkOptions = function(target, data, options) {
-        // provide some sensible highlighter options by default
-        console.log("checkOptions");
-        hldefaults = {
-            showMarker: true,
-            tooltipAxes: 'y',
-            yvalues: 7,
-            formatString: '<table class="jqplot-highlighter">' +
-                          '<tr><td>Maximum:</td><td>%s</td></tr>' +
-                          '<tr><td>Median + 1.5*IQR:</td><td>%s</td></tr>' +
-                          '<tr><td>Q3:</td><td>%s</td></tr>' +
-                          '<tr><td>Median:</td><td>%s</td></tr>' +
-                          '<tr><td>Q1:</td><td>%s</td></tr>' +
-                          '<tr><td>Median - 1.5*IQR:</td><td>%s</td></tr>' +
-                          '<tr><td>Minimum:</td><td>%s</td></tr>' +
-                          '</table>'
-            };
-        if (!options.highlighter)
-            options.highlighter = {show: true};
-        if (options.highlighter.show) {
-            for (opt in hldefaults) {
-                if (!(opt in options.highlighter)) {
-                    options.highlighter[opt] = hldefaults[opt];
-                }
-            }
-        }
-        if (!options.axesDefaults.pad) {
-            options.axesDefaults.pad = 1;
-        }
-    };
+    $.jqplot.BoxplotRenderer.removePointerLabels = function() {
+        $(".jqplot-point-label").each(function() {
+           $(this).hide();
+        });
+    }
     
-    $.jqplot.preInitHooks.push($.jqplot.BoxplotRenderer.checkOptions);
+
     
 })(jQuery);

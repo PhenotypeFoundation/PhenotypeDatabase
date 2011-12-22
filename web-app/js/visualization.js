@@ -267,7 +267,9 @@ function visualize() {
                             }
                             dataPoints[ dataPoints.length ] = newArr;
                         } else if(returnData.type=="boxplot")  {
-                            dataPoints[ dataPoints.length ] = element.y;
+                            var tempArr = element.y;
+                            tempArr = [tempArr[0],tempArr[4],tempArr[1],tempArr[2],tempArr[3],tempArr[4],tempArr[5],tempArr[6],tempArr[7]];
+                            dataPoints[ dataPoints.length ] = tempArr;
                         } else {
                             dataPoints[ dataPoints.length ] = element.y;
                         }
@@ -545,8 +547,20 @@ function visualize() {
                                 pointLabels: {show: blnShowDataValues}
                             }*/,
                             highlighter: {
-                                show: !blnShowDataValues,
-                                sizeAdjust: 7.5
+                                show: true,
+                                sizeAdjust: 7.5,
+                                showMarker: true,
+                                tooltipAxes: 'y',
+                                yvalues: 8,
+                                formatString: '<table class="jqplot-highlighter dummy%s">' +
+                                              '<tr><td>Maximum:</td><td>%s</td></tr>' +
+                                              '<tr><td>Median + 1.5*IQR:</td><td>%s</td></tr>' +
+                                              '<tr><td>Q3:</td><td>%s</td></tr>' +
+                                              '<tr><td>Median:</td><td>%s</td></tr>' +
+                                              '<tr><td>Q1:</td><td>%s</td></tr>' +
+                                              '<tr><td>Median - 1.5*IQR:</td><td>%s</td></tr>' +
+                                              '<tr><td>Minimum:</td><td>%s</td></tr>' +
+                                              '</table>'
                             },
                             axesDefaults: {
                                 pad: 1.4
@@ -590,7 +604,7 @@ function visualize() {
                         bx.groupSamples(['xdata'], 'iqr');
                         bx.draw();
                     } */ else  {
-                        console.log(dataPoints);
+                        //console.log(dataPoints);
                         visualization = $.jqplot('visualization', dataPoints, plotOptions );
                     }
                     $( "#visualization" ).show();
