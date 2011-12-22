@@ -921,7 +921,7 @@ class VisualizeController {
                 dataMap.put(category, dataMap.get(category)+groupedData[ yAxis ][i]);
             }
 
-            for ( String key : dataMap.keySet() ) {
+            for ( String key : dataMap.keySet().sort() ) {
                 def objInfos = computePercentile(dataMap.get(key),50);
                 double dblMEDIAN = objInfos.get("value");
                 double Q1 = computePercentile(dataMap.get(key),25).get("value");
