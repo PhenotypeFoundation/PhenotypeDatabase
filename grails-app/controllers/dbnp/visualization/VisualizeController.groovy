@@ -583,9 +583,12 @@ class VisualizeController {
 	 * 
 	 */
 	def aggregateData( data, fieldInfo, aggregation ) {
+		// Filter out null values
+		data = filterNullValues( data )
+		
 		// If no aggregation is requested, we just return the original object (but filtering out null values)
 		if( aggregation == "none" ) {
-			return sortNonAggregatedData( filterNullValues( data ), [ 'x', 'group' ] );
+			return sortNonAggregatedData( data, [ 'x', 'group' ] );
 		}
 		
 		// Determine the categorical fields
