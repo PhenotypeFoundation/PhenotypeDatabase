@@ -374,6 +374,14 @@ class VisualizeController {
 			fieldInfo.group = null;
 		}
 
+        if( fieldInfo.x.fieldType == NUMERICALDATA && fieldInfo.y.fieldType == NUMERICALDATA) {
+            if(inputData.visualizationType == "horizontal_barchart") {
+                fieldInfo.y.fieldType = CATEGORICALDATA;
+            } else if(inputData.visualizationType == "barchart") {
+                fieldInfo.x.fieldType = CATEGORICALDATA;
+            }
+        }
+
 		println "Fields: "
 		fieldInfo.each { println it }
 
@@ -592,7 +600,7 @@ class VisualizeController {
 				}
 			}
 		}
-		
+
 		// Compose a map with aggregated data
 		def aggregatedData = [:];
 		fieldInfo.each { aggregatedData[ it.key ] = [] }
@@ -1483,21 +1491,21 @@ class VisualizeController {
 		def parsedField = parseFieldId( fieldId );
         def study = Study.get(studyId)
 		def data = []
-		
-		// If the fieldId is incorrect, or the field is not asked for, return 
-		// CATEGORICALDATA
-		if( !parsedField )
-			return CATEGORICALDATA;
 
+		// If the fieldId is incorrect, or the field is not asked for, return
+		// CATEGORICALDATA
+		if( !parsedField ) {
+			return CATEGORICALDATA;
+        }
         try{
             if( parsedField.source == "GSCF" ) {
                 if(parsedField.id.isNumber()){
-                        return determineCategoryFromTemplateFieldId(parsedField.id)
+                    return determineCategoryFromTemplateFieldId(parsedField.id)
                 } else { // Domainfield or memberclass
                     def callback = domainObjectCallback( parsedField.type )
-					
                     // Can the field be found in the domainFields as well? If so, treat it as a template field, so that dates and times can be properly rendered in a human-readable fashion
-                    if(callback.metaClass.methods.contains( "giveDomainFields" ) && callback?.giveDomainFields()?.name?.contains(parsedField.name.toString())){
+
+                    if(callback.metaClass.methods*.name.contains( "giveDomainFields" ) && callback?.giveDomainFields()?.name?.contains(parsedField.name.toString())){
                         // Use the associated templateField to determine the field type
                         return determineCategoryFromTemplateField(
                                 callback?.giveDomainFields()[
@@ -1605,6 +1613,7 @@ class VisualizeController {
      * @return Either CATEGORICALDATA of NUMERICALDATA
      */
     protected int determineCategoryFromTemplateField(tf){
+
         if(tf.type==TemplateFieldType.DOUBLE || tf.type==TemplateFieldType.LONG){
             log.trace "GSCF templatefield: NUMERICALDATA ("+NUMERICALDATA+") (based on "+tf.type+")"
             return NUMERICALDATA
@@ -1727,7 +1736,7 @@ class VisualizeController {
             if(columnType == CATEGORICALDATA || columnType == DATE || columnType == RELTIME){
                 types = [ [ "id": "barchart", "name": "Barchart"], [ "id": "linechart", "name": "Linechart"], [ "id": "boxplot", "name": "Boxplot"] ];
             } else {
-                types = [ [ "id": "scatterplot", "name": "Scatterplot"], [ "id": "linechart", "name": "Linechart"] ];
+                types = [ [ "id": "scatterplot", "name": "Scatterplot"], [ "id": "linechart", "name": "Linechart"],  [ "id": "barchart", "name": "Barchart"], [ "id": "horizontal_barchart", "name": "Horizontal barchart"] ];
             }
         }
         return types
