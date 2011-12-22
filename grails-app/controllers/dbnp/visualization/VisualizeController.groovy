@@ -925,14 +925,18 @@ class VisualizeController {
 		} else if(type=="boxplot") {
             return_data[ "series" ] = [];
             HashMap dataMap = new HashMap();
+			
+			List xValues = [];
             groupedData[ xAxis ].eachWithIndex { category, i ->
                 if(!dataMap.containsKey(category)) {
                     dataMap.put(category, []);
+					xValues << category;
                 }
                 dataMap.put(category, dataMap.get(category)+groupedData[ yAxis ][i]);
+				
             }
 
-            for ( String key : dataMap.keySet().sort() ) {
+            for ( String key : xValues ) {
                 def objInfos = computePercentile(dataMap.get(key),50);
                 double dblMEDIAN = objInfos.get("value");
                 double Q1 = computePercentile(dataMap.get(key),25).get("value");
