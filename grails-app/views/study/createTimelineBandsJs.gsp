@@ -25,6 +25,9 @@ function createTimelineBands( timelineNr ) {
 	<%
 	    def dateMap = study.getMinMaxEventDate();
 	%>
+    var strStartDate = "<g:formatDate format="yyyy/MM/dd HH:mm:ss" date="${study.startDate}"/>";
+    startDate = new Date ( strStartDate );
+
 	var firstDate = new Date ( "<g:formatDate format="yyyy/MM/dd HH:mm:ss" date="${dateMap.minDate}"/>" );
 	var lastDate = new Date ( "<g:formatDate format="yyyy/MM/dd HH:mm:ss" date="${dateMap.maxDate}"/>" );
 
@@ -77,8 +80,8 @@ function createTimelineBands( timelineNr ) {
 		   });
 
 	// Make sure the date is printed using the relative time
-	bandInfos[${bandNr}].etherPainter = new Timeline.RelativeDateEtherPainter( { theme: theme, startDate: firstDate, unit: objUnit } );
-	bandInfos[${bandNr}].labeller = new Timeline.RelativeDateLabeller( "en", 0, firstDate );
+	bandInfos[${bandNr}].etherPainter = new Timeline.RelativeDateEtherPainter( { theme: theme, startDate: startDate, unit: objUnit } );
+	bandInfos[${bandNr}].labeller = new Timeline.RelativeDateLabeller( "en", 0, startDate );
 
 	bandTitleInfo[ timelineNr ][ ${bandNr} ] = {
 	  title: "${study.title}",
