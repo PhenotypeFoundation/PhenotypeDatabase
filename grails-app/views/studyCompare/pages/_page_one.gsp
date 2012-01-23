@@ -9,23 +9,56 @@
  * $Rev:  67319 $
  * $Author:  duh $
  * $Date:  2010-12-22 17:45:42 +0100 (Wed, 22 Dec 2010) $
+ *
+
+ <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+ <title>Select test</title>
+ <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+ <script type="text/javascript" charset="utf-8">
+ $(function(){
+ $("select#ctlJob").change(function(){
+ $.getJSON("select.php",{id: $(this).val()}, function(j){
+ var options = '';
+ for (var i = 0; i < j.length; i++) {
+ options += '<option value="' + j[i].optionValue + '">' + j[i].optionDisplay + '</option>';
+ }
+ $("#ctlPerson").html(options);
+ $('#ctlPerson option:first').attr('selected', 'selected');
+ })
+ })			
+ })
+ </script>
+ </head>
+ <body>
+ <select id="ctlJob">
+ <option value="1">Manager</option>
+ <option value="2">Lead Dev</option>
+ <option value="3">Developer</option>
+ </select>
+ <select id="ctlPerson">
+ <option value="1">Mark</option>
+ <option value="2">Andy</option>
+ <option value="3">Richard</option>
+ </select>
+ </body> 
+ 
  */
 %>
 <af:page>
-<h1>Page one of the '<i>studyCompare</i>' ajaxflow</h1>
-<p>
-	<b>
-		This ajaxflow supports by default a spinner / please wait dialogue when clicking buttons / tabs. This
-		can be disabled by removing the <i>spinner="ajaxFlowWait"</i> argument from the <i>af:flow</i>
-		definition in <i>common/_ajaxflow.gsp</i>. If you're disabling this feature you might also want to remove the
-		then obsolete tag &lt;g:render template="common/please_wait"/&gt; from <i>common/_ajaxflow.gsp</i>
-		as well.
-	</b>
-</p>
-<p>
-	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ultricies sapien vestibulum mi mattis sed mollis lorem hendrerit. Sed pretium dignissim placerat. Maecenas ut lorem dui, nec lacinia massa. Nunc pharetra justo sed purus fermentum lobortis. Quisque ac ante at sapien faucibus feugiat. Aliquam lacus tortor, gravida eget mollis quis, lacinia eu enim. Phasellus vel neque neque, rhoncus volutpat erat. Aliquam sodales porttitor urna, sed volutpat ipsum lacinia vitae. Nam pretium, eros fringilla vehicula congue, erat quam congue est, at feugiat ante ante nec magna. Pellentesque placerat facilisis massa in venenatis. Proin turpis lorem, viverra at posuere id, porta a justo. Quisque consectetur enim at justo dapibus pulvinar.
-</p>
-<p>
-	Cras tristique iaculis massa ac semper. Morbi malesuada pellentesque magna, nec pellentesque risus pretium at. Nullam eros velit, iaculis eget porta nec, euismod vitae diam. Maecenas tincidunt fermentum erat, sit amet aliquet ligula luctus sed. Vestibulum sed viverra metus. In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aliquam dictum, lacus ac placerat condimentum, leo est consequat velit, et euismod augue leo ut leo. Sed blandit mi sed tortor elementum in placerat tortor pellentesque. Donec diam lorem, elementum vitae eleifend eget, suscipit id magna. Pellentesque nunc nulla, aliquam vel lobortis quis, ullamcorper quis eros. Maecenas cursus, orci a accumsan pulvinar, velit est adipiscing arcu, ac fermentum ligula felis sit amet velit. Pellentesque ac mauris a nisl fermentum vestibulum a a est. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Praesent a magna elit.
-</p>
+<script type="text/javascript">
+// get unique species
+$.getJSON("${createLink(controller:'ajax', action:'uniqueSpecies')}",{},function(j) {
+	var options = '';
+	for (var i=0;i<j.length;i++) {
+		options += '<option value="'+j[i].id+'">'+j[i].name+'</option>';
+	}
+	$("#species").html(options);
+	$("#species option:first").attr('selected', 'selected');
+});
+</script>
+
+species: <select id="species"/><br/>
+
+
+
 </af:page>
