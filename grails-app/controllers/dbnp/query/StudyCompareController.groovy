@@ -54,7 +54,7 @@ class StudyCompareController {
 			// wizard tabs. Also see common/_tabs.gsp for more information
 			flow.page = 0
 			flow.pages = [
-				[title: 'Page One'],
+				[title: 'Criteria'],
 				[title: 'Page Two'],
 				[title: 'Page Three'],
 				[title: 'Page Four'],

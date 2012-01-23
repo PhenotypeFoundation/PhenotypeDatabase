@@ -35,4 +35,7 @@ class AjaxController {
 			render result as JSON
 		}
 	}
+
+
+
 }

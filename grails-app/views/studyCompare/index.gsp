@@ -19,6 +19,13 @@
 	</g:if><g:else>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.min.css')}"/>
 	</g:else>
+	<style type="text/css">
+	.waitForLoad {
+		background: url(../images/ajaxflow/ajax-loader.gif) no-repeat center top;
+		width: 220px;
+		height: 30px;
+	}
+	</style>
 </head>
 <body>
 	<g:render template="common/ajaxflow"/>
