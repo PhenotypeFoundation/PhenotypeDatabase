@@ -62,6 +62,7 @@
 	    <ul class="subnav">
 			<li><g:link controller="advancedQuery">Search</g:link></li>
 			<li><g:link controller="visualize" action="index">Visualize</g:link></li>
+			<li><g:link controller="studyCompare" action="index">Compare</g:link></li>
 		</ul>
 	</li>
     <sec:ifLoggedIn>
