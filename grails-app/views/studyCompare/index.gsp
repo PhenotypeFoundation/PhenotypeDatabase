@@ -14,7 +14,6 @@
 <html>
 <head>
 	<meta name="layout" content="main"/>
-	<g:javascript library="jquery" plugin="jquery"/>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.css')}"/>
 </head>
 <body>
