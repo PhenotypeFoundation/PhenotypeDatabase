@@ -37,6 +37,13 @@
 					options += '<input type="checkbox" name="species[]" value="'+data[i].id+'"/>'+data[i].name+'<br/>';
 				}
 				element.removeClass('waitForLoad').html(options);
+
+				// bind check event handlers
+				$('input:checkbox', element).each(function() {
+					$(this).bind('change', function() {
+						handleCheckEvent(this);
+					});
+				});
 			});
 		});
 	}

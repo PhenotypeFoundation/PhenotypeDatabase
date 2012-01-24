@@ -91,7 +91,33 @@ class AjaxController {
 	}
 
 	def studyCount = {
-		def result = [0:"0 studies found based on your criteria"];
+		println params
+		println params.containsKey('data')
+//		println params['data']['uniqueSpecies']
+
+		def matched	= false
+		def user	= authenticationService.getLoggedInUser()
+		def studies	= Study.giveReadableStudies(user)
+		def matchedStudies = []
+
+		// parameters
+/*
+		def uniqueSpecies =	(params['data']['uniqueSpecies']) ? params['data']['uniqueSpecies'] : []
+		println uniqueSpecies.class
+		println uniqueSpecies.size()
+
+		// iterate through studies
+		studies.each { study ->
+matched = false
+//			matched = (study.subjects.find{uniqueSpecies.contains(it.species.id)}) ? true : false;
+println "study: ${study} -> matched: ${matched}"
+
+			if (matched) matchedStudies.add(study)
+		}
+*/
+println "------"
+
+		def result = ['count':matchedStudies.size()];
 
 		// set output header to json
 		response.contentType = 'application/json'
