@@ -12,8 +12,11 @@
  */
 %>
 <af:page>
-species: <div id="uniqueSpecies" class="ajax"></div>
-unique event names: <div id="uniqueEventTemplateNames" class="ajax"></div>
-unique sampling event names: <div id="uniqueSamplingEventTemplateNames" class="ajax"></div>
+<div class="selector">
+	<div name="species" id="uniqueSpecies" class="ajax"></div>
+	<div name="event templates" id="uniqueEventTemplateNames" class="ajax"></div>
+	<div name="sampling event templates" id="uniqueSamplingEventTemplateNames" class="ajax"></div>
+</div>
+<div class="ajax" id="studyCount"></div>
 
 </af:page>

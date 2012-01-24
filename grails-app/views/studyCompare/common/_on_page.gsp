@@ -26,18 +26,18 @@
 	function onPage() {
 		// add waitForLoad class to ajax elements
 		$('.ajax').each(function() {
+			var that = this;
 			var element = $(this);
 			var elementId = this.getAttribute('id');
 			element.addClass('waitForLoad');
 
-			$.getJSON(baseUrl+"/ajax/"+elementId,{},function(j) {
-				var options = '';
-				for (var i=0;i<j.length;i++) {
-					options += '<input type="checkbox" name="species[]" value="'+j[i].id+'"/>'+j[i].name+'<br/>';
+			$.getJSON(baseUrl+"/ajax/"+elementId,{},function(data) {
+				var options = '<h2>'+that.getAttribute('name')+'</h2>';
+				for (var i=0;i<data.length;i++) {
+					options += '<input type="checkbox" name="species[]" value="'+data[i].id+'"/>'+data[i].name+'<br/>';
 				}
 				element.removeClass('waitForLoad').html(options);
 			});
-
 		});
 	}
 </script>

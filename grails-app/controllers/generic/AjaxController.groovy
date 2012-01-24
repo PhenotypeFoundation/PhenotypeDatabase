@@ -89,4 +89,18 @@ class AjaxController {
 			render result as JSON
 		}
 	}
+
+	def studyCount = {
+		def result = [0:"0 studies found based on your criteria"];
+
+		// set output header to json
+		response.contentType = 'application/json'
+
+		// render result
+		if (params.callback) {
+			render "${params.callback}(${result as JSON})"
+		} else {
+			render result as JSON
+		}
+	}
 }

@@ -25,6 +25,18 @@
 		width: 220px;
 		height: 30px;
 	}
+	.selector {
+		display: block;
+	}
+	.selector .ajax {
+		display: inline-block;
+		vertical-align: top;
+	}
+	.selector .ajax .label {
+		background-color: blue;
+		display: block;
+	}
+
 	</style>
 </head>
 <body>
