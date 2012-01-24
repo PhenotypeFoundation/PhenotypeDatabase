@@ -36,6 +36,57 @@ class AjaxController {
 		}
 	}
 
+	def uniqueEventTemplateNames = {
+		def user	= authenticationService.getLoggedInUser()
+		def studies	= Study.giveReadableStudies(user)
+		def uniqueEventTemplates = []
 
+		// iterate through studies
+		studies.each { study ->
+			study.events.each { event ->
+				if (!uniqueEventTemplates.contains(event.template)) {
+					uniqueEventTemplates.add(event.template)
+				}
+			}
+		}
 
+		def result	= uniqueEventTemplates
+
+		// set output header to json
+		response.contentType = 'application/json'
+
+		// render result
+		if (params.callback) {
+			render "${params.callback}(${result as JSON})"
+		} else {
+			render result as JSON
+		}
+	}
+
+	def uniqueSamplingEventTemplateNames = {
+		def user	= authenticationService.getLoggedInUser()
+		def studies	= Study.giveReadableStudies(user)
+		def uniqueSamplingEventTemplates = []
+
+		// iterate through studies
+		studies.each { study ->
+			study.samplingEvents.each { event ->
+				if (!uniqueSamplingEventTemplates.contains(event.template)) {
+					uniqueSamplingEventTemplates.add(event.template)
+				}
+			}
+		}
+
+		def result	= uniqueSamplingEventTemplates
+
+		// set output header to json
+		response.contentType = 'application/json'
+
+		// render result
+		if (params.callback) {
+			render "${params.callback}(${result as JSON})"
+		} else {
+			render result as JSON
+		}
+	}
 }

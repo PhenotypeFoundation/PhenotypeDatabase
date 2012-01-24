@@ -13,5 +13,7 @@
 %>
 <af:page>
 species: <div id="uniqueSpecies" class="ajax"></div>
+unique event names: <div id="uniqueEventTemplateNames" class="ajax"></div>
+unique sampling event names: <div id="uniqueSamplingEventTemplateNames" class="ajax"></div>
 
 </af:page>
