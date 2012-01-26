@@ -14,6 +14,7 @@
  * $Date$
  */
 %>
+<%@ page import="org.dbnp.gdt.TemplateFieldType" %>
 <%@ page import="org.dbnp.gdt.RelTime" %>
 <af:page>
 
@@ -133,6 +134,29 @@
 					</div>
 					<div class="column">
 						<af:templateSelect name="template_${sample.getIdentifier()}" entity="${dbnp.studycapturing.Sample}" value="${sample?.template}" addDummy="true" tableEditorChangeEvent="switchTemplate(element);" />
+                        <div class="helpIcon"></div>
+                        <div class="helpContent">
+                            <h2>Time info:</h2>
+                            <g:if test="${sample.parentEvent?.template.getFieldsByType(TemplateFieldType.RELTIME).isEmpty()}">
+                                <b>Not available</b>
+                            </g:if>
+                            <g:else>
+                                <g:each var="field" in="${sample.parentEvent?.template.getFieldsByType(TemplateFieldType.RELTIME)}">
+                                    <b>${field.name}</b><br/>
+                                    ${new RelTime(sample.parentEvent?.getFieldValue(field.name))}<br/>
+                                </g:each>
+                            </g:else>
+                            <h2>String info:</h2>
+                            <g:if test="${sample.parentEvent?.template.getFieldsByType(TemplateFieldType.STRING).isEmpty()}">
+                                <b>Not available</b>
+                            </g:if>
+                            <g:else>
+                                <g:each var="field" in="${sample.parentEvent?.template.getFieldsByType(TemplateFieldType.STRING)}">
+                                    <b>${field.name}</b><br/>
+                                    ${sample.parentEvent?.getFieldValue(field.name)}<br/>
+                                </g:each>
+                            </g:else>
+                        </div>
 					</div>
 					<af:templateColumns name="sample_${sample.getIdentifier()}" class="column" id="1" entity="${sample}"/>
 				</div>
