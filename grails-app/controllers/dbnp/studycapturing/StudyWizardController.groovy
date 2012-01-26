@@ -1700,6 +1700,22 @@ class StudyWizardController {
 				eventGroup.name = name
 				name = ""
 			}
+            
+            // handle the (sampling) events
+            ( ((flow.study.events) ? flow.study.events : []) + ((flow.study.samplingEvents) ? flow.study.samplingEvents : []) ) .each() { event ->
+                event.giveFields().each() { field ->
+                    event.setFieldValue(
+                        field.name,
+                        params.get( 'event_' + event.getIdentifier() + '_' + field.escapedName() )
+                    )
+                }
+    
+                // validate event
+                if (!event.validate()) {
+                    errors = true
+                    this.appendErrors(event, flash.wizardErrors)
+                }
+            }
 
 			// handle eventGrouping
 			( ((flow.study.events) ? flow.study.events : []) + ((flow.study.samplingEvents) ? flow.study.samplingEvents : []) ) .each { event ->
@@ -1714,20 +1730,8 @@ class StudyWizardController {
 							// iterate through subjects for this eventGroup
 							eventGroup.subjects.each() { subject ->
 								// instantiate a sample for this subject / event
-								def samplingEventName = ucwords(event.template.name)
-								def eventGroupName = ucwords(eventGroup.name).replaceAll("([ ]{1,})", "")
-								def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(event.startTime).toString()).replaceAll("([ ]{1,})", "")
-								def tempSampleIterator = 0
-								def tempSampleName = sampleName
 
-								// make sure sampleName is unique
-								if (flow.study.samples) {
-									while (flow.study.samples.find { it.name == tempSampleName }) {
-										tempSampleIterator++
-										tempSampleName = sampleName + "_" + tempSampleIterator
-									}
-									sampleName = tempSampleName
-								}
+                                def sampleName = Sample.generateSampleName(flow, subject, eventGroup, event)
 
 								// instantiate a sample
 								def newSample = new Sample(
@@ -1771,22 +1775,6 @@ class StudyWizardController {
 			}
 		}
 
-		// handle the (sampling) events
-		( ((flow.study.events) ? flow.study.events : []) + ((flow.study.samplingEvents) ? flow.study.samplingEvents : []) ) .each() { event ->
-			event.giveFields().each() { field ->
-				event.setFieldValue(
-					field.name,
-					params.get( 'event_' + event.getIdentifier() + '_' + field.escapedName() )
-				)
-			}
-
-			// validate event
-			if (!event.validate()) {
-				errors = true
-				this.appendErrors(event, flash.wizardErrors)
-			}
-		}
-
 		return !errors
 	}
 
@@ -1817,21 +1805,8 @@ class StudyWizardController {
 
 						// iterate through samplingEvents
 						eventGroup.samplingEvents.each() { samplingEvent ->
-							def samplingEventName = ucwords(samplingEvent.template.name)
-							def eventGroupName = ucwords(eventGroup.name)
-							def sampleTemplateName = (samplingEvent.sampleTemplate) ? ucwords(samplingEvent.sampleTemplate.name) : ''
-							def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(samplingEvent.startTime).toString() + sampleTemplateName).replaceAll("([ ]{1,})", "")
-							def tempSampleIterator = 0
-							def tempSampleName = sampleName
 
-							// make sure sampleName is unique
-							if (flow.study.samples) {
-								while (flow.study.samples.find { it.name == tempSampleName }) {
-									tempSampleIterator++
-									tempSampleName = sampleName + "_" + tempSampleIterator
-								}
-								sampleName = tempSampleName
-							}
+                            def sampleName = Sample.generateSampleName(flow, subject, eventGroup, samplingEvent)
 
 							// instantiate a sample
 							def newSample = new Sample(
@@ -1993,28 +1968,6 @@ class StudyWizardController {
 			flow.study.version = 1
 
 		return !errors
-	}
-
-	/**
-	 * groovy / java equivalent of php's ucwords function
-	 *
-	 * Capitalize all first letters of separate words
-	 *
-	 * @param String
-	 * @return String
-	 */
-	public static ucwords(String text) {
-		def newText = ''
-
-		// change case to lowercase
-		text = text.toLowerCase()
-
-		// iterate through words
-		text.split(" ").each() {
-			newText += it[0].toUpperCase() + it.substring(1) + " "
-		}
-
-		return newText.substring(0, newText.size()-1)
 	}
 
 	/**

@@ -207,4 +207,44 @@ class Sample extends TemplateEntity {
 	   return showSamples
    }
 
+    public static String generateSampleName(flow, subject, eventGroup, samplingEvent) {
+        def samplingEventName = ucwords(samplingEvent.template.name)
+        def eventGroupName = ucwords(eventGroup.name).replaceAll("([ ]{1,})", "")
+        def sampleTemplateName = (samplingEvent.sampleTemplate) ? ucwords(samplingEvent.sampleTemplate.name) : ''
+        def sampleName = (ucwords(subject.name) + '_' + samplingEventName + '_' + eventGroupName + '_' + new RelTime(samplingEvent.startTime).toString() + '_' + sampleTemplateName).replaceAll("([ ]{1,})", "")
+        def tempSampleIterator = 0
+        def tempSampleName = sampleName
+
+        // make sure sampleName is unique
+        if (flow.study.samples) {
+            while (flow.study.samples.find { it.name == tempSampleName }) {
+                tempSampleIterator++
+                tempSampleName = sampleName + "_" + tempSampleIterator
+            }
+            sampleName = tempSampleName
+        }
+        return sampleName
+    }
+
+    /**
+	 * groovy / java equivalent of php's ucwords function
+	 *
+	 * Capitalize all first letters of separate words
+	 *
+	 * @param String
+	 * @return String
+	 */
+	public static ucwords(String text) {
+		def newText = ''
+
+		// change case to lowercase
+		text = text.toLowerCase()
+
+		// iterate through words
+		text.split(" ").each() {
+			newText += it[0].toUpperCase() + it.substring(1) + " "
+		}
+
+		return newText.substring(0, newText.size()-1)
+	}
 }
