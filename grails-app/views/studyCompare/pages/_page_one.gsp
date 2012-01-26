@@ -20,6 +20,40 @@ function handleCheckEvent(event) {
 	var value = check.attr('value');
 	var parent = check.parent();
 	var parentId = parent.attr('id');
+
+	if (criteria[parentId] == undefined) criteria[parentId] = [];
+
+	// add or remove data
+	if (check.is(':checked') && criteria[parentId].indexOf(value) < 0) {
+		criteria[parentId].push(value);
+	} else if (criteria[parentId].indexOf(value) >= 0) {
+		criteria[parentId].splice(criteria[parentId].indexOf(value),1);
+	}
+
+	console.log(criteria);
+
+
+	$.getJSON(
+		baseUrl + "/ajax/studyCount",
+		criteria,
+		function(data) {
+			$('#matchedStudies').html(data.matched+' of '+data.total+' readable studies matched your criteria');
+		}
+	);
+
+//	$.ajax({
+//		url: baseUrl + "/ajax/studyCount",
+//		dataType: 'json',
+//		data: criteria,
+//		success: function(data) {
+//			$('#matchedStudies').html(data.matched+' of '+data.total+' readable studies matched your criteria');
+//		}
+//	});
+/*
+	var check = $(event);
+	var value = check.attr('value');
+	var parent = check.parent();
+	var parentId = parent.attr('id');
 	if (criteria[parentId] == undefined) criteria[parentId] = [];
 	var c = criteria[parentId];
 
@@ -41,14 +75,15 @@ function handleCheckEvent(event) {
 		}
 	);
 
-//	$.ajax({
-//		url: baseUrl + "/ajax/studyCount",
-//		dataType: 'json',
-//		data: data,
-//		success: function(data) {
-//			$('#matchedStudies').html(data.count+' studies matched your criteria');
-//		}
-//	});
+	$.ajax({
+		url: baseUrl + "/ajax/studyCount",
+		dataType: 'json',
+		data: data,
+		success: function(data) {
+			$('#matchedStudies').html(data.count+' studies matched your criteria');
+		}
+	});
+*/
 
 }
 </script>
