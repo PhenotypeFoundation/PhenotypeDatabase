@@ -192,7 +192,7 @@ class AssayService {
 		if (measurementTokens) {
 
 			try {
-				moduleMeasurementData 		= requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
+				moduleMeasurementData = requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
 			} catch (e) {
 				moduleMeasurementData = ['error' : [
 						'Module error, module not available or unknown assay']
@@ -411,7 +411,10 @@ class AssayService {
 	}
 
 	/**
-	 * Injects meta-data(s) into rowData before creating a CSV or tab
+	 * Modules can provide meta-data about the measurements. If so they can be added to the export.
+	 * This method extends the data with the meta-data.
+	 * 
+	 * @return data + meta-data
 	 */
 	def mergeModuleDataWithMetadata(data, metadata = null){
 
@@ -423,7 +426,7 @@ class AssayService {
 		if (!(data[1].intersect(metadata.keySet()))){
 			return data
 		}
-		
+
 		//find out where the measurements start in the data
 		def addLabelsAtColumnPosition = null
 		data[0].eachWithIndex { cat, i ->
@@ -461,7 +464,7 @@ class AssayService {
 		if (additionalRows){
 			def tempData = []
 			data.eachWithIndex { row, iRow ->
-				
+
 				//this is an existing row (not meta-data), so we add a null under the feature label column
 				def tempR = []
 				row.eachWithIndex { rowElement, iRowElement ->
