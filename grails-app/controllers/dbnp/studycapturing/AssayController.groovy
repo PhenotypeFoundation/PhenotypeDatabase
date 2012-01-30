@@ -172,7 +172,7 @@ class AssayController {
 
 		// Check accessibility
 		def consumer = "galaxy"
-		def remoteUser = authenticationService.getRemotelyLoggedInUsergetLoggedInUser( consumer, params.sessionToken )
+		def remoteUser = authenticationService.getRemotelyLoggedInUser( consumer, params.sessionToken )
 		if( !remoteUser ) {
 			response.status = 401
 			render "You must be logged in"
