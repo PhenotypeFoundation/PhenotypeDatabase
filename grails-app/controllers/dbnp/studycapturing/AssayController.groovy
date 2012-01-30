@@ -58,6 +58,9 @@ class AssayController {
 
 				// interpret the params set and gather the data
 				flow.rowData = collectAssayData(flow.assay, fieldMapSelection, measurementTokens, flow.assay.samples)
+				
+				// save the measurementTokes to the session for use later
+				session.measurementTokens = measurementTokens
 
 				// remember the selected file type
 				flow.exportFileType = params.exportFileType
@@ -100,7 +103,7 @@ class AssayController {
 
 		compileExportData {
 			on ("ok"){
-
+				session.assay = flow.assay
 				session.rowData = flow.rowData
 				session.exportFileType = flow.exportFileType
 
@@ -167,12 +170,9 @@ class AssayController {
 		def fieldMapSelection = JSON.parse((String) params.fieldMapSelection)
 		def measurementTokens = JSON.parse((String) params.measurementTokens)
 
-		println fieldMapSelection
-		println measurementTokens
-
 		// Check accessibility
 		def consumer = "galaxy"
-		def remoteUser = authenticationService.getRemotelyLoggedInUser( consumer, params.sessionToken )
+		def remoteUser = authenticationService.getRemotelyLoggedInUsergetLoggedInUser( consumer, params.sessionToken )
 		if( !remoteUser ) {
 			response.status = 401
 			render "You must be logged in"
@@ -217,6 +217,13 @@ class AssayController {
 		// make sure we're coming from the export flow, otherwise redirect there
 		if (!(session.rowData && session.exportFileType))
 			redirect(action: 'assayExportFlow')
+			
+		def remoteUser = authenticationService.getLoggedInUser()
+		if( !remoteUser ) {
+			response.status = 401
+			render "You must be logged in"
+			return
+		}
 
 		// process requested output file type
 		def outputDelimiter, outputFileExtension, locale = java.util.Locale.US
@@ -240,11 +247,16 @@ class AssayController {
 		response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
 		response.setContentType("application/octet-stream")
 		try {
-
+			
+			//merge data with metadata if possible
+			def metadata = assayService.requestModuleMeasurementMetaDatas(session.assay, session.measurementTokens, remoteUser) ?: null
+			session.rowData = assayService.mergeModuleDataWithMetadata(session.rowData, metadata)
+				
 			assayService.exportRowWiseDataToCSVFile(session.rowData, response.outputStream, outputDelimiter, locale)
 
 			// clear the data from the session
 			session.removeAttribute('rowData')
+			session.removeAttribute('measurementTokens')
 			session.removeAttribute('exportFileType')
 
 		} catch (Exception e) {

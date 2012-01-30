@@ -62,7 +62,9 @@ class AssayService {
 		[   		'Subject Data' :            getUsedTemplateFields( samples*."parentSubject".unique() ),
 					'Sampling Event Data' :     getUsedTemplateFields( samples*."parentEvent".unique() ),
 					'Sample Data' :             getUsedTemplateFields( samples ),
-					'Event Group' :             [[name: 'name', comment: 'Name of Event Group', displayName: 'name']],
+					'Event Group' :             [
+						[name: 'name', comment: 'Name of Event Group', displayName: 'name']
+					],
 					'Module Measurement Data':  moduleMeasurements,
 					'Module Error':             moduleError
 				]
@@ -185,27 +187,28 @@ class AssayService {
 
 		}
 
-		def moduleError = '', moduleMeasurementData = [:]
+		def moduleError = '', moduleMeasurementData = [:], moduleMeasurementMetaData = [:]
 
 		if (measurementTokens) {
 
 			try {
-				moduleMeasurementData = requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
+				moduleMeasurementData 		= requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
 			} catch (e) {
-				moduleMeasurementData = ['error' : ['Module error, module not available or unknown assay'] * samples.size() ]
+				moduleMeasurementData = ['error' : [
+						'Module error, module not available or unknown assay']
+					* samples.size() ]
 				e.printStackTrace()
 				moduleError =  e.message
 			}
-
 		}
 
-		[   'Subject Data' :            getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
-			'Sampling Event Data' :     getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
-			'Sample Data' :             getFieldValues(samples, fieldMap['Sample Data']),
-			'Event Group' :             eventFieldMap,
-			'Module Measurement Data' : moduleMeasurementData,
-			'Module Error' :            moduleError
-		]
+		[   'Subject Data' :            		getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
+					'Sampling Event Data' :     		getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
+					'Sample Data' :             		getFieldValues(samples, fieldMap['Sample Data']),
+					'Event Group' :             		eventFieldMap,
+					'Module Measurement Data' : 		moduleMeasurementData,
+					'Module Error' :            		moduleError
+				]
 	}
 
 	/**
@@ -224,7 +227,7 @@ class AssayService {
 		assay.parent?.giveFields().each {
 			def value = assay.parent.getFieldValue( it.name )
 			if( value )
-				studyData[ it.name ] = [value] * numValues
+				studyData[ it.name ] = [value]* numValues
 		}
 
 		return [
@@ -248,7 +251,7 @@ class AssayService {
 		assay.giveFields().each {
 			def value = assay.getFieldValue( it.name )
 			if( value )
-				assayData[ it.name ] = [value] * numValues
+				assayData[ it.name ] = [value]* numValues
 		}
 
 		return [
@@ -303,16 +306,14 @@ class AssayService {
 
 		def tokenString = ''
 
-		inputMeasurementTokens.each{
-			tokenString+="&measurementToken=${it.encodeAsURL()}"
-		}
+		inputMeasurementTokens.each{ tokenString+="&measurementToken=${it.encodeAsURL()}" }
 
+		/* Contact module to fetch measurement data */
 		def path = moduleUrl + "/rest/getMeasurementData/query"
-
 		def query = "assayToken=$assay.assayUUID$tokenString"
 
 		if (samples) {
-			 query += '&' + samples*.sampleUUID.collect { "sampleToken=$it" }.join('&')
+			query += '&' + samples*.sampleUUID.collect { "sampleToken=$it" }.join('&')
 		}
 
 		def sampleTokens = [], measurementTokens = [], moduleData = []
@@ -372,6 +373,117 @@ class AssayService {
 		}
 
 		return map;
+	}
+
+	/**
+	 * Retrieves module measurement meta data through a rest call to the module
+	 *
+	 * @param assay				Assay for which the module measurements should be retrieved
+	 * @param measurementTokens	List with the names of the fields to be retrieved. Format: [ 'measurementName1', 'measurementName2' ]
+	 * @return
+	 */
+	def requestModuleMeasurementMetaDatas(assay, inputMeasurementTokens, SecUser remoteUser = null) {
+
+		def measurementTokenMetaData = [:]
+
+		def moduleUrl = assay.module.url
+
+		def tokenString = ''
+		inputMeasurementTokens.each{ tokenString+="&measurementToken=${it.encodeAsURL()}" }
+
+		def pathMeasurementMetaData = moduleUrl + "/rest/getMeasurementMetaData/"
+		def queryMeasurementMetaData = "assayToken=$assay.assayUUID$tokenString"
+
+		try {
+			moduleCommunicationService.callModuleMethod(moduleUrl, pathMeasurementMetaData, queryMeasurementMetaData, "POST", remoteUser).each { metaDataArray ->
+				if (metaDataArray['name']){
+					measurementTokenMetaData[metaDataArray['name']] = metaDataArray //convert list to an associative array
+				}
+			}
+		} catch (e) {
+			e.printStackTrace()
+			throw new Exception("An error occured while trying to get the measurement meta data from the $assay.module.name. \
+			This means the module containing the measurement data is not available right now. Please try again \
+			later or notify the system administrator if the problem persists. URL: $path?$query.")
+		}
+
+		return measurementTokenMetaData
+	}
+
+	/**
+	 * Injects meta-data(s) into rowData before creating a CSV or tab
+	 */
+	def mergeModuleDataWithMetadata(data, metadata = null){
+
+		if (metadata == null){
+			return data
+		}
+
+		//check if there is meta-data available for the features in the data
+		if (!(data[1].intersect(metadata.keySet()))){
+			return data
+		}
+		
+		//find out where the measurements start in the data
+		def addLabelsAtColumnPosition = null
+		data[0].eachWithIndex { cat, i ->
+			if (cat == 'Module Measurement Data'){
+				addLabelsAtColumnPosition = i
+			}
+		}
+
+		//check if we have a position to inject the labels
+		if (addLabelsAtColumnPosition == null){
+			return data //returning data as we were unable to find any measurements. Or at least where the start.
+		}
+
+		//find out all (unique) feature properties
+		def featureProperties = []
+		metadata.values().each { featureProperties += it.keySet() }
+		featureProperties = featureProperties.unique()
+
+		//prepare the additional rows with meta-data
+		def additionalRows = []
+		featureProperties.each { mdfp ->
+			def addRow = []
+			(1..addLabelsAtColumnPosition).each {
+				//add some empty fields before the labels of the meta-data properties
+				addRow.add(null)
+			}
+			addRow.add(mdfp)
+			data[1].eachWithIndex { feature, i ->
+				if (i >= addLabelsAtColumnPosition) { addRow.add(metadata[feature][mdfp]) }
+			}
+			additionalRows.add(addRow)
+		}
+
+		//add the additional row and add a null to the feature label column in the data rows
+		if (additionalRows){
+			def tempData = []
+			data.eachWithIndex { row, iRow ->
+				
+				//this is an existing row (not meta-data), so we add a null under the feature label column
+				def tempR = []
+				row.eachWithIndex { rowElement, iRowElement ->
+					if ((iRow != 0) && (iRowElement == addLabelsAtColumnPosition)){
+						tempR.add(null) //add an empty element under the meta-data label
+					}
+					tempR.add(rowElement)
+				}
+				tempData.add(tempR)
+
+				//as the additional rows have already been formatted in the correct way we only have to add them under the row that holds the categories
+				if (iRow == 1){
+					additionalRows.each { additionalRow ->
+						tempData.add(additionalRow)
+					}
+				}
+			}
+			//overwrite data with the tempRowData
+			data = tempData
+		}
+
+		return data
 	}
 
 	/**
@@ -456,7 +568,7 @@ class AssayService {
 						categoryValues[ field ] += assayValues[ field ];
 					} else {
 						// Append empty string for each entity if the field doesn't exist
-						categoryValues[ field ] += [""] * numValues[ idx ]
+						categoryValues[ field ] += [""]* numValues[ idx ]
 					}
 				}
 			}
@@ -518,7 +630,7 @@ class AssayService {
 
 		// A map with keys being the sampleIds, and the values are the indices of that sample in the values list
 		def idMap = [:]
-		
+
 		// A map with the key being an index in the value list, and the value is the index the values should be copied to
 		def convertMap = [:]
 
@@ -533,7 +645,7 @@ class AssayService {
 				convertMap[ i ] = idMap[ id ];
 			}
 		}
-		
+
 		/*
 		 * Example output: 
 		 * idMap:      [ 12: 0, 24: 1, 26: 3 ]
@@ -543,35 +655,35 @@ class AssayService {
 		 * The value in the convertMap is always lower than its key. So we sort the convertMap on the keys. That way, we can
 		 * loop through the values and remove the row that has been merged.
 		 */
-		
-		convertMap.sort { a, b -> b.key <=> a.key }.each { 
+
+		convertMap.sort { a, b -> b.key <=> a.key }.each {
 			def row = it.key;
 			def mergeWith = it.value;
-			
+
 			if( row != mergeWith ) {
 				// Combine the data on row [row] with the data on row [mergeWith]
-				
-				mergedData.each { 
+
+				mergedData.each {
 					def cat = it.key; def fields = it.value;
 					fields.each { fieldData ->
-						def fieldName = fieldData.key; 
+						def fieldName = fieldData.key;
 						def fieldValues = fieldData.value;
-						
+
 						// If one of the fields to merge is empty, use the other one
 						// Otherwise the values should be the same (e.g. study, subject, sample data)
 						fieldValues[ mergeWith ] = ( fieldValues[ mergeWith ] == null || fieldValues[ mergeWith ] == "" ) ? fieldValues[ row ] : fieldValues[ mergeWith ]
-						
+
 						// Remove the row from this list
 						fieldValues.remove( row );
 					}
 				}
 			}
 		}
-		
+
 		// Remove sample id if required
 		if( removeIdColumn )
 			mergedData[ "Sample Data" ].remove( "id" );
-		
+
 		return mergedData
 	}
 
@@ -604,7 +716,7 @@ class AssayService {
 		// check if all columns have the dimensionality 2
 		if (columnData.every { it.value.every { it.value instanceof ArrayList } }) {
 
-			def headers = [[],[]]
+			def headers = [[], []]
 
 			columnData.each { category ->
 
@@ -612,7 +724,7 @@ class AssayService {
 
 					// put category keys into first row separated by null values
 					// wherever there are > 1 columns per category
-					headers[0] += [category.key] + [null] * (category.value.size() - 1)
+					headers[0] += [category.key]+ [null]* (category.value.size() - 1)
 
 					// put non-category column headers into 2nd row
 					headers[1] += category.value.collect{it.key}
@@ -690,6 +802,7 @@ class AssayService {
 		formatter.setMaximumFractionDigits(15)
 
 		outputStream << rowData.collect { row ->
+
 			row.collect{
 
 				// omit quotes in case of numeric values and format using chosen locale
@@ -760,7 +873,11 @@ class AssayService {
 					// written as is, other types need converting to String
 					def value = rowData[ri][ci]
 
-					value = (value instanceof Number | value?.class in [boolean.class, String.class, Date.class]) ? value : value?.toString()
+					value = (value instanceof Number | value?.class in [
+						boolean.class,
+						String.class,
+						Date.class
+					]) ? value : value?.toString()
 
 					// write the value (or an empty String if null) to the cell
 					cell.setCellValue(value ?: '')
