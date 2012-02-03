@@ -30,9 +30,6 @@ function handleCheckEvent(event) {
 		criteria[parentId].splice(criteria[parentId].indexOf(value),1);
 	}
 
-	console.log(criteria);
-
-
 	$.getJSON(
 		baseUrl + "/ajax/studyCount",
 		criteria,
@@ -41,53 +38,19 @@ function handleCheckEvent(event) {
 		}
 	);
 
-//	$.ajax({
-//		url: baseUrl + "/ajax/studyCount",
-//		dataType: 'json',
-//		data: criteria,
-//		success: function(data) {
-//			$('#matchedStudies').html(data.matched+' of '+data.total+' readable studies matched your criteria');
-//		}
-//	});
-/*
-	var check = $(event);
-	var value = check.attr('value');
-	var parent = check.parent();
-	var parentId = parent.attr('id');
-	if (criteria[parentId] == undefined) criteria[parentId] = [];
-	var c = criteria[parentId];
-
-	// add or remove data
-	if (check.is(':checked') && c.indexOf(value) < 0) {
-		c.push(value);
-	} else if (c.indexOf(value) >= 0) {
-		c.splice(c.indexOf(value),1);
-	}
-
-	console.log(criteria);
-
-	// ajax call
 	$.getJSON(
-		"<g:createLink controller="ajax" action="studyCount"/>",
+		baseUrl + "/ajax/studies",
 		criteria,
 		function(data) {
-			$('#matchedStudies').html(data.count+' studies matched your criteria');
+			var studies = '';
+			for (var i=0; i<data.studies.length; i++) {
+				studies = studies + data.studies[i] + '<br/>';
+			}
+			$('#studyOverview').html(studies);
 		}
 	);
-
-	$.ajax({
-		url: baseUrl + "/ajax/studyCount",
-		dataType: 'json',
-		data: data,
-		success: function(data) {
-			$('#matchedStudies').html(data.count+' studies matched your criteria');
-		}
-	});
-*/
-
 }
 </script>
-
 
 <div class="selector">
 	<div name="species" id="uniqueSpecies" class="ajax"></div>
@@ -95,5 +58,6 @@ function handleCheckEvent(event) {
 	<div name="sampling event templates" id="uniqueSamplingEventTemplateNames" class="ajax"></div>
 </div>
 <div id="matchedStudies"></div>
+<div id="studyOverview" style="margin-top:20px;border: 1px solid blue;"></div>
 
 </af:page>
