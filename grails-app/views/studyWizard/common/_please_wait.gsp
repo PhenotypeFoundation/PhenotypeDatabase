@@ -14,7 +14,7 @@
  * $Date$
  */
 %>
-<div id="ajaxFlowWait" class="ajaxFlow" style="display:block;">
+<div id="ajaxFlowWait" class="ajaxFlow" style="display:none;">
 	<span class="waitBackground"></span>
 	<span class="waiter">
 		<span class="wait">
