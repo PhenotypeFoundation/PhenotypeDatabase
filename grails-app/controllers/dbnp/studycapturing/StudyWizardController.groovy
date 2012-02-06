@@ -92,6 +92,7 @@ class StudyWizardController {
 			// wizard tabs. Also see common/_tabs.gsp for more information
 			// define flow variables
 			flow.page = 0
+			flow.returnTo = 0
 
 			if (session.jump && session.jump?.action == 'simpleedit') {
 				flow.pages = [
@@ -129,6 +130,8 @@ class StudyWizardController {
 
 				// let the view know we're in page 1
 				flow.page = 1
+				flow.returnTo = 0
+
 				success()
 			}
 			on("next").to "handleJump"
@@ -198,6 +201,8 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_start.gsp".grom()
 
 				flow.page = 1
+				flow.returnTo = 0
+
 				success()
 			}
 			on("next") {
@@ -235,6 +240,8 @@ class StudyWizardController {
 
 				flow.page = 1
 				flash.showCancel = true
+				flow.returnTo = 0
+
 				success()
 			}
 			on("cancel") {
@@ -260,6 +267,7 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_study.gsp".grom()
 
 				flow.page = 1
+				flow.returnTo = 0
 
 				// since this controller was refactored it's technically
 				// safe to enable quicksave throughout the application.
@@ -307,7 +315,7 @@ class StudyWizardController {
 			}.to "studyNext"
 			on("quickSave") {
 				studyPage(flow, flash, params) ? success() : error()
-			}.to "save"
+			}.to "quickSave"
 			on("toPageTwo") {
 				studyPage(flow, flash, params) ? success() : error()
 			}.to "studyNext"
@@ -349,6 +357,7 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_subjects.gsp".grom()
 
 				flow.page = 2
+				flow.returnTo = 0
 
 				if (!flash.values || !flash.values.addNumber) flash.values = [addNumber:1]
 
@@ -405,7 +414,7 @@ class StudyWizardController {
 			on("quickSave") {
 				// handle form data
 				subjectPage(flow, flash, params) ? success() : error()
-			}.to "save"
+			}.to "quickSave"
 			on("toPageOne") {
 				subjectPage(flow, flash, params) ? success() : error()
 			}.to "study"
@@ -434,6 +443,7 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_events.gsp".grom()
 
 				flow.page = 3
+				flow.returnTo = 0
 
 				// add initial eventGroup to study
 				if (!flow.study.eventGroups?.size()) {
@@ -643,7 +653,7 @@ class StudyWizardController {
 			on("quickSave") {
 				// handle form data
 				eventPage(flow, flash, params) ? success() : error()
-			}.to "save"
+			}.to "quickSave"
 			on("toPageOne") {
 				eventPage(flow, flash, params) ? success() : error()
 			}.to "study"
@@ -700,6 +710,8 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_unnassigned_samplingEvent_warning.gsp".grom()
 
 				flow.page = 3
+				flow.returnTo = 0
+
 				success()
 			}
 			on("next").to "groups"
@@ -732,6 +744,7 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_groups.gsp".grom()
 
 				flow.page = 3
+				flow.returnTo = 13
 				success()
 			}
 			on("previous") {
@@ -745,7 +758,7 @@ class StudyWizardController {
 			on("quickSave") {
 				// handle form data
 				groupPage(flow, flash, params) ? success() : error()
-			}.to "save"
+			}.to "quickSave"
 			on("toPageOne") {
 				groupPage(flow, flash, params) ? success() : error()
 			}.to "study"
@@ -774,10 +787,11 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_samples_previous_warning.gsp".grom()
 
 				flow.page = 4
+				flow.returnTo = 0
 			}
 			on("next").to "samples"
 			on("previous").to "groups"
-			on("quickSave").to "save"
+			on("quickSave").to "quickSave"
 			on("toPageOne").to "study"
 			on("toPageTwo").to "subjects"
 			on("toPageThree").to "events"
@@ -794,6 +808,7 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_samples.gsp".grom()
 
 				flow.page = 4
+				flow.returnTo = 0
 				success()
 			}
 			on("switchTemplate") {
@@ -849,7 +864,7 @@ class StudyWizardController {
 			on("quickSave") {
 				// handle form data
 				samplePage(flow, flash, params) ? success() : error()
-			}.to "save"
+			}.to "quickSave"
 			on("toPageOne") {
 				samplePage(flow, flash, params) ? success() : error()
 			}.to "study"
@@ -878,6 +893,8 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_assays.gsp".grom()
 
 				flow.page = 5
+				flow.returnTo = 0
+
 			}
 			on("refresh") {
 				// handle form data
@@ -996,7 +1013,7 @@ class StudyWizardController {
 			on("quickSave") {
 				// handle form data
 				assayPage(flow, flash, params) ? success() : error()
-			}.to "save"
+			}.to "quickSave"
 			on("toPageOne") {
 				assayPage(flow, flash, params) ? success() : error()
 			}.to "study"
@@ -1045,6 +1062,8 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_assay_groups.gsp".grom()
 
 				flow.page = 5
+				flow.returnTo = 15
+
 			}
 			on("previous") {
 				// handle form data
@@ -1062,7 +1081,7 @@ class StudyWizardController {
 			on("quickSave") {
 				// handle form data
 				assayGroupPage(flow, flash, params) ? success() : error()
-			}.to "save"
+			}.to "quickSave"
 			on("toPageOne") {
 				assayGroupPage(flow, flash, params) ? success() : error()
 			}.to "study"
@@ -1111,6 +1130,8 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_confirmation.gsp".grom()
 
 				flow.page = 6
+				flow.returnTo = 0
+
 			}
 			on("toStudy").to "study"
 			on("toSubjects").to "subjects"
@@ -1121,13 +1142,22 @@ class StudyWizardController {
 			on("toAssayGroups").to "assayGroups"
 			on("previous").to "confirmPrevious"
 			on("next").to "save"
-			on("quickSave").to "save"
+			on("quickSave").to "quickSave"
 			on("toPageOne").to "study"
 			on("toPageTwo").to "subjects"
 			on("toPageThree").to "events"
 			on("toPageFour").to "samples"
 			on("toPageFive").to "assays"
 			on("toPageSeven").to "save"
+		}
+
+		quickSave {
+			action {
+				flow.returnTo = (flow.returnTo > 0) ? flow.returnTo : flow.page
+				println "return to page ${flow.returnTo}"
+				success()
+			}
+			on("success").to "save"
 		}
 
 		// store all study data
@@ -1137,6 +1167,7 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "entering save".grom()
 
 				flow.page = 7
+
 				flash.wizardErrors = [:]
 
 				// persist data to the database
@@ -1156,7 +1187,38 @@ class StudyWizardController {
 					}
 					log.info ".saved study "+flow.study+" (id: "+flow.study.id+")"
 
-					success()
+					def returnTo = flow.returnTo
+					println "check ${returnTo}"
+					flow.returnTo = 0
+
+					switch (returnTo) {
+						case 1:
+							toStudyPage()
+							break
+						case 2:
+							toSubjectsPage()
+							break
+						case 3:
+							toEventsPage()
+							break
+						case 13:
+							toGroupsPage()
+							break
+						case 4:
+							toSamplesPage()
+							break
+						case 5:
+							toAssaysPage()
+							break
+						case 15:
+							toAssayGroupsPage()
+							break
+						case 6:
+							toConfirmPage()
+							break
+						default:
+							success()
+					}
 				} catch (org.springframework.dao.OptimisticLockingFailureException e) {
 					// rollback
 					this.appendErrorMap(['exception': 'This study has been changed by another user while you were editing. Unfortunately, we can\'t save your changes. Please restart the wizard.' ], flash.wizardErrors)
@@ -1178,6 +1240,14 @@ class StudyWizardController {
 			on("error").to "error"
 			on(Exception).to "error"
 			on("success").to "done"
+			on("toStudyPage").to "study"
+			on("toSubjectsPage").to "subjects"
+			on("toGroupsPage").to "groups"
+			on("toEventsPage").to "events"
+			on("toAssaysPage").to "assays"
+			on("toAssayGroupsPage").to "assayGroups"
+			on("toSamplesPage").to "samples"
+			on("toConfirmPage").to "confirm"
 		}
 
 		// error storing data
@@ -1188,6 +1258,8 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_error.gsp".grom()
 
 				flow.page = 6
+				flow.returnTo = 0
+
 			}
 			on("next").to "save"
 			on("previous").to "samples"
@@ -1208,6 +1280,8 @@ class StudyWizardController {
 				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_done.gsp".grom()
 
 				flow.page = 7
+				flow.returnTo = 0
+
 			}
 			onEnd {
 				// clean flow scope

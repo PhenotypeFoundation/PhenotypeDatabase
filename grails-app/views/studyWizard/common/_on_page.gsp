@@ -25,6 +25,12 @@
 <script type="text/javascript">
 	function onPage() {
 		onStudyWizardPage();
+
+		// make sure quicksave gives user feedback
+		// by showing replacing navigation with a
+		// spinner
+		$('input[name*="quickSave"]').bind('click', function(e) {
+			$(e.target).parent().html('<img src="<g:resource dir="images/ajaxflow" file="ajax-loader.gif"/>">');
+		});
 	}
 </script>
-
