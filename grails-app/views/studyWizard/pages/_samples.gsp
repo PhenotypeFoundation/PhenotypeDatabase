@@ -61,7 +61,9 @@
 								<h1>${sample.parentEvent?.template?.name}</h1>
 								<h2>Template Fields:</h2>
 								<g:each var="field" in="${sample.parentEvent?.giveFields()}">
-									${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
+									<g:if test="sample.parentEvent.getFieldValue(field.name)">
+										${field.name[0].toUpperCase() + field.name.substring(1) + ': ' + sample.parentEvent.getFieldValue(field.name)}<br/>
+									</g:if>
 								</g:each>
 							</div>
 						</g:if>
@@ -73,7 +75,7 @@
 							<h1>${sample.parentSubject?.template?.name}</h1>
 							<h2>Template Fields:</h2>
 							<g:each var="field" in="${sample.parentSubject?.giveFields()}">
-								${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
+								${field.name[0].toUpperCase() + field.name.substring(1) + ': ' + sample.parentSubject.getFieldValue(field.name)}<br/>
 							</g:each>
 						</div>
 					</div>
@@ -114,9 +116,8 @@
 							<div class="helpIcon"></div>
 							<div class="helpContent">
 								<h1>${sample.parentEvent?.template?.name}</h1>
-								<h2>Template Fields:</h2>
 								<g:each var="field" in="${sample.parentEvent?.giveFields()}">
-									${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
+									${field.name[0].toUpperCase() + field.name.substring(1) + ': ' + sample.parentEvent.getFieldValue(field.name)}<br/>
 								</g:each>
 							</div>
 						</g:if>
@@ -126,9 +127,9 @@
 						<div class="helpIcon"></div>
 						<div class="helpContent">
 							<h1>${sample.parentSubject?.template?.name}</h1>
-							<h2>Template Fields:</h2>
 							<g:each var="field" in="${sample.parentSubject?.giveFields()}">
-								${field.name[0].toUpperCase() + field.name.substring(1)}<br/>
+								<% // only show template field values for non-empty values. btw: <g:if> does not affect Groovy code! %>
+								<%if (sample.parentSubject.getFieldValue(field.name)) print field.name[0].toUpperCase() + field.name.substring(1) + ': ' + sample.parentSubject.getFieldValue(field.name) + '<br/>'%>
 							</g:each>
 						</div>
 					</div>
