@@ -76,6 +76,13 @@
 			<g:submitButton name="submitToGalaxy" value="Submit to Galaxy"/>
 		</g:if>
 		<g:else>
+			<h1>Export measurement metadata</h1>
+			<g:radioGroup name="exportMetadata"
+						  labels="['yes', 'no']"
+						  values="[1,0]" value="1">
+				<p>${it.radio} ${it.label}</p>
+			</g:radioGroup>
+		
 			<h1>Select type of resulting file</h1>
 			<g:radioGroup name="exportFileType"
 						  labels="['Tab delimited (.txt)', 'Comma Separated: USA/UK (.csv)', 'Semicolon Separated: European (.csv)']"

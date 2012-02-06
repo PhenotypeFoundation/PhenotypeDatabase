@@ -64,6 +64,9 @@ class AssayController {
 
 				// remember the selected file type
 				flow.exportFileType = params.exportFileType
+				
+				// remember is export metadata was selected
+				flow.exportMetadata = params.exportMetadata
 
 				// prepare the assay data preview
 				def previewRows         = Math.min(flow.rowData.size()    as int, 5) - 1
@@ -106,6 +109,7 @@ class AssayController {
 				session.assay = flow.assay
 				session.rowData = flow.rowData
 				session.exportFileType = flow.exportFileType
+				session.exportMetadata = flow.exportMetadata
 
 			}.to "export"
 			on ("cancel").to "selectAssay"
@@ -248,9 +252,11 @@ class AssayController {
 		response.setContentType("application/octet-stream")
 		try {
 			
-			//merge data with metadata if possible
-			def metadata = assayService.requestModuleMeasurementMetaDatas(session.assay, session.measurementTokens, remoteUser) ?: null
-			session.rowData = assayService.mergeModuleDataWithMetadata(session.rowData, metadata)
+			if (session.exportMetadata == '1'){
+				//merge data with metadata if possible
+				def metadata = assayService.requestModuleMeasurementMetaDatas(session.assay, session.measurementTokens, remoteUser) ?: null
+				session.rowData = assayService.mergeModuleDataWithMetadata(session.rowData, metadata)
+			}
 				
 			assayService.exportRowWiseDataToCSVFile(session.rowData, response.outputStream, outputDelimiter, locale)
 
@@ -258,6 +264,7 @@ class AssayController {
 			session.removeAttribute('rowData')
 			session.removeAttribute('measurementTokens')
 			session.removeAttribute('exportFileType')
+			session.removeAttribute('exportMetadata')
 
 		} catch (Exception e) {
 
