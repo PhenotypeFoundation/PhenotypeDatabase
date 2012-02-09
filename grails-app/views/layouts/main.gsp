@@ -43,7 +43,6 @@
 <div class="container">
 	<div id="header">
 		<g:render template="/common/topnav"/>
-		<g:render template="/common/info"/>
 	</div>
 	<div id="content"><g:layoutBody/></div>
 	<g:if env="production">
@@ -57,5 +56,6 @@
 		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="http://dbnp.org">http://dbnp.org</a>.
 	</div>
 </div>
+<g:render template="/common/info"/>
 </body>
 </html>
