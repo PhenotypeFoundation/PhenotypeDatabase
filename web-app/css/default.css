@@ -53,30 +53,26 @@ h2 {
 	padding-top: 60px;
 }
 
-#header .buildinfo {
-	color: #ff3333;
-	vertical-align: top;
-	align: right;
-	width: 240px;
-	margin: -83px 0px 0px -235px;
-	display: inline-block;
-	zoom: 1; /* IE 6 & 7 hack */
-	*display: inline; /* IE 6 & 7 hack */
+.buildinfo {
+	position: absolute;
+	top: 10px;
+	left: 0px;
 	background-color: #666;
 	border: 1px dotted red;
-	filter:alpha(opacity=70);
-	opacity: 0.7;
+	filter:alpha(opacity=80);
+	opacity: 0.8;
 	z-index: 1000;
 }
 
-#header .buildinfo table {
+.buildinfo table {
 	border: 0;
 }
 
-#header .buildinfo td {
+.buildinfo td {
 	padding: 0px;
 	/*font: 9px normal Arial, Helvetica, sans-serif;*/
-	font-size: 9pt;
+	font-size: 6pt;
+	line-height: 6pt;
 }
 
 
@@ -89,7 +85,7 @@ ul.topnav {
 	float: left;
 	width: 920px;
 	background: #222;
-	font-size: 1.2em;
+	font-size: 9pt;
 	background: url(../images/default_style/topnav/topnav_bg.gif) repeat-x;
 	z-index: 995; /** Important: keeps submenu's on top of other elements in IE7. See http://www.shawnpreisz.com/css/z-index-internet-explorer-7-ie7#comment-547 */
 }
@@ -253,7 +249,7 @@ tr {
 
 td, th {
 	/*font: 11px verdana, arial, helvetica, sans-serif;*/
-	font-size: 11pt;
+	font-size: 8pt;
 	line-height: 12px;
 	padding: 5px 6px;
 	text-align: left;
