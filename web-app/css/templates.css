@@ -4,7 +4,7 @@
     border: 1px solid #006DBA;
     background-color: #f8feff;
     padding: 10px;
-    font-size: 10px;
+    font-size: 10pt;
     margin: 10px 0px 10px 0px;
 }
 
@@ -96,7 +96,7 @@
 
 .element .description {
     display: inline-block;
-    font-size: 11px;
+    font-size: 10pt;
     width: 250px;
     word-wrap: break-word;
     zoom: 1; /* IE 6 & 7 hack */
@@ -131,6 +131,7 @@
     margin: 2px 0;
     padding: 2px 4px;
     background-color: #fff;
+	font-size: 8pt;
 }
 
 .element .input input:focus, select:focus, textarea:focus {

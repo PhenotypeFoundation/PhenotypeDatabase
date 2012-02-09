@@ -3,11 +3,15 @@
  * overridden in specific stylesheets for different
  * environments. See basefilters.groovy 
  */
- 
+
+* {
+	font-family: "Helvetica Neue", Verdana, Arial, Helvetica, sans-serif;
+}
 body {
 	margin: 0;
 	padding: 0;
-	font: 10px normal Arial, Helvetica, sans-serif;
+	/*font: 10px normal Arial, Helvetica, sans-serif;*/
+	font-size: 8pt;
 	background: #fff url(../images/default_style/body_bg_95px.gif) repeat-x;
 	text-align: center; 
 }
@@ -71,7 +75,8 @@ h2 {
 
 #header .buildinfo td {
 	padding: 0px;
-	font: 9px normal Arial, Helvetica, sans-serif;
+	/*font: 9px normal Arial, Helvetica, sans-serif;*/
+	font-size: 9pt;
 }
 
 
@@ -184,7 +189,7 @@ ul.topnav ul.childnav {
 /** START :: content **/
 #content {
 	padding-top: 40px;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
+	/*font-family: Verdana, Arial, Helvetica, sans-serif;*/
 	font-size: 10pt;
 	padding-bottom: 20px;
 }
@@ -221,7 +226,7 @@ ul.topnav ul.childnav {
 /** END :: content **/
 /** START :: footer **/
 #footer {
-	font-family: Verdana, Arial, Helvetica, sans-serif;
+	/*font-family: Verdana, Arial, Helvetica, sans-serif;*/
 	font-size: 8pt;
 	color: #727272;
 	border-top: 1px solid #727272;
@@ -247,7 +252,8 @@ tr {
 }
 
 td, th {
-	font: 11px verdana, arial, helvetica, sans-serif;
+	/*font: 11px verdana, arial, helvetica, sans-serif;*/
+	font-size: 11pt;
 	line-height: 12px;
 	padding: 5px 6px;
 	text-align: left;
@@ -344,7 +350,7 @@ th.desc a {
 	margin-right: 3px;
 	overflow: visible;
 	padding: 2px 6px;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
+	/*font-family: Verdana, Arial, Helvetica, sans-serif;*/
 }
 
 .buttons input.delete, .buttons a.delete {
@@ -507,7 +513,7 @@ option.unlocked {
 	text-shadow: 0 0 1px #333333;
 }
 .label_check,
-.label_radio { padding-left: 34px; padding-right: 40px; padding-top: 5px; }
+.label_radio { padding-left: 34px; padding-right: 40px; padding-top: 5px; padding-bottom: 2px; }
 .label_radio { background: url(../images/inputboxes/radio-off.png) no-repeat; }
 .label_check { background: url(../images/inputboxes/check-off.png) no-repeat; }
 label.c_on { background: url(../images/inputboxes/check-on.png) no-repeat; }
