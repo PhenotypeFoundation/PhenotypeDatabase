@@ -21,7 +21,7 @@ class AjaxController {
 	def ajaxService
 
 	/**
-	 * Get all unique species (for accessible studies)
+	 * Get all unique species in the system
 	 */
 	def uniqueSpecies = {
 		def result = Subject.executeQuery("SELECT DISTINCT a.species FROM Subject a")
@@ -37,6 +37,9 @@ class AjaxController {
 		}
 	}
 
+	/**
+	 * Get all unique event template names for the studies the user can read
+	 */
 	def uniqueEventTemplateNames = {
 		def user	= authenticationService.getLoggedInUser()
 		def studies	= Study.giveReadableStudies(user)
@@ -64,6 +67,9 @@ class AjaxController {
 		}
 	}
 
+	/**
+	 * Get all unique sampling event template names for the studies the user can read
+	 */
 	def uniqueSamplingEventTemplateNames = {
 		def user	= authenticationService.getLoggedInUser()
 		def studies	= Study.giveReadableStudies(user)
@@ -91,6 +97,9 @@ class AjaxController {
 		}
 	}
 
+	/**
+	 * return the number of studies the user can read based on criteria
+	 */
 	def studyCount = {
 		def user	= authenticationService.getLoggedInUser()
 		def total	= Study.giveReadableStudies(user).size()
@@ -110,6 +119,9 @@ class AjaxController {
 		}
 	}
 
+	/**
+	 * return the studies the user can read based on criteria
+	 */
 	def studies = {
 		def studies = ajaxService.getStudiesByCriteriaForCurrentUser(params)
 

@@ -15,6 +15,8 @@
 <script type="text/javascript">
 var criteria = {};
 
+handleCheckEvent();
+
 function handleCheckEvent(event) {
 	var check = $(event);
 	var value = check.attr('value');
@@ -30,14 +32,18 @@ function handleCheckEvent(event) {
 		criteria[parentId].splice(criteria[parentId].indexOf(value),1);
 	}
 
+	// count number of matches
+	$('#matchedStudies').html('').addClass('waitForLoad');
 	$.getJSON(
 		baseUrl + "/ajax/studyCount",
 		criteria,
 		function(data) {
-			$('#matchedStudies').html(data.matched+' of '+data.total+' readable studies matched your criteria');
+			$('#matchedStudies').html(data.matched+' of '+data.total+' readable studies matched your criteria').removeClass('waitForLoad');
 		}
 	);
 
+	// fetch matched studies
+	$('#studyOverview').html('').addClass('waitForLoad').removeClass('waitForLoad');
 	$.getJSON(
 		baseUrl + "/ajax/studies",
 		criteria,
@@ -58,6 +64,6 @@ function handleCheckEvent(event) {
 	<div name="sampling event templates" id="uniqueSamplingEventTemplateNames" class="ajax"></div>
 </div>
 <div id="matchedStudies"></div>
-<div id="studyOverview" style="margin-top:20px;border: 1px solid blue;"></div>
+<div id="studyOverview"></div>
 
 </af:page>

@@ -16,28 +16,11 @@
 	<meta name="layout" content="main"/>
 	<g:if env="development">
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.css')}"/>
+	<link rel="stylesheet" href="${resource(dir: 'css', file: 'studyCompare.css')}"/>
 	</g:if><g:else>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.min.css')}"/>
+	<link rel="stylesheet" href="${resource(dir: 'css', file: 'studyCompare.min.css')}"/>
 	</g:else>
-	<style type="text/css">
-	.waitForLoad {
-		background: url(../images/ajaxflow/ajax-loader.gif) no-repeat center top;
-		width: 220px;
-		height: 30px;
-	}
-	.selector {
-		display: block;
-	}
-	.selector .ajax {
-		display: inline-block;
-		vertical-align: top;
-	}
-	.selector .ajax .label {
-		background-color: blue;
-		display: block;
-	}
-
-	</style>
 </head>
 <body>
 	<g:render template="common/ajaxflow"/>
