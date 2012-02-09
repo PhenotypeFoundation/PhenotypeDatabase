@@ -5,6 +5,7 @@
 }
 .selector {
 	display: block;
+	margin-top: -20px;
 }
 .selector .ajax {
 	display: inline-block;
@@ -15,11 +16,16 @@
 	display: block;
 }
 
+.content h2 {
+	font-weight: bold;
+}
+
 #matchedStudies {
 	margin-top: 10px;
 }
 
 #studyOverview {
 	margin-top: 20px;
-	color: #373737;
+	color: #006DBA;
+	border: 1px dashed #3e3e3e;
 }
