@@ -57,5 +57,6 @@
 	</div>
 </div>
 <g:render template="/common/info"/>
+<trackr:track reference="${session?.gscfUser ? session.gscfUser : '-'}"/>
 </body>
 </html>
