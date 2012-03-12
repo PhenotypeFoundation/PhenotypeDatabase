@@ -108,6 +108,15 @@ grails.plugins.springsecurity.dao.reflectionSaltSourceProperty = 'username' // U
 grails.plugins.springsecurity.securityConfigType = grails.plugins.springsecurity.SecurityConfigType.Annotation
 grails.plugins.springsecurity.successHandler.targetUrlParameter = 'spring-security-redirect'
 
+// Spring Security configuration
+grails.plugins.springsecurity.useBasicAuth = true
+grails.plugins.springsecurity.basic.realmName = "Authentication Required"
+grails.plugins.springsecurity.useSessionFixationPrevention = true
+grails.plugins.springsecurity.filterChain.chainMap = [
+	'/rest/hello': 'JOINED_FILTERS,-exceptionTranslationFilter',
+	'/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter'
+]
+
 // Needed for the (copy of) the Spring Security UI plugin
 grails.mail.default.from = 'gscf@dbnp.org'
 grails.plugins.springsecurity.ui.forgotPassword.emailFrom = 'gscf@dbnp.org'

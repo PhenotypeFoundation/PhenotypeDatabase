@@ -38,6 +38,9 @@ class BootStrap {
 		// define timezone
 		System.setProperty('user.timezone', 'CET')
 
+		// set up a client (=external program) role if it does not exist
+		def clientRole = SecRole.findByAuthority('ROLE_CLIENT') ?: new SecRole(authority: 'ROLE_CLIENT').save(failOnError: true)
+
 		// set up authentication (if required)
 		if (!SecRole.count() || !SecUser.count()) BootStrapAuthentication.initDefaultAuthentication(springSecurityService)
 

@@ -21,7 +21,8 @@ import dbnp.authentication.SecUser
 import grails.converters.*
 import nl.metabolomicscentre.dsp.http.BasicAuthentication
 import dbnp.rest.common.CommunicationManager
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder
+import grails.plugins.springsecurity.Secured;
 
 class RestController {
 
@@ -33,6 +34,44 @@ class RestController {
 	//def beforeInterceptor = [action:this.&auth,except:["isUser"]]
 	def credentials
 	def requestUser
+
+	@Secured(['ROLE_CLIENT'])
+	def hello = {
+		// client was authorized over basic http authentication
+		// (also see spring security section in Config.groovy)
+		// for now just return the token to authenticate with
+
+		// got a consumer?
+		if (!params.containsKey('consumer')) {
+			// no
+			response.status = 400;
+
+			def result = ['error':"Consumer required"]
+
+			if (params.containsKey('callback')) {
+				render "${params.callback}(${result as JSON})"
+			} else {
+				render result as JSON
+			}
+		} else {
+			// yes
+			// create a random session token that will be used to allow to module to
+			// sync with gscf prior to presenting the measurement data
+			def sessionToken = UUID.randomUUID().toString()
+
+			def result = ['token': sessionToken]
+
+			// put the session token to work
+			authenticationService.logInRemotely( params.get('consumer'), sessionToken, authenticationService.getLoggedInUser())
+
+			response.status = 200;
+			if (params.containsKey('callback')) {
+				render "${params.callback}(${result as JSON})"
+			} else {
+				render result as JSON
+			}
+		}
+	}
 
 	/**
 	 * Authorization closure, which is run before executing any of the REST resource actions
@@ -108,7 +147,7 @@ class RestController {
 	 * @return  JSON object list containing 'studyToken', and 'name' (title) for each study
 	 *
 	 * If one study is requested, a 404 error might occur if the study doesn't exist, and a 401 error if the user is not
-	 * authorized to access this study. If multiple studies are requrested, non-existing studies or studies for which the 
+	 * authorized to access this study. If multiple studies are requested, non-existing studies or studies for which the
 	 * user is not authorized are not returned in the list (so the list might be empty).
 	 *
 	 * Example 1. REST call without studyToken. 
