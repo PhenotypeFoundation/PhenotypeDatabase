@@ -12,6 +12,8 @@
     differs from the server's sequence count) as the server's sequence count will be returned. For security reasons this api method is
     designed to be called only once (or when sessions are out of sync) as HTTP BASIC authentication is not really secure (if someone
     is able to sniff your traffic, the authentication md5 hash is easily stolen).<br/>
+    Every subsequent request the client does, needs to contain a validation MD5 hash, which is a MD5 sum of the concatenation of the device token,
+    the request sequence and a shared secret (e.g. <i>md5sum( token + sequence + shared secret )</i>).
     <i>Note that in order to be able to successfully authenticate or use the API in general, the user should have the ROLE_CLIENT assigned!</i>
 
     <h2>Request parameters</h2>
