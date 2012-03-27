@@ -93,7 +93,9 @@ class SamplingEvent extends TemplateEntity {
 	}
 
 	def String toString() {
-		return fieldExists('Description') ? getFieldValue('Description') : ""
+        return fieldExists('Description') ?
+            getFieldValue('Description') :
+            "start: " + getStartTimeString()
 	}
 	
 }

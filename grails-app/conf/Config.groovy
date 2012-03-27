@@ -114,6 +114,7 @@ grails.plugins.springsecurity.basic.realmName = "Authentication Required"
 grails.plugins.springsecurity.useSessionFixationPrevention = true
 grails.plugins.springsecurity.filterChain.chainMap = [
 	'/rest/hello': 'JOINED_FILTERS,-exceptionTranslationFilter',
+    '/api/authenticate': 'JOINED_FILTERS,-exceptionTranslationFilter',
 	'/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter'
 ]
 

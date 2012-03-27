@@ -120,6 +120,8 @@ class Event extends TemplateEntity {
 	}
 
 	def String toString() {
-		return fieldExists('Description') ? getFieldValue('Description') : ""
+		return fieldExists('Description') ?
+               getFieldValue('Description') :
+                "start: " + getStartTimeString() + ", duration: " + getRoundedDuration()
 	}
 }
