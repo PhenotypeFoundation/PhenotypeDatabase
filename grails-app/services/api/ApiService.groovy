@@ -49,4 +49,36 @@ class ApiService {
             return false
         }
     }
+    
+    def flattenDomainData(elements) {
+        def items = []
+
+        // iterate through elements
+        elements.each {
+            def fields  = it.giveFields()
+            def item    = [:]
+
+            // add token
+            if (it.respondsTo('getToken')) {
+                item['token'] = it.getToken()
+            } else {
+                item['id'] = it.id
+            }
+
+            // add subject field values
+            fields.each { field ->
+                def value = it.getFieldValue( field.name )
+
+                if (value.hasProperty('name')) {
+                    item[ field.name ] = value.name
+                } else {
+                    item[ field.name ] = value
+                }
+            }
+
+            items[ items.size() ] = item
+        }
+
+        return items
+    }
 }

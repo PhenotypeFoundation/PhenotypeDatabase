@@ -36,8 +36,8 @@ class ApiController {
         println "api::authenticate: ${params}"
 
         // see if we already have a token on file for this device id
-        def token = Token.findByDeviceID(params.deviceID)
-
+        def token = Token.findByDeviceID(params?.deviceID)
+        
         // generate a new token if we don't have a token on file
         def result = [:]
         try {
@@ -51,7 +51,7 @@ class ApiController {
                         sequence    : 0
                 ).save(failOnError: true)
             }
-
+            
             result = ['token':token.deviceToken,'sequence':token.sequence]
 
             // set output headers
@@ -71,7 +71,6 @@ class ApiController {
         }
     }
 
-//    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
     def getStudies = {
         println "api::getStudies: ${params}"
 
@@ -82,8 +81,7 @@ class ApiController {
         if (!apiService.validateRequest(deviceID,validation)) {
             response.sendError(401, 'Unauthorized')
         } else {
-//            def user = authenticationService.getLoggedInUser()
-            def user = Token.findByDeviceID(deviceID).user
+            def user = Token.findByDeviceID(deviceID)?.user
             def readableStudies = Study.giveReadableStudies(user)
             def studies = []
             
@@ -96,7 +94,8 @@ class ApiController {
                         'description'           : study.description,
                         'subjects'              : study.subjects.size(),
                         'species'               : study.subjects.species.collect { it.name }.unique(),
-                        'assays'                : study.assays.collect { it.module.name }.unique(),
+                        'assays'                : study.assays.collect { it.name }.unique(),
+                        'modules'               : study.assays.collect { it.module.name }.unique(),
                         'events'                : study.events.size(),
                         'uniqueEvents'          : study.events.collect { it.toString() }.unique(),
                         'samplingEvents'        : study.samplingEvents.size(),
@@ -106,7 +105,6 @@ class ApiController {
                         'samples'               : study.samples.size()
                 ]
             }
-            
 
             def result = [
                     'count'     : studies.size(),
@@ -125,7 +123,6 @@ class ApiController {
         }
     }
 
-//    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
     def getSubjectsForStudy = {
         println "api::getSubjectsForStudy: ${params}"
 
@@ -134,8 +131,7 @@ class ApiController {
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
 
         // fetch user and study
-//        def user    = authenticationService.getLoggedInUser()
-        def user    = Token.findByDeviceID(deviceID).user
+        def user    = Token.findByDeviceID(deviceID)?.user
         def study   = Study.findByStudyUUID(studyToken)
         
         // check
@@ -146,33 +142,11 @@ class ApiController {
         } else if (!study.canRead(user)) {
             response.sendError(401, 'Unauthorized')
         } else {
-            def subjects = []
-            
-            // iterate through subjects
-            study.subjects.each {
-                def fields  = it.giveFields()
-                def subject = [:]
+            def subjects = apiService.flattenDomainData( study.subjects )
 
-                // add subject id
-                subject['id'] = it.id
-
-                // add subject field values
-                fields.each { field ->
-                    def value = it.getFieldValue( field.name )
-
-                    if (value.hasProperty('name')) {
-                        subject[ field.name ] = value.name
-                    } else {
-                        subject[ field.name ] = value
-                    }
-                }
-
-                subjects[ subjects.size() ] = subject
-            }
-            
             // define result
             def result = [
-                    'count'     : study.subjects.size(),
+                    'count'     : subjects.size(),
                     'subjects'  : subjects
             ]
 
@@ -188,8 +162,6 @@ class ApiController {
         }
     }
 
-
-//    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
     def getAssaysForStudy = {
         println "api::getAssaysForStudy: ${params}"
 
@@ -198,25 +170,23 @@ class ApiController {
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
 
         // fetch user and study
-//        def user    = authenticationService.getLoggedInUser()
-        def user    = Token.findByDeviceID(deviceID).user
+        def user    = Token.findByDeviceID(deviceID)?.user
         def study   = Study.findByStudyUUID(studyToken)
 
         // check
         if (!apiService.validateRequest(deviceID,validation)) {
-            println "1"
             response.sendError(401, 'Unauthorized')
         } else if (!study) {
-            println "2"
             response.sendError(400, 'No such study')
         } else if (!study.canRead(user)) {
-            println "3"
             response.sendError(401, 'Unauthorized')
         } else {
+            def assays = apiService.flattenDomainData( study.assays )
+            
             // define result
             def result = [
-//                    'count'     : study.subjects.size(),
-//                    'subjects'  : subjects
+                    'count'     : assays.size(),
+                    'assays'    : assays
             ]
 
             // set output headers
