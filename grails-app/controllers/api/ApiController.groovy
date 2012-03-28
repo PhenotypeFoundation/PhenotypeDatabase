@@ -69,7 +69,7 @@ class ApiController {
         }
     }
 
-    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
+//    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
     def getStudies = {
         println "api::getStudies: ${params}"
 
@@ -122,7 +122,7 @@ class ApiController {
         }
     }
 
-    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
+//    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
     def getSubjectsForStudy = {
         println "api::getSubjectsForStudy: ${params}"
 
@@ -185,7 +185,7 @@ class ApiController {
     }
 
 
-    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
+//    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
     def getAssaysForStudy = {
         println "api::getAssaysForStudy: ${params}"
 
