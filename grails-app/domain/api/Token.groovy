@@ -14,13 +14,17 @@
  */
 package api
 
+import dbnp.authentication.SecUser
+
 class Token {
     String deviceID
     String deviceToken
+    SecUser user
     BigInteger sequence
 
     static constraints = {
         deviceID nullable: false, unique: true, maxSize: 36
         deviceToken nullable: false, unique: true, maxSize: 36
+        user nullable: false
     }
 }
