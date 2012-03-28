@@ -41,12 +41,14 @@ class ApiController {
         // generate a new token if we don't have a token on file
         def result = [:]
         try {
+            // TODO - check if token belongs to current user?
             if (!token) {
                 // generate a token for this device
                 token = new Token(
-                        deviceID: params.deviceID,
-                        deviceToken: UUID.randomUUID().toString(),
-                        sequence: 0
+                        deviceID    : params.deviceID,
+                        deviceToken : UUID.randomUUID().toString(),
+                        user        : authenticationService.getLoggedInUser(),
+                        sequence    : 0
                 ).save(failOnError: true)
             }
 
@@ -80,7 +82,8 @@ class ApiController {
         if (!apiService.validateRequest(deviceID,validation)) {
             response.sendError(401, 'Unauthorized')
         } else {
-            def user = authenticationService.getLoggedInUser()
+//            def user = authenticationService.getLoggedInUser()
+            def user = Token.findByDeviceID(deviceID).user
             def readableStudies = Study.giveReadableStudies(user)
             def studies = []
             
@@ -131,7 +134,8 @@ class ApiController {
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
 
         // fetch user and study
-        def user    = authenticationService.getLoggedInUser()
+//        def user    = authenticationService.getLoggedInUser()
+        def user    = Token.findByDeviceID(deviceID).user
         def study   = Study.findByStudyUUID(studyToken)
         
         // check
@@ -194,7 +198,8 @@ class ApiController {
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
 
         // fetch user and study
-        def user    = authenticationService.getLoggedInUser()
+//        def user    = authenticationService.getLoggedInUser()
+        def user    = Token.findByDeviceID(deviceID).user
         def study   = Study.findByStudyUUID(studyToken)
 
         // check
