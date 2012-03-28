@@ -4,6 +4,15 @@
 </head>
 <body>
 <h1>API specification</h1>
+
+The API allows third party software to interface with GSCF and connected modules.
+
+<h2>prerequisites</h2>
+    <li>a valid username / password</li>
+    <li>the username should be given the role ROLE_CLIENT</li>
+    <li>a shared secret</li>
+    <li>a deviceID / clientID (look <a href="https://github.com/4np/UIDevice-with-UniqueIdentifier-for-iOS-5" target="_new">here</a> for iOS)</li>
+
 <h1>authenticate</h1>
 <p>
     Authenticate a client using <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_new">HTTP BASIC authentication</a>.
@@ -106,9 +115,50 @@
     </blockquote>
 </p>
 
-<h1>getAssaysForStudy</h1>
+<h1>getSubjectsForStudy</h1>
 <p>
-    bla
+    Returns the subjects for a particular study
+
+    <h2>Request parameters</h2>
+    <table>
+        <thead>
+            <th>argument</th>
+            <th>type</th>
+            <th>length</th>
+            <th>description</th>
+            <th>example</th>
+            <th>required</th>
+        </thead>
+        <tr>
+            <td>deviceID</td>
+            <td>string</td>
+            <td>36 (max)</td>
+            <td>a unique ID of the client device / application performing the call</td>
+            <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>validation</td>
+            <td>string</td>
+            <td>-</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + shared secret )</td>
+            <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>studyToken</td>
+            <td>string</td>
+            <td>255</td>
+            <td>study token (see getStudies)</td>
+            <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+            <td>yes</td>
+        </tr>
+    </table>
+
+    <h2>example reply</h2>
+    <blockquote>
+        {"count":11,"subjects":[{"id":81,"name":"1","species":"Homo sapiens","Gender":"Female","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":82,"name":"2","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":83,"name":"3","species":"Homo sapiens","Gender":"Female","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":84,"name":"4","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":85,"name":"5","species":"Homo sapiens","Gender":"Female","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":86,"name":"6","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":87,"name":"7","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":88,"name":"8","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":89,"name":"9","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":90,"name":"10","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":91,"name":"11","species":"Homo sapiens","Gender":"Female","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null}]}
+    </blockquote>
 </p>
 </body>
 </html>

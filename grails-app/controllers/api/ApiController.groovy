@@ -1,11 +1,11 @@
 /**
- * ApiController Controler
+ * Api Controler
  *
- * Description of my controller
+ * API for third party applications to interact
+ * with GSCF
  *
  * @author  your email (+name?)
- * @since	2010mmdd
- * @package	???
+ * @since	20120328ma
  *
  * Revision information:
  * $Rev$
@@ -18,6 +18,7 @@ import grails.plugins.springsecurity.Secured
 import grails.converters.JSON
 import dbnp.studycapturing.Study
 import dbnp.authentication.SecUser
+import org.dbnp.gdt.TemplateFieldType
 
 class ApiController {
     def authenticationService
@@ -70,6 +71,8 @@ class ApiController {
 
     @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
     def getStudies = {
+        println "api::getStudies: ${params}"
+
         String deviceID = (params.containsKey('deviceID')) ? params.deviceID : ''
         String validation = (params.containsKey('validation')) ? params.validation : ''
 
@@ -85,6 +88,7 @@ class ApiController {
             readableStudies.each { study ->
                 // get result data
                 studies[ studies.size() ] = [
+                        'token'                 : study.getToken(),
                         'title'                 : study.title,
                         'description'           : study.description,
                         'subjects'              : study.subjects.size(),
@@ -104,6 +108,110 @@ class ApiController {
             def result = [
                     'count'     : studies.size(),
                     'studies'   : studies
+            ]
+
+            // set output headers
+            response.status = 200
+            response.contentType = 'application/json;charset=UTF-8'
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        }
+    }
+
+    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
+    def getSubjectsForStudy = {
+        println "api::getSubjectsForStudy: ${params}"
+
+        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
+        String validation   = (params.containsKey('validation')) ? params.validation : ''
+        String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
+
+        // fetch user and study
+        def user    = authenticationService.getLoggedInUser()
+        def study   = Study.findByStudyUUID(studyToken)
+        
+        // check
+        if (!apiService.validateRequest(deviceID,validation)) {
+            response.sendError(401, 'Unauthorized')
+        } else if (!study) {
+            response.sendError(400, 'No such study')
+        } else if (!study.canRead(user)) {
+            response.sendError(401, 'Unauthorized')
+        } else {
+            def subjects = []
+            
+            // iterate through subjects
+            study.subjects.each {
+                def fields  = it.giveFields()
+                def subject = [:]
+
+                // add subject id
+                subject['id'] = it.id
+
+                // add subject field values
+                fields.each { field ->
+                    def value = it.getFieldValue( field.name )
+
+                    if (value.hasProperty('name')) {
+                        subject[ field.name ] = value.name
+                    } else {
+                        subject[ field.name ] = value
+                    }
+                }
+
+                subjects[ subjects.size() ] = subject
+            }
+            
+            // define result
+            def result = [
+                    'count'     : study.subjects.size(),
+                    'subjects'  : subjects
+            ]
+
+            // set output headers
+            response.status = 200
+            response.contentType = 'application/json;charset=UTF-8'
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        }
+    }
+
+
+    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
+    def getAssaysForStudy = {
+        println "api::getAssaysForStudy: ${params}"
+
+        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
+        String validation   = (params.containsKey('validation')) ? params.validation : ''
+        String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
+
+        // fetch user and study
+        def user    = authenticationService.getLoggedInUser()
+        def study   = Study.findByStudyUUID(studyToken)
+
+        // check
+        if (!apiService.validateRequest(deviceID,validation)) {
+            println "1"
+            response.sendError(401, 'Unauthorized')
+        } else if (!study) {
+            println "2"
+            response.sendError(400, 'No such study')
+        } else if (!study.canRead(user)) {
+            println "3"
+            response.sendError(401, 'Unauthorized')
+        } else {
+            // define result
+            def result = [
+//                    'count'     : study.subjects.size(),
+//                    'subjects'  : subjects
             ]
 
             // set output headers
