@@ -531,7 +531,83 @@ The API allows third party software to interface with GSCF and connected modules
 
 <h2>example reply</h2>
 <blockquote>
-...todo...
+    {
+    "count":
+    14,
+    "measurements":
+    {
+    "07378e29-3233-4e3f-b4ea-007f9f9b1317":
+    {
+    "Fat Depot":
+    310
+    },
+    "198183b1-d402-4f24-9c5a-396f79bb6a55":
+    {
+    "Fat Depot":
+    1918
+    },
+    "2c719340-eb7f-4a70-8527-c64cc74dc542":
+    {
+    "Fat Depot":
+    1039
+    },
+    "4861fc77-1320-4401-b18a-66b1cd67d2c8":
+    {
+    "Fat Depot":
+    411
+    },
+    "4edff5ad-c3af-41da-8efe-87f5a018912a":
+    {
+    "Fat Depot":
+    368
+    },
+    "6bfe2a0d-3af0-4ed8-8144-56840e934f6e":
+    {
+    "Fat Depot":
+    456
+    },
+    "775666dd-05b1-4f35-ac9c-d36f8257eb1a":
+    {
+    "Fat Depot":
+    2075
+    },
+    "7e9930bc-ec8c-4e74-bd2b-49d6c852eeda":
+    {
+    "Fat Depot":
+    945
+    },
+    "a4d16db8-49f2-4dc2-81bb-910e574c804a":
+    {
+    "Fat Depot":
+    311
+    },
+    "a556b145-dd37-4568-92f1-e3a251653276":
+    {
+    "Fat Depot":
+    1150
+    },
+    "c180d727-8d6c-4673-a5fd-1c28f04b8aaa":
+    {
+    "Fat Depot":
+    347
+    },
+    "e888b1b1-1dc8-45ed-8196-00338fa3b36f":
+    {
+    "Fat Depot":
+    1387
+    },
+    "f7392df1-a754-4957-a1d0-c98bbb91080d":
+    {
+    "Fat Depot":
+    318
+    },
+    "fc755220-b2b4-43ed-adf8-e4323fc62b55":
+    {
+    "Fat Depot":
+    1308
+    }
+    }
+    }
 </blockquote>
 </p>
 

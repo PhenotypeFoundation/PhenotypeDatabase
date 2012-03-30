@@ -30,6 +30,20 @@ class ApiController {
         render(view:'index')
     }
 
+    /**
+     * authenticate with the api using HTTP_BASIC authentication
+     *
+     * This means
+     * 1. the client should send the HTTP_BASIC authentication header
+     *    which is an md5 hash of the username + password concatenated:
+     *
+     *    Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+     *
+     * 2. the user used to authenticate with the API should have
+     *    the ROLE_CLIENT role
+     *
+     * @param string deviceID
+     */
     @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
     def authenticate = {
         println "api::authenticate: ${params}"
@@ -71,6 +85,12 @@ class ApiController {
         }
     }
 
+    /**
+     * get all readable studies
+     *
+     * @param string deviceID
+     * @param string validation md5 sum
+     */
     def getStudies = {
         println "api::getStudies: ${params}"
 
@@ -123,6 +143,13 @@ class ApiController {
         }
     }
 
+    /**
+     * get all subjects for a study
+     *
+     * @param string deviceID
+     * @param string studyToken
+     * @param string validation md5 sum
+     */
     def getSubjectsForStudy = {
         println "api::getSubjectsForStudy: ${params}"
 
@@ -162,6 +189,13 @@ class ApiController {
         }
     }
 
+    /**
+     * get all assays for a study
+     *
+     * @param string deviceID
+     * @param string studyToken
+     * @param string validation md5 sum
+     */
     def getAssaysForStudy = {
         println "api::getAssaysForStudy: ${params}"
 
@@ -201,6 +235,13 @@ class ApiController {
         }
     }
 
+    /**
+     * get all samples for an assay
+     *
+     * @param string deviceID
+     * @param string assayToken
+     * @param string validation md5 sum
+     */
     def getSamplesForAssay = {
         println "api::getSamplesForAssay: ${params}"
 
@@ -241,6 +282,13 @@ class ApiController {
 
     }
 
+    /**
+     * get all measurement data from a linked module for an assay
+     *
+     * @param string deviceID
+     * @param string assayToken
+     * @param string validation md5 sum
+     */
     def getMeasurementDataForAssay = {
         println "api:getMeasurementDataForAssay: ${params}"
 
@@ -266,25 +314,29 @@ class ApiController {
             def measurementMetaData = apiService.getMeasurementData(assay, user)
 
             // iterate through measurementData and build data matrix
-            measurementData.each { data ->
-                if (!matrix.containsKey(data.sampleToken)) matrix[ data.sampleToken ] = [:]
-                matrix[ data.sampleToken ][ data.measurementToken ] = data.value
-            }
+            try {
+                measurementData.each { data ->
+                    if (!matrix.containsKey(data.sampleToken)) matrix[data.sampleToken] = [:]
+                    matrix[data.sampleToken][data.measurementToken] = data.value
+                }
 
-            // define result
-            def result = [
-                'count'         : matrix.size(),
-                'measurements'  : matrix
-            ]
+                // define result
+                def result = [
+                        'count'         : matrix.size(),
+                        'measurements'  : matrix
+                ]
 
-            // set output headers
-            response.status = 200
-            response.contentType = 'application/json;charset=UTF-8'
+                // set output headers
+                response.status = 200
+                response.contentType = 'application/json;charset=UTF-8'
 
-            if (params.containsKey('callback')) {
-                render "${params.callback}(${result as JSON})"
-            } else {
-                render result as JSON
+                if (params.containsKey('callback')) {
+                    render "${params.callback}(${result as JSON})"
+                } else {
+                    render result as JSON
+                }
+            } catch (Exception e) {
+                response.sendError(500, "module '${assay.module}' does not properly implement getMeasurementData REST specification (${e.getMessage()})")
             }
         }
     }
