@@ -234,10 +234,10 @@ class ApiController {
 
             // define result
             def result = [
-                    'measurements'  : apiService.getMeasurements(assay, user)
+                    'measurements'  : apiService.getMeasurements(assay, user),
 //                'measurements'  : ApiService.getMeasurements(assay, user),
-//                'data'          : ApiService.getMeasurementData(assay, user),
-//                'metaData'      : ApiService.getMeasurementMetaData(assay, user)
+                'data'          : apiService.getMeasurementData(assay, user),
+                'metaData'      : apiService.getMeasurementMetaData(assay, user)
             ]
 
             // set output headers
