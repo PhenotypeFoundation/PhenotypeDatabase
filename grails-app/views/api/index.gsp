@@ -279,8 +279,8 @@ The API allows third party software to interface with GSCF and connected modules
 </p>
 
 <a name="getAssayData"></a>
-<h1>getAssaysData</h1>
-<h3>url: <g:createLink controller="api" action="getAssaysData" absolute="true" /></h3>
+<h1>getAssayData</h1>
+<h3>url: <g:createLink controller="api" action="getAssayData" absolute="true" /></h3>
 <p>
     Returns the measurement data for a particular assay
 
