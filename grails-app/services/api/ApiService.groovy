@@ -60,10 +60,10 @@ class ApiService implements Serializable {
      * flatten domain data to relevant data to return in an api
      * call and not to expose domain internals
      *
-     * @param elements
+     * @param elements (List or Set)
      * @return
      */
-    def flattenDomainData(List elements) {
+    def flattenDomainData(elements) {
         def items = []
 
         // iterate through elements
@@ -73,8 +73,13 @@ class ApiService implements Serializable {
 
             // add token
             if (it.respondsTo('getToken')) {
+                // some domain methods implement getToken...
                 item['token'] = it.getToken()
+            } else if (it.respondsTo('giveUUID')) {
+                // ...while other implement giveUUID
+                item['token'] = it.giveUUID()
             } else {
+                // and others don't at all... :S
                 item['id'] = it.id
             }
 

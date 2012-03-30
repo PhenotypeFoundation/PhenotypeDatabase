@@ -203,6 +203,46 @@ class ApiController {
         }
     }
 
+    def getSamplesForAssay = {
+        println "api::getSamplesForAssay: ${params}"
+
+        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
+        String validation   = (params.containsKey('validation')) ? params.validation : ''
+        String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
+
+        // fetch user and study
+        def user    = Token.findByDeviceID(deviceID)?.user
+        def assay   = Assay.findByAssayUUID(assayToken)
+
+        // check
+        if (!apiService.validateRequest(deviceID,validation)) {
+            response.sendError(401, 'Unauthorized')
+        } else if (!assay) {
+            response.sendError(400, 'No such assay')
+        } else if (!assay.parent.canRead(user)) {
+            response.sendError(401, 'Unauthorized')
+        } else {
+            def samples = apiService.flattenDomainData( assay.samples )
+
+            // define result
+            def result = [
+                    'count'     : samples.size(),
+                    'samples'   : samples
+            ]
+
+            // set output headers
+            response.status = 200
+            response.contentType = 'application/json;charset=UTF-8'
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        }
+
+    }
+
     def getAssayData = {
         println "api:getAssayData: ${params}"
 

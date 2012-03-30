@@ -62,6 +62,7 @@ The API allows third party software to interface with GSCF and connected modules
     <li><a href="#getStudies">getStudies</a> - fetch all (readable) studies</li>
     <li><a href="#getSubjectsForStudy">getSubjectsForStudy</a> - fetch all subjects in a given study</li>
     <li><a href="#getAssaysForStudy">getAssaysForStudy</a> - fetch all assays in a given study</li>
+    <li><a href="#getSamplesForAssay">getSamplesForAssay</a> - fetch all samples in a given assay</li>
     <li><a href="#getAssayData">getAssayData</a> - fetch all measurement data for a given assay</li>
 
 <a name="authenticate"></a>
@@ -276,6 +277,214 @@ The API allows third party software to interface with GSCF and connected modules
     <blockquote>
         {"count":6,"assays":[{"token":"253ec24f-9bac-4f2b-b9cf-f84b86376a4e","name":"16S Sequencing assay","module":"Mass Sequencing module","Description":null},{"token":"4df2f49d-1d8c-48bd-8ebd-d267164948ec","name":"18S Sequencing assay","module":"Mass Sequencing module","Description":null},{"token":"828cf2d6-d797-484b-82f9-df9933d76d77","name":"Glucose assay after","module":"SAM module for clinical data","Description":null},{"token":"d68e8fed-41ca-4408-9d8e-f3598eca9183","name":"Glucose assay before","module":"SAM module for clinical data","Description":null},{"token":"32945764-6c5e-497c-8b1e-0d5e0dfa8221","name":"Lipidomics profile after","module":"Metabolomics module","Description":null,"Spectrometry technique":"GC/MS"},{"token":"92f42f77-1c13-4b25-aa57-b444e355fbf4","name":"Lipidomics profile before","module":"Metabolomics module","Description":null,"Spectrometry technique":"GC/MS"}]}
     </blockquote>
+</p>
+
+<a name="getSamplesForAssay"></a>
+<h1>getSamplesForAssay</h1>
+<h3>url: <g:createLink controller="api" action="getSamplesForAssay" absolute="true" /></h3>
+<p>
+    Returns the samples data for a particular assay
+
+<h2>Request parameters</h2>
+<table>
+    <thead>
+    <th>argument</th>
+    <th>type</th>
+    <th>length</th>
+    <th>description</th>
+    <th>example</th>
+    <th>required</th>
+    </thead>
+    <tr>
+        <td>deviceID</td>
+        <td>string</td>
+        <td>36 (max)</td>
+        <td>a unique ID of the client device / application performing the call</td>
+        <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+        <td>yes</td>
+    </tr>
+    <tr>
+        <td>validation</td>
+        <td>string</td>
+        <td>-</td>
+        <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + shared secret )</td>
+        <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+        <td>yes</td>
+    </tr>
+    <tr>
+        <td>assayToken</td>
+        <td>string</td>
+        <td>255</td>
+        <td>assay token (see getAssays)</td>
+        <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+        <td>yes</td>
+    </tr>
+</table>
+
+<h2>example reply</h2>
+<blockquote>
+    {
+    "count":
+    11,
+    "samples":
+    [
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T58.66620961739546",
+    "material":
+    "blood plasma",
+    "name":
+    "7_A",
+    "token":
+    "c705668a-81c4-4d80-83df-96bb477aeb0b"
+    },
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T39.7483280873287",
+    "material":
+    "blood plasma",
+    "name":
+    "9_A",
+    "token":
+    "d81bdda8-4684-45b9-b254-1ec4756cfc71"
+    },
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T43.20628871191769",
+    "material":
+    "blood plasma",
+    "name":
+    "2_A",
+    "token":
+    "2f501b55-ffdd-4bf2-a598-dcf24d3fac63"
+    },
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T88.40760089710538",
+    "material":
+    "blood plasma",
+    "name":
+    "8_A",
+    "token":
+    "f908ae2a-3df7-4eb7-be2a-0b8859c20bfc"
+    },
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T58.14619508995611",
+    "material":
+    "blood plasma",
+    "name":
+    "11_A",
+    "token":
+    "6763cff4-8113-4614-85b9-ef98fb34beba"
+    },
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T71.86067212685215",
+    "material":
+    "blood plasma",
+    "name":
+    "6_A",
+    "token":
+    "5a339aaa-9bb6-4a0a-9ce7-4c42ceaf5771"
+    },
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T2.395117860298579",
+    "material":
+    "blood plasma",
+    "name":
+    "3_A",
+    "token":
+    "a9e73abe-aed3-4c43-8fe7-a6b3dfe6e2ed"
+    },
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T98.99437236833568",
+    "material":
+    "blood plasma",
+    "name":
+    "10_A",
+    "token":
+    "3e63a493-c69d-4cd4-ba23-eeafe962b17f"
+    },
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T25.420102086098005",
+    "material":
+    "blood plasma",
+    "name":
+    "4_A",
+    "token":
+    "34d5611b-7407-489a-b25a-00ad2b0d8789"
+    },
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T69.55369597806298",
+    "material":
+    "blood plasma",
+    "name":
+    "1_A",
+    "token":
+    "5c9dce07-ca4d-4bcb-8ac3-c8488bd7247a"
+    },
+    {
+    "Remarks":
+    null,
+    "Sample measured volume":
+    null,
+    "Text on vial":
+    "T50.41146383561054",
+    "material":
+    "blood plasma",
+    "name":
+    "5_A",
+    "token":
+    "21a07d33-6d95-46f9-a80d-cd58d7e140d0"
+    }
+    ]
+    }
+</blockquote>
 </p>
 
 <a name="getAssayData"></a>
