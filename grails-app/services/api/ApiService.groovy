@@ -15,11 +15,14 @@
 package api
 
 import java.security.MessageDigest
+import dbnp.studycapturing.Assay
+import dbnp.authentication.SecUser
 
 class ApiService {
     // the shared secret used to validate api calls
     static final String API_SECRET = "th!s_sH0uld^Pr0bab7y_m0v3_t%_th3_uSeR_d0Ma!n_ins7ead!"
     static transactional = true
+    def moduleCommunicationService
 
     /**
      * validate a client request by checking the validation checksum
@@ -49,9 +52,15 @@ class ApiService {
             return false
         }
     }
-    
 
-    def flattenDomainData(elements) {
+    /**
+     * flatten domain data to relevant data to return in an api
+     * call and not to expose domain internals
+     *
+     * @param elements
+     * @return
+     */
+    def flattenDomainData(List elements) {
         println elements.class
         def items = []
 
@@ -82,5 +91,21 @@ class ApiService {
         }
 
         return items
+    }
+
+    def getMeasurements(Assay assay, SecUser user) {
+        def serviceURL = "${assay.module.url}/rest/getMeasurements"
+        def serviceArguments = "assayToken=${assay.assayUUID}"
+
+        // call module method
+        def json = moduleCommunicationService.callModuleMethod(
+                assay.module.url,
+                serviceURL,
+                serviceArguments,
+                "POST",
+                user
+        );
+
+        return json
     }
 }

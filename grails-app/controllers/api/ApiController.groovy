@@ -222,20 +222,17 @@ class ApiController {
         } else if (!assay.parent.canRead(user)) {
             response.sendError(401, 'Unauthorized')
         } else {
-//            def assays = apiService.flattenDomainData( study.assays )
+//            def serviceURL = "${assay.module.url}/rest/getMeasurements"
+//            def serviceArguments = "assayToken=${assayToken}"
+//            def json = moduleCommunicationService.callModuleMethod(
+//                    assay.module.url,
+//                    serviceURL,
+//                    serviceArguments,
+//                    "POST",
+//                    user
+//            );
 
-            def serviceURL = "${assay.module.url}/rest/getMeasurements"
-            def serviceArguments = "assayToken=${assayToken}"
-
-//            def callModuleMethod( String consumer, String restUrl, String args = null, String requestMethod = "GET", SecUser remoteUser = null) {
-
-            def json = moduleCommunicationService.callModuleMethod(
-                    assay.module.url,
-                    serviceURL,
-                    serviceArguments,
-                    "POST",
-                    user
-            );
+            def json = ApiService.getMeasurements(assay, user)
 
 
             // define result
