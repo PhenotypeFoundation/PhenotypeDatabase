@@ -21,7 +21,7 @@ import dbnp.authentication.SecUser
 class ApiService implements Serializable {
     // the shared secret used to validate api calls
     static final String API_SECRET = "th!s_sH0uld^Pr0bab7y_m0v3_t%_th3_uSeR_d0Ma!n_ins7ead!"
-    static transactional = true
+    static transactional = false
     def moduleCommunicationService
 
     /**
@@ -61,7 +61,6 @@ class ApiService implements Serializable {
      * @return
      */
     def flattenDomainData(List elements) {
-        println elements.class
         def items = []
 
         // iterate through elements

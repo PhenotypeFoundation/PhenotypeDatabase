@@ -62,6 +62,7 @@ The API allows third party software to interface with GSCF and connected modules
     <li><a href="#getStudies">getStudies</a> - fetch all (readable) studies</li>
     <li><a href="#getSubjectsForStudy">getSubjectsForStudy</a> - fetch all subjects in a given study</li>
     <li><a href="#getAssaysForStudy">getAssaysForStudy</a> - fetch all assays in a given study</li>
+    <li><a href="#getAssayData">getAssayData</a> - fetch all measurement data for a given assay</li>
 
 <a name="authenticate"></a>
 <h1>authenticate</h1>
@@ -276,6 +277,55 @@ The API allows third party software to interface with GSCF and connected modules
         {"count":6,"assays":[{"token":"253ec24f-9bac-4f2b-b9cf-f84b86376a4e","name":"16S Sequencing assay","module":"Mass Sequencing module","Description":null},{"token":"4df2f49d-1d8c-48bd-8ebd-d267164948ec","name":"18S Sequencing assay","module":"Mass Sequencing module","Description":null},{"token":"828cf2d6-d797-484b-82f9-df9933d76d77","name":"Glucose assay after","module":"SAM module for clinical data","Description":null},{"token":"d68e8fed-41ca-4408-9d8e-f3598eca9183","name":"Glucose assay before","module":"SAM module for clinical data","Description":null},{"token":"32945764-6c5e-497c-8b1e-0d5e0dfa8221","name":"Lipidomics profile after","module":"Metabolomics module","Description":null,"Spectrometry technique":"GC/MS"},{"token":"92f42f77-1c13-4b25-aa57-b444e355fbf4","name":"Lipidomics profile before","module":"Metabolomics module","Description":null,"Spectrometry technique":"GC/MS"}]}
     </blockquote>
 </p>
+
+<a name="getAssayData"></a>
+<h1>getAssaysData</h1>
+<h3>url: <g:createLink controller="api" action="getAssaysData" absolute="true" /></h3>
+<p>
+    Returns the measurement data for a particular assay
+
+<h2>Request parameters</h2>
+<table>
+    <thead>
+    <th>argument</th>
+    <th>type</th>
+    <th>length</th>
+    <th>description</th>
+    <th>example</th>
+    <th>required</th>
+    </thead>
+    <tr>
+        <td>deviceID</td>
+        <td>string</td>
+        <td>36 (max)</td>
+        <td>a unique ID of the client device / application performing the call</td>
+        <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+        <td>yes</td>
+    </tr>
+    <tr>
+        <td>validation</td>
+        <td>string</td>
+        <td>-</td>
+        <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + shared secret )</td>
+        <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+        <td>yes</td>
+    </tr>
+    <tr>
+        <td>assayToken</td>
+        <td>string</td>
+        <td>255</td>
+        <td>assay token (see getAssays)</td>
+        <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+        <td>yes</td>
+    </tr>
+</table>
+
+<h2>example reply</h2>
+<blockquote>
+...todo...
+</blockquote>
+</p>
+
 </div>
 </body>
 </html>
