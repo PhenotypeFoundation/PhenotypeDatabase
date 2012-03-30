@@ -343,6 +343,7 @@ class ApiController {
 
     // ---- debugging -----
 
+    def moduleCommunicationService
     def debugModuleDataForAssay = {
         println "api:debugModuleDataForAssay: ${params}"
 
@@ -362,11 +363,25 @@ class ApiController {
         } else if (!assay.parent.canRead(user)) {
             response.sendError(401, 'Unauthorized')
         } else {
+            def serviceURL = "${assay.module.url}/rest/getMeasurementData"
+            def serviceArguments = "assayToken=${assay.assayUUID}&verbose=false"
+
+            // call module method
+            def json = moduleCommunicationService.callModuleMethod(
+                    assay.module.url,
+                    serviceURL,
+                    serviceArguments,
+                    "POST",
+                    user
+            );
+
+
             // define result
             def result = [
-                    'measurements'  : apiService.getMeasurements(assay, user),
-                    'data'          : apiService.getMeasurementData(assay, user),
-                    'metaData'      : apiService.getMeasurementMetaData(assay, user)
+                    'measurements'              : apiService.getMeasurements(assay, user),
+                    'verboseMeasurementData'    : apiService.getMeasurementData(assay, user),
+                    'nonVerboseMeasurementData' : json,
+                    'measurementMetaData'       : apiService.getMeasurementMetaData(assay, user)
             ]
 
             // set output headers
