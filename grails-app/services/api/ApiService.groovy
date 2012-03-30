@@ -22,6 +22,7 @@ class ApiService implements Serializable {
     // the shared secret used to validate api calls
     static final String API_SECRET = "th!s_sH0uld^Pr0bab7y_m0v3_t%_th3_uSeR_d0Ma!n_ins7ead!"
     static transactional = false
+
     def moduleCommunicationService
 
     /**
@@ -31,6 +32,8 @@ class ApiService implements Serializable {
      * @return
      */
     def validateRequest(String deviceID, String validation) {
+        return true
+
         // disable validation check on development and ci
         if (['development', 'ci'].contains(grails.util.GrailsUtil.environment)) {
             return true
@@ -76,10 +79,11 @@ class ApiService implements Serializable {
                 // some domain methods implement getToken...
                 item['token'] = it.getToken()
             } else if (it.respondsTo('giveUUID')) {
-                // ...while other implement giveUUID
+                // ...while others implement giveUUID
                 item['token'] = it.giveUUID()
             } else {
-                // and others don't at all... :S
+                // and others don't at all, so far
+                // the consistency...
                 item['id'] = it.id
             }
 
