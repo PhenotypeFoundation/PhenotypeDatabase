@@ -241,8 +241,8 @@ class ApiController {
 
     }
 
-    def getAssayData = {
-        println "api:getAssayData: ${params}"
+    def getMeasurementDataForAssay = {
+        println "api:getMeasurementDataForAssay: ${params}"
 
         String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
         String validation   = (params.containsKey('validation')) ? params.validation : ''
@@ -260,11 +260,21 @@ class ApiController {
         } else if (!assay.parent.canRead(user)) {
             response.sendError(401, 'Unauthorized')
         } else {
+            // define sample measurement data matrix
+            def matrix = [:]
+            def measurementData     = apiService.getMeasurementData(assay, user)
+            def measurementMetaData = apiService.getMeasurementData(assay, user)
+
+            // iterate through measurementData and build data matrix
+            measurementData.each { data ->
+                if (!matrix.containsKey(data.sampleToken)) matrix[ data.sampleToken ] = [:]
+                matrix[ data.sampleToken ][ data.measurementToken ] = data.value
+            }
+
             // define result
             def result = [
-                'measurements'  : apiService.getMeasurements(assay, user),
-                'data'          : apiService.getMeasurementData(assay, user),
-                'metaData'      : apiService.getMeasurementMetaData(assay, user)
+                'count'         : matrix.size(),
+                'measurements'  : matrix
             ]
 
             // set output headers
@@ -279,8 +289,10 @@ class ApiController {
         }
     }
 
-    def getDataForAssay = {
-        println "api:getDataForAssay: ${params}"
+    // ---- debugging -----
+
+    def debugModuleDataForAssay = {
+        println "api:debugModuleDataForAssay: ${params}"
 
         String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
         String validation   = (params.containsKey('validation')) ? params.validation : ''
@@ -298,24 +310,11 @@ class ApiController {
         } else if (!assay.parent.canRead(user)) {
             response.sendError(401, 'Unauthorized')
         } else {
-            // fetch data from model
-//            def measurements =
-            // define sample measurement data matrix
-
-            def matrix = [:]
-            def measurements    = apiService.getMeasurements(assay, user)
-            def measurementData = apiService.getMeasurementData(assay, user)
-
-            // iterate through measurementData and build data matrix
-            measurementData.each { data ->
-                if (!matrix.containsKey(data.sampleToken)) matrix[ data.sampleToken ] = [:]
-                matrix[ data.sampleToken ][ data.measurementToken ] = data.value
-            }
-
             // define result
             def result = [
                     'measurements'  : apiService.getMeasurements(assay, user),
-                    'matrix'        : matrix
+                    'data'          : apiService.getMeasurementData(assay, user),
+                    'metaData'      : apiService.getMeasurementMetaData(assay, user)
             ]
 
             // set output headers

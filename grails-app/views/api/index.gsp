@@ -63,7 +63,7 @@ The API allows third party software to interface with GSCF and connected modules
     <li><a href="#getSubjectsForStudy">getSubjectsForStudy</a> - fetch all subjects in a given study</li>
     <li><a href="#getAssaysForStudy">getAssaysForStudy</a> - fetch all assays in a given study</li>
     <li><a href="#getSamplesForAssay">getSamplesForAssay</a> - fetch all samples in a given assay</li>
-    <li><a href="#getAssayData">getAssayData</a> - fetch all measurement data for a given assay</li>
+    <li><a href="#getMeasurementDataForAssay">getMeasurementDataForAssay</a> - fetch all measurement data for a given assay</li>
 
 <a name="authenticate"></a>
 <h1>authenticate</h1>
@@ -487,9 +487,9 @@ The API allows third party software to interface with GSCF and connected modules
 </blockquote>
 </p>
 
-<a name="getAssayData"></a>
-<h1>getAssayData</h1>
-<h3>url: <g:createLink controller="api" action="getAssayData" absolute="true" /></h3>
+<a name="getMeasurementDataForAssay"></a>
+<h1>getMeasurementDataForAssay</h1>
+<h3>url: <g:createLink controller="api" action="getMeasurementDataForAssay" absolute="true" /></h3>
 <p>
     Returns the measurement data for a particular assay
 

@@ -17,6 +17,7 @@ package api
 import java.security.MessageDigest
 import dbnp.studycapturing.Assay
 import dbnp.authentication.SecUser
+import grails.converters.JSON
 
 class ApiService implements Serializable {
     // the shared secret used to validate api calls
@@ -32,8 +33,6 @@ class ApiService implements Serializable {
      * @return
      */
     def validateRequest(String deviceID, String validation) {
-        return true
-
         // disable validation check on development and ci
         if (['development', 'ci'].contains(grails.util.GrailsUtil.environment)) {
             return true
@@ -116,6 +115,7 @@ class ApiService implements Serializable {
                 "POST",
                 user
         );
+        println json.class
 
         return json
     }
@@ -139,15 +139,21 @@ class ApiService implements Serializable {
     def getMeasurementMetaData(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.url}/rest/getMeasurementMetaData"
         def serviceArguments = "assayToken=${assay.assayUUID}"
+        def json
 
         // call module method
-        def json = moduleCommunicationService.callModuleMethod(
-                assay.module.url,
-                serviceURL,
-                serviceArguments,
-                "POST",
-                user
-        );
+        try {
+            json = moduleCommunicationService.callModuleMethod(
+                    assay.module.url,
+                    serviceURL,
+                    serviceArguments,
+                    "POST",
+                    user
+            );
+        } catch (Exception e) {
+            println e.getMessage()
+            json = new org.codehaus.groovy.grails.web.json.JSONArray()
+        }
 
         return json
     }
