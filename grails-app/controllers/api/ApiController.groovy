@@ -232,13 +232,11 @@ class ApiController {
 //                    user
 //            );
 
-            def json = ApiService.getMeasurements(assay, user)
-
-
             // define result
             def result = [
-                'bla': 'hoi',
-                'json' : json
+                'measurements'  : ApiService.getMeasurements(assay, user),
+                'data'          : ApiService.getMeasurementData(assay, user),
+                'metaData'      : ApiService.getMeasurementMetaData(assay, user)
             ]
 
             // set output headers

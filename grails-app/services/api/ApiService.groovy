@@ -18,7 +18,7 @@ import java.security.MessageDigest
 import dbnp.studycapturing.Assay
 import dbnp.authentication.SecUser
 
-class ApiService {
+class ApiService implements Serializable {
     // the shared secret used to validate api calls
     static final String API_SECRET = "th!s_sH0uld^Pr0bab7y_m0v3_t%_th3_uSeR_d0Ma!n_ins7ead!"
     static transactional = true
@@ -95,6 +95,38 @@ class ApiService {
 
     def getMeasurements(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.url}/rest/getMeasurements"
+        def serviceArguments = "assayToken=${assay.assayUUID}"
+
+        // call module method
+        def json = moduleCommunicationService.callModuleMethod(
+                assay.module.url,
+                serviceURL,
+                serviceArguments,
+                "POST",
+                user
+        );
+
+        return json
+    }
+
+    def getMeasurementData(Assay assay, SecUser user) {
+        def serviceURL = "${assay.module.url}/rest/getMeasurementData"
+        def serviceArguments = "assayToken=${assay.assayUUID}&verbose=true"
+
+        // call module method
+        def json = moduleCommunicationService.callModuleMethod(
+                assay.module.url,
+                serviceURL,
+                serviceArguments,
+                "POST",
+                user
+        );
+
+        return json
+    }
+
+    def getMeasurementMetaData(Assay assay, SecUser user) {
+        def serviceURL = "${assay.module.url}/rest/getMeasurementMetaData"
         def serviceArguments = "assayToken=${assay.assayUUID}"
 
         // call module method
