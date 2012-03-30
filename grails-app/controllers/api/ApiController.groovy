@@ -227,11 +227,14 @@ class ApiController {
             def serviceURL = "${assay.module.url}/rest/getMeasurements"
             def serviceArguments = "assayToken=${assayToken}"
 
+//            def callModuleMethod( String consumer, String restUrl, String args = null, String requestMethod = "GET", SecUser remoteUser = null) {
+
             def json = moduleCommunicationService.callModuleMethod(
                     assay.module.url,
                     serviceURL,
                     serviceArguments,
-                    "POST"
+                    "POST",
+                    user
             );
 
 
