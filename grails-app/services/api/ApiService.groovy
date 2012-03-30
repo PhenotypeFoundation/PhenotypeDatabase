@@ -103,6 +103,13 @@ class ApiService implements Serializable {
         return items
     }
 
+    /**
+     * get the measurement tokens from the remote module
+     *
+     * @param assay
+     * @param user
+     * @return
+     */
     def getMeasurements(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.url}/rest/getMeasurements"
         def serviceArguments = "assayToken=${assay.assayUUID}"
@@ -115,11 +122,17 @@ class ApiService implements Serializable {
                 "POST",
                 user
         );
-        println json.class
 
         return json
     }
 
+    /**
+     * get measurement data from the remote module in verbose format
+     *
+     * @param assay
+     * @param user
+     * @return
+     */
     def getMeasurementData(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.url}/rest/getMeasurementData"
         def serviceArguments = "assayToken=${assay.assayUUID}&verbose=true"
@@ -136,6 +149,13 @@ class ApiService implements Serializable {
         return json
     }
 
+    /**
+     * get the measurement meta data from the remote module
+     *
+     * @param assay
+     * @param user
+     * @return
+     */
     def getMeasurementMetaData(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.url}/rest/getMeasurementMetaData"
         def serviceArguments = "assayToken=${assay.assayUUID}"
