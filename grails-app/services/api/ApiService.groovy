@@ -50,7 +50,9 @@ class ApiService {
         }
     }
     
+
     def flattenDomainData(elements) {
+        println elements.class
         def items = []
 
         // iterate through elements
