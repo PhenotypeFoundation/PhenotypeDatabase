@@ -31,7 +31,10 @@ class ApiService implements Serializable {
      * @return
      */
     def validateRequest(String deviceID, String validation) {
-        return true
+        // disable validation check on development and ci
+        if (['development', 'ci'].contains(grails.util.GrailsUtil.environment)) {
+            return true
+        }
 
         // get token for this device ID
         Token token = Token.findByDeviceID(deviceID)

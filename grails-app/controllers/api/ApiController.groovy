@@ -222,20 +222,9 @@ class ApiController {
         } else if (!assay.parent.canRead(user)) {
             response.sendError(401, 'Unauthorized')
         } else {
-//            def serviceURL = "${assay.module.url}/rest/getMeasurements"
-//            def serviceArguments = "assayToken=${assayToken}"
-//            def measurements = moduleCommunicationService.callModuleMethod(
-//                    assay.module.url,
-//                    serviceURL,
-//                    serviceArguments,
-//                    "POST",
-//                    user
-//            );
-
             // define result
             def result = [
-                    'measurements'  : apiService.getMeasurements(assay, user),
-//                'measurements'  : ApiService.getMeasurements(assay, user),
+                'measurements'  : apiService.getMeasurements(assay, user),
                 'data'          : apiService.getMeasurementData(assay, user),
                 'metaData'      : apiService.getMeasurementMetaData(assay, user)
             ]
