@@ -17,11 +17,13 @@ package api
 import grails.plugins.springsecurity.Secured
 import grails.converters.JSON
 import dbnp.studycapturing.Study
+import dbnp.studycapturing.Assay
 import dbnp.authentication.SecUser
 import org.dbnp.gdt.TemplateFieldType
 
 class ApiController {
     def authenticationService
+    def moduleCommunicationService
     def ApiService
 
 	/**
@@ -187,6 +189,56 @@ class ApiController {
             def result = [
                     'count'     : assays.size(),
                     'assays'    : assays
+            ]
+
+            // set output headers
+            response.status = 200
+            response.contentType = 'application/json;charset=UTF-8'
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        }
+    }
+
+    def getAssayData = {
+        println "api:getAssayData: ${params}"
+
+        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
+        String validation   = (params.containsKey('validation')) ? params.validation : ''
+        String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
+
+        // fetch user and study
+        def user    = Token.findByDeviceID(deviceID)?.user
+        def assay   = Assay.findByAssayUUID(assayToken)
+
+        // check
+        if (!apiService.validateRequest(deviceID,validation)) {
+            response.sendError(401, 'Unauthorized')
+        } else if (!assay) {
+            response.sendError(400, 'No such assay')
+        } else if (!assay.parent.canRead(user)) {
+            response.sendError(401, 'Unauthorized')
+        } else {
+//            def assays = apiService.flattenDomainData( study.assays )
+
+            def serviceURL = "${assay.module.url}/rest/getMeasurements"
+            def serviceArguments = "assayToken=${assayToken}"
+
+            def json = moduleCommunicationService.callModuleMethod(
+                    assay.module.url,
+                    serviceURL,
+                    serviceArguments,
+                    "POST"
+            );
+
+
+            // define result
+            def result = [
+                'bla': 'hoi',
+                'json' : json
             ]
 
             // set output headers
