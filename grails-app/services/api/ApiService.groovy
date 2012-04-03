@@ -3,9 +3,9 @@
  * 
  * Description of my service
  *
- * @author  your email (+name?)
- * @since	2010mmdd
- * @package	???
+ * @author  Jeroen Wesbeek <work@osx.eu>
+ * @since	20120328
+ * @package	api
  *
  * Revision information:
  * $Rev: 1430 $
@@ -113,15 +113,21 @@ class ApiService implements Serializable {
     def getMeasurements(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.url}/rest/getMeasurements"
         def serviceArguments = "assayToken=${assay.assayUUID}"
+        def json
 
         // call module method
-        def json = moduleCommunicationService.callModuleMethod(
-                assay.module.url,
-                serviceURL,
-                serviceArguments,
-                "POST",
-                user
-        );
+        try {
+            json = moduleCommunicationService.callModuleMethod(
+                    assay.module.url,
+                    serviceURL,
+                    serviceArguments,
+                    "POST",
+                    user
+            );
+        } catch (Exception e) {
+            println "api.getMeasurements failed :: ${e.getMessage()}"
+            json = new org.codehaus.groovy.grails.web.json.JSONArray()
+        }
 
         return json
     }
@@ -136,15 +142,21 @@ class ApiService implements Serializable {
     def getMeasurementData(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.url}/rest/getMeasurementData"
         def serviceArguments = "assayToken=${assay.assayUUID}&verbose=true"
+        def json
 
         // call module method
-        def json = moduleCommunicationService.callModuleMethod(
-                assay.module.url,
-                serviceURL,
-                serviceArguments,
-                "POST",
-                user
-        );
+        try {
+            json = moduleCommunicationService.callModuleMethod(
+                    assay.module.url,
+                    serviceURL,
+                    serviceArguments,
+                    "POST",
+                    user
+            );
+        } catch (Exception e) {
+            println "api.getMeasurementData failed :: ${e.getMessage()}"
+            json = new org.codehaus.groovy.grails.web.json.JSONArray()
+        }
 
         return json
     }
@@ -171,7 +183,7 @@ class ApiService implements Serializable {
                     user
             );
         } catch (Exception e) {
-            println e.getMessage()
+            println "api.getMeasurementMetaData failed :: ${e.getMessage()}"
             json = new org.codehaus.groovy.grails.web.json.JSONArray()
         }
 

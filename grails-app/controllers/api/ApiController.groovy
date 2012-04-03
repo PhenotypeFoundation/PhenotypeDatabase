@@ -4,8 +4,9 @@
  * API for third party applications to interact
  * with GSCF
  *
- * @author  your email (+name?)
- * @since	20120328ma
+ * @author  Jeroen Wesbeek <work@osx.eu>
+ * @since	20120328
+ * @package api
  *
  * Revision information:
  * $Rev$
@@ -374,7 +375,6 @@ class ApiController {
                     "POST",
                     user
             );
-
 
             // define result
             def result = [
