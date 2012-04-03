@@ -125,7 +125,7 @@ class ApiService implements Serializable {
                     user
             );
         } catch (Exception e) {
-            println "api.getMeasurements failed :: ${e.getMessage()}"
+            log.error "api.getMeasurements failed :: ${e.getMessage()}"
             json = new org.codehaus.groovy.grails.web.json.JSONArray()
         }
 
@@ -154,7 +154,7 @@ class ApiService implements Serializable {
                     user
             );
         } catch (Exception e) {
-            println "api.getMeasurementData failed :: ${e.getMessage()}"
+            log.error "api.getMeasurementData failed :: ${e.getMessage()}"
             json = new org.codehaus.groovy.grails.web.json.JSONArray()
         }
 
@@ -183,7 +183,7 @@ class ApiService implements Serializable {
                     user
             );
         } catch (Exception e) {
-            println "api.getMeasurementMetaData failed :: ${e.getMessage()}"
+            log.error "api.getMeasurementMetaData failed :: ${e.getMessage()}"
             json = new org.codehaus.groovy.grails.web.json.JSONArray()
         }
 
