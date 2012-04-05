@@ -532,8 +532,6 @@ The API allows third party software to interface with GSCF and connected modules
 <h2>example reply</h2>
 <blockquote>
     {
-    "count":
-    14,
     "measurements":
     {
     "07378e29-3233-4e3f-b4ea-007f9f9b1317":
