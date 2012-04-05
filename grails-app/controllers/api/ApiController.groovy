@@ -300,6 +300,7 @@ class ApiController {
                     render result as JSON
                 }
             } catch (Exception e) {
+                println "getMeasurementDataForAssay exception: ${e.getMessage()}"
                 response.sendError(500, "module '${assay.module}' does not properly implement getMeasurementData REST specification (${e.getMessage()})")
             }
         })

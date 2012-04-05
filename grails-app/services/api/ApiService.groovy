@@ -178,7 +178,7 @@ class ApiService implements Serializable, ApplicationContextAware {
             // validation md5sum does not match predicted hash
             response.sendError(401, "Unauthorized")
         } else if (!item) {
-            // no results
+            // no results, invalid 'item'
             response.sendError(400, "No such ${itemName}")
         } else if (item.respondsTo('canRead') && !item.canRead(user)) {
             // the user cannot read this data
