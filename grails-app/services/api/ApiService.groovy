@@ -19,8 +19,11 @@ import dbnp.studycapturing.Assay
 import dbnp.authentication.SecUser
 import grails.converters.JSON
 import org.dbnp.gdt.TemplateEntity
+import org.springframework.context.ApplicationContextAware
+import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
+import org.springframework.context.ApplicationContext
 
-class ApiService implements Serializable {
+class ApiService implements Serializable, ApplicationContextAware {
     // inject the module communication service
     def moduleCommunicationService
 
@@ -50,6 +53,14 @@ class ApiService implements Serializable {
             "templateTemplateFields",
             "templateTextFields"
     ]
+
+    private ApplicationTagLib g
+
+    void setApplicationContext(ApplicationContext applicationContext) {
+        g = applicationContext.getBean(ApplicationTagLib)
+
+        // now you have a reference to g that you can call render() on
+    }
 
     /**
      * validate a client request by checking the validation checksum
@@ -141,6 +152,44 @@ class ApiService implements Serializable {
         }
 
         return items
+    }
+
+    /**
+     * wrapper for performing api calls
+     *
+     * validates if the user may call this api
+     *
+     * @param params
+     * @param response
+     * @param itemName
+     * @param item
+     * @param block
+     */
+    def executeApiCall(params,response,itemName,item,block) {
+        // get variables from parameters
+        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
+        String validation   = (params.containsKey('validation')) ? params.validation : ''
+
+        // fetch user based on deviceID
+        def user = Token.findByDeviceID(deviceID)?.user
+
+        // check if api call may be performed
+        if (!validateRequest(deviceID,validation)) {
+            // validation md5sum does not match predicted hash
+            response.sendError(401, "Unauthorized")
+        } else if (!item) {
+            // no results
+            response.sendError(400, "No such ${itemName}")
+        } else if (item.respondsTo('canRead') && !item.canRead(user)) {
+            // the user cannot read this data
+            response.sendError(401, "Unauthorized")
+        } else if (item.hasProperty('parent') && item.parent.respondsTo('canRead') && !item.parent.canRead(user)) {
+            // the user cannot read this data
+            response.sendError(401, "Unauthorized")
+        } else {
+            // allowed api call, execute block / closure
+            block()
+        }
     }
 
     /**

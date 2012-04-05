@@ -154,22 +154,12 @@ class ApiController {
     def getSubjectsForStudy = {
         println "api::getSubjectsForStudy: ${params}"
 
-        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
-        String validation   = (params.containsKey('validation')) ? params.validation : ''
+        // fetch study
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
+        def study           = Study.findByStudyUUID(studyToken)
 
-        // fetch user and study
-        def user    = Token.findByDeviceID(deviceID)?.user
-        def study   = Study.findByStudyUUID(studyToken)
-        
-        // check
-        if (!apiService.validateRequest(deviceID,validation)) {
-            response.sendError(401, 'Unauthorized')
-        } else if (!study) {
-            response.sendError(400, 'No such study')
-        } else if (!study.canRead(user)) {
-            response.sendError(401, 'Unauthorized')
-        } else {
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'study',study,{
             def subjects = apiService.flattenDomainData( study.subjects )
 
             // define result
@@ -187,7 +177,7 @@ class ApiController {
             } else {
                 render result as JSON
             }
-        }
+        })
     }
 
     /**
@@ -200,22 +190,12 @@ class ApiController {
     def getAssaysForStudy = {
         println "api::getAssaysForStudy: ${params}"
 
-        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
-        String validation   = (params.containsKey('validation')) ? params.validation : ''
+        // fetch study
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
+        def study           = Study.findByStudyUUID(studyToken)
 
-        // fetch user and study
-        def user    = Token.findByDeviceID(deviceID)?.user
-        def study   = Study.findByStudyUUID(studyToken)
-
-        // check
-        if (!apiService.validateRequest(deviceID,validation)) {
-            response.sendError(401, 'Unauthorized')
-        } else if (!study) {
-            response.sendError(400, 'No such study')
-        } else if (!study.canRead(user)) {
-            response.sendError(401, 'Unauthorized')
-        } else {
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'study',study,{
             def assays = apiService.flattenDomainData( study.assays )
 
             // define result
@@ -233,7 +213,7 @@ class ApiController {
             } else {
                 render result as JSON
             }
-        }
+        })
     }
 
     /**
@@ -246,22 +226,12 @@ class ApiController {
     def getSamplesForAssay = {
         println "api::getSamplesForAssay: ${params}"
 
-        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
-        String validation   = (params.containsKey('validation')) ? params.validation : ''
+        // fetch assay
         String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
+        def assay           = Assay.findByAssayUUID(assayToken)
 
-        // fetch user and study
-        def user    = Token.findByDeviceID(deviceID)?.user
-        def assay   = Assay.findByAssayUUID(assayToken)
-
-        // check
-        if (!apiService.validateRequest(deviceID,validation)) {
-            response.sendError(401, 'Unauthorized')
-        } else if (!assay) {
-            response.sendError(400, 'No such assay')
-        } else if (!assay.parent.canRead(user)) {
-            response.sendError(401, 'Unauthorized')
-        } else {
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'assay',assay,{
             def samples = apiService.flattenDomainData( assay.samples )
 
             // define result
@@ -279,7 +249,7 @@ class ApiController {
             } else {
                 render result as JSON
             }
-        }
+        })
     }
 
     /**
@@ -292,26 +262,20 @@ class ApiController {
     def getMeasurementDataForAssay = {
         println "api:getMeasurementDataForAssay: ${params}"
 
-        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
-        String validation   = (params.containsKey('validation')) ? params.validation : ''
+        // fetch assay
         String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
+        def assay           = Assay.findByAssayUUID(assayToken)
 
-        // fetch user and study
-        def user    = Token.findByDeviceID(deviceID)?.user
-        def assay   = Assay.findByAssayUUID(assayToken)
+        // fetch user based on deviceID
+        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
+        def user            = Token.findByDeviceID(deviceID)?.user
 
-        // check
-        if (!apiService.validateRequest(deviceID,validation)) {
-            response.sendError(401, 'Unauthorized')
-        } else if (!assay) {
-            response.sendError(400, 'No such assay')
-        } else if (!assay.parent.canRead(user)) {
-            response.sendError(401, 'Unauthorized')
-        } else {
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'assay',assay,{
             // define sample measurement data matrix
             def matrix = [:]
-            def measurementData     = apiService.getMeasurementData(assay, user)
-            def measurementMetaData = apiService.getMeasurementData(assay, user)
+            def measurementData = apiService.getMeasurementData(assay, user)
+            //def measurementMetaData = apiService.getMeasurementData(assay, user)
 
             // iterate through measurementData and build data matrix
             try {
@@ -338,7 +302,7 @@ class ApiController {
             } catch (Exception e) {
                 response.sendError(500, "module '${assay.module}' does not properly implement getMeasurementData REST specification (${e.getMessage()})")
             }
-        }
+        })
     }
 
     // ---- debugging -----
@@ -347,22 +311,16 @@ class ApiController {
     def debugModuleDataForAssay = {
         println "api:debugModuleDataForAssay: ${params}"
 
-        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
-        String validation   = (params.containsKey('validation')) ? params.validation : ''
+        // fetch assay
         String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
+        def assay           = Assay.findByAssayUUID(assayToken)
 
-        // fetch user and study
-        def user    = Token.findByDeviceID(deviceID)?.user
-        def assay   = Assay.findByAssayUUID(assayToken)
+        // fetch user based on deviceID
+        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
+        def user            = Token.findByDeviceID(deviceID)?.user
 
-        // check
-        if (!apiService.validateRequest(deviceID,validation)) {
-            response.sendError(401, 'Unauthorized')
-        } else if (!assay) {
-            response.sendError(400, 'No such assay')
-        } else if (!assay.parent.canRead(user)) {
-            response.sendError(401, 'Unauthorized')
-        } else {
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'assay',assay,{
             def serviceURL = "${assay.module.url}/rest/getMeasurementData"
             def serviceArguments = "assayToken=${assay.assayUUID}&verbose=false"
 
@@ -392,6 +350,6 @@ class ApiController {
             } else {
                 render result as JSON
             }
-        }
+        })
     }
 }
