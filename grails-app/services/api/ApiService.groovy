@@ -18,13 +18,35 @@ import java.security.MessageDigest
 import dbnp.studycapturing.Assay
 import dbnp.authentication.SecUser
 import grails.converters.JSON
+import org.dbnp.gdt.TemplateEntity
 
 class ApiService implements Serializable {
+    // inject the module communication service
+    def moduleCommunicationService
+
     // the shared secret used to validate api calls
     static final String API_SECRET = "th!s_sH0uld^Pr0bab7y_m0v3_t%_th3_uSeR_d0Ma!n_ins7ead!"
+
+    // transactional
     static transactional = false
 
-    def moduleCommunicationService
+    // hasMany keys to ignore when flattening domain data
+    static ignoreHasManyKeys = [
+            "systemFields",
+            "templateBooleanFields",
+            "templateDateFields",
+            "templateDoubleFields",
+            "templateExtendableStringListFields",
+            "templateFileFields",
+            "templateLongFields",
+            "templateModuleFields",
+            "templateTermFields",
+            "templateRelTimeFields",
+            "templateStringFields",
+            "templateStringListFields",
+            "templateTemplateFields",
+            "templateTextFields"
+    ]
 
     /**
      * validate a client request by checking the validation checksum
@@ -88,15 +110,30 @@ class ApiService implements Serializable {
 
             // add subject field values
             fields.each { field ->
+                // get a camelCased version of the field name
+                def name = field.name.split(" ").collect {it[0].toUpperCase() + it.substring(1)}.join('')
+                    name = name[0].toLowerCase() + name.substring(1)
+
+                // get the value for this field
                 def value = it.getFieldValue( field.name )
 
+                // add value
                 if (value.hasProperty('name')) {
-                    item[ field.name ] = value.name
+                    item[ name ] = value.name
                 } else {
-                    item[ field.name ] = value
+                    item[ name ] = value
                 }
             }
 
+            // list hasMany sizes
+            it.properties.hasMany.each { hasManyItem ->
+                if (!ignoreHasManyKeys.contains(hasManyItem.key)) {
+                    // add count for this hasMany item
+                    item[ hasManyItem.key ] = it[ hasManyItem.key ].size()
+                }
+            }
+
+            // add item to resultset
             items[ items.size() ] = item
         }
 
