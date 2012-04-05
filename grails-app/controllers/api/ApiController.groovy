@@ -278,7 +278,7 @@ class ApiController {
             //def measurementMetaData = apiService.getMeasurementData(assay, user)
 
             // iterate through measurementData and build data matrix
-            try {
+//            try {
                 measurementData.each { data ->
                     if (!matrix.containsKey(data.sampleToken)) matrix[data.sampleToken] = [:]
                     matrix[data.sampleToken][data.measurementToken] = data.value
@@ -299,10 +299,10 @@ class ApiController {
                 } else {
                     render result as JSON
                 }
-            } catch (Exception e) {
-                println "getMeasurementDataForAssay exception: ${e.getMessage()}"
-                response.sendError(500, "module '${assay.module}' does not properly implement getMeasurementData REST specification (${e.getMessage()})")
-            }
+//            } catch (Exception e) {
+//                println "getMeasurementDataForAssay exception: ${e.getMessage()}"
+//                response.sendError(500, "module '${assay.module}' does not properly implement getMeasurementData REST specification (${e.getMessage()})")
+//            }
         })
     }
 
