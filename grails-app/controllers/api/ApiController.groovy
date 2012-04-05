@@ -217,6 +217,115 @@ class ApiController {
     }
 
     /**
+     * get all eventGroups for a study
+     *
+     * @param string deviceID
+     * @param string studyToken
+     * @param string validation md5 sum
+     */
+    def getEventGroupsForStudy = {
+        println "api::getEventGroupsForStudy: ${params}"
+
+        // fetch study
+        String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
+        def study           = Study.findByStudyUUID(studyToken)
+
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'study',study,{
+            def eventGroups = apiService.flattenDomainData( study.eventGroups )
+
+            // define result
+            def result = [
+                'count'         : eventGroups.size(),
+                'eventGroups'   : eventGroups
+            ]
+
+            // set output headers
+            response.status = 200
+            response.contentType = 'application/json;charset=UTF-8'
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        })
+    }
+
+    /**
+     * get all events for a study
+     *
+     * @param string deviceID
+     * @param string studyToken
+     * @param string validation md5 sum
+     */
+    def getEventsForStudy = {
+        println "api::getEventsForStudy: ${params}"
+
+        // fetch study
+        String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
+        def study           = Study.findByStudyUUID(studyToken)
+
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'study',study,{
+            def events = apiService.flattenDomainData( study.events )
+
+            // define result
+            def result = [
+                'count' : events.size(),
+                'events': events
+            ]
+
+            // set output headers
+            response.status = 200
+            response.contentType = 'application/json;charset=UTF-8'
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        })
+    }
+
+    /**
+     * get all samplingEvents for a study
+     *
+     * @param string deviceID
+     * @param string studyToken
+     * @param string validation md5 sum
+     */
+    def getSamplingEventsForStudy = {
+        println "api::getSamplingEventsForStudy: ${params}"
+
+        // fetch study
+        String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
+        def study           = Study.findByStudyUUID(studyToken)
+
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'study',study,{
+            def samplingEvents = apiService.flattenDomainData( study.samplingEvents )
+            println study.samplingEvents.dump()
+
+            // define result
+            def result = [
+                    'count'         : samplingEvents.size(),
+                    'samplingEvents': samplingEvents
+            ]
+
+            // set output headers
+            response.status = 200
+            response.contentType = 'application/json;charset=UTF-8'
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        })
+    }
+
+    /**
      * get all samples for an assay
      *
      * @param string deviceID

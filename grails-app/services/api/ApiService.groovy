@@ -106,8 +106,13 @@ class ApiService implements Serializable, ApplicationContextAware {
 
         // iterate through elements
         elements.each {
-            def fields  = it.giveFields()
+            def fields  = (it.respondsTo('giveFields')) ? it.giveFields(): []
             def item    = [:]
+
+            // check if element has a name
+            ['name','description'].each { checkName ->
+                if (it.hasProperty(checkName)) item[checkName] = it[checkName]
+            }
 
             // add token
             if (it.respondsTo('getToken')) {
