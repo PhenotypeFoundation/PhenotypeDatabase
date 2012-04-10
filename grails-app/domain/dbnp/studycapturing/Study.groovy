@@ -496,7 +496,7 @@ class Study extends TemplateEntity {
 				firstResult(offset)
 				order("title", "asc")
 				and {
-					eq("published", true)
+//					eq("published", true)
 					eq("publicstudy", true)
 				}
 			}
@@ -520,7 +520,7 @@ class Study extends TemplateEntity {
 						readers {
 							eq("id", user.id)
 						}
-						eq("published", true)
+//						eq("published", true)
 					}
 				}
 			}
