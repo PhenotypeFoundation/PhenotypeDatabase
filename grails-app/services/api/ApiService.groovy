@@ -80,7 +80,7 @@ class ApiService implements Serializable, ApplicationContextAware {
         // increase sequence
         if (token) {
             token.sequence = token.sequence+1
-            token.save()
+            token.merge(flush: true)
 
             // generate the validation checksum
             MessageDigest digest = MessageDigest.getInstance("MD5")
