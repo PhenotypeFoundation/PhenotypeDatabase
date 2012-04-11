@@ -369,7 +369,7 @@ class ApiController {
      * @param string validation md5 sum
      */
     def getMeasurementDataForAssay = {
-        println "api:getMeasurementDataForAssay: ${params}"
+        println "api::getMeasurementDataForAssay: ${params}"
 
         // fetch assay
         String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
