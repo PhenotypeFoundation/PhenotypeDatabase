@@ -419,7 +419,8 @@ class Study extends TemplateEntity {
 		}
 
 		// Readers are allowed to read this study when it is published
-		if (this.readers.contains(loggedInUser) && this.published) {
+//		if (this.readers.contains(loggedInUser) && this.published) {
+		if (this.readers.contains(loggedInUser)) {
 			return true
 		}
 
