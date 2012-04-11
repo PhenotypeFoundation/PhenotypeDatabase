@@ -497,7 +497,7 @@ class Study extends TemplateEntity {
 				firstResult(offset)
 				order("title", "asc")
 				and {
-//					eq("published", true)
+					eq("published", true)
 					eq("publicstudy", true)
 				}
 			}
