@@ -416,6 +416,8 @@ class ApiController {
     }
 
     // ---- debugging -----
+    //
+    // this should be removed! :)
 
     def moduleCommunicationService
     def debugModuleDataForAssay = {

@@ -34,7 +34,7 @@ class ApiService implements Serializable, ApplicationContextAware {
     static transactional = false
 
     // characters to split on when converting a string to camelCased format
-    static camelCaseSeperators = " |-|_"
+    static camelCaseSeparators = " |-|_"
 
     // hasMany keys to ignore when flattening domain data
     static ignoreHasManyKeys = [
@@ -131,7 +131,7 @@ class ApiService implements Serializable, ApplicationContextAware {
             // add subject field values
             fields.each { field ->
                 // get a camelCased version of the field name
-                def name = field.name.split(camelCaseSeperators).collect {it[0].toUpperCase() + it.substring(1)}.join('')
+                def name = field.name.split(camelCaseSeparators).collect {it[0].toUpperCase() + it.substring(1)}.join('')
                     name = name[0].toLowerCase() + name.substring(1)
 
                 // get the value for this field
