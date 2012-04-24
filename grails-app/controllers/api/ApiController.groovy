@@ -396,7 +396,7 @@ class ApiController {
                 // define result
                 def result = [:]
                 result = [
-                        'measurements'  : matrix
+                    'measurements'  : matrix
                 ]
 
                 // set output headers
@@ -411,56 +411,6 @@ class ApiController {
             } catch (Exception e) {
                 println "getMeasurementDataForAssay exception: ${e.getMessage()}"
                 response.sendError(500, "module '${assay.module}' does not properly implement getMeasurementData REST specification (${e.getMessage()})")
-            }
-        })
-    }
-
-    // ---- debugging -----
-    //
-    // this should be removed! :)
-
-    def moduleCommunicationService
-    def debugModuleDataForAssay = {
-        println "api:debugModuleDataForAssay: ${params}"
-
-        // fetch assay
-        String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
-        def assay           = Assay.findByAssayUUID(assayToken)
-
-        // fetch user based on deviceID
-        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
-        def user            = Token.findByDeviceID(deviceID)?.user
-
-        // wrap result in api call validator
-        apiService.executeApiCall(params,response,'assay',assay,{
-            def serviceURL = "${assay.module.url}/rest/getMeasurementData"
-            def serviceArguments = "assayToken=${assay.assayUUID}&verbose=false"
-
-            // call module method
-            def json = moduleCommunicationService.callModuleMethod(
-                    assay.module.url,
-                    serviceURL,
-                    serviceArguments,
-                    "POST",
-                    user
-            );
-
-            // define result
-            def result = [
-                    'measurements'              : apiService.getMeasurements(assay, user),
-                    'verboseMeasurementData'    : apiService.getMeasurementData(assay, user),
-                    'nonVerboseMeasurementData' : json,
-                    'measurementMetaData'       : apiService.getMeasurementMetaData(assay, user)
-            ]
-
-            // set output headers
-            response.status = 200
-            response.contentType = 'application/json;charset=UTF-8'
-
-            if (params.containsKey('callback')) {
-                render "${params.callback}(${result as JSON})"
-            } else {
-                render result as JSON
             }
         })
     }

@@ -17,8 +17,6 @@ package api
 import java.security.MessageDigest
 import dbnp.studycapturing.Assay
 import dbnp.authentication.SecUser
-import grails.converters.JSON
-import org.dbnp.gdt.TemplateEntity
 import org.springframework.context.ApplicationContextAware
 import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
 import org.springframework.context.ApplicationContext
