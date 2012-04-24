@@ -69,6 +69,8 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def validateRequest(String deviceID, String validation) {
+        def validated = false
+
         // disable validation check on development and ci
         if (['development', 'ci'].contains(grails.util.GrailsUtil.environment)) {
             return true
@@ -87,11 +89,10 @@ class ApiService implements Serializable, ApplicationContextAware {
             String validationSum = new BigInteger(1,digest.digest("${token.deviceToken}${token.sequence}${API_SECRET}".getBytes())).toString(16).padLeft(32,"0")
 
             // check if the validation confirms
-            return (validation == validationSum)
-        } else {
-            // no such token, re-authenticate
-            return false
+            validated = (validation == validationSum)
         }
+
+        return validated
     }
 
     /**
