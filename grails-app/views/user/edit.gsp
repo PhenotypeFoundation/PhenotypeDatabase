@@ -2,13 +2,14 @@
 	<meta name='layout' content='main'/>
 	<g:set var="entityName" value="${message(code: 'user.label', default: 'User')}"/>
 	<title><g:message code="default.edit.label" args="[entityName]"/></title>
-
-	<script type="text/javascript">
-		// This method is called on the event body.onLoad
-		$(function() {
-			$("#tabs").tabs();
-		});
-	</script>
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".tooltip").tipTip();
+            $("#tabs").tabs();
+        });
+    </script>
 	<style type="text/css">
 	div.usermanagement {
 		font-size: 0.8em;
@@ -44,7 +45,14 @@
 				<tbody>
 				<g:if test="${user.shibbolethUser}">
 					<tr><td>Shibboleth user</td><td>yes</td></tr>
-					<tr><td>Username/Urn</td><td>${user?.username}</td></tr>
+                    <tr>
+                        <td>API key</td>
+                        <td valign="top" class="value">
+                            <g:textField disabled="disabled" name="secret" value="${user.apiKey}" style="width:250px" />
+                            <img src="${fam.icon(name: 'help')}" class="tooltip" title="in order to programmatically interface with gscf, a user needs his api key to communicate with the api. Refer to the api documentation at ${createLink(controller:'api')} for more information about how to use the api and the api key." />
+                        </td>
+                    </tr>
+                    <tr><td>Username/Urn</td><td>${user?.username}</td></tr>
 					<tr><td>Uid</td><td>${user?.uid}</td></tr>
 					<tr><td>Email address</td><td><g:textField name="email" value="${user?.email}"/></td></tr>
 					<tr><td>Organization</td><td>${user?.organization}</td></tr>
@@ -53,7 +61,14 @@
 				</g:if>
 				<g:else>
 					<tr><td>Shibboleth user</td><td>no</td></tr>
-					<tr><td>Username</td><td><g:textField name="username" value="${user?.username}"/></td></tr>
+                    <tr>
+                        <td>API key</td>
+                        <td valign="top" class="value">
+                            <g:textField disabled="disabled" name="secret" value="${user.apiKey}" style="width:250px" />
+                            <img src="${fam.icon(name: 'help')}" class="tooltip" title="in order to programmatically interface with gscf, a user needs his api key to communicate with the api. Refer to the api documentation at ${createLink(controller:'api')} for more information about how to use the api and the api key." />
+                        </td>
+                    </tr>
+                    <tr><td>Username</td><td><g:textField name="username" value="${user?.username}"/></td></tr>
 					<tr><td>Password</td><td><g:passwordField name="password" value="${user?.password}"/></td></tr>
 					<tr><td>Email address</td><td><g:textField name="email" value="${user?.email}"/></td></tr>
 					<tr><td>User confirmed</td><td><g:checkBox name="userConfirmed"

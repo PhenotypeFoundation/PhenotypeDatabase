@@ -25,9 +25,6 @@ class ApiService implements Serializable, ApplicationContextAware {
     // inject the module communication service
     def moduleCommunicationService
 
-    // the shared secret used to validate api calls
-    static final String API_SECRET = "th!s_sH0uld^Pr0bab7y_m0v3_t%_th3_uSeR_d0Ma!n_ins7ead!"
-
     // transactional
     static transactional = false
 
@@ -71,7 +68,7 @@ class ApiService implements Serializable, ApplicationContextAware {
 
         // disable validation check on development and ci
         if (['development', 'ci'].contains(grails.util.GrailsUtil.environment)) {
-            return true
+//            return true
         }
 
         // get token for this device ID
@@ -84,7 +81,7 @@ class ApiService implements Serializable, ApplicationContextAware {
 
             // generate the validation checksum
             MessageDigest digest = MessageDigest.getInstance("MD5")
-            String validationSum = new BigInteger(1,digest.digest("${token.deviceToken}${token.sequence}${API_SECRET}".getBytes())).toString(16).padLeft(32,"0")
+            String validationSum = new BigInteger(1,digest.digest("${token.deviceToken}${token.sequence}${token.user.apiKey}".getBytes())).toString(16).padLeft(32,"0")
 
             // check if the validation confirms
             validated = (validation == validationSum)

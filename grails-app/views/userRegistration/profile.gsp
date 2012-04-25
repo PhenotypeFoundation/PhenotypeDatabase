@@ -3,6 +3,13 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<meta name="layout" content="main"/>
 	<title>User profile</title>
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".tooltip").tipTip();
+        });
+    </script>
 </head>
 
 <body>
@@ -21,7 +28,14 @@
 				<td>Organization</td>
 				<td>${user.organization}</td>
 			</tr>
-			<sec:ifAllGranted roles="ROLE_ADMIN">
+            <tr>
+                <td>API key</td>
+                <td valign="top" class="value">
+                    <g:textField disabled="disabled" name="secret" value="${user.apiKey}" style="width:250px" />
+                    <img src="${fam.icon(name: 'help')}" class="tooltip" title="in order to programmatically interface with gscf, you need the api key to communicate with the api. Refer to the api documentation at ${createLink(controller:'api')} for more information about how to use the api and the api key." />
+                </td>
+            </tr>
+            <sec:ifAllGranted roles="ROLE_ADMIN">
 			<tr>
 				<td>Administrator</td>
 				<td><b>You are an administrator</b></td>
@@ -45,7 +59,14 @@
 				<table>
 					<tbody>
 
-					<tr class="prop">
+                    <tr class="prop">
+                        <td valign="top" class="name">API Key</td>
+                        <td valign="top" class="value">
+                            <g:textField disabled="disabled" name="secret" value="${user.apiKey}" style="width:250px" />
+                            <img src="${fam.icon(name: 'help')}" class="tooltip" title="in order to programmatically interface with gscf, you need the api key to communicate with the api. Refer to the api documentation at ${createLink(controller:'api')} for more information about how to use the api and the api key." />
+                        </td>
+                    </tr>
+                    <tr class="prop">
 						<td valign="top" class="name">
 							<label for="username">Username</label>
 						</td>

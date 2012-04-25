@@ -9,7 +9,9 @@ class SecUser implements Serializable {
 	String voName			// shibboleth request header: coin-vo-name
 	String userStatus		// shibboleth request header: coin-user-status
 	String email
+    String apiKey           // api key for clients using the API
 	Date dateCreated
+
 	boolean shibbolethUser = false
 	boolean enabled
 	boolean accountExpired
@@ -27,6 +29,7 @@ class SecUser implements Serializable {
 		uid nullable: true
 		voName nullable: true
 		userStatus nullable: true
+        apiKey nullable: true, unique: true
 	}
 
 	static mapping = {
@@ -58,6 +61,15 @@ class SecUser implements Serializable {
 	def beforeDelete = {
 		executeUpdate( "DELETE FROM SessionAuthenticatedUser sau WHERE sau.secUser = :secUser", [ "secUser": this ] );
 	}
+
+    /**
+     * Generate a shared secret for this user
+     * @void
+     */
+    def beforeInsert = {
+        // generate an apiKey for this user
+        apiKey = UUID.randomUUID().toString()
+    }
 
 	/**
 	 * return the text representation of this user

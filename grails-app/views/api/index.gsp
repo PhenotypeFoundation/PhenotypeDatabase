@@ -54,7 +54,14 @@ The API allows third party software to interface with GSCF and connected modules
 
 <h2>prerequisites</h2>
     <li>a valid username / password with role ROLE_CLIENT (see <a href="#authenticate">authenticate</a>)</li>
-    <li>a shared secret (used to calculate the validation md5 hash)</li>
+    <li>an api key (used to calculate the validation md5 hash.
+        <sec:ifLoggedIn>
+            Get your api key <g:link controller="userRegistration" action="profile">here</g:link>
+        </sec:ifLoggedIn>
+        <sec:ifNotLoggedIn>
+            Login to get your api key
+        </sec:ifNotLoggedIn>
+    )</li>
     <li>a deviceID / clientID (look <a href="https://github.com/4np/UIDevice-with-UniqueIdentifier-for-iOS-5" target="_new">here</a> for iOS)</li>
 
 <h2>available API calls</h2>
@@ -64,6 +71,9 @@ The API allows third party software to interface with GSCF and connected modules
     <li><a href="#getAssaysForStudy">getAssaysForStudy</a> - fetch all assays in a given study</li>
     <li><a href="#getSamplesForAssay">getSamplesForAssay</a> - fetch all samples in a given assay</li>
     <li><a href="#getMeasurementDataForAssay">getMeasurementDataForAssay</a> - fetch all measurement data for a given assay</li>
+
+<h2>SDK packages</h2>
+    <li><a href="https://github.com/4np/gscf4php" target="_new">PHP</a> - Object Oriented SDK for interacting with GSCF</li>
 
 <a name="authenticate"></a>
 <h1>authenticate</h1>
@@ -88,7 +98,7 @@ The API allows third party software to interface with GSCF and connected modules
 </p>
 <p>
     Every subsequent request the client does, needs to contain the validation MD5 hash, which is a MD5 sum of the concatenation of the device token,
-    the request sequence and a shared secret (e.g. <i>md5sum( token + sequence + shared secret )</i> ).<br/>
+    the request sequence and the api key (e.g. <i>md5sum( token + sequence + api key )</i> ).<br/>
     <i>Note that in order to be able to successfully authenticate or use the API in general, the user should have the ROLE_CLIENT assigned!</i>
 
     <h2>Request parameters</h2>
@@ -171,7 +181,7 @@ The API allows third party software to interface with GSCF and connected modules
             <td>validation</td>
             <td>string</td>
             <td>-</td>
-            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + shared secret )</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
             <td>9ae87836d38d4b86be6aeff93f2b049a</td>
             <td>yes</td>
         </tr>
@@ -211,7 +221,7 @@ The API allows third party software to interface with GSCF and connected modules
             <td>validation</td>
             <td>string</td>
             <td>-</td>
-            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + shared secret )</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
             <td>9ae87836d38d4b86be6aeff93f2b049a</td>
             <td>yes</td>
         </tr>
@@ -259,7 +269,7 @@ The API allows third party software to interface with GSCF and connected modules
             <td>validation</td>
             <td>string</td>
             <td>-</td>
-            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + shared secret )</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
             <td>9ae87836d38d4b86be6aeff93f2b049a</td>
             <td>yes</td>
         </tr>
@@ -307,7 +317,7 @@ The API allows third party software to interface with GSCF and connected modules
         <td>validation</td>
         <td>string</td>
         <td>-</td>
-        <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + shared secret )</td>
+        <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
         <td>9ae87836d38d4b86be6aeff93f2b049a</td>
         <td>yes</td>
     </tr>
@@ -515,7 +525,7 @@ The API allows third party software to interface with GSCF and connected modules
         <td>validation</td>
         <td>string</td>
         <td>-</td>
-        <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + shared secret )</td>
+        <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
         <td>9ae87836d38d4b86be6aeff93f2b049a</td>
         <td>yes</td>
     </tr>
