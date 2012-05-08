@@ -42,6 +42,7 @@ class DatabaseUpgrade {
         renameGdtMappingColumnIndex(sql, db)            // 'index' column in GdtImporter MappingColumn is a reserved keyword in MySQL
                                                         // GdtImporter now by default uses 'columnindex' as domain field name
 		fixShibbolethSecUser(sql, db)					// fix shibboleth user
+        changeOntologyDescriptionType(sql, db)          // change ontology description type to text
 	}
 
 	/**
@@ -425,4 +426,25 @@ class DatabaseUpgrade {
 			}
 		}
 	}
+
+    /**
+     * Make sure the ontology's description is of type text instead of varchar
+     * @param sql
+     * @param db
+     */
+    public static void changeOntologyDescriptionType(sql, db) {
+        // are we running postgreSQL?
+        if (db == "org.postgresql.Driver") {
+            if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='study' AND columns.column_name='code' AND columns.data_type='character varying'")) {
+                if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: change ontology description type".grom()
+
+                try {
+                    // change the datatype of the ontology's description to text
+                    sql.execute("ALTER TABLE ontology ALTER COLUMN description TYPE text")
+                } catch (Exception e) {
+                    println "changeOntologyDescriptionType database upgrade failed: " + e.getMessage()
+                }
+            }
+        }
+   }
 }
