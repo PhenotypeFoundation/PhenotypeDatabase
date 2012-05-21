@@ -394,7 +394,7 @@ class ApiController {
                         matrix[data.sampleToken][data.measurementToken] = data.value
                     } catch (Exception e) {
                         // it seems that some measurement data does not contain a sample token?
-                        println "getMeasurementDataForAssay error for data of assay '${assay.name}' (token ${assayToken}): ${e.getMessage()}"
+                        println "getMeasurementDataForAssay error for data of assay '${assay.name}' (token '${assayToken}', module: '${assay.module.name}'): ${e.getMessage()}"
                         println data.dump()
                     }
                 }
