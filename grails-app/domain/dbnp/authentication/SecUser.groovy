@@ -82,9 +82,6 @@ class SecUser implements Serializable {
 
             // save ourselves
             this.save()
-
-            // and refresh
-            this.refresh()
         }
     }
 
