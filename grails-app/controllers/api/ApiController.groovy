@@ -389,8 +389,14 @@ class ApiController {
             // iterate through measurementData and build data matrix
             try {
                 measurementData.each { data ->
-                    if (!matrix.containsKey(data.sampleToken)) matrix[data.sampleToken] = [:]
-                    matrix[data.sampleToken][data.measurementToken] = data.value
+                    try {
+                        if (!matrix.containsKey(data.sampleToken)) matrix[data.sampleToken] = [:]
+                        matrix[data.sampleToken][data.measurementToken] = data.value
+                    } catch (Exception e) {
+                        // it seems that some measurement data does not contain a sample token?
+                        println "getMeasurementDataForAssay error for data of assay '${assay.name}' (token ${assayToken}): ${e.getMessage()}"
+                        println data.dump()
+                    }
                 }
 
                 // define result
