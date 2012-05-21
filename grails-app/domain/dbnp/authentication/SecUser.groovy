@@ -71,6 +71,17 @@ class SecUser implements Serializable {
         apiKey = UUID.randomUUID().toString()
     }
 
+    /**
+     * Before update
+     */
+    def beforeUpdate = {
+        // got an api key?
+        if (!apiKey) {
+            // generate an apiKey for this user
+            apiKey = UUID.randomUUID().toString()
+        }
+    }
+
 	/**
 	 * return the text representation of this user
 	 * @return
