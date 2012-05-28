@@ -42,7 +42,9 @@ class ExampleStudies {
 		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
-			url: config.modules.sam.url.toString()
+			url: config.modules.sam.url.toString(),
+			notify: true,
+			openInFrame: false
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
