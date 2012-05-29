@@ -34,8 +34,9 @@
 			$.getJSON(baseUrl+"/ajax/"+elementId,{},function(data) {
 				var options = '<h2>'+that.getAttribute('name')+'</h2>';
 				for (var i=0;i<data.length;i++) {
-					options += '<input type="checkbox" name="species[]" value="'+data[i].id+'"/>'+data[i].name+'<br/>';
+					options += '<li><input type="checkbox" name="'+elementId+'[]" value="'+data[i].id+'" id="'+elementId+'-'+data[i].id+'" /><label for="'+elementId+'-'+data[i].id+'">'+data[i].name+'</label></li>';
 				}
+
 				element.removeClass('waitForLoad').html(options);
 
 				// bind check event handlers

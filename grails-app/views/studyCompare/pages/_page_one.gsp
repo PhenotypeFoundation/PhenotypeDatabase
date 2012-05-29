@@ -20,7 +20,7 @@ handleCheckEvent();
 function handleCheckEvent(event) {
 	var check = $(event);
 	var value = check.attr('value');
-	var parent = check.parent();
+	var parent = check.parent().parent();
 	var parentId = parent.attr('id');
 
 	if (criteria[parentId] == undefined) criteria[parentId] = [];
@@ -32,27 +32,34 @@ function handleCheckEvent(event) {
 		criteria[parentId].splice(criteria[parentId].indexOf(value),1);
 	}
 
-	// count number of matches
-	$('#matchedStudies').html('').addClass('waitForLoad');
-	$.getJSON(
-		baseUrl + "/ajax/studyCount",
-		criteria,
-		function(data) {
-			$('#matchedStudies').html(data.matched+' of '+data.total+' readable studies matched your criteria').removeClass('waitForLoad');
-		}
-	);
-
 	// fetch matched studies
-	$('#studyOverview').html('').addClass('waitForLoad').removeClass('waitForLoad');
-	$.getJSON(
+	$('#studyOverview').html('').addClass('waitForLoad');//.removeClass('waitForLoad');
+    $('#matchedStudies').html('').addClass('waitForLoad');
+    $.getJSON(
 		baseUrl + "/ajax/studies",
 		criteria,
 		function(data) {
+            // update matched study feedback
+            $('#matchedStudies').html(data.matched+' of '+data.total+' readable studies matched your criteria').removeClass('waitForLoad');
+
+            // show matching studies
 			var studies = '';
 			for (var i=0; i<data.studies.length; i++) {
 				studies = studies + data.studies[i] + '<br/>';
 			}
-			$('#studyOverview').html(studies);
+			$('#studyOverview').removeClass('waitForLoad').html(studies);
+
+            // (un)mark property checkboxes
+            $.each(['uniqueSpecies','uniqueEventTemplateNames','uniqueSamplingEventTemplateNames','modules'],function(index,property) {
+                $('input:checkbox[name="'+property+'[]"]').each(function() {
+                    element = $(this);
+                    if (data[property][ element.val() ]) {
+                        element.parent().removeClass('dimmed');
+                    } else {
+                        element.parent().addClass('dimmed');
+                    }
+                });
+            });
 		}
 	);
 }
@@ -62,6 +69,7 @@ function handleCheckEvent(event) {
 	<div name="species" id="uniqueSpecies" class="ajax"></div>
 	<div name="event templates" id="uniqueEventTemplateNames" class="ajax"></div>
 	<div name="sampling event templates" id="uniqueSamplingEventTemplateNames" class="ajax"></div>
+    <div name="modules" id="modules" class="ajax"></div>
 </div>
 <div id="matchedStudies"></div>
 <div id="studyOverview"></div>

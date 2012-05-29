@@ -50,6 +50,7 @@ class AjaxService {
 		def uniqueSpecies = (params.containsKey('uniqueSpecies[]')) ? getAsArray(params['uniqueSpecies[]']) : []
 		def uniqueEventTemplateNames = (params.containsKey('uniqueEventTemplateNames[]')) ? getAsArray(params['uniqueEventTemplateNames[]']) : []
 		def uniqueSamplingEventTemplateNames = (params.containsKey('uniqueSamplingEventTemplateNames[]')) ? getAsArray(params['uniqueSamplingEventTemplateNames[]']) : []
+        def modules = (params.containsKey('modules[]')) ? getAsArray(params['modules[]']) : []
 
 		// iterate through readable studies for this user
 		studies.each { study ->
@@ -62,6 +63,8 @@ class AjaxService {
 			matched = (matched && (!uniqueEventTemplateNames.size() || study.events.find{uniqueEventTemplateNames.contains(it.template.id)})) ? true : false;
 			// 3. if any samplingEventTemplateNames were selected, see if this study contains any of these
 			matched = (matched && (!uniqueSamplingEventTemplateNames.size() || study.samplingEvents.find{uniqueSamplingEventTemplateNames.contains(it.template.id)})) ? true : false;
+            // 4. if any modules were selected, see if this study contains any of these
+            matched = (matched && (!modules.size() || study.assays.find{modules.contains(it.module.id)})) ? true : false;
 
 			// if criteria are met, add this study to the matchedStudies array
 			if (matched) matchedStudies.add(study)

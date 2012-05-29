@@ -771,4 +771,36 @@ class Study extends TemplateEntity {
             moduleNotificationService.invalidateStudy( this )
         }
 	}
+
+    /**
+     * return the unique species
+     * @see dbnp.query.StudyCompareController
+     */
+    def uniqueSpecies = {
+        return subjects.collect{ it.species }.unique()
+    }
+
+    /**
+     * return the unique event templates
+     * @see dbnp.query.StudyCompareController
+     */
+    def uniqueEventTemplates = {
+        return events.collect{ it.template }.unique()
+    }
+
+    /**
+     * return the unique sampling event templates
+     * @see dbnp.query.StudyCompareController
+     */
+    def uniqueSamplingEventTemplates = {
+        return samplingEvents.collect{ it.template }.unique()
+    }
+
+    /**
+     * return the unique assay modules
+     * @see dbnp.query.StudyCompareController
+     */
+    def uniqueAssayModules = {
+        return assays.collect{ it.module }.unique()
+    }
 }

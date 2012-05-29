@@ -7,13 +7,29 @@
 	display: block;
 	margin-top: -20px;
 }
+
 .selector .ajax {
 	display: inline-block;
 	vertical-align: top;
 }
+
 .selector .ajax .label {
 	background-color: blue;
 	display: block;
+}
+
+.selector li {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+.selector li:not(.dimmed) > input + label {
+    color: #000;
+}
+
+.selector li.dimmed > input + label {
+    color: #c4c4c4;
 }
 
 .content h2 {
