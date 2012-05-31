@@ -33,7 +33,7 @@ function handleCheckEvent(event) {
 	}
 
 	// fetch matched studies
-	$('#studyOverview').html('').addClass('waitForLoad');//.removeClass('waitForLoad');
+	$('#studyOverview').html('');
     $('#matchedStudies').html('').addClass('waitForLoad');
     $.getJSON(
 		baseUrl + "/ajax/studies",
@@ -47,7 +47,7 @@ function handleCheckEvent(event) {
 			for (var i=0; i<data.studies.length; i++) {
 				studies = studies + data.studies[i] + '<br/>';
 			}
-			$('#studyOverview').removeClass('waitForLoad').html(studies);
+			$('#studyOverview').html(studies);
 
             // (un)mark property checkboxes
             $.each(['uniqueSpecies','uniqueEventTemplateNames','uniqueSamplingEventTemplateNames','modules'],function(index,property) {

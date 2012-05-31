@@ -65,7 +65,7 @@ grails.project.dependency.resolution = {
 		compile ':grom:0.2.3'
 		compile ':ajaxflow:0.2.1'
 		compile ':crypto:2.0'
-		compile ':spring-security-core:1.1.2'
+		compile ':spring-security-core:1.2.7.3'
 		compile(':gdt:0.2.2') {
 			// disable plugin dependency transition because it's horribly broken
 			// note: this assumes that ajaxflow, jquery and cryto stay included
@@ -84,9 +84,7 @@ grails.project.dependency.resolution = {
 		compile ':trackr:0.6.4'
 		compile ':webflow:1.3.7'
 
-		runtime ':grails-melody:1.13'
-
-
+		runtime ':grails-melody:1.11'
 	}
 }
 
