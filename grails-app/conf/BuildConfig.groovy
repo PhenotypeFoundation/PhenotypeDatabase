@@ -60,30 +60,31 @@ grails.project.dependency.resolution = {
     }
 	plugins {
 		compile(":hibernate:$grailsVersion")
-		compile ':tomcat:1.3.7.2'
+		compile ':tomcat:1.3.9'
 		compile ':jquery:1.7.1'
 		compile ':grom:0.2.3'
 		compile ':ajaxflow:0.2.1'
 		compile ':crypto:2.0'
-		compile ':spring-security-core:1.1.2'
+		compile ':spring-security-core:1.2.7.3'
 		compile(':gdt:0.2.1') {
 			// disable plugin dependency transition because it's horribly broken
 			// note: this assumes that ajaxflow, jquery and cryto stay included
 			transitive = false
 		}
 
-		compile(':gdtimporter:0.4.6.7') {
-		// see comment above on gdt, gdtimporter also requires spring security core (and shouldn't really be a plugin…)	
-		transitive = false
-		}
+        compile(':gdtimporter:0.4.6.7') {
+            // see comment above on gdt, gdtimporter also requires
+            // spring security core (and shouldn't really be a plugin)
+            transitive = false
+        }
 		compile ':famfamfam:1.0.1'
 		compile ':jumpbar:0.1.5'
-		compile ':mail:1.0-SNAPSHOT'
+		compile ':mail:1.0'
 
 		compile ':trackr:0.6.4'
 		compile ':webflow:1.3.7'
 
-		runtime ':grails-melody:1.11'
+		runtime ':grails-melody:1.13'
 
 
 	}
