@@ -74,6 +74,7 @@ The API allows third party software to interface with GSCF and connected modules
 
 <h2>SDK packages</h2>
     <li><a href="https://github.com/4np/gscf4php" target="_new">PHP</a> - Object Oriented SDK for interacting with GSCF</li>
+    <li><a href="https://github.com/thomaskelder/R2GSCF" target="_new">R</a> - R Client to connect to GSCF</li>
 
 <a name="authenticate"></a>
 <h1>authenticate</h1>

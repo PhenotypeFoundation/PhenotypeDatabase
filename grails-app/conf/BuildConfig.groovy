@@ -60,13 +60,13 @@ grails.project.dependency.resolution = {
     }
 	plugins {
 		compile(":hibernate:$grailsVersion")
-		compile ':tomcat:1.3.9'
+		compile ':tomcat:1.3.7'
 		compile ':jquery:1.7.1'
 		compile ':grom:0.2.3'
 		compile ':ajaxflow:0.2.1'
 		compile ':crypto:2.0'
 		compile ':spring-security-core:1.2.7.3'
-		compile(':gdt:0.2.1') {
+		compile(':gdt:0.2.2') {
 			// disable plugin dependency transition because it's horribly broken
 			// note: this assumes that ajaxflow, jquery and cryto stay included
 			transitive = false

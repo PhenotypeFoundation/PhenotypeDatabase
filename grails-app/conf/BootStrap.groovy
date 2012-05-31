@@ -40,6 +40,7 @@ class BootStrap {
 
 		// set up a client (=external program) role if it does not exist
 		def clientRole = SecRole.findByAuthority('ROLE_CLIENT') ?: new SecRole(authority: 'ROLE_CLIENT').save(failOnError: true)
+        def templateAdminRole = SecRole.findByAuthority('ROLE_TEMPLATEADMIN') ?: new SecRole(authority: 'ROLE_TEMPLATEADMIN').save(failOnError: true)
 
 		// set up authentication (if required)
 		if (!SecRole.count() || !SecUser.count()) BootStrapAuthentication.initDefaultAuthentication(springSecurityService)
