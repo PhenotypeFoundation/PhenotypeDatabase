@@ -65,6 +65,7 @@ class Study extends TemplateEntity {
 	]
 
 	static mapping = {
+		cache true
 		autoTimestamp true
 		sort "title"
 

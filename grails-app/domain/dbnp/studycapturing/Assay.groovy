@@ -52,6 +52,7 @@ class Assay extends TemplateEntity {
     }
 
     static mapping = {
+	    cache true
         sort "name"
 
         // Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
