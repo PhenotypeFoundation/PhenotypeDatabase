@@ -53,16 +53,25 @@
 The API allows third party software to interface with GSCF and connected modules.
 
 <h2>prerequisites</h2>
-    <li>a valid username / password with role ROLE_CLIENT (see <a href="#authenticate">authenticate</a>)</li>
-    <li>an api key (used to calculate the validation md5 hash.
+    <li>
+        a valid username / password with role ROLE_CLIENT
         <sec:ifLoggedIn>
-            Get your api key <g:link controller="userRegistration" action="profile">here</g:link>
+            (which you <g:if test="${!(session.gscfUser.hasClientRights() || session.gscfUser.hasAdminRights())}"><b><i>do not</i></b> have: contact an administrator to assign the ROLE_CLIENT to your account</g:if><g:else>indeed have</g:else>),
         </sec:ifLoggedIn>
         <sec:ifNotLoggedIn>
-            Login to get your api key
+            (<g:link controller="login" action="auth" params="['returnURI':'/api']">log in</g:link> to see if you have this role assigned to your account),
+        </sec:ifNotLoggedIn>
+        see <a href="#authenticate">authenticate</a> for usage.
+    </li>
+    <li>an api key (used to calculate the validation md5 hash,
+        <sec:ifLoggedIn>
+            get your api key <g:link controller="userRegistration" action="profile">here</g:link>
+        </sec:ifLoggedIn>
+        <sec:ifNotLoggedIn>
+            <g:link controller="login" action="auth" params="['returnURI':'/api']">log in</g:link> to get your api key.
         </sec:ifNotLoggedIn>
     )</li>
-    <li>a deviceID / clientID (look <a href="https://github.com/4np/UIDevice-with-UniqueIdentifier-for-iOS-5" target="_new">here</a> for iOS)</li>
+    <li>a deviceID / clientID (look <a href="https://github.com/4np/UIDevice-with-UniqueIdentifier-for-iOS-5" target="_new">here</a> for an iOS library or <a href="https://github.com/PhenotypeFoundation/GSCF-PHP-Client/blob/master/gscf.php#L75" target="_new">here</a> for how the <a href="https://github.com/PhenotypeFoundation/GSCF-PHP-Client" target="_new">PHP client</a> calculates it)</li>
 
 <h2>available API calls</h2>
     <li><a href="#authenticate">authenticate</a> - set up / synchronize client-server session</li>
@@ -73,8 +82,8 @@ The API allows third party software to interface with GSCF and connected modules
     <li><a href="#getMeasurementDataForAssay">getMeasurementDataForAssay</a> - fetch all measurement data for a given assay</li>
 
 <h2>SDK packages</h2>
-    <li><a href="https://github.com/4np/gscf4php" target="_new">PHP</a> - Object Oriented SDK for interacting with GSCF</li>
-    <li><a href="https://github.com/thomaskelder/R2GSCF" target="_new">R</a> - R Client to connect to GSCF</li>
+    <li><a href="https://github.com/PhenotypeFoundation/GSCF-PHP-Client" target="_new">PHP</a> - Object Oriented SDK for interacting with GSCF</li>
+    <li><a href="https://github.com/PhenotypeFoundation/GSCF-R-Client" target="_new">R</a> - R Client to interface with GSCF</li>
 
 <a name="authenticate"></a>
 <h1>authenticate</h1>

@@ -58,6 +58,10 @@ class SecUser implements Serializable {
     public boolean hasTemplateAdminRights() {
         return getAuthorities().contains(SecRole.findByAuthority('ROLE_TEMPLATEADMIN'));
     }
+
+    public boolean hasClientRights() {
+        return getAuthorities().contains(SecRole.findByAuthority('ROLE_CLIENT'));
+    }
 	
 	/**
 	 * Delete all remote logins for this user as well.
