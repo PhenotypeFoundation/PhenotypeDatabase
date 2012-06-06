@@ -1,3 +1,4 @@
 User-agent: Googlebot
 Disallow: /gscf4animaldb-0.1-ci/termEditor	# Google Bot somehow sometimes chokes on this, so disallow
 Disallow: /termEditor						# Google Bot somehow sometimes chokes on this, so disallow
+Disallow: /studyCompare
