@@ -86,6 +86,7 @@ println "   - sequence: ${token.sequence}"
             // generate the validation checksum
             MessageDigest digest = MessageDigest.getInstance("MD5")
             String validationSum = new BigInteger(1,digest.digest("${token.deviceToken}${token.sequence}${token.user.apiKey}".getBytes())).toString(16).padLeft(32,"0")
+println "   - pre digest: ${token.deviceToken}${token.sequence}${token.user.apiKey}"
 println "   - digest: ${digest}"
 println "   - validationSum: ${validationSum}"
 
