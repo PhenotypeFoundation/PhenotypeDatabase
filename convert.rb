@@ -1,6 +1,6 @@
-File.open("INSTALLATION.out",'w')do |out|
-    body = File.read('INSTALLATION.md')
-    puts body
+File.open("INSTALLATION.md",'w')do |out|
+    body = File.read('INSTALLATION')
+#    puts body
     body.gsub!(/\{\{\{([^\n]+?)\}\}\}/, '`\1`')
     body.gsub!(/\{\{\{(.+?)\}\}\}/m){|m| m.each_line.map{|x| "\t#{x}".gsub(/[\{\}]{3}/,'')}.join}
     body.gsub!(/\=\=\=\=\s(.+?)\s\=\=\=\=/, '### \1')
