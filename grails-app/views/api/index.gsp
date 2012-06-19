@@ -71,7 +71,18 @@ The API allows third party software to interface with GSCF and connected modules
             <g:link controller="login" action="auth" params="['returnURI':'/api']">log in</g:link> to get your api key.
         </sec:ifNotLoggedIn>
     )</li>
-    <li>a deviceID / clientID (look <a href="https://github.com/4np/UIDevice-with-UniqueIdentifier-for-iOS-5" target="_new">here</a> for an iOS library or <a href="https://github.com/PhenotypeFoundation/GSCF-PHP-Client/blob/master/gscf.php#L75" target="_new">here</a> for how the <a href="https://github.com/PhenotypeFoundation/GSCF-PHP-Client" target="_new">PHP client</a> calculates it)</li>
+    <li>
+        a deviceID / clientID (look <a href="https://github.com/4np/UIDevice-with-UniqueIdentifier-for-iOS-5" target="_new">here</a>
+        for an iOS library or <a href="https://github.com/PhenotypeFoundation/GSCF-PHPClient/blob/master/gscf.php#L76" target="_new">here</a>
+        for how the <a href="https://github.com/PhenotypeFoundation/GSCF-PHPClient" target="_new">PHP client</a> calculates it).
+        The concept of the deviceID is easier to understand when thinking about -for example- iPhones. Every iPhone has a UDID
+        (unique device identifier) which is a sequence of 40 letters and numbers that is specific to your device, so no other device
+        has the same UDID. The concept of the deviceID in this API is similar, however in the case of the this api it is more likely that
+        a number of users will use the api on the same device. In order to properly generate a unique identifier you would probably need
+        a hardware identifier plus a user identifier. At the moment we advise to create an md5sum of the concatenation of a stable unique
+        hardware identifier (like the MAC Address of your first network card) and a dynamic user name or id,
+        e.g. <i>md5sum( MAC-address + script path + user name/id )</i>. See the examples for more information...
+    </li>
 
 <h2>available API calls</h2>
     <li><a href="#authenticate">authenticate</a> - set up / synchronize client-server session</li>
@@ -125,7 +136,7 @@ The API allows third party software to interface with GSCF and connected modules
             <td>deviceID</td>
             <td>string</td>
             <td>32</td>
-            <td>a unique ID of the client device / application performing the call (<a href="https://github.com/4np/UIDevice-with-UniqueIdentifier-for-iOS-5" target="_new">iOS example</a>)</td>
+            <td>a unique <i>stable</i> ID of the client device / application performing the call (<a href="https://github.com/4np/UIDevice-with-UniqueIdentifier-for-iOS-5" target="_new">iOS example</a>, <a href="https://github.com/4np/GSCF-PHPClient/blob/master/gscf.php#L76" target="_new">PHP example</a>, for example: md5sum(mac-address+username))</td>
             <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
             <td>yes</td>
         </tr>
@@ -183,7 +194,7 @@ The API allows third party software to interface with GSCF and connected modules
             <td>deviceID</td>
             <td>string</td>
             <td>36 (max)</td>
-            <td>a unique ID of the client device / application performing the call</td>
+            <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
             <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
             <td>yes</td>
         </tr>
@@ -223,7 +234,7 @@ The API allows third party software to interface with GSCF and connected modules
             <td>deviceID</td>
             <td>string</td>
             <td>36 (max)</td>
-            <td>a unique ID of the client device / application performing the call</td>
+            <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
             <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
             <td>yes</td>
         </tr>
@@ -271,7 +282,7 @@ The API allows third party software to interface with GSCF and connected modules
             <td>deviceID</td>
             <td>string</td>
             <td>36 (max)</td>
-            <td>a unique ID of the client device / application performing the call</td>
+            <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
             <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
             <td>yes</td>
         </tr>
@@ -319,7 +330,7 @@ The API allows third party software to interface with GSCF and connected modules
         <td>deviceID</td>
         <td>string</td>
         <td>36 (max)</td>
-        <td>a unique ID of the client device / application performing the call</td>
+        <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
         <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
         <td>yes</td>
     </tr>
@@ -527,7 +538,7 @@ The API allows third party software to interface with GSCF and connected modules
         <td>deviceID</td>
         <td>string</td>
         <td>36 (max)</td>
-        <td>a unique ID of the client device / application performing the call</td>
+        <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
         <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
         <td>yes</td>
     </tr>
