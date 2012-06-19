@@ -72,11 +72,16 @@ The API allows third party software to interface with GSCF and connected modules
         </sec:ifNotLoggedIn>
     )</li>
     <li>
-        a deviceID / clientID (look <a href="https://github.com/4np/UIDevice-with-UniqueIdentifier-for-iOS-5" target="_new">here</a> for an iOS library or <a href="https://github.com/PhenotypeFoundation/GSCF-PHPClient/blob/master/gscf.php#L76" target="_new">here</a> for how the <a href="https://github.com/PhenotypeFoundation/GSCF-PHPClient" target="_new">PHP client</a> calculates it).
-        The concept of the deviceID can be understand better when thinking about -for example- an iPhone. Every iPhone has a UDID (unique device identifier) which is a sequence of 40 letters and numbers that is specific to your device, so no other device has the same UDID.
-        The concept of the deviceID in this API is similar, however in the case of the this api it is more likely that
-        a number of users will use the api on the same device. In order to properly generate a uniquer identifier you would probably need a hardware identifier plus a user identifier. At the moment we advise the following:
-        md5sum( MAC-address + script path + user name/id ) where the mac address is the mac address of your first network card (a hardware identifier). See the examples for more information...
+        a deviceID / clientID (look <a href="https://github.com/4np/UIDevice-with-UniqueIdentifier-for-iOS-5" target="_new">here</a>
+        for an iOS library or <a href="https://github.com/PhenotypeFoundation/GSCF-PHPClient/blob/master/gscf.php#L76" target="_new">here</a>
+        for how the <a href="https://github.com/PhenotypeFoundation/GSCF-PHPClient" target="_new">PHP client</a> calculates it).
+        The concept of the deviceID is easier to understand when thinking about -for example- iPhones. Every iPhone has a UDID
+        (unique device identifier) which is a sequence of 40 letters and numbers that is specific to your device, so no other device
+        has the same UDID. The concept of the deviceID in this API is similar, however in the case of the this api it is more likely that
+        a number of users will use the api on the same device. In order to properly generate a unique identifier you would probably need
+        a hardware identifier plus a user identifier. At the moment we advise to create an md5sum of the concatenation of a stable unique
+        hardware identifier (like the MAC Address of your first network card) and a dynamic user name or id,
+        e.g. <i>md5sum( MAC-address + script path + user name/id )</i>. See the examples for more information...
     </li>
 
 <h2>available API calls</h2>
