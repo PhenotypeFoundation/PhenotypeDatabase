@@ -75,16 +75,24 @@ class ApiService implements Serializable, ApplicationContextAware {
         Token token = Token.findByDeviceID(deviceID)
 
         // increase sequence
+println "token before increment: ${token}"
+println "   - sequence: ${token.sequence}"
         if (token) {
             token.sequence = token.sequence+1
             token.merge(flush: true)
+println "token after increment: ${token}"
+println "   - sequence: ${token.sequence}"
 
             // generate the validation checksum
             MessageDigest digest = MessageDigest.getInstance("MD5")
             String validationSum = new BigInteger(1,digest.digest("${token.deviceToken}${token.sequence}${token.user.apiKey}".getBytes())).toString(16).padLeft(32,"0")
+println "   - pre digest: ${token.deviceToken}${token.sequence}${token.user.apiKey}"
+println "   - digest: ${digest}"
+println "   - validationSum: ${validationSum}"
 
             // check if the validation confirms
             validated = (validation == validationSum)
+println "   - validated: ${validated}"
         }
 
         return validated
