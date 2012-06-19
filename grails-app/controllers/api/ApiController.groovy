@@ -65,12 +65,15 @@ class ApiController {
                         user        : authenticationService.getLoggedInUser(),
                         sequence    : 0
                 ).save(failOnError: true)
-            }
-            
-            result = ['token':token.deviceToken,'sequence':token.sequence]
+            } else if (authenticationService.getLoggedInUser() != token.user) {
+                response.status = 409
+                result = ['error':"the deviceID '${params.deviceID}' is already in use by user '${token.user}', please use user '${token.user}' to authenticate or use another deviceID"]
+            } else {
+                result = ['token':token.deviceToken,'sequence':token.sequence]
 
-            // set output headers
-            response.status = 200
+                // set output headers
+                response.status = 200
+            }
         } catch (Exception e) {
             // caught an error
             response.status = 500
