@@ -1,5 +1,5 @@
 File.open("INSTALLATION.out",'w')do |out|
-    body = File.read('INSTALLATION.md')
+    body = File.read('QUICKSTART')
     puts body
     body.gsub!(/\{\{\{([^\n]+?)\}\}\}/, '`\1`')
     body.gsub!(/\{\{\{(.+?)\}\}\}/m){|m| m.each_line.map{|x| "\t#{x}".gsub(/[\{\}]{3}/,'')}.join}
