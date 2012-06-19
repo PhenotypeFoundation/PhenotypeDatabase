@@ -58,23 +58,14 @@ class ApiController {
         // generate a new token if we don't have a token on file
         def result = [:]
         try {
-            // TODO - check if token belongs to current user?
-println "1"
             if (!token) {
                 // generate a token for this device
-println "2"
-println "deviceID: ${deviceID}"
-println "user: ${user}"
-
                 token = new Token(
                         deviceID    : deviceID,
                         deviceToken : UUID.randomUUID().toString(),
                         user        : user,
                         sequence    : 0
                 ).save(failOnError: true)
-
-println "3"
-println token
             } else if (user != token.user) {
                 response.status = 409
                 result = ['error':"the deviceID '${deviceID}' is already in use by user '${token.user}', please use user '${token.user}' to authenticate or use another deviceID"]
@@ -89,8 +80,6 @@ println token
             response.status = 500
             result = ['error':e.getMessage()]
         }
-println "status: ${response.status}"
-println "result: ${result}"
 
         response.contentType = 'application/json;charset=UTF-8'
 
