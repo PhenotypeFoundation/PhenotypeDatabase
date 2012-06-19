@@ -19,6 +19,7 @@ import grails.plugins.springsecurity.Secured
 import grails.converters.JSON
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Assay
+import dbnp.authentication.SecUser
 
 class ApiController {
     def authenticationService
@@ -51,7 +52,8 @@ class ApiController {
 
         // see if we already have a token on file for this device id
         String deviceID = (params.containsKey('deviceID')) ? params.deviceID : ''
-        def token = Token.findByDeviceID(deviceID)
+        SecUser user    = authenticationService.getLoggedInUser()
+        Token token     = Token.findByDeviceID(deviceID)
         
         // generate a new token if we don't have a token on file
         def result = [:]
@@ -61,21 +63,21 @@ println "1"
             if (!token) {
                 // generate a token for this device
 println "2"
-println "deviceID: ${params.deviceID}"
-println "user: ${authenticationService.getLoggedInUser()}"
+println "deviceID: ${deviceID}"
+println "user: ${user}"
 
                 token = new Token(
-                        deviceID    : params.deviceID,
+                        deviceID    : deviceID,
                         deviceToken : UUID.randomUUID().toString(),
-                        user        : authenticationService.getLoggedInUser(),
+                        user        : user,
                         sequence    : 0
                 ).save(failOnError: true)
 
 println "3"
 println token
-            } else if (authenticationService.getLoggedInUser() != token.user) {
+            } else if (user != token.user) {
                 response.status = 409
-                result = ['error':"the deviceID '${params.deviceID}' is already in use by user '${token.user}', please use user '${token.user}' to authenticate or use another deviceID"]
+                result = ['error':"the deviceID '${deviceID}' is already in use by user '${token.user}', please use user '${token.user}' to authenticate or use another deviceID"]
             } else {
                 result = ['token':token.deviceToken,'sequence':token.sequence]
 
