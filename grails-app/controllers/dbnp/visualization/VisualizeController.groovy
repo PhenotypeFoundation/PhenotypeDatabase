@@ -86,19 +86,27 @@ println "3 :: ${System.currentTimeMillis() - startTime}"
 
         if (study != null) {
             fields += getFields(study, "subjects", "domainfields")
+println "a :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "subjects", "templatefields")
             /*fields += getFields(study, "events", "domainfields")
             fields += getFields(study, "events", "templatefields")*/
             fields += getFields(study, "samplingEvents", "domainfields")
+println "b :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "samplingEvents", "templatefields")
+println "c :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "assays", "domainfields")
+println "d :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "assays", "templatefields")
+println "e :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "samples", "domainfields")
+println "f :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "samples", "templatefields")
+println "g :: ${System.currentTimeMillis() - startTime}"
 
             // Also make sure the user can select eventGroup to visualize
             fields += formatGSCFFields("domainfields", [name: "name"], "GSCF", "eventGroups");
 println "4 :: ${System.currentTimeMillis() - startTime}"
+println "fields : ${fields}"
 
             /*
                         Gather fields related to this study from modules.
