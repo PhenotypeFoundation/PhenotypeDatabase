@@ -49,8 +49,6 @@ class VisualizeController {
      * @see getFields
      */
     def getFields = {
-def startTime = System.currentTimeMillis()
-println "getFields::start"
         def input_object
         def studies
 
@@ -60,7 +58,6 @@ println "getFields::start"
             log.error("VisualizationController: getFields: " + e)
             return returnError(400, "An error occured while retrieving the user input.")
         }
-println "1 :: ${System.currentTimeMillis() - startTime}"
 
         // Check to see if we have enough information
         if (input_object == null || input_object?.studyIds == null) {
@@ -69,7 +66,6 @@ println "1 :: ${System.currentTimeMillis() - startTime}"
         } else {
             studies = input_object.studyIds[0]
         }
-println "2 :: ${System.currentTimeMillis() - startTime}"
 
         def fields = [];
 
@@ -82,31 +78,21 @@ println "2 :: ${System.currentTimeMillis() - startTime}"
          */
         // TODO: Handle multiple studies
         def study = Study.get(studies)
-println "3 :: ${System.currentTimeMillis() - startTime}"
 
         if (study != null) {
             fields += getFields(study, "subjects", "domainfields")
-println "a :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "subjects", "templatefields")
             /*fields += getFields(study, "events", "domainfields")
             fields += getFields(study, "events", "templatefields")*/
             fields += getFields(study, "samplingEvents", "domainfields")
-println "b :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "samplingEvents", "templatefields")
-println "c :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "assays", "domainfields")
-println "d :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "assays", "templatefields")
-println "e :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "samples", "domainfields")
-println "f :: ${System.currentTimeMillis() - startTime}"
             fields += getFields(study, "samples", "templatefields")
-println "g :: ${System.currentTimeMillis() - startTime}"
 
             // Also make sure the user can select eventGroup to visualize
             fields += formatGSCFFields("domainfields", [name: "name"], "GSCF", "eventGroups");
-println "4 :: ${System.currentTimeMillis() - startTime}"
-println "fields : ${fields}"
 
             /*
                         Gather fields related to this study from modules.
@@ -130,22 +116,17 @@ println "fields : ${fields}"
                 }
             }
             offlineModules = []
-println "5 :: ${System.currentTimeMillis() - startTime}"
 
             // Make sure any informational messages regarding offline modules are submitted to the client
             setInfoMessageOfflineModules()
-println "6 :: ${System.currentTimeMillis() - startTime}"
 
             // TODO: Maybe we should add study's own fields
         } else {
             log.error("VisualizationController: getFields: The requested study could not be found. Id: " + studies)
             return returnError(404, "The requested study could not be found.")
         }
-println "7 :: ${System.currentTimeMillis() - startTime}"
-
 
         fields.unique() // Todo: find out root cause of why some fields occur more than once
-println "8 :: ${System.currentTimeMillis() - startTime}"
 
         fields.sort { a, b ->
             def sourceEquality = a.source.toString().toLowerCase().compareTo(b.source.toString().toLowerCase())
@@ -156,7 +137,6 @@ println "8 :: ${System.currentTimeMillis() - startTime}"
                 } else return categoryEquality
             } else return sourceEquality
         }
-println "9 :: ${System.currentTimeMillis() - startTime}"
 
         return sendResults(['studyIds': studies, 'fields': fields])
     }
