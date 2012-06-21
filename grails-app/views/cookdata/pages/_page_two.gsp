@@ -1,44 +1,64 @@
+<%@ page import="org.dbnp.gdt.RelTime" %>
+<%@ page import="org.dbnp.gdt.TemplateFieldType" %>
 <af:page>
 	<h1>Page Two</h1>
 	<p>
 		<h2>Please select one or more event groups, per sampling event:</h2>
-		<table>
-			<tr>
-				<th>
-					Sampling event
-				</th>
-				<th>
-					Starttime
-				</th>
-				<th>
-					# samples in event
-				</th>
-				<g:each in="${eventGroups}" var="group">
-					<th>
-						${group.name}
-					</th>
-				</g:each>
-			</tr>
-			<g:each in="${samplingEvents}" var="event" status="e">
+		
+					
+		<g:each in="${samplingEventTemplates}" var="template">
+			<h1>${template.name}</h1>
+			<table>
 				<tr>
-					<td>
-						${event.sampleTemplate.name}
-					</td>
-					<td>
-						${event?.getStartTimeString()}
-					</td>
-					<td>
-						${event?.samples.size()}
-					</td>
-					<g:each in="${eventGroups}" var="group" status="g">
-						<td>
-							<g:if test="${event.belongsToGroup([group])}">
-								<g:checkBox name="${e}_${g}"/>
-							</g:if>
-						</td>
+					<th>
+						# samples in event
+					</th>
+					<g:each in="${samplingEventFields}" var="field">
+						<th>
+							${field.name}
+						</th>
+					</g:each>
+					<g:each in="${eventGroups}" var="group">
+						<th>
+							${group.name}
+						</th>
 					</g:each>
 				</tr>
-			</g:each>
-		</table>
+				<g:each in="${samplingEvents}" var="event" status="e">
+					<g:if test="${event.template == template}">
+						<tr>
+							<td>
+								${event?.samples.size()}
+							</td>
+							<g:each in="${samplingEventFields}" var="field">
+								<td>
+									<g:if test="${field.type == TemplateFieldType.RELTIME}">
+									
+										<g:if test="${event?.fieldExists(field.name)}">
+											${new RelTime( event?.getFieldValue(field.name) ).toString()}	
+										</g:if>
+										
+									</g:if>
+									<g:else>
+										<g:if test="${event?.fieldExists(field.name)}">
+											${event?.getFieldValue(field.name)}
+										</g:if>
+									</g:else>
+								</td>
+							</g:each>
+							<g:each in="${eventGroups}" var="group" status="g">
+								<td>
+									<g:if test="${event.belongsToGroup([group])}">
+										<g:checkBox name="${e}_${g}"/>
+									</g:if>
+								</td>
+							</g:each>
+						</tr>
+					</g:if>
+				</g:each>
+			</table>
+		</g:each>
+				
+		
 	<p>
 </af:page>

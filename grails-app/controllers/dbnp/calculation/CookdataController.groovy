@@ -110,6 +110,10 @@ class CookdataController {
 			}
 			on("next") {
 				flow.study = Study.get(params.selectStudy) 
+				flow.eventGroups = EventGroup.findAllByParent(flow.study)
+				flow.samplingEvents = SamplingEvent.findAllByParent(flow.study)
+				flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
+				flow.samplingEventFields = retrieveInterestingFieldsList(flow.samplingEvents)
 			}.to "pageTwo"
 		}
 
@@ -120,9 +124,6 @@ class CookdataController {
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_page_two.gsp".grom()
 
-				flow.samplingEvents = SamplingEvent.findAllByParent(flow.study)
-				flow.eventGroups = EventGroup.findAllByParent(flow.study)
-								
 				flow.page = 2
 				success()
 			}
@@ -142,15 +143,32 @@ class CookdataController {
 						}
 						selectionTriples.add(
 								[
-									se, 
+									se,
 									eg,
 									numItems
 								]
 							)
-					}					
+					}
 				}
-				flow.selectionTriples = selectionTriples
+				flow.selectionTriples = selectionTriples	
+				
+				// Update samplingEvents list
+				flow.samplingEventTemplates = []
+				selectionTriples.each{
+					flow.samplingEventTemplates.add(flow.samplingEvents[it[0]].template)
+				}
+				flow.samplingEventTemplates = flow.samplingEventTemplates.unique()
+				
 			}.to "pageThree"
+			on("previous"){
+				flow.mapSelectionSets = [:]				
+				flow.selectionTriples = []
+				flow.study = null
+				flow.eventGroups = []
+				flow.samplingEvents = []
+				flow.samplingEventFields = []			
+				flow.samplingEventTemplates = []
+			}.to "pageOne"
 		}
 
 		// second wizard page
@@ -165,20 +183,33 @@ class CookdataController {
 			}
 			on("next"){
 				println "p3 next params: " + params
-				Map mapSelectionSets = ["A":[], "B":[]]
+				flow.mapSelectionSets = ["A":[], "B":[]]
+				flow.mapEquations = [:]
 				params.each{ key, val ->
 					if(val=="on"){
 						def splitKey = key.split("_")
-						mapSelectionSets[splitKey[0]].add(
+						flow.mapSelectionSets[splitKey[0]].add(
 								flow.selectionTriples[
 										Integer.valueOf(splitKey[1])
 									]
 							)						
 					}
+					if(key.startsWith("eq_")){
+						def splitKey = key.split("_")
+						if(!flow.mapEquations.containsKey(splitKey[2])){
+							flow.mapEquations.put(splitKey[2], [:])
+						}
+						flow.mapEquations[splitKey[2]].put(splitKey[1], val)
+					}
 				}
-				flow.mapSelectionSets = mapSelectionSets
-				println "mapSelectionSets: "+mapSelectionSets
+				println "mapSelectionSets: "+flow.mapSelectionSets
+				println "mapEquations: "+flow.mapEquations
+				flow.results = getResults(flow.mapSelectionSets, flow.mapEquations, flow.samplingEvents, flow.eventGroups)
 			}.to "pageFour"
+			on("previous"){
+				flow.mapSelectionSets = [:]
+				flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
+			}.to "pageTwo"
 		}
 
 		// second wizard page
@@ -196,12 +227,6 @@ class CookdataController {
 				flow.page = 5
 			}.to "save"
 			on("previous").to "pageThree"
-			on("toPageOne").to "pageOne"
-			on("toPageTwo").to "pageTwo"
-			on("toPageThree").to "pageThree"
-			on("toPageFive") {
-				flow.page = 5
-			}.to "save"
 		}
 
 		// save action
@@ -260,4 +285,37 @@ class CookdataController {
 			}
 		}
 	}
+	
+	private List retrieveInterestingFieldsList(List objects){
+		List fields = []
+		objects.each{
+			fields.addAll(it.giveDomainFields())
+			fields.addAll(it.giveTemplateFields())
+		}
+		fields.unique()
+		println "fields: "+fields
+		List toRemove = []
+		for(int i = 0; i < fields.size(); i++){
+			if(!fields[i].isFilledInList(objects)){
+				toRemove.add(fields[i])
+			}
+		}
+		fields.removeAll(toRemove)
+		println "fields: "+fields
+		return fields
+	}
+	
+	private List getResults(mapSelectionSets, mapEquations, samplingEvents, eventGroups){
+		//Step 1) Get data 
+		// Get assays
+		// For each assay, call related modules and ask for features
+		// For each feature, call related module and ask for measurements
+		
+		//Step 2) while parsing the equation, calculate the results
+		// Easy for average or median, difficult for pairwise calculation
+		// Question: What constitutes a pair?
+		return []
+	}
+	
+	
 }
