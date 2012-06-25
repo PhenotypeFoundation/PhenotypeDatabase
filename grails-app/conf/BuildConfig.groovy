@@ -81,9 +81,9 @@ grails.project.dependency.resolution = {
 		compile ':jumpbar:0.1.5'
 		compile ':mail:1.0'
 
-//		compile ':trackr:0.6.4'
 		compile ':webflow:1.3.7'
 
+//		compile ':trackr:0.6.4'
 //		runtime ':grails-melody:1.11'
 	}
 }
