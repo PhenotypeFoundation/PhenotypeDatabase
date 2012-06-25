@@ -63,10 +63,10 @@ class CookdataController {
 			// wizard tabs. Also see common/_tabs.gsp for more information
 			flow.page = 0
 			flow.pages = [
-				[title: 'Page One'],
-				[title: 'Page Two'],
-				[title: 'Page Three'],
-				[title: 'Page Four'],
+				[title: 'Select Study'],
+				[title: 'Select Sampling Events'],
+				[title: 'Build Datasets'],
+				[title: 'Select Assays'],
 				[title: 'Done']
 			]
 			flow.cancel = true;

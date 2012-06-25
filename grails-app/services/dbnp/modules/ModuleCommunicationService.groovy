@@ -186,15 +186,6 @@ class ModuleCommunicationService implements Serializable {
 		return restResponse
 
 	}
-	
-	/**
-	 * Checks whether a specific url exists in cache
-	 * @param url	URL to call
-	 * @return		true if the url is present in cache
-	 */
-	def existsInCache( url, args = null ) {
-		return retrieveFromCache( url, args ) == null;
-	}
 
 	/**
 	 * Retrieves the contents of a specific URL from cache
