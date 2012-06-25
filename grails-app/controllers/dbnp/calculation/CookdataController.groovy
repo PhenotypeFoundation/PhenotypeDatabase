@@ -6,6 +6,7 @@ import dbnp.studycapturing.Study;
 import dbnp.studycapturing.SamplingEvent;
 import dbnp.studycapturing.EventGroup;
 import dbnp.studycapturing.Sample;
+import grails.converters.JSON
 
 /**
  * ajaxflow Controller
@@ -202,13 +203,19 @@ class CookdataController {
 						flow.mapEquations[splitKey[2]].put(splitKey[1], val)
 					}
 				}
-				println "mapSelectionSets: "+flow.mapSelectionSets
 				println "mapEquations: "+flow.mapEquations
-				flow.results = getResults(flow.mapSelectionSets, flow.mapEquations, flow.samplingEvents, flow.eventGroups)
+				println "mapSelectionSets: "+flow.mapSelectionSets
+				println "samplingEvents: "+flow.samplingEvents
+				println "eventGroups: "+flow.eventGroups
+				
+				// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
+				double testA = 5.0
+				double testB = 10.0
+				flow.results = getResults(flow.mapSelectionSets, flow.mapEquations, flow.samplingEvents, flow.eventGroups, testA, testB)
 			}.to "pageFour"
 			on("previous"){
-				flow.mapSelectionSets = [:]
-				flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
+				//flow.mapSelectionSets = [:]
+				//flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
 			}.to "pageTwo"
 		}
 
@@ -293,7 +300,6 @@ class CookdataController {
 			fields.addAll(it.giveTemplateFields())
 		}
 		fields.unique()
-		println "fields: "+fields
 		List toRemove = []
 		for(int i = 0; i < fields.size(); i++){
 			if(!fields[i].isFilledInList(objects)){
@@ -301,11 +307,61 @@ class CookdataController {
 			}
 		}
 		fields.removeAll(toRemove)
-		println "fields: "+fields
 		return fields
 	}
 	
-	private List getResults(mapSelectionSets, mapEquations, samplingEvents, eventGroups){
+	private List getFeatures(study){
+		if(study!=null){
+			fields += getFields(study, "subjects", "domainfields")
+			fields += getFields(study, "subjects", "templatefields")
+			/*fields += getFields(study, "events", "domainfields")
+			fields += getFields(study, "events", "templatefields")*/
+			fields += getFields(study, "samplingEvents", "domainfields")
+			fields += getFields(study, "samplingEvents", "templatefields")
+			fields += getFields(study, "assays", "domainfields")
+			fields += getFields(study, "assays", "templatefields")
+			fields += getFields(study, "samples", "domainfields")
+			fields += getFields(study, "samples", "templatefields")
+
+			// Also make sure the user can select eventGroup to visualize
+			fields += formatGSCFFields( "domainfields", [ name: "name" ], "GSCF", "eventGroups" );
+			
+			/*
+			Gather fields related to this study from modules.
+			This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
+			It does not actually return measurements (the getMeasurementData call does).
+			The getFields method (or rather, the getMeasurements service) requires one or more assays and will return all measurement
+			types related to these assays.
+			So, the required variables for such a call are:
+			  - a source variable, which can be obtained from AssayModule.list() (use the 'name' field)
+			  - an assay, which can be obtained with study.getAssays()
+			 */
+			study.getAssays().each { assay ->
+				def list = []
+				if(!offlineModules.contains(assay.module.id)){
+					list = getFields(assay.module.toString(), assay)
+					if(list!=null){
+						if(list.size()!=0){
+							fields += list
+						}
+					}
+				}
+			}
+			offlineModules = []
+
+			// Make sure any informational messages regarding offline modules are submitted to the client
+			setInfoMessageOfflineModules()
+
+
+			// TODO: Maybe we should add study's own fields
+		} else {
+			log.error("VisualizationController: getFields: The requested study could not be found. Id: "+studies)
+			return returnError(404, "The requested study could not be found.")
+		}
+	}
+	
+	// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
+	private List getResults(mapSelectionSets, mapEquations, samplingEvents, eventGroups, double testA, double testB){
 		//Step 1) Get data 
 		// Get assays
 		// For each assay, call related modules and ask for features
@@ -313,9 +369,220 @@ class CookdataController {
 		
 		//Step 2) while parsing the equation, calculate the results
 		// Easy for average or median, difficult for pairwise calculation
+		// Only calculate something when both sets have measurements related to the relevant feature
 		// Question: What constitutes a pair?
-		return []
+		def results = []
+		mapEquations.each{ key, val ->
+			String equations = val.val.replaceAll("\\s",""); // No whitespace
+			double stepbystep = computeWithVals(equations, 0, testA, testB)
+			results.add(stepbystep)
+		}
+		mapEquations.eachWithIndex{ key, val, i ->
+			println key+": "+val.label+": "+val.val+" -> "+results[i]
+		}
+		return results
 	}
 	
 	
+	
+	
+	
+	////////////////// Start of Equation handling code
+	
+	private boolean checkForOpeningAndClosingBrackets(String eq){
+		boolean ret = (
+			// ( ... ) and
+			eq.startsWith("(") && eq.endsWith(")")
+			&&
+			// First ) is at the last index
+			eq.indexOf(")")==(eq.size()-1)
+		)
+		return ret
+	}	
+	
+	private Map parseWellFormedLeftHandSide(String eq){
+		Map mapReturn = [:]
+		int countOpening = 0
+		int countClosing = 0
+		int latestClosingIndex = -1
+		for(int i = 0; i < eq.size(); i++){
+			if(eq[i]=="("){
+				countOpening++
+			}
+			if(eq[i]==")"){
+				countClosing++
+				latestClosingIndex = i
+			}
+			if(	countOpening!=0 && countClosing!=0 && 
+				countOpening==countClosing
+			){
+				// Left-hand side is wellformed
+				break
+			}
+		}
+		
+		mapReturn.endIndex = 1 + latestClosingIndex
+		if(mapReturn.endIndex==eq.size()){
+			// Brackets are part of right-hand side, not left...
+			mapReturn.endIndex = 0
+		}
+		mapReturn.success = (countOpening==countClosing)
+		return mapReturn
+	}
+	
+	private double computeWithVals(String eq, int counter, double dblA, double dblB){
+		double dblReturn = -1.0
+		// Check for "(x)"
+		if(checkForOpeningAndClosingBrackets(eq)){
+			int index0 = eq.indexOf(")")
+			double result = computeWithVals(eq.substring(1, index0), counter+1, dblA, dblB)
+			dblReturn = result
+			return dblReturn
+		}
+		
+		/* Check for "x/y" and make sure "(x/y)/z" detects the second operator,
+		 * not the last. 
+		 */
+		Map mapParseLHSResults = parseWellFormedLeftHandSide(eq)
+		if(mapParseLHSResults.success){
+			// A wellformed LHS could be found. Any operator after the LHS?
+			int intOpIndex = eq.substring(mapParseLHSResults.endIndex,
+				eq.size()).indexOf("/")
+			if(intOpIndex!=-1){
+				int index0 = intOpIndex+mapParseLHSResults.endIndex
+				double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
+				double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
+				dblReturn = result1 / result2
+				return dblReturn
+			}
+			intOpIndex = eq.substring(mapParseLHSResults.endIndex,
+				eq.size()).indexOf("*")
+			if(intOpIndex!=-1){
+				int index0 = intOpIndex+mapParseLHSResults.endIndex
+				double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
+				double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
+				dblReturn = result1 * result2
+				return dblReturn
+			}
+			intOpIndex = eq.substring(mapParseLHSResults.endIndex,
+				eq.size()).indexOf("+")
+			if(intOpIndex!=-1){
+				int index0 = intOpIndex+mapParseLHSResults.endIndex
+				double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
+				double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
+				dblReturn = result1 + result2
+				return dblReturn
+			}
+			intOpIndex = eq.substring(mapParseLHSResults.endIndex,
+				eq.size()).indexOf("-")
+			if(intOpIndex!=-1){
+				int index0 = intOpIndex+mapParseLHSResults.endIndex
+				double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
+				double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
+				dblReturn = result1 - result2
+				return dblReturn
+			}
+		} else {
+			println "Received malformed string: unbalanced brackets: "+eq
+		}
+		
+		// Check for A
+		if(eq.equals("A")){
+			dblReturn = dblA
+			return dblReturn
+		}
+		
+		// Check for B
+		if(eq.equals("B")){
+			dblReturn = dblB
+			return dblReturn
+		}
+		
+		// If we get here, nothing has fired
+		dblReturn = -1.0
+		return dblReturn
+	}
+	
+	
+	def testCalculations = {
+		// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
+		assert 0.05 == 
+			getResults(
+				["A":[], "B":[]], 
+				[0:["val":"(A/B)/B", "label":""]],
+				[:],
+				[:],
+				5,
+				10
+			)[0]
+		assert 5.0 == 
+			getResults(
+				["A":[], "B":[]], 
+				[0:["val":"(A/B)*B", "label":""]],
+				[:],
+				[:],
+				5,
+				10
+			)[0]
+		assert -15.0 == 
+			getResults(
+				["A":[], "B":[]], 
+				[0:["val":"(A-B)-B ", "label":""]],
+				[:],
+				[:],
+				5,
+				10
+			)[0]
+		assert 5.0 == 
+			getResults(
+				["A":[], "B":[]], 
+				[0:["val":"(A+B)-B", "label":""]],
+				[:],
+				[:],
+				5,
+				10
+			)[0]
+		assert -1.0 == 
+			getResults(
+				["A":[], "B":[]], 
+				[0:["val":"", "label":""]],
+				[:],
+				[:],
+				5,
+				10
+			)[0]
+		assert 15.0 == 
+			getResults(
+				["A":[], "B":[]], 
+				[0:["val":"B+A", "label":""]],
+				[:],
+				[:],
+				5,
+				10
+			)[0]
+		assert 45.0 == 
+			getResults(
+				["A":[], "B":[]], 
+				[0:["val":"B+B+B+B+B-(A)", "label":""]],
+				[:],
+				[:],
+				5,
+				10
+			)[0]
+		assert -50.0 == 
+			getResults(
+				["A":[], "B":[]], 
+				[0:["val":"   B           *   (A   -B    )    ", "label":""]],
+				[:],
+				[:],
+				5,
+				10
+			)[0]
+		
+		Map ret = [:]
+		ret.put("result", "Great success!")
+		render ret as JSON
+	}
+	
+	////////////////// End of Equation handling code
 }
