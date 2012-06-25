@@ -65,12 +65,16 @@ class ApiController {
                         deviceToken : UUID.randomUUID().toString(),
                         user        : user,
                         sequence    : 0
-                ).save(failOnError: true)
+                ).save(flush: true)
+
+                // create result
+                response.status = 200
+                result = ['token':token.deviceToken, 'sequence':token.sequence]
             } else if (user != token.user) {
                 response.status = 409
                 result = ['error':"the deviceID '${deviceID}' is already in use by user '${token.user}', please use user '${token.user}' to authenticate or use another deviceID"]
             } else {
-                result = ['token':token.deviceToken,'sequence':token.sequence]
+                result = ['token':token.deviceToken, 'sequence':token.sequence]
 
                 // set output headers
                 response.status = 200
