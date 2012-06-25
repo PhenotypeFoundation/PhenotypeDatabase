@@ -61,7 +61,45 @@ Note: you may have to use double quotes (") rather than single quotes (').
 	
 
 # Set up the application configuration
-As of GSCF 0.8.3 a setup wizard is included which will create a configuration file for you (/path/to/homedir/.gscf/environment.properties)
+As of GSCF 0.8.3 a setup wizard is included which will create a configuration file for you (/path/to/homedir/.gscf/environment.properties). However, to run this wizard, you need a working instance, so it might be more convenient to write the configuration yourself.
+If you start the application, you will see exactly at which location it is looking for a configuration file. It is probably /usr/share/tomcat6/.gscf/production.properties. You can use it to specify the database connection, for example as follows:
+```
+# server URL
+grails.serverURL=http://old.studies.dbnp.org
+
+# DATABASE
+dataSource.driverClassName=org.postgresql.Driver
+dataSource.dialect=org.hibernate.dialect.PostgreSQLDialect
+dataSource.url=jdbc:postgresql://localhost:5432/gscf-www
+dataSource.dbCreate=update
+dataSource.username=mydbuser
+dataSource.password=mydbpassword
+#dataSource.logSql=false
+
+# SpringSecurity E-Mail Settings
+grails.plugins.springsecurity.ui.forgotPassword.emailFrom=gscfproject@gmail.com
+
+# module configuration
+#modules.sam.url=http://old.sam.dbnp.org
+#modules.metabolomics.url=http://old.metabolomics.dbnp.org
+#modules.metagenomics.url=http://old.metagenomics.dbnp.org
+
+# default application users
+authentication.users.admin.username=admin
+authentication.users.admin.password=admiN123!
+authentication.users.admin.email=admin@dbnp.org
+authentication.users.admin.administrator=true
+authentication.users.user.username=user
+authentication.users.user.password=useR123!
+authentication.users.user.email=user@dbnp.org
+authentication.users.user.administrator=false
+
+// override application title
+application.title=Phenotype Database
+
+# use shibboleth authentication?
+authentication.shibboleth=false
+```
 
 # Create a .grails directory
 Grails uses a cache folder, which should be created if the tomcat user cannot create it
