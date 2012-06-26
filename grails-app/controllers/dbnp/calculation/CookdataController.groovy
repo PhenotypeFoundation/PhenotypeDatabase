@@ -27,6 +27,8 @@ class CookdataController {
 	// (see http://www.grails.org/plugin/grom)
 	def pluginManager
 	def authenticationService
+	def moduleCommunicationService
+	def cookDataService
 	
 	/**
 	 * index method, redirect to the webflow
@@ -130,6 +132,7 @@ class CookdataController {
 			}
 			on("next") {
 				List selectionTriples = []
+				List selectedSamplingEvents = []
 				params.each{ key, val ->
 					if(val=="on"){
 						def splitKey = key.split("_")
@@ -149,9 +152,11 @@ class CookdataController {
 									numItems
 								]
 							)
+						List selectedSamplingEvents.add(flow.samplingEvents[se])
 					}
 				}
 				flow.selectionTriples = selectionTriples	
+				flow.selectedSamplingEvents = selectedSamplingEvents.unique()
 				
 				// Update samplingEvents list
 				flow.samplingEventTemplates = []
@@ -203,15 +208,11 @@ class CookdataController {
 						flow.mapEquations[splitKey[2]].put(splitKey[1], val)
 					}
 				}
-				println "mapEquations: "+flow.mapEquations
-				println "mapSelectionSets: "+flow.mapSelectionSets
-				println "samplingEvents: "+flow.samplingEvents
-				println "eventGroups: "+flow.eventGroups
+				// Check which assays we need.
+				flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents)
 				
-				// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
-				double testA = 5.0
-				double testB = 10.0
-				flow.results = getResults(flow.mapSelectionSets, flow.mapEquations, flow.samplingEvents, flow.eventGroups, testA, testB)
+				// For each assay, call related modules and ask for features
+				flow.mapFeaturesPerAssay = getFeaturesFromModules(flow.assays)
 			}.to "pageFour"
 			on("previous"){
 				//flow.mapSelectionSets = [:]
@@ -230,7 +231,16 @@ class CookdataController {
 				success()
 			}
 			on("next") {
-				// put some logic in here
+				println "p4 next params: " + params
+				
+				/*
+				// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
+				double testA = 5.0
+				double testB = 10.0
+				println "About to call getResults"
+				flow.results = getResults(flow.study, flow.mapSelectionSets, flow.mapEquations, flow.samplingEvents, flow.eventGroups, testA, testB)
+				*/
+				
 				flow.page = 5
 			}.to "save"
 			on("previous").to "pageThree"
@@ -314,8 +324,6 @@ class CookdataController {
 		if(study!=null){
 			fields += getFields(study, "subjects", "domainfields")
 			fields += getFields(study, "subjects", "templatefields")
-			/*fields += getFields(study, "events", "domainfields")
-			fields += getFields(study, "events", "templatefields")*/
 			fields += getFields(study, "samplingEvents", "domainfields")
 			fields += getFields(study, "samplingEvents", "templatefields")
 			fields += getFields(study, "assays", "domainfields")
@@ -361,10 +369,7 @@ class CookdataController {
 	}
 	
 	// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
-	private List getResults(mapSelectionSets, mapEquations, samplingEvents, eventGroups, double testA, double testB){
-		//Step 1) Get data 
-		// Get assays
-		// For each assay, call related modules and ask for features
+	private List getResults(Study study, Map mapSelectionSets, Map mapEquations, List samplingEvents, List eventGroups, double testA, double testB){
 		// For each feature, call related module and ask for measurements
 		
 		//Step 2) while parsing the equation, calculate the results
@@ -372,217 +377,105 @@ class CookdataController {
 		// Only calculate something when both sets have measurements related to the relevant feature
 		// Question: What constitutes a pair?
 		def results = []
+		/*
 		mapEquations.each{ key, val ->
 			String equations = val.val.replaceAll("\\s",""); // No whitespace
-			double stepbystep = computeWithVals(equations, 0, testA, testB)
+			double stepbystep = cookDataService.computeWithVals(equations, 0, testA, testB)
 			results.add(stepbystep)
 		}
 		mapEquations.eachWithIndex{ key, val, i ->
 			println key+": "+val.label+": "+val.val+" -> "+results[i]
 		}
+		*/
 		return results
 	}
 	
-	
-	
-	
-	
-	////////////////// Start of Equation handling code
-	
-	private boolean checkForOpeningAndClosingBrackets(String eq){
-		boolean ret = (
-			// ( ... ) and
-			eq.startsWith("(") && eq.endsWith(")")
-			&&
-			// First ) is at the last index
-			eq.indexOf(")")==(eq.size()-1)
-		)
-		return ret
-	}	
-	
-	private Map parseWellFormedLeftHandSide(String eq){
-		Map mapReturn = [:]
-		int countOpening = 0
-		int countClosing = 0
-		int latestClosingIndex = -1
-		for(int i = 0; i < eq.size(); i++){
-			if(eq[i]=="("){
-				countOpening++
+	/**
+	 * For the CookData controller, an assay is interesting when it has samples that the user has selected.
+	 * Unfortunately the fastest way seems to be checking for each assay, if they have a sample that is in one of the selected samplingEvents.
+	 * This involves requesting a lot of samples from the database.
+	 */
+	private List getInterestingAssays(Study study, List samplingEvents){
+		List assays = []
+		int numAssays = study.assays.size()
+		println "getInterestingAssays numAssays "+numAssays
+		int numSEvents = samplingEvents.size()
+		println "getInterestingAssays numSEvents "+numSEvents
+		for(int i = 0; i < numAssays; i++){
+			def assay =  study.assays[i]
+			println "getInterestingAssays assay "+assay
+			def listAssaySamples = []
+			assay.samples.each{
+				listAssaySamples << it
 			}
-			if(eq[i]==")"){
-				countClosing++
-				latestClosingIndex = i
+			
+			if(assay.samples.size()==0){
+				// No samples in the assay, so not an interesting assay
+				continue
 			}
-			if(	countOpening!=0 && countClosing!=0 && 
-				countOpening==countClosing
-			){
-				// Left-hand side is wellformed
-				break
+			
+			boolean success = false
+			for(int j = 0; j <numSEvents; j++){
+				if(success){
+					break
+				}
+				
+				SamplingEvent event = samplingEvents[j]
+				println "getInterestingAssays event "+event
+				int numEventSamples = event.samples.size()
+				for(int k = 0; k < numEventSamples; k++){
+					List listEventSamples = []
+					event.samples.each{
+						listEventSamples << it
+					}
+
+					Sample sample = listEventSamples[k]
+					if(listAssaySamples.contains(sample)){
+						success = true
+						break
+					}
+				}
+			}
+			if(success){
+				assays << assay
 			}
 		}
-		
-		mapReturn.endIndex = 1 + latestClosingIndex
-		if(mapReturn.endIndex==eq.size()){
-			// Brackets are part of right-hand side, not left...
-			mapReturn.endIndex = 0
-		}
-		mapReturn.success = (countOpening==countClosing)
-		return mapReturn
+		return assays
 	}
 	
-	private double computeWithVals(String eq, int counter, double dblA, double dblB){
-		double dblReturn = -1.0
-		// Check for "(x)"
-		if(checkForOpeningAndClosingBrackets(eq)){
-			int index0 = eq.indexOf(")")
-			double result = computeWithVals(eq.substring(1, index0), counter+1, dblA, dblB)
-			dblReturn = result
-			return dblReturn
-		}
-		
-		/* Check for "x/y" and make sure "(x/y)/z" detects the second operator,
-		 * not the last. 
-		 */
-		Map mapParseLHSResults = parseWellFormedLeftHandSide(eq)
-		if(mapParseLHSResults.success){
-			// A wellformed LHS could be found. Any operator after the LHS?
-			int intOpIndex = eq.substring(mapParseLHSResults.endIndex,
-				eq.size()).indexOf("/")
-			if(intOpIndex!=-1){
-				int index0 = intOpIndex+mapParseLHSResults.endIndex
-				double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
-				double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
-				dblReturn = result1 / result2
-				return dblReturn
+	/**
+	 * For each assay, call related modules and ask for features
+	 * @param assays
+	 * @return list of features
+	 */
+	private Map getFeaturesFromModules(assays){
+		List blacklistedModules = []
+		Map mapResults = [:]
+		assays.eachWithIndex { assay, index ->
+			if (!blacklistedModules.contains(assay.module.id)) {
+				try{
+					def urlVars = "assayToken=" + assay.assayUUID
+					def strURL = "" + assay.module.url + "/rest/getMeasurementMetaData/query?" + urlVars
+					def callResult = moduleCommunicationService.callModuleRestMethodJSON(assay.module.url, strURL);
+					def result = []
+					callResult.each{ cR ->
+						Map map = [:]
+						cR.each{ key, val ->
+							map.put(key, val)
+						}
+						result.add(map)
+					}
+					if (result != null) {
+						if (result.size() != 0) {
+							mapResults.put(index.toString(), result)
+						}
+					}
+				} catch (Exception e) {
+					blacklistedModules.add(assay.module.id)
+					log.error("CookDataController: getFields: " + e)
+				}
 			}
-			intOpIndex = eq.substring(mapParseLHSResults.endIndex,
-				eq.size()).indexOf("*")
-			if(intOpIndex!=-1){
-				int index0 = intOpIndex+mapParseLHSResults.endIndex
-				double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
-				double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
-				dblReturn = result1 * result2
-				return dblReturn
-			}
-			intOpIndex = eq.substring(mapParseLHSResults.endIndex,
-				eq.size()).indexOf("+")
-			if(intOpIndex!=-1){
-				int index0 = intOpIndex+mapParseLHSResults.endIndex
-				double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
-				double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
-				dblReturn = result1 + result2
-				return dblReturn
-			}
-			intOpIndex = eq.substring(mapParseLHSResults.endIndex,
-				eq.size()).indexOf("-")
-			if(intOpIndex!=-1){
-				int index0 = intOpIndex+mapParseLHSResults.endIndex
-				double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
-				double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
-				dblReturn = result1 - result2
-				return dblReturn
-			}
-		} else {
-			println "Received malformed string: unbalanced brackets: "+eq
 		}
-		
-		// Check for A
-		if(eq.equals("A")){
-			dblReturn = dblA
-			return dblReturn
-		}
-		
-		// Check for B
-		if(eq.equals("B")){
-			dblReturn = dblB
-			return dblReturn
-		}
-		
-		// If we get here, nothing has fired
-		dblReturn = -1.0
-		return dblReturn
+		return mapResults
 	}
-	
-	
-	def testCalculations = {
-		// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
-		assert 0.05 == 
-			getResults(
-				["A":[], "B":[]], 
-				[0:["val":"(A/B)/B", "label":""]],
-				[:],
-				[:],
-				5,
-				10
-			)[0]
-		assert 5.0 == 
-			getResults(
-				["A":[], "B":[]], 
-				[0:["val":"(A/B)*B", "label":""]],
-				[:],
-				[:],
-				5,
-				10
-			)[0]
-		assert -15.0 == 
-			getResults(
-				["A":[], "B":[]], 
-				[0:["val":"(A-B)-B ", "label":""]],
-				[:],
-				[:],
-				5,
-				10
-			)[0]
-		assert 5.0 == 
-			getResults(
-				["A":[], "B":[]], 
-				[0:["val":"(A+B)-B", "label":""]],
-				[:],
-				[:],
-				5,
-				10
-			)[0]
-		assert -1.0 == 
-			getResults(
-				["A":[], "B":[]], 
-				[0:["val":"", "label":""]],
-				[:],
-				[:],
-				5,
-				10
-			)[0]
-		assert 15.0 == 
-			getResults(
-				["A":[], "B":[]], 
-				[0:["val":"B+A", "label":""]],
-				[:],
-				[:],
-				5,
-				10
-			)[0]
-		assert 45.0 == 
-			getResults(
-				["A":[], "B":[]], 
-				[0:["val":"B+B+B+B+B-(A)", "label":""]],
-				[:],
-				[:],
-				5,
-				10
-			)[0]
-		assert -50.0 == 
-			getResults(
-				["A":[], "B":[]], 
-				[0:["val":"   B           *   (A   -B    )    ", "label":""]],
-				[:],
-				[:],
-				5,
-				10
-			)[0]
-		
-		Map ret = [:]
-		ret.put("result", "Great success!")
-		render ret as JSON
-	}
-	
-	////////////////// End of Equation handling code
 }
