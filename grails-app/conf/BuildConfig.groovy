@@ -61,9 +61,9 @@ grails.project.dependency.resolution = {
 	plugins {
 		compile(":hibernate:$grailsVersion")
 		compile ':tomcat:1.3.7.2'
-		compile ':jquery:1.7.1'
-		compile ':grom:0.2.3'
-		compile ':ajaxflow:0.2.1'
+		compile ':jquery:latest.integration'
+		compile ':grom:latest.integration'
+		compile ':ajaxflow:latest.integration'
 		compile ':crypto:2.0'
 		compile ':spring-security-core:1.1.2'
 		compile(':gdt:0.2.2') {
@@ -89,7 +89,9 @@ grails.project.dependency.resolution = {
 }
 
 //grails.plugin.location.'grom' = '../grom'
+//grails.plugin.location.'grom' = '/Users/jeroen/Desktop/grom'
 //grails.plugin.location.'ajaxflow' = '../ajaxflow'
+//grails.plugin.location.'ajaxflow' = '/Users/jeroen/Desktop/ajaxflow'
 //grails.plugin.location.'gdt' = '../gdt'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
 //grails.plugin.location.'gdtimporter' = '../gdtimporter'
