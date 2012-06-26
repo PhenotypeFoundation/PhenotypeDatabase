@@ -113,7 +113,9 @@ class DataService {
     }
 
     /**
-     * Format the data contained in the input parameter 'collection' for use as so-called fields, that will be used by the user interface to allow the user to select data from GSCF for visualization
+     * Format the data contained in the input parameter 'collectionOfFields' for use as so-called fields, that will be used by the user interface to allow the user to select data from GSCF for visualization
+     * If 'collectionOfFields' is indeed a collection, this same function is called for each item in the collection. 
+     * If 'collectionOfFields' is in fact a single object, it will be formatted and added to the return value.
      * @param type A string that indicates the type of field, either "domainfields" or "templatefields".
      * @param collectionOfFields A collection of fields, which could also contain only one item
      * @param source Likely to be "GSCF"
