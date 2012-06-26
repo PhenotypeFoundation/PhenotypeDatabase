@@ -89,9 +89,9 @@ grails.project.dependency.resolution = {
 }
 
 //grails.plugin.location.'grom' = '../grom'
-//grails.plugin.location.'grom' = '/Users/jeroen/Desktop/grom'
+//grails.plugin.location.'grom' = '../../4np/grails-grom'
 //grails.plugin.location.'ajaxflow' = '../ajaxflow'
-//grails.plugin.location.'ajaxflow' = '/Users/jeroen/Desktop/ajaxflow'
+//grails.plugin.location.'ajaxflow' = '../../4np/grails-ajaxflow'
 //grails.plugin.location.'gdt' = '../gdt'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
 //grails.plugin.location.'gdtimporter' = '../gdtimporter'
