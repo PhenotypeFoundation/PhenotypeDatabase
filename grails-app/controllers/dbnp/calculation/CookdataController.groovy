@@ -167,12 +167,12 @@ class CookdataController {
 				
 			}.to "pageThree"
 			on("previous"){
-				flow.mapSelectionSets = [:]				
+				flow.mapSelectionSets = [:]
 				flow.selectionTriples = []
 				flow.study = null
 				flow.eventGroups = []
 				flow.samplingEvents = []
-				flow.samplingEventFields = []			
+				flow.samplingEventFields = []
 				flow.samplingEventTemplates = []
 			}.to "pageOne"
 		}
@@ -213,6 +213,19 @@ class CookdataController {
 				
 				// For each assay, call related modules and ask for features
 				flow.mapFeaturesPerAssay = getFeaturesFromModules(flow.assays)
+				//println flow.mapFeaturesPerAssay
+				flow.mapFeaturesPerAssay.sort{ it.name }
+				
+				// For each feature, get data from the modules
+				flow.mapFeaturesAndDataPerAssay = getDataFromModules(flow.mapFeaturesPerAssay, flow.assays)
+				
+				/*
+				// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
+				double testA = 5.0
+				double testB = 10.0
+				println "About to call getResults"
+				flow.results = getResults(flow.study, flow.mapSelectionSets, flow.mapEquations, flow.samplingEvents, flow.eventGroups, testA, testB)
+				*/
 			}.to "pageFour"
 			on("previous"){
 				//flow.mapSelectionSets = [:]
@@ -226,20 +239,11 @@ class CookdataController {
 			onRender {
 				// Grom a development message
 				if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_page_four.gsp".grom()
-
 				flow.page = 4
 				success()
 			}
 			on("next") {
 				println "p4 next params: " + params
-				
-				/*
-				// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
-				double testA = 5.0
-				double testB = 10.0
-				println "About to call getResults"
-				flow.results = getResults(flow.study, flow.mapSelectionSets, flow.mapEquations, flow.samplingEvents, flow.eventGroups, testA, testB)
-				*/
 				
 				flow.page = 5
 			}.to "save"
@@ -318,54 +322,6 @@ class CookdataController {
 		}
 		fields.removeAll(toRemove)
 		return fields
-	}
-	
-	private List getFeatures(study){
-		if(study!=null){
-			fields += getFields(study, "subjects", "domainfields")
-			fields += getFields(study, "subjects", "templatefields")
-			fields += getFields(study, "samplingEvents", "domainfields")
-			fields += getFields(study, "samplingEvents", "templatefields")
-			fields += getFields(study, "assays", "domainfields")
-			fields += getFields(study, "assays", "templatefields")
-			fields += getFields(study, "samples", "domainfields")
-			fields += getFields(study, "samples", "templatefields")
-
-			// Also make sure the user can select eventGroup to visualize
-			fields += formatGSCFFields( "domainfields", [ name: "name" ], "GSCF", "eventGroups" );
-			
-			/*
-			Gather fields related to this study from modules.
-			This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
-			It does not actually return measurements (the getMeasurementData call does).
-			The getFields method (or rather, the getMeasurements service) requires one or more assays and will return all measurement
-			types related to these assays.
-			So, the required variables for such a call are:
-			  - a source variable, which can be obtained from AssayModule.list() (use the 'name' field)
-			  - an assay, which can be obtained with study.getAssays()
-			 */
-			study.getAssays().each { assay ->
-				def list = []
-				if(!offlineModules.contains(assay.module.id)){
-					list = getFields(assay.module.toString(), assay)
-					if(list!=null){
-						if(list.size()!=0){
-							fields += list
-						}
-					}
-				}
-			}
-			offlineModules = []
-
-			// Make sure any informational messages regarding offline modules are submitted to the client
-			setInfoMessageOfflineModules()
-
-
-			// TODO: Maybe we should add study's own fields
-		} else {
-			log.error("VisualizationController: getFields: The requested study could not be found. Id: "+studies)
-			return returnError(404, "The requested study could not be found.")
-		}
 	}
 	
 	// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
@@ -455,7 +411,7 @@ class CookdataController {
 			if (!blacklistedModules.contains(assay.module.id)) {
 				try{
 					def urlVars = "assayToken=" + assay.assayUUID
-					def strURL = "" + assay.module.url + "/rest/getMeasurementMetaData/query?" + urlVars
+					def strURL = assay.module.url + "/rest/getMeasurementMetaData/query?" + urlVars
 					def callResult = moduleCommunicationService.callModuleRestMethodJSON(assay.module.url, strURL);
 					def result = []
 					callResult.each{ cR ->
@@ -472,10 +428,86 @@ class CookdataController {
 					}
 				} catch (Exception e) {
 					blacklistedModules.add(assay.module.id)
-					log.error("CookDataController: getFields: " + e)
+					log.error("CookDataController: getFeaturesFromModules: " + e)
 				}
 			}
 		}
 		return mapResults
+	}
+
+	private Map getDataFromModules(Map mapFeaturesPerAssay, List assays){
+		List blacklistedModules = []
+		Map mapResults = [:]
+		mapFeaturesPerAssay.eachWithIndex { pair, index ->
+			println index
+			def assay = assays[index]
+			Map mapResultsForAssay = [:]
+			if (!blacklistedModules.contains(assay.module.id)) {
+				try{
+					// Request for a particular assay
+					def urlVars = "assayToken=" + assay.assayUUID
+					urlVars += "&"+assay.samples.collect { "sampleToken=" + it.sampleUUID }.join("&");
+					def strUrl = assay.module.url + "/rest/getMeasurementData"
+					def callResult = moduleCommunicationService.callModuleMethod(assay.module.url, strUrl, urlVars, "POST");
+					int upto = 5
+					if(callResult[0].size()<upto){
+						upto = callResult.size()
+					}
+					for(int i = 0; i < upto; i++){
+						println i+": "+callResult[0][i]
+						println i+": "+callResult[1][i]
+						println i+": "+callResult[2][i]
+					}
+					def result = [:]
+					pair.value.each{ feature ->
+						//Map mapSampleTokenTo
+					}
+					callResult.eachWithIndex{ cR, ind ->
+						List list = []
+						cR.each{ cRItem ->
+							println "I found " + cRItem
+							Map map = [:]
+							cRItem.each{ key, val ->
+								println "But then I found " + key + " -> " + val
+								map.put(key, val)
+							}
+							list.add(map)
+						}
+						
+						result.add(list)
+					}
+					if (callResult != null) {
+						if (callResult.size() != 0) {
+							mapResultsForAssay.put(assay, result)
+						}
+					}
+				} catch (Exception e) {
+					blacklistedModules.add(assay.module.id)
+					log.error("CookDataController: getDataFromModules: " + e)
+				}
+			}
+			if(mapResultsForAssay.size()!=0){
+				mapResults.put(index.toString(), mapResultsForAssay)
+			}
+		}
+		return mapResults
+	}
+	
+	def testEquation = {
+		println "testEquation params: "+params
+		// Tests if an equation can be parsed
+		// Uses arbitrary values for testing purposes.
+		boolean success = true
+		String equation = params.equation.replaceAll("\\s",""); // No whitespace
+		try{
+			double res = cookDataService.computeWithVals(equation, 0, 5.0, 10.0)
+		} catch (Exception e){
+			// No joy 
+			log.error("CookDataController: testEquation: " + e)
+			success = false
+		}
+		Map mapResults = [:]
+		mapResults.put("status", success)
+		render mapResults as JSON
 	}
 }
