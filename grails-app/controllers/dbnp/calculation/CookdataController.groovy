@@ -333,7 +333,7 @@ class CookdataController {
 
 			// Also make sure the user can select eventGroup to visualize
 			fields += formatGSCFFields( "domainfields", [ name: "name" ], "GSCF", "eventGroups" );
-			
+
 			/*
 			Gather fields related to this study from modules.
 			This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
@@ -367,7 +367,7 @@ class CookdataController {
 			return returnError(404, "The requested study could not be found.")
 		}
 	}
-	
+
 	// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
 	private List getResults(Study study, Map mapSelectionSets, Map mapEquations, List samplingEvents, List eventGroups, double testA, double testB){
 		// For each feature, call related module and ask for measurements
@@ -442,7 +442,7 @@ class CookdataController {
 		}
 		return assays
 	}
-	
+
 	/**
 	 * For each assay, call related modules and ask for features
 	 * @param assays
