@@ -131,6 +131,7 @@ class CookdataController {
 				success()
 			}
 			on("next") {
+				// Each triple will consist of a samplingevent, an eventgroup and the number of samples in that selection
 				List selectionTriples = []
 				List selectedSamplingEvents = []
 				params.each{ key, val ->
@@ -213,19 +214,14 @@ class CookdataController {
 				
 				// For each assay, call related modules and ask for features
 				flow.mapFeaturesPerAssay = getFeaturesFromModules(flow.assays)
-				//println flow.mapFeaturesPerAssay
-				flow.mapFeaturesPerAssay.sort{ it.name }
 				
 				// For each feature, get data from the modules
 				flow.mapFeaturesAndDataPerAssay = getDataFromModules(flow.mapFeaturesPerAssay, flow.assays)
 				
-				/*
-				// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
-				double testA = 5.0
-				double testB = 10.0
 				println "About to call getResults"
-				flow.results = getResults(flow.study, flow.mapSelectionSets, flow.mapEquations, flow.samplingEvents, flow.eventGroups, testA, testB)
-				*/
+				flow.results = getResults(flow.study, flow.mapSelectionSets, flow.mapEquations, flow.mapFeaturesAndDataPerAssay, flow.samplingEvents, flow.eventGroups)
+				
+				flow.mapResultPerEquationPerFeaturePerAssay = [:]
 			}.to "pageFour"
 			on("previous"){
 				//flow.mapSelectionSets = [:]
@@ -324,10 +320,24 @@ class CookdataController {
 		return fields
 	}
 	
-	// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
-	private List getResults(Study study, Map mapSelectionSets, Map mapEquations, List samplingEvents, List eventGroups, double testA, double testB){
-		// For each feature, call related module and ask for measurements
-		
+	private List getResults(Study study, Map mapSelectionSets, Map mapEquations, Map mapFeaturesAndDataPerAssayy, List samplingEvents, List eventGroups){
+		mapSelectionSets.each{ set, selections ->
+			println "set: "+set
+			selections.each{ samplingEvent, eventGroup, numSamples ->
+				println "SE "+samplingEvent+" EG "+eventGroup+" NS "+numSamples
+				/*def samples = Sample.createCriteria().get {
+					eq("parentEvent", samplingEvent)
+					eq("parentEventGroup", eventGroup)
+				}
+				println samples*/
+			}
+		}
+		/*mapFeaturesAndDataPerAssay{ assayIndex, dataPerFeature ->
+			dataPerFeature.each{ featureName, data->
+				
+			}
+		}*/
+		// Step 1, get the average
 		//Step 2) while parsing the equation, calculate the results
 		// Easy for average or median, difficult for pairwise calculation
 		// Only calculate something when both sets have measurements related to the relevant feature
@@ -354,12 +364,9 @@ class CookdataController {
 	private List getInterestingAssays(Study study, List samplingEvents){
 		List assays = []
 		int numAssays = study.assays.size()
-		println "getInterestingAssays numAssays "+numAssays
 		int numSEvents = samplingEvents.size()
-		println "getInterestingAssays numSEvents "+numSEvents
 		for(int i = 0; i < numAssays; i++){
 			def assay =  study.assays[i]
-			println "getInterestingAssays assay "+assay
 			def listAssaySamples = []
 			assay.samples.each{
 				listAssaySamples << it
@@ -377,7 +384,6 @@ class CookdataController {
 				}
 				
 				SamplingEvent event = samplingEvents[j]
-				println "getInterestingAssays event "+event
 				int numEventSamples = event.samples.size()
 				for(int k = 0; k < numEventSamples; k++){
 					List listEventSamples = []
@@ -439,7 +445,6 @@ class CookdataController {
 		List blacklistedModules = []
 		Map mapResults = [:]
 		mapFeaturesPerAssay.eachWithIndex { pair, index ->
-			println index
 			def assay = assays[index]
 			Map mapResultsForAssay = [:]
 			if (!blacklistedModules.contains(assay.module.id)) {
@@ -449,7 +454,7 @@ class CookdataController {
 					urlVars += "&"+assay.samples.collect { "sampleToken=" + it.sampleUUID }.join("&");
 					def strUrl = assay.module.url + "/rest/getMeasurementData"
 					def callResult = moduleCommunicationService.callModuleMethod(assay.module.url, strUrl, urlVars, "POST");
-					int upto = 5
+					/*int upto = 5
 					if(callResult[0].size()<upto){
 						upto = callResult.size()
 					}
@@ -457,28 +462,29 @@ class CookdataController {
 						println i+": "+callResult[0][i]
 						println i+": "+callResult[1][i]
 						println i+": "+callResult[2][i]
-					}
+					}*/
 					def result = [:]
+					println "callResult[0].size(): "+callResult[0].size()
 					pair.value.each{ feature ->
-						//Map mapSampleTokenTo
-					}
-					callResult.eachWithIndex{ cR, ind ->
-						List list = []
-						cR.each{ cRItem ->
-							println "I found " + cRItem
-							Map map = [:]
-							cRItem.each{ key, val ->
-								println "But then I found " + key + " -> " + val
-								map.put(key, val)
+						// We wish to order the measurements per feature
+						Map mapSampleTokenToMeasurement = [:]
+						callResult[1].eachWithIndex{ f, fi ->
+							if(feature.name == f){
+								// This data belongs to the current feature, 
+								// so add sample and the measurement 
+								mapSampleTokenToMeasurement.put(
+									callResult[0][fi], callResult[2][fi])
 							}
-							list.add(map)
 						}
-						
-						result.add(list)
+						if(mapSampleTokenToMeasurement!=[:]){
+							println "\t"+feature.name+" num measurements: "+mapSampleTokenToMeasurement.size()
+							result.put(feature.name, mapSampleTokenToMeasurement)
+						}
 					}
+					println "result.size(): "+result.size()
 					if (callResult != null) {
 						if (callResult.size() != 0) {
-							mapResultsForAssay.put(assay, result)
+							mapResultsForAssay.put(index.toString(), result)
 						}
 					}
 				} catch (Exception e) {
@@ -487,7 +493,9 @@ class CookdataController {
 				}
 			}
 			if(mapResultsForAssay.size()!=0){
-				mapResults.put(index.toString(), mapResultsForAssay)
+				mapResultsForAssay.each{ k, v ->
+					mapResults.put(k,  v)
+				}
 			}
 		}
 		return mapResults
