@@ -16,7 +16,6 @@
 			color: #FFFFFF;
 		}
 	</style>
-	
 	<h1>Assign sets</h1>
 	<p>
 		<h2>Please indicate to which set you wish to assign each series of samples:</h2>
@@ -52,11 +51,9 @@
 							<g:each in="${samplingEventFields}" var="field">
 								<td>
 									<g:if test="${field.type == TemplateFieldType.RELTIME}">
-									
 										<g:if test="${samplingEvents[pair[0]]?.fieldExists(field.name)}">
 											${new RelTime( samplingEvents[pair[0]]?.getFieldValue(field.name) ).toString()}	
 										</g:if>
-										
 									</g:if>
 									<g:else>
 										<g:if test="${samplingEvents[pair[0]]?.fieldExists(field.name)}">
