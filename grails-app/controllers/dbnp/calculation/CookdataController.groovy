@@ -6,6 +6,7 @@ import dbnp.studycapturing.Study;
 import dbnp.studycapturing.SamplingEvent;
 import dbnp.studycapturing.EventGroup;
 import dbnp.studycapturing.Sample;
+import grails.converters.JSON
 
 /**
  * ajaxflow Controller
@@ -26,6 +27,8 @@ class CookdataController {
 	// (see http://www.grails.org/plugin/grom)
 	def pluginManager
 	def authenticationService
+	def moduleCommunicationService
+	def cookDataService
 	
 	/**
 	 * index method, redirect to the webflow
@@ -63,10 +66,10 @@ class CookdataController {
 			// wizard tabs. Also see common/_tabs.gsp for more information
 			flow.page = 0
 			flow.pages = [
-				[title: 'Page One'],
-				[title: 'Page Two'],
-				[title: 'Page Three'],
-				[title: 'Page Four'],
+				[title: 'Select Study'],
+				[title: 'Select Sampling Events'],
+				[title: 'Build Datasets'],
+				[title: 'Select Assays'],
 				[title: 'Done']
 			]
 			flow.cancel = true;
@@ -129,6 +132,7 @@ class CookdataController {
 			}
 			on("next") {
 				List selectionTriples = []
+				List selectedSamplingEvents = []
 				params.each{ key, val ->
 					if(val=="on"){
 						def splitKey = key.split("_")
@@ -148,9 +152,11 @@ class CookdataController {
 									numItems
 								]
 							)
+						List selectedSamplingEvents.add(flow.samplingEvents[se])
 					}
 				}
 				flow.selectionTriples = selectionTriples	
+				flow.selectedSamplingEvents = selectedSamplingEvents.unique()
 				
 				// Update samplingEvents list
 				flow.samplingEventTemplates = []
@@ -202,13 +208,15 @@ class CookdataController {
 						flow.mapEquations[splitKey[2]].put(splitKey[1], val)
 					}
 				}
-				println "mapSelectionSets: "+flow.mapSelectionSets
-				println "mapEquations: "+flow.mapEquations
-				flow.results = getResults(flow.mapSelectionSets, flow.mapEquations, flow.samplingEvents, flow.eventGroups)
+				// Check which assays we need.
+				flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents)
+				
+				// For each assay, call related modules and ask for features
+				flow.mapFeaturesPerAssay = getFeaturesFromModules(flow.assays)
 			}.to "pageFour"
 			on("previous"){
-				flow.mapSelectionSets = [:]
-				flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
+				//flow.mapSelectionSets = [:]
+				//flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
 			}.to "pageTwo"
 		}
 
@@ -223,7 +231,16 @@ class CookdataController {
 				success()
 			}
 			on("next") {
-				// put some logic in here
+				println "p4 next params: " + params
+				
+				/*
+				// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
+				double testA = 5.0
+				double testB = 10.0
+				println "About to call getResults"
+				flow.results = getResults(flow.study, flow.mapSelectionSets, flow.mapEquations, flow.samplingEvents, flow.eventGroups, testA, testB)
+				*/
+				
 				flow.page = 5
 			}.to "save"
 			on("previous").to "pageThree"
@@ -293,7 +310,6 @@ class CookdataController {
 			fields.addAll(it.giveTemplateFields())
 		}
 		fields.unique()
-		println "fields: "+fields
 		List toRemove = []
 		for(int i = 0; i < fields.size(); i++){
 			if(!fields[i].isFilledInList(objects)){
@@ -301,21 +317,165 @@ class CookdataController {
 			}
 		}
 		fields.removeAll(toRemove)
-		println "fields: "+fields
 		return fields
 	}
 	
-	private List getResults(mapSelectionSets, mapEquations, samplingEvents, eventGroups){
-		//Step 1) Get data 
-		// Get assays
-		// For each assay, call related modules and ask for features
+	private List getFeatures(study){
+		if(study!=null){
+			fields += getFields(study, "subjects", "domainfields")
+			fields += getFields(study, "subjects", "templatefields")
+			fields += getFields(study, "samplingEvents", "domainfields")
+			fields += getFields(study, "samplingEvents", "templatefields")
+			fields += getFields(study, "assays", "domainfields")
+			fields += getFields(study, "assays", "templatefields")
+			fields += getFields(study, "samples", "domainfields")
+			fields += getFields(study, "samples", "templatefields")
+
+			// Also make sure the user can select eventGroup to visualize
+			fields += formatGSCFFields( "domainfields", [ name: "name" ], "GSCF", "eventGroups" );
+			
+			/*
+			Gather fields related to this study from modules.
+			This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
+			It does not actually return measurements (the getMeasurementData call does).
+			The getFields method (or rather, the getMeasurements service) requires one or more assays and will return all measurement
+			types related to these assays.
+			So, the required variables for such a call are:
+			  - a source variable, which can be obtained from AssayModule.list() (use the 'name' field)
+			  - an assay, which can be obtained with study.getAssays()
+			 */
+			study.getAssays().each { assay ->
+				def list = []
+				if(!offlineModules.contains(assay.module.id)){
+					list = getFields(assay.module.toString(), assay)
+					if(list!=null){
+						if(list.size()!=0){
+							fields += list
+						}
+					}
+				}
+			}
+			offlineModules = []
+
+			// Make sure any informational messages regarding offline modules are submitted to the client
+			setInfoMessageOfflineModules()
+
+
+			// TODO: Maybe we should add study's own fields
+		} else {
+			log.error("VisualizationController: getFields: The requested study could not be found. Id: "+studies)
+			return returnError(404, "The requested study could not be found.")
+		}
+	}
+	
+	// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
+	private List getResults(Study study, Map mapSelectionSets, Map mapEquations, List samplingEvents, List eventGroups, double testA, double testB){
 		// For each feature, call related module and ask for measurements
 		
 		//Step 2) while parsing the equation, calculate the results
 		// Easy for average or median, difficult for pairwise calculation
+		// Only calculate something when both sets have measurements related to the relevant feature
 		// Question: What constitutes a pair?
-		return []
+		def results = []
+		/*
+		mapEquations.each{ key, val ->
+			String equations = val.val.replaceAll("\\s",""); // No whitespace
+			double stepbystep = cookDataService.computeWithVals(equations, 0, testA, testB)
+			results.add(stepbystep)
+		}
+		mapEquations.eachWithIndex{ key, val, i ->
+			println key+": "+val.label+": "+val.val+" -> "+results[i]
+		}
+		*/
+		return results
 	}
 	
+	/**
+	 * For the CookData controller, an assay is interesting when it has samples that the user has selected.
+	 * Unfortunately the fastest way seems to be checking for each assay, if they have a sample that is in one of the selected samplingEvents.
+	 * This involves requesting a lot of samples from the database.
+	 */
+	private List getInterestingAssays(Study study, List samplingEvents){
+		List assays = []
+		int numAssays = study.assays.size()
+		println "getInterestingAssays numAssays "+numAssays
+		int numSEvents = samplingEvents.size()
+		println "getInterestingAssays numSEvents "+numSEvents
+		for(int i = 0; i < numAssays; i++){
+			def assay =  study.assays[i]
+			println "getInterestingAssays assay "+assay
+			def listAssaySamples = []
+			assay.samples.each{
+				listAssaySamples << it
+			}
+			
+			if(assay.samples.size()==0){
+				// No samples in the assay, so not an interesting assay
+				continue
+			}
+			
+			boolean success = false
+			for(int j = 0; j <numSEvents; j++){
+				if(success){
+					break
+				}
+				
+				SamplingEvent event = samplingEvents[j]
+				println "getInterestingAssays event "+event
+				int numEventSamples = event.samples.size()
+				for(int k = 0; k < numEventSamples; k++){
+					List listEventSamples = []
+					event.samples.each{
+						listEventSamples << it
+					}
+
+					Sample sample = listEventSamples[k]
+					if(listAssaySamples.contains(sample)){
+						success = true
+						break
+					}
+				}
+			}
+			if(success){
+				assays << assay
+			}
+		}
+		return assays
+	}
 	
+	/**
+	 * For each assay, call related modules and ask for features
+	 * @param assays
+	 * @return list of features
+	 */
+	private Map getFeaturesFromModules(assays){
+		List blacklistedModules = []
+		Map mapResults = [:]
+		assays.eachWithIndex { assay, index ->
+			if (!blacklistedModules.contains(assay.module.id)) {
+				try{
+					def urlVars = "assayToken=" + assay.assayUUID
+					def strURL = "" + assay.module.url + "/rest/getMeasurementMetaData/query?" + urlVars
+					def callResult = moduleCommunicationService.callModuleRestMethodJSON(assay.module.url, strURL);
+					def result = []
+					callResult.each{ cR ->
+						Map map = [:]
+						cR.each{ key, val ->
+							map.put(key, val)
+						}
+						result.add(map)
+					}
+					if (result != null) {
+						if (result.size() != 0) {
+							mapResults.put(index.toString(), result)
+						}
+					}
+				} catch (Exception e) {
+					blacklistedModules.add(assay.module.id)
+					log.error("CookDataController: getFields: " + e)
+				}
+			}
+		}
+		return mapResults
+	}
 }
