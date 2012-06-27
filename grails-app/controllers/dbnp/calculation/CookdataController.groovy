@@ -217,7 +217,7 @@ class CookdataController {
 				flow.mapFeaturesPerAssay.sort{ it.name }
 				
 				// For each feature, get data from the modules
-				getDataFromModules(flow.mapFeaturesPerAssay, flow.assays)
+				flow.mapFeaturesAndDataPerAssay = getDataFromModules(flow.mapFeaturesPerAssay, flow.assays)
 				
 				/*
 				// Current code does not retrieve the actual values yet. These two doubles are passed to be able to test the parsing.
@@ -428,7 +428,7 @@ class CookdataController {
 					}
 				} catch (Exception e) {
 					blacklistedModules.add(assay.module.id)
-					log.error("CookDataController: getFields: " + e)
+					log.error("CookDataController: getFeaturesFromModules: " + e)
 				}
 			}
 		}
@@ -445,31 +445,42 @@ class CookdataController {
 			if (!blacklistedModules.contains(assay.module.id)) {
 				try{
 					// Request for a particular assay
-					def urlVars = "assayToken=" + assay.assayUUID + "&" 
-					/*pair.value.each{ featureInfo ->
-						urlVars += "&measurementToken=" + featureInfo.name
-						println "Added &measurementToken=" + featureInfo.name
-					}*/
-					println "assayToken "+ assay.assayUUID
-					urlVars += assay.samples.collect { "sampleToken=" + it.sampleUUID }.join("&");
+					def urlVars = "assayToken=" + assay.assayUUID
+					urlVars += "&"+assay.samples.collect { "sampleToken=" + it.sampleUUID }.join("&");
 					def strUrl = assay.module.url + "/rest/getMeasurementData"
 					def callResult = moduleCommunicationService.callModuleMethod(assay.module.url, strUrl, urlVars, "POST");
-					println "callResult for assay "+assay.name
-					println callResult[0]
-					println callResult[0][0]
-					/*def result = []
-					callResult.each{ cR ->
-						Map map = [:]
-						cR.each{ key, val ->
-							map.put(key, val)
-						}
-						result.add(map)
+					int upto = 5
+					if(callResult[0].size()<upto){
+						upto = callResult.size()
 					}
-					if (result != null) {
-						if (result.size() != 0) {
-							mapResultsForAssay.put(featureInfo.name, result)
+					for(int i = 0; i < upto; i++){
+						println i+": "+callResult[0][i]
+						println i+": "+callResult[1][i]
+						println i+": "+callResult[2][i]
+					}
+					def result = [:]
+					pair.value.each{ feature ->
+						//Map mapSampleTokenTo
+					}
+					callResult.eachWithIndex{ cR, ind ->
+						List list = []
+						cR.each{ cRItem ->
+							println "I found " + cRItem
+							Map map = [:]
+							cRItem.each{ key, val ->
+								println "But then I found " + key + " -> " + val
+								map.put(key, val)
+							}
+							list.add(map)
 						}
-					}*/
+						
+						result.add(list)
+					}
+					if (callResult != null) {
+						if (callResult.size() != 0) {
+							mapResultsForAssay.put(assay, result)
+						}
+					}
 				} catch (Exception e) {
 					blacklistedModules.add(assay.module.id)
 					log.error("CookDataController: getDataFromModules: " + e)
@@ -480,5 +491,23 @@ class CookdataController {
 			}
 		}
 		return mapResults
+	}
+	
+	def testEquation = {
+		println "testEquation params: "+params
+		// Tests if an equation can be parsed
+		// Uses arbitrary values for testing purposes.
+		boolean success = true
+		String equation = params.equation.replaceAll("\\s",""); // No whitespace
+		try{
+			double res = cookDataService.computeWithVals(equation, 0, 5.0, 10.0)
+		} catch (Exception e){
+			// No joy 
+			log.error("CookDataController: testEquation: " + e)
+			success = false
+		}
+		Map mapResults = [:]
+		mapResults.put("status", success)
+		render mapResults as JSON
 	}
 }

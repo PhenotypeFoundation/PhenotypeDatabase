@@ -113,7 +113,8 @@ class CookDataService {
 				return dblReturn
 			}
 		} else {
-			println "Received malformed string: unbalanced brackets: "+eq
+			throw new Exception( "computeWithVals encountered a malformed equation: " + eq )
+			println "computeWithVals encountered a malformed equation: "+eq
 		}
 		
 		// Check for A
@@ -127,10 +128,9 @@ class CookDataService {
 			dblReturn = dblB
 			return dblReturn
 		}
-		
-		// If we get here, nothing has fired
-		dblReturn = -1.0
-		return dblReturn
+
+		throw new Exception( "computeWithVals encountered an equation it failed to parse: " + eq )
+		println "computeWithVals encountered an equation it failed to parse: "+eq
 	}
 	
 }
