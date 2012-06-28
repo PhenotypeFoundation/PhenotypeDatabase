@@ -283,8 +283,10 @@ println "9 :: ${System.currentTimeMillis() - startTime}"
         // Formatting the data
         fields += formatGSCFFields(type, collection, source, category)
 
+        // Outcommented this part to speed up feature fetching at expense of the possibility of presenting empty fields to the user
+
         // Here we will remove those fields, whose set of datapoints only contain null
-        def fieldsToBeRemoved = []
+        /*def fieldsToBeRemoved = []
         fields.each { field ->
             def fieldData = getFieldData(study, study.samples, field.id)
             fieldData.removeAll([null])
@@ -293,7 +295,7 @@ println "9 :: ${System.currentTimeMillis() - startTime}"
                 fieldsToBeRemoved << field
             }
         }
-        fields.removeAll(fieldsToBeRemoved)
+        fields.removeAll(fieldsToBeRemoved)*/
 
         return fields
     }
