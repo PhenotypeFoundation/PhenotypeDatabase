@@ -1,5 +1,7 @@
 package dbnp.calculation
 
+import org.apache.jasper.compiler.Node.ParamsAction;
+
 import grails.plugins.springsecurity.Secured;
 import dbnp.authentication.AuthenticationService;
 import dbnp.studycapturing.Study;
@@ -112,16 +114,20 @@ class CookdataController {
 				success()
 			}
 			on("next") {
+				println params
 				flow.study = Study.get(params.selectStudy) 
 				flow.eventGroups = EventGroup.findAllByParent(flow.study)
+				flow.assays = [];
+				flow.study.assays.each{
+					if(params["assay_"+it.id].equals("on")) {
+						//println "ASSAY ADDED: "+it
+						flow.assays.add(it);
+					}
+				}
 				flow.samplingEvents = SamplingEvent.findAllByParent(flow.study)
 				flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
 				flow.samplingEventFields = retrieveInterestingFieldsList(flow.samplingEvents)
 				
-				println flow.eventGroups
-				println flow.samplingEvents
-				println flow.samplingEventTemplates
-				println flow.samplingEventFields
 			}.to "pageTwo"
 		}
 
@@ -222,7 +228,7 @@ class CookdataController {
 				}
 				*/
 				// Check which assays we need.
-				flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents)
+				flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents, flow.assays)
 				
 				// For each assay, call related modules and ask for features
 				flow.mapFeaturesPerAssay = getFeaturesFromModules(flow.assays)
@@ -373,45 +379,49 @@ class CookdataController {
 	 * Unfortunately the fastest way seems to be checking for each assay, if they have a sample that is in one of the selected samplingEvents.
 	 * This involves requesting a lot of samples from the database.
 	 */
-	private List getInterestingAssays(Study study, List samplingEvents){
+	private List getInterestingAssays(Study study, List samplingEvents, List lstAssays) {
 		List assays = []
 		int numAssays = study.assays.size()
-		int numSEvents = samplingEvents.size()
+		int numSEvents = samplingEvents.size();
 		for(int i = 0; i < numAssays; i++){
 			def assay =  study.assays[i]
-			def listAssaySamples = []
-			assay.samples.each{
-				listAssaySamples << it
-			}
-			
-			if(assay.samples.size()==0){
-				// No samples in the assay, so not an interesting assay
-				continue
-			}
-			
-			boolean success = false
-			for(int j = 0; j <numSEvents; j++){
-				if(success){
-					break
+			if(lstAssays.contains(assay)) {
+				
+				def listAssaySamples = []
+				assay.samples.each{
+					listAssaySamples << it
 				}
 				
-				SamplingEvent event = samplingEvents[j]
-				int numEventSamples = event.samples.size()
-				for(int k = 0; k < numEventSamples; k++){
-					List listEventSamples = []
-					event.samples.each{
-						listEventSamples << it
-					}
-
-					Sample sample = listEventSamples[k]
-					if(listAssaySamples.contains(sample)){
-						success = true
+				if(assay.samples.size()==0){
+					// No samples in the assay, so not an interesting assay
+					continue
+				}
+				
+				boolean success = false
+				for(int j = 0; j <numSEvents; j++){
+					if(success){
 						break
 					}
+					
+					SamplingEvent event = samplingEvents[j]
+					int numEventSamples = event.samples.size()
+					for(int k = 0; k < numEventSamples; k++){
+						List listEventSamples = []
+						event.samples.each{
+							listEventSamples << it
+						}
+	
+						Sample sample = listEventSamples[k]
+						if(listAssaySamples.contains(sample)){
+							success = true
+							break
+						}
+					}
 				}
-			}
-			if(success){
-				assays << assay
+				if(success){
+					assays << assay
+				}
+				
 			}
 		}
 		return assays
