@@ -126,7 +126,7 @@ class RegisterController {
 	}
 
 	protected String generateLink(String action, linkParams) {
-        createLink(controller: 'register', action: action, params: linkParams)
+        createLink(controller: 'register', action: action, params: linkParams, absolute: true)
 	}
 
 	protected String evaluate(s, binding) {
