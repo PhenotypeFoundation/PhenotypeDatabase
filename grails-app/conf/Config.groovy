@@ -56,7 +56,7 @@ log4j = {
 	//    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
 	//}
 	appenders {
-		rollingFile name: "stacktrace", maxFileSize: 1024, file: "${userHome}/${appName}-${grails.util.GrailsUtil.environment}.log"
+		rollingFile name: "stacktrace", maxFileSize: 1024, file: "/tmp/gscf-${grails.util.GrailsUtil.environment}.log"
 	}
 
 	error 'org.codehaus.groovy.grails.web.servlet',  //  controllers
