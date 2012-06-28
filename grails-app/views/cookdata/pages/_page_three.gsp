@@ -81,9 +81,9 @@
 			// Add selected styling to this row
 			$(that).addClass("rowselected");
 			// Add the title of the current dataset to the settings
-			$(".datasetTitleHere").html($(that).find(".datasetname").val());
+			$(".datasetTitleHere").html( $(that).find(".datasetname").val() );
 			// Add the equation of the current dataset to the settings
-			$("#calculatorInput").val($(that).find(".equation").val());
+			$("#calculatorInput").val( $(that).find(".equation").val() );
 			// Add the equationtype of the current dataset to the settings
 			$("#calculatorRadios input[value="+$(that).find(".aggregation").val()+"]").attr("CHECKED","CHECKED");
 			// Remove the validate img
@@ -96,7 +96,9 @@
 			var strGroupSelect = strGroupSelect + $(that).find(".groupBselection").val();
 			var arrGroupSelect = strGroupSelect.split(".");
 
+			// Uncheck all
 			$("#sampleTable input[type=checkbox]").attr("CHECKED",false);
+			// Check the ones representing the current selected row
 			$.each(arrGroupSelect, function() {
 		    	$("#sampleTable input[name="+this+"]").attr("CHECKED",true);
 		   	});
@@ -113,7 +115,9 @@
 					.append('<td><span class="equationshow"></span>           <input type="hidden" class="equation"        name="dataset_equa" value="" /></td>')
 					.append('<td><span class="aggregationshow">average</span> <input type="hidden" class="aggregation"     name="dataset_aggr" value="average" /></td>');
 			$("#addnewdatasetrow").before(newRow);
+			// Click this new row to select it (trigger rowClick())
 			newRow.click();
+
 			datasetCounter = datasetCounter + 1;
 		}
 
@@ -124,13 +128,17 @@
 				optionChecked.parent().parent().remove();
 				$("#settingsDivBlurr").show();
 			}
+			// Clear some settings
 			$(".datasetTitleHere").html('...');
+			$("#sampleTable input[type=checkbox]").attr("CHECKED",false);
+			$("#calculatorInput").val("");
 		}
 
 		// Function that is called each time the "duplicate dataset" link is clicked
 		function duplicateRow() {
 			var optionChecked = $("#datasettable input.radiobutton:checked");
 			if(optionChecked.size()>0) {
+				// If a row is selected, clone (incl data) this row
 				var newRow = optionChecked.parent().parent().clone(true);
 				$("#datasettable .rowselected").removeClass("rowselected");
 				$("#addnewdatasetrow").before(newRow);
@@ -145,7 +153,7 @@
 			$(".datasetTitleHere").html($(that).val());
 		}
 
-		// Function that is called 
+		// Function that is called when an eventgroupcheckbox is checked or unchecked
 		function checkSampleGroup() {
 			var countA = 0;
 			var countB = 0;
@@ -183,12 +191,14 @@
 			$("#datasettable .rowselected .groupBselection").val( strGroupB );
 		}
 
+		// Function that is called when a normal button of the equation editor is clicked or when there is typed in the equation textbox
 		function addSymbol(symbol){
 			$("#calculatorInput").val($("#calculatorInput").val()+symbol);
-			$("#datasettable .rowselected .equation").val($("#calculatorInput").val());
-			$("#datasettable .rowselected .equationshow").html($("#calculatorInput").val());
+			$("#datasettable .rowselected .equation").val( $("#calculatorInput").val() );
+			$("#datasettable .rowselected .equationshow").html( $("#calculatorInput").val() );
 		}
-		
+
+		// Function that is called when the validate button is pressed
 		function validateEquation(){
 			$.ajax({
 				url: 'testEquation',
@@ -205,7 +215,8 @@
 				}
 			});
 		}
-		
+
+		// Function that is called when the aggregation option is changed
 		function changeAggr(that) {
 			$("#datasettable .rowselected .aggregation").val($(that).val());
 			$("#datasettable .rowselected .aggregationshow").html($(that).val());
@@ -312,7 +323,7 @@
 				<button type="button" onclick="validateEquation();" id="buttonAddEquation">Validate equation</button>
 			</div>
 			<div>
-				<input id="calculatorInput" type="text"></input>
+				<input id="calculatorInput" type="text" onkeyup="addSymbol('');"></input>
 			</div>
 		</div>
 		<div id="settingsDivBlurr"></div>

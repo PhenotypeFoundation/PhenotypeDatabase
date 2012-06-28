@@ -1,7 +1,6 @@
 <%@ page import="org.dbnp.gdt.RelTime" %>
 <%@ page import="org.dbnp.gdt.TemplateFieldType" %>
 <af:page>
-    <a href="#" onclick="$('#0_0').attr('CHECKED','CHECKED');$('#1_1').attr('CHECKED','CHECKED');$('#2_2').attr('CHECKED','CHECKED');$('#3_3').attr('CHECKED','CHECKED');$('input.prevnext[name=next]').click();">REMOVE THIS LINK</a>
 	<h1>Page Two</h1>
 	<p>
 		<h2>Please select one or more event groups, per sampling event:</h2>

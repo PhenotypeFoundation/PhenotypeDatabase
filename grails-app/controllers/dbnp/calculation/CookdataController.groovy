@@ -76,7 +76,7 @@ class CookdataController {
 			flow.quickSave = true;
 			
 			flow.studies = Study.giveReadableStudies(authenticationService.getLoggedInUser())
-
+			
 			success()
 		}
 
@@ -107,7 +107,7 @@ class CookdataController {
 				flow.user = authenticationService.getLoggedInUser()
 				flow.studies = Study.giveReadableStudies(flow.user)
 				// TODO: check if readable for this user
-				
+								
 				flow.page = 1
 				success()
 			}
@@ -117,6 +117,11 @@ class CookdataController {
 				flow.samplingEvents = SamplingEvent.findAllByParent(flow.study)
 				flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
 				flow.samplingEventFields = retrieveInterestingFieldsList(flow.samplingEvents)
+				
+				println flow.eventGroups
+				println flow.samplingEvents
+				println flow.samplingEventTemplates
+				println flow.samplingEventFields
 			}.to "pageTwo"
 		}
 
@@ -190,8 +195,14 @@ class CookdataController {
 			}
 			on("next"){
 				println "p3 next params: " + params
+				println "dataset names" + params.dataset_name
+				println "dataset equa" + params.dataset_equa
+				println "dataset aggr" + params.dataset_aggr
+				println "dataset grpA" + params.dataset_grpA
+				println "dataset grpB" + params.dataset_grpB
 				flow.mapSelectionSets = ["A":[], "B":[]]
 				flow.mapEquations = [:]
+				/*
 				params.each{ key, val ->
 					if(val=="on"){
 						def splitKey = key.split("_")
@@ -209,6 +220,7 @@ class CookdataController {
 						flow.mapEquations[splitKey[2]].put(splitKey[1], val)
 					}
 				}
+				*/
 				// Check which assays we need.
 				flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents)
 				
@@ -502,7 +514,7 @@ class CookdataController {
 	}
 	
 	def testEquation = {
-		println "testEquation params: "+params
+		//println "testEquation params: "+params
 		// Tests if an equation can be parsed
 		// Uses arbitrary values for testing purposes.
 		boolean success = true
@@ -516,6 +528,22 @@ class CookdataController {
 		}
 		Map mapResults = [:]
 		mapResults.put("status", success)
+		render mapResults as JSON
+	}
+	
+	def getAssays = {
+		//println "getAssays params: "+params
+		// Get the assays of a study
+		
+		def study = Study.get(params.selectStudy)
+		def assayList = [];
+		study.assays.each{
+			assayList.add([name: it.name, assayUUID: it.assayUUID, modulename: it.module.name, id: it.id]);
+		}
+		
+		Map mapResults = [:]
+		mapResults.put("assays", assayList)
+		mapResults.put("studyId", study.id)
 		render mapResults as JSON
 	}
 }
