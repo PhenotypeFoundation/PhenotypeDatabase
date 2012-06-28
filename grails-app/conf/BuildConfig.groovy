@@ -38,6 +38,10 @@ grails.project.dependency.resolution = {
 		compile 'org.apache.poi:poi:3.7'
 		compile 'org.apache.poi:poi-ooxml:3.7'
 		compile 'org.apache.poi:poi-ooxml-schemas:3.7'
+
+        // quartz jar is not packaged in the war properly
+        // make sure to pull it in
+        compile 'org.quartz-scheduler:quartz:1.8.4'
     }
 	plugins {
 		compile(
