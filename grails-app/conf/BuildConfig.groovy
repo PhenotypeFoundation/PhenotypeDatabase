@@ -78,7 +78,7 @@ grails.project.dependency.resolution = {
 
         // add { transative = false } to ignore dependency transition
 
-        runtime ':grails-melody:1.11'
+//        runtime ':grails-melody:1.11'
 	}
 }
 
