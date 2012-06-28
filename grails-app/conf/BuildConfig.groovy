@@ -21,70 +21,51 @@ grails.project.dependency.resolution = {
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
-        grailsPlugins()
-        grailsHome()
         grailsCentral()
+        grailsRepo "http://grails.org/plugins"
 
-        // uncomment the below to enable remote dependency resolution
-        // from public Maven repositories
-        //mavenLocal()
-		mavenCentral()
-		mavenRepo "http://nexus.nmcdsp.org/content/repositories/releases"
-//		mavenRepo "http://snapshots.repository.codehaus.org"
-		mavenRepo "http://repository.codehaus.org"
-		mavenRepo "http://download.java.net/maven/2/"
-		mavenRepo "http://repository.jboss.org"
-		mavenRepo "http://maven.nuxeo.org/nexus/content/repositories/public"
-
-        //mavenRepo "http://snapshots.repository.codehaus.org"
-        //mavenRepo "http://repository.codehaus.org"
-        //mavenRepo "http://download.java.net/maven/2/"
-        //mavenRepo "http://repository.jboss.com/maven2/"
+        mavenCentral()
+        mavenRepo "http://nexus.nmcdsp.org/content/repositories/releases"
+        mavenRepo "http://repository.springsource.com/maven/bundles/release"
+        mavenRepo "http://repository.springsource.com/maven/bundles/external"
+        mavenRepo "http://repository.springsource.com/maven/libraries/release"
+        mavenRepo "http://repository.springsource.com/maven/libraries/external"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.5'
-//		build 'org.codehaus.gpars:gpars:0.11'
 		runtime 'postgresql:postgresql:9.1-901.jdbc3'
 		compile 'org.apache.poi:poi:3.7'
 		compile 'org.apache.poi:poi-ooxml:3.7'
 		compile 'org.apache.poi:poi-ooxml-schemas:3.7'
-//		compile 'xmlbeans:xbean:2.2.0'
-
-//		compile 'org.apache.poi:poi:3.7'
-//		compile 'org.apache.poi:poi-ooxml:3.7'
-//		compile 'org.apache.poi:poi-ooxml-schemas:3.7'
-//		http://repo1.maven.org/maven2/xmlbeans/xbean/2.2.0/xbean-2.2.0.jar
-//		http://repo1.maven.org/maven2/org/apache/poi/poi-ooxml/3.7/poi-ooxml-3.7.jar
-//		https://maven.nuxeo.org/nexus/content/repositories/public/org/jrobin/jrobin/1.5.9/jrobin-1.5.9.jar
     }
 	plugins {
-		compile(":hibernate:$grailsVersion")
-		compile ':tomcat:1.3.7.2'
-		compile ':jquery:latest.integration'
-		compile ':grom:latest.integration'
-		compile ':ajaxflow:latest.integration'
-		compile ':crypto:2.0'
-		compile ':spring-security-core:1.1.2'
-		compile(':gdt:0.2.2') {
-			// disable plugin dependency transition because it's horribly broken
-			// note: this assumes that ajaxflow, jquery and cryto stay included
-			transitive = false
-		}
+		compile(
+                ":hibernate:$grailsVersion",
+                ":tomcat:$grailsVersion",
+                ":jquery:latest.integration",
 
-        compile(':gdtimporter:0.4.6.7') {
-            // see comment above on gdt, gdtimporter also requires
-            // spring security core (and shouldn't really be a plugin)
-            transitive = false
-        }
-		compile ':famfamfam:1.0.1'
-		compile ':jumpbar:0.1.5'
-		compile ':mail:1.0'
+                ":grom:latest.integration",
 
-		compile ':webflow:1.3.7'
+                ":webflow:1.3.8",
+                ":ajaxflow:latest.integration",
 
-//		compile ':trackr:0.6.4'
-//		runtime ':grails-melody:1.11'
+                ":crypto:2.0",
+                ":spring-security-core:1.1.2",
+
+                ":gdt:0.3.0",
+                ":gdtimporter:0.5.0",
+
+                ":famfamfam:1.0.1",
+
+//                ":trackr:0.6.4",
+
+                ":jumpbar:0.1.5"
+        )
+
+        // add { transative = false } to ignore dependency transition
+
+        runtime ':grails-melody:1.11'
 	}
 }
 
@@ -92,6 +73,6 @@ grails.project.dependency.resolution = {
 //grails.plugin.location.'grom' = '../../4np/grails-grom'
 //grails.plugin.location.'ajaxflow' = '../ajaxflow'
 //grails.plugin.location.'ajaxflow' = '../../4np/grails-ajaxflow'
-//grails.plugin.location.'gdt' = '../gdt'
+//grails.plugin.location.'gdt' = '../GDT'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
-//grails.plugin.location.'gdtimporter' = '../gdtimporter'
+//grails.plugin.location.'gdtimporter' = '../GDTImporter'
