@@ -60,9 +60,12 @@ grails.project.dependency.resolution = {
 
                 ":mail:1.0",
 
+//                ":grails-melody:1.13",
 //                ":trackr:0.6.4",
 
-                ":jumpbar:0.1.5"
+                ":jumpbar:0.1.5",
+
+                ":quartz:1.0-RC2"
         )
 
         // add { transative = false } to ignore dependency transition
