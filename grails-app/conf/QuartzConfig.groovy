@@ -22,7 +22,7 @@ quartz {
     waitForJobsToCompleteOnShutdown = true
 
     // monitor jobs in melody
-    exposeSchedulerInRepository = true
+    exposeSchedulerInRepository = false
 
     props {
         scheduler.skipUpdateCheck = true

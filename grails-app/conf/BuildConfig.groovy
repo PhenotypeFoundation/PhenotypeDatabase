@@ -41,7 +41,11 @@ grails.project.dependency.resolution = {
 
         // quartz jar is not packaged in the war properly
         // make sure to pull it in
-        compile 'org.quartz-scheduler:quartz:1.8.4'
+        compile('org.quartz-scheduler:quartz:1.8.4') {
+            // resolve SLF4J version conflict:
+            // SLF4J: The requested version 1.5.8 by your slf4j binding is not compatible with [1.6]
+            excludes([ group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'])
+        }
     }
 	plugins {
 		compile(
@@ -74,7 +78,7 @@ grails.project.dependency.resolution = {
 
         // add { transative = false } to ignore dependency transition
 
-        runtime ':grails-melody:1.11'
+//        runtime ':grails-melody:1.11'
 	}
 }
 
