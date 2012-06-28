@@ -58,6 +58,8 @@ grails.project.dependency.resolution = {
 
                 ":famfamfam:1.0.1",
 
+                ":mail:1.0",
+
 //                ":trackr:0.6.4",
 
                 ":jumpbar:0.1.5"
