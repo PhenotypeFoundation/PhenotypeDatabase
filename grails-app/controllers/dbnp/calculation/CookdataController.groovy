@@ -102,7 +102,7 @@ class CookdataController {
             on("next") {
                 println params
                 flow.study = Study.get(params.selectStudy)
-                flow.eventGroups = EventGroup.findAllByParent(flow.study)
+                flow.eventGroups = flow.study.eventGroups // retain order of event groups as defined in study
                 flow.assays = [];
                 flow.study.assays.each{
                     if(params["assay_"+it.id].equals("on")) {
@@ -110,7 +110,7 @@ class CookdataController {
                         flow.assays.add(it);
                     }
                 }
-                flow.samplingEvents = SamplingEvent.findAllByParent(flow.study)
+                flow.samplingEvents = flow.study.samplingEvents // sampling events order will be retained as defined in study
                 flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
                 flow.samplingEventFields = retrieveInterestingFieldsList(flow.samplingEvents)
 
@@ -227,7 +227,7 @@ class CookdataController {
                     }
                     */
                 // Check which assays we need.
-                flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents, flow.assays)
+                //flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents, flow.assays)
 
 
 
@@ -257,18 +257,24 @@ class CookdataController {
                     ]
                     listToBeComputed.add(mapInfo)
                 }
-
-                // Check which assays we need.
-                flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents, flow.assays)
-
-                Map mapSampleTokenToMeasurementPerFeature = getDataFromModules(flow.assays, samples)
-                flow.results = getResults(listToBeComputed, mapSampleTokenToMeasurementPerFeature)
-                flow.results.each{ pair ->
-                    println pair[0].aggr+" for "+pair[0].datasetName+" & "+pair[0].equation
-                    pair[1].each{ feature, value ->
-                        println "\t"+feature+" -> "+value
-                    }
-                }
+	            println listToBeComputed
+	            try {
+	                // Check which assays we need.
+	                flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents, flow.assays)
+	                Map mapSampleTokenToMeasurementPerFeature = getDataFromModules(flow.assays, samples)
+	                flow.results = getResults(listToBeComputed, mapSampleTokenToMeasurementPerFeature)
+	                flow.results.each{ pair ->
+	                    println pair[0].aggr+" for "+pair[0].datasetName+" & "+pair[0].equation
+	                    pair[1].each{ feature, value ->
+	                        println "\t"+feature+" -> "+value
+	                    }
+	                }
+	            }
+	            catch (Exception e) {
+		            flash.message = e.getMessage()
+		            error()
+	            }
+	            success()
             }.to "pageFour"
             on("previous"){
                 //flow.mapSelectionSets = [:]
@@ -397,30 +403,41 @@ class CookdataController {
             def dblResult
             switch(item.aggr){
                 case "average":
-                    //println "average for "+item.datasetName+" & "+item.equation
+                    println "average for "+item.datasetName+" & "+item.equation
 
                     String equation = item.equation.replaceAll("\\s","") // No whitespace
-                    //println "mapSTokenToMsrmentsPerF size: "+mapSTokenToMsrmentsPerF.size()
-                    mapSTokenToMsrmentsPerF.each{ feature, mapStToM ->
-                        //println "now for "+feature
-                        List dataA = []
+                    println "mapSTokenToMsrmentsPerF size: "+mapSTokenToMsrmentsPerF
+                    // Per feature, map the sample tokens to measurements
+	                mapSTokenToMsrmentsPerF.each{ feature, mapStToM ->
+                        println "now for "+feature
+                        println mapStToM
+	                    List dataA = []
                         item.samplesA.each{ s ->
-                            dataA.add(mapStToM[s.sampleUUID])
+	                        def m = mapStToM[s.sampleUUID]
+                            if (m) dataA.add(m)
                         }
-                        double avgA = cookdataService.computeMean(dataA)
+                        if (dataA.size() == 0) {
+	                        throw new IllegalArgumentException("The samples from group A of dataset ${item.datasetName} do not have any measurements for ${feature}. Cannot compute average.")
+                        }
+	                    double avgA = cookdataService.computeMean(dataA)
                         //println "avgA: "+avgA+" dataA size: "+dataA.size()
                         dataA = []
                         List dataB = []
                         item.samplesB.each{ s ->
-                            dataB.add(mapStToM[s.sampleUUID])
+	                        def m = mapStToM[s.sampleUUID]
+	                        if (m) dataB.add(m)
                         }
-                        double avgB = cookdataService.computeMean(dataB)
+		                if (dataB.size() == 0) {
+			                throw new IllegalArgumentException("The samples from group B of dataset ${item.datasetName} do not have any measurements for ${feature}. Cannot compute average.")
+		                }
+		                double avgB = cookdataService.computeMean(dataB)
                         //println "avgB: "+avgB+" dataB size: "+dataB.size()
                         dataB = []
                         resultPerFeature.put(
                                 feature,
                                 cookdataService.computeWithVals(equation, 0, avgA, avgB)
                         )
+		                println resultPerFeature
                     }
                     break
 
@@ -570,7 +587,7 @@ class CookdataController {
     }
 
     def testEquation = {
-        //println "testEquation params: "+params
+        println "testEquation params: "+params
         // Tests if an equation can be parsed
         // Uses arbitrary values for testing purposes.
         boolean success = true
