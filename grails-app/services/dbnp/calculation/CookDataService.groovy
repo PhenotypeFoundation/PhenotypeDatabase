@@ -105,7 +105,7 @@ class CookdataService {
                 return dblReturn
             }
         } else {
-            throw new Exception( "computeWithVals encountered a malformed equation: " + eq )
+            throw new IllegalArgumentException( "computeWithVals encountered a malformed equation: " + eq )
             println "computeWithVals encountered a malformed equation: "+eq
         }
 
@@ -121,7 +121,7 @@ class CookdataService {
             return dblReturn
         }
 
-        throw new Exception( "computeWithVals encountered an equation it failed to parse: " + eq )
+        throw new IllegalArgumentException( "computeWithVals encountered an equation it failed to parse: " + eq )
         println "computeWithVals encountered an equation it failed to parse: "+eq
     }
 

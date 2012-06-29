@@ -11,17 +11,42 @@
  * $Date:  2010-12-08 15:12:54 +0100 (Wed, 08 Dec 2010) $
  */
 %>
-<af:page>
-<h1>Oops!</h1>
-<p>
-	We encountered an problem storing your data! You can either
-	<af:ajaxButton name="toPageFive" value="try again" afterSuccess="onPage();" class="prevnext" />
-	or file a bugreport.
-</p>
-<p>
-	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ultricies sapien vestibulum mi mattis sed mollis lorem hendrerit. Sed pretium dignissim placerat. Maecenas ut lorem dui, nec lacinia massa. Nunc pharetra justo sed purus fermentum lobortis. Quisque ac ante at sapien faucibus feugiat. Aliquam lacus tortor, gravida eget mollis quis, lacinia eu enim. Phasellus vel neque neque, rhoncus volutpat erat. Aliquam sodales porttitor urna, sed volutpat ipsum lacinia vitae. Nam pretium, eros fringilla vehicula congue, erat quam congue est, at feugiat ante ante nec magna. Pellentesque placerat facilisis massa in venenatis. Proin turpis lorem, viverra at posuere id, porta a justo. Quisque consectetur enim at justo dapibus pulvinar.
-</p>
-<p>
-	Cras tristique iaculis massa ac semper. Morbi malesuada pellentesque magna, nec pellentesque risus pretium at. Nullam eros velit, iaculis eget porta nec, euismod vitae diam. Maecenas tincidunt fermentum erat, sit amet aliquet ligula luctus sed. Vestibulum sed viverra metus. In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aliquam dictum, lacus ac placerat condimentum, leo est consequat velit, et euismod augue leo ut leo. Sed blandit mi sed tortor elementum in placerat tortor pellentesque. Donec diam lorem, elementum vitae eleifend eget, suscipit id magna. Pellentesque nunc nulla, aliquam vel lobortis quis, ullamcorper quis eros. Maecenas cursus, orci a accumsan pulvinar, velit est adipiscing arcu, ac fermentum ligula felis sit amet velit. Pellentesque ac mauris a nisl fermentum vestibulum a a est. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Praesent a magna elit.
-</p>
-</af:page>
+<g:if test="${wizardErrors}">
+  <div id="wizardError" class="error" title="errors">
+    <g:each in="${wizardErrors}" var="error" status="e">
+      <p>
+        <g:if test="${!e}"><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span></g:if>
+        ${error.value['key']} &rarr; ${error.value['value']}
+      </p>
+    </g:each>
+  </div>
+  <script type="text/javascript">
+    // mark error fields
+    <g:each in="${wizardErrors}" var="error">
+    var element = $("input:[name='${error.key}'], input:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], select:[name='${error.key}'], select:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], textarea:[name='${error.key}'], textarea:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}']");
+    <g:if test="${error.value['dynamic']}">
+    element.addClass('error');
+    </g:if><g:else>
+    element.parent().parent().removeClass('required');
+    element.parent().parent().addClass('error');
+    </g:else>
+    </g:each>
+
+    // show error dialog
+    var we = $("div#wizardError");
+    we.dialog({
+      modal: true,
+      width: 600,
+      maxHeight: 400,
+      open: function(event, ui) {
+        $(this).css({'max-height': 400, 'overflow-y': 'auto'});
+      },
+      buttons: {
+        Ok: function() {
+          $(this).dialog('close');
+          we.remove();
+        }
+      }
+    });
+  </script>
+</g:if>

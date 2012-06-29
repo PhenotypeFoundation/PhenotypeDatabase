@@ -271,7 +271,8 @@ class CookdataController {
 	                }
 	            }
 	            catch (Exception e) {
-		            flash.message = e.getMessage()
+		            println e.getMessage()
+		            flash.wizardErrors = ["dataset calculation error": e.getMessage()]
 		            error()
 	            }
 	            success()
