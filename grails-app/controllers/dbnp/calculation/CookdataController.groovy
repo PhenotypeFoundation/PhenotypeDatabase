@@ -361,21 +361,6 @@ class CookdataController {
 
         }
 
-
-	    downloadExcel {
-		    println params
-		    println flow.results
-		    def filename = 'export.csv'
-		    //HttpServletResponse response = (HttpServletResponse) servletContext.getServlets()[0]. GrailsApplication.ge context.getResponse();
-		    HttpServletResponse r = response;
-		    r.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
-		    r.setContentType("application/octet-stream")
-
-		    assayService.exportRowWiseDataToCSVFile( [['r0c0','r0c1'],['r1c0','r1c1']], response.getOutputStream() )
-
-		    r.outputStream.flush()
-	    }
-
         // last wizard page
         finalPage {
             render(view: "_final_page")
@@ -388,7 +373,12 @@ class CookdataController {
         }
     }
 
-
+	def downloadExcel = {
+		response.setHeader "Content-disposition", "attachment;filename=\"${filename}\""
+		response.setContentType "application/octet-stream"
+		assayService.exportRowWiseDataToCSVFile( [['r0c0','r0c1'],['r1c0','r1c1']], response.getOutputStream() )
+		response.outputStream.flush()
+	}
 
     private List retrieveSamplesForGroup(listOfSelectionsTripleIndexes, selectionTriples, samplingEvents, eventGroups){
         List samples = []
