@@ -56,11 +56,10 @@ class CookdataController {
             // wizard tabs. Also see common/_tabs.gsp for more information
             flow.page = 0
             flow.pages = [
-                    [title: 'Select Study'],
+                    [title: 'Select Assays'],
                     [title: 'Select Sampling Events'],
                     [title: 'Build Datasets'],
-                    [title: 'Select Assays'],
-                    [title: 'Done']
+                    [title: 'Download Data']
             ]
             flow.cancel = true;
             flow.quickSave = true;
@@ -308,36 +307,7 @@ class CookdataController {
                 flow.page = 4
                 success()
             }
-            on("next") {
-                println "p4 next params: " + params
-
-                flow.page = 5
-            }.to "save"
             on("previous").to "pageThree"
-        }
-
-		// save action
-        save {
-            action {
-                // here you can validate and save the
-                // instances you have created in the
-                // ajax flow.
-                try {
-                    // Grom a development message
-                    if (pluginManager.getGrailsPlugin('grom')) ".persisting instances to the database...".grom()
-
-                    // put your bussiness logic in here
-                    success()
-                } catch (Exception e) {
-                    // put your error handling logic in
-                    // here
-                    flow.page = 4
-                    error()
-                }
-            }
-            on("error").to "error"
-            on(Exception).to "error"
-            on("success").to "finalPage"
         }
 
         // render errors

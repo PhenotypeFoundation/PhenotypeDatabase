@@ -22,17 +22,5 @@
                 </td>
             </tr>
         </table>
-        <table>
-            <tr>
-                <th>Feature</th>
-                <th>Result</th>
-            </tr>
-            <g:each in="${pair[1]}" var="pair2">
-                <tr>
-                    <td>${pair2.key}</td>
-                    <td>${pair2.value}</td>
-                </tr>
-            </g:each>
-        </table>
     </g:each>
 </af:page>
