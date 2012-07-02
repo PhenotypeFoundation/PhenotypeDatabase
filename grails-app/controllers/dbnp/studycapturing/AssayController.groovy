@@ -446,7 +446,7 @@ class AssayController {
 			def rowData   = assayService.convertColumnToRowStructure(mergedColumnWiseData)
 
 			// Send headers to the browser so the user can download the file
-			def filename = 'export.csv'
+			def filename = 'export.tsv'
 			response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
 			response.setContentType("application/octet-stream")
 

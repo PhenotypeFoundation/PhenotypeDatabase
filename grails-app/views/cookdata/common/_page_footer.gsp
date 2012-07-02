@@ -20,3 +20,4 @@
 </div>
 <g:render template="common/navigation"/>
 <g:render template="common/refresh_flow"/>
+<g:render template="common/error"/>

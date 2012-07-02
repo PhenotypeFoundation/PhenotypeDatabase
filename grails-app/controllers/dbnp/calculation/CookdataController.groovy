@@ -9,6 +9,7 @@ import dbnp.studycapturing.SamplingEvent;
 import dbnp.studycapturing.EventGroup;
 import dbnp.studycapturing.Sample;
 import grails.converters.JSON
+import javax.servlet.http.HttpServletResponse
 
 /**
  * Cookdata Controller
@@ -24,6 +25,7 @@ class CookdataController {
     def authenticationService
     def moduleCommunicationService
     def cookdataService
+	def assayService
 
     /**
      * index method, redirect to the webflow
@@ -186,6 +188,8 @@ class CookdataController {
                 success()
             }
             on("next"){
+	            flash.wizardErrors = []
+
                 println "p3 next params: " + params
                 println "dataset names" + params.dataset_name
                 println "dataset equa" + params.dataset_equa
@@ -232,22 +236,29 @@ class CookdataController {
 
 
                 for(int k = 0; k < numItems; k++){
-                    params.dataset_grpA[k] = params.dataset_grpA[k].split("\\.")
-                    List samplesA = retrieveSamplesForGroup(
-                            params.dataset_grpA[k],
-                            flow.selectionTriples,
-                            flow.samplingEvents,
-                            flow.eventGroups
-                    )
-                    params.dataset_grpB[k] = params.dataset_grpB[k].split("\\.")
-                    List samplesB = retrieveSamplesForGroup(
-                            params.dataset_grpB[k],
-                            flow.selectionTriples,
-                            flow.samplingEvents,
-                            flow.eventGroups
-                    )
-                    samples.addAll(samplesA)
-                    samples.addAll(samplesB)
+                    List samplesA = []
+	                List samplesB = []
+	                def listA = params.dataset_grpA[k].split("\\.")
+	                println "lijstA: ${listA}"
+                    if (listA) {
+		                samplesA = retrieveSamplesForGroup(
+	                            listA,
+	                            flow.selectionTriples,
+	                            flow.samplingEvents,
+	                            flow.eventGroups
+	                    )
+		                samples.addAll(samplesA)
+                    }
+	                def listB = params.dataset_grpB[k].split("\\.")
+                    if (listB) {
+		                samplesB = retrieveSamplesForGroup(
+	                            listB,
+	                            flow.selectionTriples,
+	                            flow.samplingEvents,
+	                            flow.eventGroups
+	                    )
+                        samples.addAll(samplesB)
+                    }
                     Map mapInfo = [
                             "datasetName" : params.dataset_name[k],
                             "equation" : params.dataset_equa[k],
@@ -257,9 +268,14 @@ class CookdataController {
                     ]
                     listToBeComputed.add(mapInfo)
                 }
+
 	            println listToBeComputed
 	            try {
-	                // Check which assays we need.
+		            // Check if samples are present
+		            if (!samples) {
+			            throw new IllegalArgumentException("The resultset contains no samples!")
+		            }
+		            // Check which assays we need.
 	                flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents, flow.assays)
 	                Map mapSampleTokenToMeasurementPerFeature = getDataFromModules(flow.assays, samples)
 	                flow.results = getResults(listToBeComputed, mapSampleTokenToMeasurementPerFeature)
@@ -269,13 +285,13 @@ class CookdataController {
 	                        println "\t"+feature+" -> "+value
 	                    }
 	                }
+		            success()
 	            }
 	            catch (Exception e) {
-		            println e.getMessage()
-		            flash.wizardErrors = ["dataset calculation error": e.getMessage()]
+		            println "catching ${e.getMessage()}"
+		            flash.wizardErrors << e
 		            error()
 	            }
-	            success()
             }.to "pageFour"
             on("previous"){
                 //flow.mapSelectionSets = [:]
@@ -300,7 +316,7 @@ class CookdataController {
             on("previous").to "pageThree"
         }
 
-        // save action
+		// save action
         save {
             action {
                 // here you can validate and save the
@@ -345,6 +361,21 @@ class CookdataController {
 
         }
 
+
+	    downloadExcel {
+		    println params
+		    println flow.results
+		    def filename = 'export.csv'
+		    //HttpServletResponse response = (HttpServletResponse) servletContext.getServlets()[0]. GrailsApplication.ge context.getResponse();
+		    HttpServletResponse r = response;
+		    r.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
+		    r.setContentType("application/octet-stream")
+
+		    assayService.exportRowWiseDataToCSVFile( [['r0c0','r0c1'],['r1c0','r1c1']], response.getOutputStream() )
+
+		    r.outputStream.flush()
+	    }
+
         // last wizard page
         finalPage {
             render(view: "_final_page")
@@ -357,6 +388,8 @@ class CookdataController {
         }
     }
 
+
+
     private List retrieveSamplesForGroup(listOfSelectionsTripleIndexes, selectionTriples, samplingEvents, eventGroups){
         List samples = []
         listOfSelectionsTripleIndexes.each{ val ->
@@ -367,7 +400,7 @@ class CookdataController {
                         samplingEvents[st[0]], eventGroups[st[1]]
                 )
             } catch(Exception e){
-                println "Big error: "+val+" from "+listOfSelectionsTripleIndexes
+                throw new IllegalArgumentException("Error while creating list of samples (${e.getMessage()}): value ${val} from "+listOfSelectionsTripleIndexes)
             }
         }
         return samples
@@ -407,7 +440,11 @@ class CookdataController {
                     println "average for "+item.datasetName+" & "+item.equation
 
                     String equation = item.equation.replaceAll("\\s","") // No whitespace
-                    println "mapSTokenToMsrmentsPerF size: "+mapSTokenToMsrmentsPerF
+                    if (!equation) {
+	                    throw new IllegalArgumentException("No equation was provided.")
+                    }
+
+	                println "mapSTokenToMsrmentsPerF size: "+mapSTokenToMsrmentsPerF
                     // Per feature, map the sample tokens to measurements
 	                mapSTokenToMsrmentsPerF.each{ feature, mapStToM ->
                         println "now for "+feature
@@ -532,7 +569,7 @@ class CookdataController {
                     }
                 } catch (Exception e) {
                     blacklistedModules.add(assay.module.id)
-                    log.error("CookDataController: getFeaturesFromModules: " + e)
+                    log.error("CookdataController: getFeaturesFromModules: " + e)
                 }
             }
         }
@@ -573,7 +610,7 @@ class CookdataController {
                     }
                 } catch (Exception e) {
                     blacklistedModules.add(assay.module.id)
-                    log.error("CookDataController: getDataFromModules: " + e)
+                    log.error("CookdataController: getDataFromModules: " + e)
                 }
             }
             if(mapTmp!=[:]){
@@ -597,7 +634,7 @@ class CookdataController {
             double res = cookdataService.computeWithVals(equation, 0, 5.0, 10.0)
         } catch (Exception e){
             // No joy
-            log.error("CookDataController: testEquation: " + e)
+            log.error("CookdataController: testEquation: " + e)
             success = false
         }
         Map mapResults = [:]
