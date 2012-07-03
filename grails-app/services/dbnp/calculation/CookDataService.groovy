@@ -52,12 +52,12 @@ class CookdataService {
         return mapReturn
     }
 
-    private double computeWithVals(String eq, int counter, double dblA, double dblB){
+    private double computeWithVals(String eq, double dblA, double dblB){
         double dblReturn = -1.0
         // Check for "(x)"
         if(checkForOpeningAndClosingBrackets(eq)){
             int index0 = eq.indexOf(")")
-            double result = computeWithVals(eq.substring(1, index0), counter+1, dblA, dblB)
+            double result = computeWithVals(eq.substring(1, index0), dblA, dblB)
             dblReturn = result
             return dblReturn
         }
@@ -72,8 +72,8 @@ class CookdataService {
                     eq.size()).indexOf("/")
             if(intOpIndex!=-1){
                 int index0 = intOpIndex+mapParseLHSResults.endIndex
-                double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
-                double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
+                double result1 = computeWithVals(eq.substring(0, index0), dblA, dblB)
+                double result2 = computeWithVals(eq.substring(index0+1, eq.size()), dblA, dblB)
                 dblReturn = result1 / result2
                 return dblReturn
             }
@@ -81,8 +81,8 @@ class CookdataService {
                     eq.size()).indexOf("*")
             if(intOpIndex!=-1){
                 int index0 = intOpIndex+mapParseLHSResults.endIndex
-                double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
-                double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
+                double result1 = computeWithVals(eq.substring(0, index0), dblA, dblB)
+                double result2 = computeWithVals(eq.substring(index0+1, eq.size()), dblA, dblB)
                 dblReturn = result1 * result2
                 return dblReturn
             }
@@ -90,8 +90,8 @@ class CookdataService {
                     eq.size()).indexOf("+")
             if(intOpIndex!=-1){
                 int index0 = intOpIndex+mapParseLHSResults.endIndex
-                double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
-                double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
+                double result1 = computeWithVals(eq.substring(0, index0), dblA, dblB)
+                double result2 = computeWithVals(eq.substring(index0+1, eq.size()), dblA, dblB)
                 dblReturn = result1 + result2
                 return dblReturn
             }
@@ -99,8 +99,8 @@ class CookdataService {
                     eq.size()).indexOf("-")
             if(intOpIndex!=-1){
                 int index0 = intOpIndex+mapParseLHSResults.endIndex
-                double result1 = computeWithVals(eq.substring(0, index0), counter+1, dblA, dblB)
-                double result2 = computeWithVals(eq.substring(index0+1, eq.size()), counter+2, dblA, dblB)
+                double result1 = computeWithVals(eq.substring(0, index0), dblA, dblB)
+                double result2 = computeWithVals(eq.substring(index0+1, eq.size()), dblA, dblB)
                 dblReturn = result1 - result2
                 return dblReturn
             }

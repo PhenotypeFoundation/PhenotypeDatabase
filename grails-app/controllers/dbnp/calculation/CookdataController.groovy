@@ -433,7 +433,7 @@ class CookdataController {
                         dataB = []
                         resultPerFeature.put(
                                 feature,
-                                cookdataService.computeWithVals(equation, 0, avgA, avgB)
+                                cookdataService.computeWithVals(equation, avgA, avgB)
                         )
 		                println resultPerFeature
                     }
@@ -591,7 +591,13 @@ class CookdataController {
         boolean success = true
         String equation = params.equation.replaceAll("\\s",""); // No whitespace
         try{
-            double res = cookdataService.computeWithVals(equation, 0, 5.0, 10.0)
+			println "equation: "+equation
+			println "cookdataService: "+cookdataService
+			println "authenticationService: "+authenticationService
+			println "assayService: "+assayService
+			
+			double res = CookdataService.computeWithVals(equation, 5.0, 10.0)
+            //double res = cookdataService.computeWithVals(equation, 5.0, 10.0)
         } catch (Exception e){
             // No joy
             log.error("CookdataController: testEquation: " + e)
