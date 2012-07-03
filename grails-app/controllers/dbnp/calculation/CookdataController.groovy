@@ -1,7 +1,8 @@
 package dbnp.calculation
 
 import org.apache.jasper.compiler.Node.ParamsAction;
-
+import org.apache.poi.ss.usermodel.*
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import grails.plugins.springsecurity.Secured;
 import dbnp.authentication.AuthenticationService;
 import dbnp.studycapturing.Study;
@@ -9,6 +10,8 @@ import dbnp.studycapturing.SamplingEvent;
 import dbnp.studycapturing.EventGroup;
 import dbnp.studycapturing.Sample;
 import grails.converters.JSON
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletResponse
 
 /**
@@ -26,6 +29,8 @@ class CookdataController {
     def moduleCommunicationService
     def cookdataService
 	def assayService
+	
+	static final int BUFFER = 2048;
 
     /**
      * index method, redirect to the webflow
@@ -59,7 +64,8 @@ class CookdataController {
                     [title: 'Select Assays'],
                     [title: 'Select Sampling Events'],
                     [title: 'Build Datasets'],
-                    [title: 'Download Data']
+                    [title: 'Select Download Format'],
+                    [title: 'Done']
             ]
             flow.cancel = true;
             flow.quickSave = true;
@@ -211,44 +217,44 @@ class CookdataController {
                 flow.mapSelectionSets = ["A":[], "B":[]]
                 flow.mapEquations = [:]
                 
-				// For each dataset and equation, gather the required samples
-				// Package everything up in a map and add the map to listToBeComputed
-                for(int k = 0; k < numItems; k++){
-                    List samplesA = []
-	                List samplesB = []
-	                def listA = params.dataset_grpA[k].split("\\.")
-	                println "lijstA: ${listA}"
-                    if (listA) {
-		                samplesA = retrieveSamplesForGroup(
-	                            listA,
-	                            flow.selectionTriples,
-	                            flow.samplingEvents,
-	                            flow.eventGroups
-	                    )
-		                samples.addAll(samplesA)
-                    }
-	                def listB = params.dataset_grpB[k].split("\\.")
-                    if (listB) {
-		                samplesB = retrieveSamplesForGroup(
-	                            listB,
-	                            flow.selectionTriples,
-	                            flow.samplingEvents,
-	                            flow.eventGroups
-	                    )
-                        samples.addAll(samplesB)
-                    }
-                    Map mapInfo = [
-                            "datasetName" : params.dataset_name[k],
-                            "equation" : params.dataset_equa[k],
-                            "aggr" : params.dataset_aggr[k],
-                            "samplesA" : samplesA,
-                            "samplesB" : samplesB
-                    ]
-                    listToBeComputed.add(mapInfo)
-                }
-
-	            println listToBeComputed
-	            try {
+				try {
+					// For each dataset and equation, gather the required samples
+					// Package everything up in a map and add the map to listToBeComputed
+	                for(int k = 0; k < numItems; k++){
+	                    List samplesA = []
+		                List samplesB = []
+		                def listA = params.dataset_grpA[k].split("\\.")
+	                    if (listA) {
+			                samplesA = retrieveSamplesForGroup(
+		                            listA,
+		                            flow.selectionTriples,
+		                            flow.samplingEvents,
+		                            flow.eventGroups
+		                    )
+			                samples.addAll(samplesA)
+	                    }
+		                def listB = params.dataset_grpB[k].split("\\.")
+	                    if (listB) {
+			                samplesB = retrieveSamplesForGroup(
+		                            listB,
+		                            flow.selectionTriples,
+		                            flow.samplingEvents,
+		                            flow.eventGroups
+		                    )
+	                        samples.addAll(samplesB)
+	                    }
+	                    Map mapInfo = [
+	                            "datasetName" : params.dataset_name[k],
+	                            "equation" : params.dataset_equa[k],
+	                            "aggr" : params.dataset_aggr[k],
+	                            "samplesA" : samplesA,
+	                            "samplesB" : samplesB
+	                    ]
+	                    listToBeComputed.add(mapInfo)
+	                }
+	
+		            //println "listToBeComputed:\n"+listToBeComputed+"\n"
+	            
 		            // Check if samples are present
 		            if (!samples) {
 			            throw new IllegalArgumentException("The resultset contains no samples!")
@@ -257,12 +263,12 @@ class CookdataController {
 	                flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents, flow.assays)
 	                Map mapSampleTokenToMeasurementPerFeature = getDataFromModules(flow.assays, samples)
 	                flow.results = getResults(listToBeComputed, mapSampleTokenToMeasurementPerFeature)
-	                flow.results.each{ pair ->
+	                /*flow.results.each{ pair ->
 	                    println pair[0].aggr+" for "+pair[0].datasetName+" & "+pair[0].equation
-	                    pair[1].each{ feature, value ->
-	                        println "\t"+feature+" -> "+value
+	                    pair[1].each{ value ->
+	                        println "\t"+value
 	                    }
-	                }
+	                }*/
 		            success()
 	            }
 	            catch (Exception e) {
@@ -283,11 +289,23 @@ class CookdataController {
             onRender {
                 // Grom a development message
                 if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_page_four.gsp".grom()
+				session.downloadResultId = null
+				session.results = null
                 flow.page = 4
                 success()
             }
             on("previous").to "pageThree"
+			on("downloadResultAsExcel"){
+				session.downloadResultId = Integer.valueOf(params.downloadResultId)
+				println "downloadResultId: "+session.downloadResultId
+				session.results = flow.results[session.downloadResultId]
+				println "results.size(): "+session.results.size()
+			}.to "downloadResultsAsExcel"
         }
+		
+		downloadResultsAsExcel {
+			redirect(action: 'downloadExcel')
+		}
 
         // render errors
         error {
@@ -296,9 +314,9 @@ class CookdataController {
                 // Grom a development message
                 if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_error.gsp".grom()
 
-                // set page to 4 so that the navigation
-                // works (it is disabled on the final page)
-                flow.page = 4
+                // set page to the number of pages minus one, so that the 
+				// navigation works (it is disabled on the final page)
+                flow.page = 3
             }
             on("next").to "save"
             on("previous").to "pageFour"
@@ -321,12 +339,47 @@ class CookdataController {
             }
         }
     }
-
+	
 	def downloadExcel = {
-		response.setHeader "Content-disposition", "attachment;filename=\"${filename}\""
+		println "entered downloadExcel..."
+		def index = session.downloadResultId
+		def results = session.results
+		// todo: data should start with ["name", results[0].datasetName]
+		def data = results[1]
+		println "data: "+data
+		response.setHeader "Content-disposition", "attachment;filename=\""+results[0].datasetName+".xlsx\""
 		response.setContentType "application/octet-stream"
-		assayService.exportRowWiseDataToCSVFile( [['r0c0','r0c1'],['r1c0','r1c1']], response.getOutputStream() )
+		assayService.exportRowWiseDataToExcelFile(data, response.getOutputStream())
+		response.outputStream.flush()		
+		
+		println "exiting downloadExcel..."
+	}
+
+    def downloadExcelsInZip = {
+		// todo: package multiple files
+		def results = session.results
+		println "entered downloadExcelsInZip..."
+		String strFilename = "results.zip"
+		ByteArrayOutputStream dest = new ByteArrayOutputStream();
+		ZipOutputStream out = new	ZipOutputStream(dest);
+		
+		for (int i=0; i<results.size(); i++) {
+			ZipEntry entry = new ZipEntry(results[i][0].datasetName)
+			out.putNextEntry(entry)
+			Workbook wb = new XSSFWorkbook()
+			Sheet sheet = wb.createSheet()
+			assayService.exportRowWiseDataToExcelSheet( [['r0c0','r0c1'],['r1c0','r1c1']], sheet );
+			wb.write(out)
+		}
+		out.close();
+		dest.flush()
+		dest.close()
+		
+		response.setHeader "Content-disposition", "attachment;filename=\"${strFilename}\""
+		response.setContentType "application/octet-stream"
+		response.outputStream.write(dest.toByteArray())
 		response.outputStream.flush()
+		println "exiting downloadExcelsInZip..."
 	}
 
     private List retrieveSamplesForGroup(listOfSelectionsTripleIndexes, selectionTriples, samplingEvents, eventGroups){
@@ -363,31 +416,26 @@ class CookdataController {
     }
 
     private List getResults(List listToBeComputed, Map mapSTokenToMsrmentsPerF){
-        /*
-           "datasetName" : params.dataset_name[k],
-          "equation" : params.dataset_equa[k],
-          "aggr" : params.dataset_aggr[k],
-          "samplesA" : samplesA,
-          "samplesB" : samplesB
-           */
         List listItemAndFeatureToResult = []
+		
         listToBeComputed.each{ item ->
-            Map resultPerFeature = [:]
+            List listResultAndFeaturePairs = []
+			int intResultCounter = 0;
             def dblResult
             switch(item.aggr){
                 case "average":
-                    println "average for "+item.datasetName+" & "+item.equation
+                    //println "average for "+item.datasetName+" & "+item.equation
 
                     String equation = item.equation.replaceAll("\\s","") // No whitespace
                     if (!equation) {
 	                    throw new IllegalArgumentException("No equation was provided.")
                     }
 
-	                println "mapSTokenToMsrmentsPerF size: "+mapSTokenToMsrmentsPerF
+	                //println "mapSTokenToMsrmentsPerF size: "+mapSTokenToMsrmentsPerF
                     // Per feature, map the sample tokens to measurements
-	                mapSTokenToMsrmentsPerF.each{ feature, mapStToM ->
-                        println "now for "+feature
-                        println mapStToM
+	                mapSTokenToMsrmentsPerF.eachWithIndex{ feature, mapStToM, featureIndex ->
+                        //println "now for "+feature
+                        //println mapStToM
 	                    List dataA = []
                         item.samplesA.each{ s ->
 	                        def m = mapStToM[s.sampleUUID]
@@ -410,18 +458,17 @@ class CookdataController {
 		                double avgB = cookdataService.computeMean(dataB)
                         //println "avgB: "+avgB+" dataB size: "+dataB.size()
                         dataB = []
-                        resultPerFeature.put(
-                                feature,
-                                cookdataService.computeWithVals(equation, avgA, avgB)
-                        )
-		                println resultPerFeature
+						listResultAndFeaturePairs[intResultCounter] = 
+							[feature, cookdataService.computeWithVals(equation, avgA, avgB)]
+		                //println listResultAndFeaturePairs[intResultCounter] 
+						intResultCounter++
                     }
                     break
 
                 default:
                     dblResult = null
             }
-            listItemAndFeatureToResult.add([item, resultPerFeature])
+            listItemAndFeatureToResult.add([item, listResultAndFeaturePairs])
         }
         return listItemAndFeatureToResult
     }
@@ -559,7 +606,6 @@ class CookdataController {
                 }
             }
         }
-        println "mapResults has "+mapResults.size()
         return mapResults
     }
 
