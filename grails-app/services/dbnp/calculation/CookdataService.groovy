@@ -135,10 +135,8 @@ class CookdataService {
         def sumOfValues = 0
         def sizeOfValues = 0
         values.each { value ->
-            if(value!=null){
-                sumOfValues += value
-                sizeOfValues++
-            }
+            sumOfValues += value
+            sizeOfValues++
         }
         return sumOfValues / sizeOfValues
     }
@@ -152,9 +150,7 @@ class CookdataService {
     private double computeMedian(List values){
         List newValues = []
         values.each { value ->
-            if(value!=null){
-                newValues.add(value)
-            }
+            newValues.add(value)
         }
         newValues.sort()
         int listSize = newValues.size() - 1

@@ -210,30 +210,9 @@ class CookdataController {
                 int numItems = params.dataset_equa.size()
                 flow.mapSelectionSets = ["A":[], "B":[]]
                 flow.mapEquations = [:]
-                /*
-                    params.each{ key, val ->
-                        if(val=="on"){
-                            def splitKey = key.split("_")
-                            flow.mapSelectionSets[splitKey[0]].add(
-                                    flow.selectionTriples[
-                                            Integer.valueOf(splitKey[1])
-                                        ]
-                                )
-                        }
-                        if(key.startsWith("eq_")){
-                            def splitKey = key.split("_")
-                            if(!flow.mapEquations.containsKey(splitKey[2])){
-                                flow.mapEquations.put(splitKey[2], [:])
-                            }
-                            flow.mapEquations[splitKey[2]].put(splitKey[1], val)
-                        }
-                    }
-                    */
-                // Check which assays we need.
-                //flow.assays = getInterestingAssays(flow.study, flow.selectedSamplingEvents, flow.assays)
-
-
-
+                
+				// For each dataset and equation, gather the required samples
+				// Package everything up in a map and add the map to listToBeComputed
                 for(int k = 0; k < numItems; k++){
                     List samplesA = []
 	                List samplesB = []
@@ -558,11 +537,11 @@ class CookdataController {
                         Map mapSampleTokenToMeasurement = [:]
                         // [0] contains a list of sampleTokens
                         callResult[0].eachWithIndex{ sample, sampleIndex ->
-                            if(sample!=null){
+                            if(sample!=null && sample.class!=org.codehaus.groovy.grails.web.json.JSONObject$Null){
                                 // We have a sample for this feature
                                 // This sample may have a measurement
                                 def measurement = callResult[2][featureIndex*sampleIndex]
-                                if(measurement!=null){
+                                if(measurement!=null && measurement.class!=org.codehaus.groovy.grails.web.json.JSONObject$Null){
                                     mapTmp[feature].put(sample, measurement)
                                 }
                             }
@@ -591,13 +570,7 @@ class CookdataController {
         boolean success = true
         String equation = params.equation.replaceAll("\\s",""); // No whitespace
         try{
-			println "equation: "+equation
-			println "cookdataService: "+cookdataService
-			println "authenticationService: "+authenticationService
-			println "assayService: "+assayService
-			
-			double res = CookdataService.computeWithVals(equation, 5.0, 10.0)
-            //double res = cookdataService.computeWithVals(equation, 5.0, 10.0)
+            double res = cookdataService.computeWithVals(equation, 5.0, 10.0)
         } catch (Exception e){
             // No joy
             log.error("CookdataController: testEquation: " + e)
