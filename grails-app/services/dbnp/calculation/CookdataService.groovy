@@ -4,19 +4,22 @@
  */
 package dbnp.calculation
 
-import java.util.List;
-import java.util.Map;
+import java.util.List
+import java.util.Map
 import java.lang.Math
 import grails.converters.JSON
-import dbnp.authentication.AuthenticationService;
-import dbnp.studycapturing.Study;
-import dbnp.studycapturing.SamplingEvent;
-import dbnp.studycapturing.EventGroup;
-import dbnp.studycapturing.Sample;
+import dbnp.authentication.AuthenticationService
+import dbnp.studycapturing.Study
+import dbnp.studycapturing.SamplingEvent
+import dbnp.studycapturing.EventGroup
+import dbnp.studycapturing.Sample
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 class CookdataService {
     def authenticationService
     def moduleCommunicationService
+	def assayService
 
 	/* Start of retrieval related functions 
 	 */
@@ -470,4 +473,69 @@ class CookdataService {
             return ((newValues.get(intPointer) + newValues.get(intPointer + 1)) / 2);
         }
     }
+	
+	/* Start of export related functions
+	*/
+   
+   
+   private void writeZipOfAllResults(ZipOutputStream zipOutStream, results){
+	   
+	   /* First, we write out the results for the "average" and "median"
+		* aggregation types.
+		* The resulting file will be called "median_and_average.xlsx"
+		*/
+	   
+	   // listData will be rowwise, and is initialized to the number of
+	   // result sets, plus one cell
+	   List listData = new List[1 + results.size()]
+	   
+	   // Every row will start with a featurename, except the first
+	   // We grab the featurenames from the first result set
+	   // We can do this because all result sets are supposed to describe all
+	   // features
+	   listData[0] = ["name"]
+	   for (int i=0; i<results[0][1].size(); i++) {
+		   listData[i+1] = [results[0][1][i][0]]
+	   }
+	   
+	   // Add the dataset names to the first row
+	   for (int i=0; i<results.size(); i++) {
+		   if(results[i][0].aggr == "average" || results[i][0].aggr == "median"){
+			   listData[0].add(results[i][0].datasetName)
+		   }
+	   }
+	   // Now, we add the results, per dataset, to the row that starts with the
+	   // correct feature name
+	   for (int i=0; i<results.size(); i++) {
+		   if(results[i][0].aggr == "average" || results[i][0].aggr == "median"){
+			   results[i][1].eachWithIndex{ value, index ->
+				   // Offset by one, because of the header row
+				   listData[index+1].add(value[1])
+			   }
+			   
+			   // Will never be read again, so we can remove it from memory
+			   results[i] = null
+		   }
+	   }
+	   
+	   results = null
+	   
+	   // Write the data to a stream
+	   ByteArrayOutputStream fileByteArrOutStream = new ByteArrayOutputStream()
+	   assayService.exportRowWiseDataToExcelFile(listData,	fileByteArrOutStream)
+	   // Write the stream to the zip
+	   zipOutStream.putNextEntry(new ZipEntry("median_and_average.xlsx"))
+	   zipOutStream.write(fileByteArrOutStream.toByteArray());
+	   zipOutStream.closeEntry();
+	   
+	   
+	   
+	   // TODO: write out the results for the "pairwise" aggregation
+	   // Make sure to check for (session.results[i] != null)
+	   
+	   
+	   
+	   // TODO: write out the results for the "measurement" aggregation
+	   // Make sure to check for (session.results[i] != null)
+   }
 }

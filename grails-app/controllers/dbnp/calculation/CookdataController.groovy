@@ -1,14 +1,14 @@
 package dbnp.calculation
 
-import org.apache.jasper.compiler.Node.ParamsAction;
+import org.apache.jasper.compiler.Node.ParamsAction
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import grails.plugins.springsecurity.Secured;
-import dbnp.authentication.AuthenticationService;
-import dbnp.studycapturing.Study;
-import dbnp.studycapturing.SamplingEvent;
-import dbnp.studycapturing.EventGroup;
-import dbnp.studycapturing.Sample;
+import grails.plugins.springsecurity.Secured
+import dbnp.authentication.AuthenticationService
+import dbnp.studycapturing.Study
+import dbnp.studycapturing.SamplingEvent
+import dbnp.studycapturing.EventGroup
+import dbnp.studycapturing.Sample
 import grails.converters.JSON
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -16,7 +16,10 @@ import javax.servlet.http.HttpServletResponse
 
 /**
  * Cookdata Controller
- *
+ * Allows the user to select datasets, combine these with calculations,
+ * and download the results.
+ * 
+ * Uses ajaxflow for the wizard.
  */
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class CookdataController {
@@ -99,6 +102,7 @@ class CookdataController {
                 // Grom a development message
                 if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial: pages/_page_one.gsp".grom()
 
+				// The user should select a study
                 flow.user = authenticationService.getLoggedInUser()
                 flow.studies = Study.giveReadableStudies(flow.user)
                 // TODO: check if readable for this user
@@ -107,14 +111,18 @@ class CookdataController {
                 success()
             }
             on("next") {
-                println params
+                // The user has selected a study
                 flow.study = Study.get(params.selectStudy)
+				
+				// Retrieve the study's metadata, so that the user can refine their
+				// Selection on the next page
                 flow.eventGroups = flow.study.eventGroups // retain order of event groups as defined in study
-                flow.assays = [];
+                flow.assays = []
+				
+				// Only copy those assays that the user has selected on the previous page
                 flow.study.assays.each{
                     if(params["assay_"+it.id].equals("on")) {
-                        //println "ASSAY ADDED: "+it
-                        flow.assays.add(it);
+                        flow.assays.add(it)
                     }
                 }
                 flow.samplingEvents = flow.study.samplingEvents // sampling events order will be retained as defined in study
@@ -135,16 +143,26 @@ class CookdataController {
                 success()
             }
             on("next") {
-                // Each triple will consist of a samplingevent, an eventgroup and the number of samples in that selection
-                List selectionTriples = []
-                
+				/* User has chosen which sampling event and
+				 * event group pairs they wish to compose datasets with
+				 * The user has selected pairs of sampling events and event groups
+				 */
+				
+				
 				/* selectedSamplingEvents will contain only sampling events that occur 
 				 * in selections. It is used for getting the interesting assays later on.
-				 * Does not have a meaningful order. */
+				 * Does not have a meaningful order.
+				 */
 				List selectedSamplingEvents = []
 				
-				// Processing the uer's selections
-                params.each{ key, val ->
+				/* We will compose a list of selection triples for use later in the flow,
+				 * based ib the user's input
+				 * Each triple will consist of a sampling event, an event group and the 
+				 * number of samples in that selection 
+				 */
+				flow.selectionTriples = []
+				
+				params.each{ key, val ->
                     if(val=="on"){
                         def splitKey = key.split("_")
                         def se = Integer.valueOf(splitKey[0]) // sampl. ev.
@@ -156,7 +174,7 @@ class CookdataController {
                             eq("parentEvent", flow.samplingEvents[se])
                             eq("parentEventGroup", flow.eventGroups[eg])
                         }
-                        selectionTriples.add(
+                        flow.selectionTriples.add(
                                 [
                                         se,
                                         eg,
@@ -166,12 +184,11 @@ class CookdataController {
                         selectedSamplingEvents.add(flow.samplingEvents[se])
                     }
                 }
-                flow.selectionTriples = selectionTriples
                 flow.selectedSamplingEvents = selectedSamplingEvents.unique()
 
                 // Update samplingEvents list
                 flow.samplingEventTemplates = []
-                selectionTriples.each{
+                flow.selectionTriples.each{
                     flow.samplingEventTemplates.add(flow.samplingEvents[it[0]].template)
                 }
                 flow.samplingEventTemplates = flow.samplingEventTemplates.unique()
@@ -201,14 +218,7 @@ class CookdataController {
             on("next"){
 	            flash.wizardErrors = []
 
-                println "p3 next params: " + params
-                println "dataset names" + params.dataset_name
-                println "dataset equa" + params.dataset_equa
-                println "dataset aggr" + params.dataset_aggr
-                println "dataset grpA" + params.dataset_grpA
-                println "dataset grpB" + params.dataset_grpB
-
-                List listToBeComputed = []
+				List listToBeComputed = []
                 List samples = [] /* Will be compiled based on the user's 
                 	selections, so that we can retrieve all interesting 
                 	measurements in one call per module */
@@ -277,6 +287,21 @@ class CookdataController {
 					// Get the measurements, per sampletoken, per feature
 	                Map mapSampleTokenToMeasurementPerFeature = cookdataService.getDataFromModules(flow.assays, samples)
 					
+					/* The flow.results format is as follows:
+					* - list of result sets (pairs)
+					* 	|- dataset item information (list)
+					* 	|	|- datasetName
+					* 	|	|- aggr
+					* 	|	|- ...
+					*	|
+					* 	|- list of dataset item results (pairs)
+					* 		|- feature
+					*		|- value
+					* To reach the dataset name of a specific resultset, you would do
+					* flow.results[someIndex][0].datasetName
+					* To reach a feature-measurement pair, you would do
+					* flow.results[someIndex][1][someIndex]
+					*/
 	                flow.results = cookdataService.getResults(listToBeComputed, mapSampleTokenToMeasurementPerFeature)
 
 		            success()
@@ -377,18 +402,53 @@ class CookdataController {
 		println "exiting downloadExcel..."
 	}
 
-	/**
-	* Writes an zip file containing excel files with measurements, and sends it 
+  /**
+	* Writes a zip file containing excel files with measurements, and sends it 
 	* back to the client as an attachment.
 	* It is possible that the zip file will end up containing just one file.
 	* One excel file will contain results for those datasets where the user
 	* marked "median" or "average" as aggregation type.
-	* 
+	* <p>
 	* TODO: when "pairwise" and "measurements" aggregation types are 
 	* implemented, write these results to files of their own.
+	* <p>
+	* <pre>
+	* The session.results format is as follows:
+	* - list of result sets (pairs)
+	* 	|- dataset item information (list)
+	* 	|	|- datasetName
+	* 	|	|- aggr
+	* 	|	|- ...
+	*	|
+	* 	|- list of dataset item results (pairs) 
+	* 		|- feature
+	*		|- value
+	* </pre>
+	* <p>
+	* To reach the dataset name of a specific resultset, you would do
+	* <br>
+	* session.results[someIndex][0].datasetName
+	* <p>
+	* To reach a feature-measurement pair, you would do
+	* <br>
+	* session.results[someIndex][1][someIndex]
 	*/
     def downloadExcelsInZip = {
-
+		// Prepare for writing to zip
+		String strFilename = "results.zip"
+		ByteArrayOutputStream zipByteArrOutStream = new ByteArrayOutputStream();
+		ZipOutputStream zipOutStream = new ZipOutputStream(zipByteArrOutStream);
+		
+		// Let the service write to the stream
+		cookdataService.writeZipOfAllResults(zipOutStream, session.results)
+		
+		// Finish up, send attachment to client
+		session.results = null
+		zipOutStream.close();
+		response.setHeader "Content-disposition", "attachment;filename=\"${strFilename}\""
+		response.setContentType "application/octet-stream"
+		response.outputStream.write(zipByteArrOutStream.toByteArray())
+		response.outputStream.flush()
 	}
 
     def testEquation = {
