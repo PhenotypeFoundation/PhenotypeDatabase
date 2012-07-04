@@ -303,9 +303,7 @@ class CookdataController {
             }
             on("previous").to "pageThree"
 			on("downloadOneResultAsExcel"){
-				session.downloadResultId = Integer.valueOf(params.downloadResultId)
-				println "downloadResultId: "+session.downloadResultId
-				session.results = flow.results[session.downloadResultId]
+				session.results = flow.results[Integer.valueOf(params.downloadResultId)]
 				println "results.size(): "+session.results.size()
 			}.to "downloadOneResultAsExcel"
 			on("downloadAllResultsAsZip"){
@@ -362,15 +360,20 @@ class CookdataController {
 	 */
 	def downloadExcel = {
 		println "entered downloadExcel..."
-		def index = session.downloadResultId
-		def results = session.results
-		response.setHeader "Content-disposition", "attachment;filename=\""+results[0].datasetName+".xlsx\""
+		
+		def data = [["name", session.results[0].datasetName]]
+		data.addAll(session.results[1])
+		session.results[1] = null
+		
+		response.setHeader "Content-disposition", "attachment;filename=\""+session.results[0].datasetName+".xlsx\""
 		response.setContentType "application/octet-stream"
 		assayService.exportRowWiseDataToExcelFile(
-			[["name", results[0].datasetName]].addAll(results[1]), 
+			data, 
 			response.getOutputStream())
 		response.outputStream.flush()		
 		
+		
+		session.results = null
 		println "exiting downloadExcel..."
 	}
 
