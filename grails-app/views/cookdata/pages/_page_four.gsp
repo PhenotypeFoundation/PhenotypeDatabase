@@ -18,11 +18,16 @@
                 <td>${pair[0].samplesA.size()}</td>
                 <td>${pair[0].samplesB.size()}</td>
                 <td>
-                    <g:link action="pages" event="downloadResultAsExcel" params="[downloadResultId: i]">
+                    <g:link action="pages" event="downloadOneResultAsExcel" params="[downloadResultId: i]">
                         <img src="${resource(dir: 'images/icons', file: 'page_excel.png', plugin: 'famfamfam')}"/>
                     </g:link>
             </tr>
         </table>
     </g:each>
-    <g:link action="pages" event="downloadResultsAsExcel"><img src="${resource(dir: 'images/icons', file: 'page_excel.png', plugin: 'famfamfam')}"/></g:link>
+    <p>
+        <g:link action="pages" event="downloadAllResultsAsZip">
+            <img src="${resource(dir: 'images/icons', file: 'page_white_zip.png', plugin: 'famfamfam')}"/>
+            Download all results as a zip file
+        </g:link>
+    </p>
 </af:page>
