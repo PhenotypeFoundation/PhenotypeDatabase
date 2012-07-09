@@ -329,22 +329,14 @@ class CookdataController {
             on("previous").to "pageThree"
 			on("downloadOneResultAsExcel"){
 				session.results = flow.results[Integer.valueOf(params.downloadResultId)]
-				println "results.size(): "+session.results.size()
-			}.to "downloadOneResultAsExcel"
+				redirect(action: 'downloadExcel')
+			}.to "pageFour"
 			on("downloadAllResultsAsZip"){
 				session.results = flow.results
-				println "results.size(): "+session.results.size()
-			}.to "downloadAllResultsAsZip"
+				redirect(action: 'downloadExcelsInZip')
+			}.to "pageFour"
         }
 		
-		downloadOneResultAsExcel {
-			redirect(action: 'downloadExcel')
-		}
-		
-		downloadAllResultsAsZip {
-			redirect(action: 'downloadExcelsInZip')
-		}
-
         // render errors
         error {
             render(view: "_error")
@@ -395,11 +387,11 @@ class CookdataController {
 		assayService.exportRowWiseDataToExcelFile(
 			data, 
 			response.getOutputStream())
-		response.outputStream.flush()		
-		
-		
+		response.outputStream.flush()
+
 		session.results = null
 		println "exiting downloadExcel..."
+
 	}
 
   /**
