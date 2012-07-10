@@ -19,6 +19,7 @@ import groovy.text.SimpleTemplateEngine
 import org.codehaus.groovy.grails.commons.ApplicationHolder as AH
 import org.codehaus.groovy.grails.plugins.springsecurity.NullSaltSource
 import org.codehaus.groovy.grails.plugins.springsecurity.SpringSecurityUtils
+import org.codehaus.groovy.grails.commons.GrailsApplication
 
 /**
  * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
@@ -55,9 +56,12 @@ class RegisterController {
 			return
 		}
 
-		def registrationCode = new RegistrationCode(username: user.username, expiryDate: new Date() + 1 )
+        // remove all previous registration codes for this user
+        RegistrationCode.findAllByUser(user).each { it.delete() }
+
+		// create a new registration code
+        def registrationCode = new RegistrationCode(user: user, expiryDate: new Date() + 1 )
 		if( !registrationCode.save() ) {
-			//println registrationCode.errors
 			flash.userError = "Your password could not be reset because of database errors. Please contact the system administrator."
 			return
 		}
@@ -66,19 +70,24 @@ class RegisterController {
 
 		def conf = SpringSecurityUtils.securityConfig
 		def body = g.render(template:'/email/passwordReset', model: [user: user, url: url])
-		
-		mailService.sendMail {
-			to user.email
-			from conf.ui.forgotPassword.emailFrom
-			subject conf.ui.forgotPassword.emailSubject
-			html body.toString()
-		}
+
+        if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
+            println "development mode, no mail is sent. Reset URL for user ${user.username} is:"
+            println registrationCode
+            println "/gscf/register/resetPassword?t=${registrationCode.token}"
+        } else {
+            mailService.sendMail {
+                to user.email
+                from conf.ui.forgotPassword.emailFrom
+                subject conf.ui.forgotPassword.emailSubject
+                html body.toString()
+            }
+        }
 
 		[emailSent: true]
 	}
 
 	def resetPassword = { ResetPasswordCommand command ->
-
 		String token = params.t
 
 		def registrationCode = token ? RegistrationCode.findByToken(token) : null
@@ -92,22 +101,22 @@ class RegisterController {
 			return [token: token, command: new ResetPasswordCommand()]
 		}
 
-		command.username = registrationCode.username
+		command.username = registrationCode.user.username
 		command.validate()
 
 		if (command.hasErrors()) {
 			return [token: token, command: command]
 		}
 
-		String salt = registrationCode.username
+		String salt = registrationCode.user.username
 		RegistrationCode.withTransaction { status ->
-			def user = SecUser.findByUsername(registrationCode.username)
+            def user = registrationCode.user
 			user.password = springSecurityService.encodePassword(command.password, salt)
 			user.save()
 			registrationCode.delete()
 		}
 
-		springSecurityService.reauthenticate registrationCode.username
+		springSecurityService.reauthenticate registrationCode.user.username
 
 		flash.message = message(code: 'spring.security.ui.resetPassword.success')
 
@@ -117,10 +126,7 @@ class RegisterController {
 	}
 
 	protected String generateLink(String action, linkParams) {
-		createLink(base: "$request.scheme://$request.serverName:$request.serverPort$request.contextPath",
-				controller: 'register', action: action,
-				params: linkParams)
-
+        createLink(controller: 'register', action: action, params: linkParams, absolute: true)
 	}
 
 	protected String evaluate(s, binding) {

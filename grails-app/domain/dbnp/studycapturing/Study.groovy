@@ -26,14 +26,15 @@ class Study extends TemplateEntity {
 	List eventGroups
 	List samples
 	List assays
-	boolean published = false // Determines whether a study is private (only accessable by the owner and writers) or published (also visible to readers)
 	boolean publicstudy = false  // Determines whether anonymous users are allowed to see this study. This has only effect when published = true
 
-	/**
+    // 20120625: published default to true
+    boolean published = true // Determines whether a study is private (only accessable by the owner and writers) or published (also visible to readers)
+
+    /**
 	 * UUID of this study
 	 */
 	String studyUUID
-
 
 	static hasMany = [
 		subjects: Subject,
@@ -498,7 +499,7 @@ class Study extends TemplateEntity {
 				firstResult(offset)
 				order("title", "asc")
 				and {
-					eq("published", true)
+//					eq("published", true)
 					eq("publicstudy", true)
 				}
 			}
@@ -524,7 +525,11 @@ class Study extends TemplateEntity {
 						}
 //						eq("published", true)
 					}
-				}
+                    and {
+//                        eq("published", true)
+                        eq("publicstudy", true)
+                    }
+                }
 			}
 		}
 	}

@@ -19,6 +19,7 @@ import grails.plugins.springsecurity.Secured
 import grails.converters.JSON
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Assay
+import dbnp.authentication.SecUser
 
 class ApiController {
     def authenticationService
@@ -51,26 +52,33 @@ class ApiController {
 
         // see if we already have a token on file for this device id
         String deviceID = (params.containsKey('deviceID')) ? params.deviceID : ''
-        def token = Token.findByDeviceID(deviceID)
+        SecUser user    = authenticationService.getLoggedInUser()
+        Token token     = Token.findByDeviceID(deviceID)
         
         // generate a new token if we don't have a token on file
         def result = [:]
         try {
-            // TODO - check if token belongs to current user?
             if (!token) {
                 // generate a token for this device
                 token = new Token(
-                        deviceID    : params.deviceID,
+                        deviceID    : deviceID,
                         deviceToken : UUID.randomUUID().toString(),
-                        user        : authenticationService.getLoggedInUser(),
+                        user        : user,
                         sequence    : 0
-                ).save(failOnError: true)
-            }
-            
-            result = ['token':token.deviceToken,'sequence':token.sequence]
+                ).save(flush: true)
 
-            // set output headers
-            response.status = 200
+                // create result
+                response.status = 200
+                result = ['token':token.deviceToken, 'sequence':token.sequence]
+            } else if (user != token.user) {
+                response.status = 409
+                result = ['error':"the deviceID '${deviceID}' is already in use by user '${token.user}', please use user '${token.user}' to authenticate or use another deviceID"]
+            } else {
+                result = ['token':token.deviceToken, 'sequence':token.sequence]
+
+                // set output headers
+                response.status = 200
+            }
         } catch (Exception e) {
             // caught an error
             response.status = 500

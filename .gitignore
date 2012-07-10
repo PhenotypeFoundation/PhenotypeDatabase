@@ -10,4 +10,4 @@ target
 /web-app/WEB-INF/classes
 .idea
 *.iml
-target-eclipse
+/target-eclipse/*

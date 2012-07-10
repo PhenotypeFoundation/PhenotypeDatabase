@@ -75,7 +75,7 @@ class ApiService implements Serializable, ApplicationContextAware {
         Token token = Token.findByDeviceID(deviceID)
 
         // increase sequence
-        if (token) {
+        if (token && (token.user.hasClientRights() || token.user.hasAdminRights())) {
             token.sequence = token.sequence+1
             token.merge(flush: true)
 
