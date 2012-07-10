@@ -69,7 +69,7 @@ grails.project.dependency.resolution = {
                 ":mail:1.0",
 
 //                ":grails-melody:1.13",
-                ":trackr:0.7.2",
+                ":trackr:0.7.3",
 
                 ":jumpbar:0.1.5",
 
