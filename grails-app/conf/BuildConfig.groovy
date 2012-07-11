@@ -62,14 +62,14 @@ grails.project.dependency.resolution = {
                 ":spring-security-core:1.1.2",
 
                 ":gdt:0.3.0",
-                ":gdtimporter:0.5.0",
+                ":gdtimporter:0.5.2",
 
                 ":famfamfam:1.0.1",
 
                 ":mail:1.0",
 
 //                ":grails-melody:1.13",
-//                ":trackr:0.6.4",
+                ":trackr:0.7.3",
 
                 ":jumpbar:0.1.5",
 

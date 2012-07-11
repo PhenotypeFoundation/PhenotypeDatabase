@@ -160,5 +160,5 @@ gdtImporter.parentEntityClassName = "dbnp.studycapturing.Study"
 application.title = "Generic Study Capture Framework"
 
 // ****** trackR Config ******
-trackr.path = "/tmp/"
+trackr.path = "/tmp/trackr/"
 trackr.prefix = "gscf.${grails.util.GrailsUtil.environment}."
