@@ -293,6 +293,7 @@ class CookdataService {
 					def callResult = moduleCommunicationService.callModuleMethod(assay.module.url, strUrl, urlVars, "POST")
 					// Store measurements per sampleToken, per feature.
 					// [1] contains a list of features
+                    int numSamples = callResult[0].size()
 					callResult[1].eachWithIndex{ feature, featureIndex ->
 						mapTmp.put(feature, [:])
 						Map mapSampleTokenToMeasurement = [:]
@@ -301,7 +302,7 @@ class CookdataService {
 							if(sample!=null && sample.class!=org.codehaus.groovy.grails.web.json.JSONObject$Null){
 								// We have a sample for this feature
 								// This sample may have a measurement
-								def measurement = callResult[2][featureIndex*sampleIndex]
+								def measurement = callResult[2][featureIndex*numSamples + sampleIndex]
 								if(measurement!=null && measurement.class!=org.codehaus.groovy.grails.web.json.JSONObject$Null){
 									mapTmp[feature].put(sample, measurement)
 								}
