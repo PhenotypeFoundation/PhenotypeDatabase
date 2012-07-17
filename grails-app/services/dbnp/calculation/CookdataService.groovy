@@ -171,6 +171,7 @@ class CookdataService {
             def dblResult
             switch(item.aggr){
                 case "average":
+                case "median":
                     String equation = item.equation.replaceAll("\\s","") // No whitespace
                     if (!equation) {
 	                    throw new IllegalArgumentException("No equation was provided.")
@@ -178,29 +179,10 @@ class CookdataService {
 
                     // Per feature, the sample tokens map to measurements
 	                mapSTokenToMsrmentsPerF.each{ feature, mapStToM ->
-	                    
-						List dataA = []
-                        item.samplesA.each{ s ->
-	                        def m = mapStToM[s.sampleUUID]
-                            if (m) dataA.add(m)
-                        }
-                        if (dataA.size() == 0) {
-	                        throw new IllegalArgumentException("The samples from group A of dataset ${item.datasetName} do not have any measurements for ${feature}. Cannot compute average.")
-                        }
-						double avgA = computeMean(dataA)
-                        dataA = []
-                        
-						List dataB = []
-                        item.samplesB.each{ s ->
-	                        def m = mapStToM[s.sampleUUID]
-	                        if (m) dataB.add(m)
-                        }
-		                if (dataB.size() == 0) {
-			                throw new IllegalArgumentException("The samples from group B of dataset ${item.datasetName} do not have any measurements for ${feature}. Cannot compute average.")
-		                }
-		                double avgB = computeMean(dataB)
-                        dataB = []
-						
+
+                        double avgA = computeMeanOrMedian("group A", item, feature, mapStToM)
+                        double avgB = computeMeanOrMedian("group B", item, feature, mapStToM)
+
 						listResultAndFeaturePairs[intResultCounter] = 
 							[feature, computeWithVals(equation, avgA, avgB)]
 						intResultCounter++
@@ -221,6 +203,8 @@ class CookdataService {
         }
         return listItemAndFeatureToResult
     }
+
+
 	
 	/**
 	* For the CookData controller, an assay is interesting when it has samples that the user has selected.
@@ -441,6 +425,50 @@ class CookdataService {
 
         throw new IllegalArgumentException( "computeWithVals encountered an equation it failed to parse: " + eq )
         println "computeWithVals encountered an equation it failed to parse: "+eq
+    }
+
+     /**
+      * Computes the either the mean or the median of the values contained the value of a certain key-value pair in the
+      * "item" variable.
+      * are ignored.
+      * @param groupName    Used to determine which key will be used to get the right values
+      * @param item         Contains information on what kind of computation needs to be done, on which samples
+      * @param feature      The feature for which the computation needs to be done
+      * @param mapStToM     Maps sampleTokens to measurements
+      * @return Either the arithmetic mean or the median of the values
+      */
+    private double computeMeanOrMedian(String groupName, item, feature, mapStToM){
+        List data = []
+
+        // map the groupName variable to a key for item
+        String key = ""
+        if(groupName == "group A"){
+            key = "samplesA"
+        } else {
+            if(groupName == "group B"){
+                key = "samplesB"
+            } else {
+                throw new IllegalArgumentException("computeMeanOrMedian: "+groupName+" is not a legal value for the groupName parameter.")
+            }
+        }
+
+        // Proceed with the computations
+        item[key].each{ s ->
+            def m = mapStToM[s.sampleUUID]
+            if (m) data.add(m)
+        }
+        if (data.size() == 0) {
+            throw new IllegalArgumentException("The samples from "+groupName+" of dataset ${item.datasetName} do not have any measurements for ${feature}. Cannot compute average or median.")
+        }
+        double res = 0.0
+        if(item.aggr == "average"){
+            res = computeMean(data)
+        }
+        if(item.aggr == "median"){
+            res = computeMedian(data)
+        }
+
+        return res
     }
 
     /**
