@@ -206,6 +206,13 @@ class CookdataService {
 						intResultCounter++
                     }
                     break
+	            case "values":
+					item.samplesA.each{ s ->
+
+					}
+		            listResultAndDomainObjectPairs[intResultCounter] =
+						[]
+
 
                 default:
                     dblResult = null
