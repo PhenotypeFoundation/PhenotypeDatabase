@@ -37,7 +37,7 @@ class CookdataService {
 	 * @param eventGroups				The list of eventgroups (ordered)
 	 * @return							A list of samples
 	 */
-	private List getSamplesForDatasetGroup(String strGrouping, boolean blnRestrictiveAggrType,
+    public List getSamplesForDatasetGroup(String strGrouping, boolean blnRestrictiveAggrType,
 			selectionTriples, samplingEvents, eventGroups){
 		strGrouping = strGrouping.replaceAll("\\s","") // Removing whitespaces
 		
@@ -162,7 +162,7 @@ class CookdataService {
 	 * 									index 0, and list of feature and 
 	 * 									measurement pairs on the second index. 
 	 */
-	private List getResults(List listToBeComputed, Map mapSTokenToMsrmentsPerF){
+    public List getResults(List listToBeComputed, Map mapSTokenToMsrmentsPerF){
         List listItemAndFeatureToResult = []
 		
         listToBeComputed.each{ item ->
@@ -177,9 +177,8 @@ class CookdataService {
 	                    throw new IllegalArgumentException("No equation was provided.")
                     }
 
-                    // Per feature, the sample tokens map to measurements
+                    // Per feature, the samples map to measurements
 	                mapSTokenToMsrmentsPerF.each{ feature, mapStToM ->
-
                         double avgA = computeMeanOrMedian("group A", item, feature, mapStToM)
                         double avgB = computeMeanOrMedian("group B", item, feature, mapStToM)
 
@@ -189,15 +188,20 @@ class CookdataService {
                     }
                     break
 	            case "values":
-					item.samplesA.each{ s ->
-
-					}
-		            listResultAndDomainObjectPairs[intResultCounter] =
-						[]
-
-
+                    // Per feature, the samples map to measurements
+                    // Per feature, we add each pair of featurename and measurement to the return value
+                    mapSTokenToMsrmentsPerF.each{ feature, mapStToM ->
+                        listResultAndFeaturePairs[intResultCounter] =
+                            [feature, []]
+                        (item.samplesB + item.samplesA).each{ s ->
+                            def m = mapStToM[s.sampleUUID]
+                            if (m) listResultAndFeaturePairs[intResultCounter][1].add([s.name, m])
+                        }
+                        intResultCounter++
+                    }
+                    break
                 default:
-                    dblResult = null
+                    break
             }
             listItemAndFeatureToResult.add([item, listResultAndFeaturePairs])
         }
@@ -211,7 +215,7 @@ class CookdataService {
 	* Unfortunately the fastest way seems to be checking for each assay, if they have a sample that is in one of the selected samplingEvents.
 	* This involves requesting a lot of samples from the database.
 	*/
-    private List getInterestingAssays(Study study, List samplingEvents, List lstAssays) {
+    public List getInterestingAssays(Study study, List samplingEvents, List lstAssays) {
 	    List assays = []
 	    int numAssays = study.assays.size()
 	    int numSEvents = samplingEvents.size();
@@ -261,7 +265,7 @@ class CookdataService {
 	
 	
 	// Returns each measurement per sampleToken, per feature
-	private Map getDataFromModules(List assays, List samples){
+    public Map getDataFromModules(List assays, List samples){
 		List blacklistedModules = []
 		Map mapResults = [:]
 
@@ -354,7 +358,7 @@ class CookdataService {
         return mapReturn
     }
 
-    private double computeWithVals(String eq, double dblA, double dblB){
+    public double computeWithVals(String eq, double dblA, double dblB){
         double dblReturn = -1.0
         // Check for "(x)"
         if(checkForOpeningAndClosingBrackets(eq)){
@@ -512,66 +516,221 @@ class CookdataService {
 	
 	/* Start of export related functions
 	*/
-   
-   
-   private void writeZipOfAllResults(ZipOutputStream zipOutStream, results){
-	   
-	   /* First, we write out the results for the "average" and "median"
-		* aggregation types.
-		* The resulting file will be called "median_and_average.xlsx"
-		*/
-	   
-	   // listData will be rowwise, and is initialized to the number of
-	   // result sets, plus one cell
-	   List listData = new List[1 + results.size()]
-	   
-	   // Every row will start with a featurename, except the first
-	   // We grab the featurenames from the first result set
-	   // We can do this because all result sets are supposed to describe all
-	   // features
-	   listData[0] = ["name"]
-	   for (int i=0; i<results[0][1].size(); i++) {
-		   listData[i+1] = [results[0][1][i][0]]
-	   }
-	   
-	   // Add the dataset names to the first row
-	   for (int i=0; i<results.size(); i++) {
-		   if(results[i][0].aggr == "average" || results[i][0].aggr == "median"){
-			   listData[0].add(results[i][0].datasetName)
-		   }
-	   }
-	   // Now, we add the results, per dataset, to the row that starts with the
-	   // correct feature name
-	   for (int i=0; i<results.size(); i++) {
-		   if(results[i][0].aggr == "average" || results[i][0].aggr == "median"){
-			   results[i][1].eachWithIndex{ value, index ->
-				   // Offset by one, because of the header row
-				   listData[index+1].add(value[1])
-			   }
-			   
-			   // Will never be read again, so we can remove it from memory
-			   results[i] = null
-		   }
-	   }
-	   
-	   results = null
-	   
-	   // Write the data to a stream
-	   ByteArrayOutputStream fileByteArrOutStream = new ByteArrayOutputStream()
-	   assayService.exportRowWiseDataToExcelFile(listData,	fileByteArrOutStream)
-	   // Write the stream to the zip
-	   zipOutStream.putNextEntry(new ZipEntry("median_and_average.xlsx"))
-	   zipOutStream.write(fileByteArrOutStream.toByteArray());
-	   zipOutStream.closeEntry();
-	   
-	   
-	   
-	   // TODO: write out the results for the "pairwise" aggregation
-	   // Make sure to check for (session.results[i] != null)
-	   
-	   
-	   
-	   // TODO: write out the results for the "measurement" aggregation
-	   // Make sure to check for (session.results[i] != null)
-   }
+
+    /**
+     * Will write the results for one dataset, which should be of aggregration type "average" or "median",
+     * to an xlsx, which will be added to the ZipOutputStream that this function receives
+     * <p>
+     * Resulting file layout:
+     * <p>
+     * <pre>
+     * name      datasetnameA   datasetnameB ...
+     * feature1  value A1       value B1
+     * feature2  value A2       value B2
+     * ...
+     * </pre>
+     * @param zipOutStream  The stream to write the resulting file to
+     * @param results       Contains all the data that needs to be written into the file
+     */
+    public void writeMeanAndMedianResultsToStream(OutputStream outputStream, results){
+        /* We write out the results for the "average" and "median"
+        * aggregation types.
+        * The resulting file will be called "median_and_average.xlsx"
+        */
+
+        // listData will be rowwise, and is initialized to the number of
+        // result sets, plus one cell
+        List listData = new List[1 + results.size()]
+
+        // Every row will start with a featurename, except the first
+        // We grab the featurenames from the first result set
+        // We can do this because all result sets are supposed to describe all
+        // features
+        listData[0] = ["name"]
+        for (int i=0; i<results[0][1].size(); i++) {
+           listData[i+1] = [results[0][1][i][0]]
+        }
+
+        // Add the dataset names to the first row
+        for (int i=0; i<results.size(); i++) {
+           if(results[i][0].aggr == "average" || results[i][0].aggr == "median"){
+               listData[0].add(results[i][0].datasetName)
+           }
+        }
+        // Now, we add the results, per dataset, to the row that starts with the
+        // correct feature name
+        for (int i=0; i<results.size(); i++) {
+           if(results[i][0].aggr == "average" || results[i][0].aggr == "median"){
+               results[i][1].eachWithIndex{ value, index ->
+                   // Offset by one, because of the header row
+                   listData[index+1].add(value[1])
+               }
+
+               // Will never be read again
+               results[i] = null
+           }
+        }
+
+        results = null
+
+        // Write the data to a stream
+        ByteArrayOutputStream fileByteArrOutStream = new ByteArrayOutputStream()
+        assayService.exportRowWiseDataToExcelFile(listData,	fileByteArrOutStream)
+        outputStream.write(fileByteArrOutStream.toByteArray());
+    }
+
+    /**
+     * Writes one or more xslx files containing computation results to a ZipOutPutStream.
+     * <p>
+     * The results format is as follows:
+     * - list of result sets (pairs)
+     * 	|- dataset item information (list)
+     * 	|	|- datasetName
+     * 	|	|- aggr
+     * 	|	|- ...
+     *	|
+     * 	|- list of dataset item results (pairs)
+     * 		|- feature
+     *		|- value
+     * To reach the dataset name of a specific resultset, you would do
+     * results[someIndex][0].datasetName
+     * To reach a feature-measurement pair, you would do
+     * results[someIndex][1][someIndex]
+     * <p>
+     * @param zipOutStream  The stream to write to
+     * @param results       Contains all the information that needs to be exported
+     */
+    public void writeZipOfAllResults(ZipOutputStream zipOutStream, results){
+        // TODO: write out the results for the "pairwise" aggregation
+
+        for(int r = 0; r < results.size(); r++){
+            if(results[r]!=null && results[r][0].aggr=="values"){
+                writeValuesToZip(zipOutStream, results[r])
+                results[r]=null
+                continue
+            }
+            if(results[r]!=null && (results[r][0].aggr == "average" || results[r][0].aggr == "median")){
+                writeAverageOrMedianToZip(zipOutStream, results[r])
+                results[r]=null
+                continue
+            }
+        }
+    }
+
+    /**
+     * Will write the results for one dataset, which should be of aggregration type "average" or "median",
+     * to an xlsx, which will be added to the ZipOutputStream that this function receives
+     * <p>
+     * Resulting file layout:
+     * <p>
+     * <pre>
+     * name      datasetname
+     * feature1  value 1
+     * feature2  value 2
+     * ...
+     * </pre>
+     * @param zipOutStream  The stream to write the resulting file to
+     * @param result        Contains all the data that needs to be written into the file
+     * @see CookdataService#writeAverageOrMedianToStream
+     */
+    private void writeAverageOrMedianToZip(ZipOutputStream zipOutStream, List result){
+        // Write the data to a stream
+        def fileByteArrOutStream = new ByteArrayOutputStream()
+        writeAverageOrMedianToStream(fileByteArrOutStream, result)
+
+        // Write the stream to the zip
+        zipOutStream.putNextEntry(new ZipEntry(result[0].aggr+"_"+result[0].datasetName+".xlsx"))
+        zipOutStream.write(fileByteArrOutStream.toByteArray());
+        zipOutStream.closeEntry();
+    }
+
+    /**
+     * Will write the results for one dataset, which should be of aggregration type "average" or "median",
+     * to an xlsx, which will be added to the ZipOutputStream that this function receives
+     * <p>
+     * Resulting file layout:
+     * <p>
+     * <pre>
+     * name      datasetname
+     * feature1  value 1
+     * feature2  value 2
+     * ...
+     * </pre>
+     * @param outStream  The stream to write the resulting file to
+     * @param result        Contains all the data that needs to be written into the file
+     */
+    public void writeAverageOrMedianToStream(OutputStream outStream, List result){
+        // Format the data
+        def data = [["name", result[0].datasetName]]
+        data.addAll(result[1])
+
+        // Write the data to a stream
+        assayService.exportRowWiseDataToExcelFile(data,	outStream)
+    }
+
+    /**
+     * Will write the results for one dataset, which should have the "measurement" aggregation type, to an xlsx,
+     * which will be added to the ZipOutputStream that this function receives.
+     * @param zipOutStream  The stream to write the resulting file to
+     * @param result        Contains all the data that needs to be written into the file
+     * @see CookdataService#writeValuesToStream
+     */
+    private void writeValuesToZip(ZipOutputStream zipOutStream, List result){
+        // Write the data to a stream
+        def fileByteArrOutStream = new ByteArrayOutputStream()
+        writeValuesToStream(fileByteArrOutStream, result)
+
+        // Write the stream to the zip
+        zipOutStream.putNextEntry(new ZipEntry("measurements_"+result[0].datasetName+".xlsx"))
+        zipOutStream.write(fileByteArrOutStream.toByteArray());
+        zipOutStream.closeEntry();
+    }
+
+    /**
+     * Will write the results for one dataset, which should have the "measurement" aggregation type, to a stream.
+     * For results with this aggregation type, a measurement result is a list of pairs.
+     * Each pair has two values. The first spot is the samplename, the second is the measurement value.
+     * <p>
+     * Resulting file layout:
+     * <p>
+     * <pre>
+     * name      sna       snb      ...
+     * feature1  md1a      md2a
+     * feature2  md1b      md2b
+     * ...
+     * </pre>
+     * @param outStream  The stream to write the resulting file to
+     * @param result        Contains all the data that needs to be written into the file
+     */
+    public void writeValuesToStream(OutputStream outStream, List result){
+        // listData will be rowwise, and is initialized to the number of
+        // features, plus one more
+        def listData = new List[1 + result[1].size()]
+
+        // Topleft cell will contain "name", every other row starts with a featurename
+        // features
+        listData[0] = ["name"]
+        for (int i=0; i<result[1].size(); i++) {
+            listData[i+1] = [result[1][i][0]]
+        }
+
+        // Add the samplenames to the top row. These can be grabbed from the first
+        // feature (list of measurement results), because there should be no variation
+        result[1][0][1].value.eachWithIndex{ value, index ->
+            // Offset by one, because of the header row.
+            listData[0].add(value[0])
+        }
+
+        // Add the measurement values. Each first cell in a row already contains the featurename,
+        // the measurement related to each column's sample will be added to the row
+        for (int i=0; i<result[1].size(); i++) {
+            result[1][i][1].each{ value ->
+                listData[i+1].add(value[1])
+            }
+        }
+
+        // Write the data to a stream
+        assayService.exportRowWiseDataToExcelFile(listData,	outStream)
+    }
+
 }

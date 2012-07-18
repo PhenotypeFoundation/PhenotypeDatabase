@@ -29,5 +29,10 @@
             <img src="${resource(dir: 'images/icons', file: 'page_white_zip.png', plugin: 'famfamfam')}"/>
             Download all results as a zip file
         </g:link>
+        <g:link action="pages" event="downloadMeanAndMedianResults">
+            <img src="${resource(dir: 'images/icons', file: 'table.png', plugin: 'famfamfam')}"/>
+            Download mean and median results as an Excel file
+        </g:link>
+
     </p>
 </af:page>
