@@ -280,12 +280,17 @@ class CookdataController {
 		            if (!samples) {
 			            throw new IllegalArgumentException("Based on your selections, no samples could be found. Because of that, there was nothing to compute.")
 		            }
-					
+
+                    /* Uniquefy the list of samples. We used the datasets to build up this list, and samples may be
+                        present in more that one dataset. The samples list, however, should not contain duplicates
+                        because it will be used to request data from modules */
+                    samples = samples.unique()
+
 		            // Check which assays we need.
 	                flow.assays = cookdataService.getInterestingAssays(flow.study, flow.selectedSamplingEvents, flow.assays)
 					
 					// Get the measurements, per sampletoken, per feature
-	                Map mapSampleTokenToMeasurementPerFeature = cookdataService.getDataFromModules(flow.assays, samples)
+                    Map mapSampleTokenToMeasurementPerFeature = cookdataService.getDataFromModules(flow.assays, samples)
 					
 					/* The flow.results format is as follows:
 					* - list of result sets (pairs)
@@ -305,12 +310,12 @@ class CookdataController {
 	                flow.results = cookdataService.getResults(listToBeComputed, mapSampleTokenToMeasurementPerFeature)
 
 		            success()
-	            }
-	            catch (Exception e) {
-		            println "catching ${e.getMessage()}"
-		            flash.wizardErrors << e
-		            error()
-	            }
+                }
+                catch (Exception e) {
+                    println "catching ${e.getMessage()}"
+                    flash.wizardErrors << e
+                    error()
+                }
             }.to "pageFour"
             on("previous").to "pageTwo"
         }
@@ -335,6 +340,10 @@ class CookdataController {
 				session.results = flow.results
 				redirect(action: 'downloadExcelsInZip')
 			}.to "pageFour"
+            on("downloadMeanAndMedianResults"){
+                session.results = flow.results
+                redirect(action: 'downloadMeanAndMedianResults')
+            }.to "pageFour"
         }
 		
         // render errors
@@ -371,38 +380,43 @@ class CookdataController {
     }
 	
 	/**
-	 * Writes an excel file containing measurements for one dataset, with  
+	 * Writes an excel file containing computation results for one dataset, with
 	 * additional information on the first row, and sends it back to the client
 	 * as an attachment. 
 	 */
 	def downloadExcel = {
-		println "entered downloadExcel..."
-		
-		def data = [["name", session.results[0].datasetName]]
-		data.addAll(session.results[1])
-		session.results[1] = null
-		
-		response.setHeader "Content-disposition", "attachment;filename=\""+session.results[0].datasetName+".xlsx\""
-		response.setContentType "application/octet-stream"
-		assayService.exportRowWiseDataToExcelFile(
-			data, 
-			response.getOutputStream())
-		response.outputStream.flush()
+        response.setHeader "Content-disposition", "attachment;filename=\""+session.results[0].datasetName+".xlsx\""
+        response.setContentType "application/octet-stream"
 
+        def type = session.results[0].aggr
+        if(type=="values"){
+            cookdataService.writeValuesToStream(response.getOutputStream(), session.results)
+        }
+        if(type=="average" || type=="median"){
+            cookdataService.writeAverageOrMedianToStream(response.getOutputStream(), session.results)
+        }
+
+        response.outputStream.flush()
 		session.results = null
-		println "exiting downloadExcel..."
-
 	}
+
+    /**
+     * Writes an excel file containing the computation results for the "average" and "median" aggregation types, for
+     * each dataset. Sends it back to the client as an attachment.
+     */
+    def downloadMeanAndMedianResults = {
+        response.setHeader "Content-disposition", "attachment;filename=\"median_and_average.xlsx\""
+        response.setContentType "application/octet-stream"
+        cookdataService.writeMeanAndMedianResultsToStream(response.getOutputStream(), session.results)
+        response.outputStream.flush()
+        session.results = null
+    }
 
   /**
 	* Writes a zip file containing excel files with measurements, and sends it 
 	* back to the client as an attachment.
 	* It is possible that the zip file will end up containing just one file.
-	* One excel file will contain results for those datasets where the user
-	* marked "median" or "average" as aggregation type.
-	* <p>
-	* TODO: when "pairwise" and "measurements" aggregation types are 
-	* implemented, write these results to files of their own.
+	* TODO: when "pairwise" is implemented, write these results to files of their own.
 	* <p>
 	* <pre>
 	* The session.results format is as follows:
