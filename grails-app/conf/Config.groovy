@@ -56,7 +56,7 @@ log4j = {
 	//    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
 	//}
 	appenders {
-		rollingFile name: "stacktrace", maxFileSize: 1024, file: "${userHome}/${appName}-${grails.util.GrailsUtil.environment}.log"
+		rollingFile name: "stacktrace", maxFileSize: 1024, file: "/tmp/gscf-${grails.util.GrailsUtil.environment}.log"
 	}
 
 	error 'org.codehaus.groovy.grails.web.servlet',  //  controllers
@@ -120,7 +120,7 @@ grails.plugins.springsecurity.filterChain.chainMap = [
 
 // Needed for the (copy of) the Spring Security UI plugin
 grails.mail.default.from = 'gscf@dbnp.org'
-grails.plugins.springsecurity.ui.forgotPassword.emailFrom = 'gscf@dbnp.org'
+grails.plugins.springsecurity.ui.forgotPassword.emailFrom = 'me@example.com'
 grails.plugins.springsecurity.ui.forgotPassword.emailSubject = 'Password reset GSCF'
 
 // Make sure the different controllers provided by springsecurity.ui are only accessible by administrators
@@ -156,9 +156,10 @@ gdtImporter.childEntityParentName = "parent"
 // What is the class name of the parent entity
 gdtImporter.parentEntityClassName = "dbnp.studycapturing.Study"
 
-// default application title
+// default application properties
 application.title = "Generic Study Capture Framework"
+application.template.admin.email = "me@example.com"
 
 // ****** trackR Config ******
-trackr.path = "/tmp/"
+trackr.path = "/tmp/trackr/"
 trackr.prefix = "gscf.${grails.util.GrailsUtil.environment}."

@@ -103,7 +103,7 @@ class UserRegistrationController {
 	}
 
 	private sendUserConfirmationMail( SecUser user, String password ) {
-		def userCode = new RegistrationCode(userId: user.id, expiryDate: new Date() + UserRegistrationController.DAYS_BEFORE_EXPIRY).save( flush: true );
+		def userCode = new RegistrationCode(user: user, expiryDate: new Date() + UserRegistrationController.DAYS_BEFORE_EXPIRY).save( flush: true );
         def userLink = createLink( controller: 'userRegistration', action: 'confirmUser', params: [code: userCode.token], absolute: true )
 
         // Send an email to the user
@@ -123,7 +123,7 @@ class UserRegistrationController {
 	}
 
 	private sendAdminConfirmationMail( SecUser user ) {
-		def adminCode = new RegistrationCode(userId: user.id, expiryDate: new Date() + UserRegistrationController.DAYS_BEFORE_EXPIRY_ADMIN).save(flush: true)
+		def adminCode = new RegistrationCode(user: user, expiryDate: new Date() + UserRegistrationController.DAYS_BEFORE_EXPIRY_ADMIN).save(flush: true)
         def adminLink = createLink( controller: 'userRegistration', action: 'confirmAdmin', params: [code: adminCode.token], absolute: true )
 
 		// If we are in production, send the mails to all administrators
@@ -167,7 +167,7 @@ class UserRegistrationController {
             return
 		}
 
-		def user = SecUser.findById(registrationCode.userId)
+		def user = registrationCode.user
 
         if( user.userConfirmed ) {
             flash.message = "This registration has already been confirmed."
@@ -203,7 +203,7 @@ class UserRegistrationController {
             return
 		}
 
-		def user = SecUser.findById(registrationCode.userId)
+		def user = registrationCode.user
 
         if( user.adminConfirmed ) {
             flash.message = "This user has already been approved. This might be done by another administrator"

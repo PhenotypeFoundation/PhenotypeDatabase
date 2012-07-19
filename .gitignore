@@ -13,3 +13,5 @@ target
 .idea
 *.iml
 /target-eclipse/*
+.classpath
+.project
