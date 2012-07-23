@@ -20,6 +20,8 @@ import grails.converters.JSON
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.Assay
 import dbnp.authentication.SecUser
+import org.codehaus.groovy.grails.commons.ApplicationHolder
+import org.dbnp.gdt.AssayModule
 
 class ApiController {
     def authenticationService
@@ -428,4 +430,78 @@ class ApiController {
             }
         })
     }
+
+	/**
+	 * get all modules connected to this GSCF instance
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 */
+	def getModules = {
+		println "api::getModules: ${params}"
+
+		// get all modules
+		def modules = AssayModule.findAll()
+
+		// wrap in api call validator
+		apiService.executeApiCall(params, response, 'modules', modules, {
+			def result2 = apiService.flattenDomainData(modules)
+			def result = [:]
+			modules.each {
+				result[ result.size() ] = [
+				        'name'  : it.name,
+						'url'   : it.url,
+						'token' : 'to be completed...'
+				]
+			}
+
+			// set output headers
+			response.status = 200
+			response.contentType = 'application/json;charset=UTF-8'
+
+			if (params.containsKey('callback')) {
+				render "${params.callback}(${result as JSON})"
+			} else {
+				render result as JSON
+			}
+		})
+	}
+
+	/**
+	 * get all domain classes that extend GDT's TemplateEntity (entities)
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 */
+	def getEntityTypes = {
+		println "api::getEntityTypes: ${params}"
+
+		def entities = []
+
+		// get the names of all domain classes ('entities') that extend GDT's TemplateEntity
+		ApplicationHolder.application.getArtefacts("Domain").each {
+			def entityInstance = it.clazz
+
+			if (entityInstance.properties.superclass.toString() =~ 'TemplateEntity') {
+				// get matches from regular expression
+				def matches = entityInstance.toString() =~ /\.([^\.]+)$/
+
+				// add entity
+				entities.add(matches[0][1])
+			}
+		}
+
+		// wrap result in api call validator
+		apiService.executeApiCall(params, response, 'entities', entities, {
+			// set output headers
+			response.status = 200
+			response.contentType = 'application/json;charset=UTF-8'
+
+			if (params.containsKey('callback')) {
+				render "${params.callback}(${entities as JSON})"
+			} else {
+				render entities as JSON
+			}
+		})
+	}
 }
