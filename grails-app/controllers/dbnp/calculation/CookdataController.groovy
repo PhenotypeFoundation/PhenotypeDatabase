@@ -190,6 +190,10 @@ class CookdataController {
                 }
                 flow.samplingEventTemplates = flow.samplingEventTemplates.unique()
 
+
+                // Reset page three contents, as these may well be out of date
+                flow.pageThreeDatasetTableHtml = null
+                flow.pageThreeDatasetCounter = null
             }.to "pageThree"
             on("previous"){
                 flow.mapSelectionSets = [:]
@@ -213,6 +217,14 @@ class CookdataController {
                 success()
             }
             on("next"){
+                // Saving some of the contents, so that these can be placed in the page when the user goes back to it
+                if(params.datasetTableHtml)   {
+                    flow.pageThreeDatasetTableHtml = params.datasetTableHtml
+                }
+                if(params.datasetCounter)   {
+                    flow.pageThreeDatasetCounter = params.datasetCounter
+                }
+
 	            flash.wizardErrors = []
 
 				List listToBeComputed = []
@@ -314,7 +326,10 @@ class CookdataController {
                     error()
                 }
             }.to "pageFour"
-            on("previous").to "pageTwo"
+            on("previous"){
+                // Reset samplingEvent selection, otherwise some options on page two will have become inaccessible
+                flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
+            }.to "pageTwo"
         }
 
         // second wizard page
