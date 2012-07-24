@@ -17,11 +17,9 @@ package api
 
 import grails.plugins.springsecurity.Secured
 import grails.converters.JSON
-import dbnp.studycapturing.Study
-import dbnp.studycapturing.Assay
 import dbnp.authentication.SecUser
-import org.codehaus.groovy.grails.commons.ApplicationHolder
-import org.dbnp.gdt.AssayModule
+import dbnp.studycapturing.*
+import org.dbnp.gdt.*
 
 class ApiController {
     def authenticationService
@@ -476,20 +474,8 @@ class ApiController {
 	def getEntityTypes = {
 		println "api::getEntityTypes: ${params}"
 
-		def entities = []
-
-		// get the names of all domain classes ('entities') that extend GDT's TemplateEntity
-		ApplicationHolder.application.getArtefacts("Domain").each {
-			def entityInstance = it.clazz
-
-			if (entityInstance.properties.superclass.toString() =~ 'TemplateEntity') {
-				// get matches from regular expression
-				def matches = entityInstance.toString() =~ /\.([^\.]+)$/
-
-				// add entity
-				entities.add(matches[0][1])
-			}
-		}
+		// list of entities
+		def entities = apiService.getEntities().keySet()
 
 		// wrap result in api call validator
 		apiService.executeApiCall(params, response, 'entities', entities, {
@@ -503,5 +489,42 @@ class ApiController {
 				render entities as JSON
 			}
 		})
+	}
+
+	/**
+	 * get all templates for a specific entity
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 * @param string entityType
+	 */
+	def getTemplatesForEntity = {
+		println "api::getTemplatesForEntity: ${params}"
+
+		def result = [:]
+		String entityType = (params.containsKey('entityType')) ? params.get('entityType') : ''
+
+		try {
+			def entity = apiService.getEntity(entityType)
+			def templates = Template.findAllByEntity(entity)
+
+			// wrap result in api call validator
+			apiService.executeApiCall(params, response, 'templates', templates, {
+				// set output headers
+				response.status = 200
+				response.contentType = 'application/json;charset=UTF-8'
+
+				result = ['templates': apiService.flattenDomainData(templates,['id'])]
+
+				if (params.containsKey('callback')) {
+					render "${params.callback}(${result as JSON})"
+				} else {
+					render result as JSON
+				}
+			})
+		} catch (Exception e) {
+			println "getTemplatesForEntity exception: ${e.getMessage()}"
+			response.sendError(500, "unknown error occured (${e.getMessage()})")
+		}
 	}
 }
