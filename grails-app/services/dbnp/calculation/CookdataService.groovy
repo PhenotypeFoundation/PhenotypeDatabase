@@ -17,6 +17,8 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 class CookdataService {
+    static transactional = false
+
     def authenticationService
     def moduleCommunicationService
 	def assayService
