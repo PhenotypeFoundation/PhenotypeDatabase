@@ -1384,7 +1384,7 @@ class StudyWizardController {
 		// have we got a template?
 		if (flow.study.template && flow.study.template instanceof Template) {
 			// validate the study
-			if (flow.study.validate()) {
+			if (flow.study.validate(deepValidate: false)) {
 				// instance is okay
 				return true
 			} else {

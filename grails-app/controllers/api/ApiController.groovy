@@ -17,9 +17,9 @@ package api
 
 import grails.plugins.springsecurity.Secured
 import grails.converters.JSON
-import dbnp.studycapturing.Study
-import dbnp.studycapturing.Assay
 import dbnp.authentication.SecUser
+import dbnp.studycapturing.*
+import org.dbnp.gdt.*
 
 class ApiController {
     def authenticationService
@@ -428,4 +428,103 @@ class ApiController {
             }
         })
     }
+
+	/**
+	 * get all modules connected to this GSCF instance
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 */
+	def getModules = {
+		println "api::getModules: ${params}"
+
+		// get all modules
+		def modules = AssayModule.findAll()
+
+		// wrap in api call validator
+		apiService.executeApiCall(params, response, 'modules', modules, {
+			def result2 = apiService.flattenDomainData(modules)
+			def result = [:]
+			modules.each {
+				result[ result.size() ] = [
+				        'name'  : it.name,
+						'url'   : it.url,
+						'token' : 'to be completed...'
+				]
+			}
+
+			// set output headers
+			response.status = 200
+			response.contentType = 'application/json;charset=UTF-8'
+
+			if (params.containsKey('callback')) {
+				render "${params.callback}(${result as JSON})"
+			} else {
+				render result as JSON
+			}
+		})
+	}
+
+	/**
+	 * get all domain classes that extend GDT's TemplateEntity (entities)
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 */
+	def getEntityTypes = {
+		println "api::getEntityTypes: ${params}"
+
+		// list of entities
+		def entities = apiService.getEntities().keySet()
+
+		// wrap result in api call validator
+		apiService.executeApiCall(params, response, 'entities', entities, {
+			// set output headers
+			response.status = 200
+			response.contentType = 'application/json;charset=UTF-8'
+
+			if (params.containsKey('callback')) {
+				render "${params.callback}(${entities as JSON})"
+			} else {
+				render entities as JSON
+			}
+		})
+	}
+
+	/**
+	 * get all templates for a specific entity
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 * @param string entityType
+	 */
+	def getTemplatesForEntity = {
+		println "api::getTemplatesForEntity: ${params}"
+
+		def result = [:]
+		String entityType = (params.containsKey('entityType')) ? params.get('entityType') : ''
+
+		try {
+			def entity = apiService.getEntity(entityType)
+			def templates = Template.findAllByEntity(entity)
+
+			// wrap result in api call validator
+			apiService.executeApiCall(params, response, 'templates', templates, {
+				// set output headers
+				response.status = 200
+				response.contentType = 'application/json;charset=UTF-8'
+
+				result = ['templates': apiService.flattenDomainData(templates,['id'])]
+
+				if (params.containsKey('callback')) {
+					render "${params.callback}(${result as JSON})"
+				} else {
+					render result as JSON
+				}
+			})
+		} catch (Exception e) {
+			println "getTemplatesForEntity exception: ${e.getMessage()}"
+			response.sendError(500, "unknown error occured (${e.getMessage()})")
+		}
+	}
 }

@@ -93,8 +93,9 @@ The API allows third party software to interface with GSCF and connected modules
     <li><a href="#getMeasurementDataForAssay">getMeasurementDataForAssay</a> - fetch all measurement data for a given assay</li>
 
 <h2>SDK packages</h2>
-    <li><a href="https://github.com/PhenotypeFoundation/GSCF-PHPClient" target="_new">PHP</a> - Object Oriented SDK for interacting with GSCF</li>
-    <li><a href="https://github.com/PhenotypeFoundation/GSCF-RClient" target="_new">R</a> - R Client to interface with GSCF</li>
+    <li><a href="https://github.com/4np/GSCF-PHPClient" target="_new">PHP</a> - Object Oriented SDK for interacting with GSCF using PHP</li>
+    <li><a href="https://github.com/4np/GSCF-GroovyClient" target="_new">Groovy</a> - Object Oriented SDK for interacting with GSCF using Groovy</li>
+    <li><a href="https://github.com/PhenotypeFoundation/GSCF-RClient" target="_new">R</a> - R Client to interface with GSCF using R</li>
 
 <a name="authenticate"></a>
 <h1>authenticate</h1>

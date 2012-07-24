@@ -3,8 +3,13 @@ import dbnp.studycapturing.*
 // The sandbox is meant for internal communication over code examples etc.
 class SandboxController {
 
-	def clinicalDataLayerService
-        def oauthService
+	def assayService
+
+	def testAssay = {
+		def assay = Assay.findByAssayUUID('7a9b81bb-4708-4879-a36f-dee335d2f054')
+		def samples = assay.samples
+		[samples: samples, measurements: assayService.requestModuleMeasurements(assay,[],samples)]
+	}
 
 	def index = {
 		println Study.list();
