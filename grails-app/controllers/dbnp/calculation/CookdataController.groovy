@@ -31,9 +31,6 @@ class CookdataController {
     def authenticationService
     def moduleCommunicationService
     def cookdataService
-	def assayService
-	
-	static final int BUFFER = 2048;
 
     /**
      * index method, redirect to the webflow
