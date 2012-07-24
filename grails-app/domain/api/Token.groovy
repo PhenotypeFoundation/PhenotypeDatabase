@@ -22,6 +22,9 @@ class Token {
     SecUser user
     BigInteger sequence
 
+    Date dateCreated
+    Date lastUpdated
+
     static constraints = {
         deviceID nullable: false, unique: true, maxSize: 36
         deviceToken nullable: false, unique: true, maxSize: 36

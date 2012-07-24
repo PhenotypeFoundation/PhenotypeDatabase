@@ -98,6 +98,7 @@
 				<li><g:link controller="assayModule" action="list" class="icon icon_user_add"><img src="${fam.icon(name: 'disconnect')}" alt="module administration"/> Manage Modules</g:link></li>
 				<li><g:link controller="setup" class="icon icon_user_add"><img src="${fam.icon(name: 'wand')}" alt="module administration"/> Setup wizard</g:link></li>
 			    <li><g:link controller="info" class="icon icon_info"><img src="${fam.icon(name: 'lightning')}" alt="application information"/> Application information</g:link></li>
+			    <li><g:link controller="trackr" class="icon icon_info"><img src="${fam.icon(name: 'lightning')}" alt="application access log"/> Application access log</g:link></li>			    
 			</ul>
 		</li>
 	</sec:ifAllGranted>

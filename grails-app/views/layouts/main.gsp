@@ -56,7 +56,6 @@
 		Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="http://dbnp.org">http://dbnp.org</a>.
 	</div>
 </div>
-<g:render template="/common/info"/>
 <trackr:track reference="${session?.gscfUser ? session.gscfUser : '-'}"/>
 </body>
 </html>

@@ -18,7 +18,7 @@ package dbnp.authentication
  * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
  */
 class RegistrationCode {
-	int userId
+    SecUser user
 	String token = UUID.randomUUID().toString().replaceAll('-', '')
 	Date dateCreated
 	Date expiryDate

@@ -58,6 +58,18 @@ class BaseFilters {
 			}
 		}
 
+		// we have to make sure only people with administrator rights can access this page
+		adminOnly(controller: 'trackr', action: '*') {
+			// before every execution
+			before = {
+				// set the secUser in the session
+				def secUser = authenticationService.getLoggedInUser()
+				if (!secUser || !secUser.hasAdminRights()){
+					redirect(controller: 'home')
+				}
+			}
+		}
+		
 		// we need secUser in GDT::Template*, but we do not want GDT
 		// to rely on authentication. Therefore we handle it through
 		// a filter and store the loggedInUser in the session instead

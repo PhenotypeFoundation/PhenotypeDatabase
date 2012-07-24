@@ -28,7 +28,7 @@ class StudyWizardController {
 	 */
 	def index = {
 		// Grom a development message
-		if (pluginManager.getGrailsPlugin('grom')) "redirecting into the webflow".grom()
+		if (String.metaClass.getMetaMethod("grom")) "redirecting into the webflow".grom()
 
 		def jump = [:]
 
@@ -82,7 +82,7 @@ class StudyWizardController {
 		// start the flow
 		onStart {
 			// Grom a development message
-			if (pluginManager.getGrailsPlugin('grom')) "entering the WebFlow".grom()
+			if (String.metaClass.getMetaMethod("grom")) "entering the WebFlow".grom()
 
 			// define variables in the flow scope which is availabe
 			// throughout the complete webflow also have a look at
@@ -126,7 +126,7 @@ class StudyWizardController {
 			render(view: "/studyWizard/index")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the main Ajaxflow page (index.gsp)".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the main Ajaxflow page (index.gsp)".grom()
 
 				// let the view know we're in page 1
 				flow.page = 1
@@ -147,7 +147,7 @@ class StudyWizardController {
 		handleJump {
 			action {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "entering handleJump".grom()
+				if (String.metaClass.getMetaMethod("grom")) "entering handleJump".grom()
 
 				if (flow.jump && flow.jump.action =~ 'edit') {
 					if (flow.jump.id) {
@@ -198,7 +198,7 @@ class StudyWizardController {
 			render(view: "_start")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_start.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_start.gsp".grom()
 
 				flow.page = 1
 				flow.returnTo = 0
@@ -224,7 +224,7 @@ class StudyWizardController {
 			render(view: "_redirect")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_redirect.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_redirect.gsp".grom()
 
 				flash.uri = "/importer/index"
 			}
@@ -236,7 +236,7 @@ class StudyWizardController {
 			render(view: "_modify")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_modify.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_modify.gsp".grom()
 
 				flow.page = 1
 				flash.showCancel = true
@@ -264,7 +264,7 @@ class StudyWizardController {
 			render(view: "_study")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_study.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_study.gsp".grom()
 
 				flow.page = 1
 				flow.returnTo = 0
@@ -354,7 +354,7 @@ class StudyWizardController {
 			render(view: "_subjects")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_subjects.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_subjects.gsp".grom()
 
 				flow.page = 2
 				flow.returnTo = 0
@@ -440,7 +440,7 @@ class StudyWizardController {
 			render(view: "_events")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_events.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_events.gsp".grom()
 
 				flow.page = 3
 				flow.returnTo = 0
@@ -678,7 +678,7 @@ class StudyWizardController {
 		eventsNext {
 			action {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) ".entering eventsNext".grom()
+				if (String.metaClass.getMetaMethod("grom")) ".entering eventsNext".grom()
 
 				def assigned = false
 
@@ -707,7 +707,7 @@ class StudyWizardController {
 			render(view: "_unassigned_samplingEvent_warning")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_unnassigned_samplingEvent_warning.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_unnassigned_samplingEvent_warning.gsp".grom()
 
 				flow.page = 3
 				flow.returnTo = 0
@@ -741,7 +741,7 @@ class StudyWizardController {
 			render(view: "_groups")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_groups.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_groups.gsp".grom()
 
 				flow.page = 3
 				flow.returnTo = 13
@@ -784,7 +784,7 @@ class StudyWizardController {
 			render(view: "_samples_previous_warning")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_samples_previous_warning.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_samples_previous_warning.gsp".grom()
 
 				flow.page = 4
 				flow.returnTo = 0
@@ -805,7 +805,7 @@ class StudyWizardController {
 			render(view: "_samples")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_samples.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_samples.gsp".grom()
 
 				flow.page = 4
 				flow.returnTo = 0
@@ -890,7 +890,7 @@ class StudyWizardController {
 			render(view: "_assays")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_assays.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_assays.gsp".grom()
 
 				flow.page = 5
 				flow.returnTo = 0
@@ -1038,7 +1038,7 @@ class StudyWizardController {
 		assayNext {
 			action {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "entering assayNext".grom()
+				if (String.metaClass.getMetaMethod("grom")) "entering assayNext".grom()
 
 				// have we got samples and assays?
 				if (flow.study.assays && flow.study.samples) {
@@ -1059,7 +1059,7 @@ class StudyWizardController {
 			render(view: "_assay_groups")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_assay_groups.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_assay_groups.gsp".grom()
 
 				flow.page = 5
 				flow.returnTo = 15
@@ -1106,7 +1106,7 @@ class StudyWizardController {
 		confirmPrevious {
 			action {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "entering confirmPrevious".grom()
+				if (String.metaClass.getMetaMethod("grom")) "entering confirmPrevious".grom()
 
 				// have we got samples and assays?
 				if (flow.study.assays && flow.study.samples) {
@@ -1127,7 +1127,7 @@ class StudyWizardController {
 			render(view: "_confirmation")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_confirmation.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_confirmation.gsp".grom()
 
 				flow.page = 6
 				flow.returnTo = 0
@@ -1164,7 +1164,7 @@ class StudyWizardController {
 		save {
 			action {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "entering save".grom()
+				if (String.metaClass.getMetaMethod("grom")) "entering save".grom()
 
 				flow.page = 7
 
@@ -1174,7 +1174,7 @@ class StudyWizardController {
 				try {
 					// save study
 					// Grom a development message
-					if (pluginManager.getGrailsPlugin('grom')) "saving study".grom()
+					if (String.metaClass.getMetaMethod("grom")) "saving study".grom()
 
 					// Make sure the owner of the study is set right
 					if (!flow.study.owner) {
@@ -1255,7 +1255,7 @@ class StudyWizardController {
 			render(view: "_error")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_error.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_error.gsp".grom()
 
 				flow.page = 6
 				flow.returnTo = 0
@@ -1277,7 +1277,7 @@ class StudyWizardController {
 			render(view: "_done")
 			onRender {
 				// Grom a development message
-				if (pluginManager.getGrailsPlugin('grom')) "rendering the partial: pages/_done.gsp".grom()
+				if (String.metaClass.getMetaMethod("grom")) "rendering the partial: pages/_done.gsp".grom()
 
 				flow.page = 7
 				flow.returnTo = 0
