@@ -83,8 +83,10 @@ function duplicateRow() {
 // param that = the context (this) of the input where the name is typed
 function changeDatasetName(that) {
     // Add the changed title of the current dataset to the settings
-        $(".datasetTitleHere").html($(that).val());
-    }
+    $(".datasetTitleHere").html($(that).val());
+    // Update #datasettableHTML to ensure up-to-date table is sent to server. See #datasettableHTML for details.
+    updateFlowItems();
+}
 
 // Function that is called when an eventgroupcheckbox is checked or unchecked
 function checkSampleGroup() {
@@ -158,8 +160,8 @@ function changeAggr(that) {
     $("#datasettable .rowselected .aggregation").val($(that).val());
     $("#datasettable .rowselected .aggregationshow").html($(that).val());
     // Update #datasettableHTML to ensure up-to-date table is sent to server. See #datasettableHTML for details.
-
-    }
+    updateFlowItems();
+}
 
 function updateFlowItems(){
     $("#datasetTableHtmlDiv").html(
