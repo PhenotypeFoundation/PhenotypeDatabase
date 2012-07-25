@@ -321,7 +321,7 @@ class CookdataController {
 		            success()
                 }
                 catch (Exception e) {
-                    println "catching ${e.getMessage()}"
+                    log.error("CookdataController: Error caught while computing results: ${e.getMessage()}")
                     flash.wizardErrors << e
                     error()
                 }
@@ -338,7 +338,6 @@ class CookdataController {
             onRender {
                 // Grom a development message
                 if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_page_four.gsp".grom()
-				session.downloadResultId = null
 				session.results = null
                 flow.page = 4
                 success()
@@ -397,19 +396,22 @@ class CookdataController {
 	 * as an attachment. 
 	 */
 	def downloadExcel = {
-        response.setHeader "Content-disposition", "attachment;filename=\""+session.results[0].datasetName+".xlsx\""
+        def datasetName = session.results[0].datasetName
+        response.setHeader "Content-disposition", "attachment;filename=\""+datasetName+".xlsx\""
         response.setContentType "application/octet-stream"
-
         def type = session.results[0].aggr
         if(type=="values"){
             cookdataService.writeValuesToStream(response.getOutputStream(), session.results)
         }
         if(type=="average" || type=="median"){
-            cookdataService.writeAverageOrMedianToStream(response.getOutputStream(), session.results)
+            cookdataService.writeAverageOrMedianToStream(response.getOutputStream(), session.results[1], datasetName)
+        }
+        if(type=="pairwise"){
+            cookdataService.writePairwiseToStream(response.getOutputStream(), session.results[1])
         }
 
         response.outputStream.flush()
-		session.results = null
+        session.results = null
 	}
 
     /**
