@@ -140,6 +140,8 @@ div#settingsDivBlurr {
         $(".datasetTitleHere").html('...');
         $("#sampleTable input[type=checkbox]").attr("CHECKED",false);
         $("#calculatorInput").val("");
+        // Update #datasettableHTML to ensure up-to-date table is sent to server. See #datasettableHTML for details.
+        updateFlowItems();
     }
 
     // Function that is called each time the "duplicate dataset" link is clicked
