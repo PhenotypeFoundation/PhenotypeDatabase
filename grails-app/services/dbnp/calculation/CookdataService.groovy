@@ -840,7 +840,8 @@ class CookdataService {
      * @param results       Contains all the information that needs to be exported
      */
     public void writeZipOfAllResults(ZipOutputStream zipOutStream, results){
-        // TODO: write out the results for the "pairwise" aggregation
+        List summary = [["Filename","Equation","Aggregation", "# samples in A", "# samples in B"]]
+
         for(int r = 0; r < results.size(); r++){
             if(results[r]==null){
                 continue
@@ -848,6 +849,7 @@ class CookdataService {
 
             String aggregationType = results[r][0].aggr
             String datasetName = results[r][0].datasetName
+            String filename = aggregationType+"_"+datasetName+".xlsx"
 
             // Write the data to a stream
             def fileByteArrOutStream = new ByteArrayOutputStream()
@@ -860,12 +862,24 @@ class CookdataService {
             if(aggregationType == "average" || aggregationType == "median"){
                 writeAverageOrMedianToStream(fileByteArrOutStream, results[r][1], datasetName)
             }
+            summary.add([filename,
+                results[r][0].equation,
+                results[r][0].aggr,
+                results[r][0].samplesA.size(),
+                results[r][0].samplesB.size()])
             results[r]=null
 
             // Write the stream to the zip
-            zipOutStream.putNextEntry(new ZipEntry(aggregationType+"_"+datasetName+".xlsx"))
+            zipOutStream.putNextEntry(new ZipEntry(filename))
             zipOutStream.write(fileByteArrOutStream.toByteArray());
             zipOutStream.closeEntry();
         }
+
+        // Write the summary to the zip
+        def fileByteArrOutStream = new ByteArrayOutputStream()
+        assayService.exportRowWiseDataToExcelFile(summary,	fileByteArrOutStream)
+        zipOutStream.putNextEntry(new ZipEntry("summary.xls"))
+        zipOutStream.write(fileByteArrOutStream.toByteArray());
+        zipOutStream.closeEntry();
     }
 }
