@@ -13,6 +13,8 @@ import grails.converters.JSON
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletResponse
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 /**
  * Cookdata Controller
@@ -349,6 +351,7 @@ class CookdataController {
 			}.to "pageFour"
 			on("downloadAllResultsAsZip"){
 				session.results = flow.results
+                session.studyCode = flow.study.code
 				redirect(action: 'downloadExcelsInZip')
 			}.to "pageFour"
             on("downloadMeanAndMedianResults"){
@@ -455,15 +458,18 @@ class CookdataController {
 	*/
     def downloadExcelsInZip = {
 		// Prepare for writing to zip
-		String strFilename = "results.zip"
 		ByteArrayOutputStream zipByteArrOutStream = new ByteArrayOutputStream();
 		ZipOutputStream zipOutStream = new ZipOutputStream(zipByteArrOutStream);
+        Date date = new Date();
+        DateFormat df = new SimpleDateFormat("EEE_d_MMM_yyyy_HH_mm_ss");
+        String strFilename = session.studyCode+"_"+df.format(date)+".zip"
 		
 		// Let the service write to the stream
 		cookdataService.writeZipOfAllResults(zipOutStream, session.results)
 		
 		// Finish up, send attachment to client
 		session.results = null
+        session.studyCode = null
 		zipOutStream.close();
 		response.setHeader "Content-disposition", "attachment;filename=\"${strFilename}\""
 		response.setContentType "application/octet-stream"
