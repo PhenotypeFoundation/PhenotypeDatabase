@@ -300,7 +300,7 @@ class AssayService {
 	 * @param samples			Samples to collect measurements for
 	 * @return
 	 */
-	def requestModuleMeasurements(assay, inputMeasurementTokens, samples, SecUser remoteUser = null) {
+	def requestModuleMeasurements(assay, List inputMeasurementTokens, List samples, SecUser remoteUser = null) {
 
 		def moduleUrl = assay.module.url
 
