@@ -404,7 +404,7 @@ class CookdataController {
         response.setContentType "application/octet-stream"
         def type = session.results[0].aggr
         if(type=="values"){
-            cookdataService.writeValuesToStream(response.getOutputStream(), session.results)
+            cookdataService.writeValuesToStream(response.getOutputStream(), session.results[1])
         }
         if(type=="average" || type=="median"){
             cookdataService.writeAverageOrMedianToStream(response.getOutputStream(), session.results[1], datasetName)
