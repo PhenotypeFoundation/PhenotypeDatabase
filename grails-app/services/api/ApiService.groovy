@@ -15,15 +15,18 @@
 package api
 
 import java.security.MessageDigest
-import dbnp.studycapturing.Assay
+import dbnp.studycapturing.*
+import org.dbnp.gdt.*
 import dbnp.authentication.SecUser
 import org.springframework.context.ApplicationContextAware
 import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
 import org.springframework.context.ApplicationContext
+import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 class ApiService implements Serializable, ApplicationContextAware {
     // inject the module communication service
     def moduleCommunicationService
+	def gdtService
 
     // transactional
     static transactional = false
@@ -90,14 +93,35 @@ class ApiService implements Serializable, ApplicationContextAware {
         return validated
     }
 
-    /**
+	/**
+	 * flatten domain data and strip extra elements from resultset
+	 *
+	 * @param elements (List or Set)
+	 * @param elements to strip (List)
+	 * @return
+	 */
+	public flattenDomainData(elements, elementsToStrip) {
+		def items = flattenDomainData(elements)
+
+		// remove elements
+		items.each { item ->
+			elementsToStrip.each {
+				item.remove(it)
+			}
+		}
+
+		// and return the stripped set
+		return items
+	}
+
+	/**
      * flatten domain data to relevant data to return in an api
      * call and not to expose domain internals
      *
      * @param elements (List or Set)
      * @return
      */
-    def flattenDomainData(elements) {
+    public flattenDomainData(elements) {
         def items = []
 
         // iterate through elements
@@ -279,4 +303,56 @@ class ApiService implements Serializable, ApplicationContextAware {
 
         return json
     }
+
+	/**
+	 * get a list of domain classes that extend GDT's TemplateEntity
+	 *
+	 * @return array
+	 */
+	def getEntities() {
+		def entities = [:]
+
+		// get the names of all domain classes ('entities') that extend GDT's TemplateEntity
+		ApplicationHolder.application.getArtefacts("Domain").each {
+			def entityInstance = it.clazz
+
+			if (entityInstance.properties.superclass.toString() =~ 'TemplateEntity') {
+				// get matches from regular expression
+				def matchesClassName = entityInstance.toString() =~ /\.([^\.]+)$/
+				def fullName = entityInstance.toString().split(" ")[1]
+
+				// add entity
+				entities[ matchesClassName[0][1] ] = fullName
+			}
+		}
+
+		return entities
+	}
+
+	/**
+	 * check if an entity is valid
+	 *
+	 * @param string
+	 * @return boolean
+	 */
+	def isValidEntity(String entityType) {
+		return getEntities().containsKey(entityType)
+	}
+
+	/**
+	 * get an instance of an entity
+	 *
+	 * @param entityType
+	 * @return Object
+	 */
+	def getEntity(String entityType) {
+		def entities = getEntities()
+		def entity
+
+		if (isValidEntity(entityType)) {
+			entity = gdtService.getInstanceByEntityName(entities[entityType])
+		}
+
+		return entity
+	}
 }
