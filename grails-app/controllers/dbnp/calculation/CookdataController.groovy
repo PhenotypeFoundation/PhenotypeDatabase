@@ -13,6 +13,8 @@ import grails.converters.JSON
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletResponse
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 /**
  * Cookdata Controller
@@ -31,9 +33,6 @@ class CookdataController {
     def authenticationService
     def moduleCommunicationService
     def cookdataService
-	def assayService
-	
-	static final int BUFFER = 2048;
 
     /**
      * index method, redirect to the webflow
@@ -193,6 +192,10 @@ class CookdataController {
                 }
                 flow.samplingEventTemplates = flow.samplingEventTemplates.unique()
 
+
+                // Reset page three contents, as these may well be out of date
+                flow.pageThreeDatasetTableHtml = null
+                flow.pageThreeDatasetCounter = null
             }.to "pageThree"
             on("previous"){
                 flow.mapSelectionSets = [:]
@@ -216,6 +219,14 @@ class CookdataController {
                 success()
             }
             on("next"){
+                // Saving some of the contents, so that these can be placed in the page when the user goes back to it
+                if(params.datasetTableHtml)   {
+                    flow.pageThreeDatasetTableHtml = params.datasetTableHtml
+                }
+                if(params.datasetCounter)   {
+                    flow.pageThreeDatasetCounter = params.datasetCounter
+                }
+
 	            flash.wizardErrors = []
 
 				List listToBeComputed = []
@@ -312,12 +323,15 @@ class CookdataController {
 		            success()
                 }
                 catch (Exception e) {
-                    println "catching ${e.getMessage()}"
+                    log.error("CookdataController: Error caught while computing results: ${e.getMessage()}")
                     flash.wizardErrors << e
                     error()
                 }
             }.to "pageFour"
-            on("previous").to "pageTwo"
+            on("previous"){
+                // Reset samplingEvent selection, otherwise some options on page two will have become inaccessible
+                flow.samplingEventTemplates = flow.samplingEvents*.template.unique()
+            }.to "pageTwo"
         }
 
         // second wizard page
@@ -326,7 +340,6 @@ class CookdataController {
             onRender {
                 // Grom a development message
                 if (pluginManager.getGrailsPlugin('grom')) ".rendering the partial pages/_page_four.gsp".grom()
-				session.downloadResultId = null
 				session.results = null
                 flow.page = 4
                 success()
@@ -338,6 +351,7 @@ class CookdataController {
 			}.to "pageFour"
 			on("downloadAllResultsAsZip"){
 				session.results = flow.results
+                session.studyCode = flow.study.code
 				redirect(action: 'downloadExcelsInZip')
 			}.to "pageFour"
             on("downloadMeanAndMedianResults"){
@@ -385,19 +399,22 @@ class CookdataController {
 	 * as an attachment. 
 	 */
 	def downloadExcel = {
-        response.setHeader "Content-disposition", "attachment;filename=\""+session.results[0].datasetName+".xlsx\""
+        def datasetName = session.results[0].datasetName
+        response.setHeader "Content-disposition", "attachment;filename=\""+datasetName+".xlsx\""
         response.setContentType "application/octet-stream"
-
         def type = session.results[0].aggr
         if(type=="values"){
             cookdataService.writeValuesToStream(response.getOutputStream(), session.results)
         }
         if(type=="average" || type=="median"){
-            cookdataService.writeAverageOrMedianToStream(response.getOutputStream(), session.results)
+            cookdataService.writeAverageOrMedianToStream(response.getOutputStream(), session.results[1], datasetName)
+        }
+        if(type=="pairwise"){
+            cookdataService.writePairwiseToStream(response.getOutputStream(), session.results[1])
         }
 
         response.outputStream.flush()
-		session.results = null
+        session.results = null
 	}
 
     /**
@@ -441,15 +458,18 @@ class CookdataController {
 	*/
     def downloadExcelsInZip = {
 		// Prepare for writing to zip
-		String strFilename = "results.zip"
 		ByteArrayOutputStream zipByteArrOutStream = new ByteArrayOutputStream();
 		ZipOutputStream zipOutStream = new ZipOutputStream(zipByteArrOutStream);
+        Date date = new Date();
+        DateFormat df = new SimpleDateFormat("EEE_d_MMM_yyyy_HH_mm_ss");
+        String strFilename = session.studyCode+"_"+df.format(date)+".zip"
 		
 		// Let the service write to the stream
 		cookdataService.writeZipOfAllResults(zipOutStream, session.results)
 		
 		// Finish up, send attachment to client
 		session.results = null
+        session.studyCode = null
 		zipOutStream.close();
 		response.setHeader "Content-disposition", "attachment;filename=\"${strFilename}\""
 		response.setContentType "application/octet-stream"

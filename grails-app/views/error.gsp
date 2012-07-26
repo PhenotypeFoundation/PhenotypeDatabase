@@ -28,7 +28,7 @@
     <h2>Error Details</h2>
 
   	<div class="message">
-		<strong>Error ${request.'javax.servlet.error.status_code'}:</strong> ${request.'javax.servlet.error.message'.encodeAsHTML()}<br/>
+		<strong>Error ${request?.'javax.servlet.error.status_code'}:</strong> ${request?.'javax.servlet.error.message'?.encodeAsHTML()}<br/>
 		<strong>Servlet:</strong> ${request.'javax.servlet.error.servlet_name'}<br/>
 		<strong>URI:</strong> ${request.'javax.servlet.error.request_uri'}<br/>
 		<g:if test="${exception}">
