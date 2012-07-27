@@ -584,13 +584,17 @@ class CookdataService {
             throw new IllegalArgumentException("The samples from "+groupName+" of dataset ${item.datasetName} do not have any measurements for ${feature}. Cannot compute average or median.")
         }
         double res = 0.0
-        if(item.aggr == "average"){
-            res = computeMean(data)
+        try {
+		    if(item.aggr == "average"){
+	            res = computeMean(data)
+	        }
+	        if(item.aggr == "median"){
+	            res = computeMedian(data)
+	        }
         }
-        if(item.aggr == "median"){
-            res = computeMedian(data)
+        catch(Exception e) {
+	        throw new IllegalArgumentException("Error while computing mean or median on numbers like ${data.first()} (from ${groupName}, ${item.datasetName}, feature ${feature}). Are the numbers stored in the right format in the module? Error was: ${e.getMessage()}")
         }
-
         return res
     }
 
