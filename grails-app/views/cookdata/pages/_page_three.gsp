@@ -62,7 +62,13 @@
             <g:each in="${selectionTriples}" var="pair" status="p">
                 <g:if test="${samplingEvents[pair[0]]?.template == template}">
                     <tr>
-                        <td class="numSamples">${samplingEvents[pair[0]]?.samples?.size()}</td>
+                        <td class="numSamples"><%
+                        // This should be: out << samplingEvents[pair[0]]?.samples?.count { it.parentEventGroup.equals(eventGroups[pair[1]]) == true};
+                        // But for some strange reason the count closure does not seem to work. This works:
+                        def samples = samplingEvents[pair[0]]?.samples
+                        def eventGroup = eventGroups[pair[1]]
+                        def counts = samples.collect { it.parentEventGroup.equals(eventGroup)}
+                        out << counts.count(true)%></td>
                         <g:each in="${samplingEventFields}" var="field">
                             <td>
                                 <g:if test="${field.type == TemplateFieldType.RELTIME}">
