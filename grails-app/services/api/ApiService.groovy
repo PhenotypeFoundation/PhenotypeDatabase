@@ -135,11 +135,10 @@ class ApiService implements Serializable, ApplicationContextAware {
             }
 
             // add token
-            if (it.respondsTo('getToken')) {
-                // some domain methods implement getToken...
-                item['token'] = it.getToken()
-            } else if (it.respondsTo('giveUUID')) {
-                // ...while others implement giveUUID
+	        if (it.respondsTo('giveUUID')) {
+                // some domain methods implement giveUUID
+		        // (and this has system wide been implemented
+		        //  in GDT 1.3.1)...
                 item['token'] = it.giveUUID()
             } else {
                 // and others don't at all, so far

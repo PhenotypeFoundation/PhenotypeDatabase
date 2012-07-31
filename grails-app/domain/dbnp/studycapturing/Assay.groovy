@@ -15,11 +15,6 @@ class Assay extends TemplateEntity {
     AssayModule module
 
     /**
-     * UUID of this assay
-     */
-    String assayUUID
-
-    /**
      * return the domain fields for this domain class
      * @return List
      */
@@ -47,10 +42,6 @@ class Assay extends TemplateEntity {
     // An Assay can have many samples on which it is performed, but all samples should be within the 'parent' Study.
     static hasMany = [samples: Sample]
 
-    static constraints = {
-        assayUUID(nullable: true, unique: true)
-    }
-
     static mapping = {
 	    cache true
         sort "name"
@@ -61,10 +52,6 @@ class Assay extends TemplateEntity {
 
     def String toString() {
         return name;
-    }
-
-    def getToken() {
-        return giveUUID()
     }
 
     /**
@@ -82,19 +69,5 @@ class Assay extends TemplateEntity {
         Assay s = (Assay) o;
 
         return this.id == s.id
-    }
-
-    /**
-     * Returns the UUID of this sample and generates one if needed
-     */
-    public String giveUUID() {
-        if (!this.assayUUID) {
-            this.assayUUID = UUID.randomUUID().toString();
-            if (!this.save(flush: true)) {
-                log.error "Couldn't save assay UUID: " + this.getErrors();
-            }
-        }
-
-        return this.assayUUID;
     }
 }

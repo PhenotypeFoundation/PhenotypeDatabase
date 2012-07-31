@@ -118,7 +118,7 @@ class ApiController {
             readableStudies.each { study ->
                 // get result data
                 studies[ studies.size() ] = [
-                        'token'                 : study.getToken(),
+                        'token'                 : study.giveUUID(),
                         'title'                 : study.title,
                         'description'           : study.description,
                         'subjects'              : study.subjects.size(),
@@ -527,4 +527,13 @@ class ApiController {
 			response.sendError(500, "unknown error occured (${e.getMessage()})")
 		}
 	}
+
+	/**
+	 * get all fields for a specific entity and optionally a template
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 * @param string entityType
+	 * @param string templateToken
+	 */
 }

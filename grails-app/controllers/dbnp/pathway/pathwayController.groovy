@@ -192,9 +192,9 @@ class pathwayController {
         def json
         for (assay in assays) {
             if (assay.name.equals(assayName)) {
-                def callUrl = assay.module.url + '/rest/getMeasurementData/query?assayToken=' + assay.getToken()
+                def callUrl = assay.module.url + '/rest/getMeasurementData/query?assayToken=' + assay.giveUUID()
                 json = moduleCommunicationService.callModuleMethod( assay.module.url, callUrl )
-                def meta = sample.module.url + '/rest/getMeasurementMetaData/query?sampleToken=' + sample.getToken() +'&measurementToken=' + json[0][0]
+                def meta = sample.module.url + '/rest/getMeasurementMetaData/query?sampleToken=' + sample.giveUUID() +'&measurementToken=' + json[0][0]
                 return meta
             }
         }
