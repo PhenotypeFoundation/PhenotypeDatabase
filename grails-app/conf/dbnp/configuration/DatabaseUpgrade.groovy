@@ -459,9 +459,6 @@ class DatabaseUpgrade {
 		// are we running postgreSQL?
 		if (db == "org.postgresql.Driver") {
 			sql.eachRow("SELECT * FROM information_schema.columns WHERE columns.column_name LIKE '%uuid' AND columns.column_name != 'uuid'") { row ->
-				println "row:"
-				println row
-
 				if (sql.firstRow(sprintf("SELECT * FROM information_schema.columns WHERE columns.column_name='uuid' AND table_name='%s'",row.table_name))) {
 					if (String.metaClass.getMetaMethod("grom") && !grom) {
 						"migrating domain specific UUIDs to system wide generic UUIDs".grom()
