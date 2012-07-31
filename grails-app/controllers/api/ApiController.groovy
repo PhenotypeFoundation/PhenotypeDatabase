@@ -536,4 +536,77 @@ class ApiController {
 	 * @param string entityType
 	 * @param string templateToken
 	 */
+	def getFieldsForEntityWithTemplate = {
+		println "api::getFieldsForEntityWithTemplate: ${params}"
+
+		def result = [:]
+		String entityType = (params.containsKey('entityType')) ? params.get('entityType') : ''
+		String templateToken = (params.containsKey('templateToken')) ? params.get('templateToken') : ''
+
+		if (entityType) {
+			try {
+				// instantiate entity
+				def entity = apiService.getEntity(entityType)
+				def entityInstance = entity.newInstance()
+
+				// got a template?
+				if (templateToken) {
+					def template = Template.findWhere(UUID: templateToken)
+
+					// was a valid template specified?
+					if (template && entity.equals(template.entity)) {
+						// set template
+						entityInstance.setTemplate(template)
+					} else {
+						throw new Exception("invalid template token specified, call getTemplatesForEntity(${entityType}) for a list of valid templates")
+					}
+
+
+					// wrap result in api call validator
+					apiService.executeApiCall(params, response, entityType, entityInstance, {
+						// set output headers
+						response.status = 200
+						response.contentType = 'application/json;charset=UTF-8'
+
+						// gather data
+						def fields = []
+						def requiredFields = entityInstance.getRequiredFields().collect { it.name }
+
+						// gather fields
+						entityInstance.giveFields().each { field ->
+							def flattenedField = apiService.flattenTemplateField(field)
+
+							flattenedField.required = requiredFields.contains(flattenedField.name)
+
+							fields.add(flattenedField)
+						}
+
+						// fetch all fields
+						result = [
+								'fields'        : fields,
+								'requiredFields': requiredFields
+						]
+
+						if (params.containsKey('callback')) {
+							render "${params.callback}(${result as JSON})"
+						} else {
+							render result as JSON
+						}
+					})
+				}
+			} catch (Exception e) {
+				response.sendError(500, "unknown error occured (${e.getMessage()})")
+			}
+		} else {
+			response.sendError(400, "entityType is missing")
+		}
+	}
+
+	/**
+	 * Implementation of RFC 2324
+	 */
+	def teapot = {
+		// ask, and the Mad Hatter will reply...
+		response.sendError(418, "'Twas brillig, and the slithy toves Did gyre and gimble in the wabe: All mimsy were the borogoves, And the mome raths outgrabe.")
+	}
 }

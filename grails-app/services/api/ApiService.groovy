@@ -165,7 +165,7 @@ class ApiService implements Serializable, ApplicationContextAware {
 
             // list hasMany sizes
             it.properties.hasMany.each { hasManyItem ->
-                if (!ignoreHasManyKeys.contains(hasManyItem.key)) {
+	            if (!ignoreHasManyKeys.contains(hasManyItem.key)) {
                     // add count for this hasMany item
                     item[ hasManyItem.key ] = it[ hasManyItem.key ].size()
                 }
@@ -177,6 +177,40 @@ class ApiService implements Serializable, ApplicationContextAware {
 
         return items
     }
+
+	/**
+	 * flatten template field information
+	 */
+	public flattenTemplateField(TemplateField field) {
+		def info = [
+			'name'          : field.name,
+			'comment'       : field.comment,
+			'type'          : field.type.name
+		]
+
+		// listEntries
+		if (field.type == TemplateFieldType.STRINGLIST || field.type == TemplateFieldType.EXTENDABLESTRINGLIST) {
+			info.terms = field.listEntries.collect { it.name }
+		}
+
+		// ontologies
+		if (field.type == TemplateFieldType.ONTOLOGYTERM) {
+			def ontologies = []
+
+			field.ontologies.each {
+				ontologies.add([
+					'name'          : it.name,
+					'description'   : it.description,
+					'ncboId'        : it.ncboId,
+					'url'           : it.url
+				])
+			}
+
+			info.ontologies = ontologies
+		}
+
+		return info
+	}
 
     /**
      * wrapper for performing api calls
