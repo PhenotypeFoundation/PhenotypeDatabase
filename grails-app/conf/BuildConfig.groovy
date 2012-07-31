@@ -20,9 +20,8 @@ grails.project.dependency.resolution = {
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
-	    grailsPlugins()
-	    grailsHome()
 	    grailsCentral()
+	    grailsRepo "http://grails.org/plugins"
 	    mavenCentral()
 
 	    // grails 1.3.9 does not seem to properly inherit maven repo's from plugins
