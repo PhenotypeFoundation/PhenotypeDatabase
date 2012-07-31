@@ -1,6 +1,6 @@
 package dbnp.studycapturing
 
-import java.util.ArrayList;
+import java.util.ArrayList
 
 import org.dbnp.gdt.*
 
@@ -31,11 +31,6 @@ class Sample extends TemplateEntity {
 
     String name             // should be unique with respect to the parent study (which can be inferred)
     Term material            // material of the sample (should normally be bound to the BRENDA ontology)
-
-    /**
-     * UUID of this sample
-     */
-    String sampleUUID
 
     /**
      * return the domain fields for this domain class
@@ -71,8 +66,6 @@ class Sample extends TemplateEntity {
 
         // The material domain field is optional
         material(nullable: true)
-
-        sampleUUID(nullable: true, unique: true)
 
         // Check if the externalSampleId (currently defined as name) is really unique within each parent study of this sample.
         // This feature is tested by integration test SampleTests.testSampleUniqueNameConstraint
@@ -151,20 +144,6 @@ class Sample extends TemplateEntity {
         Sample s = (Sample) o;
 
         return this.is(s) || this.id == s.id
-    }
-
-    /**
-     * Returns the UUID of this sample and generates one if needed
-     */
-    public String giveUUID() {
-        if (!this.sampleUUID) {
-            this.sampleUUID = UUID.randomUUID().toString();
-            if (!this.save(flush: true)) {
-                //println "Couldn't save sample UUID: " + this.getErrors();
-            }
-        }
-
-        return this.sampleUUID;
     }
 
     /**

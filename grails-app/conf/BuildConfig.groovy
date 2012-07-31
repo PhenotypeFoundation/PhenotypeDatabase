@@ -61,7 +61,7 @@ grails.project.dependency.resolution = {
                 ":crypto:2.0",
                 ":spring-security-core:1.1.2",
 
-                ":gdt:0.3.0",
+                ":gdt:0.3.1",
                 ":gdtimporter:0.5.2",
 
                 ":famfamfam:1.0.1",

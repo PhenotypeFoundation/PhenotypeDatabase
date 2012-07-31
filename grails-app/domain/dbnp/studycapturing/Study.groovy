@@ -31,11 +31,6 @@ class Study extends TemplateEntity {
     // 20120625: published default to true
     boolean published = true // Determines whether a study is private (only accessable by the owner and writers) or published (also visible to readers)
 
-    /**
-	 * UUID of this study
-	 */
-	String studyUUID
-
 	static hasMany = [
 		subjects: Subject,
 		samplingEvents: SamplingEvent,
@@ -53,7 +48,6 @@ class Study extends TemplateEntity {
 		title(nullable:false, blank: false, unique:true, maxSize: 255)
 		owner(nullable: true, blank: true)
 		code(nullable: true, blank: true, unique: true, maxSize: 255)
-		studyUUID(nullable:true, unique:true, maxSize: 255)
 		persons(size:1..1000)
 		// TODO: add custom validator for 'published' to assess whether the study meets all quality criteria for publication
 		// tested by SampleTests.testStudyPublish
@@ -76,11 +70,6 @@ class Study extends TemplateEntity {
 		templateTextFields type: 'text'
 
 	}
-
-	// The external identifier (studyToken) is currently the code of the study.
-	// It is used from within dbNP submodules to refer to particular study in this GSCF instance.
-
-	def getToken() { return giveUUID() }
 
 	/**
 	 * return the domain fields for this domain class
@@ -676,20 +665,6 @@ class Study extends TemplateEntity {
 				}
 			}).size()
 		}
-	}
-
-	/**
-	 * Returns the UUID of this study and generates one if needed
-	 */
-	public String giveUUID() {
-		if( !this.studyUUID ) {
-			this.studyUUID = UUID.randomUUID().toString();
-			if( !this.save(flush:true) ) {
-				log.error "Couldn't save study UUID: " + this.getErrors();
-			}
-		}
-
-		return this.studyUUID;
 	}
 
 	/**

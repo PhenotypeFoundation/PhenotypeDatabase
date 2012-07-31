@@ -29,20 +29,21 @@ class DatabaseUpgrade {
 		def db = config.dataSource.driverClassName
 
 		// execute per-change check and upgrade code
-		changeStudyDescription(sql, db)					// r1245 / r1246
-		changeStudyDescriptionToText(sql, db)			// r1327
-		changeTemplateTextFieldSignatures(sql, db)		// prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
-		setAssayModuleDefaultValues(sql, db)			// r1490
-		dropMappingColumnNameConstraint(sql, db)		// r1525
-		makeMappingColumnValueNullable(sql, db)			// r1525
-		alterStudyAndAssay(sql, db)						// r1594
+		changeStudyDescription(sql, db)                 // r1245 / r1246
+		changeStudyDescriptionToText(sql, db)           // r1327
+		changeTemplateTextFieldSignatures(sql, db)      // prevent Grails issue, see http://jira.codehaus.org/browse/GRAILS-6754
+		setAssayModuleDefaultValues(sql, db)            // r1490
+		dropMappingColumnNameConstraint(sql, db)        // r1525
+		makeMappingColumnValueNullable(sql, db)         // r1525
+		alterStudyAndAssay(sql, db)                     // r1594
 		fixDateCreatedAndLastUpdated(sql, db)
-		dropAssayModulePlatform(sql, db)				// r1689
-		makeStudyTitleAndTemplateNamesUnique(sql, db)	// #401, #406
-        renameGdtMappingColumnIndex(sql, db)            // 'index' column in GdtImporter MappingColumn is a reserved keyword in MySQL
-                                                        // GdtImporter now by default uses 'columnindex' as domain field name
-		fixShibbolethSecUser(sql, db)					// fix shibboleth user
-        changeOntologyDescriptionType(sql, db)          // change ontology description type to text
+		dropAssayModulePlatform(sql, db)                // r1689
+		makeStudyTitleAndTemplateNamesUnique(sql, db)   // #401, #406
+		renameGdtMappingColumnIndex(sql, db)            // 'index' column in GdtImporter MappingColumn is a reserved keyword in MySQL
+		// GdtImporter now by default uses 'columnindex' as domain field name
+		fixShibbolethSecUser(sql, db)                   // fix shibboleth user
+		changeOntologyDescriptionType(sql, db)          // change ontology description type to text
+		changeSpecificUUIDsToGenericUUIDs(sql, db)      // change domain specific UUIDs to generic UUIDs (GDT >= 0.3.1)
 	}
 
 	/**
@@ -127,17 +128,17 @@ class DatabaseUpgrade {
 		if (db == "org.postgresql.Driver") {
 			// check if any TEXT template fields are of type 'text'
 			sql.eachRow("SELECT columns.table_name as tablename FROM information_schema.columns WHERE columns.table_schema::text = 'public'::text AND column_name='template_text_fields_elt' AND data_type != 'text';")
-				{ row ->
-					if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: ${row.tablename} template_text_fields_string/elt to text".grom()
-					try {
-						// change the datatype of text fields to text
-						sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_elt TYPE text", row.tablename))
-						sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_string TYPE text", row.tablename))
+					{ row ->
+						if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: ${row.tablename} template_text_fields_string/elt to text".grom()
+						try {
+							// change the datatype of text fields to text
+							sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_elt TYPE text", row.tablename))
+							sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN template_text_fields_string TYPE text", row.tablename))
 
-					} catch (Exception e) {
-						println "changeTemplateTextFieldSignatures database upgrade failed: " + e.getMessage()
+						} catch (Exception e) {
+							println "changeTemplateTextFieldSignatures database upgrade failed: " + e.getMessage()
+						}
 					}
-				}
 		}
 	}
 
@@ -152,7 +153,7 @@ class DatabaseUpgrade {
 	public static void setAssayModuleDefaultValues(sql, db) {
 		// do we need to perform this upgrade?
 		if ((db == "org.postgresql.Driver" || db == "com.mysql.jdbc.Driver") &&
-			(sql.firstRow("SELECT * FROM assay_module WHERE notify IS NULL") || sql.firstRow("SELECT * FROM assay_module WHERE open_in_frame IS NULL"))
+				(sql.firstRow("SELECT * FROM assay_module WHERE notify IS NULL") || sql.firstRow("SELECT * FROM assay_module WHERE open_in_frame IS NULL"))
 		) {
 			if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: assay_module default values for boolean fields".grom()
 
@@ -193,7 +194,7 @@ class DatabaseUpgrade {
 		}
 	}
 
-    /**
+	/**
 	 * Rename the column 'index' (reserved keyword in MySQL) from GdtImporterMapping to 'columnindex'
 	 *
 	 * @param sql
@@ -300,18 +301,17 @@ class DatabaseUpgrade {
 				// fix database
 				try {
 					// setting all null values to now()
-					sql.execute(sprintf("UPDATE %s SET %s=now() WHERE %s IS NULL",row.table_name,row.column_name,row.column_name))
+					sql.execute(sprintf("UPDATE %s SET %s=now() WHERE %s IS NULL", row.table_name, row.column_name, row.column_name))
 
 					// and alter the table to disallow null values
-					sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN %s SET NOT NULL",row.table_name,row.column_name))
+					sql.execute(sprintf("ALTER TABLE %s ALTER COLUMN %s SET NOT NULL", row.table_name, row.column_name))
 				} catch (Exception e) {
 					println "fixDateCreatedAndLastUpdated database upgrade failed: " + e.getMessage()
 				}
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * drops the field platform from assay modules
 	 * @param sql
@@ -363,7 +363,7 @@ class DatabaseUpgrade {
 	 * @param db
 	 */
 	public static void makeStudyTitleAndTemplateNamesUnique(sql, db) {
-		def titleCount,title,newTitle,templateFieldTypeCount,templateFieldUnitCount
+		def titleCount, title, newTitle, templateFieldTypeCount, templateFieldUnitCount
 		def grom = false
 
 		// are we running postgreSQL?
@@ -381,24 +381,24 @@ class DatabaseUpgrade {
 				}
 
 				// set work variables
-				titleCount	= 1
-				title		= row.title.replace("'","\'")
+				titleCount = 1
+				title = row.title.replace("'", "\'")
 
 				// check what we are updating
 				switch (row.tablename) {
 					case "study":
 						// update study titles
 						sql.eachRow(sprintf("SELECT id FROM study WHERE title='%s'", title)) { studyRow ->
-							newTitle = title + ((titleCount>1) ? " - ${titleCount}" : "")
-							sql.execute(sprintf("UPDATE study SET title='%s' WHERE id=%d",newTitle,studyRow.id))
+							newTitle = title + ((titleCount > 1) ? " - ${titleCount}" : "")
+							sql.execute(sprintf("UPDATE study SET title='%s' WHERE id=%d", newTitle, studyRow.id))
 							titleCount++
 						}
 						break
 					case "template":
 						// update template names
 						sql.eachRow(sprintf("SELECT id FROM template WHERE name='%s' AND entity='%s'", title, row.entity)) { templateRow ->
-							newTitle = title + ((titleCount>1) ? " - ${titleCount}" : "")
-							sql.execute(sprintf("UPDATE template SET name='%s' WHERE id=%d",newTitle,templateRow.id))
+							newTitle = title + ((titleCount > 1) ? " - ${titleCount}" : "")
+							sql.execute(sprintf("UPDATE template SET name='%s' WHERE id=%d", newTitle, templateRow.id))
 							titleCount++
 						}
 						break
@@ -409,14 +409,14 @@ class DatabaseUpgrade {
 						// update template_field names
 						sql.eachRow(sprintf("SELECT id,templatefieldunit as unit,templatefieldtype as type FROM template_field WHERE templatefieldname='%s' AND templatefieldentity='%s'", title, row.entity)) { templateFieldRow ->
 							if (templateFieldRow.unit) {
-								templateFieldUnitCount[ templateFieldRow.unit ] = (templateFieldUnitCount[ templateFieldRow.unit ]) ? templateFieldUnitCount[ templateFieldRow.unit ]+1 : 1
-								newTitle = "${title} (${templateFieldRow.unit})" + ((templateFieldUnitCount[ templateFieldRow.unit ]>1) ? " - ${templateFieldUnitCount[ templateFieldRow.unit ]}" : "")
+								templateFieldUnitCount[templateFieldRow.unit] = (templateFieldUnitCount[templateFieldRow.unit]) ? templateFieldUnitCount[templateFieldRow.unit] + 1 : 1
+								newTitle = "${title} (${templateFieldRow.unit})" + ((templateFieldUnitCount[templateFieldRow.unit] > 1) ? " - ${templateFieldUnitCount[templateFieldRow.unit]}" : "")
 							} else {
-								templateFieldTypeCount[ templateFieldRow.type ] = (templateFieldTypeCount[ templateFieldRow.type ]) ? templateFieldTypeCount[ templateFieldRow.type ]+1 : 1
-								newTitle = "${title} (${templateFieldRow.type})" + ((templateFieldTypeCount[ templateFieldRow.type ]>1) ? " - ${templateFieldTypeCount[ templateFieldRow.type ]}" : "")
+								templateFieldTypeCount[templateFieldRow.type] = (templateFieldTypeCount[templateFieldRow.type]) ? templateFieldTypeCount[templateFieldRow.type] + 1 : 1
+								newTitle = "${title} (${templateFieldRow.type})" + ((templateFieldTypeCount[templateFieldRow.type] > 1) ? " - ${templateFieldTypeCount[templateFieldRow.type]}" : "")
 								titleCount++
 							}
-							sql.execute(sprintf("UPDATE template_field SET templatefieldname='%s' WHERE id=%d",newTitle,templateFieldRow.id))
+							sql.execute(sprintf("UPDATE template_field SET templatefieldname='%s' WHERE id=%d", newTitle, templateFieldRow.id))
 						}
 						break
 					default:
@@ -427,24 +427,60 @@ class DatabaseUpgrade {
 		}
 	}
 
-    /**
-     * Make sure the ontology's description is of type text instead of varchar
-     * @param sql
-     * @param db
-     */
-    public static void changeOntologyDescriptionType(sql, db) {
-        // are we running postgreSQL?
-        if (db == "org.postgresql.Driver") {
-            if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='study' AND columns.column_name='code' AND columns.data_type='character varying'")) {
-                if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: change ontology description type".grom()
+	/**
+	 * Make sure the ontology's description is of type text instead of varchar
+	 * @param sql
+	 * @param db
+	 */
+	public static void changeOntologyDescriptionType(sql, db) {
+		// are we running postgreSQL?
+		if (db == "org.postgresql.Driver") {
+			if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='study' AND columns.column_name='code' AND columns.data_type='character varying'")) {
+				if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: change ontology description type".grom()
 
-                try {
-                    // change the datatype of the ontology's description to text
-                    sql.execute("ALTER TABLE ontology ALTER COLUMN description TYPE text")
-                } catch (Exception e) {
-                    println "changeOntologyDescriptionType database upgrade failed: " + e.getMessage()
-                }
-            }
-        }
-   }
+				try {
+					// change the datatype of the ontology's description to text
+					sql.execute("ALTER TABLE ontology ALTER COLUMN description TYPE text")
+				} catch (Exception e) {
+					println "changeOntologyDescriptionType database upgrade failed: " + e.getMessage()
+				}
+			}
+		}
+	}
+
+	/**
+	 * Migrate domain class specific uuid's to generic uuid's as set up in GDT 0.3.1
+	 * @param sql
+	 * @param db
+	 */
+	public static void changeSpecificUUIDsToGenericUUIDs(sql, db) {
+		def grom = false
+
+		// are we running postgreSQL?
+		if (db == "org.postgresql.Driver") {
+			sql.eachRow("SELECT * FROM information_schema.columns WHERE columns.column_name LIKE '%uuid' AND columns.column_name != 'uuid'") { row ->
+				println "row:"
+				println row
+
+				if (sql.firstRow(sprintf("SELECT * FROM information_schema.columns WHERE columns.column_name='uuid' AND table_name='%s'",row.table_name))) {
+					if (String.metaClass.getMetaMethod("grom") && !grom) {
+						"migrating domain specific UUIDs to system wide generic UUIDs".grom()
+						grom = true
+					}
+
+					try {
+						// copy contents of domain specific uuid to generic uuid
+						//log.info "migrating domain specific ${row.column_name} (${row.table_name}) to generic uuid"
+						sql.execute(sprintf("UPDATE %s SET uuid=%s", row.table_name, row.column_name))
+
+						// drop domain specific column
+						//log.info "drop column ${row.column_name} (${row.table_name})"
+						sql.execute(sprintf("ALTER TABLE %s DROP COLUMN %s", row.table_name, row.column_name))
+					} catch (Exception e) {
+						println "changeSpecificUUIDsToGenericUUIDs database upgrade failed: " + e.getMessage()
+					}
+				}
+			}
+		}
+	}
 }
