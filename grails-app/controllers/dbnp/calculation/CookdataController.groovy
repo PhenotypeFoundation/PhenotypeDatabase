@@ -501,7 +501,7 @@ class CookdataController {
         def study = Study.get(params.selectStudy)
         def assayList = [];
         study.assays.each{
-            assayList.add([name: it.name, assayUUID: it.assayUUID, modulename: it.module.name, id: it.id]);
+            assayList.add([name: it.name, assayUUID: it.UUID, modulename: it.module.name, id: it.id]);
         }
 
         Map mapResults = [:]
