@@ -51,6 +51,9 @@ grails.project.dependency.resolution = {
             // SLF4J: The requested version 1.5.8 by your slf4j binding is not compatible with [1.6]
             excludes([ group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'])
         }
+
+	    // we seem to be needing XStream in some cases
+	    compile("com.thoughtworks.xstream:xstream:1.3.1")
     }
 	plugins {
 		compile(
@@ -64,7 +67,7 @@ grails.project.dependency.resolution = {
                 ":ajaxflow:latest.integration",
 
                 ":crypto:2.0",
-                ":spring-security-core:1.1.2",
+                ":spring-security-core:1.2.7.3",
 
                 ":gdt:0.3.1",
                 ":gdtimporter:0.5.2",
