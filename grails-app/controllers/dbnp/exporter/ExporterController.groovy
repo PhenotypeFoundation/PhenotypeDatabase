@@ -64,7 +64,7 @@ class ExporterController {
 		
 		// Also accept tokens for defining studies
 		tokens.each {
-			def study = Study.findByStudyUUID( it );
+			def study = Study.findWhere(UUID: it)
 			if( study )
 				studies << study;
 		}

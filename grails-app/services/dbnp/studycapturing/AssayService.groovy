@@ -310,10 +310,10 @@ class AssayService {
 
 		/* Contact module to fetch measurement data */
 		def path = moduleUrl + "/rest/getMeasurementData/query"
-		def query = "assayToken=$assay.assayUUID$tokenString"
+		def query = "assayToken=$assay.UUID$tokenString"
 
 		if (samples) {
-			query += '&' + samples*.sampleUUID.collect { "sampleToken=$it" }.join('&')
+			query += '&' + samples*.UUID.collect { "sampleToken=$it" }.join('&')
 		}
 
 		def sampleTokens = [], measurementTokens = [], moduleData = []
@@ -392,7 +392,7 @@ class AssayService {
 		inputMeasurementTokens.each{ tokenString+="&measurementToken=${it.encodeAsURL()}" }
 
 		def pathMeasurementMetaData = moduleUrl + "/rest/getMeasurementMetaData/"
-		def queryMeasurementMetaData = "assayToken=$assay.assayUUID$tokenString"
+		def queryMeasurementMetaData = "assayToken=$assay.UUID$tokenString"
 
 		try {
 			moduleCommunicationService.callModuleMethod(moduleUrl, pathMeasurementMetaData, queryMeasurementMetaData, "POST", remoteUser).each { metaDataArray ->

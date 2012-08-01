@@ -164,7 +164,7 @@ class ApiController {
 
         // fetch study
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-        def study           = Study.findByStudyUUID(studyToken)
+	    def study           = Study.findWhere(UUID: studyToken)
 
         // wrap result in api call validator
         apiService.executeApiCall(params,response,'study',study,{
@@ -200,9 +200,9 @@ class ApiController {
 
         // fetch study
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-        def study           = Study.findByStudyUUID(studyToken)
+	    def study           = Study.findWhere(UUID: studyToken)
 
-        // wrap result in api call validator
+	    // wrap result in api call validator
         apiService.executeApiCall(params,response,'study',study,{
             def assays = apiService.flattenDomainData( study.assays )
 
@@ -236,9 +236,9 @@ class ApiController {
 
         // fetch study
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-        def study           = Study.findByStudyUUID(studyToken)
+	    def study           = Study.findWhere(UUID: studyToken)
 
-        // wrap result in api call validator
+	    // wrap result in api call validator
         apiService.executeApiCall(params,response,'study',study,{
             def eventGroups = apiService.flattenDomainData( study.eventGroups )
 
@@ -272,9 +272,9 @@ class ApiController {
 
         // fetch study
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-        def study           = Study.findByStudyUUID(studyToken)
+	    def study           = Study.findWhere(UUID: studyToken)
 
-        // wrap result in api call validator
+	    // wrap result in api call validator
         apiService.executeApiCall(params,response,'study',study,{
             def events = apiService.flattenDomainData( study.events )
 
@@ -308,9 +308,9 @@ class ApiController {
 
         // fetch study
         String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-        def study           = Study.findByStudyUUID(studyToken)
+	    def study           = Study.findWhere(UUID: studyToken)
 
-        // wrap result in api call validator
+	    // wrap result in api call validator
         apiService.executeApiCall(params,response,'study',study,{
             def samplingEvents = apiService.flattenDomainData( study.samplingEvents )
             println study.samplingEvents.dump()
@@ -345,9 +345,9 @@ class ApiController {
 
         // fetch assay
         String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
-        def assay           = Assay.findByAssayUUID(assayToken)
+	    def assay           = Assay.findWhere(UUID: assayToken)
 
-        // wrap result in api call validator
+	    // wrap result in api call validator
         apiService.executeApiCall(params,response,'assay',assay,{
             def samples = apiService.flattenDomainData( assay.samples )
 
@@ -381,9 +381,9 @@ class ApiController {
 
         // fetch assay
         String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
-        def assay           = Assay.findByAssayUUID(assayToken)
+	    def assay           = Assay.findWhere(UUID: assayToken)
 
-        // fetch user based on deviceID
+	    // fetch user based on deviceID
         String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
         def user            = Token.findByDeviceID(deviceID)?.user
 

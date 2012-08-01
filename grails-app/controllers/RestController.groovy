@@ -189,7 +189,7 @@ class RestController {
 			studies = Study.findAll()
 		}
 		else if( params.studyToken instanceof String ) {
-			def study = Study.findByStudyUUID( params.studyToken )
+			def study = Study.findWhere(UUID: params.studyToken )
 			if( study ) {
 				if( !study.canRead(user) ) {
 					response.sendError(401)
@@ -205,7 +205,7 @@ class RestController {
 		}
 		else {
 			params.studyToken.each{ studyToken ->
-				def study = Study.findByStudyUUID( studyToken );
+				def study = Study.findWhere(UUID: studyToken )
 				if( study )
 					studies.push study
 			}
@@ -267,7 +267,7 @@ class RestController {
 			response.sendError(400)
 			return false
 		} else {
-			study = Study.findByStudyUUID( params.studyToken )
+			study = Study.findWhere(UUID: params.studyToken)
 			if( study ) {
 				if( !study.canRead(user) ) {
 					response.sendError(401)
@@ -343,7 +343,7 @@ class RestController {
  
 		List subjects = []
 		if( params.studyToken ) {
-			def study = Study.findByStudyUUID( params.studyToken)
+			def study = Study.findWhere(UUID: params.studyToken)
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
@@ -431,7 +431,7 @@ class RestController {
 		
 		if( params.studyToken ) {
 
-			def study = Study.findByStudyUUID(params.studyToken)
+			def study = Study.findWhere(UUID: params.studyToken)
 
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
@@ -561,7 +561,7 @@ class RestController {
 		def items = []
 		def samples
 		if( params.assayToken ) {
-			def assay = Assay.findByAssayUUID( params.assayToken );
+			def assay = Assay.findWhere(UUID: params.assayToken )
 
 			if( assay )  {
 				// Check whether the person is allowed to read the data of this study
@@ -660,9 +660,9 @@ class RestController {
 		def study
 		
 		if( params.studyToken ) {
-			study = Study.findByStudyUUID(params.studyToken);
+			study = Study.findWhere(UUID: params.studyToken)
 		} else if( params.assayToken ) {
-			study = Assay.findByAssayUUID(params.assayToken)?.parent;
+			study = Assay.findWhere(UUID: params.assayToken)?.parent;
 		} else {
 			response.sendError(400)
 			return false

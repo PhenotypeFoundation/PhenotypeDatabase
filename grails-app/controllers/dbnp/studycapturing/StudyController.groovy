@@ -255,7 +255,7 @@ class StudyController {
 	}
 
     def showByToken = {
-        def studyInstance = Study.findByStudyUUID(params.id)
+        def studyInstance = Study.findWhere(UUID: params.id)
         if (!studyInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
             redirect(action: "list")
@@ -417,7 +417,7 @@ class StudyController {
 		
 		// Also accept tokens for defining studies
  		tokens.each { token ->
-			def study = Study.findByStudyUUID( token );
+			def study = Study.findWhere(UUID: token)
 			if( study )
 				assayIds += study.assays.collect { assay -> assay.id }
 		}

@@ -273,9 +273,9 @@ class CookdataService {
 			if (!blacklistedModules.contains(assay.module.id)) {
 				try{
 					// Request for a particular assay
-					def urlVars = "assayToken=" + assay.assayUUID
+					def urlVars = "assayToken=" + assay.UUID
 					// All samples
-					urlVars += "&"+samples.collect { "sampleToken=" + it.sampleUUID }.join("&");
+					urlVars += "&"+samples.collect { "sampleToken=" + it.UUID }.join("&");
 					def strUrl = assay.module.url + "/rest/getMeasurementData"
 					def callResult = moduleCommunicationService.callModuleMethod(assay.module.url, strUrl, urlVars, "POST")
 					// Store measurements per sampleToken, per feature.
@@ -374,7 +374,7 @@ class CookdataService {
                         listFeatureAndResultPairs[intResultCounter] =
                             [feature, []]
                         (item.samplesB + item.samplesA).each{ s ->
-                            def m = mapStToM[s.sampleUUID]
+                            def m = mapStToM[s.UUID]
                             if (m) listFeatureAndResultPairs[intResultCounter][1].add([s.name, m])
                         }
                         intResultCounter++
@@ -536,8 +536,8 @@ class CookdataService {
         mapSTokenToMsrmentsPerF.each{ feature, mapStToM ->
             listFeatureAndResultPairs[intResultCounter] = [feature, [:]]
             mapSamplesFromAToB.each{ parentSubject, samples ->
-                def dataA = mapStToM[samples[0].sampleUUID]
-                def dataB = mapStToM[samples[1].sampleUUID]
+                def dataA = mapStToM[samples[0].UUID]
+                def dataB = mapStToM[samples[1].UUID]
 
                 def result = computeWithVals(equation, dataA, dataB)
 
@@ -577,7 +577,7 @@ class CookdataService {
 
         // Proceed with the computations
         item[key].each{ s ->
-            def m = mapStToM[s.sampleUUID]
+            def m = mapStToM[s.UUID]
             if (m) data.add(m)
         }
         if (data.size() == 0) {
