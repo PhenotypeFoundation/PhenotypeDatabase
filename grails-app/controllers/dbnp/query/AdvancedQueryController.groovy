@@ -248,13 +248,13 @@ class AdvancedQueryController {
 
 		switch( entity ) {
 			case "Study":
-				results = Study.findAll( "from Study s where s.studyUUID IN (:tokens)", [ 'tokens': tokens ] )
+				results = Study.findAll( "from Study s where s.UUID IN (:tokens)", [ 'tokens': tokens ] )
 				break;
 			case "Assay":
-				results = Assay.findAll( "from Assay a where a.assayUUID IN (:tokens)", [ 'tokens': tokens ] )
+				results = Assay.findAll( "from Assay a where a.UUID IN (:tokens)", [ 'tokens': tokens ] )
 				break;
 			case "Sample":
-				results = Sample.findAll( "from Sample s where s.sampleUUID IN (:tokens)", [ 'tokens': tokens ] )
+				results = Sample.findAll( "from Sample s where s.UUID IN (:tokens)", [ 'tokens': tokens ] )
 				break;
 			default:
 				response.sendError( 400 );

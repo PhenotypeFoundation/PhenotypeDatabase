@@ -224,7 +224,7 @@ class VisualizeController {
         def callUrl = ""
 
         // Making a different call for each assay
-        def urlVars = "assayToken=" + assay.assayUUID
+        def urlVars = "assayToken=" + assay.UUID
         try {
             callUrl = "" + assay.module.url + "/rest/getMeasurementMetaData/query?" + urlVars
             def json = moduleCommunicationService.callModuleRestMethodJSON(assay.module.url /* consumer */, callUrl);
@@ -525,8 +525,8 @@ class VisualizeController {
 
         if (assay) {
             // Request for a particular assay and a particular feature
-            def urlVars = "assayToken=" + assay.assayUUID + "&measurementToken=" + fieldName.encodeAsURL()
-            urlVars += "&" + samples.collect { "sampleToken=" + it.sampleUUID }.join("&");
+            def urlVars = "assayToken=" + assay.UUID + "&measurementToken=" + fieldName.encodeAsURL()
+            urlVars += "&" + samples.collect { "sampleToken=" + it.UUID }.join("&");
 
             def callUrl
             try {
@@ -543,7 +543,7 @@ class VisualizeController {
                     // Loop through the samples
                     samples.each { sample ->
                         // Search for this sampletoken
-                        def sampleToken = sample.sampleUUID;
+                        def sampleToken = sample.UUID;
                         def index = sampleTokens.findIndexOf { it == sampleToken }
 
                         // Store the measurement value if found and if it is not JSONObject$Null

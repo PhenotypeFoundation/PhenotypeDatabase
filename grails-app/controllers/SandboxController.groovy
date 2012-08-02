@@ -6,7 +6,7 @@ class SandboxController {
 	def assayService
 
 	def testAssay = {
-		def assay = Assay.findByAssayUUID('7a9b81bb-4708-4879-a36f-dee335d2f054')
+		def assay = Assay.findWhere(UUID: '7a9b81bb-4708-4879-a36f-dee335d2f054')
 		//for 4 random samples: def samples = assay.samples.toList()[0..4]
 		def samples = assay.samples.findAll { it.name.startsWith("02-126_BloodSamplingForChallenge_Group2_15w")}
 		samples = samples.asList()

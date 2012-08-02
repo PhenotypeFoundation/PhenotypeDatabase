@@ -51,9 +51,9 @@ class AssayServiceTests extends GrailsUnitTestCase {
         mockDomain(EventGroup,    [ new EventGroup(id:1, name: 'EventGroup1', events: [Event.get(1)], samplingEvents: [SamplingEvent.get(1)]),
                                     new EventGroup(id:2, name: 'EventGroup2', events: [Event.get(2)], samplingEvents: [SamplingEvent.get(2)])])
 
-        mockDomain(Sample,        [ new Sample(id: 1, name:'sample1', parentSubject: Subject.get(1), parentEvent: SamplingEvent.get(1), parentEventGroup: EventGroup.get(1), sampleUUID: 'uuid1'),
-                                    new Sample(id: 2, name:'sample2', parentSubject: Subject.get(2), parentEvent: SamplingEvent.get(2), parentEventGroup: EventGroup.get(2), sampleUUID: 'uuid2'),
-                                    new Sample(id: 3, name:'sample3', parentSubject: Subject.get(2), parentEvent: SamplingEvent.get(2), parentEventGroup: EventGroup.get(2), sampleUUID: 'uuid3')])
+        mockDomain(Sample,        [ new Sample(id: 1, name:'sample1', parentSubject: Subject.get(1), parentEvent: SamplingEvent.get(1), parentEventGroup: EventGroup.get(1), UUID: 'uuid1'),
+                                    new Sample(id: 2, name:'sample2', parentSubject: Subject.get(2), parentEvent: SamplingEvent.get(2), parentEventGroup: EventGroup.get(2), UUID: 'uuid2'),
+                                    new Sample(id: 3, name:'sample3', parentSubject: Subject.get(2), parentEvent: SamplingEvent.get(2), parentEventGroup: EventGroup.get(2), UUID: 'uuid3')])
 
         mockDomain(AssayModule,   [ new AssayModule(id: 1, url: 'http://www.example.com') ])
 

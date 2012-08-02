@@ -11,7 +11,7 @@ class AssayController {
 	def fileService
 
 	def showByToken = {
-		def assayInstance = Assay.findByAssayUUID(params.id)
+		def assayInstance = Assay.findWhere(UUID: params.id)
 		if (!assayInstance) {
 			flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
 			redirect(action: "list")
@@ -94,7 +94,7 @@ class AssayController {
 					controller: "assay",
 					action: "fetchGalaxyData",
 					params: [
-						assayToken: flow.assay.assayUUID,
+						assayToken: flow.assay.UUID,
 						sessionToken: sessionToken,
 						fieldMapSelection: fieldMapSelection as JSON,
 						measurementTokens: measurementTokens as JSON] )
@@ -184,7 +184,7 @@ class AssayController {
 		}
 
 		// retrieve assay
-		def assay = Assay.findByAssayUUID( params.assayToken )
+		def assay = Assay.findWhere(UUID: params.assayToken)
 
 		if( !assay ) {
 			response.status = 404
@@ -480,7 +480,7 @@ class AssayController {
 
 		// Also accept tokens for defining studies
 		tokens.each { token ->
-			def assay = Assay.findByAssayUUID( token );
+			def assay = Assay.findWhere(UUID: token)
 			if( assay )
 				assays << assay;
 		}
@@ -514,7 +514,7 @@ class AssayController {
 
 		// Also accept tokens for defining studies
 		tokens.each { token ->
-			def sample = Sample.findBySampleUUID( token );
+			def sample = Sample.findWhere(UUID: token);
 			if( sample )
 				samples << sample;
 		}
