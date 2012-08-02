@@ -358,9 +358,9 @@ class ApiController {
 			samples.each { item ->
 				println item.token
 				Sample sample = studySamples.find { it.UUID == item.token }
-				item['subject'] = sample.parentSubject.UUID
-				item['samplingEvent'] = sample.parentEvent.id
-				item['eventGroup'] = sample.parentEventGroup.id
+				item['subject'] = sample.parentSubject.giveUUID()
+				item['samplingEvent'] = sample.parentEvent.giveUUID()
+				item['eventGroup'] = sample.parentEventGroup.giveUUID()
 			}
 
 			// define result
