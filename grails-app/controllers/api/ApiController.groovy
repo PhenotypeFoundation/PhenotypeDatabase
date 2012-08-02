@@ -333,6 +333,54 @@ class ApiController {
         })
     }
 
+	/**
+	 * get all subjects for a study
+	 *
+	 * @param string deviceID
+	 * @param string studyToken
+	 * @param string validation md5 sum
+	 */
+	def getSamplesForStudy = {
+		println "api::getSamplesForStudy: ${params}"
+
+		// fetch study
+		String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
+		def study           = Study.findWhere(UUID: studyToken)
+
+		// wrap result in api call validator
+		apiService.executeApiCall(params,response,'study',study,{
+
+			def studySamples = study.samples
+
+			def samples = apiService.flattenDomainData( studySamples )
+
+			// add info on parent subjects, events etc.
+			samples.each { item ->
+				println item.token
+				Sample sample = studySamples.find { it.UUID == item.token }
+				item['subject'] = sample.parentSubject.giveUUID()
+				item['samplingEvent'] = sample.parentEvent.giveUUID()
+				item['eventGroup'] = sample.parentEventGroup.giveUUID()
+			}
+
+			// define result
+			def result = [
+					'count'     : samples.size(),
+					'samples'   : samples
+			]
+
+			// set output headers
+			response.status = 200
+			response.contentType = 'application/json;charset=UTF-8'
+
+			if (params.containsKey('callback')) {
+				render "${params.callback}(${result as JSON})"
+			} else {
+				render result as JSON
+			}
+		})
+	}
+
     /**
      * get all samples for an assay
      *
