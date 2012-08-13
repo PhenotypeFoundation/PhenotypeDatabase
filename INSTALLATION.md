@@ -14,7 +14,7 @@ Before we can set up the server, the following requirements should be met:
 * Apache Tomcat ≥ 6.x.x
 * Apache Webserver ≥ 2.x (+mod_proxy, +mod_rewrite)
 * PostgreSQL database server ≥ 8.4
-* Active internet connection (or local instance of BioPortal)
+* Active internet connection (with change of code other options are to install a local instance of BioPortal or remove the link to BioPortal)
 
 Installation is quick and easy:
 	
