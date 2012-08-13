@@ -67,7 +67,7 @@ grails.project.dependency.resolution = {
                 ":ajaxflow:latest.integration",
 
                 ":crypto:2.0",
-                ":spring-security-core:1.2.7.3",
+                ":spring-security-core:1.1.2",
 
                 ":gdt:0.3.1",
                 ":gdtimporter:0.5.2",
