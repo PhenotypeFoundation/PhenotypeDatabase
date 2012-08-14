@@ -20,10 +20,12 @@ import grails.converters.JSON
 import dbnp.authentication.SecUser
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
+import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 
 class ApiController {
     def authenticationService
     def apiService
+	def validationTagLib = new ValidationTagLib()
 
 	/**
 	 * index closure
@@ -577,6 +579,29 @@ class ApiController {
 	}
 
 	/**
+	 * get all fields for a specific entity
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 * @param string entityType
+	 */
+	def getFieldsForEntity = {
+		println "api::getFieldsForEntity: ${params}"
+
+		// while we pass this call through to getFieldsForEntityWithTemplate,
+		// this particular call was designed to be called with no template
+		// argument set, so strip it from the parameters so the result data is
+		// as expected
+		if (params.containsKey('templateToken')) params.remove('templateToken')
+
+		// add a passthrough parameter
+		params['passthrough'] = true
+
+		// passthrough to getFieldsForEntityWithTemplate
+		getFieldsForEntityWithTemplate(params)
+	}
+
+	/**
 	 * get all fields for a specific entity and optionally a template
 	 *
 	 * @param string deviceID
@@ -585,20 +610,44 @@ class ApiController {
 	 * @param string templateToken
 	 */
 	def getFieldsForEntityWithTemplate = {
-		println "api::getFieldsForEntityWithTemplate: ${params}"
+		if (!params.containsKey('passthrough')) {
+			// entityToken can only be passed by the getFieldsForEntity call
+			// so strip it if we're not passing through
+			params.remove('entityToken')
+
+			println "api::getFieldsForEntityWithTemplate: ${params}"
+		}
 
 		def result = [:]
 		String entityType = (params.containsKey('entityType')) ? params.get('entityType') : ''
 		String templateToken = (params.containsKey('templateToken')) ? params.get('templateToken') : ''
+		String entityToken = (params.containsKey('entityToken')) ? params.get('entityToken') : ''
 
 		if (entityType) {
 			try {
-				// instantiate entity
+				// get entity
 				def entity = apiService.getEntity(entityType)
+
+				// got an entity?
+				if (!entity) throw new Exception("invalid entity '${entityType}', call getEntityTypes for a list of valid entities. Note that entityType is case sensitive!")
+
+				// instantiate entity
 				def entityInstance = entity.newInstance()
 
-				// got a template?
-				if (templateToken) {
+				// got an entityToken or a templatetoken?
+				if (entityToken) {
+					// find the entity with this token
+					def foundInstance = entityInstance.findWhere(UUID: entityToken)
+
+					// found an instance?
+					if (foundInstance) {
+						// yes, use this instance instead
+						entityInstance = foundInstance
+					} else {
+						throw new Exception("no such ${entityType} with token ${entityToken}")
+					}
+				} else if (templateToken) {
+					// no entity token, but we have a template token instead
 					def template = Template.findWhere(UUID: templateToken)
 
 					// was a valid template specified?
@@ -608,39 +657,225 @@ class ApiController {
 					} else {
 						throw new Exception("invalid template token specified, call getTemplatesForEntity(${entityType}) for a list of valid templates")
 					}
+				}
 
+				// wrap result in api call validator
+				apiService.executeApiCall(params, response, entityType, entityInstance, {
+					// set output headers
+					response.status = 200
+					response.contentType = 'application/json;charset=UTF-8'
 
+					// gather data
+					def fields = []
+					def requiredFields = entityInstance.getRequiredFields().collect { it.name }
+
+					// gather fields
+					entityInstance.giveFields().each { field ->
+						def flattenedField = apiService.flattenTemplateField(field)
+
+						flattenedField.required = requiredFields.contains(flattenedField.name)
+
+						fields.add(flattenedField)
+					}
+
+					// fetch all fields
+					result = [
+							'fields'        : fields,
+							'requiredFields': requiredFields
+					]
+
+					if (params.containsKey('callback')) {
+						render "${params.callback}(${result as JSON})"
+					} else {
+						render result as JSON
+					}
+				})
+			} catch (Exception e) {
+				response.sendError(500, "unknown error occured (${e.getMessage()})")
+			}
+		} else {
+			response.sendError(400, "entityType is missing")
+		}
+	}
+
+	/**
+	 * create a new entity
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 * @param string entityType
+	 */
+	def createEntity = {
+		println "api::createEntity: ${params}"
+
+		// while we pass this call through to createEntityWithTemplate,
+		// this particular call was designed to be called with no template
+		// argument set, so strip it from the parameters so the result data is
+		// as expected
+		if (params.containsKey('templateToken')) params.remove('templateToken')
+
+		// add a passthrough parameter
+		params['passthrough'] = true
+
+		// passthrough to getFieldsForEntityWithTemplate
+		createEntityWithTemplate(params)
+	}
+
+	/**
+	 * create a new entity with a specific template defined
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 * @param string entityType
+	 * @param string templateToken
+	 */
+	def createEntityWithTemplate = {
+		if (!params.containsKey('passthrough')) {
+			println "api::createEntityWithTemplate: ${params}"
+		}
+
+		String entityType = (params.containsKey('entityType')) ? params.get('entityType') : ''
+		String templateToken = (params.containsKey('templateToken')) ? params.get('templateToken') : ''
+		Map hasManyRelationships = [:]
+		Map relationships = [:]
+
+		if (entityType) {
+			try {
+				// get entity
+				def entity = apiService.getEntity(entityType)
+
+				// got an entity?
+				if (!entity) throw new Exception("invalid entity '${entityType}', call getEntityTypes for a list of valid entities. Note that entityType is case sensitive!")
+
+				// instantiate entity
+				def entityInstance = entity.newInstance()
+
+				// got a template token?
+				if (templateToken) {
+					// no entity token, but we have a template token instead
+					def template = Template.findWhere(UUID: templateToken)
+
+					// was a valid template specified?
+					if (template && entity.equals(template.entity)) {
+						// set template
+						entityInstance.setTemplate(template)
+					} else {
+						throw new Exception("invalid template token specified, call getTemplatesForEntity(${entityType}) for a list of valid templates")
+					}
+				}
+
+				// iterate through all fields for this instance and try to set them
+				entityInstance.giveFields().each {
+					if (params.containsKey(it.name)) {
+						entityInstance.setFieldValue(it.name, params.get(it.name))
+					}
+				}
+
+				// try to set the relationships
+				def changed = false
+				entityInstance.belongsTo.each { name, type ->
+					def matches	= type.toString() =~ /\.([^\.]+)$/
+					def tokenEntity = matches[0][1]
+					def tokenName = "${tokenEntity.toLowerCase()[0]}${tokenEntity.substring(1)}Token".toString()
+
+					// does the tokenName exist in the parameters (e.g. studyToken)?
+					if (params.containsKey(tokenName)) {
+						// yes, find an instance of this entity
+						def tokenInstance = apiService.getEntity(tokenEntity)
+
+						// find the entity with this particular token
+						def foundEntity = tokenInstance.findWhere(UUID: params.get(tokenName))
+
+						// did we indeed found the entity we need to set a relationship with?
+						if (foundEntity) {
+							// check if there is a hasMany relationship for this entity type
+							def relationship = foundEntity.hasMany.find { n, t ->
+								def m = t.toString() =~ /\.([^\.]+)$/
+								return (entityType == m[0][1])
+							}
+
+							// found a hasMany relationship?
+							if (relationship) {
+								// yes, set relationship
+								def relationsName = relationship.key.toString()
+								foundEntity."addTo${relationsName.toUpperCase()[0]}${relationsName.substring(1)}"( entityInstance )
+								hasManyRelationships["${relationsName.toUpperCase()[0]}${relationsName.substring(1)}"] = foundEntity
+								changed = true
+							} else {
+								// no, check if it's a one to one relationship
+								relationship = foundEntity.properties.find { n, t ->
+									def m = t.toString() =~ /\.([^\.]+)$/
+									return (m && entityType == m[0][1])
+								}
+
+								// got one?
+								if (relationship) {
+									// yes, set it
+									def relationsName = relationship.key.toString()
+									foundEntity."${relationsName}" = entityInstance
+									relationships["${relationsName}"] = foundEntity
+									changed = true
+								}
+							}
+						} else {
+							throw new Exception("A ${tokenEntity} with token ${params.get(tokenName)} does not exist")
+						}
+					}
+				}
+
+				// validate instance
+				if (entityInstance.validate()) {
 					// wrap result in api call validator
 					apiService.executeApiCall(params, response, entityType, entityInstance, {
-						// set output headers
-						response.status = 200
-						response.contentType = 'application/json;charset=UTF-8'
+						// try to save instance
+						try {
+							// save item, although it may already have been
+							// implicitely saved by any addToXyz statement
+							// earlier
+							if (!changed) entityInstance.save()
 
-						// gather data
-						def fields = []
-						def requiredFields = entityInstance.getRequiredFields().collect { it.name }
+							// set output headers
+							response.status = 200
+							response.contentType = 'application/json;charset=UTF-8'
 
-						// gather fields
-						entityInstance.giveFields().each { field ->
-							def flattenedField = apiService.flattenTemplateField(field)
+							// fetch all fields
+							def result = [
+								'success'   : true,
+								'entityType': entityType,
+								'token'     : entityInstance.giveUUID()
+							]
 
-							flattenedField.required = requiredFields.contains(flattenedField.name)
-
-							fields.add(flattenedField)
+							if (params.containsKey('callback')) {
+								render "${params.callback}(${result as JSON})"
+							} else {
+								render result as JSON
+							}
+						} catch (Exception e) {
+							response.sendError(500, "unknown error occured (${e.getMessage()})")
 						}
-
-						// fetch all fields
-						result = [
-								'fields'        : fields,
-								'requiredFields': requiredFields
-						]
-
-						if (params.containsKey('callback')) {
-							render "${params.callback}(${result as JSON})"
-						} else {
-							render result as JSON
+					}, {
+						// undo relationships - CLEANUP!
+						hasManyRelationships.each { name, instance ->
+							instance."removeFrom${name}"(entityInstance)
 						}
+						relationships.each { name, instance ->
+							instance[name] = null
+						}
+						entityInstance.delete(flush: true)
 					})
+				} else {
+					// blast, we've got errors
+					// undo relationships - CLEANUP!
+					hasManyRelationships.each { name, instance ->
+						instance."removeFrom${name}"(entityInstance)
+					}
+					relationships.each { name, instance ->
+						instance[name] = null
+					}
+					entityInstance.delete(flush: true)
+
+					// propagate errors
+					throw new Exception(entityInstance.errors.getAllErrors().collect { validationTagLib.message(error: it) }.join(', '))
 				}
 			} catch (Exception e) {
 				response.sendError(500, "unknown error occured (${e.getMessage()})")

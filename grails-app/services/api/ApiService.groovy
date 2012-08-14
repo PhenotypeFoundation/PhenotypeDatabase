@@ -27,6 +27,7 @@ class ApiService implements Serializable, ApplicationContextAware {
     // inject the module communication service
     def moduleCommunicationService
 	def gdtService
+	def apiService
 
     // transactional
     static transactional = false
@@ -223,7 +224,10 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @param item
      * @param block
      */
-    def executeApiCall(params,response,itemName,item,block) {
+    def executeApiCall(params,response,itemName,item,Closure block) {
+	    executeApiCall(params,response,itemName,item,block,{ })
+    }
+	def executeApiCall(params,response,itemName,item,Closure block,Closure cleanUpBlock) {
         // get variables from parameters
         String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
         String validation   = (params.containsKey('validation')) ? params.validation : ''
@@ -234,21 +238,48 @@ class ApiService implements Serializable, ApplicationContextAware {
         // check if api call may be performed
         if (!validateRequest(deviceID,validation)) {
             // validation md5sum does not match predicted hash
+	        cleanUpBlock()
             response.sendError(401, "Unauthorized")
         } else if (!item) {
             // no results, invalid 'item'
-            response.sendError(400, "No such ${itemName}")
+	        cleanUpBlock()
+	        response.sendError(400, "No such ${itemName}")
         } else if (item.respondsTo('canRead') && !item.canRead(user)) {
             // the user cannot read this data
-            response.sendError(401, "Unauthorized")
-        } else if (item.hasProperty('parent') && item.parent.respondsTo('canRead') && !item.parent.canRead(user)) {
+	        cleanUpBlock()
+	        response.sendError(401, "Unauthorized")
+        } else if (!canWriteBelongsToRelationships(item, user)) {
             // the user cannot read this data
-            response.sendError(401, "Unauthorized")
+	        cleanUpBlock()
+	        response.sendError(401, "Unauthorized")
         } else {
             // allowed api call, execute block / closure
             block()
         }
     }
+
+	/**
+	 * Check if a user is allowed to write any instances in the
+	 * belongsTo relationship
+	 *
+	 * @param item
+	 * @param user
+	 * @return Boolean
+	 */
+	private canWriteBelongsToRelationships(item, user) {
+		Boolean allowed = true
+
+		if (item.hasProperty('belongsTo')) {
+			item.belongsTo.each { name, type ->
+				def checkEntity = item."${name}"
+				if (checkEntity && (checkEntity.respondsTo('canWrite') && !checkEntity.canWrite(user))) {
+					allowed = false
+				}
+			}
+		}
+
+		return allowed
+	}
 
     /**
      * get the measurement tokens from the remote module
