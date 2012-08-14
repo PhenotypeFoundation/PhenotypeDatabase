@@ -699,6 +699,29 @@ class ApiController {
 	}
 
 	/**
+	 * create a new entity
+	 *
+	 * @param string deviceID
+	 * @param string validation md5 sum
+	 * @param string entityType
+	 */
+	def createEntity = {
+		println "api::createEntity: ${params}"
+
+		// while we pass this call through to createEntityWithTemplate,
+		// this particular call was designed to be called with no template
+		// argument set, so strip it from the parameters so the result data is
+		// as expected
+		if (params.containsKey('templateToken')) params.remove('templateToken')
+
+		// add a passthrough parameter
+		params['passthrough'] = true
+
+		// passthrough to getFieldsForEntityWithTemplate
+		createEntityWithTemplate(params)
+	}
+
+	/**
 	 * create a new entity with a specific template defined
 	 *
 	 * @param string deviceID
@@ -707,7 +730,9 @@ class ApiController {
 	 * @param string templateToken
 	 */
 	def createEntityWithTemplate = {
-		println "api::createEntityWithTemplate: ${params}"
+		if (!params.containsKey('passthrough')) {
+			println "api::createEntityWithTemplate: ${params}"
+		}
 
 		String entityType = (params.containsKey('entityType')) ? params.get('entityType') : ''
 		String templateToken = (params.containsKey('templateToken')) ? params.get('templateToken') : ''
@@ -816,6 +841,7 @@ class ApiController {
 							// fetch all fields
 							def result = [
 								'success'   : true,
+								'entityType': entityType,
 								'token'     : entityInstance.giveUUID()
 							]
 
