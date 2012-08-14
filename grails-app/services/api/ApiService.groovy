@@ -27,6 +27,7 @@ class ApiService implements Serializable, ApplicationContextAware {
     // inject the module communication service
     def moduleCommunicationService
 	def gdtService
+	def apiService
 
     // transactional
     static transactional = false
@@ -241,7 +242,7 @@ class ApiService implements Serializable, ApplicationContextAware {
         } else if (item.respondsTo('canRead') && !item.canRead(user)) {
             // the user cannot read this data
             response.sendError(401, "Unauthorized")
-        } else if (item.hasProperty('parent') && item.parent.respondsTo('canRead') && !item.parent.canRead(user)) {
+        } else if (!canWriteBelongsToRelationships(item, user)) {
             // the user cannot read this data
             response.sendError(401, "Unauthorized")
         } else {
@@ -249,6 +250,29 @@ class ApiService implements Serializable, ApplicationContextAware {
             block()
         }
     }
+
+	/**
+	 * Check if a user is allowed to write any instances in the
+	 * belongsTo relationship
+	 *
+	 * @param item
+	 * @param user
+	 * @return Boolean
+	 */
+	private canWriteBelongsToRelationships(item, user) {
+		Boolean allowed = true
+
+		if (item.hasProperty('belongsTo')) {
+			item.belongsTo.each { name, type ->
+				def checkEntity = item."${name}"
+				if (checkEntity && (checkEntity.respondsTo('canWrite') && !checkEntity.canWrite(user))) {
+					allowed = false
+				}
+			}
+		}
+
+		return allowed
+	}
 
     /**
      * get the measurement tokens from the remote module
