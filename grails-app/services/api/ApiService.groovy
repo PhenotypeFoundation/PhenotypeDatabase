@@ -224,7 +224,10 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @param item
      * @param block
      */
-    def executeApiCall(params,response,itemName,item,block) {
+    def executeApiCall(params,response,itemName,item,Closure block) {
+	    executeApiCall(params,response,itemName,item,block,{ })
+    }
+	def executeApiCall(params,response,itemName,item,Closure block,Closure cleanUpBlock) {
         // get variables from parameters
         String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
         String validation   = (params.containsKey('validation')) ? params.validation : ''
@@ -235,16 +238,20 @@ class ApiService implements Serializable, ApplicationContextAware {
         // check if api call may be performed
         if (!validateRequest(deviceID,validation)) {
             // validation md5sum does not match predicted hash
+	        cleanUpBlock()
             response.sendError(401, "Unauthorized")
         } else if (!item) {
             // no results, invalid 'item'
-            response.sendError(400, "No such ${itemName}")
+	        cleanUpBlock()
+	        response.sendError(400, "No such ${itemName}")
         } else if (item.respondsTo('canRead') && !item.canRead(user)) {
             // the user cannot read this data
-            response.sendError(401, "Unauthorized")
+	        cleanUpBlock()
+	        response.sendError(401, "Unauthorized")
         } else if (!canWriteBelongsToRelationships(item, user)) {
             // the user cannot read this data
-            response.sendError(401, "Unauthorized")
+	        cleanUpBlock()
+	        response.sendError(401, "Unauthorized")
         } else {
             // allowed api call, execute block / closure
             block()

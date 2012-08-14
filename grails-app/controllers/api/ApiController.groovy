@@ -747,6 +747,7 @@ class ApiController {
 				}
 
 				// try to set the relationships
+				def changed = false
 				entityInstance.belongsTo.each { name, type ->
 					def matches	= type.toString() =~ /\.([^\.]+)$/
 					def tokenEntity = matches[0][1]
@@ -759,7 +760,6 @@ class ApiController {
 
 						// find the entity with this particular token
 						def foundEntity = tokenInstance.findWhere(UUID: params.get(tokenName))
-						def changed     = false
 
 						// did we indeed found the entity we need to set a relationship with?
 						if (foundEntity) {
@@ -775,6 +775,7 @@ class ApiController {
 								def relationsName = relationship.key.toString()
 								foundEntity."addTo${relationsName.toUpperCase()[0]}${relationsName.substring(1)}"( entityInstance )
 								hasManyRelationships["${relationsName.toUpperCase()[0]}${relationsName.substring(1)}"] = foundEntity
+								changed = true
 							} else {
 								// no, check if it's a one to one relationship
 								relationship = foundEntity.properties.find { n, t ->
@@ -788,6 +789,7 @@ class ApiController {
 									def relationsName = relationship.key.toString()
 									foundEntity."${relationsName}" = entityInstance
 									relationships["${relationsName}"] = foundEntity
+									changed = true
 								}
 							}
 						} else {
@@ -805,7 +807,7 @@ class ApiController {
 							// save item, although it may already have been
 							// implicitely saved by any addToXyz statement
 							// earlier
-							entityInstance.save()
+							if (!changed) entityInstance.save()
 
 							// set output headers
 							response.status = 200
@@ -825,6 +827,15 @@ class ApiController {
 						} catch (Exception e) {
 							response.sendError(500, "unknown error occured (${e.getMessage()})")
 						}
+					}, {
+						// undo relationships - CLEANUP!
+						hasManyRelationships.each { name, instance ->
+							instance."removeFrom${name}"(entityInstance)
+						}
+						relationships.each { name, instance ->
+							instance[name] = null
+						}
+						entityInstance.delete(flush: true)
 					})
 				} else {
 					// blast, we've got errors
@@ -835,6 +846,7 @@ class ApiController {
 					relationships.each { name, instance ->
 						instance[name] = null
 					}
+					entityInstance.delete(flush: true)
 
 					// propagate errors
 					throw new Exception(entityInstance.errors.getAllErrors().collect { validationTagLib.message(error: it) }.join(', '))
