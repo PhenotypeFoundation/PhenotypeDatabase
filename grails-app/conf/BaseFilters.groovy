@@ -130,7 +130,6 @@ class BaseFilters {
              }
 
         }
-
 	}
 }
 
