@@ -44,6 +44,7 @@ class DatabaseUpgrade {
 		fixShibbolethSecUser(sql, db)                   // fix shibboleth user
 		changeOntologyDescriptionType(sql, db)          // change ontology description type to text
 		changeSpecificUUIDsToGenericUUIDs(sql, db)      // change domain specific UUIDs to generic UUIDs (GDT >= 0.3.1)
+		fixStudyCodes(sql, db)                          // remove spaces from study codes
 	}
 
 	/**
@@ -476,6 +477,31 @@ class DatabaseUpgrade {
 					} catch (Exception e) {
 						println "changeSpecificUUIDsToGenericUUIDs database upgrade failed: " + e.getMessage()
 					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * strip spaces from study codes
+	 * @param sql
+	 * @param db
+	 */
+	public static void fixStudyCodes(sql, db) {
+		def grom = false
+
+		if (db == "org.postgresql.Driver") {
+			sql.eachRow("SELECT * FROM Study WHERE code LIKE '% %'") { row ->
+				if (String.metaClass.getMetaMethod("grom") && !grom) {
+					"replacing spaces in study codes to underscores".grom()
+					grom = true
+				}
+
+				try {
+					// replace spaces with underscores
+					sql.execute(sprintf("UPDATE Study SET code='%s' WHERE id=%d", row.code.replaceAll(" ","_"), row.id))
+				} catch (Exception e) {
+					println "fixStudyCodes database upgrade failed: " + e.getMessage()
 				}
 			}
 		}

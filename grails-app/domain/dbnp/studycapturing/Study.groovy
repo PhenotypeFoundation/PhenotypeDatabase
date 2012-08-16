@@ -47,7 +47,7 @@ class Study extends TemplateEntity {
 	static constraints = {
 		title(nullable:false, blank: false, unique:true, maxSize: 255)
 		owner(nullable: true, blank: true)
-		code(nullable: true, blank: true, unique: true, maxSize: 255)
+		code(nullable: true, blank: true, unique: true, maxSize: 255, matches: "[^ ]+")
 		persons(size:1..1000)
 		// TODO: add custom validator for 'published' to assess whether the study meets all quality criteria for publication
 		// tested by SampleTests.testStudyPublish
