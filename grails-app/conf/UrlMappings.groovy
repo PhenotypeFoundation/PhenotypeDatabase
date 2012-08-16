@@ -13,6 +13,9 @@ class UrlMappings {
 		// handle short codes
 		"/$shortCode"(controller: 'notFound', action: 'find')
 
+		// handle 404
+		"404"(controller: 'notFound')
+
 		// handle 500
 		"500"(view: '/error')
 	}
