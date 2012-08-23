@@ -7,8 +7,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<g:javascript library="jquery" plugin="jquery"/>
 	<script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
-	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.13.custom.min.js')}" type="text/javascript"></script>
-	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.13.custom.css')}"/>
+	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.23.custom.min.js')}" type="text/javascript"></script>
+	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.23.custom.css')}"/>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'default.css')}"/>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'login_panel.css')}"/>
 
