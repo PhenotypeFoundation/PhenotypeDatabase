@@ -15,24 +15,17 @@ class ErrorController {
 	def authenticationService
 
 	/**
-	 * index closure
+	 * 404 closure
 	 */
-    def index = {
+	def notFound = {
+		// substract shortCode from original request uri
+		def shortCode = request.forwardURI.replace("${request.contextPath}/", "")
 
-	    render(template: "404")
-    }
-
-	/**
-	 * we probably got redirected here from the UrlMappings with
-	 * a shortcode (e.g. studies.dbnp.org/study_code)
-	 * redirect to a study, or to the index page
-	 */
-	def find = {
 		// got a shortcode?
-		if (params.containsKey('shortCode')) {
+		if (shortCode) {
 			// yeah, see if we've got a study with this
 			// shortcode
-			def study       = Study.findByCode(params.get('shortCode'))
+			def study       = Study.findByCode(shortCode)
 			SecUser user    = authenticationService.getLoggedInUser()
 
 			// got a study and is it readable?
