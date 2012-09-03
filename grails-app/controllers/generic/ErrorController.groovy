@@ -11,13 +11,14 @@ package generic
 import dbnp.studycapturing.Study
 import dbnp.authentication.SecUser
 
-class NotFoundController {
+class ErrorController {
 	def authenticationService
 
 	/**
 	 * index closure
 	 */
     def index = {
+
 	    render(template: "404")
     }
 

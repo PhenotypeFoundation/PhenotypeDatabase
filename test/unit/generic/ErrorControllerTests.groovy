@@ -3,7 +3,7 @@ package generic
 import grails.test.*
 
 /**
- * NotFoundControllerTests Test
+ * ErrorControllerTests Test
  *
  * Description of my test
  *
@@ -16,7 +16,7 @@ import grails.test.*
  * $Author$
  * $Date$
  */
-class NotFoundControllerTests extends ControllerUnitTestCase {
+class ErrorControllerTests extends ControllerUnitTestCase {
     protected void setUp() {
         super.setUp()
     }
