@@ -315,7 +315,6 @@ class ApiController {
 	    // wrap result in api call validator
         apiService.executeApiCall(params,response,'study',study,{
             def samplingEvents = apiService.flattenDomainData( study.samplingEvents )
-            println study.samplingEvents.dump()
 
             // define result
             def result = [
@@ -358,7 +357,6 @@ class ApiController {
 
 			// add info on parent subjects, events etc.
 			samples.each { item ->
-				println item.token
 				Sample sample = studySamples.find { it.UUID == item.token }
 				item['subject'] = sample.parentSubject.giveUUID()
 				item['samplingEvent'] = sample.parentEvent.giveUUID()
@@ -736,8 +734,9 @@ class ApiController {
 
 		String entityType = (params.containsKey('entityType')) ? params.get('entityType') : ''
 		String templateToken = (params.containsKey('templateToken')) ? params.get('templateToken') : ''
-		Map hasManyRelationships = [:]
-		Map relationships = [:]
+		Map hasManyRelationships = [:]  // belongsTo relationship
+		Map relationships = [:]         // one to one relationship
+		Map reverseRelationships = [:]  // non belongsTo relationships (parent hasMany relationship)
 
 		if (entityType) {
 			try {
@@ -777,14 +776,15 @@ class ApiController {
 					def matches	= type.toString() =~ /\.([^\.]+)$/
 					def tokenEntity = matches[0][1]
 					def tokenName = "${tokenEntity.toLowerCase()[0]}${tokenEntity.substring(1)}Token".toString()
+					def uuid = (params.containsKey(tokenName)) ? params.remove(tokenName) : ''
 
 					// does the tokenName exist in the parameters (e.g. studyToken)?
-					if (params.containsKey(tokenName)) {
+					if (uuid) {
 						// yes, find an instance of this entity
 						def tokenInstance = apiService.getEntity(tokenEntity)
 
 						// find the entity with this particular token
-						def foundEntity = tokenInstance.findWhere(UUID: params.get(tokenName))
+						def foundEntity = tokenInstance.findWhere(UUID: uuid)
 
 						// did we indeed found the entity we need to set a relationship with?
 						if (foundEntity) {
@@ -818,7 +818,44 @@ class ApiController {
 								}
 							}
 						} else {
-							throw new Exception("A ${tokenEntity} with token ${params.get(tokenName)} does not exist")
+							throw new Exception("A ${tokenEntity} with token ${uuid} does not exist")
+						}
+					}
+				}
+
+				// do we have other relationships in the parameter set? E.g.
+				// reverse relationships where belongsTo (cascaded deletes) is
+				// not defined, yet in a parent object this instance is defined
+				// in a hasMany relationship?
+				params.findAll{ name, value -> name =~ /Token$/ }.each { name, value ->
+					// get the reverse (parent) instance name
+					// for example: Sample -> Assay where Assay does have a
+					// hasMany relationship to Sample but Sample does not
+					// have a belongsTo set for Assay
+					def m = name =~ /^([a-zA-Z]+)Token$/
+					def reverseInstanceName = m[0][1].toUpperCase()[0] + m[0][1].substring(1)
+
+					// get an instance of this class
+					def reverseBaseInstance = apiService.getEntity(reverseInstanceName)
+					def reverseInstance = null
+
+					// fetch the reverse instance (if possible)
+					try {
+						reverseInstance = reverseBaseInstance.findWhere(UUID: value)
+					} catch (Exception e) { }
+
+					// got a reverse relationship?
+					if (reverseInstance) {
+						reverseInstance.hasMany.findAll { hasManyName, hasManyValue ->
+							hasManyValue == entity
+						}.each { hasManyName, hasManyValue ->
+							def functionName = "${hasManyName.toUpperCase()[0]}${hasManyName.substring(1)}"
+
+							// remember relationship for rollback purposes
+							reverseRelationships[ functionName ] = reverseInstance
+
+							// add relationship
+							reverseInstance."addTo${functionName}"( entityInstance )
 						}
 					}
 				}
@@ -867,10 +904,16 @@ class ApiController {
 					// blast, we've got errors
 					// undo relationships - CLEANUP!
 					hasManyRelationships.each { name, instance ->
+println "   rollback ${instance}::${name}"
 						instance."removeFrom${name}"(entityInstance)
 					}
 					relationships.each { name, instance ->
+println "   rollback ${instance}::${name}"
 						instance[name] = null
+					}
+					reverseRelationships.each { name, instance ->
+println "   rollback ${instance}::${name}"
+						instance."removeFrom${name}"(entityInstance)
 					}
 					entityInstance.delete(flush: true)
 

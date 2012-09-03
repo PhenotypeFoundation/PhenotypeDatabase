@@ -10,11 +10,8 @@ class UrlMappings {
 		// landing page
 		"/"(controller: 'home', action: 'index')
 
-		// handle short codes
-		"/$shortCode"(controller: 'notFound', action: 'find')
-
 		// handle 404
-		"404"(controller: 'notFound')
+		"404"(controller: 'error', action: 'notFound')
 
 		// handle 500
 		"500"(view: '/error')
