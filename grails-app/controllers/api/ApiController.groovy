@@ -56,7 +56,7 @@ class ApiController {
         String deviceID = (params.containsKey('deviceID')) ? params.deviceID : ''
         SecUser user    = authenticationService.getLoggedInUser()
         Token token     = Token.findByDeviceID(deviceID)
-        
+
         // generate a new token if we don't have a token on file
         def result = [:]
         try {
@@ -115,7 +115,7 @@ class ApiController {
             def user = Token.findByDeviceID(deviceID)?.user
             def readableStudies = Study.giveReadableStudies(user)
             def studies = []
-            
+
             // iterate through studies and define resultset
             readableStudies.each { study ->
                 // get result data
@@ -772,6 +772,9 @@ class ApiController {
 
 				// try to set the relationships
 				def changed = false
+
+                                            if (entityInstance.hasProperty('belongsTo')) {
+
 				entityInstance.belongsTo.each { name, type ->
 					def matches	= type.toString() =~ /\.([^\.]+)$/
 					def tokenEntity = matches[0][1]
@@ -822,6 +825,8 @@ class ApiController {
 						}
 					}
 				}
+                                            }
+
 
 				// do we have other relationships in the parameter set? E.g.
 				// reverse relationships where belongsTo (cascaded deletes) is
