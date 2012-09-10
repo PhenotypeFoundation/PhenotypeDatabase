@@ -102,6 +102,8 @@ application.title=Phenotype Database
 authentication.shibboleth=false
 ```
 
+Don't forget to change the default passwords to something more secure!
+
 # Create a .grails directory
 Grails uses a cache folder, which should be created if the tomcat user cannot create it
 
