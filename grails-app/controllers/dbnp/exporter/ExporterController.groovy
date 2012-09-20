@@ -33,6 +33,7 @@ import grails.plugins.springsecurity.Secured
 class ExporterController {
 
     def authenticationService
+	final List<String> supportedFormats = ["SimpleTox","ISATAB"]
 
     /*
      * List of all studies for selection the study to export
@@ -40,14 +41,23 @@ class ExporterController {
      */
     def index = {
 
+	    def format = params.get('format')
+	    if (!supportedFormats.contains(format)) {
+		    redirect(action: 'error', params: [errorText: "Format '${format}' is not supported!"])
+	    }
+
         def user = authenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
 
         def c = dbnp.studycapturing.Study.createCriteria()
 
         def studies = Study.giveReadableStudies(user, max);
-        [studyInstanceList: studies, studyInstanceTotal: studies.count()]
+        [studyInstanceList: studies, studyInstanceTotal: studies.count(), format: format]
     }
+
+	def error = {
+		[errorText: params.errorText]
+	}
 
     def export = {
 		def ids = params.list( 'ids' );
