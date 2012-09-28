@@ -35,6 +35,9 @@ grails.project.dependency.resolution = {
         mavenRepo "http://repository.springsource.com/maven/bundles/external"
         mavenRepo "http://repository.springsource.com/maven/libraries/release"
         mavenRepo "http://repository.springsource.com/maven/libraries/external"
+
+	    // Repository for ISATAB tools
+	    mavenRepo "http://frog.oerc.ox.ac.uk:8080/nexus-2.1.2/content/repositories/releases"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -51,6 +54,12 @@ grails.project.dependency.resolution = {
             // SLF4J: The requested version 1.5.8 by your slf4j binding is not compatible with [1.6]
             excludes([ group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'])
         }
+
+	    compile('org.isatools:ISAcreator:1.7.0') {
+		    transitive = false
+	    }
+		// dependency for ISATAB schema
+		compile 'net.sourceforge.collections:collections-generic:4.01'
 
 	    // we seem to be needing XStream in some cases
 	    compile("com.thoughtworks.xstream:xstream:1.3.1")
