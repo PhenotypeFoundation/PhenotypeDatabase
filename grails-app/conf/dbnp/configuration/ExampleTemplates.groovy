@@ -649,6 +649,14 @@ class ExampleTemplates {
 		.addToFields(assayDescriptionField)
 		.save(failOnError:true)
 
+		def seqAssayTemplate = new Template(
+			name: 'Mass Sequencing assay',
+			description: 'DNA Sequencing assay stored in Mass Sequencing module',
+			entity: dbnp.studycapturing.Assay
+		)
+		.addToFields(assayDescriptionField)
+		.save(failOnError:true)
+
 		def metAssayTemplate = new Template(
 			name: 'Metabolomics assay',
 			description: 'Metabolomics assay stored in a metabolomics module',

@@ -89,6 +89,7 @@ class ExampleStudies {
 		def humanBloodSampleTemplate	= Template.findByName("Human blood sample")
 		def ccAssayTemplate				= Template.findByName("Clinical chemistry assay")
 		def metAssayTemplate			= Template.findByName("Metabolomics assay")
+		def seqAssayTemplate            = Template.findByName("Mass Sequencing assay")
 
 		// Add terms manually, to avoid having to do many HTTP requests to the BioPortal website
 		def mouseTerm = Term.getOrCreateTerm('Mus musculus',speciesOntology,'10090')
@@ -466,14 +467,14 @@ class ExampleStudies {
 		// Add sequencing (metagenomics) assays
 		def sequencingAssay16SRef = new Assay(
 			name		: '16S Sequencing assay',
-			template	: ccAssayTemplate,
+			template	: seqAssayTemplate,
 			module		: massSequencingModule
 		)
 
 		// Add sequencing (metagenomics) assays
 		def sequencingAssay18SRef = new Assay(
 			name		: '18S Sequencing assay',
-			template	: ccAssayTemplate,
+			template	: seqAssayTemplate,
 			module		: massSequencingModule
 		)
 
