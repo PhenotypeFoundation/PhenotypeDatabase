@@ -48,6 +48,18 @@ function onStudyWizardPage() {
 		}
 	});
 
+	// handle template selects
+	new SelectAddMore().init({
+		rel	 : 'template',
+		url	 : baseUrl + '/templateEditor',
+		vars	: 'entity,ontologies',
+		label   : 'add / modify..',
+		style   : 'modify',
+		onClose : function(scope) {
+			refreshFlow();
+		}
+	});
+
 	// Handle person selects
 	new SelectAddMore().init({
 		rel	 : 'person',
@@ -59,30 +71,6 @@ function onStudyWizardPage() {
 			refreshFlow();
 		}
 	});
-
-    // handle template selects
-    new SelectAddMore().init({
-        rel	 : 'templateAdmin',
-        url	 : baseUrl + '/templateEditor',
-        vars	: 'entity,ontologies',
-        label   : 'add / modify..',
-        style   : 'modify',
-        onClose : function(scope) {
-        refreshFlow();
-        }
-    });
-
-    // handle template selects
-    new SelectAddMore().init({
-        rel	 : 'templateUser',
-        url	 : baseUrl + '/forms/templateRequestForm.gsp',
-        vars	: 'entity,ontologies',
-        label   : 'email request..',
-        style   : 'modify',
-        onClose : function(scope) {
-        refreshFlow();
-        }
-    });
 
 	// Handle personRole selects
 	new SelectAddMore().init({
