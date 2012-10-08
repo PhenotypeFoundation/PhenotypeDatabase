@@ -163,3 +163,8 @@ application.template.admin.email = "me@example.com"
 // ****** trackR Config ******
 trackr.path = "/tmp/trackr/"
 trackr.prefix = "gscf.${grails.util.GrailsUtil.environment}."
+
+// ****** TemplateAdmin Config ******
+// Set the email where template(field) requests will be sent to.
+templateadmin.email = "martien.caspers@tno.nl"
+

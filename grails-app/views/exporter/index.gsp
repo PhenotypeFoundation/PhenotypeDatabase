@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="main" />
     <g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}" />
-    <title>SimpleTox Exporter</title>
+    <title>${format} Exporter</title>
 
 </head>
 <body>
@@ -13,8 +13,8 @@
   <g:formRemote url="[controller:'exporter',action:'export']" name="simpleToxForm" onComplete="file://" onFailure="alert('Error while exporting the file');" >
 
   <div class="body">
-    <h1>Export as SimpleTox</h1>
-    <br> Select the study you want to export in SimpleTox format.<br>
+    <h1>Export as ${format}</h1>
+    <br> Select the study you want to export in ${format} format.<br>
     If you choose multiple studies, a ZIP file will be created.
     <br><br>
     <g:if test="${flash.message}">

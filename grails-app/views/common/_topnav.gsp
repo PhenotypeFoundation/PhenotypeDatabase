@@ -73,7 +73,8 @@
       <a href="#">Export</a>
       <ul class="subnav">
         <li><g:link controller="assay" action="assayExport">Export Assay Data to File</g:link> </li>
-	    <li><g:link controller="exporter" action="index">Export studies as SimpleTox Excel file</g:link></li>
+	    <li><g:link controller="exporter" action="index" params="[format: 'SimpleTox']">Export studies as SimpleTox Excel file</g:link></li>
+    <li><g:link controller="exporter" action="index" params="[format: 'ISATAB']">Export studies as ISATAB archive</g:link></li>
       </ul>
     </li>
 	<g:if test="${ConfigurationHolder.config.modules.showInMenu && AssayModule.count()}">
