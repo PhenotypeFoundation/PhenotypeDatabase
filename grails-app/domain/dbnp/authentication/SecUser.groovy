@@ -62,7 +62,7 @@ class SecUser implements Serializable {
     public boolean hasClientRights() {
         return getAuthorities().contains(SecRole.findByAuthority('ROLE_CLIENT'));
     }
-	
+
 	/**
 	 * Delete all remote logins for this user as well.
 	 */
@@ -75,8 +75,10 @@ class SecUser implements Serializable {
      * @void
      */
     def beforeInsert = {
-        // generate an apiKey for this user
-        apiKey = UUID.randomUUID().toString()
+        // api key set, if not we create one?
+        if (!apiKey) {
+            apiKey = UUID.randomUUID().toString()
+        }
     }
 
     /**
