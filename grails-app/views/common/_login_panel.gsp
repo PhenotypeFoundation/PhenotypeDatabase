@@ -71,6 +71,7 @@
 			</sec:ifLoggedIn>
 			<sec:ifNotLoggedIn>Guest</sec:ifNotLoggedIn>!</li>
 			<sec:ifLoggedIn>
+                <li><img src="${icon.userIcon(user:session.gscfUser, size: 20, transparent: true)}"></li>
 				<li class="sep">|</li>
 				<li id="toggle">
 					<g:link controller="userRegistration" action="profile">profile</g:link>

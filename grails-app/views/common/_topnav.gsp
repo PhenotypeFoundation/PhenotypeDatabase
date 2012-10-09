@@ -92,7 +92,7 @@
 		<li class="distinct">
 			<a href="#">Admin</a>
 			<ul class="subnav">
-				<li><g:link controller="user" class="icon icon_user"><img src="${fam.icon(name: 'user')}" alt="user administration"/> List Users</g:link></li>
+				<li><g:link controller="user" action="userSearch" class="icon icon_user"><img src="${fam.icon(name: 'user')}" alt="user administration"/> List Users</g:link></li>
 				<g:if test="${!session.gscfUser.shibbolethUser}">
 				<li><g:link controller="user" action="create" class="icon icon_user_add"><img src="${fam.icon(name: 'user')}" alt="user administration"/> Create User</g:link></li>
 				</g:if>

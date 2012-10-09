@@ -16,7 +16,15 @@
 <div class="body" id="register">
 	<g:if test="${user.shibbolethUser}">
 		<table>
-			<tr>
+            <g:if test="user?.email">
+                <tr>
+                    <td></td>
+                    <td>
+                        <a href="http://gravatar.com/emails/" target="_new"><img src="${icon.userIcon(user:user, size: 200)}" class="tooltip" title="Change your avatar at gravatar.com"></a>
+                    </td>
+                </tr>
+            </g:if>
+            <tr>
 				<td>Username</td>
 				<td>${user.uid}</td>
 			</tr>
@@ -59,6 +67,14 @@
 				<table>
 					<tbody>
 
+                    <g:if test="user?.email">
+                    <tr class="prop">
+                        <td></td>
+                        <td>
+                            <a href="http://gravatar.com/emails/" target="_new"><img src="${icon.userIcon(user:user, size: 200)}" class="tooltip" title="Change your avatar at gravatar.com"></a>
+                        </td>
+                    </tr>
+                    </g:if>
                     <tr class="prop">
                         <td valign="top" class="name">API Key</td>
                         <td valign="top" class="value">

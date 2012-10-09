@@ -43,7 +43,13 @@
 
 			<table>
 				<tbody>
-				<g:if test="${user.shibbolethUser}">
+                <g:if test="user?.email">
+                <tr>
+                    <td></td>
+                    <td><img src="${icon.userIcon(user:user, size: 200)}"></td>
+                </tr>
+                </g:if>
+                <g:if test="${user.shibbolethUser}">
 					<tr><td>Shibboleth user</td><td>yes</td></tr>
                     <tr>
                         <td>API key</td>

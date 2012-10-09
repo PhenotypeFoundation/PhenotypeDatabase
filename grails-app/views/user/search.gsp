@@ -72,7 +72,7 @@
 	<table>
 		<thead>
 		<tr>
-			<g:sortableColumn property="username" title="${message(code: 'user.username.label', default: 'Username')}" params="${queryParams}"/>
+			<g:sortableColumn property="username" title="${message(code: 'user.username.label', default: 'Username')}" params="${queryParams}" colspan="2" />
 			<g:sortableColumn property="enabled" title="${message(code: 'user.enabled.label', default: 'Enabled')}" params="${queryParams}"/>
 			<g:sortableColumn property="accountExpired" title="${message(code: 'user.accountExpired.label', default: 'Account Expired')}" params="${queryParams}"/>
 			<g:sortableColumn property="accountLocked" title="${message(code: 'user.accountLocked.label', default: 'Account Locked')}" params="${queryParams}"/>
@@ -83,7 +83,8 @@
 		<tbody>
 		<g:each in="${results}" status="i" var="user">
 		<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-			<td><g:link action="edit" id="${user.id}">${fieldValue(bean: user, field: "username")}</g:link></td>
+			<td><img src="${icon.userIcon(user:user, size: 20)}"></td>
+            <td><g:link action="edit" id="${user.id}">${fieldValue(bean: user, field: "username")}</g:link></td>
 			<td><g:formatBoolean boolean="${user.enabled}"/></td>
 			<td><g:formatBoolean boolean="${user.accountExpired}"/></td>
 			<td><g:formatBoolean boolean="${user.accountLocked}"/></td>

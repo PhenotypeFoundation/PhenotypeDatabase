@@ -82,6 +82,10 @@ Version: 1.0
   	background: url(../images/default_style/login_panel/tab_m.png) repeat-x 0 0;
 }
 
+.toppanel .tab ul.login li img {
+    padding-top: 10px;
+}
+
 .toppanel .tab ul.login li a {
 	color: #15ADFF;
 }
