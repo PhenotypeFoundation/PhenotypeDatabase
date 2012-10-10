@@ -47,7 +47,17 @@ class RemoveExpiredAccountsJob {
             log.info "removing ${accounts.size()} expired un-confirmed account creations"
 
             // remove accounts
-            accounts.each { it.delete() }
+            accounts.each {
+	            // delete all registration tokens for this user
+	            RegistrationCode.findAllWhere(user: it).each {
+		            // probably we should take the expiration date of the token
+		            // into account as well, but for now we're not
+		            it.delete()
+	            }
+
+	            // and delete the account
+	            it.delete()
+            }
         }
     }
 }
