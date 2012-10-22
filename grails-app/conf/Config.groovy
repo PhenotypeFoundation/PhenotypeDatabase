@@ -166,5 +166,5 @@ trackr.prefix = "gscf.${grails.util.GrailsUtil.environment}."
 
 // ****** TemplateAdmin Config ******
 // Set the email where template(field) requests will be sent to.
-templateadmin.email = "martien.caspers@tno.nl"
+templateadmin.email = "me@example.com"
 
