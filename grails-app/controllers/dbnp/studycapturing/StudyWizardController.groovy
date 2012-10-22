@@ -1523,19 +1523,14 @@ class StudyWizardController {
 				   def person = Person.get(ids.person)
 				   def role = PersonRole.get(ids.role)
 				   if (person && role) {
-					   // Find a studyperson object with these parameters
-					   def studyPerson = StudyPerson.findAll().find { studyperson -> studyperson.person.id == person.id && studyperson.role.id == role.id }
-
-					   // If if does not yet exist, save the example
-					   if (!studyPerson) {
-						   studyPerson = new StudyPerson(
-								   person: person,
-								   role: role
-								   )
-						   studyPerson.save(flush: true)
-					   }
-
-					   study.addToPersons(studyPerson)
+					    // Create a new StudyPerson object representing the relation, and attach it to the study
+					    // Note that because StudyPerson objects belong to a study, they can not and should not be re-used across studies
+						def studyPerson = new StudyPerson(
+						   person: person,
+						   role: role
+						)
+						studyPerson.save(flush: true)
+						study.addToPersons(studyPerson)
 				   } else {
 					   log.info('.person ' + ids.person + ' or Role ' + ids.role + ' not found in database.')
 				   }
