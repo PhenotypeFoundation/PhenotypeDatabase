@@ -157,7 +157,7 @@ class AssayController {
 		[fieldMapSelection, measurementTokens]
 	}
 
-	def collectAssayData(assay, fieldMapSelection, measurementTokens, samples, remoteUser = null) {
+	def collectAssayData(assay, fieldMapSelection, measurementTokens, samples, remoteUser) {
 		// collect the assay data according to user selection
 		def assayData           = assayService.collectAssayData(assay, fieldMapSelection, measurementTokens, samples, remoteUser)
 

@@ -694,11 +694,11 @@ class ImporterController {
 	 * @param map linkedHashMap
 	 * @void
 	 */
-	def appendErrors(object, map) {
+	private void appendErrors(object, map) {
 		this.appendErrorMap(getHumanReadableErrors(object), map)
 	}
 
-	def appendErrors(object, map, prepend) {
+	private void appendErrors(object, map, prepend) {
 		this.appendErrorMap(getHumanReadableErrors(object), map, prepend)
 	}
 
@@ -708,13 +708,13 @@ class ImporterController {
 	 * @param map linkedHashMap
 	 * @void
 	 */
-	def appendErrorMap(map, mapToExtend) {
+	private void appendErrorMap(map, mapToExtend) {
 		map.each() {key, value ->
 			mapToExtend[key] = ['key': key, 'value': value, 'dynamic': false]
 		}
 	}
 
-	def appendErrorMap(map, mapToExtend, prepend) {
+	private void appendErrorMap(map, mapToExtend, prepend) {
 		map.each() {key, value ->
 			mapToExtend[prepend + key] = ['key': key, 'value': value, 'dynamic': true]
 		}

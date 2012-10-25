@@ -675,7 +675,7 @@ class ExampleTemplates {
 			        new TemplateFieldListItem(name: 'NMR'),
 			        new TemplateFieldListItem(name: 'HPLC')
 			    ])
-		).save(failOnError:true, flush:true)
+		).save(failOnError:true)
 	}
 
 }

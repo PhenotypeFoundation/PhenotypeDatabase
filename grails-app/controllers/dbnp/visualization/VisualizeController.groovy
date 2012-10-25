@@ -219,7 +219,7 @@ class VisualizeController {
      *           - a key 'category' with a value equal to the 'name' field of the input paramater 'assay'
      *           - a key 'name' with a value equal to the name of the field in question, as determined by the source value
      */
-    def getFields(source, assay) {
+    protected def getFields(source, assay) {
         def fields = []
         def callUrl = ""
 
@@ -255,7 +255,7 @@ class VisualizeController {
      * @param type A string that indicates the type of field, either "domainfields" or "templatefields".
      * @return A list of map objects, formatted by the formatGSCFFields function
      */
-    def getFields(study, category, type) {
+	protected def getFields(study, category, type) {
         // Collecting the data from it's source
         def collection = []
         def fields = []
@@ -302,7 +302,7 @@ class VisualizeController {
      *           - a key 'category' with a value equal to the input parameter 'category'
      *           - a key 'name' with a value equal to the name of the field in question, as determined by the source value
      */
-    def formatGSCFFields(type, collectionOfFields, source, category) {
+	protected def formatGSCFFields(type, collectionOfFields, source, category) {
 
         if (collectionOfFields == null || collectionOfFields == []) {
             return []
@@ -812,7 +812,7 @@ class VisualizeController {
      * @param currentData
      * @return
      */
-    def computeAggregation(String aggregation, List currentData) {
+	protected def computeAggregation(String aggregation, List currentData) {
         switch (aggregation) {
             case "count":
                 return computeCount(currentData);
@@ -852,7 +852,7 @@ class VisualizeController {
      ]
      }*
      */
-    def formatData(type, groupedData, fieldInfo, xAxis = "x", yAxis = "y", serieAxis = "group", errorName = "error") {
+	protected def formatData(type, groupedData, fieldInfo, xAxis = "x", yAxis = "y", serieAxis = "group", errorName = "error") {
         // Format categorical axes by setting the names correct
         fieldInfo.each { field, info ->
             if (field && info) {
@@ -1017,7 +1017,7 @@ class VisualizeController {
      * @param dataAxis
      * @return
      */
-    def formatTableData(groupedData, xAxisData, yAxisData, xAxis, yAxis, dataAxis, serieIndices = null) {
+	protected def formatTableData(groupedData, xAxisData, yAxisData, xAxis, yAxis, dataAxis, serieIndices = null) {
         def tableData = []
 
         xAxisData.each { x ->
@@ -1049,7 +1049,7 @@ class VisualizeController {
      * @return The input variable 'data', with it's date and time elements converted.
      * @see determineFieldType
      */
-    def renderFieldsHumanReadable(data, axisType) {
+	protected def renderFieldsHumanReadable(data, axisType) {
         switch (axisType) {
             case RELTIME:
                 return renderTimesHumanReadable(data)
@@ -1068,7 +1068,7 @@ class VisualizeController {
      * @param data
      * @return
      */
-    def renderTimesHumanReadable(data) {
+	protected def renderTimesHumanReadable(data) {
         def tmpTimeContainer = []
         data.each {
             if (it instanceof Number) {
@@ -1089,7 +1089,7 @@ class VisualizeController {
      * @param data
      * @return
      */
-    def renderDatesHumanReadable(data) {
+	protected def renderDatesHumanReadable(data) {
         def tmpDateContainer = []
         data.each {
             if (it instanceof Number) {
