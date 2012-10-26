@@ -15,7 +15,6 @@
 
 package dbnp.pathway
 
-import dbnp.modules.ModuleCommunicationService;
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
 

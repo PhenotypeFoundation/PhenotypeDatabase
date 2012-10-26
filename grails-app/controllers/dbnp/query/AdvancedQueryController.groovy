@@ -1,6 +1,5 @@
 package dbnp.query
 
-import dbnp.modules.*
 import org.dbnp.gdt.*
 import dbnp.studycapturing.*;
 import grails.converters.JSON

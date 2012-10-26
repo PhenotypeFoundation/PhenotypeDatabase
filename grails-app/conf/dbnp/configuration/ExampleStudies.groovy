@@ -175,7 +175,6 @@ class ExampleStudies {
 			description	: "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet.",
 			code		: "PPS3_leptin_module",
 			researchQuestion: "Leptin etc.",
-			ecCode		: "2007117.c",
 			startDate	: Date.parse('yyyy-MM-dd', '2008-01-02'),
 			owner		: owner,
 			readers		: [otherUser]

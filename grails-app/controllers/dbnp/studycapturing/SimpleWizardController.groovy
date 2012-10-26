@@ -17,12 +17,10 @@ package dbnp.studycapturing
 import org.apache.poi.ss.usermodel.DataFormatter
 import org.dbnp.gdt.*
 import grails.plugins.springsecurity.Secured
-import dbnp.authentication.SecUser
+
 import dbnp.importer.ImportCell
 import dbnp.importer.ImportRecord
 import dbnp.importer.MappingColumn
-import org.hibernate.SessionFactory
-import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass;
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class SimpleWizardController extends StudyWizardController {

@@ -1,7 +1,5 @@
 package dbnp.studycapturing
 
-import java.util.ArrayList
-
 import org.dbnp.gdt.*
 
 /**

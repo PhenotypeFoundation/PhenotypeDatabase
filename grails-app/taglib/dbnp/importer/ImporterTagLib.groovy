@@ -14,8 +14,6 @@
  */
 
 package dbnp.importer
-import org.dbnp.gdt.*
-import org.dbnp.gdt.*
 
 import org.dbnp.gdt.*
 
