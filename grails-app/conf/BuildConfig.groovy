@@ -90,8 +90,6 @@ grails.project.dependency.resolution = {
 //                ":grails-melody:1.13",
                 ":trackr:0.7.3",
 
-                ":jumpbar:0.1.5",
-
                 ":quartz:1.0-RC2"
         )
 
