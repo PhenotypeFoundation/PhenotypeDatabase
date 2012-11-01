@@ -75,7 +75,8 @@ class Study extends TemplateEntity {
 	 * return the domain fields for this domain class
 	 * @return List
 	 */
-	static List<TemplateField> giveDomainFields() { return Study.domainFields }
+	@Override
+	List<TemplateField> giveDomainFields() { return domainFields }
 
 	static final List<TemplateField> domainFields = [
 		new TemplateField(

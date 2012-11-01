@@ -45,7 +45,8 @@ class Event extends TemplateEntity {
 	 * return the domain fields for this domain class
 	 * @return List<TemplateField>
 	 */
-	static List<TemplateField> giveDomainFields() { return Event.domainFields }
+	@Override
+	List<TemplateField> giveDomainFields() { return domainFields }
 
 	// To improve performance, the domain fields list is stored as a static final variable in the class.
 	static final List<TemplateField> domainFields = [

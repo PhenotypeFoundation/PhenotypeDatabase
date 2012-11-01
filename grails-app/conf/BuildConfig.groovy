@@ -77,10 +77,9 @@ grails.project.dependency.resolution = {
                 ":webflow:1.3.8",
                 ":ajaxflow:latest.integration",
 
-                ":crypto:2.0",
                 ":spring-security-core:1.2.7.3",
 
-                //":gdt:0.3.3",
+                ":gdt:0.3.4",
                 ":gdtimporter:0.5.2",
 
                 ":famfamfam:1.0.1",
@@ -93,9 +92,6 @@ grails.project.dependency.resolution = {
                 ":quartz:1.0-RC2"
         )
 
-		runtime ":database-migration:1.1"
-
-        compile ':cache:1.0.0'
 
         // add { transative = false } to ignore dependency transition
 
@@ -107,6 +103,6 @@ grails.project.dependency.resolution = {
 //grails.plugin.location.'grom' = '../../4np/grails-grom'
 //grails.plugin.location.'ajaxflow' = '../ajaxflow'
 //grails.plugin.location.'ajaxflow' = '../../4np/grails-ajaxflow'
-grails.plugin.location.'gdt' = '../GDT'
+//grails.plugin.location.'gdt' = '../GDT'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
 //grails.plugin.location.'gdtimporter' = '../GDTImporter'

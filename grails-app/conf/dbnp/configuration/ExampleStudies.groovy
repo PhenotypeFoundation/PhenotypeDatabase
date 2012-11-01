@@ -353,7 +353,13 @@ class ExampleStudies {
 		humanStudy.addToSamplingEvents(bloodSamplingEventAfter)
 		humanStudy.addToEventGroups rootGroup
 
-		humanStudy.save(failOnError:true)
+		if (!humanStudy.validate()) {
+			println "Human study validation errors:"
+			humanStudy.errors.each {
+				println it
+			}
+		}
+		humanStudy.save(failOnError: true)
 
 		def y = 1
 		11.times {
@@ -436,7 +442,14 @@ class ExampleStudies {
 
 		mouseStudy.addToAssays(lipidAssayRef);
 		mouseStudy.addToAssays(metAssayRef);
-		mouseStudy.save(failOnError:true)
+
+		if (!mouseStudy.validate()) {
+			println "Mouse study validation errors:"
+			mouseStudy.errors.each {
+				println it
+			}
+		}
+		mouseStudy.save(failOnError: true)
 
 		def glucoseAssayBRef = new Assay(
 			name		: 'Glucose assay before',
@@ -477,6 +490,14 @@ class ExampleStudies {
 			module		: massSequencingModule
 		)
 
+
+		humanStudy.addToAssays(sequencingAssay16SRef)
+		humanStudy.addToAssays(sequencingAssay18SRef)
+		humanStudy.addToAssays(glucoseAssayARef)
+		humanStudy.addToAssays(glucoseAssayBRef)
+		humanStudy.addToAssays(metAssayRefA)
+		humanStudy.addToAssays(metAssayRefB)
+
 		humanStudy.samples*.each {
 			if (it.parentEvent.startTime == 0) {
 				glucoseAssayBRef.addToSamples(it)
@@ -490,13 +511,13 @@ class ExampleStudies {
 			}
 		}
 
-		humanStudy.addToAssays(sequencingAssay16SRef)
-		humanStudy.addToAssays(sequencingAssay18SRef)
-		humanStudy.addToAssays(glucoseAssayARef)
-		humanStudy.addToAssays(glucoseAssayBRef)
-		humanStudy.addToAssays(metAssayRefA)
-		humanStudy.addToAssays(metAssayRefB)
-		humanStudy.save(failOnError:true)
+		if (!humanStudy.validate()) {
+			println "Human study validation errors:"
+			humanStudy.errors.each {
+				println it
+			}
+		}
+		humanStudy.save(failOnError: true)
 	}
 
     /**
