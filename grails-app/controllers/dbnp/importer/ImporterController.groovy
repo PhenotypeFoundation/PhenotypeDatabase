@@ -141,7 +141,7 @@ class ImporterController {
 
 				if (params.entity) {
 					flash.importer_datatemplates = Template.findAllByEntity(gdtService.getInstanceByEntity(params.entity.decodeURL()))
-					def importer_entity_type = gdtService.decryptEntity(params.entity.decodeURL()).toString().split(/\./)
+					def importer_entity_type = gdtService.decodeEntity(params.entity.decodeURL()).toString().split(/\./)
 					flow.importer_entity_type = importer_entity_type[importer_entity_type.size()-1]
 				}
 
@@ -371,7 +371,7 @@ class ImporterController {
 
 			def selectedentities = []
 
-			def entityName = gdtService.decryptEntity(params.entity.decodeURL())
+			def entityName = gdtService.decodeEntity(params.entity.decodeURL())
 			def entityClass = gdtService.getInstanceByEntityName(entityName)
 
 			// Initialize some session variables

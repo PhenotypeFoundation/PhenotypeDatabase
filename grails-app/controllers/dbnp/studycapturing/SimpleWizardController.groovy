@@ -103,10 +103,10 @@ class SimpleWizardController extends StudyWizardController {
 				];
 			
 				flow.encodedEntity = [
-							'Subject': gdtService.encryptEntity( Subject.class.name ),
-							'Event': gdtService.encryptEntity( Event.class.name ),
-							'SamplingEvent': gdtService.encryptEntity( SamplingEvent.class.name ),
-							'Sample': gdtService.encryptEntity( Sample.class.name )
+							'Subject': gdtService.encodeEntity( Subject.class.name ),
+							'Event': gdtService.encodeEntity( Event.class.name ),
+							'SamplingEvent': gdtService.encodeEntity( SamplingEvent.class.name ),
+							'Sample': gdtService.encodeEntity( Sample.class.name )
 				]
 
 				if (flow.study.samples)
@@ -180,7 +180,7 @@ class SimpleWizardController extends StudyWizardController {
 				
 				flow.templates.each { 
 					if( it.value ) {
-						flow.domainFields[ it.key ] = it.value[0].entity.giveDomainFields();
+						flow.domainFields[ it.key ] = it.value[0].entity.newInstance().giveDomainFields();
 					}
 				}
 				
@@ -647,7 +647,7 @@ class SimpleWizardController extends StudyWizardController {
 		def fieldNames = [];
 		flow.sampleForm.template.each { template ->
 			if( template.value ) {
-				def fields = template.value.entity.giveDomainFields() + template.value.getFields();
+				def fields = template.value.entity.newInstance().giveDomainFields() + template.value.getFields();
 				fields.each { field ->
 					if( !field.entity )
 						field.entity = template.value.entity
@@ -777,7 +777,7 @@ class SimpleWizardController extends StudyWizardController {
 			headers[columnindex.toInteger()].dontimport = (property == "dontimport") ? true : false
 
 			//if it's an identifier set the mapping column true or false
-			entityClass.giveDomainFields().each {
+			entityClass.newInstance().giveDomainFields().each {
 				headers[columnindex.toInteger()].identifier = ( it.preferredIdentifier && (it.name == property) )
 			}
 		}
