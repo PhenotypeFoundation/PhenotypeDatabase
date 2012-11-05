@@ -91,7 +91,7 @@ grails.project.dependency.resolution = {
                 ":quartz:1.0-RC2"
         )
 
-        compile(":gdtimporter:0.5.4"){transitive = false}
+        compile(":gdtimporter:0.5.5"){transitive = false}
 
 
         // add { transative = false } to ignore dependency transition
