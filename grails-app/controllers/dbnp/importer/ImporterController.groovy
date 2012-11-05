@@ -5,7 +5,7 @@ import org.dbnp.gdt.*
 import grails.converters.JSON
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import grails.plugins.springsecurity.Secured
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+
 import grails.util.GrailsUtil
 
 
@@ -141,7 +141,7 @@ class ImporterController {
 
 				if (params.entity) {
 					flash.importer_datatemplates = Template.findAllByEntity(gdtService.getInstanceByEntity(params.entity.decodeURL()))
-					def importer_entity_type = gdtService.decryptEntity(params.entity.decodeURL()).toString().split(/\./)
+					def importer_entity_type = gdtService.decodeEntity(params.entity.decodeURL()).toString().split(/\./)
 					flow.importer_entity_type = importer_entity_type[importer_entity_type.size()-1]
 				}
 
@@ -371,7 +371,7 @@ class ImporterController {
 
 			def selectedentities = []
 
-			def entityName = gdtService.decryptEntity(params.entity.decodeURL())
+			def entityName = gdtService.decodeEntity(params.entity.decodeURL())
 			def entityClass = gdtService.getInstanceByEntityName(entityName)
 
 			// Initialize some session variables
@@ -694,11 +694,11 @@ class ImporterController {
 	 * @param map linkedHashMap
 	 * @void
 	 */
-	def appendErrors(object, map) {
+	private void appendErrors(object, map) {
 		this.appendErrorMap(getHumanReadableErrors(object), map)
 	}
 
-	def appendErrors(object, map, prepend) {
+	private void appendErrors(object, map, prepend) {
 		this.appendErrorMap(getHumanReadableErrors(object), map, prepend)
 	}
 
@@ -708,13 +708,13 @@ class ImporterController {
 	 * @param map linkedHashMap
 	 * @void
 	 */
-	def appendErrorMap(map, mapToExtend) {
+	private void appendErrorMap(map, mapToExtend) {
 		map.each() {key, value ->
 			mapToExtend[key] = ['key': key, 'value': value, 'dynamic': false]
 		}
 	}
 
-	def appendErrorMap(map, mapToExtend, prepend) {
+	private void appendErrorMap(map, mapToExtend, prepend) {
 		map.each() {key, value ->
 			mapToExtend[prepend + key] = ['key': key, 'value': value, 'dynamic': true]
 		}

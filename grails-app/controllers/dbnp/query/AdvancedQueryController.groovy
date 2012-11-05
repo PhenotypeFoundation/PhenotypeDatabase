@@ -1,6 +1,5 @@
 package dbnp.query
 
-import dbnp.modules.*
 import org.dbnp.gdt.*
 import dbnp.studycapturing.*;
 import grails.converters.JSON
@@ -304,7 +303,7 @@ class AdvancedQueryController {
 		}
 		
 		// Determine domain fields of the entity
-		def domainFields = entityClass.giveDomainFields();
+		def domainFields = entityClass.newInstance().giveDomainFields();
 		def domainField = domainFields.find { it.name == field };
 		
 		// The values of a domainfield can be determined easily
@@ -415,7 +414,7 @@ class AdvancedQueryController {
 			def entity = getEntity( 'dbnp.studycapturing.' + it );
 
 			if( entity ) {
-				def domainFields = entity.giveDomainFields();
+				def domainFields = entity.newInstance().giveDomainFields();
 				def templateFields = TemplateField.findAllByEntity( entity )
 
 				def fieldNames = ( domainFields + templateFields ).collect { it.name }.unique() + 'Template' + '*'

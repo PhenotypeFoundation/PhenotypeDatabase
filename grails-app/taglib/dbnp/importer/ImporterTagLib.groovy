@@ -14,8 +14,6 @@
  */
 
 package dbnp.importer
-import org.dbnp.gdt.*
-import org.dbnp.gdt.*
 
 import org.dbnp.gdt.*
 
@@ -111,18 +109,23 @@ class ImporterTagLib {
         def selected = (attrs['selected']) ? attrs['selected'] : ""
 		def fuzzyTreshold = attrs[ 'treshold' ] && attrs[ 'treshold' ].toString().isNumber() ? Float.valueOf( attrs[ 'treshold' ] ) : 0.1;
         def returnmatchonly = attrs['returnmatchonly']
-        
-        def domainfields = mc.entityclass.giveDomainFields().findAll { it.type == mc.templatefieldtype }
+
+        // mc.entityclass.domainFields would work as well,
+        // but that would be relying on a convention in the implementation of the domain classes overriding TemplateEntity
+        // could be a performance enhancement though
+        def entityInstance = mc.entityclass.newInstance()
+
+        def domainfields = entityInstance.giveDomainFields().findAll { it.type == mc.templatefieldtype }
 		domainfields = domainfields.findAll { it.preferredIdentifier != mc.identifier}
 
 		//def templatefields = (allfieldtypes=="true") ? t.fields : t.fields.findAll { it.type == mc.templatefieldtype }
 		/*def templatefields = (allfieldtypes == "true") ?
 			t.fields + mc.entity.giveDomainFields() :
 			t.fields.findAll { it.type == mc.templatefieldtype } + domainfields*/
-        def templatefields = t.fields + mc.entityclass.giveDomainFields()
+        def templatefields = t.fields + entityInstance.giveDomainFields()
 
 		// map identifier to preferred column
-		def prefcolumn = mc.entityclass.giveDomainFields().findAll { it.preferredIdentifier == true }
+		def prefcolumn = entityInstance.giveDomainFields().findAll { it.preferredIdentifier == true }
 
 		/*(mc.identifier) ? out << createPropertySelect(attrs['name'], prefcolumn, matchvalue, mc.index) :
 			out << createPropertySelect(attrs['name'], templatefields, matchvalue, mc.index)*/

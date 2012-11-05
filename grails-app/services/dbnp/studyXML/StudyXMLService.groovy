@@ -12,8 +12,7 @@ package dbnp.studyXML
 
 import dbnp.authentication.*
 import dbnp.studycapturing.*
-import grails.converters.XML
-import groovy.util.slurpersupport.*
+
 import org.dbnp.bgdt.*
 import org.dbnp.gdt.*
 

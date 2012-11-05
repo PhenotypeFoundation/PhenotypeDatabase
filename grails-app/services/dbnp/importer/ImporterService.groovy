@@ -556,7 +556,7 @@ class ImporterService {
 		if( df == null )
 			df = new DataFormatter();
 
-		def allFields = entity.giveDomainFields();
+        def allFields = entity.newInstance().giveDomainFields();
 		def identifierField = allFields.find { it.preferredIdentifier }
 
 		if( identifierField ) {
@@ -1039,7 +1039,7 @@ class ImporterService {
 	 * @return	The preferred identifier field or NULL if no preferred identifier is given
 	 */
 	public TemplateField givePreferredIdentifier( Class entity ) {
-		def allFields = entity.giveDomainFields();
+        def allFields = entity.newInstance().giveDomainFields();
 		return allFields.find { it.preferredIdentifier }
 	}
 

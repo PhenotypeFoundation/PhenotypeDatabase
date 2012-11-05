@@ -105,7 +105,7 @@ class Criterion {
 			return [ "String" ]
 		
 		// Determine domain fields of the entity
-		def domainFields = entityClass().giveDomainFields();
+		def domainFields = entityClass().newInstance().giveDomainFields();
 		def domainField = domainFields.find { it.name == this.field };
 		if( domainField )
 			return [domainField.type?.casedName];
@@ -143,7 +143,7 @@ class Criterion {
 			return true;
 			
 		// Determine domain fields of the entity
-		def domainFields = entityClass.giveDomainFields();
+		def domainFields = entityClass.newInstance().giveDomainFields();
 		def domainField = domainFields.find { it.name == this.field };
 
 		return (domainField ? true : false)
@@ -409,12 +409,12 @@ class Criterion {
 		def domainFields 
 		
 		switch( objectToSearchIn.toLowerCase() ) {
-			case "study":	domainFields = Study.giveDomainFields();	break;
-			case "subject":	domainFields = Subject.giveDomainFields();	break;
-			case "event":	domainFields = Event.giveDomainFields();	break;
-			case "sample":	domainFields = Sample.giveDomainFields();	break;
-			case "assay":	domainFields = Assay.giveDomainFields();	break;
-			case "samplingevent":	domainFields = SamplingEvent.giveDomainFields();	break;
+			case "study":	domainFields = Study.domainFields();	break;
+			case "subject":	domainFields = Subject.domainFields();	break;
+			case "event":	domainFields = Event.domainFields();	break;
+			case "sample":	domainFields = Sample.domainFields();	break;
+			case "assay":	domainFields = Assay.domainFields();	break;
+			case "samplingevent":	domainFields = SamplingEvent.domainFields();	break;
 		}
 		
 		domainFields.each { field ->

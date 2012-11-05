@@ -35,6 +35,9 @@ grails.project.dependency.resolution = {
         mavenRepo "http://repository.springsource.com/maven/bundles/external"
         mavenRepo "http://repository.springsource.com/maven/libraries/release"
         mavenRepo "http://repository.springsource.com/maven/libraries/external"
+
+	    // Repository for ISATAB tools
+	    mavenRepo "http://frog.oerc.ox.ac.uk:8080/nexus-2.1.2/content/repositories/releases"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -46,14 +49,22 @@ grails.project.dependency.resolution = {
 
         // quartz jar is not packaged in the war properly
         // make sure to pull it in
-        compile('org.quartz-scheduler:quartz:1.8.4') {
+        //compile('org.quartz-scheduler:quartz:1.8.4') {
             // resolve SLF4J version conflict:
             // SLF4J: The requested version 1.5.8 by your slf4j binding is not compatible with [1.6]
-            excludes([ group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'])
-        }
+            //excludes([ group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'])
+        //}
+
+	    /*compile('org.isatools:ISAcreator:1.7.0') {
+		    transitive = false
+	    } */
+		// dependency for ISATAB schema
+		compile 'net.sourceforge.collections:collections-generic:4.01'
 
 	    // we seem to be needing XStream in some cases
 	    compile("com.thoughtworks.xstream:xstream:1.3.1")
+
+	    runtime 'hsqldb:hsqldb:1.8.0.10'
     }
 	plugins {
 		compile(
@@ -66,11 +77,9 @@ grails.project.dependency.resolution = {
                 ":webflow:1.3.8",
                 ":ajaxflow:latest.integration",
 
-                ":crypto:2.0",
-                ":spring-security-core:1.1.2",
+                ":spring-security-core:1.2.7.3",
 
-                ":gdt:0.3.3",
-                ":gdtimporter:0.5.3",
+                ":gdt:0.3.5",
 
                 ":famfamfam:1.0.1",
 
@@ -79,10 +88,11 @@ grails.project.dependency.resolution = {
 //                ":grails-melody:1.13",
                 ":trackr:0.7.3",
 
-                ":jumpbar:0.1.5",
-
                 ":quartz:1.0-RC2"
         )
+
+        compile(":gdtimporter:0.5.4"){transitive = false}
+
 
         // add { transative = false } to ignore dependency transition
 

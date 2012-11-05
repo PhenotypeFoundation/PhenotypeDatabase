@@ -88,8 +88,8 @@ class ExampleTemplates {
 		if (String.metaClass.getMetaMethod("grom")) "inserting initial templates".grom()
 
 		def genderField = new TemplateField(
-			name: 'Gender',type: TemplateFieldType.STRINGLIST, entity: Subject,
-			listEntries: [new TemplateFieldListItem(name:'Male'),new TemplateFieldListItem(name: 'Female'),new TemplateFieldListItem(name: 'Unknown')])
+			name: 'Gender',type: TemplateFieldType.STRINGLIST, entity: Subject)
+		.addListEntries(['Male','Female','Unknown'])
 		.save(failOnError:true)
 
 		def ageField = new TemplateField(
@@ -103,11 +103,8 @@ class ExampleTemplates {
 
 		def genotypeTypeField = new TemplateField(
 			name: 'Genotype type',type: TemplateFieldType.STRINGLIST,entity: Subject,
-			listEntries: [new TemplateFieldListItem(name:'wildtype'),
-				new TemplateFieldListItem(name:'transgenic'),
-				new TemplateFieldListItem(name:'knock-out'),
-				new TemplateFieldListItem(name:'knock-in')],
 			comment: 'If a genotype was specified, please indicate here the type of the genotype')
+		.addListEntries(['wildtype','transgenic','knock-out','knock-in'])
         .save(failOnError:true)
 
 		def varietyField = new TemplateField(
@@ -144,8 +141,7 @@ class ExampleTemplates {
 		.addToFields(new TemplateField(
 			name: 'Age', type: TemplateFieldType.LONG, entity: Subject, unit: 'weeks', comment: 'Age at start of study'))
 		.addToFields(new TemplateField(
-			name: 'Age type',type: TemplateFieldType.STRINGLIST,entity: Subject,
-			listEntries: [new TemplateFieldListItem(name:'postnatal'),new TemplateFieldListItem(name:'embryonal')]))
+			name: 'Age type',type: TemplateFieldType.STRINGLIST,entity: Subject).addListEntries(['postnatal','embryonal']))
 		.addToFields(new TemplateField(
 			name: 'Cage',type: TemplateFieldType.STRING,entity: Subject,comment:'Indicate the cage used for housing (type and/or size)'))
 		.addToFields(new TemplateField(
@@ -306,13 +302,8 @@ class ExampleTemplates {
 			new TemplateField(
 				name: 'Growth type',
 				entity: Subject,
-				type: TemplateFieldType.STRINGLIST,
-				listEntries: [
-					new TemplateFieldListItem(name:'Standard'),
-			        new TemplateFieldListItem(name: 'Experimental'),
-			        new TemplateFieldListItem(name: 'Unknown')
-				]
-			)
+				type: TemplateFieldType.STRINGLIST
+			).addListEntries(['Standard','Experimental','Unknown'])
 		)
 		.addToFields(new TemplateField(
 			name: 'Growth protocol', entity: Subject, type: TemplateFieldType.TEXT))
@@ -352,8 +343,7 @@ class ExampleTemplates {
 		.addToFields(new TemplateField(
 			name: 'Harvest date', entity: Subject, type: TemplateFieldType.DATE))
 		.addToFields(new TemplateField(
-			name: 'Growth type', entity: Subject, type: TemplateFieldType.STRINGLIST,
-			listEntries: [new TemplateFieldListItem(name:'Standard'),new TemplateFieldListItem(name: 'Experimental')]))
+			name: 'Growth type', entity: Subject, type: TemplateFieldType.STRINGLIST).addListEntries(['Standard','Experimental']))
 		.addToFields(new TemplateField(
 			name: 'Growth protocol', entity: Subject, type: TemplateFieldType.TEXT))
 		.addToFields(new TemplateField(
@@ -372,13 +362,13 @@ class ExampleTemplates {
 		.addToFields(genotypeTypeField)
 		.addToFields(
 			new TemplateField(
-				name: 'Growth location',
-				type: TemplateFieldType.STRINGLIST,
-				listEntries: [
-					new TemplateFieldListItem(name:'Greenhouse'),
-					new TemplateFieldListItem(name: 'Field')
-				]
-			)
+							name: 'Growth location',
+							type: TemplateFieldType.STRINGLIST,
+							listEntries: [
+								new TemplateFieldListItem(name:'Greenhouse'),
+								new TemplateFieldListItem(name: 'Field')
+							]
+						)
 		)
 		*/
 		.addToFields(new TemplateField(
@@ -406,8 +396,7 @@ class ExampleTemplates {
 		.addToFields(new TemplateField(
 			name: 'Harvest date', type: TemplateFieldType.DATE, entity: Subject))
 		.addToFields(new TemplateField(
-			name: 'Growth type', type: TemplateFieldType.STRINGLIST, entity: Subject,
-			listEntries: [new TemplateFieldListItem(name:'Standard'),new TemplateFieldListItem(name: 'Experimental')]))
+			name: 'Growth type', type: TemplateFieldType.STRINGLIST, entity: Subject).addListEntries(['Standard','Experimental']))
 		.addToFields(new TemplateField(
 			name: 'Growth protocol', type: TemplateFieldType.TEXT, entity: Subject))
 		.addToFields(new TemplateField(
@@ -437,13 +426,8 @@ class ExampleTemplates {
 			new TemplateField(
 				 name: 'Grinding',
 				type: TemplateFieldType.STRINGLIST,
-				entity: Event,
-			    listEntries: [
-					new TemplateFieldListItem(name:'yes'),
-			        new TemplateFieldListItem(name: 'no'),
-			        new TemplateFieldListItem(name: 'unknown')
-				]
-			)
+				entity: Event
+			).addListEntries(['yes','no','unknown'])
 		)
 		.addToFields(
 			new TemplateField(
@@ -477,12 +461,8 @@ class ExampleTemplates {
 			new TemplateField(
 				name: 'Diet',
 				type: TemplateFieldType.STRINGLIST,
-				entity: Event,
-				listEntries: [
-					new TemplateFieldListItem(name:'low fat'),
-					new TemplateFieldListItem(name: 'high fat')
-				]
-			)
+				entity: Event
+			).addListEntries(['low fat','high fat'])
 		)
 		.addToFields(protocolField)
         .save(failOnError:true)
@@ -584,13 +564,8 @@ class ExampleTemplates {
 			new TemplateField(
 				name: 'Sample when measured',
 				type: TemplateFieldType.STRINGLIST,
-				entity: SamplingEvent,
-			     listEntries: [
-					 new TemplateFieldListItem(name:'Dried'),
-		             new TemplateFieldListItem(name: 'Fresh'),
-		             new TemplateFieldListItem(name: 'Unknown')
-				 ]
-			)
+				entity: SamplingEvent
+			).addListEntries(['Dried','Fresh','Unknown'])
 		).save(failOnError:true)
 
 		// plant sampling event template
@@ -649,6 +624,14 @@ class ExampleTemplates {
 		.addToFields(assayDescriptionField)
 		.save(failOnError:true)
 
+		def seqAssayTemplate = new Template(
+			name: 'Mass Sequencing assay',
+			description: 'DNA Sequencing assay stored in Mass Sequencing module',
+			entity: dbnp.studycapturing.Assay
+		)
+		.addToFields(assayDescriptionField)
+		.save(failOnError:true)
+
 		def metAssayTemplate = new Template(
 			name: 'Metabolomics assay',
 			description: 'Metabolomics assay stored in a metabolomics module',
@@ -660,14 +643,9 @@ class ExampleTemplates {
 				name: 'Spectrometry technique',
 			    comment: 'Select the used metabolomics technique',
 				entity: Assay,
-				type: TemplateFieldType.STRINGLIST,
-			    listEntries: [
-					new TemplateFieldListItem(name: 'GC/MS'),
-			        new TemplateFieldListItem(name: 'LC/MS'),
-			        new TemplateFieldListItem(name: 'NMR'),
-			        new TemplateFieldListItem(name: 'HPLC')
-			    ])
-		).save(failOnError:true, flush:true)
+				type: TemplateFieldType.STRINGLIST
+			).addListEntries(['GC/MS','LC/MS','NMR','HPLC'])
+		).save(failOnError:true, flush: true)
 	}
 
 }

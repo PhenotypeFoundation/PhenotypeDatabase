@@ -14,7 +14,7 @@
  * $Date$
  */
 
-def speciesOntologies = dbnp.studycapturing.Subject.giveDomainFields().find { it.name == 'species' }.ontologies.collect { it.ncboId }
+def speciesOntologies = new dbnp.studycapturing.Subject().giveDomainFields().find { it.name == 'species' }.ontologies.collect { it.ncboId }
 %>
 <af:page>
 	<span class="info">

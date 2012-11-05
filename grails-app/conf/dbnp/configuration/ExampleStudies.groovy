@@ -89,6 +89,7 @@ class ExampleStudies {
 		def humanBloodSampleTemplate	= Template.findByName("Human blood sample")
 		def ccAssayTemplate				= Template.findByName("Clinical chemistry assay")
 		def metAssayTemplate			= Template.findByName("Metabolomics assay")
+		def seqAssayTemplate            = Template.findByName("Mass Sequencing assay")
 
 		// Add terms manually, to avoid having to do many HTTP requests to the BioPortal website
 		def mouseTerm = Term.getOrCreateTerm('Mus musculus',speciesOntology,'10090')
@@ -174,7 +175,6 @@ class ExampleStudies {
 			description	: "C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet.",
 			code		: "PPS3_leptin_module",
 			researchQuestion: "Leptin etc.",
-			ecCode		: "2007117.c",
 			startDate	: Date.parse('yyyy-MM-dd', '2008-01-02'),
 			owner		: owner,
 			readers		: [otherUser]
@@ -353,7 +353,13 @@ class ExampleStudies {
 		humanStudy.addToSamplingEvents(bloodSamplingEventAfter)
 		humanStudy.addToEventGroups rootGroup
 
-		humanStudy.save(failOnError:true)
+		if (!humanStudy.validate()) {
+			println "Human study validation errors:"
+			humanStudy.errors.each {
+				println it
+			}
+		}
+		humanStudy.save(failOnError: true)
 
 		def y = 1
 		11.times {
@@ -436,7 +442,14 @@ class ExampleStudies {
 
 		mouseStudy.addToAssays(lipidAssayRef);
 		mouseStudy.addToAssays(metAssayRef);
-		mouseStudy.save(failOnError:true)
+
+		if (!mouseStudy.validate()) {
+			println "Mouse study validation errors:"
+			mouseStudy.errors.each {
+				println it
+			}
+		}
+		mouseStudy.save(failOnError: true)
 
 		def glucoseAssayBRef = new Assay(
 			name		: 'Glucose assay before',
@@ -466,16 +479,24 @@ class ExampleStudies {
 		// Add sequencing (metagenomics) assays
 		def sequencingAssay16SRef = new Assay(
 			name		: '16S Sequencing assay',
-			template	: ccAssayTemplate,
+			template	: seqAssayTemplate,
 			module		: massSequencingModule
 		)
 
 		// Add sequencing (metagenomics) assays
 		def sequencingAssay18SRef = new Assay(
 			name		: '18S Sequencing assay',
-			template	: ccAssayTemplate,
+			template	: seqAssayTemplate,
 			module		: massSequencingModule
 		)
+
+
+		humanStudy.addToAssays(sequencingAssay16SRef)
+		humanStudy.addToAssays(sequencingAssay18SRef)
+		humanStudy.addToAssays(glucoseAssayARef)
+		humanStudy.addToAssays(glucoseAssayBRef)
+		humanStudy.addToAssays(metAssayRefA)
+		humanStudy.addToAssays(metAssayRefB)
 
 		humanStudy.samples*.each {
 			if (it.parentEvent.startTime == 0) {
@@ -490,13 +511,13 @@ class ExampleStudies {
 			}
 		}
 
-		humanStudy.addToAssays(sequencingAssay16SRef)
-		humanStudy.addToAssays(sequencingAssay18SRef)
-		humanStudy.addToAssays(glucoseAssayARef)
-		humanStudy.addToAssays(glucoseAssayBRef)
-		humanStudy.addToAssays(metAssayRefA)
-		humanStudy.addToAssays(metAssayRefB)
-		humanStudy.save(failOnError:true)
+		if (!humanStudy.validate()) {
+			println "Human study validation errors:"
+			humanStudy.errors.each {
+				println it
+			}
+		}
+		humanStudy.save(failOnError: true)
 	}
 
     /**

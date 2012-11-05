@@ -18,9 +18,10 @@ class Assay extends TemplateEntity {
      * return the domain fields for this domain class
      * @return List
      */
-    static List<TemplateField> giveDomainFields() { return Assay.domainFields }
+    @Override
+    List<TemplateField> giveDomainFields() { return domainFields }
 
-    static List<TemplateField> domainFields = [
+    static final List<TemplateField> domainFields = [
             new TemplateField(
                     name: 'name',
                     type: TemplateFieldType.STRING,
@@ -43,7 +44,6 @@ class Assay extends TemplateEntity {
     static hasMany = [samples: Sample]
 
     static mapping = {
-	    cache true
         sort "name"
 
         // Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754

@@ -16,13 +16,9 @@
 package dbnp.query
 
 import org.dbnp.gdt.*
-import java.util.List;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat
-import java.util.List;
 
-import org.springframework.context.ApplicationContext
-import org.springframework.web.context.request.RequestContextHolder;
+import java.text.SimpleDateFormat
+
 import org.codehaus.groovy.grails.commons.ApplicationHolder;
 
 import dbnp.authentication.*

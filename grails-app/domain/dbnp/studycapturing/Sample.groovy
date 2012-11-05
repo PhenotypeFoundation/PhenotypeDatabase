@@ -1,7 +1,5 @@
 package dbnp.studycapturing
 
-import java.util.ArrayList
-
 import org.dbnp.gdt.*
 
 /**
@@ -36,11 +34,12 @@ class Sample extends TemplateEntity {
      * return the domain fields for this domain class
      * @return List
      */
-    static List<TemplateField> giveDomainFields() { return Sample.domainFields }
+    @Override
+	List<TemplateField> giveDomainFields() { return domainFields }
 
     // We have to specify an ontology list for the material property. However, at compile time, this ontology does of course not exist.
     // Therefore, the ontology is added at runtime in the bootstrap, possibly downloading the ontology properties if it is not present in the database yet.
-    static List<TemplateField> domainFields = [
+    static final List<TemplateField> domainFields = [
             new TemplateField(
                     name: 'name',
                     type: TemplateFieldType.STRING,

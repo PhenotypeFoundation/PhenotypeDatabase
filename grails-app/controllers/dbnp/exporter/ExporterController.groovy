@@ -145,7 +145,7 @@ class ExporterController {
      * the export method will create a SimpleTox format for the selected study 
      * and write the file to the given output stream
      */
-    def downloadFile(studyInstance, OutputStream outStream) {
+    private def downloadFile(studyInstance, OutputStream outStream) {
         // the attributes list for the SimpleTox format
         def attributes_list = ["SubjectID","DataFile","HybName","SampleName","ArrayType","Label","StudyTitle","Array_ID",
         "Species"]
@@ -189,7 +189,7 @@ class ExporterController {
 		wb.write( outStream );
     }
 
-    def writeMandatoryFields(sub,sample,study) {
+    private def writeMandatoryFields(sub,sample,study) {
         // adding subject name in row 1
         sample.parentSubject ? sub.createCell((short)0).setCellValue(sample.parentSubject.name) : "not defined"
         // adding sample in row 4
@@ -216,7 +216,7 @@ class ExporterController {
     }
 
     // writing subject properties
-    def writeSubjectProperties(sub,sample,row) {
+	private def writeSubjectProperties(sub,sample,row) {
 		if( sample.parentSubject ) {
 			log.trace "----- SUBJECT -----"
 	        for (u in 0..sample.parentSubject.giveFields().unique().size()-1){
@@ -231,7 +231,7 @@ class ExporterController {
     }
 
     // writing samplingEvent properties
-    def writeSamplingEventProperties(sub,sample,row){
+	private def writeSamplingEventProperties(sub,sample,row){
 		if( sample.parentEvent ) {
 	        log.trace "----- SAMPLING EVENT -----"
 	        for (t in 0..sample.parentEvent.giveFields().unique().size()-1){
@@ -246,12 +246,12 @@ class ExporterController {
     }
 
     // writing EventGroup properties
-    def writeEventGroupProperties(sub,sample,row){
+	private def writeEventGroupProperties(sub,sample,row){
       
     }
 
     // writing sample properties
-    def writeSampleProperties(sub,sample,row){
+	private def writeSampleProperties(sub,sample,row){
         log.trace "----- SAMPLE -----"
         for (v in 0..sample.giveFields().unique().size()-1){
             TemplateField tf =sample.giveFields().getAt(v)

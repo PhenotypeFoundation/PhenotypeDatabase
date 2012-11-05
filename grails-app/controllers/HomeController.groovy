@@ -1,5 +1,5 @@
 import dbnp.studycapturing.*
-import dbnp.authentication.*
+
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import grails.converters.JSON
@@ -147,7 +147,7 @@ class HomeController {
 			}
 		}.each { template ->
 			def entityName = template.entity.toString().split(/\./)
-			def encodedEntity = gdtService.encryptEntity(template.entity.toString()).decodeURL()
+			def encodedEntity = gdtService.encodeEntity(template.entity.toString()).decodeURL()
 
 			result.data << [
 				link		: createLink(controller:'templateEditor', action:'template', params:[entity:encodedEntity, standalone:true, template:template.id]),
