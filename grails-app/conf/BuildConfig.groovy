@@ -79,7 +79,7 @@ grails.project.dependency.resolution = {
 
                 ":spring-security-core:1.2.7.3",
 
-                ":gdt:0.3.5",
+                ":gdt:0.3.6",
 
                 ":famfamfam:1.0.1",
 
@@ -91,7 +91,7 @@ grails.project.dependency.resolution = {
                 ":quartz:1.0-RC2"
         )
 
-        compile(":gdtimporter:0.5.6"){transitive = false}
+        compile(":gdtimporter:0.5.6.1"){transitive = false}
 
 
         // add { transative = false } to ignore dependency transition
