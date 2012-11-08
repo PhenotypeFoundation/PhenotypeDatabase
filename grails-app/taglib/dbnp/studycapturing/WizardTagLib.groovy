@@ -17,6 +17,9 @@ import org.dbnp.gdt.*
  */
 class WizardTagLib extends GdtTagLib {
 	def authenticationService
+
+    // Grails 2 doesn't seem to propagate the namespace definition anymore, so redefining it here
+    static namespace = "af"
         
 	/**
 	 * Study form element
