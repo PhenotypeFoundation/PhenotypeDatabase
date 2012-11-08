@@ -64,7 +64,7 @@ grails.project.dependency.resolution = {
 	    // we seem to be needing XStream in some cases
 	    compile("com.thoughtworks.xstream:xstream:1.3.1")
 
-	    runtime 'hsqldb:hsqldb:1.8.0.10'
+	    //runtime 'hsqldb:hsqldb:1.8.0.10'
     }
 	plugins {
 		compile(
@@ -91,7 +91,7 @@ grails.project.dependency.resolution = {
                 ":quartz:1.0-RC2"
         )
 
-        compile(":gdtimporter:0.5.6"){transitive = false}
+        compile(":gdtimporter:0.5.6.1"){transitive = false}
 
 
         // add { transative = false } to ignore dependency transition
