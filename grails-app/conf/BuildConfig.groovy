@@ -74,7 +74,7 @@ grails.project.dependency.resolution = {
 
                 ":grom:latest.integration",
 
-                ":webflow:1.3.8",
+                ":webflow:2.0.0",
                 ":ajaxflow:latest.integration",
 
                 ":spring-security-core:1.2.7.3",
