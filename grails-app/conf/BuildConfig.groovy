@@ -67,9 +67,14 @@ grails.project.dependency.resolution = {
 	    //runtime 'hsqldb:hsqldb:1.8.0.10'
     }
 	plugins {
+
+		// tomcat plugin should not end up in the WAR file
+		provided(
+				":tomcat:$grailsVersion",
+		)
+
 		compile(
                 ":hibernate:$grailsVersion",
-                ":tomcat:$grailsVersion",
                 ":jquery:latest.integration",
 
                 ":grom:latest.integration",
