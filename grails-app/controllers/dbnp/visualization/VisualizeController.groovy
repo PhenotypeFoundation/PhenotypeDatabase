@@ -262,7 +262,8 @@ class VisualizeController {
         def source = "GSCF"
 
         if (type == "domainfields")
-            collection = domainObjectCallback(category)?.giveDomainFields();
+            // All templated GSCF domain classes implement giveDomainFields via a domainFields property
+            collection = domainObjectCallback(category)?.domainFields;
         else
             collection = templateObjectCallback(category, study)?.template?.fields
 
