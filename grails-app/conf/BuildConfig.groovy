@@ -98,6 +98,11 @@ grails.project.dependency.resolution = {
 
         compile(":gdtimporter:0.5.6.1"){transitive = false}
 
+        if (System.getProperty("grails.env") == "development") {
+            // development mode only Plugins
+            compile ":console:1.2"
+        }
+
 
         // add { transative = false } to ignore dependency transition
 
