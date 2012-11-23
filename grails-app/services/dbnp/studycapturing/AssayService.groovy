@@ -453,9 +453,12 @@ class AssayService {
 				//add some empty fields before the labels of the meta-data properties
 				addRow.add(null)
 			}
+
 			addRow.add(mdfp)
 			data[1].eachWithIndex { feature, i ->
-				if (i >= addLabelsAtColumnPosition) { addRow.add(metadata[feature][mdfp]) }
+				if (i >= addLabelsAtColumnPosition) {
+					if (metadata[feature]){ addRow.add(metadata[feature][mdfp]) } else { addRow.add('') }
+				}
 			}
 			additionalRows.add(addRow)
 		}
