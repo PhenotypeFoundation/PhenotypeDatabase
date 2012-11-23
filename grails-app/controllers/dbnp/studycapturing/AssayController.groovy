@@ -57,14 +57,14 @@ class AssayController {
 				def (fieldMapSelection, measurementTokens) = processExportSelection(flow.assay, flow.fieldMap, params)
 
 				// interpret the params set and gather the data
-				flow.rowData = collectAssayData(flow.assay, fieldMapSelection, measurementTokens, flow.assay.samples)
-				
+				flow.rowData = collectAssayData(flow.assay, fieldMapSelection, measurementTokens, flow.assay.samples, authenticationService.getLoggedInUser())
+
 				// save the measurementTokes to the session for use later
 				session.measurementTokens = measurementTokens
 
 				// remember the selected file type
 				flow.exportFileType = params.exportFileType
-				
+
 				// remember is export metadata was selected
 				flow.exportMetadata = params.exportMetadata
 
