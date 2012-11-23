@@ -45,6 +45,7 @@ class DatabaseUpgrade {
 		changeOntologyDescriptionType(sql, db)          // change ontology description type to text
 		changeSpecificUUIDsToGenericUUIDs(sql, db)      // change domain specific UUIDs to generic UUIDs (GDT >= 0.3.1)
 		fixStudyCodes(sql, db)                          // remove spaces from study codes
+		fixSampleUUIDs(sql,db)							// fix missing sample UUIDs in database
 	}
 
 	/**
@@ -506,4 +507,31 @@ class DatabaseUpgrade {
 			}
 		}
 	}
+
+	/**
+	 * strip spaces from study codes
+	 * @param sql
+	 * @param db
+	 */
+	public static void fixSampleUUIDs(sql, db) {
+		def grom = false
+
+		if (db == "org.postgresql.Driver") {
+			sql.eachRow("SELECT * FROM Sample WHERE uuid IS NULL") { row ->
+				def newId = java.util.UUID.randomUUID().toString()
+				if (String.metaClass.getMetaMethod("grom") && !grom) {
+					"generate sample id ${newId}".grom()
+					grom = true
+				}
+
+				try {
+					// replace spaces with underscores
+					sql.execute(sprintf("UPDATE Sample SET uuid='%s' WHERE id=%d", newId, row.id))
+				} catch (Exception e) {
+					println "fixSampleUUIDs database upgrade failed: " + e.getMessage()
+				}
+			}
+		}
+	}
+
 }

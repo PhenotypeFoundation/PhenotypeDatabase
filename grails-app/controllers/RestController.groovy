@@ -217,7 +217,7 @@ class RestController {
 				// Check whether the person is allowed to read the data of this study
 				if( study.canRead(user)) {
 
-					def items = [studyToken:study.giveUUID(), 'public': study.publicstudy]
+					def items = [studyToken:study.UUID, 'public': study.publicstudy]
 					study.giveFields().each { field ->
 						def name = field.name
 						def value = study.getFieldValue( name )
@@ -314,7 +314,7 @@ class RestController {
 	   
 		Study.giveReadableStudies( user ).each { study ->
 			if(study) {
-				jsonList << [studyToken:study.giveUUID(), version: study.version]
+				jsonList << [studyToken:study.UUID, version: study.version]
 			}
 		}
 
@@ -444,14 +444,14 @@ class RestController {
 					assays = study.assays
 				}
 				else if( params.assayToken instanceof String ) {
-					def assay = study.assays.find{ it.giveUUID() == params.assayToken }
+					def assay = study.assays.find{ it.UUID == params.assayToken }
 					if( assay ) {
 						assays.push assay
 					}
 				}
 				else { 													// there are multiple assayTokens instances
 					params.assayToken.each { assayToken ->
-						def assay = study.assays.find{ it.giveUUID() == assayToken }
+						def assay = study.assays.find{ it.UUID == assayToken }
 						if(assay) {
 							assays.push assay
 						}
@@ -472,13 +472,13 @@ class RestController {
 		assays.each{ assay ->
 			if (assay.module?.url && assay.module.url.equals(params.moduleURL)) {
 				if(assay) {
-					def map = [assayToken : assay.giveUUID()]
+					def map = [assayToken : assay.UUID]
 					assay.giveFields().each { field ->
 						def name = field.name
 						def value = assay.getFieldValue( name )
 						map[name] = value
 					}
-					map["parentStudyToken"] = assay.parent.giveUUID()
+					map["parentStudyToken"] = assay.parent.UUID
 					returnList.push( map )
 				}
 			}
@@ -585,13 +585,13 @@ class RestController {
 		// Check whether only a subset of samples should be returned
 		if( params.sampleToken ) {
 			def sampleTokens = params.list( "sampleToken" );
-			samples = samples.findAll { sampleTokens.contains( it.giveUUID() ) }
+			samples = samples.findAll { sampleTokens.contains( it.UUID ) }
 		}
 
 		samples.each { sample ->
 
 			def item = [
-						'sampleToken' : sample.giveUUID(),
+						'sampleToken' : sample.UUID,
 						'material'	  : sample.material?.name,
 						'subject'	  : sample.parentSubject?.name,
 						'event'		  : sample.parentEvent?.template?.name,
