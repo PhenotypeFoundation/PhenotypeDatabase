@@ -234,7 +234,7 @@ class ExampleStudies {
 			sampleTemplate: humanTissueSampleTemplate).setFieldValue('Sample weight', 5F)
 
 		def evS4 = new SamplingEvent(
-			startTime	: 3600 + 7 * 24 * 3600,
+			startTime	: 3600 + 4 * 7 * 24 * 3600,
 			template	: liverSamplingEventTemplate,
 			sampleTemplate: humanTissueSampleTemplate).setFieldValue('Sample weight', 5F)
 
@@ -295,7 +295,7 @@ class ExampleStudies {
 				material: bloodTerm,
 				template: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
-				parentEvent: evS, //x > 40 ? evS4 : evS
+				parentEvent: x > 40 ? evS4 : evS,
                 parentEventGroup: tmpEventGroup
 			)
 
