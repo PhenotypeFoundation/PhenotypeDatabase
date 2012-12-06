@@ -295,7 +295,8 @@ class ExampleStudies {
 				material: bloodTerm,
 				template: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
-				parentEvent: evS //x > 40 ? evS4 : evS
+				parentEvent: evS, //x > 40 ? evS4 : evS
+                parentEventGroup: tmpEventGroup
 			)
 
 			mouseStudy.addToSamples(currentSample)
@@ -375,7 +376,8 @@ class ExampleStudies {
 				material	: bloodTerm,
 				template	: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
-				parentEvent	: bloodSamplingEventBefore
+				parentEvent	: bloodSamplingEventBefore,
+                parentEventGroup : rootGroup
 			)
 
 			humanStudy.addToSamples(currentSample)
@@ -387,7 +389,8 @@ class ExampleStudies {
 				material	: bloodTerm,
 				template	: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
-				parentEvent	: bloodSamplingEventAfter
+				parentEvent	: bloodSamplingEventAfter,
+                parentEventGroup : rootGroup
 			)
 
 			humanStudy.addToSamples(currentSample)
