@@ -26,6 +26,18 @@ class AssayService {
 	boolean transactional = false
 	def authenticationService
 	def moduleCommunicationService
+    static scope = "singleton" // make sure we have default scope to use the measurementTokensMap
+
+    // Store for measurementToken selections which is used by the Galaxy export routine
+    def measurementTokensMap = [:]
+
+    void addMeasurementTokenSelection(String sessionToken, measurementTokens) {
+        measurementTokensMap[sessionToken] = measurementTokens
+    }
+
+    def retrieveMeasurementTokenSelection(String sessionToken) {
+        return measurementTokensMap.remove(sessionToken)
+    }
 
 	/**
 	 * Collects the assay field names per category in a map as well as the
@@ -271,7 +283,7 @@ class AssayService {
 		def moduleUrl = assay.module.url
 
 		def path = moduleUrl + "/rest/getMeasurements/query"
-		def query = "assayToken=${assay.giveUUID()}"
+		def query = "assayToken=${assay.UUID}"
 		def jsonArray
 
 		try {
@@ -312,7 +324,7 @@ class AssayService {
 		def path = moduleUrl + "/rest/getMeasurementData/query"
 		def query = "assayToken=$assay.UUID$tokenString"
 
-		if (samples) {
+        if (samples) {
 			query += '&' + samples*.UUID.collect { "sampleToken=$it" }.join('&')
 		}
 
@@ -340,13 +352,14 @@ class AssayService {
 
 		measurementTokens.eachWithIndex { measurementToken, measurementIndex ->
 			def measurements = [];
+
 			samples.each { sample ->
 
 				// Do measurements for this sample exist? If not, a null value is returned
 				// for this sample. Otherwise, the measurement is looked up in the list with
 				// measurements, based on the sample token
-				if( sampleTokens.collect{ it.toString() }.contains( sample.giveUUID() ) ) {
-					def tokenIndex = sampleTokens.indexOf( sample.giveUUID() );
+				if( sampleTokens.collect{ it.toString() }.contains( sample.UUID ) ) {
+					def tokenIndex = sampleTokens.indexOf( sample.UUID );
 					def valueIndex = measurementIndex * numSampleTokens + tokenIndex;
 
 					// If the module data is in the wrong format, show an error in the log file
@@ -364,6 +377,7 @@ class AssayService {
 						else if     (measurement.isDouble())            val = measurement.toDouble()
 						else val =   measurement.toString()
 						measurements << val
+
 					}
 				} else {
 					measurements << null
