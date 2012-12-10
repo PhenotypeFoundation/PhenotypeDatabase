@@ -206,8 +206,7 @@ class AssayController {
 		response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
 		response.setContentType("application/octet-stream")
 		try {
-			// Skip first row for now to support the current PLS tool in Galaxy, will change in the future
-			assayService.exportRowWiseDataToCSVFile(rowData[1..-1], response.outputStream, outputDelimiter, java.util.Locale.US)
+			assayService.exportRowWiseDataToCSVFile(rowData, response.outputStream, outputDelimiter, java.util.Locale.US)
 		} catch (Exception e) {
 			flash.errorMessage = e.message
 			redirect action: 'errorPage'
