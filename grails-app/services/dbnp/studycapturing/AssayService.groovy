@@ -26,6 +26,18 @@ class AssayService {
 	boolean transactional = false
 	def authenticationService
 	def moduleCommunicationService
+    static scope = "singleton" // make sure we have default scope to use the measurementTokensMap
+
+    // Store for measurementToken selections which is used by the Galaxy export routine
+    def measurementTokensMap = [:]
+
+    void addMeasurementTokenSelection(String sessionToken, measurementTokens) {
+        measurementTokensMap[sessionToken] = measurementTokens
+    }
+
+    def retrieveMeasurementTokenSelection(String sessionToken) {
+        return measurementTokensMap.remove(sessionToken)
+    }
 
 	/**
 	 * Collects the assay field names per category in a map as well as the

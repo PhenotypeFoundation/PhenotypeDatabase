@@ -88,6 +88,9 @@ class AssayController {
 				// put the session token to work
 				authenticationService.logInRemotely( consumer, sessionToken, authenticationService.getLoggedInUser() )
 
+                // store measurement tokens in the AssayService store
+                assayService.addMeasurementTokenSelection(sessionToken, measurementTokens)
+
 				// create a link to the galaxy fetch action where galaxy can fetch the data from
 				flow.fetchUrl = g.createLink(
 					absolute: true,
@@ -96,8 +99,7 @@ class AssayController {
 					params: [
 						assayToken: flow.assay.UUID,
 						sessionToken: sessionToken,
-						fieldMapSelection: fieldMapSelection as JSON,
-						measurementTokens: measurementTokens as JSON] )
+						fieldMapSelection: fieldMapSelection as JSON] )
 
 			}.to "galaxySubmitPage"
 
@@ -172,7 +174,7 @@ class AssayController {
 	def fetchGalaxyData = {
 
 		def fieldMapSelection = JSON.parse((String) params.fieldMapSelection)
-		def measurementTokens = JSON.parse((String) params.measurementTokens)
+		def measurementTokens = assayService.retrieveMeasurementTokenSelection(params.sessionToken)
 
 		// Check accessibility
 		def consumer = "galaxy"
