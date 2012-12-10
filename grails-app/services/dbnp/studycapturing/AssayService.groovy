@@ -283,7 +283,7 @@ class AssayService {
 		def moduleUrl = assay.module.url
 
 		def path = moduleUrl + "/rest/getMeasurements/query"
-		def query = "assayToken=${assay.giveUUID()}"
+		def query = "assayToken=${assay.UUID}"
 		def jsonArray
 
 		try {
@@ -364,8 +364,8 @@ class AssayService {
 				// Do measurements for this sample exist? If not, a null value is returned
 				// for this sample. Otherwise, the measurement is looked up in the list with
 				// measurements, based on the sample token
-				if( sampleTokens.collect{ it.toString() }.contains( sample.giveUUID() ) ) {
-					def tokenIndex = sampleTokens.indexOf( sample.giveUUID() );
+				if( sampleTokens.collect{ it.toString() }.contains( sample.UUID ) ) {
+					def tokenIndex = sampleTokens.indexOf( sample.UUID );
 					def valueIndex = measurementIndex * numSampleTokens + tokenIndex;
 
 					// If the module data is in the wrong format, show an error in the log file
