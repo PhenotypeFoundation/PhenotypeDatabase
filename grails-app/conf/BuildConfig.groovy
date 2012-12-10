@@ -117,3 +117,4 @@ grails.project.dependency.resolution = {
 //grails.plugin.location.'gdt' = '../GDT'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
 //grails.plugin.location.'gdtimporter' = '../GDTImporter'
+grails.plugin.location.'dbxp-sam' = '../SAM'
