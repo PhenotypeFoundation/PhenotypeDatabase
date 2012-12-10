@@ -343,7 +343,7 @@ class AssayService {
              later or notify the system administrator if the problem persists. URL: $path?$query.")
 		}
 
-        println "We got back ${sampleTokens} and ${measurementTokens and ${moduleData}"
+        println "We got back ${sampleTokens} and ${measurementTokens} and ${moduleData}"
 
 		if (!sampleTokens?.size()) return []
 
