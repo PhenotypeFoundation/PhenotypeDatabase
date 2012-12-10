@@ -37,7 +37,6 @@ class ApiService implements Serializable, ApplicationContextAware {
 
     // hasMany keys to ignore when flattening domain data
     static ignoreHasManyKeys = [
-            "systemFields",
             "templateBooleanFields",
             "templateDateFields",
             "templateDoubleFields",
