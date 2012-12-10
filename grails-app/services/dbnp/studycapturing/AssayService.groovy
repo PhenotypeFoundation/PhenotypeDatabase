@@ -324,11 +324,15 @@ class AssayService {
 		def path = moduleUrl + "/rest/getMeasurementData/query"
 		def query = "assayToken=$assay.UUID$tokenString"
 
-		if (samples) {
+		println "Fetching module measurement data for assay ${assay} and samples: ${samples} and measurementTokens: ${inputMeasurementTokens}"
+
+        if (samples) {
 			query += '&' + samples*.UUID.collect { "sampleToken=$it" }.join('&')
 		}
 
 		def sampleTokens = [], measurementTokens = [], moduleData = []
+
+        println "Going for query ${query}"
 
 		try {
 			(sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST", remoteUser)
@@ -338,6 +342,8 @@ class AssayService {
              This means the module containing the measurement data is not available right now. Please try again \
              later or notify the system administrator if the problem persists. URL: $path?$query.")
 		}
+
+        println "We got back ${sampleTokens} and ${measurementTokens and ${moduleData}"
 
 		if (!sampleTokens?.size()) return []
 
@@ -352,6 +358,7 @@ class AssayService {
 
 		measurementTokens.eachWithIndex { measurementToken, measurementIndex ->
 			def measurements = [];
+            println "Going for ${measurementToken}"
 			samples.each { sample ->
 
 				// Do measurements for this sample exist? If not, a null value is returned
@@ -376,6 +383,9 @@ class AssayService {
 						else if     (measurement.isDouble())            val = measurement.toDouble()
 						else val =   measurement.toString()
 						measurements << val
+
+                        println "${sample} -> ${val}"
+
 					}
 				} else {
 					measurements << null
