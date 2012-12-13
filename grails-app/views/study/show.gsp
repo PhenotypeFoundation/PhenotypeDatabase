@@ -228,7 +228,7 @@
 					<span class="button"><g:link class="edit linktips" title="Edit the basic properties of this study" controller="simpleWizard" action="index" id="${studyInstance?.id}">Simple edit</g:link></span>
 				</g:if>
 				<g:if test="${studyInstance.isOwner(loggedInUser) || loggedInUser.hasAdminRights()}">
-					<span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');"/></span>
+					<span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')} WHOLE STUDY" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');"/></span>
 				</g:if>
 			</g:if>
 
