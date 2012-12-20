@@ -15,13 +15,20 @@
             'http://www.newexpression.com/lara/web/sounds/body/chewburp.wav',
             'http://owling.com/ggo1a.wav'
         ],
-        'duh'   : ['http://www.shockwave-sound.com/sound-effects/christmas-sounds/Emotisound-hoho.wav'],
         'janneke' : [
             'http://www.shockwave-sound.com/sound-effects/christmas-sounds/sfxOZAR04.wav'
         ],
         'keesvb' : [
-            'http://mixonline.com/ai/sounds/hollywood_edge/ComputerHighWhir.wav',
-            'http://www.mediacollege.com/downloads/sound-effects/household/fan-02.wav'
+            'http://ling.wisc.edu/~purnell/ling561/sounds/lab1/a440-voice.wav',
+            'http://ling.wisc.edu/~purnell/ling561/sounds/lab1/a880-voice.wav',
+            'http://ling.wisc.edu/~purnell/ling561/sounds/lab1/a440-sing2.wav',
+            'http://ling.wisc.edu/~purnell/ling561/sounds/lab1/a440-sing1.wav'
+        ],
+        'kees' : [
+            'http://ling.wisc.edu/~purnell/ling561/sounds/lab1/a440-voice.wav',
+            'http://ling.wisc.edu/~purnell/ling561/sounds/lab1/a880-voice.wav',
+            'http://ling.wisc.edu/~purnell/ling561/sounds/lab1/a440-sing2.wav',
+            'http://ling.wisc.edu/~purnell/ling561/sounds/lab1/a440-sing1.wav'
         ]
     };
     if (user in funnySounds) {
