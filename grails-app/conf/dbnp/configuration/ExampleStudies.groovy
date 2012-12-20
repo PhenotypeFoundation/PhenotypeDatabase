@@ -234,7 +234,7 @@ class ExampleStudies {
 			sampleTemplate: humanTissueSampleTemplate).setFieldValue('Sample weight', 5F)
 
 		def evS4 = new SamplingEvent(
-			startTime	: 3600 + 7 * 24 * 3600,
+			startTime	: 3600 + 4 * 7 * 24 * 3600,
 			template	: liverSamplingEventTemplate,
 			sampleTemplate: humanTissueSampleTemplate).setFieldValue('Sample weight', 5F)
 
@@ -261,7 +261,15 @@ class ExampleStudies {
 
 		def HFBL4 = new EventGroup(name: "45% fat + leptin for 4 weeks").addToEvents(evHF4).addToEvents(evBL4).addToSamplingEvents(evS4)
 
-		// Add subjects and samples and compose EventGroups
+        // Add EventGroups to study
+        mouseStudy.addToEventGroups(LFBV1).addToEventGroups(LFBL1).addToEventGroups(HFBV1).addToEventGroups(HFBL1).addToEventGroups(LFBV4).addToEventGroups(LFBL4).addToEventGroups(HFBV4).addToEventGroups(HFBL4).save(failOnError:true)
+
+        mouseStudy.eventGroups.each {
+            // save eventGroups explicitly, to prevent 'TransientObjectException: object references an unsaved transient instance' when referencing these later
+            it.save(failOnError: true)
+        }
+
+        // Add subjects and samples and compose EventGroups
 		def x = 1
 		80.times {
 			def currentSubject = new Subject(
@@ -295,16 +303,14 @@ class ExampleStudies {
 				material: bloodTerm,
 				template: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
-				parentEvent: evS //x > 40 ? evS4 : evS
+				parentEvent: x > 40 ? evS4 : evS,
+                parentEventGroup: tmpEventGroup
 			)
 
 			mouseStudy.addToSamples(currentSample)
             currentSample.setFieldValue("Text on vial", "T" + (Math.random() * 100L))
             currentSample.save(failOnError:true)
         }
-
-		// Add EventGroups to study
-		mouseStudy.addToEventGroups(LFBV1).addToEventGroups(LFBL1).addToEventGroups(HFBV1).addToEventGroups(HFBL1).addToEventGroups(LFBV4).addToEventGroups(LFBL4).addToEventGroups(HFBV4).addToEventGroups(HFBL4).save(failOnError:true)
 
 		// Add persons and publications to study
 		def studyperson1 = new StudyPerson(person: person1, role: role1)
@@ -381,7 +387,8 @@ class ExampleStudies {
 				material	: bloodTerm,
 				template	: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
-				parentEvent	: bloodSamplingEventBefore
+				parentEvent	: bloodSamplingEventBefore,
+                parentEventGroup : rootGroup
 			)
 
 			humanStudy.addToSamples(currentSample)
@@ -393,7 +400,8 @@ class ExampleStudies {
 				material	: bloodTerm,
 				template	: humanBloodSampleTemplate,
 				parentSubject: currentSubject,
-				parentEvent	: bloodSamplingEventAfter
+				parentEvent	: bloodSamplingEventAfter,
+                parentEventGroup : rootGroup
 			)
 
 			humanStudy.addToSamples(currentSample)
