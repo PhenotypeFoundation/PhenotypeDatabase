@@ -22,8 +22,6 @@ import dbnp.importer.ImportCell
 import dbnp.importer.ImportRecord
 import dbnp.importer.MappingColumn
 
-import dbnp.authentication.SecUser
-
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class SimpleWizardController extends StudyWizardController {
 	def authenticationService
@@ -425,19 +423,25 @@ class SimpleWizardController extends StudyWizardController {
 	 * @param params	Request parameters with params.id being the ID of the study to be retrieved
 	 * @return			A study from the database or an empty study if no id was given
 	 */
-	protected Study getStudyFromRequest(params) {
-        SecUser user = authenticationService.getLoggedInUser();
-        Study study  = (params.containsKey('id')) ? Study.findById((int) params.get('id')) : new Study(title: "New study", owner: authenticationService.getLoggedInUser());
+	protected Study getStudyFromRequest( def params ) {
+		int id = params.int( "id" );
 
-        // got a study?
-        if (!study) {
-            flash.error = "No study found with given id";
-        } else if(!study.canWrite(user)) {
-            flash.error = "No authorization to edit this study."
-            study = null;
-        }
+		if( !id ) {
+			return new Study( title: "New study", owner: authenticationService.getLoggedInUser() );
+		}
 
-        return study;
+		Study s = Study.get( id );
+
+		if( !s ) {
+			flash.error = "No study found with given id";
+			return null;
+		}
+		if( !s.canWrite( authenticationService.getLoggedInUser() ) ) {
+			flash.error = "No authorization to edit this study."
+			return null;
+		}
+
+		return s
 	}
 
 	/**
