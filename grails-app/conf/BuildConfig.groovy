@@ -77,30 +77,30 @@ grails.project.dependency.resolution = {
                 ":hibernate:$grailsVersion",
                 ":jquery:latest.integration",
 
-                ":grom:latest.integration",
-
                 ":webflow:2.0.0",
                 ":ajaxflow:latest.integration",
 
                 ":spring-security-core:1.2.7.3",
 
-                ":gdt:0.3.7.3",
+                ":gdt:latest.integration",
 
                 ":famfamfam:1.0.1",
 
                 ":mail:1.0",
-
-//                ":grails-melody:1.13",
-                ":trackr:0.7.3",
 
                 ":quartz:1.0-RC2"
         )
 
         compile(":gdtimporter:0.5.6.1"){transitive = false}
 
+        // define environment specific plugins
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
-            compile ":console:1.2"
+            compile (
+                    ":grom:latest.integration",
+                    ":trackr:latest.integration",
+                    ":console:1.2"
+            )
         }
 
 
