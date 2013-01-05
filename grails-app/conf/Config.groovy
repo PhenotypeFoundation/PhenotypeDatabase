@@ -118,6 +118,7 @@ graphviz {
 // jquery plugin
 grails.views.javascript.library = "jquery"
 
+
 // Needed for the Spring Security Core plugin:
 grails.plugins.springsecurity.userLookup.userDomainClassName = 'dbnp.authentication.SecUser'
 grails.plugins.springsecurity.userLookup.authorityJoinClassName = 'dbnp.authentication.SecUserSecRole'
@@ -128,34 +129,15 @@ grails.plugins.springsecurity.dao.reflectionSaltSourceProperty = 'username' // U
 grails.plugins.springsecurity.securityConfigType = grails.plugins.springsecurity.SecurityConfigType.Annotation
 grails.plugins.springsecurity.successHandler.targetUrlParameter = 'spring-security-redirect'
 
+
 // Spring Security configuration
 grails.plugins.springsecurity.useBasicAuth = true
 grails.plugins.springsecurity.basic.realmName = "Authentication Required"
 grails.plugins.springsecurity.useSessionFixationPrevention = true
 grails.plugins.springsecurity.filterChain.chainMap = [
-	'/rest/hello': 'JOINED_FILTERS,-exceptionTranslationFilter',
-    '/api/authenticate': 'JOINED_FILTERS,-exceptionTranslationFilter',
-	'/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter'
-]
-
-// Needed for the (copy of) the Spring Security UI plugin
-grails.mail.default.from = 'gscf@dbnp.org'
-grails.plugins.springsecurity.ui.forgotPassword.emailFrom = 'me@example.com'
-grails.plugins.springsecurity.ui.forgotPassword.emailSubject = 'Password reset GSCF'
-
-// Make sure the different controllers provided by springsecurity.ui are only accessible by administrators
-// NB: the RegisterController is used for forgotten passwords. It should be accessible by anyone
-grails.plugins.springsecurity.controllerAnnotations.staticRules = [
-	'/user/**': ['ROLE_ADMIN'],
-	'/role/**': ['ROLE_ADMIN'],
-	'/aclclass/**': ['ROLE_ADMIN'],
-	'/aclentry/**': ['ROLE_ADMIN'],
-	'/aclobjectidentity/**': ['ROLE_ADMIN'],
-	'/aclsid/**': ['ROLE_ADMIN'],
-	'/persistentlogin/**': ['ROLE_ADMIN'],
-	'/registrationcode/**': ['ROLE_ADMIN'],
-	'/requestmap/**': ['ROLE_ADMIN'],
-	'/securityinfo/**': ['ROLE_ADMIN']
+        '/rest/hello': 'JOINED_FILTERS,-exceptionTranslationFilter',
+        '/api/authenticate': 'JOINED_FILTERS,-exceptionTranslationFilter',
+        '/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter'
 ]
 
 // Temporary directory to upload files to.
