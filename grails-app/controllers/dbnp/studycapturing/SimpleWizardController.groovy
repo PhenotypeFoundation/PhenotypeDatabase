@@ -424,24 +424,25 @@ class SimpleWizardController extends StudyWizardController {
 	 * @return			A study from the database or an empty study if no id was given
 	 */
 	protected Study getStudyFromRequest( def params ) {
-		int id = params.int( "id" );
 
-		if( !id ) {
+		if( !params.id ) {
 			return new Study( title: "New study", owner: authenticationService.getLoggedInUser() );
 		}
+        else {
 
-		Study s = Study.get( id );
+            Study s = Study.get( params.id );
 
-		if( !s ) {
-			flash.error = "No study found with given id";
-			return null;
-		}
-		if( !s.canWrite( authenticationService.getLoggedInUser() ) ) {
-			flash.error = "No authorization to edit this study."
-			return null;
-		}
+            if( !s ) {
+                flash.error = "No study found with given id";
+                return null;
+            }
+            if( !s.canWrite( authenticationService.getLoggedInUser() ) ) {
+                flash.error = "No authorization to edit this study."
+                return null;
+            }
 
-		return s
+            return s
+        }
 	}
 
 	/**

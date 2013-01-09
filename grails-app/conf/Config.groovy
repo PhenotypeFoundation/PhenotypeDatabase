@@ -24,6 +24,8 @@ grails.config.locations = [
 	"file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.properties"
 ]
 
+grails.config.locations.each { println "Reading configuration from ${it}" }
+
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
 grails.mime.types = [html: ['text/html', 'application/xhtml+xml'],
