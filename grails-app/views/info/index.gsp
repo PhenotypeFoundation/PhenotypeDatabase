@@ -1,6 +1,41 @@
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
 	<meta name="layout" content="main"/>
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
+    <style stype="text/css">
+    description {
+        display: block;
+        padding: 0;
+        margin: 0;
+        font-style: italic;
+        font-size: 8pt;
+        color: #b1b4b3;
+    }
+    green {
+        display: inline-block;
+        color: #72a951;
+    }
+    red {
+        display: inline-block;
+        color: #ff4e00;
+    }
+    disabled {
+        color: #b1b4b3;
+    }
+    comment {
+        color: #f54d80;
+    }
+    </style>
+    <script>
+        $(document).ready(function() {
+            $('li').each(function() {
+                if (this.hasAttribute('description')) {
+                    $(this).tipTip({defaultPosition: 'left', content: this.getAttribute('description')});
+                }
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -11,9 +46,8 @@
 			<h1>Application Status</h1>
 			<ul>
 				<li>App version: <g:meta name="app.version"></g:meta></li>
-				<li>App revision: <a href="https://trac.nbic.nl/gscf/changeset/<g:meta name="app.build.svn.revision"></g:meta>" target="_new"><g:meta name="app.build.svn.revision"></g:meta></a></li>
 				<li>Grails version: <g:meta name="app.grails.version"></g:meta></li>
-				<li>Groovy version: ${org.codehaus.groovy.runtime.InvokerHelper.getVersion()}</li>
+				<li>Groovy version: ${groovy.lang.GroovySystem.getVersion()}</li>
 				<li>JVM version: ${System.getProperty('java.version')}</li>
 				<li>Controllers: ${grailsApplication.controllerClasses.size()}</li>
 				<li>Domains: ${grailsApplication.domainClasses.size()}</li>
@@ -26,17 +60,67 @@
 					   value="${applicationContext.getBean('pluginManager')}"></g:set>
 
 				<g:each var="plugin" in="${pluginManager.allPlugins}">
-					<li>${plugin.name} - ${plugin.version}</li>
+                    <g:set var="comma" value="${false}"/>
+					<li<g:if test="${plugin.properties.containsKey("description")}"> description="${plugin.properties.description}"</g:if>>
+                        ${plugin.name} - ${plugin.version}
+                        <g:if test="${plugin.properties.author}">
+                            <g:if test="${plugin.properties.containsKey('authorEmail')}">
+                                by <a href="mailto:${plugin.properties.authorEmail.replaceAll(" and ", ",").replaceAll(" / ",",")}?subject=Grails plugin ${plugin.name} - ${plugin.version}">${plugin.properties.author}</a>
+                            </g:if>
+                            <g:else>
+                                by ${plugin.properties.author}
+                            </g:else>
+                        </g:if>
+                        <g:if test="${plugin.properties.containsKey("license")}">
+                            ( license:
+                            <g:if test="${plugin.properties.license == "APACHE"}"><green>${plugin.properties.license}</green></g:if>
+                            <g:else><red>${plugin.properties.license}</red></g:else>
+                            <g:set var="comma" value="${true}"/>
+                        </g:if>
+                        <g:if test="${plugin.properties.containsKey("documentation")}">
+                            <g:if test="${comma}">, </g:if><g:else>( </g:else><a href="${plugin.properties.documentation}" target="_new">documentation</a>
+                            <g:set var="comma" value="${true}"/>
+                        </g:if>
+                        <g:if test="${plugin.properties.containsKey("scm")}">
+                            <g:if test="${comma}">, </g:if><g:else>( </g:else><a href="${plugin.properties.scm.url}">source</a>
+                            <g:set var="comma" value="${true}"/>
+                        </g:if>
+                        <g:if test="${comma}"> )</g:if>
+                    </li>
 				</g:each>
-
 			</ul>
 
 			<h1>Available Controllers:</h1>
 			<ul>
-				<g:each var="c" in="${grailsApplication.controllerClasses.sort { it.fullName } }">
-					<li class="controller"><g:link controller="${c.logicalPropertyName}">${c.fullName}</g:link></li>
+				<g:each var="c" in="${grailsApplication.controllerClasses.sort { it.naturalName } }">
+                    <li class="controller" description="package name: ${c.getFullName()}">
+                        <g:if test="${!c.properties.available}"><disabled></g:if>
+                        ${c.getNaturalName()}
+                        (
+                        <g:link controller="${c.logicalPropertyName}" action="${c.defaultAction}">direct link</g:link>
+                        <g:if test="${c.properties.flows.size() > 0}">, <comment>webflow</comment></g:if>
+                        )
+                        <g:if test="${!c.properties.available}"></disabled></g:if>
+                    </li>
 				</g:each>
 			</ul>
+
+            <h1>Domain Classes</h1>
+            <ul>
+                <g:each var="d" in="${grailsApplication.domainClasses.sort { it.naturalName }}">
+                <g:set var="c" value="${grailsApplication.controllerClasses.find { it.getNaturalName() == d.getNaturalName() + " Controller" }}"/>
+                <li class="domain" description="package name: ${d.getFullName()}">
+                    ${d.getNaturalName()}
+                    (
+                        <comment>${d.getClazz().count()} records</comment>
+                        <g:if test="${c}">
+                            , <g:link controller="${c.logicalPropertyName}" action="${c.defaultAction}">view/edit</g:link>
+                        </g:if>
+                    )
+                </li>
+
+                </g:each>
+            </ul>
 
 			<h1>Request headers:</h1>
  			<ul>
@@ -48,7 +132,6 @@
 		<div class="panelBtm"></div>
 	</div>
 </div>
-
 
 </body>
 </html>

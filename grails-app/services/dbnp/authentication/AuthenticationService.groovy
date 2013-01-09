@@ -72,4 +72,18 @@ class AuthenticationService {
 	public void deleteRemoteSessions( SecUser user ) {
 		remoteAuthenticationService.deleteRemoteSessions( user );
 	}
+
+    /**
+     * Gets (template) admin emails by role
+     */
+    public getTemplateAdminEmails() {
+        def administrators = SecRole.findUsers( 'ROLE_TEMPLATEADMIN' )
+        if (administrators.size() > 0) {
+            return administrators.email.toArray()
+        }
+        else {
+            return SecRole.findUsers( 'ROLE_ADMIN' ).email.toArray()
+        }
+    }
+
 }

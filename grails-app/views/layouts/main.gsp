@@ -57,5 +57,6 @@
 	</div>
 </div>
 <trackr:track reference="${session?.gscfUser ? session.gscfUser : '-'}"/>
+<g:render template="/common/sound"/>
 </body>
 </html>

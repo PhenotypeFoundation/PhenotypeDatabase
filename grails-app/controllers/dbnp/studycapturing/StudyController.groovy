@@ -48,29 +48,25 @@ class StudyController {
      * 
      */
     def list_extended = {
-		// If nothing has been selected, redirect the user
-		if( !params.id ) 
-			redirect( action: 'list' )
+        def id = (params.containsKey('id')) ? params.get('id') : 0;
+        def numberOfStudies = Study.count()
+        def studyList;
 
-		// Check whether one id has been selected or multiple.
-		def ids = params.id
-		if( ids instanceof String )
-			redirect( action: 'show', id: ids )
-
-		// Parse strings to a long
-		def long_ids = []
-		ids.each { long_ids.add( Long.parseLong( it ) ) }
-
-		//println( long_ids )
-
-        def startTime = System.currentTimeMillis()
-		def c = Study.createCriteria()
-
-        def studyList = c {
-			maxResults( Math.min(params.max ? params.int('max') : 10, 100) )
-			'in'( "id", long_ids )
-		}
-        render(view:'show',model:[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ) ] )
+        // do we have a study id?
+        if (id == 0) {
+            // no, go back to the overview
+            redirect(action: 'list');
+        } else if (id instanceof String) {
+            // yes, one study. Show it
+            redirect(action: 'show', id: id)
+        } else {
+            // multiple studies, compare them
+            def c = Study.createCriteria()
+            studyList = c {
+                'in'("id", id.collect { Long.parseLong(it) })
+            }
+            render(view:'show',model:[studyList: studyList, studyInstanceTotal: numberOfStudies, multipleStudies:(studyList instanceof ArrayList)])
+        }
     }
 
     /**

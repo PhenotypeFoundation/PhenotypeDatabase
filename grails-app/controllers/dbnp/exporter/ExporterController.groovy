@@ -52,7 +52,7 @@ class ExporterController {
         def c = dbnp.studycapturing.Study.createCriteria()
 
         def studies = Study.giveReadableStudies(user, max);
-        [studyInstanceList: studies, studyInstanceTotal: studies.count(), format: format]
+        [studyInstanceList: studies, studyInstanceTotal: studies?.size() ?: 0, format: format]
     }
 
 	def error = {

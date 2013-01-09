@@ -27,7 +27,7 @@
 	<script type="text/javascript">
 		// mark error fields
 		<g:each in="${wizardErrors}" var="error">
-		var element = $("input:[name='${error.key}'], input:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], select:[name='${error.key}'], select:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], textarea:[name='${error.key}'], textarea:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}']");
+		var element = $("input[name='${error.key}'], input[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], select[name='${error.key}'], select[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], textarea[name='${error.key}'], textarea[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}']");
 		 <g:if test="${error.value['dynamic']}">
 		element.addClass('error');
 		 </g:if><g:else>
