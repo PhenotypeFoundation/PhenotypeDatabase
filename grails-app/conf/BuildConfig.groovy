@@ -30,14 +30,14 @@ grails.project.dependency.resolution = {
 	    mavenRepo "http://ontocat.sourceforge.net/maven/repo"
 
 		// other maven repo's
-	    mavenRepo "http://nexus.nmcdsp.org/content/repositories/releases"
-	    mavenRepo "http://repository.springsource.com/maven/bundles/release"
-        mavenRepo "http://repository.springsource.com/maven/bundles/external"
-        mavenRepo "http://repository.springsource.com/maven/libraries/release"
-        mavenRepo "http://repository.springsource.com/maven/libraries/external"
+	    //mavenRepo "http://nexus.nmcdsp.org/content/repositories/releases"
+	    //mavenRepo "http://repository.springsource.com/maven/bundles/release"
+        //mavenRepo "http://repository.springsource.com/maven/bundles/external"
+        //mavenRepo "http://repository.springsource.com/maven/libraries/release"
+        //mavenRepo "http://repository.springsource.com/maven/libraries/external"
 
 	    // Repository for ISATAB tools
-	    mavenRepo "http://frog.oerc.ox.ac.uk:8080/nexus-2.1.2/content/repositories/releases"
+	    //mavenRepo "http://frog.oerc.ox.ac.uk:8080/nexus-2.1.2/content/repositories/releases"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -59,7 +59,7 @@ grails.project.dependency.resolution = {
 		    transitive = false
 	    } */
 		// dependency for ISATAB schema
-		compile 'net.sourceforge.collections:collections-generic:4.01'
+		//compile 'net.sourceforge.collections:collections-generic:4.01'
 
 	    // we seem to be needing XStream in some cases
 	    compile("com.thoughtworks.xstream:xstream:1.3.1")
@@ -74,18 +74,19 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-                ":dbxp-base:0.1.0.4",
-
+//                ":dbxp-base:0.1.0.7",
+//		":dbxp-sam:0.9.3.1",
                 ":hibernate:$grailsVersion",
                 ":jquery:latest.integration",
                 ':jquery-datatables:1.7.5',
                 ':jquery-ui:1.8.15',
                 ":grom:latest.integration",
+                ":resources:latest.integration",
 
                 //":webflow:2.0.0",
                 //":ajaxflow:latest.integration",
 
-                ":spring-security-core:1.2.7.3",
+//                ":spring-security-core:1.2.7.3",
 
                 //":gdt:0.3.7.4",
 
@@ -120,6 +121,7 @@ grails.project.dependency.resolution = {
 //grails.plugin.location.'gdt' = '../gdt'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
 //grails.plugin.location.'gdtimporter' = '../gdtimporter'
-//grails.plugin.location.'dbxp-base' = '../dbxpBase'
-grails.plugin.location.'dbxp-sam' = '../sam'
+grails.plugin.location.'dbxp-base' = '../dbxpBase'
+grails.plugin.location.'spring-security-core' = '../grails-spring-security-core'
+grails.plugin.location.'dbxpSam' = '../sam'
 //grails.plugin.location.'dbxp-base' = '../dbxpBase'
