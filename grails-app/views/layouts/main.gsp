@@ -11,10 +11,14 @@
 	<meta property="og:image" content="${resource(dir: 'images', file: 'facebookLike.png', absolute: true)}"/>
 	<meta property="fb:admins" content="721482421"/>
 	<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
+    <r:require modules="gscfmain"/>
 	<g:javascript library="jquery" plugin="jquery"/>
-	<script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
+    <g:setProvider library="jquery"/>
+    <r:layoutResources />
+    <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.23.custom.min.js')}" type="text/javascript"></script>
 	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.23.custom.css')}"/>
+    <%-- TODO: migrate all of GSCF to resources layout --%>
 	<g:if env="production"><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script></g:if>
 	<g:if env="development">
 		<link rel="stylesheet" href="${resource(dir: 'css', file: 'default.css')}"/>
@@ -57,6 +61,6 @@
 	</div>
 </div>
 <trackr:track reference="${session?.gscfUser ? session.gscfUser : '-'}"/>
-<g:render template="/common/sound"/>
+<r:layoutResources />
 </body>
 </html>
