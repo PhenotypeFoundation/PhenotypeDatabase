@@ -30,7 +30,7 @@ grails.project.dependency.resolution = {
 	    mavenRepo "http://ontocat.sourceforge.net/maven/repo"
 
 		// other maven repo's
-	    //mavenRepo "http://nexus.nmcdsp.org/content/repositories/releases"
+	    mavenRepo "http://nexus.nmcdsp.org/content/repositories/releases"
 	    //mavenRepo "http://repository.springsource.com/maven/bundles/release"
         //mavenRepo "http://repository.springsource.com/maven/bundles/external"
         //mavenRepo "http://repository.springsource.com/maven/libraries/release"
@@ -74,21 +74,17 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-//                ":dbxp-base:0.1.0.7",
-//		":dbxp-sam:0.9.3.1",
-                ":hibernate:$grailsVersion",
+                ":dbxp-base:0.1.0.8",
+
+		":dbxp-sam:0.9.3.3",
+
+		":tomcat:$grailsVersion",
                 ":jquery:latest.integration",
-                ':jquery-datatables:1.7.5',
                 ':jquery-ui:1.8.15',
                 ":grom:latest.integration",
                 ":resources:latest.integration",
 
-                //":webflow:2.0.0",
-                //":ajaxflow:latest.integration",
-
-//                ":spring-security-core:1.2.7.3",
-
-                //":gdt:0.3.7.4",
+                ":spring-security-core:1.2.7.3",
 
                 ":famfamfam:1.0.1",
 
@@ -121,7 +117,7 @@ grails.project.dependency.resolution = {
 //grails.plugin.location.'gdt' = '../gdt'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
 //grails.plugin.location.'gdtimporter' = '../gdtimporter'
-grails.plugin.location.'dbxp-base' = '../dbxpBase'
-grails.plugin.location.'spring-security-core' = '../grails-spring-security-core'
-grails.plugin.location.'dbxpSam' = '../sam'
+//grails.plugin.location.'dbxp-base' = '../dbxpBase'
+//grails.plugin.location.'spring-security-core' = '../grails-spring-security-core'
+//grails.plugin.location.'dbxpSam' = '../sam'
 //grails.plugin.location.'dbxp-base' = '../dbxpBase'
