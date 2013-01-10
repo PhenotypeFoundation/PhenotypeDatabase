@@ -7,7 +7,18 @@ class UrlMappings {
 			}
 		}
 
-		// landing page
+        // sam mapping
+        "/sam/$controller/$action?/$id?" {
+            constraints {
+                // apply constraints here
+            }
+        }
+
+        // landing page
+        "/sam/"(controller: 'SAMHome', action: 'index')
+
+
+        // landing page
 		"/"(controller: 'home', action: 'index')
 
 		// handle 404
