@@ -58,7 +58,7 @@ class BootStrap {
 		}
 
 		// automatically handle database upgrades
-		DatabaseUpgrade.handleUpgrades(dataSource)
+		DatabaseUpgrade.handleUpgrades(dataSource, grailsApplication)
 
 		// developmental/test/demo bootstrapping:
 		//      - templates
