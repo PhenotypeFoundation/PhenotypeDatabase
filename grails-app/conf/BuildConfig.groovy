@@ -74,7 +74,7 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-                ":dbxp-base:0.1.0.8",
+                //":dbxp-base:0.1.0.8",
 
 		":dbxp-sam:0.9.3.3",
 
@@ -87,8 +87,6 @@ grails.project.dependency.resolution = {
                 ":spring-security-core:1.2.7.3",
 
                 ":famfamfam:1.0.1",
-
-                ":mail:1.0",
 
 //                ":grails-melody:1.13",
                 ":trackr:0.7.3",
