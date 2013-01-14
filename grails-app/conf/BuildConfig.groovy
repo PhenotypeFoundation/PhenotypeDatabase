@@ -42,7 +42,7 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.5'
-		runtime 'postgresql:postgresql:9.1-901.jdbc3'
+		runtime 'postgresql:postgresql:9.1-901.jdbc4'
 		compile 'org.apache.poi:poi:3.7'
 		compile 'org.apache.poi:poi-ooxml:3.7'
 		compile 'org.apache.poi:poi-ooxml-schemas:3.7'
@@ -76,7 +76,7 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-            ":dbxp-base:0.1.2.2",
+            ":dbxp-base:0.1.2.3",
             ":dbxp-sam:0.9.5.5",
 
             ":hibernate:$grailsVersion",

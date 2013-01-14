@@ -75,13 +75,13 @@
 							<div class="helpIcon"></div>
 							<div class="helpContent">Public studies are visible to anonymous users, not only to the readers specified below.</div>
 						</div>
-						<div class="element">
-							<div class="description">Published</div>
-							<div class="input"><g:checkBox name="published" value="${study?.published}"/></div>
-							
-							<div class="helpIcon"></div>
-							<div class="helpContent">Determines whether this study is published (accessible for the study readers and, if the study is public, for anonymous users).</div>
-						</div>
+						%{--<div class="element">--}%
+							%{--<div class="description">Published</div>--}%
+							%{--<div class="input"><g:checkBox name="published" value="${study?.published}"/></div>--}%
+							%{----}%
+							%{--<div class="helpIcon"></div>--}%
+							%{--<div class="helpContent">Determines whether this study is published (accessible for the study readers and, if the study is public, for anonymous users).</div>--}%
+						%{--</div>--}%
 				
 						<af:userSelectElement name="readers" noForm="true" description="Readers" value="${study?.readers}"/>
 						<af:userSelectElement name="writers" noForm="true" description="Writers" value="${study?.writers}"/>

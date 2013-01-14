@@ -1154,7 +1154,6 @@ class StudyWizardController {
 		quickSave {
 			action {
 				flow.returnTo = (flow.returnTo > 0) ? flow.returnTo : flow.page
-				println "return to page ${flow.returnTo}"
 				success()
 			}
 			on("success").to "save"
@@ -1188,7 +1187,6 @@ class StudyWizardController {
 					log.info ".saved study "+flow.study+" (id: "+flow.study.id+")"
 
 					def returnTo = flow.returnTo
-					println "check ${returnTo}"
 					flow.returnTo = 0
 
 					switch (returnTo) {

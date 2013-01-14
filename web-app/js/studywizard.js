@@ -25,6 +25,28 @@ function onStudyWizardPage() {
 	disableKeys();
 	disableDatePickerKeys();
 
+    // show creative commons agreement popup
+    $(":checkbox[name^='public']").on('change', function() {
+        var box = $(this);
+        if (box.is(':checked')) {
+            $( "#dialog-creative-commons" ).dialog({
+                resizable: false,
+                height:250,
+                width: 800,
+                modal: true,
+                buttons: {
+                    "Yes": function() {
+                        $( this ).dialog( "close" );
+                    },
+                    "No": function() {
+                        $( this ).dialog( "close" );
+                        box.attr('checked', false);
+                    }
+                }
+            });
+        }
+    });
+
 	// handle and initialize table(s)
 	tableEditor = new TableEditor().init({
 		tableIdentifier : 'div.tableEditor',
@@ -108,7 +130,7 @@ function insertOnRedirectWarning() {
 		var re = /^#/gi;
 
 		// bind to the anchor?
-		if (!element.attr('href').match(/^#/gi) && !element.attr('href').match(/\/([^\/]+)\/wizard\/pages/gi)) {
+		if (!element.attr('href').match(/^#/gi) && !element.attr('href').match(/\/([^\/]+)\/wizard\/pages/gi) && element.attr('target') == "undefined") {
 			// bind a warning to the onclick event
 			element.bind('click', function() {
 				if (warnOnRedirect) {

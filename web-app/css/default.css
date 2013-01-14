@@ -517,3 +517,7 @@ label.r_on { background: url(../images/inputboxes/radio-on.png) no-repeat; color
 .label_check input,
 .label_radio input { position: absolute; left: -9999px; }
 /** END :: radio elements wizard event page **/
+
+#dialog-creative-commons li {
+    margin-left: 20px;
+}
