@@ -74,24 +74,23 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-                //":dbxp-base:0.1.0.8",
+            ":dbxp-base:0.1.0.9",
+            //exported by dbxp-base: ":hibernate:$grailsVersion",
 
-		":dbxp-sam:0.9.3.3",
+            ":dbxp-sam:0.9.3.4",
 
-		":tomcat:$grailsVersion",
-                ":jquery:latest.integration",
-                ':jquery-ui:1.8.15',
-                ":grom:latest.integration",
-                ":resources:latest.integration",
+            ":jquery:latest.integration",
+            ':jquery-ui:1.8.15',
+            ":grom:latest.integration",
+            ":resources:latest.integration",
 
-                ":spring-security-core:1.2.7.3",
+            ":spring-security-core:1.2.7.3",
 
-                ":famfamfam:1.0.1",
+            ":famfamfam:1.0.1",
 
-//                ":grails-melody:1.13",
-                ":trackr:0.7.3",
+            ":trackr:0.7.3",
 
-                ":quartz:1.0-RC2"
+            ":quartz:1.0-RC2"
         )
 
         compile(":gdtimporter:0.5.6.3"){transitive = false}
