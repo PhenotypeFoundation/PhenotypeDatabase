@@ -1514,12 +1514,10 @@ class VisualizeController {
                     def callback = domainObjectCallback(parsedField.type)
                     // Can the field be found in the domainFields as well? If so, treat it as a template field, so that dates and times can be properly rendered in a human-readable fashion
 
-                    if (callback.metaClass.methods*.name.contains("giveDomainFields") && callback?.giveDomainFields()?.name?.contains(parsedField.name.toString())) {
+                    if (callback.domainFields && callback?.domainFields?.name?.contains(parsedField.name.toString())) {
                         // Use the associated templateField to determine the field type
                         return determineCategoryFromTemplateField(
-                                callback?.giveDomainFields()[
-                                        callback?.giveDomainFields().name.indexOf(parsedField.name.toString())
-                                        ]
+                                callback?.domainFields.find { it.name.equals(parsedField.name.toString()) }
                         )
                     }
                     // Apparently it is not a templatefield as well as a memberclass
