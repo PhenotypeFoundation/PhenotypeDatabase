@@ -1,28 +1,35 @@
-/**
- * Project build configuration
- * @Author  Jeroen Wesbeek
- * @Since   20091027
- * @Description
- *
- * Specific build configuration for the GSCF application
- *
- * Revision information:
- * $Rev$
- * $Author$
- * $Date$
- */
+grails.servlet.version = "2.5" // Change depending on target container compliance (2.5 or 3.0)
+grails.project.class.dir = "target/classes"
+grails.project.test.class.dir = "target/test-classes"
+grails.project.test.reports.dir = "target/test-reports"
+grails.project.target.level = 1.6
+grails.project.source.level = 1.6
+//grails.project.war.file = "target/${appName}-${appVersion}.war"
+
+// uncomment (and adjust settings) to fork the JVM to isolate classpaths
+//grails.project.fork = [
+//   run: [maxMemory:1024, minMemory:64, debug:false, maxPerm:256]
+//]
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
-        // uncomment to disable ehcache
+        // specify dependency exclusions here; for example, uncomment this to disable ehcache:
         // excludes 'ehcache'
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+    checksums true // Whether to verify checksums on resolve
+    legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
+
     repositories {
-	    grailsCentral()
-	    grailsRepo "http://grails.org/plugins"
-	    mavenCentral()
+        inherits true // Whether to inherit repository definitions from plugins
+
+        grailsPlugins()
+        grailsHome()
+        grailsCentral()
+
+        mavenLocal()
+        mavenCentral()
 
 	    // grails 1.3.9 does not seem to properly inherit maven repo's from plugins
 	    // so explicitely put ontocat in here. When upgraded to Grails 2.x this can
@@ -65,48 +72,54 @@ grails.project.dependency.resolution = {
 	    compile("com.thoughtworks.xstream:xstream:1.3.1")
 
 	    //runtime 'hsqldb:hsqldb:1.8.0.10'
-    }
-	plugins {
 
-		// tomcat plugin should not end up in the WAR file
+        // webflow is borked, see:
+        // http://jira.grails.org/browse/GRAILS-9783
+        compile "org.grails:grails-webflow:2.2.0"
+    }
+
+	plugins {
+		// plugins required in development, but not in the WAR file
 		provided(
 				":tomcat:$grailsVersion",
-		)
+                ":grom:latest.integration",
+                ":trackr:latest.integration",
+                ":console:1.2"
+        )
 
+        // compile time dependencies
 		compile(
                 ":hibernate:$grailsVersion",
                 ":jquery:latest.integration",
-
-                ":webflow:2.0.0",
                 ":ajaxflow:latest.integration",
-
                 ":spring-security-core:1.2.7.3",
-
                 ":gdt:latest.integration",
-
                 ":famfamfam:1.0.1",
-
                 ":mail:1.0",
-
-                ":quartz:1.0-RC2"
+                ":quartz:1.0-RC5",
+                ":cache:1.0.1"
         )
 
-        compile(":gdtimporter:0.5.6.1"){transitive = false}
-
-        // define environment specific plugins
-        if (System.getProperty("grails.env") == "development") {
-            // development mode only Plugins
-            compile (
-                    ":grom:latest.integration",
-                    ":trackr:latest.integration",
-                    ":console:1.2"
-            )
+        // webflow is borked, see:
+        // http://jira.grails.org/browse/GRAILS-9783
+        compile ":webflow:2.0.0", {
+            exclude 'grails-webflow'
         }
 
+        // no transitive plugins for gdtImporter
+        compile(":gdtimporter:0.5.6.1") {
+            transitive = false
+        }
 
-        // add { transative = false } to ignore dependency transition
-
-//        runtime ':grails-melody:1.11'
+//        // define environment specific plugins
+//        if (System.getProperty("grails.env") == "development") {
+//            // development mode only Plugins
+//            compile (
+//                    ":grom:latest.integration",
+//                    ":trackr:latest.integration",
+//                    ":console:1.2"
+//            )
+//        }
 	}
 }
 
