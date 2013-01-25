@@ -18,7 +18,7 @@ Generic Study Capture Framework
 
 ![build status](http://jenkins.osx.eu/job/ci-uploadr/badge/icon)
 
-### GSCF - Events refactoring branch
+### GSCF - events_refactoring branch
 
 ![build status](http://old.jenkins.dbnp.org/jenkins/job/ci2-gscf/badge/icon)
 
