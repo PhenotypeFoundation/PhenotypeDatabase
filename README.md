@@ -4,17 +4,17 @@ Generic Study Capture Framework
 ## Download a war file
 We have a couple of ```war``` files available that can be deployed on an application container (e.g. Apache Tomcat).  
 
-What | War file | Grails environment | Build Status 
---- | --- | --- | --- | --- 
-Latest Production Build | [gscf.war](http://download.dbnp.org/production/gscf.war) | ```production``` | ![configuration file: ~/.gscf/production.properties](http://jenkins.dbnp.org/job/production-gscf/badge/icon)
- | [metabolomicsModule](http://download.dbnp.org/production/metabolomicsModule.war) | ```production``` | ![configuration file: ~/.metabolomicsModule/production.properties](http://jenkins.dbnp.org/job/production-metabolomicsModule/badge/icon)
- | [SAM](http://download.dbnp.org/production/sam.war) | ```production``` | ![configuration file: ~/.dbxp/production-sam.properties](http://jenkins.dbnp.org/job/production-sam/badge/icon)
- | ~~[questionnaireModule.war](http://download.dbnp.org/production/questionnaireModule.war)~~ | ~~```production```~~ | ![configuration file: ~/.dbxp/production-questionnaireModule.properties](http://jenkins.dbnp.org/job/production-questionnaireModule/badge/icon)
-Latest Test Build | [gscf.war](http://download.dbnp.org/dbnptest/gscf.war) | ```dbnptest``` | ![configuration file: ~/.gscf/dbnptest.properties](http://old.jenkins.dbnp.org/jenkins/job/test-gscf/badge/icon)
-Continuous Integration Build ([HEAD](https://github.com/PhenotypeFoundation/GSCF)) | [gscf.war](http://download.dbnp.org/ci/gscf.war) | ```ci``` | ![configuration file: ~/.gscf/ci.properties](http://old.jenkins.dbnp.org/jenkins/job/ci-gscf/badge/icon) 
+Build | War file | Grails environment | Build Status | Source
+--- | --- | --- | --- | --- | ---
+Production | [gscf.war](http://download.dbnp.org/production/gscf.war) | ```production``` | ![configuration file: ~/.gscf/production.properties](http://jenkins.dbnp.org/job/production-gscf/badge/icon) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF)
+ | [metabolomicsModule](http://download.dbnp.org/production/metabolomicsModule.war) | ```production``` | ![configuration file: ~/.metabolomicsModule/production.properties](http://jenkins.dbnp.org/job/production-metabolomicsModule/badge/icon) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/metabolomicsModule)
+ | [SAM](http://download.dbnp.org/production/sam.war) | ```production``` | ![configuration file: ~/.dbxp/production-sam.properties](http://jenkins.dbnp.org/job/production-sam/badge/icon) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/TheHyve/SAM)
+ | ~~[questionnaireModule.war](http://download.dbnp.org/production/questionnaireModule.war)~~ | ~~```production```~~ | ![configuration file: ~/.dbxp/production-questionnaireModule.properties](http://jenkins.dbnp.org/job/production-questionnaireModule/badge/icon) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/TNO/QuestionnaireModule)
+Test | [gscf.war](http://download.dbnp.org/dbnptest/gscf.war) | ```dbnptest``` | ![configuration file: ~/.gscf/dbnptest.properties](http://old.jenkins.dbnp.org/jenkins/job/test-gscf/badge/icon) |
+Continuous Integration | [gscf.war](http://download.dbnp.org/ci/gscf.war) | ```ci``` | ![configuration file: ~/.gscf/ci.properties](http://old.jenkins.dbnp.org/jenkins/job/ci-gscf/badge/icon) | 
  | [metabolomicsModule.war](http://download.dbnp.org//ci/metabolomicsModule.war) | ```ci``` | ![configuration file: ~/.metabolomicsModule/ci.properties](http://old.jenkins.dbnp.org/jenkins/job/ci-metabolomicsModule/badge/icon) |
- | [sam.war](http://download.dbnp.org//ci/sam.war) | ```ci``` | ![configuration file: ~/.dbxp/production-sam.properties](http://old.jenkins.dbnp.org/jenkins/job/ci-sam/badge/icon) 
-Continuous Integration Build ([Events Refactoring Branch](https://github.com/PhenotypeFoundation/GSCF/tree/events_refactoring)) | [gscf.war](http://download.dbnp.org/ci2/gscf.war) | ```ci2``` | ![configuration file: ~/.gscf/ci2.properties](http://old.jenkins.dbnp.org/jenkins/job/ci2-gscf/badge/icon) 
+ | [sam.war](http://download.dbnp.org//ci/sam.war) | ```ci``` | ![configuration file: ~/.dbxp/production-sam.properties](http://old.jenkins.dbnp.org/jenkins/job/ci-sam/badge/icon)  |
+CI ([Events Refactoring](https://github.com/PhenotypeFoundation/GSCF/tree/events_refactoring)) | [gscf.war](http://download.dbnp.org/ci2/gscf.war) | ```ci2``` | ![configuration file: ~/.gscf/ci2.properties](http://old.jenkins.dbnp.org/jenkins/job/ci2-gscf/badge/icon) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF/tree/events_refactoring)
 
 _Note: each project / environment requires a specific configuration file. You can see the required path by hovering over the build status icons_
 
