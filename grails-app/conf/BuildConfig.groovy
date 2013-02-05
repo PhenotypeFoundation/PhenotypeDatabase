@@ -110,22 +110,11 @@ grails.project.dependency.resolution = {
         compile(":gdtimporter:0.5.6.1") {
             transitive = false
         }
-
-//        // define environment specific plugins
-//        if (System.getProperty("grails.env") == "development") {
-//            // development mode only Plugins
-//            compile (
-//                    ":grom:latest.integration",
-//                    ":trackr:latest.integration",
-//                    ":console:1.2"
-//            )
-//        }
 	}
 }
 
 //grails.plugin.location.'grom' = '../grom'
 //grails.plugin.location.'grom' = '../../4np/grails-grom'
-//grails.plugin.location.'ajaxflow' = '../ajaxflow'
 //grails.plugin.location.'ajaxflow' = '../../4np/grails-ajaxflow'
 //grails.plugin.location.'gdt' = '../GDT'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
