@@ -5,7 +5,7 @@ Generic Study Capture Framework
 We have a couple of ```war``` files available that can be deployed on an application container (e.g. Apache Tomcat).  
 
 What | War file | Grails environment | Configuration file | Build Status | remark
---- | --- | --- | --- | ---
+--- | --- | --- | --- | --- | ---
 Latest Production Build | [gscf.war](http://download.dbnp.org/production/gscf.war) | ```production``` | _~/.gscf/production.properties_ | ![build status](http://jenkins.dbnp.org/job/production-gscf/badge/icon) | n/a
 - | [metabolomicsModule](http://download.dbnp.org/production/metabolomicsModule.war) | ```production``` | _~/.metabolomicsModule/production.properties_ | ![build_status](http://jenkins.dbnp.org/job/production-metabolomicsModule/badge/icon) | n/a
 - | [SAM](http://download.dbnp.org/production/sam.war) | ```production``` | _~/.dbxp/production-sam.properties_ | ![build_status](http://jenkins.dbnp.org/job/production-sam/badge/icon) | n/a
