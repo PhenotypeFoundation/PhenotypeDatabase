@@ -20,6 +20,8 @@ uploadr plugin | ```ci``` | ![build status](http://jenkins.osx.eu/job/ci-uploadr
 _Note: each project / environment requires a specific configuration file._
 
 ## Configuration file
+In order to run each of the war files, they need to be configured properly. You can do so by adding a configuration file at the configuration path for the specific war file (note that ~ is the home dir of the user running the tomcat server, in most cases this is user _tomcat_ or _tomcat7_).
+
 Example configuration file (e.g. ~/.gscf/ci.properties where ~ is de homedir of the user running Tomcat - generally user tomcat or tomcat7):
 
 ```groovy
@@ -38,11 +40,4 @@ application.title=GSCF CI
 
 _Note the PostgreSQL database configuration_
 
-
-## Continuous Integration Build status
-Build status of related modules / projects
-
-### grails-uploadr plugin
-
-![build status](http://jenkins.osx.eu/job/ci-uploadr/badge/icon)
 
