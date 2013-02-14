@@ -255,9 +255,10 @@ If grails is installed successfully, you can clone the project to your machine a
 When the application is running, you should be able to access it at http://localhost:8080/gscf
 
 ### Running in your IDE
-Most of the developers on this project favor Intellij over Eclipse, as we feel it integrates best with Groovy & Grails. Running GSCF in Intellij is as easy as
+Most of the developers on this project favor Intellij over Eclipse, as we feel it integrates best with Groovy & Grails. Running GSCF in Intellij is as easy as configuring Grails and running the Application.
 
-[![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea125x37_blue.gif)](http://www.jetbrains.com/idea/) 
+[![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea120x60_blue.gif)](http://www.jetbrains.com/idea/features/javascript.html)
+
 
 #### 1. making sure the grails distribution is configured
 
@@ -304,6 +305,6 @@ _Where the latter two (```-javaagent:… -Xverify:none```) can be omitted as the
    
 
 # Technologies
-[![Grails](http://www.chip.de/ii/6/0/5/9/2/7/1/95f75d6b0f329cb3.jpg)](http://www.grails.org)[![jQuery](https://twimg0-a.akamaihd.net/profile_images/59268975/jquery_avatar.png)](http://jquery.org)[![jQuery-UI](http://www.bits4beats.it/wp-content/uploads/2010/02/jquery_ui_logo.png)](http://jqueryui.com)[![PostgreSQL](http://avatar3.status.net/i/identica/42228-96-20090305041844.png)](http://www.postgresql.org)[![MongoDB](http://lh6.ggpht.com/1Y8VwD0Z3DPVQeLay95yh58Xhns19mXhmSTzVGKHW_rcUm0o1-jvWdCIcDsKyYJcwlY6rzbaI0ecN22oYg)](http://www.mongodb.org)[![JenkinsCI](http://blog.finalist.nl/wp-content/uploads/2012/03/jenkins-headshot.png)](http://jenkins-ci.org)[![Apache Tomcat](http://swik.net/swikIcons/img-242-96x96.jpg)](http://tomcat.apache.org)[![Apache](http://www.defects.nl/images/05_apache.png)](http://httpd.apache.org) [![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea120x60_blue.gif)](http://www.jetbrains.com/idea/)
+[![Grails](http://www.chip.de/ii/6/0/5/9/2/7/1/95f75d6b0f329cb3.jpg)](http://www.grails.org)[![jQuery](https://twimg0-a.akamaihd.net/profile_images/59268975/jquery_avatar.png)](http://jquery.org)[![jQuery-UI](http://www.bits4beats.it/wp-content/uploads/2010/02/jquery_ui_logo.png)](http://jqueryui.com)[![PostgreSQL](http://avatar3.status.net/i/identica/42228-96-20090305041844.png)](http://www.postgresql.org)[![MongoDB](http://lh6.ggpht.com/1Y8VwD0Z3DPVQeLay95yh58Xhns19mXhmSTzVGKHW_rcUm0o1-jvWdCIcDsKyYJcwlY6rzbaI0ecN22oYg)](http://www.mongodb.org)[![JenkinsCI](http://blog.finalist.nl/wp-content/uploads/2012/03/jenkins-headshot.png)](http://jenkins-ci.org)[![Apache Tomcat](http://swik.net/swikIcons/img-242-96x96.jpg)](http://tomcat.apache.org)[![Apache](http://www.defects.nl/images/05_apache.png)](http://httpd.apache.org) [![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea120x60_blue.gif)](http://www.jetbrains.com/idea/features/javascript.html)
 
 
