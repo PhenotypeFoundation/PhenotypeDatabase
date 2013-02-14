@@ -19,7 +19,6 @@ uploadr plugin | ```ci``` | [![Build Status](http://jenkins.osx.eu/job/ci-upload
 
 _Note: each project / environment requires a specific configuration file._
 
-
 # Installation
 In this guide we will assume you use Linux as a hosting platform. While you will be able to run GSCF on Windows, using Linux is preferable. This guide is written with [Debian GNU/Linux](http://www.debian.org/) (or Ubuntu) as a hosting platform. As Linux distributions differ other distributions may require minor changes in setup, but following this guide you should be able to get things running on other distributions as well.
 
@@ -242,6 +241,8 @@ Caveats: GSCF has not yet been tested in such an environment. Other things to ke
 # Running the source
 The project is developed using the [Grails](http://grails.org) Framework, so you either need an IDE that supports Grails (we use Intellij) or run it in your terminal. In either case you need to [download](http://grails.org/download) install Grails (version [2.2.0](https://github.com/PhenotypeFoundation/GSCF/blob/master/application.properties) at the time of writing).
 
+[![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea125x37_blue.gif)](http://www.jetbrains.com/idea/) 
+
 ### Running in your terminal
 When you have successfully installed the Grails web application framework, you should be able to run Grails in your terminal:
 
@@ -255,6 +256,8 @@ When the application is running, you should be able to access it at http://local
 
 ### Running in your IDE
 Most of the developers on this project favor Intellij over Eclipse, as we feel it integrates best with Groovy & Grails. Running GSCF in Intellij is as easy as
+
+[![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea125x37_blue.gif)](http://www.jetbrains.com/idea/) 
 
 #### 1. making sure the grails distribution is configured
 
@@ -298,3 +301,9 @@ _Where the latter two (```-javaagent:… -Xverify:none```) can be omitted as the
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+   
+
+# Technologies
+[![Grails](http://www.chip.de/ii/6/0/5/9/2/7/1/95f75d6b0f329cb3.jpg)](http://www.grails.org)[![jQuery](https://twimg0-a.akamaihd.net/profile_images/59268975/jquery_avatar.png)](http://jquery.org)[![jQuery-UI](http://www.bits4beats.it/wp-content/uploads/2010/02/jquery_ui_logo.png)](http://jqueryui.com)[![PostgreSQL](http://avatar3.status.net/i/identica/42228-96-20090305041844.png)](http://www.postgresql.org)[![MongoDB](http://lh6.ggpht.com/1Y8VwD0Z3DPVQeLay95yh58Xhns19mXhmSTzVGKHW_rcUm0o1-jvWdCIcDsKyYJcwlY6rzbaI0ecN22oYg)](http://www.mongodb.org)[![JenkinsCI](http://blog.finalist.nl/wp-content/uploads/2012/03/jenkins-headshot.png)](http://jenkins-ci.org)[![Apache Tomcat](http://swik.net/swikIcons/img-242-96x96.jpg)](http://tomcat.apache.org)[![Apache](http://www.defects.nl/images/05_apache.png)](http://httpd.apache.org) [![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea120x60_blue.gif)](http://www.jetbrains.com/idea/)
+
+
