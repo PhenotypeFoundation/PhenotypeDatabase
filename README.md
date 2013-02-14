@@ -247,7 +247,7 @@ When you have successfully installed the Grails web application framework, you s
 
 ![grails version](https://dl.dropbox.com/s/n9r4m7s36x0l53z/grails%20version.png?token_hash=AAF6EjDSLSMm50LXniS9rCqNh9cb9erV9FOQWWxnlCe4Vg&dl=1)
 
-If grails in installed successfully, you can clone the project to your machine and run the project:
+If grails is installed successfully, you can clone the project to your machine and run the project:
 
 ![clone and run](https://dl.dropbox.com/s/rkle0zyys81xt3o/GSCF%20-%20Clone%20and%20Run.png?token_hash=AAEVU4XpCk7OVpACKbFWqNNbT4K6p_RGSyTdglj-hBFPKw&dl=1)
 
