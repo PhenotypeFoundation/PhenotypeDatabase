@@ -30,7 +30,7 @@ grails.project.dependency.resolution = {
 	    mavenRepo "http://ontocat.sourceforge.net/maven/repo"
 
 		// other maven repo's
-	    mavenRepo "http://nexus.nmcdsp.org/content/repositories/releases"
+	    mavenRepo "http://nexus.dbnp.org/content/repositories/releases"
 	    //mavenRepo "http://repository.springsource.com/maven/bundles/release"
         //mavenRepo "http://repository.springsource.com/maven/bundles/external"
         //mavenRepo "http://repository.springsource.com/maven/libraries/release"
@@ -65,6 +65,8 @@ grails.project.dependency.resolution = {
 	    compile("com.thoughtworks.xstream:xstream:1.3.1")
 
 	    //runtime 'hsqldb:hsqldb:1.8.0.10'
+
+        compile "org.grails:grails-webflow:$grailsVersion"
     }
 	plugins {
 
@@ -74,10 +76,10 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-            ":dbxp-base:0.1.0.9",
-            //exported by dbxp-base: ":hibernate:$grailsVersion",
+            ":dbxp-base:0.1.2",
+            ":hibernate:$grailsVersion",
 
-            ":dbxp-sam:0.9.3.4",
+            ":dbxp-sam:0.9.4",
 
             ":jquery:latest.integration",
             ':jquery-ui:1.8.15',
@@ -100,6 +102,9 @@ grails.project.dependency.resolution = {
             compile ":console:1.2"
         }
 
+        compile ':webflow:2.0.0', {
+            exclude 'grails-webflow'
+        }
 
         // add { transative = false } to ignore dependency transition
 
