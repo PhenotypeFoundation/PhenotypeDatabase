@@ -170,3 +170,28 @@ application.template.admin.email = "me@example.com"
 trackr.path = "/tmp/trackr/"
 trackr.prefix = "gscf.${grails.util.GrailsUtil.environment}."
 
+// SAM Configuration
+
+// Temporary directory to upload files to.
+// If the directory is given relative (e.g. 'fileuploads/temp'), it is taken relative to the web-app directory
+// Otherwise, it should be given as an absolute path (e.g. '/home/user/sequences')
+// The directory should be writable by the webserver user
+if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) {
+    uploads.uploadDir = "webtestfiles"
+} else {
+    uploads.uploadDir = (new File("/tmp")?.canWrite()) ? "/tmp" : "fileuploads"
+}
+
+// Fuzzy matching configuration
+fuzzyMatching.threshold = [
+        'default': 0.2,
+        'featureImporter' : [
+                'feature': 0.4
+        ],
+        'measurementImporter': [
+                'feature' : 0.4,
+                'sample' : 0.2,
+                'timepoint' : 0.2,
+                'subject' : 0.2
+        ]
+]
