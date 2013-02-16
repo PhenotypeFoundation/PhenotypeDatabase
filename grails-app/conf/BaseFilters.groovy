@@ -128,7 +128,16 @@ class BaseFilters {
                     return false
                 }
              }
+        }
 
+        // Secure SAM controllers
+        samFilter(controller:'feature|measurement|platform|SAMAssay', action:'*') {
+            before = {
+                if(!authenticationService.getLoggedInUser()) {
+                    redirect(controller:'home')
+                    return false
+                }
+            }
         }
 	}
 }

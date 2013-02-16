@@ -195,3 +195,5 @@ fuzzyMatching.threshold = [
                 'subject' : 0.2
         ]
 ]
+
+gscf.baseURL = grails.serverURL
