@@ -58,5 +58,20 @@
 </div>
 <trackr:track reference="${session?.gscfUser ? session.gscfUser : '-'}"/>
 <g:render template="/common/sound"/>
+
+<div id="dialog-creative-commons" title="License agreement" style="display:none">
+    <p>
+        By publishing this study you agree that:<br/>
+        <li>the study will be available under the <a target="_ccl" rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a></li>
+        <li>you are legally entitled to accept this agreement</li>
+    </p>
+    <p>
+        Do you agree to these terms?
+    </p>
+    <p>
+        <a target="_ccl" rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
+    </p>
+</div>
+
 </body>
 </html>
