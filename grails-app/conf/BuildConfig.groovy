@@ -95,7 +95,7 @@ grails.project.dependency.resolution = {
                 ":spring-security-core:1.2.7.3",
                 ":gdt:latest.integration",
                 ":famfamfam:1.0.1",
-                ":mail:1.0",
+                ":mail:1.0.1",
                 ":quartz:1.0-RC5",
                 ":cache:1.0.1"
         )
@@ -107,7 +107,7 @@ grails.project.dependency.resolution = {
         }
 
         // no transitive plugins for gdtImporter
-        compile(":gdtimporter:0.5.6.1") {
+        compile(":gdtimporter:0.5.6.3") {
             transitive = false
         }
 	}

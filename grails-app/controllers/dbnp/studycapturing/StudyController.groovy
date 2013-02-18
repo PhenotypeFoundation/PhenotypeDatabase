@@ -93,7 +93,7 @@ class StudyController {
             // The study instance is packed into an array, to be able to
             // use the same view for showing the study and comparing multiple
             // studies
-            [studyList: [ studyInstance ], multipleStudies: false, loggedInUser: loggedInUser, facebookLikeUrl: studyInstance.getFieldValue('published') ? "/study/show/${studyInstance?.id}" : '' ]
+            [studyList: [ studyInstance ], multipleStudies: false, loggedInUser: loggedInUser, facebookLikeUrl: "/study/show/${studyInstance?.id}" ]
         }
     }
 
