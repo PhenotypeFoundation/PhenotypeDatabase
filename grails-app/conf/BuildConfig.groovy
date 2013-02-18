@@ -82,24 +82,26 @@ grails.project.dependency.resolution = {
             ":dbxp-sam:0.9.4",
 
             ":jquery:latest.integration",
-            ':jquery-ui:1.8.15',
-            ":grom:latest.integration",
+            ':jquery-ui:latest.integration',
             ":resources:latest.integration",
 
             ":spring-security-core:1.2.7.3",
 
             ":famfamfam:1.0.1",
 
-            ":trackr:0.7.3",
+            ":mail:1.0.1",
 
-            ":quartz:1.0-RC2"
+            ":quartz:1.0-RC5"
         )
 
         compile(":gdtimporter:0.5.6.3"){transitive = false}
 
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
-            compile ":console:1.2"
+            compile(":console:1.2",
+                    ":trackr:0.7.3",
+                    ":grom:latest.integration"
+            )
         }
 
         compile ':webflow:2.0.0', {
