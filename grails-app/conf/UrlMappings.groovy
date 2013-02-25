@@ -15,8 +15,19 @@ class UrlMappings {
         }
 
         // landing page
-        "/sam/"(controller: 'SAMHome', action: 'index')
+        "/measurements/"(controller: 'SAMHome', action: 'index')
 
+        // landing page
+        "/measurements/transcriptomics"(controller: 'SAMHome', action: 'transcriptomics')
+
+        // landing page
+        "/measurements/metabolomics"(controller: 'SAMHome', action: 'metabolomics')
+
+        // landing page
+        "/measurements/proteomics"(controller: 'SAMHome', action: 'proteomics')
+
+        // landing page
+        "/measurements/questionnaire"(controller: 'SAMHome', action: 'questionnaire')
 
         // landing page
 		"/"(controller: 'home', action: 'index')

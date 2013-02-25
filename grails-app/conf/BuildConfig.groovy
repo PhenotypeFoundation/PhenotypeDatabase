@@ -79,7 +79,7 @@ grails.project.dependency.resolution = {
             ":dbxp-base:0.1.2",
             ":hibernate:$grailsVersion",
 
-            ":dbxp-sam:0.9.4",
+            ":dbxp-sam:0.9.4.4",
 
             ":jquery:latest.integration",
             ':jquery-ui:latest.integration',
@@ -94,7 +94,7 @@ grails.project.dependency.resolution = {
             ":quartz:1.0-RC5"
         )
 
-        compile(":gdtimporter:0.5.6.3"){transitive = false}
+        compile(":gdtimporter:0.5.6.4"){transitive = false}
 
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
@@ -120,7 +120,7 @@ grails.project.dependency.resolution = {
 //grails.plugin.location.'ajaxflow' = '../../4np/grails-ajaxflow'
 //grails.plugin.location.'gdt' = '../gdt'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
-//grails.plugin.location.'gdtimporter' = '../gdtimporter'
+//grails.plugin.location.'gdtimporter' = '../../dbXP/GDTImporter'
 //grails.plugin.location.'dbxp-base' = '../dbxpBase'
 //grails.plugin.location.'spring-security-core' = '../grails-spring-security-core'
 //grails.plugin.location.'dbxpSam' = '../sam'
