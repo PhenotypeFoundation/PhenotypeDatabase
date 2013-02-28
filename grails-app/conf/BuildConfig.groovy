@@ -79,7 +79,7 @@ grails.project.dependency.resolution = {
             ":dbxp-base:0.1.2",
             ":hibernate:$grailsVersion",
 
-            ":dbxp-sam:0.9.4.4",
+            ":dbxp-sam:0.9.4.5",
 
             ":jquery:latest.integration",
             ':jquery-ui:latest.integration',
