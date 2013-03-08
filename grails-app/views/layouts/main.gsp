@@ -15,7 +15,7 @@
 	<g:javascript library="jquery" plugin="jquery"/>
     <g:setProvider library="jquery"/>
     <r:layoutResources />
-    <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
+    <script type="text/javascript">var baseUrl = '${g.createLink(absolute: true, url: '/')}/'</script>
 	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.23.custom.min.js')}" type="text/javascript"></script>
 	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.23.custom.css')}"/>
     <%-- TODO: migrate all of GSCF to resources layout --%>
