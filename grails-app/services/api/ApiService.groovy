@@ -28,7 +28,7 @@ class ApiService implements Serializable, ApplicationContextAware {
     def moduleCommunicationService
 	def gdtService
 	def apiService
-
+    def grailsApplication
     // transactional
     static transactional = false
 
@@ -135,11 +135,11 @@ class ApiService implements Serializable, ApplicationContextAware {
             }
 
             // add token
-	        if (it.respondsTo('giveUUID')) {
+	        if (it.UUID) {
                 // some domain methods implement giveUUID
 		        // (and this has system wide been implemented
 		        //  in GDT 1.3.1)...
-                item['token'] = it.giveUUID()
+                item['token'] = it.UUID
             } else {
                 // and others don't at all, so far
                 // the consistency...
@@ -317,7 +317,12 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def getMeasurementData(Assay assay, SecUser user) {
-        def serviceURL = "${assay.module.url}/rest/getMeasurementData"
+        def url = assay.module.url
+        if (url.contains("/measurements/")) {
+            url = "${grailsApplication.config.gscf.baseURL}/measurements"
+        }
+
+        def serviceURL = "${url}/rest/getMeasurementData"
         def serviceArguments = "assayToken=${assay.UUID}&verbose=true"
         def json
 
