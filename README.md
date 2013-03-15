@@ -60,19 +60,19 @@ Note: you may have to use double quotes (") rather than single quotes (').
 	       \g or terminate with semicolon to execute query
 	       \q to quit
 	
-	postgres=# create database 'mytestdb';
+	postgres=# create database 'gscf-www';
 	CREATE DATABASE
-	postgres=# create user mydbuser password 'mydbpassword';
+	postgres=# create user gscfuser password 'mydbpassword';
 	CREATE ROLE
-	postgres=# grant all privileges on database mytestdb to mydbuser;
+	postgres=# grant all privileges on database 'gscf-www' to gscfuser;
 	GRANT
-	postgres=# alter database mytestdb owner to mydbuser;
+	postgres=# alter database 'gscf-www' owner to gscfuser;
 	ALTER DATABASE
 	postgres=# \l
 	           List of databases
 	    Name     |     Owner     | Encoding 
 	-------------+---------------+----------
-	 mytestdb    | mydbuser      | UTF8
+	 gscf-www    | gscfuser      | UTF8
 	 postgres    | postgres      | UTF8
 	 template0   | postgres      | UTF8
 	 template1   | postgres      | UTF8
@@ -90,14 +90,14 @@ If you start the application, you will see exactly at which location it is looki
 
 ```
 # server URL
-grails.serverURL=http://old.studies.dbnp.org
+grails.serverURL=http://test.mysite.com
 
 # DATABASE
 dataSource.driverClassName=org.postgresql.Driver
 dataSource.dialect=org.hibernate.dialect.PostgreSQLDialect
 dataSource.url=jdbc:postgresql://localhost:5432/gscf-www
 dataSource.dbCreate=update
-dataSource.username=mydbuser
+dataSource.username=gscfuser
 dataSource.password=mydbpassword
 #dataSource.logSql=false
 
