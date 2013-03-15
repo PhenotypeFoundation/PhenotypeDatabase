@@ -29,10 +29,12 @@ class BaseFilters {
 					if (hostname =~ 'nmcdsp.org') {
 						session.style = 'nmcdsp_style'
 					} else if (hostname =~ 'nbx') {
-						session.style = 'dbnp_style'
-					} else {
-						session.style = 'default_style'
-					}
+						session.style = 'TO-DO'
+					} else if (hostname =~ '<') {
+						session.style = 'tifn-oh_style'
+                    } else {
+                        session.style = 'default_style'
+                    }
 				}
 
 				// set session lifetime to 1 week
