@@ -77,20 +77,18 @@ grails.project.dependency.resolution = {
 
 		compile(
             ":dbxp-base:0.1.2.1",
-            ":hibernate:$grailsVersion",
-
             ":dbxp-sam:0.9.4.6",
+
+            ":hibernate:$grailsVersion",
 
             ":jquery:latest.integration",
             ':jquery-ui:latest.integration',
-            ":resources:latest.integration",
 
+            ":resources:latest.integration",
             ":spring-security-core:1.2.7.3",
 
             ":famfamfam:1.0.1",
-
             ":mail:1.0.1",
-
             ":quartz:1.0-RC5"
         )
 
@@ -115,12 +113,10 @@ grails.project.dependency.resolution = {
 }
 
 //grails.plugin.location.'grom' = '../grom'
-//grails.plugin.location.'grom' = '../../4np/grails-grom'
 //grails.plugin.location.'ajaxflow' = '../ajaxflow'
-//grails.plugin.location.'ajaxflow' = '../../4np/grails-ajaxflow'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
-//grails.plugin.location.'gdtimporter' = '../../dbXP/GDTImporter'
+//grails.plugin.location.'gdtimporter' = '../GDTImporter'
 //grails.plugin.location.'dbxp-base' = '../dbxpBase'
 //grails.plugin.location.'spring-security-core' = '../grails-spring-security-core'
-//grails.plugin.location.'dbxpSam' = '../sam'
+//grails.plugin.location.'dbxpSam' = '../SAM'
 //grails.plugin.location.'dbxp-base' = '../dbxpBase'
