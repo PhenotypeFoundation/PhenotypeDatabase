@@ -427,7 +427,7 @@ class SimpleWizardController extends StudyWizardController {
 	 */
 	protected Study getStudyFromRequest(params) {
         SecUser user = authenticationService.getLoggedInUser();
-        Study study  = (params.containsKey('id')) ? Study.findById((int) params.get('id')) : new Study(title: "New study", owner: authenticationService.getLoggedInUser());
+        Study study  = (params.containsKey('id')) ? Study.findById((String) params.get('id')) : new Study(title: "New study", owner: authenticationService.getLoggedInUser());
 
         // got a study?
         if (!study) {
