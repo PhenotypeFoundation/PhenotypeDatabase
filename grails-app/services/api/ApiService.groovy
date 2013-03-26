@@ -318,10 +318,10 @@ class ApiService implements Serializable, ApplicationContextAware {
      */
     def getMeasurementData(Assay assay, SecUser user) {
         def url = assay.module.url
-        if (url.contains("/measurements/")) {
+        //for the Measurements Module (a.k.a. SAM), we need to define a baseURL. Other urls (such as metabolomics.dbnp.org) will remain untouched
+        if (url.contains("/measurements?module=")) {
             url = "${grailsApplication.config.gscf.baseURL}/measurements"
         }
-
         def serviceURL = "${url}/rest/getMeasurementData"
         def serviceArguments = "assayToken=${assay.UUID}&verbose=true"
         def json
