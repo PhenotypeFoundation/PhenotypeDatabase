@@ -226,8 +226,8 @@ class VisualizeController {
         // Making a different call for each assay
         def urlVars = "assayToken=" + assay.UUID
         try {
-            callUrl = "" + assay.module.url + "/rest/getMeasurementMetaData/query?" + urlVars
-            def json = moduleCommunicationService.callModuleRestMethodJSON(assay.module.url /* consumer */, callUrl);
+            callUrl = "" + assay.module.baseUrl + "/rest/getMeasurementMetaData/query?" + urlVars
+            def json = moduleCommunicationService.callModuleRestMethodJSON(assay.module.baseUrl /* consumer */, callUrl);
 
             def collection = []
             json.each { jason ->
@@ -531,8 +531,8 @@ class VisualizeController {
 
             def callUrl
             try {
-                callUrl = assay.module.url + "/rest/getMeasurementData"
-                def json = moduleCommunicationService.callModuleMethod(assay.module.url, callUrl, urlVars, "POST");
+                callUrl = assay.module.baseUrl + "/rest/getMeasurementData"
+                def json = moduleCommunicationService.callModuleMethod(assay.module.baseUrl, callUrl, urlVars, "POST");
 
                 if (json) {
                     // First element contains sampletokens

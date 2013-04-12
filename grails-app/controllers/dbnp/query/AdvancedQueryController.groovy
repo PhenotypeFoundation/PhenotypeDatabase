@@ -430,9 +430,9 @@ class AdvancedQueryController {
 		// Loop through all modules and check which fields are searchable
 		// Right now, we just combine the results for different entities
 		AssayModule.list().each { module ->
-			def callUrl = module.url + '/rest/getQueryableFields'
+			def callUrl = module.baseUrl + '/rest/getQueryableFields'
 			try {
-				def json = moduleCommunicationService.callModuleMethod( module.url, callUrl );
+				def json = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl );
 				def moduleFields = [];
 				entitiesToSearchFor.each { entity ->
 					if( json[ entity.key ] ) {
@@ -761,13 +761,13 @@ class AdvancedQueryController {
 			// Remove 'module' from module name
 			def moduleName = module.name.replace( 'module', '' ).trim()
 			try {
-				def callUrl = module.url + "/rest/getPossibleActions?entity=" + s.entity
-				def json = moduleCommunicationService.callModuleRestMethodJSON( module.url, callUrl );
+				def callUrl = module.baseUrl + "/rest/getPossibleActions?entity=" + s.entity
+				def json = moduleCommunicationService.callModuleRestMethodJSON( module.baseUrl, callUrl );
 
 				// Check whether the entity is present in the return value
 				if( json[ s.entity ] ) {
 					json[ s.entity ].each { action ->
-						def baseUrl = action.url ?: module.url + "/action/" + action.name
+						def baseUrl = action.url ?: module.baseUrl + "/action/" + action.name
 						def paramString = s.filterResults(selectedTokens).collect { "tokens=" + it.giveUUID() }.join( "&" )
 
 						def url = baseUrl;

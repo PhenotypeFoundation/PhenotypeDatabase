@@ -676,7 +676,7 @@ class Search {
 						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						
 						try {
-							def json = moduleCommunicationService.callModuleMethod( module.url, callUrl, callArgs, "POST" );
+							def json = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
 							Closure checkClosure = moduleCriterionClosure( json );
 							entities = filterEntityList( entities, moduleCriteria, checkClosure );
 						} catch( Exception e ) {
@@ -703,7 +703,7 @@ class Search {
 						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						
 						try {
-							def json = moduleCommunicationService.callModuleMethod( module.url, callUrl, callArgs, "POST" );
+							def json = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
 							Closure checkClosure = moduleCriterionClosure( json );
 							
 							resultingEntities += filterEntityList( entities, moduleCriteria, checkClosure );
@@ -782,7 +782,7 @@ class Search {
 	}
 	
 	protected String moduleCriteriaUrl( module ) {
-		def callUrl = module.url + '/rest/getQueryableFieldData'
+		def callUrl = module.baseUrl + '/rest/getQueryableFieldData'
 		return callUrl;
 	}
 	

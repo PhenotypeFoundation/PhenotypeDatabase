@@ -46,12 +46,12 @@
 				</td>
 				<td>
 				  	<g:if test="${assayInstance.module.openInFrame == null || assayInstance.module.openInFrame == Boolean.TRUE}">
-			          <jumpbar:link frameSource="${assayInstance.module.url}/assay/showByToken/${assayInstance.giveUUID()}" pageTitle="${assayInstance.module.name}">
+			          <jumpbar:link frameSource="${assayInstance.module.baseUrl}/assay/showByToken/${assayInstance.giveUUID()}" pageTitle="${assayInstance.module.name}">
 						${fieldValue(bean: assayInstance, field: "name")}
 					  </jumpbar:link>
 					 </g:if>
 					 <g:else>
-					 	<g:link url="${assayInstance.module.url}/assay/showByToken/${assayInstance.giveUUID()}">
+					 	<g:link url="${assayInstance.module.baseUrl}/assay/showByToken/${assayInstance.giveUUID()}">
 					 	${fieldValue(bean: assayInstance, field: "name")}
 					 	</g:link>
 					 </g:else>

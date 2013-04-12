@@ -67,7 +67,7 @@ class ModuleNotificationService implements Serializable {
 			// create a random session token that will be used to allow to module to
 			// sync with gscf prior to presenting the measurement data
 			def sessionToken = UUID.randomUUID().toString()
-			def consumer = module.url
+			def consumer = module.baseUrl
 			
 			// Create a URL to call
 			def authenticationParameters = "";
@@ -78,7 +78,7 @@ class ModuleNotificationService implements Serializable {
 				authenticationParameters = "consumer=" + consumer + "&sessionToken=" + sessionToken;
 			}
 				
-			urls << module.url + '/rest/notifyStudyChange?studyToken=' + study.giveUUID() + ( authenticationParameters ? "&" + authenticationParameters : "" )
+			urls << module.baseUrl + '/rest/notifyStudyChange?studyToken=' + study.giveUUID() + ( authenticationParameters ? "&" + authenticationParameters : "" )
 		}
 		
 		// Notify the module in a separate thread, so the user doesn't have to wait for it

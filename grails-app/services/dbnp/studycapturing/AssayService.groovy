@@ -280,7 +280,7 @@ class AssayService {
 	 */
 	def requestModuleMeasurementNames(assay, SecUser remoteUser = null) {
 
-		def moduleUrl = assay.module.url
+		def moduleUrl = assay.module.baseUrl
 
 		def path = moduleUrl + "/rest/getMeasurements/query"
 		def query = "assayToken=${assay.UUID}"
@@ -314,7 +314,7 @@ class AssayService {
 	 */
 	def requestModuleMeasurements(assay, List inputMeasurementTokens, List samples, SecUser remoteUser = null) {
 
-		def moduleUrl = assay.module.url
+		def moduleUrl = assay.module.baseUrl
 
 		def tokenString = ''
 
@@ -400,7 +400,7 @@ class AssayService {
 
 		def measurementTokenMetaData = [:]
 
-		def moduleUrl = assay.module.url
+		def moduleUrl = assay.module.baseUrl
 
 		def tokenString = ''
 		inputMeasurementTokens.each{ tokenString+="&measurementToken=${it.encodeAsURL()}" }

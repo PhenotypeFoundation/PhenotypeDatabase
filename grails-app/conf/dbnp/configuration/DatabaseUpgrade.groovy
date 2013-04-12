@@ -40,6 +40,7 @@ class DatabaseUpgrade {
 		alterStudyAndAssay(sql, db)                     // r1594
 		fixDateCreatedAndLastUpdated(sql, db)
 		dropAssayModulePlatform(sql, db)                // r1689
+        addAssayModuleBaseUrl(sql, db)                  // Adds a baseUrl to AssayModule
 		makeStudyTitleAndTemplateNamesUnique(sql, db)   // #401, #406
 		renameGdtMappingColumnIndex(sql, db)            // 'index' column in GdtImporter MappingColumn is a reserved keyword in MySQL
 		// GdtImporter now by default uses 'columnindex' as domain field name
@@ -336,6 +337,27 @@ class DatabaseUpgrade {
 			}
 		}
 	}
+
+    /**
+     * creates the field baseUrl for assay modules
+     * @param sql
+     * @param db
+     */
+    public static void addAssayModuleBaseUrl(sql, db) {
+        // are we running postgreSQL?
+        if (db == "org.postgresql.Driver") {
+            // do we need to perform this update?
+            if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='assay_module' AND 'base_url' NOT IN (SELECT column_name FROM information_schema.columns WHERE table_name ='assay_module' ORDER BY ordinal_position)")) {
+                if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: creating assayModule baseurl".grom()
+
+                try {
+                    sql.execute("ALTER TABLE assay_module ADD COLUMN base_url character varying")
+                } catch (Exception e) {
+                    println "createAssayModuleBaseUrl database upgrade failed: " + e.getMessage()
+                }
+            }
+        }
+    }
 
 	/**
 	 * After adding shibboleth support, a boolean field should be set to false

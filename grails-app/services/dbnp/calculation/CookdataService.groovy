@@ -276,8 +276,8 @@ class CookdataService {
 					def urlVars = "assayToken=" + assay.UUID
 					// All samples
 					urlVars += "&"+samples.collect { "sampleToken=" + it.UUID }.join("&");
-					def strUrl = assay.module.url + "/rest/getMeasurementData"
-					def callResult = moduleCommunicationService.callModuleMethod(assay.module.url, strUrl, urlVars, "POST")
+					def strUrl = assay.module.baseUrl + "/rest/getMeasurementData"
+					def callResult = moduleCommunicationService.callModuleMethod(assay.module.baseUrl, strUrl, urlVars, "POST")
 					// Store measurements per sampleToken, per feature.
 					// [1] contains a list of features
                     int numSamples = callResult[0].size()

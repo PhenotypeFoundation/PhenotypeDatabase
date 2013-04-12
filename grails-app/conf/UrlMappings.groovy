@@ -25,7 +25,10 @@ class UrlMappings {
         }
 
         // landing page for alternative SAM url
-        "/measurements/"(controller: 'SAMHome', action: 'index')
+        "/measurements/$module?"(controller: 'SAMHome', action: 'index')
+
+        // landing page for alternative SAM url
+        "/measurements/assay/$action?/$id?"(controller: 'SAMAssay')
 
 		// handle 404
 		"404"(controller: 'error', action: 'notFound')

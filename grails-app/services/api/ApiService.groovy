@@ -288,14 +288,14 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def getMeasurements(Assay assay, SecUser user) {
-        def serviceURL = "${assay.module.url}/rest/getMeasurements"
+        def serviceURL = "${assay.module.baseUrl}/rest/getMeasurements"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json
 
         // call module method
         try {
             json = moduleCommunicationService.callModuleMethod(
-                    assay.module.url,
+                    assay.module.baseUrl,
                     serviceURL,
                     serviceArguments,
                     "POST",
@@ -317,19 +317,14 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def getMeasurementData(Assay assay, SecUser user) {
-        def url = assay.module.url
-        //for the Measurements Module (a.k.a. SAM), we need to define a baseURL. Other urls (such as metabolomics.dbnp.org) will remain untouched
-        if (url.contains("/measurements?module=")) {
-            url = "${grailsApplication.config.gscf.baseURL}/measurements"
-        }
-        def serviceURL = "${url}/rest/getMeasurementData"
+        def serviceURL = "${assay.module.baseUrl}/rest/getMeasurementData"
         def serviceArguments = "assayToken=${assay.UUID}&verbose=true"
         def json
 
         // call module method
         try {
             json = moduleCommunicationService.callModuleMethod(
-                    assay.module.url,
+                    assay.module.baseUrl,
                     serviceURL,
                     serviceArguments,
                     "POST",
@@ -351,14 +346,14 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def getMeasurementMetaData(Assay assay, SecUser user) {
-        def serviceURL = "${assay.module.url}/rest/getMeasurementMetaData"
+        def serviceURL = "${assay.module.baseUrl}/rest/getMeasurementMetaData"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json
 
         // call module method
         try {
             json = moduleCommunicationService.callModuleMethod(
-                    assay.module.url,
+                    assay.module.baseUrl,
                     serviceURL,
                     serviceArguments,
                     "POST",

@@ -29,12 +29,12 @@
 		  <td>${assay?.module?.name}</td>
 		  <td>
 		  	<g:if test="${assay?.module.openInFrame == null || assay?.module.openInFrame == Boolean.TRUE}">
-	          <jumpbar:link frameSource="${assay?.module.url}/assay/showByToken/${assay?.giveUUID()}" pageTitle="${assay?.module.name}">
+                <jumpbar:link frameSource="${assay?.module.baseUrl}/assay/showByToken/${assay?.giveUUID()}" pageTitle="${assay?.module.name}">
 				details
 			  </jumpbar:link>
 			 </g:if>
 			 <g:else>
-			 	<g:link url="${assay?.module.url}/assay/showByToken/${assay?.giveUUID()}">details</g:link>
+			 	<g:link url="${assay?.module.baseUrl}/assay/showByToken/${assay?.giveUUID()}">details</g:link>
 			 </g:else>
 		</td>
 		  <td>

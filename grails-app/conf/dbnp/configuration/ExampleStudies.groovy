@@ -43,6 +43,7 @@ class ExampleStudies {
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
 			url: config.modules.sam.url.toString(),
+            baseUrl: config.modules.sam.url.toString(),
 			notify: true,
 			openInFrame: false
 		).save(failOnError:true)
@@ -50,13 +51,15 @@ class ExampleStudies {
 		// Add metabolomics assay reference
 		def metabolomicsModule = new AssayModule(
 			name: 'Metabolomics module',
-			url: config.modules.metabolomics.url.toString()
+			url: config.modules.metabolomics.url.toString(),
+            baseUrl: config.modules.sam.url.toString()
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
 		def massSequencingModule = new AssayModule(
 			name: 'Mass Sequencing module',
-			url: config.modules.massSequencing.url.toString()
+			url: config.modules.massSequencing.url.toString(),
+            baseUrl: config.modules.sam.url.toString()
 		).save(failOnError:true)
 	}
 
@@ -416,19 +419,22 @@ class ExampleStudies {
 		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
-			url: config.modules.sam.url.toString()
+			url: config.modules.sam.url.toString(),
+            baseUrl: config.modules.sam.url.toString()
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
 		def metabolomicsModule = new AssayModule(
 			name: 'Metabolomics module',
-			url: config.modules.metabolomics.url.toString()
+			url: config.modules.metabolomics.url.toString(),
+            baseUrl: config.modules.sam.url.toString()
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
 		def massSequencingModule = new AssayModule(
 			name: 'Mass Sequencing module',
-			url: config.modules.massSequencing.url.toString()
+			url: config.modules.massSequencing.url.toString(),
+            baseUrl: config.modules.sam.url.toString()
 		).save(failOnError:true)
 
 		def lipidAssayRef = new Assay(
