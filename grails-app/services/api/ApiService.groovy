@@ -140,6 +140,12 @@ class ApiService implements Serializable, ApplicationContextAware {
 		        // (and this has system wide been implemented
 		        //  in GDT 1.3.1)...
                 item['token'] = it.UUID
+
+            // add parent event token for samples
+            if(it.hasProperty('parentEvent')) {
+                item['parentEventToken'] = it.parentEvent?.UUID
+            }
+
             } else {
                 // and others don't at all, so far
                 // the consistency...
