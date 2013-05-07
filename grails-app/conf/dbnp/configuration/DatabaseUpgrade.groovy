@@ -541,7 +541,8 @@ class DatabaseUpgrade {
         if (db == "org.postgresql.Driver") {
             grailsApplication.domainClasses.sort { it.naturalName }.each { d ->
                 def grom        = true
-                def tableName   = d.name.toLowerCase()
+                //naturalName does not work for SAMSample due to capitalized SAM but is not needed in this case.
+                def tableName   = d.naturalName.toLowerCase().replaceAll(' ','_')
 
                 // check if this domain class has a uuid
                 if (sql.firstRow(sprintf("SELECT * FROM information_schema.columns WHERE columns.table_name='%s' AND columns.column_name='uuid'", tableName))) {
