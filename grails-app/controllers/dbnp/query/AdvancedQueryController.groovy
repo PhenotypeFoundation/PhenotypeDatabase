@@ -768,7 +768,7 @@ class AdvancedQueryController {
 				if( json[ s.entity ] ) {
 					json[ s.entity ].each { action ->
 						def baseUrl = action.url ?: module.baseUrl + "/action/" + action.name
-						def paramString = s.filterResults(selectedTokens).collect { "tokens=" + it.giveUUID() }.join( "&" )
+						def paramString = s.filterResults(selectedTokens).collect { "tokens=" + it.UUID }.join( "&" )
 
 						def url = baseUrl;
 

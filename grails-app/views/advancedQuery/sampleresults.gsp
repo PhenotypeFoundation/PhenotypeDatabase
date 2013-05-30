@@ -42,7 +42,7 @@
 						way the user can select items from multiple pages of the paginated result list correctly. See
 						also http://datatables.net/examples/api/form.html and advancedQueryResults.js
 					*/ %>
-					<g:checkBox name="uuid" value="${sampleInstance.giveUUID()}" checked="${false}" onClick="updateCheckAll(this);" />
+					<g:checkBox name="uuid" value="${sampleInstance.UUID}" checked="${false}" onClick="updateCheckAll(this);" />
 				</td>
 				<td>${fieldValue(bean: sampleInstance, field: "name")}</td>
 				<td><g:link controller="study" action="show" id="${sampleInstance?.parent?.id}">${sampleInstance?.parent?.title}</g:link></td>

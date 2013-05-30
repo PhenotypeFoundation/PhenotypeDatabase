@@ -78,7 +78,7 @@ class ModuleNotificationService implements Serializable {
 				authenticationParameters = "consumer=" + consumer + "&sessionToken=" + sessionToken;
 			}
 				
-			urls << module.baseUrl + '/rest/notifyStudyChange?studyToken=' + study.giveUUID() + ( authenticationParameters ? "&" + authenticationParameters : "" )
+			urls << module.baseUrl + '/rest/notifyStudyChange?studyToken=' + study.UUID + ( authenticationParameters ? "&" + authenticationParameters : "" )
 		}
 		
 		// Notify the module in a separate thread, so the user doesn't have to wait for it

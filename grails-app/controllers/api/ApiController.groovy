@@ -120,7 +120,8 @@ class ApiController {
             readableStudies.each { study ->
                 // get result data
                 studies[ studies.size() ] = [
-                        'token'                 : study.giveUUID(),
+                        'token'                 : study.UUID,
+                        'code'                  : study.code,
                         'title'                 : study.title,
                         'description'           : study.description,
                         'subjects'              : study.subjects.size(),
@@ -354,14 +355,6 @@ class ApiController {
 			def studySamples = study.samples
 
 			def samples = apiService.flattenDomainData( studySamples )
-
-			// add info on parent subjects, events etc.
-			samples.each { item ->
-				Sample sample = studySamples.find { it.UUID == item.token }
-				item['subject'] = sample.parentSubject.giveUUID()
-				item['samplingEvent'] = sample.parentEvent.giveUUID()
-				item['eventGroup'] = sample.parentEventGroup.giveUUID()
-			}
 
 			// define result
 			def result = [
@@ -884,7 +877,7 @@ class ApiController {
 							def result = [
 								'success'   : true,
 								'entityType': entityType,
-								'token'     : entityInstance.giveUUID()
+								'token'     : entityInstance.UUID
 							]
 
 							if (params.containsKey('callback')) {

@@ -732,7 +732,7 @@ class Search {
 		return { entity, criterion ->
 			// Find the value of the field in this sample. That value is still in the
 			// JSON object
-			def token = entity.giveUUID()
+			def token = entity.UUID
 			def value
 			
 			if( criterion.field == '*' ) {
@@ -788,7 +788,7 @@ class Search {
 	
 	protected String moduleCriteriaArguments( module, entities, moduleCriteria ) {
 		// Retrieve the data from the module
-		def tokens = entities.collect { it.giveUUID() }.unique();
+		def tokens = entities.collect { it.UUID }.unique();
 		def fields = moduleCriteria.collect { it.field }.unique();
 	
 		def callUrl = 'entity=' + this.entity
@@ -953,7 +953,7 @@ class Search {
 		   return results
 
 	   return results.findAll {
-		   selectedTokens.contains( it.giveUUID() )
+		   selectedTokens.contains( it.UUID )
 	   }
    }
 
