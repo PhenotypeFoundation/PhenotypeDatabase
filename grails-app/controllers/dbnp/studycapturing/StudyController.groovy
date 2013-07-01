@@ -40,7 +40,7 @@ class StudyController {
 		def offset = params.offset ? params.int( 'offset' ) : 0
 		
         def studies = Study.findAllByOwner(user, [max:max,offset: offset]);
-        render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: Study.countByOwner(user), loggedInUser: user] )
+        render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: studies.size(), loggedInUser: user] )
     }
 
     /**

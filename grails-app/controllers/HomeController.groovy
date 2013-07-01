@@ -118,7 +118,8 @@ class HomeController {
 
 			// miscelaneous
 			facebookLikeUrl				: '/',
-			db							: db
+			db							: db,
+            issueUrl                    : config.gscf.issueURL
 		]
 	}
 

@@ -357,6 +357,9 @@
                 <i>A quick start user guide is available for download <a href="${resource(dir:'downloads', file: 'quickstart_study_capturing.pdf')}">here</a>.<br>
 				A more in depth user guide is available for download <a href="${resource(dir:'downloads', file: 'gscf_user_guide.pdf')}">here</a>.</i>
 			</p>
+            <p>
+                <i>If you encounter a problem or have a suggestion for improvement feel free to submit an issue <g:link url="${issueUrl}">here</g:link></i>
+            </p>
 		</div>
 	</div>
 </div>
