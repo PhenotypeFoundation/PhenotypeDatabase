@@ -3,9 +3,9 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-EN" xml:lang="en-EN">
 <head>
-	<title><g:layoutTitle default="Grails"/></title>
+	<title><g:layoutTitle default=""/></title>
 	<g:javascript library="jquery" plugin="jquery"/>
-	<script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
+    <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 	<script src="${createLinkTo(dir: 'js', file: 'jquery-ui-1.8.23.custom.min.js')}" type="text/javascript"></script>
 	<g:if env="development">
 		<link rel="stylesheet" href="${resource(dir: 'css', file: 'dialog.css')}"/>
@@ -16,8 +16,10 @@
 	</g:else>
 	<link rel="stylesheet" href="${createLinkTo(dir: 'css/cupertino', file: 'jquery-ui-1.8.23.custom.css')}"/>
   <g:layoutHead/>
- </head>
+  <r:layoutResources />
+</head>
  <body>
  <g:layoutBody/>
+ <r:layoutResources />
  </body>
 </html>

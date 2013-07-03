@@ -676,7 +676,7 @@ class Search {
 						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						
 						try {
-							def json = moduleCommunicationService.callModuleMethod( module.url, callUrl, callArgs, "POST" );
+							def json = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
 							Closure checkClosure = moduleCriterionClosure( json );
 							entities = filterEntityList( entities, moduleCriteria, checkClosure );
 						} catch( Exception e ) {
@@ -703,7 +703,7 @@ class Search {
 						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						
 						try {
-							def json = moduleCommunicationService.callModuleMethod( module.url, callUrl, callArgs, "POST" );
+							def json = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
 							Closure checkClosure = moduleCriterionClosure( json );
 							
 							resultingEntities += filterEntityList( entities, moduleCriteria, checkClosure );
@@ -732,7 +732,7 @@ class Search {
 		return { entity, criterion ->
 			// Find the value of the field in this sample. That value is still in the
 			// JSON object
-			def token = entity.giveUUID()
+			def token = entity.UUID
 			def value
 			
 			if( criterion.field == '*' ) {
@@ -782,13 +782,13 @@ class Search {
 	}
 	
 	protected String moduleCriteriaUrl( module ) {
-		def callUrl = module.url + '/rest/getQueryableFieldData'
+		def callUrl = module.baseUrl + '/rest/getQueryableFieldData'
 		return callUrl;
 	}
 	
 	protected String moduleCriteriaArguments( module, entities, moduleCriteria ) {
 		// Retrieve the data from the module
-		def tokens = entities.collect { it.giveUUID() }.unique();
+		def tokens = entities.collect { it.UUID }.unique();
 		def fields = moduleCriteria.collect { it.field }.unique();
 	
 		def callUrl = 'entity=' + this.entity
@@ -953,7 +953,7 @@ class Search {
 		   return results
 
 	   return results.findAll {
-		   selectedTokens.contains( it.giveUUID() )
+		   selectedTokens.contains( it.UUID )
 	   }
    }
 

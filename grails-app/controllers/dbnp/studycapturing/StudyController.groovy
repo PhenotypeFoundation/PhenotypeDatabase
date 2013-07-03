@@ -40,7 +40,7 @@ class StudyController {
 		def offset = params.offset ? params.int( 'offset' ) : 0
 		
         def studies = Study.findAllByOwner(user, [max:max,offset: offset]);
-        render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: Study.countByOwner(user), loggedInUser: user] )
+        render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: studies.size(), loggedInUser: user] )
     }
 
     /**
@@ -93,7 +93,7 @@ class StudyController {
             // The study instance is packed into an array, to be able to
             // use the same view for showing the study and comparing multiple
             // studies
-            [studyList: [ studyInstance ], multipleStudies: false, loggedInUser: loggedInUser, facebookLikeUrl: studyInstance.getFieldValue('published') ? "/study/show/${studyInstance?.id}" : '' ]
+            [studyList: [ studyInstance ], multipleStudies: false, loggedInUser: loggedInUser ]
         }
     }
 

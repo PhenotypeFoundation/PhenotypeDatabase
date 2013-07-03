@@ -226,8 +226,8 @@ class VisualizeController {
         // Making a different call for each assay
         def urlVars = "assayToken=" + assay.UUID
         try {
-            callUrl = "" + assay.module.url + "/rest/getMeasurementMetaData/query?" + urlVars
-            def json = moduleCommunicationService.callModuleRestMethodJSON(assay.module.url /* consumer */, callUrl);
+            callUrl = "" + assay.module.baseUrl + "/rest/getMeasurementMetaData/query?" + urlVars
+            def json = moduleCommunicationService.callModuleRestMethodJSON(assay.module.baseUrl /* consumer */, callUrl);
 
             def collection = []
             json.each { jason ->
@@ -531,8 +531,8 @@ class VisualizeController {
 
             def callUrl
             try {
-                callUrl = assay.module.url + "/rest/getMeasurementData"
-                def json = moduleCommunicationService.callModuleMethod(assay.module.url, callUrl, urlVars, "POST");
+                callUrl = assay.module.baseUrl + "/rest/getMeasurementData"
+                def json = moduleCommunicationService.callModuleMethod(assay.module.baseUrl, callUrl, urlVars, "POST");
 
                 if (json) {
                     // First element contains sampletokens
@@ -1514,12 +1514,10 @@ class VisualizeController {
                     def callback = domainObjectCallback(parsedField.type)
                     // Can the field be found in the domainFields as well? If so, treat it as a template field, so that dates and times can be properly rendered in a human-readable fashion
 
-                    if (callback.metaClass.methods*.name.contains("giveDomainFields") && callback?.giveDomainFields()?.name?.contains(parsedField.name.toString())) {
+                    if (callback.domainFields && callback?.domainFields?.name?.contains(parsedField.name.toString())) {
                         // Use the associated templateField to determine the field type
                         return determineCategoryFromTemplateField(
-                                callback?.giveDomainFields()[
-                                        callback?.giveDomainFields().name.indexOf(parsedField.name.toString())
-                                        ]
+                                callback?.domainFields.find { it.name.equals(parsedField.name.toString()) }
                         )
                     }
                     // Apparently it is not a templatefield as well as a memberclass

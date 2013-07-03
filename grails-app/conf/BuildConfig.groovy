@@ -30,19 +30,19 @@ grails.project.dependency.resolution = {
 	    mavenRepo "http://ontocat.sourceforge.net/maven/repo"
 
 		// other maven repo's
-	    mavenRepo "http://nexus.nmcdsp.org/content/repositories/releases"
-	    mavenRepo "http://repository.springsource.com/maven/bundles/release"
-        mavenRepo "http://repository.springsource.com/maven/bundles/external"
-        mavenRepo "http://repository.springsource.com/maven/libraries/release"
-        mavenRepo "http://repository.springsource.com/maven/libraries/external"
+	    mavenRepo "http://nexus.dbnp.org/content/repositories/releases"
+	    //mavenRepo "http://repository.springsource.com/maven/bundles/release"
+        //mavenRepo "http://repository.springsource.com/maven/bundles/external"
+        //mavenRepo "http://repository.springsource.com/maven/libraries/release"
+        //mavenRepo "http://repository.springsource.com/maven/libraries/external"
 
 	    // Repository for ISATAB tools
-	    mavenRepo "http://frog.oerc.ox.ac.uk:8080/nexus-2.1.2/content/repositories/releases"
+	    //mavenRepo "http://frog.oerc.ox.ac.uk:8080/nexus-2.1.2/content/repositories/releases"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.5'
-		runtime 'postgresql:postgresql:9.1-901.jdbc3'
+		runtime 'postgresql:postgresql:9.1-901.jdbc4'
 		compile 'org.apache.poi:poi:3.7'
 		compile 'org.apache.poi:poi-ooxml:3.7'
 		compile 'org.apache.poi:poi-ooxml-schemas:3.7'
@@ -59,12 +59,14 @@ grails.project.dependency.resolution = {
 		    transitive = false
 	    } */
 		// dependency for ISATAB schema
-		compile 'net.sourceforge.collections:collections-generic:4.01'
+		//compile 'net.sourceforge.collections:collections-generic:4.01'
 
 	    // we seem to be needing XStream in some cases
 	    compile("com.thoughtworks.xstream:xstream:1.3.1")
 
 	    //runtime 'hsqldb:hsqldb:1.8.0.10'
+
+        compile "org.grails:grails-webflow:$grailsVersion"
     }
 	plugins {
 
@@ -74,35 +76,35 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-                ":hibernate:$grailsVersion",
-                ":jquery:latest.integration",
+            ":dbxp-base:0.1.2.5",
+            ":dbxp-sam:0.9.5.8",
 
-                ":grom:latest.integration",
+            ":hibernate:$grailsVersion",
 
-                ":webflow:2.0.0",
-                ":ajaxflow:latest.integration",
+            ":jquery:latest.integration",
+            ':jquery-ui:latest.integration',
 
-                ":spring-security-core:1.2.7.3",
+            ":resources:latest.integration",
+            ":spring-security-core:1.2.7.3",
 
-                ":gdt:0.3.7.3",
-
-                ":famfamfam:1.0.1",
-
-                ":mail:1.0",
-
-//                ":grails-melody:1.13",
-                ":trackr:0.7.3",
-
-                ":quartz:1.0-RC2"
+            ":famfamfam:1.0.1",
+            ":mail:1.0.1",
+            ":quartz:1.0-RC5"
         )
 
-        compile(":gdtimporter:0.5.6.1"){transitive = false}
+        compile(":gdtimporter:0.5.6.6"){transitive = false}
 
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
-            compile ":console:1.2"
+            compile(":console:1.2",
+                    ":trackr:0.7.3",
+                    ":grom:latest.integration"
+            )
         }
 
+        compile ':webflow:2.0.0', {
+            exclude 'grails-webflow'
+        }
 
         // add { transative = false } to ignore dependency transition
 
@@ -111,9 +113,10 @@ grails.project.dependency.resolution = {
 }
 
 //grails.plugin.location.'grom' = '../grom'
-//grails.plugin.location.'grom' = '../../4np/grails-grom'
 //grails.plugin.location.'ajaxflow' = '../ajaxflow'
-//grails.plugin.location.'ajaxflow' = '../../4np/grails-ajaxflow'
-//grails.plugin.location.'gdt' = '../GDT'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
 //grails.plugin.location.'gdtimporter' = '../GDTImporter'
+//grails.plugin.location.'dbxp-base' = '../dbxpBase'
+//grails.plugin.location.'spring-security-core' = '../grails-spring-security-core'
+//grails.plugin.location.'dbxpSam' = '../SAM'
+//grails.plugin.location.'dbxp-base' = '../dbxpBase'

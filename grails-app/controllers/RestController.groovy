@@ -470,7 +470,7 @@ class RestController {
 
 		// Create data for all assays
 		assays.each{ assay ->
-			if (assay.module?.url && assay.module.url.equals(params.moduleURL)) {
+			if (assay.module?.baseUrl && assay.module.baseUrl.equals(params.moduleURL)) {
 				if(assay) {
 					def map = [assayToken : assay.UUID]
 					assay.giveFields().each { field ->

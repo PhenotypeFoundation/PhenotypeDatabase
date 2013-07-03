@@ -427,29 +427,29 @@ class AdvancedQueryController {
 			}
 		}
 
-		// Loop through all modules and check which fields are searchable
-		// Right now, we just combine the results for different entities
-		AssayModule.list().each { module ->
-			def callUrl = module.url + '/rest/getQueryableFields'
-			try {
-				def json = moduleCommunicationService.callModuleMethod( module.url, callUrl );
-				def moduleFields = [];
-				entitiesToSearchFor.each { entity ->
-					if( json[ entity.key ] ) {
-						json[ entity.key ].each { field ->
-							moduleFields << field.toString();
-						}
-					}
-				}
+        Study.giveReadableStudies(authenticationService.getLoggedInUser()).each { study ->
 
-				// Remove 'module' from module name
-				def moduleName = module.name.replace( 'module', '' ).trim()
+            def callUrl = ""
 
-				fields[ moduleName ] = moduleFields.unique() + '*';
-			} catch( Exception e ) {
-				log.error( "Error while retrieving queryable fields from " + module.name + ": " + e.getMessage() )
-			}
-		}
+            study.assays.each { assay ->
+                def urlVars = "assayToken=" + assay.UUID
+                try {
+                    callUrl = "" + assay.module.baseUrl + "/rest/getMeasurementMetaData/query?" + urlVars
+                    def json = moduleCommunicationService.callModuleRestMethodJSON(assay.module.baseUrl /* consumer */, callUrl);
+
+                    def collection = []
+                    json.each { jason ->
+                        collection.add(jason.name)
+                    }
+
+                    fields [ assay.module ] = collection
+
+                } catch (Exception e) {
+                    //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
+                    log.error("Error while retrieving queryable fields from " + module.name + "'s assay " +assay.name + ": " + e.getMessage())
+                }
+            }
+        }
 
 		return fields;
 	}
@@ -761,14 +761,14 @@ class AdvancedQueryController {
 			// Remove 'module' from module name
 			def moduleName = module.name.replace( 'module', '' ).trim()
 			try {
-				def callUrl = module.url + "/rest/getPossibleActions?entity=" + s.entity
-				def json = moduleCommunicationService.callModuleRestMethodJSON( module.url, callUrl );
+				def callUrl = module.baseUrl + "/rest/getPossibleActions?entity=" + s.entity
+				def json = moduleCommunicationService.callModuleRestMethodJSON( module.baseUrl, callUrl );
 
 				// Check whether the entity is present in the return value
 				if( json[ s.entity ] ) {
 					json[ s.entity ].each { action ->
-						def baseUrl = action.url ?: module.url + "/action/" + action.name
-						def paramString = s.filterResults(selectedTokens).collect { "tokens=" + it.giveUUID() }.join( "&" )
+						def baseUrl = action.url ?: module.baseUrl + "/action/" + action.name
+						def paramString = s.filterResults(selectedTokens).collect { "tokens=" + it.UUID }.join( "&" )
 
 						def url = baseUrl;
 

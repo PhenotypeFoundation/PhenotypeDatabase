@@ -24,6 +24,8 @@ grails.config.locations = [
 	"file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.properties"
 ]
 
+grails.config.locations.each { println "Reading configuration from ${it}" }
+
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
 grails.mime.types = [html: ['text/html', 'application/xhtml+xml'],
@@ -118,6 +120,7 @@ graphviz {
 // jquery plugin
 grails.views.javascript.library = "jquery"
 
+
 // Needed for the Spring Security Core plugin:
 grails.plugins.springsecurity.userLookup.userDomainClassName = 'dbnp.authentication.SecUser'
 grails.plugins.springsecurity.userLookup.authorityJoinClassName = 'dbnp.authentication.SecUserSecRole'
@@ -128,34 +131,15 @@ grails.plugins.springsecurity.dao.reflectionSaltSourceProperty = 'username' // U
 grails.plugins.springsecurity.securityConfigType = grails.plugins.springsecurity.SecurityConfigType.Annotation
 grails.plugins.springsecurity.successHandler.targetUrlParameter = 'spring-security-redirect'
 
+
 // Spring Security configuration
 grails.plugins.springsecurity.useBasicAuth = true
 grails.plugins.springsecurity.basic.realmName = "Authentication Required"
 grails.plugins.springsecurity.useSessionFixationPrevention = true
 grails.plugins.springsecurity.filterChain.chainMap = [
-	'/rest/hello': 'JOINED_FILTERS,-exceptionTranslationFilter',
-    '/api/authenticate': 'JOINED_FILTERS,-exceptionTranslationFilter',
-	'/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter'
-]
-
-// Needed for the (copy of) the Spring Security UI plugin
-grails.mail.default.from = 'gscf@dbnp.org'
-grails.plugins.springsecurity.ui.forgotPassword.emailFrom = 'me@example.com'
-grails.plugins.springsecurity.ui.forgotPassword.emailSubject = 'Password reset GSCF'
-
-// Make sure the different controllers provided by springsecurity.ui are only accessible by administrators
-// NB: the RegisterController is used for forgotten passwords. It should be accessible by anyone
-grails.plugins.springsecurity.controllerAnnotations.staticRules = [
-	'/user/**': ['ROLE_ADMIN'],
-	'/role/**': ['ROLE_ADMIN'],
-	'/aclclass/**': ['ROLE_ADMIN'],
-	'/aclentry/**': ['ROLE_ADMIN'],
-	'/aclobjectidentity/**': ['ROLE_ADMIN'],
-	'/aclsid/**': ['ROLE_ADMIN'],
-	'/persistentlogin/**': ['ROLE_ADMIN'],
-	'/registrationcode/**': ['ROLE_ADMIN'],
-	'/requestmap/**': ['ROLE_ADMIN'],
-	'/securityinfo/**': ['ROLE_ADMIN']
+        '/rest/hello': 'JOINED_FILTERS,-exceptionTranslationFilter',
+        '/api/authenticate': 'JOINED_FILTERS,-exceptionTranslationFilter',
+        '/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter'
 ]
 
 // Temporary directory to upload files to.
@@ -186,3 +170,30 @@ application.template.admin.email = "me@example.com"
 trackr.path = "/tmp/trackr/"
 trackr.prefix = "gscf.${grails.util.GrailsUtil.environment}."
 
+// SAM Configuration
+
+// Temporary directory to upload files to.
+// If the directory is given relative (e.g. 'fileuploads/temp'), it is taken relative to the web-app directory
+// Otherwise, it should be given as an absolute path (e.g. '/home/user/sequences')
+// The directory should be writable by the webserver user
+if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) {
+    uploads.uploadDir = "webtestfiles"
+} else {
+    uploads.uploadDir = (new File("/tmp")?.canWrite()) ? "/tmp" : "fileuploads"
+}
+
+// Fuzzy matching configuration
+fuzzyMatching.threshold = [
+        'default': 0.2,
+        'featureImporter' : [
+                'feature': 0.4
+        ],
+        'measurementImporter': [
+                'feature' : 0.4,
+                'sample' : 0.2,
+                'timepoint' : 0.2,
+                'subject' : 0.2
+        ]
+]
+
+gscf.baseURL = grails.serverURL

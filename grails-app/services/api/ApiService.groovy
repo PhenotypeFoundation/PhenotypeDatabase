@@ -28,7 +28,7 @@ class ApiService implements Serializable, ApplicationContextAware {
     def moduleCommunicationService
 	def gdtService
 	def apiService
-
+    def grailsApplication
     // transactional
     static transactional = false
 
@@ -135,11 +135,18 @@ class ApiService implements Serializable, ApplicationContextAware {
             }
 
             // add token
-	        if (it.respondsTo('giveUUID')) {
+	        if (it.UUID) {
                 // some domain methods implement giveUUID
 		        // (and this has system wide been implemented
 		        //  in GDT 1.3.1)...
-                item['token'] = it.giveUUID()
+                item['token'] = it.UUID
+
+            if(it instanceof Sample) {
+                item['subject'] = it.parentSubject.UUID
+                item['samplingEvent'] = it.parentEvent.UUID
+                item['eventGroup'] = it.parentEventGroup.UUID
+            }
+
             } else {
                 // and others don't at all, so far
                 // the consistency...
@@ -288,14 +295,14 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def getMeasurements(Assay assay, SecUser user) {
-        def serviceURL = "${assay.module.url}/rest/getMeasurements"
+        def serviceURL = "${assay.module.baseUrl}/rest/getMeasurements"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json
 
         // call module method
         try {
             json = moduleCommunicationService.callModuleMethod(
-                    assay.module.url,
+                    assay.module.baseUrl,
                     serviceURL,
                     serviceArguments,
                     "POST",
@@ -317,14 +324,14 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def getMeasurementData(Assay assay, SecUser user) {
-        def serviceURL = "${assay.module.url}/rest/getMeasurementData"
+        def serviceURL = "${assay.module.baseUrl}/rest/getMeasurementData"
         def serviceArguments = "assayToken=${assay.UUID}&verbose=true"
         def json
 
         // call module method
         try {
             json = moduleCommunicationService.callModuleMethod(
-                    assay.module.url,
+                    assay.module.baseUrl,
                     serviceURL,
                     serviceArguments,
                     "POST",
@@ -346,14 +353,14 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def getMeasurementMetaData(Assay assay, SecUser user) {
-        def serviceURL = "${assay.module.url}/rest/getMeasurementMetaData"
+        def serviceURL = "${assay.module.baseUrl}/rest/getMeasurementMetaData"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json
 
         // call module method
         try {
             json = moduleCommunicationService.callModuleMethod(
-                    assay.module.url,
+                    assay.module.baseUrl,
                     serviceURL,
                     serviceArguments,
                     "POST",

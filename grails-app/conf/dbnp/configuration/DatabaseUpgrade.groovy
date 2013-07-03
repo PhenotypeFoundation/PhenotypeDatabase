@@ -2,6 +2,8 @@ package dbnp.configuration
 
 import dbnp.studycapturing.Study
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.dbnp.gdt.Identity
+import org.dbnp.gdt.TemplateEntity
 
 /**
  * A script to automatically perform database changes
@@ -20,7 +22,7 @@ class DatabaseUpgrade {
 	 *
 	 * @param dataSource
 	 */
-	public static void handleUpgrades(dataSource) {
+	public static void handleUpgrades(dataSource, grailsApplication) {
 		// get a sql instance
 		groovy.sql.Sql sql = new groovy.sql.Sql(dataSource)
 
@@ -38,6 +40,7 @@ class DatabaseUpgrade {
 		alterStudyAndAssay(sql, db)                     // r1594
 		fixDateCreatedAndLastUpdated(sql, db)
 		dropAssayModulePlatform(sql, db)                // r1689
+        addAssayModuleBaseUrl(sql, db)                  // Adds a baseUrl to AssayModule
 		makeStudyTitleAndTemplateNamesUnique(sql, db)   // #401, #406
 		renameGdtMappingColumnIndex(sql, db)            // 'index' column in GdtImporter MappingColumn is a reserved keyword in MySQL
 		// GdtImporter now by default uses 'columnindex' as domain field name
@@ -45,7 +48,7 @@ class DatabaseUpgrade {
 		changeOntologyDescriptionType(sql, db)          // change ontology description type to text
 		changeSpecificUUIDsToGenericUUIDs(sql, db)      // change domain specific UUIDs to generic UUIDs (GDT >= 0.3.1)
 		fixStudyCodes(sql, db)                          // remove spaces from study codes
-		fixSampleUUIDs(sql,db)							// fix missing sample UUIDs in database
+		fixUUIDs(sql,db, grailsApplication)				// fix missing UUIDs in database
 	}
 
 	/**
@@ -335,6 +338,27 @@ class DatabaseUpgrade {
 		}
 	}
 
+    /**
+     * creates the field baseUrl for assay modules
+     * @param sql
+     * @param db
+     */
+    public static void addAssayModuleBaseUrl(sql, db) {
+        // are we running postgreSQL?
+        if (db == "org.postgresql.Driver") {
+            // do we need to perform this update?
+            if (sql.firstRow("SELECT * FROM information_schema.columns WHERE columns.table_name='assay_module' AND 'base_url' NOT IN (SELECT column_name FROM information_schema.columns WHERE table_name ='assay_module' ORDER BY ordinal_position)")) {
+                if (String.metaClass.getMetaMethod("grom")) "performing database upgrade: creating assayModule baseurl".grom()
+
+                try {
+                    sql.execute("ALTER TABLE assay_module ADD COLUMN base_url character varying")
+                } catch (Exception e) {
+                    println "createAssayModuleBaseUrl database upgrade failed: " + e.getMessage()
+                }
+            }
+        }
+    }
+
 	/**
 	 * After adding shibboleth support, a boolean field should be set to false
 	 * @param sql
@@ -509,29 +533,35 @@ class DatabaseUpgrade {
 	}
 
 	/**
-	 * strip spaces from study codes
+	 * make sure all UUID's are defined
 	 * @param sql
 	 * @param db
 	 */
-	public static void fixSampleUUIDs(sql, db) {
-		def grom = false
+	public static void fixUUIDs(sql, db, grailsApplication) {
+        if (db == "org.postgresql.Driver") {
+            grailsApplication.domainClasses.sort { it.naturalName }.each { d ->
+                def grom        = true
+                //naturalName does not work for SAMSample due to capitalized SAM but is not needed in this case.
+                def tableName   = d.naturalName.toLowerCase().replaceAll(' ','_')
 
-		if (db == "org.postgresql.Driver") {
-			sql.eachRow("SELECT * FROM Sample WHERE uuid IS NULL") { row ->
-				def newId = java.util.UUID.randomUUID().toString()
-				if (String.metaClass.getMetaMethod("grom") && !grom) {
-					"generate sample id ${newId}".grom()
-					grom = true
-				}
+                // check if this domain class has a uuid
+                if (sql.firstRow(sprintf("SELECT * FROM information_schema.columns WHERE columns.table_name='%s' AND columns.column_name='uuid'", tableName))) {
+                    // yes, check if this table has empty uuid columns
+                    sql.eachRow(sprintf("SELECT * FROM %s WHERE uuid IS NULL", tableName)) { row ->
+                        // show feedback?
+                        if (grom) {
+                            "fixUUIDs: generating uuid's for ${d.getNaturalName()}"
+                            grom = false
+                        }
 
-				try {
-					// replace spaces with underscores
-					sql.execute(sprintf("UPDATE Sample SET uuid='%s' WHERE id=%d", newId, row.id))
-				} catch (Exception e) {
-					println "fixSampleUUIDs database upgrade failed: " + e.getMessage()
-				}
-			}
+                        // generate a UUID
+                        def newUUID = java.util.UUID.randomUUID().toString()
+
+                        // update record with generated UUID
+                        sql.execute(sprintf("UPDATE %s SET uuid='%s' WHERE id=%d", tableName, newUUID, row.id))
+                    }
+                }
+            }
 		}
 	}
-
 }

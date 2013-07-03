@@ -42,16 +42,16 @@
 						way the user can select items from multiple pages of the paginated result list correctly. See
 						also http://datatables.net/examples/api/form.html and advancedQueryResults.js
 					*/ %>
-					<g:checkBox name="uuid" value="${assayInstance.giveUUID()}" checked="${false}" onClick="updateCheckAll(this);" />
+					<g:checkBox name="uuid" value="${assayInstance.UUID}" checked="${false}" onClick="updateCheckAll(this);" />
 				</td>
 				<td>
 				  	<g:if test="${assayInstance.module.openInFrame == null || assayInstance.module.openInFrame == Boolean.TRUE}">
-			          <jumpbar:link frameSource="${assayInstance.module.url}/assay/showByToken/${assayInstance.giveUUID()}" pageTitle="${assayInstance.module.name}">
+			          <jumpbar:link frameSource="${assayInstance.module.baseUrl}/assay/showByToken/${assayInstance.UUID}" pageTitle="${assayInstance.module.name}">
 						${fieldValue(bean: assayInstance, field: "name")}
 					  </jumpbar:link>
 					 </g:if>
 					 <g:else>
-					 	<g:link url="${assayInstance.module.url}/assay/showByToken/${assayInstance.giveUUID()}">
+					 	<g:link url="${assayInstance.module.baseUrl}/assay/showByToken/${assayInstance.UUID}">
 					 	${fieldValue(bean: assayInstance, field: "name")}
 					 	</g:link>
 					 </g:else>

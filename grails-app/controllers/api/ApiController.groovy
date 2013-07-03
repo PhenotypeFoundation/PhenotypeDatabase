@@ -120,7 +120,8 @@ class ApiController {
             readableStudies.each { study ->
                 // get result data
                 studies[ studies.size() ] = [
-                        'token'                 : study.giveUUID(),
+                        'token'                 : study.UUID,
+                        'code'                  : study.code,
                         'title'                 : study.title,
                         'description'           : study.description,
                         'subjects'              : study.subjects.size(),
@@ -355,14 +356,6 @@ class ApiController {
 
 			def samples = apiService.flattenDomainData( studySamples )
 
-			// add info on parent subjects, events etc.
-			samples.each { item ->
-				Sample sample = studySamples.find { it.UUID == item.token }
-				item['subject'] = sample.parentSubject.giveUUID()
-				item['samplingEvent'] = sample.parentEvent.giveUUID()
-				item['eventGroup'] = sample.parentEventGroup.giveUUID()
-			}
-
 			// define result
 			def result = [
 					'count'     : samples.size(),
@@ -447,7 +440,7 @@ class ApiController {
                 measurementData.each { data ->
                     try {
                         if (!matrix.containsKey(data.sampleToken)) matrix[data.sampleToken] = [:]
-                        matrix[data.sampleToken][data.measurementToken] = data.value
+                        matrix[data.sampleToken][data.measurementName] = data.value
                     } catch (Exception e) {
                         // it seems that some measurement data does not contain a sample token?
                         println "getMeasurementDataForAssay error for data of assay '${assay.name}' (token '${assayToken}', module: '${assay.module.name}'): ${e.getMessage()}"
@@ -884,7 +877,7 @@ class ApiController {
 							def result = [
 								'success'   : true,
 								'entityType': entityType,
-								'token'     : entityInstance.giveUUID()
+								'token'     : entityInstance.UUID
 							]
 
 							if (params.containsKey('callback')) {

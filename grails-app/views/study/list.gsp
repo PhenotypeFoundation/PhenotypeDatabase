@@ -45,8 +45,8 @@
 							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> 
 						</td>
 						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
-							<g:link class="edit linktips" title="Import straightforward study data into this study" controller="simpleWizard" action="index" id="${studyInstance?.id}">
-								<img src='${fam.icon(name: 'pencil')}' border="0" alt="Import a study with a straightforward design" /></g:link>
+							<g:link class="edit linktips" title="Edit this study with simple study wizard" controller="simpleWizard" action="index" id="${studyInstance?.id}">
+								<img src='${fam.icon(name: 'pencil')}' border="0" alt="Edit this study with simple study wizard" /></g:link>
 							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else>
 						</td>
 						<td>${fieldValue(bean: studyInstance, field: "code")}</td>

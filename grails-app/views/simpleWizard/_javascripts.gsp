@@ -55,7 +55,7 @@
 		$(function() {
 			// mark error fields
 			<g:each in="${flash.validationErrors}" var="error">
-				var element = $("input:[name='${error.key}'], input:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], select:[name='${error.key}'], select:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], textarea:[name='${error.key}'], textarea:[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}']");
+                var element = $("input[name='${error.key}'], input[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], select[name='${error.key}'], select[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}'], textarea[name='${error.key}'], textarea[name='${error.key.toLowerCase().replaceAll("([^a-z0-9])","_")}']");
 				element.parent().parent().removeClass('required');
 				element.parent().parent().addClass('error');
 			</g:each>
