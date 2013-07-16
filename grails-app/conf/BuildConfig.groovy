@@ -92,7 +92,7 @@ grails.project.dependency.resolution = {
             ":quartz:1.0-RC5"
         )
 
-        compile(":gdtimporter:0.5.6.6"){transitive = false}
+        compile(":gdtimporter:0.5.6.7"){transitive = false}
 
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
