@@ -83,7 +83,6 @@
 						<af:templateSelect name="template_${sample.getIdentifier()}" entity="${dbnp.studycapturing.Sample}" value="${sample.template}" tableEditorChangeEvent="switchTemplate(element);" addDummy="true" />
 					</div>
 					<div class="column">${sample.name}</div>
-					<af:templateColumns name="sample_${sample.getIdentifier()}" class="column" id="1" entity="${sample}"/>
 				</div>
 			</g:if>
 		</g:each>
