@@ -26,7 +26,7 @@
 			<table>
 				<thead>
 				<tr>
-					<th colspan="4"></th>
+					<th colspan="3"></th>
 					<g:sortableColumn property="code" title="${message(code: 'study.code.label', default: 'Code')}"/>
 					<th>Title</th>
 					<th>Subjects</th>
@@ -44,11 +44,11 @@
 								<img src='${fam.icon(name: 'wand')}' border="0" alt="Edit this study" /></g:link>
 							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> 
 						</td>
-						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
-							<g:link class="edit linktips" title="Edit this study with simple study wizard" controller="simpleWizard" action="index" id="${studyInstance?.id}">
-								<img src='${fam.icon(name: 'pencil')}' border="0" alt="Edit this study with simple study wizard" /></g:link>
+                        <%--<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
+                            <g:link class="edit linktips" title="Edit this study with simple study wizard" controller="simpleWizard" action="index" id="${studyInstance?.id}">
+                            <img src='${fam.icon(name: 'pencil')}' border="0" alt="Edit this study with simple study wizard" /></g:link>
 							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else>
-						</td>
+						</td>                                                                                                       --%>
 						<td>${fieldValue(bean: studyInstance, field: "code")}</td>
 						<td>
 							${fieldValue(bean: studyInstance, field: "title")}
@@ -92,7 +92,7 @@
 		<div class="buttons">
 			<sec:ifLoggedIn>
 				<span class="button"><g:link class="create linktips" title="Create a new study" controller="studyWizard" params="[jump:'create']"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
-				<span class="button"><g:link class="create linktips" title="Import a new study with a straightforward design" controller="simpleWizard">Simple Study Import</g:link></span>
+				<%--<span class="button"><g:link class="create linktips" title="Import a new study with a straightforward design" controller="simpleWizard">Simple Study Import</g:link></span>--%>
 				<span class="button"><a class="compare linktips" title="Compare the selected studies" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span>
 			</sec:ifLoggedIn>
 		</div>
