@@ -1939,7 +1939,7 @@ class StudyWizardController {
 			// has the template changed?
 			def templateName = params.get('template_' + sample.getIdentifier())
 			if (templateName && sample.template?.name != templateName) {
-				sample.template = Template.findAllByName(params.get(templateName)).find { it.entity == dbnp.studycapturing.Sample }
+                sample.template = Template.findAllByName(templateName).find { it.entity == dbnp.studycapturing.Sample }
 			}
 
 			// validate sample
