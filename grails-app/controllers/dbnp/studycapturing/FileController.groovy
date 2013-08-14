@@ -16,16 +16,18 @@ package dbnp.studycapturing
 
 import org.dbnp.gdt.FileService
 import grails.plugins.springsecurity.Secured
+import org.dbnp.gdt.TemplateFileField
 
-@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class FileController {
-    def fileService;
+    def fileService
+    def authenticationService
 
     /**
      * Returns the file that is asked for or a 404 error if the file doesn't exist
      */
     def get = {
         def fileExists;
+        def studies = Study.giveReadableStudies(authenticationService.getLoggedInUser())
 
 		// Filename is not url decoded for some reason
 		def coder = new org.apache.commons.codec.net.URLCodec()
@@ -37,31 +39,51 @@ class FileController {
 			render "Invalid filename given";
 			return;
 		}
-		
-        try {
-            fileExists = fileService.fileExists( filename )
-        } catch( FileNotFoundException e ) {
-            fileExists = false;
+
+        def fileMap = [:]
+        studies.each() { study ->
+            study.assays.each() { assay ->
+                assay.giveFields().each() { field ->
+                    if (field.type.toString().equals('FILE')) {
+                        fileMap.put(assay.getFieldValue(field.name), study.id)
+                    }
+                }
+            }
         }
-        if( !filename || !fileExists ) {
-            response.status = 404;
-            render( "File not found" );
+
+        if (!studies.id.contains(fileMap.get(filename))) {
+            response.status = 500;
+            render "Not authorized to acces file";
             return;
         }
-        def file = fileService.get( filename );
 
-        //response.setContentType("application/octet-stream")
-        //response.setContentType( "image/jpeg" );
+        else {
+            try {
+                fileExists = fileService.fileExists( filename )
+            } catch( FileNotFoundException e ) {
+                fileExists = false;
+            }
+            if( !filename || !fileExists ) {
+                response.status = 404;
+                render( "File not found" );
+                return;
+            }
+            def file = fileService.get( filename );
 
-        // Return the file
-		response.setHeader "Content-disposition", "attachment; filename=${filename}"
-        response.outputStream << file.newInputStream()
-		response.outputStream.flush()
+            //response.setContentType("application/octet-stream")
+            //response.setContentType( "image/jpeg" );
+
+            // Return the file
+            response.setHeader "Content-disposition", "attachment; filename=${filename}"
+            response.outputStream << file.newInputStream()
+            response.outputStream.flush()
+        }
     }
 
     /**
      * Uploads a file and returns the filename under which the file is saved
      */
+    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
     def upload = {
         def file = request.getFile( params.get( 'field' ) );
 
