@@ -45,7 +45,7 @@
           <td>
               <g:set var="n" value="${1}" />
               <g:each in="${assay?.templateFileFields}" var="file">
-                  <g:link url="${grailsApplication.config.gscf.baseURL+"/file/get/"+file.value}">${"File " + n}</g:link>
+                  <g:link url="${grailsApplication.config.gscf.baseURL+"file/get/"+file.value}">${"File " + n}</g:link>
                   <g:set var="n" value="${i + 1}" />
               </g:each>
           </td>

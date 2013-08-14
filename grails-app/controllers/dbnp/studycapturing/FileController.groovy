@@ -51,33 +51,32 @@ class FileController {
             }
         }
 
+        try {
+            fileExists = fileService.fileExists( filename )
+        } catch( FileNotFoundException e ) {
+            fileExists = false;
+        }
+        if( !filename || !fileExists ) {
+            response.status = 404;
+            render( "File not found" );
+            return
+        }
+
         if (!studies.id.contains(fileMap.get(filename))) {
             response.status = 500;
             render "Not authorized to acces file";
-            return;
+            return
         }
 
-        else {
-            try {
-                fileExists = fileService.fileExists( filename )
-            } catch( FileNotFoundException e ) {
-                fileExists = false;
-            }
-            if( !filename || !fileExists ) {
-                response.status = 404;
-                render( "File not found" );
-                return;
-            }
-            def file = fileService.get( filename );
+        def file = fileService.get( filename );
 
-            //response.setContentType("application/octet-stream")
-            //response.setContentType( "image/jpeg" );
+        //response.setContentType("application/octet-stream")
+        //response.setContentType( "image/jpeg" );
 
-            // Return the file
-            response.setHeader "Content-disposition", "attachment; filename=${filename}"
-            response.outputStream << file.newInputStream()
-            response.outputStream.flush()
-        }
+        // Return the file
+        response.setHeader "Content-disposition", "attachment; filename=${filename}"
+        response.outputStream << file.newInputStream()
+        response.outputStream.flush()
     }
 
     /**
