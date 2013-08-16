@@ -446,7 +446,7 @@ class AdvancedQueryController {
 
                 } catch (Exception e) {
                     //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
-                    log.error("Error while retrieving queryable fields from " + module.name + "'s assay " +assay.name + ": " + e.getMessage())
+                    log.error("Error while retrieving queryable fields from " +assay.module.name + "'s assay " +assay.name + ": " + e.getMessage())
                 }
             }
         }

@@ -4,7 +4,6 @@
 <g:else>
   <g:each in="${studyList}" var="study" status="i">
 	<div style="margin: 10px; ">
-	  <div class="eventtitles" id="eventtitles-${i}"></div>
 	  <div class="eventstimeline" id="eventstimeline-${i}"></div>
 	</div>
   </g:each>

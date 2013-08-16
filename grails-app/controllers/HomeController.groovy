@@ -5,6 +5,10 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import grails.converters.JSON
 import org.dbnp.gdt.Template
 
+import dbnp.authentication.SecRole
+import dbnp.authentication.SecUser
+import dbnp.configuration.*
+
 /**
  * Home Controler
  *
@@ -202,4 +206,5 @@ class HomeController {
 
 		redirect(controller:"home")
 	}
+
 }

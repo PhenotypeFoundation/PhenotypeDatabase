@@ -138,7 +138,7 @@ class WizardTagLib extends GdtTagLib {
 		);
 		out << '</form>';
 		out << '<script type="text/javascript">';
-		out << '  var onSelect = function( chooserObject, inputElement, event, ui ) { selectPubMedAdd( chooserObject, inputElement, event, ui ); enableButton( ".' + attrs.name + '_publication_dialog", "Add", true ); };'
+		out << '  var onSelect = function( chooserObject, inputElement, event, ui ) { selectPubMedAdd( chooserObject, inputElement, event, ui ); StudyEdit.dialogs.enableButton( ".' + attrs.name + '_publication_dialog", "Add", true ); };'
 		out << '  iField = $( "#' + attrs.get('name') + '" );';
 		out << '  new PublicationChooser().initAutocomplete( iField, { "select" : onSelect } );';
 		out << '</script>';
@@ -166,7 +166,7 @@ class WizardTagLib extends GdtTagLib {
 		if (attrs.get('value') && attrs.get('value').size() > 0) {
 			def i = 0;
 			attrs.get('value').each {
-				out << 'showPublication( ';
+				out << 'StudyEdit.publications.show( ';
 				out << '  "' + attrs.name + '",';
 				out << '  ' + it.id + ',';
 				out << '  "' + it.title + '",';
@@ -197,7 +197,7 @@ class WizardTagLib extends GdtTagLib {
 			out << publicationDialog( attrs, body );
 		}
 	
-		out << '<input class="addButton" type="button" onClick="openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">';
+		out << '<input class="addButton" type="button" onClick="StudyEdit.publications.openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">';
 	}
 	
 	// Show the add publications dialog
@@ -208,7 +208,7 @@ class WizardTagLib extends GdtTagLib {
 		out << publicationSelect(attrs, body);
 		out << '</div>';
 		out << '<script type="text/javascript">';
-		out << '  createPublicationDialog( "' + attrs.name + '" );'
+		out << '  StudyEdit.publications.createPublicationDialog( "' + attrs.name + '" );'
 		out << '</script>';
 	}
 	
@@ -275,7 +275,7 @@ class WizardTagLib extends GdtTagLib {
 		if (attrs.get('value') && attrs.get('value').size() > 0) {
 			def i = 0;
 			attrs.get('value').each {
-				out << 'showContact( ';
+				out << 'StudyEdit.contacts.show( ';
 				out << '  "' + attrs.name + '",';
 				out << '  "' + it.person.id + '-' + it.role.id + '",';
 				out << '  "' + it.person.lastName + ', ' + it.person.firstName + (it.person.prefix ? ' ' + it.person.prefix : '') + '",';
@@ -299,7 +299,7 @@ class WizardTagLib extends GdtTagLib {
 	}
 
 	def _contactAddButtonAddition = { attrs, body ->
-		out << '<input type="button" onClick="if( addContact ( \'' + attrs.name + '\' ) ) { $(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show(); }" value="Add">';
+		out << '<input type="button" onClick="if( StudyEdit.contacts.add ( \'' + attrs.name + '\' ) ) { $(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show(); }" value="Add">';
 		out << '<input type="button" onClick="$(\'#' + attrs.name + '_dialog\').hide(); $( \'#' + attrs.name + '_dialogButton\' ).show();" value="Close">';
 	}
 
@@ -412,7 +412,7 @@ class WizardTagLib extends GdtTagLib {
 		if (attrs.get('value') && attrs.get('value').size() > 0) {
 			def i = 0;
 			attrs.get('value').each {
-				out << 'showUser( ';
+				out << 'StudyEdit.users.show( ';
 				out << '  "' + attrs.name + '",';
 				out << '  ' + it.id + ',';
 				out << '  "' + it.username + '",';
@@ -441,7 +441,7 @@ class WizardTagLib extends GdtTagLib {
 			out << userDialog( attrs, body );
 		}
 
-		out << '<input class="addButton" type="button" onClick="openUserDialog(\'' + attrs.name + '\' );" value="Add User">';
+		out << '<input class="addButton" type="button" onClick="StudyEdit.users.openUserDialog(\'' + attrs.name + '\' );" value="Add User">';
 	}
 	
 	def userDialog = { attrs, body ->
@@ -451,7 +451,7 @@ class WizardTagLib extends GdtTagLib {
 		out << userSelect(attrs, body);
 		out << '</div>';
 		out << '<script type="text/javascript">';
-		out << '  createUserDialog( "' + attrs.name + '" );'
+		out << '  StudyEdit.users.createUserDialog( "' + attrs.name + '" );'
 		out << '</script>';
 	}
 

@@ -1,0 +1,7 @@
+div.templatedDatatable table { border-width: 0; border-spacing: 2px; }
+.templatedDatatable th { white-space: nowrap; }
+.templatedDatatable .group { font-weight: bold; background-color: #f1f1f1; }
+.templatedDatatable .templatename td { padding-top: 8px; padding-bottom: 8px; font-size: 10pt; border-bottom: 1px dashed #A19B9E; }
+.templatedDatatable .templatefields td { padding-bottom: 5px; padding-top: 5px; border-top-width: 0; }
+.templatedDatatable .dataTables_paginate { margin: 8px 0 14px 0; }
+.templatedDatatable .dataTables_info { margin-top: 12px; font-size: 9pt; }

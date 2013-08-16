@@ -166,6 +166,15 @@ gdtImporter.parentEntityClassName = "dbnp.studycapturing.Study"
 application.title = "Generic Study Capture Framework"
 application.template.admin.email = "me@example.com"
 
+
+grails.resources.modules = {
+	overrides {
+		'jquery-theme' {
+			resource id:'theme', url:'/css/cupertino/jquery-ui-1.8.23.custom.css'
+		}
+	}
+}
+
 // ****** trackR Config ******
 trackr.path = "/tmp/trackr/"
 trackr.prefix = "gscf.${grails.util.GrailsUtil.environment}."

@@ -4,15 +4,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<meta name="layout" content="main"/>
 	<title>Query database</title>
-	<g:if env="development">
-	<link rel="stylesheet" href="<g:resource dir="css" file="advancedQuery.css" />" type="text/css"/>
-	<link rel="stylesheet" href="<g:resource dir="css" file="buttons.css" />" type="text/css"/>
-	<g:javascript src="advancedQuery.js" />
-	</g:if><g:else>
-	<link rel="stylesheet" href="<g:resource dir="css" file="advancedQuery.min.css" />" type="text/css"/>
-	<link rel="stylesheet" href="<g:resource dir="css" file="buttons.min.css" />" type="text/css"/>
-	<g:javascript src="advancedQuery.min.js" />
-	</g:else>
+	<r:require module="advancedQuery" />
 	<script type="text/javascript">
 		// Make a list of fields to search in
 		var queryableFields = [

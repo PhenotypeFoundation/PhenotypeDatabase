@@ -1,0 +1,167 @@
+/** GENERAL **/
+.studyEdit { font-size: 11px; }
+.studyEdit .options { border-top: 1px solid #ccc; }
+.studyEdit h1 { border-bottom: 1px solid #006dba; }
+
+.studyEdit .steps { font-size: 15px; float: right; color: #ccc;}
+.studyEdit .steps a { display: inline-block; margin: 0 6px;  }
+.studyEdit .steps .active { color: #006dba; font-weight: bold;  }
+#content .studyEdit .steps a.disabled { color: #ccc; }
+
+/** STUDY PAGE **/
+.studyProperties input, .studyProperties select, .studyProperties textarea { width: 220px; }
+.studyEdit .tableEditor input, .studyEdit .tableEditor  select { width: 100px; }
+.studyEdit .element .input .addButton { margin-left: 0px; }
+
+div .studyEdit .description { width: 170px; }
+.studyEdit .error, .studyEdit .required { background-position: 150px 2px; }
+#contacts .required { background-position: 2px 4px; padding-left: 20px; }
+.samplespage td.required { background-position: 160px 6px; }
+
+/** Meta boxes **/
+.studyEdit div.meta { float: right; display: block; position: relative; width: 280px; }
+.studyEdit div.meta div.component { margin: 0 0 10px 0; border: 1px solid #555; display: block; }
+.studyEdit div.component h2 { margin: 0; padding: 5px 5px; background-color: #F8FEFF;  font-weight: bold; }
+.studyEdit div.component div.content { margin: 5px; }
+
+/** default selects for publications, contacts etc. should be changed to fit the simpleWizard layout **/
+.studyEdit div.meta .element .input input { vertical-align: middle; width: 120px; }
+.studyEdit div.meta .description { display: none; }
+
+.studyEdit div ul.publication_list, 
+.studyEdit div ul.contact_list { margin: 0; } 
+.studyEdit div ul.user_list { margin: -22px 0 0 100px; }
+
+/* template descriptions */
+.templatedescription {  display: block; padding: 2px 4px; border: 1px solid #4CAAED; /* #006DBA; */ }
+.studypage .templatedescription, .assayspage .templatedescription{ width: 220px; margin: 5px 0 5px 174px; }
+.samplespage .templatedescription { width: 300px; }
+
+/* .studyEdit .publication_list li .authors { overflow: hidden; max-height: 8px; text-overflow:ellipsis; } */
+
+.studyEdit #contacts_dialog { margin: 4px; background-color: #f3f3f3; }
+.studyEdit #contacts_dialog select { width: 200px; }
+
+.studyEdit div#authorization .description { display: inline-block; *display: inline; width: 100px; margin-top: 6px; }
+
+/** START :: study page upload buttons **/
+div .upload_button {
+    display: inline; border: 1px solid #006dba; padding: 4px 8px; cursor: pointer; line-height: 26px;
+}
+
+div .upload_info {
+    display: inline; color: #006dba;
+    margin-left: 5px; 
+}
+
+div .upload_info a {
+	text-decoration: underline;
+}
+
+div .upload_del img {
+	border-width: 0;
+	padding-left: 6px; 
+}
+
+div .upload_del {
+	display: none;
+}
+
+div .upload_info .error {
+    color: red;
+}
+/** END :: study page upload buttons **/
+
+
+/** START :: study page publication, contact and users lists **/
+div ul.publication_list, div ul.contact_list, div ul.user_list {
+    list-style-type: none;
+    margin: -10px 0 0 255px;
+    padding: 0;
+}
+div ul.publication_list li, div ul.contact_list li, div ul.user_list li {
+    margin-left: 0px;
+    padding: 4px 6px;
+}
+div li.even {
+    background-color: #F3F3F3;
+}
+div li.odd {
+    background-color: #FAFAFA;
+}
+div li .delete_button {
+	float: right;
+	margin-left: 10px;
+	cursor: pointer;
+}
+div ul.publication_list li .authors {
+	font-size: 10px;
+	margin-top: 3px;
+	color: #333;
+}
+div ul.contact_list li .person {
+	display: inline;
+}
+div ul.contact_list li .role {
+	color: #000099;
+	display: inline;
+	margin-left: 5px;
+}
+div ul.contact_list li .role:before {
+	content: ' / ';
+	color: #000099;
+}
+div .contacts_dialog {
+	margin: 5px 0;
+}
+/** END :: study page publication, contact and users lists **/
+
+/** Study design styles **/
+
+.subjectsTable th { white-space: nowrap;}
+table.dataTable td.dataTables_empty { text-align: left; }
+
+.addToTimeline ul {
+	list-style-type: none;
+	margin-left: 0;
+	padding-left: 0;
+}
+
+.addToTimeline li {
+    color: #1A1A1A;
+    border-color: #97B0F8;
+    background-color: #D5DDF6;
+    padding: 5px;
+    margin: 5px 0;
+    
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 2px;
+    -moz-border-radius: 2px;  /* For Firefox 3.6 and older */
+}
+
+.addToTimeline li.add {
+	border-color: #97F8B0; 
+	background: #D5F6DD url(../plugins/famfamfam-1.0.1/images/icons/add.png) no-repeat 4px 50%;
+	padding-left: 24px;
+	cursor: pointer;
+}
+
+.addToTimeline .name { font-weight: bold;  }
+.eventgroups .events { display: inline-block; margin-left: 10px; }
+.addToTimeline .delete { float: right; }
+ .ui-draggable-dragging .delete { display: none; }
+ 
+ #eventGroupDialog .addToTimeline { width: 48%; float: left; margin-right: 4%; } 
+ #eventGroupDialog #sampling_events { margin-right: 0; }
+ 
+ #subjectForm { display: none; }
+ .dataTable .editableInput { padding: 0; }
+ .dataTable .changed { background-color: #75FFBD; }
+ .dataTable .invalid { background-color: #FF808E; }
+ .dataTable .saveChanges {
+ 	padding: 5px 10px;
+ 	text-align: left;
+ 	display: none;
+ }
+ .dataTable .saveChanges .saving { display: none; }

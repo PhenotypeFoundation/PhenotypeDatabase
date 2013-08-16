@@ -3,11 +3,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<meta name="layout" content="main"/>
 	<title>Query results</title>
-	<link rel="stylesheet" href="<g:resource dir="css" file="advancedQuery.css" />" type="text/css"/>
-	<link rel="stylesheet" href="<g:resource dir="css" file="buttons.css" />" type="text/css"/>
-	<link rel="stylesheet" href="${resource(dir: 'css/datatables', file: 'demo_table_jui.css')}"/>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.dataTables.min.js')}"></script>
-	<g:javascript src="advancedQueryResults.js" />
+	<r:require module="advancedQuery" />
 </head>
 <body>
 

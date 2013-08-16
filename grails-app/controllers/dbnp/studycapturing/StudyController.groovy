@@ -10,6 +10,7 @@ import grails.converters.JSON
  */
 class StudyController {
     def authenticationService
+	def grailsApplication
     
     //static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
@@ -21,14 +22,23 @@ class StudyController {
      * Shows all studies where the user has access to
      */
     def list = {
-
         def user = authenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
 		def offset = params.offset ? params.int( 'offset' ) : 0
         def studies = Study.giveReadableStudies( user, max, offset );
         [studyInstanceList: studies, studyInstanceTotal: Study.countReadableStudies( user ), loggedInUser: user]
-
     }
+	
+	def json() {
+		def studies = Study.giveReadableStudies( authenticationService.getLoggedInUser() ).collect { study ->
+			[ 
+				id: study.id, 
+				title: study.title 
+			]
+		}
+		
+		render studies as JSON
+	}
 
     /**
      * Shows studies for which the logged in user is the owner
@@ -189,15 +199,38 @@ class StudyController {
     }
 
 	/**
-	 * Creates the javascript for showing the timeline of one or more studies
+	 * Creates the javascript with data for the studies
 	 */
-	def createTimelineBandsJs = {
+	def timelineData = {
 		def studyList = readStudies( params.id );
 
 		if( !studyList )
 			return
 
-		[studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ) ]
+		def timelineGroups = [:]
+		
+		studyList.each { study ->
+			def eventGroups = []
+			study.subjectEventGroups.each { subjectEventGroup ->
+				println "" + subjectEventGroup + " / " + subjectEventGroup.startDate + subjectEventGroup.startDate.time
+				
+				eventGroups << [
+					start: subjectEventGroup.startDate.time,
+					end: subjectEventGroup.endDate.time,
+					content: subjectEventGroup.eventGroup.name,
+					group: subjectEventGroup.subjectGroup.name
+				]
+			}
+			
+			timelineGroups[ study.id ] = [
+				id: study.id,
+				title: study.title,
+				eventGroups: eventGroups
+			]
+		}
+		
+		// Make sure dates are formatted as javascript dates
+		render timelineGroups as JSON
 	}
 
     /**
@@ -266,90 +299,6 @@ class StudyController {
 
             redirect(action: "show", id: studyInstance.id)
         }
-    }
-
-    /**
-     * Gives the events for one eventgroup in JSON format
-     *
-     */
-    def events = {
-        def eventGroupId = Integer.parseInt( params.id );
-        def studyId      = Integer.parseInt( params.study );
-        def eventGroup;
-
-        // eventGroupId == -1 means that the orphaned events should be given
-        if( eventGroupId == -1 ) {
-            def studyInstance = Study.get( studyId )
-            
-            if (studyInstance == null) {
-                flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), studyId])}"
-                redirect(action: "list");
-                return;
-            }
-
-            events = studyInstance.getOrphanEvents();
-        } else {
-            eventGroup = EventGroup.get(params.id)
-
-            if (eventGroup == null) {
-                flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'eventgroup.label', default: 'Eventgroup'), params.id])}"
-                redirect(action: "list");
-                return;
-            }
-            events = eventGroup?.events + eventGroup?.samplingEvents;
-        }
-
-        // This parameter should give the startdate of the study in milliseconds
-        // since 1-1-1970
-        long startDate  = Long.parseLong( params.startDate )
-
-        // Create JSON object
-        def json = [ 'dateTimeFormat': 'iso8601', events: [] ];
-
-        // Add all other events
-        for( event in events ) {
-            def parameters = []
-            for( templateField in event.giveTemplateFields() ) {
-                def value = event.getFieldValue( templateField.name );
-				if( value ) {
-					if( templateField.type == TemplateFieldType.RELTIME )
-						value = new RelTime( value ).toString();
-
-	                def param = templateField.name + " = " + value;
-
-					if( templateField.unit )
-						param += templateField.unit;
-
-                    parameters << param ;
-                }
-            }
-
-			def description = parameters.join( '<br />\n' );
-
-			if( event instanceof SamplingEvent ) {
-				 json.events << [
-					'start':    new Date( startDate + event.startTime * 1000 ),
-					'end':      new Date( startDate + event.startTime * 1000 ),
-					'durationEvent': false,
-					'title': event.template?.name,
-					'description': "SampleTemplate = " + event.sampleTemplate + "<br />\n" + description
-				]
-			} else {
-				 json.events << [
-					'start':    new Date( startDate + event.startTime * 1000 ),
-					'end':      new Date( startDate + event.endTime * 1000 ),
-					'durationEvent': true,
-					'title': event.template?.name,
-					'description': description
-				]
-				
-			}
-        }
-
-		// set output header to json
-		response.contentType = 'application/json'
-
-        render json as JSON
     }
 
     def delete = {

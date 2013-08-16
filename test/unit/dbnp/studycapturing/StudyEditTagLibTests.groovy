@@ -16,7 +16,7 @@ import grails.test.*
  * $Author: work@osx.eu $
  * $Date: 2011-01-21 21:05:36 +0100 (Fri, 21 Jan 2011) $
  */
-class SimpleWizardTagLibTests extends TagLibUnitTestCase {
+class StudyEditTagLibTests extends TagLibUnitTestCase {
     protected void setUp() {
         super.setUp()
     }

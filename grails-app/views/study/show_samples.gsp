@@ -81,8 +81,12 @@
 			</td>
 		  </g:if>
 			<td>${sample.parentSubject?.name}</td>
-			<td><g:if test="${sample.parentEvent}">${sample.parentEvent?.template?.name} at ${sample.parentEvent?.getStartTimeString()}</g:if></td>
-			<td>${sample.parentEventGroup?.name}</td>
+			<td>
+				<g:if test="${sample.parentEvent}">
+					${sample.parentEvent?.event?.template?.name} at ${sample.getSamplingTimeString()}
+				</g:if>
+			</td>
+			<td>${sample.parentSubjectEventGroup.eventGroup?.name}</td>
 		  <g:each in="${sample.giveDomainFields()}" var="field">
 			<td><af:showTemplateField field="${field}" entity="${sample}" /></td>
 		  </g:each>

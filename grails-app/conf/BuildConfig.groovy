@@ -76,7 +76,7 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-            ":dbxp-base:0.1.2.8",
+            //":dbxp-base:0.1.2.8",
             ":dbxp-sam:0.9.6.0",
 
             ":hibernate:$grailsVersion",
@@ -119,4 +119,4 @@ grails.project.dependency.resolution = {
 //grails.plugin.location.'dbxp-base' = '../dbxpBase'
 //grails.plugin.location.'spring-security-core' = '../grails-spring-security-core'
 //grails.plugin.location.'dbxpSam' = '../SAM'
-//grails.plugin.location.'dbxp-base' = '../dbxpBase'
+grails.plugin.location.'dbxp-base' = '../dbxpBase'
