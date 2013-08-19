@@ -31,7 +31,6 @@ class ApiController {
 	 * index closure
 	 */
     def index = {
-        render(view:'index')
     }
 
     /**
