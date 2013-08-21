@@ -14,9 +14,7 @@
  */
 package dbnp.studycapturing
 
-import org.dbnp.gdt.FileService
 import grails.plugins.springsecurity.Secured
-import org.dbnp.gdt.TemplateFileField
 
 class FileController {
     def fileService
@@ -42,12 +40,18 @@ class FileController {
 
         def fileMap = [:]
         studies.each() { study ->
-            study.assays.each() { assay ->
-                assay.giveFields().each() { field ->
-                    if (field.type.toString().equals('FILE')) {
-                        fileMap.put(assay.getFieldValue(field.name), study.id)
-                    }
-                }
+            def studyFiles = []
+
+            studyFiles.addAll(getFileFields(study))
+            studyFiles.addAll(getFileFields(study.subjects))
+            studyFiles.addAll(getFileFields(study.events))
+            studyFiles.addAll(getFileFields(study.samplingEvents))
+            //Files per sample slows down the process significantly and are unlikely to exist
+            //studyFiles.addAll(getFileFields(study.samples))
+            studyFiles.addAll(getFileFields(study.assays))
+
+            studyFiles.each() {
+                fileMap.put(it, study.id)
             }
         }
 
@@ -107,5 +111,14 @@ class FileController {
             response.status = 500;
             render( "" );
         }
+    }
+
+    def getFileFields(Object part) {
+        def fileList = []
+            def fileFields = part.templateFileFields
+            if(fileFields instanceof org.hibernate.collection.PersistentMap) {
+               fileList = fileFields.values()
+            }
+        return fileList
     }
 }
