@@ -356,6 +356,7 @@ class StudyController {
         def studyInstance = Study.get(params.id)
         if (studyInstance) {
             try {
+                studyInstance.clearSAMDependencies();
                 studyInstance.delete(flush: true)
                 flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
                 redirect(action: "list")
