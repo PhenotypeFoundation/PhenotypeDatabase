@@ -43,7 +43,7 @@ class ExampleStudies {
 		def clinicalModule = new AssayModule(
 			name: 'SAM module for clinical data',
 			url: config.modules.sam.url.toString(),
-            baseUrl: config.modules.sam.url.toString(),
+            baseUrl: config.modules.sam.baseurl.toString(),
 			notify: true,
 			openInFrame: false
 		).save(failOnError:true)
@@ -418,9 +418,9 @@ class ExampleStudies {
 
 		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
-			name: 'SAM module for clinical data',
+			name: 'SAM',
 			url: config.modules.sam.url.toString(),
-            baseUrl: config.modules.sam.url.toString()
+            baseUrl: config.modules.sam.baseurl.toString()
 		).save(failOnError:true)
 
 		// Add metabolomics assay reference
