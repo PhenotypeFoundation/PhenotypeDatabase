@@ -36,14 +36,30 @@ class AssayController {
 
 		selectAssay {
 			on ("submit"){
-				flow.assay = Assay.get(params.assayId)
-
+				// Determine the selected assays
+				if( !params.assayId )
+					throw new Exception( "No assay selected" )
+					
+				// Check whether valid ids are given
+				def assayIdList = params.list( "assayId" )
+				flow.assayIds = []
+				flow.assays = []
+				
+				assayIdList.each { assayId ->
+					def assay = Assay.read( assayId )
+					
+					if( assay ) {
+						flow.assayIds << assayId
+						flow.assays << assay
+					}
+				}
+				
 				// check if assay exists
-				if (!flow.assay) throw new Exception("No assay found with id: ${params.assayId}")
+				if (!flow.assays) throw new Exception("No assays found with ids: ${assayIdList}")
 
-				// obtain fields for each category
-				flow.fieldMap = assayService.collectAssayTemplateFields(flow.assay, null)
-
+				// obtain fields for each category and for the union of assays
+				flow.fieldMap = mergeFieldMaps( flow.assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) } )
+				
 				flash.errorMessage = flow.fieldMap.remove('Module Error')
 				flow.measurementTokens = flow.fieldMap.remove('Module Measurement Data')
 			}.to "selectFields"
@@ -54,10 +70,10 @@ class AssayController {
 		selectFields {
 			on ("submit"){
 
-				def (fieldMapSelection, measurementTokens) = processExportSelection(flow.assay, flow.fieldMap, params)
+				def (fieldMapSelection, measurementTokens) = processExportSelection(flow.fieldMap, params)
 
 				// interpret the params set and gather the data
-				flow.rowData = collectAssayData(flow.assay, fieldMapSelection, measurementTokens, flow.assay.samples, authenticationService.getLoggedInUser())
+				flow.rowData = collectAssayData(flow.assays, fieldMapSelection, measurementTokens, flow.assays*.samples.flatten(), authenticationService.getLoggedInUser())
 
 				// save the measurementTokes to the session for use later
 				session.measurementTokens = measurementTokens
@@ -78,7 +94,7 @@ class AssayController {
 
 			on("submitToGalaxy") {
 
-				def (fieldMapSelection, measurementTokens) = processExportSelection(flow.assay, flow.fieldMap, params)
+				def (fieldMapSelection, measurementTokens) = processExportSelection(flow.fieldMap, params)
 
 				// create a random session token that will be used to allow to module to
 				// sync with gscf prior to presenting the measurement data
@@ -130,7 +146,14 @@ class AssayController {
 
 	}
 
-	def processExportSelection(assay, fieldMap, params) {
+	/**
+	 * Filter the field map to only include selected items 
+	 * @param assays
+	 * @param fieldMap
+	 * @param params
+	 * @return
+	 */
+	def processExportSelection(fieldMap, params) {
 
 		def fieldMapSelection = [:]
 
@@ -145,7 +168,7 @@ class AssayController {
 					fieldMapSelection[category.key] += field
 				}
 
-				if (fieldMapSelection[category.key] == [])
+				if (!fieldMapSelection[category.key])
 					fieldMapSelection.remove(category.key)
 			}
 		}
@@ -159,13 +182,69 @@ class AssayController {
 		[fieldMapSelection, measurementTokens]
 	}
 
-	def collectAssayData(assay, fieldMapSelection, measurementTokens, samples, remoteUser) {
+	def collectAssayData(assays, fieldMapSelection, measurementTokens, samples, remoteUser) {
 		// collect the assay data according to user selection
-		def assayData           = assayService.collectAssayData(assay, fieldMapSelection, measurementTokens, samples, remoteUser)
-
-		flash.errorMessage      = assayData.remove('Module Error')
-
-		assayService.convertColumnToRowStructure(assayData)
+		def data = []
+		
+		// First retrieve the subject/sample/event/assay data from GSCF, as it is the same for each list
+		data = assayService.collectAssayData(assays[0], fieldMapSelection, null, samples)
+		
+		assays.each{ assay ->
+			def moduleMeasurementData
+			try {
+				moduleMeasurementData = assayService.requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
+				data[ "Module measurement data: " + assay.name ] = moduleMeasurementData
+			} catch (e) {
+				moduleMeasurementData = ['error' : [
+						'Module error, module not available or unknown assay']
+					* samples.size() ]
+				e.printStackTrace()
+			}
+		}
+		
+		println data 
+		
+		assayService.convertColumnToRowStructure(data)
+	}
+	
+	/**
+	 * Merges multiple fieldmaps as returned from assayService.collectAssayTemplateFields(). For each category, 
+	 * a list is returned without duplicates
+	 * @param fieldMaps		ArrayList of fieldMaps
+	 * @return				A single fieldmap
+	 */
+	def mergeFieldMaps( fieldMaps ) {
+		if( !fieldMaps || !( fieldMaps instanceof Collection ) )
+			throw new Exception( "No or invalid fieldmaps given" )
+			
+		if( fieldMaps.size() == 1 )
+			return fieldMaps[ 0 ]
+			
+		// Loop over each fieldmap and combine the fields from different categories
+		def mergedMap = fieldMaps[ 0 ]
+		fieldMaps[1..-1].each { fieldMap ->
+			fieldMap.each { key, value ->
+				if( value instanceof Collection ) {
+					if( mergedMap.containsKey( key ) ) {
+						value.each {
+							if( !mergedMap[ key ].contains( it ) )
+								mergedMap[ key ] << it
+						} 
+					} else {
+						mergedMap[ key ] = value
+					}
+				} else {
+					if( mergedMap.containsKey( key ) ) {
+						if( !mergedMap[ key ].contains( value ) )
+							mergedMap[ key ] << value 
+					} else {
+						mergedMap[ key ] = [ value ]
+					}
+				}
+			}
+		}
+		
+		mergedMap
 	}
 
 	// This method is accessible for each user. However, he should return with a valid
@@ -218,10 +297,9 @@ class AssayController {
 	 * response.
 	 */
 	def doExport = {
-
 		// make sure we're coming from the export flow, otherwise redirect there
 		if (!(session.rowData && session.exportFileType))
-			redirect(action: 'assayExportFlow')
+			redirect(action: 'assayExport')
 			
 		def remoteUser = authenticationService.getLoggedInUser()
 		if( !remoteUser ) {
@@ -255,8 +333,10 @@ class AssayController {
 			
 			if (session.exportMetadata == '1'){
 				//merge data with metadata if possible
-				def metadata = assayService.requestModuleMeasurementMetaDatas(session.assay, session.measurementTokens, remoteUser) ?: null
-				session.rowData = assayService.mergeModuleDataWithMetadata(session.rowData, metadata)
+				session.assays.each { assay ->
+					def metadata = assayService.requestModuleMeasurementMetaDatas(assay, session.measurementTokens, remoteUser) ?: null
+					session.rowData = assayService.mergeModuleDataWithMetadata(session.rowData, metadata)
+				}
 			}
 				
 			assayService.exportRowWiseDataToCSVFile(session.rowData, response.outputStream, outputDelimiter, locale)
@@ -268,10 +348,8 @@ class AssayController {
 			session.removeAttribute('exportMetadata')
 
 		} catch (Exception e) {
-
-			flash.errorMessage = e.message
-			redirect action: 'errorPage'
-
+			e.printStackTrace();
+			render "An error has occurred while performing the export. Please notify an administrator"
 		}
 	}
 
