@@ -73,7 +73,7 @@ class AssayController {
 				def (fieldMapSelection, measurementTokens) = processExportSelection(flow.fieldMap, params)
 
 				// interpret the params set and gather the data
-				flow.rowData = collectAssayData(flow.assays, fieldMapSelection, measurementTokens, flow.assays*.samples.flatten(), authenticationService.getLoggedInUser())
+				flow.rowData = collectAssayData(flow.assays, fieldMapSelection, measurementTokens, flow.assays*.samples.flatten().unique(), authenticationService.getLoggedInUser())
 
 				// save the measurementTokes to the session for use later
 				session.measurementTokens = measurementTokens
@@ -88,8 +88,13 @@ class AssayController {
 				def previewRows         = Math.min(flow.rowData.size()    as int, 5) - 1
 				def previewCols         = Math.min(flow.rowData[0].size() as int, 5) - 1
 
-				flow.assayDataPreview   = flow.rowData[0..previewRows].collect{ it[0..previewCols] as ArrayList }
-
+				// Check whether any data will be exported. If not, show an empty preview
+				if( previewRows <= 0 || previewCols <= 0 )
+					flow.assayDataPreview   = []
+				else 
+					flow.assayDataPreview   = flow.rowData[0..previewRows].collect{ it[0..previewCols] as ArrayList }
+					
+				
 			}.to "compileExportData"
 
 			on("submitToGalaxy") {
@@ -201,8 +206,6 @@ class AssayController {
 				e.printStackTrace()
 			}
 		}
-		
-		println data 
 		
 		assayService.convertColumnToRowStructure(data)
 	}
