@@ -13,6 +13,9 @@
 		<th width="100">Module</th>
 		<th>Link</th>
 		<th>Samples</th>
+        <g:if test="${assay?.templateFileFields}">
+            <th>Files</th>
+        </g:if>
 	  </tr>
 	</thead>
 	<g:set var="i" value="${1}" />
@@ -41,7 +44,16 @@
 			<% sortedAssaySamples = assay?.samples.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
 			${Sample.trimSampleNames( sortedAssaySamples, 400 )}
 		  </td>
-		</tr>
+          <g:if test="${assay?.templateFileFields}">
+              <td>
+              <g:set var="n" value="${1}" />
+              <g:each in="${assay?.templateFileFields}" var="file">
+                  <g:link url="${grailsApplication.config.gscf.baseURL+"file/get/"+file.value}">${"File " + n}</g:link>
+                  <g:set var="n" value="${i + 1}" />
+              </g:each>
+              </tr>
+          </g:if>
+          </td>
 		<g:set var="i" value="${i + 1}" />
 
 	  </g:each>

@@ -14,18 +14,18 @@
  */
 package dbnp.studycapturing
 
-import org.dbnp.gdt.FileService
 import grails.plugins.springsecurity.Secured
 
-@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class FileController {
-    def fileService;
+    def fileService
+    def authenticationService
 
     /**
      * Returns the file that is asked for or a 404 error if the file doesn't exist
      */
     def get = {
         def fileExists;
+        def studies = Study.giveReadableStudies(authenticationService.getLoggedInUser())
 
 		// Filename is not url decoded for some reason
 		def coder = new org.apache.commons.codec.net.URLCodec()
@@ -37,7 +37,24 @@ class FileController {
 			render "Invalid filename given";
 			return;
 		}
-		
+
+        def fileMap = [:]
+        studies.each() { study ->
+            def studyFiles = []
+
+            studyFiles.addAll(getFileFields(study))
+            studyFiles.addAll(getFileFields(study.subjects))
+            studyFiles.addAll(getFileFields(study.events))
+            studyFiles.addAll(getFileFields(study.samplingEvents))
+            //Files per sample slows down the process significantly and are unlikely to exist
+            //studyFiles.addAll(getFileFields(study.samples))
+            studyFiles.addAll(getFileFields(study.assays))
+
+            studyFiles.each() {
+                fileMap.put(it, study.id)
+            }
+        }
+
         try {
             fileExists = fileService.fileExists( filename )
         } catch( FileNotFoundException e ) {
@@ -46,22 +63,30 @@ class FileController {
         if( !filename || !fileExists ) {
             response.status = 404;
             render( "File not found" );
-            return;
+            return
         }
+
+        if (!studies.id.contains(fileMap.get(filename))) {
+            response.status = 500;
+            render "Not authorized to acces file";
+            return
+        }
+
         def file = fileService.get( filename );
 
         //response.setContentType("application/octet-stream")
         //response.setContentType( "image/jpeg" );
 
         // Return the file
-		response.setHeader "Content-disposition", "attachment; filename=${filename}"
+        response.setHeader "Content-disposition", "attachment; filename=${filename}"
         response.outputStream << file.newInputStream()
-		response.outputStream.flush()
+        response.outputStream.flush()
     }
 
     /**
      * Uploads a file and returns the filename under which the file is saved
      */
+    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
     def upload = {
         def file = request.getFile( params.get( 'field' ) );
 
@@ -86,5 +111,14 @@ class FileController {
             response.status = 500;
             render( "" );
         }
+    }
+
+    def getFileFields(Object part) {
+        def fileList = []
+            def fileFields = part.templateFileFields
+            if(fileFields instanceof org.hibernate.collection.PersistentMap) {
+               fileList = fileFields.values()
+            }
+        return fileList
     }
 }
