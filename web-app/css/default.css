@@ -521,3 +521,5 @@ label.r_on { background: url(../images/inputboxes/radio-on.png) no-repeat; color
 #dialog-creative-commons li {
     margin-left: 20px;
 }
+
+#assaySelect select, #assaySelect input { vertical-align: top; }
