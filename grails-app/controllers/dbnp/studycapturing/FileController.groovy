@@ -47,7 +47,7 @@ class FileController {
             studyFiles.addAll(getFileFields(study.events))
             studyFiles.addAll(getFileFields(study.samplingEvents))
             //Files per sample slows down the process significantly and are unlikely to exist
-            //studyFiles.addAll(getFileFields(study.samples))
+            studyFiles.addAll(getFileFields(study.samples))
             studyFiles.addAll(getFileFields(study.assays))
 
             studyFiles.each() {
@@ -118,6 +118,10 @@ class FileController {
             def fileFields = part.templateFileFields
             if(fileFields instanceof org.hibernate.collection.PersistentMap) {
                fileList = fileFields.values()
+            } else if (part.size() > 0) {
+                part.each { entity ->
+                    fileList.addAll(entity.templateFileFields.values())
+                }
             }
         return fileList
     }
