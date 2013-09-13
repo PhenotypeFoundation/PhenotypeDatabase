@@ -641,6 +641,83 @@ The API allows third party software to interface with GSCF and connected modules
 </blockquote>
 </p>
 
+<a name="getPlainMeasurementDataForAssay"></a>
+<h1>getPlainMeasurementDataForAssay</h1>
+<h3>url: <g:createLink controller="api" action="getPlainMeasurementDataForAssay" absolute="true" /></h3>
+<p>
+    Returns the measurement data for a particular assay
+
+<h2>Request parameters</h2>
+<table>
+    <thead>
+    <th>argument</th>
+    <th>type</th>
+    <th>length</th>
+    <th>description</th>
+    <th>example</th>
+    <th>required</th>
+    </thead>
+    <tr>
+        <td>deviceID</td>
+        <td>string</td>
+        <td>36 (max)</td>
+        <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
+        <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+        <td>yes</td>
+    </tr>
+    <tr>
+        <td>validation</td>
+        <td>string</td>
+        <td>-</td>
+        <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
+        <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+        <td>yes</td>
+    </tr>
+    <tr>
+        <td>assayToken</td>
+        <td>string</td>
+        <td>255</td>
+        <td>assay token (see getAssays)</td>
+        <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+        <td>yes</td>
+    </tr>
+    <tr>
+        <td>assayToken</td>
+        <td>string</td>
+        <td>255</td>
+        <td>features: feature metadata, subject: subject metadata, measurements: subjectname, starttime, featurename, value, all: all (default)</td>
+        <td>all/measurements/features/subjects</td>
+        <td>no</td>
+    </tr>
+</table>
+
+<h2>example reply</h2>
+<blockquote>
+    {"
+    measurements":
+    {"Subject1":
+    {"4w":
+    {"feature1":"7.8", "feature2":"8.2"}
+    "6w":
+    {"feature1":"8.4", "feature2":"6.2"} }
+    "Subject2":{
+    "4w":
+    {"feature1":"4.4", "feature2":"4.2"}
+    "6w":
+    {"feature1":"5.3", "feature2":"4.2"} } }
+    "subjects":{
+    "Subject1":
+    {"Gender":"Male", "Age":"54"}
+    "Subject2":
+    {"Gender":"Female", "Age":"62"} }
+    "features":"
+    {"feature1":"
+    {"property1":"value", "property2":"value"},
+    "feature2":
+    {"property1":"value", "property2":"value"} } }
+</blockquote>
+</p>
+
 </div>
 </body>
 </html>

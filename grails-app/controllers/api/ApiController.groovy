@@ -19,12 +19,14 @@ import grails.plugins.springsecurity.Secured
 import grails.converters.JSON
 import dbnp.authentication.SecUser
 import dbnp.studycapturing.*
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.dbnp.gdt.*
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 
 class ApiController {
     def authenticationService
     def apiService
+    def dataSource
 	def validationTagLib = new ValidationTagLib()
 
 	/**
@@ -456,6 +458,98 @@ class ApiController {
                 // set output headers
                 response.status = 200
                 response.contentType = 'application/json;charset=UTF-8'
+
+                if (params.containsKey('callback')) {
+                    render "${params.callback}(${result as JSON})"
+                } else {
+                    render result as JSON
+                }
+            } catch (Exception e) {
+                println "getMeasurementDataForAssay exception: ${e.getMessage()}"
+                response.sendError(500, "module '${assay.module}' does not properly implement getMeasurementData REST specification (${e.getMessage()})")
+            }
+        })
+    }
+
+    /**
+     * get all measurement data from a linked module for an assay
+     *
+     * @param string deviceID
+     * @param string assayToken
+     * @param string validation md5 sum
+     */
+    def getPlainMeasurementDataForAssay = {
+        println "api::getPlainMeasurementDataForAssay: ${params}"
+
+        // fetch output parameter, features: feature metadata, subject: subject metadata
+        // measurements: subjectname, starttime, featurename, value, all: all (default)
+        String outputOptions = ['all', 'measurements', 'subjects', 'features']
+        String output = params.containsKey('dataSelection') ? params.dataSelection : ''
+
+        if(!outputOptions.contains(output)) {
+            output = "all"
+        }
+
+        // fetch assay
+        String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
+        def assay           = Assay.findWhere(UUID: assayToken)
+
+        // fetch user based on deviceID
+        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
+        def user            = Token.findByDeviceID(deviceID)?.user
+
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'assay',assay,{
+            // define data elements
+            def measurements
+            def features
+            def subjects
+
+            // get subjects (metadata) data for assay
+            def subjectMap = [:]
+            assay.parent.subjects.each() { Subject subject ->
+                def fieldMap = [:]
+                subject.giveFields().each() { field ->
+                    // skip field 'name' since this is already the key
+                    if (!field.name.equals('name')) {
+                        //println field.name
+                        //println subject.getFieldValue(field.name)
+                        fieldMap.put(field.name, subject.getFieldValue(field.name).toString())
+                    }
+                }
+                println fieldMap
+                subjectMap.put(subject.name, fieldMap)
+            }
+
+            // iterate through measurementData and build data matrix
+            try {
+                if (output.equals('all') || output.equals('subjects')) {
+                    // cast subjectMap to JSON
+                    subjects = new JSONObject(subjectMap)
+                }
+
+                if (output.equals('all') || output.equals('measurements')) {
+                    // get measurements for assay
+                    measurements = apiService.getPlainMeasurementData(assay, user)
+                }
+
+                if (output.equals('all') || output.equals('features')) {
+                    // get features (metadata) for assay
+                    features = apiService.getFeaturesForAssay(assay, user)
+                }
+
+                // define result
+                def result = [:]
+                result = [
+                        "measurements" : measurements,
+                        "features" : features,
+                        "subjects" : subjects
+                ]
+
+                // set output headers
+                response.status = 200
+                response.contentType = 'plain/text;charset=UTF-8'
+                //response.contentType = 'application/json;charset=UTF-8'
 
                 if (params.containsKey('callback')) {
                     render "${params.callback}(${result as JSON})"
