@@ -117,7 +117,8 @@ class StudyEditController {
 			            "A"
 			        ],
 			        ...
-			    ]
+			    ],
+			    "aIds": [ ]
 			}
 		 */
 		
@@ -247,16 +248,20 @@ class StudyEditController {
 
 		output.aaData = results.collect { subject ->
 			def data = [
-				g.checkBox( name: "id", value: subject.id, checked: false, onClick: "updateCheckAll(this);" )
+				subject.id
 			]
 			
 			subject.giveFields().each { field ->
 				def value = subject.getFieldValue( field.name )
 				data << ( value ? value.toString() : "" ) 
 			}
+			
 			data
 		}
 		
+		// Determine the list of filtered items
+		def filteredIds = Subject.executeQuery( "SELECT s.id " + hql, hqlParams )
+		output.aIds = filteredIds
 		
 		render output as JSON
 	}

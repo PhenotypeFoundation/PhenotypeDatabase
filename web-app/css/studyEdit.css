@@ -159,9 +159,37 @@ table.dataTable td.dataTables_empty { text-align: left; }
  .dataTable .editableInput { padding: 0; }
  .dataTable .changed { background-color: #75FFBD; }
  .dataTable .invalid { background-color: #FF808E; }
- .dataTable .saveChanges {
- 	padding: 5px 10px;
- 	text-align: left;
+
+.dataTable .messagebar td {
  	display: none;
+	padding: 5px 10px;
+ 	text-align: left;
  }
+
  .dataTable .saveChanges .saving { display: none; }
+
+ /** Datatables **/
+ 
+/* Check all checkbox */
+input.transparent { 
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.3;
+	-moz-opacity: 0.3;
+	-khtml-opacity: 0.3;
+}
+
+div.dataTables_wrapper table.dataTable tr.ui-selecting.odd td { 
+	background-color: #FFFFF6; 
+}
+
+div.dataTables_wrapper table.dataTable tr.ui-selecting.even td{ 
+	background-color: #FFFFFB; 
+}
+
+div.dataTables_wrapper .ui-widget-header { text-align: center; }
+.dataTables_info, .dataTables_length { text-align: left; width: 30%; }
+.selectinfo { line-height: 1.4em; }
+.dataTables_info { text-align: left; }
+
+#content .selectAll a { text-decoration: underline; }

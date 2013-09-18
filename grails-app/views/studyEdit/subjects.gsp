@@ -43,26 +43,30 @@
 			
 			<g:each in="${subjectTemplates}" var="template">
 				<h3>Template: ${template.name}</h3>
-				<table id="subjectsTable.${template.id}" data-templateId="${template.id}" class="subjectsTable serverside filter" rel="${g.createLink(action:"dataTableSubjects", id: study.id, params: [template: template.id])}">
+				<table id="subjectsTable_${template.id}" data-templateId="${template.id}" class="subjectsTable selectMulti" rel="${g.createLink(action:"dataTableSubjects", id: study.id, params: [template: template.id])}">
 					<thead>
 						<tr>
-							<th class="nonsortable checkbox"><input type="checkbox" id="checkAll" onClick="clickCheckAll(this);" /></th>
 							<g:each in="${domainFields + template.getFields()}" var="field">
 								<th data-fieldname="${field.escapedName()}">${field.name}</th>
 							</g:each>
 						</tr>
 					</thead>
 					<tfoot>
-						<tr>
-							<td class="saveChanges" colspan="${1 + domainFields.size() + template.getFields().size()}">
-								<a href="#" onClick="StudyEdit.submit(this); return false">Save</a>
+						<tr class="messagebar selectAll">
+							<td  colspan="${1 + domainFields.size() + template.getFields().size()}">
+								You selected all items on this page. Would you <a href="#">select all items on other pages</a> as well? 
+							</td>
+						</tr>						
+						<tr class="messagebar saveChanges">
+							<td class="" colspan="${1 + domainFields.size() + template.getFields().size()}">
+								<a href="#" onClick="StudyEdit.datatables.save(this); return false">Save</a>
 								<span class="saving">Saving...</span>
 							</td>
 						</tr>
 					</tfoot>
 				</table>
 				
-				<div style="display: none" class="editable">
+				<div id="subjectsTable_${template.id}_prototype" style="display: none" class="editable prototype">
 					<g:each in="${domainFields + template.getFields()}" var="field">
 						<div class="editableFieldPrototype" id="prototype_subject_${template.id}_${field.escapedName()}">
 							<af:renderTemplateField value="" templateField="${field}" />
@@ -81,72 +85,7 @@
 		
 		<r:script>
 			$(function() {
-				$( ".subjectsTable" ).each(function( tableIndex, table ) {
-					var rowHeaders = $( "thead th", table );
-					
-					$(table).data( "datatable-options", {
-						"sScrollX": "100%",
-						"bScrollCollapse": true,
-						
-						bFilter: true, 
-						bLengthChange: true, 
-						bPaginate: true,
-						bSort: true,
-						bInfo: true,
-					    aoColumnDefs: [
-					      { sWidth: "30px", aTargets: [ 0 ] }
-					    ],
-					    fnRowCallback: function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-					    	var subjectId = $( "td:first-child input[type=checkbox]", nRow ).val();
-							$.each( $( "td", nRow ), function( idx, td ) {
-								// Update first ID column
-								if( idx == 0 )
-									return
-					
-								// Check whether we have a prototype of an input for this type of data
-								var fieldName = $( rowHeaders.get( idx ) ).data( "fieldname" );
-								fieldInput = $( "#prototype_subject_" + $(table).data( "templateid" ) + "_" + fieldName ).children().clone();
-								
-								// If so, store it and set the correct value
-								if( fieldInput.length > 0 ) {
-									// Check whether this value is required, but not entered
-									if( fieldInput.is( "[required=true]" ) && !aData[ idx ]  ) {
-										$(td).addClass( "invalid" );
-									}
-								
-									fieldInput
-										.attr( "name", "subject." + subjectId + "." + fieldName )
-										.val( aData[ idx ] )
-										.data( "original", aData[ idx ] )
-										.on( "change", function( event ) {
-											$(event.target).parents( "td" ).first().addClass( "changed" );
-											$(event.target).parents( ".dataTables_wrapper" ).first().find( ".saveChanges" ).slideDown( 100 );
-										})
-										.on( "keyup", function( e ) {
-											// Handle esc and enter key presses
-						                    if (e.keyCode == 27) {
-						                        e.preventDefault();
-						                        
-						                        var input = $(e.target);
-						                        input.val( input.data( "original" ) );
-												input.parents( "td" ).first().removeClass( "changed" );
-						                        
-						                    }
-						                    if (e.keyCode == 13) {
-						                        e.preventDefault();
-						                        
-						                        StudyEdit.submit(e.target);
-						                    }
-						                });
-					                									
-									$( td ).empty().append( fieldInput );
-								}				    	
-							});
-					    }
-					});
-				});
-				
-				initializeDatatables( ".subjectsTable" );
+				StudyEdit.datatables.initialize( ".subjectsTable" );
 			});
 		</r:script>
 	</div>

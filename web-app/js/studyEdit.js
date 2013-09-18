@@ -48,48 +48,7 @@ StudyEdit.showOpenStudyDialog = function() {
 	}
 }
 
-StudyEdit.submit = function( link ) {
-	var table = $(link).parents( ".dataTables_wrapper" );
-	var newData = {};
-	
-	// If nothing has changed, just reset all fields
-	if( table.find( "td.changed" ).length == 0 ) {
-		return;
-	}
-	
-	// Show a message that the system is saving data in the status bar
-	table.find( ".saveChanges a" ).hide();
-	table.find( ".saveChanges .saving" ).show();
 
-	// Copy all data into the form
-	table.find( ".changed input, .changed select, .changed textarea" ).each( function( idx, el ) {
-		newData[ $(el).attr( "name" ) ] = $(el).val();
-	});
-	
-	// Make sure all inputs are disabled during save. When the datatable is refreshed,
-	// these fields will be editable again
-	table.find( "tbody input, tbody select, tbody textarea" ).attr( "disabled", true );
-	
-	// Send the data to the server
-	var form = $( "form#subjectForm" );
-	newData[ "id" ] = form.find( "[name=id]" ).val();
-	
-	$.post( form.attr( "action" ), newData )
-		.done( function() { console.log( "done" ); } )
-		.fail( function() { console.log( "fail" ); } )
-		.always( function() {
-			// Reload data for the datatable
-			table.find( ".dataTables_scrollBody .dataTable" ).dataTable().fnDraw();
-			
-			// Clear the uploaded fields in the form
-			form.find( ":not(.original)" ).remove();
-			
-			// Reset the saveChanges row
-			table.find( ".saveChanges a" ).show();
-			table.find( ".saveChanges .saving" ).hide();
-			table.find( ".saveChanges" ).slideUp(100);
-		});
-}
 
 /*************************************************
  *
