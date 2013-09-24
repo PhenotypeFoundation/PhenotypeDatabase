@@ -512,12 +512,9 @@ class ApiController {
                 subject.giveFields().each() { field ->
                     // skip field 'name' since this is already the key
                     if (!field.name.equals('name')) {
-                        //println field.name
-                        //println subject.getFieldValue(field.name)
                         fieldMap.put(field.name, subject.getFieldValue(field.name).toString())
                     }
                 }
-                println fieldMap
                 subjectMap.put(subject.name, fieldMap)
             }
 
