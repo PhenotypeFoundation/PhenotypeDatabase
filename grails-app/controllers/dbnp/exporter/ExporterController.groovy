@@ -190,27 +190,23 @@ class ExporterController {
     }
 
     private def writeMandatoryFields(sub,sample,study) {
-        // adding subject name in row 1
+        // adding subject name in column 1
         sample.parentSubject ? sub.createCell((short)0).setCellValue(sample.parentSubject.name) : "not defined"
-        // adding sample in row 4
+		
+        // adding sample in column 4
         sample.name!=null ? sub.createCell((short)3).setCellValue(sample.name) : "not defined"
-        // adding label (EventGroup) in row 6
-        for (ev in EventGroup.list()){
-            if(sample.parentSubject){
-                if ( (sample.parentSubject.name) && (ev.subjects.name.contains(sample.parentSubject.name))) {
-                    sub.createCell((short)5).setCellValue(ev.name)
-                    break
-                }
-                else {
-                    sub.createCell((short)5).setCellValue(" ")
-                }}
-            else {
-                sub.createCell((short)5).setCellValue(" ")
-            }
-        }
-        // adding study title in row 7
+		
+        // adding label (EventGroup) in column 6
+		if( sample.parentEventGroup ) {
+			sub.createCell((short)5).setCellValue(sample.parentEventGroup.name)
+		} else {
+			sub.createCell((short)5).setCellValue(" ")
+		}
+		
+        // adding study title in column 7
         sub.createCell((short)6).setCellValue(study.title)
-        // Species row 9
+		
+        // Species column 9
 //        sample.parentSubject.species.name!=null ? sub.createCell((short)8).setCellValue(sample.parentSubject.species.name) : "not defined"
         sample.parentSubject ? sub.createCell((short)8).setCellValue(sample.parentSubject.species.name) : "not defined"
     }
