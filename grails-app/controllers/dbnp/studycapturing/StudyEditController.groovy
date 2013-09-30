@@ -206,9 +206,8 @@ class StudyEditController {
 			}
 		}
 		
-		// Add ordering; to determine the column to sort on, we take into account that the
-		// first column doesn't contain data, but only contains the checkbox
-		def sortColumnIndex = Math.max( ( params.int( "iSortCol_0" ) ?: 1 ) - 1, 0 )
+		// Add ordering; to determine the column to sort on
+		def sortColumnIndex = Math.max( params.int( "iSortCol_0" ), 0 )
 		def sortOrder = params[ "sSortDir_0"] ?: "ASC"
 		
 		if( sortColumnIndex != null || sortColumnIndex >= ( domainFields.size() + template.fields.size() ) ) {
@@ -316,7 +315,7 @@ class StudyEditController {
 		if( success ) {
 			// Save all subjects
 			subjectsToSave.each {
-				it.save();
+				it.save()
 			}
 			
 			result = ["OK"]

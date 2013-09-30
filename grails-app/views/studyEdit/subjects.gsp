@@ -59,7 +59,7 @@
 						</tr>						
 						<tr class="messagebar saveChanges">
 							<td class="" colspan="${1 + domainFields.size() + template.getFields().size()}">
-								<a href="#" onClick="StudyEdit.datatables.save(this); return false">Save</a>
+								<a href="#" onClick="StudyEdit.datatables.editable.save(this); return false">Save</a>
 								<span class="saving">Saving...</span>
 							</td>
 						</tr>

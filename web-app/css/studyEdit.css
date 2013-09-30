@@ -157,7 +157,7 @@ table.dataTable td.dataTables_empty { text-align: left; }
  
  #subjectForm { display: none; }
  .dataTable .editableInput { padding: 0; }
- .dataTable .changed { background-color: #75FFBD; }
+ .dataTable .changed { background-color: #75FFBD !important; }
  .dataTable .invalid { background-color: #FF808E; }
 
 .dataTable .messagebar td {
