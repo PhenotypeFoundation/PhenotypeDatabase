@@ -43,7 +43,7 @@
 			
 			<g:each in="${subjectTemplates}" var="template">
 				<h3>Template: ${template.name}</h3>
-				<table id="subjectsTable_${template.id}" data-templateId="${template.id}" class="subjectsTable selectMulti" rel="${g.createLink(action:"dataTableSubjects", id: study.id, params: [template: template.id])}">
+				<table id="subjectsTable_${template.id}" data-templateId="${template.id}" data-fieldPrefix="subject" data-formId="subjectForm" class="subjectsTable selectMulti" rel="${g.createLink(action:"dataTableSubjects", id: study.id, params: [template: template.id])}">
 					<thead>
 						<tr>
 							<g:each in="${domainFields + template.getFields()}" var="field">
@@ -59,7 +59,10 @@
 						</tr>						
 						<tr class="messagebar saveChanges">
 							<td class="" colspan="${1 + domainFields.size() + template.getFields().size()}">
-								<a href="#" onClick="StudyEdit.datatables.editable.save(this); return false">Save</a>
+								<span class="links">
+									<a href="#" onClick="StudyEdit.datatables.editable.save(this); return false;">Save</a> or 
+									<a href="#" onClick="StudyEdit.datatables.editable.discardChanges(this); return false;">Discard</a>
+								</span>
 								<span class="saving">Saving...</span>
 							</td>
 						</tr>
@@ -67,13 +70,8 @@
 				</table>
 				
 				<div id="subjectsTable_${template.id}_prototype" style="display: none" class="editable prototype">
-					<g:each in="${domainFields + template.getFields()}" var="field">
-						<div class="editableFieldPrototype" id="prototype_subject_${template.id}_${field.escapedName()}">
-							<af:renderTemplateField value="" templateField="${field}" />
-						</div>
-					</g:each>
-				</div>						
-				
+					<g:render template="prototypes" model="[ template: template]" />
+				</div>							
 			</g:each>			
 			
 			<br clear="all" />

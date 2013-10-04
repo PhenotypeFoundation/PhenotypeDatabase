@@ -191,5 +191,11 @@ div.dataTables_wrapper .ui-widget-header { text-align: center; }
 .dataTables_info, .dataTables_length { text-align: left; width: 30%; }
 .selectinfo { line-height: 1.4em; }
 .dataTables_info { text-align: left; }
+.messagebar { font-weight: normal; }
+#content .messagebar a { text-decoration: underline; }
 
-#content .selectAll a { text-decoration: underline; }
+/* Make sure the datatables will scroll */
+.dataTables_scroll {
+    clear: both;
+    overflow: auto; 
+}

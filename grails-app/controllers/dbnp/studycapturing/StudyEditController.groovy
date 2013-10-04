@@ -29,7 +29,16 @@ class StudyEditController {
 		render( view: "properties", model: [ study: study ] )
 	}
 	
-	// Different parts of the editing process
+	/***********************************************
+	 * 
+	 * Different parts of the editing process
+	 * 
+	 ***********************************************/
+	
+	/**
+	 * Shows the properties page to edit study details
+	 * @return
+	 */
 	def properties() {
 		def study = getStudyFromRequest( params )
 		
@@ -57,6 +66,10 @@ class StudyEditController {
 		[ study: study ]
 	}
 	
+	/**
+	 * Shows the overview page to edit subject details. 
+	 * @return
+	 */
 	def subjects() {
 		def study = getStudyFromRequest( params )
 		if( !study ) {
@@ -74,11 +87,14 @@ class StudyEditController {
 			templates: Template.findAllByEntity( Subject.class ), 
 			subjectTemplates: subjectTemplates, 
 			numSubjects: numSubjects,
-			domainFields: Subject.domainFields
-			
+			domainFields: Subject.domainFields			
 		]
 	}
 	
+	/**
+	 * Returns data for the subjects datatable
+	 * @return
+	 */
 	def dataTableSubjects() {
 		/**
 		 * Input:
@@ -165,6 +181,8 @@ class StudyEditController {
 				TemplateFieldType.TEMPLATE
 			]
 			
+			// List of field types that have a reference to another table (and use
+			// the name in the other table as value), instead of a direct value
 			def fieldTypesAsReference = [ 
 				TemplateFieldType.STRINGLIST,
 				TemplateFieldType.EXTENDABLESTRINGLIST,
@@ -252,7 +270,15 @@ class StudyEditController {
 			
 			subject.giveFields().each { field ->
 				def value = subject.getFieldValue( field.name )
-				data << ( value ? value.toString() : "" ) 
+				
+				if( field.type == TemplateFieldType.DATE ) {
+					// transform date instance to formatted string (dd/mm/yyyy)
+					data << ( value ? String.format('%td/%<tm/%<tY', value) : "" )
+				} else if ( field.type == TemplateFieldType.RELTIME ) {
+					data << ( value ? new RelTime( value ).toString() : "" )
+				} else {
+					data << ( value ? value.toString() : "" )
+				} 
 			}
 			
 			data
@@ -265,6 +291,10 @@ class StudyEditController {
 		render output as JSON
 	}
 	
+	/**
+	 * Stores changes in the subject details
+	 * @return
+	 */
 	def editSubjects() {
 		def study = getStudyFromRequest( params )
 		if( !study || !study.id ) {
@@ -329,6 +359,11 @@ class StudyEditController {
 		render result as JSON
 	}
 
+	/**
+	 * Returns an error response for the datatable
+	 * @param error
+	 * @return
+	 */
 	protected def dataTableError( error ) {
 		return [
 			sEcho: 					params.sEcho,
@@ -356,7 +391,33 @@ class StudyEditController {
 		]
 
 	}
+	
 	def assays() {}
+	
+	/**
+	 * Returns a page without layout with the prototypes of the given template
+	 * @return
+	 */
+	def prototypes() {
+		if( !params.id || !params.id.isLong() ) {
+			response.status = 400
+			render "Bad request"
+			return;
+		}
+		
+		def template = Template.read( params.long( 'id' ) )
+		
+		if( !template ) {
+			response.status = 404
+			render "Template not found"
+			return
+		}
+		
+		render( 
+			template: 'prototypes', 
+			model: [ template: template ]
+		)
+	}
 	
 	/**
 	 * Retrieves the required study from the database or return an empty Study object if
@@ -380,7 +441,6 @@ class StudyEditController {
 		return study;
 	}
 
-	
 	/**
 	 * Handles study properties input
 	 * @param study		Study to update

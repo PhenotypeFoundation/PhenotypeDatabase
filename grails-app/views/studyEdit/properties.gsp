@@ -145,8 +145,12 @@
 						$(this).dialog("close");
 					}
 				},
-			})	
+			})
+			
+			$( function() {
+				StudyEdit.initializePropertiesPage();
+			});
 		</script>
-			</div>
+	</div>
 </body>
 </html>

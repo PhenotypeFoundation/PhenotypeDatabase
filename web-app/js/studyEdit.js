@@ -1,15 +1,9 @@
-$(function() {
-	StudyEdit.initialize();
-});
-
 if( typeof( StudyEdit ) === "undefined" ) { 
 	StudyEdit = {};
 }
 
 StudyEdit.initialize = function() {
 	attachHelpTooltips();
-	StudyEdit.form.attachDatePickers();
-	StudyEdit.form.attachDateTimePickers();
 }
 
 /**
@@ -48,7 +42,31 @@ StudyEdit.showOpenStudyDialog = function() {
 	}
 }
 
-
+StudyEdit.initializePropertiesPage = function() {
+	StudyEdit.form.initialize();
+	
+    // show creative commons agreement popup
+    $(":checkbox[name^='public']").on('change', function() {
+        var box = $(this);
+        if (box.is(':checked')) {
+            $( "#dialog-creative-commons" ).dialog({
+                resizable: false,
+                height:250,
+                width: 800,
+                modal: true,
+                buttons: {
+                    "Yes": function() {
+                        $( this ).dialog( "close" );
+                    },
+                    "No": function() {
+                        $( this ).dialog( "close" );
+                        box.attr('checked', false);
+                    }
+                }
+            });
+        }
+    });
+}
 
 /*************************************************
  *
@@ -92,7 +110,7 @@ function fileUploadField(field_id) {
 				// It is unknown why this happens, but the tags are not needed.
 				response = response.replace(/<\/?[^>]+>/gi, '');
 
-				$('#' + field_id).val(response);
+				$('#' + field_id).val(response).trigger( "change" );
 				$('#' + field_id + 'Example').html('Uploaded ' + createFileHTML(file));
 				$('#' + field_id + 'Delete').show();
 			}
@@ -117,9 +135,19 @@ function createFileHTML(filename) {
  * 
  *******************************************************************/
 StudyEdit.form = {
+	initialize: function( selector ) {
+		StudyEdit.form.attachDatePickers( selector );
+		StudyEdit.form.attachDateTimePickers( selector );
+	},
+	
 	//add datepickers to date fields
-	attachDatePickers: function() {
-		$("input[type=text][rel$='date']").each(function() {
+	attachDatePickers: function( selector ) {
+		if( selector ) {
+			elements = $( selector ).find("input[type=text][rel$='date']");
+		} else {
+			elements = $("input[type=text][rel$='date']");
+		}
+		elements.each(function() {
 			$(this).datepicker({
 				changeMonth : true,
 				changeYear  : true,
@@ -134,8 +162,13 @@ StudyEdit.form = {
 	},
 	
 	//add datetimepickers to date fields
-	attachDateTimePickers: function() {
-		$("input[type=text][rel$='datetime']").each(function() {
+	attachDateTimePickers: function( selector ) {
+		if( selector ) {
+			elements = $( selector ).find("input[type=text][rel$='datetime']");
+		} else {
+			elements = $("input[type=text][rel$='datetime']");
+		}
+		elements.each(function() {
 			$(this).datepicker({
 				changeMonth	 : true,
 				changeYear	  : true,

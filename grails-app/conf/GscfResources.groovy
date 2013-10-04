@@ -56,6 +56,7 @@ modules = {
 		resource url:[ dir:'css', file: 'templates.css']
 		
 		resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
+		resource url: [dir: 'js', file: 'selectAddMore-1.0.js' ]
 		resource url: [dir: 'js', file: 'publication-chooser.js' ], disposition: 'head'
 		resource url: [dir: 'js', file: 'publication-chooser.pubmed.js' ], disposition: 'head'
 	}
@@ -64,11 +65,9 @@ modules = {
 		dependsOn 'jquery'
 		resource url: [dir: 'js', file: 'jquery.dataTables.min.js' ] , linkOverride:'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js'
 		resource url: [dir: 'js', file: 'datatables.js', plugin: 'dbxpModuleBase']
-		resource url: [dir: 'js', file: 'templatedDatatable.js']
 
 		resource url: [ dir:'css', file: 'jquery.dataTables.css'], linkOverride: "http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css"
 		resource url: [ dir:'css', file: 'datatables-jui.css']
-		resource url: [ dir:'css', file: 'templatedDatatables.css']
 	}
 	
 	advancedQuery {
