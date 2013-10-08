@@ -267,7 +267,7 @@ StudyEdit.datatables = {
 								return
 							
 							var fieldName = $( rowHeaders.get( idx ) ).data( "fieldname" );
-							StudyEdit.datatables.editable.cloneField( tableId, rowId, fieldName, $(td), aData[idx] );
+							StudyEdit.datatables.editable.cloning.cloneField( tableId, rowId, fieldName, $(td), aData[idx] );
 	    	
 						});
 				    }
@@ -275,30 +275,30 @@ StudyEdit.datatables = {
 			});		
 		},
 		
-		cloneField: function( tableId, rowId, fieldName, td, value ) {
-			// Check whether we have a prototype of an input for this type of data
-			var table = $( '#' + tableId );
-			var prototypeId = "#prototype_" + $(table).data( "templateid" ) + "_" + fieldName;
-			var fieldPrefix = StudyEdit.datatables.editable.getFieldPrefix( tableId );
-			
-			// Cloning the field depends on the type: file fields are handled differently
-			// from other fields
-			var fieldType = $( prototypeId ).data( "fieldtype" );
-			var fieldId = fieldPrefix + "." + rowId + "." + fieldName;
-			if( fieldType == "FILE" ) {
-				// Append the cloned input elements
-				$( td ).empty().append(
-					StudyEdit.datatables.editable.cloning.cloneFileField( prototypeId, fieldId, value, rowId, tableId )						
-				);				
-			} else {
-				// Append the cloned input elements
-				$( td ).empty().append(
-					StudyEdit.datatables.editable.cloning.cloneDefaultField( prototypeId, fieldId, value, rowId, tableId, fieldType )
-				);
-			}
-		},
-		
 		cloning: {
+			cloneField: function( tableId, rowId, fieldName, td, value ) {
+				// Check whether we have a prototype of an input for this type of data
+				var table = $( '#' + tableId );
+				var prototypeId = "#prototype_" + $(table).data( "templateid" ) + "_" + fieldName;
+				var fieldPrefix = StudyEdit.datatables.editable.getFieldPrefix( tableId );
+				
+				// Cloning the field depends on the type: file fields are handled differently
+				// from other fields
+				var fieldType = $( prototypeId ).data( "fieldtype" );
+				var fieldId = fieldPrefix + "." + rowId + "." + fieldName;
+				if( fieldType == "FILE" ) {
+					// Append the cloned input elements
+					$( td ).empty().append(
+						StudyEdit.datatables.editable.cloning.cloneFileField( prototypeId, fieldId, value, rowId, tableId )						
+					);				
+				} else {
+					// Append the cloned input elements
+					$( td ).empty().append(
+						StudyEdit.datatables.editable.cloning.cloneDefaultField( prototypeId, fieldId, value, rowId, tableId, fieldType )
+					);
+				}
+			},
+			
 			cloneFileField: function( prototypeId, fieldId, value, rowId, tableId ) {
 				var field = $( prototypeId ).children().clone();
 				var fieldName = fieldId;
@@ -394,7 +394,7 @@ StudyEdit.datatables = {
 		                    if (e.keyCode == 13) {
 		                        e.preventDefault();
 		                        
-		                        StudyEdit.editable.save(e.target);
+		                        StudyEdit.datatables.editable.save(e.target);
 		                    }
 		                });
 					
@@ -686,11 +686,13 @@ StudyEdit.datatables = {
 			
 			$.post( form.attr( "action" ), newData )
 				.fail( function() { 
-					// TODO: show a proper error message to the user
-					console.log( "fail" ); 
+					StudyEdit.datatables.editable.showError( table.attr( "id" ), "An unknown error occurred while saving your data. Please try again." );
 				} )
-				.always( function() {
+				.always( function(data) {
 					// TODO: handle the case that the save failed
+					if( data.errors ) {
+						StudyEdit.datatables.editable.showError( table.attr( "id" ), "An error occurred while saving your data. Please try again." );
+					}
 					
 					// Set the 'changed' flag to false
 					wrapper.find( ".dataTables_scrollBody .dataTable" ).data( "changed", false );
@@ -708,6 +710,9 @@ StudyEdit.datatables = {
 				});
 		},
 		
+		/**
+		 * Discards all changes in an editable datatable
+		 */
 		discardChanges: function(link) {
 			var wrapper = $(link).parents( ".dataTables_wrapper" );
 
@@ -738,6 +743,37 @@ StudyEdit.datatables = {
 			wrapper.find( ".saveChanges .saving" ).hide();
 			wrapper.find( ".saveChanges td" ).slideUp(100);			
 			
+		},
+
+		showError: function( tableId, message ) {
+			var table = $( '#' + tableId );
+			var wrapper = table.parents( ".dataTables_wrapper" );
+			var footer = wrapper.find( ".dataTables_scrollFoot .dataTable tfoot" );
+			var numColumns = table.find( "tr" ).first().children().length;
+
+			var td = $( "<td>" )
+			.attr( "colspan", numColumns )
+			.text( message )
+			.append( 
+				$( "<a>" )
+					.attr( "href", "#" )
+					.addClass( "close" )
+					.text( "x" )
+					.on( "click", function() {
+						// Hide the error bar
+						td.slideUp( 100, function() {
+							tr.remove();
+						});
+					})
+			);	
+		
+			var tr = $( "<tr>" )
+				.addClass( "messagebar" )
+				.addClass( "errorbar" )
+				.append( td );
+
+			footer.prepend( tr );
+			td.slideDown( 100 );
 		},
 		
 		/**

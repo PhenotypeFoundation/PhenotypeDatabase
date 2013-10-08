@@ -5,6 +5,7 @@ import grails.plugins.springsecurity.Secured
 import dbnp.authentication.SecUser
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import grails.converters.JSON
+import org.hibernate.ObjectNotFoundException
 
 /**
  * Controller to handle adding and editing studies
@@ -225,7 +226,7 @@ class StudyEditController {
 		}
 		
 		// Add ordering; to determine the column to sort on
-		def sortColumnIndex = Math.max( params.int( "iSortCol_0" ), 0 )
+		def sortColumnIndex = params.int( "iSortCol_0" ) ?: 0
 		def sortOrder = params[ "sSortDir_0"] ?: "ASC"
 		
 		if( sortColumnIndex != null || sortColumnIndex >= ( domainFields.size() + template.fields.size() ) ) {
@@ -271,13 +272,20 @@ class StudyEditController {
 			subject.giveFields().each { field ->
 				def value = subject.getFieldValue( field.name )
 				
-				if( field.type == TemplateFieldType.DATE ) {
-					// transform date instance to formatted string (dd/mm/yyyy)
-					data << ( value ? String.format('%td/%<tm/%<tY', value) : "" )
-				} else if ( field.type == TemplateFieldType.RELTIME ) {
-					data << ( value ? new RelTime( value ).toString() : "" )
-				} else {
-					data << ( value ? value.toString() : "" )
+				try {
+					if( field.type == TemplateFieldType.DATE ) {
+						// transform date instance to formatted string (dd/mm/yyyy)
+						data << ( value ? String.format('%td/%<tm/%<tY', value) : "" )
+					} else if ( field.type == TemplateFieldType.RELTIME ) {
+						data << ( value ? new RelTime( value ).toString() : "" )
+					} else {
+						data << ( value ? value.toString() : "" )
+					}
+				} catch( ObjectNotFoundException e ) {
+					// An ObjectNotFoundException occurs if the field references an object that doesn't
+					// exist anymore. For example, if a template-field references a template, that has 
+					// been deleted. 
+					data << ""
 				} 
 			}
 			
