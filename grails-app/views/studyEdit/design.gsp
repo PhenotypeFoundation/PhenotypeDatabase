@@ -106,8 +106,8 @@
 				     data.push({
 				       'start': new Date(${group.startDate.time}),
 				       'end': new Date(${group.endDate.time}),  // end is optional
-				       'content': '${group.name.encodeAsJavaScript()}',
-				       'group': '${group.subjectGroup.name.encodeAsJavaScript()}',
+				       'content': '${group.eventGroup?.name.encodeAsJavaScript()}',
+				       'group': '${group.subjectGroup?.name.encodeAsJavaScript()}',
 				       // Optional: a field 'className'
 				       // Optional: a field 'editable'
 				     });
