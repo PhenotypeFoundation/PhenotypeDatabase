@@ -366,39 +366,14 @@ StudyEdit.datatables = {
 						$td.addClass( "invalid" );
 					}
 					
-					var fieldPrefix = StudyEdit.datatables.editable.getFieldPrefix( tableId );
 					fieldInput
 						.attr( "name", fieldId )
 						.attr( "id", fieldId )
 						.val( value )
 						.data( "original", value )
-						.data( "prototype", prototypeId )
-						.on( "change", function( event ) {
-							// Mark this cell as being changed
-							StudyEdit.datatables.editable.markChanged( event.target );
-							
-							// Change other cells as well, if this row is selected
-							var selectedIds = StudyEdit.datatables.elementsSelected[ tableId ];
-							if( $.inArray( parseInt( rowId ), selectedIds ) > -1 ) {
-								StudyEdit.datatables.editable.propagateChange( event.target, selectedIds );
-							}
-						})
-						.on( "keyup", function( e ) {
-							// Handle esc and enter key presses
-		                    if (e.keyCode == 27) {
-		                        e.preventDefault();
-		                        
-		                        var input = $(e.target);
-		                        input.val( input.data( "original" ) );
-								input.parents( "td" ).first().removeClass( "changed" );
-		                        
-		                    }
-		                    if (e.keyCode == 13) {
-		                        e.preventDefault();
-		                        
-		                        StudyEdit.datatables.editable.save(e.target);
-		                    }
-		                });
+						.data( "prototype", prototypeId );
+					
+					StudyEdit.datatables.editable.fields.addEventsToInput( fieldInput, tableId, rowId );
 					
 					// Handle special cases:
 					// checkbox must have a value and be checked if given value != empty
@@ -432,6 +407,58 @@ StudyEdit.datatables = {
 				// Initialize ontology and template fields
 				StudyEdit.datatables.editable.fields.initializeSelectAddMore( prototypeSelector );
 			},
+			
+			/**
+			 * Adds onChange and keyUp events to an input fields that handle changes 
+			 * and pressing enter or escape
+			 */
+			addEventsToInput: function( input, tableId, rowId ) {
+				StudyEdit.datatables.editable.fields.addChangeEventToInput( input, tableId, rowId );
+				StudyEdit.datatables.editable.fields.addKeyEventToInput( input );
+			},
+
+			/**
+			 * Adds onChange and keyUp events to an input fields that handle changes 
+			 * and pressing enter or escape
+			 */
+			addChangeEventToInput: function( input, tableId, rowId ) {
+				input
+					.on( "change", function( event ) {
+						// Mark this cell as being changed
+						StudyEdit.datatables.editable.markChanged( event.target );
+						
+						// Change other cells as well, if this row is selected
+						var selectedIds = StudyEdit.datatables.elementsSelected[ tableId ];
+						if( $.inArray( parseInt( rowId ), selectedIds ) > -1 ) {
+							StudyEdit.datatables.editable.propagateChange( event.target, selectedIds );
+						}
+					});
+			},
+
+			/**
+			 * Adds onChange and keyUp events to an input fields that handle changes 
+			 * and pressing enter or escape
+			 */
+			addKeyEventToInput: function( input ) {
+				input
+					.on( "keyup", function( e ) {
+						// Handle esc and enter key presses
+	                    if (e.keyCode == 27) {
+	                        e.preventDefault();
+	                        
+	                        var input = $(e.target);
+	                        input.val( input.data( "original" ) );
+							input.closest( "td" ).removeClass( "changed" );
+	                        
+	                    }
+	                    if (e.keyCode == 13) {
+	                        e.preventDefault();
+	                        
+	                        StudyEdit.datatables.editable.save(e.target);
+	                    }
+	                });
+			},
+			
 			
 			updateAutoCompletes: function( selector ) {
 				$(selector).find( ".ui-autocomplete-input" ).each( function( idx, el ) {
@@ -520,14 +547,15 @@ StudyEdit.datatables = {
 							if( oldValue != '' ) {
 								$(select).val( oldValue );
 							}
-							
-							// Add add/modify option again
-							if( rel == "template" ) {
-								StudyEdit.datatables.editable.fields.initializeSelectAddMoreTemplates( selector);
-							} else if( rel == "term" ) {
-								StudyEdit.datatables.editable.fields.initializeSelectAddMoreTerms( selector );
-							}
 						});
+						
+						// Add add/modify option again for all selects
+						if( rel == "template" ) {
+							StudyEdit.datatables.editable.fields.initializeSelectAddMoreTemplates( selector );
+						} else if( rel == "term" ) {
+							StudyEdit.datatables.editable.fields.initializeSelectAddMoreTerms( selector );
+						}
+												
 						
 					});
 			},
@@ -878,6 +906,9 @@ StudyEdit.datatables = {
 		    
 		},
 		
+		/**
+		 * Handle a click on an input to select a specific row
+		 */
 		clickRow: function(inputrow ) {
 		    var input = $(inputrow);
 
@@ -924,6 +955,9 @@ StudyEdit.datatables = {
 			}
 		},
 		
+		/**
+		 * Handle a click on the checkAll checkbox
+		 */
 		clickCheckAll: function( input ) {
 			var wrapper = $(input).closest( '.dataTables_wrapper' );
 		    var paginatedTable = wrapper.find( ".dataTables_scrollBody .dataTable" );
@@ -963,6 +997,9 @@ StudyEdit.datatables = {
 		            }
 		        }
 		        checkAll.removeClass( 'transparent' );
+		        
+				// Disable the 'select all pages' button
+				wrapper.find( ".selectAll td" ).slideUp( 100 );
 		    }
 		    
 		    // The ui-selected class is used by the selectable element, and is not needed 
@@ -1022,6 +1059,8 @@ StudyEdit.datatables = {
 			
 			StudyEdit.datatables.selection.updateLabel(tableId);
 			
+			// Disable the 'select all pages' button
+			wrapper.find( ".selectAll td" ).slideUp( 100 );
 		},
 		
 		/**
@@ -1090,6 +1129,9 @@ StudyEdit.datatables = {
 		    }
 		},
 		
+		/**
+		 * Check all checkboxes that have been selected, due to another event.
+		 */
 		checkSelectedCheckboxes: function( tableId ) {
 		
 			// Add a selectbox or radiobutton to each row
@@ -1131,6 +1173,9 @@ StudyEdit.datatables = {
 			StudyEdit.datatables.selection.updateCheckAll( trsOnScreen.parent() );
 		},
 
+		/**
+		 * Submit a form taking into account its paginated nature (i.e. it has been spread over multiple pages)
+		 */
 		submitPaginatedForm: function( id, url, nothingInFormMessage ) {
 		
 		    var form = $("#"+id+"_form");

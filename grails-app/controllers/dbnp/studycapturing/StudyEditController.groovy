@@ -74,47 +74,7 @@ class StudyEditController {
 	 * @return
 	 */
 	def subjects() {
-		def study = getStudyFromRequest( params )
-		if( !study ) {
-			redirect action: "add"
-			return
-		}
-		
-		// Check the number of subjects, and the specific templates, without loading all subjects 
-		// for efficiency reasons
-		def numSubjects = Subject.countByParent( study )
-		def subjectTemplates = Subject.executeQuery("select distinct s.template from Subject s WHERE s.parent = ?", [ study ] )
-		
-		[ 
-			study: study, 
-			templates: Template.findAllByEntity( Subject.class ), 
-			subjectTemplates: subjectTemplates, 
-			numSubjects: numSubjects,
-			domainFields: Subject.domainFields			
-		]
-	}
-	
-	/**
-	 * Returns data for the subjects datatable
-	 * @return
-	 */
-	def dataTableSubjects() {
-		def template = Template.read( params.long( "template" ) )
-		def study = Study.read( params.long( "id" ) )
-		
-		if( !study ) {
-			render dataTableError( "Invalid study given: " + study ) as JSON
-			return
-		}
-		
-		if( !template ) {
-			render dataTableError( "Invalid template given: " + template ) as JSON
-			return
-		}
-
-		def searchParams = datatablesService.parseParams( params )
-		def data = studyEditService.getEntitiesForTemplate( searchParams, study, template )
-		render datatablesService.createDatatablesOutput( data, params ) as JSON
+		prepareDataForDatatableView( Subject )
 	}
 	
 	/**
@@ -122,85 +82,8 @@ class StudyEditController {
 	 * @return
 	 */
 	def editSubjects() {
-		def study = getStudyFromRequest( params )
-		if( !study || !study.id ) {
-			response.status = 404
-			render "Study not found"
-			return
-		}
-		
-		// Loop over all subjects
-		def success = true
-		def errors = [:]
-		def subjectsToSave = []
-		
-		params.subject.each { key, newProperties ->
-			// Key should be a subject ID
-			if( !key.isLong() ) {
-				return;
-			}
-			
-			def subject = Subject.read( key.toLong() )
-			
-			// If no proper subject is found, (or it belongs to another study), return
-			if( !subject || subject.parent != study ) {
-				return
-			}
-			
-			// Store the new values into each entity field
-			subject.giveFields().each() { field ->
-				if( newProperties.containsKey( field.escapedName() ) ) {
-					// set field
-					subject.setFieldValue(
-						field.name,
-						newProperties[ field.escapedName() ]
-					)
-				}
-			}
-			
-			if( subject.validate() ) {
-				subjectsToSave << subject
-			} else {
-				success = false
-				subject.errors.allErrors.each { error ->
-					errors[ error.getArguments()[0] ] = g.message(error: error)
-				}
-			}
-		}
-		
-		def result
-		if( success ) {
-			// Save all subjects
-			subjectsToSave.each {
-				it.save()
-			}
-			
-			result = ["OK"]
-		} else {
-			result = [
-				message: "Validation errors occurred",
-				errors: errors
-			]
-		}
-		
-		render result as JSON
+		render editEntities( "subject", Subject ) as JSON
 	}
-
-	/**
-	 * Returns an error response for the datatable
-	 * @param error
-	 * @return
-	 */
-	protected def dataTableError( error ) {
-		return [
-			sEcho: 					params.sEcho,
-			iTotalRecords: 			0,
-			iTotalDisplayRecords: 	0,
-			aaData:					[],
-			errorMessage: 			error
-		]
-	}
-	
 	
 	def design() {
 		def study = getStudyFromRequest( params )
@@ -219,26 +102,23 @@ class StudyEditController {
 
 	}
 	
+	
+	/**
+	 * Shows the overview page to edit subject details. 
+	 * @return
+	 */
 	def samples() {
-		def study = getStudyFromRequest( params )
-		if( !study ) {
-			redirect action: "add"
-			return
-		}
-		
-		// Check the number of subjects, and the specific templates, without loading all subjects
-		// for efficiency reasons
-		def numSamples = Sample.countByParent( study )
-		def templates = Sample.executeQuery("select distinct s.template from Sample s WHERE s.parent = ?", [ study ] )
-		
-		[
-			study: study,
-			sampleTemplates: templates,
-			numSamples: numSamples,
-			domainFields: Sample.domainFields
-		]
+		prepareDataForDatatableView( Sample )
 	}
 	
+	/**
+	 * Stores changes in the subject details
+	 * @return
+	 */
+	def editSamples() {
+		render editEntities( "sample", Sample ) as JSON
+	}
+		
 	def assays() {}
 	
 	/**
@@ -264,6 +144,157 @@ class StudyEditController {
 			template: 'prototypes', 
 			model: [ template: template ]
 		)
+	}
+	
+	/**
+	 * Returns data for a templated datatable. The type of entities is based on the template given.
+	 * @return
+	 */
+	def dataTableEntities() {
+		def template = Template.read( params.long( "template" ) )
+		def study = Study.read( params.long( "id" ) )
+		
+		if( !study ) {
+			render dataTableError( "Invalid study given: " + study ) as JSON
+			return
+		}
+		
+		if( !template ) {
+			render dataTableError( "Invalid template given: " + template ) as JSON
+			return
+		}
+		
+		def searchParams = datatablesService.parseParams( params )
+		def data = studyEditService.getEntitiesForTemplate( searchParams, study, template )
+		render datatablesService.createDatatablesOutput( data, params ) as JSON
+	}
+	
+	/**
+	 * Prepares the data for the datatable view
+	 * @param entityClass	Class for the type of entities to show. E.g. Subject
+	 * @return	a list of data to return to the view
+	 */
+	protected def prepareDataForDatatableView( entityClass ) {
+		def study = getStudyFromRequest( params )
+		if( !study ) {
+			redirect action: "add"
+			return
+		}
+		
+		// Check the distinct templates for these entities, without loading all 
+		// entities for efficiency reasons
+		def templates = entityClass.executeQuery("select distinct s.template from " + entityClass.simpleName + " s WHERE s.parent = ?", [ study ] )
+		
+		[
+			study: study,
+			templates: templates,
+			domainFields: entityClass.domainFields
+		]
+
+	}
+	
+	/**
+	 * Updates entities in the database with new properties, as entered through the templated datatable
+	 * @param paramsProperty	Name of the property in the HTTP request that contains changed data. 
+	 * 							The structure of the HTTP paramaeters should be similar to this:
+	 * 								[propertyName].[entityID].[fieldName]=[newValue]
+	 * 							So the map will be like this:
+	 * 								[ entityID: 	[ 
+	 * 													fieldName: newValue,
+	 * 													otherFieldName: newValue
+	 *												],
+	 *								  otherEntityID:[ 
+	 * 													fieldName: newValue,
+	 * 													otherFieldName: newValue
+	 *												]
+	 * 								]
+	 * @param entityClass		Class for the type of entities to update. E.g. Subject
+	 * @return
+	 */
+	protected def editEntities( paramsProperty, entityClass ) {
+		def study = getStudyFromRequest( params )
+		if( !study || !study.id ) {
+			response.status = 404
+			render "Study not found"
+			return
+		}
+		
+		if(!params[ paramsProperty ] ) {
+			// Not a big problem, apparently no entities are altered
+			log.warn "No entities given while editing " + entityClass
+			return [ "OK" ]
+		}
+		
+		// Loop over all subjects
+		def success = true
+		def errors = [:]
+		def entitiesToSave = []
+		
+		params[ paramsProperty ].each { key, newProperties ->
+			// Key should be a subject ID
+			if( !key.isLong() ) {
+				return;
+			}
+			
+			def entity = entityClass.read( key.toLong() )
+			
+			// If no proper subject is found, (or it belongs to another study), return
+			if( !entity || entity.parent != study ) {
+				return
+			}
+			
+			// Store the new values into each entity field
+			entity.giveFields().each() { field ->
+				if( newProperties.containsKey( field.escapedName() ) ) {
+					// set field
+					entity.setFieldValue(
+						field.name,
+						newProperties[ field.escapedName() ]
+					)
+				}
+			}
+			
+			if( entity.validate() ) {
+				entitiesToSave << entity
+			} else {
+				success = false
+				entity.errors.allErrors.each { error ->
+					errors[ error.getArguments()[0] ] = g.message(error: error)
+				}
+			}
+		}
+		
+		def result
+		if( success ) {
+			// Save all subjects
+			entitiesToSave.each {
+				it.save()
+			}
+			
+			result = ["OK"]
+		} else {
+			result = [
+				message: "Validation errors occurred",
+				errors: errors
+			]
+		}
+		
+		return result
+	}
+	
+	/**
+	 * Returns an error response for the datatable
+	 * @param error
+	 * @return
+	 */
+	protected def dataTableError( error ) {
+		return [
+			sEcho: 					params.sEcho,
+			iTotalRecords: 			0,
+			iTotalDisplayRecords: 	0,
+			aaData:					[],
+			errorMessage: 			error
+		]
 	}
 	
 	/**

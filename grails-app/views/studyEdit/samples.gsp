@@ -7,10 +7,10 @@
 	<r:require modules="studyEdit,gscf-datatables" />
 </head>
 <body>
-	<div class="studyEdit studySubjects">
+	<div class="studyEdit studySamples">
 		<h1>
 			Edit study [${study.title?.encodeAsHTML()}]
-			<g:render template="steps" model="[study: study, active: 'subjects']"  />
+			<g:render template="steps" model="[study: study, active: 'samples']"  />
 		</h1>
 		
 		<g:if test="${error}">
@@ -25,8 +25,8 @@
 		</g:if>	
 		
 		<span class="info"> 
-			<span class="title">Define or import your subjects</span> 
-			List all subjects and enter information about them. You can also import your subjects from an excel sheet.
+			<span class="title">Edit samples or import more</span> 
+			Review the list of samples and edit their details. You can also import more samples from an excel sheet.
 		</span>
 		
 		<g:if test="${flash.validationErrors}">
@@ -37,13 +37,13 @@
 			</div>
 		</g:if>  
 		 
-		<g:form action="subjects" name="subjects">
+		<g:form action="samples" name="samples">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="id" value="${study.id}" />
 			
 			<g:each in="${templates}" var="template">
 				<h3>Template: ${template.name}</h3>
-				<table id="subjectsTable_${template.id}" data-templateId="${template.id}" data-fieldPrefix="subject" data-formId="subjectForm" class="subjectsTable selectMulti" rel="${g.createLink(action:"dataTableEntities", id: study.id, params: [template: template.id])}">
+				<table id="samplesTable_${template.id}" data-templateId="${template.id}" data-fieldPrefix="sample" data-formId="sampleForm" class="samplesTable selectMulti" rel="${g.createLink(action:"dataTableEntities", id: study.id, params: [template: template.id])}">
 					<thead>
 						<tr>
 							<g:each in="${domainFields + template.getFields()}" var="field">
@@ -69,7 +69,7 @@
 					</tfoot>
 				</table>
 				
-				<div id="subjectsTable_${template.id}_prototype" style="display: none" class="editable prototype">
+				<div id="samplesTable_${template.id}_prototype" style="display: none" class="editable prototype">
 					<g:render template="prototypes" model="[ template: template]" />
 				</div>							
 			</g:each>			
@@ -77,13 +77,13 @@
 			<br clear="all" />
 		</g:form>
 
-		<g:form action="editSubjects" name="subjectForm">
+		<g:form action="editSamples" name="sampleForm">
 			<g:hiddenField class="original" name="id" value="${study.id}" />
 		</g:form>
 		
 		<r:script>
 			$(function() {
-				StudyEdit.datatables.initialize( ".subjectsTable" );
+				StudyEdit.datatables.initialize( ".samplesTable" );
 			});
 		</r:script>
 	</div>
