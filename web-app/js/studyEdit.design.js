@@ -14,7 +14,7 @@ StudyEdit.design = {
 				t0: studyStartDate
 			}
 		);
-		StudyEdit.eventGroups.initialize();
+		StudyEdit.eventGroups.initialize( studyStartDate );
 	},
 	
 	editableTimeline: function( container, data, options ) {
@@ -113,18 +113,39 @@ StudyEdit.eventGroups = {
 		StudyEdit.eventGroups.openDialog();
 
 		// Create a timeline, if it doesn't exist
-		if( $( '.timeline-frame', dialog ).length == 0 ) {
-			StudyEdit.eventGroups.timeline = StudyEdit.design.editableTimeline( "#timeline-events", [], { dragFrom: "#events, #sampling_events" } );
-		} else {
-			StudyEdit.eventGroups.timeline.clearItems();
-			StudyEdit.eventGroups.timeline.repaint();
-		}
+		StudyEdit.eventGroups.createEmptyTimeline( dialog.data( "studyStartDate" ) );
 	},
-	edit: function( id ) {},
 	save: function() {},
+	edit: function( id, dataUrl ) {
+		var dialog = $( '#eventGroupDialog' );
+		dialog.dialog( "option", "title", "Edit eventgroup" );
+		
+		StudyEdit.eventGroups.openDialog();
+
+		// Create a timeline, if it doesn't exist
+		StudyEdit.eventGroups.createEmptyTimeline( dialog.data( "studyStartDate" ) );
+		
+		// Load the data for the timeline
+		$.get( dataUrl, function( data ) {
+			var convertedData = $.map( data.events, function( event, idx ) { 
+				event.start = new Date( event.start );
+				
+				if( event.end ) {
+					event.end = new Date( event.end );
+				}
+				
+				return event;
+			} );
+			StudyEdit.eventGroups.timeline.setData( convertedData );
+			
+			StudyEdit.eventGroups.timeline.setVisibleChartRange( new Date( data.start ), new Date( data.end ), true );
+		});
+	},
+	update: function() {},
 	delete: function( id ) {},
 	
-	initialize: function() {
+	initialize: function( studyStartDate ) {
+		// Create a dialog to add or edit event groups
 		$( '#eventGroupDialog' ).dialog( { 
 			modal: true, 
 			autoOpen: false,
@@ -151,7 +172,28 @@ StudyEdit.eventGroups = {
 				$( "#timeline-eventgroups" ).droppable( "enable" );
 			},
 
+		}).data( "studyStartDate", studyStartDate );
+		
+		// Enable buttons on existing event groups
+		$(document).on( "click", "#eventgroups .edit", function() {
+			var li = $(this).closest( "li" );
+			StudyEdit.eventGroups.edit( li.data( "origin-id" ), li.data( "url" ) ); return false; 
 		} );
+		$(document).on( "click", "#eventgroups .delete", function() {} );
+	},
+	
+	createEmptyTimeline: function( studyStartDate ) {
+		var dialog = $( '#eventGroupDialog' );
+		
+		if( $( '.timeline-frame', dialog ).length == 0 ) {
+			StudyEdit.eventGroups.timeline = StudyEdit.design.editableTimeline( "#timeline-events", [], { 
+				dragFrom: "#events, #sampling_events",
+				t0: studyStartDate
+			} );
+		} else {
+			StudyEdit.eventGroups.timeline.clearItems();
+			StudyEdit.eventGroups.timeline.repaint();
+		}
 	},
 	
 	openDialog: function() {

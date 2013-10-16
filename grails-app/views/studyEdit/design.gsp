@@ -41,12 +41,15 @@
 					<h3>Available event groups</h3>
 					<ul>
 						<g:each in="${study.eventGroups}" var="eventgroup">
-							<li data-duration="${eventgroup.duration.value}" data-origin-id="${eventgroup.id}">
+							<li data-duration="${eventgroup.duration.value}" data-origin-id="${eventgroup.id}" data-url="${g.createLink( controller: 'studyEdit', action: 'eventGroupDetails', id: eventgroup.id)}">
 								<span class="name">${eventgroup.name}</span>
 								<span class="events">
 									${eventgroup.contents}
 								</span>
-								<a href="#" class="delete">del</a>
+								<span class="buttons">
+									<a href="#" class="edit">edit</a>
+									<a href="#" class="delete">del</a>
+								</span>
 							</li>
 						</g:each>
 						<li class="add" onClick=" StudyEdit.eventGroups.add();">Add new</li>
@@ -56,8 +59,6 @@
 			
 			<br clear="all" />
 		</g:form>
-		
-		<g:form action="subjectEventGroup" name="subjectEventGroup"></g:form>
 		
 		<div id="eventGroupDialog">
 			<span class="info"> 
@@ -80,7 +81,10 @@
 						<g:each in="${study.events}" var="event">
 							<li data-duration="0" data-origin-id="${event.id}">
 								<span class="name">${event.name ?: '[event without name]'}</span>
-								<a href="#" class="delete">del</a>
+								<span class="buttons">
+									<a href="#" class="edit">edit</a>
+									<a href="#" class="delete">del</a>
+								</span>
 							</li>
 						</g:each>
 						<li class="add"><a href="#">Add new</a></li>
@@ -92,7 +96,10 @@
 						<g:each in="${study.samplingEvents}" var="samplingEvent">
 							<li data-origin-id="${samplingEvent.id}">
 								<span class="name">${samplingEvent.name ?: '[samplingevent without name]'}</span>
-								<a href="#" class="delete">del</a>
+								<span class="buttons">
+									<a href="#" class="edit">edit</a>
+									<a href="#" class="delete">del</a>
+								</span>
 							</li>
 						</g:each>
 						<li class="add">Add new</li>
@@ -100,6 +107,12 @@
 				</div>
 			</div>			
 		</div>
+
+		<%-- These forms are meant to use the URL in javascript in a generic way --%>		
+		<g:form action="event" name="eventGroup"></g:form>
+		<g:form action="samplingEvent" name="samplingEvent"></g:form>
+		<g:form action="eventGroup" name="eventGroup"></g:form>
+		<g:form action="subjectEventGroup" name="subjectEventGroup"></g:form>
 		
 		<r:script>	
 			$(function() {
