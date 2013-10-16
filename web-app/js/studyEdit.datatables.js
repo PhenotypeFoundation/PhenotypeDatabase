@@ -319,7 +319,8 @@ StudyEdit.datatables = {
 						// Change other cells as well, if this row is selected
 						var selectedIds = StudyEdit.datatables.elementsSelected[ tableId ];
 						if( $.inArray( parseInt( rowId ), selectedIds ) > -1 ) {
-							StudyEdit.datatables.editable.propagateChangeInFileField( $(td), selectedIds );
+							var td = $(event.target).closest( "td" );
+							StudyEdit.datatables.editable.propagateChangeInFileField( td, selectedIds );
 						}
 					});
 				
@@ -335,7 +336,8 @@ StudyEdit.datatables = {
 							// Change other cells as well, if this row is selected
 							var selectedIds = StudyEdit.datatables.elementsSelected[ tableId ];
 							if( $.inArray( parseInt( rowId ), selectedIds ) > -1 ) {
-								StudyEdit.datatables.editable.propagateChangeInFileField( $(td), selectedIds );
+								var td = $(event.target).closest( "td" );
+								StudyEdit.datatables.editable.propagateChangeInFileField( td, selectedIds );
 							}							
 						}
 						return false;
