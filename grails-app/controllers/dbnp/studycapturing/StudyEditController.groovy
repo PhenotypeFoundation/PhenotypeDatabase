@@ -102,6 +102,95 @@ class StudyEditController {
 
 	}
 	
+	/**
+	 * Adds a subject eventgroup with new properties from the form
+	 * @return
+	 */
+	def subjectEventGroupAdd() {
+		def subjectEventGroup = new SubjectEventGroup();
+		def study = getStudyFromRequest( params )
+		
+		subjectEventGroup.parent = study
+		
+		if( params.long( "start" ) ) {
+			subjectEventGroup.startTime = ( params.long( "start" ) - study.startDate.time ) / 1000;
+		}
+		
+		def subjectGroupName = params.get( "subjectGroup" )
+		if( subjectGroupName ) {
+			def subjectGroup = subjectEventGroup.parent.subjectGroups.find { it.name == subjectGroupName }
+			
+			if( subjectGroup )
+				subjectEventGroup.subjectGroup = subjectGroup
+		}
+		
+		def eventGroupId = params.long( "eventGroupId" )
+		if( eventGroupId )
+			subjectEventGroup.eventGroup = EventGroup.read( eventGroupId ) 
+		
+		def result
+		if( subjectEventGroup.save() ) {
+			study.addToSubjectEventGroups( subjectEventGroup );
+			result = [ status: "OK", id: subjectEventGroup.id ]
+		} else {
+			response.status = 500
+			result = [ status: "Error" ]
+		}
+		
+		render result as JSON
+		
+	}
+	
+	/**
+	 * Updates a subject eventgroup with new properties from the form
+	 * @return
+	 */
+	def subjectEventGroupUpdate() {
+		def subjectEventGroup = SubjectEventGroup.read( params.long( "id" ) );
+		
+		if( !subjectEventGroup ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+		
+		if( params.long( "start" ) ) {
+			subjectEventGroup.setAbsoluteStartTime( params.long( "start" ) / 1000 );
+		}
+		
+		def subjectGroupName = params.get( "subjectGroup" ) 
+		if( subjectGroupName && subjectGroupName != subjectEventGroup.subjectGroup?.name ) {
+			def subjectGroup = subjectEventGroup.parent.subjectGroups.find { it.name == subjectGroupName }
+			
+			if( subjectGroup )
+				subjectEventGroup.subjectGroup = subjectGroup
+		}
+		
+		if( subjectEventGroup.save() ) {
+			render "OK"
+		} else {
+			response.status = 500
+			render "Error"
+		}
+	}
+	
+	/**
+	 * Removes a subject eventgroup from the system
+	 * @return
+	 */
+	def subjectEventGroupDelete() {
+		def subjectEventGroup = SubjectEventGroup.read( params.long( "id" ) );
+		
+		if( !subjectEventGroup ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+		
+		subjectEventGroup.parent.removeFromSubjectEventGroups( subjectEventGroup )
+		subjectEventGroup.delete()
+		render "OK"
+	}
 	
 	/**
 	 * Shows the overview page to edit subject details. 

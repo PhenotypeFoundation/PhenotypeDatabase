@@ -43,12 +43,19 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 		   		 var offsetTop = ui.offset.top - links.Timeline.getAbsoluteTop( timeline.dom.content );
 		    		 if( !isNaN( offsetLeft ) && !isNaN( offsetTop ) && offsetTop > 0 && offsetLeft > 0 ) {
 		    			var start = timeline.screenToTime( offsetLeft );
+		    			
+		    			// Snap events to whole date/time
+		                if (timeline.options.snapEvents) {
+		                    timeline.step.snap(start);	
+		                }
+		    			
 		    	        var group = timeline.getGroupFromHeight( offsetTop );
 		    		    
 		    	        var itemOptions = {
 		    		        'start': start,
 		    		        'content': ui.helper.find( '.name' ).text(),
-		    		        'group': timeline.getGroupName( group )
+		    		        'group': timeline.getGroupName( group ),
+		    		        'className': 'dragged-origin-id-' + ui.draggable.data( "origin-id" )
 		    		    };
 		    	        
 		    	        // Determine the duration of this event. Set to 0 if the event has a 
@@ -70,8 +77,8 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 		    	        }
 		    	         
 		    	        timeline.addItem( itemOptions );
-		    		    
-		    	        timeline.selectItem(timeline.items.length - 1);				     		    
+		    	        timeline.selectItem(timeline.items.length - 1);
+		    	        timeline.trigger( "add" );
 		    		 }
 			     }
 		    });	     

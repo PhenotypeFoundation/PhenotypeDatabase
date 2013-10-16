@@ -41,7 +41,7 @@
 					<h3>Available event groups</h3>
 					<ul>
 						<g:each in="${study.eventGroups}" var="eventgroup">
-							<li data-duration="${eventgroup.duration}">
+							<li data-duration="${eventgroup.duration.value}" data-origin-id="${eventgroup.id}">
 								<span class="name">${eventgroup.name}</span>
 								<span class="events">
 									${eventgroup.contents}
@@ -56,6 +56,8 @@
 			
 			<br clear="all" />
 		</g:form>
+		
+		<g:form action="subjectEventGroup" name="subjectEventGroup"></g:form>
 		
 		<div id="eventGroupDialog">
 			<span class="info"> 
@@ -76,7 +78,7 @@
 					<h3>Available treatments / challenges</h3>
 					<ul>
 						<g:each in="${study.events}" var="event">
-							<li data-duration="0">
+							<li data-duration="0" data-origin-id="${event.id}">
 								<span class="name">${event.name ?: '[event without name]'}</span>
 								<a href="#" class="delete">del</a>
 							</li>
@@ -88,7 +90,7 @@
 					<h3>Available sampling events</h3>
 					<ul>
 						<g:each in="${study.samplingEvents}" var="samplingEvent">
-							<li>
+							<li data-origin-id="${samplingEvent.id}">
 								<span class="name">${samplingEvent.name ?: '[samplingevent without name]'}</span>
 								<a href="#" class="delete">del</a>
 							</li>
@@ -108,12 +110,18 @@
 				       'end': new Date(${group.endDate.time}),  // end is optional
 				       'content': '${group.eventGroup?.name.encodeAsJavaScript()}',
 				       'group': '${group.subjectGroup?.name.encodeAsJavaScript()}',
+				       'className': 'eventgroup eventgroup-id-${group.id}',
 				       // Optional: a field 'className'
 				       // Optional: a field 'editable'
 				     });
      				</g:each>
 				
 				StudyEdit.design.initialize( data, new Date(${study.startDate?.time}) );
+				
+				// Make sure all groups exist
+				<g:each in="${study.subjectGroups}" var="group">
+					StudyEdit.design.timeline.getGroup( '${group.name.encodeAsJavaScript()}')
+  				</g:each>
 			});
 		</r:script>
 	</div>
