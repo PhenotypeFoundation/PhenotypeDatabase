@@ -431,7 +431,8 @@ links.Timeline.prototype.setData = function(data) {
                 'group':     ((cols.group != undefined)     ? data.getValue(row, cols.group)     : undefined),
                 'className': ((cols.className != undefined) ? data.getValue(row, cols.className) : undefined),
                 'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined),
-                'type':      ((cols.editable != undefined)  ? data.getValue(row, cols.type)      : undefined)
+                'type':      ((cols.editable != undefined)  ? data.getValue(row, cols.type)      : undefined),
+                'data':      undefined
             }));
         }
     }
@@ -4351,7 +4352,7 @@ links.Timeline.prototype.getItem = function (index) {
         properties.group = this.getGroupName(item.group);
     }
     if ('className' in item) {
-        properties.className = this.getGroupName(item.className);
+        properties.className = item.className;
     }
     if (item.hasOwnProperty('editable') && (typeof item.editable != 'undefined')) {
         properties.editable = item.editable;
@@ -4438,7 +4439,8 @@ links.Timeline.prototype.createItem = function(itemData) {
         className: itemData.className,
         editable: itemData.editable,
         group: this.getGroup(itemData.group),
-        type: type
+        type: type,
+        data: itemData.data
     };
     // TODO: optimize this, when creating an item, all data is copied twice...
 

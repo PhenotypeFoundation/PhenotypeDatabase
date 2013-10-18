@@ -40,7 +40,7 @@
 						<td><input type="checkbox" name="id" value="${studyInstance.id}" id="${studyInstance.title}"></td>
 						<td><g:link class="linktips" action="show" title="View this study" id="${studyInstance?.id}"><img src='${fam.icon(name: 'magnifier')}' border="0" alt="view study" /></g:link></td>
 						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
-							<g:link class="edit linktips" title="Edit this study" controller="studyWizard" params="[jump:'edit']" id="${studyInstance?.id}">
+							<g:link class="edit linktips" title="Edit this study" controller="studyEdit" action="edit" id="${studyInstance?.id}">
 								<img src='${fam.icon(name: 'wand')}' border="0" alt="Edit this study" /></g:link>
 							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> 
 						</td>

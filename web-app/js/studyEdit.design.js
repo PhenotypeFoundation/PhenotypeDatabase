@@ -47,21 +47,61 @@ StudyEdit.design = {
 	    	var selectedIndex = StudyEdit.design.getSelectedIndex( timeline );
 	    	var eventGroupId = StudyEdit.design.getIdFromClassName( "dragged-origin-id-", selectedRow );
 	    	var studyId = $( "#design" ).find( "#id" ).val();
-	    	StudyEdit.subjectEventGroups.add( studyId, selectedRow.start, selectedRow.group, eventGroupId, function( id ) {
-	    		timeline.updateData( selectedIndex, { className: "eventgroup-id-" + id } );
+	    	StudyEdit.subjectEventGroups.add( studyId, selectedRow.start, selectedRow.group, eventGroupId, function( element ) {
+	    		timeline.updateData( selectedIndex, { data: { id: element.id, group: element.subjectGroup, hasSamples: false } } );
 	    	});
 	    });
 	    
 	    links.events.addListener(timeline, 'change', function() {
 	    	var selectedRow = StudyEdit.design.getSelectedRow( timeline );
-	    	var id = StudyEdit.design.getIdFromClassName( "eventgroup-id-", selectedRow );
-	    	StudyEdit.subjectEventGroups.update( id, selectedRow.start, selectedRow.group );
+	    	var selectedIndex = StudyEdit.design.getSelectedIndex( timeline );
+	    	
+	    	console.log( "Start update: ", selectedRow );
+	    	
+	    	if( selectedRow.data ) {
+		    	var id = selectedRow.data.id;
+		    	var originalGroup = selectedRow.data.group;
+		    	var groupChanged = originalGroup != selectedRow.group;
+		    	var hasSamples = selectedRow.data.hasSamples;
+		    	
+		    	var changed = StudyEdit.subjectEventGroups.update( id, selectedRow.start, selectedRow.group, originalGroup, hasSamples );
+		    	
+		    	// The change can be cancelled if the user chooses to, or an error occurs. In that case, the original state must be restored
+		    	if( changed ) {
+		    		var newData = {
+		    			id: id,
+		    			group: selectedRow.group,
+		    			hasSamples: ( groupChanged ? false : hasSamples )
+		    		}
+			    		
+		    		timeline.updateData( selectedIndex, { data: newData } );
+		    	} else {
+		    		timeline.cancelChange();
+		    		// Restore original group, since the timeline script doesn't do that properly
+		    		timeline.updateData( selectedIndex, { group: originalGroup } );
+		    	}
+	    	} else {
+	    		console.log( "Invalid data from timeline: ", selectedRow );
+	    		timeline.cancelChange();
+	    		// Restore original group
+	    		timeline.updateData( selectedIndex, { group: originalGroup } );
+	    	}
 	    });
 	    
 	    links.events.addListener(timeline, 'delete', function() {
 	    	var selectedRow = StudyEdit.design.getSelectedRow( timeline );
-	    	var id = StudyEdit.design.getIdFromClassName( "eventgroup-id-", selectedRow );
-	    	StudyEdit.subjectEventGroups.delete( id );
+
+	    	if( selectedRow.data ) {
+		    	var id = selectedRow.data.id;
+		    	var hasSamples = selectedRow.data.hasSamples;
+		    	
+		    	// Delete the SubjectEventGroup itself. It if fails, also don't delete it from the timeline 
+		    	if( !StudyEdit.subjectEventGroups.delete( id, hasSamples ) ) {
+		    		timeline.cancelDelete();
+		    	}
+	    	} else {
+	    		timeline.cancelDelete();
+	    	}
 	    });
 	    
 	    
@@ -234,28 +274,48 @@ StudyEdit.subjectEventGroups = {
 		};
 		$.post( url, data, function( returnData ) {
 			if( typeof( afterAdd ) != "undefined" ) {
-				afterAdd( returnData.id );
+				afterAdd( returnData );
 			}
 		});
 	},
-	update: function( id, start, group ) {
+	update: function( id, start, group, originalGroup, hasSamples, afterChange ) {
 		var url = $( 'form#subjectEventGroup' ).attr( 'action' ) + "Update";
 		var data = { 
 			id: id, 
 			start: start.getTime(),
 			subjectGroup: group
 		};
-		$.post( url, data, function() {
-			console.log( "SubjectEventgroup updated" );
-		});
+		
+		var doUpdate = true;
+		
+		if( hasSamples && originalGroup != group ) {
+			doUpdate = confirm( "Moving this eventgroup to another subjectgroup will delete all samples that originated from it. Are you sure you want to move the eventgroup?" );
+		}
+		
+		if( doUpdate ) {
+			$.post( url, data, function( returnData ) {
+				if( typeof( afterChange ) != "undefined" ) {
+					afterChange( returnData );
+				}
+			});
+		}
+		
+		return doUpdate;
 	},
-	delete: function( id ) {
+	delete: function( id, hasSamples ) {
 		var url = $( 'form#subjectEventGroup' ).attr( 'action' ) + "Delete";
 		var data = { 
 			id: id
 		};
-		$.post( url, data, function() {
-			console.log( "SubjectEventgroup deleted" );
-		});
+		
+		if( !hasSamples || confirm( "Deleting this eventgroup will also delete all samples that originated from it. Are you sure you want to delete the eventgroup?" ) ) {
+			$.post( url, data, function() {
+				console.log( "SubjectEventgroup deleted" );
+			});
+			
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

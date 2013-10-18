@@ -123,7 +123,12 @@
 				       'end': new Date(${group.endDate.time}),  // end is optional
 				       'content': '${group.eventGroup?.name.encodeAsJavaScript()}',
 				       'group': '${group.subjectGroup?.name.encodeAsJavaScript()}',
-				       'className': 'eventgroup eventgroup-id-${group.id}',
+				       'className': 'eventgroup eventgroup-id-${group.id} <g:if test="${group.samples}">hasSamples</g:if>',
+				       'data': { 
+				       		id: ${group.id},
+				       		hasSamples: <g:if test="${group.samples}">true</g:if><g:else>false</g:else>,
+				       		group: '${group.subjectGroup?.name.encodeAsJavaScript()}'
+				       }
 				       // Optional: a field 'className'
 				       // Optional: a field 'editable'
 				     });

@@ -187,8 +187,7 @@ class StudyEditController {
 			return
 		}
 
-		subjectEventGroup.parent.removeFromSubjectEventGroups( subjectEventGroup )
-		subjectEventGroup.delete()
+		subjectEventGroup.parent.deleteSubjectEventGroup( subjectEventGroup )
 		render "OK"
 	}
 

@@ -206,5 +206,4 @@ class HomeController {
 
 		redirect(controller:"home")
 	}
-
 }
