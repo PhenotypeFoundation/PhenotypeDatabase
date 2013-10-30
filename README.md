@@ -81,44 +81,46 @@ As of GSCF 0.8.3 a setup wizard is included which will create a configuration fi
 If you start the application, you will see exactly at which location it is looking for a configuration file. It is probably /usr/share/tomcat6/.gscf/production.properties. You can use it to specify the database connection, for example as follows:
 
 ```
-# server URL
-grails.serverURL=http://test.mysite.com
+## Server URL ##
+grails.serverURL=http://dbnp.mysite.org
+gscf.baseURL=http://dbnp.mysite.org/
+gscf.issueURL=https://github.com/PhenotypeFoundation/GSCF/issues # In case you have your own fork, please change the Issue URL to fork issues
 
-# DATABASE
+## DATABASE ##
 dataSource.driverClassName=org.postgresql.Driver
 dataSource.dialect=org.hibernate.dialect.PostgreSQLDialect
 dataSource.url=jdbc:postgresql://localhost:5432/gscf-www
 dataSource.dbCreate=update
-dataSource.username=gscfuser
-dataSource.password=mydbpassword
+dataSource.username=<gscfuser>
+dataSource.password=<password>
 #dataSource.logSql=false
 
-# SpringSecurity E-Mail Settings
+## SpringSecurity E-Mail Settings  ##
 grails.plugins.springsecurity.ui.forgotPassword.emailFrom=gscfproject@gmail.com
 
-# module configuration
-#modules.sam.url=http://old.sam.dbnp.org
-#modules.metabolomics.url=http://old.metabolomics.dbnp.org
-#modules.metagenomics.url=http://old.metagenomics.dbnp.org
+## Module Configuration ##
+# modules.sam.url=http://sam.mysite.org
+# modules.metabolomics.url=http://metabolomics.mysite.org
+# modules.metagenomics.url=http://metagenomics.mysite.org
 
-# default application users
-authentication.users.admin.username=admin
-authentication.users.admin.password=admiN123!
-authentication.users.admin.email=admin@dbnp.org
+## Default Application Users ##
+authentication.users.admin.username=<admin_user>
+authentication.users.admin.password=<password>
+authentication.users.admin.email=<your_email>
 authentication.users.admin.administrator=true
-authentication.users.user.username=user
-authentication.users.user.password=useR123!
-authentication.users.user.email=user@dbnp.org
+authentication.users.user.username=<normal_user>
+authentication.users.user.password=<password>
+authentication.users.user.email=<your_email>
 authentication.users.user.administrator=false
 
-# override application title
+## Override Application Title ##
 application.title=Phenotype Database
 
-# use shibboleth authentication?
+## Use Shibboleth Authentication? ##
 authentication.shibboleth=false
 
-# Directory to upload files to. By default, this is /tmp
-uploads.uploadDir=/tmp
+## Set Upload Directory For Study Attached Files (/tmp By Default) ##
+uploads.uploadDir=/var/dbnp-uploadedFiles
 ```
 
 Don't forget to change the default passwords to something more secure!
