@@ -10,7 +10,7 @@
 	<div class="studyEdit studyProperties">
 		<h1>
 			Edit study [${study.title?.encodeAsHTML()}]
-			<g:render template="steps" model="[study: study, active: 'design']"  />
+			<g:render template="/studyEdit/steps" model="[study: study, active: 'design']"  />
 		</h1>
 		
 		<g:if test="${error}">
@@ -41,7 +41,7 @@
 					<h3>Available event groups</h3>
 					<ul>
 						<g:each in="${study.eventGroups}" var="eventgroup">
-							<li data-duration="${eventgroup.duration.value}" data-origin-id="${eventgroup.id}" data-url="${g.createLink( controller: 'studyEdit', action: 'eventGroupDetails', id: eventgroup.id)}">
+							<li data-duration="${eventgroup.duration.value}" data-origin-id="${eventgroup.id}" data-url="${g.createLink( controller: 'studyEditDesign', action: 'eventGroupDetails', id: eventgroup.id)}">
 								<span class="name">${eventgroup.name}</span>
 								<span class="events">
 									${eventgroup.contents}
@@ -79,8 +79,8 @@
 					<h3>Available treatments / challenges</h3>
 					<ul>
 						<g:each in="${study.events}" var="event">
-							<li data-duration="0" data-origin-id="${event.id}">
-								<span class="name">${event.name ?: '[event without name]'}</span>
+							<li data-duration="0" data-origin-id="${event.id}" data-origin-type="event">
+								<span class="name">${event.name?.trim() ?: '[event without name]'}</span>
 								<span class="buttons">
 									<a href="#" class="edit">edit</a>
 									<a href="#" class="delete">del</a>
@@ -94,8 +94,8 @@
 					<h3>Available sampling events</h3>
 					<ul>
 						<g:each in="${study.samplingEvents}" var="samplingEvent">
-							<li data-origin-id="${samplingEvent.id}">
-								<span class="name">${samplingEvent.name ?: '[samplingevent without name]'}</span>
+							<li data-origin-id="${samplingEvent.id}" data-origin-type="samplingEvent">
+								<span class="name">${samplingEvent.name?.trim() ?: '[samplingevent without name]'}</span>
 								<span class="buttons">
 									<a href="#" class="edit">edit</a>
 									<a href="#" class="delete">del</a>
@@ -109,7 +109,8 @@
 		</div>
 
 		<%-- These forms are meant to use the URL in javascript in a generic way --%>		
-		<g:form action="event" name="eventGroup"></g:form>
+		<g:form action="event" name="event"></g:form>
+		<g:form action="eventInEventGroup" name="eventInEventGroup"></g:form>
 		<g:form action="samplingEvent" name="samplingEvent"></g:form>
 		<g:form action="eventGroup" name="eventGroup"></g:form>
 		<g:form action="subjectEventGroup" name="subjectEventGroup"></g:form>
@@ -127,7 +128,9 @@
 				       'data': { 
 				       		id: ${group.id},
 				       		hasSamples: <g:if test="${group.samples}">true</g:if><g:else>false</g:else>,
-				       		group: '${group.subjectGroup?.name.encodeAsJavaScript()}'
+				       		group: '${group.subjectGroup?.name.encodeAsJavaScript()}',
+				       		subjectGroupId: ${group.subjectGroup?.id},
+				       		eventGroupId: ${group.eventGroup?.id}
 				       }
 				       // Optional: a field 'className'
 				       // Optional: a field 'editable'
@@ -138,7 +141,7 @@
 				
 				// Make sure all groups exist
 				<g:each in="${study.subjectGroups}" var="group">
-					StudyEdit.design.timeline.getGroup( '${group.name.encodeAsJavaScript()}')
+					StudyEdit.design.timelineObject.getGroup( '${group.name.encodeAsJavaScript()}')
   				</g:each>
 			});
 		</r:script>

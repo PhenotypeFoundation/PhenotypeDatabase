@@ -101,7 +101,9 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
 
-		   
+	warn  'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
+			'org.hibernate'
+		 
 }
 
 graphviz {

@@ -36,7 +36,8 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 	if( options && options.editable && options.droppable ) {
 	     //$( "#eventGroups li" ).draggable({ helper: 'clone' });
 	     var timeline = this;
-     
+	     console.log( timeline.dom.content );
+	     
 	    $( timeline.dom.content ).droppable({ 
 		   	 drop: function( event, ui ) {
 		   		 var offsetLeft = ui.offset.left - links.Timeline.getAbsoluteLeft( timeline.dom.content );
@@ -55,7 +56,7 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 		    		        'start': start,
 		    		        'content': ui.helper.find( '.name' ).text(),
 		    		        'group': timeline.getGroupName( group ),
-		    		        'className': 'dragged-origin-id-' + ui.draggable.data( "origin-id" )
+		    		        'className': 'dragged-origin-id-' + ui.draggable.data( "origin-id" ) + ' dragged-origin-type-' + ui.draggable.data( "origin-type" )
 		    		    };
 		    	        
 		    	        // Determine the duration of this event. Set to 0 if the event has a 
@@ -78,13 +79,54 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 		    	         
 		    	        timeline.addItem( itemOptions );
 		    	        timeline.selectItem(timeline.items.length - 1);
-		    	        timeline.trigger( "add" );
+		    	        timeline.trigger( "dragin" );
 		    		 }
 			     }
 		    });	     
      
 
 	}
+}
+
+dbnp.study.Timeline.prototype.getIdFromClassName = function( prefix, item ) {
+	return this.getPropertyFromClassName( prefix, item, "([0-9]+)" )
+}
+
+dbnp.study.Timeline.prototype.getPropertyFromClassName = function( prefix, item, regex ) {
+	if( typeof( regex ) == 'undefined' )
+		regex = "([^\w]+)"
+
+	// Convert regex into proper regex
+	regex = new RegExp( prefix + regex ) 
+	
+	var result = regex.exec( item.className );
+	
+	if( result ) {
+		return result[ 1 ];
+	} else {
+		return null;
+	}	
+}
+
+dbnp.study.Timeline.prototype.getSelectedRow = function() {
+	var index = this.getSelectedIndex();
+	
+	// We don't use the getItem method for now, since that doesn't return the className properly
+	// However, in future versions this will be fixed (see https://github.com/almende/chap-links-library/commit/344718605c44c2f42ab44fb1f398a43247d4bde2)
+	// and then 
+	//		timeline.getItem( index )
+	// is the prefered way to go.
+	var data = this.getData();
+	return data[ index ];
+},
+
+dbnp.study.Timeline.prototype.getSelectedIndex = function() {
+	var selection= this.getSelection();
+	
+	if( !selection )
+		return null;
+	
+	return selection[0].row;
 }
 
 /** ------------------------------------------------------------------------ **/

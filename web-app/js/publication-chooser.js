@@ -305,7 +305,7 @@ PublicationChooser.prototype = {
             renderMethod = this.renderPublication;
         }
 
-        inputElement.data( "autocomplete" )._renderItem = function( ul, item ) { 
+        inputElement.data( "ui-autocomplete" )._renderItem = function( ul, item ) { 
             return that.renderAutoCompleteText( ul, item, renderMethod( item ) );
         };
 
