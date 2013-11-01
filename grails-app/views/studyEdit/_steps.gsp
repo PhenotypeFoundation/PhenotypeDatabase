@@ -4,7 +4,7 @@
 	</g:if>
 	<g:else>
 		<g:if test="${study?.id}">
-			<g:link action="properties" id="${study?.id}">study</g:link>
+			<g:link controller="studyEdit" action="properties" id="${study?.id}">study</g:link>
 		</g:if>
 		<g:else>
 			<span class="disabled">study</span>
@@ -16,7 +16,7 @@
 	</g:if>
 	<g:else>
 		<g:if test="${study?.id}">
-			<g:link action="subjects" id="${study?.id}">subjects</g:link>
+			<g:link controller="studyEdit" action="subjects" id="${study?.id}">subjects</g:link>
 		</g:if>
 		<g:else>
 			<span class="disabled">subjects</span>
@@ -28,7 +28,7 @@
 	</g:if>
 	<g:else>
 		<g:if test="${study?.id && study?.subjects.size()}">
-			<g:link action="design" id="${study.id}">design</g:link>
+			<g:link controller="studyEditDesign" action="index" id="${study.id}">design</g:link>
 		</g:if>
 		<g:else>
 			<span class="disabled">design</span>
@@ -40,7 +40,7 @@
 	</g:if>
 	<g:else>
 		<g:if test="${study?.id && study?.subjects.size()}">
-			<g:link action="samples" id="${study.id}">samples</g:link>
+			<g:link controller="studyEdit" action="samples" id="${study.id}">samples</g:link>
 		</g:if>
 		<g:else>
 			<span class="disabled">samples</span>
@@ -52,7 +52,7 @@
 	</g:if>
 	<g:else>
 		<g:if test="${study?.id && study?.samples.size()}">
-			<g:link action="assays" id="${study.id}">assays</g:link>
+			<g:link controller="studyEdit" action="assays" id="${study.id}">assays</g:link>
 		</g:if>
 		<g:else>
 			<span class="disabled">assays</span>

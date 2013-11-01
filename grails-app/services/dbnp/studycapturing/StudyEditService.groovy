@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsDomainBinder
+import org.dbnp.gdt.*
 
 class StudyEditService {
 
