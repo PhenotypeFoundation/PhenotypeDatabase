@@ -52,6 +52,11 @@ class AssayService {
 
 		def getUsedTemplateFields = { templateEntities ->
 
+            if(templateEntities instanceof ArrayList && templateEntities.size() > 0 && templateEntities[0] instanceof SamplingEventInEventGroup) {
+                return [[name: 'startTime', comment: '', displayName: 'startTime'],
+                        [name: 'duration', comment: '', displayName: 'duration']]
+            }
+
 			// gather all unique and non null template fields that haves values
 			templateEntities*.giveFields().flatten().unique().findAll{ field ->
 
@@ -72,7 +77,7 @@ class AssayService {
 			samples = assay.samples
 
 		[   		'Subject Data' :            getUsedTemplateFields( samples*."parentSubject".unique() ),
-					'Sampling Event Data' :     getUsedTemplateFields( samples*."parentEvent".unique() ),
+					'Sampling Event Data' :     (getUsedTemplateFields( samples*.parentEvent.unique()) << getUsedTemplateFields(samples*.parentEvent*.event.unique())).flatten(),
 					'Sample Data' :             getUsedTemplateFields( samples ),
 					'Event Group' :             [
 						[name: 'name', comment: 'Name of Event Group', displayName: 'name']
@@ -94,7 +99,7 @@ class AssayService {
 	 * @param assay 				the assay to collect data for
 	 * @param fieldMap 				map with categories as keys and fields as values
 	 * @param measurementTokens 	selection of measurementTokens
-	 * @param samples				list of samples for which the data should be retrieved. 
+	 * @param samples				list of samples for which the data should be retrieved.
 	 * 								Defaults to all samples from this assay. Supply [] or
 	 * 								null to include all samples.
 	 * @return 				The assay data structure as described above.
@@ -130,6 +135,25 @@ class AssayService {
 			}
 		}
 
+        def collectStaticFieldValuesForTemplateEntities = { headerFields, templateEntities ->
+            headerFields.inject([:]) { map, headerField ->
+                map + [(headerField.displayName): templateEntities.collectEntries { entity ->
+                    def returnVal = ''
+                    switch(headerField.displayName) {
+                        case 'startTime':
+                            returnVal = entity.startTime
+                            break
+                        case 'duration':
+                            returnVal = entity.duration
+                            break
+                        default:
+                            break
+                    }
+                    [(entity.id): returnVal]
+                }]
+            }
+        }
+
 		def getFieldValues = { templateEntities, headerFields, propertyName = '' ->
 
 			def returnValue
@@ -150,11 +174,18 @@ class AssayService {
 				// there's only 1 parent subject. We don't want to collect field
 				// values for this single subject 10 times ...
 				def fieldValues
+                def staticFieldValues
+                def uniqueProperties
 
 				// we'll get the unique list of properties to make sure we're
 				// not getting the field values for identical template entity
 				// properties more then once.
-				def uniqueProperties = templateEntities*."$propertyName".unique()
+                if(propertyName.equals('parentEvent')) {
+                    uniqueProperties = templateEntities*.parentEvent*.event.unique()
+                    staticFieldValues = collectStaticFieldValuesForTemplateEntities(headerFields, templateEntities*.parentEvent.unique())
+                } else {
+                    uniqueProperties = templateEntities*."$propertyName".unique()
+                }
 
 				fieldValues = collectFieldValuesForTemplateEntities(headerFields, uniqueProperties)
 
@@ -175,8 +206,15 @@ class AssayService {
 				templateEntities.each{ te ->
 
 					headerFields*.displayName.each{
-
-						returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te[propertyName]]]
+                        if(propertyName.equals('parentEvent')) {
+                            if(it.equals('startTime') || it.equals('duration')) {
+                                returnValue[it] << staticFieldValues[it][te.parentEvent.id]
+                            } else {
+                                returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te.parentEvent['event']]]
+                            }
+                        } else {
+                            returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te[propertyName]]]
+                        }
 					}
 				}
 			}
@@ -192,7 +230,7 @@ class AssayService {
 		// check whether event group data was requested
 		if (fieldMap['Event Group']) {
 
-			def names = samples*.parentEventGroup*.name.flatten()
+			def names = samples*.parentEvent*.event.name.flatten()
 
 			// only set name field when there's actual data
 			if (!names.every {!it}) eventFieldMap['name'] = names
@@ -215,12 +253,12 @@ class AssayService {
 		}
 
 		[   'Subject Data' :            		getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
-					'Sampling Event Data' :     		getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
-					'Sample Data' :             		getFieldValues(samples, fieldMap['Sample Data']),
-					'Event Group' :             		eventFieldMap,
-					'Module Measurement Data' : 		moduleMeasurementData,
-					'Module Error' :            		moduleError
-				]
+			'Sampling Event Data' :     		getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
+		    'Sample Data' :             		getFieldValues(samples, fieldMap['Sample Data']),
+			'Event Group' :             		eventFieldMap,
+			'Module Measurement Data' : 		moduleMeasurementData,
+			'Module Error' :            		moduleError
+		]
 	}
 
 	/**
@@ -427,7 +465,7 @@ class AssayService {
 	/**
 	 * Modules can provide meta-data about the measurements. If so they can be added to the export.
 	 * This method extends the data with the meta-data.
-	 * 
+	 *
 	 * @return data + meta-data
 	 */
 	def mergeModuleDataWithMetadata(data, metadata = null){
@@ -638,7 +676,7 @@ class AssayService {
 	 *
 	 * @param columnWiseAssayData	List with each entry being the column wise data of an assay. The format for each
 	 * 								entry is described above. The data MUST have a category named 'Sample Data' and in that map a field
-	 * 								named 'id'. This field is used for matching rows. However, the column is removed, unless 
+	 * 								named 'id'. This field is used for matching rows. However, the column is removed, unless
 	 * 								removeIdColumn is set to false
 	 * @param removeIdColumn		If set to true (default), the values for the sample id are removed from the output.
 	 * @return	Hashmap				Combined assay data, in the same structure as each input entry. Empty values are given as an empty string.
@@ -667,11 +705,11 @@ class AssayService {
 		}
 
 		/*
-		 * Example output: 
+		 * Example output:
 		 * idMap:      [ 12: 0, 24: 1, 26: 3 ]
-		 * convertMap: [ 0: 0, 1: 1, 2: 0, 3: 3, 4: 3 ]	
+		 * convertMap: [ 0: 0, 1: 1, 2: 0, 3: 3, 4: 3 ]
 		 *   (meaning: rows 0, 1 and 3 should remain, row 2 should be merged with row 0 and row 4 should be merged with row 3)
-		 *   
+		 *
 		 * The value in the convertMap is always lower than its key. So we sort the convertMap on the keys. That way, we can
 		 * loop through the values and remove the row that has been merged.
 		 */
