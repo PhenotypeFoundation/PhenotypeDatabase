@@ -10,7 +10,7 @@
 </head>
 <body>
 
-  <g:formRemote url="[controller:'exporter',action:'export']" name="simpleToxForm" onComplete="file://" onFailure="alert('Error while exporting the file');" >
+  <g:formRemote url="[controller:'exporter',action:'export', params:[format:params['format']]]" name="simpleToxForm" onComplete="file://" onFailure="alert('Error while exporting the file');" >
 
   <div class="body">
     <h1>Export as ${format}</h1>

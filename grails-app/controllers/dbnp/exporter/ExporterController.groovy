@@ -62,6 +62,7 @@ class ExporterController {
     def export = {
 		def ids = params.list( 'ids' );
 		def tokens = params.list( 'tokens' );
+        def exportType = params.list( 'format' );
         def studies = []
 		
 		ids.each {
@@ -83,7 +84,7 @@ class ExporterController {
 
 			// Send the right headers for the zip file to be downloaded
 			response.setContentType( "application/zip" ) ;
-			response.addHeader( "Content-Disposition", "attachment; filename=\"GSCF_SimpleToxStudies.zip\"" ) ;
+			response.addHeader( "Content-Disposition", "attachment; filename=\"GSCF_"+exportType+"Studies.zip\"" ) ;
 
 			// Create a ZIP file containing all the SimpleTox files
 			ZipOutputStream zipFile = new ZipOutputStream( new BufferedOutputStream( response.getOutputStream() ) );
@@ -93,7 +94,7 @@ class ExporterController {
 			for (studyInstance in studies){
 				if( studyInstance.samples?.size() ) {
 					try {
-						zipFile.putNextEntry( new ZipEntry( studyInstance.title + "_SimpleTox.xls" ));
+						zipFile.putNextEntry( new ZipEntry( studyInstance.title + "_"+exportType+".xls" ));
 						downloadFile(studyInstance, zipFile);
 						zipWriter.flush();
 						zipFile.closeEntry();
@@ -109,7 +110,7 @@ class ExporterController {
 						}
 					}
 				} else {
-					log.trace "Study " + studyInstance?.title + " doesn't contain any samples, so is not exported to simpleTox"
+					log.trace "Study " + studyInstance?.title + " doesn't contain any samples, so is not exported to "+exportType
 					
 					// Add a text file with explanation in the zip file
 					zipFile.putNextEntry(new ZipEntry( studyInstance.title + "_contains_no_samples.txt" ) );
@@ -125,7 +126,7 @@ class ExporterController {
             def studyInstance = studies.getAt(0)
             // make the file downloadable
             if ((studyInstance!=null) && (studyInstance.samples.size()>0)){
-	            response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.title}_SimpleTox.xls\"")
+	            response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.title}_"+exportType+".xls\"")
 	            response.setContentType("application/octet-stream")
                 downloadFile(studyInstance, response.getOutputStream())
 				response.getOutputStream().close()
@@ -194,20 +195,16 @@ class ExporterController {
         sample.parentSubject ? sub.createCell((short)0).setCellValue(sample.parentSubject.name) : "not defined"
         // adding sample in row 4
         sample.name!=null ? sub.createCell((short)3).setCellValue(sample.name) : "not defined"
+
         // adding label (EventGroup) in row 6
-        for (ev in EventGroup.list()){
-            if(sample.parentSubject){
-                if ( (sample.parentSubject.name) && (ev.subjects.name.contains(sample.parentSubject.name))) {
-                    sub.createCell((short)5).setCellValue(ev.name)
-                    break
-                }
-                else {
-                    sub.createCell((short)5).setCellValue(" ")
-                }}
-            else {
-                sub.createCell((short)5).setCellValue(" ")
-            }
+        if( sample.parentEvent ) {
+            sub.createCell((short)5).setCellValue(sample.parentEvent.eventGroup.name)
+        } else if( sample.SubjectEventGroup ) {
+            sub.createCell((short)5).setCellValue(sample.parentSubjectEventGroup.eventGroup.name)
+        } else {
+            sub.createCell((short)5).setCellValue(" ")
         }
+
         // adding study title in row 7
         sub.createCell((short)6).setCellValue(study.title)
         // Species row 9
@@ -234,11 +231,11 @@ class ExporterController {
 	private def writeSamplingEventProperties(sub,sample,row){
 		if( sample.parentEvent ) {
 	        log.trace "----- SAMPLING EVENT -----"
-	        for (t in 0..sample.parentEvent.giveFields().unique().size()-1){
-	            TemplateField tf =sample.parentEvent.giveFields().getAt(t)
+	        for (t in 0..sample.parentEvent.event.giveFields().unique().size()-1){
+	            TemplateField tf =sample.parentEvent.event.giveFields().getAt(t)
 	            log.trace tf.name
 	            row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue("samplingEvent-"+tf.name)
-	            sample.parentEvent.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue(sample.parentEvent.getFieldValue(tf.name).toString()) : "not define"
+	            sample.parentEvent.event.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue(sample.parentEvent.event.getFieldValue(tf.name).toString()) : "not define"
 	        }
 		} else {
 			log.trace "------ NO SAMPLING EVENT FOR SAMPLE " + sample.name + "-----";
@@ -256,8 +253,8 @@ class ExporterController {
         for (v in 0..sample.giveFields().unique().size()-1){
             TemplateField tf =sample.giveFields().getAt(v)
             log.trace tf.name
-            row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.giveFields().unique().size()).setCellValue("sample-"+tf.name)
-            sample.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.giveFields().unique().size()).setCellValue(sample.getFieldValue(tf.name).toString()) : "not define"
+            row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.event.giveFields().unique().size()).setCellValue("sample-"+tf.name)
+            sample.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.event.giveFields().unique().size()).setCellValue(sample.getFieldValue(tf.name).toString()) : "not define"
         }
     }
 }
