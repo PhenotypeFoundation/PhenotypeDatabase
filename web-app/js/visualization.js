@@ -649,7 +649,7 @@ function clearSelect(that, stepNr) {
 
     var block = $(that).parents(".menu_header").find(".block_variable");
     $(block).children("input, select").val("");
-    $(block).children("input").data( "ui-autocomplete-item" ).term = "";
+    $(block).children("input").data( "ui-autocomplete" ).term = "";
 
     if(stepNr==1) {
         $(that).parents(".menu_item").children(".menu_header").each(function(index) {
@@ -811,14 +811,14 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
                                 // remove invalid value, as it didn't match anything
                                 $( this ).val( "" );
                                 select.val( "" );
-                                input.data( "ui-autocomplete-item" ).term = "";
+                                input.data( "ui-autocomplete" ).term = "";
                                 return false;
                             }
                         } 
                     }
                 });
 
-            input.data( "ui-autocomplete-item" )._renderMenu = function( ul, items ) {
+            input.data( "ui-autocomplete" )._renderMenu = function( ul, items ) {
                 var self = this,
                     currentCategory = "";
                 $.each( items, function( index, item ) {
@@ -830,7 +830,7 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
                 });
             };
 
-            input.data( "ui-autocomplete-item" )._renderItem = function( ul, item ) {
+            input.data( "ui-autocomplete" )._renderItem = function( ul, item ) {
                 return $( "<li></li>" )
                     .data( "item.autocomplete", item )
                     .append( "<a>" + item.label + "</a>" )
