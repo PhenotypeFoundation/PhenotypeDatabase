@@ -30,7 +30,7 @@ $(function() {
 			// If no item is selected and the user has entered some text, select the first one
 			// See https://github.com/scottgonzalez/jquery-ui-extensions/blob/master/autocomplete/jquery.ui.autocomplete.selectFirst.js
 			else if( ui.item == null ) {
-				var el = $( '#queryFieldText' ).autocomplete().data( "autocomplete" );
+				var el = $( '#queryFieldText' ).autocomplete().data( "ui-autocomplete-item" );
 				
 				// Check how many fields are in the list. However, if the user first enters
 				// a term that shows items, and afterwards continues typing, the menu items 
@@ -49,7 +49,7 @@ $(function() {
 			updateAutocomplete();
 		}
 	})
-	.data( "autocomplete" )._renderItem = function( ul, item ) {
+	.data( "ui-autocomplete-item" )._renderItem = function( ul, item ) {
 		return $( "<li></li>" )
 			.data( "item.autocomplete", item )
 			.append( "<a>" + item.show + " <span class='entity'>" + item.entity + "</span></a>" )
