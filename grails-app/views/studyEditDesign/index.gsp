@@ -41,7 +41,7 @@
 					<h3>Available event groups</h3>
 					<ul>
 						<g:each in="${study.eventGroups}" var="eventgroup">
-							<li data-duration="${eventgroup.duration.value}" data-origin-id="${eventgroup.id}" data-url="${g.createLink( controller: 'studyEditDesign', action: 'eventGroupDetails', id: eventgroup.id)}">
+							<li id="eventgroup-${eventgroup.id}" data-duration="${eventgroup.duration.value}" data-origin-id="${eventgroup.id}" data-url="${g.createLink( controller: 'studyEditDesign', action: 'eventGroupDetails', id: eventgroup.id)}">
 								<span class="name">${eventgroup.name}</span>
 								<span class="events">
 									${eventgroup.contents}
@@ -52,7 +52,7 @@
 								</span>
 							</li>
 						</g:each>
-						<li class="add" onClick=" StudyEdit.eventGroups.add();">Add new</li>
+						<li class="add" onClick=" StudyEdit.design.eventGroups.add();">Add new</li>
 					</ul>
 				</div>
 			</div>
@@ -110,9 +110,10 @@
 
 		<%-- These forms are meant to use the URL in javascript in a generic way --%>		
 		<g:form action="event" name="event"></g:form>
-		<g:form action="eventInEventGroup" name="eventInEventGroup"></g:form>
 		<g:form action="samplingEvent" name="samplingEvent"></g:form>
 		<g:form action="eventGroup" name="eventGroup"></g:form>
+		<g:form action="eventInEventGroup" name="eventInEventGroup"></g:form>
+		<g:form action="samplingEventInEventGroup" name="samplingEventInEventGroup"></g:form>
 		<g:form action="subjectEventGroup" name="subjectEventGroup"></g:form>
 		
 		<r:script>	
@@ -132,10 +133,8 @@
 				       		subjectGroupId: ${group.subjectGroup?.id},
 				       		eventGroupId: ${group.eventGroup?.id}
 				       }
-				       // Optional: a field 'className'
-				       // Optional: a field 'editable'
 				     });
-     				</g:each>
+     			</g:each>
 				
 				StudyEdit.design.initialize( data, new Date(${study.startDate?.time}) );
 				

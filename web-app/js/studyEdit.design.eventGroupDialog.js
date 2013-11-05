@@ -42,9 +42,60 @@ StudyEdit.design.eventGroups = {
 			hide: function() {
 				var dialog = StudyEdit.design.eventGroups.dialog.get();
 				dialog.find( "#timeline-events, #design-meta" ).hide();
+			},
+			show: function() {
+				var dialog = StudyEdit.design.eventGroups.dialog.get();
+				dialog.find( "#timeline-events, #design-meta" ).show();
 			}
+			
 		}
 	},
+	
+	
+	initialize: function( studyStartDate ) {
+		// Create a dialog to add or edit event groups
+		$( '#eventGroupDialog' ).dialog( { 
+			modal: true, 
+			autoOpen: false,
+			width: 900,
+			buttons: {
+				Ok: function() {
+					StudyEdit.design.eventGroups.save();
+					StudyEdit.design.eventGroups.dialog.close();
+				},
+				Cancel: function() {
+					// Update the main timeline to reflect the (new) length and name of the eventgroup
+					StudyEdit.design.eventGroups.updateEventGroupInMainOverview();
+					
+					StudyEdit.design.eventGroups.dialog.close();
+				}
+			},
+			// Disable the main timeline when opening dialog, to prevent dropping events on the main timeline
+			// See http://stackoverflow.com/questions/11997053/jqueryui-droppable-stop-propagation-to-overlapped-sibling
+			open: function( event, ui ) {
+				$( "#timeline-eventgroups .ui-droppable" ).droppable( "disable" );
+			},
+			
+			// Enable the main timeline again when closing dialog
+			// See http://stackoverflow.com/questions/11997053/jqueryui-droppable-stop-propagation-to-overlapped-sibling
+			close: function( event, ui ) {
+				$( "#timeline-eventgroups .ui-droppable" ).droppable( "enable" );
+			},
+
+		}).data( "studyStartDate", studyStartDate );
+		
+		// Enable buttons on existing event groups
+		$(document).on( "click", "#eventgroups .edit", function() {
+			var li = $(this).closest( "li" );
+			StudyEdit.design.eventGroups.edit( li.data( "originId" ), li.data( "url" ) ); return false; 
+		} );
+		$(document).on( "click", "#eventgroups .delete", function() {
+			var li = $(this).closest( "li" );
+			StudyEdit.design.eventGroups.delete( li.data( "originId" ) );
+			return false;
+		} );
+	},
+	
 	
 	/**
 	 * Shows a for to add a new eventgroup
@@ -52,12 +103,50 @@ StudyEdit.design.eventGroups = {
 	add: function() {
 		var dialog = StudyEdit.design.eventGroups.dialog.get();
 		dialog.dialog( "option", "title", "Add eventgroup" );
+		dialog.data( "eventgroup-id", null );
 		StudyEdit.design.eventGroups.dialog.open()
 
 		// Hide the timeline (if it exists), to prevent the user from adding items to a not existing timeline
 		StudyEdit.design.eventGroups.dialog.timeline.hide();
+		
+		// Clear the name box
+		$( '[name=eventgroup-name]' ).val( "" );
 	},
-	save: function() {},
+	
+	/**
+	 * Saves the data entered in the eventgroup dialog
+	 */
+	save: function() {
+		var dialog = StudyEdit.design.eventGroups.dialog.get();
+		var id = dialog.data( "eventgroup-id" );
+		var action = ( id ? "Update" : "Add" );
+		var url = $( 'form#eventGroup' ).attr( 'action' ) + action;
+				
+		var data = { 
+			name: $( '[name=eventgroup-name]' ).val()
+		};
+		
+		if( id ) {
+			// On update, the eventgroupId should be sent
+			data.id = id;
+		} else {
+			// On add, the studyId must be put in place
+			data.id = $( "#design" ).find( "#id" ).val();
+		}
+		
+		$.post( url, data, function( returnData ) {
+			if( id ) {
+				// Update existing eventgroup
+				StudyEdit.design.eventGroups.updateEventGroupInMainOverview();
+			} else {
+				// Add new eventgroup
+				StudyEdit.design.eventGroups.addEventGroupInMainOverview( returnData );
+			}
+		});
+		
+		return true;
+	},
+	
 	edit: function( id, dataUrl ) {
 		var dialog = StudyEdit.design.eventGroups.dialog.get();
 		dialog.dialog( "option", "title", "Edit eventgroup" );
@@ -79,11 +168,66 @@ StudyEdit.design.eventGroups = {
 				
 				return event;
 			} );
+			StudyEdit.design.eventGroups.dialog.timeline.show();
 			StudyEdit.design.eventGroups.timelineObject.setData( convertedData );
 			StudyEdit.design.eventGroups.timelineObject.setVisibleChartRange( new Date( data.start ), new Date( data.end ), true );
+			
+			// Clear the name box
+			$( '[name=eventgroup-name]' ).val( data.name );
 		});
 	},
-	update: function() {},
+	
+	// Adds a new eventgroup to the main overview
+	addEventGroupInMainOverview: function( eventGroupData ) {
+		// Add a new eventgroup
+		var li = $( '<li>' )
+			.data( "duration", eventGroupData.duration )
+			.data( "origin-id", eventGroupData.id )
+			.data( "url", eventGroupData.url )
+			.attr( "id", "eventgroup-" + eventGroupData.id )
+			.append( $( "<span class='name'>" ).text( eventGroupData.name ) )
+			.append( $( "<span class='events'>" ) )
+			.append( 
+				$( "<span class='buttons'>" )
+					.append( '<a href="#" class="edit">edit</a>') 
+					.append( '<a href="#" class="delete">del</a>') 
+			);
+		$( '#eventgroups ul .add' ).before( li );
+		
+		// Make sure it can be added to the timeline
+		li.draggable({ helper: 'clone' });
+	},
+	
+	// Update the main timeline with the (new) length of an updated eventgroup
+	updateEventGroupInMainOverview: function() {
+		var dialog = StudyEdit.design.eventGroups.dialog.get();
+		var id = dialog.data( "eventgroup-id" );
+		var dataUrl = $( 'li#eventgroup-' + id ).data( 'url' );
+		
+		// Load the data for this eventgroup
+		$.get( dataUrl, function( eventGroupData ) {
+			// Update the duration and nameof the eventgroup on the timeline
+			var data = StudyEdit.design.timelineObject.getData();
+			var doRender = false;
+			
+			$.each( data, function( idx, el ) {
+				if( el.data.eventGroupId == id ) {
+					var end = new Date();
+					end.setTime( el.start.getTime() + eventGroupData.duration * 1000 );
+					StudyEdit.design.timelineObject.updateData( idx, { content: eventGroupData.name, end: end } );
+					doRender = true
+				}
+			});
+			
+			if( doRender )
+				StudyEdit.design.timelineObject.redraw();
+			
+			// Update the duration and text in the eventgroup box
+			$( '#eventgroup-' + eventGroupData.id ).data( "duration", eventGroupData.duration );
+			$( '#eventgroup-' + eventGroupData.id + ' .name' ).text( eventGroupData.name );
+		});
+	},
+	
 	delete: function( id ) {
 		var url = $( 'form#eventGroup' ).attr( 'action' ) + "Delete";
 		var data = { 
@@ -111,53 +255,12 @@ StudyEdit.design.eventGroups = {
 				StudyEdit.design.timelineObject.render();
 			
 			// Delete the list item as well
-			$( '#eventgroups li[data-origin-id=' + id + ']' ).remove();
+			$( '#eventgroups li#eventgroup-' + id ).remove();
 			
 			return true;
 		} else {
 			return false;
 		}
-	},
-	
-	initialize: function( studyStartDate ) {
-		// Create a dialog to add or edit event groups
-		$( '#eventGroupDialog' ).dialog( { 
-			modal: true, 
-			autoOpen: false,
-			width: 900,
-			buttons: {
-				Ok: function() {
-					StudyEdit.design.eventGroups.save();
-					StudyEdit.design.eventGroups.closeDialog();
-				},
-				Cancel: function() {
-					StudyEdit.design.eventGroups.closeDialog();
-				}
-			},
-			// Disable the main timeline when opening dialog, to prevent dropping events on the main timeline
-			// See http://stackoverflow.com/questions/11997053/jqueryui-droppable-stop-propagation-to-overlapped-sibling
-			open: function( event, ui ) {
-				$( "#timeline-eventgroups .ui-droppable" ).droppable( "disable" );
-			},
-			
-			// Enable the main timeline again when closing dialog
-			// See http://stackoverflow.com/questions/11997053/jqueryui-droppable-stop-propagation-to-overlapped-sibling
-			close: function( event, ui ) {
-				$( "#timeline-eventgroups .ui-droppable" ).droppable( "enable" );
-			},
-
-		}).data( "studyStartDate", studyStartDate );
-		
-		// Enable buttons on existing event groups
-		$(document).on( "click", "#eventgroups .edit", function() {
-			var li = $(this).closest( "li" );
-			StudyEdit.design.eventGroups.edit( li.data( "origin-id" ), li.data( "url" ) ); return false; 
-		} );
-		$(document).on( "click", "#eventgroups .delete", function() {
-			var li = $(this).closest( "li" );
-			StudyEdit.design.eventGroups.delete( li.data( "origin-id" ) );
-			return false;
-		} );
 	},
 
 	/**
@@ -195,11 +298,11 @@ StudyEdit.design.eventGroups = {
 		    	var eventType = selectedRow.data.type;
 		    	var hasSamples = selectedRow.data.hasSamples;
 		    	
-		    	var changed = StudyEdit.design.eventGroups.contents.update( eventType, id, selectedRow.start, hasSamples, function(element) {
+		    	var changed = StudyEdit.design.eventGroups.contents.update( eventType, id, selectedRow.start, selectedRow.end, hasSamples, function(element) {
 		    		var newData = {
 		    			id: id,
-		    			hasSamples: ( groupChanged ? false : hasSamples ),
-		    			type: element.type
+		    			hasSamples: hasSamples,
+		    			type: eventType
 		    		}
 				    		
 			    	timeline.updateData( selectedIndex, { data: newData } );
@@ -254,12 +357,12 @@ StudyEdit.design.eventGroups = {
 				}
 			});
 		},
-		update: function( eventType, id, start, hasSamples, afterChange ) {
+		update: function( eventType, id, start, end, hasSamples, afterChange ) {
 			var url = $( 'form#' + eventType + "InEventGroup" ).attr( 'action' ) + "Update";
 			var data = { 
 				id: id, 
 				start: start.getTime(),
-				subjectGroup: group
+				end: ( typeof( end ) != "undefined" ? end.getTime() : null )
 			};
 			
 			var doUpdate = true;

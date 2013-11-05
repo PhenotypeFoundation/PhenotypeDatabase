@@ -174,7 +174,7 @@ application.template.admin.email = "me@example.com"
 grails.resources.modules = {
 	overrides {
 		'jquery-theme' {
-			resource id:'theme', url:'/css/cupertino/jquery-ui-1.8.23.custom.css'
+			resource id:'theme', url:'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/cupertino/jquery-ui.min.css'
 		}
 	}
 }

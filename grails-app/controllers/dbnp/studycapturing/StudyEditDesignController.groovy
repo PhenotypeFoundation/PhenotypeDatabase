@@ -140,18 +140,23 @@ class StudyEditDesignController {
 		eventGroup.parent = study
 
 		def name = params.get( "name" )
+		def result
+		
 		if( name ) {
 			eventGroup.name = name
-		}
-
-
-		def result
-		if( eventGroup.save() ) {
-			study.addToEventGroups( eventGroup );
-			result = [ status: "OK", id: eventGroup.id, name: eventGroup.name ]
+			
+			eventGroup.parent = study
+			if( eventGroup.validate() ) {
+				study.addToEventGroups( eventGroup );
+				eventGroup.save( flush: true )
+				result = [ status: "OK", id: eventGroup.id, name: eventGroup.name, duration: 0, url: g.createLink( action: "eventGroupDetails", id: eventGroup.id ) ]
+			} else {
+				response.status = 500
+				result = [ status: "Error", errors: eventGroup.errors ]
+			}
 		} else {
-			response.status = 500
-			result = [ status: "Error" ]
+			response.status = 400
+			result = [ status: "Error", errors: "Please specify a name" ] 
 		}
 
 		render result as JSON
@@ -177,7 +182,7 @@ class StudyEditDesignController {
 		if( name && name != eventGroup.name ) {
 			eventGroup.name = name
 
-			if( !subjectEventGroup.save() ) {
+			if( !eventGroup.save() ) {
 				response.status = 500
 				result  = [ status: "Error" ]
 			}
@@ -222,8 +227,10 @@ class StudyEditDesignController {
 		def studyStart = eventGroup.parent?.startDate?.getTime() / 1000
 		
 		def resultData = [
+			id: eventGroup.id,
 			name: eventGroup.name,
 			start: studyStart * 1000,
+			duration: eventGroup.duration.value,
 			end: ( studyStart + eventGroup.duration.value ) * 1000,
 			events: []
 		]
@@ -235,7 +242,12 @@ class StudyEditDesignController {
 				start: start,
 				end: start + event.duration * 1000,
 				content: event.event.name?.trim() ?: '[event without name]',
-				className: 'event event-id-' + event.id
+				className: 'event event-id-' + event.id,
+				data: [
+					id: event.id,
+					eventId: event.event.id,
+					type: 'event'	
+				]
 			]
 		}
 
@@ -244,15 +256,18 @@ class StudyEditDesignController {
 			resultData.events << [
 				start: start,
 				content: event.event.name?.trim() ?: '[samplingevent without name]',
-				className: 'samplingEvent samplingEvent-id-' + event.id
+				className: 'samplingEvent samplingEvent-id-' + event.id,
+				data: [
+					id: event.id,
+					eventId: event.event.id,
+					type: 'samplingEvent'	
+				]
 			]
 		}
 
 		render resultData as JSON
 	}
 
-	
-	
 	/**
 	 * Adds a eventInEventGroup with new properties from the form
 	 * @return
@@ -279,7 +294,7 @@ class StudyEditDesignController {
 	
 		def result
 		if( eventInEventGroup.save() ) {
-			result = [ status: "OK", id: eventInEventGroup.id, eventGroupId: eventGroupId, eventId: eventId ]
+			result = [ status: "OK", id: eventInEventGroup.id, eventGroupId: eventGroupId, eventId: eventId, type: "event" ]
 		} else {
 			response.status = 500
 			result = [ status: "Error" ]
@@ -305,12 +320,12 @@ class StudyEditDesignController {
 			eventInEventGroup.setAbsoluteStartTime( params.long( "start" ) / 1000 );
 		}
 		if( params.long( "end" ) ) {
-			eventInEventGroup.setAbsoluteEndTime( params.long( "end" ) / 1000 );
+			eventInEventGroup.duration = ( params.long( "end" ) - params.long( "start" ) ) / 1000;
 		}
 		
 		def result
 		if( eventInEventGroup.save() ) {
-			result = [ status: "OK", id: eventInEventGroup.id, eventGroupId: eventGroupId, eventId: eventId ]
+			result = [ status: "OK", id: eventInEventGroup.id, eventGroupId: eventInEventGroup.eventGroup.id, eventId: eventInEventGroup.event.id, type: "event" ]
 		} else {
 			response.status = 500
 			result  = [ status: "Error" ]
@@ -333,6 +348,85 @@ class StudyEditDesignController {
 		}
 
 		eventInEventGroup.delete()
+		
+		def result = [ status: "OK" ]
+		render result as JSON
+	}
+	
+	
+	/**
+	 * Adds a eventInEventGroup with new properties from the form
+	 * @return
+	 */
+	def samplingEventInEventGroupAdd() {
+		def samplingEventInEventGroup = new SamplingEventInEventGroup();
+		def study = getStudyFromRequest( params )
+		
+		if( params.long( "start" ) ) {
+			samplingEventInEventGroup.startTime = ( params.long( "start" ) - study.startDate.time ) / 1000;
+		}
+
+		def eventId = params.long( "eventId" )
+		if( eventId )
+			samplingEventInEventGroup.event = SamplingEvent.read( eventId )
+
+		def eventGroupId = params.long( "eventGroupId" )
+		if( eventGroupId )
+			samplingEventInEventGroup.eventGroup = EventGroup.read( eventGroupId )
+	
+		def result
+		if( samplingEventInEventGroup.save() ) {
+			result = [ status: "OK", id: samplingEventInEventGroup.id, eventGroupId: eventGroupId, eventId: eventId, type: "samplingEvent" ]
+		} else {
+			response.status = 500
+			result = [ status: "Error" ]
+		}
+
+		render result as JSON
+	}
+
+	/**
+	 * Updates a eventInEventGroup with new properties from the form
+	 * @return
+	 */
+	def samplingEventInEventGroupUpdate() {
+		def samplingEventInEventGroup = SamplingEventInEventGroup.read( params.long( "id" ) );
+
+		if( !samplingEventInEventGroup ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+
+		if( params.long( "start" ) ) {
+			samplingEventInEventGroup.setAbsoluteStartTime( params.long( "start" ) / 1000 );
+		}
+		
+		def result
+		if( samplingEventInEventGroup.save() ) {
+			result = [ status: "OK", id: samplingEventInEventGroup.id, eventGroupId: samplingEventInEventGroup.eventGroup.id, eventId: samplingEventInEventGroup.event.id, type: "samplingEvent" ]
+		} else {
+			response.status = 500
+			result  = [ status: "Error" ]
+		}
+		
+		render result as JSON
+	}
+
+	/**
+	 * Removes a eventInEventGroup from the system
+	 * @return
+	 */
+	def samplingEventInEventGroupDelete() {
+		def samplingEventInEventGroup = SamplingEventInEventGroup.read( params.long( "id" ) );
+
+		if( !samplingEventInEventGroup ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+
+		samplingEventInEventGroup.delete()
 		
 		def result = [ status: "OK" ]
 		render result as JSON
