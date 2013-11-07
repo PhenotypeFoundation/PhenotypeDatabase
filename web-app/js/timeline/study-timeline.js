@@ -36,7 +36,6 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 	if( options && options.editable && options.droppable ) {
 	     //$( "#eventGroups li" ).draggable({ helper: 'clone' });
 	     var timeline = this;
-	     console.log( timeline.dom.content );
 	     
 	    $( timeline.dom.content ).droppable({ 
 		   	 drop: function( event, ui ) {
@@ -61,9 +60,9 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 		    	        
 		    	        // Determine the duration of this event. Set to 0 if the event has a 
 		    	        // duration but it is not determined yet
-		    	        var duration = $( ui.helper ).data( "duration" );
+		    	        var duration = $( ui.draggable ).data( "duration" );
 		    	        
-		    	        if( duration != undefined ) {
+		    	        if( typeof( duration ) != "undefined" ) {
 		    	        	if( duration == 0 ) {
 			    	        	// Make the duration 25% of the width of the timeline
 			    	        	var range = timeline.getVisibleChartRange();
