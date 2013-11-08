@@ -141,9 +141,10 @@ class StudyEditDesignController {
 
 		def name = params.get( "name" )
 		def result
-		
 		if( name ) {
 			eventGroup.name = name
+			
+			println "New eventgroup, study: "
 			
 			eventGroup.parent = study
 			if( eventGroup.validate() ) {
@@ -152,7 +153,7 @@ class StudyEditDesignController {
 				result = [ status: "OK", id: eventGroup.id, name: eventGroup.name, duration: 0, url: g.createLink( action: "eventGroupDetails", id: eventGroup.id ) ]
 			} else {
 				response.status = 500
-				result = [ status: "Error", errors: eventGroup.errors ]
+				result = [ status: "Error", errors: eventGroup.errors.allErrors ]
 			}
 		} else {
 			response.status = 400
@@ -432,6 +433,218 @@ class StudyEditDesignController {
 		render result as JSON
 	}
 	
+	/**
+	 * Shows a list of events in a given study
+	 * @return
+	 */
+	def eventList() {
+		def study = getStudyFromRequest( params )
+		
+		if( !study ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+		
+		render template: "eventList", model: [ study: study ]
+	}
+	
+	def eventAdd() {
+		def entity  = new Event()
+		putParentIntoEntity( entity )
+		
+		if( request.post ) {
+			putParamsIntoEntity( entity ) 
+	
+			if( params._action == "save" ) {
+				if( entity.validate() ) {
+					// If the entity validates, make sure it is added properly to the study
+					entity.parent.addToEvents( entity )
+					entity.save( flush: true );
+					
+					// Tell the frontend the save has succeeded
+					response.status = 210
+					render ""
+					return
+				} else {
+					flash.validationErrors = entity.errors.allErrors
+				}
+			}
+		}
+		
+		render template: "event", model: [entity: entity]
+	}
+	
+	def eventUpdate() {
+		def entity = Event.read( params.long( "id" ) )
+		
+		if( !entity ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+		
+		if( request.post ) {
+			putParamsIntoEntity( entity ) 
+	
+			if( params._action == "save" ) {
+				if( entity.validate() ) {
+					// Tell the frontend the save has succeeded
+					entity.save( flush: true );
+					
+					// Tell the frontend the save has succeeded
+					response.status = 210
+					render ""
+					return
+				} else {
+					flash.validationErrors = entity.errors
+				}
+			}
+		}
+		
+		render template: "event", model: [entity: entity]
+	}
+	
+	/**
+	 * Removes an event from the system
+	 * @return
+	 */
+	def eventDelete() {
+		def event = Event.read( params.long( "id" ) );
+
+		if( !event ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+
+		event.parent.deleteEvent( event )
+		
+		def result = [ status: "OK" ]
+		render result as JSON
+	}
+	
+	/**
+	 * Shows a list of sampling events in a given study
+	 * @return
+	 */
+	def samplingEventList() {
+		def study = getStudyFromRequest( params )
+		
+		if( !study ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+		
+		render template: "samplingEventList", model: [ study: study ]
+	}
+
+
+	def samplingEventAdd() {
+		def entity  = new SamplingEvent()
+		
+		putParentIntoEntity( entity )
+		
+		if( request.post ) {
+			putParamsIntoEntity( entity )
+	
+			if( params._action == "save" ) {
+				if( entity.validate() ) {
+					// If the entity validates, make sure it is added properly to the study
+					entity.parent.addToSamplingEvents( entity )
+					entity.save( flush: true );
+					
+					// Tell the frontend the save has succeeded
+					response.status = 210
+					render ""
+					return
+				} else {
+					flash.validationErrors = entity.errors.allErrors
+				}
+			}
+		}
+		
+		render template: "sampling_event", model: [entity: entity]
+	}
+	
+	def samplingEventUpdate() {
+		def entity = SamplingEvent.read( params.long( "id" ) )
+		
+		if( !entity ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+		
+		if( request.post ) {
+			putParamsIntoEntity( entity )
+	
+			if( params._action == "save" ) {
+				if( entity.validate() ) {
+					// Tell the frontend the save has succeeded
+					entity.save( flush: true );
+					
+					// Tell the frontend the save has succeeded
+					response.status = 210
+					render ""
+					return
+				} else {
+					flash.validationErrors = entity.errors
+				}
+			}
+		}
+		
+		render template: "sampling_event", model: [entity: entity]
+	}
+	
+	/**
+	 * Removes an event from the system
+	 * @return
+	 */
+	def samplingEventDelete() {
+		def samplingEvent = SamplingEvent.read( params.long( "id" ) );
+
+		if( !samplingEvent ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+
+		samplingEvent.parent.deleteSamplingEvent( samplingEvent )
+		
+		def result = [ status: "OK" ]
+		render result as JSON
+	}
+	
+	
+	protected def putParentIntoEntity( entity ) {
+		// Was a parentID given
+		if( params.parentId ) {
+			entity.parent = Study.read( params.long( 'parentId' ) )
+		}
+		
+	}
+		
+	protected def putParamsIntoEntity( entity ) {
+		// did the template change?
+		if (params.get('template') && entity.template?.name != params.get('template')) {
+			// set the template
+			// TODO: find the template with the right entity
+			entity.template = Template.findByName(params.remove('template') )
+		}
+
+		// does the study have a template set?
+		if (entity.template && entity.template instanceof Template) {
+			// yes, iterate through template fields
+			entity.giveFields().each() {
+				// and set their values
+				entity.setFieldValue(it.name, params.get(it.escapedName()))
+			}
+		}
+
+		return entity
+	}
 	
 	/**
 	 * Retrieves the required study from the database or return an empty Study object if

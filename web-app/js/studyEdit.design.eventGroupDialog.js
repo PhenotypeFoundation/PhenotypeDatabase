@@ -26,14 +26,14 @@ StudyEdit.design.eventGroups = {
 						"#timeline-events", 
 						[], 
 						{ 
-							dragFrom: "#events, #sampling_events",
+							dragFrom: "#events, #samplingEvents",
 							t0: studyStartDate
 						},
 						StudyEdit.design.eventGroups.eventListeners 
 					);
 				} else {
 					StudyEdit.design.eventGroups.dialog.timeline.clear();
-				}				
+				}
 			},
 			clear: function() {
 				StudyEdit.design.eventGroups.timelineObject.clearItems();
@@ -50,7 +50,6 @@ StudyEdit.design.eventGroups = {
 			
 		}
 	},
-	
 	
 	initialize: function( studyStartDate ) {
 		// Create a dialog to add or edit event groups
@@ -94,6 +93,44 @@ StudyEdit.design.eventGroups = {
 			StudyEdit.design.eventGroups.delete( li.data( "originId" ) );
 			return false;
 		} );
+		
+		// Create a dialog to add/edit existing events/samplingevents
+		$( '#eventGroupContentsDialog' ).dialog({ 
+			modal: true, 
+			autoOpen: false,
+			width: 900,
+			buttons: {
+				Ok: function() {
+					StudyEdit.design.events.save();
+				},
+				Cancel: function() {
+					StudyEdit.design.eventGroups.contents.dialog.close();
+				}
+			},
+		});
+		
+		// Enable buttons on existing events and samplingevents
+		$(document).on( "click", "#events .edit", function() {
+			var li = $(this).closest( "li" );
+			StudyEdit.design.events.edit( "event", li.data( "originId" ), li.data( "url" ) ); return false; 
+		} );
+		$(document).on( "click", "#events .delete", function() {
+			var li = $(this).closest( "li" );
+			StudyEdit.design.events.delete( "event", li.data( "originId" ) );
+			return false;
+		} );
+		
+		// Enable buttons on existing event samplingEvents
+		$(document).on( "click", "#samplingEvents .edit", function() {
+			var li = $(this).closest( "li" );
+			StudyEdit.design.events.edit( "samplingEvent", li.data( "originId" ), li.data( "url" ) ); return false; 
+		} );
+		$(document).on( "click", "#samplingEvents .delete", function() {
+			var li = $(this).closest( "li" );
+			StudyEdit.design.events.delete( "samplingEvent", li.data( "originId" ) );
+			return false;
+		} );
+		
 	},
 	
 	
@@ -282,6 +319,7 @@ StudyEdit.design.eventGroups = {
 	    		timeline.updateData( selectedIndex, { data: { 
 	    			id: element.id, 
 	    			hasSamples: false, 
+	    			eventId: element.eventId,
 	    			type: element.type
 	    		} } );
 	    	});
@@ -297,10 +335,12 @@ StudyEdit.design.eventGroups = {
 		    	var id = selectedRow.data.id;
 		    	var eventType = selectedRow.data.type;
 		    	var hasSamples = selectedRow.data.hasSamples;
+		    	var eventId = selectedRow.data.eventId;
 		    	
 		    	var changed = StudyEdit.design.eventGroups.contents.update( eventType, id, selectedRow.start, selectedRow.end, hasSamples, function(element) {
 		    		var newData = {
 		    			id: id,
+		    			eventId: eventId,
 		    			hasSamples: hasSamples,
 		    			type: eventType
 		    		}
@@ -343,6 +383,20 @@ StudyEdit.design.eventGroups = {
 	 * That is, it updates the EventInEventGroup of SamplingEventInEventgroup objects
 	 */
 	contents: {
+		dialog: {
+			get: function() {
+				return $( '#eventGroupContentsDialog' );
+			},
+			open: function() {
+				// open the dialog
+				StudyEdit.design.eventGroups.contents.dialog.get().dialog( 'open' );
+			},
+			close: function() {
+				// Close the dialog
+				StudyEdit.design.eventGroups.contents.dialog.get().dialog( 'close' );
+			},
+		},		
+		
 		add: function( eventType, studyId, start, eventId, eventGroupId, afterAdd ) {
 			var url = $( 'form#' + eventType + "InEventGroup" ).attr( 'action' ) + "Add";
 			var data = {
@@ -401,18 +455,136 @@ StudyEdit.design.eventGroups = {
 	
 };
 
+/**
+ * Handles both events and sampling events
+ */
 StudyEdit.design.events = {
-	add: function() {},
-	edit: function( id ) {},
-	update: function( id, item ) {
-		
+	add: function( eventType ) {
+		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
+		dialog.dialog( 'option', 'title', 'Add ' + eventType  );
+		dialog.load( $( '#' + eventType + 's .add' ).data( 'url' ), function() {
+			StudyEdit.design.events.onLoad( eventType );
+			dialog.dialog( "open" );
+		});
 	},
-	delete: function( id ) {}
-};
-
-StudyEdit.design.samplingEvents = {
-	add: function() {},
-	edit: function( id ) {},
-	save: function() {},
-	delete: function( id ) {}
+	save: function() {
+		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
+		dialog.find( "[name=_action]" ).val( "save" );
+		dialog.find( 'form' ).submit();
+	},
+	edit: function( eventType, id ) {
+		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
+		dialog.dialog( 'option', 'title', 'Edit ' + eventType );
+		dialog.load( $( '#' + eventType + 's #' + eventType + '-' + id ).data( 'url' ), function() {
+			StudyEdit.design.events.onLoad( eventType );
+			dialog.dialog( "open" );
+		});
+	},
+	delete: function( eventType, id ) {
+		var url = $( 'form#' + eventType ).attr( 'action' ) + "Delete";
+		var data = { 
+			id: id
+		};
+		
+		if( eventType == "event" || confirm( "Deleting this samplingevent will also delete all samples that originated from it. Are you sure you want to delete the samplingevent?" ) ) {
+			$.post( url, data, function() {
+				console.log( eventType + " deleted" );
+				
+    			// Update the list of events/samplingEvents
+    			StudyEdit.design.events.reloadList( eventType );
+			});
+			
+			// Also delete the eventgroup from the timeline with subjectEventgroups
+			var data = [].concat( StudyEdit.design.eventGroups.timelineObject.getData() );
+			var toRemove = [];
+			var doRender = false;
+			
+			$.each( data, function( idx, el ) {
+				if( el.data.type == eventType && el.data.eventId == id ) {
+					doRender = true
+					StudyEdit.design.eventGroups.timelineObject.deleteItem( idx, true );
+				}
+			});
+			
+			if( doRender )
+				StudyEdit.design.eventGroups.timelineObject.render();
+			
+			return true;
+		} else {
+			return false;
+		}		
+	},
+	
+	reloadList: function( eventType ) {
+		var list = $( '#' + eventType + 's' );
+		list.load( list.data( "url" ), function() {
+			// Make sure it can be added to the timeline
+			list.find( 'li:not(.add)' ).draggable({ helper: 'clone' });
+		});
+	},
+	
+	/**
+	 * Handles loading new data into the popup dialog
+	 */
+	onLoad: function( eventType ) {
+		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
+		// Handle form with ajax
+		//callback handler for form submit
+		dialog.find( 'form' ).submit(function(e)
+		{
+		    var postData = $(this).serializeArray();
+		    var form = $(this);
+		    var formURL = $(this).attr("action");
+		    $.ajax({
+		        url : formURL,
+		        type: "POST",
+		        data : postData
+		    })
+		    .done(function(data, textStatus, jqXHR) 
+		        {
+		    		if( jqXHR.status == 210 ) {
+		    			// Everything is OK
+		    			dialog.dialog( "close" );
+		    			
+		    			// Update the list of events/samplingEvents
+		    			StudyEdit.design.events.reloadList( eventType );
+		    			
+		    			// Also update the event on the timeline
+		    			var id = form.find( "[name=id]" ).val();
+		    			var name = form.find( "[name=name]" ).val();
+		    			
+		    			if( id ) {
+			    			var data = [].concat( StudyEdit.design.eventGroups.timelineObject.getData() );
+			    			var toRemove = [];
+			    			var doRender = false;
+			    			
+			    			$.each( data, function( idx, el ) {
+			    				if( el.data.type == eventType && el.data.eventId == id ) {
+			    					StudyEdit.design.eventGroups.timelineObject.updateData( 
+			    						idx, 
+			    						{ content: name ? name : "[no name]" } 
+			    					);
+			    					doRender = true
+			    				}
+			    			});
+			    			
+			    			if( doRender ) {
+			    				StudyEdit.design.eventGroups.timelineObject.redraw();
+			    			}
+		    			}
+		    			
+		    		} else {
+		    			dialog.html( data );
+		    			StudyEdit.design.events.onLoad( eventType );
+		    		}
+		    		
+		        })
+		    .fail( function(jqXHR, textStatus, errorThrown) {
+		            dialog.html( jqXHR.responseText );   
+	    			StudyEdit.design.events.onLoad( eventType );
+		        }
+		    );
+		    e.preventDefault(); //STOP default action
+		});
+	}
 };

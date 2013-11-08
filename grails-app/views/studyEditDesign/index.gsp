@@ -52,7 +52,7 @@
 								</span>
 							</li>
 						</g:each>
-						<li class="add" onClick=" StudyEdit.design.eventGroups.add();">Add new</li>
+						<li class="add" onClick="StudyEdit.design.eventGroups.add();">Add new</li>
 					</ul>
 				</div>
 			</div>
@@ -75,39 +75,16 @@
 			<div id="timeline-events"></div>
 			
 			<div id="design-meta">
-				<div id="events" class="events addToTimeline">
-					<h3>Available treatments / challenges</h3>
-					<ul>
-						<g:each in="${study.events}" var="event">
-							<li data-duration="0" data-origin-id="${event.id}" data-origin-type="event">
-								<span class="name">${event.name?.trim() ?: '[event without name]'}</span>
-								<span class="buttons">
-									<a href="#" class="edit">edit</a>
-									<a href="#" class="delete">del</a>
-								</span>
-							</li>
-						</g:each>
-						<li class="add"><a href="#">Add new</a></li>
-					</ul>
+				<div id="events" class="events addToTimeline" data-url="${g.createLink( action: 'eventList', id: study.id )}">
+					<g:render template="eventList" params="[ study: study ]" />
 				</div>
-				<div id="sampling_events" class="sampling_events addToTimeline">
-					<h3>Available sampling events</h3>
-					<ul>
-						<g:each in="${study.samplingEvents}" var="samplingEvent">
-							<li data-origin-id="${samplingEvent.id}" data-origin-type="samplingEvent">
-								<span class="name">${samplingEvent.name?.trim() ?: '[samplingevent without name]'}</span>
-								<span class="buttons">
-									<a href="#" class="edit">edit</a>
-									<a href="#" class="delete">del</a>
-								</span>
-							</li>
-						</g:each>
-						<li class="add">Add new</li>
-					</ul>
+				<div id="samplingEvents" class="samplingEvents addToTimeline" data-url="${g.createLink( action: 'samplingEventList', id: study.id )}">
+					<g:render template="samplingEventList" params="[ study: study ]" />
 				</div>
 			</div>			
 		</div>
-
+		<div id="eventGroupContentsDialog">
+		</div>
 		<%-- These forms are meant to use the URL in javascript in a generic way --%>		
 		<g:form action="event" name="event"></g:form>
 		<g:form action="samplingEvent" name="samplingEvent"></g:form>

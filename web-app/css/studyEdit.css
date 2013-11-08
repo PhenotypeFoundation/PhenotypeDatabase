@@ -34,8 +34,7 @@ div .studyEdit .description { width: 170px; }
 
 /* template descriptions */
 .templatedescription {  display: block; padding: 2px 4px; border: 1px solid #4CAAED; /* #006DBA; */ }
-.studypage .templatedescription, .assayspage .templatedescription{ width: 220px; margin: 5px 0 5px 174px; }
-.samplespage .templatedescription { width: 300px; }
+.event .templatedescription, .samplingEvent .templatedescription{ width: 220px; margin: 5px 0 5px 174px; }
 
 /* .studyEdit .publication_list li .authors { overflow: hidden; max-height: 8px; text-overflow:ellipsis; } */
 
@@ -155,7 +154,7 @@ table.dataTable td.dataTables_empty { text-align: left; }
 .ui-draggable-dragging .buttons { display: none; }
  
  #eventGroupDialog .addToTimeline { width: 48%; float: left; margin-right: 4%; } 
- #eventGroupDialog #sampling_events { margin-right: 0; }
+ #eventGroupDialog #samplingEvents { margin-right: 0; }
  
  #subjectForm { display: none; }
  .dataTable .editableInput { padding: 0; }
