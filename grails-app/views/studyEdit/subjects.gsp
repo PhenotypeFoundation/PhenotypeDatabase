@@ -27,6 +27,9 @@
 		<span class="info"> 
 			<span class="title">Define or import your subjects</span> 
 			List all subjects and enter information about them. You can also import your subjects from an excel sheet.
+            <g:link class="edit linktips" title="Import subject from excel sheet" controller="gdtImporter" action="index" params="[id: study?.id, template: 'subject']">
+                Import subject from excel sheet
+            </g:link>
 		</span>
 		
 		<g:if test="${flash.validationErrors}">

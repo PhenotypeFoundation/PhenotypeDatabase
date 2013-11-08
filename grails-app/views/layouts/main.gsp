@@ -13,6 +13,7 @@
 	<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
     <r:require modules="gscfmain"/>
     <r:layoutResources />
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.js"></script>
     
     <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 

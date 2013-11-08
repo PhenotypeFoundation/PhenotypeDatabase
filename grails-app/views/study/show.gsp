@@ -224,9 +224,9 @@
 				<g:hiddenField name="id" value="${studyInstance?.id}"/>
 				<g:if test="${studyInstance.canWrite(loggedInUser)}">
 					<span class="button">
-						<g:link class="edit linktips" title="Edit this stuy" onclick="getTab(); return false;">
-							${message(code: 'default.button.edit.label', default: 'Edit')}
-						</g:link>
+                        <g:link class="edit linktips" title="Edit this study" controller="studyEdit" action="edit" id="${studyInstance?.id}">
+                            ${message(code: 'default.button.edit.label', default: 'Edit')}
+                        </g:link>
 					</span>
 					<%--<span class="button"><g:link class="edit linktips" title="Edit the basic properties of this study" controller="simpleWizard" action="index" id="${studyInstance?.id}">Simple edit</g:link></span>--%>
 				</g:if>
