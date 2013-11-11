@@ -1,12 +1,3 @@
-<html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta name="layout" content="dialog" />
-	<title>Study edit wizard</title>
-	
-	<r:require modules="studyEdit" />
-</head>
-<body>
 	<div class="studyEdit event">
 		<h1>
 			<g:if test="${entity?.id}">
@@ -66,5 +57,4 @@
 		</g:form>
 	
 	</div>
-</body>
-</html>
+

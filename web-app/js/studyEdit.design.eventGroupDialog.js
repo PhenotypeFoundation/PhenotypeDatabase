@@ -60,7 +60,8 @@ StudyEdit.design.eventGroups = {
 			buttons: {
 				Ok: function() {
 					StudyEdit.design.eventGroups.save();
-					StudyEdit.design.eventGroups.dialog.close();
+					$(this).dialog( "close" );
+					StudyEdit.design.eventGroups.dialog.close( this );
 				},
 				Cancel: function() {
 					// Update the main timeline to reflect the (new) length and name of the eventgroup
@@ -95,19 +96,7 @@ StudyEdit.design.eventGroups = {
 		} );
 		
 		// Create a dialog to add/edit existing events/samplingevents
-		$( '#eventGroupContentsDialog' ).dialog({ 
-			modal: true, 
-			autoOpen: false,
-			width: 900,
-			buttons: {
-				Ok: function() {
-					StudyEdit.design.events.save();
-				},
-				Cancel: function() {
-					StudyEdit.design.eventGroups.contents.dialog.close();
-				}
-			},
-		});
+		StudyEdit.design.eventGroups.contents.dialog.create(); 
 		
 		// Enable buttons on existing events and samplingevents
 		$(document).on( "click", "#events .edit", function() {
@@ -384,6 +373,27 @@ StudyEdit.design.eventGroups = {
 	 */
 	contents: {
 		dialog: {
+			obj: null,
+			create: function() {
+				StudyEdit.design.eventGroups.contents.dialog.obj = StudyEdit.design.eventGroups.contents.dialog.getDiv().dialog({ 
+					modal: true, 
+					autoOpen: false,
+					width: 900,
+					buttons: {
+						Ok: function() {
+							StudyEdit.design.events.save();
+						},
+						Cancel: function() {
+							StudyEdit.design.eventGroups.contents.dialog.close( this );
+						}
+					},
+				});
+				
+				return StudyEdit.design.eventGroups.contents.dialog.obj;
+			},
+			getDiv: function() {
+				return $( '#eventGroupContentsDialog' );
+			},
 			get: function() {
 				return $( '#eventGroupContentsDialog' );
 			},
@@ -391,7 +401,7 @@ StudyEdit.design.eventGroups = {
 				// open the dialog
 				StudyEdit.design.eventGroups.contents.dialog.get().dialog( 'open' );
 			},
-			close: function() {
+			close: function( dialog ) {
 				// Close the dialog
 				StudyEdit.design.eventGroups.contents.dialog.get().dialog( 'close' );
 			},
@@ -462,20 +472,20 @@ StudyEdit.design.events = {
 	add: function( eventType ) {
 		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
 		dialog.dialog( 'option', 'title', 'Add ' + eventType  );
-		dialog.load( $( '#' + eventType + 's .add' ).data( 'url' ), function() {
+		StudyEdit.design.eventGroups.contents.dialog.getDiv().load( $( '#' + eventType + 's .add' ).data( 'url' ), function() {
 			StudyEdit.design.events.onLoad( eventType );
 			dialog.dialog( "open" );
 		});
 	},
 	save: function() {
-		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
+		var dialog = StudyEdit.design.eventGroups.contents.dialog.getDiv();
 		dialog.find( "[name=_action]" ).val( "save" );
 		dialog.find( 'form' ).submit();
 	},
 	edit: function( eventType, id ) {
 		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
 		dialog.dialog( 'option', 'title', 'Edit ' + eventType );
-		dialog.load( $( '#' + eventType + 's #' + eventType + '-' + id ).data( 'url' ), function() {
+		StudyEdit.design.eventGroups.contents.dialog.getDiv().load( $( '#' + eventType + 's #' + eventType + '-' + id ).data( 'url' ), function() {
 			StudyEdit.design.events.onLoad( eventType );
 			dialog.dialog( "open" );
 		});
@@ -527,10 +537,12 @@ StudyEdit.design.events = {
 	 * Handles loading new data into the popup dialog
 	 */
 	onLoad: function( eventType ) {
+		console.log("onload Method: ", eventType );
+		console.log( StudyEdit.design.eventGroups.contents.dialog );
 		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
 		// Handle form with ajax
 		//callback handler for form submit
-		dialog.find( 'form' ).submit(function(e)
+		StudyEdit.design.eventGroups.contents.dialog.getDiv().find( 'form' ).submit(function(e)
 		{
 		    var postData = $(this).serializeArray();
 		    var form = $(this);
@@ -574,13 +586,13 @@ StudyEdit.design.events = {
 		    			}
 		    			
 		    		} else {
-		    			dialog.html( data );
+		    			StudyEdit.design.eventGroups.contents.dialog.getDiv().html( data );
 		    			StudyEdit.design.events.onLoad( eventType );
 		    		}
 		    		
 		        })
 		    .fail( function(jqXHR, textStatus, errorThrown) {
-		            dialog.html( jqXHR.responseText );   
+		    		StudyEdit.design.eventGroups.contents.dialog.getDiv().html( jqXHR.responseText );   
 	    			StudyEdit.design.events.onLoad( eventType );
 		        }
 		    );
