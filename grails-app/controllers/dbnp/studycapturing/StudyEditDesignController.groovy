@@ -171,7 +171,7 @@ class StudyEditDesignController {
 	def eventGroupUpdate() {
 		def eventGroup = EventGroup.read( params.long( "id" ) );
 
-		if( !EventGroup ) {
+		if( !eventGroup ) {
 			response.status = 404
 			render "Not found"
 			return
@@ -543,7 +543,6 @@ class StudyEditDesignController {
 
 	def samplingEventAdd() {
 		def entity  = new SamplingEvent()
-		
 		putParentIntoEntity( entity )
 		
 		if( request.post ) {
@@ -616,6 +615,110 @@ class StudyEditDesignController {
 		def result = [ status: "OK" ]
 		render result as JSON
 	}
+	
+	/**
+	 * Adds a subjectgroup with new properties from the form
+	 * @return
+	 */
+	def subjectGroupAdd() {
+		def subjectGroup = new SubjectGroup();
+		def study = getStudyFromRequest( params )
+
+		subjectGroup.parent = study
+
+		def name = params.get( "name" )
+		def result
+		if( name ) {
+			subjectGroup.name = name
+			
+			if( subjectGroup.validate() ) {
+				study.addToSubjectGroups( subjectGroup );
+				subjectGroup.save( flush: true )
+				result = [ status: "OK", id: subjectGroup.id, name: subjectGroup.name ]
+			} else {
+				response.status = 500
+				result = [ status: "Error", errors: subjectGroup.errors.allErrors ]
+			}
+		} else {
+			response.status = 400
+			result = [ status: "Error", errors: "Please specify a name" ]
+		}
+
+		render result as JSON
+
+	}
+
+	/**
+	 * Updates a subjectGroup  with new properties from the form
+	 * @return
+	 */
+	def subjectGroupUpdate() {
+		def subjectGroup = SubjectGroup.read( params.long( "id" ) );
+
+		if( !subjectGroup ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+
+		def name = params.get( "name" )
+		def result = [ "OK" ]
+		
+		if( name && name != subjectGroup.name ) {
+			subjectGroup.name = name
+
+			if( !subjectGroup.save() ) {
+				response.status = 500
+				result  = [ status: "Error" ]
+			}
+		}
+		
+		render result as JSON
+	}
+
+	/**
+	 * Removes a subjectgroup from the system
+	 * @return
+	 */
+	def subjectGroupDelete() {
+		def subjectGroup = SubjectGroup.read( params.long( "id" ) );
+
+		if( !subjectGroup ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+
+		subjectGroup.parent.deleteSubjectGroup( subjectGroup )
+		
+		def result = [ status: "OK" ]
+		render result as JSON
+	}
+	
+	/**
+	 * Returns a list of details about a subjectgroup
+	 * @return	JSON array with keys
+	 * 		name
+	 * 		subjects
+	 */
+	def subjectGroupDetails( long id ) {
+		def subjectGroup = SubjectGroup.read( id );
+
+		if( !subjectGroup ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+
+		def resultData = [
+			id: subjectGroup.id,
+			name: subjectGroup.name,
+			subjects: subjectGroup.subjects ? subjectGroup.subjects.collect { [ id: it.id, name: it.name ] } : []
+		]
+
+		render resultData as JSON
+	}
+	
 	
 	
 	protected def putParentIntoEntity( entity ) {

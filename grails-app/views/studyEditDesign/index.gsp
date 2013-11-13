@@ -37,6 +37,11 @@
 				<div id="timeline-eventgroups"></div>
 			</div>
 			<div id="design-meta">
+				<div id="subjectGroups" class="subjectgroups addToTimeline">
+					<ul>
+						<li class="add" onClick="StudyEdit.design.subjectGroups.add();">Add subjectgroup</li>
+					</ul>
+				</div>
 				<div id="eventgroups" class="eventgroups addToTimeline">
 					<h3>Available event groups</h3>
 					<ul>
@@ -85,10 +90,24 @@
 		</div>
 		<div id="eventGroupContentsDialog">
 		</div>
+		<div id="subjectGroupDialog">
+			<span class="info"> 
+				<span class="title">Edit the details of the subjectgroup</span> 
+				Check the subjects that are in this group
+			</span>
+			
+			<label>Name: </label><input type="text" name="subjectgroup-name" id="subjectgroup-name" /><br />
+			
+			<div id="design-subjects">
+				SUBJECTS
+			</div>				
+		</div>
+		
 		<%-- These forms are meant to use the URL in javascript in a generic way --%>		
 		<g:form action="event" name="event"></g:form>
 		<g:form action="samplingEvent" name="samplingEvent"></g:form>
 		<g:form action="eventGroup" name="eventGroup"></g:form>
+		<g:form action="subjectGroup" name="subjectGroup"></g:form>
 		<g:form action="eventInEventGroup" name="eventInEventGroup"></g:form>
 		<g:form action="samplingEventInEventGroup" name="samplingEventInEventGroup"></g:form>
 		<g:form action="subjectEventGroup" name="subjectEventGroup"></g:form>
@@ -113,11 +132,12 @@
 				     });
      			</g:each>
 				
-				StudyEdit.design.initialize( data, new Date(${study.startDate?.time}) );
+				StudyEdit.design.initialize( data, new Date(${study.startDate?.time}), StudyEdit.design.subjectGroups.groups.data );
 				
 				// Make sure all groups exist
 				<g:each in="${study.subjectGroups}" var="group">
-					StudyEdit.design.timelineObject.getGroup( '${group.name.encodeAsJavaScript()}')
+					StudyEdit.design.subjectGroups.groups.data.push( { 'id': ${group.id}, 'name':  '${group.name.encodeAsJavaScript()}' } );
+					StudyEdit.design.timelineObject.redraw(); 
   				</g:each>
 			});
 		</r:script>

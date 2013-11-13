@@ -4,7 +4,7 @@ if( typeof( StudyEdit ) === "undefined" ) {
 
 StudyEdit.design = {
 	timelineObject: null,
-	initialize: function( data, studyStartDate ) {
+	initialize: function( data, studyStartDate, groupReference ) {
 		StudyEdit.design.timelineObject = StudyEdit.design.editableTimeline( 
 			"#timeline-eventgroups", 
 			data, 
@@ -15,7 +15,9 @@ StudyEdit.design = {
 			},
 			StudyEdit.design.subjectEventGroups.eventListeners
 		);
+		StudyEdit.design.timelineObject.groupReference = groupReference;
 		StudyEdit.design.eventGroups.initialize( studyStartDate );
+		StudyEdit.design.subjectGroups.initialize();
 	},
 	
 	editableTimeline: function( container, data, options, eventHandlers ) {
