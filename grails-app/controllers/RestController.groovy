@@ -422,7 +422,7 @@ class RestController {
 		// Check if required parameters are present
 		def validCall = CommunicationManager.hasValidParams( params, "consumer" )
 		if( !validCall ) {
-			response.status = 500;
+		    	response.status = 500;
 			render "Error. Wrong or insufficient parameters." as JSON
 			return
 		}
@@ -594,7 +594,7 @@ class RestController {
 						'sampleToken' : sample.UUID,
 						'material'	  : sample.material?.name,
 						'subject'	  : sample.parentSubject?.name,
-						'event'		  : sample.parentEvent?.template?.name,
+						'event'		  : sample.parentEvent?.event?.template?.name,
 						'startTime'	  : sample.parentEvent?.getStartTimeString()
 					]
 
@@ -608,7 +608,7 @@ class RestController {
 			}
 
 			if(sample.parentEvent) {
-				def parentEvent = sample.parentEvent
+				def parentEvent = sample.parentEvent.event
 				def eventHash = [:]
 				parentEvent.giveFields().each { field ->
 					def name = field.name

@@ -14,6 +14,8 @@
  */
 package api
 
+import grails.converters.JSON
+
 import java.security.MessageDigest
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
@@ -143,8 +145,8 @@ class ApiService implements Serializable, ApplicationContextAware {
 
             if(it instanceof Sample) {
                 item['subject'] = it.parentSubject.UUID
-                item['samplingEvent'] = it.parentEvent.UUID
-                item['eventGroup'] = it.parentEventGroup.UUID
+                item['samplingEvent'] = it.parentEvent.event.UUID
+                item['eventGroup'] = it.parentEvent.event.UUID
             }
 
             } else {
@@ -245,7 +247,7 @@ class ApiService implements Serializable, ApplicationContextAware {
         if (!validateRequest(deviceID,validation)) {
             // validation md5sum does not match predicted hash
 	        cleanUpBlock()
-            response.sendError(401, "Unauthorized")
+            //response.sendError(401, "Unauthorized")
         } else if (!item) {
             // no results, invalid 'item'
 	        cleanUpBlock()
@@ -259,8 +261,17 @@ class ApiService implements Serializable, ApplicationContextAware {
 	        cleanUpBlock()
 	        response.sendError(401, "Unauthorized")
         } else {
+            response.status = 200
+            response.contentType = 'application/json;charset=UTF-8'
+
             // allowed api call, execute block / closure
-            block()
+            def result = block()
+
+            if (params.containsKey('callback')) {
+                return "${params.callback}(${result as JSON})"
+            } else {
+                return result as JSON
+            }
         }
     }
 

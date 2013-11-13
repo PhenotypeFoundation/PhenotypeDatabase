@@ -85,14 +85,7 @@ class ApiController {
             response.status = 500
             result = ['error':e.getMessage()]
         }
-
-        response.contentType = 'application/json;charset=UTF-8'
-
-        if (params.containsKey('callback')) {
-            render "${params.callback}(${result as JSON})"
-        } else {
-            render result as JSON
-        }
+        return result
     }
 
     /**
@@ -133,7 +126,9 @@ class ApiController {
                         'uniqueSamplingEvents'  : study.samplingEvents.collect { it.toString() }.unique(),
                         'eventGroups'           : study.eventGroups.size(),
                         'uniqueEventGroups'     : study.eventGroups.collect { it.name }.unique(),
-                        'samples'               : study.samples.size()
+                        'samples'               : study.samples.size(),
+                        'subjectGroups'         : study.subjectGroups.size(),
+                        'uniqueSubjectGroups'   : study.subjectGroups.collect { it.name }.unique()
                 ]
             }
 
@@ -142,7 +137,6 @@ class ApiController {
                     'studies'   : studies
             ]
 
-            // set output headers
             response.status = 200
             response.contentType = 'application/json;charset=UTF-8'
 
@@ -164,12 +158,10 @@ class ApiController {
     def getSubjectsForStudy = {
         println "api::getSubjectsForStudy: ${params}"
 
-        // fetch study
-        String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-	    def study           = Study.findWhere(UUID: studyToken)
+        Study study = getStudy()
 
         // wrap result in api call validator
-        apiService.executeApiCall(params,response,'study',study,{
+        render apiService.executeApiCall(params,response,'study',study,{
             def subjects = apiService.flattenDomainData( study.subjects )
 
             // define result
@@ -177,17 +169,9 @@ class ApiController {
                     'count'     : subjects.size(),
                     'subjects'  : subjects
             ]
-
-            // set output headers
-            response.status = 200
-            response.contentType = 'application/json;charset=UTF-8'
-
-            if (params.containsKey('callback')) {
-                render "${params.callback}(${result as JSON})"
-            } else {
-                render result as JSON
-            }
+            return result
         })
+
     }
 
     /**
@@ -200,12 +184,10 @@ class ApiController {
     def getAssaysForStudy = {
         println "api::getAssaysForStudy: ${params}"
 
-        // fetch study
-        String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-	    def study           = Study.findWhere(UUID: studyToken)
+        Study study = getStudy()
 
 	    // wrap result in api call validator
-        apiService.executeApiCall(params,response,'study',study,{
+        render apiService.executeApiCall(params,response,'study',study,{
             def assays = apiService.flattenDomainData( study.assays )
 
             // define result
@@ -213,16 +195,7 @@ class ApiController {
                     'count'     : assays.size(),
                     'assays'    : assays
             ]
-
-            // set output headers
-            response.status = 200
-            response.contentType = 'application/json;charset=UTF-8'
-
-            if (params.containsKey('callback')) {
-                render "${params.callback}(${result as JSON})"
-            } else {
-                render result as JSON
-            }
+            return result
         })
     }
 
@@ -236,12 +209,10 @@ class ApiController {
     def getEventGroupsForStudy = {
         println "api::getEventGroupsForStudy: ${params}"
 
-        // fetch study
-        String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-	    def study           = Study.findWhere(UUID: studyToken)
+        Study study = getStudy()
 
 	    // wrap result in api call validator
-        apiService.executeApiCall(params,response,'study',study,{
+        render apiService.executeApiCall(params,response,'study',study,{
             def eventGroups = apiService.flattenDomainData( study.eventGroups )
 
             // define result
@@ -249,16 +220,7 @@ class ApiController {
                 'count'         : eventGroups.size(),
                 'eventGroups'   : eventGroups
             ]
-
-            // set output headers
-            response.status = 200
-            response.contentType = 'application/json;charset=UTF-8'
-
-            if (params.containsKey('callback')) {
-                render "${params.callback}(${result as JSON})"
-            } else {
-                render result as JSON
-            }
+            return result
         })
     }
 
@@ -272,12 +234,10 @@ class ApiController {
     def getEventsForStudy = {
         println "api::getEventsForStudy: ${params}"
 
-        // fetch study
-        String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-	    def study           = Study.findWhere(UUID: studyToken)
+        Study study = getStudy()
 
 	    // wrap result in api call validator
-        apiService.executeApiCall(params,response,'study',study,{
+        render apiService.executeApiCall(params,response,'study',study,{
             def events = apiService.flattenDomainData( study.events )
 
             // define result
@@ -285,16 +245,7 @@ class ApiController {
                 'count' : events.size(),
                 'events': events
             ]
-
-            // set output headers
-            response.status = 200
-            response.contentType = 'application/json;charset=UTF-8'
-
-            if (params.containsKey('callback')) {
-                render "${params.callback}(${result as JSON})"
-            } else {
-                render result as JSON
-            }
+            return result
         })
     }
 
@@ -308,12 +259,10 @@ class ApiController {
     def getSamplingEventsForStudy = {
         println "api::getSamplingEventsForStudy: ${params}"
 
-        // fetch study
-        String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-	    def study           = Study.findWhere(UUID: studyToken)
+        Study study = getStudy()
 
 	    // wrap result in api call validator
-        apiService.executeApiCall(params,response,'study',study,{
+        render apiService.executeApiCall(params,response,'study',study,{
             def samplingEvents = apiService.flattenDomainData( study.samplingEvents )
 
             // define result
@@ -321,21 +270,12 @@ class ApiController {
                     'count'         : samplingEvents.size(),
                     'samplingEvents': samplingEvents
             ]
-
-            // set output headers
-            response.status = 200
-            response.contentType = 'application/json;charset=UTF-8'
-
-            if (params.containsKey('callback')) {
-                render "${params.callback}(${result as JSON})"
-            } else {
-                render result as JSON
-            }
+            return result
         })
     }
 
 	/**
-	 * get all subjects for a study
+	 * get all samples for a study
 	 *
 	 * @param string deviceID
 	 * @param string studyToken
@@ -344,32 +284,20 @@ class ApiController {
 	def getSamplesForStudy = {
 		println "api::getSamplesForStudy: ${params}"
 
-		// fetch study
-		String studyToken   = (params.containsKey('studyToken')) ? params.studyToken : ''
-		def study           = Study.findWhere(UUID: studyToken)
+        Study study = getStudy()
 
 		// wrap result in api call validator
-		apiService.executeApiCall(params,response,'study',study,{
+		render apiService.executeApiCall(params,response,'study',study,{
 
 			def studySamples = study.samples
 
 			def samples = apiService.flattenDomainData( studySamples )
 
-			// define result
 			def result = [
 					'count'     : samples.size(),
 					'samples'   : samples
 			]
-
-			// set output headers
-			response.status = 200
-			response.contentType = 'application/json;charset=UTF-8'
-
-			if (params.containsKey('callback')) {
-				render "${params.callback}(${result as JSON})"
-			} else {
-				render result as JSON
-			}
+            return result
 		})
 	}
 
@@ -388,25 +316,44 @@ class ApiController {
 	    def assay           = Assay.findWhere(UUID: assayToken)
 
 	    // wrap result in api call validator
-        apiService.executeApiCall(params,response,'assay',assay,{
+        render apiService.executeApiCall(params,response,'assay',assay,{
             def samples = apiService.flattenDomainData( assay.samples )
 
-            // define result
             def result = [
                     'count'     : samples.size(),
                     'samples'   : samples
             ]
-
-            // set output headers
-            response.status = 200
-            response.contentType = 'application/json;charset=UTF-8'
-
-            if (params.containsKey('callback')) {
-                render "${params.callback}(${result as JSON})"
-            } else {
-                render result as JSON
-            }
+            return result
         })
+    }
+
+    def getSubjectGroupsForStudy = {
+        Study study = getStudy()
+
+        render apiService.executeApiCall(params,response,'study',study,{
+            def studySubjectGroups = study.subjectGroups.findAll()
+
+            [
+                'count'         : studySubjectGroups.size(),
+                'subjectGroups' : getSubjectGroups(studySubjectGroups)
+            ]
+        })
+    }
+
+    private Study getStudy() {
+        Study.findWhere(UUID: getStudyToken())
+    }
+
+    private String getStudyToken() {
+        (params.containsKey('studyToken')) ? params.studyToken : ''
+    }
+
+    private ArrayList<Map<String, ArrayList<Map<String, String, Integer>>>> getSubjectGroups(studySubjectGroup) {
+        studySubjectGroup.collect {
+            [name: it.name, subjectEventGroups: it.subjectEventGroups.collect {
+                [startTime: it.startTime, description: it.description, eventGroupId: it.eventGroup.id]
+            }]
+        }
     }
 
     /**
