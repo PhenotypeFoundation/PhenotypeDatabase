@@ -77,12 +77,16 @@ grails.project.dependency.resolution = {
 
 		compile(
             ":dbxp-base:0.1.3.1",
-            ":dbxp-sam:0.9.6.3.rc3",
+            ":dbxp-sam:0.9.6.3.rc2",
 
             ":hibernate:$grailsVersion",
 
-            ":jquery:latest.integration",
-            ':jquery-ui:latest.integration',
+//            ":jquery:latest.integration",
+//            ':jquery-ui:latest.integration',
+
+            //Temporary static version due to not working table tooltip with jQuery 1.10.2
+            ":jquery:1.8.3",
+            ':jquery-ui:1.8.24',
 
             ":resources:latest.integration",
             ":spring-security-core:1.2.7.3",
