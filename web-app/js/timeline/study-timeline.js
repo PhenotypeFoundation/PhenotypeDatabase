@@ -32,7 +32,8 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 	}
 	
 	this.timeline.draw.call( this, data, options );
-	
+
+	// Enable the droppable behavior
 	if( options && options.editable && options.droppable ) {
 	     //$( "#eventGroups li" ).draggable({ helper: 'clone' });
 	     var timeline = this;
@@ -41,49 +42,60 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 		   	 drop: function( event, ui ) {
 		   		 var offsetLeft = ui.offset.left - links.Timeline.getAbsoluteLeft( timeline.dom.content );
 		   		 var offsetTop = ui.offset.top - links.Timeline.getAbsoluteTop( timeline.dom.content );
-		    		 if( !isNaN( offsetLeft ) && !isNaN( offsetTop ) && offsetTop > 0 && offsetLeft > 0 ) {
-		    			var start = timeline.screenToTime( offsetLeft );
-		    			
-		    			// Snap events to whole date/time
-		                if (timeline.options.snapEvents) {
-		                    timeline.step.snap(start);	
-		                }
-		    			
-		    	        var group = timeline.getGroupFromHeight( offsetTop );
-		    		    
-		    	        var itemOptions = {
-		    		        'start': start,
-		    		        'content': ui.helper.find( '.name' ).text(),
-		    		        'group': timeline.getGroupName( group ),
-		    		        'className': 'dragged-origin-id-' + ui.draggable.data( "origin-id" ) + ' dragged-origin-type-' + ui.draggable.data( "origin-type" )
-		    		    };
-		    	        
-		    	        // Determine the duration of this event. Set to 0 if the event has a 
-		    	        // duration but it is not determined yet
-		    	        var duration = $( ui.draggable ).data( "duration" );
-		    	        
-		    	        if( typeof( duration ) != "undefined" ) {
-		    	        	if( duration == 0 ) {
-			    	        	// Make the duration 25% of the width of the timeline
-			    	        	var range = timeline.getVisibleChartRange();
-			    	        	var multiplier = 0.25;
-			    	        	duration = ( range.end.getTime() - range.start.getTime() ) * multiplier;
-			    	        	itemOptions.end = new Date( start.getTime() + duration );
-		    	        		
-		    	        	} else { 
-			    	        	// A single point event
-			    	        	itemOptions.end = new Date( start.getTime() + duration * 1000 );
-		    	        	}
-		    	        }
-		    	         
-		    	        timeline.addItem( itemOptions );
-		    	        timeline.selectItem(timeline.items.length - 1);
-		    	        timeline.trigger( "dragin" );
-		    		 }
-			     }
-		    });	     
-     
+		   		 
+	    		 if( !isNaN( offsetLeft ) && !isNaN( offsetTop ) && offsetTop > 0 && offsetLeft > 0 ) {
+	    			var start = timeline.screenToTime( offsetLeft );
+	    			
+	    			// Snap events to whole date/time
+	                if (timeline.options.snapEvents) {
+	                    timeline.step.snap(start);	
+	                }
+	    			
+	    	        var group = timeline.getGroupFromHeight( offsetTop );
+	    		    
+	    	        var itemOptions = {
+	    		        'start': start,
+	    		        'content': ui.helper.find( '.name' ).text(),
+	    		        'group': timeline.getGroupName( group ),
+	    		        'className': 'dragged-origin-id-' + ui.draggable.data( "origin-id" ) + ' dragged-origin-type-' + ui.draggable.data( "origin-type" )
+	    		    };
+	    	        
+	    	        // Determine the duration of this event. Set to 0 if the event has a 
+	    	        // duration but it is not determined yet
+	    	        var duration = $( ui.draggable ).data( "duration" );
+	    	        
+	    	        if( typeof( duration ) != "undefined" ) {
+	    	        	if( duration == 0 ) {
+		    	        	// Make the duration 25% of the width of the timeline
+		    	        	var range = timeline.getVisibleChartRange();
+		    	        	var multiplier = 0.25;
+		    	        	duration = ( range.end.getTime() - range.start.getTime() ) * multiplier;
+		    	        	itemOptions.end = new Date( start.getTime() + duration );
+	    	        		
+	    	        	} else { 
+		    	        	// A single point event
+		    	        	itemOptions.end = new Date( start.getTime() + duration * 1000 );
+	    	        	}
+	    	        }
+	    	         
+	    	        timeline.addItem( itemOptions );
+	    	        timeline.selectItem(timeline.items.length - 1);
+	    	        timeline.trigger( "dragin" );
+	    		 }
+		     }
+	    });	     
+	}
+}
 
+dbnp.study.Timeline.prototype.deleteGroups = function() {
+	// Delete groups
+	this.timeline.deleteGroups.call( this );
+	
+	// Add all groups again, in order to have the proper groups all the time
+	if( typeof( this.groupReference ) != "undefined" ) {
+		for( i in this.groupReference ) {
+			this.getGroup( this.groupReference[ i ].name );
+		}
 	}
 }
 

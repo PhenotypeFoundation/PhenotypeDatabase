@@ -1728,6 +1728,7 @@ links.Timeline.prototype.reflowGroups = function() {
     for (var i = 0, iMax = groups.length; i < iMax; i++) {
         var group = groups[i];
         var label = labels[i];
+        
         group.labelWidth  = label ? label.clientWidth : 0;
         group.labelHeight = label ? label.clientHeight : 0;
         group.width = group.labelWidth;  // TODO: group.width is redundant with labelWidth

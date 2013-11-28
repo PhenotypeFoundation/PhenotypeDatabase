@@ -151,6 +151,8 @@ table.dataTable td.dataTables_empty { text-align: left; }
 .addToTimeline .buttons { float: right; margin-top: 0px; }
 .addToTimeline .buttons a { padding-top: 3px; padding-bottom: 3px; display: inline-block; margin-left: 10px; }
 
+#timeline-eventgroups .timeline-groups-text { cursor: pointer; }
+
 .ui-draggable-dragging .buttons { display: none; }
  
  #eventGroupDialog .addToTimeline { width: 48%; float: left; margin-right: 4%; } 
