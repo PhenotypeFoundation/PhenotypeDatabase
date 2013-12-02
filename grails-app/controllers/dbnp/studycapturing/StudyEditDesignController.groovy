@@ -634,6 +634,8 @@ class StudyEditDesignController {
 			if( subjectGroup.validate() ) {
 				study.addToSubjectGroups( subjectGroup );
 				subjectGroup.save( flush: true )
+				
+				handleSubjectsInSubjectGroup( params[ "subjects[]" ], subjectGroup )
 				result = [ status: "OK", id: subjectGroup.id, name: subjectGroup.name ]
 			} else {
 				response.status = 500
@@ -667,10 +669,15 @@ class StudyEditDesignController {
 		if( name && name != subjectGroup.name ) {
 			subjectGroup.name = name
 
-			if( !subjectGroup.save() ) {
+			if( subjectGroup.save() ) {
+				handleSubjectsInSubjectGroup( params[ "subjects[]" ], subjectGroup )
+			} else {
 				response.status = 500
 				result  = [ status: "Error" ]
 			}
+			
+		} else {
+			handleSubjectsInSubjectGroup( params[ "subjects[]" ], subjectGroup )
 		}
 		
 		render result as JSON
@@ -719,7 +726,33 @@ class StudyEditDesignController {
 		render resultData as JSON
 	}
 	
-	
+	protected void handleSubjectsInSubjectGroup( subjectIds, subjectGroup ) {
+		if( !subjectGroup ) 
+			return
+		
+		if( !subjectIds ) {
+			subjectGroup.subjects.clear()
+			return
+		}
+		
+		// Loop through all subjects
+		def subjects = [] + subjectGroup.subjects
+		subjects.each { subject ->
+			if( subjectIds.contains( subject.id ) ) {
+				subjectIds -= subject.id
+			} else {
+				subjectGroup.removeFromSubjects( subject )
+			}
+		}
+		
+		// Add other subjects
+		subjectIds.each { subjectId ->
+			def subject = Subject.read( subjectId )
+			if( subject )
+				subjectGroup.addToSubjects( subject ) 
+		}
+		
+	}
 	
 	protected def putParentIntoEntity( entity ) {
 		// Was a parentID given
