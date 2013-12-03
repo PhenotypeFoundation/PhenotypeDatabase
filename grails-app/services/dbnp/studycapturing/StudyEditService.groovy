@@ -33,7 +33,7 @@ class StudyEditService {
 		output.ids = filteredIds
 		
 		// Also count the total number of results in the dataset
-		output.total = template.entity.countByParent( study )
+		output.total = template.entity.countByParentAndTemplate( study, template )
 		
 		// Now find the results themselves
 		def hql = "SELECT " + query.select + " FROM " + query.from + " WHERE " + query.where + " " + ( query.order ? " ORDER BY " + query.order : "" )
@@ -62,7 +62,7 @@ class StudyEditService {
 		def from = tableName + " s "
 		def joins = []
 		def whereClause = []
-		def hqlParams = [ study: study ]
+		def hqlParams = [ study: study, template: template ]
 		def orderBy = ""
 
 		// First add searching
@@ -149,7 +149,7 @@ class StudyEditService {
 		if( joins )
 			from += " LEFT JOIN " + joins.join( " LEFT JOIN " )
 		
-		def where =  "s.parent = :study "
+		def where =  "s.parent = :study AND s.template = :template"
 			
 		if( whereClause )
 			where += " AND (" + whereClause.join( " OR " ) + ") "

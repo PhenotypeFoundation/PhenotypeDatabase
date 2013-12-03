@@ -58,6 +58,9 @@ class StudyEditDesignController {
 		def result
 		if( subjectEventGroup.save() ) {
 			study.addToSubjectEventGroups( subjectEventGroup );
+			
+			generateSamples( subjectEventGroup )
+			
 			result = [ status: "OK", id: subjectEventGroup.id, group: subjectGroupName, subjectGroupId: subjectEventGroup.subjectGroup?.id, eventGroupId: subjectEventGroup.eventGroup?.id ]
 		} else {
 			response.status = 500
@@ -123,6 +126,7 @@ class StudyEditDesignController {
 			return
 		}
 
+		// Delete subjectEventgroup and associated samples
 		subjectEventGroup.parent.deleteSubjectEventGroup( subjectEventGroup )
 		
 		def result = [ status: "OK" ]
@@ -377,6 +381,9 @@ class StudyEditDesignController {
 	
 		def result
 		if( samplingEventInEventGroup.save() ) {
+			// Generate new samples for this eventGroup
+			generateSamples( samplingEventInEventGroup )
+			
 			result = [ status: "OK", id: samplingEventInEventGroup.id, eventGroupId: eventGroupId, eventId: eventId, type: "samplingEvent" ]
 		} else {
 			response.status = 500
@@ -671,6 +678,7 @@ class StudyEditDesignController {
 
 			if( subjectGroup.save() ) {
 				handleSubjectsInSubjectGroup( params[ "subjects[]" ], subjectGroup )
+				//generateSamples( subjectGroup )
 			} else {
 				response.status = 500
 				result  = [ status: "Error" ]
@@ -678,6 +686,8 @@ class StudyEditDesignController {
 			
 		} else {
 			handleSubjectsInSubjectGroup( params[ "subjects[]" ], subjectGroup )
+			//subjectGroup = SubjectGroup.get( subjectGroup.id )
+			generateSamples( subjectGroup )
 		}
 		
 		render result as JSON
@@ -738,8 +748,8 @@ class StudyEditDesignController {
 		// Loop through all subjects
 		def subjects = [] + subjectGroup.subjects
 		subjects.each { subject ->
-			if( subjectIds.contains( subject.id ) ) {
-				subjectIds -= subject.id
+			if( subjectIds.contains( subject.id.toString() ) ) {
+				subjectIds -= subject.id.toString()
 			} else {
 				subjectGroup.removeFromSubjects( subject )
 			}
@@ -748,10 +758,104 @@ class StudyEditDesignController {
 		// Add other subjects
 		subjectIds.each { subjectId ->
 			def subject = Subject.read( subjectId )
-			if( subject )
-				subjectGroup.addToSubjects( subject ) 
+			if( subject ) {
+				subjectGroup.addToSubjects( subject )
+			} 
+		}
+
+	}
+	
+	/**
+	 * Generate new samples for a newly created subjectEventGroup
+	 * @param subjectEventGroup
+	 * @return
+	 */
+	protected def generateSamples( SubjectEventGroup subjectEventGroup ) {
+		def study = subjectEventGroup.parent
+		
+		// Make sure we have a sample for each subject in combination with each samplingevent
+		subjectEventGroup.subjectGroup.subjects?.each { subject ->
+			subjectEventGroup.eventGroup.samplingEventInstances?.each { samplingEventInstance ->
+				createSample( study, subject, samplingEventInstance, subjectEventGroup )
+			}
+		}
+	}
+	
+	/**
+	 * Generate new samples for a newly created samplingEventInEventGroup
+	 * @param subjectEventGroup
+	 * @return
+	 */
+	protected def generateSamples( SamplingEventInEventGroup samplingEventInEventGroup ) {
+		def study = samplingEventInEventGroup.event.parent
+		def eventGroup = samplingEventInEventGroup.eventGroup
+		
+		// Create a new sample for this sampling event and each subject that is connected to this eventgroup
+		eventGroup.subjectEventGroups?.each { subjectEventGroup ->
+			subjectEventGroup.subjectGroup.subjects?.each { subject ->
+				createSample( study, subject, samplingEventInEventGroup, subjectEventGroup )
+			}
+		}
+	}
+
+	/**
+	 * Generate new samples for an updated subjectGroup
+	 * @param subjectEventGroup
+	 * @return
+	 */
+	protected def generateSamples( SubjectGroup subjectGroup ) {
+		def study = subjectGroup.parent
+		
+		// Find all samples that reference this subjectgroup
+		def criteria = Sample.createCriteria() 
+		def samples = criteria {
+			parentSubjectEventGroup {
+				eq( 'subjectGroup', subjectGroup )
+			}
 		}
 		
+		// Make sure we have a sample for each subject in combination with each samplingevent
+		subjectGroup.subjects?.each { subject ->
+			subjectGroup.subjectEventGroups?.each { subjectEventGroup ->
+				subjectEventGroup.eventGroup.samplingEventInstances?.each { samplingEventInstance ->
+					def currentSample = samples.find { 
+						it.parentSubject.id == subject.id && 
+						it.parentEvent.id == samplingEventInstance.id
+					}
+					
+					// If the currentSample is found, remove it from the list to be removed
+					if( currentSample ) {
+						log.debug "Sample generation: Sample already exists: " + currentSample 
+						samples -= currentSample
+					} else {
+						createSample( study, subject, samplingEventInstance, subjectEventGroup )
+						log.debug "Sample generation: Creating new sample for subject: " + subject + " / " + samplingEventInstance
+					}
+				}
+			}
+		}
+		
+		// Remove samples from subjects that have been removed
+		samples.each { sample ->
+			log.debug "Sample generation: Deleting sample: " + sample 
+			study.deleteSample( sample )
+		}
+	}
+	
+	protected boolean createSample( Study study, Subject subject, SamplingEventInEventGroup samplingEventInstance, SubjectEventGroup subjectEventGroup ) {
+		subject.refresh()
+		
+		def currentSample = new Sample(
+			parent: study,
+			parentSubject: subject,
+			parentEvent: samplingEventInstance,
+			parentSubjectEventGroup: subjectEventGroup,
+			template: samplingEventInstance.event.sampleTemplate
+		);
+	
+		currentSample.generateName()
+		study.addToSamples( currentSample )
+		currentSample.save( flush: true );
 	}
 	
 	protected def putParentIntoEntity( entity ) {
