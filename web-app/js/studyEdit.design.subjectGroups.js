@@ -153,7 +153,17 @@ StudyEdit.design.subjectGroups = {
 		// Enable doubleclick edit
 		$( "#timeline-eventgroups" ).on( "dblclick", ".timeline-groups-text", function( e ) {
 			StudyEdit.design.subjectGroups.edit( $(e.target).text() );
-		});		
+		});
+		
+		// Enable selectable behaviour
+		$( "#design-subjects" ).selectable({
+			filter: ".subject",
+		    stop: function() {        
+		        $(".ui-selected input", this).each(function() {
+		            this.checked= !this.checked
+		        });
+		    }
+		})
 	},
 	
 	/**
@@ -166,8 +176,9 @@ StudyEdit.design.subjectGroups = {
 		StudyEdit.design.subjectGroups.dialog.addButtons( true, false, true );
 		StudyEdit.design.subjectGroups.dialog.open()
 		
-		// Clear the name box
+		// Clear the name box and subject checkboxes
 		$( '[name=subjectgroup-name]' ).val( "" );
+		$( '#design-subjects .subject input' ).attr( "checked", false );
 	},
 	
 	edit: function( groupName ) {
@@ -184,8 +195,14 @@ StudyEdit.design.subjectGroups = {
 
 		// Load the data for the timeline
 		$.get( StudyEdit.design.subjectGroups.getDataUrl( subjectGroup ), function( data ) {
-			// Clear the name box
+			// Put data into the dialog
 			$( '[name=subjectgroup-name]' ).val( data.name );
+				
+			// Check the right checkboxes
+			$( '#design-subjects .subject input' ).attr( "checked", false );
+			$.each( data.subjects, function( idx, el ) {
+				$( "#subjectgroup_subjects_" + el.id ).attr( "checked", true );				
+			} );
 		});
 	},
 	
@@ -199,7 +216,10 @@ StudyEdit.design.subjectGroups = {
 		var url = $( 'form#subjectGroup' ).attr( 'action' ) + action;
 				
 		var data = { 
-			name: $( '[name=subjectgroup-name]' ).val()
+			name: $( '[name=subjectgroup-name]' ).val(),
+			subjects: $( '#design-subjects .subject input:checked' ).map( function( idx, el ) {
+				return $(el).val();
+			}).get()
 		};
 		
 		if( id ) {

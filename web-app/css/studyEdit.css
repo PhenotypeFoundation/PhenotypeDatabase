@@ -157,7 +157,12 @@ table.dataTable td.dataTables_empty { text-align: left; }
  
  #eventGroupDialog .addToTimeline { width: 48%; float: left; margin-right: 4%; } 
  #eventGroupDialog #samplingEvents { margin-right: 0; }
- 
+
+#design-subjects { margin-top: 10px; border-top: 1px solid #006DBA; padding-top: 10px; }
+#design-subjects span.subjects { display: inline-block; width: 200px; }
+#design-subjects span.subject { display: inline-block; width: 180px; }
+#design-subjects .ui-selecting { background-color: #f8feff; }
+
  #subjectForm { display: none; }
  .dataTable .editableInput { padding: 0; }
  .dataTable .changed { background-color: #75FFBD !important; }

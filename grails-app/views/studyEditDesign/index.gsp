@@ -99,7 +99,19 @@
 			<label>Name: </label><input type="text" name="subjectgroup-name" id="subjectgroup-name" /><br />
 			
 			<div id="design-subjects">
-				SUBJECTS
+				<span class="subjects">
+					<g:set var="subjectCount" value="${study.subjects?.size()}" />
+					<g:each in="${study.subjects}" var="subject" status="i">
+						<span class="subject">
+							<input type="checkbox" name="subjectgroup_subjects" id="subjectgroup_subjects_${subject.id}" value="${subject.id}" /> ${subject.name}
+						</span>
+						
+						<g:if test="${( i + 1 ) % ((int)subjectCount / 3 ) == 0}">
+							</span>
+							<span class="subjects">
+						</g:if>
+					</g:each>
+				</span>
 			</div>				
 		</div>
 		
