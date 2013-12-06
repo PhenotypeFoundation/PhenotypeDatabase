@@ -3,6 +3,7 @@ package generic.installation
 import dbnp.studycapturing.Event
 import dbnp.studycapturing.EventGroup
 import dbnp.studycapturing.EventInEventGroup
+import dbnp.studycapturing.Sample
 import dbnp.studycapturing.SamplingEvent
 import dbnp.studycapturing.SamplingEventInEventGroup
 import dbnp.studycapturing.Study
@@ -30,15 +31,15 @@ class TnoMigrateController {
 
             if (study.id == 13478) {
                 for(EventGroup eventGroup in oldEventGroups) {
-                    HashMap<String, ArrayList<Event>> temporaryEventGroups = []
+                    def temporaryEventGroups = [:]
                     def eventInstances = eventGroup.eventInstances + eventGroup.samplingEventInstances
 
                     // Collect unique set of eventgroups and their respective events
                     eventInstances.each {
-                        def migrateEventGroups = it.event.getFieldValue("migration").split(";");
+                        def migrateEventGroups = it.event.getFieldValue( getColumnName(it.event) ).split(";");
                         for (String newEventGroup in migrateEventGroups) {
                             this.registerUniqueEventGroup(temporaryEventGroups, newEventGroup)
-                            this.addEventToEventGroupSet(temporaryEventGroups, it.event)
+                            this.addEventToEventGroupSet(temporaryEventGroups, newEventGroup, it)
                         }
                     }
 
@@ -46,19 +47,18 @@ class TnoMigrateController {
                     // - have multiple events
                     // - or single event with only one eventgroup specified in migration column
                     // Else ignore eventgroup
-                    temporaryEventGroups.each { eventGroupName, ArrayList eventSet ->
-                        if(!(eventSet.size() == 1 && eventSet.first().getFieldValue("Migration").split(";").size() > 1)) {
+                    temporaryEventGroups.each { eventGroupName, eventInstanceSet ->
+                        if(!(eventInstanceSet.size() == 1 && eventInstanceSet.first().event.getFieldValue( getColumnName(eventInstanceSet.first().event) ).contains(";"))) {
 
                             // Collect minimum start to normalize starttimes
-                            def eventgroupEventInstances = eventInstances.findAll { eventSet.contains(it.event) }
-                            def minimumStartTime = eventgroupEventInstances.collect { it.startTime }.min()
+                            def minimumStartTime = eventInstanceSet.collect { it.startTime }.min()
 
                             // Create and persist eventgroup
                             EventGroup newEventGroup = this.createNewEventGroup(study, eventGroupName)
 
                             // Associate events to the new eventgroup
-                            eventgroupEventInstances.each {
-                                this.addEventToEventGroup(it.event, newEventGroup, it.startTime - minimumStartTime)
+                            eventInstanceSet.each {
+                                this.addEventToEventGroupAndUpdateAssociatedSamples(it, newEventGroup, it.startTime - minimumStartTime)
                             }
 
                             // Associate subject groups with the new eventgroup
@@ -79,16 +79,24 @@ class TnoMigrateController {
         [message: message]
     }
 
-    private void registerUniqueEventGroup(HashMap<String, ArrayList<Event>> newEventGroups, String name) {
+    private String getColumnName (event) {
+        if(event instanceof SamplingEvent) {
+            "Migration"
+        } else {
+            "migration"
+        }
+    }
+
+    private void registerUniqueEventGroup(newEventGroups, name) {
         if (!newEventGroups.containsKey(name)) {
             newEventGroups.putAt(name, [] as ArrayList)
         }
     }
 
-    private void addEventToEventGroupSet(HashMap<String, ArrayList<Event>> newEventGroups, event) {
-        ArrayList<Event> eventListForEG = newEventGroups.get(name)
+    private void addEventToEventGroupSet(eventListForEventGroup, name, event) {
+        def eventListForEG = eventListForEventGroup.get(name)
         eventListForEG.push(event)
-        newEventGroups.putAt(name, eventListForEG)
+        eventListForEventGroup.putAt(name, eventListForEG)
     }
 
     private EventGroup createNewEventGroup(Study study, String name) {
@@ -99,8 +107,9 @@ class TnoMigrateController {
             eventGroup
     }
 
-    private void addEventToEventGroup(Event event, EventGroup eventGroup, startTime) {
+    private void addEventToEventGroupAndUpdateAssociatedSamples(eventInstance, EventGroup eventGroup, startTime) {
         def eventInEventGroup;
+        def event = eventInstance.event
 
         if(event instanceof SamplingEvent) {
             eventInEventGroup = new SamplingEventInEventGroup()
@@ -111,8 +120,25 @@ class TnoMigrateController {
         }
 
         eventInEventGroup.startTime = startTime
+        eventInEventGroup.duration = eventInstance.duration
         event.addToEventGroupInstances(eventInEventGroup)
         eventInEventGroup.save(failOnError: true)
+
+        if(event instanceof SamplingEvent) {
+            this.updateSampleAssociations(eventInstance, eventGroup, eventInEventGroup)
+        }
+    }
+
+    private void updateSampleAssociations(oldEventInstance, newEventGroup, newEventInstance) {
+        ([] + oldEventInstance.samples.each).each { Sample sample ->
+            sample.parentSubjectEventGroup.removeFromSamples(sample)
+            sample.parentEvent.removeFromSamples(sample)
+
+            newEventGroup.addToSamples( sample )
+            newEventInstance.addToSamples( sample )
+
+            sample.save( flush: true )
+        }
     }
 
     private void updateSubjectGroups(Study study, SubjectGroup subjectGroup, EventGroup eventGroup, startTime) {
