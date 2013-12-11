@@ -69,3 +69,14 @@
 .options a.combine {
 	background-image: url(../plugins/famfamfam-1.0.1/images/icons/arrow_join.png);
 }
+
+.options a.add {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/add.png);
+}
+.options a.delete {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/delete.png);
+}
+
+.options a.import {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/database_add.png);
+}

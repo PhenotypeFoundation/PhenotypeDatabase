@@ -85,7 +85,36 @@ class StudyEditController {
 		render editEntities( "subject", Subject ) as JSON
 	}
 
+	/**
+	 * Shows a screen to add subjects
+	 * @return
+	 */
+	def addSubjects() {
+		def model = addEntities( new Subject() )
+		
+		render template: "subject", model: model 
+	}
 
+	/**
+	 * Deletes one or more subjects
+	 * @return
+	 */
+	def deleteSubjects() {
+		if( !request.post ) {
+			response.status = 400
+			render "Bad Request"
+			return
+		}
+		
+		def numDeleted = deleteEntities( Subject )
+		
+		if( numDeleted )
+			flash.message = "" + numDeleted + " subject(s) were deleted"
+		else
+			flash.error= "No subjects were selected"
+
+		redirect action: "subjects", id: params.id 
+	}
 	
 	/**
 	 * Shows the overview page to edit subject details. 
@@ -96,6 +125,16 @@ class StudyEditController {
 	}
 
 	/**
+	 * Shows a screen to add samples
+	 * @return
+	 */
+	def addSamples() {
+		def model = addEntities( new Sample() )
+		
+		render template: "sample", model: model
+	}
+	
+	/**
 	 * Stores changes in the subject details
 	 * @return
 	 */
@@ -103,8 +142,115 @@ class StudyEditController {
 		render editEntities( "sample", Sample ) as JSON
 	}
 
-	def assays() {}
+	/**
+	 * Deletes one or more samples
+	 * @return
+	 */
+	def deleteSamples() {
+		if( !request.post ) {
+			response.status = 400
+			render "Bad Request"
+			return
+		}
+		
+		def numDeleted = deleteEntities( Sample )
+		
+		if( numDeleted )
+			flash.message = "" + numDeleted + " sample(s) were deleted"
+		else
+			flash.error= "No samples were selected"
 
+		redirect action: "samples", id: params.id
+	}
+	
+	/**
+	 * Regenerates the sample names for all samples, based on the subject and event it belongs to
+	 * @param id
+	 * @see Sample.generateName
+	 * @return
+	 */
+	def regenerateSampleNames( long id ) {
+		def study = Study.read( id );
+		
+		if( !study ) {
+			response.status = 404
+			render "Not found"
+			return
+		}
+
+		// Loop through all samples. Regenerate the name, and if it has changed, store it into the database
+		def samples = Sample.findAllByParent( study )
+		def numChanged = 0
+		samples.each {
+			def oldName = it.name
+			if( it.generateName() != oldName ) {
+				it.save( flush: true )
+				numChanged++
+			}
+		}
+		
+		flash.message = "Samples names have been regenerated for " + numChanged + " / " + samples.size() + " samples in this study."
+		redirect controller: "studyEdit", action: "samples", id: id
+	}
+
+	
+	def assays() {
+		prepareDataForDatatableView( Assay )
+	}
+
+	/**
+	 * Shows a screen to add assays
+	 * @return
+	 */
+	def addAssays() {
+		def model = addEntities( new Assay() )
+		
+		render template: "assay", model: model
+	}
+
+	/**
+	 * Stores changes in the subject details
+	 * @return
+	 */
+	def editAssays() {
+		render editEntities( "assay", Assay ) as JSON
+	}
+
+	/**
+	 * Deletes one or more samples
+	 * @return
+	 */
+	def deleteAssays() {
+		if( !request.post ) {
+			response.status = 400
+			render "Bad Request"
+			return
+		}
+		
+		def numDeleted = deleteEntities( Assay )
+		
+		if( numDeleted )
+			flash.message = "" + numDeleted + " assay(s) were deleted"
+		else
+			flash.error= "No assays were selected"
+
+		redirect action: "assays", id: params.id
+	}
+	
+	/**
+	 * Shows a screen with assaysamples
+	 * @return
+	 */
+	def assaysamples() {
+		def study = getStudyFromRequest( params )
+		if( !study ) {
+			redirect action: "add"
+			return
+		}
+
+		[ study: study		]
+	}
+	
 	/**
 	 * Returns a page without layout with the prototypes of the given template
 	 * @return
@@ -131,6 +277,114 @@ class StudyEditController {
 	}
 
 	/**
+	 * Adds one or more entities (Subject, Sample, Assay) to the database
+	 * based on the parameters given
+	 * 		count	Number of entities to add
+	 * 		id		ID of the study to add the entities to
+	 * 		...		Values to put into the domain and template fields of the entity
+	 * @param entity
+	 * @return
+	 */
+	protected def addEntities( def entity ) {
+		def clone = null
+		
+		studyEditService.putParentIntoEntity( entity, params )
+		
+		def num = params.remove( 'count' );
+		def numEntities = num && num.isLong() ? num.toLong() : 1
+		
+		if( request.post ) {
+			def index = 0
+			
+			studyEditService.putParamsIntoEntity( entity, params )
+			
+			def study = Study.get( entity.parent?.id )
+			def template = entity.template
+	
+			if( params._action == "save" ) {
+				if( entity.validate() ) {
+					// We have to store multiple entities.
+					
+					while( index < numEntities ) {
+						// If the entity validates, make sure it is added properly to the study
+						switch( entity.class ) {
+							case Subject:
+								study.addToSubjects( entity )
+								break
+							case Sample:
+								study.addToSamples( entity )
+								break
+							case Assay:
+								study.addToAssays( entity )
+								break
+						}
+						
+						study.save( flush: true );
+						index++
+						
+						// Create a clone to store another one
+						if( index < numEntities ) {
+							entity = entity.class.newInstance( parent: study )
+							entity.template = template
+							studyEditService.putParamsIntoEntity( entity, params )
+							
+							// Make sure the name is unique
+							entity.name = entity.name + "_" + ( index + 1 )
+						}
+					}
+					
+					// Tell the frontend the save has succeeded
+					response.status = 210
+					render ""
+					return
+				}
+			}
+		}
+		
+		return [entity: entity, number: numEntities ]
+	}
+
+	
+	/**
+	 * Deletes one or more selected entities from the system
+	 * @param entityType
+	 * @return
+	 */
+	protected def deleteEntities( Class entityType ) {
+		println "Deleting " + entityType
+		if( request.post ) {
+			def ids = params.list( 'ids' )
+			def study = getStudyFromRequest( params )
+			
+			if( ids ) {
+				def deleted = 0
+				ids.each { id ->
+					if( id.isLong() ) {
+						def entity = entityType.get( id.toLong() )
+						
+						switch( entityType ) {
+							case Subject:
+								study.deleteSubject( entity )
+								break
+							case Sample:
+								study.deleteSample( entity )
+								break
+							case Assay:
+								study.deleteAssay( entity )
+								break
+						}
+						deleted++
+					}
+				}
+				
+				return deleted
+			} else {
+				return 0
+			}
+		}
+	}
+	
+	/**
 	 * Returns data for a templated datatable. The type of entities is based on the template given.
 	 * @return
 	 */
@@ -149,7 +403,9 @@ class StudyEditController {
 		}
 
 		def searchParams = datatablesService.parseParams( params )
+		
 		def data = studyEditService.getEntitiesForTemplate( searchParams, study, template )
+		
 		render datatablesService.createDatatablesOutput( data, params ) as JSON
 	}
 

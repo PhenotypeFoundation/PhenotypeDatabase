@@ -7,10 +7,10 @@
 	<r:require modules="studyEdit,gscf-datatables" />
 </head>
 <body>
-	<div class="studyEdit studySamples">
+	<div class="studyEdit studyAssays">
 		<h1>
 			Edit study [${study.title?.encodeAsHTML()}]
-			<g:render template="steps" model="[study: study, active: 'samples']"  />
+			<g:render template="steps" model="[study: study, active: 'assays']"  />
 		</h1>
 		
 		<g:if test="${flash.error}">
@@ -25,8 +25,8 @@
 		</g:if>	
 		
 		<span class="info"> 
-			<span class="title">Edit samples or import more</span> 
-			Review the list of samples and edit their details. You can also import more samples from an excel sheet.
+			<span class="title">Edit assays or import more</span> 
+			Add or edit details about the assays done on the samples. Please note that on the next page you can specify which samples were handled in an assay.
 		</span>
 		
 		<g:if test="${flash.validationErrors}">
@@ -37,13 +37,13 @@
 			</div>
 		</g:if>  
 		 
-		<g:form action="samples" name="samples">
+		<g:form action="assays" name="assays">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="id" value="${study.id}" />
 			
 			<g:each in="${templates}" var="template">
 				<h3>Template: ${template.name}</h3>
-				<table id="samplesTable_${template.id}" data-templateId="${template.id}" data-fieldPrefix="sample" data-formId="sampleForm" class="samplesTable selectMulti" rel="${g.createLink(action:"dataTableEntities", id: study.id, params: [template: template.id])}">
+				<table id="assaysTable_${template.id}" data-templateId="${template.id}" data-fieldPrefix="assay" data-formId="assayForm" class="assaysTable selectMulti" rel="${g.createLink(action:"dataTableEntities", id: study.id, params: [template: template.id])}">
 					<thead>
 						<tr>
 							<g:each in="${domainFields + template.getFields()}" var="field">
@@ -69,35 +69,37 @@
 					</tfoot>
 				</table>
 				
-				<div id="samplesTable_${template.id}_prototype" style="display: none" class="editable prototype">
+				<div id="assaysTable_${template.id}_prototype" style="display: none" class="editable prototype">
 					<g:render template="prototypes" model="[ template: template]" />
 				</div>							
 			</g:each>			
 			
 			<p class="options">
-				<g:link controller="studyEditDesign" action="index" id="${study.id}" class="previous">Previous</g:link>
-				<g:link controller="studyEdit" action="assays" id="${study.id}" class="next">Next</g:link>
+				<g:link controller="studyEdit" action="samples" id="${study.id}" class="previous">Previous</g:link>
+				<g:link controller="studyEdit" action="assaySamples" id="${study.id}" class="next">Next</g:link>
 				
-				<g:link controller="studyEdit" action="regenerateSampleNames" id="${study.id}" class="performAction separator">Regenerate sample names</g:link>
-				
-	            <g:link class="import" controller="gdtImporter" action="index" params="[id: study?.id, template: 'sample']">
+	            <a class="separator add" href="#" data-url="${g.createLink( controller: "studyEdit", action: "addAssays", params: [ parentId: study.id ] )}" onClick="StudyEdit.assays.add(); return false;">
+	                Add
+	            </a>				
+	            <g:link class="import" controller="gdtImporter" action="index" params="[id: study?.id, template: 'assay']">
 	                Import
 	            </g:link>				
 	            
-	            <a href="#" class="delete" onClick="StudyEdit.samples.delete(); return false;">Delete</a>					
+	            <a href="#" class="delete" onClick="StudyEdit.assays.delete(); return false;">Delete</a>				
 			</p>				
 			
 			<br clear="all" />
 		</g:form>
 
-		<g:form action="editSamples" name="sampleForm"><g:hiddenField class="original" name="id" value="${study.id}" /></g:form>
-		<g:form action="deleteSamples" id="${study.id}" name="deleteSamples"></g:form> 
-		<div id="addDialog"></div>		
+		<g:form action="editAssays" name="assayForm"><g:hiddenField class="original" name="id" value="${study.id}" /></g:form>
+		<g:form action="deleteAssays" id="${study.id}" name="deleteAssays"></g:form> 
+		<div id="addDialog"></div>
+		
 		
 		<r:script>
 			$(function() {
-				StudyEdit.datatables.initialize( ".samplesTable" );
-				StudyEdit.samples.initialize();
+				StudyEdit.datatables.initialize( ".assaysTable" );
+				StudyEdit.assays.initialize();
 			});
 		</r:script>
 	</div>

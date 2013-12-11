@@ -18,14 +18,14 @@
 			<g:render template="steps" model="[study: study, active: 'study']" />
 		</h1>
 		
-		<g:if test="${error}">
+		<g:if test="${flash.error}">
 			<div class="errormessage">
-				${error.toString().encodeAsHTML()}
+				${flash.error.toString().encodeAsHTML()}
 			</div>
 		</g:if>
-		<g:if test="${message}">
+		<g:if test="${flash.message}">
 			<div class="message">
-				${message.toString().encodeAsHTML()}
+				${flash.message.toString().encodeAsHTML()}
 			</div>
 		</g:if>	
 		

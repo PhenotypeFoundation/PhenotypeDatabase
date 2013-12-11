@@ -97,10 +97,14 @@ class StudyEditService {
 				if( !( field.type in fieldTypesAllowed ) )
 					return true;
 					
-				if( field.type in fieldTypesAsReference )
-					whereClause << "lower( s." + field + ".name ) LIKE :search"
-				else
+				if( field.type in fieldTypesAsReference ) {
+					def joinName = "domainField" + field.name
+					joins << "s." + field.name + " as " + joinName
+	
+					whereClause << "lower( " + joinName + ".name ) LIKE :search"
+				} else {
 					whereClause << "lower( s." + field + " ) LIKE :search"
+				}
 					
 				hqlParams[ "search" ] = "%" + searchTerm + "%"
 			}
@@ -162,5 +166,137 @@ class StudyEditService {
 			params: hqlParams
 		]
 	}
+	
+	def putParentIntoEntity( entity, params ) {
+		// Was a parentID given
+		if( params.parentId ) {
+			entity.parent = Study.read( params.long( 'parentId' ) )
+		}
+	}
+		
+	def putParamsIntoEntity( entity, params ) {
+		// did the template change?
+		if (params.get('template') && entity.template?.name != params.get('template')) {
+			// set the template
+			// TODO: find the template with the right entity
+			entity.template = Template.findByName(params.remove('template') )
+		}
 
+		// does the study have a template set?
+		if (entity.template && entity.template instanceof Template) {
+			// yes, iterate through template fields
+			entity.giveFields().each() {
+				// and set their values
+				entity.setFieldValue(it.name, params.get(it.escapedName()))
+			}
+		}
+
+		return entity
+	}
+	
+	/**
+	 * Generate new samples for a newly created subjectEventGroup
+	 * @param subjectEventGroup
+	 * @return
+	 */
+	protected def generateSamples( SubjectEventGroup subjectEventGroup ) {
+		def study = subjectEventGroup.parent
+		
+		// Make sure we have a sample for each subject in combination with each samplingevent
+		subjectEventGroup.subjectGroup.subjects?.each { subject ->
+			subjectEventGroup.eventGroup.samplingEventInstances?.each { samplingEventInstance ->
+				createSample( study, subject, samplingEventInstance, subjectEventGroup )
+			}
+		}
+	}
+	
+	/**
+	 * Generate new samples for a newly created samplingEventInEventGroup
+	 * @param subjectEventGroup
+	 * @return
+	 */
+	protected def generateSamples( SamplingEventInEventGroup samplingEventInEventGroup ) {
+		def study = samplingEventInEventGroup.event.parent
+		def eventGroup = samplingEventInEventGroup.eventGroup
+		
+		// Create a new sample for this sampling event and each subject that is connected to this eventgroup
+		eventGroup.subjectEventGroups?.each { subjectEventGroup ->
+			subjectEventGroup.subjectGroup.subjects?.each { subject ->
+				createSample( study, subject, samplingEventInEventGroup, subjectEventGroup )
+			}
+		}
+	}
+
+	/**
+	 * Generate new samples for an updated subjectGroup
+	 * @param subjectEventGroup
+	 * @return
+	 */
+	protected def generateSamples( SubjectGroup subjectGroup ) {
+		def study = subjectGroup.parent
+		
+		// Find all samples that reference this subjectgroup
+		def criteria = Sample.createCriteria()
+		def samples = criteria {
+			parentSubjectEventGroup {
+				eq( 'subjectGroup', subjectGroup )
+			}
+		}
+		
+		// Make sure we have a sample for each subject in combination with each samplingevent
+		subjectGroup.subjects?.each { subject ->
+			subjectGroup.subjectEventGroups?.each { subjectEventGroup ->
+				subjectEventGroup.eventGroup.samplingEventInstances?.each { samplingEventInstance ->
+					def currentSample = samples.find {
+						it.parentSubject.id == subject.id &&
+						it.parentEvent.id == samplingEventInstance.id
+					}
+					
+					// If the currentSample is found, remove it from the list to be removed
+					if( currentSample ) {
+						log.debug "Sample generation: Sample already exists: " + currentSample
+						samples -= currentSample
+					} else {
+						createSample( study, subject, samplingEventInstance, subjectEventGroup )
+						log.debug "Sample generation: Creating new sample for subject: " + subject + " / " + samplingEventInstance
+					}
+				}
+			}
+		}
+		
+		// Remove samples from subjects that have been removed
+		samples.each { sample ->
+			log.debug "Sample generation: Deleting sample: " + sample
+			study.deleteSample( sample )
+		}
+	}
+	
+	/**
+	 * Creates a new sample, based on the parent properties given
+	 * @param study
+	 * @param subject
+	 * @param samplingEventInstance
+	 * @param subjectEventGroup
+	 * @return	The newly created sample
+	 */
+	protected boolean createSample( Study study, Subject subject, SamplingEventInEventGroup samplingEventInstance, SubjectEventGroup subjectEventGroup ) {
+		// Make sure we have a fresh subject instance. Otherwise, calling this method after altering the subjectgroup
+		// will raise Hibernate exceptions
+		subject.refresh()
+		
+		def currentSample = new Sample(
+			parent: study,
+			parentSubject: subject,
+			parentEvent: samplingEventInstance,
+			parentSubjectEventGroup: subjectEventGroup,
+			template: samplingEventInstance.event.sampleTemplate
+		);
+	
+		currentSample.generateName()
+		study.addToSamples( currentSample )
+		currentSample.save( flush: true );
+		
+		currentSample
+	}
+	
 }

@@ -537,8 +537,6 @@ StudyEdit.design.events = {
 	 * Handles loading new data into the popup dialog
 	 */
 	onLoad: function( eventType ) {
-		console.log("onload Method: ", eventType );
-		console.log( StudyEdit.design.eventGroups.contents.dialog );
 		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
 		// Handle form with ajax
 		//callback handler for form submit

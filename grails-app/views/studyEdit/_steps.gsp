@@ -58,4 +58,16 @@
 			<span class="disabled">assays</span>
 		</g:else>
 	</g:else>
+	/
+	<g:if test="${active == 'assaysamples'}">
+		<span class="active">assay-samples</span>
+	</g:if>
+	<g:else>
+		<g:if test="${study?.id && study?.samples.size()}">
+			<g:link controller="studyEdit" action="assaysamples" id="${study.id}">assay-samples</g:link>
+		</g:if>
+		<g:else>
+			<span class="disabled">assay-samples</span>
+		</g:else>
+	</g:else>	
 </span>			

@@ -1,5 +1,6 @@
 /** GENERAL **/
 .studyEdit { font-size: 11px; }
+.ui-dialog .studyEdit { font-size: 10pt; }
 .studyEdit .options { border-top: 1px solid #ccc; }
 .studyEdit h1 { border-bottom: 1px solid #006dba; }
 
@@ -206,4 +207,8 @@ div.dataTables_wrapper .ui-widget-header { text-align: center; }
 .dataTables_scroll {
     clear: both;
     overflow: auto; 
+}
+
+.ui-front {
+	z-index: 1050;
 }

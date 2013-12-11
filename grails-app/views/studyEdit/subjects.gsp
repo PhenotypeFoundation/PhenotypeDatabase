@@ -6,30 +6,27 @@
 	
 	<r:require modules="studyEdit,gscf-datatables" />
 </head>
-<body>
+<body>	
 	<div class="studyEdit studySubjects">
 		<h1>
 			Edit study [${study.title?.encodeAsHTML()}]
 			<g:render template="steps" model="[study: study, active: 'subjects']"  />
 		</h1>
 		
-		<g:if test="${error}">
+		<g:if test="${flash.error}">
 			<div class="errormessage">
-				${error.toString().encodeAsHTML()}
+				${flash.error.toString().encodeAsHTML()}
 			</div>
 		</g:if>
-		<g:if test="${message}">
+		<g:if test="${flash.message}">
 			<div class="message">
-				${message.toString().encodeAsHTML()}
+				${flash.message.toString().encodeAsHTML()}
 			</div>
 		</g:if>	
 		
 		<span class="info"> 
 			<span class="title">Define or import your subjects</span> 
 			List all subjects and enter information about them. You can also import your subjects from an excel sheet.
-            <g:link class="edit linktips" title="Import subject from excel sheet" controller="gdtImporter" action="index" params="[id: study?.id, template: 'subject']">
-                Import subject from excel sheet
-            </g:link>
 		</span>
 		
 		<g:if test="${flash.validationErrors}">
@@ -77,16 +74,32 @@
 				</div>							
 			</g:each>			
 			
+			<p class="options">
+				<g:link controller="studyEdit" action="properties" id="${study.id}" class="previous">Previous</g:link>
+				<g:link controller="studyEditDesign" action="index" id="${study.id}" class="next">Next</g:link>
+				
+	            <a class="separator add" href="#" data-url="${g.createLink( controller: "studyEdit", action: "addSubjects", params: [ parentId: study.id ] )}" onClick="StudyEdit.subjects.add(); return false;">
+	                Add
+	            </a>				
+	            <g:link class="import" controller="gdtImporter" action="index" params="[id: study?.id, template: 'subject']">
+	                Import
+	            </g:link>				
+	            
+	            <a href="#" class="delete" onClick="StudyEdit.subjects.delete(); return false;">Delete</a>
+				
+			</p>			
+			
 			<br clear="all" />
 		</g:form>
 
-		<g:form action="editSubjects" name="subjectForm">
-			<g:hiddenField class="original" name="id" value="${study.id}" />
-		</g:form>
+		<g:form action="editSubjects" name="subjectForm"><g:hiddenField class="original" name="id" value="${study.id}" /></g:form>
+		<g:form action="deleteSubjects" id="${study.id}" name="deleteSubjects"></g:form> 
+		<div id="addDialog"></div>
 		
 		<r:script>
 			$(function() {
 				StudyEdit.datatables.initialize( ".subjectsTable" );
+				StudyEdit.subjects.initialize();
 			});
 		</r:script>
 	</div>

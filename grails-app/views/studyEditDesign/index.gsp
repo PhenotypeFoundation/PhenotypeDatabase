@@ -13,14 +13,14 @@
 			<g:render template="/studyEdit/steps" model="[study: study, active: 'design']"  />
 		</h1>
 		
-		<g:if test="${error}">
+		<g:if test="${flash.error}">
 			<div class="errormessage">
-				${error.toString().encodeAsHTML()}
+				${flash.error.toString().encodeAsHTML()}
 			</div>
 		</g:if>
-		<g:if test="${message}">
+		<g:if test="${flash.message}">
 			<div class="message">
-				${message.toString().encodeAsHTML()}
+				${flash.message.toString().encodeAsHTML()}
 			</div>
 		</g:if>	
 		
@@ -61,6 +61,11 @@
 					</ul>
 				</div>
 			</div>
+			
+			<p class="options">
+				<g:link controller="studyEdit" action="subjects" id="${study.id}" class="previous">Previous</g:link>
+				<g:link controller="studyEdit" action="samples" id="${study.id}" class="next">Next</g:link>
+			</p>				
 			
 			<br clear="all" />
 		</g:form>

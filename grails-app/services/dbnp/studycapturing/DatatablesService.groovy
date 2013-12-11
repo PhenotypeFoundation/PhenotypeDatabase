@@ -36,7 +36,7 @@ class DatatablesService {
 		returnMap.max = params.int( "iDisplayLength" ) ?: -1
 		returnMap.search = params.sSearch ?: ""
 		returnMap.sortColumn = params.int( "iSortCol_0" ) ?: null
-		returnMap.sortDirection = params.sSortDir ?: "asc"
+		returnMap.sortDirection = params.sSortDir_0 ?: "asc"
 		
 		returnMap
 	}

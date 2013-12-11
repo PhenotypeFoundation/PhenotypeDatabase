@@ -192,3 +192,199 @@ StudyEdit.form = {
 		form.submit();
 	}
 }
+
+
+StudyEdit.studyChildren = {
+		refresh: function( table ) {
+			if( table.length == 0 ) {
+				location.reload();
+				return;
+			}
+			table.dataTable().fnDraw();	
+		},
+		initialize: function( entityMethods, title ) {
+			var dialog = $( "#addDialog" );
+			
+			dialog.dialog({ 
+				modal: true, 
+				autoOpen: false,
+				width: 900,
+				title: title,
+				buttons: {
+					Ok: function() {
+						entityMethods.save();
+					},
+					Cancel: function() {
+						$( "#addDialog" ).dialog( "close" );
+					}
+				},
+			});
+			
+			return dialog
+		},
+		add: function(  entityMethods, url ) {
+			var dialog = $( "#addDialog" );
+			 dialog.load( url, function() {
+				entityMethods.onLoad();
+				dialog.dialog( "open" );
+			});
+		},
+		save: function() {
+			var dialog = $( "#addDialog" );
+			dialog.find( "[name=_action]" ).val( "save" );
+			dialog.find( 'form' ).submit();
+		},
+		delete: function( form, question ) {
+			// Collect the ids from all datatables
+		    var ids = []; 
+		    for( tableId in StudyEdit.datatables.elementsSelected ) {
+		    	ids = ids.concat( StudyEdit.datatables.elementsSelected[ tableId ] );
+		    }
+		    
+		    var formFilled = ( ids.length > 0 );
+		    
+		    if( !formFilled ) {
+		    	alert( "Please select one or more items to delete" );
+		    	return;
+		    }
+		    
+			if( confirm( question ) ) {
+			    $.each( ids, function(idx, id) {
+			        var input = $( '<input type="hidden" class="created" name="ids">');
+			        input.attr( 'value', id );
+			        form.append( input );
+			    });
+		
+			    form.submit();
+			}
+
+			return false;
+		},
+		
+		/**
+		 * Handles loading new data into the popup dialog
+		 */
+		onLoad: function( entityMethods ) {
+			var dialog = $( "#addDialog" );
+			// Handle form with ajax
+			//callback handler for form submit
+			dialog.find( 'form' ).submit(function(e)
+			{
+			    var postData = $(this).serializeArray();
+			    var form = $(this);
+			    var formURL = $(this).attr("action");
+			    $.ajax({
+			        url : formURL,
+			        type: "POST",
+			        data : postData
+			    })
+			    .done(function(data, textStatus, jqXHR) 
+			        {
+			    		if( jqXHR.status == 210 ) {
+			    			// Everything is OK
+			    			dialog.dialog( "close" );
+			    			
+			    			entityMethods.refresh();
+			    		} else {
+			    			dialog.html( data );
+			    			entityMethods.onLoad();
+			    		}
+			    		
+			        })
+			    .fail( function(jqXHR, textStatus, errorThrown) {
+			    		dialog.html( jqXHR.responseText );   
+			    		entityMethods.onLoad();
+			        }
+			    );
+			    e.preventDefault(); //STOP default action
+			});
+		}
+		
+}
+
+/**
+ * Handles adding and deleting subjects
+ */
+StudyEdit.subjects = {
+	// Reload data for the datatable
+	refresh: function() {
+		StudyEdit.studyChildren.refresh( $( "#subjects .dataTables_scrollBody .dataTable" ) )
+	},
+	initialize: function() {
+		StudyEdit.studyChildren.initialize( StudyEdit.subjects, "Add subject(s)" );
+	},
+	add: function() {
+		StudyEdit.studyChildren.add( StudyEdit.subjects, $( '#subjects .add' ).data( 'url' ) );
+	},
+	save: function() {
+		StudyEdit.studyChildren.save();
+	},
+	delete: function() {
+		StudyEdit.studyChildren.delete( $( "#deleteSubjects" ), "Deleting these subjects will also delete all samples that originated from them. Are you sure you want to delete the subjects?" );
+	},
+	
+	/**
+	 * Handles loading new data into the popup dialog
+	 */
+	onLoad: function() {
+		return StudyEdit.studyChildren.onLoad( StudyEdit.subjects );
+	}
+};
+
+/**
+ * Handles adding and deleting samples
+ */
+StudyEdit.samples = {
+	// Reload data for the datatable
+	refresh: function() {
+		StudyEdit.studyChildren.refresh( $( "#samples .dataTables_scrollBody .dataTable" ) )
+	},
+	initialize: function() {
+		StudyEdit.studyChildren.initialize( StudyEdit.samples, "Add sample(s)" );
+	},
+	add: function() {
+		StudyEdit.studyChildren.add( StudyEdit.samples, $( '#samples .add' ).data( 'url' ) );
+	},
+	save: function() {
+		StudyEdit.studyChildren.save();
+	},
+	delete: function() {
+		StudyEdit.studyChildren.delete( $( "#deleteSamples" ), "Are you sure you want to delete the samples?" );
+	},
+	
+	/**
+	 * Handles loading new data into the popup dialog
+	 */
+	onLoad: function() {
+		return StudyEdit.studyChildren.onLoad( StudyEdit.samples );
+	}
+};
+
+/**
+ * Handles adding and deleting assays
+ */
+StudyEdit.assays = {
+	// Reload data for the datatable
+	refresh: function() {
+		StudyEdit.studyChildren.refresh( $( "#assays .dataTables_scrollBody .dataTable" ) )
+	},
+	initialize: function() {
+		StudyEdit.studyChildren.initialize( StudyEdit.assays, "Add assay(s)" );
+	},
+	add: function() {
+		StudyEdit.studyChildren.add( StudyEdit.assays, $( '#assays .add' ).data( 'url' ) );
+	},
+	save: function() {
+		StudyEdit.studyChildren.save();
+	},
+	delete: function() {
+		StudyEdit.studyChildren.delete( $( "#deleteAssays" ), "Are you sure you want to delete the assays?" );
+	},
+	
+	/**
+	 * Handles loading new data into the popup dialog
+	 */
+	onLoad: function() {
+		return StudyEdit.studyChildren.onLoad( StudyEdit.assays );
+	}
+};

@@ -58,8 +58,7 @@ class StudyEditDesignController {
 		def result
 		if( subjectEventGroup.save() ) {
 			study.addToSubjectEventGroups( subjectEventGroup );
-			
-			generateSamples( subjectEventGroup )
+			studyEditService.generateSamples( subjectEventGroup )
 			
 			result = [ status: "OK", id: subjectEventGroup.id, group: subjectGroupName, subjectGroupId: subjectEventGroup.subjectGroup?.id, eventGroupId: subjectEventGroup.eventGroup?.id ]
 		} else {
@@ -382,8 +381,7 @@ class StudyEditDesignController {
 		def result
 		if( samplingEventInEventGroup.save() ) {
 			// Generate new samples for this eventGroup
-			generateSamples( samplingEventInEventGroup )
-			
+			studyEditService.generateSamples( samplingEventInEventGroup )
 			result = [ status: "OK", id: samplingEventInEventGroup.id, eventGroupId: eventGroupId, eventId: eventId, type: "samplingEvent" ]
 		} else {
 			response.status = 500
@@ -458,10 +456,10 @@ class StudyEditDesignController {
 	
 	def eventAdd() {
 		def entity  = new Event()
-		putParentIntoEntity( entity )
+		studyEditService.putParentIntoEntity( entity, params )
 		
 		if( request.post ) {
-			putParamsIntoEntity( entity ) 
+			studyEditService.putParamsIntoEntity( entity, params ) 
 	
 			if( params._action == "save" ) {
 				if( entity.validate() ) {
@@ -550,10 +548,10 @@ class StudyEditDesignController {
 
 	def samplingEventAdd() {
 		def entity  = new SamplingEvent()
-		putParentIntoEntity( entity )
+		studyEditService.putParentIntoEntity( entity, params )
 		
 		if( request.post ) {
-			putParamsIntoEntity( entity )
+			studyEditService.putParamsIntoEntity( entity, params )
 	
 			if( params._action == "save" ) {
 				if( entity.validate() ) {
@@ -678,7 +676,7 @@ class StudyEditDesignController {
 
 			if( subjectGroup.save() ) {
 				handleSubjectsInSubjectGroup( params[ "subjects[]" ], subjectGroup )
-				//generateSamples( subjectGroup )
+				studyEditService.generateSamples( subjectGroup )
 			} else {
 				response.status = 500
 				result  = [ status: "Error" ]
@@ -686,8 +684,7 @@ class StudyEditDesignController {
 			
 		} else {
 			handleSubjectsInSubjectGroup( params[ "subjects[]" ], subjectGroup )
-			//subjectGroup = SubjectGroup.get( subjectGroup.id )
-			generateSamples( subjectGroup )
+			studyEditService.generateSamples( subjectGroup )
 		}
 		
 		render result as JSON
@@ -764,127 +761,7 @@ class StudyEditDesignController {
 		}
 
 	}
-	
-	/**
-	 * Generate new samples for a newly created subjectEventGroup
-	 * @param subjectEventGroup
-	 * @return
-	 */
-	protected def generateSamples( SubjectEventGroup subjectEventGroup ) {
-		def study = subjectEventGroup.parent
-		
-		// Make sure we have a sample for each subject in combination with each samplingevent
-		subjectEventGroup.subjectGroup.subjects?.each { subject ->
-			subjectEventGroup.eventGroup.samplingEventInstances?.each { samplingEventInstance ->
-				createSample( study, subject, samplingEventInstance, subjectEventGroup )
-			}
-		}
-	}
-	
-	/**
-	 * Generate new samples for a newly created samplingEventInEventGroup
-	 * @param subjectEventGroup
-	 * @return
-	 */
-	protected def generateSamples( SamplingEventInEventGroup samplingEventInEventGroup ) {
-		def study = samplingEventInEventGroup.event.parent
-		def eventGroup = samplingEventInEventGroup.eventGroup
-		
-		// Create a new sample for this sampling event and each subject that is connected to this eventgroup
-		eventGroup.subjectEventGroups?.each { subjectEventGroup ->
-			subjectEventGroup.subjectGroup.subjects?.each { subject ->
-				createSample( study, subject, samplingEventInEventGroup, subjectEventGroup )
-			}
-		}
-	}
 
-	/**
-	 * Generate new samples for an updated subjectGroup
-	 * @param subjectEventGroup
-	 * @return
-	 */
-	protected def generateSamples( SubjectGroup subjectGroup ) {
-		def study = subjectGroup.parent
-		
-		// Find all samples that reference this subjectgroup
-		def criteria = Sample.createCriteria() 
-		def samples = criteria {
-			parentSubjectEventGroup {
-				eq( 'subjectGroup', subjectGroup )
-			}
-		}
-		
-		// Make sure we have a sample for each subject in combination with each samplingevent
-		subjectGroup.subjects?.each { subject ->
-			subjectGroup.subjectEventGroups?.each { subjectEventGroup ->
-				subjectEventGroup.eventGroup.samplingEventInstances?.each { samplingEventInstance ->
-					def currentSample = samples.find { 
-						it.parentSubject.id == subject.id && 
-						it.parentEvent.id == samplingEventInstance.id
-					}
-					
-					// If the currentSample is found, remove it from the list to be removed
-					if( currentSample ) {
-						log.debug "Sample generation: Sample already exists: " + currentSample 
-						samples -= currentSample
-					} else {
-						createSample( study, subject, samplingEventInstance, subjectEventGroup )
-						log.debug "Sample generation: Creating new sample for subject: " + subject + " / " + samplingEventInstance
-					}
-				}
-			}
-		}
-		
-		// Remove samples from subjects that have been removed
-		samples.each { sample ->
-			log.debug "Sample generation: Deleting sample: " + sample 
-			study.deleteSample( sample )
-		}
-	}
-	
-	protected boolean createSample( Study study, Subject subject, SamplingEventInEventGroup samplingEventInstance, SubjectEventGroup subjectEventGroup ) {
-		subject.refresh()
-		
-		def currentSample = new Sample(
-			parent: study,
-			parentSubject: subject,
-			parentEvent: samplingEventInstance,
-			parentSubjectEventGroup: subjectEventGroup,
-			template: samplingEventInstance.event.sampleTemplate
-		);
-	
-		currentSample.generateName()
-		study.addToSamples( currentSample )
-		currentSample.save( flush: true );
-	}
-	
-	protected def putParentIntoEntity( entity ) {
-		// Was a parentID given
-		if( params.parentId ) {
-			entity.parent = Study.read( params.long( 'parentId' ) )
-		}
-		
-	}
-		
-	protected def putParamsIntoEntity( entity ) {
-		// did the template change?
-		if (params.get('template') && entity.template?.name != params.get('template')) {
-			// set the template
-			// TODO: find the template with the right entity
-			entity.template = Template.findByName(params.remove('template') )
-		}
-
-		// does the study have a template set?
-		if (entity.template && entity.template instanceof Template) {
-			// yes, iterate through template fields
-			entity.giveFields().each() {
-				// and set their values
-				entity.setFieldValue(it.name, params.get(it.escapedName()))
-			}
-		}
-
-		return entity
-	}
 	
 	/**
 	 * Retrieves the required study from the database or return an empty Study object if
