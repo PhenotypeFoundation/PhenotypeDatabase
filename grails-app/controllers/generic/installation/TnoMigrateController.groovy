@@ -150,4 +150,100 @@ class TnoMigrateController {
         study.addToSubjectEventGroups(subjectEventGroup)
         subjectEventGroup.save(failOnError: true)
     }
+	
+	/**
+	 * Does a deduplication on the events and sampling events, as they may have been copied during the migration
+	 * @param study
+	 */
+	protected void deduplicate( Study study ) {
+		// Loop through all events/samplingevents.
+		deduplicateEntities( study, study.events );
+		deduplicateEntities( study, study.samplingEvents );
+	}
+	
+	/**
+	 * Deduplicate a list of entities within a study
+	 * @param study
+	 * @param entities
+	 */
+	protected void deduplicateEntities( Study study, entities ) {
+		if( !entities )
+			return 
+			 
+		def events = [] + entities
+		def deletedIds = []
+		entities.each { entity
+			// Check whether this event had been deleted before, if it was a 
+			// duplicate of another event. In that case, we can skip handling this event 
+			if( deletedIds.contains( entity ) )
+				return
+			
+			// If there are duplicates of an event/samplingevent in the database (i.e. another event with the exact same values, even in the templatefields)
+			def duplicates = findDuplicates( entities, entity );
+			if( duplicates ) {
+				deletedIds += handleDuplicates( study, entity, duplicates )
+			}
+		}
+	}
+	
+	/**
+	 * Returns a list of ids that have been deleted
+	 * @param study
+	 * @param event
+	 * @param duplicates
+	 * @return
+	 */
+	protected List handleDuplicates( Study study, def original, def duplicates ) {
+		duplicates.each { duplicate ->
+			// TODO: 	Loop over associations for the duplicate entity
+			// 			and replace each duplicate in the associations with the event itself
+		}
+		
+		// TODO: 	Delete all duplicates (because they don't have any associations anymore)
+		//			Please note: use Study.deleteEvent and Study.deleteSamplingEvent for this
+		
+		return duplicates*.id
+	}
+	
+	/**
+	 * Returns a list of duplicate entities for a given entity
+	 * @param entities
+	 * @param entity
+	 * @return
+	 */
+	protected List findDuplicates( entities, entity ) {
+		if( !entities || !entity )
+			return null
+			
+		def fieldsToIgnore = getFieldsToIgnore( entity.class )
+		return entities.findAll { otherEntity ->
+			for( field in entity.giveFields ) {
+				// Ignore some fields in comparison
+				if( fieldsToIgnore.contains( field.name ) )
+					continue
+				
+				// If the field in this entity is different from the reference entity, return false
+				if( otherEntity.getFieldValue( field.name ) != entity.getFieldValue( field.name ) )
+					return false;
+			}
+			
+			return true;
+		}
+	}
+	
+	/**
+	 * Returns a list of fields to ignore when comparing entities of some type
+	 * @param type
+	 * @return
+	 */
+	protected List getFieldsToIgnore( def type ) {
+		switch( type ) {
+			case Event:
+				return [ "Migration" ]
+			case SamplingEvent:
+				return [ "migration", "sampling name short", "related event/challenge", "related time in related event" ]
+			default:
+				throw new Exception( "Invalid type: " + type )
+		}
+	}
 }
