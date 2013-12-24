@@ -20,6 +20,14 @@ class TnoMigrateController {
     def index() {
     }
 
+
+    def deduplicatetest() {
+        def message = "Succes!"
+        def study = Study.get(params.get("studyID"))
+        deduplicate(study)
+        [message: message]
+    }
+
     def migrate() {
         def message = "Good luck migrating!";
 
@@ -29,7 +37,7 @@ class TnoMigrateController {
             def oldEventGroups = [] + study.eventGroups
             HashMap<String, EventGroup> newEventGroups = []
 
-            if (study.id == 13478) {
+            if (study.id == 35827) {
                 for(EventGroup eventGroup in oldEventGroups) {
                     def temporaryEventGroups = [:]
                     def eventInstances = eventGroup.eventInstances + eventGroup.samplingEventInstances
@@ -54,16 +62,24 @@ class TnoMigrateController {
                             def minimumStartTime = eventInstanceSet.collect { it.startTime }.min()
 
                             // Create and persist eventgroup
+                            eventGroupName += "_" + eventGroup.name
                             EventGroup newEventGroup = this.createNewEventGroup(study, eventGroupName)
-
-                            // Associate events to the new eventgroup
-                            eventInstanceSet.each {
-                                this.addEventToEventGroupAndUpdateAssociatedSamples(it, newEventGroup, it.startTime - minimumStartTime)
-                            }
 
                             // Associate subject groups with the new eventgroup
                             SubjectGroup subjectGroup = SubjectGroup.find {id == eventGroup.id}
-                            this.updateSubjectGroups(study, subjectGroup, newEventGroup, minimumStartTime)
+                            def newSubjectEventGroup = this.updateSubjectGroups(study, subjectGroup, newEventGroup, minimumStartTime)
+
+                            // Associate events to the new eventgroup
+                            eventInstanceSet.each {
+                                def newEventInEventGroup = this.addEventToEventGroup(it, newEventGroup, it.startTime - minimumStartTime)
+                                if(it.event instanceof SamplingEvent) {
+                                    this.updateSampleAssociations(it, newEventInEventGroup, newSubjectEventGroup)
+                                    it.event.name = it.event.template.name;
+                                } else {
+                                    it.event.name = it.event.getFieldValue("Event name (STRING)");
+                                }
+                                it.event.save()
+                            }
                         }
                     }
                 }
@@ -83,7 +99,7 @@ class TnoMigrateController {
         if(event instanceof SamplingEvent) {
             "Migration"
         } else {
-            "migration"
+            "Migration"
         }
     }
 
@@ -103,11 +119,11 @@ class TnoMigrateController {
             def eventGroup = new EventGroup()
             eventGroup.name = name
             study.addToEventGroups(eventGroup)
-            eventGroup.save(failOnError: true)
+            eventGroup.save(failOnError: true, flush: true)
             eventGroup
     }
 
-    private void addEventToEventGroupAndUpdateAssociatedSamples(eventInstance, EventGroup eventGroup, startTime) {
+    def addEventToEventGroup(eventInstance, EventGroup eventGroup, startTime) {
         def eventInEventGroup;
         def event = eventInstance.event
 
@@ -122,33 +138,41 @@ class TnoMigrateController {
         eventInEventGroup.startTime = startTime
         eventInEventGroup.duration = eventInstance.duration
         event.addToEventGroupInstances(eventInEventGroup)
-        eventInEventGroup.save(failOnError: true)
-
-        if(event instanceof SamplingEvent) {
-            this.updateSampleAssociations(eventInstance, eventGroup, eventInEventGroup)
-        }
+        eventInEventGroup.save(failOnError: true, flush: true)
+        return eventInEventGroup
     }
 
-    private void updateSampleAssociations(oldEventInstance, newEventGroup, newEventInstance) {
-        ([] + oldEventInstance.samples.each).each { Sample sample ->
+    private void updateSampleAssociations(oldEventInstance, eventInEventGroup, newSubjectEventGroup) {
+        ([] + oldEventInstance.samples).each { Sample sample ->
             sample.parentSubjectEventGroup.removeFromSamples(sample)
             sample.parentEvent.removeFromSamples(sample)
 
-            newEventGroup.addToSamples( sample )
-            newEventInstance.addToSamples( sample )
+            eventInEventGroup.addToSamples( sample )
+            newSubjectEventGroup.addToSamples ( sample )
 
             sample.save( flush: true )
         }
     }
 
-    private void updateSubjectGroups(Study study, SubjectGroup subjectGroup, EventGroup eventGroup, startTime) {
+    private SubjectEventGroup updateSubjectGroups(Study study, SubjectGroup subjectGroup, EventGroup eventGroup, startTime) {
         SubjectEventGroup subjectEventGroup = new SubjectEventGroup()
         subjectEventGroup.startTime = startTime
 
         eventGroup.addToSubjectEventGroups(subjectEventGroup)
         subjectGroup.addToSubjectEventGroups(subjectEventGroup)
         study.addToSubjectEventGroups(subjectEventGroup)
-        subjectEventGroup.save(failOnError: true)
+        subjectEventGroup.save(failOnError: true, flush: true)
+        return subjectEventGroup
+    }
+
+    private void updateEventInEventGroup(event, oldEvent) {
+        def eventInEventGroups = oldEvent.eventGroupInstances;
+
+        eventInEventGroups.each {
+            event.addToEventGroupInstances(it)
+        }
+
+        event.save(failOnError: true, flush: true)
     }
 	
 	/**
@@ -172,7 +196,8 @@ class TnoMigrateController {
 			 
 		def events = [] + entities
 		def deletedIds = []
-		entities.each { entity
+
+        ( [] + entities ).each { entity ->
 			// Check whether this event had been deleted before, if it was a 
 			// duplicate of another event. In that case, we can skip handling this event 
 			if( deletedIds.contains( entity ) )
@@ -180,6 +205,7 @@ class TnoMigrateController {
 			
 			// If there are duplicates of an event/samplingevent in the database (i.e. another event with the exact same values, even in the templatefields)
 			def duplicates = findDuplicates( entities, entity );
+
 			if( duplicates ) {
 				deletedIds += handleDuplicates( study, entity, duplicates )
 			}
@@ -194,13 +220,17 @@ class TnoMigrateController {
 	 * @return
 	 */
 	protected List handleDuplicates( Study study, def original, def duplicates ) {
-		duplicates.each { duplicate ->
-			// TODO: 	Loop over associations for the duplicate entity
-			// 			and replace each duplicate in the associations with the event itself
+        ( [] + duplicates).each { duplicate ->
+            updateEventInEventGroup(original, duplicate)
 		}
-		
-		// TODO: 	Delete all duplicates (because they don't have any associations anymore)
-		//			Please note: use Study.deleteEvent and Study.deleteSamplingEvent for this
+
+        ( [] + duplicates).each { duplicate ->
+            if(duplicate instanceof SamplingEvent) {
+                study.deleteSamplingEvent(duplicate)
+            } else {
+                study.deleteEvent(duplicate)
+            }
+        }
 		
 		return duplicates*.id
 	}
@@ -217,7 +247,10 @@ class TnoMigrateController {
 			
 		def fieldsToIgnore = getFieldsToIgnore( entity.class )
 		return entities.findAll { otherEntity ->
-			for( field in entity.giveFields ) {
+            if(otherEntity.id == entity.id || otherEntity.template.id != entity.template.id)
+                return false;
+
+			for( field in entity.giveFields() ) {
 				// Ignore some fields in comparison
 				if( fieldsToIgnore.contains( field.name ) )
 					continue
@@ -241,7 +274,7 @@ class TnoMigrateController {
 			case Event:
 				return [ "Migration" ]
 			case SamplingEvent:
-				return [ "migration", "sampling name short", "related event/challenge", "related time in related event" ]
+				return [ "Migration", "Sampling name short", "Related Event/Chall.", "Relative time in related event" ]
 			default:
 				throw new Exception( "Invalid type: " + type )
 		}
