@@ -168,10 +168,14 @@ class TnoMigrateController {
     private void updateEventInEventGroup(event, oldEvent) {
         def eventInEventGroups = oldEvent.eventGroupInstances;
 
-        eventInEventGroups.each {
+        ( [] + eventInEventGroups).each {
+            oldEvent.removeFromEventGroupInstances(it)
             event.addToEventGroupInstances(it)
+            it.event = event
+            it.save(failOnError: true, flush: true)
         }
 
+        oldEvent.save(failOnError: true, flush: true)
         event.save(failOnError: true, flush: true)
     }
 	
@@ -200,7 +204,7 @@ class TnoMigrateController {
         ( [] + entities ).each { entity ->
 			// Check whether this event had been deleted before, if it was a 
 			// duplicate of another event. In that case, we can skip handling this event 
-			if( deletedIds.contains( entity ) )
+			if( deletedIds.contains( entity.id ) )
 				return
 			
 			// If there are duplicates of an event/samplingevent in the database (i.e. another event with the exact same values, even in the templatefields)
@@ -220,18 +224,18 @@ class TnoMigrateController {
 	 * @return
 	 */
 	protected List handleDuplicates( Study study, def original, def duplicates ) {
-        ( [] + duplicates).each { duplicate ->
-            updateEventInEventGroup(original, duplicate)
-		}
+
 
         ( [] + duplicates).each { duplicate ->
+            updateEventInEventGroup(original, duplicate)
+
             if(duplicate instanceof SamplingEvent) {
                 study.deleteSamplingEvent(duplicate)
             } else {
                 study.deleteEvent(duplicate)
             }
-        }
-		
+		}
+
 		return duplicates*.id
 	}
 	
