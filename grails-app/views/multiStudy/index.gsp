@@ -20,10 +20,10 @@ First, check the desired studies from the first list and then select an assay fr
         <table>
             <thead>
             <tr>
-                <th>Select Study</th>
+                <th style="width:100px">Select Studies</th>
                 <g:sortableColumn property="code" title="${message(code: 'study.code.label', default: 'Code')}"/>
                 <th>Title</th>
-                <th>Select Assay to export</th>
+                <th>Select Assay(s) to export</th>
             </tr>
             </thead>
             <tbody>
