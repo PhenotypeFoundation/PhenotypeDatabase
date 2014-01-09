@@ -250,6 +250,104 @@ class StudyEditController {
 
 		[ study: study		]
 	}
+
+	/**
+	 * Stores changes in the assay sample value
+	 * @return
+	 */
+	def editAssaySamples() {
+		def study = getStudyFromRequest( params )
+		if( !study || !study.id ) {
+			response.status = 404
+			render "Study not found"
+			return
+		}
+
+		def paramsProperty = "assay"
+		
+		if(!params[ paramsProperty ] ) {
+			// Not a big problem, apparently no entities are altered
+			log.warn "No data given while editing assaysamples" 
+			return [ "OK" ]
+		}
+		// Loop over all subjects
+		def success = true
+		def errors = [:]
+		def entitiesToSave = []
+
+		params[ paramsProperty ].each { sampleId, assayData->
+			// Key should be a subject ID
+			if( !sampleId.isLong() ) {
+				return;
+			}
+
+			def sample = Sample.get( sampleId.toLong() )
+
+			// If no proper sample is found, (or it belongs to another study), return
+			if( !sample || sample.parent != study ) {
+				return
+			}
+
+			assayData.each { assayId, value ->
+				def assay = Assay.get( assayId.toLong() )
+				if( !assay )
+					return
+					
+				if( value ) {
+					assay.addToSamples( sample )
+				} else {
+					assay.removeFromSamples( sample )
+				}
+			}
+			
+			sample.save( flush: true )
+		}
+
+		def result
+		if( success ) {
+			result = ["OK"]
+		} else {
+			result = [
+				message: "Validation errors occurred",
+				errors: errors
+			]
+		}
+
+		render result as JSON
+	}
+	
+	/**
+	 * Returns data for the assaysample datatable
+	 * @return
+	 */
+	def dataTableAssaySamples() {
+		def study = Study.read( params.long( "id" ) )
+
+		if( !study ) {
+			render dataTableError( "Invalid study given: " + study ) as JSON
+			return
+		}
+
+		def searchParams = datatablesService.parseParams( params )
+		def data = studyEditService.getSamplesForAssaySamplePage( searchParams, study )
+		
+		def assays = study.assays.sort { it.name } 
+		
+		render datatablesService.createDatatablesOutput( data, params, { entry ->
+			def output = entry as List 
+			def sample = entry[ 0 ]
+			output[ 0 ] = sample.id
+			output[ 6 ] = new RelTime( entry[ 6 ] ).toString()
+			
+			// Collect values for the assays
+			assays.each { assay ->
+				def sampleIds = assay.samples*.id
+				output << sampleIds.contains( sample.id )
+			}
+			
+			output
+		}) as JSON
+	}
 	
 	/**
 	 * Returns a page without layout with the prototypes of the given template
@@ -351,7 +449,6 @@ class StudyEditController {
 	 * @return
 	 */
 	protected def deleteEntities( Class entityType ) {
-		println "Deleting " + entityType
 		if( request.post ) {
 			def ids = params.list( 'ids' )
 			def study = getStudyFromRequest( params )
@@ -406,7 +503,7 @@ class StudyEditController {
 		
 		def data = studyEditService.getEntitiesForTemplate( searchParams, study, template )
 		
-		render datatablesService.createDatatablesOutput( data, params ) as JSON
+		render datatablesService.createDatatablesOutputForEntities( data, params ) as JSON
 	}
 
 	/**

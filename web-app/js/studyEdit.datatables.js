@@ -137,27 +137,8 @@ StudyEdit.datatables = {
 				// Override the fnServerData in order to show/hide the paginated
 				// buttons if data is loaded
 				"fnServerData": function ( sSource, aoData, fnCallback ) {
-	                if(selectType[ id ] != "selectNone") {
-	                    aoData = StudyEdit.datatables.removeColumnInParam(aoData);
-	                }
-					$.ajax( {
-						"dataType": 'json', 
-						"type": "POST", 
-						"url": sSource, 
-						"data": aoData, 
-						"success": function( data, textStatus, jqXHR ) {
-							fnCallback( data, textStatus, jqXHR );
-							
-							// Save total number of elements
-							StudyEdit.datatables.numElements[ id ] = data[ "iTotalRecords" ];
-							StudyEdit.datatables.allElements[ id ] = data[ "aIds" ];
-							
-							// Find which checkboxes are selected
-	                        if(selectType[ id ] != "selectNone") {
-							    StudyEdit.datatables.selection.checkSelectedCheckboxes( id );
-	                        }
-						}
-					} );
+					StudyEdit.datatables.retrieveData( sSource, aoData, fnCallback, id );
+
 				},
 			    "fnPreDrawCallback": function( oSettings ) {
 					if( $el.data( "changed" ) ) {
@@ -185,6 +166,30 @@ StudyEdit.datatables = {
 	        // Initialize selectable
 	        StudyEdit.datatables.selection.initializeSelectable( $el );
 		});
+	},
+	
+	retrieveData: function( sSource, aoData, fnCallback, id ) {
+        if( StudyEdit.datatables.selectType[ id ] != "selectNone") {
+            aoData = StudyEdit.datatables.removeColumnInParam(aoData);
+        }
+		$.ajax( {
+			"dataType": 'json', 
+			"type": "POST", 
+			"url": sSource, 
+			"data": aoData, 
+			"success": function( data, textStatus, jqXHR ) {
+				fnCallback( data, textStatus, jqXHR );
+				
+				// Save total number of elements
+				StudyEdit.datatables.numElements[ id ] = data[ "iTotalRecords" ];
+				StudyEdit.datatables.allElements[ id ] = data[ "aIds" ];
+				
+				// Find which checkboxes are selected
+                if(StudyEdit.datatables.selectType[ id ] != "selectNone") {
+				    StudyEdit.datatables.selection.checkSelectedCheckboxes( id );
+                }
+			}
+		} );		
 	},
 
 	removeColumnInParam: function( aoData ) {
@@ -247,7 +252,6 @@ StudyEdit.datatables = {
 					
 					bFilter: true, 
 					bLengthChange: true, 
-					bPaginate: true,
 					bSort: true,
 					bInfo: true,
 				    aoColumnDefs: [
@@ -459,7 +463,6 @@ StudyEdit.datatables = {
 	                });
 			},
 			
-			
 			updateAutoCompletes: function( selector ) {
 				$(selector).find( ".ui-autocomplete-input" ).each( function( idx, el ) {
 					// Reinitialize autocompletes, since they break when cloned. See http://stackoverflow.com/questions/13664020/jquery-autocomplete-and-clone
@@ -575,7 +578,7 @@ StudyEdit.datatables = {
 		 * Propagates the change in a given input field to other 
 		 */
 		propagateChange: function( input, selectedIds ) {
-			var value = $(input).val();;
+			var value = $(input).val();
 			
 			var nameParts = $(input).attr( "name" ).split( "." );
 			var container = $(input).closest( ".dataTables_wrapper" );
@@ -592,11 +595,16 @@ StudyEdit.datatables = {
 				var fieldName = [ nameParts[ 0 ], id, nameParts[ 2 ] ].join( "." );
 				var escapedFieldName = fieldName.replace( /\./g, "\\." );	// Escape dots, because they have special meaning in jquery selectors
 				var field = $( "[name=" + escapedFieldName + "]" );
+				
+				if( $(input).is( "[type=checkbox]" ) ) {
+					value = $(input).is( ":checked" ) ? "on" : "";
+				}
+				
 				if( field.length > 0 ) {
 					field.val( value );
 					
 					if( $(input).is( "[type=checkbox]" ) ) {
-						field.attr( "checked", $(input).attr( "checked" ) );
+						field.attr( "checked", $(input).is( ":checked" ) );
 					}
 					
 					// Only mark visible fields as changed
@@ -606,11 +614,11 @@ StudyEdit.datatables = {
 				} else {
 					// Add a hidden field to the wrapper div
 					container.append( 
-						$( "<input type='hidden' />" )
-							.attr( "name", fieldName )
-							.addClass( "hiddenAndChanged" )
-							.val( value )
-					);	
+							$( "<input type='hidden' />" )
+								.attr( "name", fieldName )
+								.addClass( "hiddenAndChanged" )
+								.val( value )
+						);
 				}
 			});
 		},
@@ -751,7 +759,11 @@ StudyEdit.datatables = {
 				$td = $(el);
 				
 				$td.find( "input, select, textarea" ).each( function( inputIdx, input ) {
-					$(input).val( $(input).data( "original" ) );
+					if( $(input).is( "[type=checkbox], [type=radio]" ) ) {
+						$(input).attr( "checked", $(input).data( "original" ) != "" && $(input).data( "original" ) != "false" );
+					} else {
+						$(input).val( $(input).data( "original" ) );
+					}
 				});
 				$td.removeClass( "changed" );
 			});

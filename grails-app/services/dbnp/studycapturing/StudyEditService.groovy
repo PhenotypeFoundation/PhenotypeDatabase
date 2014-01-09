@@ -24,24 +24,69 @@ class StudyEditService {
 	 		int			ids				Total list of filtered ids
 	 */
     def getEntitiesForTemplate( searchParams, study, template ) {
-		def output = [:]
 		def query = generateHQL( searchParams, study, template )
 		
-		// First select the number of results
-		def filteredIds = template.entity.executeQuery( "SELECT s.id FROM " + query.from + " WHERE " + query.where, query.params );
-		output.totalFiltered = filteredIds.size()
-		output.ids = filteredIds
-		
 		// Also count the total number of results in the dataset
+		def output = generateOutput( query, searchParams, template.entity )
 		output.total = template.entity.countByParentAndTemplate( study, template )
 		
-		// Now find the results themselves
-		def hql = "SELECT " + query.select + " FROM " + query.from + " WHERE " + query.where + " " + ( query.order ? " ORDER BY " + query.order : "" )
-		output.entities = template.entity.executeQuery( hql, query.params, [ max: searchParams.max, offset: searchParams.offset ] )
-
 		output
     }
 
+	
+	/**
+	 * Returns a proper list of samples to generate a datatable with samples for assay selection.
+	 * @param params	Parameters to search
+			int			offset			Display start point in the current data set.
+			int			max				Number of records that the table can display in the current draw. It is expected that the number of records returned will be equal to this number, unless the server has fewer records to return.
+			
+			string		search			Global search field
+			
+			int			sortColumn		Column being sorted on (you will need to decode this number for your database)
+			string		sortDirection	Direction to be sorted - "desc" or "asc".
+
+			  Template	template		Template for the entities to read
+	 * @return			A map with all data. For example:
+			 List		entities		List with all entities
+			 int			total			Total number of records in the whole dataset (without taking search, offset and max into account)
+			 int			totalFiltered	Total number of records in the search (without taking offset and max into account)
+			 int			ids				Total list of filtered ids
+	 */
+	def getSamplesForAssaySamplePage( searchParams, study ) {
+		def query = generateHQLForAssaySamples( searchParams, study )
+		
+		// Also count the total number of results in the dataset
+		def output = generateOutput( query, searchParams, Sample )
+		output.total = Sample.countByParent( study )
+		
+		output 
+	}
+	
+	/**
+	 * Returns a proper list of samples to generate a datatable with templated entities.
+	 * @param query		Different parts of the HQL query to execute
+	 * @return			A map with all data. For example:
+			 List		entities		List with all entities
+			 int			totalFiltered	Total number of records in the search (without taking offset and max into account)
+			 int			ids				Total list of filtered ids
+	 */
+	def generateOutput( query, searchParams, entity ) {
+		def output = [:]
+		
+		// First select the number of results
+		def filteredIds = entity.executeQuery( "SELECT s.id FROM " + query.from + " WHERE " + query.where, query.params );
+		output.totalFiltered = filteredIds.size()
+		output.ids = filteredIds
+		
+		// Now find the results themselves
+		def hql = "SELECT " + query.select + " FROM " + query.from + " WHERE " + query.where + " " + ( query.order ? " ORDER BY " + query.order : "" )
+		output.entities = entity.executeQuery( hql, query.params, [ max: searchParams.max, offset: searchParams.offset ] )
+
+		output
+
+	}
+
+	
 	/**
 	 * Generates the HQL to search
 	 * @return Map	
@@ -160,6 +205,87 @@ class StudyEditService {
 			
 		[
 			select: "s",
+			from: from,
+			where: where,
+			order: orderBy,
+			params: hqlParams
+		]
+	}
+	
+	/**
+	 * Generates the HQL to search assay samples
+	 * @return Map
+	 * 		select
+	 * 		from
+	 * 		where
+	 * 		order
+	 * 		params
+	 */
+	def generateHQLForAssaySamples( searchParams, study ) {
+		def entity = Sample
+		
+		// Search in
+		//	sample name
+		//	subject name
+		//	eventgroup name
+		//  samplingevent.sampleTemplate name
+		
+		
+		// Create an HQL query as it gives us the most flexibility in searching and ordering
+		def from = " Sample s "
+		def joins = []
+		def whereClause = []
+		def hqlParams = [ study: study ]
+		def orderBy = ""
+
+		// Add joins for related information
+		joins << "s.parentSubject as subject"
+		joins << "s.parentEvent as eventInstance"
+		joins << "eventInstance.eventGroup as eventGroup"
+		joins << "eventInstance.event as samplingEvent"
+		joins << "s.template as template"
+		joins << "s.parentSubjectEventGroup as subjectEventGroup"
+		
+		// First add searching
+		if( searchParams.search ) {
+			// With searching, retrieving the data requires joining all text and term fields
+			def searchTerm = searchParams.search.toLowerCase()
+			hqlParams[ "search" ] = "%" + searchTerm + "%"
+			
+			whereClause << "lower(subject.name) LIKE :search"
+			whereClause << "lower(eventGroup.name) LIKE :search"
+			whereClause << "lower(samplingEvent.name) LIKE :search"
+			whereClause << "lower(template.name) LIKE :search"
+		}
+		
+		// Add ordering; to determine the column to sort on
+		def sortColumnIndex = searchParams.sortColumn ?: 0
+		def sortOrder = searchParams.sortDirection ?: "ASC"
+		
+		def fields = [
+			"s.name",
+			"subject.name",
+			"eventGroup.name",
+			"samplingEvent.name",
+			"template.name",
+			"( eventInstance.startTime + subjectEventGroup.startTime )"
+		]
+		
+		if( sortColumnIndex != null || sortColumnIndex < fields.size() ) {
+			orderBy = fields[ sortColumnIndex ] + " " + sortOrder
+		}
+			
+		// Now build up the query, except for the SELECT part.
+		if( joins )
+			from += " LEFT JOIN " + joins.join( " LEFT JOIN " )
+		
+		def where =  "s.parent = :study"
+			
+		if( whereClause )
+			where += " AND (" + whereClause.join( " OR " ) + ") "
+			
+		[
+			select: "s, " + fields.join( ", " ),
 			from: from,
 			where: where,
 			order: orderBy,

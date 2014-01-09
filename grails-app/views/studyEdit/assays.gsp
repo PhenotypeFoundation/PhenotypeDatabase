@@ -76,7 +76,7 @@
 			
 			<p class="options">
 				<g:link controller="studyEdit" action="samples" id="${study.id}" class="previous">Previous</g:link>
-				<g:link controller="studyEdit" action="assaySamples" id="${study.id}" class="next">Next</g:link>
+				<g:link controller="studyEdit" action="assaysamples" id="${study.id}" class="next">Next</g:link>
 				
 	            <a class="separator add" href="#" data-url="${g.createLink( controller: "studyEdit", action: "addAssays", params: [ parentId: study.id ] )}" onClick="StudyEdit.assays.add(); return false;">
 	                Add

@@ -53,6 +53,7 @@ modules = {
 		resource url:[ dir:'js', file: 'studyEdit.design.js']
 		resource url:[ dir:'js', file: 'studyEdit.design.eventGroupDialog.js']
 		resource url:[ dir:'js', file: 'studyEdit.design.subjectGroups.js']
+		resource url:[ dir:'js', file: 'studyEdit.assaySamples.js']
 		resource url:[ dir:'js', file: 'studyEdit.datatables.js']
 		resource url:[ dir:'css', file: 'studyEdit.css']
 		resource url:[ dir:'css', file: 'templates.css']
@@ -65,7 +66,7 @@ modules = {
 	
 	"gscf-datatables" { 
 		dependsOn 'jquery'
-		resource url: [dir: 'js', file: 'jquery.dataTables.min.js' ] , linkOverride:'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js'
+		resource url: [dir: 'js', file: 'jquery.dataTables.js' ] , linkOverride:'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.js'
 		resource url: [dir: 'js', file: 'datatables.js', plugin: 'dbxpModuleBase']
 
 		resource url: [ dir:'css', file: 'jquery.dataTables.css'], linkOverride: "http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css"

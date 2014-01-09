@@ -37,20 +37,22 @@
 			</div>
 		</g:if>  
 		 
-		<g:form action="assaysamples" name="assaysamples">
+		<g:form action="assaysamples" id="${study.id}" name="assaysamples">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="id" value="${study.id}" />
 			
-			<table id="samplestable" class="samplesTable selectMulti" rel="${g.createLink(action:"dataTableAssaySamples", id: study.id)}">
+			<table id="samplestable" data-formId="sampleForm" class="samplesTable selectMulti" rel="${g.createLink(action:"dataTableAssaySamples", id: study.id)}">
 				<thead>
 					<tr>
+					
 						<th>Sample</th>
 						<th>Subject</th>
 						<th>Eventgroup</th>
+						<th>Sampling event</th>
 						<th>Sample template</th>
 						<th>Starttime (combined)</th>
-						<g:each in="${study.assays}" var="assay">
-							<th>${assay.name}</th>
+						<g:each in="${study.assays.sort {it.name} }" var="assay">
+							<th class="assay" data-id="${assay.id}">${assay.name}</th>
 						</g:each>
 					</tr>
 				</thead>
@@ -59,7 +61,17 @@
 						<td colspan="${study.assays.size() + 5}">
 							You selected all items on this page. Would you <a href="#">select all items on other pages</a> as well? 
 						</td>
-					</tr>						
+					</tr>
+					<tr class="messagebar saveChanges">
+						<td class="" colspan="${study.assays.size() + 5}">
+							<span class="links">
+								<a href="#" onClick="StudyEdit.datatables.editable.save(this); return false;">Save</a> or 
+								<a href="#" onClick="StudyEdit.datatables.editable.discardChanges(this); return false;">Discard</a>
+							</span>
+							<span class="saving">Saving...</span>
+						</td>
+					</tr>
+											
 				</tfoot>
 			</table>
 				
@@ -75,8 +87,7 @@
 		
 		<r:script>
 			$(function() {
-				StudyEdit.datatables.initialize( ".samplesTable" );
-				//StudyEdit.samples.initialize();
+				StudyEdit.assaySamples.initialize();
 			});
 		</r:script>
 	</div>

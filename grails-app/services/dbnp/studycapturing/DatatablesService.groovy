@@ -75,16 +75,8 @@ class DatatablesService {
 			}
 	 * 
 	 */
-	def createDatatablesOutput( entitiesMap, params ) {
-		def output = [
-			sEcho: params.sEcho,
-			iTotalRecords: entitiesMap.total,
-			iTotalDisplayRecords: entitiesMap.totalFiltered,
-			aIds: entitiesMap.ids
-		]
-		
-		
-		output.aaData = entitiesMap.entities.collect { entity ->
+	def createDatatablesOutputForEntities( entitiesMap, params ) {
+		createDatatablesOutput( entitiesMap, params, { entity ->
 			def data = [
 				entity.id
 			]
@@ -110,7 +102,56 @@ class DatatablesService {
 			}
 			
 			data
-		}
+		})
+	}
+	
+	/**
+	 *	Returns a map with data that could be sent to a serverside datatable.
+	 * 	@param entitiesMap
+			  List		entities		List with all entities
+			 int			total			Total number of records in the whole dataset (without taking search, offset and max into account)
+			 int			totalFiltered	Total number of records in the search (without taking offset and max into account)
+			 int			ids				Total list of filtered ids
+	 * @param params	Request parameters for this request
+	 * @return Map
+			{
+				"sEcho": 3,
+				"iTotalRecords": 57,
+				"iTotalDisplayRecords": 57,
+				"aaData": [
+					[
+						"Gecko",
+						"Firefox 1.0",
+						"Win 98+ / OSX.2+",
+						"1.7",
+						"A"
+					],
+					[
+						"Gecko",
+						"Firefox 1.5",
+						"Win 98+ / OSX.2+",
+						"1.8",
+						"A"
+					],
+					...
+				],
+				"aIds": [ ]
+			}
+	 *
+	 */
+	def createDatatablesOutput( entitiesMap, params, converter = null) {
+		def output = [
+			sEcho: params.sEcho,
+			iTotalRecords: entitiesMap.total,
+			iTotalDisplayRecords: entitiesMap.totalFiltered,
+			aIds: entitiesMap.ids
+		]
+		
+		if( !converter )
+			converter = { data -> data }
+		
+		
+		output.aaData = entitiesMap.entities.collect converter
 		
 		output
 	}
