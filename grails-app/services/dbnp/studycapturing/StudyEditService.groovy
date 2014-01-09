@@ -252,6 +252,7 @@ class StudyEditService {
 			def searchTerm = searchParams.search.toLowerCase()
 			hqlParams[ "search" ] = "%" + searchTerm + "%"
 			
+			whereClause << "lower(s.name) LIKE :search"
 			whereClause << "lower(subject.name) LIKE :search"
 			whereClause << "lower(eventGroup.name) LIKE :search"
 			whereClause << "lower(samplingEvent.name) LIKE :search"
