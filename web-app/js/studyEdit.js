@@ -200,7 +200,9 @@ StudyEdit.studyChildren = {
 				location.reload();
 				return;
 			}
-			table.dataTable().fnDraw();	
+			$.each( table, function( idx, datatable ) {
+				$(datatable).dataTable().fnDraw();
+			});
 		},
 		initialize: function( entityMethods, title ) {
 			var dialog = $( "#addDialog" );
@@ -273,6 +275,7 @@ StudyEdit.studyChildren = {
 			    var postData = $(this).serializeArray();
 			    var form = $(this);
 			    var formURL = $(this).attr("action");
+			    
 			    $.ajax({
 			        url : formURL,
 			        type: "POST",
@@ -283,8 +286,14 @@ StudyEdit.studyChildren = {
 			    		if( jqXHR.status == 210 ) {
 			    			// Everything is OK
 			    			dialog.dialog( "close" );
-			    			
-			    			entityMethods.refresh();
+			    			if( entityMethods.isTemplateOnScreen( data.templateId ) ) {
+				    			// If the template for the added entities was already on the screen
+				    			// we can just refresh the datatables
+			    				entityMethods.refresh();
+			    			} else {
+				    			// Otherwise, we should refresh the whole page, because a new datatable was added
+				    			location.reload();
+			    			}
 			    		} else {
 			    			dialog.html( data );
 			    			entityMethods.onLoad();
@@ -323,6 +332,10 @@ StudyEdit.subjects = {
 		StudyEdit.studyChildren.delete( $( "#deleteSubjects" ), "Deleting these subjects will also delete all samples that originated from them. Are you sure you want to delete the subjects?" );
 	},
 	
+	isTemplateOnScreen: function( templateId ) {
+		return $( "#subjectsTable_" + templateId ).length > 0;
+	},
+	
 	/**
 	 * Handles loading new data into the popup dialog
 	 */
@@ -351,6 +364,10 @@ StudyEdit.samples = {
 	delete: function() {
 		StudyEdit.studyChildren.delete( $( "#deleteSamples" ), "Are you sure you want to delete the samples?" );
 	},
+	isTemplateOnScreen: function( templateId ) {
+		return $( "#samplesTable_" + templateId ).length > 0;
+	},
+	
 	
 	/**
 	 * Handles loading new data into the popup dialog
@@ -379,6 +396,9 @@ StudyEdit.assays = {
 	},
 	delete: function() {
 		StudyEdit.studyChildren.delete( $( "#deleteAssays" ), "Are you sure you want to delete the assays?" );
+	},
+	isTemplateOnScreen: function( templateId ) {
+		return $( "#assaysTable_" + templateId ).length > 0;
 	},
 	
 	/**

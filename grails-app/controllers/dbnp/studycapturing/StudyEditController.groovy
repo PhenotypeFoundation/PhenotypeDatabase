@@ -433,8 +433,8 @@ class StudyEditController {
 					
 					// Tell the frontend the save has succeeded
 					response.status = 210
-					render ""
-					return
+					def returnJSON = [ templateId: template.id ]
+					render returnJSON as JSON
 				}
 			}
 		}
@@ -895,7 +895,7 @@ class StudyEditController {
 	 * @param object validated domain class
 	 * @return object  linkedHashMap
 	 */
-	def getHumanReadableErrors(object) {
+	def getHumanReadableErrors(def object) {
 		def errors = [:]
 		object.errors.getAllErrors().each() { error ->
 			// error.codes.each() { code -> println code }
