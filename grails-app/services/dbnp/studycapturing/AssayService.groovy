@@ -949,8 +949,4 @@ class AssayService {
             }
         }
     }
-				}
-			}
-		}
-	}
 }
