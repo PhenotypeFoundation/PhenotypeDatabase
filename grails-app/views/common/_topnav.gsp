@@ -7,8 +7,8 @@
     <li>
       <a href="#">Create</a>
       <ul class="subnav">
-		<li><g:link controller="studyWizard" action="index" params="[jump:'create']">Create a new study</g:link></li>
-		<li><g:link controller="studyWizard" action="index" params="[jump:'edit']">Edit a study</g:link></li>
+		<li><g:link controller="studyEdit" action="add">Create a new study</g:link></li>
+		<li><g:link controller="studyEdit" action="edit">Edit a study</g:link></li>
 	  </ul>
 	</li>
 	<li>
