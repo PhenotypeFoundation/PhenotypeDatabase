@@ -119,11 +119,14 @@ authentication.users.user.password=useR123!
 authentication.users.user.email=user@dbnp.org
 authentication.users.user.administrator=false
 
-// override application title
+# override application title
 application.title=Phenotype Database
 
 # use shibboleth authentication?
 authentication.shibboleth=false
+
+# Directory to upload files to. By default, this is /tmp
+uploads.uploadDir=/tmp
 ```
 
 Don't forget to change the default passwords to something more secure!

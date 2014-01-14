@@ -357,6 +357,63 @@ class ApiService implements Serializable, ApplicationContextAware {
     }
 
     /**
+     * get measurement data from the remote module in verbose format
+     *
+     * @param assay
+     * @param user
+     * @return
+     */
+    def getPlainMeasurementData(Assay assay, SecUser user) {
+        def serviceURL = "${assay.module.baseUrl}/rest/getPlainMeasurementData"
+        def serviceArguments = "assayToken=${assay.UUID}"
+        def json
+
+        // call module method
+        try {
+            json = moduleCommunicationService.callModuleMethod(
+                    assay.module.baseUrl,
+                    serviceURL,
+                    serviceArguments,
+                    "POST",
+                    user
+            );
+        } catch (Exception e) {
+            log.error "api.getMeasurementData failed :: ${e.getMessage()}"
+            json = new org.codehaus.groovy.grails.web.json.JSONArray()
+        }
+
+        return json
+    }
+    /**
+     * get measurement data from the remote module in verbose format
+     *
+     * @param assay
+     * @param user
+     * @return
+     */
+    def getFeaturesForAssay(Assay assay, SecUser user) {
+        def serviceURL = "${assay.module.baseUrl}/rest/getFeaturesForAssay"
+        def serviceArguments = "assayToken=${assay.UUID}&verbose=true"
+        def json
+
+        // call module method
+        try {
+            json = moduleCommunicationService.callModuleMethod(
+                    assay.module.baseUrl,
+                    serviceURL,
+                    serviceArguments,
+                    "POST",
+                    user
+            );
+        } catch (Exception e) {
+            log.error "api.getMeasurementData failed :: ${e.getMessage()}"
+            json = new org.codehaus.groovy.grails.web.json.JSONArray()
+        }
+
+        return json
+    }
+
+    /**
      * get the measurement meta data from the remote module
      *
      * @param assay

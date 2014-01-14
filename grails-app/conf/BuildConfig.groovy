@@ -77,7 +77,7 @@ grails.project.dependency.resolution = {
 
 		compile(
             //":dbxp-base:0.1.2.8",
-            ":dbxp-sam:0.9.6.0",
+            ":dbxp-sam:0.9.6.3.rc",
 
             ":hibernate:$grailsVersion",
 
@@ -92,7 +92,7 @@ grails.project.dependency.resolution = {
             ":quartz:1.0-RC5"
         )
 
-        compile(":gdtimporter:0.5.6.8"){transitive = false}
+        compile(":gdtimporter:0.5.6.9"){transitive = false}
 
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins

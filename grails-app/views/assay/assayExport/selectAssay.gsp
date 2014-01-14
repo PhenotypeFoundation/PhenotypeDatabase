@@ -43,7 +43,7 @@ First, select a study from the first list and then select an assay from that stu
 <g:form name="assaySelect" action="assayExport">
 	<g:select optionKey="id" optionValue="title" name="studyId" from="${userStudies}" id="study"
 			  onChange="${remoteFunction(controller:'study',action:'ajaxGetAssays',params:'\'id=\'+escape(this.value)',onComplete: 'updateAssay(XMLHttpRequest.responseText, \'assay\')')}"/>
-	<g:select optionKey="id" name="assayId" id="assay" from=""/>
+	<g:select multiple="multiple" optionKey="id" name="assayId" id="assay" from=""/>
 	<g:submitButton name="submit" value="Submit" id="submit"/>
 </g:form>
 </body>

@@ -252,12 +252,12 @@ class AssayService {
                 moduleError = e.message
             }
         }
-
+		
         ['Subject Data': getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
                 'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
                 'Sample Data': getFieldValues(samples, fieldMap['Sample Data']),
                 'Event Group': eventFieldMap,
-                'Module Measurement Data': moduleMeasurementData,
+					('Module Measurement Data: ' + assay.name ): 		moduleMeasurementData,
                 'Module Error': moduleError
         ]
     }
@@ -949,4 +949,8 @@ class AssayService {
             }
         }
     }
+				}
+			}
+		}
+	}
 }

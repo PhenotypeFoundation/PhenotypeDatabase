@@ -1860,6 +1860,9 @@ class StudyWizardController {
 		// remember the params in the flash scope
 		flash.values = params
 
+        // ensure subjects are persisted so you won't get the transient subject error
+        flow.study.save()
+
 		// iterate through groups
 		flow.study.eventGroups.each() { eventGroup ->
 			// iterate through subjects
