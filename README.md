@@ -6,18 +6,10 @@ We have the most recent builds available for download as ```war``` files which c
 
 War file | Build Environment | Build Status | Source | Config Location
 --- | --- | --- | --- | --- | ---
-[gscf.war](http://download.dbnp.org/production/gscf.war) | ```production``` | [![Build Status](http://jenkins.dbnp.org/job/production-gscf/badge/icon)](http://jenkins.dbnp.org/job/production-gscf/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/production.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
-[metabolomicsModule](http://download.dbnp.org/production/metabolomicsModule.war) | ```production``` | [![Build Status](http://jenkins.dbnp.org/job/production-metabolomicsModule/badge/icon)](http://jenkins.dbnp.org/job/production-metabolomicsModule/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/metabolomicsModule) | ~/.metabolomicsModule/production.properties [?](https://github.com/PhenotypeFoundation/metabolomicsModule/blob/master/grails-app/conf/default.properties)
-[SAM](http://download.dbnp.org/production/sam.war) | ```production``` | [![Build Status](http://jenkins.dbnp.org/job/production-sam/badge/icon)](http://jenkins.dbnp.org/job/production-sam/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/TheHyve/SAM) | ~/.dbxp/production-sam.properties [?](https://github.com/thehyve/SAM/blob/master/grails-app/conf/default.properties)
-~~[questionnaireModule.war](http://download.dbnp.org/production/questionnaireModule.war)~~ | ~~```production```~~ | [![Build Status](http://jenkins.dbnp.org/job/production-questionnaireModule/badge/icon)](http://jenkins.dbnp.org/job/production-questionnaireModule/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/TNO/QuestionnaireModule) | ~/.dbxp/production-questionnaireModule.properties [?](https://github.com/TNO/QuestionnaireModule/blob/master/grails-app/conf/default.properties)
-[gscf.war](http://download.dbnp.org/dbnptest/gscf.war) | ```dbnptest``` | [![Build Status](http://old.jenkins.dbnp.org/jenkins/job/test-gscf/badge/icon)](http://old.jenkins.dbnp.org/jenkins/job/test-gscf/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/dbnptest.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
-[gscf.war](http://download.dbnp.org/ci/gscf.war) | ```ci``` | [![Build Status](http://old.jenkins.dbnp.org/jenkins/job/ci-gscf/badge/icon)](http://old.jenkins.dbnp.org/jenkins/job/ci-gscf/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/ci.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
-[metabolomicsModule.war](http://download.dbnp.org//ci/metabolomicsModule.war) | ```ci``` | [![Build Status](http://old.jenkins.dbnp.org/jenkins/job/ci-metabolomicsModule/badge/icon)](http://old.jenkins.dbnp.org/jenkins/job/ci-metabolomicsModule/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/metabolomicsModule) | ~/.metabolomicsModule/ci.properties [?](https://github.com/PhenotypeFoundation/metabolomicsModule/blob/master/grails-app/conf/default.properties)
-~~[sam.war](http://download.dbnp.org//ci/sam.war)~~ | ~~```ci```~~ | [![Build Status](http://old.jenkins.dbnp.org/jenkins/job/ci-sam/badge/icon)](http://old.jenkins.dbnp.org/jenkins/job/ci-sam/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/TheHyve/SAM) | ~/.dbxp/production-sam.properties [?](https://github.com/thehyve/SAM/blob/master/grails-app/conf/default.properties)
-[gscf.war](http://download.dbnp.org/ci2/gscf.war) | ```ci2``` | [![Build Status](http://old.jenkins.dbnp.org/jenkins/job/ci2-gscf/badge/icon)](http://old.jenkins.dbnp.org/jenkins/job/ci2-gscf/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF/tree/events_refactoring) | ~/.gscf/ci2.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/events_refactoring/grails-app/conf/default.properties)
-[gscf.war](http://download.dbnp.org/ci3/gscf.war) | ```ci3``` | [![Build Status](http://old.jenkins.dbnp.org/jenkins/job/ci3-gscf/badge/icon)](http://old.jenkins.dbnp.org/jenkins/job/ci3-gscf/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF/tree/bundle_modules) | ~/.gscf/ci3.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/bundle_modules/grails-app/conf/default.properties)
-uploadr plugin | ```ci``` | [![Build Status](http://jenkins.osx.eu/job/ci-uploadr/badge/icon)](http://jenkins.osx.eu/job/ci-uploadr/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/4np/grails-uploadr/) | n/a ([documentation](https://github.com/4np/grails-uploadr/blob/master/README.md))
-
+[GSCF](http://download.dbnp.org/production/gscf.war) | ```production``` | [![Build Status](http://jenkins.dbnp.org/job/production-gscf/badge/icon)](http://jenkins.dbnp.org/job/production-gscf/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/production.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
+[Metabolomics Module](http://download.dbnp.org/production/metabolomicsModule.war) | ```production``` | [![Build Status](http://jenkins.dbnp.org/job/production-metabolomicsModule/badge/icon)](http://jenkins.dbnp.org/job/production-metabolomicsModule/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/metabolomicsModule) | ~/.metabolomicsModule/production.properties [?](https://github.com/PhenotypeFoundation/metabolomicsModule/blob/master/grails-app/conf/default.properties)
+[SAM Module](http://download.dbnp.org/production/sam.war) | ```production``` | [![Build Status](http://jenkins.dbnp.org/job/production-sam/badge/icon)](http://jenkins.dbnp.org/job/production-sam/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/TheHyve/SAM) | ~/.dbxp/production-sam.properties [?](https://github.com/thehyve/SAM/blob/master/grails-app/conf/default.properties)
+[GSCF CI](http://download.dbnp.org/ci2/gscf.war) | ```continious integration``` | [![Build Status](http://old.jenkins.dbnp.org/jenkins/job/ci2-gscf/badge/icon)](http://old.jenkins.dbnp.org/jenkins/job/ci2-gscf/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF/tree/events_refactoring) | ~/.gscf/ci2.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.propertie)
 _Note: each project / environment requires a specific configuration file._
 
 # Installation
@@ -89,44 +81,46 @@ As of GSCF 0.8.3 a setup wizard is included which will create a configuration fi
 If you start the application, you will see exactly at which location it is looking for a configuration file. It is probably /usr/share/tomcat6/.gscf/production.properties. You can use it to specify the database connection, for example as follows:
 
 ```
-# server URL
-grails.serverURL=http://test.mysite.com
+## Server URL ##
+grails.serverURL=http://dbnp.mysite.org
+gscf.baseURL=http://dbnp.mysite.org/
+gscf.issueURL=https://github.com/PhenotypeFoundation/GSCF/issues # In case you have your own fork, please change the Issue URL to fork issues
 
-# DATABASE
+## DATABASE ##
 dataSource.driverClassName=org.postgresql.Driver
 dataSource.dialect=org.hibernate.dialect.PostgreSQLDialect
 dataSource.url=jdbc:postgresql://localhost:5432/gscf-www
 dataSource.dbCreate=update
-dataSource.username=gscfuser
-dataSource.password=mydbpassword
+dataSource.username=<gscfuser>
+dataSource.password=<password>
 #dataSource.logSql=false
 
-# SpringSecurity E-Mail Settings
+## SpringSecurity E-Mail Settings  ##
 grails.plugins.springsecurity.ui.forgotPassword.emailFrom=gscfproject@gmail.com
 
-# module configuration
-#modules.sam.url=http://old.sam.dbnp.org
-#modules.metabolomics.url=http://old.metabolomics.dbnp.org
-#modules.metagenomics.url=http://old.metagenomics.dbnp.org
+## Module Configuration ##
+# modules.sam.url=http://sam.mysite.org
+# modules.metabolomics.url=http://metabolomics.mysite.org
+# modules.metagenomics.url=http://metagenomics.mysite.org
 
-# default application users
-authentication.users.admin.username=admin
-authentication.users.admin.password=admiN123!
-authentication.users.admin.email=admin@dbnp.org
+## Default Application Users ##
+authentication.users.admin.username=<admin_user>
+authentication.users.admin.password=<password>
+authentication.users.admin.email=<your_email>
 authentication.users.admin.administrator=true
-authentication.users.user.username=user
-authentication.users.user.password=useR123!
-authentication.users.user.email=user@dbnp.org
+authentication.users.user.username=<normal_user>
+authentication.users.user.password=<password>
+authentication.users.user.email=<your_email>
 authentication.users.user.administrator=false
 
-# override application title
+## Override Application Title ##
 application.title=Phenotype Database
 
-# use shibboleth authentication?
+## Use Shibboleth Authentication? ##
 authentication.shibboleth=false
 
-# Directory to upload files to. By default, this is /tmp
-uploads.uploadDir=/tmp
+## Set Upload Directory For Study Attached Files (/tmp By Default) ##
+uploads.uploadDir=/var/dbnp-uploadedFiles
 ```
 
 Don't forget to change the default passwords to something more secure!
