@@ -84,10 +84,9 @@ grails.project.dependency.resolution = {
 //            ":jquery:latest.integration",
 //            ':jquery-ui:latest.integration',
 
-            //Temporary static version due to not working table tooltip with jQuery 1.10.2
-            ":jquery:1.8.3",
-            ':jquery-ui:1.8.24',
-
+            ":jquery:latest.integration",
+            ':jquery-ui:latest.integration',
+			
             ":resources:latest.integration",
             ":spring-security-core:1.2.7.3",
 
