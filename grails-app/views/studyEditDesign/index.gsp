@@ -73,13 +73,10 @@
 		<div id="eventGroupDialog">
 			<span class="info"> 
 				<span class="title">Edit the details of the eventgroup</span> 
-				Drag events and sampling events into the eventgroup
+				Drag events and sampling events into the eventgroup. Changes will be saved immediately. However, changes in the name require a click on the 'save name' button.<br />
+				<strong>Please note</strong>: changes to this eventgroup will affect all instances of the group.
 			</span>
 					
-			<div class="message">
-				Please note: changes to this eventgroup will affect all instances of the group. 
-			</div>
-			
 			<label>Name: </label><input type="text" name="eventgroup-name" id="eventgroup-name" /><br />
 			
 			<div id="timeline-events"></div>

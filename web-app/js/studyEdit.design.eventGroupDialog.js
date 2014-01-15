@@ -58,7 +58,7 @@ StudyEdit.design.eventGroups = {
 			autoOpen: false,
 			width: 900,
 			buttons: {
-				Ok: function() {
+				"Save name": function() {
 					StudyEdit.design.eventGroups.save();
 					$(this).dialog( "close" );
 					StudyEdit.design.eventGroups.dialog.close( this );
@@ -66,7 +66,6 @@ StudyEdit.design.eventGroups = {
 				Cancel: function() {
 					// Update the main timeline to reflect the (new) length and name of the eventgroup
 					StudyEdit.design.eventGroups.updateEventGroupInMainOverview();
-					
 					StudyEdit.design.eventGroups.dialog.close();
 				}
 			},
@@ -380,7 +379,7 @@ StudyEdit.design.eventGroups = {
 					autoOpen: false,
 					width: 900,
 					buttons: {
-						Ok: function() {
+						"Save name": function() {
 							StudyEdit.design.events.save();
 						},
 						Cancel: function() {
