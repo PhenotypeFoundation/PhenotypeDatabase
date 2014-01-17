@@ -3,6 +3,7 @@
 .ui-dialog .studyEdit { font-size: 10pt; }
 .studyEdit .options { border-top: 1px solid #ccc; }
 .studyEdit h1 { border-bottom: 1px solid #006dba; }
+.studyEdit h1 .truncated-title { display: inline-block; width: 450px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .studyEdit .steps { font-size: 15px; float: right; color: #ccc;}
 .studyEdit .steps a { display: inline-block; margin: 0 6px;  }
@@ -35,6 +36,7 @@ div .studyEdit .description { width: 170px; }
 
 /* template descriptions */
 .templatedescription {  display: block; padding: 2px 4px; border: 1px solid #4CAAED; /* #006DBA; */ }
+#studyProperties .templatedescription { margin-right: 300px;  }
 .event .templatedescription, .samplingEvent .templatedescription{ width: 220px; margin: 5px 0 5px 174px; }
 
 /* .studyEdit .publication_list li .authors { overflow: hidden; max-height: 8px; text-overflow:ellipsis; } */

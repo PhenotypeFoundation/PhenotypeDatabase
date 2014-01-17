@@ -9,7 +9,9 @@
 <body>
 	<div class="studyEdit studySamples">
 		<h1>
-			Edit study [${study.title?.encodeAsHTML()}]
+			<span class="truncated-title">
+				Edit study [${study.title?.encodeAsHTML()}]
+			</span>
 			<g:render template="steps" model="[study: study, active: 'assaysamples']"  />
 		</h1>
 		

@@ -8,8 +8,11 @@
 </head>
 <body>
 	<div class="studyEdit studyProperties">
+	
 		<h1>
-			Edit study [${study.title?.encodeAsHTML()}]
+			<span class="truncated-title">
+				Edit study [${study.title?.encodeAsHTML()}]
+			</span>
 			<g:render template="/studyEdit/steps" model="[study: study, active: 'design']"  />
 		</h1>
 		

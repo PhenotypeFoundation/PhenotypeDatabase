@@ -9,12 +9,14 @@
 <body>
 	<div class="studyEdit studyProperties">
 		<h1>
+			<span class="truncated-title">
 			<g:if test="${study?.id}">
 				Edit study [${study.title?.encodeAsHTML()}]
 			</g:if>
 			<g:else>
 				New study
 			</g:else>
+			</span>
 			<g:render template="steps" model="[study: study, active: 'study']" />
 		</h1>
 		
