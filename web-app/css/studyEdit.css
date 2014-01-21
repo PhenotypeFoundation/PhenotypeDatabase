@@ -154,12 +154,17 @@ table.dataTable td.dataTables_empty { text-align: left; }
 .addToTimeline .buttons { float: right; margin-top: 0px; }
 .addToTimeline .buttons a { padding-top: 3px; padding-bottom: 3px; display: inline-block; margin-left: 10px; }
 
+#timeline-eventgroups, #timeline-events { position: relative; }
 #timeline-eventgroups .timeline-groups-text { cursor: pointer; }
 
 .ui-draggable-dragging .buttons { display: none; }
  
  #eventGroupDialog .addToTimeline { width: 48%; float: left; margin-right: 4%; } 
  #eventGroupDialog #samplingEvents { margin-right: 0; }
+
+.timeline-content .event { /* Default, no override needed */ }
+.timeline-content .samplingEvent { background-color: white; background-image: none; }
+.timeline-content .samplingEvent.ui-state-active { color: black; }
 
 #design-subjects { margin-top: 10px; border-top: 1px solid #006DBA; padding-top: 10px; }
 #design-subjects span.subjects { display: inline-block; width: 200px; }

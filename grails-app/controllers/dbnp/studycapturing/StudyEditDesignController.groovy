@@ -63,7 +63,7 @@ class StudyEditDesignController {
 			result = [ status: "OK", id: subjectEventGroup.id, group: subjectGroupName, subjectGroupId: subjectEventGroup.subjectGroup?.id, eventGroupId: subjectEventGroup.eventGroup?.id ]
 		} else {
 			response.status = 500
-			result = [ status: "Error" ]
+			result = [ status: "Error", errors: subjectEventGroup.errors.allErrors ]
 		}
 
 		render result as JSON
@@ -743,12 +743,14 @@ class StudyEditDesignController {
 		}
 		
 		// Loop through all subjects
-		def subjects = [] + subjectGroup.subjects
-		subjects.each { subject ->
-			if( subjectIds.contains( subject.id.toString() ) ) {
-				subjectIds -= subject.id.toString()
-			} else {
-				subjectGroup.removeFromSubjects( subject )
+		if( subjectGroup.subjects ) {
+			def subjects = [] + subjectGroup.subjects
+			subjects.each { subject ->
+				if( subjectIds.contains( subject.id.toString() ) ) {
+					subjectIds -= subject.id.toString()
+				} else {
+					subjectGroup.removeFromSubjects( subject )
+				}
 			}
 		}
 		
