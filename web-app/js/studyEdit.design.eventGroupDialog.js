@@ -123,7 +123,7 @@ StudyEdit.design.eventGroups = {
 	
 	
 	/**
-	 * Shows a for to add a new eventgroup
+	 * Shows a to add a new eventgroup
 	 */
 	add: function() {
 		var dialog = StudyEdit.design.eventGroups.dialog.get();
@@ -184,7 +184,16 @@ StudyEdit.design.eventGroups = {
 		
 		// Load the data for the timeline
 		$.get( dataUrl, function( data ) {
-			var convertedData = $.map( data.events, function( event, idx ) { 
+			var convertedData = $.map( data.events, function( event, idx ) {
+				// Check whether the event should be shown as a range or as a box
+				if( event.data.type == "event" ) {
+					if( event.start == event.end ) {
+						event.type = "box";
+					}
+					
+				}
+				
+				// Convert dates to javascript objects
 				event.start = new Date( event.start );
 				
 				if( event.end ) {
@@ -303,13 +312,36 @@ StudyEdit.design.eventGroups = {
 	    	var eventType = timeline.getPropertyFromClassName( "dragged-origin-type-", selectedRow );
 	    	var studyId = $( "#design" ).find( "#id" ).val();
 	    	
-	    	StudyEdit.design.eventGroups.contents.add( eventType, studyId, selectedRow.start, eventId, eventGroupId, function( element ) {
-	    		timeline.updateData( selectedIndex, { data: { 
-	    			id: element.id, 
-	    			hasSamples: false, 
-	    			eventId: element.eventId,
-	    			type: element.type
-	    		} } );
+	    	// If the user drags in an event, he should specify the duration
+	    	var duration = 0;
+	    	if( eventType == "event" ) {
+	    		duration = prompt( "Please specify the duration of this event. Specify 0 for no duration." );
+	    		
+	    		if( duration == null ) {
+		    		timeline.cancelAdd();
+		    		return;
+	    		}
+	    	}
+	    	
+	    	StudyEdit.design.eventGroups.contents.add( eventType, studyId, selectedRow.start, duration,  eventId, eventGroupId, function( element ) {
+	    		// Determine how to show the box on the timeline: 
+	    		// By default, events are shown as range, samplignEvents as box. However
+	    		// that raises issues with events with duration = 0. For that reason
+	    		// the type for those events is set to 'dot'
+	    		var drawType = ( eventType == 'samplingEvent' || duration == 0 ) ? "box" : "range"
+	    		var end = eventType == "event" ? new Date( element.end ) : undefined; 
+	    		timeline.updateData( selectedIndex, {
+	    			type: drawType,
+	    			end: end,
+	    			data: { 
+		    			id: element.id, 
+		    			hasSamples: false, 
+		    			eventId: element.eventId,
+		    			type: element.type
+	    			} 
+	    		} );
+	    		
+	    		timeline.redraw();
 	    	});
 	    },
 	    
@@ -406,11 +438,12 @@ StudyEdit.design.eventGroups = {
 			},
 		},		
 		
-		add: function( eventType, studyId, start, eventId, eventGroupId, afterAdd ) {
+		add: function( eventType, studyId, start, duration, eventId, eventGroupId, afterAdd ) {
 			var url = $( 'form#' + eventType + "InEventGroup" ).attr( 'action' ) + "Add";
 			var data = {
 				id: studyId,
 				start: start.getTime(),
+				duration: duration,
 				eventId: eventId,
 				eventGroupId: eventGroupId
 			};

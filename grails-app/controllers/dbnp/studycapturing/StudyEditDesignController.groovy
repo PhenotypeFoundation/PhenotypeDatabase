@@ -2,6 +2,7 @@ package dbnp.studycapturing
 
 import grails.converters.JSON
 
+import org.dbnp.gdt.RelTime
 import org.dbnp.gdt.Template
 
 import dbnp.authentication.SecUser
@@ -285,6 +286,16 @@ class StudyEditDesignController {
 			
 			if( params.long( "end" ) ) {
 				eventInEventGroup.duration = ( params.long( "start" ) - params.long( "end" ) ) / 1000;
+			} else if( params.duration ) {
+				// The duration can be given as seconds, or as reltime string
+				def duration
+				if( params.duration.isLong() ) {
+					duration = new RelTime( params.duration.toLong() )
+				} else {
+					duration = new RelTime( params.duration )
+				}
+				
+				eventInEventGroup.duration = duration.value
 			}
 		}
 
@@ -298,7 +309,13 @@ class StudyEditDesignController {
 	
 		def result
 		if( eventInEventGroup.save() ) {
-			result = [ status: "OK", id: eventInEventGroup.id, eventGroupId: eventGroupId, eventId: eventId, type: "event" ]
+
+			// Return the start and end times
+			def studyStart = study?.startDate?.getTime() / 1000
+			def start = ( studyStart + eventInEventGroup.startTime ) * 1000
+			def end = start + eventInEventGroup.duration * 1000
+			
+			result = [ status: "OK", id: eventInEventGroup.id, start: start, end: end, duration: eventInEventGroup.duration, eventGroupId: eventGroupId, eventId: eventId, type: "event" ]
 		} else {
 			response.status = 500
 			result = [ status: "Error" ]
@@ -382,6 +399,7 @@ class StudyEditDesignController {
 		if( samplingEventInEventGroup.save() ) {
 			// Generate new samples for this eventGroup
 			studyEditService.generateSamples( samplingEventInEventGroup )
+			
 			result = [ status: "OK", id: samplingEventInEventGroup.id, eventGroupId: eventGroupId, eventId: eventId, type: "samplingEvent" ]
 		} else {
 			response.status = 500

@@ -57,7 +57,7 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 	    		        'start': start,
 	    		        'content': ui.helper.find( '.name' ).text(),
 	    		        'group': timeline.getGroupName( group ),
-	    		        'className': 'dragged-origin-id-' + ui.draggable.data( "origin-id" ) + ' dragged-origin-type-' + ui.draggable.data( "origin-type" )
+	    		        'className': 'dragged-origin-id-' + ui.draggable.data( "origin-id" ) + ' dragged-origin-type-' + ui.draggable.data( "origin-type" ) + ' ' + ui.draggable.data( "origin-type" )
 	    		    };
 	    	        
 	    	        // Determine the duration of this event. Set to 0 if the event has a 
@@ -77,10 +77,27 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 		    	        	itemOptions.end = new Date( start.getTime() + duration * 1000 );
 	    	        	}
 	    	        }
-	    	         
+	    	        
+	    	        // Add the item, and select it
 	    	        timeline.addItem( itemOptions );
-	    	        timeline.selectItem(timeline.items.length - 1);
+	    	        var index = timeline.items.length - 1;
+                    timeline.selectItem(index);
+	    	        timeline.applyAdd = true;
+
+	                // fire a dragin event.
+	                // Note that the change can be canceled from within an event listener if
+	                // this listener calls the method cancelAdd().
 	    	        timeline.trigger( "dragin" );
+
+	                if (timeline.applyAdd) {
+	                    // render and select the item
+	                	timeline.render({animate: false});
+	                	timeline.selectItem(index);
+	                }
+	                else {
+	                    // undo an add
+	                	timeline.deleteItem(index);
+	                }	    	        
 	    		 }
 		     }
 	    });	     
@@ -105,7 +122,7 @@ dbnp.study.Timeline.prototype.getIdFromClassName = function( prefix, item ) {
 
 dbnp.study.Timeline.prototype.getPropertyFromClassName = function( prefix, item, regex ) {
 	if( typeof( regex ) == 'undefined' )
-		regex = "([^\w]+)"
+		regex = "(\\w+)"
 
 	// Convert regex into proper regex
 	regex = new RegExp( prefix + regex ) 

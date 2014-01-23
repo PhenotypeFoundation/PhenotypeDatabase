@@ -24,8 +24,8 @@ modules = {
 		resource url:[ dir:'js', file: 'reltime.js']
 		resource url:[ dir:'js/timeline', file: 'timeline.js']
 		resource url:[ dir:'js/timeline', file: 'study-timeline.js']
-		resource url:[ dir:'css', file: 'timeline.css']
-		resource url:[ dir:'css', file: 'timeline-theme.css']
+		resource url:[ dir:'css/timeline', file: 'timeline.css']
+		resource url:[ dir:'css/timeline', file: 'timeline-theme.css']
 	}
 	
 	// Tiptip scripts to shown nice tooltips 
