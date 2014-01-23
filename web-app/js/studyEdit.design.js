@@ -37,6 +37,7 @@ StudyEdit.design = {
 			showCustomTime: false,
 			droppable: ( dragFrom ? true : false )
 		} );
+		
 	    var timeline = new dbnp.study.Timeline( $(container).get(0) );
 	    timeline.draw( data, options );
     	
@@ -46,7 +47,7 @@ StudyEdit.design = {
 	    
 	    // Add event listeners
 	    links.events.addListener(timeline, 'dragin', eventHandlers.add );
-	    links.events.addListener(timeline, 'change', eventHandlers.change);
+	    links.events.addListener(timeline, 'changed', eventHandlers.change);
 	    links.events.addListener(timeline, 'delete', eventHandlers.delete);
 	    
 	    // Prevent adding new items by doubleclick
