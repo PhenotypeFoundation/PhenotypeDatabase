@@ -3,7 +3,7 @@
 .ui-dialog .studyEdit { font-size: 10pt; }
 .studyEdit .options { border-top: 1px solid #ccc; }
 .studyEdit h1 { border-bottom: 1px solid #006dba; }
-.studyEdit h1 .truncated-title { display: inline-block; width: 450px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.studyEdit h1 .truncated-title { display: inline-block; width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .studyEdit .steps { font-size: 15px; float: right; color: #ccc;}
 .studyEdit .steps a { display: inline-block; margin: 0 6px;  }

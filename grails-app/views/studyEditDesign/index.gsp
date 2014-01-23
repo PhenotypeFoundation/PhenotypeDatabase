@@ -11,7 +11,7 @@
 	
 		<h1>
 			<span class="truncated-title">
-				Edit study [${study.title?.encodeAsHTML()}]
+				Edit study [${study.code?.encodeAsHTML()}]
 			</span>
 			<g:render template="/studyEdit/steps" model="[study: study, active: 'design']"  />
 		</h1>

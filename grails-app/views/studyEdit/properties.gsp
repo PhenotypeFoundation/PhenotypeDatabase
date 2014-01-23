@@ -11,7 +11,7 @@
 		<h1>
 			<span class="truncated-title">
 			<g:if test="${study?.id}">
-				Edit study [${study.title?.encodeAsHTML()}]
+				Edit study [${study.code?.encodeAsHTML()}]
 			</g:if>
 			<g:else>
 				New study
