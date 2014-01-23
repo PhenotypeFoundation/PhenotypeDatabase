@@ -106,12 +106,13 @@
 			<div id="design-subjects">
 				<span class="subjects">
 					<g:set var="subjectCount" value="${study.subjects?.size()}" />
+					<g:set var="numRows" value="${Math.max( (int)subjectCount / 3, 1 )}" />
 					<g:each in="${study.subjects}" var="subject" status="i">
 						<span class="subject">
 							<input type="checkbox" name="subjectgroup_subjects" id="subjectgroup_subjects_${subject.id}" value="${subject.id}" /> ${subject.name}
 						</span>
 						
-						<g:if test="${( i + 1 ) % ((int)subjectCount / 3 ) == 0}">
+						<g:if test="${( i + 1 ) % numRows == 0}">
 							</span>
 							<span class="subjects">
 						</g:if>
@@ -151,11 +152,13 @@
 				
 				StudyEdit.design.initialize( data, new Date(${study.startDate?.time}), StudyEdit.design.subjectGroups.groups.data );
 				
-				// Make sure all groups exist
-				<g:each in="${study.subjectGroups}" var="group">
-					StudyEdit.design.subjectGroups.groups.data.push( { 'id': ${group.id}, 'name':  '${group.name.encodeAsJavaScript()}' } );
-					StudyEdit.design.timelineObject.redraw(); 
-  				</g:each>
+				<g:if test="${study.subjectGroups}">
+					// Make sure all groups exist
+					<g:each in="${study.subjectGroups}" var="group">
+						StudyEdit.design.subjectGroups.groups.data.push( { 'id': ${group.id}, 'name':  '${group.name.encodeAsJavaScript()}' } );
+						StudyEdit.design.subjectGroups.updateTimeline(); 
+	  				</g:each>
+	  			</g:if>
 			});
 		</r:script>
 	</div>

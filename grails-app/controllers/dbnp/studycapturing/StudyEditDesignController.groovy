@@ -755,7 +755,7 @@ class StudyEditDesignController {
 		if( !subjectGroup ) 
 			return
 		
-		if( !subjectIds ) {
+		if( !subjectIds && subjectGroup.subjects ) {
 			subjectGroup.subjects.clear()
 			return
 		}

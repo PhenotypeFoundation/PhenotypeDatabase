@@ -41,6 +41,10 @@ StudyEdit.design.subjectGroups = {
 			}
 		},
 		
+		size: function() {
+			return StudyEdit.design.subjectGroups.groups.data.length;
+		},
+		
 		add: function( group ) {
 			StudyEdit.design.subjectGroups.groups.data.push( { 
 				id: group.id, 
@@ -253,7 +257,6 @@ StudyEdit.design.subjectGroups = {
 		
 		if( confirm( "Deleting this subjectgroup will also delete all samples that originated from it, and remove all eventgroups in the subjectgroup. Are you sure you want to delete the subjectgroup?" ) ) {
 			$.post( url, data, function() {
-				console.log( "Subjectgroup deleted" );
 			});
 			
 			StudyEdit.design.subjectGroups.groups.delete( id );
@@ -266,7 +269,12 @@ StudyEdit.design.subjectGroups = {
 	},
 
 	updateTimeline: function() {
-		StudyEdit.design.timelineObject.redraw();
+		if( StudyEdit.design.subjectGroups.groups.size() == 0 ) {
+			$("#timeline-eventgroups" ).hide();
+		} else {
+			$("#timeline-eventgroups" ).show();
+			StudyEdit.design.timelineObject.redraw();
+		}
 	},
 	
 	getDataUrl: function( group ) {

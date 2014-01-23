@@ -669,6 +669,9 @@ class StudyEditController {
 			study.template = Template.findByName(params.remove('template'))
 		}
 
+		println study
+		println study.template
+		
 		// does the study have a template set?
 		if (study.template && study.template instanceof Template) {
 			// yes, iterate through template fields

@@ -155,7 +155,7 @@ table.dataTable td.dataTables_empty { text-align: left; }
 .addToTimeline .buttons a { padding-top: 3px; padding-bottom: 3px; display: inline-block; margin-left: 10px; }
 
 #timeline-eventgroups, #timeline-events { position: relative; }
-#timeline-eventgroups .timeline-groups-text { cursor: pointer; }
+#timeline-eventgroups .timeline-groups-text { cursor: pointer; height: 30px; }
 
 .ui-draggable-dragging .buttons { display: none; }
  
