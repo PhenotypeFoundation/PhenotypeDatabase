@@ -66,12 +66,7 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 	    	        
 	    	        if( typeof( duration ) != "undefined" ) {
 	    	        	if( duration == 0 ) {
-		    	        	// Make the duration 25% of the width of the timeline
-		    	        	var range = timeline.getVisibleChartRange();
-		    	        	var multiplier = 0.25;
-		    	        	duration = ( range.end.getTime() - range.start.getTime() ) * multiplier;
-		    	        	itemOptions.end = new Date( start.getTime() + duration );
-	    	        		
+	    	        		itemOptions.type = "box";
 	    	        	} else { 
 		    	        	// A single point event
 		    	        	itemOptions.end = new Date( start.getTime() + duration * 1000 );

@@ -246,9 +246,12 @@ StudyEdit.design.eventGroups = {
 			
 			$.each( data, function( idx, el ) {
 				if( el.data.eventGroupId == id ) {
+					// Update the duration and type of the item
 					var end = new Date();
-					end.setTime( el.start.getTime() + eventGroupData.duration * 1000 );
-					StudyEdit.design.timelineObject.updateData( idx, { content: eventGroupData.name, end: end } );
+					var duration = eventGroupData.duration;
+					end.setTime( el.start.getTime() + duration * 1000 );
+					var type = duration == 0 ? "box" : "range";
+					StudyEdit.design.timelineObject.updateData( idx, { content: eventGroupData.name, end: end, type: type } );
 					doRender = true
 				}
 			});

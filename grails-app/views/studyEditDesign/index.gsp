@@ -137,6 +137,7 @@
 				     data.push({
 				       'start': new Date(${group.startDate.time}),
 				       'end': new Date(${group.endDate.time}),  // end is optional
+				       'type': "${group.eventGroup?.duration?.value == 0 ? 'box' : 'range' }",	// ${group.eventGroup?.duration}
 				       'content': '${group.eventGroup?.name.encodeAsJavaScript()}',
 				       'group': '${group.subjectGroup?.name.encodeAsJavaScript()}',
 				       'className': 'eventgroup eventgroup-id-${group.id} <g:if test="${group.samples}">hasSamples</g:if>',

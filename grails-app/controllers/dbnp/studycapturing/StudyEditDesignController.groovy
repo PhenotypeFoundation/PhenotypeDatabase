@@ -118,7 +118,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def subjectEventGroupDelete() {
-		def subjectEventGroup = SubjectEventGroup.read( params.long( "id" ) );
+		def subjectEventGroup = SubjectEventGroup.get( params.long( "id" ) );
 
 		if( !subjectEventGroup ) {
 			response.status = 404
