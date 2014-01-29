@@ -36,15 +36,24 @@ class TnoMigrateController {
         for (Study study in studies) {
             def oldEventGroups = [] + study.eventGroups
             HashMap<String, EventGroup> newEventGroups = []
+            //35827,1983094
+            //def selectedIDS = [35827,30986,1983094,96239,358848]
+            def selectedIDS = [1983094]
+            def collectedSurplusSamplingEvents = []
 
-            if (study.id == 35827) {
+            if (selectedIDS.contains((int)study.id)) {
                 for(EventGroup eventGroup in oldEventGroups) {
                     def temporaryEventGroups = [:]
                     def eventInstances = eventGroup.eventInstances + eventGroup.samplingEventInstances
 
                     // Collect unique set of eventgroups and their respective events
                     eventInstances.each {
-                        def migrateEventGroups = it.event.getFieldValue( getColumnName(it.event) ).split(";");
+                        def migrateEventGroups
+                        try {
+                            migrateEventGroups = it.event.getFieldValue( getColumnName(it.event) ).split(";");
+                        } catch (Exception e) {
+                            println (e)
+                        }
                         for (String newEventGroup in migrateEventGroups) {
                             this.registerUniqueEventGroup(temporaryEventGroups, newEventGroup)
                             this.addEventToEventGroupSet(temporaryEventGroups, newEventGroup, it)
@@ -56,7 +65,7 @@ class TnoMigrateController {
                     // - or single event with only one eventgroup specified in migration column
                     // Else ignore eventgroup
                     temporaryEventGroups.each { eventGroupName, eventInstanceSet ->
-                        if(!(eventInstanceSet.size() == 1 && eventInstanceSet.first().event.getFieldValue( getColumnName(eventInstanceSet.first().event) ).contains(";"))) {
+                        if(eventInstanceSet && eventInstanceSet.find { it instanceof EventInEventGroup }) {
 
                             // Collect minimum start to normalize starttimes
                             def minimumStartTime = eventInstanceSet.collect { it.startTime }.min()
@@ -76,15 +85,39 @@ class TnoMigrateController {
                                     this.updateSampleAssociations(it, newEventInEventGroup, newSubjectEventGroup)
                                     it.event.name = it.event.template.name;
                                 } else {
-                                    it.event.name = it.event.getFieldValue("Event name (STRING)");
+                                    try {
+                                        it.event.name = it.event.getFieldValue("Event name (STRING)");
+                                    } catch(NoSuchFieldException nsfe) {
+                                        println("Field doesnt exist in entity: " + it.event.id + ", message: " + nsfe.getMessage())
+                                    }
                                 }
                                 it.event.save()
                             }
+                        } else {
+                            collectedSurplusSamplingEvents = (collectedSurplusSamplingEvents << eventInstanceSet).flatten()
+                        }
+                    }
+
+                    def minimumStartTime = 0
+                    Random rand = new Random()
+                    def eventGroupName = "collectedSurplusSamplingEvents" + rand.nextInt(1000)
+                    EventGroup newEventGroup = this.createNewEventGroup(study, eventGroupName)
+
+                    SubjectGroup subjectGroup = SubjectGroup.find {id == eventGroup.id}
+                    def newSubjectEventGroup = this.updateSubjectGroups(study, subjectGroup, newEventGroup, minimumStartTime)
+
+                    collectedSurplusSamplingEvents.each {
+                        if(it.event instanceof SamplingEvent) {
+                            def newEventInEventGroup = this.addEventToEventGroup(it, newEventGroup, it.startTime - minimumStartTime)
+                            this.updateSampleAssociations(it, newEventInEventGroup, newSubjectEventGroup)
+                            it.event.name = it.event.template.name+" (surplus)";
+                            it.event.save()
+                        } else {
+                            println "Strange, not a sampling event...."
                         }
                     }
                 }
 
-                //Remove old eventgroups
                 for (eventGroup in oldEventGroups) {
                     study.deleteEventGroup(eventGroup)
                 }
