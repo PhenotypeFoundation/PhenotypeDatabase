@@ -271,7 +271,7 @@ StudyEdit.design.eventGroups = {
 			id: id
 		};
 		
-		if( confirm( "Deleting this eventgroup will also delete all samples that originated from it, and remove all instances of the eventgroup. Are you sure you want to delete the eventgroup?" ) ) {
+		if( confirm( "Deleting this treatment&sample group will also delete all samples that originated from it, and remove all instances of this group. Are you sure you want to delete the treatment&sample group?" ) ) {
 			$.post( url, data, function() {
 				console.log( "Eventgroup deleted" );
 			});
@@ -318,7 +318,7 @@ StudyEdit.design.eventGroups = {
 	    	// If the user drags in an event, he should specify the duration
 	    	var duration = 0;
 	    	if( eventType == "event" ) {
-	    		duration = prompt( "Please specify the duration of this event. Specify 0 for no duration." );
+	    		duration = prompt( "Please specify the duration of this treatment type. Specify 0 for no duration." );
 	    		
 	    		if( duration == null ) {
 		    		timeline.cancelAdd();
@@ -466,10 +466,6 @@ StudyEdit.design.eventGroups = {
 			
 			var doUpdate = true;
 			
-			if( hasSamples && originalGroup != group ) {
-				doUpdate = confirm( "Moving this eventgroup to another subjectgroup will delete all samples that originated from it. Are you sure you want to move the eventgroup?" );
-			}
-			
 			if( doUpdate ) {
 				$.post( url, data, function( returnData ) {
 					if( typeof( afterChange ) != "undefined" ) {
@@ -486,9 +482,9 @@ StudyEdit.design.eventGroups = {
 				id: id
 			};
 			
-			if( !hasSamples || confirm( "Deleting this eventgroup will also delete all samples that originated from it. Are you sure you want to delete the eventgroup?" ) ) {
+			if( eventType == "event" || confirm( "Deleting this sample type will also delete all samples that originated from it. Are you sure you want to delete the sample type?" ) ) {
 				$.post( url, data, function() {
-					console.log( "SubjectEventgroup deleted" );
+					console.log( eventType + " deleted" );
 				});
 				
 				return true;
@@ -531,7 +527,7 @@ StudyEdit.design.events = {
 			id: id
 		};
 		
-		if( eventType == "event" || confirm( "Deleting this samplingevent will also delete all samples that originated from it. Are you sure you want to delete the samplingevent?" ) ) {
+		if( eventType == "event" || confirm( "Deleting this sample type will also delete all samples that originated from it. Are you sure you want to delete the sample type?" ) ) {
 			$.post( url, data, function() {
 				console.log( eventType + " deleted" );
 				

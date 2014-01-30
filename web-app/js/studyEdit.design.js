@@ -85,7 +85,7 @@ StudyEdit.design.subjectEventGroups = {
 		var doUpdate = true;
 		
 		if( hasSamples && originalGroup != group ) {
-			doUpdate = confirm( "Moving this eventgroup to another subjectgroup will delete all samples that originated from it. Are you sure you want to move the eventgroup?" );
+			doUpdate = confirm( "Moving this treatment&sample group to another subjectgroup will delete all samples that originated from it. Are you sure you want to move the group?" );
 		}
 		
 		if( doUpdate ) {
@@ -104,7 +104,7 @@ StudyEdit.design.subjectEventGroups = {
 			id: id
 		};
 		
-		if( !hasSamples || confirm( "Deleting this eventgroup will also delete all samples that originated from it. Are you sure you want to delete the eventgroup?" ) ) {
+		if( !hasSamples || confirm( "Deleting this treatment&sample group will also delete all samples that originated from it. Are you sure you want to delete the group?" ) ) {
 			$.post( url, data, function() {
 				console.log( "SubjectEventgroup deleted" );
 			});

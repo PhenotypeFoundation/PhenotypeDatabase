@@ -1,10 +1,10 @@
 	<div class="studyEdit event">
 		<h1>
 			<g:if test="${entity?.id}">
-				Edit sampling event [${entity.name.encodeAsHTML()}]
+				Edit sample type [${entity.name.encodeAsHTML()}]
 			</g:if>
 			<g:else>
-				New sampling event
+				New sample type
 			</g:else>
 		</h1>
 		
@@ -39,7 +39,7 @@
 			<af:templateElement name="template" description="Template"
 				value="${entity?.template}" entity="${dbnp.studycapturing.SamplingEvent}"
 				addDummy="true" onChange="if(\$( this ).val() != '') { \$( '#samplingEventDetails' ).submit(); }">
-				Choose the type of event you would like to create.
+				Choose the type of sample type you would like to create.
 				Depending on the chosen template specific fields can be filled out. If none of the templates contain all the necessary fields, a new template can be defined (based on other templates).
 			</af:templateElement>
 		

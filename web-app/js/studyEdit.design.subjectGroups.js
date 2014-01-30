@@ -255,7 +255,7 @@ StudyEdit.design.subjectGroups = {
 			id: id
 		};
 		
-		if( confirm( "Deleting this subjectgroup will also delete all samples that originated from it, and remove all eventgroups in the subjectgroup. Are you sure you want to delete the subjectgroup?" ) ) {
+		if( confirm( "Deleting this subjectgroup will also delete all samples that originated from it, and remove all treatment&sample groups in the subjectgroup. Are you sure you want to delete the subjectgroup?" ) ) {
 			$.post( url, data, function() {
 			});
 			

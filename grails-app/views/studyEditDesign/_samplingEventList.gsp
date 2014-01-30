@@ -1,4 +1,4 @@
-	<h3>Available sampling events</h3>
+	<h3>Available sample types</h3>
 	<ul>
 		<g:each in="${study.samplingEvents}" var="samplingEvent">
 			<li id="samplingEvent-${samplingEvent.id}" data-origin-id="${samplingEvent.id}" data-origin-type="samplingEvent" data-url="${g.createLink( action: 'samplingEventUpdate', id: samplingEvent.id  )}">

@@ -29,7 +29,7 @@
 		
 		<span class="info"> 
 			<span class="title">Define or import your study design</span> 
-			The study design consists of events and sampling events, grouped together in event groups. Event groups can be assigned to groups of subjects.
+			The study design consists of treatement types and sample types, grouped together in sample & treatment groups. Sample & treatment groups can be assigned to groups of subjects.
 		</span>
 		
 		<g:form action="design" name="design">
@@ -46,7 +46,7 @@
 					</ul>
 				</div>
 				<div id="eventgroups" class="eventgroups addToTimeline">
-					<h3>Available event groups</h3>
+					<h3>Available sample & treatment groups</h3>
 					<ul>
 						<g:each in="${study.eventGroups}" var="eventgroup">
 							<li id="eventgroup-${eventgroup.id}" data-duration="${eventgroup.duration.value}" data-origin-id="${eventgroup.id}" data-url="${g.createLink( controller: 'studyEditDesign', action: 'eventGroupDetails', id: eventgroup.id)}">
@@ -75,9 +75,9 @@
 		
 		<div id="eventGroupDialog">
 			<span class="info"> 
-				<span class="title">Edit the details of the eventgroup</span> 
-				Drag events and sampling events into the eventgroup. Changes will be saved immediately. However, changes in the name require a click on the 'save name' button.<br />
-				<strong>Please note</strong>: changes to this eventgroup will affect all instances of the group.
+				<span class="title">Edit the details of the sample & treatment group</span> 
+				Drag treatement types and sample types into the group. Changes will be saved immediately. However, changes in the name require a click on the 'save name' button.<br />
+				<strong>Please note</strong>: changes to this sample & treatment group will affect all instances of the group.
 			</span>
 					
 			<label>Name: </label><input type="text" name="eventgroup-name" id="eventgroup-name" /><br />

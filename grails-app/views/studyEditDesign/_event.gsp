@@ -1,10 +1,10 @@
 	<div class="studyEdit event">
 		<h1>
 			<g:if test="${entity?.id}">
-				Edit event [${entity.name.encodeAsHTML()}]
+				Edit treatment type [${entity.name.encodeAsHTML()}]
 			</g:if>
 			<g:else>
-				New event
+				New treatment type
 			</g:else>
 		</h1>
 		
@@ -39,7 +39,7 @@
 			<af:templateElement name="template" description="Template"
 				value="${entity?.template}" entity="${dbnp.studycapturing.Event}"
 				addDummy="true" onChange="if(\$( this ).val() != '') { \$( '#eventDetails' ).submit(); }">
-				Choose the type of event you would like to create.
+				Choose the type of treatment type you would like to create.
 				Depending on the chosen template specific fields can be filled out. If none of the templates contain all the necessary fields, a new template can be defined (based on other templates).
 			</af:templateElement>
 		
