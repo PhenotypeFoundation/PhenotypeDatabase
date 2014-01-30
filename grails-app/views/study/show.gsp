@@ -75,8 +75,8 @@
 			<ul>
 				<li tab="study"><a href="#study">Study Information</a></li>
 				<li tab="subjects"><a href="<g:createLink action="show_subjects" id="${studyList.id.join(',')}"/>" title="Subjects"><span>Subjects</span></a></li>
-				<li tab="events"><a href="#events-timeline"><span>Events timeline</span></a></li>
-				<li tab="events"><a href="<g:createLink action="show_events_table" id="${studyList.id.join(',')}"/>" title="Events table"><span>Events table</span></a></li>
+				<li tab="events"><a href="#events-timeline"><span>Treatment&Sample types timeline</span></a></li>
+				<li tab="events"><a href="<g:createLink action="show_events_table" id="${studyList.id.join(',')}"/>" title="Events table"><span>Treatment&Sample types</span></a></li>
 				<li tab="assays"><a href="<g:createLink action="show_assays" id="${studyList.id.join(',')}"/>" title="Assays"><span>Assays</span></a></li>
 				<li tab="samples"><a href="<g:createLink action="show_samples" id="${studyList.id.join(',')}"/>" title="Samples"><span>Samples</span></a></li>
 				<li tab="study"><a href="<g:createLink action="show_persons" id="${studyList.id.join(',')}"/>" title="Persons"><span>Persons</span></a></li>

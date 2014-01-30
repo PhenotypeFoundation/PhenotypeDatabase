@@ -30,7 +30,7 @@
 					<g:sortableColumn property="code" title="${message(code: 'study.code.label', default: 'Code')}"/>
 					<th>Title</th>
 					<th>Subjects</th>
-					<th>Events</th>
+					<th>Treatment types</th>
 					<th>Assays</th>
 				</tr>
 				</thead>
