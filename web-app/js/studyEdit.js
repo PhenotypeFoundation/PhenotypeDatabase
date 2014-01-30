@@ -66,6 +66,9 @@ StudyEdit.initializePropertiesPage = function() {
             });
         }
     });
+    
+    // Initialize help tooltips
+    attachHelpTooltips();
 }
 
 /*************************************************

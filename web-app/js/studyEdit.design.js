@@ -4,7 +4,9 @@ if( typeof( StudyEdit ) === "undefined" ) {
 
 StudyEdit.design = {
 	timelineObject: null,
+	studyStartDate: null,
 	initialize: function( data, studyStartDate, groupReference ) {
+		StudyEdit.design.studyStartDate = studyStartDate;
 		StudyEdit.design.timelineObject = StudyEdit.design.editableTimeline( 
 			"#timeline-eventgroups", 
 			data, 
@@ -17,7 +19,67 @@ StudyEdit.design = {
 		);
 		StudyEdit.design.timelineObject.groupReference = groupReference;
 		StudyEdit.design.eventGroups.initialize( studyStartDate );
+		StudyEdit.design.tooltips.initialize();
 		StudyEdit.design.subjectGroups.initialize();
+	},
+	
+	determineRelativeTime: function( d ) {
+		return RelTime.fromDates( StudyEdit.design.studyStartDate, d );
+	},
+	
+	tooltips: {
+		initialize: function( studyStartDate ) {
+	        // attach tooltip to every subjectEventGroup
+			$( function() {
+				$.each( StudyEdit.design.timelineObject.getData(), function( idx, item ) {
+					if( item.data && item.data.id ) {
+						var element = $( ".eventgroup-id-" + item.data.id );
+						//console.log( "adding qtip to ", element );
+						StudyEdit.design.tooltips.attachTooltip( element, StudyEdit.design.tooltips.determineContents( item ) );
+					}
+				});
+			});
+		},
+		
+		determineContents: function( item ) {
+			var contents = "<b>" + item.content + "</b><br />";
+			
+			contents += "Start: " + StudyEdit.design.determineRelativeTime( item.start ).toString() + "<br />";
+			if( item.end )
+				contents += "End: " + StudyEdit.design.determineRelativeTime( item.end ).toString() + "<br />";
+			
+			return contents;
+		},
+		
+		attachTooltip: function( element, contents ) {
+        	$(element).qtip({
+	            content: 'topMiddle',
+	            position: {
+	                corner: {
+	                    tooltip: 'bottomMiddle',
+	                    target: 'topMiddle'
+	                }
+	            },
+	            style: {
+	                border: {
+	                    width: 3,
+	                    radius: 6
+	                },
+	                padding: 10,
+	                textAlign: 'center',
+	                tip: true,
+	                name: 'blue'
+	            },
+	            content: contents,
+	            show: 'mouseover',
+	            hide: 'mouseout',
+	            api: {
+	                beforeShow: function() {
+	                    // not used at this moment
+	                }
+	            }
+	        });			
+		}
 	},
 	
 	editableTimeline: function( container, data, options, eventHandlers ) {
@@ -131,6 +193,12 @@ StudyEdit.design.subjectEventGroups = {
 	    			eventGroupId: element.eventGroupId, 
 	    			subjectgroupId: element.subjectGroupid 
 	    		} } );
+	    		
+	    		// Add qtip to element
+	    		var item = timeline.getItem( selectedIndex );
+				var element = $( "#timeline-eventgroups .timeline-event-selected" );
+				element.addClass( "eventgroup-id-" + element.id );
+				StudyEdit.design.tooltips.attachTooltip( element, StudyEdit.design.tooltips.determineContents( item ) );
 	    	});
 	    },
 	    
