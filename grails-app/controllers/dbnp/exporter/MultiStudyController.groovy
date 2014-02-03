@@ -17,7 +17,7 @@ class MultiStudyController {
     def assayService
     def authenticationService
     def fileService
-    def AssayController
+    def AssayController = new AssayController()
 
     def index() {
         def user = authenticationService.getLoggedInUser()
