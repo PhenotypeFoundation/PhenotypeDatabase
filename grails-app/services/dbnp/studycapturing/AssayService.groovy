@@ -50,21 +50,6 @@ class AssayService {
      */
     def collectAssayTemplateFields(assay, samples, SecUser remoteUser = null) throws Exception {
 
-        def getUsedTemplateFields = { templateEntities ->
-
-            if (templateEntities instanceof ArrayList && templateEntities.size() > 0 && templateEntities[0] instanceof SamplingEventInEventGroup) {
-                return [[name: 'startTime', comment: '', displayName: 'startTime'],
-                        [name: 'duration', comment: '', displayName: 'duration']]
-            }
-
-            // gather all unique and non null template fields that haves values
-            templateEntities*.giveFields().flatten().unique().findAll { field ->
-
-                field && templateEntities.any { it?.fieldExists(field.name) && it.getFieldValue(field.name) != null }
-
-            }.collect { [name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')] }
-        }
-
         def moduleError = '', moduleMeasurements = []
 
         try {
@@ -76,7 +61,8 @@ class AssayService {
         if (!samples)
             samples = assay.samples
 
-        ['Subject Data': getUsedTemplateFields(samples*."parentSubject".unique()),
+        [       'Study Data': getUsedTemplateFields(samples.parent),
+                'Subject Data': getUsedTemplateFields(samples*."parentSubject".unique()),
                 'Sampling Event Data': (getUsedTemplateFields(samples*.parentEvent.unique()) << getUsedTemplateFields(samples*.parentEvent*.event.unique())).flatten(),
                 'Sample Data': getUsedTemplateFields(samples),
                 'Event Group': [
@@ -86,6 +72,20 @@ class AssayService {
                 'Module Error': moduleError
         ]
 
+    }
+
+    def getUsedTemplateFields = { templateEntities ->
+        if (templateEntities instanceof ArrayList && templateEntities.size() > 0 && templateEntities[0] instanceof SamplingEventInEventGroup) {
+            return [[name: 'startTime', comment: '', displayName: 'startTime'],
+                    [name: 'duration', comment: '', displayName: 'duration']]
+        }
+
+        // gather all unique and non null template fields that haves values
+        templateEntities*.giveFields().flatten().unique().findAll { field ->
+
+            field && templateEntities.any { it?.fieldExists(field.name) && it.getFieldValue(field.name) != null }
+
+        }.collect { [name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')] }
     }
 
     /**
@@ -252,8 +252,10 @@ class AssayService {
                 moduleError = e.message
             }
         }
-		
-        ['Subject Data': getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
+
+        [
+                'Study' : ['Title': samples.parent],
+                'Subject Data': getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
                 'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
                 'Sample Data': getFieldValues(samples, fieldMap['Sample Data']),
                 'Event Group': eventFieldMap,

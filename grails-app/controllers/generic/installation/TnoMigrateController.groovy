@@ -9,12 +9,14 @@ import dbnp.studycapturing.SamplingEventInEventGroup
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.SubjectGroup
 import dbnp.studycapturing.SubjectEventGroup
+import grails.plugins.springsecurity.Secured
 
 /**
  * User: Seth
  * Date: 28-11-13
  * Time: 12:10
  */
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class TnoMigrateController {
 
     def index() {
