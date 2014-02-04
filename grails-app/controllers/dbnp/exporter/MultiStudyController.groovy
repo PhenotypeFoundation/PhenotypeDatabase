@@ -35,46 +35,21 @@ class MultiStudyController {
             redirect(action: "index")
         }
 
-        params.list('studies').each {
-            def studyId = it.toInteger();
-            selectedStudies << Study.read(studyId)
-            if(params['study-'+studyId+'-assay']) {
-                params.list('study-'+studyId+'-assay').each {
-                    selectedAssays << Assay.read(it.toInteger())
-                }
-            }
-        }
+        (selectedStudies, selectedAssays) = collectFromParams()
 
         if(selectedAssays.size() > 0)
             fieldMap = AssayController.mergeFieldMaps( selectedAssays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) } )
 
-        def outputDelimiter, studyData, subjectsData, sampleData
-
-        def filename = "export.xls"
-        response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
-        response.setContentType("application/octet-stream")
         try {
-            studyData = this.collectStudyData(selectedStudies)
-            subjectsData = this.collectSubjectData(selectedStudies)
-            sampleData = this.collectAssayData(selectedAssays, fieldMap, null, selectedAssays*.samples.flatten().unique(), authenticationService.getLoggedInUser())
-            Workbook wb = new XSSFWorkbook()
-
-            Sheet studySheet = wb.createSheet("Studies")
-            Sheet subjectSheet = wb.createSheet("Subjects")
-            Sheet samplesSheet = wb.createSheet("Samples")
-
-            studyData = convertDataToStudyStructure(studyData)
-            subjectsData = convertDataToSubjectStructure(subjectsData)
-
-            assayService.exportRowWiseDataToExcelSheet(studyData, studySheet)
-            assayService.exportRowWiseDataToExcelSheet(subjectsData, subjectSheet)
-            assayService.exportRowWiseDataToExcelSheet(sampleData, samplesSheet)
-
-            wb.write(response.outputStream)
+            def filename = new Date().format('yyyy-MM-dd HH:mm') + " export.xls"
+            response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
+            response.setContentType("application/octet-stream")
+            generateExcelFile(selectedStudies, selectedAssays, fieldMap)
             response.outputStream.close()
         } catch (Exception e) {
             e.printStackTrace();
-            render "An error has occurred while performing the export. Please notify an administrator"
+            flash.errorMessage = "<script type=\"text/javascript\">alert('An error has occurred while performing the export. Please notify an administrator');</script>"
+            redirect(action: "index")
         }
     }
 
@@ -96,10 +71,10 @@ class MultiStudyController {
 
         def studyInformation = []
         studies.eachWithIndex { el, idx ->
-            studyInformation[idx] = assayService.getFieldValues(el, usedStudyTemplateFields) +
-                    assayService.getFieldValues(el.events, usedEventTemplateFields) +
-                    assayService.getFieldValues(el.samplingEvents, usedSamplingEventTemplateFields) +
-                    assayService.getFieldValues(el.assays, usedAssayTemplateFields)
+            studyInformation[idx] = [assayService.getFieldValues(el, usedStudyTemplateFields),
+                    assayService.getFieldValues(el.events, usedEventTemplateFields),
+                    assayService.getFieldValues(el.samplingEvents, usedSamplingEventTemplateFields),
+                    assayService.getFieldValues(el.assays, usedAssayTemplateFields)]
         }
 
         //Return a list with describing headers and return a list with the actual data
@@ -132,7 +107,7 @@ class MultiStudyController {
         def data = []
 
         // First retrieve the subject/sample/event/assay data from GSCF, as it is the same for each list
-        data = assayService.collectAssayData(assays[0], fieldMapSelection, null, samples)
+        data = assayService.collectAssayData(assays[0], fieldMapSelection, null, samples, remoteUser, false)
 
         assays.each{ assay ->
             def moduleMeasurementData
@@ -176,14 +151,14 @@ class MultiStudyController {
         }
 
         // add all column wise data into 'temporaryDataCollection'
-        studyData[1].eachWithIndex { it, index ->
-            if (index > 0) {
-                it.eachWithIndex { element, i ->
-                    temporaryDataCollection[i] = (temporaryDataCollection[i] + element.value).flatten()
-                }
-            } else {
-                temporaryDataCollection += it.collect {
-                    it.value
+        studyData[1].each { study ->
+            iter = 0;
+
+            study.each { category ->
+                category.each { row ->
+                    (!temporaryDataCollection[iter]) ? temporaryDataCollection[iter] = [] : void
+                    temporaryDataCollection[iter] = (temporaryDataCollection[iter] + row.value).flatten()
+                    iter++
                 }
             }
             columnCount = temporaryDataCollection.collect { it?.size() }.max()
@@ -235,5 +210,43 @@ class MultiStudyController {
         }
 
         [headers] + temporaryDataCollection
+    }
+
+    def collectFromParams() {
+        def selectedStudies = [], selectedAssays = []
+        params.list('studies').each {
+            def studyId = it.toInteger();
+            selectedStudies << Study.read(studyId)
+            if(params['study-'+studyId+'-assay']) {
+                params.list('study-'+studyId+'-assay').each {
+                    selectedAssays << Assay.read(it.toInteger())
+                }
+            }
+        }
+        [selectedStudies, selectedAssays]
+    }
+
+    def generateExcelFile(selectedStudies, selectedAssays, fieldMap ) {
+        def sampleData = []
+        def samples = selectedAssays*.samples.flatten().unique()
+        def studyData = this.collectStudyData(selectedStudies)
+        def subjectsData = this.collectSubjectData(selectedStudies)
+        if(selectedAssays) {
+            sampleData = this.collectAssayData(selectedAssays, fieldMap, null, samples, authenticationService.getLoggedInUser())
+        }
+        Workbook wb = new XSSFWorkbook()
+
+        Sheet studySheet = wb.createSheet("Studies")
+        Sheet subjectSheet = wb.createSheet("Subjects")
+        Sheet samplesSheet = wb.createSheet("Samples")
+
+        studyData = convertDataToStudyStructure(studyData)
+        subjectsData = convertDataToSubjectStructure(subjectsData)
+
+        assayService.exportRowWiseDataToExcelSheet(studyData, studySheet)
+        assayService.exportRowWiseDataToExcelSheet(subjectsData, subjectSheet)
+        assayService.exportRowWiseDataToExcelSheet(sampleData, samplesSheet)
+
+        wb.write(response.outputStream)
     }
 }

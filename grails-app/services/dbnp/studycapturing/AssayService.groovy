@@ -104,10 +104,10 @@ class AssayService {
      * 								null to include all samples.
      * @return The assay data structure as described above.
      */
-    def collectAssayData(assay, fieldMap, measurementTokens, samples, SecUser remoteUser = null) throws Exception {
+    def collectAssayData(assay, fieldMap, measurementTokens, samples, SecUser remoteUser = null, sort = true) throws Exception {
         // Find samples and sort by name
         if (!samples) samples = assay.samples.toList()
-        samples = samples.sort { it.name }
+        if (sort) samples = samples.sort { it.name }
 
         def eventFieldMap = [:]
 
