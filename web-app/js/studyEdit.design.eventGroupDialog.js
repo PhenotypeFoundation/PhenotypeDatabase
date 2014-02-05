@@ -174,7 +174,7 @@ StudyEdit.design.eventGroups = {
 	
 	edit: function( id, dataUrl ) {
 		var dialog = StudyEdit.design.eventGroups.dialog.get();
-		dialog.dialog( "option", "title", "Edit eventgroup" );
+		dialog.dialog( "option", "title", "Edit treatment & sample group" );
 		dialog.data( "eventgroup-id", id );
 		
 		StudyEdit.design.eventGroups.dialog.open()
