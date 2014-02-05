@@ -50,21 +50,6 @@ class AssayService {
      */
     def collectAssayTemplateFields(assay, samples, SecUser remoteUser = null) throws Exception {
 
-        def getUsedTemplateFields = { templateEntities ->
-
-            if (templateEntities instanceof ArrayList && templateEntities.size() > 0 && templateEntities[0] instanceof SamplingEventInEventGroup) {
-                return [[name: 'startTime', comment: '', displayName: 'startTime'],
-                        [name: 'duration', comment: '', displayName: 'duration']]
-            }
-
-            // gather all unique and non null template fields that haves values
-            templateEntities*.giveFields().flatten().unique().findAll { field ->
-
-                field && templateEntities.any { it?.fieldExists(field.name) && it.getFieldValue(field.name) != null }
-
-            }.collect { [name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')] }
-        }
-
         def moduleError = '', moduleMeasurements = []
 
         try {
@@ -76,7 +61,8 @@ class AssayService {
         if (!samples)
             samples = assay.samples
 
-        ['Subject Data': getUsedTemplateFields(samples*."parentSubject".unique()),
+        [       'Study Data': getUsedTemplateFields(samples.parent),
+                'Subject Data': getUsedTemplateFields(samples*."parentSubject".unique()),
                 'Sampling Event Data': (getUsedTemplateFields(samples*.parentEvent.unique()) << getUsedTemplateFields(samples*.parentEvent*.event.unique())).flatten(),
                 'Sample Data': getUsedTemplateFields(samples),
                 'Event Group': [
@@ -86,6 +72,20 @@ class AssayService {
                 'Module Error': moduleError
         ]
 
+    }
+
+    def getUsedTemplateFields = { templateEntities ->
+        if (templateEntities instanceof ArrayList && templateEntities.size() > 0 && templateEntities[0] instanceof SamplingEventInEventGroup) {
+            return [[name: 'startTime', comment: '', displayName: 'startTime'],
+                    [name: 'duration', comment: '', displayName: 'duration']]
+        }
+
+        // gather all unique and non null template fields that haves values
+        templateEntities*.giveFields().flatten().unique().findAll { field ->
+
+            field && templateEntities.any { it?.fieldExists(field.name) && it.getFieldValue(field.name) != null }
+
+        }.collect { [name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')] }
     }
 
     /**
@@ -104,127 +104,10 @@ class AssayService {
      * 								null to include all samples.
      * @return The assay data structure as described above.
      */
-    def collectAssayData(assay, fieldMap, measurementTokens, samples, SecUser remoteUser = null) throws Exception {
-
-        def collectFieldValuesForTemplateEntities = { headerFields, templateEntities ->
-
-            // return a hash map with for each field name all values from the
-            // template entity list
-            headerFields.inject([:]) { map, headerField ->
-
-                map + [(headerField.displayName): templateEntities.collect { entity ->
-
-                    // default to an empty string
-                    def val = ''
-
-                    if (entity) {
-                        def field
-                        try {
-
-                            val = entity.getFieldValue(headerField.name)
-
-                            // Convert RelTime fields to human readable strings
-                            field = entity.getField(headerField.name)
-                            if (field.type == TemplateFieldType.RELTIME)
-                                val = new RelTime(val as long)
-
-                        } catch (NoSuchFieldException e) { /* pass */ }
-                    }
-
-                    (val instanceof Number) ? val : val.toString()
-                }]
-            }
-        }
-
-        def collectStaticFieldValuesForTemplateEntities = { headerFields, templateEntities ->
-            headerFields.inject([:]) { map, headerField ->
-                map + [(headerField.displayName): templateEntities.collectEntries { entity ->
-                    def returnVal = ''
-                    switch (headerField.displayName) {
-                        case 'startTime':
-                            returnVal = entity.startTime
-                            break
-                        case 'duration':
-                            returnVal = entity.duration
-                            break
-                        default:
-                            break
-                    }
-                    [(entity.id): returnVal]
-                }]
-            }
-        }
-
-        def getFieldValues = { templateEntities, headerFields, propertyName = '' ->
-
-            def returnValue
-
-            // if no property name is given, simply collect the fields and
-            // values of the template entities themselves
-            if (propertyName == '') {
-
-                returnValue = collectFieldValuesForTemplateEntities(headerFields, templateEntities)
-
-            } else {
-
-                // if a property name is given, we'll have to do a bit more work
-                // to ensure efficiency. The reason for this is that for a list
-                // of template entities, the properties referred to by
-                // propertyName can include duplicates. For example, for 10
-                // samples, there may be less than 10 parent subjects. Maybe
-                // there's only 1 parent subject. We don't want to collect field
-                // values for this single subject 10 times ...
-                def fieldValues
-                def staticFieldValues
-                def uniqueProperties
-
-                // we'll get the unique list of properties to make sure we're
-                // not getting the field values for identical template entity
-                // properties more then once.
-                if (propertyName.equals('parentEvent')) {
-                    uniqueProperties = templateEntities*.parentEvent*.event.unique()
-                    staticFieldValues = collectStaticFieldValuesForTemplateEntities(headerFields, templateEntities*.parentEvent.unique())
-                } else {
-                    uniqueProperties = templateEntities*."$propertyName".unique()
-                }
-
-                fieldValues = collectFieldValuesForTemplateEntities(headerFields, uniqueProperties)
-
-                // prepare a lookup hashMap to be able to map an entities'
-                // property (e.g. a sample's parent subject) to an index value
-                // from the field values list
-                int i = 0
-                def propertyToFieldValueIndexMap = uniqueProperties.inject([:]) { map, item -> map + [(item): i++] }
-
-                // prepare the return value so that it has an entry for field
-                // name. This will be the column name (second header line).
-                returnValue = headerFields*.displayName.inject([:]) { map, item -> map + [(item): []] }
-
-                // finally, fill map the unique field values to the (possibly
-                // not unique) template entity properties. In our example with
-                // 1 unique parent subject, this means copying that subject's
-                // field values to all 10 samples.
-                templateEntities.each { te ->
-
-                    headerFields*.displayName.each {
-                        if (propertyName.equals('parentEvent')) {
-                            if (it.equals('startTime') || it.equals('duration')) {
-                                returnValue[it] << staticFieldValues[it][te.parentEvent.id]
-                            } else {
-                                returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te.parentEvent['event']]]
-                            }
-                        } else {
-                            returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te[propertyName]]]
-                        }
-                    }
-                }
-            }
-            returnValue
-        }
-
+    def collectAssayData(assay, fieldMap, measurementTokens, samples, SecUser remoteUser = null, sort = true) throws Exception {
         // Find samples and sort by name
         if (!samples) samples = assay.samples.toList()
-        samples = samples.sort { it.name }
+        if (sort) samples = samples.sort { it.name }
 
         def eventFieldMap = [:]
 
@@ -252,14 +135,133 @@ class AssayService {
                 moduleError = e.message
             }
         }
-		
-        ['Subject Data': getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
+
+        [
+                'Study' : ['Title': samples.parent],
+                'Subject Data': getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
                 'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
                 'Sample Data': getFieldValues(samples, fieldMap['Sample Data']),
                 'Event Group': eventFieldMap,
 					('Module Measurement Data: ' + assay.name ): 		moduleMeasurementData,
                 'Module Error': moduleError
         ]
+    }
+
+    def getFieldValues = { templateEntities, headerFields, propertyName = '' ->
+
+        def returnValue
+
+        // if no property name is given, simply collect the fields and
+        // values of the template entities themselves
+        if (propertyName == '') {
+
+            returnValue = collectFieldValuesForTemplateEntities(headerFields, templateEntities)
+
+        } else {
+
+            // if a property name is given, we'll have to do a bit more work
+            // to ensure efficiency. The reason for this is that for a list
+            // of template entities, the properties referred to by
+            // propertyName can include duplicates. For example, for 10
+            // samples, there may be less than 10 parent subjects. Maybe
+            // there's only 1 parent subject. We don't want to collect field
+            // values for this single subject 10 times ...
+            def fieldValues
+            def staticFieldValues
+            def uniqueProperties
+
+            // we'll get the unique list of properties to make sure we're
+            // not getting the field values for identical template entity
+            // properties more then once.
+            if (propertyName.equals('parentEvent')) {
+                uniqueProperties = templateEntities*.parentEvent*.event.unique()
+                staticFieldValues = collectStaticFieldValuesForTemplateEntities(headerFields, templateEntities*.parentEvent.unique())
+            } else {
+                uniqueProperties = templateEntities*."$propertyName".unique()
+            }
+
+            fieldValues = collectFieldValuesForTemplateEntities(headerFields, uniqueProperties)
+
+            // prepare a lookup hashMap to be able to map an entities'
+            // property (e.g. a sample's parent subject) to an index value
+            // from the field values list
+            int i = 0
+            def propertyToFieldValueIndexMap = uniqueProperties.inject([:]) { map, item -> map + [(item): i++] }
+
+            // prepare the return value so that it has an entry for field
+            // name. This will be the column name (second header line).
+            returnValue = headerFields*.displayName.inject([:]) { map, item -> map + [(item): []] }
+
+            // finally, fill map the unique field values to the (possibly
+            // not unique) template entity properties. In our example with
+            // 1 unique parent subject, this means copying that subject's
+            // field values to all 10 samples.
+            templateEntities.each { te ->
+
+                headerFields*.displayName.each {
+                    if (propertyName.equals('parentEvent')) {
+                        if (it.equals('startTime') || it.equals('duration')) {
+                            returnValue[it] << staticFieldValues[it][te.parentEvent.id]
+                        } else {
+                            returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te.parentEvent['event']]]
+                        }
+                    } else {
+                        returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te[propertyName]]]
+                    }
+                }
+            }
+        }
+        returnValue
+    }
+
+
+    def collectStaticFieldValuesForTemplateEntities = { headerFields, templateEntities ->
+        headerFields.inject([:]) { map, headerField ->
+            map + [(headerField.displayName): templateEntities.collectEntries { entity ->
+                def returnVal = ''
+                switch (headerField.displayName) {
+                    case 'startTime':
+                        returnVal = entity.startTime
+                        break
+                    case 'duration':
+                        returnVal = entity.duration
+                        break
+                    default:
+                        break
+                }
+                [(entity.id): returnVal]
+            }]
+        }
+    }
+
+    def collectFieldValuesForTemplateEntities = { headerFields, templateEntities ->
+
+        // return a hash map with for each field name all values from the
+        // template entity list
+        headerFields.inject([:]) { map, headerField ->
+
+            map + [(headerField.displayName): templateEntities.collect { entity ->
+
+                // default to an empty string
+                def val = ''
+
+                if (entity) {
+                    def field
+                    try {
+
+                        val = entity.getFieldValue(headerField.name)
+
+                        // Convert RelTime fields to human readable strings
+                        field = entity.getField(headerField.name)
+                        if (field.type == TemplateFieldType.RELTIME)
+                            val = new RelTime(val as long)
+
+                    } catch (NoSuchFieldException e) { /* pass */ }
+                }
+
+                (val instanceof Number) ? val : val.toString()
+            }]
+        }
     }
 
     /**
