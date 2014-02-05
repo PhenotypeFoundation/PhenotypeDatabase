@@ -1,15 +1,10 @@
 package dbnp.exporter
 
 import dbnp.studycapturing.*
-import org.apache.poi.ss.usermodel.Cell
-import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import org.dbnp.gdt.*
 import grails.plugins.springsecurity.Secured
-
-import java.text.NumberFormat
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class MultiStudyController {
@@ -25,32 +20,67 @@ class MultiStudyController {
     }
 
     def studyExport() {
-        def params = getParams();
-        def selectedStudies = []
-        def selectedAssays = []
-        def fieldMap;
+        def selectedStudies
+        def selectedAssays
 
         if(!params['studies']) {
             flash.errorMessage = "<script type=\"text/javascript\">alert('Please select a study.');</script>"
-            redirect(action: "index")
+            return redirect(action: "index")
         }
 
-        (selectedStudies, selectedAssays) = collectFromParams()
-
-        if(selectedAssays.size() > 0)
-            fieldMap = AssayController.mergeFieldMaps( selectedAssays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) } )
+        (selectedStudies, selectedAssays) = collectDataFromParams()
 
         try {
             def filename = new Date().format('yyyy-MM-dd HH:mm') + " export.xls"
             response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
             response.setContentType("application/octet-stream")
-            generateExcelFile(selectedStudies, selectedAssays, fieldMap)
+
+            generateExcelFile(selectedStudies, selectedAssays)
+
             response.outputStream.close()
         } catch (Exception e) {
             e.printStackTrace();
             flash.errorMessage = "<script type=\"text/javascript\">alert('An error has occurred while performing the export. Please notify an administrator');</script>"
             redirect(action: "index")
         }
+    }
+
+    def collectDataFromParams() {
+        def selectedStudies = [], selectedAssays = []
+        params.list('studies').each {
+            def studyId = it.toInteger();
+            selectedStudies << Study.read(studyId)
+            if(params['study-'+studyId+'-assay']) {
+                params.list('study-'+studyId+'-assay').each {
+                    selectedAssays << Assay.read(it.toInteger())
+                }
+            }
+        }
+        [selectedStudies, selectedAssays]
+    }
+
+    def generateExcelFile(selectedStudies, selectedAssays) {
+        def sampleData = []
+        def samples = selectedAssays*.samples.flatten().unique()
+        def studyData = this.collectStudyData(selectedStudies)
+        def subjectsData = this.collectSubjectData(selectedStudies)
+        if(selectedAssays) {
+            sampleData = this.collectSampleData(selectedAssays, null, samples, authenticationService.getLoggedInUser())
+        }
+        Workbook wb = new XSSFWorkbook()
+
+        Sheet studySheet = wb.createSheet("Studies")
+        Sheet subjectSheet = wb.createSheet("Subjects")
+        Sheet samplesSheet = wb.createSheet("Samples")
+
+        studyData = convertDataToStudyStructure(studyData)
+        subjectsData = convertDataToSubjectStructure(subjectsData)
+
+        assayService.exportRowWiseDataToExcelSheet(studyData, studySheet)
+        assayService.exportRowWiseDataToExcelSheet(subjectsData, subjectSheet)
+        assayService.exportRowWiseDataToExcelSheet(sampleData, samplesSheet)
+
+        wb.write(response.outputStream)
     }
 
     def collectStudyData(studies) throws Exception {
@@ -102,12 +132,8 @@ class MultiStudyController {
        [usedSubjectTemplateFields, subjectInformation]
     }
 
-    def collectAssayData(assays, fieldMapSelection, measurementTokens, samples, remoteUser) {
-        // collect the assay data according to user selection
-        def data = []
-
-        // First retrieve the subject/sample/event/assay data from GSCF, as it is the same for each list
-        data = assayService.collectAssayData(assays[0], fieldMapSelection, null, samples, remoteUser, false)
+    def collectSampleData(assays, measurementTokens, samples, remoteUser) {
+        def data = this.collectSampleDetails(samples)
 
         assays.each{ assay ->
             def moduleMeasurementData
@@ -123,6 +149,49 @@ class MultiStudyController {
         }
 
         assayService.convertColumnToRowStructure(data)
+    }
+
+    def collectSampleDetails(samples) throws Exception {
+        def samplingEventInEventGroup = [:]
+        def subjectEventGroup = [:]
+        def fieldMap = collectSampleTemplateFields(samples)
+
+        //filter map on necessary data for samples sheet
+        fieldMap['Subject Data'] = fieldMap['Subject Data'].findAll{ it['name'].equals('name') }
+        fieldMap['Sample Data'] = fieldMap['Sample Data'].findAll{ it['name'].equals('name') }
+        (samplingEventInEventGroup, subjectEventGroup) = collectSampleEventGroupInfo(samples)
+
+        [
+                'Study' : ['Code': samples.parent.code],
+                'Subject Data': assayService.getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
+                'Sample Data': assayService.getFieldValues(samples, fieldMap['Sample Data']),
+                'Sampling Event in Group': samplingEventInEventGroup,
+                'Subject Event Group': subjectEventGroup
+        ]
+    }
+
+    def collectSampleTemplateFields(samples) throws Exception {
+        [
+                'Subject Data': assayService.getUsedTemplateFields(samples*."parentSubject".unique()),
+                'Sample Data': assayService.getUsedTemplateFields(samples)
+        ]
+    }
+
+    def collectSampleEventGroupInfo(samples) {
+        def samplingEventInEventGroup = [:]
+        def subjectEventGroup = [:]
+
+        def starttimeHR = samples*.parentEvent*.getStartTimeString().flatten()
+        def starttime = samples*.parentEvent*.startTime.flatten()
+        if (!starttimeHR.every { !it }) samplingEventInEventGroup['starttime readable'] = starttimeHR
+        if (!starttime.every { !it }) samplingEventInEventGroup['starttime'] = starttime
+
+        starttimeHR = samples*.parentSubjectEventGroup*.getStartTimeString().flatten()
+        starttime = samples*.parentSubjectEventGroup*.startTime.flatten()
+        if (!starttimeHR.every { !it }) subjectEventGroup['starttime readable'] = starttimeHR
+        if (!starttime.every { !it }) subjectEventGroup['starttime'] = starttime
+
+        [samplingEventInEventGroup, subjectEventGroup]
     }
 
     def convertDataToStudyStructure(studyData) {
@@ -210,43 +279,5 @@ class MultiStudyController {
         }
 
         [headers] + temporaryDataCollection
-    }
-
-    def collectFromParams() {
-        def selectedStudies = [], selectedAssays = []
-        params.list('studies').each {
-            def studyId = it.toInteger();
-            selectedStudies << Study.read(studyId)
-            if(params['study-'+studyId+'-assay']) {
-                params.list('study-'+studyId+'-assay').each {
-                    selectedAssays << Assay.read(it.toInteger())
-                }
-            }
-        }
-        [selectedStudies, selectedAssays]
-    }
-
-    def generateExcelFile(selectedStudies, selectedAssays, fieldMap ) {
-        def sampleData = []
-        def samples = selectedAssays*.samples.flatten().unique()
-        def studyData = this.collectStudyData(selectedStudies)
-        def subjectsData = this.collectSubjectData(selectedStudies)
-        if(selectedAssays) {
-            sampleData = this.collectAssayData(selectedAssays, fieldMap, null, samples, authenticationService.getLoggedInUser())
-        }
-        Workbook wb = new XSSFWorkbook()
-
-        Sheet studySheet = wb.createSheet("Studies")
-        Sheet subjectSheet = wb.createSheet("Subjects")
-        Sheet samplesSheet = wb.createSheet("Samples")
-
-        studyData = convertDataToStudyStructure(studyData)
-        subjectsData = convertDataToSubjectStructure(subjectsData)
-
-        assayService.exportRowWiseDataToExcelSheet(studyData, studySheet)
-        assayService.exportRowWiseDataToExcelSheet(subjectsData, subjectSheet)
-        assayService.exportRowWiseDataToExcelSheet(sampleData, samplesSheet)
-
-        wb.write(response.outputStream)
     }
 }

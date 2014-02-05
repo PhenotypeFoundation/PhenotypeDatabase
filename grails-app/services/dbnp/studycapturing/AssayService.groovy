@@ -104,10 +104,9 @@ class AssayService {
      * 								null to include all samples.
      * @return The assay data structure as described above.
      */
-    def collectAssayData(assay, fieldMap, measurementTokens, samples, SecUser remoteUser = null, sort = true) throws Exception {
+    def collectAssayData(assay, fieldMap, measurementTokens, samples, SecUser remoteUser = null) throws Exception {
         // Find samples and sort by name
         if (!samples) samples = assay.samples.toList()
-        if (sort) samples = samples.sort { it.name }
 
         def eventFieldMap = [:]
 
@@ -137,7 +136,6 @@ class AssayService {
         }
 
         [
-                'Study' : ['Title': samples.parent],
                 'Subject Data': getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
                 'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
                 'Sample Data': getFieldValues(samples, fieldMap['Sample Data']),
