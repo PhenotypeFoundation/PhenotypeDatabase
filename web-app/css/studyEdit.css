@@ -47,8 +47,17 @@ div .studyEdit .description { width: 170px; }
 .studyEdit div#authorization .description { display: inline-block; *display: inline; width: 100px; margin-top: 6px; }
 
 /** START :: study page upload buttons **/
+.fileWrapper {
+    width: 140px;
+}
+
 div .upload_button {
-    display: inline; border: 1px solid #006dba; padding: 4px 8px; cursor: pointer; line-height: 26px;
+    display: inline;
+}
+
+div .upload_button img {
+    border-width: 0;
+    padding-left: 6px;
 }
 
 div .upload_info {

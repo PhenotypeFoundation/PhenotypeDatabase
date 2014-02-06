@@ -272,7 +272,7 @@ StudyEdit.datatables = {
 							
 							var fieldName = $( rowHeaders.get( idx ) ).data( "fieldname" );
 							StudyEdit.datatables.editable.cloning.cloneField( tableId, rowId, fieldName, $(td), aData[idx] );
-	    	
+
 						});
 				    }
 				});
@@ -292,9 +292,10 @@ StudyEdit.datatables = {
 				var fieldId = fieldPrefix + "." + rowId + "." + fieldName;
 				if( fieldType == "FILE" ) {
 					// Append the cloned input elements
-					$( td ).empty().append(
-						StudyEdit.datatables.editable.cloning.cloneFileField( prototypeId, fieldId, value, rowId, tableId )						
-					);				
+					$( td ).empty().html("<div class=\"fileWrapper\"></div>")
+                    $(td).find("div").html(
+                          StudyEdit.datatables.editable.cloning.cloneFileField( prototypeId, fieldId, value, rowId, tableId )
+                    );
 				} else {
 					// Append the cloned input elements
 					$( td ).empty().append(
@@ -351,12 +352,12 @@ StudyEdit.datatables = {
 				// Update the info field
 				field.filter( ".upload_info" )
 					.attr( "id", fieldId + "Example" )
-					.html( value ? "Current file: " + createFileHTML( value ) : "" );
+					.html( value ? "File: " + createFileHTML( value.substring(0,10) ) : "" );
 				
 				// UPdate the upload button
 				field.filter( ".upload_button" )
 					.attr( "id", "upload_button_" + fieldId );
-				
+
 				return field;
 			},
 			
