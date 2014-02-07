@@ -44,10 +44,17 @@ class TnoMigrateController {
             def collectedSurplusSamplingEvents = []
 
             if (selectedIDS.contains((int)study.id)) {
-                for(EventGroup eventGroup in oldEventGroups) {
+				log.info( "Start migrating study " + study.id + " / " + study.code  )
+				log.info( "  Study has " + oldEventGroups?.size() + " subjectgroups" )
+				
+				for(EventGroup eventGroup in oldEventGroups) {
+					log.info( "  Migrating subjectgroup/eventgroup " + eventGroup.id + " / " + eventGroup )
+					
                     def temporaryEventGroups = [:]
                     def eventInstances = eventGroup.eventInstances + eventGroup.samplingEventInstances
 
+					log.info( "    Eventgroup has " + eventInstances?.size() + " events and samplingevents" )
+					
                     // Collect unique set of eventgroups and their respective events
                     eventInstances.each {
                         def migrateEventGroups
@@ -61,6 +68,11 @@ class TnoMigrateController {
                             this.addEventToEventGroupSet(temporaryEventGroups, newEventGroup, it)
                         }
                     }
+					
+					log.info( "    Eventgroup has " + temporaryEventGroups?.size() + " new eventgroups, based on the migration:" )
+					temporaryEventGroups?.each  {
+						log.info( "      - " + it.key + " with " + it.value?.size() + " (sampling)events" )
+					}
 
                     // Persist new eventgroups in database that:
                     // - have multiple events
@@ -68,7 +80,8 @@ class TnoMigrateController {
                     // Else ignore eventgroup
                     temporaryEventGroups.each { eventGroupName, eventInstanceSet ->
                         if(eventInstanceSet && eventInstanceSet.find { it instanceof EventInEventGroup }) {
-
+							log.info( "    New eventgroup " + eventGroupName + " contains at least an event, and will be persisted" )
+							
                             // Collect minimum start to normalize starttimes
                             def minimumStartTime = eventInstanceSet.collect { it.startTime }.min()
 
@@ -84,18 +97,21 @@ class TnoMigrateController {
                             eventInstanceSet.each {
                                 def newEventInEventGroup = this.addEventToEventGroup(it, newEventGroup, it.startTime - minimumStartTime)
                                 if(it.event instanceof SamplingEvent) {
+									log.info( "      SamplingEvent " + it.event + " is moved to the new eventgroup, and sample associations are updated." )
                                     this.updateSampleAssociations(it, newEventInEventGroup, newSubjectEventGroup)
                                     it.event.name = it.event.template.name;
                                 } else {
                                     try {
+										log.info( "      Event " + it.event + " is moved to the new eventgroup." )
                                         it.event.name = it.event.getFieldValue("Event name (STRING)");
                                     } catch(NoSuchFieldException nsfe) {
-                                        println("Field doesnt exist in entity: " + it.event.id + ", message: " + nsfe.getMessage())
+                                        log.warn( "      Event name field is not present in event " + it.event.id + ". No name is assigned." )
                                     }
                                 }
                                 it.event.save()
                             }
                         } else {
+							log.info( "    New eventgroup " + eventGroupName + " doesn't contain events, so the sampling events will be moved to the SurplusSamplingEvents group." )
                             collectedSurplusSamplingEvents = (collectedSurplusSamplingEvents << eventInstanceSet).flatten()
                         }
                     }
@@ -107,15 +123,18 @@ class TnoMigrateController {
 
                     SubjectGroup subjectGroup = SubjectGroup.find {id == eventGroup.id}
                     def newSubjectEventGroup = this.updateSubjectGroups(study, subjectGroup, newEventGroup, minimumStartTime)
-
+					
+					log.info( "    Created a new surplusSamplingEvents group for subjectGroup " + subjectGroup )
+					
                     collectedSurplusSamplingEvents.each {
                         if(it.event instanceof SamplingEvent) {
+							log.info( "      Moving samplingevent " + it + " / " + it.event + " to the surplus group. Also updating sample associations." )
                             def newEventInEventGroup = this.addEventToEventGroup(it, newEventGroup, it.startTime - minimumStartTime)
                             this.updateSampleAssociations(it, newEventInEventGroup, newSubjectEventGroup)
                             it.event.name = it.event.template.name+" (surplus)";
                             it.event.save()
                         } else {
-                            println "Strange, not a sampling event...."
+                            log.error( "      The collection of surplus events contains something other than a SamplingEvent: " + it + " / " + it.event?.class )
                         }
                     }
                 }
@@ -178,7 +197,10 @@ class TnoMigrateController {
     }
 
     private void updateSampleAssociations(oldEventInstance, eventInEventGroup, newSubjectEventGroup) {
+		log.info( "      Updating sample associations from " + oldEventInstance + " to " + eventInEventGroup + " and " + newSubjectEventGroup )
+            		
         ([] + oldEventInstance.samples).each { Sample sample ->
+			log.info( "        Updating association for sample " + sample.id + " / " + sample )
             sample.parentSubjectEventGroup.removeFromSamples(sample)
             sample.parentEvent.removeFromSamples(sample)
 
