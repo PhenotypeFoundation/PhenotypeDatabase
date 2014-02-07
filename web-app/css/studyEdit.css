@@ -175,6 +175,8 @@ table.dataTable td.dataTables_empty { text-align: left; }
 .timeline-content .samplingEvent { background-color: white; background-image: none; }
 .timeline-content .samplingEvent.ui-state-active { color: black; }
 
+div.timeline-axis-group-divider { border-color: black; }
+
 #design-subjects { margin-top: 10px; border-top: 1px solid #006DBA; padding-top: 10px; }
 #design-subjects span.subjects { display: inline-block; width: 200px; }
 #design-subjects span.subject { display: inline-block; width: 180px; }

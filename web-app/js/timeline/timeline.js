@@ -1833,7 +1833,7 @@ links.Timeline.prototype.repaintGroups = function() {
 
         // create the grid line between the group labels
         var labelLine = document.createElement("DIV");
-        labelLine.className = "timeline-axis-grid timeline-axis-grid-minor";
+        labelLine.className = "timeline-axis-grid timeline-axis-grid-minor timeline-axis-group-divider";
         labelLine.style.position = "absolute";
         labelLine.style.left = "0px";
         labelLine.style.width = "100%";
@@ -1844,7 +1844,7 @@ links.Timeline.prototype.repaintGroups = function() {
 
         // create the grid line between the items
         var itemLine = document.createElement("DIV");
-        itemLine.className = "timeline-axis-grid timeline-axis-grid-minor";
+        itemLine.className = "timeline-axis-grid timeline-axis-grid-minor timeline-axis-group-divider";
         itemLine.style.position = "absolute";
         itemLine.style.left = "0px";
         itemLine.style.width = "100%";
