@@ -192,6 +192,8 @@ links.Timeline = function(container) {
         'editable': false,
         'snapEvents': true,
         'groupChangeable': true,
+        
+        'minGroupHeight': 20,
 
         'showCurrentTime': true, // show a red bar displaying the current time
         'showCustomTime': false, // show a blue, draggable bar displaying a custom time    
@@ -1548,7 +1550,7 @@ links.Timeline.prototype.recalcItems = function () {
             //
             // TODO: Do we want to apply a max height? how ?
             //
-            var groupHeight = group.itemsHeight;
+            var groupHeight = options.minGroupHeight ? Math.max( options.minGroupHeight, group.itemsHeight ) : options.minGroupHeight;
             resized = resized || (groupHeight != group.height);
             group.height = groupHeight;
 
@@ -1718,6 +1720,7 @@ links.Timeline.prototype.reflowGroups = function() {
     for (var i = 0, iMax = groups.length; i < iMax; i++) {
         var group = groups[i];
         var label = labels[i];
+        
         group.labelWidth  = label ? label.clientWidth : 0;
         group.labelHeight = label ? label.clientHeight : 0;
         group.width = group.labelWidth;  // TODO: group.width is redundant with labelWidth
@@ -4876,20 +4879,19 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
     for (j = 0; j<this.groups.length; ++j) {
         var group = this.groups[j];
 
-        if (!groupedItems[group.content]) {
-            continue;
-    }
+        if (groupedItems[group.content]) {
 
-        // initialize final positions and fill finalItems
-        groupFinalItems = this.finalItemsPosition(groupedItems[group.content], groupBase, group);
-        groupFinalItems.forEach(function(item) {
-           finalItems.push(item);
-        });
+	        // initialize final positions and fill finalItems
+	        groupFinalItems = this.finalItemsPosition(groupedItems[group.content], groupBase, group);
+	        groupFinalItems.forEach(function(item) {
+	           finalItems.push(item);
+	        });
+        }
 
         if (axisOnTop) {
-            groupBase += group.itemsHeight + eventMargin;
+            groupBase += Math.max( group.itemsHeight, group.height ) + eventMargin;
         } else {
-            groupBase -= (group.itemsHeight + eventMargin);
+            groupBase -= (Math.max( group.itemsHeight, group.height ) + eventMargin);
         }
     }
 

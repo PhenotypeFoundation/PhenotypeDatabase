@@ -31,6 +31,11 @@ dbnp.study.Timeline.prototype.draw = function( data, options ) {
 		this.step.t0 = options.t0; 
 	}
 	
+	// Make sure the groups are at least 30px height:
+	if( !options.minGroupHeight ) 
+		options.minGroupHeight = 30;
+	
+	
 	this.timeline.draw.call( this, data, options );
 
 	// Enable the droppable behavior
