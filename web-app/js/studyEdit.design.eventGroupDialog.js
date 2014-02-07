@@ -500,9 +500,19 @@ StudyEdit.design.eventGroups = {
  * Handles both events and sampling events
  */
 StudyEdit.design.events = {
+	getNameForEventType: function( eventType ) {
+		switch( eventType ) {
+			case "event":
+				return "treatment type";
+			case "samplingEvent":
+				return "sample type";
+			default:
+				return eventType;
+		}
+	},
 	add: function( eventType ) {
 		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
-		dialog.dialog( 'option', 'title', 'Add ' + eventType  );
+		dialog.dialog( 'option', 'title', 'Add ' + StudyEdit.design.events.getNameForEventType( eventType ) );
 		StudyEdit.design.eventGroups.contents.dialog.getDiv().load( $( '#' + eventType + 's .add' ).data( 'url' ), function() {
 			StudyEdit.design.events.onLoad( eventType );
 			dialog.dialog( "open" );
@@ -515,7 +525,7 @@ StudyEdit.design.events = {
 	},
 	edit: function( eventType, id ) {
 		var dialog = StudyEdit.design.eventGroups.contents.dialog.get();
-		dialog.dialog( 'option', 'title', 'Edit ' + eventType );
+		dialog.dialog( 'option', 'title', 'Edit ' + StudyEdit.design.events.getNameForEventType( eventType ) );
 		StudyEdit.design.eventGroups.contents.dialog.getDiv().load( $( '#' + eventType + 's #' + eventType + '-' + id ).data( 'url' ), function() {
 			StudyEdit.design.events.onLoad( eventType );
 			dialog.dialog( "open" );
