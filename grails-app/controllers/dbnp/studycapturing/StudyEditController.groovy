@@ -60,8 +60,13 @@ class StudyEditController {
 
 			if( params._action == "next" ) {
 				if( validateObject( study ) ) {
-					study.save()
-					redirect action: "subjects", id: study.id
+					if( study.save( flush: true) ) {
+						redirect action: "subjects", id: study.id
+						return
+					} else {
+						log.error "Study " + study + " could not be saved, even though it has been validated."
+						flash.error = "The study could not be saved. Please contact an administrator"
+					}
 				}
 			}
 		}
@@ -669,9 +674,6 @@ class StudyEditController {
 			study.template = Template.findByName(params.remove('template'))
 		}
 
-		println study
-		println study.template
-		
 		// does the study have a template set?
 		if (study.template && study.template instanceof Template) {
 			// yes, iterate through template fields
