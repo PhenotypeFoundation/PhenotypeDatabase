@@ -52,7 +52,8 @@ class TnoMigrateController {
 					
                     def temporaryEventGroups = [:]
                     def eventInstances = eventGroup.eventInstances + eventGroup.samplingEventInstances
-
+					SubjectGroup subjectGroup = SubjectGroup.find {id == eventGroup.id}
+					
 					log.info( "    Eventgroup has " + eventInstances?.size() + " events and samplingevents" )
 					
                     // Collect unique set of eventgroups and their respective events
@@ -90,19 +91,21 @@ class TnoMigrateController {
                             EventGroup newEventGroup = this.createNewEventGroup(study, eventGroupName)
 
                             // Associate subject groups with the new eventgroup
-                            SubjectGroup subjectGroup = SubjectGroup.find {id == eventGroup.id}
                             def newSubjectEventGroup = this.updateSubjectGroups(study, subjectGroup, newEventGroup, minimumStartTime)
 
                             // Associate events to the new eventgroup
                             eventInstanceSet.each {
+								// Make sure the most recent data is available
+								it.refresh()
+								
                                 def newEventInEventGroup = this.addEventToEventGroup(it, newEventGroup, it.startTime - minimumStartTime)
                                 if(it.event instanceof SamplingEvent) {
-									log.info( "      SamplingEvent " + it.event + " is moved to the new eventgroup, and sample associations are updated." )
+									log.info( "      SamplingEvent " + it + " (" + it.event.name + ") is moved to the new eventgroup, and sample associations are updated." )
                                     this.updateSampleAssociations(it, newEventInEventGroup, newSubjectEventGroup)
                                     it.event.name = it.event.template.name;
                                 } else {
                                     try {
-										log.info( "      Event " + it.event + " is moved to the new eventgroup." )
+										log.info( "      Event " + it + " (" + it.event.name + ") is moved to the new eventgroup." )
                                         it.event.name = it.event.getFieldValue("Event name (STRING)");
                                     } catch(NoSuchFieldException nsfe) {
                                         log.warn( "      Event name field is not present in event " + it.event.id + ". No name is assigned." )
@@ -111,35 +114,47 @@ class TnoMigrateController {
                                 it.event.save()
                             }
                         } else {
-							log.info( "    New eventgroup " + eventGroupName + " doesn't contain events, so the sampling events will be moved to the SurplusSamplingEvents group." )
+							// The eventgroup doesn't contain any events. For that reason, it is discarded
+							// However, if the samplingEvent 
+							log.info( "    New eventgroup " + eventGroupName + " doesn't contain events, so any sampling events will be moved to the SurplusSamplingEvents group." )
                             collectedSurplusSamplingEvents = (collectedSurplusSamplingEvents << eventInstanceSet).flatten()
                         }
                     }
 
-                    def minimumStartTime = 0
-                    Random rand = new Random()
-                    def eventGroupName = "collectedSurplusSamplingEvents" + rand.nextInt(1000)
-                    EventGroup newEventGroup = this.createNewEventGroup(study, eventGroupName)
+					
+					// Make sure to only keep surplus sampling events that actually relate to samples
+					
+					def surplusEventsToStore = collectedSurplusSamplingEvents.findAll { it instanceof SamplingEventInEventGroup && it.samples }
+					
+					if( surplusEventsToStore ) {
+						log.info( "    Going to store " + surplusEventsToStore?.size() + " sampling events, as they are still associated with samples" )
 
-                    SubjectGroup subjectGroup = SubjectGroup.find {id == eventGroup.id}
-                    def newSubjectEventGroup = this.updateSubjectGroups(study, subjectGroup, newEventGroup, minimumStartTime)
+						def minimumStartTime = 0
+	                    Random rand = new Random()
+	                    def eventGroupName = "collectedSurplusSamplingEvents" + rand.nextInt(10000)
+	                    EventGroup newEventGroup = this.createNewEventGroup(study, eventGroupName)
+	
+	                    def newSubjectEventGroup = this.updateSubjectGroups(study, subjectGroup, newEventGroup, minimumStartTime)
+						log.info( "    Created a new surplusSamplingEvents group for subjectGroup " + subjectGroup )
 					
-					log.info( "    Created a new surplusSamplingEvents group for subjectGroup " + subjectGroup )
-					
-                    collectedSurplusSamplingEvents.each {
-                        if(it.event instanceof SamplingEvent) {
-							log.info( "      Moving samplingevent " + it + " / " + it.event + " to the surplus group. Also updating sample associations." )
-                            def newEventInEventGroup = this.addEventToEventGroup(it, newEventGroup, it.startTime - minimumStartTime)
-                            this.updateSampleAssociations(it, newEventInEventGroup, newSubjectEventGroup)
-                            it.event.name = it.event.template.name+" (surplus)";
-                            it.event.save()
-                        } else {
-                            log.error( "      The collection of surplus events contains something other than a SamplingEvent: " + it + " / " + it.event?.class )
-                        }
-                    }
+	                    collectedSurplusSamplingEvents.each {
+	                        if(it.event instanceof SamplingEvent) {
+								log.info( "      Moving samplingevent " + it + " / " + it.event + " to the surplus group. Also updating sample associations." )
+	                            def newEventInEventGroup = this.addEventToEventGroup(it, newEventGroup, it.startTime - minimumStartTime)
+	                            this.updateSampleAssociations(it, newEventInEventGroup, newSubjectEventGroup)
+	                            it.event.name = it.event.template.name+" (surplus)";
+	                            it.event.save()
+	                        } else {
+	                            log.error( "      The collection of surplus events contains something other than a SamplingEvent: " + it + " / " + it.event?.class )
+	                        }
+	                    }
+					} else {
+						log.info( "    No surplus sampling events to be stored for this study. Yeah!" )
+					}
                 }
 
                 for (eventGroup in oldEventGroups) {
+					log.info( "    Deleting event group " + eventGroup )
                     study.deleteEventGroup(eventGroup)
                 }
                 study.save(failOnError: true)
