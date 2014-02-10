@@ -1236,6 +1236,7 @@ StudyEdit.datatables = {
 			} ).selectable
 			({
 				 filter: "tbody tr",
+				 cancel: ':input,option,a',
 			     stop: function(event, ui)
 			     {
 			    	var tableId = table.attr( "id" );
