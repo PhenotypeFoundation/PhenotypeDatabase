@@ -337,6 +337,9 @@ StudyEdit.datatables = {
 						e.stopPropagation();
 						if( confirm( "Are you sure you want to delete this file?" ) ) {
 							deleteFile( fieldId );
+
+							// Mark this cell as being changed
+							StudyEdit.datatables.editable.markChanged( $(event.target).parent() );
 							
 							// Change other cells as well, if this row is selected
 							var selectedIds = StudyEdit.datatables.elementsSelected[ tableId ];
