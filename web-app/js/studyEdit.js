@@ -310,6 +310,12 @@ StudyEdit.studyChildren = {
 			    );
 			    e.preventDefault(); //STOP default action
 			});
+			
+			// Make sure to add the template and term editors
+			// Add add/modify option again for all selects
+			StudyEdit.datatables.editable.fields.initializeSelectAddMoreTemplates( "#" + dialog.attr( "id" ) );
+			StudyEdit.datatables.editable.fields.initializeSelectAddMoreTerms( "#" + dialog.attr( "id" ) );
+			
 		}
 		
 }
