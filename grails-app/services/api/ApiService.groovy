@@ -209,8 +209,7 @@ class ApiService implements Serializable, ApplicationContextAware {
 			field.ontologies.each {
 				ontologies.add([
 					'name'          : it.name,
-					'description'   : it.description,
-					'ncboId'        : it.ncboId,
+					'acronym'    : it.acronym,
 					'url'           : it.url
 				])
 			}

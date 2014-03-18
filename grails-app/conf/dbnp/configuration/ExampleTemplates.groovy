@@ -31,51 +31,43 @@ class ExampleTemplates {
 			// add Species ontology which is used for a.o. the Subject domain field 'species'
 			def speciesOntology = new Ontology(
 				name: 'NCBI organismal classification',
-				description: 'A taxonomic classification of living organisms and associated artifacts for their controlled description within the context of databases.',
-				url: 'http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/',
-				versionNumber: '1.2',
-				ncboId: '1132',
-				ncboVersionedId: '38802'
+				url: 'http://data.bioontology.org/ontologies/NCBITAXON',
+                acronym: 'NCBITAXON',
+				versionNumber: '1.2'
 			).save(failOnError:true)
 
 			// add Sample>material ontology
 			def brendaOntology = new Ontology(
 				name: 'BRENDA tissue / enzyme source',
-				description: 'A structured controlled vocabulary for the source of an enzyme. It comprises terms for tissues, cell lines, cell types and cell cultures from uni- and multicellular organisms.',
-				url: 'http://www.brenda-enzymes.info',
-				versionNumber: '1.3',
-				ncboId: '1005',
-				ncboVersionedId: '40643'
+                    url: 'http://data.bioontology.org/ontologies/BTO',
+                acronym: 'BTO',
+				versionNumber: '1.3'
 			).save(failOnError:true)
 
 			// add NCI ontology which is used in Mouse genotype template field
 			def nciOntology = new Ontology(
 				name: 'NCI Thesaurus',
-				description: 'A vocabulary for clinical care, translational and basic research, and public information and administrative activities.',
-				url: 'http://ncicb.nci.nih.gov/core/EVS',
-				versionNumber: '10.03',
-				ncboId: '1032',
-				ncboVersionedId: '42838'
+				url: 'http://data.bioontology.org/ontologies/NCIT',
+                acronym: 'NCIT',
+				versionNumber: '10.03'
 			).save(failOnError:true)
 
 			// add CHEBI ontology which is used for describing chemicals in e.g. events
 			def chebiOntology = new Ontology(
 				name: 'Chemical entities of biological interest',
-				description: 'A structured classification of chemical compounds of biological relevance.',
-				url: 'http://www.ebi.ac.uk/chebi',
-				versionNumber: '1.73',
-				ncboId: '1007',
-				ncboVersionedId: '44746'
+				url: 'http://data.bioontology.org/ontologies/CHEBI',
+                acronym: 'CHEBI',
+				versionNumber: '1.73'
 			).save(failOnError:true, flush:true)
 
 		}
 		// otherwise, this may be a production demo instance, so initialize the ontologies dynamically from BioPortal
 		else {
 
-			def speciesOntology = Ontology.getOrCreateOntologyByNcboId(1132)
-			def brendaOntology = Ontology.getOrCreateOntologyByNcboId(1005)
-			def nciOntology = Ontology.getOrCreateOntologyByNcboId(1032)
-			def chebiOntology = Ontology.getOrCreateOntologyByNcboId(1007)
+            def speciesOntology		= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON")
+            def brendaOntology		= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
+            def nciOntology			= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCIT")
+            def chebiOntology       = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/CHEBI")
 		}
 	}
 
@@ -134,7 +126,7 @@ class ExampleTemplates {
 		def mouseTemplate = new Template(
 			name: 'Mouse', entity: dbnp.studycapturing.Subject)
 		.addToFields(new TemplateField(
-			name: 'Strain', type: TemplateFieldType.ONTOLOGYTERM, ontologies: [Ontology.getOrCreateOntologyByNcboId(1032)], entity: Subject, comment: "This is an ontology term, if the right strain is not in the list please add it with 'add more'"))
+			name: 'Strain', type: TemplateFieldType.ONTOLOGYTERM, ontologies: [Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCIT")], entity: Subject, comment: "This is an ontology term, if the right strain is not in the list please add it with 'add more'"))
 		.addToFields(genotypeField)
 		.addToFields(genotypeTypeField)
 		.addToFields(genderField)
@@ -477,7 +469,7 @@ class ExampleTemplates {
 				name: 'Compound',
 				type: TemplateFieldType.ONTOLOGYTERM,
 				entity: Event,
-				ontologies: [Ontology.getOrCreateOntologyByNcboId(1007)]
+				ontologies: [Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/CHEBI")]
 			)
 		)
 		.addToFields(

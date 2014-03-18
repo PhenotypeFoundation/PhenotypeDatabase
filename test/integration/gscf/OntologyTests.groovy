@@ -2,6 +2,7 @@ package gscf
 
 import grails.test.*
 import org.dbnp.gdt.*
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 /**
  * OntologyTests Test
@@ -97,92 +98,10 @@ class OntologyTests extends GrailsUnitTestCase {
 	/**
 	 * Ontocat test for debug purposes: show all properties of a certain ontology
 	* Make this method private in order to run it
+     * TODO create test for bioontology API
 	 */
 	private void testOntocatBioPortalDebug() {
-		// Instantiate OLS service
-		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.bioportal.BioportalOntologyService()
-
-		// Find ontology by ncboId
-		uk.ac.ebi.ontocat.Ontology o = os.getOntology("1005")
-		StringBuilder sb = new StringBuilder();
-		// This is of course a very scary way to getting more information on 'o', but it seems to be the only way to reach codingScheme
-		def bean = os.getOntologyBean()
-		String codingScheme = bean.codingScheme
-		sb.append("OntologyBean:\n")
-		sb.append("property codingScheme=" + codingScheme + "\n")
-		sb.append("Bean.properties:\n")
-		bean.properties.each {
-			sb.append(it.key + "=" + it.value + "\n")
-		}
-		sb.append "Bean:\t" + bean.dump()
-		sb.append("Coding scheme: ")
-		sb.append(bean.properties['codingScheme'])
-		sb.append("\t");
-		sb.append(o.getAbbreviation());
-		sb.append("\t");
-		sb.append(o.getLabel());
-		sb.append("\t");
-		sb.append(o.getOntologyAccession());
-		sb.append("\t");
-		sb.append("Ontology meta properties:\n")
-		o.getVersionNumber() + o.getMetaPropertyValues().each {
-			sb.append(it.name + "=" + it.value + "\n")
-		}
-		sb.append("Ontology properties:\n");
-		o.getProperties().each {
-			sb.append(it.key + "=" + it.value + "\n")
-		}
-		sb.append("Ontology root terms:\n");
-		os.getRootTerms(o).each {
-			sb.append("Term ${os.makeLookupHyperlink(it.properties.get('accession'))} properties:\n")
-			it.properties.each {
-				sb.append it.key + "=" + it.value + "\n"
-			}
-		}
-		System.out.println(sb.toString());
-	}
-
-	/**
-	 * Add all OLS ontologies to the database via the Ontocat framework
-	 */
-	private void testOntocatOLSOntologies() {
-		// Instantiate EBI OLS service
-		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.ols.OlsOntologyService()
-		addOntologies(os)
-	}
-
-	/**
-	 * Add all BioPortal ontologies to the database via the Ontocat framework
-	 */
-	private void testOntocatBioPortalOntologies() {
-		// Instantiate BioPortal service
-		uk.ac.ebi.ontocat.OntologyService os = new uk.ac.ebi.ontocat.bioportal.BioportalOntologyService()
-		addOntologies(os)
-	}
-
-	private void addOntologies(uk.ac.ebi.ontocat.OntologyService os) {
-
-		// Iterate over all ontologies in OLS
-		os.getOntologies().each { o ->
-
-			// Instantiate ontology
-			def ontology = new Ontology(
-			    name: o.label,
-			    description: o.description,
-			    url: o.properties['homepage'],
-			    //url: 'http://bioportal.bioontology.org/ontologies/' + versionedId,
-			    versionNumber: o.versionNumber,
-			    ncboId: o.ontologyAccession,
-			    ncboVersionedId: o.id
-			);
-
-			// Validate and save ontology
-			assert ontology.validate()
-			assert ontology.save(flush: true)
-
-			//println ontology.dump()
-		}
-
+		return NotImplementedException();
 	}
 
 	public void testAddBioPortalOntology() {

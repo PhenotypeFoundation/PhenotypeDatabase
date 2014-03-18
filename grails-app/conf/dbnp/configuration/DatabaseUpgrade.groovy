@@ -45,7 +45,7 @@ class DatabaseUpgrade {
 		renameGdtMappingColumnIndex(sql, db)            // 'index' column in GdtImporter MappingColumn is a reserved keyword in MySQL
 		// GdtImporter now by default uses 'columnindex' as domain field name
 		fixShibbolethSecUser(sql, db)                   // fix shibboleth user
-		changeOntologyDescriptionType(sql, db)          // change ontology description type to text
+		//changeOntologyDescriptionType(sql, db)          // change ontology description type to text
 		changeSpecificUUIDsToGenericUUIDs(sql, db)      // change domain specific UUIDs to generic UUIDs (GDT >= 0.3.1)
 		fixStudyCodes(sql, db)                          // remove spaces from study codes
 		fixUUIDs(sql,db, grailsApplication)				// fix missing UUIDs in database

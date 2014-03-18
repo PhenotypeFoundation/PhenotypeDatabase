@@ -20,10 +20,8 @@
 				  <ontologies>
 					<g:each in="${field.ontologies}" var="ontology">
 					  <ontology>
-						  <ncboId>${ontology.ncboId}</ncboId>
-						  <ncboVersionedId>${ontology.ncboVersionedId}</ncboVersionedId>
+						  <acronym>${ontology.acronym}</acronym>
 						  <name>${ontology.name?.encodeAsSimpleXML()}</name>
-						  <description>${ontology.description?.encodeAsSimpleXML()}</description>
 						  <url>${ontology.url?.encodeAsSimpleXML()}</url>
 						  <versionNumber>${ontology.versionNumber?.encodeAsSimpleXML()}</versionNumber>
 					  </ontology>
