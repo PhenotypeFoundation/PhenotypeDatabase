@@ -1,11 +1,12 @@
 <html>
 <head>
 	<meta name="layout" content="main"/>
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'home.css')}" type="text/css"/>
 	<g:if test="${showstats}"><script type="text/javascript" src="${resource(dir: 'js', file: 'highcharts.js')}"></script></g:if>
 	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt')}"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
-<g:if test="${showstats && studyCount}">
+            <g:if test="${showstats && studyCount}">
 			Highcharts.theme = { colors: ['#4572A7'] };
 			var highchartsOptions = Highcharts.getOptions();
 			var studiesPieChart, dailyStatistics;
@@ -49,8 +50,8 @@
 						innerSize: '45%',
 						</sec:ifNotLoggedIn>
 						data: [
-							{ name: 'Public', y: ${publicStudyCount}, color: '#89A54E' },
-							{ name: 'Private', y: ${privateStudyCount}, color: '#AA4643' }
+							{ name: 'Public', y: ${publicStudyCount}, color: '#45bee1' },
+							{ name: 'Private', y: ${privateStudyCount}, color: '#2087a3' }
 						],
 						dataLabels: {
 							enabled: <sec:ifLoggedIn>false</sec:ifLoggedIn><sec:ifNotLoggedIn>true</sec:ifNotLoggedIn>
@@ -65,10 +66,10 @@
 						size: '45%',
 						</sec:ifNotLoggedIn>
 						data: [
-							{ name: 'Published public', y: ${publishedPublicStudyCount}, color: '#89A54E' },
-							{ name: 'Unpublished Public', y: ${unPublishedPublicStudyCount}, color: '#bbc695' },
-							{ name: 'Published Private', y: ${publishedPrivateStudyCount}, color: '#AA4643' },
-							{ name: 'Unpublished Private', y: ${unPublishedPrivateStudyCount}, color: '#ae6e6c' }
+							{ name: 'Published public', y: ${publishedPublicStudyCount}, color: '#45bee1' },
+							{ name: 'Unpublished Public', y: ${unPublishedPublicStudyCount}, color: '#e9644f' },
+							{ name: 'Published Private', y: ${publishedPrivateStudyCount}, color: '#2087a3' },
+							{ name: 'Unpublished Private', y: ${unPublishedPrivateStudyCount}, color: '#2087a3' }
 						],
 						dataLabels: {
 							enabled: false
@@ -82,9 +83,9 @@
 
 						innerSize: '45%',
 						data: [
-							{ name: 'Read only', y: ${readOnlyStudyCount}, color: '#80699B' },
-							{ name: 'Readable & writable', y: ${readWriteStudyCount}, color: '#89A54E' },
-							{ name: 'Not accessible', y: ${noAccessStudyCount}, color: '#AA4643' }
+							{ name: 'Read only', y: ${readOnlyStudyCount}, color: '#2087a3' },
+							{ name: 'Readable & writable', y: ${readWriteStudyCount}, color: '#45bee1' },
+							{ name: 'Not accessible', y: ${noAccessStudyCount}, color: '#e9644f' }
 						],
 						dataLabels: {
 							enabled: true
@@ -153,9 +154,20 @@
 				},
 
 				series: [
+                    {
+                        type: 'area',
+                        name: 'Users',
+                        color: '#2087a3',
+                        pointInterval: 24 * 3600 * 1000,
+                        pointStart: Date.UTC(${startDate.year+1900}, ${startDate.month}, ${startDate.date}),
+                        data: [
+                            <g:each var="day" in="${dailyStatistics}">${day.value.userTotal},</g:each>
+                        ]
+                    },
 					{
 						type: 'area',
 						name: 'Studies',
+                        color: '#e9644f',
 						pointInterval: 24 * 3600 * 1000,
 						pointStart: Date.UTC(${startDate.year+1900}, ${startDate.month}, ${startDate.date}),
 						data: [
@@ -165,34 +177,30 @@
 					{
 						type: 'area',
 						name: 'Templates',
+                        color: '#45bee1',
 						pointInterval: 24 * 3600 * 1000,
 						pointStart: Date.UTC(${startDate.year+1900}, ${startDate.month}, ${startDate.date}),
 						data: [
 							<g:each var="day" in="${dailyStatistics}">${day.value.templateTotal},</g:each>
 						]
-					},
-					{
-						type: 'area',
-						name: 'Users',
-						pointInterval: 24 * 3600 * 1000,
-						pointStart: Date.UTC(${startDate.year+1900}, ${startDate.month}, ${startDate.date}),
-						data: [
-							<g:each var="day" in="${dailyStatistics}">${day.value.userTotal},</g:each>
-						]
 					}
 				]
 			});
 			</g:if>
-</g:if>
+            </g:if>
 			var quickSearch = $("#search_term");
+            var search_spinner = $("#search_spinner");
+            var search_button =  $("#search_button");
 			quickSearch.autocomplete({
 				minLength: 2,
 				delay: 300,
 				search: function(event, ui) {
-					quickSearch.css({ 'background': 'url(${resource(dir: 'images', file: 'spinner.gif')}) no-repeat left top' });
+                    search_spinner.css ({ 'opacity': 100 });
+                    search_button.css ({ 'color': '#2087a3' });
 				},
 				source: function(request, response) {
-					quickSearch.css({ 'background': 'none' });
+                    search_spinner.css ({ 'opacity': 0 });
+                    search_button.css ({ 'color': '#fff' });
 
 					$.ajax({
 						//url: "http://ws.geonames.org/searchJSON",
@@ -235,144 +243,58 @@
 			});
 		});
 	</script>
-	<style type="text/css">
-	#simpleQuery {
-	}
-
-	#simpleQuery .search {
-		display: block;
-		height: 30px;
-		margin-bottom: 10px;
-		zoom: 1; /* IE 6 & 7 hack */
-		*display: inline; /* IE 6 & 7 hack */
-	}
-
-	#simpleQuery .search .begin {
-		margin: 0px;
-		padding: 0px;
-		display: inline-block;
-		background-image: url(${resource(dir: 'images', file: 'simpleQuery/spotlight-begin.png')});
-		height: 30px;
-		width: 140px;
-		vertical-align: top;
-		text-align: right;
-		zoom: 1; /* IE 6 & 7 hack */
-		*display: inline; /* IE 6 & 7 hack */
-	}
-
-	#simpleQuery .search .begin .label {
-		color: #fff;
-		font-face: Arial;
-		line-height: 30px;
-		text-shadow: 0px 0px 1px #006DBA;
-		font-size: 12px;
-		margin-right: 23px;
-	}
-
-	#simpleQuery .search .middle {
-		margin: 0px 0px -20px 0px;
-		padding: 0;
-		display: inline-block;
-		background-image: url(${resource(dir: 'images', file: 'simpleQuery/spotlight-middle.png')});
-		height: 30px;
-		width: 300px;
-		vertical-align: top;
-		zoom: 1; /* IE 6 & 7 hack */
-		*display: inline; /* IE 6 & 7 hack */
-	}
-
-	#simpleQuery .search .searchfield {
-		vertical-align: middle;
-		width: 100%;
-		height: 100%;
-		color: #006DBA;
-		border-width: 0px;
-		border: none;
-		background-color: Transparent;
-		zoom: 1; /* IE 6 & 7 hack */
-		*display: inline; /* IE 6 & 7 hack */
-	}
-
-	#simpleQuery .search .end {
-		margin: 0px;
-		padding: 0px;
-		display: inline-block;
-		background-image: url(${resource(dir: 'images', file: 'simpleQuery/spotlight-end.png')});
-		height: 30px;
-		width: 28px;
-		zoom: 1; /* IE 6 & 7 hack */
-		*display: inline; /* IE 6 & 7 hack */
-	}
-
-	</style>
 </head>
 <body>
-
-<div style="clear:both;display:block;">
-	<g:if env="development" test="${db == "org.hsqldb.jdbcDriver"}"></g:if><g:elseif test="${(db == 'org.hsqldb.jdbcDriver') as boolean}">
-	<div style="width:100%;font-size:14pt;color:#ff6f20;text-align:justify;">Warning: You are currently using the in-memory database! Click <g:link controller="home" action="setup">here</g:link> to configure your application.</div>
-	</g:elseif>
-	<div style="margin-right:8px;width:472px;display:inline-block;float:left;zoom:1;*display:inline;">
-		<h1>Introduction</h1>
-		<p>
-			${grailsApplication.config.application.title} is an application that can store any biological study. It contains
-			templates which makes it possible to customize.
-		</p>
-		<p>
-			In order to allow flexibility to capture all information you require within a study, <i>and</i> to
-			make it possible to compare studies or study data, the system uses customizable templates and ontologies.
-			It is especially designed to store complex study designs including cross-over designs and challenges.
-		</p>
-		<p>
-			${grailsApplication.config.application.title} facilitates sharing of data within a research group or consortium,
-			as the study owner can decide who can view or access the data. In addition, ${grailsApplication.config.application.title}
-			can stimulate collaborations by making study information publicly visible. New studies can be based on study
-			data within the database, as standardized storage is stimulated by the system.
-		</p>
-	</div>
-	<div style="margin-left:8px;width:472px;display:inline-block;float:left;zoom:1;*display:inline;">
-		<h1>Quicksearch</h1>
-		<div id="simpleQuery" class="simplequery">
-		<g:form action="pages" name="simpleQueryForm" id="simpleQueryForm">
-			<g:if test="${search_term}"><g:set var="preterm" value="${search_term}"/></g:if>
-			<div class="searchContainer">
-				<div class="search">
-					<div class="begin"><span class="label">Search term</span></div><div class="middle"><g:textField name="search_term" id="search_term" class="searchfield" value="${preterm}"/></div><div class="end"><a onClick="$('#search_term').val('');"><img src="${resource(dir: 'images', file: 'simpleQuery/spotlight-end.png')}" value="Reset" alt="Reset" border="0"></a></div>
-				</div>
-				<span style="font-style:italic;color:#aaa;font-size:10px;">more advanced searches can be performed <g:link controller="advancedQuery">here</g:link>...</span>
-			</div>
-			</g:form>
-			<h1>Quick Start</h1>
-			<p>
-				Through the <i>studies</i> menu you can either <i>create</i>, <i>view</i> or <i>import</i> studies
-				(or study data). '<g:link controller="studyWizard" action="index" params="[jump:'create']">Create a new study</g:link>' will guide you through several steps to include your study
-				into the system where question marks (<img src="${fam.icon(name: 'help')}">) will explain what information is
-				required. You can (quick) save your study to complete it at another point in time, or use
-				<i>import study data</i> to import large datasets (for example: many subjects) from an excel sheet
-				into your study. Several data-types of different platforms (assays) can
-				be linked to your study, like <i>simple assays</i> (e.g. clinical chemistry or Western blot)
-				or <i>metabolomics</i>.
-			</p>
-			<p>
-                <i>A quick start user guide is available for download <a href="${resource(dir:'downloads', file: 'quickstart_study_capturing.pdf')}">here</a>.<br>
-				A more in depth user guide is available for download <a href="${resource(dir:'downloads', file: 'gscf_user_guide.pdf')}">here</a>.</i>
-			</p>
-            <p>
-                <i>If you encounter a problem or have a suggestion for improvement feel free to submit an issue <g:link url="${issueUrl}">here</g:link></i>
-            </p>
-		</div>
-	</div>
+    <div class="intro">
+        <div class="content editor">
+            <h1 class="title">Introduction</h1>
+            <div class="subtitle"><p>${grailsApplication.config.application.title} is an application that can store any biological study. It contains templates which makes it possible to customize.</p></div>
+            <div class="toggleCont">
+                <p class="shortCont">In order to allow flexibility to capture all information you require within a study, and to make it possible to compare studies or study data, the system uses customizable templates and ontologies. It is especially designed to store complex study designs including. <a class="more" href="#" title="">Read more...</a></p>
+                <div class="fullCont">
+                    <p>
+                        ${grailsApplication.config.application.title} facilitates sharing of data within a research group or consortium,
+                        as the study owner can decide who can view or access the data. In addition, ${grailsApplication.config.application.title}
+                        can stimulate collaborations by making study information publicly visible. New studies can be based on study
+                        data within the database, as standardized storage is stimulated by the system.
+                    </p>
+                    <h1>Quick Start</h1>
+                    <p>
+                        Through the <i>studies</i> menu you can either <i>create</i>, <i>view</i> or <i>import</i> studies
+                        (or study data). '<g:link controller="studyWizard" action="index" params="[jump:'create']">Create a new study</g:link>' will guide you through several steps to include your study
+                        into the system where question marks (<img src="${fam.icon(name: 'help')}">) will explain what information is
+                        required. You can (quick) save your study to complete it at another point in time, or use
+                        <i>import study data</i> to import large datasets (for example: many subjects) from an excel sheet
+                        into your study. Several data-types of different platforms (assays) can
+                        be linked to your study, like <i>simple assays</i> (e.g. clinical chemistry or Western blot)
+                        or <i>metabolomics</i>.
+                    </p>
+                    <p>
+                    <p><a class="less" href="#" title="">Read less...</a></p>
+                </div>
+            </div>
+            <p class="buttons"><g:link class="button-3 pie" controller="studyEdit" action="add">Share your study</g:link></p>
+        </div>
+        <div class="aside">
+            <div class="document">
+                <h2>User Guide Downloads</h2>
+                <ul class="doclist">
+                    <li><a href="${resource(dir:'downloads', file: 'quickstart_study_capturing.pdf')}" title="">Quick Start User Guide</a></li>
+                    <li><a href="${resource(dir:'downloads', file: 'gscf_user_guide.pdf')}" title="">In Depth User Guide</a></li>
+                </ul>
+            </div>
+            <p class="note">If you encounter a problem or have a suggestion for improvement feel free to submit an issue <a href="#" title="">here</a></p>
+        </div>
+    </div>
+    <div class="usageStatistics">
+        <g:if test="${showstats && studyCount}">
+            <h1>Usage Statistics</h1>
+            <div id="graphs" style="display:block;width:100%;height:300px;">
+                <div id="studies-pie" style="width:476px;height:296px;display:inline-block;float:left;zoom:1;*display:inline;"></div>
+                <div id="daily-statistics" style="margin:2px;width:476px;height:296px;display:inline-block;float:left;zoom:1;*display:inline;"></div>
+            </div>
+        </g:if>
+    </div>
 </div>
-
-<div style="clear:both;display:block;padding-top:10px;">
-<g:if test="${showstats && studyCount}">
-	<h1>Usage Statistics</h1>
-	<div id="graphs" style="display:block;border:1px solid #6c6f70;width:100%;height:300px;">
-		<div id="studies-pie" style="margin:2px;width:476px;height:296px;display:inline-block;float:left;zoom:1;*display:inline;"></div>
-		<div id="daily-statistics" style="margin:2px;width:476px;height:296px;display:inline-block;float:left;zoom:1;*display:inline;"></div>
-	</div>
-</g:if>
-</div>
-
 </body>
 </html>

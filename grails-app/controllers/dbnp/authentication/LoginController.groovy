@@ -211,19 +211,19 @@ class LoginController {
 		def exception = session[AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY]
 		if (exception) {
 			if (exception instanceof AccountExpiredException) {
-				msg = SpringSecurityUtils.securityConfig.errors.login.expired
+                msg = message(code: 'springSecurity.errors.login.expired')
 			}
 			else if (exception instanceof CredentialsExpiredException) {
-				msg = SpringSecurityUtils.securityConfig.errors.login.passwordExpired
+                msg = message(code: 'springSecurity.errors.login.passwordExpired')
 			}
 			else if (exception instanceof DisabledException) {
-				msg = SpringSecurityUtils.securityConfig.errors.login.disabled
+                msg = message(code: 'springSecurity.errors.login.disabled')
 			}
 			else if (exception instanceof LockedException) {
-				msg = SpringSecurityUtils.securityConfig.errors.login.locked
+                msg = message(code: 'springSecurity.errors.login.locked')
 			}
 			else {
-				msg = SpringSecurityUtils.securityConfig.errors.login.fail
+				msg = message(code: 'springSecurity.errors.login.fail')
 			}
 		}
 

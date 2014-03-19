@@ -1,0 +1,84 @@
+/** START :: Homepage **/
+.intro {
+    overflow: hidden;
+    padding: 40px 0;
+}
+.intro .content {
+    float: left;
+    width: 625px;
+    padding-right: 40px;
+}
+.intro .content h1 {
+    margin-top: -5px;
+}
+.subtitle {
+    font-size: 18px;
+    line-height: 1.5;
+}
+.editor {
+    line-height: 1.7;
+}
+.editor p {
+    margin-bottom: 15px;
+}
+.editor h2 {
+    padding-bottom: 5px;
+}
+.editor ol,
+.editor ul {
+    margin-bottom: 20px;
+}
+.wp-editor ol {
+    padding-bottom: 20px;
+}
+.ie7 .editor ol {
+    margin-left: 3px;
+}
+.editor ol li {
+    list-style: decimal outside none;
+    margin-left: 20px;
+}
+.fullCont {
+    display: none;
+}
+.intro .content .buttons {
+    padding-top: 5px;
+    margin-bottom: 0;
+}
+.intro .aside {
+    width: 295px;
+    float: right;
+}
+.document {
+    background: #f6fcfd;
+    border: 1px solid #d8f5fd;
+    padding: 15px 20px 20px 20px;
+}
+.document li:first-child {
+    margin-top: 0;
+}
+.document .doclist li {
+    margin-top: 10px;
+    background: url(../images/default_style/doc-icon.png) 0 0 no-repeat;
+    min-height: 26px;
+    padding-left: 30px;
+    padding-top: 3px;
+}
+.intro .aside .note {
+    font-size: 12px;
+    padding-top: 10px;
+    line-height: 1.75;
+}
+.usageStatistics {
+    border: 1px solid #d8f5fd;
+    overflow: hidden;
+}
+.usageStatistics h2 {
+    background: #f6fcfd;
+    border-bottom: 1px solid #d8f5fd;
+    padding: 10px 20px;
+}
+.usageStatistics .chart {
+    padding: 20px;
+}
+/** END :: Homepage **/

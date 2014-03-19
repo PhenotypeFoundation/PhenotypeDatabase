@@ -1,14 +1,17 @@
 /*
+
+Can be removed?
+
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td { margin: 0; padding: 0; border: 0; outline: 0; font-weight: inherit; font-style: inherit; font-size: 100%; font-family: inherit; vertical-align: baseline; }
 
 body { line-height: 1em; color: black; background: #fff; }
-*/
+
 *:focus { outline: 0; }
 
 
 ol, ul { list-style: none; }
 
-/* tables still need 'cellspacing="0"' in the markup */
+!!--COMMENT tables still need 'cellspacing="0"' in the markup
 table { border-collapse: separate; border-spacing: 0; vertical-align: middle; }
 
 caption, th, td { text-align: left; font-weight: normal; vertical-align: middle; }
@@ -18,7 +21,7 @@ q:before, q:after, blockquote:before, blockquote:after { content: ""; }
 
 img a { border: none; }
 
-/* body { line-height: 1.5; font-family: Helvetica Neue, Arial, Helvetica, sans-serif; color: #333333; font-size: 75%; } */
+!!--COMMENT body { line-height: 1.5; font-family: Helvetica Neue, Arial, Helvetica, sans-serif; color: #333333; font-size: 75%; }
 
 h1 { font-weight: normal; color: #222222; font-size: 3em; line-height: 1; margin-bottom: 0.5em; }
 h1 img { margin: 0; }
@@ -112,10 +115,10 @@ caption { background: #eee; }
 .top { margin-top: 0; padding-top: 0; }
 
 .bottom { margin-bottom: 0; padding-bottom: 0; }
-/*
-.container { min-width: 950px; width: 80%; margin: 0 auto; overflow: hidden; display: inline-block; }
-.container { display: block; }
-*/
+
+!!--COMMENT .container { min-width: 950px; width: 80%; margin: 0 auto; overflow: hidden; display: inline-block; }
+!!--COMMENT .container { display: block; }
+
 
 .column, div.span-1, div.span-2, div.span-3, div.span-4, div.span-5, div.span-6, div.span-7, div.span-8, div.span-9, div.span-10, div.span-11, div.span-12, div.span-13, div.span-14, div.span-15, div.span-16, div.span-17, div.span-18, div.span-19, div.span-20, div.span-21, div.span-22, div.span-23, div.span-24 { display: inline; float: left; margin-right: 10px; }
 * html .column, * html div.span-1, * html div.span-2, * html div.span-3, * html div.span-4, * html div.span-5, * html div.span-6, * html div.span-7, * html div.span-8, * html div.span-9, * html div.span-10, * html div.span-11, * html div.span-12, * html div.span-13, * html div.span-14, * html div.span-15, * html div.span-16, * html div.span-17, * html div.span-18, * html div.span-19, * html div.span-20, * html div.span-21, * html div.span-22, * html div.span-23, * html div.span-24 { overflow-x: hidden; }
@@ -529,3 +532,5 @@ button.button:hover { text-decoration: none; }
 
 #bd { margin: 0px; margin-top: 50px; }
 #bd .container { width: 95%; }
+
+*/

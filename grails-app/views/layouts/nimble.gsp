@@ -1,4 +1,9 @@
+%{--
+
+Can be removed?
+
 <%@page contentType="text/html; charset=UTF-8" %>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-EN" xml:lang="en-EN">
@@ -8,7 +13,6 @@
 	 <link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
 	 <g:if env="development">
 		 <link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.css')}"/>
-		 <link rel="stylesheet" href="${resource(dir: 'css', file: 'login_panel.css')}"/>
 		 <script type="text/javascript" src="${resource(dir: 'js', file: 'disableKeys.js')}"></script>
 		 <script type="text/javascript" src="${resource(dir: 'js', file: 'login_panel.js')}"></script>
 		 <script type="text/javascript" src="${resource(dir: 'js', file: 'topnav.js')}"></script>
@@ -52,3 +56,4 @@
 </body>
 
 </html>
+--}%

@@ -30,13 +30,10 @@ class BaseFilters {
 						session.style = 'nmcdsp_style'
 					} else if (hostname =~ 'nbx') {
 						session.style = 'TO-DO'
-					} else if (hostname =~ '<') {
-						session.style = 'tifn-oh_style'
                     } else {
                         session.style = 'default_style'
                     }
 				}
-
 				// set session lifetime to 1 week
 				session.setMaxInactiveInterval(604800)
 			}
