@@ -1341,7 +1341,7 @@ label.r_on { }
 .label_radio input { position: absolute; left: -9999px; }
 /** END :: radio elements wizard event page **/
 
-/** START :: Tooltip **/
+/** START :: Tooltip & Autocomplete **/
 .ui-tooltip {
     background: url(../images/default_style/arr-tooltip-4.png) 0 center no-repeat;
     width: 210px;
@@ -1356,7 +1356,19 @@ label.r_on { }
     line-height: 1.5;
 
 }
-/** END :: Tooltip **/
+
+.ui-autocomplete .about {
+    font-size: 8px;
+    font-size: 10px;
+    color: #006DBA;
+}
+
+.ui-autocomplete .from {
+    font-size: 8px;
+    font-size: 10px;
+    color: #666;
+}
+/** END :: Tooltip & Autocomplete**/
 /** START :: Custom scrollbar **/
 .scrollable {
     position: relative;

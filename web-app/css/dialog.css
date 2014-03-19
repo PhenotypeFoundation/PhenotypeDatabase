@@ -21,11 +21,11 @@ html>body #sortable li { height: 1.5em; line-height: 1.2em; }
     font-size: 10px;
 }
 .ui-autocomplete .about {
-    font-size: 8px;
+    font-size: 10px;
     color: #006DBA;
 }
 .ui-autocomplete .from {
-    font-size: 8px;
+    font-size: 10px;
     color: #666;
 }
 /* END :: ontology autocomplete */

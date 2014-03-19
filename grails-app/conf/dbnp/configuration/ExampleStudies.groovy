@@ -1,3 +1,4 @@
+//		// Add terms manually, to avoid having to do many HTTP requests to the BioPortal website
 package dbnp.configuration
 
 /**
@@ -19,25 +20,23 @@ import org.codehaus.groovy.grails.commons.*
 
 
 class ExampleStudies {
-	public static void addTestData() {
-		// get configuration
-		def config = ConfigurationHolder.config
+    public static void addTestData() {
+        // get configuration
+        def config = ConfigurationHolder.config
 
-		// Look up the used ontologies which should be in the database by now
-		def speciesOntology				= Ontology.getOrCreateOntologyByNcboId(1132)
-		def brendaOntology				= Ontology.getOrCreateOntologyByNcboId(1005)
-		def nciOntology					= Ontology.getOrCreateOntologyByNcboId(1032)
-		def chebiOntology				= Ontology.getOrCreateOntologyByNcboId(1007)
-
-		// Add terms manually, to avoid having to do many HTTP requests to the BioPortal website
-		def mouseTerm = Term.getOrCreateTerm('Mus musculus',speciesOntology,'10090')
-		def humanTerm = Term.getOrCreateTerm('Homo sapiens',speciesOntology,'9606')
-		def arabTerm = Term.getOrCreateTerm('Arabidopsis thaliana',speciesOntology,'3702')
-		def tomatoTerm = Term.getOrCreateTerm('Solanum lycopersicum',speciesOntology,'4081')
-		def potatoTerm = Term.getOrCreateTerm('Solanum tuberosum',speciesOntology,'0000')
-		def bloodTerm = Term.getOrCreateTerm('blood plasma',brendaOntology,'BTO:0000131')
-		def c57bl6Term = Term.getOrCreateTerm('C57BL/6 Mouse',nciOntology,'C14424')
-		def glucoseTerm = Term.getOrCreateTerm('glucose',chebiOntology,'CHEBI:17234')
+        // Look up the used ontologies which should be in the database by now
+		def speciesOntology				= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON")
+		def brendaOntology				= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
+		def nciOntology					= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCIT")
+		def chebiOntology				= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/CHEBI")
+		def mouseTerm = Term.getOrCreateTerm('Mus musculus',speciesOntology,"http://purl.obolibrary.org/obo/NCBITaxon_10090")
+		def humanTerm = Term.getOrCreateTerm('Homo sapiens',speciesOntology,"http://purl.obolibrary.org/obo/NCBITaxon_9606")
+		def arabTerm = Term.getOrCreateTerm('Arabidopsis thaliana',speciesOntology,"http://purl.obolibrary.org/obo/NCBITaxon_3702")
+		def tomatoTerm = Term.getOrCreateTerm('Solanum lycopersicum',speciesOntology,"http://purl.obolibrary.org/obo/NCBITaxon_4081")
+		def potatoTerm = Term.getOrCreateTerm('Solanum tuberosum',speciesOntology, "http://purl.obolibrary.org/obo/NCBITaxon_4113")
+		def bloodTerm = Term.getOrCreateTerm('blood plasma',brendaOntology,"http://purl.obolibrary.org/obo/BTO_0000131")
+		def c57bl6Term = Term.getOrCreateTerm('C57BL/6 Mouse',nciOntology,"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C14424")
+		def glucoseTerm = Term.getOrCreateTerm('glucose',chebiOntology,"http://purl.obolibrary.org/obo/CHEBI_17234")
 
 		// Add SAM assay reference
 		def clinicalModule = new AssayModule(
@@ -74,10 +73,10 @@ class ExampleStudies {
 		def config = ConfigurationHolder.config
 
 		// Look up the used ontologies which should be in the database by now
-		def speciesOntology				= Ontology.getOrCreateOntologyByNcboId(1132)
-		def brendaOntology				= Ontology.getOrCreateOntologyByNcboId(1005)
-		def nciOntology					= Ontology.getOrCreateOntologyByNcboId(1032)
-		def chebiOntology				= Ontology.getOrCreateOntologyByNcboId(1007)
+        def speciesOntology				= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON")
+        def brendaOntology				= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
+        def nciOntology					= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCIT")
+        def chebiOntology				= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/CHEBI")
 
 		// Look up the used templates which should also be in the database by now
 		def studyTemplate				= Template.findByName("NMC Study")
@@ -95,14 +94,14 @@ class ExampleStudies {
 		def seqAssayTemplate            = Template.findByName("Mass Sequencing assay")
 
 		// Add terms manually, to avoid having to do many HTTP requests to the BioPortal website
-		def mouseTerm = Term.getOrCreateTerm('Mus musculus',speciesOntology,'10090')
-		def humanTerm = Term.getOrCreateTerm('Homo sapiens',speciesOntology,'9606')
-		def arabTerm = Term.getOrCreateTerm('Arabidopsis thaliana',speciesOntology,'3702')
-		def tomatoTerm = Term.getOrCreateTerm('Solanum lycopersicum',speciesOntology,'4081')
-		def potatoTerm = Term.getOrCreateTerm('Solanum tuberosum',speciesOntology,'0000')
-		def bloodTerm = Term.getOrCreateTerm('blood plasma',brendaOntology,'BTO:0000131')
-		def c57bl6Term = Term.getOrCreateTerm('C57BL/6 Mouse',nciOntology,'C14424')
-		def glucoseTerm = Term.getOrCreateTerm('glucose',chebiOntology,'CHEBI:17234')
+        def mouseTerm = Term.getOrCreateTerm('Mus musculus',speciesOntology,"http://purl.obolibrary.org/obo/NCBITaxon_10090")
+        def humanTerm = Term.getOrCreateTerm('Homo sapiens',speciesOntology,"http://purl.obolibrary.org/obo/NCBITaxon_9606")
+        def arabTerm = Term.getOrCreateTerm('Arabidopsis thaliana',speciesOntology,"http://purl.obolibrary.org/obo/NCBITaxon_3702")
+        def tomatoTerm = Term.getOrCreateTerm('Solanum lycopersicum',speciesOntology,"http://purl.obolibrary.org/obo/NCBITaxon_4081")
+        def potatoTerm = Term.getOrCreateTerm('Solanum tuberosum',speciesOntology, "http://purl.obolibrary.org/obo/NCBITaxon_4113")
+        def bloodTerm = Term.getOrCreateTerm('blood plasma',brendaOntology,"http://purl.obolibrary.org/obo/BTO_0000131")
+        def c57bl6Term = Term.getOrCreateTerm('C57BL/6 Mouse',nciOntology,"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C14424")
+        def glucoseTerm = Term.getOrCreateTerm('glucose',chebiOntology,"http://purl.obolibrary.org/obo/CHEBI_17234")
 
 		// Create a few persons, roles and Affiliations
 		def affiliation1 = new PersonAffiliation(

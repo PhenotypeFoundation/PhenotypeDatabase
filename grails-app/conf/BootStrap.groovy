@@ -68,7 +68,7 @@ class BootStrap {
                 grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST ||
                 grails.util.GrailsUtil.environment == "dbnpdemo") {
 			// add ontologies?
-			if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
+			//if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
 
 			// add templates?
 			if (!Template.count()) ExampleTemplates.initTemplates()
@@ -87,12 +87,14 @@ class BootStrap {
 		 * @see dbnp.studycapturing.Subject
 		 * @see dbnp.studycapturing.Sample
 		 */
-		TemplateEntity.getField(Subject.domainFields, 'species').ontologies = [
-			Ontology.getOrCreateOntologyByNcboId(1132),		// NCBI Organismal Classification
-			Ontology.getOrCreateOntologyByNcboId(1069)		// Environmental Ontology
+		TemplateEntity.getField(Subject.domainFields, 'species')
+                .ontologies = [
+            Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON"),
+            Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/ENVO")
 		]
-		TemplateEntity.getField(Sample.domainFields, 'material').ontologies = [
-			Ontology.getOrCreateOntologyByNcboId(1005)		// BRENDA Tissue / enzyme source
+		TemplateEntity.getField(Sample.domainFields, 'material')
+                .ontologies = [
+			Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
 		]
 	}
 
