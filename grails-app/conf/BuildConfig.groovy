@@ -73,7 +73,7 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-            ":dbxp-base:0.2.0.0",
+            ":dbxp-base:0.2.0.1",
             ":dbxp-sam:0.9.6.3.rc8",
 
             ":hibernate:$grailsVersion",
@@ -89,10 +89,11 @@ grails.project.dependency.resolution = {
 
             ":famfamfam:1.0.1",
             ":mail:1.0.1",
-            ":quartz:1.0-RC5"
+            ":quartz:1.0-RC5",
+            ":webflow:2.0.8.1"
         )
 
-        compile(":gdtimporter:0.6.0.0"){transitive = false}
+        compile(":gdtimporter:0.6.0.1"){transitive = false}
 
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
@@ -100,10 +101,6 @@ grails.project.dependency.resolution = {
                     ":trackr:0.7.3",
                     ":grom:latest.integration"
             )
-        }
-
-        compile ':webflow:2.0.0', {
-            exclude 'grails-webflow'
         }
 
         // add { transative = false } to ignore dependency transition
