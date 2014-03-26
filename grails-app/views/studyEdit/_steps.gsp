@@ -69,5 +69,17 @@
 		<g:else>
 			<span class="disabled">assay-samples</span>
 		</g:else>
-	</g:else>	
+	</g:else>
+    /
+    <g:if test="${active == 'finished'}">
+        <span class="active">overview</span>
+    </g:if>
+    <g:else>
+        <g:if test="${study?.id}">
+            <g:link controller="studyEdit" action="finished" id="${study?.id}">overview</g:link>
+        </g:if>
+        <g:else>
+            <span class="disabled">overview</span>
+        </g:else>
+    </g:else>
 </span>			

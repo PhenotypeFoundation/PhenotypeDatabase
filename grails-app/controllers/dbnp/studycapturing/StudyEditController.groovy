@@ -32,6 +32,11 @@ class StudyEditController {
 		render( view: "properties", model: [ study: study ] )
 	}
 
+    def finished() {
+        def study = getStudyFromRequest( params )
+        [study: study]
+    }
+
 	/***********************************************
 	 * 
 	 * Different parts of the editing process
