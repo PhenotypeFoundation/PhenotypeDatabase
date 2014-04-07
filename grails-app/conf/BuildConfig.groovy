@@ -73,7 +73,7 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-            ":dbxp-base:0.2.0.1",
+            ":dbxp-base:0.2.0.2",
             ":dbxp-sam:0.9.6.3.rc8",
 
             ":hibernate:$grailsVersion",

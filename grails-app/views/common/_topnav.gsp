@@ -193,21 +193,21 @@
         </div>
         <div class="fieldset loginForm">
             <h2>Login</h2>
-            <ul class="form">
-            <g:form controller="." action="j_spring_security_check" method='POST'>
-                <li>
-                    <input type="text" placeholder="Username" name="j_username" id="j_username" value="${username}" size="23"/>
-                </li>
-                <li>
-                    <input type="password" placeholder="Password" name="j_password" id="password" size="23"/>
-                </li>
-                <li><input type="checkbox" class="icheckbox" name='_spring_security_remember_me' id='remember_me' <g:if test='${hasCookie}'>checked='checked'</g:if>/>
-                    <label for="remember_me">Remember me</label><a href="#" title="">Forgot password?</a></li>
-                <li class="buttons">
-                    <input class="button-1 pie" type="submit" name="submit" value="Login"/>
-                </li>
-            </g:form>
-            </ul>
+            <form action='j_spring_security_check' method='POST' autocomplete='off'>
+                <ul class="form">
+                    <li>
+                        <input type="text" placeholder="Username" name="j_username" id="j_username" value="${username}" size="23"/>
+                    </li>
+                    <li>
+                        <input type="password" placeholder="Password" name="j_password" id="password" size="23"/>
+                    </li>
+                    <li><input type="checkbox" class="icheckbox" name='_spring_security_remember_me' id='remember_me' <g:if test='${hasCookie}'>checked='checked'</g:if>/>
+                        <label for="remember_me">Remember me</label><a href="#" title="">Forgot password?</a></li>
+                    <li class="buttons">
+                        <input class="button-1 pie" type="submit" name="submit" value="Login"/>
+                    </li>
+                </ul>
+            </form>
         </div>
     </div>
 </div>
