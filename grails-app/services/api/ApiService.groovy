@@ -363,7 +363,7 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def getPlainMeasurementData(Assay assay, SecUser user) {
-        def serviceURL = "${assay.module.baseUrl}/rest/getPlainMeasurementData"
+        def serviceURL = "${assay.module.baseUrl}/rest/getPlainMeasurementDataTemp"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json
 
@@ -383,6 +383,31 @@ class ApiService implements Serializable, ApplicationContextAware {
 
         return json
     }
+
+    def organizeSampleMeasurements(features, samples) {
+        Map featureMeasurements = [:]
+        features.each { feature, sampleMeasurements->
+            List measurements = []
+            List attachedSamples = sampleMeasurements.keySet() as String[]
+            samples.each { sample ->
+                if (attachedSamples.contains(sample.id.toString())) {
+                    def val
+                    def measurement = sampleMeasurements[sample.id.toString()]
+
+                    if (measurement == null) val = ""
+                    else if (measurement instanceof Number) val = measurement
+                    else if (measurement.isDouble()) val = measurement.toDouble()
+                    else val = measurement.toString()
+                    measurements << val
+                } else {
+                    measurements << null
+                }
+            }
+            featureMeasurements[feature] = measurements
+        }
+        featureMeasurements
+    }
+
     /**
      * get measurement data from the remote module in verbose format
      *
