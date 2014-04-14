@@ -19,7 +19,7 @@
     </li>
     </sec:ifLoggedIn>
 	<li>
-		<a href="#">Browse</a>
+		<a href="#">Browse/Edit</a>
 	    <ul class="subnav">
 			<sec:ifLoggedIn>
 			<li><g:link controller="study" action="myStudies">My studies</g:link></li>
