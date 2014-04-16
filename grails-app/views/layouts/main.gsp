@@ -27,7 +27,7 @@
     <g:layoutHead/>
 </head>
 <body>
-    <g:render template="/common/topnav"/>
+    <g:render template="/common/header"/>
     <div id="content">
         <div class="inner">
             <div class="container">

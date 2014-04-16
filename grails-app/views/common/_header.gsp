@@ -193,7 +193,7 @@
         </div>
         <div class="fieldset loginForm">
             <h2>Login</h2>
-            <form action='j_spring_security_check' method='POST' autocomplete='off'>
+            <g:form controller="." action="j_spring_security_check" method='POST' class="clearfix">
                 <ul class="form">
                     <li>
                         <input type="text" placeholder="Username" name="j_username" id="j_username" value="${username}" size="23"/>
@@ -207,7 +207,7 @@
                         <input class="button-1 pie" type="submit" name="submit" value="Login"/>
                     </li>
                 </ul>
-            </form>
+            </g:form>
         </div>
     </div>
 </div>

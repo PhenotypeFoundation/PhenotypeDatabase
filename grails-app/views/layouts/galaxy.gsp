@@ -25,7 +25,7 @@
 	<g:layoutHead/>
 </head>
 <body>
-<g:render template="/common/login_panel"/>
+<g:render template="/common/header"/>
 <div class="container">
 	<g:layoutBody/>
 	<div id="footer">
