@@ -23,6 +23,14 @@ class UrlMappings {
                 // apply constraints here
             }
         }
+		
+		// sam mapping for alternative url, including module name
+		"/module/$module/$controller/$action?/$id?" {
+			constraints {
+				// apply constraints here
+			}
+		}
+
 
         // landing page for alternative SAM url
         "/measurements/$module?"(controller: 'SAMHome', action: 'index')

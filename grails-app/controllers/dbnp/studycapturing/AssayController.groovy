@@ -8,6 +8,7 @@ class AssayController {
 
 	def assayService
 	def authenticationService
+    def apiService
 	def fileService
 
 	def showByToken = {
@@ -197,8 +198,10 @@ class AssayController {
 		assays.each{ assay ->
 			def moduleMeasurementData
 			try {
-				moduleMeasurementData = assayService.requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
-				data[ "Module measurement data: " + assay.name ] = moduleMeasurementData
+				//moduleMeasurementData = assayService.requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
+				//data[ "Module measurement data: " + assay.name ] = moduleMeasurementData
+                moduleMeasurementData = apiService.getPlainMeasurementData(assay, remoteUser)
+                data[ "Module measurement data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
 			} catch (e) {
 				moduleMeasurementData = ['error' : [
 						'Module error, module not available or unknown assay']

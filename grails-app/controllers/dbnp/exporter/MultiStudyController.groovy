@@ -10,6 +10,7 @@ import grails.plugins.springsecurity.Secured
 class MultiStudyController {
 
     def assayService
+    def apiService
     def authenticationService
     def fileService
     def AssayController = new AssayController()
@@ -136,10 +137,17 @@ class MultiStudyController {
         def data = this.collectSampleDetails(samples)
 
         assays.each{ assay ->
+
+            try {
+                measurementTokens = assayService.requestModuleMeasurementNames(assay, remoteUser)
+            } catch (e) {
+                println e.message
+            }
+
             def moduleMeasurementData
             try {
-                moduleMeasurementData = assayService.requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
-                data[ "Module measurement data: " + assay.name ] = moduleMeasurementData
+                moduleMeasurementData = apiService.getPlainMeasurementData(assay, remoteUser)
+                data[ "Module measurement data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
             } catch (e) {
                 moduleMeasurementData = ['error' : [
                         'Module error, module not available or unknown assay']

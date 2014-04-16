@@ -59,7 +59,7 @@
                     </li>
                     </sec:ifLoggedIn>
                     <li>
-                        <a href="#" title="">Browse <img class="subicon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></a>
+                        <a href="#" title="">Browse/Edit <img class="subicon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></a>
                         <div class="subnav">
                             <ul>
                                 <sec:ifLoggedIn>

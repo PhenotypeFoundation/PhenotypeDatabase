@@ -66,7 +66,38 @@ StudyEdit.initializePropertiesPage = function() {
             });
         }
     });
-    
+
+    new SelectAddMore().init({
+        rel	 : 'template',
+        url	 : baseUrl + '/templateEditor',
+        vars	: 'entity,ontologies',
+        label   : 'add / modify..',
+        style   : 'modify',
+        onClose : function() {
+        }
+    });
+
+    new SelectAddMore().init({
+        rel	 : 'person',
+        url	 : baseUrl + '/person/list?dialog=true',
+        vars	: 'person',
+        label   : 'add / modify persons...',
+        style   : 'modify',
+        onClose : function() {
+        }
+    });
+
+    new SelectAddMore().init({
+        rel	 : 'role',
+        url	 : baseUrl + '/personRole/list?dialog=true',
+        vars	: 'role',
+        label   : 'add / modify roles...',
+        style   : 'modify',
+        onClose : function(scope) {
+            refreshFlow();
+        }
+    });
+
     // Initialize help tooltips
     attachHelpTooltips();
 }
