@@ -320,7 +320,7 @@ ul.topnav li .subnav > ul  li {
     position: relative;
 }
 ul.topnav li .subnav li a {
-    background: #3aadce;
+    background-color: #3aadce;
     padding: 15px;
     color: #fff;
     font-size: 14px;
@@ -372,7 +372,7 @@ ul.topnav li .subnav .subsubnav li:first-child .subsubnav li:first-child > a  {
     padding: 8px 15px;
     float: left;
     margin: 0;
-    width: 140px;
+    width: 120px;
     font-size: 14px;
     font-family: 'Open Sans', sans-serif;
     box-shadow: none;
@@ -398,13 +398,13 @@ ul.topnav li .subnav .subsubnav li:first-child .subsubnav li:first-child > a  {
     -ms-border-radius: 0 15px 15px 0;
     -webkit-border-radius: 0 15px 15px 0;
     height: 34px;
-    width: 60px;
+    width: 50px;
     padding: 0 0px;
     color: #fff;
     font-family: "Raleway";
     font-weight: 600;
     float: left;
-    font-size: 14px;
+    font-size: 12px;
     overflow: visible;
     margin: 0;
 }
