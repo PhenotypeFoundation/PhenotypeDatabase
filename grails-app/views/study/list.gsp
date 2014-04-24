@@ -38,10 +38,10 @@
 				<g:each in="${studyInstanceList}" var="studyInstance" status="i">
 					<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
 						<td><input type="checkbox" name="id" value="${studyInstance.id}" id="${studyInstance.title}"></td>
-						<td><g:link class="linktips" action="show" title="View this study" id="${studyInstance?.id}"><img src='${fam.icon(name: 'magnifier')}' border="0" alt="view study" /></g:link></td>
+						<td><g:link class="linktips" action="show" title="View this study" id="${studyInstance?.id}"><img class="icon searchIcon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></g:link></td>
 						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
 							<g:link class="edit linktips" title="Edit this study" controller="studyEdit" action="edit" id="${studyInstance?.id}">
-								<img src='${fam.icon(name: 'wand')}' border="0" alt="Edit this study" /></g:link>
+                                <img class="icon editIcon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></g:link>
 							</g:if><g:else><img src='${fam.icon(name: 'lock')}' border="0" alt="you have no write access to shis study" /></g:else> 
 						</td>
                         <%--<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
@@ -91,12 +91,14 @@
 		</div>
 		<div class="buttons">
 			<sec:ifLoggedIn>
-				<span class="button"><g:link class="create linktips" title="Create a new study" controller="studyEdit" action="add"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
-				<span class="button"><a class="compare linktips" title="Compare the selected studies" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span>
+				<span class="button"><g:link class="buttonBg add" title="Create a new study" controller="studyEdit" action="add"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
+				<span class="button"><a class="buttonBg compare" title="Compare the selected studies" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span>
 			</sec:ifLoggedIn>
 		</div>
 		<div class="paginateButtons">
-			<g:paginate max="10" total="${studyInstanceTotal}" prev="&laquo; Previous" next="&raquo; Next"/>
+            <div class="pager">
+			    <g:paginate max="10" total="${studyInstanceTotal}" prev="&laquo;Prev" next="Next&raquo;"/>
+            </div>
 		</div>
 	</div>
 </g:form>

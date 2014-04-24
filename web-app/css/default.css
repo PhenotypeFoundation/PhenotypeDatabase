@@ -927,13 +927,13 @@ td.buttons input {
     overflow: hidden;
     padding-top: 20px;
 }
-.paginateButtons .prev,
-.paginateButtons .next {
+.paginateButtons .prevLink,
+.paginateButtons .nextLink {
     float: left;
     border: 1px solid #45bee1;
     color: #45bee1;
     height: 28px;
-    padding: 0 15px;
+    padding: 0 25px 0 15px;
     border-radius: 15px;
     -moz-border-radius: 15px;
     -ms-border-radius: 15px;
@@ -941,8 +941,8 @@ td.buttons input {
     line-height: 27px;
     font-size: 14px;
 }
-.paginateButtons .prev:hover,
-.paginateButtons .next:hover {
+.paginateButtons .prevLink:hover,
+.paginateButtons .nextLink:hover {
     background: #45bee1;
     text-decoration: none;
     color: #fff;

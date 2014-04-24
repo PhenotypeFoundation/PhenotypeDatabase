@@ -146,13 +146,13 @@
                             <a href="#" title="">Admin <img class="subicon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></a>
                             <div class="subnav">
                                 <ul>
-                                    <li><g:link controller="user" action="userSearch" class="icon icon_user"><img src="${fam.icon(name: 'user')}" alt="user administration"/> List Users</g:link></li>
-                                    <g:if test="${!session.gscfUser.shibbolethUser}"><li><g:link controller="user" action="create" class="icon icon_user_add"><img src="${fam.icon(name: 'user')}" alt="user administration"/> Create User</g:link></li></g:if>
-                                    <li><g:link controller="assayModule" action="list" class="icon icon_user_add"><img src="${fam.icon(name: 'disconnect')}" alt="module administration"/> Manage Modules</g:link></li>
-                                    <li><g:link controller="setup" class="icon icon_user_add"><img src="${fam.icon(name: 'wand')}" alt="module administration"/> Setup wizard</g:link></li>
-                                    <li><g:link controller="tnoMigrate" class="icon arrow_join"><img src="${fam.icon(name: 'arrow_join')}" alt="TNO db migrate"/> Migrate Database (specific for TNO)</g:link></li>
-                                    <li><g:link controller="info" class="icon icon_info"><img src="${fam.icon(name: 'lightning')}" alt="application information"/> Application information</g:link></li>
-                                    <li><g:link controller="trackr" class="icon icon_info"><img src="${fam.icon(name: 'lightning')}" alt="application access log"/> Application access log</g:link></li>
+                                    <li><g:link controller="user" action="userSearch"><img src="${fam.icon(name: 'user')}" alt="user administration"/> List Users</g:link></li>
+                                    <g:if test="${!session.gscfUser.shibbolethUser}"><li><g:link controller="user" action="create"><img src="${fam.icon(name: 'user')}" alt="user administration"/> Create User</g:link></li></g:if>
+                                    <li><g:link controller="assayModule" action="list"><img src="${fam.icon(name: 'disconnect')}" alt="module administration"/> Manage Modules</g:link></li>
+                                    <li><g:link controller="setup"><img src="${fam.icon(name: 'wand')}" alt="module administration"/> Setup wizard</g:link></li>
+                                    <li><g:link controller="tnoMigrate"><img src="${fam.icon(name: 'arrow_join')}" alt="TNO db migrate"/> Migrate Database (specific for TNO)</g:link></li>
+                                    <li><g:link controller="info"><img src="${fam.icon(name: 'lightning')}" alt="application information"/> Application information</g:link></li>
+                                    <li><g:link controller="trackr"><img src="${fam.icon(name: 'lightning')}" alt="application access log"/> Application access log</g:link></li>
                                 </ul>
                             </div>
                         </li>
