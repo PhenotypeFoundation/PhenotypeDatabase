@@ -450,7 +450,7 @@ class SimpleWizardController extends StudyWizardController {
 		// did the study template change?
 		if (params.get('template') && study.template?.name != params.get('template')) {
 			// set the template
-			study.template = Template.findByName(params.remove('template'))
+			study.template = Template.findAllByName(params.remove('template')).find { it.entity == Study }
 		}
 
 		// does the study have a template set?
@@ -524,7 +524,7 @@ class SimpleWizardController extends StudyWizardController {
 			   // has the template changed?
 			   def templateName = params.get(type.toLowerCase() + '_' + entity.getIdentifier() + '_template')
 			   if (templateName && entity.template?.name != templateName) {
-				   entity.template = Template.findByName(templateName)
+				   entity.template = Template.findAllByName(templateName).find { it.entity == entity.class }
 			   }
    
 			   // validate sample
@@ -1007,7 +1007,7 @@ class SimpleWizardController extends StudyWizardController {
 	   // did the study template change?
 	   if (params.get('template') && assay.template?.name != params.get('template')) {
 		   // set the template
-		   assay.template = Template.findByName(params.remove('template'))
+		   assay.template = Template.findAllByName(params.remove('template')).find { it.entity == Assay }
 	   }
 
 	   // does the study have a template set?
