@@ -36,7 +36,7 @@
 
     <span class="info">
         <span class="title">You are almost there...</span>
-        You are almost done creating your study. Below you will find a summary of the study you have just defined.
+        You are done creating your study. Below you will find a summary of the study you have just defined.
         Click <g:link controller="study" action="list">here</g:link> to back to the studies overview page.
     </span>
 
@@ -44,7 +44,7 @@
         <h3><a href="#">General overview</a></h3>
         <div>
             <p>
-                You are about to create a study containing ${(study.subjects) ? study.subjects.size() : 0} subjects,
+                You have created a study containing ${(study.subjects) ? study.subjects.size() : 0} subjects,
                 ${(study.events) ? study.events.size() : 0} events and ${(study.samplingEvents) ? study.samplingEvents.size(): 0} sampling events grouped into
                 ${(study.eventGroups) ? study.eventGroups.size() : 0} event groups. The study results in
                 ${(study.samples) ? study.samples.size() : 0} samples analyzed using ${(study.assays) ? study.assays.size() : 0} assays.
