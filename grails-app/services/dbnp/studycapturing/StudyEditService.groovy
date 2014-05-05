@@ -306,7 +306,7 @@ class StudyEditService {
 		if (params.get('template') && entity.template?.name != params.get('template')) {
 			// set the template
 			// TODO: find the template with the right entity
-			entity.template = Template.findByName(params.remove('template') )
+			entity.template = Template.findAllByName(params.remove('template') ).find { it.entity == entity.class }
 		}
 
 		// does the study have a template set?
