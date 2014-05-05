@@ -35,7 +35,7 @@
     </g:if>
 
     <span class="info">
-        <span class="title">You are almost there...</span>
+        <span class="title">Finished</span>
         You are done creating your study. Below you will find a summary of the study you have just defined.
         Click <g:link controller="study" action="list">here</g:link> to back to the studies overview page.
     </span>

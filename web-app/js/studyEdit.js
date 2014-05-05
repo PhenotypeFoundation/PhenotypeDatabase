@@ -74,6 +74,7 @@ StudyEdit.initializePropertiesPage = function() {
         label   : 'add / modify..',
         style   : 'modify',
         onClose : function() {
+            refreshFlow();
         }
     });
 
@@ -84,6 +85,7 @@ StudyEdit.initializePropertiesPage = function() {
         label   : 'add / modify persons...',
         style   : 'modify',
         onClose : function() {
+            refreshFlow();
         }
     });
 
@@ -97,6 +99,10 @@ StudyEdit.initializePropertiesPage = function() {
             refreshFlow();
         }
     });
+
+    function refreshFlow() {
+        StudyEdit.form.submit( 'studyProperties', 'refresh' ); return false;
+    }
 
     // Initialize help tooltips
     attachHelpTooltips();
