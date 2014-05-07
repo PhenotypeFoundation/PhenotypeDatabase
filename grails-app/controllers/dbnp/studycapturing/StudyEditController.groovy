@@ -676,7 +676,7 @@ class StudyEditController {
 		// did the study template change?
 		if (params.get('template') && study.template?.name != params.get('template')) {
 			// set the template
-			study.template = Template.findByName(params.remove('template'))
+			study.template = Template.findAllByName(params.remove('template') ).find { it.entity == Study }
 		}
 
 		// does the study have a template set?
