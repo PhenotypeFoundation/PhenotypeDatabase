@@ -10,8 +10,9 @@
 			Highcharts.theme = { colors: ['#4572A7'] };
 			var highchartsOptions = Highcharts.getOptions();
 			var studiesPieChart, dailyStatistics;
+            this.y = ${studyCount};
 
-			studiesPieChart = new Highcharts.Chart({
+            studiesPieChart = new Highcharts.Chart({
 				chart: {
 					renderTo: 'studies-pie',
 					plotBackgroundColor: null,
@@ -19,7 +20,7 @@
 					plotShadow: false
 				},
 				title: {
-					text: '${studyCount} Studies'
+                    text: '${studyCount} ' + ((this.y == 1) ? 'Study' : 'Studies')
 				},
 				tooltip: {
 					formatter: function() {

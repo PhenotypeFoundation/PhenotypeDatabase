@@ -1,4 +1,3 @@
-<html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<meta name="layout" content="main"/>
@@ -13,7 +12,6 @@
 </head>
 
 <body>
-<div class="body" id="register">
 	<g:if test="${user.shibbolethUser}">
 		<table>
             <g:if test="user?.email">
@@ -52,7 +50,6 @@
 		</table>
 	</g:if>
 	<g:else>
-		<div class="inner">
 		<g:if test="${flash.message}"><div class='login_message'>${flash.message}</div></g:if>
 
 		<div class='fheader'>You can change your user details here. If you don't want to change your password, keep it empty.</div>
@@ -122,12 +119,10 @@
 				<g:each in="${extraparams}" var="param">
 					<input type="hidden" name="${param.key}" value="${param.value}">
 				</g:each>
-				<span class="button"><g:submitButton name="edit" class="save" value="Change profile"/></span>
-				<span class="button"><g:link class="cancel" controller="home">Cancel</g:link></span>
+
+				<span class="button"><g:submitButton name="edit" class="button-4 margin10 pie" value="Change profile"/></span>
+                <g:link class="cancel" controller="home"><input type="button" class="button-4 margin10 pie" value="Cancel"/></g:link>
 			</div>
 		</form>
 	</g:else>
-
-</div>
 </body>
-</html>
