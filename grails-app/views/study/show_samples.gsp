@@ -83,7 +83,7 @@
 			<td>${sample.parentSubject?.name}</td>
 			<td>
 				<g:if test="${sample.parentEvent}">
-					${sample.parentEvent?.event?.template?.name} at ${sample.getSamplingTimeString()}
+					${sample.parentEvent?.event?.template?.name} at ${sample.getSamplingTime()}
 				</g:if>
 			</td>
 			<td>${sample.parentSubjectEventGroup?.eventGroup?.name}</td>

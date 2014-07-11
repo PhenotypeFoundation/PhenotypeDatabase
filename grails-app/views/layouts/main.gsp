@@ -13,7 +13,7 @@
 	<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
     <r:require modules="gscfmain"/>
     <r:layoutResources />
-    <script src="http://code.jquery.com/jquery-migrate-1.2.1.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.js"></script>
     
     <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 
@@ -56,7 +56,7 @@
 	        Do you agree to these terms?
 	    </p>
 	    <p>
-	        <a target="_ccl" rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
+	        <a target="_ccl" rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
 	    </p>
 	</div>
 <r:layoutResources />

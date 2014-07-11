@@ -134,7 +134,6 @@ class ModuleCommunicationService implements Serializable {
 		}
 		
 		args += "sessionToken=" + sessionToken
-		
 		// Perform a call to the url
 		def restResponse
 		try {

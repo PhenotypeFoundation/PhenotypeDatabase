@@ -86,7 +86,7 @@
 	  sortedEventGroups.each { group ->
 		def max = 1;
 		showTemplates.each { template ->
-		  def num = ( group.events + group.samplingEvents ).findAll { it.template == template }.size();
+		  def num = ( group.eventInstances.event + group.samplingEventInstances.event ).findAll { it.template == template }.size();
 		  if( num > max )
 			max = num;
 		}
@@ -94,6 +94,7 @@
 		rowsPerStudy += max;
 	  }
 
+      /*
 	  def orphans = studyInstance.getOrphanEvents();
 	  if( orphans?.size() > 0 ) {
 		sortedEventGroups.add( new EventGroup(
@@ -103,6 +104,7 @@
 		  subjects: []
 		));
 	  }
+	  */
 	%>
 	<g:each in="${sortedEventGroups}" var="eventGroup" status="j">
 	  <g:set var="n" value="${1}" />
@@ -120,26 +122,26 @@
 
 		  <g:each in="${showTemplates}" var="currentEventTemplate">
 			  <%
-				def templateEvents = (eventGroup.events + eventGroup.samplingEvents).findAll { it.template == currentEventTemplate }.sort { a, b -> a.startTime <=> b.startTime }.asType(List)
+				def templateEvents = (eventGroup.eventInstances + eventGroup.eventInstances).findAll { it.event.template == currentEventTemplate }.sort { a, b -> a.startTime <=> b.startTime }.asType(List)
 				def event = templateEvents.size() >= n ? templateEvents[ n - 1 ] : null;
 			  %>
 			  <td class="templateFieldValue"><g:if test="${event}">${new RelTime( event.startTime ).toString()}</g:if></td>
 			  <g:each in="${showProperties[ currentEventTemplate.name ]}" var="field">
-				<td class="templateFieldValue"><af:showTemplateField field="${field}" entity="${event}" /></td>
+				<td class="templateFieldValue"><af:showTemplateField field="${field}" entity="${event?.event}" /></td>
 			  </g:each>
 		  </g:each>
 
 		  <g:if test="${n == 1}">
-			<% sortedGroupSubjects = eventGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
+			<% sortedGroupSubjects = eventGroup.subjectEventGroups.subjectGroup.subjects.sort( { a, b -> a.name <=> b.name } as Comparator )  %>
 
 			<td rowspan="${maxNumberEventsPerTemplate[ eventGroup.name ]}" title="${sortedGroupSubjects.name.join( ', ' )}">
-				<g:if test="${eventGroup.subjects.size()==0}">
+				<g:if test="${eventGroup.subjectEventGroups.subjectGroup.subjects.size()==0}">
 					-
 				</g:if>
 				<g:else>
-					<g:each in="${eventGroup.subjects.species.unique()}" var="currentSpecies" status="k">
+					<g:each in="${eventGroup.subjectEventGroups.subjectGroup.subjects.species.flatten().unique()}" var="currentSpecies" status="k">
 						<g:if test="${k > 0}">,</g:if>
-						<%=eventGroup.subjects.findAll { return it.species == currentSpecies; }.size() %>
+						<%=eventGroup.subjectEventGroups.subjectGroup.subjects.flatten().findAll { return it.species == currentSpecies; }.size() %>
 						${currentSpecies}
 					</g:each>
 				</g:else>
