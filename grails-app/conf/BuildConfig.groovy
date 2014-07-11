@@ -73,13 +73,10 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-            ":dbxp-base:0.2.0.3.rc5",
+            ":dbxp-base:0.2.0.4",
             ":dbxp-sam:0.9.7.4",
 
             ":hibernate:$grailsVersion",
-
-//            ":jquery:latest.integration",
-//            ':jquery-ui:latest.integration',
 
             ":jquery:latest.integration",
             ':jquery-ui:latest.integration',
@@ -93,7 +90,7 @@ grails.project.dependency.resolution = {
             ":webflow:2.0.8.1"
         )
 
-        compile(":gdtimporter:0.6.0.3"){transitive = false}
+        compile(":gdtimporter:0.6.0.4"){transitive = false}
 
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins

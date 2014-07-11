@@ -16,7 +16,7 @@ import grails.plugins.springsecurity.Secured
  * Date: 28-11-13
  * Time: 12:10
  */
-@Secured(['IS_AUTHENTICATED_REMEMBERED'])
+@Secured(['ROLE_ADMIN'])
 class TnoMigrateController {
 
     def index() {
