@@ -63,6 +63,7 @@
 			});
 		</g:if>
 	</script>
+    <script rel="javascript" src="${resource(dir: 'js', file: 'advancedQuery.min.js')}"></script>
 </head>
 <body>
 

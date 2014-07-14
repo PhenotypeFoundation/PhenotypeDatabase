@@ -409,12 +409,12 @@ class Criterion {
 		def domainFields 
 		
 		switch( objectToSearchIn.toLowerCase() ) {
-			case "study":	domainFields = Study.domainFields();	break;
-			case "subject":	domainFields = Subject.domainFields();	break;
-			case "event":	domainFields = Event.domainFields();	break;
-			case "sample":	domainFields = Sample.domainFields();	break;
-			case "assay":	domainFields = Assay.domainFields();	break;
-			case "samplingevent":	domainFields = SamplingEvent.domainFields();	break;
+			case "study":	domainFields = Study.domainFields;	break;
+			case "subject":	domainFields = Subject.domainFields;	break;
+			case "event":	domainFields = Event.domainFields;	break;
+			case "sample":	domainFields = Sample.domainFields;	break;
+			case "assay":	domainFields = Assay.domainFields;	break;
+			case "samplingevent":	domainFields = SamplingEvent.domainFields; break;
 		}
 		
 		domainFields.each { field ->
