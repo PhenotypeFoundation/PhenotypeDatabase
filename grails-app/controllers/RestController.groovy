@@ -180,7 +180,7 @@ class RestController {
 	 * Result: same as result of Example 1. 
 	 */
 	def getStudies = {
-		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
+		def authenticateduser = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 		
 		List returnStudies = []
 		List studies = []
@@ -191,7 +191,7 @@ class RestController {
 		else if( params.studyToken instanceof String ) {
 			def study = Study.findWhere(UUID: params.studyToken )
 			if( study ) {
-				if( !study.canRead(user) ) {
+				if( !study.canRead(authenticateduser) ) {
 					response.sendError(401)
 					return false
 				}
@@ -215,7 +215,7 @@ class RestController {
 		studies.each { study ->
 			if(study) {
 				// Check whether the person is allowed to read the data of this study
-				if( study.canRead(user)) {
+				if( study.canRead(authenticateduser)) {
 
 					def items = [studyToken:study.UUID, 'public': study.publicstudy]
 					study.giveFields().each { field ->
