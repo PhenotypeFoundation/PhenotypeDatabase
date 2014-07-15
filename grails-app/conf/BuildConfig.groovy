@@ -19,6 +19,7 @@ grails.project.dependency.resolution = {
         // excludes 'ehcache'
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+	legacyResolve true
     repositories {
 	    grailsCentral()
 	    grailsRepo "http://grails.org/plugins"
@@ -73,8 +74,8 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-            ":dbxp-base:0.2.0.2",
-            ":dbxp-sam:0.9.7.3",
+            ":dbxp-base:0.2.0.5",
+            ":dbxp-sam:0.9.7.5",
 
             ":hibernate:$grailsVersion",
 
@@ -93,7 +94,7 @@ grails.project.dependency.resolution = {
             ":webflow:2.0.8.1"
         )
 
-        compile(":gdtimporter:0.6.0.3"){transitive = false}
+        compile(":gdtimporter:0.6.0.5"){transitive = false}
 
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
@@ -113,6 +114,7 @@ grails.project.dependency.resolution = {
 //grails.plugin.location.'ajaxflow' = '../ajaxflow'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
 //grails.plugin.location.'spring-security-core' = '../grails-spring-security-core'
+//grails.plugin.location.'gdt' = '../GDT'
 //grails.plugin.location.'dbxpSam' = '../SAM'
 //grails.plugin.location.'gdtimporter' = '../GDTImporter'
 //grails.plugin.location.'dbxp-base' = '../dbxpBase'
