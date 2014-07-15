@@ -39,7 +39,7 @@
 		<span class="active">samples</span>
 	</g:if>
 	<g:else>
-		<g:if test="${study?.id && study?.subjects.size()}">
+		<g:if test="${study?.id && ( study?.subjects?.size() || study?.samples?.size() )}">
 			<g:link controller="studyEdit" action="samples" id="${study.id}">samples</g:link>
 		</g:if>
 		<g:else>
@@ -51,7 +51,7 @@
 		<span class="active">assays</span>
 	</g:if>
 	<g:else>
-		<g:if test="${study?.id && study?.samples.size()}">
+		<g:if test="${study?.id && ( study?.samples?.size() || study?.assays?.size() )}">
 			<g:link controller="studyEdit" action="assays" id="${study.id}">assays</g:link>
 		</g:if>
 		<g:else>
@@ -63,7 +63,7 @@
 		<span class="active">assay-samples</span>
 	</g:if>
 	<g:else>
-		<g:if test="${study?.id && study?.samples.size()}">
+		<g:if test="${study?.id && study?.samples?.size() && study?.assays?.size()}">
 			<g:link controller="studyEdit" action="assaysamples" id="${study.id}">assay-samples</g:link>
 		</g:if>
 		<g:else>
