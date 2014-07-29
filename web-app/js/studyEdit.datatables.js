@@ -355,7 +355,7 @@ StudyEdit.datatables = {
 				// Update the info field
 				field.filter( ".upload_info" )
 					.attr( "id", fieldId + "Example" )
-					.html( value ? "File: " + createFileHTML( value.substring(0,10) ) : "" );
+					.html( value ? "File: " + createFileHTML( value ) : "" );
 				
 				// UPdate the upload button
 				field.filter( ".upload_button" )

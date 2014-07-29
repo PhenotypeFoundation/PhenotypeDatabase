@@ -166,7 +166,11 @@ function deleteFile(field_id) {
 
 
 function createFileHTML(filename) {
-	return '<a target="_blank" href="' + baseUrl + '/file/get/' + filename + '">' + filename + '</a>';
+	var showFilename = filename;
+	if( showFilename.length > 10 )
+		showFilename = showFilename.substring(0,8) + "...";
+	
+	return '<a target="_blank" href="' + baseUrl + '/file/get/' + filename + '">' + showFilename + '</a>';
 }
 
 /*******************************************************************
