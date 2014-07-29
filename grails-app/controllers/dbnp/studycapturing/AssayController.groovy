@@ -2,6 +2,7 @@ package dbnp.studycapturing
 
 import grails.plugins.springsecurity.Secured
 import grails.converters.JSON
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class AssayController {
@@ -198,11 +199,13 @@ class AssayController {
 		assays.each{ assay ->
 			def moduleMeasurementData
 			try {
-				//moduleMeasurementData = assayService.requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
-				//data[ "Module measurement data: " + assay.name ] = moduleMeasurementData
                 moduleMeasurementData = apiService.getPlainMeasurementData(assay, remoteUser)
                 data[ "Module measurement data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
-			} catch (e) {
+			} catch (GroovyCastException gce) {
+                //This module probably does not support the 'getPlainMeasurementData' method, try it the old way.
+                moduleMeasurementData = assayService.requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
+                data[ "Module measurement data: " + assay.name ] = moduleMeasurementData
+            } catch (e) {
 				moduleMeasurementData = ['error' : [
 						'Module error, module not available or unknown assay']
 					* samples.size() ]
