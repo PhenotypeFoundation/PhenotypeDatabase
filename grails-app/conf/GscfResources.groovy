@@ -9,13 +9,12 @@ modules = {
 		dependsOn 'jquery-ui'
 		
 		resource url:[ dir:'css', file: 'default.css']
-		resource url:[ dir:'css', file: 'login_panel.css']
-		
+
 		resource url:[ dir:'js', file: 'disableKeys.js']
-		resource url:[ dir:'js', file: 'login_panel.js']
-		resource url:[ dir:'js', file: 'topnav.js']
 		resource url:[ dir:'js', file: 'paginate.js']
 		resource url:[ dir:'js', file: 'removeWebflowExecutionFromMenu.min.js']
+        resource url:[ dir:'js', file: 'main.js']
+        resource url:[ dir:'js', file: 'icheck.js']
     }
 
 	// Timeline scripts used within the study edit 

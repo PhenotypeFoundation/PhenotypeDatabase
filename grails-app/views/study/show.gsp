@@ -224,14 +224,12 @@
 				<g:hiddenField name="id" value="${studyInstance?.id}"/>
 				<g:if test="${studyInstance.canWrite(loggedInUser)}">
 					<span class="button">
-                        <g:link class="edit linktips" title="Edit this study" controller="studyEdit" action="edit" id="${studyInstance?.id}">
-                            ${message(code: 'default.button.edit.label', default: 'Edit')}
-                        </g:link>
+                        <g:link class="edit linktips" title="Edit this study" controller="studyEdit" action="edit" id="${studyInstance?.id}"><input type="button" class="button-4 margin10 pie" value="Edit"/></g:link>
 					</span>
 					<%--<span class="button"><g:link class="edit linktips" title="Edit the basic properties of this study" controller="simpleWizard" action="index" id="${studyInstance?.id}">Simple edit</g:link></span>--%>
 				</g:if>
 				<g:if test="${studyInstance.isOwner(loggedInUser) || loggedInUser?.hasAdminRights()}">
-					<span class="button"><g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')} WHOLE STUDY" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');"/></span>
+					<span class="button"><g:actionSubmit class="button-4 margin10 pie" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')} Study" onclick="return confirm('Are you sure you want to delete the entire study?');"/></span>
 				</g:if>
 			</g:if>
 
@@ -242,8 +240,7 @@
 					document.location = url;
 				}
 			</script>
-
-			<span class="button"><g:link class="backToList" action="list">Back to list</g:link></span>
+            <g:link class="backToList" action="list"><input type="button" class="button-4 margin10 pie" value="Back to list"/></g:link>
 		</g:form>
 	</div>
 </div>

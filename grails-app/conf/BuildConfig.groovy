@@ -76,11 +76,7 @@ grails.project.dependency.resolution = {
 		compile(
             ":dbxp-base:0.2.0.5",
             ":dbxp-sam:0.9.7.5",
-
             ":hibernate:$grailsVersion",
-
-//            ":jquery:latest.integration",
-//            ':jquery-ui:latest.integration',
 
             ":jquery:latest.integration",
             ':jquery-ui:latest.integration',
