@@ -1,5 +1,6 @@
 import dbnp.authentication.SecRole
 import dbnp.authentication.SecUser
+import grails.util.Environment
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.dbnp.gdt.*
 import dbnp.studycapturing.Study
@@ -60,26 +61,24 @@ class BootStrap {
 		// automatically handle database upgrades
 		DatabaseUpgrade.handleUpgrades(dataSource, grailsApplication)
 
-		// developmental/test/demo bootstrapping:
-		//      - templates
-		//      - ontologies
-		//      - and/or studies
-		if (    grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT ||
-                grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST ||
-                grails.util.GrailsUtil.environment == "dbnpdemo") {
-			// add ontologies?
-			//if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
-
-			// add templates?
-			if (!Template.count()) ExampleTemplates.initTemplates()
-
-			// add data required for the webtests?
-			if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) ExampleStudies.addTestData()
-
-			// add example studies?
-			if (!Study.count() && grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT)
-				ExampleStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
-		}
+		// developmental/test template/ontology/study bootstrapping:
+//		if ( Environment.current == Environment.DEVELOPMENT ||  Environment.current == Environment.TEST ) {
+//			// add ontologies?
+//			if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
+//
+//			// add templates?
+//			if (!Template.count()) ExampleTemplates.initTemplates()
+//
+//			// add data required for the webtests?
+//			if (Environment.current == Environment.TEST) ExampleStudies.addTestData()
+//
+//            println "Study COUNT"
+//            println Study.count()
+//
+//			// add example studies?
+//			if (!Study.count() && Environment.current == Environment.DEVELOPMENT)
+//				ExampleStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
+//		}
 
 		/**
 		 * attach ontologies in runtime. Possible problem is that you need
