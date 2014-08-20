@@ -156,8 +156,9 @@
 				<g:if test="${study.subjectGroups}">
 					// Make sure all groups exist
 					<g:each in="${study.subjectGroups}" var="group">
-						StudyEdit.design.subjectGroups.groups.data.push( { 'id': ${group.id}, 'name':  '${group.name.encodeAsJavaScript()}' } );
-						StudyEdit.design.subjectGroups.updateTimeline(); 
+                        <!-- please verify whether subjext_idx are set correct if an error about group.id appears! -->
+						StudyEdit.design.subjectGroups.groups.data.push( { 'id': ${group.id}, 'name':  '${group.name .encodeAsJavaScript()}' } );
+						StudyEdit.design.subjectGroups.updateTimeline();
 	  				</g:each>
 	  			</g:if>
 			});
