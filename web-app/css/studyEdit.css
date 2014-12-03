@@ -160,8 +160,8 @@ table.dataTable td.dataTables_empty { text-align: left; }
 
 .addToTimeline .name { font-weight: bold;  }
 .eventgroups .events { display: inline-block; margin-left: 10px; }
-.addToTimeline .buttons { float: right; margin-top: 0px; }
-.addToTimeline .buttons a { padding-top: 3px; padding-bottom: 3px; display: inline-block; margin-left: 10px; }
+.addToTimeline .eventgroup-buttons { float: right; }
+.addToTimeline .eventgroup-buttons a { display: inline-block; margin-left: 5px; }
 
 #timeline-eventgroups, #timeline-events { position: relative; }
 #timeline-eventgroups .timeline-groups-text { cursor: pointer; height: 30px; }

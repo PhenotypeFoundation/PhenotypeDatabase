@@ -54,7 +54,7 @@
 								<span class="events">
 									${eventgroup.contents}
 								</span>
-								<span class="buttons">
+								<span class="eventgroup-buttons">
 									<a href="#" class="edit">edit</a>
 									<a href="#" class="delete">del</a>
 								</span>
