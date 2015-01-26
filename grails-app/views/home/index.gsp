@@ -258,6 +258,7 @@
                         as the study owner can decide who can view or access the data. In addition, the ${grailsApplication.config.application.title}
                         can stimulate collaborations by making study information and data publicly visible. New studies can be based on study
                         data within the database, as standardized storage is stimulated by the system.
+						Upon publication of the data, studies can be made publicly accessible (under <a target="_blank" href="${resource(dir:'downloads', file: 'license_terms.pdf')}">these</a> license terms).
                     </p>
                     <h1>Quick Start</h1>
                     <p>
