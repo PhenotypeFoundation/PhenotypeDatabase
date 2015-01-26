@@ -491,7 +491,7 @@ h1.title {
 
 #footer .copyright {
     display: inline-block;
-    background: url(../images/default_style/dpNP-icon.png) 100% 0 no-repeat;
+    background: url(../images/default_style/phenotypedb-icon.png) 100% 0 no-repeat;
     padding-right: 35px;
     padding-top: 4px;
     min-height: 24px;
@@ -734,7 +734,7 @@ input:focus[type="submit"] {
 }
 .buttons .button-3,
 .button-3 {
-    background: #e9644f url(../images/default_style/dpNP-icon-1.png) 100% 8px no-repeat;
+    background: #e9644f url(../images/default_style/phenotypedb-icon-1.png) 100% 8px no-repeat;
     color: #fff;
     font-family: 'Raleway';
     font-size: 18px;

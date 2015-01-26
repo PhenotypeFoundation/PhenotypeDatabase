@@ -3,7 +3,7 @@
 <div id="wrapper" xmlns="http://www.w3.org/1999/html">
     <div id="header">
         <div class="container">
-            <g:link class="logo" controller="home"><img src="${resource(dir: 'images/default_style', file: 'dpNP-logo.png')}" width="242" height="55" alt="" /></g:link>
+            <g:link class="logo" controller="home"><img src="${resource(dir: 'images/default_style', file: 'phenotypedb-logo.png')}" height="65%" width="65%"/></g:link>
                 <ul class="loginBlock">
                     <li>Hello
                     <sec:ifLoggedIn>
