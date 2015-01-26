@@ -249,14 +249,14 @@
     <div class="intro">
         <div class="content editor">
             <h1 class="title">Introduction</h1>
-            <div class="subtitle"><p>${grailsApplication.config.application.title} is an application that can store any biological study. It contains templates which makes it possible to customize.</p></div>
+            <div class="subtitle"><p>The ${grailsApplication.config.application.title} is an application that can store any biological study. It contains templates which makes it possible to customize.</p></div>
             <div class="toggleCont">
                 <p class="shortCont">In order to allow flexibility to capture all information you require within a study, and to make it possible to compare studies or study data, the system uses customizable templates and ontologies. It is especially designed to store complex study designs including. <a class="more" href="#" title="">Read more...</a></p>
                 <div class="fullCont">
                     <p>
-                        ${grailsApplication.config.application.title} facilitates sharing of data within a research group or consortium,
-                        as the study owner can decide who can view or access the data. In addition, ${grailsApplication.config.application.title}
-                        can stimulate collaborations by making study information publicly visible. New studies can be based on study
+                        The ${grailsApplication.config.application.title} facilitates sharing of data within a research group or consortium,
+                        as the study owner can decide who can view or access the data. In addition, the ${grailsApplication.config.application.title}
+                        can stimulate collaborations by making study information and data publicly visible. New studies can be based on study
                         data within the database, as standardized storage is stimulated by the system.
                     </p>
                     <h1>Quick Start</h1>
@@ -280,16 +280,17 @@
             <div class="document">
                 <h2>User Guide Downloads</h2>
                 <ul class="doclist">
-                    <li><a href="${resource(dir:'downloads', file: 'quickstart_study_capturing.pdf')}" title="">Quick Start User Guide</a></li>
-                    <li><a href="${resource(dir:'downloads', file: 'gscf_user_guide.pdf')}" title="">In Depth User Guide</a></li>
+                    <li><a target="_blank" href="${resource(dir:'downloads', file: 'quickstart_study_capturing.pdf')}" title="">Quick Start User Guide</a></li>
+                    <li><a target="_blank" href="${resource(dir:'downloads', file: 'gscf_user_guide.pdf')}" title="">In Depth User Guide</a></li>
+                    <li><a target="_blank" href="${resource(dir:'downloads', file: 'license_terms.pdf')}" title="">License Terms</a></li>
                 </ul>
             </div>
             <p class="note">If you encounter a problem or have a suggestion for improvement feel free to submit an issue <a href="#" title="">here</a></p>
         </div>
     </div>
+	<h1>Usage Statistics</h1>
     <div class="usageStatistics">
         <g:if test="${showstats && studyCount}">
-            <h1>Usage Statistics</h1>
             <div id="graphs" style="display:block;width:100%;height:300px;">
                 <div id="studies-pie" style="width:476px;height:296px;display:inline-block;float:left;zoom:1;*display:inline;"></div>
                 <div id="daily-statistics" style="margin:2px;width:476px;height:296px;display:inline-block;float:left;zoom:1;*display:inline;"></div>
