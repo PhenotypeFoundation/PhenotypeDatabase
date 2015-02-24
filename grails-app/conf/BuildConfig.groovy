@@ -83,7 +83,7 @@ grails.project.dependency.resolution = {
 //            ':jquery-ui:latest.integration',
 
             ":jquery:latest.integration",
-            ':jquery-ui:latest.integration',
+            ':jquery-ui:1.10.4',
 			
             ":resources:latest.integration",
             ":spring-security-core:1.2.7.3",
@@ -91,6 +91,7 @@ grails.project.dependency.resolution = {
             ":famfamfam:1.0.1",
             ":mail:1.0.1",
             ":quartz:1.0-RC5",
+            ":ajaxflow:0.2.4",
             ":webflow:2.0.8.1"
         )
 
@@ -100,7 +101,7 @@ grails.project.dependency.resolution = {
             // development mode only Plugins
             compile(":console:1.2",
                     ":trackr:0.7.3",
-                    ":grom:latest.integration"
+                    ":grom:0.3.0"
             )
         }
 
