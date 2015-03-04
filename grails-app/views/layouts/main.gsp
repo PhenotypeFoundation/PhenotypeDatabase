@@ -17,7 +17,7 @@
 
     <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 
-    <g:if env="production"><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script></g:if>
+    <g:if env="production"><script src="//connect.facebook.net/en_US/all.js#xfbml=1"></script></g:if>
     <g:if env="development">
         <link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.css')}"/>
     </g:if>
@@ -27,38 +27,38 @@
     <g:layoutHead/>
 </head>
 <body>
-    <g:render template="/common/header"/>
-    <div id="content">
-        <div class="inner">
-            <div class="container">
-                <g:layoutBody/>
-            </div>
+<g:render template="/common/header"/>
+<div id="content">
+    <div class="inner">
+        <div class="container">
+            <g:layoutBody/>
         </div>
     </div>
-    %{--Disabled Facebook Recommend--}%
-    %{--<g:if env="production">
-        <g:if test="${facebookLikeUrl}">
-            <div id="facebookConnect">
-                <fb:like href="${resource(absolute: true)}${facebookLikeUrl}" show_faces="true" width="450" action="recommend" font="arial"></fb:like>
-            </div>
-        </g:if>
-    </g:if>--}%
-    <div id="footer">
-        <div class="container"><p class="copyright">Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="http://dbnp.org">http://dbnp.org</a>.</p></div>
-    </div>
+</div>
+%{--Disabled Facebook Recommend--}%
+%{--<g:if env="production">
+    <g:if test="${facebookLikeUrl}">
+        <div id="facebookConnect">
+            <fb:like href="${resource(absolute: true)}${facebookLikeUrl}" show_faces="true" width="450" action="recommend" font="arial"></fb:like>
+        </div>
+    </g:if>
+</g:if>--}%
+<div id="footer">
+    <div class="container"><p class="copyright">Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="//dbnp.org">http://dbnp.org</a>.</p></div>
+</div>
 <trackr:track reference="${session?.gscfUser ? session.gscfUser : '-'}"/>
 
 <div id="dialog-creative-commons" title="License agreement" style="display:none">
     <p>
         By publishing this study you agree that:<br/>
-    <li>the study will be available under the <a target="_ccl" rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a></li>
+    <li>the study will be available under the <a target="_ccl" rel="license" href="//creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a></li>
     <li>you are legally entitled to accept this agreement</li>
 </p>
     <p>
         Do you agree to these terms?
     </p>
     <p>
-        <a target="_ccl" rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
+        <a target="_ccl" rel="license" href="//creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
     </p>
 </div>
 <r:layoutResources />

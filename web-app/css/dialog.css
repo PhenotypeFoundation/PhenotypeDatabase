@@ -83,9 +83,10 @@ td, th {
     /*font: 11px verdana, arial, helvetica, sans-serif;*/
 	font-size: 11pt;
     line-height: 12px;
-    padding: 5px 6px;
+    padding: 3px;
     text-align: left;
     vertical-align: top;
+    white-space: nowrap;
 }
 th {
     background: #fff url(../images/default_style/tables/shadow.jpg);

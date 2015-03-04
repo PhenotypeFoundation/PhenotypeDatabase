@@ -1,8 +1,8 @@
 /* Overall layout: use whole page width */
-.container { width: auto; }
-#header{ position: relative; width: 960px; margin: 0 auto; }
+/*.container { width: auto; }*/
+/*#header{ position: relative; width: 960px; margin: 0 auto; }*/
 #header .buildinfo{ display: none;}
-div#content { padding-top: 35px; padding-bottom: 0px;}
+/*div#content { padding-top: 35px; padding-bottom: 0px;}*/
 div#content p {text-align: left;}
 
 /* #step2, #step3 { display: none; } */
