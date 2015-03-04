@@ -65,6 +65,10 @@ grails.project.dependency.resolution = {
 	    //runtime 'hsqldb:hsqldb:1.8.0.10'
 
         compile "org.grails:grails-webflow:$grailsVersion"
+		
+		compile('org.codehaus.groovy.modules.http-builder:http-builder:0.5.0') {
+			excludes "commons-logging", "xml-apis", "groovy"
+		}
     }
 	plugins {
 
@@ -74,7 +78,7 @@ grails.project.dependency.resolution = {
 		)
 
 		compile(
-            ":dbxp-base:0.2.0.5",
+            ":dbxp-base:0.2.0.6",
             ":dbxp-sam:0.9.7.5",
             ":hibernate:$grailsVersion",
 
