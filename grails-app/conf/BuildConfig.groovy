@@ -81,10 +81,10 @@ grails.project.dependency.resolution = {
 //            ":jquery:latest.integration",
 //            ':jquery-ui:latest.integration',
 
-            ":jquery:latest.integration",
+            ":jquery:1.11.1",
             ':jquery-ui:1.10.4',
 			
-            ":resources:latest.integration",
+            ":resources:1.2",
             ":spring-security-core:1.2.7.3",
 
             ":famfamfam:1.0.1",
@@ -99,8 +99,7 @@ grails.project.dependency.resolution = {
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
             compile(":console:1.2",
-                    ":trackr:0.7.3",
-                    ":grom:0.3.0"
+                    ":trackr:0.7.3"
             )
         }
 
