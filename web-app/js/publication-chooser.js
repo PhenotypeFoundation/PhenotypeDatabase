@@ -304,10 +304,10 @@ PublicationChooser.prototype = {
         } else {
             renderMethod = this.renderPublication;
         }
-
-        inputElement.data( "ui-autocomplete" )._renderItem = function( ul, item ) { 
-            return that.renderAutoCompleteText( ul, item, renderMethod( item ) );
-        };
+//
+//        inputElement.data( "ui-autocomplete" )._renderItem = function( ul, item ) { 
+//            return that.renderAutoCompleteText( ul, item, renderMethod( item ) );
+//        };
 
     },
 

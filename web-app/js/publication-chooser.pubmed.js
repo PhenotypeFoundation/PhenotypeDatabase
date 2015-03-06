@@ -18,39 +18,36 @@ sourcePubMed = function( chooserObject, searchterm, response ) {
     // Fetch it from Pubmed
     // This has to be done in two steps: first find IDs, and second, find information
     $.ajax({
+    	url: url,
+        dataType: "xml"
+    }).done( function(xmlResponse) {
+        var xmlDoc = $(xmlResponse);
+        var WebEnv = $("WebEnv", xmlDoc ).text();
+        var query_key = $("QueryKey", xmlDoc ).text();
+
+        var utility = 'esummary.fcgi';
+        var params = "db=pubmed&retmax=" + chooserObject.maxResults + "&query_key=" + query_key + "&WebEnv=" + WebEnv;
+        var url = _createURL( utility, params );
+
+        $.ajax({
             url: url,
-            dataType: "xml",
-            success: function(xmlResponse) {
-                var xmlDoc = $(xmlResponse);
-                var WebEnv = $("WebEnv", xmlDoc ).text();
-                var query_key = $("QueryKey", xmlDoc ).text();
+            dataType: "xml"
+        }).done(function(summaryResponse) {
+            // Parse the response
+            var parsedData = parsePubmedData( summaryResponse )
 
-                var utility = 'esummary.fcgi';
-                var params = "db=pubmed&retmax=" + chooserObject.maxResults + "&query_key=" + query_key + "&WebEnv=" + WebEnv;
-                var url = _createURL( utility, params );
+            // Save in cache
+            chooserObject.cache[ chooserObject.database ][ searchterm ] = parsedData;
 
-                $.ajax({
-                    url: url,
-                    dataType: "xml",
-                    success: function(summaryResponse) {
-                        // Parse the response
-                        var parsedData = parsePubmedData( summaryResponse )
-
-                        // Save in cache
-                        chooserObject.cache[ chooserObject.database ][ searchterm ] = parsedData;
-
-                        // Return it to jquery
-                        response( parsedData );
-                    },
-                    error: function() {
-                            response( null );
-                    }
-                })
-            },
-            error: function() {
-                response( null );
-            }
+            // Return it to jquery
+            response( parsedData );
+        }).fail(function() {
+        	response( null );
+        });
     })
+    .fail(function() {
+    	response( null );
+    });
 
 };
 

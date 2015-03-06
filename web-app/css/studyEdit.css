@@ -230,3 +230,4 @@ div.dataTables_wrapper .ui-widget-header { text-align: center; }
 .ui-front {
 	z-index: 1050;
 }
+.ui-autocomplete.ui-menu { z-index: 1051; }
