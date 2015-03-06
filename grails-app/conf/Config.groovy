@@ -136,13 +136,13 @@ grails.plugins.springsecurity.dao.reflectionSaltSourceProperty = 'username' // U
 grails.plugins.springsecurity.securityConfigType = grails.plugins.springsecurity.SecurityConfigType.Annotation
 grails.plugins.springsecurity.successHandler.targetUrlParameter = 'spring-security-redirect'
 
-+//Login errors
-+grails.plugins.springsecurity.errors.login.expired= 'Sorry, your account has expired.'
-+grails.plugins.springsecurity.errors.login.passwordExpired='Sorry, your password has expired.'
-+grails.plugins.springsecurity.errors.login.disabled='Sorry, your account is disabled.'
-+grails.plugins.springsecurity.errors.login.locked='Sorry, your account is locked.'
-+grails.plugins.springsecurity.errors.login.fail='Sorry, we were not able to find a user with that username and password.'
-+grails.plugins.springsecurity.denied.message='Sorry, you\'re not authorized to view this page.'
+//Login errors
+grails.plugins.springsecurity.errors.login.expired= 'Sorry, your account has expired.'
+grails.plugins.springsecurity.errors.login.passwordExpired='Sorry, your password has expired.'
+grails.plugins.springsecurity.errors.login.disabled='Sorry, your account is disabled.'
+grails.plugins.springsecurity.errors.login.locked='Sorry, your account is locked.'
+grails.plugins.springsecurity.errors.login.fail='Sorry, we were not able to find a user with that username and password.'
+grails.plugins.springsecurity.denied.message='Sorry, you\'re not authorized to view this page.'
 
 // Spring Security configuration
 grails.plugins.springsecurity.useBasicAuth = true
