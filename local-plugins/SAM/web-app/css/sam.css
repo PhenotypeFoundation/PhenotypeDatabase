@@ -1,0 +1,205 @@
+/*
+    Stylesheet specifically for the SAM module
+*/
+body { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11px; }
+
+/* FAQ on homepage */
+#faq .ui-accordion-content { padding: 0.5em 1.2em; }
+
+div#contextmenu { margin-top: 0; margin-bottom: 20px; }
+div#contextmenu ul {
+	list-style-type: none;
+	margin: 0 0 0 11px;
+	padding: 0;
+	background-color: #FBFDFF; 
+}
+div#contextmenu ul li { 
+	display: inline-block; *display: inline; zoom: 1; 
+}
+div#contextmenu a {
+	display: inline-block;
+ 	*display: inline; zoom: 1;
+ 	padding-top: 6px; padding-bottom: 6px;
+}
+	
+div#contextmenu a:hover {
+	background-color: #F0FBFF;
+	color: #359; 
+}
+
+/* Header above each page */
+h1 { }
+
+/* Div around all data (lists/forms) including buttons */
+div.data {
+    padding-left: 11px;
+}
+
+/* Buttons on top of a list */
+ul.buttons.ontop { margin: 6px 0; }
+
+/* Buttons specifically targeted at the data shown */
+ul.data_nav {
+    color: #333333;
+    font-weight: bold;
+    margin: 2px 3px;
+    padding: 0px; 
+    list-style-type: none;
+}
+ul.data_nav li { display: inline-block; *display: inline; zoom: 1; margin-right: 20px; }
+
+#footer { display: none; }
+
+#content a:link, #content a:visited {
+    color: #333333;
+}
+
+/* Used for distinguishing parts of the screen */
+.border-top { border-top: 2px solid #ccc; }
+
+/* This class is used for error messages. However, sometimes a 
+td.errors occurs, and that shouldn't be made up like this.*/
+div.errors {
+    background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat scroll 10px 10px #ffcccc;
+    border: 1px solid #FF0000;
+    margin: 10px 10px 0px 10px;
+    padding: 10px 10px 10px 33px;
+    text-align: justify;
+}
+
+div.errors ul { margin-top: 0; margin-bottom: 0; }
+td.errors input, td.errors select { background-color: #fcc; }
+
+.badcell {
+    background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat scroll 2px 1px #ffcccc;
+    border: 1px solid #FF0000;
+    margin: 2px 2px 0px 2px;
+    padding: 2px 2px 2px 20px;
+}
+
+.layoutchoice {
+    border: 1px solid lightgray;
+    margin:  15px 0px 15px 0px;
+    padding:  6px 5px 6px 5px;
+    text-align: left;
+}
+
+.buttons .import { 
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/page_white_add.png);
+}
+
+/* Color of cells in the importer */
+.importerInteractiveCell {
+    cursor: pointer;
+}
+
+.importerOperatorCell {
+    background-color: #ffefef;
+}
+
+.importerCommentCell {
+    background-color: pink;
+}
+
+.importerCell {
+    border: 1px solid lightgray;
+    text-align: center;
+}
+
+.importerHeader {
+    border: 1px solid lightgray;
+    text-align: left;
+}
+
+.importerSelect {
+    width: 148px;
+}
+
+.importerSelectBackground {
+    display: inline-block;
+    border-top: solid lightgray 1px;
+    padding-top: 3px;
+    margin-top: 2px;
+}
+
+.importerDiscarded {
+    background-color: white;
+    color: silver;
+}
+
+.importerDiscarded:hover {
+    background-color: white;
+    color: black;
+}
+
+/* Width of a field name in the edit feature editor */
+.fieldName { width: 25%; }
+
+/* Comments field in the assay overview */
+td.comments { background-color: pink; }
+
+/* FeatureGroups list in /feature/edit.gsp  */
+td.styleFeatureGroup {
+    width: 250px;
+}
+
+.styleFeatureGroup ul {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+.styleFeatureGroup li {
+    background-color: #EAF5FF;
+    padding: 5px;
+    margin: 5px 0px;
+}
+
+.styleFeatureGroup a.showLink {
+    width: 200px;
+    display: inline-block;
+}
+
+.styleFeatureGroup a.delete {
+    margin: 0px;
+}
+
+
+.pagination {
+    border-top: 0;
+    margin: 0;
+    padding: 0.3em 0.2em;
+    text-align: center;
+    -moz-box-shadow: 0 0 3px 1px #AAAAAA;
+    -webkit-box-shadow: 0 0 3px 1px #AAAAAA;
+    box-shadow: 0 0 3px 1px #AAAAAA;
+    background-color: #EFEFEF;
+}
+
+.pagination a,
+.pagination .currentStep {
+    color: #666666;
+    display: inline-block;
+    margin: 0 0.1em;
+    padding: 0.25em 0.7em;
+    text-decoration: none;
+    -moz-border-radius: 0.3em;
+    -webkit-border-radius: 0.3em;
+    border-radius: 0.3em;
+}
+
+.pagination a:hover, .pagination a:focus,
+.pagination .currentStep {
+    background-color: #999999;
+    color: #ffffff;
+    outline: none;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+}
+
+.no-borderradius .pagination a:hover, .no-borderradius .pagination a:focus,
+.no-borderradius .pagination .currentStep {
+    background-color: transparent;
+    color: #444444;
+    text-decoration: underline;
+}
+

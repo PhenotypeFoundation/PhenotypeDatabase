@@ -1,0 +1,36 @@
+/*
+.tooltip {
+    background: url(../plugins/famfamfam-1.0.1/images/icons/attach.png) no-repeat scroll 0px 0px;
+    padding: 2px 2px 2px 20px;
+}
+*/
+      
+.tooltip span {
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 5px 5px rgba(0, 0, 0, 0.1);
+    display:none;
+    border: 1px dotted lightgray;
+    color: #000000;
+    background: none repeat scroll 0 0 lightgoldenrodyellow;
+    /* background: none repeat scroll 0 0 seashell; */
+    padding:2px 3px;
+    margin-left:8px;
+}
+
+.tooltip:hover span{
+    display:inline;
+    position:absolute;
+}
+
+/* Cancel special tooltip features for spans within the tooltip span */
+.tooltip span span {
+    border-width: 0; display: inline;
+	box-shadow: none;    
+	background-color: transparent;
+	padding: 0; margin: 0; width: auto;
+	position: relative;
+}
+
+.tooltip:hover span span {
+	position: relative;
+}
