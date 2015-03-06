@@ -95,6 +95,10 @@ class BootStrap {
                 .ontologies = [
 			Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
 		]
+				
+		// Preventing SSL Handshake exception for HTTPS connections java 1.7 
+		// See http://stackoverflow.com/questions/7615645/ssl-handshake-alert-unrecognized-name-error-since-upgrade-to-java-1-7-0
+		System.setProperty "jsse.enableSNIExtension", "false";
 	}
 
 	def destroy = {
