@@ -1,0 +1,85 @@
+/*
+    Stylesheet specifically for the importers
+*/
+
+/** START :: TABS **/
+.tabs {
+    display: block;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #006DBA;
+    width: 100%;
+}
+.tabs ul {
+    list-style-type: none; /* suppression of useless elements */
+    padding: 0px;
+    font-size: 12px;
+    margin: 0px;
+    height: 20px;
+    width: 100%;
+}
+.tabs li {
+    float: left;
+    margin: 0px 5px 0px 0px;
+    height: 20px;
+    float: left;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: #006DBA;
+    background: #CCC;
+    font-weight: bold;
+    padding: 2px 10px 2px 10px;
+}
+
+.tabs .content {
+    display: inline;
+    border: 0px;
+	vertical-align: top;
+	line-height: 20px;
+}
+.tabs .active {
+    background-color: #006DBA !important;
+    color: #fff !important;
+    text-shadow: 0px 0px 1px #333;
+}
+
+/** START NAVIGATION **/
+.navigation {
+    display: block;
+    padding-top: 2px;
+    border-top: 2px solid #006DBA;
+    width: 100%;
+	color: #666666;
+}
+
+.navigation.buttons input {
+    font-size: 12px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #ccc;
+    margin-right: 0px;
+    padding: 2px 6px 2px 6px;
+}
+
+.navigation.buttons input[disabled] {
+    color: #aaaaaa;
+}
+
+/** START MISC **/
+.stepInfo {
+    font-size: 100%;
+}
+
+.fieldInfo {
+    font-size: 100%;
+    color: grey;
+}
+
+.extraFieldInfo {
+    display: none;
+}
+
+div.tableEditor {
+    overflow: visible;
+    overflow-x: auto;
+}
