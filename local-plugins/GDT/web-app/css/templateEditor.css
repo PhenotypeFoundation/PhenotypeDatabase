@@ -1,0 +1,144 @@
+/**
+ * Formatting the template editor with two columns
+ */
+.templateEditorStep { float: left; padding: 10px 0px; margin: 0 10px; }
+.templateEditorStep h3 { margin: 0 0 10px 0; padding-bottom: 10px; border-bottom: 1px solid #BBD; }
+#step2_selectedFields p, #step3_availableFields p { height: 42px; }
+
+#step1_template { width:340px; }
+#step2_selectedFields { width: 340px; margin-right: 20px; }
+#step3_availableFields { width: 340px; }
+
+/**
+ * Formatting the template list and the forms to add/edit them
+ */
+
+#templates  { list-style-type: none; margin: 0; padding: 0; width: 330px; }
+#templates li { margin: 0 5px 5px 5px; padding: 5px; color: #2779AA; }
+html>body #templates li { line-height: 16px; vertical-align: center; }
+
+/* Butons within a list item */
+.listButtons { display: block; float: right; }
+.listButtons img { margin: 0 3px; cursor: pointer; }
+.listButtons img.disabled { cursor: default; opacity: 0.3; }
+
+/**
+ * Formatting of the template fields and the forms to edit/add them
+ */
+.templateFields { list-style-type: none;  margin: 0; padding: 0; width: 330px; }
+.templateFields li { margin: 0 5px 3px 5px; padding: 3px 5px; display: block; }
+html>body .templateFields li { line-height: 16px; vertical-align: center; }
+.ui-state-highlight { height: 17px; }
+.templateFields .ui-icon { display: inline-block; height: 13px; }
+
+.templateName { color: #2779AA; }
+a.switch { font-size: small; color: #68BFEF; text-decoration: none; }
+
+/* Box to show a list is empty */
+.templateFields .empty { opacity: 0.6; padding: 5px 25px; }
+
+/* Domain fields should be yellow */
+.templateFields .domain { background: #FFFFEA; border-color: #EAEAAE; padding-left: 23px; color: #8F8408; }
+
+/* The position where an item can be dropped in the available list will be red */
+#availableTemplateFields .ui-state-highlight { background: #FFD6D6; border-color: #EAAEAE; }
+
+/* Form to edit or add a template field, but also for editing a template itself */
+.templateField_form { display: none; margin: 5px; padding-top: 8px; border-top: 1px solid #BBD; }
+.templateField_form .templateFieldButtons { margin-top: 8px; padding-top: 8px; border-top: 1px solid #BBD; }
+.templateField_form label { width: 80px; float: left; display: block; }
+.templateField_form textarea {width: 205px; height: 100px;  }
+.templateField_form input[type=text],
+.templateField_form select {width: 205px; }
+
+#step3_availableFields .templateField_form p.noEditsPossible {height: auto; margin: 4px 0; padding: 4px; background: #FFD6D6; border: 1px solid #EAAEAE; color: #660000; }
+.templateField_form .extra { display: none; }
+
+
+/* Add new form */
+#addNew {
+	width: 318px;
+	line-height: 16px;
+	background-color: #EBF9D7;
+	border:1px solid #D0EAAE;
+	color:#79AA27;
+	font-weight:bold;
+
+	margin: 10px 5px;
+	padding: 0px;
+}
+
+#addNew.ui-state-disabled { opacity:0.35; }
+#addNew a {
+	display: block;
+	padding: 7px 7px;
+	cursor: pointer;
+	color:#79AA27;
+	text-decoration: none;
+}
+
+#addNew form{
+	margin-left: 10px; margin-right: 10px;
+}
+
+/* Please wait dialog */
+#wait { /* Transparency, see http://hungred.com/how-to/css-opacity-cross-browser-compatible/ */
+	filter: alpha(opacity:0.5);
+	KHTMLOpacity: 0.5;
+	MozOpacity: 0.5;
+	-khtml-opacity:.50;
+	-ms-filter:"alpha(opacity=50)";
+	-moz-opacity:.50;
+	filter:alpha(opacity=50);
+	opacity:.50;
+}
+#wait { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 100;  background-color: #f2f5f7; }
+.wait_text { position: absolute; left: 50%; top: 50%; margin-left: -100px; margin-top: -20px; width: 200px; height: 40px; text-align: center; font-weight: bold; background-color: white; border: 1px solid #006DBA; padding-top: 13px; vertical-align: center; }
+.wait { display: none; }
+
+/* Compare templates view */
+.dataTables_length { float: left; width: 40%; }
+.dataTables_filter { float: right; width: 50%; text-align: right; }
+table#compare_templates { clear: both; }
+.dataTables_info { float: left; width: 40%; line-height: 25px; }
+.dataTables_paginate { float: right; text-align: right; width: 50%; padding-top: 5px; }
+
+.paging_full_numbers span.paginate_active { background:none repeat scroll 0 0 #2E6AB1; color:#FFFFFF; }
+.paging_full_numbers span.paginate_button, .paging_full_numbers span.paginate_active {
+	border:1px solid #CCCCCC; margin-right:2px; padding:1px 6px; text-decoration:none;
+	cursor: pointer;
+}
+
+.sorting_asc {
+	background:url("../images/icons/sort_asc.png") no-repeat scroll right center transparent;
+}
+.sorting_desc {
+	background:url("../images/icons/sort_desc.png") no-repeat scroll right center transparent;
+}
+.sorting {
+	background:url("../images/icons/sort_both.png") no-repeat scroll right center transparent;
+}
+.sorting_asc_disabled {
+	background:url("../images/icons/sort_asc_disabled.png") no-repeat scroll right center transparent;
+}
+.sorting_desc_disabled {
+	background:url("../images/icons/sort_desc_disabled.png") no-repeat scroll right center transparent;
+}
+
+#compare_templates th {white-space: nowrap;}
+.longTitle { display: none; }
+
+/* Add Ontology dialog */
+#addOntology { list-style-type: none; padding-left: 0; }
+#addOntology li { list-style-type: none; margin: 8px 0; padding-left: 20px; }
+#addOntology li input.text { margin-top: 5px; }
+#addOntology li .check { float: left; margin-left: -15px; margin-top: 2px; }
+
+/* Importer */
+#importTemplates h3 { margin-top: 0; }
+#importTemplates ol { margin-left: 0; padding-left: 0; }
+#importTemplates ol.fields { margin-left: 25px; margin-top: 0; }
+#importTemplates ul { margin-left: 0px; padding-left: 15px; }
+#importTemplate li { margin-left: 0; padding-left: 0; }
+#importTemplates .otherTemplateName { display: none; }
+#importTemplates .error { color: #AA0000; }
