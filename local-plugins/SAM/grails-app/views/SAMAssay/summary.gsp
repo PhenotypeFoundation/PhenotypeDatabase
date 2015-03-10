@@ -28,13 +28,11 @@
             <th>Sample name</th>
             <th># Of measurements per Sample</th>
         </thead>
-        <g:set var="i" value="${0}"/>
         <g:each var='sample' in='${samples}'>
             <tr>
-                <td>${sample.parentSample.name}</td>
-                <td>${measurementCounts[i]}</td>
+                <td>${sample[1]}</td>
+                <td>${measurementCounts[sample[0]]}</td>
             </tr>
-            <g:set var="i" value="${i+1}"/>
         </g:each>
     </table>
 </div>

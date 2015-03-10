@@ -101,4 +101,27 @@ class Assay extends TemplateEntity {
         else
             return []
     }*/
+	
+	/**
+	 * Return 
+	 * @return
+	 */
+	public int getSampleCount() {
+		def c = Assay.createCriteria()
+		def result = c.list {
+			eq("id", this.id)
+			createAlias('samples', 'samples')
+			projections {
+				rowCount()
+			}
+			groupProperty("id")
+		}
+		
+		if( result && result[0] ) {
+			return result[0][0]
+		} else {
+			log.warn "Invalid result for retrieving samples counts on assay " + this + ": " + result
+			return 0
+		}
+	}
 }
