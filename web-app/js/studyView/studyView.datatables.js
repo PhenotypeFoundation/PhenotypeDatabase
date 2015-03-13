@@ -1,6 +1,5 @@
 /*
- * This script can be used to initialize (editable) datatable behavior, that is 
- * intended to be used within the study wizard.
+ * This script can be used to initialize datatable behavior,  show wizard.
  * 
  * The datatable has a default layout, contains checkboxes to selected rows and is made
  * editable, if prototypes of the editable fields are available. The datatable is used serverside
@@ -51,7 +50,7 @@
 			</tr>						
 			<tr class="messagebar saveChanges">
 				<td class="" colspan="13">
-					<a href="#" onClick="StudyEdit.datatables.editable.save(this); return false">Save</a>
+					<a href="#" onClick="StudyView.datatables.editable.save(this); return false">Save</a>
 					<span class="saving">Saving...</span>
 				</td>
 			</tr>
@@ -78,11 +77,11 @@
  * 
  */
 
-if( typeof( StudyEdit ) === "undefined" ) { 
-	StudyEdit = {};
+if( typeof( StudyView ) === "undefined" ) { 
+	StudyView = {};
 };
 
-StudyEdit.datatables = {
+StudyView.datatables = {
 	numElements: new Array(),		// Hashmap with the key being the id of the table, in order to facilitate multiple tables
 	elementsSelected: new Array(),	// Hashmap with the key being the id of the table, in order to facilitate multiple tables
 	tableType: new Array(),			// Hashmap with the key being the id of the table, in order to facilitate multiple tables
@@ -103,14 +102,7 @@ StudyEdit.datatables = {
 			var id = $el.attr( 'id' );
 			
 			tableType[ id ] = "serverside";
-			StudyEdit.datatables.elementsSelected[ id ] = new Array();
-			
-			StudyEdit.datatables.selection.initialize( el );
-	
-			// Initialize editable behavior, if a div with prototypes exists
-			if( $( "#" + id + "_prototype" ).length > 0 ) {
-				StudyEdit.datatables.editable.initialize( $el );
-			}
+			StudyView.datatables.elementsSelected[ id ] = new Array();
 			
 			// Determine default options
 			var defaultOptions = { 
@@ -119,9 +111,6 @@ StudyEdit.datatables = {
 				"sAjaxSource": dataUrl,
 				sDom: '<"H"lf>rt<"F"ip>',
 	
-				"sScrollX": "100%",
-				"bScrollCollapse": true,				
-				
 				bJQueryUI: true, 
 				bAutoWidth: false,
 				bFilter: true, 
@@ -140,15 +129,9 @@ StudyEdit.datatables = {
 				// Override the fnServerData in order to show/hide the paginated
 				// buttons if data is loaded
 				"fnServerData": function ( sSource, aoData, fnCallback ) {
-					StudyEdit.datatables.retrieveData( sSource, aoData, fnCallback, id );
+					StudyView.datatables.retrieveData( sSource, aoData, fnCallback, id );
 
 				},
-			    "fnPreDrawCallback": function( oSettings ) {
-					if( $el.data( "changed" ) ) {
-						alert( "Please save or discard changes first." );
-						return false;
-					}
-			      }			
 			};
 			
 			// Check if the datatables has extended options
@@ -162,18 +145,12 @@ StudyEdit.datatables = {
 			
 			// Convert into datatale
 			$el.dataTable(opts);
-	
-			// Add extra selection information span
-	        $("#"+id+"_info").after("<span id='"+id+"_selectinfo' class='selectinfo'></span>");
-	        
-	        // Initialize selectable
-	        StudyEdit.datatables.selection.initializeSelectable( $el );
 		});
 	},
 	
 	retrieveData: function( sSource, aoData, fnCallback, id ) {
-        if( StudyEdit.datatables.selectType[ id ] != "selectNone") {
-            aoData = StudyEdit.datatables.removeColumnInParam(aoData);
+        if( StudyView.datatables.selectType[ id ] != "selectNone") {
+            aoData = StudyView.datatables.removeColumnInParam(aoData);
         }
 		$.ajax( {
 			"dataType": 'json', 
@@ -184,12 +161,12 @@ StudyEdit.datatables = {
 				fnCallback( data, textStatus, jqXHR );
 				
 				// Save total number of elements
-				StudyEdit.datatables.numElements[ id ] = data[ "iTotalRecords" ];
-				StudyEdit.datatables.allElements[ id ] = data[ "aIds" ];
+				StudyView.datatables.numElements[ id ] = data[ "iTotalRecords" ];
+				StudyView.datatables.allElements[ id ] = data[ "aIds" ];
 				
 				// Find which checkboxes are selected
-                if(StudyEdit.datatables.selectType[ id ] != "selectNone") {
-				    StudyEdit.datatables.selection.checkSelectedCheckboxes( id );
+                if(StudyView.datatables.selectType[ id ] != "selectNone") {
+				    StudyView.datatables.selection.checkSelectedCheckboxes( id );
                 }
 			}
 		} );		
@@ -262,7 +239,7 @@ StudyEdit.datatables = {
 				    ],
 				    fnDrawCallback: function() {
 						// Initialize field prototypes
-						StudyEdit.datatables.editable.fields.initialize( tableId );
+						StudyView.datatables.editable.fields.initialize( tableId );
 				    },
 				    fnRowCallback: function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 				    	// The rowId is retrieved from the first cell within the
@@ -274,7 +251,7 @@ StudyEdit.datatables = {
 								return
 							
 							var fieldName = $( rowHeaders.get( idx ) ).data( "fieldname" );
-							StudyEdit.datatables.editable.cloning.cloneField( tableId, rowId, fieldName, $(td), aData[idx] );
+							StudyView.datatables.editable.cloning.cloneField( tableId, rowId, fieldName, $(td), aData[idx] );
 
 						});
 				    }
@@ -287,7 +264,7 @@ StudyEdit.datatables = {
 				// Check whether we have a prototype of an input for this type of data
 				var table = $( '#' + tableId );
 				var prototypeId = "#prototype_" + $(table).data( "templateid" ) + "_" + fieldName;
-				var fieldPrefix = StudyEdit.datatables.editable.getFieldPrefix( tableId );
+				var fieldPrefix = StudyView.datatables.editable.getFieldPrefix( tableId );
 				
 				// Cloning the field depends on the type: file fields are handled differently
 				// from other fields
@@ -297,12 +274,12 @@ StudyEdit.datatables = {
 					// Append the cloned input elements
 					$( td ).empty().html("<div class=\"fileWrapper\"></div>")
                     $(td).find("div").html(
-                          StudyEdit.datatables.editable.cloning.cloneFileField( prototypeId, fieldId, value, rowId, tableId )
+                          StudyView.datatables.editable.cloning.cloneFileField( prototypeId, fieldId, value, rowId, tableId )
                     );
 				} else {
 					// Append the cloned input elements
 					$( td ).empty().append(
-						StudyEdit.datatables.editable.cloning.cloneDefaultField( prototypeId, fieldId, value, rowId, tableId, fieldType )
+						StudyView.datatables.editable.cloning.cloneDefaultField( prototypeId, fieldId, value, rowId, tableId, fieldType )
 					);
 				}
 			},
@@ -322,13 +299,13 @@ StudyEdit.datatables = {
 					.data( "prototype", prototypeId )
 					.on( "change", function( event ) {
 						// Mark this cell as being changed
-						StudyEdit.datatables.editable.markChanged( event.target );
+						StudyView.datatables.editable.markChanged( event.target );
 						
 						// Change other cells as well, if this row is selected
-						var selectedIds = StudyEdit.datatables.elementsSelected[ tableId ];
+						var selectedIds = StudyView.datatables.elementsSelected[ tableId ];
 						if( $.inArray( parseInt( rowId ), selectedIds ) > -1 ) {
 							var td = $(event.target).closest( "td" );
-							StudyEdit.datatables.editable.propagateChangeInFileField( td, selectedIds );
+							StudyView.datatables.editable.propagateChangeInFileField( td, selectedIds );
 						}
 					});
 				
@@ -342,13 +319,13 @@ StudyEdit.datatables = {
 							deleteFile( fieldId );
 
 							// Mark this cell as being changed
-							StudyEdit.datatables.editable.markChanged( $(event.target).parent() );
+							StudyView.datatables.editable.markChanged( $(event.target).parent() );
 							
 							// Change other cells as well, if this row is selected
-							var selectedIds = StudyEdit.datatables.elementsSelected[ tableId ];
+							var selectedIds = StudyView.datatables.elementsSelected[ tableId ];
 							if( $.inArray( parseInt( rowId ), selectedIds ) > -1 ) {
 								var td = $(event.target).closest( "td" );
-								StudyEdit.datatables.editable.propagateChangeInFileField( td, selectedIds );
+								StudyView.datatables.editable.propagateChangeInFileField( td, selectedIds );
 							}							
 						}
 						return false;
@@ -384,7 +361,7 @@ StudyEdit.datatables = {
 						.data( "original", value )
 						.data( "prototype", prototypeId );
 					
-					StudyEdit.datatables.editable.fields.addEventsToInput( fieldInput, tableId, rowId );
+					StudyView.datatables.editable.fields.addEventsToInput( fieldInput, tableId, rowId );
 					
 					// Handle special cases:
 					// checkbox must have a value and be checked if given value != empty
@@ -406,17 +383,17 @@ StudyEdit.datatables = {
 				var prototypeSelector = "#" + tableId ;
 				
 				// Handle date pickers
-				StudyEdit.form.attachDatePickers( prototypeSelector );
-				StudyEdit.form.attachDateTimePickers( prototypeSelector );
+				StudyView.form.attachDatePickers( prototypeSelector );
+				StudyView.form.attachDateTimePickers( prototypeSelector );
 				
 				// Handle extendable lists
-				StudyEdit.datatables.editable.fields.updateAutoCompletes( prototypeSelector );
+				StudyView.datatables.editable.fields.updateAutoCompletes( prototypeSelector );
 				
 				// Initialize file upload fields
-				StudyEdit.datatables.editable.fields.initializeFileFields( prototypeSelector );
+				StudyView.datatables.editable.fields.initializeFileFields( prototypeSelector );
 				
 				// Initialize ontology and template fields
-				StudyEdit.datatables.editable.fields.initializeSelectAddMore( prototypeSelector );
+				StudyView.datatables.editable.fields.initializeSelectAddMore( prototypeSelector );
 			},
 			
 			/**
@@ -424,8 +401,8 @@ StudyEdit.datatables = {
 			 * and pressing enter or escape
 			 */
 			addEventsToInput: function( input, tableId, rowId ) {
-				StudyEdit.datatables.editable.fields.addChangeEventToInput( input, tableId, rowId );
-				StudyEdit.datatables.editable.fields.addKeyEventToInput( input );
+				StudyView.datatables.editable.fields.addChangeEventToInput( input, tableId, rowId );
+				StudyView.datatables.editable.fields.addKeyEventToInput( input );
 			},
 
 			/**
@@ -436,12 +413,12 @@ StudyEdit.datatables = {
 				input
 					.on( "change", function( event ) {
 						// Mark this cell as being changed
-						StudyEdit.datatables.editable.markChanged( event.target );
+						StudyView.datatables.editable.markChanged( event.target );
 						
 						// Change other cells as well, if this row is selected
-						var selectedIds = StudyEdit.datatables.elementsSelected[ tableId ];
+						var selectedIds = StudyView.datatables.elementsSelected[ tableId ];
 						if( $.inArray( parseInt( rowId ), selectedIds ) > -1 ) {
-							StudyEdit.datatables.editable.propagateChange( event.target, selectedIds );
+							StudyView.datatables.editable.propagateChange( event.target, selectedIds );
 						}
 					});
 			},
@@ -465,7 +442,7 @@ StudyEdit.datatables = {
 	                    if (e.keyCode == 13) {
 	                        e.preventDefault();
 	                        
-	                        StudyEdit.datatables.editable.save(e.target);
+	                        StudyView.datatables.editable.save(e.target);
 	                    }
 	                });
 			},
@@ -488,8 +465,8 @@ StudyEdit.datatables = {
 			},
 			
 			initializeSelectAddMore: function( selector ) {
-				StudyEdit.datatables.editable.fields.initializeSelectAddMoreTerms( selector );
-				StudyEdit.datatables.editable.fields.initializeSelectAddMoreTemplates( selector );
+				StudyView.datatables.editable.fields.initializeSelectAddMoreTerms( selector );
+				StudyView.datatables.editable.fields.initializeSelectAddMoreTemplates( selector );
 			},
 			
 			initializeSelectAddMoreTerms: function( selector ) {
@@ -501,7 +478,7 @@ StudyEdit.datatables = {
 					label   : 'add more...',
 					style   : 'addMore',
 					onClose : function(scope) {
-						StudyEdit.datatables.editable.fields.reloadPrototypes( selector, "term" );
+						StudyView.datatables.editable.fields.reloadPrototypes( selector, "term" );
 					}
 				});
 			},
@@ -516,7 +493,7 @@ StudyEdit.datatables = {
 					label   : 'add / modify..',
 					style   : 'modify',
 					onClose : function(scope) {
-						StudyEdit.datatables.editable.fields.reloadPrototypes( selector, "template" );
+						StudyView.datatables.editable.fields.reloadPrototypes( selector, "template" );
 					}
 				});
 			},
@@ -561,9 +538,9 @@ StudyEdit.datatables = {
 						
 						// Add add/modify option again for all selects
 						if( rel == "template" ) {
-							StudyEdit.datatables.editable.fields.initializeSelectAddMoreTemplates( selector );
+							StudyView.datatables.editable.fields.initializeSelectAddMoreTemplates( selector );
 						} else if( rel == "term" ) {
-							StudyEdit.datatables.editable.fields.initializeSelectAddMoreTerms( selector );
+							StudyView.datatables.editable.fields.initializeSelectAddMoreTerms( selector );
 						}
 												
 						
@@ -616,7 +593,7 @@ StudyEdit.datatables = {
 					
 					// Only mark visible fields as changed
 					if( !field.is( ".hiddenAndChanged" ) ) {
-						StudyEdit.datatables.editable.markChanged( field );
+						StudyView.datatables.editable.markChanged( field );
 					}
 				} else {
 					// Add a hidden field to the wrapper div
@@ -672,7 +649,7 @@ StudyEdit.datatables = {
 							otherTd.find( ".upload_info" ).html( createFileHTML(value) );							
 						}
 						
-						StudyEdit.datatables.editable.markChanged( field );
+						StudyView.datatables.editable.markChanged( field );
 					}
 				} else {
 					// Add a hidden field to the wrapper div
@@ -725,18 +702,18 @@ StudyEdit.datatables = {
 			
 			// Send the data to the server
 			var table = wrapper.find( ".dataTables_scrollBody .dataTable" );
-			var formId = StudyEdit.datatables.editable.getFormId( table.attr( "id" ) );
+			var formId = StudyView.datatables.editable.getFormId( table.attr( "id" ) );
 			var form = $( "#" + formId );
 			newData[ "id" ] = form.find( "[name=id]" ).val();
 			
 			$.post( form.attr( "action" ), newData )
 				.fail( function() { 
-					StudyEdit.datatables.editable.showError( table.attr( "id" ), "An unknown error occurred while saving your data. Please try again." );
+					StudyView.datatables.editable.showError( table.attr( "id" ), "An unknown error occurred while saving your data. Please try again." );
 				} )
 				.always( function(data) {
 					// TODO: handle the case that the save failed
 					if( data.errors ) {
-						StudyEdit.datatables.editable.showError( table.attr( "id" ), "An error occurred while saving your data. Please try again." );
+						StudyView.datatables.editable.showError( table.attr( "id" ), "An error occurred while saving your data. Please try again." );
 					}
 					
 					// Set the 'changed' flag to false
@@ -781,7 +758,7 @@ StudyEdit.datatables = {
 			// Clear the uploaded fields in the form
 			var table = wrapper.find( ".dataTables_scrollBody .dataTable" );
 			
-			var formId = StudyEdit.datatables.editable.getFormId( table.attr( "id" ) );
+			var formId = StudyView.datatables.editable.getFormId( table.attr( "id" ) );
 			var form = $( "#" + formId );			
 			form.find( ":not(.original)" ).remove();
 			
@@ -878,8 +855,8 @@ StudyEdit.datatables = {
 		    var id = $el.attr( 'id' );
 		
 		    if($el.hasClass( 'selectMulti' )) {
-		    	StudyEdit.datatables.selectType[ id ] = "selectMulti";
-		        $("#"+ id + ' thead tr').prepend("<th class='selectColumn nonsortable'><input id='"+id+"_checkAll' class='checkall' type='checkbox' onClick='StudyEdit.datatables.selection.clickCheckAll(this);'></th>");
+		    	StudyView.datatables.selectType[ id ] = "selectMulti";
+		        $("#"+ id + ' thead tr').prepend("<th class='selectColumn nonsortable'><input id='"+id+"_checkAll' class='checkall' type='checkbox' onClick='StudyView.datatables.selection.clickCheckAll(this);'></th>");
 		        $("#"+ id + ' tbody tr').each(function(idxrow, row) {
 		            if($(row).attr('id') == null) {
 		                alert("No [id] in the tbody:tr found. Each row needs an unique id that is passed as value of the checkbox. Please report this error to your system administrator.");
@@ -891,12 +868,12 @@ StudyEdit.datatables = {
 		            
 		            var input = $( "<input id='"+id+"_ids' type='checkbox' value='"+rowid+"' class='selectable-datatable-checkbox' name='"+id+"_ids'>" );
 			        input.on( "click", function() {
-			        	StudyEdit.datatables.selection.clickRow(this);
+			        	StudyView.datatables.selection.clickRow(this);
 			        });
 			        $(row).prepend( $( "<td class='selectColumn'></td>" ).append( input ) );
 		        });
 		    } else if($el.hasClass( 'selectOne' )) {
-		    	StudyEdit.datatables.selectType[ id ] = "selectOne";
+		    	StudyView.datatables.selectType[ id ] = "selectOne";
 		        $("#"+ id + ' thead tr').prepend("<th class='selectColumn nonsortable'></th>");
 		        $("#"+ id + ' tbody tr').each(function(idxrow, row) {
 		            if($(row).attr('id') == null) {
@@ -909,17 +886,17 @@ StudyEdit.datatables = {
 		            
 		            var input = "<input id='"+id+"_ids' type='radio' class='selectable-datatable-checkbox' value='"+rowid+"' name='"+id+"_ids'>";
 			        input.on( "click", function() {
-			        	StudyEdit.datatables.selection.clickRow(this);
+			        	StudyView.datatables.selection.clickRow(this);
 			        });
 			        $(row).prepend( $( "<td class='selectColumn'></td>" ).append( input ) );
 		        });
 		    } else {
-		    	StudyEdit.datatables.selectType[ id ] = "selectNone";
+		    	StudyView.datatables.selectType[ id ] = "selectNone";
 		    }
 		    
 		    // Make sure the select all link works
 		    $el.find( ".selectAll a" ).on( "click", function() {
-		    	StudyEdit.datatables.selection.selectAll( id ); return false;
+		    	StudyView.datatables.selection.selectAll( id ); return false;
 		    	$(this).closest( "td" ).slideUp( 100 );
 		    } );
 		    
@@ -938,17 +915,17 @@ StudyEdit.datatables = {
 			var checked = input.attr( 'checked' );
 			
 			// If the input is a normal checkbox, the user clicked on it. Update the elementsSelected array
-			if( StudyEdit.datatables.selectType[ tableId ] == "selectMulti" ) {
+			if( StudyView.datatables.selectType[ tableId ] == "selectMulti" ) {
 				if( checked ) {
 					input.closest( "tr" ).addClass( "ui-selected" );
 				} else {
 					input.closest( "tr" ).removeClass( "ui-selected" );
 				}
-				StudyEdit.datatables.selection.select( tableId, parseInt( input.val() ), checked );
-		        StudyEdit.datatables.selection.updateCheckAll( inputrow );
+				StudyView.datatables.selection.select( tableId, parseInt( input.val() ), checked );
+		        StudyView.datatables.selection.updateCheckAll( inputrow );
 			} else {
 		        // Assumption: selectType[ tableId ] == "selectOne"
-				StudyEdit.datatables.elementsSelected[ tableId ][0] = parseInt( input.val() );
+				StudyView.datatables.elementsSelected[ tableId ][0] = parseInt( input.val() );
 		    }
 			
 			// Disable the 'select all pages' button
@@ -959,17 +936,17 @@ StudyEdit.datatables = {
 		 * Selects or deselects a given id within a table
 		 */
 		select: function( tableId, id, flag ) {
-			var arrayPos = jQuery.inArray( id, StudyEdit.datatables.elementsSelected[ tableId ] );
+			var arrayPos = jQuery.inArray( id, StudyView.datatables.elementsSelected[ tableId ] );
 			
 			if( flag ) {
 				// Put the id in the elementsSelected array, if it is not present
 				if( arrayPos == -1 ) {
-					StudyEdit.datatables.elementsSelected[ tableId ][ StudyEdit.datatables.elementsSelected[ tableId ].length ] = id;
+					StudyView.datatables.elementsSelected[ tableId ][ StudyView.datatables.elementsSelected[ tableId ].length ] = id;
 				}
 			} else {
 				// Remove the id from the elementsSelected array, if it is present
 				if( arrayPos > -1 ) {
-					StudyEdit.datatables.elementsSelected[ tableId ].splice( arrayPos, 1 );
+					StudyView.datatables.elementsSelected[ tableId ].splice( arrayPos, 1 );
 				}
 			}
 		},
@@ -991,14 +968,14 @@ StudyEdit.datatables = {
 		            var input = $(inputsOnScreen[ i ] );
 		            if( !input.hasClass( "checkall" ) ) {
 		                input.attr( 'checked', true );
-		                StudyEdit.datatables.elementsSelected[ tableId ][ StudyEdit.datatables.elementsSelected[ tableId ].length ] = parseInt( input.val() );
+		                StudyView.datatables.elementsSelected[ tableId ][ StudyView.datatables.elementsSelected[ tableId ].length ] = parseInt( input.val() );
 		            }
 		        }
 		        
 		        // Show a message whether the user wants to select all items on all pages
 		        if( 
-		        		typeof( StudyEdit.datatables.allElements[ tableId ] ) != "undefined" && 
-		        		StudyEdit.datatables.allElements[ tableId ].length >  StudyEdit.datatables.elementsSelected[ tableId ].length 
+		        		typeof( StudyView.datatables.allElements[ tableId ] ) != "undefined" && 
+		        		StudyView.datatables.allElements[ tableId ].length >  StudyView.datatables.elementsSelected[ tableId ].length 
 		        ) {
 		        	wrapper.find( ".selectAll td" ).slideDown( 100 );
 		        }
@@ -1008,10 +985,10 @@ StudyEdit.datatables = {
 		        for( var i = 0; i < inputsOnScreen.length; i++ ) {
 		            var input = $(inputsOnScreen[ i ] );
 		            if( !input.hasClass( "checkall" ) ) {
-		                var arrPos = jQuery.inArray( parseInt( input.val() ), StudyEdit.datatables.elementsSelected[ tableId ] );
+		                var arrPos = jQuery.inArray( parseInt( input.val() ), StudyView.datatables.elementsSelected[ tableId ] );
 		                if( arrPos > -1 ) {
 		                    input.attr( 'checked', false );
-		                    StudyEdit.datatables.elementsSelected[ tableId ].splice( arrPos, 1 );
+		                    StudyView.datatables.elementsSelected[ tableId ].splice( arrPos, 1 );
 		                }
 		            }
 		        }
@@ -1026,7 +1003,7 @@ StudyEdit.datatables = {
 		    // will be checked again after selecting one or more rows with selectable.
 		    $( 'tbody tr', paginatedTable ).removeClass( "ui-selected" );
 		    
-		    StudyEdit.datatables.selection.updateCheckAll( input );
+		    StudyView.datatables.selection.updateCheckAll( input );
 		},
 
 
@@ -1034,14 +1011,14 @@ StudyEdit.datatables = {
 		 * Deselect everything
 		 */
 		selectAll: function( tableId ) {
-			if( typeof( StudyEdit.datatables.allElements[ tableId ] ) != "undefined" ) {
+			if( typeof( StudyView.datatables.allElements[ tableId ] ) != "undefined" ) {
 			    var paginatedTable = $( "#" + tableId );
 				var wrapper = paginatedTable.closest( '.dataTables_wrapper' );
 				var checkAll = $( '#'+tableId+'_checkAll', wrapper );
 			    var inputsOnScreen = $( 'tbody input.selectable-datatable-checkbox', paginatedTable );			
 				
 				// Add elements to internal storage
-				StudyEdit.datatables.elementsSelected[ tableId ] = StudyEdit.datatables.allElements[ tableId ].slice(0);
+				StudyView.datatables.elementsSelected[ tableId ] = StudyView.datatables.allElements[ tableId ].slice(0);
 				
 				// Make sure the inputs are selected
 				inputsOnScreen.attr( "checked", true );
@@ -1050,7 +1027,7 @@ StudyEdit.datatables = {
 				checkAll.removeClass( "transparent" ).attr( "checked", true );
 				
 				// Update the labels
-				StudyEdit.datatables.selection.updateLabel(tableId);
+				StudyView.datatables.selection.updateLabel(tableId);
 				wrapper.find( ".selectAll td " ).slideUp( 100 );
 			}
 		},		
@@ -1065,7 +1042,7 @@ StudyEdit.datatables = {
 		    var inputsOnScreen = $( 'tbody input.selectable-datatable-checkbox', paginatedTable );			
 			
 			// Remove elements from internal storage
-			StudyEdit.datatables.elementsSelected[ tableId ] = new Array();
+			StudyView.datatables.elementsSelected[ tableId ] = new Array();
 			
 			// Make sure the inputs are deselected
 			inputsOnScreen.attr( "checked", false );
@@ -1076,7 +1053,7 @@ StudyEdit.datatables = {
 			// Update the checkAll
 			checkAll.removeClass( "transparent" ).attr( "checked", false );
 			
-			StudyEdit.datatables.selection.updateLabel(tableId);
+			StudyView.datatables.selection.updateLabel(tableId);
 			
 			// Disable the 'select all pages' button
 			wrapper.find( ".selectAll td" ).slideUp( 100 );
@@ -1126,19 +1103,19 @@ StudyEdit.datatables = {
 		        checkAll.attr('checked', blnSelected);
 		    }
 		
-		    StudyEdit.datatables.selection.updateLabel( tableId );
+		    StudyView.datatables.selection.updateLabel( tableId );
 		},
 		
 		/**
 		 * Updates the label underneath the table, specifying how many items are selected
 		 */
 		updateLabel: function( tableId ) {
-		    if(StudyEdit.datatables.elementsSelected[ tableId ].length > 0) {
+		    if(StudyView.datatables.elementsSelected[ tableId ].length > 0) {
 		        $("#"+tableId+"_selectinfo")
-		        	.text(" (" + StudyEdit.datatables.elementsSelected[ tableId ].length + " selected)")
+		        	.text(" (" + StudyView.datatables.elementsSelected[ tableId ].length + " selected)")
 		        	.append( " (" )
 		        	.append( $( "<a href='#'></a>" ).text( "clear selection" ).on( "click", function() {
-		        		StudyEdit.datatables.selection.deselectAll( tableId );
+		        		StudyView.datatables.selection.deselectAll( tableId );
 		        		return false;
 		        	}))
 		        	.append( ")" )
@@ -1167,20 +1144,20 @@ StudyEdit.datatables = {
 			
 			        // Determine whether the field should be checked
 			        var strChecked = "";
-			        if( jQuery.inArray( parseInt( rowid ), StudyEdit.datatables.elementsSelected[ tableId ] ) > -1 ) {
+			        if( jQuery.inArray( parseInt( rowid ), StudyView.datatables.elementsSelected[ tableId ] ) > -1 ) {
 			            strChecked = " CHECKED ";
 			        }
 			
 			        // Add a radio button for selectOnce and a checkbox for selectMulti
 			        var strType = "radio";
-			        if( StudyEdit.datatables.selectType[ tableId ] == "selectMulti") {
+			        if( StudyView.datatables.selectType[ tableId ] == "selectMulti") {
 			            strType = "checkbox";
 			        }
 			        
 			        // Replace the current contents of the cell with the newly created input field
 			        var input = $("<input id='"+tableId+"_ids_" + rowid + "' class='selectable-datatable-checkbox' type='"+strType+"' value='"+rowid+"' name='"+tableId+"_ids'"+strChecked+">");
 			        input.on( "click", function() {
-			        	StudyEdit.datatables.selection.clickRow(this);
+			        	StudyView.datatables.selection.clickRow(this);
 			        });
 			        td.empty().append( input );
 			        
@@ -1189,7 +1166,7 @@ StudyEdit.datatables = {
 		        }
 		    }
 			
-			StudyEdit.datatables.selection.updateCheckAll( trsOnScreen.parent() );
+			StudyView.datatables.selection.updateCheckAll( trsOnScreen.parent() );
 		},
 
 		/**
@@ -1206,7 +1183,7 @@ StudyEdit.datatables = {
 			var paginatedTable = $("#"+id+"_table");
 			var tableId = paginatedTable.attr( 'id' );
 		
-		    var ids = StudyEdit.datatables.elementsSelected[ tableId ];
+		    var ids = StudyView.datatables.elementsSelected[ tableId ];
 		    var formFilled = ( ids.length > 0 );
 		
 		    $.each( ids, function(idx, id) {
@@ -1258,7 +1235,7 @@ StudyEdit.datatables = {
 			        		var input = $(this).find( "input.selectable-datatable-checkbox");
 			        		if( input.length > 0 ) {
 				        		input.attr( "checked", flag );
-				        		StudyEdit.datatables.selection.clickRow( input );
+				        		StudyView.datatables.selection.clickRow( input );
 			        		}
 			        	}
 			        })

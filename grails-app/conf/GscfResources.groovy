@@ -64,6 +64,16 @@ modules = {
 		resource url: [dir: 'js', file: 'publication-chooser.pubmed.js' ], disposition: 'head'
 	}
 	
+	studyView {
+		dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
+		resource url:[ dir:'js/studyView', file: 'studyView.js']
+		resource url:[ dir:'js/studyView', file: 'studyView.meta.js'], disposition: 'head'
+		resource url:[ dir:'js/studyView', file: 'studyView.design.js']
+		resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
+		resource url:[ dir:'css', file: 'studyView.css']
+		resource url:[ dir:'css', file: 'templates.css']
+	}
+	
 	"gscf-datatables" { 
 		dependsOn 'jquery'
 		resource url: [dir: 'js', file: 'jquery.dataTables.js' ] , linkOverride:'//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.js'
