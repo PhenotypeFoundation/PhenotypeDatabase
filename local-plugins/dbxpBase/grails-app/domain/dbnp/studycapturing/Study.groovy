@@ -137,10 +137,33 @@ class Study extends TemplateEntity {
 	}
 
 	/**
+	 * Return a list of distinct templates used for this entity
+	 */
+	protected List<Template> giveTemplateForChildEntity(def entity) {
+		def c = entity.createCriteria()
+		c.list {
+			createAlias('template', 'template')
+			eq("parent.id", this.id)
+			projections {
+				distinct('template')
+			}
+			//order( "template.name", "asc")
+		}
+	}
+	
+	protected List giveEntitiesForTemplate(Template) {
+		template.entity.createCriteria()
+		c.list {
+			eq("parent.id", this.id)
+			eq("template.id", template.id)
+		}
+	}
+	
+	/**
 	 * Return the unique Subject templates that are used in this study
 	 */
 	def List<Template> giveSubjectTemplates() {
-		TemplateEntity.giveTemplates(subjects)
+		giveTemplateForChildEntity(Subject)
 	}
 
 	/**
@@ -148,8 +171,8 @@ class Study extends TemplateEntity {
 	 * @param Template
 	 * @return ArrayList
 	 */
-	def ArrayList<Subject> giveSubjectsForTemplate(Template template) {
-		subjects.findAll { it.template.equals(template) }
+	def List<Subject> giveSubjectsForTemplate(Template template) {
+		giveEntititesForTemplate(template)
 	}
 
 	/**
@@ -157,7 +180,7 @@ class Study extends TemplateEntity {
 	 * @return Set
 	 */
 	List<Template> giveAllAssayTemplates() {
-		TemplateEntity.giveTemplates(((assays) ? assays : []))
+		giveTemplateForChildEntity(Assay)
 	}
 
 	/**
@@ -165,7 +188,7 @@ class Study extends TemplateEntity {
 	 * @return ArrayList
 	 */
 	def ArrayList giveAssaysForTemplate(Template template) {
-		assays.findAll { it && it.template.equals(template) }
+		giveEntititesForTemplate(template)
 	}
 
 	/**
@@ -194,21 +217,21 @@ class Study extends TemplateEntity {
 	 * Return the unique Event templates that are used in this study
 	 */
 	List<Template> giveEventTemplates() {
-		TemplateEntity.giveTemplates(events)
+		giveTemplateForChildEntity(Event)
 	}
 
 	/**
 	 * Return the unique SamplingEvent templates that are used in this study
 	 */
 	List<Template> giveSamplingEventTemplates() {
-		TemplateEntity.giveTemplates(samplingEvents)
+		giveTemplateForChildEntity(SamplingEvent)
 	}
 
 	/**
 	 * Returns the unique Sample templates that are used in the study
 	 */
 	List<Template> giveSampleTemplates() {
-		TemplateEntity.giveTemplates(samples)
+		giveTemplateForChildEntity(Sample)
 	}
 
 	/**
@@ -216,7 +239,7 @@ class Study extends TemplateEntity {
 	 * @param Template
 	 * @return ArrayList
 	 */
-	def ArrayList<Subject> giveSamplesForTemplate(Template template) {
+	def ArrayList<Sample> giveSamplesForTemplate(Template template) {
 		// sort in a concatenated string as sorting on 3 seperate elements
 		// in a map does not seem to work properly
 		samples.findAll { it.template.equals(template) }.sort {
@@ -224,11 +247,48 @@ class Study extends TemplateEntity {
 		}
 	}
 
+	def List giveUsedModules() {
+		def c = Assay.createCriteria()
+		c.list {
+			createAlias('module', 'module')
+			eq("parent.id", this.id)
+			projections {
+				distinct('module')
+			}
+			//order( "module.name", "asc")
+		}
+	}
+	
 	/**
 	 * Returns the template of the study
 	 */
 	Template giveStudyTemplate() {
 		return this.template
+	}
+	
+	/**
+	 * Returns a map of subject counts per species for this study
+	 * @return
+	 */
+	public Map getSubjectCountsPerSpecies() {
+		def c = Subject.createCriteria()
+		def result = c.list {
+			eq("parent.id", this.id)
+			projections {
+				groupProperty("species")
+				rowCount()
+			}
+		}
+		
+		def output = [:]
+		
+		if( result ) {
+			result.each {
+				output[it[0]] = it[1]
+			}
+		}
+		
+		output
 	}
 
 	/**
