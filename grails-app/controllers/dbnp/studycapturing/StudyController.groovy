@@ -83,9 +83,6 @@ class StudyController {
      * Shows one or more studies
      */
     def show = {
-        def startTime = System.currentTimeMillis()
-
-
 
         def studyInstance = Study.get( params.long( "id" ) )
         if (!studyInstance) {
