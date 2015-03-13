@@ -292,6 +292,44 @@ class Study extends TemplateEntity {
 	}
 
 	/**
+	 * Returns the subject count for this study
+	 * @return
+	 */
+	public int getSubjectCount() {
+		Subject.createCriteria().count {
+			eq("parent.id", this.id)
+		}
+	}
+	
+	/**
+	 * Returns the sample count for this study
+	 * @return
+	 */
+	public int getSampleCount() {
+		Sample.createCriteria().count {
+			eq("parent.id", this.id)
+		}
+	}
+	
+	/**
+	 * Returns the assay count for this study
+	 * @return
+	 */
+	public int getAssayCount() {
+		Assay.createCriteria().count {
+			eq("parent.id", this.id)
+		}
+	}
+
+	
+	/**
+	 * Returns the assay count for this study
+	 * @return
+	 */
+	public int getTotalEventCount() {
+		Event.createCriteria().count { eq("parent.id", this.id)	} + SamplingEvent.createCriteria().count { eq("parent.id", this.id)	} 
+	}
+	/**
 	 * Delete a specific subject from this study, including all its relations
 	 * @param subject The subject to be deleted
 	 * @void
