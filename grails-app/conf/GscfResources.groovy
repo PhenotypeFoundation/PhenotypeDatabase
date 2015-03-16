@@ -69,6 +69,7 @@ modules = {
 		resource url:[ dir:'js/studyView', file: 'studyView.js']
 		resource url:[ dir:'js/studyView', file: 'studyView.meta.js'], disposition: 'head'
 		resource url:[ dir:'js/studyView', file: 'studyView.design.js']
+		resource url:[ dir:'js/studyView', file: 'studyView.design.subjectGroups.js']
 		resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
 		resource url:[ dir:'css', file: 'studyView.css']
 		resource url:[ dir:'css', file: 'templates.css']

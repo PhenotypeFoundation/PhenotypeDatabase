@@ -3,9 +3,7 @@ package dbnp.studycapturing
 import org.dbnp.gdt.*
 import grails.plugins.springsecurity.Secured
 import dbnp.authentication.SecUser
-import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import grails.converters.JSON
-import org.hibernate.ObjectNotFoundException
 
 /**
  * Controller to handle adding and editing studies
@@ -34,7 +32,7 @@ class StudyViewController {
 	def properties() {
 		def study = getStudyFromRequest( params )
 
-		[ study: study ]
+		[ study: study, loggedInUser: authenticationService.getLoggedInUser() ]
 	}
 
 	/**
@@ -45,6 +43,11 @@ class StudyViewController {
 		prepareDataForDatatableView( Subject )
 	}
 
+	def design() {
+		def study = getStudyFromRequest( params )
+		[study: study, loggedInUser: authenticationService.getLoggedInUser()]
+	}
+	
 	/**
 	 * Shows the overview page to edit subject details. 
 	 * @return
@@ -105,7 +108,8 @@ class StudyViewController {
 		[
 			study: study,
 			templates: templates,
-			domainFields: entityClass.domainFields
+			domainFields: entityClass.domainFields,
+			loggedInUser: authenticationService.getLoggedInUser()
 		]
 
 	}
@@ -139,9 +143,11 @@ class StudyViewController {
 		// got a study?
 		if (!study) {
 			flash.error = "No study found with given id";
-		} else if(!study.canWrite(user)) {
-			flash.error = "No authorization to edit this study."
+			redirect controller: "study", action: "list"
+		} else if(!study.canRead(user)) {
+			flash.error = "No authorization to view this study."
 			study = null;
+			redirect controller: "study", action: "list"
 		}
 
 		return study;

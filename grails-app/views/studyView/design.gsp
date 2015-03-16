@@ -7,7 +7,7 @@
 	<r:require modules="studyView" />
 </head>
 <body>
-	<div class="studyView studyProperties">
+	<div class="studyView studyDesign">
 	
 		<h1>
 			<span class="truncated-title">
@@ -43,14 +43,21 @@
 			<br clear="all" />
 		</g:form>
 		
+		<p class="options">
+			<g:if test="${study.canWrite(loggedInUser)}">
+				<g:link class="edit" controller="studyEdit" action="design" id="${study?.id}">edit</g:link>
+			</g:if>
+			<g:link class="back" controller="study" action="list" >back to list</g:link>
+		</p>					
+		
 		<r:script>	
 			$(function() {
 				var data = [];
 				<g:each in="${study.subjectEventGroups}" var="group">
 				     data.push({
 				       'start': new Date(${group.startDate.time}),
-				       'end': new Date(${group.endDate.time}),  // end is optional
-				       'type': "${group.eventGroup?.duration?.value == 0 ? 'box' : 'range' }",	// ${group.eventGroup?.duration}
+				       'end': new Date(${group.endDate.time}),
+				       'type': "${group.eventGroup?.duration?.value == 0 ? 'box' : 'range' }",
 				       'content': '${group.eventGroup?.name.encodeAsJavaScript()}',
 				       'group': '${group.subjectGroup?.name.encodeAsJavaScript()}',
 				       'className': 'eventgroup eventgroup-id-${group.id} <g:if test="${group.samples}">hasSamples</g:if>',

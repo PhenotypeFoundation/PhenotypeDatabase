@@ -80,3 +80,8 @@
 .options a.import {
 	background-image: url(../plugins/famfamfam-1.0.1/images/icons/database_add.png);
 }
+
+
+.options a.back {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/arrow_undo.png);
+}

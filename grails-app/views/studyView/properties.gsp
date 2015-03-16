@@ -123,19 +123,19 @@
 		
 			<br clear="all" />
 
-			<p class="options">
-				<g:if test="${study.canWrite(loggedInUser)}">
-					<g:link class="edit" controller="studyEdit" action="properties" id="${study?.id}">edit</g:link>
-				
-					<g:if test="${studyInstance.isOwner(loggedInUser) || loggedInUser?.hasAdminRights()}">
-						<g:form controller="study" action="delete">
+			<g:form controller="study" action="delete" id="deleteStudy">
+				<p class="options">
+					<g:if test="${study.canWrite(loggedInUser)}">
+						<g:link class="edit" controller="studyEdit" action="properties" id="${study?.id}">edit</g:link>
+					
+						<g:if test="${study.isOwner(loggedInUser) || loggedInUser?.hasAdminRights()}">
 							<g:hiddenField name="id" value="${study?.id}"/>
-							<g:actionSubmit action="delete" value="delete study" onclick="return confirm('Are you sure you want to delete the entire study?');"/>
-						</g:form>
+							<g:link class="delete" onClick="\$(this).closest('form').submit(); return false;">delete</g:link>
+						</g:if>
 					</g:if>
-				</g:if>
-				<g:link class="backToList" controller="study" action="list" >back to list</g:link>
-			</p>
+					<g:link class="back" controller="study" action="list" >back to list</g:link>
+				</p>
+			</g:form>
 		
 		<script type="text/javascript"> 
 			$( function() {

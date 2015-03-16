@@ -163,11 +163,9 @@ StudyEdit.datatables = {
 			// Convert into datatale
 			$el.dataTable(opts);
 	
-			// Add extra selection information span
-	        $("#"+id+"_info").after("<span id='"+id+"_selectinfo' class='selectinfo'></span>");
-	        
-	        // Initialize selectable
-	        StudyEdit.datatables.selection.initializeSelectable( $el );
+			// Add extra options for selections
+			StudyEdit.datatables.selection.postInitialization( $el );
+
 		});
 	},
 	
@@ -923,6 +921,19 @@ StudyEdit.datatables = {
 		    	$(this).closest( "td" ).slideUp( 100 );
 		    } );
 		    
+		},
+		
+		postInitialization: function( element ) {
+			var $el = $(element);
+		    var id = $el.attr( 'id' );
+		    
+		    if( StudyEdit.datatables.selectType[ id ] != "selectNone" ) {
+				// Add extra selection information span
+		        $("#"+id+"_info").after("<span id='"+id+"_selectinfo' class='selectinfo'></span>");
+		        
+		        // Initialize selectable
+		        StudyEdit.datatables.selection.initializeSelectable( $el );
+		    }
 		},
 		
 		/**
