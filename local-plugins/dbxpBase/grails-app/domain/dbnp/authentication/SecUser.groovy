@@ -9,7 +9,7 @@ class SecUser implements Serializable {
 	String voName			// shibboleth request header: coin-vo-name
 	String userStatus		// shibboleth request header: coin-user-status
 	String email
-    String apiKey           // api key for clients using the API
+        String apiKey           // api key for clients using the API
 	Date dateCreated
 
 	boolean shibbolethUser = false
@@ -20,6 +20,10 @@ class SecUser implements Serializable {
 	boolean userConfirmed   // True if the user has confirmed his subscription using the link in the email
 	boolean adminConfirmed  // True if the administrator has confirmed this subscription using the link in the email
 
+        static hasMany = [
+            secUserSecUserGroup: SecUserSecUserGroup
+        ]
+        
 	static constraints = {
 		username blank: false, unique: true
 		password blank: true
@@ -39,6 +43,10 @@ class SecUser implements Serializable {
 
 	Set<SecRole> getAuthorities() {
 		SecUserSecRole.findAllBySecUser(this).collect { it.secRole } as Set
+	}
+        
+        Set<SecUserGroup> getUserGroups() {
+		SecUserSecUserGroup.findAllBySecUser(this).collect { it.secUserGroup } as Set
 	}
 
 	public boolean equals(Object y) {

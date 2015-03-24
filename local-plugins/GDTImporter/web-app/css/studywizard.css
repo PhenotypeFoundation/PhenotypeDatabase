@@ -50,12 +50,12 @@ div .upload_info .error {
 /** END :: study page upload buttons **/
 
 /** START :: study page publication, contact and users lists **/
-div ul.publication_list, div ul.contact_list, div ul.user_list {
+div ul.publication_list, div ul.contact_list, div ul.user_list, div ul.userGroup_list {
     list-style-type: none;
     margin: -10px 0 0 255px;
     padding: 0;
 }
-div ul.publication_list li, div ul.contact_list li, div ul.user_list li {
+div ul.publication_list li, div ul.contact_list li, div ul.user_list li, div ul.userGroup_list li {
     margin-left: 0px;
     padding: 4px 6px;
 }

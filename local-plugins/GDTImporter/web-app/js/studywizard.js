@@ -725,3 +725,27 @@ function openUserDialog(element_id) {
 	// Disable 'Add' button
 	//enableButton( '.' + element_id + '_user_dialog', 'Add', false );
 }
+
+
+/*************************************************
+ *
+ * Functions for adding userGroups (readers or writers) to the study
+ *
+ ************************************************/
+
+
+/**
+ * Opens the dialog for searching a publication
+ */
+function openUserDialog(element_id) {
+	// Empty input field
+	var field = $('#' + element_id);
+	field.val('');
+
+	// Show the dialog
+	$('#' + element_id + '_dialog').dialog('open');
+	field.focus();
+
+	// Disable 'Add' button
+	//enableButton( '.' + element_id + '_user_dialog', 'Add', false );
+}

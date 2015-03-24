@@ -471,3 +471,157 @@ StudyEdit.users = {
 		//StudyEdit.dialogs.enableButton( '.' + element_id + '_user_dialog', 'Add', false );
 	}
 }
+
+/*************************************************
+ *
+ * Functions for adding userGroups (readerGroups or writerGroups) to the study
+ *
+ ************************************************/
+
+StudyEdit.userGroups = {
+	/**
+	 * Adds a userGroup to the study using javascript
+	 */
+	add: function(element_id) {
+		/* Find publication ID and add to form */
+		id = parseInt($("#" + element_id + "_form select").val());
+	
+		// Put the ID in the array, but only if it does not yet exist
+		var ids = StudyEdit.userGroups.getUserGroupIds(element_id);
+	
+		if ($.inArray(id, ids) == -1) {
+			ids[ ids.length ] = id;
+			$('#' + element_id + '_ids').val(ids.join(','));
+	
+			// Show the title and a remove button
+			StudyEdit.userGroups.show(element_id, id, $("#" + element_id + "_form select option:selected").text(), ids.length - 1);
+	
+			// Hide the 'none box'
+			$('#' + element_id + '_none').css('display', 'none');
+		}
+	
+		return false;
+	},
+	
+	/**
+	 * Removes a userGroup from the study using javascript
+	 * N.B. The deletion must be handled in grails when the form is submitted
+	 */
+	remove: function(element_id, id) {
+		var ids = StudyEdit.userGroups.getUserGroupIds(element_id);
+		if ($.inArray(id, ids) != -1) {
+			// Remove the ID
+			ids.splice($.inArray(id, ids), 1);
+			$('#' + element_id + '_ids').val(ids.join(','));
+	
+			// Remove the title from the list
+			var li = $("#" + element_id + '_item_' + id);
+			if (li) {
+				li.remove();
+			}
+	
+			// Show the 'none box' if needed
+			if (ids.length == 0) {
+				$('#' + element_id + '_none').css('display', 'inline');
+			}
+	
+		}
+	},
+	
+	/**
+	 * Returns an array of userGroup IDs currently attached to the study
+	 * The array contains integers
+	 */
+	getUserGroupIds: function(element_id) {
+		var ids = $('#' + element_id + '_ids').val();
+		if (ids == "") {
+			return new Array();
+		} else {
+			ids_array = ids.split(',');
+			for (var i = 0; i < ids_array.length; i++) {
+				ids_array[ i ] = parseInt(ids_array[ i ]);
+			}
+	
+			return ids_array;
+		}
+	},
+	
+	/**
+	 * Shows a publication on the screen
+	 */
+	show: function(element_id, id, groupName, nr) {
+		var deletebutton = document.createElement('img');
+		deletebutton.className = 'famfamfam delete_button';
+		deletebutton.setAttribute('alt', 'remove this userGroup');
+		deletebutton.setAttribute('src', baseUrl + '/plugins/famfamfam-1.0.1/images/icons/delete.png');
+		deletebutton.onclick = function() {
+			StudyEdit.userGroups.remove(element_id, id);
+			return false;
+		};
+	
+		var titleDiv = document.createElement('div');
+		titleDiv.className = 'groupName';
+		titleDiv.appendChild(document.createTextNode(groupName));
+	
+		var li = document.createElement('li');
+		li.setAttribute('id', element_id + '_item_' + id);
+		li.className = nr % 2 == 0 ? 'even' : 'odd';
+		li.appendChild(deletebutton);
+		li.appendChild(titleDiv);
+	
+		$('#' + element_id + '_list').append(li);
+	},
+	
+	/**
+	 * Creates the dialog for searching a publication
+	 */
+	createUserGroupDialog: function(element_id) {
+		/* Because of the AJAX loading of this page, the dialog will be created
+		 * again, when the page is reloaded. This raises problems when reading the
+		 * values of the selected publication. For that reason we check whether the
+		 * dialog already exists
+		 */
+		if ($("." + element_id + "_userGroup_dialog").length == 0) {
+			$("#" + element_id + "_dialog").dialog({
+				title   : "Add UserGroup",
+				autoOpen: false,
+				width   : 800,
+				height  : 400,
+				modal   : true,
+				dialogClass : element_id + "_userGroup_dialog",
+				position: "center",
+				buttons : {
+					Add  : function() {
+						StudyEdit.userGroups.add(element_id);
+						$(this).dialog("close");
+					},
+					Close  : function() {
+						$(this).dialog("close");
+					}
+				},
+				close   : function() {
+					/* closeFunc(this); */
+				}
+			}).width(790).height(400);
+		} else {
+			/* If a dialog already exists, remove the new div */
+			$("#" + element_id + "_dialog").remove();
+		}
+	},
+	
+	/**
+	 * Opens the dialog for searching a publication
+	 */
+	openUserGroupDialog: function(element_id) {
+		// Empty input field
+		var field = $('#' + element_id);
+		field.val('');
+	
+		// Show the dialog
+		$('#' + element_id + '_dialog').dialog('open');
+		field.focus();
+	
+		// Disable 'Add' button
+		//StudyEdit.dialogs.enableButton( '.' + element_id + '_user_dialog', 'Add', false );
+	}
+}

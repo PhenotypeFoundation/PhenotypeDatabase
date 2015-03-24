@@ -37,6 +37,8 @@
 		</div>
 
 		<af:userSelectElement name="readers" description="Readers" value="${study?.readers}"/>
+                <af:userGroupSelectElement name="readersGroup" description="ReadersGroup" value="${study?.readersGroup}"/>
 		<af:userSelectElement name="writers" description="Writers" value="${study?.writers}"/>
+                <af:userGroupSelectElement name="writersGroup" description="WritersGroup" value="${study?.writersGroup}"/>
 	</g:if>
 </af:page>

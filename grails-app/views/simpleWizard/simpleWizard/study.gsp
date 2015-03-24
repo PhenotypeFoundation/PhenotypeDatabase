@@ -84,7 +84,10 @@
 						%{--</div>--}%
 				
 						<af:userSelectElement name="readers" noForm="true" description="Readers" value="${study?.readers}"/>
+                                                <af:userGroupSelectElement name="readerGroups" noForm="true" description="ReaderGroups" value="${study?.readerGroups}"/>
 						<af:userSelectElement name="writers" noForm="true" description="Writers" value="${study?.writers}"/>
+                                                <af:userGroupSelectElement name="writerGroups" noForm="true" description="WriterGroups" value="${study?.writerGroups}"/>
+                                                
 					</div>
 				</div>
 			</div>
@@ -119,7 +122,9 @@
 		
 		<af:publicationDialog name="publication" />
 		<af:userDialog name="readers" />
+                <af:userGroupDialog name="readerGroups" />
 		<af:userDialog name="writers" />
+                <af:userGroupDialog name="writerGroups" />
 		
 		<div id="openStudyDialog">
 			<p>

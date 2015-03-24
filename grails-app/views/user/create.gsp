@@ -23,7 +23,6 @@
       <div id="tabs" class="usermanagement">
         <ul>
           <li><a href="#userinfo">User info</a></li>
-          <li><a href="#roles">Roles</a></li>
         </ul>
 
         <div id="userinfo">
@@ -41,14 +40,6 @@
 
 		  </tbody>
 		  </table>
-	  </div>
-	  <div id="roles">
-		<g:each var="entry" in="${roleMap}">
-		<div>
-			<g:checkBox name="${entry.key.authority}" value="${entry.value}"/>
-			<g:link controller='role' action='edit' id='${entry.key.id}'>${entry.key.authority.encodeAsHTML()}</g:link>
-		</div>
-		</g:each>
 	  </div>
 
 	  </div>

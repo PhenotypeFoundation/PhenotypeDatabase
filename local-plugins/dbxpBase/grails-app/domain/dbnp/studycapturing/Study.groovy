@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 import org.dbnp.gdt.*
 import dbnp.authentication.SecUser
+import dbnp.authentication.SecUserGroup
 import org.dbxp.sam.*
 
 /**
@@ -54,7 +55,9 @@ class Study extends TemplateEntity {
 		persons: StudyPerson,
 		publications: Publication,
 		readers: SecUser,
-		writers: SecUser
+                readerGroups: SecUserGroup,
+		writers: SecUser,
+                writerGroups: SecUserGroup
 	]
 
 	static constraints = {

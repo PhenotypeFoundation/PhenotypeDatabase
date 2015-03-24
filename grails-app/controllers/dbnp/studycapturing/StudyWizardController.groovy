@@ -1374,7 +1374,9 @@ class StudyWizardController {
 
 		// handle users (readers, writers)
 		handleUsers(flow, flash, params, 'readers')
+                handleUserGroups(flow, flash, params, 'readerGroups')
 		handleUsers(flow, flash, params, 'writers')
+                handleUserGroups(flow, flash, params, 'writerGroups')
 
 		// handle public checkbox
 		flow.study.publicstudy = (params.get("publicstudy") && params.get("publicstudy") == "on") ? true : false

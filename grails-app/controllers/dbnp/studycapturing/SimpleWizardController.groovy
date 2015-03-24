@@ -475,7 +475,9 @@ class SimpleWizardController extends StudyWizardController {
 
 		// handle users (readers, writers)
 		handleStudyUsers(study, params, 'readers')
+                handleStudyUserGroups(study, params, 'readerGroups')
 		handleStudyUsers(study, params, 'writers')
+                handleStudyUserGroups(study, params, 'writerGroups')
 
 		return true
 	}

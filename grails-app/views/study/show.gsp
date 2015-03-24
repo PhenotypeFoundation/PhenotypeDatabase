@@ -177,6 +177,19 @@
 							</td>
 						</g:each>
 					</tr>
+                                        <tr>
+						<td>Reader Groups</td>
+						<g:each in="${studyList}" var="studyInstance">
+							<td>
+								<g:if test="${studyInstance.readerGroups.size() == 0}">
+									-
+								</g:if>
+								<g:else>
+									${studyInstance.readerGroups.groupName.join(", ")}
+								</g:else>
+							</td>
+						</g:each>
+					</tr>
 					<tr>
 						<td>Writers</td>
 						<g:each in="${studyList}" var="studyInstance">
@@ -186,6 +199,19 @@
 								</g:if>
 								<g:else>
 									${studyInstance.writers.username.join(", ")}
+								</g:else>
+							</td>
+						</g:each>
+					</tr>
+					<tr>
+						<td>Writer Groups</td>
+						<g:each in="${studyList}" var="studyInstance">
+							<td>
+								<g:if test="${studyInstance.writerGroups?.size()==0}">
+									-
+								</g:if>
+								<g:else>
+									${studyInstance.writerGroups.groupName.join(", ")}
 								</g:else>
 							</td>
 						</g:each>
