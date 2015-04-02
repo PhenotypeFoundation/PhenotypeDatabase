@@ -11,6 +11,9 @@ import org.dbnp.gdt.*
  * $Date$
  */
 class Sample extends TemplateEntity {
+
+    static grailsApplication
+
     static belongsTo = [
             // A Sample always belongs to one study.
             parent: Study,
@@ -225,6 +228,8 @@ class Sample extends TemplateEntity {
      * @return String
      */
     public static ucwords(String text) {
+        if (grailsApplication.config.gscf.reCapitalizeSampleNames == "false") return text;
+
         def newText = ''
 
 		if( !text )
