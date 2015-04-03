@@ -24,7 +24,8 @@ grails.project.dependency.resolution = {
         grailsCentral()
         grailsRepo "http://grails.org/plugins"
         mavenCentral()
-
+        mavenRepo "http://repo.grails.org/grails/plugins/"
+        
         // grails 1.3.9 does not seem to properly inherit maven repo's from plugins
         // so explicitely put mavenrepos in here. When upgraded to Grails 2.x this can
         // probably be removed
@@ -74,7 +75,7 @@ grails.project.dependency.resolution = {
         provided(
                 ":tomcat:$grailsVersion",
                 )
-
+        
         compile(
                 ":hibernate:$grailsVersion",
 
@@ -102,8 +103,6 @@ grails.project.dependency.resolution = {
         }
 
         // add { transative = false } to ignore dependency transition
-
-        //        runtime ':grails-melody:1.11'
     }
 }
 

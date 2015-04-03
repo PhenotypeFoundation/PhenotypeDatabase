@@ -73,7 +73,6 @@ grails.enable.native2ascii = true
 		'org.hibernate'
 
     error stdout:"StackTrace"
-
 	warn 'org.mortbay.log'*/
 
 	//info 'org.codehaus.groovy.grails.web.servlet',
@@ -105,6 +104,7 @@ log4j = {
 			'org.hibernate'
 			
 	info	'grails.app.controllers.generic.installation.TnoMigrateController' 
+        all 'grails.app', 'dbnp.query'
 }
 
 graphviz {
