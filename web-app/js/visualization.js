@@ -823,8 +823,7 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
                 });
 
             input.data( "ui-autocomplete" )._renderMenu = function( ul, items ) {
-                var self = this,
-                    currentCategory = "";
+                var self = this, currentCategory = "";
                 $.each( items, function( index, item ) {
                     if ( item.category != currentCategory ) {
                         ul.append( "<li class='ui-autocomplete-category'>" + item.category + "</li>" );
