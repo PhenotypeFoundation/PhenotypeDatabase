@@ -19,94 +19,92 @@ grails.project.dependency.resolution = {
         // excludes 'ehcache'
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
-	legacyResolve true
+    legacyResolve true
     repositories {
-	    grailsCentral()
-	    grailsRepo "http://grails.org/plugins"
-	    mavenCentral()
+        grailsCentral()
+        grailsRepo "http://grails.org/plugins"
+        mavenCentral()
 
-	    // grails 1.3.9 does not seem to properly inherit maven repo's from plugins
-	    // so explicitely put mavenrepos in here. When upgraded to Grails 2.x this can
-	    // probably be removed
-	    mavenRepo "http://nexus.dbnp.org/content/repositories/releases"
-	    //mavenRepo "http://repository.springsource.com/maven/bundles/release"
+        // grails 1.3.9 does not seem to properly inherit maven repo's from plugins
+        // so explicitely put mavenrepos in here. When upgraded to Grails 2.x this can
+        // probably be removed
+        mavenRepo "http://nexus.dbnp.org/content/repositories/releases"
+        //mavenRepo "http://repository.springsource.com/maven/bundles/release"
         //mavenRepo "http://repository.springsource.com/maven/bundles/external"
         //mavenRepo "http://repository.springsource.com/maven/libraries/release"
         //mavenRepo "http://repository.springsource.com/maven/libraries/external"
 
-	    // Repository for ISATAB tools
-	    //mavenRepo "http://frog.oerc.ox.ac.uk:8080/nexus-2.1.2/content/repositories/releases"
+        // Repository for ISATAB tools
+        //mavenRepo "http://frog.oerc.ox.ac.uk:8080/nexus-2.1.2/content/repositories/releases"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.5'
-		runtime 'postgresql:postgresql:9.1-901.jdbc4'
-		compile 'org.apache.poi:poi:3.7'
-		compile 'org.apache.poi:poi-ooxml:3.7'
-		compile 'org.apache.poi:poi-ooxml-schemas:3.7'
+        runtime 'postgresql:postgresql:9.1-901.jdbc4'
+        compile 'org.apache.poi:poi:3.7'
+        compile 'org.apache.poi:poi-ooxml:3.7'
+        compile 'org.apache.poi:poi-ooxml-schemas:3.7'
 
         // quartz jar is not packaged in the war properly
         // make sure to pull it in
         //compile('org.quartz-scheduler:quartz:1.8.4') {
-            // resolve SLF4J version conflict:
-            // SLF4J: The requested version 1.5.8 by your slf4j binding is not compatible with [1.6]
-            //excludes([ group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'])
+        // resolve SLF4J version conflict:
+        // SLF4J: The requested version 1.5.8 by your slf4j binding is not compatible with [1.6]
+        //excludes([ group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'])
         //}
 
-	    /*compile('org.isatools:ISAcreator:1.7.0') {
-		    transitive = false
-	    } */
-		// dependency for ISATAB schema
-		//compile 'net.sourceforge.collections:collections-generic:4.01'
+        /*compile('org.isatools:ISAcreator:1.7.0') {
+         transitive = false
+         } */
+        // dependency for ISATAB schema
+        //compile 'net.sourceforge.collections:collections-generic:4.01'
 
-	    // we seem to be needing XStream in some cases
-	    compile("com.thoughtworks.xstream:xstream:1.3.1")
+        // we seem to be needing XStream in some cases
+        compile("com.thoughtworks.xstream:xstream:1.3.1")
 
-	    //runtime 'hsqldb:hsqldb:1.8.0.10'
+        //runtime 'hsqldb:hsqldb:1.8.0.10'
 
         compile "org.grails:grails-webflow:$grailsVersion"
-		
-		compile('org.codehaus.groovy.modules.http-builder:http-builder:0.5.0') {
-			excludes "commons-logging", "xml-apis", "groovy"
-		}
+
+        compile('org.codehaus.groovy.modules.http-builder:http-builder:0.5.0') { excludes "commons-logging", "xml-apis", "groovy" }
     }
-	plugins {
+    plugins {
 
-		// tomcat plugin should not end up in the WAR file
-		provided(
-				":tomcat:$grailsVersion",
-		)
+        // tomcat plugin should not end up in the WAR file
+        provided(
+                ":tomcat:$grailsVersion",
+                )
 
-		compile(
-            ":hibernate:$grailsVersion",
+        compile(
+                ":hibernate:$grailsVersion",
 
-//            ":jquery:latest.integration",
-//            ':jquery-ui:latest.integration',
+                //            ":jquery:latest.integration",
+                //            ':jquery-ui:latest.integration',
 
-            ":jquery:1.11.1",
-            ':jquery-ui:1.10.4',
-			
-            ":resources:1.2",
-            ":spring-security-core:1.2.7.3",
+                ":jquery:1.11.1",
+                ':jquery-ui:1.10.4',
 
-            ":famfamfam:1.0.1",
-            ":mail:1.0.1",
-            ":quartz:1.0-RC5",
-            ":ajaxflow:0.2.4",
-            ":webflow:2.0.8.1"
-        )
+                ":resources:1.2",
+                ":spring-security-core:1.2.7.3",
+
+                ":famfamfam:1.0.1",
+                ":mail:1.0.1",
+                ":quartz:1.0-RC5",
+                ":ajaxflow:0.2.4",
+                ":webflow:2.0.8.1"
+                )
 
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
             compile(":console:1.2",
                     ":trackr:0.7.3"
-            )
+                    )
         }
 
         // add { transative = false } to ignore dependency transition
 
-//        runtime ':grails-melody:1.11'
-	}
+        //        runtime ':grails-melody:1.11'
+    }
 }
 
 //grails.plugin.location.'grom' = '../grom'
