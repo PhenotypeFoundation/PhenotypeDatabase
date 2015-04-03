@@ -48,13 +48,13 @@ modules = {
 	
 	studyEdit {
 		dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
-		resource url:[ dir:'js', file: 'studyEdit.js']
-		resource url:[ dir:'js', file: 'studyEdit.meta.js'], disposition: 'head'
-		resource url:[ dir:'js', file: 'studyEdit.design.js']
-		resource url:[ dir:'js', file: 'studyEdit.design.eventGroupDialog.js']
-		resource url:[ dir:'js', file: 'studyEdit.design.subjectGroups.js']
-		resource url:[ dir:'js', file: 'studyEdit.assaySamples.js']
-		resource url:[ dir:'js', file: 'studyEdit.datatables.js']
+		resource url:[ dir:'js/studyEdit', file: 'studyEdit.js']
+		resource url:[ dir:'js/studyEdit', file: 'studyEdit.meta.js'], disposition: 'head'
+		resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.js']
+		resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.eventGroupDialog.js']
+		resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.subjectGroups.js']
+		resource url:[ dir:'js/studyEdit', file: 'studyEdit.assaySamples.js']
+		resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
 		resource url:[ dir:'css', file: 'studyEdit.css']
 		resource url:[ dir:'css', file: 'templates.css']
 		
@@ -62,6 +62,17 @@ modules = {
 		resource url: [dir: 'js', file: 'selectAddMore-1.0.js' ]
 		resource url: [dir: 'js', file: 'publication-chooser.js' ], disposition: 'head'
 		resource url: [dir: 'js', file: 'publication-chooser.pubmed.js' ], disposition: 'head'
+	}
+	
+	studyView {
+		dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
+		resource url:[ dir:'js/studyView', file: 'studyView.js']
+		resource url:[ dir:'js/studyView', file: 'studyView.meta.js'], disposition: 'head'
+		resource url:[ dir:'js/studyView', file: 'studyView.design.js']
+		resource url:[ dir:'js/studyView', file: 'studyView.design.subjectGroups.js']
+		resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
+		resource url:[ dir:'css', file: 'studyView.css']
+		resource url:[ dir:'css', file: 'templates.css']
 	}
 	
 	"gscf-datatables" { 

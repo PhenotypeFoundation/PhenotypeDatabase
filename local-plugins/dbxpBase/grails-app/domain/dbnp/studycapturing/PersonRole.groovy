@@ -18,4 +18,9 @@ class PersonRole extends Identity {
 
 	static constraints = {
 	}
+	
+	
+	def String toString() {
+		name
+	}
 }
