@@ -18,12 +18,6 @@
     <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 
     <g:if env="production"><script src="//connect.facebook.net/en_US/all.js#xfbml=1"></script></g:if>
-    <g:if env="development">
-        <link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.css')}"/>
-    </g:if>
-    <g:else>
-        <link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.min.css')}"/>
-    </g:else>
     <g:layoutHead/>
 </head>
 <body>
