@@ -17,7 +17,6 @@
 
     <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 
-    <g:if env="production"><script src="//connect.facebook.net/en_US/all.js#xfbml=1"></script></g:if>
     <g:layoutHead/>
 </head>
 <body>
@@ -29,14 +28,6 @@
         </div>
     </div>
 </div>
-%{--Disabled Facebook Recommend--}%
-%{--<g:if env="production">
-    <g:if test="${facebookLikeUrl}">
-        <div id="facebookConnect">
-            <fb:like href="${resource(absolute: true)}${facebookLikeUrl}" show_faces="true" width="450" action="recommend" font="arial"></fb:like>
-        </div>
-    </g:if>
-</g:if>--}%
 <div id="footer">
     <div class="container"><p class="copyright">Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="//dbnp.org">http://dbnp.org</a>.</p></div>
 </div>
