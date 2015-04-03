@@ -91,7 +91,7 @@
 		<div class="buttons">
 			<sec:ifLoggedIn>
 				<span class="button"><g:link class="buttonBg add" title="Create a new study" controller="studyEdit" action="add"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
-				<span class="button"><a class="buttonBg compare" title="Compare the selected studies" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span>
+				<!-- <span class="button"><a class="buttonBg compare" title="Compare the selected studies" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span> -->
 			</sec:ifLoggedIn>
 		</div>
 		<div class="paginateButtons">
