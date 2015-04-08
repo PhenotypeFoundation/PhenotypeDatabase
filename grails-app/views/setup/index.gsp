@@ -14,15 +14,7 @@
 <html>
 <head>
 	<meta name="layout" content="main"/>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.css')}"/>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'setupwizard.css')}"/>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'templates.css')}"/>
-	<link type="text/css" rel="stylesheet" href="http://alexgorbatchev.com/pub/sh/current/styles/shCore.css" />
-	<link type="text/css" rel="stylesheet" href="http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css" />
-	<script src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js"></script>
-	<script src="http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js"></script>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'tooltips.js', plugin: 'gdt')}"></script>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.js', plugin: 'gdt')}"></script>
+	<r:require module="setup" />
 </head>
 <body>
 	<g:render template="common/ajaxflow"/>

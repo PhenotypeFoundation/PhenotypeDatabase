@@ -124,6 +124,19 @@ modules = {
         resource url: [dir: 'css', file: 'studyCompare.css']
     }
     
+    // Setup wizard
+    setup {
+        dependsOn 'helptooltips'
+        resource url: [dir: 'css', file: 'ajaxflow.css']
+        resource url: [dir: 'css', file: 'setupwizard.css']
+        resource url: [dir: 'css', file: 'templates.css']
+        
+        resource url: "http://alexgorbatchev.com/pub/sh/current/styles/shCore.css"
+        resource url: "http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css"
+        resource url: "http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js"
+        resource url: "http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js"
+    }
+    
     /**********************************************************
      * 
      * Modules below are libraries and plugins
