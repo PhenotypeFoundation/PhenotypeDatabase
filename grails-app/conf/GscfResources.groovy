@@ -53,8 +53,10 @@ modules = {
 
     // Helptexts in the wizard
     helptooltips {
+        dependsOn 'jquery'
         resource url: [dir: 'js', file: 'tooltips.js', plugin: 'gdt']
         resource url: [dir: 'js', file: 'jquery.qtip-1.0.0-rc3.js', plugin: 'gdt']
+        resource url: [dir: 'css', file: 'tooltips.css']
     }
 
     // Nice good looking buttons
