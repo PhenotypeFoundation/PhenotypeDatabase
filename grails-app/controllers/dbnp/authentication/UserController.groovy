@@ -172,15 +172,15 @@ class UserController {
 		if (params.term?.length() > 2) {
 			String username = params.term
 
-			setIfMissing 'max', 10, 100
+                        def max = Math.min( params.max ?: 10, 100 )
 
 			def results = SecUser.executeQuery(
 					"SELECT DISTINCT u.username " +
 					"FROM SecUser u " +
 					"WHERE LOWER(u.username) LIKE :name " +
 					"ORDER BY u.username",
-					[name: "${username.toLowerCase()}%"],
-					[max: params.max])
+					[name: username.toLowerCase() + "%"],
+					[max: max])
 
 			for (result in results) {
 				jsonData << [value: result]
