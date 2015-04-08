@@ -3,6 +3,7 @@
  */
 .templateEditorStep { float: left; padding: 10px 0px; margin: 0 10px; }
 .templateEditorStep h3 { margin: 0 0 10px 0; padding-bottom: 10px; border-bottom: 1px solid #BBD; }
+#content .templateEditorStep { font-size: 0.8em; }
 #step2_selectedFields p, #step3_availableFields p { height: 42px; }
 
 #step1_template { width:340px; }

@@ -9,6 +9,7 @@ modules = {
         resource url: [ dir: 'js', file: 'jquery.browser.min.js' ]
     }
 
+    // Main GSCF module, included in the layout file
     gscfmain {
         dependsOn 'jquery'
         dependsOn 'jquery-ui'
@@ -22,6 +23,7 @@ modules = {
         resource url: [ dir:'js', file: 'jquery-migrate-1.2.1.js'], linkOverride: '//code.jquery.com/jquery-migrate-1.2.1.js'
     }
 
+    // GSCF dialog module, included in the dialog
     gscfdialog {
         dependsOn 'jquery'
         dependsOn 'jquery-ui'
@@ -60,6 +62,7 @@ modules = {
         resource url:[ dir:'css', file: 'buttons.css']
     }
 
+    // Scripts needed for study edit
     studyEdit {
         dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.js']
@@ -78,6 +81,7 @@ modules = {
         resource url: [dir: 'js', file: 'publication-chooser.pubmed.js' ], disposition: 'head'
     }
 
+    // Scripts needed for study view pages
     studyView {
         dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
         resource url:[ dir:'js/studyView', file: 'studyView.js']
@@ -89,6 +93,7 @@ modules = {
         resource url:[ dir:'css', file: 'templates.css']
     }
 
+    // Datatables to be used in several pages
     "gscf-datatables" {
         dependsOn 'jquery'
         resource url: [dir: 'js', file: 'jquery.dataTables.js' ] , linkOverride:'//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.js'
@@ -98,12 +103,14 @@ modules = {
         resource url: [ dir:'css', file: 'datatables-jui.css']
     }
 
+    // Advanced Query functionality
     advancedQuery {
         dependsOn "gscf-datatables", "buttons"
         resource url: [dir: 'js', file: 'advancedQueryResults.js']
         resource url: [dir: 'css', file: 'advancedQuery.css']
     }
 
+    // jqplot charting library
     jqplot {
         resource url: [dir: 'js/jqplot', file: 'excanvas.min.js'], wrapper: { s -> "<!--[if lt IE 9]>$s<![endif]-->" }
         resource url: [dir: 'js/jqplot', file: 'jquery.jqplot.min.js']
@@ -120,6 +127,15 @@ modules = {
         resource url: [dir: 'js/jqplot/plugins', file: 'jqplot.highlighter.min.js']
     }
 
+    templateEditor {
+        dependsOn 'jquery'
+        dependsOn 'jquery-ui'
+        
+        resource url: [dir: 'js', file: 'templateEditor.js']
+        resource url: [dir: 'css', file: 'templateEditor.css']
+    }
+    
+    // Scripts needed for visualization
     visualization {
         dependsOn 'jquery-ui'
         dependsOn 'jquery-browser-plugin'
@@ -127,5 +143,11 @@ modules = {
 
         resource url: [dir: 'js', file: 'visualization.js']
         resource url: [dir: 'css', file: 'visualization.css']
+    }
+    
+    // Study compare functionality
+    studycompare {
+        resource url: [dir: 'css', file: 'ajaxflow.css']
+        resource url: [dir: 'css', file: 'studyCompare.css']
     }
 }
