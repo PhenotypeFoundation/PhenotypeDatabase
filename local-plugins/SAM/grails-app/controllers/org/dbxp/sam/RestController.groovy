@@ -8,6 +8,7 @@ import groovy.sql.Sql
 
 class RestController {
     def dataSource
+    def moduleService
 
 	/****************************************************************/
 	/* REST resources for providing basic data to the GSCF          */
@@ -15,6 +16,7 @@ class RestController {
 
 	/**
 	 * Return a list of simple assay measurements matching the querying text.
+	 * If no assay is given, a set of all features for the selected module is returned
 	 *
 	 * @param assayToken
 	 * @return list of feature names for assay.
@@ -30,20 +32,28 @@ class RestController {
 	def getMeasurements = {
 		def assayToken = params.assayToken;
 		def assay = getAssay( assayToken );
-		if( !assay ) {
-			response.sendError(404)
-			return false
+                def features
+                
+                if( assayToken && !assay ) {
+                    response.sendError(404)
+                    return false
+                }
+                
+		if( assay ) {
+                    // Return all features for the given assay
+                    features = Feature.executeQuery( "SELECT DISTINCT f FROM Feature f, Measurement m, SAMSample s WHERE m.feature = f AND m.sample = s AND s.parentAssay = :assay", [ "assay": assay ] )
+		} else if(moduleService.validateModule(params?.module)) {
+                    // Return all features for the given module
+                    features = Feature.executeQuery( "SELECT DISTINCT f FROM Feature f LEFT JOIN f.platform p WHERE p.platformtype = :type", ["type": params.module]  )
+		} else {
+                    response.sendError(404)
+                    return false
 		}
-
-		// Return all features for the given assay
-		def features = Feature.executeQuery( "SELECT DISTINCT f FROM Feature f, Measurement m, SAMSample s WHERE m.feature = f AND m.sample = s AND s.parentAssay = :assay", [ "assay": assay ] )
 
 		render features.collect { it.name } as JSON
 	}
 
     def getQueryableFieldData = {
-
-        println "wel hier3332!!!!!!!!!!!!!!!!!!!!!!!!!"
 
         def entityClass = TemplateEntity.parseEntity( 'dbnp.studycapturing.' + params.entity)
 

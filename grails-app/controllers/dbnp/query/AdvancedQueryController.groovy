@@ -425,30 +425,24 @@ class AdvancedQueryController {
             }
         }
 
-        Study.giveReadableStudies(authenticationService.getLoggedInUser()).each { study ->
+        // Return fields per module. 
+        AssayModule.list().each { module ->
+            try {
+                def callUrl = "" + module.baseUrl + "/rest/getMeasurements"
+                def json = moduleCommunicationService.callModuleRestMethodJSON(module.baseUrl, callUrl);
+                fields[module] = json.collect { it }
 
-            def callUrl = ""
-
-            study.assays.each { assay ->
-                def urlVars = "assayToken=" + assay.UUID
-                try {
-                    callUrl = "" + assay.module.baseUrl + "/rest/getMeasurementMetaData/query?" + urlVars
-                    def json = moduleCommunicationService.callModuleRestMethodJSON(assay.module.baseUrl /* consumer */, callUrl);
-
-                    def collection = []
-                    json.each { jason ->
-                        collection.add(jason.name)
-                    }
-
-                    fields [ assay.module ] = collection
-
-                } catch (Exception e) {
-                    //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
-                    log.error("Error while retrieving queryable fields from " +assay.module.name + "'s assay " +assay.name + ": " + e.getMessage())
-                }
+            } catch (Exception e) {
+                //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
+                log.error("Error while retrieving queryable fields from " +module.name + ": " + e.getMessage(), e)
             }
-        }
 
+        }
+        println "Searchable fields!!!"
+        println "-------------"
+        fields.each { k, v -> println "" + k + " -> " + v }
+        println "-------------"
+        
         return fields;
     }
 
