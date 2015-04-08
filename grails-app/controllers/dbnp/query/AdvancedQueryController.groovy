@@ -438,10 +438,6 @@ class AdvancedQueryController {
             }
 
         }
-        println "Searchable fields!!!"
-        println "-------------"
-        fields.each { k, v -> println "" + k + " -> " + v }
-        println "-------------"
         
         return fields;
     }

@@ -103,8 +103,14 @@ log4j = {
 	warn  'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
 			'org.hibernate'
 			
-	info	'grails.app.controllers.generic.installation.TnoMigrateController' 
+	info 'grails.app.controllers.generic.installation.TnoMigrateController' 
         all 'grails.app', 'dbnp.query'
+        
+        // Disable logging for resources plugin
+        error 'grails.app.services.org.grails.plugin.resource', 
+            'grails.app.taglib.org.grails.plugin.resource',
+            'grails.app.resourceMappers.org.grails.plugin.resource', 
+            'org.grails.plugin.resource'
 }
 
 graphviz {
