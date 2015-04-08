@@ -16,7 +16,6 @@
 </head>
 
 <body>
-<script src="${resource(dir: 'js', file: 'jquery-callback-1.2.js')}" type="text/javascript"></script>
 
 <g:if test="${flash.userError}">
 	<div id="error" class="error" title="errors">

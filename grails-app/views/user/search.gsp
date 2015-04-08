@@ -111,7 +111,6 @@ $(document).ready(function() {
 		source: "${createLink(action: 'ajaxUserSearch')}"
 	});
 });
-
 </script>
 
 </body>

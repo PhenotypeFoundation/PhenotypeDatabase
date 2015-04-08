@@ -56,7 +56,7 @@ modules = {
     
     // Scripts needed for study edit
     studyEdit {
-        dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips', 'upload-and-add-more'
+        dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips', 'upload-and-add-more', 'publication-chooser'
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.js']
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.meta.js'], disposition: 'head'
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.js']
@@ -66,9 +66,6 @@ modules = {
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
         resource url:[ dir:'css', file: 'studyEdit.css']
         resource url:[ dir:'css', file: 'templates.css']
-
-        resource url: [dir: 'js', file: 'publication-chooser.js' ], disposition: 'head'
-        resource url: [dir: 'js', file: 'publication-chooser.pubmed.js' ], disposition: 'head'
     }
 
     // Scripts needed for study view pages
@@ -214,6 +211,11 @@ modules = {
         resource url:[ dir:'css', file: 'buttons.css']
     }
 
+    'publication-chooser' {
+        resource url: [dir: 'js', file: 'publication-chooser.js' ], disposition: 'head'
+        resource url: [dir: 'js', file: 'publication-chooser.pubmed.js' ], disposition: 'head'
+    }
+    
     // Datatables to be used in several pages
     "gscf-datatables" {
         dependsOn 'jquery'
