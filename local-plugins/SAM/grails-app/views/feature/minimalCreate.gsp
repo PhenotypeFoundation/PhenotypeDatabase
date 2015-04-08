@@ -3,7 +3,6 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <title>Create a new feature</title>
-        <link rel="stylesheet" href="${resource(dir: 'css', file: 'sam.css')}"/>
     </head>
     <body>
         <g:if test="${flash.message}">

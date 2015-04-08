@@ -86,6 +86,7 @@ modules = {
     // Advanced Query functionality
     advancedQuery {
         dependsOn "gscf-datatables", "buttons"
+        resource url: [dir: 'js', file: 'advancedQuery.js']
         resource url: [dir: 'js', file: 'advancedQueryResults.js']
         resource url: [dir: 'css', file: 'advancedQuery.css']
     }

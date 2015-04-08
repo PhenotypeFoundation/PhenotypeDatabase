@@ -1,5 +1,6 @@
 modules = {
     sam2 {
+        dependsOn 'jquery'
         dependsOn 'datatables'
 
         resource url: 'js/selectAddMore.js'
@@ -9,6 +10,14 @@ modules = {
         resource url:'/images/subjectlayout.png', attrs:[alt:''], disposition:'inline'
         resource url:'/images/samplelayout.png', attrs:[alt:''], disposition:'inline'
         resource url:'/images/spinner.gif', attrs:[alt:''], disposition:'inline'
+    }
+    
+    samdialog {
+        dependsOn 'jquery'
+        
+        resource url: [dir: 'js', file: 'SelectAddMore.js', plugin: 'gdt']
+        resource url: [dir: 'css', file: 'templateEditor.css', plugin: 'gdt']
+        resource url: [dir: 'css', file: 'dialog.css']
     }
 
     tableEditor {
