@@ -1,15 +1,5 @@
 /** START :: BIG BUTTONS and BIG TEXT **/
-.bigbutton {
-    background: url(../images/wizard/big-button.jpg) no-repeat left top;
-    border: 0px;
-    width: 454px;
-    height: 53px;
-    color: #fff;
-    font-size: 18pt;
-}
-.bigbutton:hover {
-    color: #000;
-}
+
 .bigtext {
     color: #006dba;
     font-weight: normal;

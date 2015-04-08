@@ -147,15 +147,15 @@ modules = {
         dependsOn 'gscf-datatables'
         dependsOn 'upload-and-add-more'
         
+        resource url: [dir: 'css', file: 'studywizard.css']
         resource url: [dir: 'css', file: 'gdtimporter.css', plugin: 'gdtimporter']
-        resource url: [dir: 'css', file: 'studywizard.css', plugin: 'gdtimporter']
         resource url: [dir: 'css', file: 'table-editor.css', plugin: 'gdt']
         resource url: [dir: 'css', file: 'demo_table.css', plugin: 'gdtimporter']
         resource url: [dir: 'css', file: 'demo_table_jui.css', plugin: 'gdtimporter']
         resource url: [dir: 'css', file: 'demo_page.css', plugin: 'gdtimporter']
 
         resource url: [dir: 'js', file: 'fileupload.js', plugin: 'gdt']
-        resource url: [dir: 'js', file: 'studywizard.js', plugin: 'gdtimporter']
+        resource url: [dir: 'js', file: 'studywizard.js']
 
         resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt']
         resource url: [dir: 'js', file: 'table-editor.js', plugin: 'gdt']
@@ -193,7 +193,7 @@ modules = {
     // Tiptip scripts to shown nice tooltips
     tiptip {
         dependsOn 'jquery'
-        resource url:[ dir:'js', file: 'jquery.tipTip.minified.js']
+        resource url:[ dir:'js', file: 'jquery.tipTip.min.js']
         resource url:[ dir:'js', file: 'tipTip.initialize.js']
         resource url:[ dir:'css', file: 'tipTip.css']
     }

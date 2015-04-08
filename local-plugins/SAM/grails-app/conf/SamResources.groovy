@@ -34,7 +34,7 @@ modules = {
     templateFieldsMisc {
         dependsOn 'samtooltips'
         resource url: 'css/studywizard.css'
-        resource url:[plugin: 'gdtimporter', dir:'js', file: 'studywizard.js']
+        resource url:[dir:'js', file: 'studywizard.js']
         resource url: 'js/fileupload.js'
         resource url: 'js/ajaxupload.3.6.js'
         resource url: 'js/templateFields.js'
@@ -42,6 +42,6 @@ modules = {
 
     samtooltips {
         resource url:[plugin: 'gdt', dir:'js', file: 'tooltips.js']
-        resource url:[plugin: 'gdt', dir:'js', file: 'jquery.qtip-1.0.0-rc3.min.js']
+        resource url:[plugin: 'gdt', dir:'js', file: 'jquery.qtip-1.0.0-rc3.js']
     }
 }
