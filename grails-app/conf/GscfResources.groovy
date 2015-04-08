@@ -41,6 +41,18 @@ modules = {
      * The name describes the place where they are used
      *
      **********************************************************/
+    home {
+        dependsOn 'jquery'
+        resource url:[ dir:'css', file: 'home.css']
+    }
+    
+    "home-stats" {
+        dependsOn 'jquery-ui'
+        resource url:[ dir:'js', file: 'highcharts.js']
+        resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
+        resource url:[ dir:'css', file: 'home.css']
+    }
+
     
     // Scripts needed for study edit
     studyEdit {

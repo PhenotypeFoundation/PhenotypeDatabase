@@ -1,9 +1,11 @@
 <html>
 <head>
 	<meta name="layout" content="main"/>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'home.css')}" type="text/css"/>
-	<g:if test="${showstats}"><script type="text/javascript" src="${resource(dir: 'js', file: 'highcharts.js')}"></script></g:if>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt')}"></script>
+	<r:require module="home" />
+	<g:if test="${showstats}">
+		<r:require module="home-stats" />
+	</g:if>
+	
 	<script type="text/javascript">
 		$(document).ready(function() {
             <g:if test="${showstats && studyCount}">
