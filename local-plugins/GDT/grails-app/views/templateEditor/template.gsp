@@ -18,23 +18,11 @@
 	<head>
 		<meta name="layout" content="${layout}"/>
 		<title>template editor</title>
-		<script src="${createLinkTo(dir: 'js', file: 'templateEditor.js')}" type="text/javascript"></script>
-		<link rel="stylesheet" href="${createLinkTo(dir: 'css', file: 'templateEditor.css')}" />
-		<g:if env="development">
-		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.js')}"></script>
-		<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js')}"></script>
-		</g:if><g:else>
-		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.min.js')}"></script>
-		<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.min.js')}"></script>
-		</g:else>
-
-		<style type="text/css">
-		  #content .templateEditorStep { font-size: 0.8em; }
-		</style>
+		<r:require module="templateEditor" />
 	</head>
 	<body>
 
-		<script type="text/javascript">
+		<r:script type="text/javascript">
 			$(function() {
 				// Enable sorting of template fields
 				$("#selectedTemplateFields").sortable({
@@ -77,7 +65,7 @@
                     $(option).attr('title', $(option).text());
                 });
 			});
-		</script>
+		</r:script>
 
         <g:set var="templateService" bean="templateService"/>
 

@@ -2,14 +2,12 @@
 	<meta name='layout' content='main'/>
 	<g:set var="entityName" value="${message(code: 'user.label', default: 'User')}"/>
 	<title><g:message code="default.edit.label" args="[entityName]"/></title>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
-    <script type="text/javascript">
+	<r:require module="tiptip" />
+    <r:script type="text/javascript">
         $(document).ready(function() {
-            $(".tooltip").tipTip();
             $("#tabs").tabs();
         });
-    </script>
+    </r:script>
 	<style type="text/css">
 	div.usermanagement {
 		font-size: 0.8em;

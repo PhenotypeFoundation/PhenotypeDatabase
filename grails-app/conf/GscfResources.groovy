@@ -56,7 +56,7 @@ modules = {
     
     // Scripts needed for study edit
     studyEdit {
-        dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
+        dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips', 'upload-and-add-more'
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.js']
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.meta.js'], disposition: 'head'
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.js']
@@ -67,8 +67,6 @@ modules = {
         resource url:[ dir:'css', file: 'studyEdit.css']
         resource url:[ dir:'css', file: 'templates.css']
 
-        resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
-        resource url: [dir: 'js', file: 'selectAddMore-1.0.js' ]
         resource url: [dir: 'js', file: 'publication-chooser.js' ], disposition: 'head'
         resource url: [dir: 'js', file: 'publication-chooser.pubmed.js' ], disposition: 'head'
     }
@@ -106,7 +104,15 @@ modules = {
         
         resource url: [dir: 'js', file: 'templateEditor.js']
         resource url: [dir: 'css', file: 'templateEditor.css']
+        resource url: [dir: 'js', file: 'ontology-chooser.js' ], disposition: 'head'
+        resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
     }
+    
+    // Template importer 
+    templateImporter {
+        resource url: [dir: 'css', file: 'templateImporter.css']
+    }
+
     
     // Scripts needed for visualization
     visualization {
@@ -137,11 +143,38 @@ modules = {
         resource url: "http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js"
     }
     
+    // GDT importer for importing several entitites
+    gdtImporter {
+        dependsOn 'helptooltips'
+        dependsOn 'gscf-datatables'
+        dependsOn 'upload-and-add-more'
+        
+        resource url: [dir: 'css', file: 'gdtimporter.css', plugin: 'gdtimporter']
+        resource url: [dir: 'css', file: 'studywizard.css', plugin: 'gdtimporter']
+        resource url: [dir: 'css', file: 'table-editor.css', plugin: 'gdt']
+        resource url: [dir: 'css', file: 'demo_table.css', plugin: 'gdtimporter']
+        resource url: [dir: 'css', file: 'demo_table_jui.css', plugin: 'gdtimporter']
+        resource url: [dir: 'css', file: 'demo_page.css', plugin: 'gdtimporter']
+
+        resource url: [dir: 'js', file: 'fileupload.js', plugin: 'gdt']
+        resource url: [dir: 'js', file: 'studywizard.js', plugin: 'gdtimporter']
+
+        resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt']
+        resource url: [dir: 'js', file: 'table-editor.js', plugin: 'gdt']
+
+        resource url: [dir: 'js', file: 'ontology-chooser.js' ], disposition: 'head'
+    }
+    
     /**********************************************************
      * 
      * Modules below are libraries and plugins
      * 
      **********************************************************/
+    
+    'upload-and-add-more' {
+        resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
+        resource url: [dir: 'js', file: 'selectAddMore-1.0.js' ]
+    }
     
     // jquery browser plugin for compatibility
     'jquery-browser-plugin' {

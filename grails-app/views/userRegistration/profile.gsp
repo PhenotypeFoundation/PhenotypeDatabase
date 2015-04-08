@@ -2,13 +2,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<meta name="layout" content="main"/>
 	<title>User profile</title>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $(".tooltip").tipTip();
-        });
-    </script>
+	<r:require module="tiptip" />
 </head>
 
 <body>
