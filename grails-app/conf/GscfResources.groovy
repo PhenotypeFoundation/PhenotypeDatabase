@@ -4,10 +4,12 @@ import org.springframework.context.annotation.DependsOn;
 import dbnp.query.AdvancedQueryController;
 
 modules = {
-    'jquery-browser-plugin' {
-        dependsOn 'jquery'
-        resource url: [ dir: 'js', file: 'jquery.browser.min.js' ]
-    }
+    /**********************************************************
+     *
+     * These modules are used in the several layouts, on every 
+     * page in that layout
+     *
+     **********************************************************/
 
     // Main GSCF module, included in the layout file
     gscfmain {
@@ -31,6 +33,95 @@ modules = {
         resource url:[ dir:'css', file: 'dialog.css']
         resource url:[ dir:'js', file: 'disableKeys.js']
         resource url:[ dir:'js', file: 'paginate.js']
+    }
+
+    /**********************************************************
+     *
+     * These modules are used on specific pages with functionality
+     * The name describes the place where they are used
+     *
+     **********************************************************/
+    
+    // Scripts needed for study edit
+    studyEdit {
+        dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
+        resource url:[ dir:'js/studyEdit', file: 'studyEdit.js']
+        resource url:[ dir:'js/studyEdit', file: 'studyEdit.meta.js'], disposition: 'head'
+        resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.js']
+        resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.eventGroupDialog.js']
+        resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.subjectGroups.js']
+        resource url:[ dir:'js/studyEdit', file: 'studyEdit.assaySamples.js']
+        resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
+        resource url:[ dir:'css', file: 'studyEdit.css']
+        resource url:[ dir:'css', file: 'templates.css']
+
+        resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
+        resource url: [dir: 'js', file: 'selectAddMore-1.0.js' ]
+        resource url: [dir: 'js', file: 'publication-chooser.js' ], disposition: 'head'
+        resource url: [dir: 'js', file: 'publication-chooser.pubmed.js' ], disposition: 'head'
+    }
+
+    // Scripts needed for study view pages
+    studyView {
+        dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
+        resource url:[ dir:'js/studyView', file: 'studyView.js']
+        resource url:[ dir:'js/studyView', file: 'studyView.meta.js'], disposition: 'head'
+        resource url:[ dir:'js/studyView', file: 'studyView.design.js']
+        resource url:[ dir:'js/studyView', file: 'studyView.design.subjectGroups.js']
+        resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
+        resource url:[ dir:'css', file: 'studyView.css']
+        resource url:[ dir:'css', file: 'templates.css']
+    }
+    
+    // Advanced Query functionality
+    advancedQuery {
+        dependsOn "gscf-datatables", "buttons"
+        resource url: [dir: 'js', file: 'advancedQueryResults.js']
+        resource url: [dir: 'css', file: 'advancedQuery.css']
+    }
+    
+    // Cookdata functionality
+    cookdata {
+        dependsOn 'jquery'
+        resource url:[ dir:'css', file: 'cookdata.css']
+        resource url:[ dir:'js', file: 'cookdata_dataset_selection.js']
+    }
+    
+    // Template editor functionality
+    templateEditor {
+        dependsOn 'jquery'
+        dependsOn 'jquery-ui'
+        
+        resource url: [dir: 'js', file: 'templateEditor.js']
+        resource url: [dir: 'css', file: 'templateEditor.css']
+    }
+    
+    // Scripts needed for visualization
+    visualization {
+        dependsOn 'jquery-ui'
+        dependsOn 'jquery-browser-plugin'
+        dependsOn 'jqplot'
+
+        resource url: [dir: 'js', file: 'visualization.js']
+        resource url: [dir: 'css', file: 'visualization.css']
+    }
+    
+    // Study compare functionality
+    studycompare {
+        resource url: [dir: 'css', file: 'ajaxflow.css']
+        resource url: [dir: 'css', file: 'studyCompare.css']
+    }
+    
+    /**********************************************************
+     * 
+     * Modules below are libraries and plugins
+     * 
+     **********************************************************/
+    
+    // jquery browser plugin for compatibility
+    'jquery-browser-plugin' {
+        dependsOn 'jquery'
+        resource url: [ dir: 'js', file: 'jquery.browser.min.js' ]
     }
 
     // Timeline scripts used within the study edit
@@ -64,37 +155,6 @@ modules = {
         resource url:[ dir:'css', file: 'buttons.css']
     }
 
-    // Scripts needed for study edit
-    studyEdit {
-        dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
-        resource url:[ dir:'js/studyEdit', file: 'studyEdit.js']
-        resource url:[ dir:'js/studyEdit', file: 'studyEdit.meta.js'], disposition: 'head'
-        resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.js']
-        resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.eventGroupDialog.js']
-        resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.subjectGroups.js']
-        resource url:[ dir:'js/studyEdit', file: 'studyEdit.assaySamples.js']
-        resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
-        resource url:[ dir:'css', file: 'studyEdit.css']
-        resource url:[ dir:'css', file: 'templates.css']
-
-        resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
-        resource url: [dir: 'js', file: 'selectAddMore-1.0.js' ]
-        resource url: [dir: 'js', file: 'publication-chooser.js' ], disposition: 'head'
-        resource url: [dir: 'js', file: 'publication-chooser.pubmed.js' ], disposition: 'head'
-    }
-
-    // Scripts needed for study view pages
-    studyView {
-        dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
-        resource url:[ dir:'js/studyView', file: 'studyView.js']
-        resource url:[ dir:'js/studyView', file: 'studyView.meta.js'], disposition: 'head'
-        resource url:[ dir:'js/studyView', file: 'studyView.design.js']
-        resource url:[ dir:'js/studyView', file: 'studyView.design.subjectGroups.js']
-        resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
-        resource url:[ dir:'css', file: 'studyView.css']
-        resource url:[ dir:'css', file: 'templates.css']
-    }
-
     // Datatables to be used in several pages
     "gscf-datatables" {
         dependsOn 'jquery'
@@ -103,13 +163,6 @@ modules = {
 
         resource url: [ dir:'css', file: 'jquery.dataTables.css'], linkOverride: "//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css"
         resource url: [ dir:'css', file: 'datatables-jui.css']
-    }
-
-    // Advanced Query functionality
-    advancedQuery {
-        dependsOn "gscf-datatables", "buttons"
-        resource url: [dir: 'js', file: 'advancedQueryResults.js']
-        resource url: [dir: 'css', file: 'advancedQuery.css']
     }
 
     // jqplot charting library
@@ -129,27 +182,4 @@ modules = {
         resource url: [dir: 'js/jqplot/plugins', file: 'jqplot.highlighter.min.js']
     }
 
-    templateEditor {
-        dependsOn 'jquery'
-        dependsOn 'jquery-ui'
-        
-        resource url: [dir: 'js', file: 'templateEditor.js']
-        resource url: [dir: 'css', file: 'templateEditor.css']
-    }
-    
-    // Scripts needed for visualization
-    visualization {
-        dependsOn 'jquery-ui'
-        dependsOn 'jquery-browser-plugin'
-        dependsOn 'jqplot'
-
-        resource url: [dir: 'js', file: 'visualization.js']
-        resource url: [dir: 'css', file: 'visualization.css']
-    }
-    
-    // Study compare functionality
-    studycompare {
-        resource url: [dir: 'css', file: 'ajaxflow.css']
-        resource url: [dir: 'css', file: 'studyCompare.css']
-    }
 }
