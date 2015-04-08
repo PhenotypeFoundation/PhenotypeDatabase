@@ -280,7 +280,7 @@ StudyEdit.studyChildren = {
 			dialog.find( "[name=_action]" ).val( "save" );
 			dialog.find( 'form' ).submit();
 		},
-		delete: function( form, question ) {
+		deleteItem: function( form, question ) {
 			// Collect the ids from all datatables
 		    var ids = []; 
 		    for( tableId in StudyEdit.datatables.elementsSelected ) {
@@ -378,8 +378,8 @@ StudyEdit.subjects = {
 	save: function() {
 		StudyEdit.studyChildren.save();
 	},
-	delete: function() {
-		StudyEdit.studyChildren.delete( $( "#deleteSubjects" ), "Deleting these subjects will also delete all samples that originated from them. Are you sure you want to delete the subjects?" );
+	deleteItem: function() {
+		StudyEdit.studyChildren.deleteItem( $( "#deleteSubjects" ), "Deleting these subjects will also delete all samples that originated from them. Are you sure you want to delete the subjects?" );
 	},
 	
 	isTemplateOnScreen: function( templateId ) {
@@ -411,8 +411,8 @@ StudyEdit.samples = {
 	save: function() {
 		StudyEdit.studyChildren.save();
 	},
-	delete: function() {
-		StudyEdit.studyChildren.delete( $( "#deleteSamples" ), "Are you sure you want to delete the samples?" );
+	deleteItem: function() {
+		StudyEdit.studyChildren.deleteItem( $( "#deleteSamples" ), "Are you sure you want to delete the samples?" );
 	},
 	isTemplateOnScreen: function( templateId ) {
 		return $( "#samplesTable_" + templateId ).length > 0;
@@ -444,8 +444,8 @@ StudyEdit.assays = {
 	save: function() {
 		StudyEdit.studyChildren.save();
 	},
-	delete: function() {
-		StudyEdit.studyChildren.delete( $( "#deleteAssays" ), "Are you sure you want to delete the assays?" );
+	deleteItem: function() {
+		StudyEdit.studyChildren.deleteItem( $( "#deleteAssays" ), "Are you sure you want to delete the assays?" );
 	},
 	isTemplateOnScreen: function( templateId ) {
 		return $( "#assaysTable_" + templateId ).length > 0;

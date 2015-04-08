@@ -76,7 +76,7 @@ StudyEdit.design.subjectGroups = {
 			StudyEdit.design.timelineObject.setData( timelineData );
 		},
 		
-		delete: function( id ) {
+		deleteItem: function( id ) {
 			// Update the internal list of subject groups
 			var i = StudyEdit.design.subjectGroups.groups.findIndexById( id );
 			
@@ -135,7 +135,7 @@ StudyEdit.design.subjectGroups = {
 				buttons.Delete = function() {
 					var dialog = StudyEdit.design.subjectGroups.dialog.get();
 					var id = dialog.data( "subjectgroup-id" );
-					StudyEdit.design.subjectGroups.delete( id );
+					StudyEdit.design.subjectGroups.deleteItem( id );
 					StudyEdit.design.subjectGroups.dialog.close( this );
 				}
 			}
@@ -249,7 +249,7 @@ StudyEdit.design.subjectGroups = {
 		return true;
 	},
 
-	delete: function( id ) {
+	deleteItem: function( id ) {
 		var url = $( 'form#subjectGroup' ).attr( 'action' ) + "Delete";
 		var data = { 
 			id: id
@@ -259,7 +259,7 @@ StudyEdit.design.subjectGroups = {
 			$.post( url, data, function() {
 			});
 			
-			StudyEdit.design.subjectGroups.groups.delete( id );
+			StudyEdit.design.subjectGroups.groups.deleteItem( id );
 			StudyEdit.design.subjectGroups.updateTimeline();
 			
 			return true;

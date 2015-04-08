@@ -110,7 +110,7 @@ StudyEdit.design = {
 	    // Add event listeners
 	    links.events.addListener(timeline, 'dragin', eventHandlers.add );
 	    links.events.addListener(timeline, 'changed', eventHandlers.change);
-	    links.events.addListener(timeline, 'delete', eventHandlers.delete);
+	    links.events.addListener(timeline, 'delete', eventHandlers.deleteItem);
 	    
 	    // Prevent adding new items by doubleclick
 	    links.events.addListener(timeline, 'add', function() { timeline.cancelAdd(); } );
@@ -160,7 +160,7 @@ StudyEdit.design.subjectEventGroups = {
 		
 		return doUpdate;
 	},
-	delete: function( id, hasSamples ) {
+	deleteItem: function( id, hasSamples ) {
 		var url = $( 'form#subjectEventGroup' ).attr( 'action' ) + "Delete";
 		var data = { 
 			id: id
@@ -241,7 +241,7 @@ StudyEdit.design.subjectEventGroups = {
 	    	}
 	    },
 	    
-	    delete: function() {
+	    deleteItem: function() {
 	    	var timeline = StudyEdit.design.timelineObject;
 	    	var selectedRow = timeline.getSelectedRow();
 
@@ -250,7 +250,7 @@ StudyEdit.design.subjectEventGroups = {
 		    	var hasSamples = selectedRow.data.hasSamples;
 		    	
 		    	// Delete the SubjectEventGroup itself. It if fails, also don't delete it from the timeline 
-		    	if( !StudyEdit.design.subjectEventGroups.delete( id, hasSamples ) ) {
+		    	if( !StudyEdit.design.subjectEventGroups.deleteItem( id, hasSamples ) ) {
 		    		timeline.cancelDelete();
 		    	}
 	    	} else {

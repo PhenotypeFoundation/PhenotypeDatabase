@@ -95,6 +95,8 @@ grails.project.dependency.resolution = {
                 ":webflow:2.0.8.1"
                 )
 
+        compile ":yui-war-minify:1.5"
+        
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
             compile(":console:1.2",

@@ -1,4 +1,4 @@
-if( typeof( StudyEdit ) === "undefined" ) { 
+if( typeof(StudyEdit) === "undefined" ) { 
 	StudyEdit = {};
 };
 
@@ -90,7 +90,7 @@ StudyEdit.design.eventGroups = {
 		} );
 		$(document).on( "click", "#eventgroups .delete", function() {
 			var li = $(this).closest( "li" );
-			StudyEdit.design.eventGroups.delete( li.data( "originId" ) );
+			StudyEdit.design.eventGroups.deleteItem( li.data( "originId" ) );
 			return false;
 		} );
 		
@@ -104,7 +104,7 @@ StudyEdit.design.eventGroups = {
 		} );
 		$(document).on( "click", "#events .delete", function() {
 			var li = $(this).closest( "li" );
-			StudyEdit.design.events.delete( "event", li.data( "originId" ) );
+			StudyEdit.design.events.deleteItem( "event", li.data( "originId" ) );
 			return false;
 		} );
 		
@@ -115,7 +115,7 @@ StudyEdit.design.eventGroups = {
 		} );
 		$(document).on( "click", "#samplingEvents .delete", function() {
 			var li = $(this).closest( "li" );
-			StudyEdit.design.events.delete( "samplingEvent", li.data( "originId" ) );
+			StudyEdit.design.events.deleteItem( "samplingEvent", li.data( "originId" ) );
 			return false;
 		} );
 		
@@ -265,7 +265,7 @@ StudyEdit.design.eventGroups = {
 		});
 	},
 	
-	delete: function( id ) {
+	deleteItem: function( id ) {
 		var url = $( 'form#eventGroup' ).attr( 'action' ) + "Delete";
 		var data = { 
 			id: id
@@ -382,7 +382,7 @@ StudyEdit.design.eventGroups = {
 	    	}
 	    },
 	    
-	    delete: function() {
+	    deleteItem: function() {
 	    	var timeline = StudyEdit.design.eventGroups.timelineObject;
 	    	var selectedRow = timeline.getSelectedRow();
 
@@ -392,7 +392,7 @@ StudyEdit.design.eventGroups = {
 		    	var hasSamples = selectedRow.data.hasSamples;
 		    	
 		    	// Delete the SubjectEventGroup itself. It if fails, also don't delete it from the timeline 
-		    	if( !StudyEdit.design.eventGroups.contents.delete( eventType, id, hasSamples ) ) {
+		    	if( !StudyEdit.design.eventGroups.contents.deleteItem( eventType, id, hasSamples ) ) {
 		    		timeline.cancelDelete();
 		    	}
 	    	} else {
@@ -476,7 +476,7 @@ StudyEdit.design.eventGroups = {
 			
 			return doUpdate;
 		},
-		delete: function( eventType, id, hasSamples ) {
+		deleteItem: function( eventType, id, hasSamples ) {
 			var url = $( 'form#' + eventType + "InEventGroup" ).attr( 'action' ) + "Delete";
 			var data = { 
 				id: id
@@ -531,7 +531,7 @@ StudyEdit.design.events = {
 			dialog.dialog( "open" );
 		});
 	},
-	delete: function( eventType, id ) {
+	deleteItem: function( eventType, id ) {
 		var url = $( 'form#' + eventType ).attr( 'action' ) + "Delete";
 		var data = { 
 			id: id
