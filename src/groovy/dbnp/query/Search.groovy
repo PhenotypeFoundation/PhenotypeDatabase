@@ -118,10 +118,14 @@ class Search {
 		this.executionDate = new Date();
 
 		// Execute the search
+                log.debug "Executing search"
 		executeSearch();
+                log.debug "Finished executing search"
 
 		// Save the value of this results for later use
+                log.debug "Saving result fields"
 		saveResultFields();
+                log.debug "Finished saving result fields"
 	}
 
 	/**
@@ -197,10 +201,13 @@ class Search {
 		// http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
 		entities = filterForComplexCriteria( entities, getEntityCriteria( this.entity ) );
 		
+                log.debug "Filtered on local criteria."
+        
 		// Filter on module criteria. If the search is 'and', only the entities found until now
 		// should be queried in the module. Otherwise, all entities are sent, in order to retrieve
 		// data (to show on screen) for all entities
 		if( hasModuleCriteria() ) {
+                        log.debug "Starting to filter on module criteria."
 			if( searchMode == SearchMode.and ) {
 				entities = filterOnModuleCriteria( entities );
 			} else {
@@ -672,12 +679,15 @@ class Search {
 					def moduleCriteria = getEntityCriteria( moduleName );
 		
 					if( moduleCriteria && moduleCriteria.size() > 0 ) {
+                                                log.info "Matching module criteria: " + moduleCriteria
 						def callUrl = moduleCriteriaUrl( module );
 						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						
 						try {
+                                                        log.debug "Retrieving module data from " + module
 							def json = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
 							Closure checkClosure = moduleCriterionClosure( json );
+                                                        log.debug "Filtering entity list for " + module
 							entities = filterEntityList( entities, moduleCriteria, checkClosure );
 						} catch( Exception e ) {
 							//log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
@@ -694,6 +704,8 @@ class Search {
 				// Loop through all modules and check whether criteria have been given
 				// for that module
 				AssayModule.list().each { module ->
+                                        log.info "Matching module criteria: " + moduleCriteria
+                                        
 					// Remove 'module' from module name
 					def moduleName = module.name.replace( 'module', '' ).trim()
 					def moduleCriteria = getEntityCriteria( moduleName );
@@ -725,8 +737,12 @@ class Search {
 	
 	/**
 	 * Returns a closure for determining the value of a module field 
-	 * @param json
-	 * @return
+	 * @param json Should be a map, with the entity UUIDs as key, and the values being a map with keys 
+	 *             being the field name and the values the value for that entity and field.
+	 * @return Closure to see whether a specific entity matches a criterion. Gets two arguments:
+         *               element         The element to check
+         *               criterion       The criterion to check on.
+         *         Returns true if the criterion holds, false otherwise
 	 */
 	protected Closure moduleCriterionClosure( def json ) {
 		return { entity, criterion ->
@@ -787,18 +803,32 @@ class Search {
 	}
 	
 	protected String moduleCriteriaArguments( module, entities, moduleCriteria ) {
-		// Retrieve the data from the module
-		def tokens = entities.collect { it.UUID }.unique();
-		def fields = moduleCriteria.collect { it.field }.unique();
+		// Retrieve the data from the module. Only ask for data for entities that 
+                // should have data in the module
+		def tokens = []
+        
+                switch( entity.class ) {
+                    case Study:
+                        tokens = Study.executeQuery( "SELECT DISTINCT s.UUID from Study s INNER JOIN s.assays a WHERE s IN (:studies) AND a.module = :module", [ studies: entities, module: module ] )
+                        break
+                    case Sample:
+                        tokens = Sample.executeQuery( "SELECT DISTINCT s.UUID from Sample s, Assay a WHERE s IN (:samples) AND s IN a.samples AND a.module = :module", [ samples: entities, module: module ] )
+                        break
+                    case Assay:
+                        tokens = Assay.executeQuery( "SELECT DISTINCT a.UUID FROM Assay a WHERE a IN (:assays) AND a.module = :module", [ assays: entities, module: module ] )
+                        break
+                }
+                
+		def fields = moduleCriteria.collect { it.field };
 	
 		def callUrl = 'entity=' + this.entity
-		tokens.sort().each { callUrl += "&tokens=" + it.encodeAsURL() }
+		tokens.each { callUrl += "&tokens=" + it.encodeAsURL() }
 		
 		// If all fields are searched, all fields should be retrieved
 		if( fields.contains( '*' ) ) {
 			
 		} else {
-			fields.sort().each { callUrl += "&fields=" + it.encodeAsURL() }
+			fields.each { callUrl += "&fields=" + it.encodeAsURL() }
 		}
 
 		return callUrl;

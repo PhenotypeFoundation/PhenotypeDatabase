@@ -4,59 +4,60 @@
  * 
  ********************************************************/
 $(function() {
-	// Replace the selectbox with a textfield
-	// By replacing it with javascript, users without javascript will still be able to use the select
-	$('#queryFieldSelect').after(
-			$('<input type="text" class="text" id="queryFieldText">'));
-	$('#queryFieldText')
-			.after(
-					$('<input type="hidden" name="criteria.0.entityfield" id="queryField"></span>'));
-	$('#queryFieldSelect').remove();
-
-	$("#queryFieldText").autocomplete({
-		minLength : 0,
-		source : queryableFields,
-		focus : function(event, ui) {
-			$("#queryFieldText").val(ui.item.show);
-			return false;
-		},
-		select : function(event, ui) {
-			selectQueryableFieldItem(ui.item);
-			//$( "#queryFieldEntity" ).html( ui.item.entity );
-			return false;
-		},
-		change : function(event, ui) {
-			// If the user has left the field blank, remove the field that has been selected
-			if ($('#queryFieldText').val().trim() == "") {
-				selectQueryableFieldItem(null);
-			}
-			// If no item is selected and the user has entered some text, select the first one
-			// See https://github.com/scottgonzalez/jquery-ui-extensions/blob/master/autocomplete/jquery.ui.autocomplete.selectFirst.js
-			else if (ui.item == null) {
-				var el = $('#queryFieldText').autocomplete();
-				updateQueryFieldRenderFunction(el);
-
-				// Check how many fields are in the list. However, if the user first enters
-				// a term that shows items, and afterwards continues typing, the menu items 
-				// will remain in the list, but are hidden.
-				// For that reason we perform an extra check to see whether the value of the
-				// first item matches the entered text
-				var searchResults = $.ui.autocomplete.filter(
-						queryableFields, $('#queryFieldText').val());
-				if (searchResults && searchResults.length > 0) {
-					selectQueryableFieldItem(searchResults[0]);
-				} else {
-					// Clear the input field if nothing is in the list
+	if( $("#queryFieldSelect").length > 0 ) {
+		// Replace the selectbox with a textfield
+		// By replacing it with javascript, users without javascript will still be able to use the select
+		$('#queryFieldSelect').after(
+				$('<input type="text" class="text" id="queryFieldText">'));
+		$('#queryFieldText')
+				.after(
+						$('<input type="hidden" name="criteria.0.entityfield" id="queryField"></span>'));
+		$('#queryFieldSelect').remove();
+	
+		$("#queryFieldText").autocomplete({
+			minLength : 0,
+			source : queryableFields,
+			focus : function(event, ui) {
+				$("#queryFieldText").val(ui.item.show);
+				return false;
+			},
+			select : function(event, ui) {
+				selectQueryableFieldItem(ui.item);
+				//$( "#queryFieldEntity" ).html( ui.item.entity );
+				return false;
+			},
+			change : function(event, ui) {
+				// If the user has left the field blank, remove the field that has been selected
+				if ($('#queryFieldText').val().trim() == "") {
 					selectQueryableFieldItem(null);
 				}
+				// If no item is selected and the user has entered some text, select the first one
+				// See https://github.com/scottgonzalez/jquery-ui-extensions/blob/master/autocomplete/jquery.ui.autocomplete.selectFirst.js
+				else if (ui.item == null) {
+					var el = $('#queryFieldText').autocomplete();
+					updateQueryFieldRenderFunction(el);
+	
+					// Check how many fields are in the list. However, if the user first enters
+					// a term that shows items, and afterwards continues typing, the menu items 
+					// will remain in the list, but are hidden.
+					// For that reason we perform an extra check to see whether the value of the
+					// first item matches the entered text
+					var searchResults = $.ui.autocomplete.filter(
+							queryableFields, $('#queryFieldText').val());
+					if (searchResults && searchResults.length > 0) {
+						selectQueryableFieldItem(searchResults[0]);
+					} else {
+						// Clear the input field if nothing is in the list
+						selectQueryableFieldItem(null);
+					}
+				}
+	
+				updateAutocomplete();
 			}
-
-			updateAutocomplete();
-		}
-	});
-	
-	updateQueryFieldRenderFunction($("#queryFieldText"));
-	
+		});
+		
+		updateQueryFieldRenderFunction($("#queryFieldText"));
+	}
 });
 
 function updateQueryFieldRenderFunction(el) {

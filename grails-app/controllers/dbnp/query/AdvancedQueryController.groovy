@@ -59,11 +59,19 @@ class AdvancedQueryController {
                 break;
         }
 
+        log.trace "Start searching"
         search.execute( parseCriteria( params.criteria ) );
-
+        log.trace "Finished executing search"
+        
         // Save search in session
         def queryId = saveSearch( search );
-        render( view: view, model: [search: search, queryId: queryId, actions: determineActions(search)] );
+        log.trace "Saved the search"
+        
+        log.trace "Start determining actions"
+        def actions = determineActions(search)
+        log.trace "Determined possible actions"
+        
+        render( view: view, model: [search: search, queryId: queryId, actions: actions] );
     }
 
     /**
