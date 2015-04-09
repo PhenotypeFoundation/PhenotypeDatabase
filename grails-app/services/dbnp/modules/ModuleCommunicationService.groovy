@@ -106,13 +106,15 @@ class ModuleCommunicationService implements Serializable {
 	* @return			JSON 	JSON object of the parsed text
 	*/
 	def callModuleMethod( String consumer, String restUrl, String args = null, String requestMethod = "GET", SecUser remoteUser = null) {
-		if (!remoteUser && !authenticationService.isLoggedIn()) {
+		log.debug "Checking whether user is logged in"
+                if (!remoteUser && !authenticationService.isLoggedIn()) {
 			// should not happen because we can only get here when a user is
 			// logged in...
 			throw new Exception('User is not logged in.')
 		}
 
 		// Check whether the url is present in cache
+                log.trace "Checking whether " + restUrl + " is present in cache with args " + args
 		def cacheData = retrieveFromCache( restUrl, args );
 		if( cacheData && cacheData[ "success" ] )
 			return cacheData[ "contents" ];
@@ -124,6 +126,7 @@ class ModuleCommunicationService implements Serializable {
 		def sessionToken = UUID.randomUUID().toString()
 
 		// put the session token to work
+                log.trace "Logging user in remotely to " + consumer
 		authenticationService.logInRemotely( consumer, sessionToken, remoteUser ?: authenticationService.getLoggedInUser())
 
 		// Append the sessionToken to the parameters

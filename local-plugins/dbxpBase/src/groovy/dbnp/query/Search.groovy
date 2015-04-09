@@ -339,6 +339,15 @@ class Search {
    protected boolean isAccessible( def entity ) {
 	   return false
    }
+   
+   /**
+    * Returns a list of entities from the database, based on the given UUIDs
+    * 
+    * @param uuids      A list of UUIDs for the entities to retrieve
+    */
+   protected List getEntitiesByUUID( List uuids ) {
+       return []
+   }
 
 	/****************************************************
 	 * 
@@ -685,10 +694,10 @@ class Search {
 						
 						try {
                                                         log.debug "Retrieving module data from " + module
-							def json = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
-							Closure checkClosure = moduleCriterionClosure( json );
+							def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
+                            
                                                         log.debug "Filtering entity list for " + module
-							entities = filterEntityList( entities, moduleCriteria, checkClosure );
+                                                        entities = entities.findAll { it.UUID in moduleEntityUUIDs }
 						} catch( Exception e ) {
 							//log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
 							e.printStackTrace()
@@ -699,7 +708,7 @@ class Search {
 		
 				return entities;
 			case SearchMode.or:
-				def resultingEntities = []
+				def resultingEntities = entities
 				
 				// Loop through all modules and check whether criteria have been given
 				// for that module
@@ -715,13 +724,17 @@ class Search {
 						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						
 						try {
-							def json = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
-							Closure checkClosure = moduleCriterionClosure( json );
-							
-							resultingEntities += filterEntityList( entities, moduleCriteria, checkClosure );
-							resultingEntities = resultingEntities.unique();
-							
-						} catch( Exception e ) {
+                                                    log.debug "Retrieving module data from " + module
+                                                    def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
+
+                                                    // See which entities are already selected
+                                                    log.debug "Filtering entity list for " + module
+                                                    def existingEntityUUIDs = resultingEntities*.UUID
+                                                    def resultingEntityUUIDs = moduleEntityUUIDs.findAll { !existingEntityUUIDs.contains( it ) }
+                                                    
+                                                    // Add the entities not yet selected 
+                                                    resultingEntities += getEntitiesByUUID( resultingEntityUUIDs )
+                        			} catch( Exception e ) {
 							//log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
 							e.printStackTrace()
 							throw e
@@ -798,40 +811,25 @@ class Search {
 	}
 	
 	protected String moduleCriteriaUrl( module ) {
-		def callUrl = module.baseUrl + '/rest/getQueryableFieldData'
+		def callUrl = module.baseUrl + '/rest/search'
 		return callUrl;
 	}
 	
 	protected String moduleCriteriaArguments( module, entities, moduleCriteria ) {
-		// Retrieve the data from the module. Only ask for data for entities that 
-                // should have data in the module
-		def tokens = []
-        
-                switch( entity.class ) {
-                    case Study:
-                        tokens = Study.executeQuery( "SELECT DISTINCT s.UUID from Study s INNER JOIN s.assays a WHERE s IN (:studies) AND a.module = :module", [ studies: entities, module: module ] )
-                        break
-                    case Sample:
-                        tokens = Sample.executeQuery( "SELECT DISTINCT s.UUID from Sample s, Assay a WHERE s IN (:samples) AND s IN a.samples AND a.module = :module", [ samples: entities, module: module ] )
-                        break
-                    case Assay:
-                        tokens = Assay.executeQuery( "SELECT DISTINCT a.UUID FROM Assay a WHERE a IN (:assays) AND a.module = :module", [ assays: entities, module: module ] )
-                        break
-                }
+            // Make the module search its data as well. Specify the module criteria in the URL
+            // The module will return a list of UUIDs
+            def parameters = 'entity=' + this.entity
+            
+            def criterionNum = 0
+            moduleCriteria.each { criterion ->
+                parameters += "&criteria." + criterionNum + ".entityfield=" + criterion.entityField().encodeAsURL()
+                parameters += "&criteria." + criterionNum + ".operator=" + criterion.operator.toString().encodeAsURL()
+                parameters += "&criteria." + criterionNum + ".value=" + criterion.value.toString().encodeAsURL()
                 
-		def fields = moduleCriteria.collect { it.field };
-	
-		def callUrl = 'entity=' + this.entity
-		tokens.each { callUrl += "&tokens=" + it.encodeAsURL() }
-		
-		// If all fields are searched, all fields should be retrieved
-		if( fields.contains( '*' ) ) {
-			
-		} else {
-			fields.each { callUrl += "&fields=" + it.encodeAsURL() }
-		}
+                criterionNum++
+            }
 
-		return callUrl;
+            parameters
 	}
 
 	/*********************************************************************

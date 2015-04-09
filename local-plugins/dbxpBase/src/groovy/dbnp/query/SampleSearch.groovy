@@ -141,4 +141,15 @@ class SampleSearch extends Search {
 			}
 		}
 	}
+    
+    
+    /**
+     * Returns a list of entities from the database, based on the given UUIDs
+     *
+     * @param uuids      A list of UUIDs for the entities to retrieve
+     */
+    protected List getEntitiesByUUID( List uuids ) {
+        return Sample.findAll( "FROM Sample WHERE UUID in :uuids", [ 'uuids': uuids ] )
+    }
+
 }

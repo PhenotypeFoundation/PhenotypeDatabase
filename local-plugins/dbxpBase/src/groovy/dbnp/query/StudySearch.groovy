@@ -110,4 +110,13 @@ class StudySearch extends Search {
 		}
 		return showableFields
 	}
+    
+    /**
+     * Returns a list of entities from the database, based on the given UUIDs
+     *
+     * @param uuids      A list of UUIDs for the entities to retrieve
+     */
+    protected List getEntitiesByUUID( List uuids ) {
+        return Study.findAll( "FROM Study WHERE UUID in :uuids", [ 'uuids': uuids ] )
+    }
 }

@@ -20,16 +20,16 @@ class SamCriterion extends dbnp.query.Criterion {
 	 * @return	Map with 3 keys:   'join' and'where' with the HQL join and where clause for this criterion and 'parameters' for the query named parameters
 	 */
 	public Map toHQL( String prefix, String objectToSearchIn = "measurement" ) {
-		def emptyCriterion = [ "join": null, "where": null, "parameters": null ];
+		def emptyCriterion = [ "join": null, "where": "(1 = 2)", "parameters": null ];
 
-		// If no value is given, don't do anything
-		if( value == null )
-			return emptyCriterion;
-                
                 // Retrieve the proper value. The type we compare against is a Double
                 def criterionType = 'Double'
                 def castValue = castValue(criterionType)
-                
+
+                // If no or invalid value is given, don't do anything
+                if( castValue == null )
+                    return emptyCriterion;
+
                 // Create basic where clause and extend it with the filter for the value
                 def basicWhereClause = "( " + objectToSearchIn + ".feature.name = :" + prefix + "FeatureName AND %s )"
                 def whereClause = extendWhereClause( basicWhereClause, objectToSearchIn + ".value", prefix, criterionType, castValue );
