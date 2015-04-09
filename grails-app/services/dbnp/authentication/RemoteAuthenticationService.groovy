@@ -26,13 +26,17 @@ class RemoteAuthenticationService implements Serializable {
 	 */
 	public boolean logInRemotely( String consumer, String token, SecUser user, Integer seconds = null ) {
 		// Remove expired users, otherwise they will be kept in the database forever
+                log.debug "Removing expired tokens"
 		removeExpiredTokens()
 
 		// Make sure there is no other logged in user anymore
+                log.debug "Logging off remotely"
 		logOffRemotely( consumer, token )
 
+                log.debug "Creating new object"
 		def SAUser = new SessionAuthenticatedUser( consumer: consumer, token: token, secUser: user, expiryDate: createExpiryDate( seconds ) )
 
+                log.debug "Saving new object"
 		return SAUser.save()
 	}
 

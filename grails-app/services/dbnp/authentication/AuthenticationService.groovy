@@ -23,17 +23,20 @@ class AuthenticationService {
     static transactional = true
 
     public boolean isLoggedIn() {
+        log.trace "isLoggedIn"
         return springSecurityService.isLoggedIn();
     }
 
     public SecUser getLoggedInUser() {
+      log.debug "getLoggedInUser: getting principal"
       def principal = springSecurityService.getPrincipal()
 
       // If the user is logged in, the principal should be a GrailsUser object.
       // If the user is not logged in, the principal is the 'anonymous username'
       // i.e. a string
       if( principal instanceof GrailsUser ) {
-          return SecUser.findByUsername( principal.username );
+          log.debug "retrieving SecUser for the user that is logged in"
+          return SecUser.where { username == principal.username }.find();
       }
 
       return null;
@@ -43,10 +46,12 @@ class AuthenticationService {
      * Logs a user in for a remote session
      */
     public boolean logInRemotely( String consumer, String token, SecUser user ) {
-		remoteAuthenticationService.logInRemotely( consumer, token, user );
+        log.trace "logInRemotely"
+	remoteAuthenticationService.logInRemotely( consumer, token, user );
     }
     
     public boolean logOffRemotely( String consumer, String token ) {
+        log.trace "logOffRemotely"
 		remoteAuthenticationService.logOffRemotely( consumer, token );
     }
 
@@ -55,6 +60,7 @@ class AuthenticationService {
      * given token
      */
     public boolean isRemotelyLoggedIn( String consumer, String token ) {
+        log.trace "isRemotelyLoggedIn"
 		remoteAuthenticationService.isRemotelyLoggedIn( consumer, token );
     }
 
@@ -62,6 +68,7 @@ class AuthenticationService {
      * Returns the user that is logged in remotely
      */
     public SecUser getRemotelyLoggedInUser( String consumer, String token ) {
+        log.trace "getRemotelyLoggedInUser"
 		remoteAuthenticationService.getRemotelyLoggedInUser( consumer, token );
     }
 	
@@ -70,6 +77,7 @@ class AuthenticationService {
 	 * @param user
 	 */
 	public void deleteRemoteSessions( SecUser user ) {
+            log.trace "deleteRemoteSessions"
 		remoteAuthenticationService.deleteRemoteSessions( user );
 	}
 
