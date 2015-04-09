@@ -79,9 +79,6 @@ class RestController {
         def search = new SamSearch(entity, params.module)
         def criteria = parseCriteria( params.criteria )
         
-        println "--- SAM criteria ---"
-        criteria.each { println it }
-        
         // Choose between AND and OR search. Default is given by the Search class itself.
         switch( params.operator?.toString()?.toLowerCase() ) {
             case "or":
@@ -158,94 +155,6 @@ class RestController {
         return list;
     }
 
-    
-    
-    /**
-     * Returns data for the given field and entities.
-     * 
-     * Example call:                [moduleurl]/rest/getQueryableFieldData?entity=Study&tokens=abc1&tokens=abc2&fields=# sequences&fields=# bacteria
-     * Example response:    { "abc1": { "# sequences": 141, "# bacteria": 0 }, "abc2": { "#sequences": 412 } }
-     * 
-     * @param       params.entity   Entity that is searched for
-     * @param       params.tokens   One or more tokens of the entities that the data should be returned for
-     * @param       params.fields   One or more field names of the data to be returned. If no fields are given, all fields are returned
-     * @return      JSON            Map with keys being the entity tokens and the values being maps with entries [field] = [value]. Not all
-     *                              fields and tokens that are asked for have to be returned by the module (e.g. when a specific entity can 
-     *                              not be found, or a value is not present for an entity)
-     */
-    def getQueryableFieldData = {
-        log.debug "Get queryable Field data: " + params
-        
-        def entity = params.entity
-        def tokens = params.list( 'tokens' ) ?: []
-        def fields = params.list( 'fields' ) ?: []
-
-        if( fields.size() == 0 ) {
-            fields = Feature.executeQuery( "SELECT DISTINCT f.name FROM Feature f LEFT JOIN f.platform p WHERE p.platformtype = :platformtype", [ platformtype: params.module ] )
-        }
-        
-        // Without tokens or fields we can only return an empty list
-        def map = [:]
-        if( tokens.size() == 0 || fields.size() == 0 ) {
-                log.trace "Return empty string for getQueryableFieldData: #tokens: " + tokens.size() + " #fields: " + fields.size()
-                render map as JSON
-                return;
-        }
-
-        render _getData( fields, tokens, entity ) as JSON
-        
-        //        def assayToken = params.assayToken;
-        //        def assay = getAssay( assayToken );
-        //        if( !assay ) {
-        //            response.sendError(404)
-        //            return false
-        //        }
-        //
-        //        // Return all features for the given assay
-        //        def features = Feature.executeQuery( "SELECT DISTINCT f FROM Feature f, Measurement m, SAMSample s WHERE m.feature = f AND m.sample = s AND s.parentAssay = :assay", [ "assay": assay ] )
-        //
-        //        render features.collect { it.name } as JSON
-    }
-    
-    /**
-     * Returns measurements from the database for the given features and samples
-     * @return A map with each key being a sampleToken that point to maps with featureToken -> value
-     */
-    def _getData(features, entities, entityType) {
-        if( !features || !entities )
-            return [:]
-            
-        def query
-        switch( entityType ) {
-            case "Sample":
-                query = "SELECT m.sample.parentSample.UUID, m.feature.name, m.value FROM Measurement m WHERE m.feature.name IN (:features) AND m.sample.parentSample.UUID IN (:entities)"
-                break
-            default:
-                return [:]
-        }
-        
-        // Retrieve all measurements from the database
-        def data = Measurement.executeQuery( query, ["features": features, "entities": entities])
-        
-        def output = [:]
-        data.each {
-            def uuid = it[0]
-            def feature = it[1]
-            def value = it[2]
-            
-            if( !output[uuid] )
-                output[uuid] = [:]
-            
-            if( !output[uuid][feature] )
-                output[uuid][feature] = []
-                
-            output[uuid][feature] << value
-        }
-        
-        output
-    }
-
-
     /**
      * Return measurement metadata for measurement
      *
@@ -292,6 +201,60 @@ class RestController {
             return obj;
         } as JSON
     }
+    
+    /**
+     * Retrieves a list of actions that can be performed on data with a specific entity. This includes actions that
+     * refine the search result.
+     *
+     * The module is allowed to return different fields when the user searches for different entities
+     *
+     * Example call:                [moduleurl]/rest/getPossibleActions?entity=Assay&entity=Sample
+     * Example response:    { "Assay": [ { name: "excel", description: "Export as excel" } ],
+     *                                                "Sample": [ { name: "excel", description: "Export as excel" }, { name: "fasta", description: : "Export as fasta" } ] }
+     *
+     * @param       params.entity   Entity that is searched for. Might be more than one. If no entity is given,
+     *                                                      a list of searchable fields for all entities is given
+     * @return      JSON                    Hashmap with keys being the entities and the values are lists with the action this module can
+     *                                                      perform on this entity. The actions as hashmaps themselves, with keys
+     *                                                      'name'                  Unique name of the action, as used for distinguishing actions
+     *                                                      'description'   Human readable description
+     *                                                      'url'                   URL to send the user to when performing this action. The user is sent there using POST with
+     *                                                                                      the following parameters:
+     *                                                                                              actionName:             Name of the action to perform
+     *                                                                                              name:                   Name of the search that the action resulted from
+     *                                                                                              url:                    Url of the search that the action resulted from
+     *                                                                                              entity:                 Type of entity being returned
+     *                                                                                              tokens:                 List of entity tokens
+     *                                                      'type'                  (optional) Determines what type of action it is. Possible values: 'default', 'refine', 'export', ''
+     */
+    def getPossibleActions = {
+            def entities = params.entity ?: []
+            
+            if( entities instanceof String )
+                    entities = [entities]
+            else
+                    entities = entities.toList()
+
+            if( !entities )
+                    entities = [ "Study", "Assay", "Sample" ]
+
+            def actions = [:];
+            entities.unique().each { entity ->
+                    switch( entity ) {
+                            case "Study":
+                            case "Assay":
+                            case "Sample":
+                                    actions[ entity ] = []
+                                    break;
+                            default:
+                                    // Do nothing
+                                    break;
+                    }
+            }
+            
+            render actions as JSON
+    }
+    
 
     /**
      * Return list of measurement data.

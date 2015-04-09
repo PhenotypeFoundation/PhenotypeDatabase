@@ -73,8 +73,8 @@ class SamSearch extends dbnp.query.Search {
         // Combine all parts to generate a full HQL query
         def hqlQuery = "SELECT DISTINCT " + selectClause + " " + fullHQL.from + ( whereClause ? " WHERE " + whereClause : "" );
 
-        println "HQL Query in SAM: " + hqlQuery
-        println "Parameters in SAM: " + parameters
+        log.debug "HQL Query in SAM: " + hqlQuery
+        log.debug "Parameters in SAM: " + parameters
         
         results = Measurement.executeQuery( hqlQuery, parameters )
     }
