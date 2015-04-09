@@ -4,6 +4,9 @@ import grails.converters.JSON
 import dbnp.studycapturing.*
 import org.dbnp.gdt.RelTime
 import org.dbnp.gdt.TemplateEntity
+import org.dbxp.sam.query.*
+import dbnp.query.SearchMode
+import dbnp.query.Criterion
 import groovy.sql.Sql
 
 class RestController {
@@ -53,6 +56,110 @@ class RestController {
         render features.collect { it.name } as JSON
     }
 
+    /**
+     * Searches for studies or samples based on the user parameters.
+     * 
+     * @param   entity          The entity to search for ( 'Study' or 'Sample' or 'Assay' )
+     * @param   criteria        HashMap with the values being hashmaps with field, operator and value. The fields must start with [modulename].
+     *                                          [ 0: [ field: 'SAM.qPCR1', operator: 'equals', value: 'term' ], 1: [..], .. ]
+     * @param   filter          (optional) Map with a filter to apply on the entities to return. Could be [ Study: [ 'uuid1', 'uuid2'... ], Sample: [ 'uuid5', ....] ]
+     * @param   searchMode      Whether the conditions should be combined with AND or OR 
+     */
+    def search() {
+        def entity = params.entity
+        def filter = params.filter
+        
+        // Check validity
+        if( !( entity in [ 'Sample', 'Study', 'Assay' ] ) ) {
+            response.sendError(400)
+            return false
+        }
+        
+        // Determine the criteria
+        def search = new SamSearch(entity, params.module)
+        def criteria = parseCriteria( params.criteria )
+        
+        println "--- SAM criteria ---"
+        criteria.each { println it }
+        
+        // Choose between AND and OR search. Default is given by the Search class itself.
+        switch( params.operator?.toString()?.toLowerCase() ) {
+            case "or":
+                search.searchMode = SearchMode.or;
+                break;
+            case "and":
+                search.searchMode = SearchMode.and;
+                break;
+        }
+        
+        log.trace "Start searching in SAM"
+        search.execute( parseCriteria( params.criteria ) );
+        log.trace "Finished executing search in SAM"
+        
+        render search.results as JSON
+    }
+    
+    /**
+     * Parses the criteria from the query form given by the user
+     * @param   c       Data from the input form and had a form like
+     *
+     *  [
+     *          0: [entityfield:a.b, operator: b, value: c],
+     *          0.entityfield: a.b,
+     *          0.operator: b,
+     *          0.field: c
+     *          1: [entityfield:f.q, operator: e, value: d],
+     *          1.entityfield: f.q,
+     *          1.operator: e,
+     *          1.field: d
+     *  ]
+     * @param parseSearchIds    Determines whether searches are returned instead of their ids
+     * @return                                  List with Criterion objects
+     */
+    protected List parseCriteria( def formCriteria ) {
+        ArrayList list = [];
+        flash.error = "";
+
+        // Loop through all keys of c and remove the non-numeric ones
+        for( c in formCriteria ) {
+            if( c.key ==~ /[0-9]+/ && c.value.entityfield ) {
+                def formCriterion = c.value;
+
+                SamCriterion criterion = new SamCriterion();
+
+                // Split entity and field
+                def field = formCriterion.entityfield?.split( /\./ );
+                if( field.size() > 1 ) {
+                    criterion.entity = field[0].toString();
+                    criterion.field = field[1].toString();
+                } else {
+                    criterion.entity = field[0];
+                    criterion.field = null;
+                }
+
+                // Convert operator string to Operator-enum field
+                try {
+                    criterion.operator = Criterion.parseOperator( formCriterion.operator );
+                } catch( Exception e) {
+                    log.debug "Operator " + formCriterion.operator + " could not be parsed: " + e.getMessage();
+                    flash.error += "Criterion could not be used: operator " + formCriterion.operator + " is not valid.<br />\n";
+                    continue;
+                }
+
+                // Copy value
+                criterion.value = formCriterion.value;
+
+                // Only add criteria for the current module
+                if( criterion.entity == params.module )
+                    list << criterion
+            }
+        }
+
+        return list;
+    }
+
+    
+    
     /**
      * Returns data for the given field and entities.
      * 
