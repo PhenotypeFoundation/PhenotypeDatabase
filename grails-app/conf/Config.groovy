@@ -161,12 +161,22 @@ grails.plugin.springsecurity.interceptUrlMap = [
     '/login/**':          ['permitAll'],
     '/logout/**':         ['permitAll'],
 
+    // Registration and confirming new accounts
     '/userRegistration/add':                    ['permitAll'],
     '/userRegistration/sendUserConfirmation':   ['permitAll'],
     '/userRegistration/confirmUser':            ['permitAll'],
     
-    '/api/**':                               ['ROLE_ADMIN', 'ROLE_CLIENT'],
+    // Rest controllers have their own authentication
+    '/rest/**':                                 ['permitAll'],
+    '/measurements/*/rest/**':                  ['permitAll'],
     
+    // API is only accessible for specific users
+    '/api/**':                               ['ROLE_ADMIN', 'ROLE_CLIENT'],
+
+    // Template editor is only accessible for specific users
+    '/templateEditor/**':                    ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
+    '/template/**':                          ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
+     
     // Configuration by administrators
     '/assayModule/**':                       ['ROLE_ADMIN'],
     '/setup/**':                             ['ROLE_ADMIN'],
