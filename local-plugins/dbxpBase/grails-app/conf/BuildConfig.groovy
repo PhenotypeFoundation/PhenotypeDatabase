@@ -11,7 +11,8 @@ grails.project.dependency.resolution = {
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
         grailsCentral()
-        grailsRepo "http://grails.org/plugins"
+        grailsHome()
+        
         mavenRepo "http://nexus.dbnp.org/content/repositories/releases"
 
         // uncomment the below to enable remote dependency resolution
@@ -25,11 +26,10 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
         // runtime 'mysql:mysql-connector-java:5.1.18'
-        compile "org.grails:grails-webflow:$grailsVersion"
     }
 
     plugins {
-        build(":tomcat:$grailsVersion",
+        build(":tomcat:7.0.55",
               ":release:2.2.1",
               //Temporary static version of Rest Client Builder due to compile error
               ":rest-client-builder:1.0.3") {
@@ -37,17 +37,15 @@ grails.project.dependency.resolution = {
         }
 
         compile(
-        ":gdt:0.5.0.5",
-        ":rest:0.8",
-		":hibernate:$grailsVersion",
-                ":ajaxflow:latest.integration",
-                ":jquery:latest.integration",
-                ":webflow:2.0.0") {
-            exclude 'grails-webflow'
-            export = true
+            ":rest:0.8",
+            ":hibernate4:4.3.6.1",
+            ":ajaxflow:latest.integration",
+            ":jquery:latest.integration",
+            ":webflow:2.1.0") {
+            export = false
         }
 
     }
 }
 
-//grails.plugin.location.'gdt' = '../GDT'
+grails.plugin.location.'gdt' = '../GDT'

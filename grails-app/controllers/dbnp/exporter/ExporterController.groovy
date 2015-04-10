@@ -27,7 +27,7 @@ import java.util.zip.ZipOutputStream
 import java.util.zip.ZipInputStream
 import javax.servlet.ServletOutputStream
 
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ExporterController {

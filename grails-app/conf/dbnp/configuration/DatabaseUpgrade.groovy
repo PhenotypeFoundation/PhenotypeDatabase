@@ -1,7 +1,7 @@
 package dbnp.configuration
 
 import dbnp.studycapturing.Study
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.Holders
 import org.dbnp.gdt.Identity
 import org.dbnp.gdt.TemplateEntity
 
@@ -27,7 +27,7 @@ class DatabaseUpgrade {
 		groovy.sql.Sql sql = new groovy.sql.Sql(dataSource)
 
 		// get configuration
-		def config = ConfigurationHolder.config
+		def config = Holders.config
 		def db = config.dataSource.driverClassName
 
 		// execute per-change check and upgrade code

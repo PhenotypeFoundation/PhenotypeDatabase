@@ -1,6 +1,6 @@
 package org.dbxp.sam
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.Holders
 
 class FuzzySearchService {
 
@@ -142,13 +142,13 @@ class FuzzySearchService {
      * @return  A double
      */
     static double retrieveThresholdFromConfig(thresholdInput){
-        Double defaultValue = Double.valueOf(ConfigurationHolder.config.fuzzyMatching.threshold.default)
+        Double defaultValue = Double.valueOf(Holders.config.fuzzyMatching.threshold.default)
         if(thresholdInput=='default'){
             return defaultValue
         }
 
         // Apparently it was not the default value that was requested so try to find the requested custom value
-        String requestedValueString = ConfigurationHolder.config.fuzzyMatching.threshold.get(thresholdInput['controller']).get(thresholdInput['item'])
+        String requestedValueString = Holders.config.fuzzyMatching.threshold.get(thresholdInput['controller']).get(thresholdInput['item'])
         if(requestedValueString!=null && requestedValueString!=''){
             return Double.valueOf(requestedValueString)
         } else {

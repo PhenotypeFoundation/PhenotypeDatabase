@@ -14,7 +14,7 @@
  */
 package dbnp.authentication
 
-import org.codehaus.groovy.grails.plugins.springsecurity.GrailsUser
+import grails.plugin.springsecurity.userdetails.GrailsUser
 
 class AuthenticationService {
     def springSecurityService

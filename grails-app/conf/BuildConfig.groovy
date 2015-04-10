@@ -12,6 +12,15 @@
  * $Date$
  */
 
+grails.project.fork = [
+     test: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, daemon:true], // configure settings for the test-app JVM
+     run: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256], // configure settings for the run-app JVM
+     war: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256], // configure settings for the run-war JVM
+     console: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256]// configure settings for the Console UI JVM
+]
+
+grails.project.dependency.resolver = "maven"
+ 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
@@ -21,10 +30,12 @@ grails.project.dependency.resolution = {
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     legacyResolve true
     repositories {
+        
+        grailsPlugins()
+        grailsHome()
+        mavenLocal()
         grailsCentral()
-        grailsRepo "http://grails.org/plugins"
         mavenCentral()
-        mavenRepo "http://repo.grails.org/grails/plugins/"
         
         // grails 1.3.9 does not seem to properly inherit maven repo's from plugins
         // so explicitely put mavenrepos in here. When upgraded to Grails 2.x this can
@@ -41,7 +52,7 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.5'
-        runtime 'postgresql:postgresql:9.1-901.jdbc4'
+        runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
         compile 'org.apache.poi:poi:3.7'
         compile 'org.apache.poi:poi-ooxml:3.7'
         compile 'org.apache.poi:poi-ooxml-schemas:3.7'
@@ -65,19 +76,14 @@ grails.project.dependency.resolution = {
 
         //runtime 'hsqldb:hsqldb:1.8.0.10'
 
-        compile "org.grails:grails-webflow:$grailsVersion"
-
         compile('org.codehaus.groovy.modules.http-builder:http-builder:0.5.0') { excludes "commons-logging", "xml-apis", "groovy" }
     }
     plugins {
-
-        // tomcat plugin should not end up in the WAR file
-        provided(
-                ":tomcat:$grailsVersion",
-                )
+        // plugins for the build system only
+        build ":tomcat:7.0.55"
         
         compile(
-                ":hibernate:$grailsVersion",
+                ":hibernate4:4.3.6.1",
 
                 //            ":jquery:latest.integration",
                 //            ':jquery-ui:latest.integration',
@@ -85,23 +91,21 @@ grails.project.dependency.resolution = {
                 ":jquery:1.11.1",
                 ':jquery-ui:1.10.4',
 
-                ":resources:1.2",
-                ":spring-security-core:1.2.7.3",
+                ":resources:1.2.14",
+                ":spring-security-core:2.0-RC4",
 
                 ":famfamfam:1.0.1",
-                ":mail:1.0.1",
-                ":quartz:1.0-RC5",
+                ":mail:1.0.7",
+                ":quartz:1.0.2",
                 ":ajaxflow:0.2.4",
-                ":webflow:2.0.8.1"
+                ":webflow:2.1.0"
                 )
 
         compile ":yui-war-minify:1.5"
         
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
-            compile(":console:1.2",
-                    ":trackr:0.7.3"
-                    )
+            compile(":console:1.5.4")
         }
 
         // add { transative = false } to ignore dependency transition
@@ -116,3 +120,4 @@ grails.plugin.location.'gdt' = './local-plugins/GDT'
 grails.plugin.location.'dbxpSam' = './local-plugins/SAM'
 grails.plugin.location.'gdtimporter' = './local-plugins/GDTImporter'
 grails.plugin.location.'dbxp-base' = './local-plugins/dbxpBase'
+grails.plugin.location.'matrix-importer' = '../matrixImporter'

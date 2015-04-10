@@ -1,8 +1,7 @@
 package generic.installation
 
-import grails.plugins.springsecurity.Secured
 import dbnp.authentication.SecUser
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.Holders
 import groovy.sql.Sql
 
 /**
@@ -16,7 +15,6 @@ import groovy.sql.Sql
  * $Author:  duh $
  * $Date:  2010-12-08 15:12:54 +0100 (Wed, 08 Dec 2010) $
  */
-@Secured(['ROLE_ADMIN'])
 class SetupController {
 	// the pluginManager is used to check if the Grom
 	// plugin is available so we can 'Grom' development
@@ -55,7 +53,7 @@ class SetupController {
 			if (pluginManager.getGrailsPlugin('grom')) "entering the WebFlow".grom()
 
 			// get configuration
-			def config = ConfigurationHolder.config
+			def config = Holders.config
 
 			// define variables in the flow scope which is availabe
 			// throughout the complete webflow also have a look at

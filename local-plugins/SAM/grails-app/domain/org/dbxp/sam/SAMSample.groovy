@@ -32,7 +32,6 @@ class SAMSample {
 	 * Sets the properties of this object, based on the JSON object given by GSCF
 	 * @param jsonObject	Object with sample data from GSCF
 	 */
-	@Override
 	public void setPropertiesFromGscfJson( jsonObject ) {
 		super.setPropertiesFromGscfJson( jsonObject );
 

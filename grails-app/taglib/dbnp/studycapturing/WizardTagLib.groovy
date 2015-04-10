@@ -314,7 +314,7 @@ class WizardTagLib extends GdtTagLib {
 		def selectAttrs = new LinkedHashMap();
 
 		// define 'from'
-		def persons = Person.findAll().sort({ a, b -> a.lastName == b.lastName ? (a.firstName <=> b.firstName) : (a.lastName <=> b.lastName) } as Comparator);
+		def persons = Person.findAll().sort({ a, b -> a.lastName == b.lastName ? (a.firstName <=> b.firstName) : (a.lastName <=> b.lastName) });
 		selectAttrs.from = persons.collect { it.lastName + ', ' + it.firstName + (it.prefix ? ' ' + it.prefix : '') }
 		selectAttrs.keys = persons.id;
 

@@ -17,7 +17,6 @@ package org.dbxp.sam.query
 
 import org.dbnp.gdt.*
 import java.text.SimpleDateFormat
-import org.codehaus.groovy.grails.commons.ApplicationHolder;
 import dbnp.authentication.*
 import org.dbxp.sam.Measurement
 

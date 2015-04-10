@@ -1,7 +1,7 @@
 package dbnp.studycapturing
 
 import org.dbnp.gdt.*
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import dbnp.authentication.SecUser
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import grails.converters.JSON

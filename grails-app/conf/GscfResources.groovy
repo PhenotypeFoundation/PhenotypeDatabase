@@ -1,8 +1,3 @@
-import org.dbxp.moduleBase.DataTablesTagLib;
-import org.springframework.context.annotation.DependsOn;
-
-import dbnp.query.AdvancedQueryController;
-
 modules = {
     /**********************************************************
      *
@@ -220,10 +215,10 @@ modules = {
     "gscf-datatables" {
         dependsOn 'jquery'
         resource url: [dir: 'js', file: 'jquery.dataTables.js' ] , linkOverride:'//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.js'
-        resource url: [dir: 'js', file: 'datatables.js', plugin: 'dbxpModuleBase']
+        resource url: [dir: 'js', file: 'datatables.js']
 
-        resource url: [ dir:'css', file: 'jquery.dataTables.css'], linkOverride: "//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css"
-        resource url: [ dir:'css', file: 'datatables-jui.css']
+        resource url: [dir:'css', file: 'jquery.dataTables.css'], linkOverride: "//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css"
+        resource url: [dir:'css', file: 'datatables-jui.css']
     }
 
     // jqplot charting library

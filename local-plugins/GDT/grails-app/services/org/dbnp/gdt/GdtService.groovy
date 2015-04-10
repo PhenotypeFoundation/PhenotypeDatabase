@@ -20,7 +20,7 @@
  */
 package org.dbnp.gdt
 
-import org.codehaus.groovy.grails.commons.ApplicationHolder
+import grails.util.Holders
 
 class GdtService implements Serializable {
     // Must be false, since the webflow can't use a transactional service. See
@@ -37,8 +37,7 @@ class GdtService implements Serializable {
 	 * @return
 	 */
 	def public getTemplateFieldTypeByCasedName(String casedName) {
-		def grailsApplication = ApplicationHolder.application
-		return grailsApplication.getAllClasses().find{it.name =~ "${casedName}Field" && it.name =~ /Template([A-Za-z]{1,})Field$/}
+		return Holders.grailsApplication.getAllClasses().find{it.name =~ "${casedName}Field" && it.name =~ /Template([A-Za-z]{1,})Field$/}
 	}
 
 	/**
@@ -50,11 +49,10 @@ class GdtService implements Serializable {
 		if (cachedEntities) return cachedEntities
 
 		// fetch entities and cache them
-		def grailsApplication = ApplicationHolder.application
 		def entities = []
 
 		// iterate through domain classes
-		grailsApplication.getArtefacts("Domain").each {
+		Holders.grailsApplication.getArtefacts("Domain").each {
 			def myInstance = it.clazz
 			if (myInstance.properties.superclass.toString() =~ 'TemplateEntity') {
 				def matches	= myInstance.toString() =~ /\.([^\.]+)$/
@@ -115,7 +113,6 @@ class GdtService implements Serializable {
 	 * @return Object
 	 */
 	def getInstanceByEntityName(String entityName) {
-		def grailsApplication = ApplicationHolder.application
 		def entity
 
         // Check whether the entityName is actually a domain class
@@ -126,7 +123,7 @@ class GdtService implements Serializable {
 
 		// dynamically instantiate the entity (if possible)
 		try {
-			entity = Class.forName(entityName, true, grailsApplication.getClassLoader())
+			entity = Class.forName(entityName, true, Holders.grailsApplication.getClassLoader())
 
 			// succes, is entity an instance of TemplateEntity?
 			if (entity && entity.superclass =~ /TemplateEntity$/ || entity.superclass.superclass =~ /TemplateEntity$/) {

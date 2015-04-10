@@ -24,7 +24,7 @@ package org.dbnp.gdtimporter
 import org.dbnp.gdt.*
 import grails.converters.JSON
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
-import org.codehaus.groovy.grails.commons.ApplicationHolder as AH
+import grails.util.Holders
 
 class GdtImporterController {
     def authenticationService
@@ -112,7 +112,7 @@ class GdtImporterController {
                 flow.useFuzzymatching= "false"
 
                 // Get a list of parent entities the current logged in user owns
-                def domainClass                         = AH.application.getDomainClass(flow.parentEntityClassName)
+                def domainClass                         = Holders.grailsApplication.getDomainClass(flow.parentEntityClassName)
                 def parentEntityReferenceInstance       = domainClass.referenceInstance
                 // TODO: specific method to retrieve writable studies
                 def persistedParentEntities             = parentEntityReferenceInstance.giveWritableStudies(authenticationService.loggedInUser)

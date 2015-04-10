@@ -24,9 +24,9 @@ package org.dbnp.gdtimporter
 import org.dbnp.gdt.*
 import org.apache.poi.ss.usermodel.*
 import org.codehaus.groovy.grails.commons.GrailsClassUtils
-import org.codehaus.groovy.grails.commons.ApplicationHolder as AH
 import org.codehaus.groovy.grails.orm.hibernate.validation.UniqueConstraint
 import org.codehaus.groovy.grails.validation.NullableConstraint
+import grails.util.Holders
 import java.text.SimpleDateFormat
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator
@@ -365,7 +365,7 @@ class GdtImporterService {
 
         def failedFields    = []
 
-        def domainClass     = AH.application.getDomainClass(firstEntity.class.name)
+        def domainClass     = Holders.grailsApplication.getDomainClass(firstEntity.class.name)
         def domainClassReferenceInstance = domainClass.referenceInstance
 
         // we need all children of parentEntity of same type as the added
@@ -670,7 +670,7 @@ class GdtImporterService {
     def addEntitiesToParentEntity(entityList, parentEntity, childEntityParentName) {
 
         def firstEntity     = entityList[0]
-        def domainClass     = AH.application.getDomainClass(firstEntity.class.name)
+        def domainClass     = Holders.grailsApplication.getDomainClass(firstEntity.class.name)
 
         // figure out the collection name via the hasMany property
         def hasMany         = GrailsClassUtils.getStaticPropertyValue(parentEntity.class, 'hasMany')

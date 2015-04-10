@@ -14,8 +14,8 @@ grails.project.dependency.resolution = {
 	legacyResolve true
     repositories {
         grailsCentral()
-        grailsRepo "http://grails.org/plugins"
-
+        grailsHome()
+        
         mavenCentral()
         mavenRepo "http://nexus.dbnp.org/content/repositories/releases"
         mavenRepo "http://repository.springsource.com/maven/bundles/release"
@@ -39,19 +39,14 @@ grails.project.dependency.resolution = {
         }
 
         compile(
-        ":ajaxflow:latest.integration",
-        ":jquery:latest.integration",
-        ":crypto:2.0",
-        ":gdt:0.5.0.4"
+            ":ajaxflow:latest.integration",
+            ":jquery:latest.integration",
+            ":webflow:2.1.0",
+            ":rest:0.8"
         ) {
             export = false
         }
-
-        compile(
-            ":webflow:2.0.8.1",
-            ":rest:0.8"
-        )
     }
 }
 
-//grails.plugin.location.'gdt' = '../GDT'
+grails.plugin.location.'gdt' = '../GDT'
