@@ -42,6 +42,7 @@ grails.project.dependency.resolution = {
         compile(
             ":hibernate4:4.3.6.1",
             ':famfamfam:1.0.1',
+            ':matrix-importer:0.2.4.0',
             ':ajaxflow:latest.integration',
             ':resources:latest.integration',
             ':jquery:latest.integration',
@@ -53,7 +54,7 @@ grails.project.dependency.resolution = {
 }
 
 //grails.plugin.location.'dbxpModuleBase' = '../dbxpModuleBase'
-grails.plugin.location.'matrixImporter' = '../../../matrixImporter'
+//grails.plugin.location.'matrixImporter' = '../../../matrixImporter'
 grails.plugin.location.'gdt' = '../GDT'
 grails.plugin.location.'dbxpBase' = '../dbxpBase'
 
