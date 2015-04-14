@@ -31,8 +31,6 @@ grails.project.dependency.resolution = {
     plugins {
 
         build(  ":tomcat:$grailsVersion",
-                ":release:2.2.1",
-                //Temporary static version of Rest Client Builder due to compile error
                 ":rest-client-builder:1.0.3"
         ) {
             // plugin only plugin, should not be transitive to the application
@@ -43,7 +41,7 @@ grails.project.dependency.resolution = {
             ":dbxp-base:0.2.0.5",
             ":hibernate:$grailsVersion",
             ":tomcat:$grailsVersion",
-            ":grom:latest.integration",
+            ":grom:0.3.0",
             ':crypto:2.0',
             ':famfamfam:1.0.1') {
                 export = false
@@ -51,12 +49,12 @@ grails.project.dependency.resolution = {
 
         compile(
 	        ':matrix-importer:0.2.3.8',
-            ':ajaxflow:latest.integration',
+            ':ajaxflow:0.2.4',
             ':dbxp-module-base:0.6.1.3',
-            ':resources:latest.integration',
-            ':jquery:latest.integration',
+            ':resources:1.2',
+            ':jquery:1.11.1',
             ':jquery-datatables:1.7.5',
-            ':jquery-ui:1.8.15') {
+            ':jquery-ui:1.10.4') {
             export = true
         }
     }

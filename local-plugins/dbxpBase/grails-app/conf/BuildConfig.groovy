@@ -30,8 +30,8 @@ grails.project.dependency.resolution = {
 
     plugins {
         build(":tomcat:$grailsVersion",
+
               ":release:2.2.1",
-              //Temporary static version of Rest Client Builder due to compile error
               ":rest-client-builder:1.0.3") {
             export = false
         }
@@ -40,8 +40,8 @@ grails.project.dependency.resolution = {
         ":gdt:0.5.0.5",
         ":rest:0.8",
 		":hibernate:$grailsVersion",
-                ":ajaxflow:latest.integration",
-                ":jquery:latest.integration",
+                ":ajaxflow:0.2.4",
+                ":jquery:1.11.1",
                 ":webflow:2.0.0") {
             exclude 'grails-webflow'
             export = true
