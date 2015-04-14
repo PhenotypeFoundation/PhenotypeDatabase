@@ -141,6 +141,7 @@ modules = {
         dependsOn 'helptooltips'
         dependsOn 'gscf-datatables'
         dependsOn 'upload-and-add-more'
+        dependsOn 'studywizard-files'
         
         resource url: [dir: 'css', file: 'studywizard.css']
         resource url: [dir: 'css', file: 'gdtimporter.css', plugin: 'gdtimporter']
@@ -148,9 +149,6 @@ modules = {
         resource url: [dir: 'css', file: 'demo_table.css', plugin: 'gdtimporter']
         resource url: [dir: 'css', file: 'demo_table_jui.css', plugin: 'gdtimporter']
         resource url: [dir: 'css', file: 'demo_page.css', plugin: 'gdtimporter']
-
-        resource url: [dir: 'js', file: 'fileupload.js', plugin: 'gdt']
-        resource url: [dir: 'js', file: 'studywizard.js']
 
         resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt']
         resource url: [dir: 'js', file: 'table-editor.js', plugin: 'gdt']
@@ -163,6 +161,16 @@ modules = {
      * Modules below are libraries and plugins
      * 
      **********************************************************/
+    
+    'studywizard-files' {
+        dependsOn 'upload-and-add-more'
+        
+        resource url: 'css/studywizard.css'
+        
+        resource url: [dir: 'js', file: 'studywizard.js']
+        resource url:[dir:'js', file: 'fuzzyStringMatch.js', plugin: 'gdt']
+        resource url: [dir: 'js', file: 'fileupload.js', plugin: 'gdt']
+    }
     
     'upload-and-add-more' {
         resource url: [dir: 'js', file: 'ajaxupload.3.6.js']

@@ -1,7 +1,7 @@
 modules = {
     sam2 {
         dependsOn 'jquery'
-        dependsOn 'datatables'
+        dependsOn 'datatables'  // from dbxpModuleBase
 
         resource url: 'js/selectAddMore.js'
         resource url: 'js/removeWebFlowExecutionKey.js'
@@ -33,10 +33,7 @@ modules = {
 
     templateFieldsMisc {
         dependsOn 'samtooltips'
-        resource url: 'css/studywizard.css'
-        resource url:[dir:'js', file: 'studywizard.js']
-        resource url: 'js/fileupload.js'
-        resource url: 'js/ajaxupload.3.6.js'
+        dependsOn 'studywizard-files'
         resource url: 'js/templateFields.js'
     }
 

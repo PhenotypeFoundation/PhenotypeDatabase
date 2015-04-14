@@ -95,6 +95,7 @@ grails.project.dependency.resolution = {
                 ":spring-security-core:2.0-RC4",
                 
                 ':matrix-importer:0.2.4.0',
+                ':dbxp-module-base:0.6.2.0',
                 
                 ":famfamfam:1.0.1",
                 ":mail:1.0.7",
@@ -122,4 +123,6 @@ grails.plugin.location.'gdt' = './local-plugins/GDT'
 grails.plugin.location.'dbxpSam' = './local-plugins/SAM'
 grails.plugin.location.'gdtimporter' = './local-plugins/GDTImporter'
 grails.plugin.location.'dbxp-base' = './local-plugins/dbxpBase'
+
+//grails.plugin.location.'dbxpModuleBase' = '../dbxpModuleBase'
 //grails.plugin.location.'matrix-importer' = '../matrixImporter'
