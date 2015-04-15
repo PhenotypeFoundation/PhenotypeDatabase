@@ -168,7 +168,46 @@ class AssaySearch extends Search {
         if( !entities || !readableStudies )
             return []
             
-        Sample.findAll( "FROM Assay a where a in (:assays) and a.parent in (:studies)", [ assays: entities, studies: readableStudies ] )
+        Assay.findAll( "FROM Assay a where a in (:assays) and a.parent in (:studies)", [ assays: entities, studies: readableStudies ] )
     }
-
+    
+    /**
+     * Returns a map with data about the results, based on the given parameters.
+     * The parameters are the ones returned from the dataTablesService.
+     * @param searchParams        Parameters to search
+                    int      offset          Display start point in the current data set.
+                    int      max             Number of records that the table can display in the current draw. It is expected that the number of records returned will be equal to this number, unless the server has fewer records to return.
+                    
+                    string   search          Global search field
+                    
+                    int      sortColumn      Column being sorted on (you will need to decode this number for your database)
+                    string   sortDirection   Direction to be sorted - "desc" or "asc".
+     * @return A map with HQL parts. Keys are
+                    from    From part including any required where clauses (e.g. FROM Study WHERE ids IN (:ids)
+                    where   (optional) where clause to filter
+                    order   (optional) order clause to sort the items
+                    params  Parameters to add to the HQL query
+     */
+    @Override
+    public Map basicResultHQL(def searchParams) {
+        def hql = [:]
+        
+        hql.select = "SELECT a.id, a.name, a.parent.title"
+        hql.from = "FROM Assay a WHERE a.id IN (:ids)"
+        hql.params = [ ids: getResultIds() ]
+        
+        // Handle search parameter
+        if( searchParams.search ) {
+            hql.where = " AND ( a.name LIKE :searchLike )"
+            hql.params[ 'searchLike' ] = '%' + searchParams.search + '%'
+        }
+        
+        // Handle order
+        def columns = [ 'a.name', 'a.parent.title' ]
+        if( searchParams.sortColumn != null && searchParams.sortColumn < columns.size() ) {
+            hql.order = " ORDER BY " + columns[ searchParams.sortColumn ] + " " + ( searchParams.sortDirection == "desc" ? "DESC" : "ASC" )
+        }
+        
+        hql
+    }
 }

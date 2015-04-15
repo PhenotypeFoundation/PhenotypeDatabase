@@ -16,6 +16,7 @@
 package dbnp.query
 
 import org.dbnp.gdt.*
+import dbnp.studycapturing.Study
 import grails.util.Holders
 import java.text.SimpleDateFormat
 
@@ -68,7 +69,7 @@ class Search {
 	public SearchMode searchMode = SearchMode.and
 
 	protected List criteria;
-	protected List results;
+	protected Map _results;
 	protected Map resultFields = [:];
 
 	/**
@@ -92,8 +93,8 @@ class Search {
 	 * @return
 	 */
 	public int getNumResults() {
-		if( results )
-			return results.size();
+		if( _results )
+			return _results.size();
 
 		return 0;
 	}
@@ -121,8 +122,8 @@ class Search {
                 log.debug "Finished executing search"
 
 		// Save the value of this results for later use
-                log.debug "Saving result fields"
-		saveResultFields();
+                log.debug "Skip saving result fields for now"
+		//saveResultFields();
                 log.debug "Finished saving result fields"
 	}
 
@@ -214,8 +215,11 @@ class Search {
 			}
 		}
 		
-		// Determine which entities can be read
-		results = entities // filterAccessibleEntities( entities );
+		// Determine which entities can be read and store them
+                _results = [:]
+                filterAccessibleEntities( entities ).each {
+                    _results[it.id] = it.UUID
+                }
 	}
     
         /**
@@ -247,8 +251,20 @@ class Search {
                         int      totalFiltered   Total number of records in the search (without taking offset and max into account)
                         int      ids             Total list of filtered ids
          */
-        public List getResultMap(def searchParams) {
+        public Map getResultMap( searchParams) {
+            def hql = basicResultHQL(searchParams)
             
+            // Retrieve the selected entities
+            def entities = entityClass().executeQuery( hql.select + " " + hql.from + " " + (hql.where ?: "") + " " + (hql.order ?: ""), hql.params, [ max: searchParams.max, offset: searchParams.offset ])
+            def totalFilteredIds = entityClass().executeQuery( "SELECT id " + hql.from + " " + (hql.where ?: ""), hql.params )
+            
+            // Return a proper structure
+            [
+                entities: entities,
+                ids: totalFilteredIds,
+                total: getNumResults(),
+                totalFiltered: totalFilteredIds.size()
+            ]
         }
 		
 	/************************************************************************
@@ -258,6 +274,27 @@ class Search {
 	 * 
 	 ************************************************************************/
 
+        /**
+         * Returns a map with data about the results, based on the given parameters.
+         * The parameters are the ones returned from the dataTablesService.
+         * @param searchParams        Parameters to search
+                        int      offset          Display start point in the current data set.
+                        int      max             Number of records that the table can display in the current draw. It is expected that the number of records returned will be equal to this number, unless the server has fewer records to return.
+                        
+                        string   search          Global search field
+                        
+                        int      sortColumn      Column being sorted on (you will need to decode this number for your database)
+                        string   sortDirection   Direction to be sorted - "desc" or "asc".
+         * @return A map with HQL parts. Keys are
+                        from    From part including any required where clauses (e.g. FROM Study WHERE ids IN (:ids)
+                        where   (optional) where clause to filter
+                        order   (optional) order clause to sort the items
+                        params  Parameters to add to the HQL query
+         */
+        public Map basicResultHQL(def searchParams) {
+            [:]
+        }
+        
 	/**
 	 * Returns a closure for the given entitytype that determines the value for a criterion
 	 * on the given object. The closure receives two parameters: the object and a criterion.
@@ -437,7 +474,7 @@ class Search {
 			}
 			
 			// No results are found.
-			results = [];
+			_results = [];
 			return false
 		}
 		
@@ -884,7 +921,7 @@ class Search {
 	 * @see #saveResultField()
 	 */
 	protected void saveResultFields() {
-		if( !results || !criteria )
+		if( !_results || !criteria )
 			return
 
 		criteria.each { criterion ->
@@ -894,7 +931,7 @@ class Search {
 				if( valueCallback != null ) {
 					def name = criterion.entity + ' ' + criterion.field
 	
-					results.each { result ->
+					_results.each { result ->
 						saveResultField( result.id, name, valueCallback( result, criterion ) );
 					}
 				}
@@ -1009,20 +1046,27 @@ class Search {
 	* Retrieves the results found using this query. The result is empty is
 	* the query has not been executed yet.
 	*/
-   public List getResults() { return results; }
+   public List getResults() { return _results.collect { it.value } }
 
+   /**
+    * Retrieves the results found using this query. The result is empty is
+    * the query has not been executed yet.
+    */
+   public List getResultIds() { return _results.keySet().asList(); }
+
+   
    /**
 	* Returns the results found using this query, filtered by a list of ids.
 	* @param selectedIds	List with ids of the entities you want to return.
 	* @return	A list with only those results for which the id is in the selectedIds
 	*/
    public List filterResults( List selectedTokens ) {
-	   if( !selectedTokens || !results )
-		   return results
-
-	   return results.findAll {
-		   selectedTokens.contains( it.UUID )
-	   }
+	   if( !selectedTokens || !_results )
+		   return _results.collect { [ id: it.key, UUID: it.value ] }
+           
+	   return _results.findAll {
+		   selectedTokens.contains( it.value )
+	   }.collect { [ id: it.key, UUID: it.value ] }
    }
 
    /**
@@ -1111,7 +1155,7 @@ class Search {
 		// Set properties
 		s.description = description;
 		s.url = url
-		s.results = results
+		s._results = results
 		
 		return s;
 	}

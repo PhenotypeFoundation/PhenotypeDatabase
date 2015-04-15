@@ -12,7 +12,8 @@ import grails.converters.JSON
 class AdvancedQueryController {
     def moduleCommunicationService;
     def authenticationService
-
+    def datatablesService
+    
     def entitiesToSearchFor = [ 'Study': 'Studies', 'Sample': 'Samples', 'Assay': 'Assays']
 
     /**
@@ -74,6 +75,30 @@ class AdvancedQueryController {
         render( view: view, model: [search: search, queryId: queryId, actions: actions] );
     }
 
+    /**
+     * Returns the results of the given search in JSON format to be shown in the datatable
+     */
+    def results(int id) {
+        // Retrieve the search to find data for
+        def search = retrieveSearch(id)
+        
+        if( !search ) {
+            response.status = 404
+            return
+        }
+        
+        // Determine the datatable parameters
+        def searchParams = datatablesService.parseParams( params )
+        
+        // Retrieve data from the results
+        def resultMap = search.getResultMap(searchParams)
+        
+        // Return the data to the user
+        def datatableData = datatablesService.createDatatablesOutput( resultMap, params )
+         
+        render datatableData as JSON
+    }
+    
     /**
      * Removes a specified search from session
      * @param 	id	queryId of the search to discard
@@ -253,13 +278,13 @@ class AdvancedQueryController {
 
         switch( entity ) {
             case "Study":
-                results = Study.findAll( "from Study s where s.UUID IN (:tokens)", [ 'tokens': tokens ] )
+                results = Study.findAll( "SELECT id, UUID from Study s where s.UUID IN (:tokens)", [ 'tokens': tokens ] )
                 break;
             case "Assay":
-                results = Assay.findAll( "from Assay a where a.UUID IN (:tokens)", [ 'tokens': tokens ] )
+                results = Assay.findAll( "SELECT id, UUID from Assay a where a.UUID IN (:tokens)", [ 'tokens': tokens ] )
                 break;
             case "Sample":
-                results = Sample.findAll( "from Sample s where s.UUID IN (:tokens)", [ 'tokens': tokens ] )
+                results = Sample.findAll( "SELECT id, UUID from Sample s where s.UUID IN (:tokens)", [ 'tokens': tokens ] )
                 break;
             default:
                 response.sendError( 400 );
@@ -267,8 +292,14 @@ class AdvancedQueryController {
                 return;
         }
 
+        // Convert results into map
+        def resultMap = [:]
+        results.each { 
+            resultMap[it[0]] = it[1]
+        }
+        
         // Register and save search
-        Search s = Search.register( name, url, entity, results );
+        Search s = Search.register( name, url, entity, resultMap );
         int searchId = saveSearch( s );
 
         // Redirect to the search screen
@@ -426,9 +457,7 @@ class AdvancedQueryController {
                 def fieldNames = ( domainFields + templateFields ).collect { it.name }.unique() + 'Template' + '*'
 
                 fields[ it ] = fieldNames.sort { a, b ->
-                    def aUC = a.size() > 1 ? a[0].toUpperCase() + a[1..-1] : a;
-                    def bUC = b.size() > 1 ? b[0].toUpperCase() + b[1..-1] : b;
-                    aUC <=> bUC
+                    a.toLowerCase() <=> b.toLowerCase()
                 };
             }
         }

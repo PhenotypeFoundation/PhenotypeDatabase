@@ -20,7 +20,7 @@
 		class 'filter' can be added to the table to enable filtering
 		class 'length_change' can be added to the table to enable length changing
 		class 'sortable' can be added to the table to enable sorting
-		class 'paginate' can be added to the table to enable pagination
+		class 'nopaginate' can be added to the table to disable pagination
 		class 'hideInfo' can be added to hide the information about the number of items
 	
 	If you have added 'sortable' to the table, all column headers will be clickable to sort on. If you
@@ -71,7 +71,7 @@ function initializeDatables( selector ) {
 			bAutoWidth: false,
 			bFilter: $el.hasClass( 'filter' ), 
 			bLengthChange: $el.hasClass( 'length_change' ), 
-			bPaginate: $el.hasClass( 'paginate' ),
+			bPaginate: !$el.hasClass( 'nopaginate' ),
 			bSort: $el.hasClass( 'sortable' ),
 			bInfo: !$el.hasClass( 'hideInfo' ),
 			iCookieDuration: 86400,				// Save cookie one day
@@ -114,7 +114,7 @@ function initializeDatables( selector ) {
 			bAutoWidth: false,
 			bFilter: $el.hasClass( 'filter' ), 
 			bLengthChange: $el.hasClass( 'length_change' ), 
-			bPaginate: $el.hasClass( 'paginate' ),
+			bPaginate: !$el.hasClass( 'nopaginate' ),
 			bSort: $el.hasClass( 'sortable' ),
 			bInfo: !$el.hasClass( 'hideInfo' ),
 			iCookieDuration: 86400,				// Save cookie one day
