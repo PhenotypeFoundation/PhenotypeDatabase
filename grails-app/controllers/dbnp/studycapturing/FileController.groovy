@@ -14,7 +14,7 @@
  */
 package dbnp.studycapturing
 
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import org.dbxp.sam.Feature
 import org.dbxp.sam.Platform
 
@@ -124,7 +124,7 @@ class FileController {
      * Uploads a file and returns the filename under which the file is saved
      */
     @Secured(['IS_AUTHENTICATED_REMEMBERED'])
-    def upload = {
+    def upload() {
         def file = request.getFile( params.get( 'field' ) );
 
         // If no file is uploaded, raise an error
@@ -153,7 +153,7 @@ class FileController {
     def getFileFields(Object part) {
         def fileList = []
             def fileFields = part.templateFileFields
-            if(fileFields instanceof org.hibernate.collection.PersistentMap) {
+            if(fileFields instanceof Map) {
                fileList = fileFields.values()
             } else if (part.size() > 0) {
                 part.each { entity ->

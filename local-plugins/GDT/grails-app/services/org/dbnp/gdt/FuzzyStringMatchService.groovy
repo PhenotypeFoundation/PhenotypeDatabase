@@ -15,7 +15,7 @@
  */
 package org.dbnp.gdt
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.Holders
 
 class FuzzyStringMatchService {
 	def dataSource

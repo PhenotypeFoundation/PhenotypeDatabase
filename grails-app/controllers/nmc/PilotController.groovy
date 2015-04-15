@@ -15,7 +15,7 @@
 package nmc
 
 import dbnp.studycapturing.*;
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 
 
 class PilotController {
@@ -39,7 +39,7 @@ class PilotController {
    }
 	
     @Secured(['IS_AUTHENTICATED_REMEMBERED'])
-	def index = {
+	def index() {
 		
 		session.pilot = true
 

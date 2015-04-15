@@ -13,8 +13,8 @@ grails.project.dependency.resolution = {
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
         grailsCentral()
-        grailsRepo "http://grails.org/plugins"
-
+        grailsHome()
+        
         mavenCentral()
         mavenRepo "http://nexus.dbnp.org/content/repositories/releases"
         mavenRepo "http://repository.springsource.com/maven/bundles/release"
@@ -27,7 +27,7 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        build(  ":tomcat:$grailsVersion",
+        build(  ":tomcat:7.0.55",
                 ":release:2.2.1",
                 //Temporary static version of Rest Client Builder due to compile error
                 ":rest-client-builder:1.0.3"
@@ -36,18 +36,14 @@ grails.project.dependency.resolution = {
             export = false
         }
 
-        compile(":hibernate:$grailsVersion",
+        compile(":hibernate4:4.3.6.1",
 		":jquery:1.8.3",
 		":webflow:2.0.8.1",
 		":ajaxflow:latest.integration",
-        ":rest:0.8"
+                ":rest:0.8",
+                ":webflow:2.1.0"
         ) {
             export = false
         }
-		
-		compile ':webflow:2.0.0', {
-			exclude 'grails-webflow'
-		}
-
     }
 }

@@ -16,7 +16,7 @@ package dbnp.modules
 
 import grails.converters.*
 import javax.servlet.http.HttpServletResponse
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.Holders
 import org.hibernate.*
 import dbnp.authentication.SecUser;
 
@@ -35,7 +35,8 @@ class ModuleCommunicationService implements Serializable {
 	/**
 	 * Number of seconds to save the data in cache
 	 */
-	def numberOfSecondsInCache = ConfigurationHolder.config.modules.cacheDuration ? Integer.valueOf( ConfigurationHolder.config.modules.cacheDuration.toString() ) : 300;
+        def config = Holders.config
+	def numberOfSecondsInCache = config.modules.cacheDuration ? Integer.valueOf( config.modules.cacheDuration.toString() ) : 300;
 
 	/**
 	 * Sends a notification to assay modules that some part of a study has changed.

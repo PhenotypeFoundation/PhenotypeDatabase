@@ -1,8 +1,3 @@
-import org.dbxp.moduleBase.DataTablesTagLib;
-import org.springframework.context.annotation.DependsOn;
-
-import dbnp.query.AdvancedQueryController;
-
 modules = {
     /**********************************************************
      *
@@ -146,6 +141,7 @@ modules = {
         dependsOn 'helptooltips'
         dependsOn 'gscf-datatables'
         dependsOn 'upload-and-add-more'
+        dependsOn 'studywizard-files'
         
         resource url: [dir: 'css', file: 'studywizard.css']
         resource url: [dir: 'css', file: 'gdtimporter.css', plugin: 'gdtimporter']
@@ -153,9 +149,6 @@ modules = {
         resource url: [dir: 'css', file: 'demo_table.css', plugin: 'gdtimporter']
         resource url: [dir: 'css', file: 'demo_table_jui.css', plugin: 'gdtimporter']
         resource url: [dir: 'css', file: 'demo_page.css', plugin: 'gdtimporter']
-
-        resource url: [dir: 'js', file: 'fileupload.js', plugin: 'gdt']
-        resource url: [dir: 'js', file: 'studywizard.js']
 
         resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt']
         resource url: [dir: 'js', file: 'table-editor.js', plugin: 'gdt']
@@ -168,6 +161,16 @@ modules = {
      * Modules below are libraries and plugins
      * 
      **********************************************************/
+    
+    'studywizard-files' {
+        dependsOn 'upload-and-add-more'
+        
+        resource url: 'css/studywizard.css'
+        
+        resource url: [dir: 'js', file: 'studywizard.js']
+        resource url:[dir:'js', file: 'fuzzyStringMatch.js', plugin: 'gdt']
+        resource url: [dir: 'js', file: 'fileupload.js', plugin: 'gdt']
+    }
     
     'upload-and-add-more' {
         resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
@@ -220,10 +223,10 @@ modules = {
     "gscf-datatables" {
         dependsOn 'jquery'
         resource url: [dir: 'js', file: 'jquery.dataTables.js' ] , linkOverride:'//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.js'
-        resource url: [dir: 'js', file: 'datatables.js', plugin: 'dbxpModuleBase']
+        resource url: [dir: 'js', file: 'datatables.js']
 
-        resource url: [ dir:'css', file: 'jquery.dataTables.css'], linkOverride: "//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css"
-        resource url: [ dir:'css', file: 'datatables-jui.css']
+        resource url: [dir:'css', file: 'jquery.dataTables.css'], linkOverride: "//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css"
+        resource url: [dir:'css', file: 'datatables-jui.css']
     }
 
     // jqplot charting library

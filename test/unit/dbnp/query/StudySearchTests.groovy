@@ -3,9 +3,9 @@ package dbnp.query
 import dbnp.studycapturing.*
 import grails.test.*
 import org.dbnp.gdt.AssayModule
-import org.codehaus.groovy.grails.commons.ApplicationHolder
 import dbnp.authentication.*
 import groovy.mock.interceptor.MockFor;
+import grails.util.Holders
 
 /**
  * SearchTests Test
@@ -62,7 +62,7 @@ class StudySearchTests extends GrailsUnitTestCase {
 			it.owner = users[0]
 		}
 
-        mockApplicationHolder = new MockFor(ApplicationHolder)
+        mockApplicationHolder = new MockFor(Holders)
 
         // some mocks to make sure test doesn't break on finding 'moduleCommunicationService'
         mockApplicationHolder.demand.getApplication(1..10) { [getMainContext:

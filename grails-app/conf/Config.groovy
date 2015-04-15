@@ -133,28 +133,77 @@ grails.views.javascript.library = "jquery"
 
 
 // Needed for the Spring Security Core plugin:
-grails.plugins.springsecurity.userLookup.userDomainClassName = 'dbnp.authentication.SecUser'
-grails.plugins.springsecurity.userLookup.authorityJoinClassName = 'dbnp.authentication.SecUserSecRole'
-grails.plugins.springsecurity.authority.className = 'dbnp.authentication.SecRole'
-grails.plugins.springsecurity.password.algorithm = 'SHA-256'
-grails.plugins.springsecurity.password.encodeHashAsBase64 = true
-grails.plugins.springsecurity.dao.reflectionSaltSourceProperty = 'username' // Use the persons username as salt for encryption
-grails.plugins.springsecurity.securityConfigType = grails.plugins.springsecurity.SecurityConfigType.Annotation
-grails.plugins.springsecurity.successHandler.targetUrlParameter = 'spring-security-redirect'
+grails.plugin.springsecurity.userLookup.userDomainClassName = 'dbnp.authentication.SecUser'
+grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'dbnp.authentication.SecUserSecRole'
+grails.plugin.springsecurity.authority.className = 'dbnp.authentication.SecRole'
+grails.plugin.springsecurity.password.algorithm = 'SHA-256'
+grails.plugin.springsecurity.password.hash.iterations = 1
+grails.plugin.springsecurity.password.encodeHashAsBase64 = true
+grails.plugin.springsecurity.dao.reflectionSaltSourceProperty = 'username' // Use the persons username as salt for encryption
+grails.plugin.springsecurity.successHandler.targetUrlParameter = 'spring-security-redirect'
+
+// Security is defined below. By default, users that have
+// been logged in are allowed access to all controllers and
+// other users are denied access. As this is the default,
+// we specify the 'open' urls as well as the administrator 
+grails.plugin.springsecurity.rejectIfNoRule = true
+grails.plugin.springsecurity.fii.rejectPublicInvocations = false
+grails.plugin.springsecurity.securityConfigType = grails.plugin.springsecurity.SecurityConfigType.InterceptUrlMap
+
+grails.plugin.springsecurity.interceptUrlMap = [
+    '/':                  ['permitAll'],
+    '/home':              ['permitAll'],
+    '/assets/**':         ['permitAll'],
+    '/**/js/**':          ['permitAll'],
+    '/**/css/**':         ['permitAll'],
+    '/**/images/**':      ['permitAll'],
+    '/**/favicon.ico':    ['permitAll'],
+    '/login/**':          ['permitAll'],
+    '/logout/**':         ['permitAll'],
+
+    // Registration and confirming new accounts
+    '/userRegistration/add':                    ['permitAll'],
+    '/userRegistration/sendUserConfirmation':   ['permitAll'],
+    '/userRegistration/confirmUser':            ['permitAll'],
+    
+    // Rest controllers have their own authentication
+    '/rest/**':                                 ['permitAll'],
+    '/measurements/*/rest/**':                  ['permitAll'],
+    
+    // API is only accessible for specific users
+    '/api/**':                               ['ROLE_ADMIN', 'ROLE_CLIENT'],
+
+    // Template editor is only accessible for specific users
+    '/templateEditor/**':                    ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
+    '/template/**':                          ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
+     
+    // Configuration by administrators
+    '/assayModule/**':                       ['ROLE_ADMIN'],
+    '/setup/**':                             ['ROLE_ADMIN'],
+    '/info/**':                              ['ROLE_ADMIN'],
+    '/tnoMigrate/**':                        ['ROLE_ADMIN'],
+    '/assayModule/**':                       ['ROLE_ADMIN'],
+    '/user/**':                              ['ROLE_ADMIN', 'isFullyAuthenticated()'],
+    '/userRegistration/confirmAdmin':        ['ROLE_ADMIN', 'isFullyAuthenticated()'],
+    
+    // Other urls are allowed for logged in users
+    '/**':                                   ['IS_AUTHENTICATED_REMEMBERED']
+ ]
+
 
 //Login errors
-grails.plugins.springsecurity.errors.login.expired= 'Sorry, your account has expired.'
-grails.plugins.springsecurity.errors.login.passwordExpired='Sorry, your password has expired.'
-grails.plugins.springsecurity.errors.login.disabled='Sorry, your account is disabled.'
-grails.plugins.springsecurity.errors.login.locked='Sorry, your account is locked.'
-grails.plugins.springsecurity.errors.login.fail='Sorry, we were not able to find a user with that username and password.'
-grails.plugins.springsecurity.denied.message='Sorry, you\'re not authorized to view this page.'
+grails.plugin.springsecurity.errors.login.expired= 'Sorry, your account has expired.'
+grails.plugin.springsecurity.errors.login.passwordExpired='Sorry, your password has expired.'
+grails.plugin.springsecurity.errors.login.disabled='Sorry, your account is disabled.'
+grails.plugin.springsecurity.errors.login.locked='Sorry, your account is locked.'
+grails.plugin.springsecurity.errors.login.fail='Sorry, we were not able to find a user with that username and password.'
+grails.plugin.springsecurity.denied.message='Sorry, you\'re not authorized to view this page.'
 
 // Spring Security configuration
-grails.plugins.springsecurity.useBasicAuth = true
-grails.plugins.springsecurity.basic.realmName = "Authentication Required"
-grails.plugins.springsecurity.useSessionFixationPrevention = true
-grails.plugins.springsecurity.filterChain.chainMap = [
+grails.plugin.springsecurity.useBasicAuth = true
+grails.plugin.springsecurity.basic.realmName = "Authentication Required"
+grails.plugin.springsecurity.useSessionFixationPrevention = true
+grails.plugin.springsecurity.filterChain.chainMap = [
         '/rest/hello': 'JOINED_FILTERS,-exceptionTranslationFilter',
         '/api/authenticate': 'JOINED_FILTERS,-exceptionTranslationFilter',
         '/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter'
@@ -192,10 +241,6 @@ grails.resources.modules = {
 		}
 	}
 }
-
-// ****** trackR Config ******
-trackr.path = "/tmp/trackr/"
-trackr.prefix = "gscf.${grails.util.GrailsUtil.environment}."
 
 // SAM Configuration
 

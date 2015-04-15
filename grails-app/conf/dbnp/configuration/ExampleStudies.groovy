@@ -17,12 +17,12 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
 import dbnp.rest.common.CommunicationManager
 import org.codehaus.groovy.grails.commons.*
-
+import grails.util.Holders
 
 class ExampleStudies {
     public static void addTestData() {
         // get configuration
-        def config = ConfigurationHolder.config
+        def config = Holders.config
 
         // Look up the used ontologies which should be in the database by now
 		def speciesOntology				= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON")
@@ -70,7 +70,7 @@ class ExampleStudies {
 		if (String.metaClass.getMetaMethod("grom")) "inserting initial studies".grom()
 
 		// get configuration
-		def config = ConfigurationHolder.config
+		def config =  Holders.config
 
 		// Look up the used ontologies which should be in the database by now
         def speciesOntology				= Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON")

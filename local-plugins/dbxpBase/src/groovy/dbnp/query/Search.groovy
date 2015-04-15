@@ -16,10 +16,8 @@
 package dbnp.query
 
 import org.dbnp.gdt.*
-
+import grails.util.Holders
 import java.text.SimpleDateFormat
-
-import org.codehaus.groovy.grails.commons.ApplicationHolder;
 
 import dbnp.authentication.*
 
@@ -79,7 +77,7 @@ class Search {
 	 * @see #user
 	 */
 	public Search() {
-		def ctx = ApplicationHolder.getApplication().getMainContext();
+		def ctx = Holders.grailsApplication.getMainContext();
 		def authenticationService = ctx.getBean("authenticationService");
 		def sessionUser = authenticationService?.getLoggedInUser();
 
@@ -675,7 +673,7 @@ class Search {
 
 		// Determine the moduleCommunicationService. Because this object
 		// is mocked in the tests, it can't be converted to a ApplicationContext object
-		def ctx = ApplicationHolder.getApplication().getMainContext();
+		def ctx = Holders.grailsApplication.getMainContext();
 		def moduleCommunicationService = ctx.getBean("moduleCommunicationService");
 
 		switch( searchMode ) {

@@ -30,7 +30,6 @@
 <div id="footer">
     <div class="container"><p class="copyright">Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="//dbnp.org">http://dbnp.org</a>.</p></div>
 </div>
-<trackr:track reference="${session?.gscfUser ? session.gscfUser : '-'}"/>
 
 <div id="dialog-creative-commons" title="License agreement" style="display:none">
     <p>

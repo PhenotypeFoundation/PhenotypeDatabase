@@ -1,6 +1,6 @@
 package dbnp.studycapturing
 
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 /**
  * Publications controller
  *
@@ -62,7 +62,7 @@ class PublicationController {
     }
 
     @Secured(['IS_AUTHENTICATED_REMEMBERED'])
-    def create = {
+    def create() {
         def publicationInstance = new Publication()
         publicationInstance.properties = params
         return [publicationInstance: publicationInstance]

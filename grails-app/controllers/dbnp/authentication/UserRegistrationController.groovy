@@ -13,7 +13,7 @@
  * $Date$
  */
 package dbnp.authentication
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.util.GrailsUtil
 
@@ -187,8 +187,7 @@ class UserRegistrationController {
         }
     }
 
-    @Secured(['ROLE_ADMIN', 'IS_AUTHENTICATED_FULLY'])
-    def confirmAdmin = {
+    def confirmAdmin() {
 
         def token = params.code
 
@@ -219,13 +218,11 @@ class UserRegistrationController {
         flash.message = "The registration of " + user.username + " is approved."
     }
 
-    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
-	def profile = {
+	def profile() {
 		[ user: authenticationService.getLoggedInUser() ]
 	}
 
-    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
-	def updateProfile = { ProfileCommand command ->
+	def updateProfile(ProfileCommand command) {
 		def user = authenticationService.getLoggedInUser();
 		command.username = user.username
 		command.oldPass = user.password

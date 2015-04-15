@@ -15,13 +15,12 @@
 package dbnp.authentication
 
 import grails.converters.JSON
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import org.springframework.dao.DataIntegrityViolationException
 
 /**
  * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
  */
-@Secured(['ROLE_ADMIN'])
 class UserController {
 
 	def userCache

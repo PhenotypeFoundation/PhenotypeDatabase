@@ -1,7 +1,7 @@
 import dbnp.studycapturing.*
 
 import org.codehaus.groovy.grails.commons.GrailsApplication
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.Holders
 import grails.converters.JSON
 import org.dbnp.gdt.Template
 
@@ -36,7 +36,7 @@ class HomeController {
 		}
 
 		// create sql instance for advanced queries
-		def config = ConfigurationHolder.config
+		def config = Holders.config
 		def sql = new groovy.sql.Sql(dataSource)
 		def db  = config.dataSource.driverClassName
 
@@ -188,7 +188,7 @@ class HomeController {
 	 * Log the user in as admin and jump to the setup wizard
 	 */
 	def setup = {
-		def config	= ConfigurationHolder.config
+		def config	= Holders.config
 		def db		= config.dataSource.driverClassName
 		def user	= authenticationService.getLoggedInUser()
 

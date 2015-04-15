@@ -1,22 +1,12 @@
 package generic.installation
 
-import dbnp.studycapturing.Event
-import dbnp.studycapturing.EventGroup
-import dbnp.studycapturing.EventInEventGroup
-import dbnp.studycapturing.Sample
-import dbnp.studycapturing.SamplingEvent
-import dbnp.studycapturing.SamplingEventInEventGroup
-import dbnp.studycapturing.Study
-import dbnp.studycapturing.SubjectGroup
-import dbnp.studycapturing.SubjectEventGroup
-import grails.plugins.springsecurity.Secured
+import dbnp.studycapturing.*
 
 /**
  * User: Seth
  * Date: 28-11-13
  * Time: 12:10
  */
-@Secured(['ROLE_ADMIN'])
 class TnoMigrateController {
 
     def index() {

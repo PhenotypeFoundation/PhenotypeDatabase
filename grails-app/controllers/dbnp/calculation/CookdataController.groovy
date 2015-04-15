@@ -3,7 +3,7 @@ package dbnp.calculation
 import org.apache.jasper.compiler.Node.ParamsAction
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import dbnp.authentication.AuthenticationService
 import dbnp.studycapturing.Study
 import dbnp.studycapturing.SamplingEvent
