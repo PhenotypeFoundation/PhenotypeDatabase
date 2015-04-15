@@ -718,8 +718,6 @@ class AdvancedQueryController {
                 def ids = []
                 s.filterResults(selectedTokens).each { ids << it.id }
 
-                def paramString = ids.collect { return 'ids=' + it }.join( '&' );
-
                 return [
                     [
                         module: "gscf",
@@ -728,7 +726,6 @@ class AdvancedQueryController {
                         description: "Export as SimpleTox",
                         url: createLink( controller: "exporter", action: "export", params: [ 'format': 'list', 'ids' : ids ] ),
                         submitUrl: createLink( controller: "exporter", action: "export", params: [ 'format': 'list' ] ),
-                        paramString: paramString
                     ],
                     [
                         module: "gscf",
@@ -737,14 +734,11 @@ class AdvancedQueryController {
                         description: "Export as CSV",
                         url: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] ),
                         submitUrl: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list' ] ),
-                        paramString: paramString
                     ]
                 ]
             case "Assay":
                 def ids = []
                 s.filterResults(selectedTokens).each { ids << it.id }
-
-                def paramString = ids.collect { return 'ids=' + it }.join( '&' );
 
                 return [
                     [
@@ -754,14 +748,11 @@ class AdvancedQueryController {
                         description: "Export as CSV",
                         url: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] ),
                         submitUrl: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list' ] ),
-                        paramString: paramString
                     ]
                 ]
             case "Sample":
                 def ids = []
                 s.filterResults(selectedTokens).each { ids << it.id }
-
-                def paramString = ids.collect { return 'ids=' + it }.join( '&' );
 
                 return [
                     [
@@ -771,7 +762,6 @@ class AdvancedQueryController {
                         description: "Export as CSV",
                         url: createLink( controller: "assay", action: "exportToSamplesToCsv", params: [ 'ids' : ids ] ),
                         submitUrl: createLink( controller: "assay", action: "exportSamplesToCsv" ),
-                        paramString: paramString
                     ]
                 ]
             default:
@@ -819,7 +809,6 @@ class AdvancedQueryController {
                             description: action.description + " (" + moduleName + ")",
                             url: url + "&" + paramString,
                             submitUrl: baseUrl,
-                            paramString: paramString
                         ];
                     }
                 }
