@@ -154,5 +154,17 @@ class SampleSearch extends Search {
         
         return Sample.findAll( "FROM Sample WHERE UUID in (:uuids)", [ 'uuids': uuids ] )
     }
+    
+    /**
+     * Filters the list of entities, based on the studies that can be read.
+     * As this depends on the type of entity, it should be overridden in subclasses
+     */
+    protected def filterAccessibleEntities(entities, readableStudies) {
+        if( !entities || !readableStudies )
+            return []
+            
+        Sample.findAll( "FROM Sample s where s in (:samples) and s.parent in (:studies)", [ samples: entities, studies: readableStudies ] )
+    }
+
 
 }

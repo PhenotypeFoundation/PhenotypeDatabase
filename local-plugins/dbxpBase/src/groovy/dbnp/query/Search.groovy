@@ -217,6 +217,39 @@ class Search {
 		// Determine which entities can be read
 		results = entities // filterAccessibleEntities( entities );
 	}
+    
+        /**
+         * Filters the list of entities on whether they are 
+         * accessible for the current user    
+         */
+        protected def filterAccessibleEntities( entities ) {
+            // For now, we retrieve a list of all readable studies (which 
+            // will be a reasonably small list. That list is used to filter the entities
+            def readableStudies = Study.giveReadableStudies(this.user)
+            
+            filterAccessibleEntities(entities, readableStudies)
+        }
+        
+        /**
+         * Returns a map with data about the results, based on the given parameters.
+         * The parameters are the ones returned from the dataTablesService.    
+         * @param searchParams        Parameters to search
+                        int      offset          Display start point in the current data set.
+                        int      max             Number of records that the table can display in the current draw. It is expected that the number of records returned will be equal to this number, unless the server has fewer records to return.
+                        
+                        string   search          Global search field
+                        
+                        int      sortColumn      Column being sorted on (you will need to decode this number for your database)
+                        string   sortDirection   Direction to be sorted - "desc" or "asc".
+         * @return A map with all data. For example:
+                        List     entities        List with all entities
+                        int      total           Total number of records in the whole dataset (without taking search, offset and max into account)
+                        int      totalFiltered   Total number of records in the search (without taking offset and max into account)
+                        int      ids             Total list of filtered ids
+         */
+        public List getResultMap(def searchParams) {
+            
+        }
 		
 	/************************************************************************
 	 * 
@@ -345,6 +378,14 @@ class Search {
     */
    protected List getEntitiesByUUID( List uuids ) {
        return []
+   }
+   
+   /**
+    * Filters the list of entities, based on the studies that can be read.
+    * As this depends on the type of entity, it should be overridden in subclasses
+    */
+   protected def filterAccessibleEntities(entities, readableStudies) {
+       []
    }
 
 	/****************************************************

@@ -122,4 +122,15 @@ class StudySearch extends Search {
             
         return Study.findAll( "FROM Study WHERE UUID in (:uuids)", [ 'uuids': uuids ] )
     }
+    
+    /**
+     * Filters the list of entities, based on the studies that can be read.
+     * As this depends on the type of entity, it should be overridden in subclasses
+     */
+    protected def filterAccessibleEntities(entities, readableStudies) {
+        // No need to do additional queries
+        entities.findAll { readableStudies.contains(it) }
+    }
+
+
 }

@@ -159,4 +159,16 @@ class AssaySearch extends Search {
         return Assay.findAll( "FROM Assay WHERE UUID in (:uuids)", [ 'uuids': uuids ] )
     }
 
+    
+    /**
+     * Filters the list of entities, based on the studies that can be read.
+     * As this depends on the type of entity, it should be overridden in subclasses
+     */
+    protected def filterAccessibleEntities(entities, readableStudies) {
+        if( !entities || !readableStudies )
+            return []
+            
+        Sample.findAll( "FROM Assay a where a in (:assays) and a.parent in (:studies)", [ assays: entities, studies: readableStudies ] )
+    }
+
 }
