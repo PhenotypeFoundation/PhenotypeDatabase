@@ -153,7 +153,10 @@ class AssaySearch extends Search {
      * @param uuids      A list of UUIDs for the entities to retrieve
      */
     protected List getEntitiesByUUID( List uuids ) {
-        return Assay.findAll( "FROM Assay WHERE UUID in :uuids", [ 'uuids': uuids ] )
+        if( !uuids )
+            return []
+            
+        return Assay.findAll( "FROM Assay WHERE UUID in (:uuids)", [ 'uuids': uuids ] )
     }
 
 }

@@ -190,16 +190,17 @@ class Search {
 		// Combine all parts to generate a full HQL query
 		def hqlQuery = selectClause + " " + fullHQL.from + ( whereClause ? " WHERE " + whereClause : "" );
 		
-		// Find all objects 
+		// Find all objects
+                log.debug "Using query " + hqlQuery + " and parameters " + fullHQL.parameters + " to do first filtering" 
 		def entities = entityClass().findAll( hqlQuery, fullHQL.parameters );
-		
+                log.debug "Results from first filtering: " + entities
+        
 		// Find criteria that match one or more 'complex' fields
 		// These criteria must be checked extra, since they are not correctly handled
 		// by the HQL criteria. See also Criterion.manyToManyWhereCondition and
 		// http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
 		entities = filterForComplexCriteria( entities, getEntityCriteria( this.entity ) );
-		
-                log.debug "Filtered on local criteria."
+		log.debug "Results after filtering complex criteria: " + entities
         
 		// Filter on module criteria. If the search is 'and', only the entities found until now
 		// should be queried in the module. Otherwise, all entities are sent, in order to retrieve
@@ -209,13 +210,12 @@ class Search {
 			if( searchMode == SearchMode.and ) {
 				entities = filterOnModuleCriteria( entities );
 			} else {
-				entities = filterOnModuleCriteria( entityClass().list().findAll { this.isAccessible( it ) } )
+				entities = filterOnModuleCriteria( entities )
 			}
 		}
 		
-		// Determine which studies can be read
-		results = entities;
-		
+		// Determine which entities can be read
+		results = entities // filterAccessibleEntities( entities );
 	}
 		
 	/************************************************************************
@@ -711,13 +711,14 @@ class Search {
 				// Loop through all modules and check whether criteria have been given
 				// for that module
 				AssayModule.list().each { module ->
-                                        log.info "Matching module criteria: " + moduleCriteria
+                                        log.trace "Finding module criteria for module " + module
                                         
 					// Remove 'module' from module name
 					def moduleName = module.name.replace( 'module', '' ).trim()
 					def moduleCriteria = getEntityCriteria( moduleName );
 		
 					if( moduleCriteria && moduleCriteria.size() > 0 ) {
+                                            log.info "Matching module criteria: " + moduleCriteria
 						def callUrl = moduleCriteriaUrl( module );
 						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						

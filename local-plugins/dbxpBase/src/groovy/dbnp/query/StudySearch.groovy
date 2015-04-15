@@ -117,6 +117,9 @@ class StudySearch extends Search {
      * @param uuids      A list of UUIDs for the entities to retrieve
      */
     protected List getEntitiesByUUID( List uuids ) {
-        return Study.findAll( "FROM Study WHERE UUID in :uuids", [ 'uuids': uuids ] )
+        if( !uuids )
+            return []
+            
+        return Study.findAll( "FROM Study WHERE UUID in (:uuids)", [ 'uuids': uuids ] )
     }
 }

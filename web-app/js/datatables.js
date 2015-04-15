@@ -1,7 +1,7 @@
 /*
 	Usage:
 
-	Use a 'paginate' class on a table to create a paginated table using datatables plugin.
+	Use a 'datatables' class on a table to create a paginated table using datatables plugin.
 
 		<table class="datatables">
 			<thead>
@@ -50,7 +50,7 @@ var tableType = new Array();		// Hashmap with the key being the id of the table,
 var selectType = new Array();       // Hashmap with the key being the id of the table, in order to facilitate multiple tables
 var allElements = new Array();		// Hashmap with the key being the id of the table, in order to facilitate multiple tables
 
-function initializePagination( selector ) {
+function initializeDatables( selector ) {
 	if( selector == undefined ) {
 		selector = ''
 	}
@@ -467,4 +467,4 @@ function submitPaginatedForm( id, url, nothingInFormMessage ) {
 
 }
 
-$(function() { initializePagination(); });
+$(function() { initializeDatables(); });

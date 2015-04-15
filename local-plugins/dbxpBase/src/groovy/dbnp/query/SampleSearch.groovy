@@ -149,7 +149,10 @@ class SampleSearch extends Search {
      * @param uuids      A list of UUIDs for the entities to retrieve
      */
     protected List getEntitiesByUUID( List uuids ) {
-        return Sample.findAll( "FROM Sample WHERE UUID in :uuids", [ 'uuids': uuids ] )
+        if( !uuids )
+        return []
+        
+        return Sample.findAll( "FROM Sample WHERE UUID in (:uuids)", [ 'uuids': uuids ] )
     }
 
 }
