@@ -766,7 +766,7 @@ class AdvancedQueryController {
             def moduleName = module.name.replace( 'module', '' ).trim()
             try {
                 def callUrl = module.baseUrl + "/rest/getPossibleActions?entity=" + s.entity
-                def json = moduleCommunicationService.callModuleRestMethodJSON( module.baseUrl, callUrl );
+                def json = moduleCommunicationService.callModuleRestMethodJSON( module.baseUrl, callUrl, false );
 
                 // Check whether the entity is present in the return value
                 if( json[ s.entity ] ) {

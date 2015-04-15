@@ -18,7 +18,7 @@ import grails.converters.*
 import javax.servlet.http.HttpServletResponse
 import grails.util.Holders
 import org.hibernate.*
-import dbnp.authentication.SecUser;
+import dbnp.authentication.SecUser
 
 class ModuleCommunicationService implements Serializable {
 	static transactional = false
@@ -82,7 +82,7 @@ class ModuleCommunicationService implements Serializable {
 	 * @return			JSON 	JSON object of the parsed text
 	 * @deprecated		Use callModuleMethod instead
 	 */
-	def callModuleRestMethodJSON( consumer, restUrl ) throws Exception {
+	def callModuleRestMethodJSON( consumer, restUrl, userDependent = true ) throws Exception {
 		def parts = restUrl.split( /\?/ );
 		def url = "";
 		def query = "";
@@ -94,7 +94,7 @@ class ModuleCommunicationService implements Serializable {
 			url = parts[ 0 ];
 		}
 		
-		return callModuleMethod( consumer, url, query );
+		return callModuleMethod( consumer, url, query, "GET", null, userDependent );
 	}
 	
 	/**
@@ -106,22 +106,25 @@ class ModuleCommunicationService implements Serializable {
 	* @param requestMethod	GET or POST - HTTP request method to use
 	* @return			JSON 	JSON object of the parsed text
 	*/
-	def callModuleMethod( String consumer, String restUrl, String args = null, String requestMethod = "GET", SecUser remoteUser = null) {
+	def callModuleMethod( String consumer, String restUrl, String args = null, String requestMethod = "GET", SecUser remoteUser = null, userDependent = true) {
+            if( userDependent ) {
 		log.debug "Checking whether user is logged in"
                 if (!remoteUser && !authenticationService.isLoggedIn()) { 
                     // should not happen because we can only get here when a user is
                     // logged in...
                     throw new Exception('User is not logged in.')
 		}
-
+            }
+            
 		// Check whether the url is present in cache
                 log.trace "Checking whether " + restUrl + " is present in cache with args " + args
-		def cacheData = retrieveFromCache( restUrl, args );
+		def cacheData = retrieveFromCache( restUrl, args, userDependent );
 		if( cacheData && cacheData[ "success" ] )
 			return cacheData[ "contents" ];
 		else if( cacheData && !cacheData[ "success" ] )
 			throw new Exception( "Error while fetching data from " + restUrl + " (from cache): " + cacheData[ "error" ] )
 
+            if( userDependent ) {
 		// create a random session token that will be used to allow to module to
 		// sync with gscf prior to presenting the measurement data
 		def sessionToken = UUID.randomUUID().toString()
@@ -138,6 +141,8 @@ class ModuleCommunicationService implements Serializable {
 		}
 		
 		args += "sessionToken=" + sessionToken
+            }
+            
 		// Perform a call to the url
 		def restResponse
 		try {
@@ -176,15 +181,17 @@ class ModuleCommunicationService implements Serializable {
 			log.trace "GSCF response: " + textResponse
 			restResponse = JSON.parse( textResponse )
 		} catch (Exception e) {
-			storeErrorInCache( restUrl, e.getMessage(), args );
+			storeErrorInCache( restUrl, e.getMessage(), args, userDependent );
 			throw new Exception( "An error occurred while fetching " + restUrl + ".", e )
 		} finally {
+                    if( userDependent ) {
 			// Dispose of the ephemeral session token
 			authenticationService.logOffRemotely(consumer, sessionToken)
+                    }
 		}
 
 		// Store the response in cache
-		storeInCache( restUrl, restResponse, args );
+		storeInCache( restUrl, restResponse, args, userDependent );
 
 		return restResponse
 
@@ -195,16 +202,23 @@ class ModuleCommunicationService implements Serializable {
 	 * @param url	URL to call
 	 * @return		JSON object with the contents of the URL or null if the url doesn't exist in cache
 	 */
-	def retrieveFromCache( url, args = null ) {
-		def user = authenticationService.getLoggedInUser();
-		def userId = user ? user.id : -1;
+	def retrieveFromCache( url, args = null, userDependent = true ) {
+                def cacheId = getCacheId(userDependent)
 
 		url = cacheUrl( url, args )
 		
-		if( cache[ userId ] && cache[ userId ][ url ] && ( System.currentTimeMillis() - cache[ userId ][ url ][ "timestamp" ] ) < numberOfSecondsInCache * 1000 ) {
-			return cache[ userId ][ url ];
+                if( cache[ cacheId ] && cache[ cacheId ][ url ] ) {
+                    if( (System.currentTimeMillis() - cache[ cacheId ][ url ][ "timestamp" ]) < numberOfSecondsInCache * 1000 ) {
+                        log.debug "Returning " + url + " from cache ${cacheId}"
+			return cache[ cacheId ][ url ];
+                    } else {
+                        log.debug "Not returning " + url + " from cache ${cacheId} because it timed out"
+                        cache[cacheId].remove(url) 
+                        return null
+                    }
 		} else {
-			return null;
+                    log.debug "Not returning " + url + " from cache ${cacheId} because it is not stored"
+                    return null
 		}
 	}
 
@@ -213,14 +227,13 @@ class ModuleCommunicationService implements Serializable {
 	 * @param url		URL that has been called
 	 * @param contents	Contents of the URL
 	 */
-	def storeInCache( url, contents, args = null ) {
-		def user = authenticationService.getLoggedInUser();
-		def userId = user ? user.id : -1;
+	def storeInCache( url, contents, args = null, userDependent = true ) {
+            def cacheId = getCacheId(userDependent)
+                if( !cache[ cacheId ] )
+                    cache[ cacheId ] = [:]
 
-		if( !cache[ userId ] )
-			cache[ userId ] = [:]
-
-		cache[ userId ][ cacheUrl( url, args ) ] = [
+                log.debug "Storing " + url + " in cache ${cacheId}"
+		cache[ cacheId ][ cacheUrl( url, args ) ] = [
 			"timestamp": System.currentTimeMillis(),
 			"success": true,
 			"contents": contents
@@ -232,18 +245,31 @@ class ModuleCommunicationService implements Serializable {
 	* @param url		URL that has been called
 	* @param contents	Contents of the URL
 	*/
-   def storeErrorInCache( url, error, args = null ) {
-	   def user = authenticationService.getLoggedInUser();
-	   def userId = user ? user.id : -1;
+   def storeErrorInCache( url, error, args = null, userDependent = true ) {
+           def cacheId = getCacheId(userDependent)
+                    
+	   if( !cache[ cacheId ] )
+		   cache[ cacheId ] = [:]
 
-	   if( !cache[ userId ] )
-		   cache[ userId ] = [:]
-
-	   cache[ userId ][ cacheUrl( url, args ) ] = [
+           log.debug "Storing error for " + url + " in cache ${cacheId}"
+           
+	   cache[ cacheId ][ cacheUrl( url, args ) ] = [
 		   "timestamp": System.currentTimeMillis(),
 		   "success": false,
 		   "error": error
 	   ];
+   }
+   
+   /**
+    * Returns the cache ID to store cached items 
+    */
+   def getCacheId(userDependent = true) {
+       if( userDependent ) {
+               def user = authenticationService.getLoggedInUser();
+               return user ? user.id : -1;
+       } else {
+           return "generic"
+       }
    }
    
    /**
