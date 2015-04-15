@@ -107,6 +107,7 @@ class ModuleCommunicationService implements Serializable {
 	* @return			JSON 	JSON object of the parsed text
 	*/
 	def callModuleMethod( String consumer, String restUrl, String args = null, String requestMethod = "GET", SecUser remoteUser = null, userDependent = true) {
+            def sessionToken 
             if( userDependent ) {
 		log.debug "Checking whether user is logged in"
                 if (!remoteUser && !authenticationService.isLoggedIn()) { 
@@ -127,7 +128,7 @@ class ModuleCommunicationService implements Serializable {
             if( userDependent ) {
 		// create a random session token that will be used to allow to module to
 		// sync with gscf prior to presenting the measurement data
-		def sessionToken = UUID.randomUUID().toString()
+		sessionToken= UUID.randomUUID().toString()
 
 		// put the session token to work
                 log.trace "Logging user in remotely to " + consumer
