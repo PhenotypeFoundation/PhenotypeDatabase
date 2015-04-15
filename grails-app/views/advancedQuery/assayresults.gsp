@@ -59,7 +59,12 @@
 							def fieldValue = resultFields[ assayInstance.id ]?.get( fieldName );
 							if( fieldValue ) { 
 								if( fieldValue instanceof Collection ) {
-									fieldValue = fieldValue.collect { it.toString() }.findAll { it }.unique().join( ', ' );
+									if( fieldValue.size() > 50 ) {
+										fieldValue = fieldValue.subList(0,50).collect { it.toString() }.findAll { it }.unique().join( ', ' )
+										fieldValue += " ... " 
+									} else {
+										fieldValue = fieldValue.collect { it.toString() }.findAll { it }.unique().join( ', ' )
+									}
 								} else {
 									fieldValue = fieldValue.toString();
 								}
