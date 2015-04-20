@@ -91,6 +91,35 @@ class RemoteAuthenticationService implements Serializable {
 		}
 	}
 
+        /**
+         * Returns a session token to be used in communicating with the modules    
+         */
+        public String getRemoteSessionToken( String consumer, SecUser user ) {
+            def c = SessionAuthenticatedUser.createCriteria()
+            def sessionAuthenticatedUser = c.get {
+                and {
+                        eq("consumer", consumer)
+                        eq("secUser", user)
+                        gt("expiryDate", new Date())
+                }
+            }
+
+            
+            if( sessionAuthenticatedUser ) {
+                // Reuse existing token
+                log.debug "Reuse existing module communication token"
+                updateExpiryDate(sessionAuthenticatedUser)
+            } else {
+                String token = UUID.randomUUID().toString()
+                
+                log.debug "Creating and saving new communication token"
+                sessionAuthenticatedUser = new SessionAuthenticatedUser( consumer: consumer, token: token, secUser: user, expiryDate: createExpiryDate() )
+                sessionAuthenticatedUser.save()
+            }
+            
+            return sessionAuthenticatedUser.token
+        }
+    
 	/**
 	 * Removes all tokens for remote logins that have expired
 	 */

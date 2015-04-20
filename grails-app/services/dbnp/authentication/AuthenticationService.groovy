@@ -43,6 +43,15 @@ class AuthenticationService {
     }
 
     /**
+     * Returns a session token to be used in communication with the modules
+     * If a session token already exists, it will be extended and reused
+     */
+    public String getRemoteSessionToken( String consumer, SecUser user ) {
+        log.trace "getRemoteSessionToken"
+        remoteAuthenticationService.getRemoteSessionToken(consumer, user);
+    }
+    
+    /**
      * Logs a user in for a remote session
      */
     public boolean logInRemotely( String consumer, String token, SecUser user ) {
@@ -50,6 +59,9 @@ class AuthenticationService {
         remoteAuthenticationService.logInRemotely( consumer, token, user );
     }
 
+    /**
+     * Logs a user off in a remote session
+     */
     public boolean logOffRemotely( String consumer, String token ) {
         log.trace "logOffRemotely"
         remoteAuthenticationService.logOffRemotely( consumer, token );

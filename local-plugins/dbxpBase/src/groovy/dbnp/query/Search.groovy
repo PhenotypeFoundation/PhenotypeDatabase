@@ -770,7 +770,7 @@ class Search {
 						
 						try {
                                                         log.debug "Retrieving module data from " + module
-							def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
+							def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST", user );
                             
                                                         log.debug "Filtering entity list for " + module
                                                         entities = entities.findAll { it.UUID in moduleEntityUUIDs }
@@ -803,7 +803,7 @@ class Search {
 						
 						try {
                                                     log.debug "Retrieving module data from " + module
-                                                    def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
+                                                    def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST", user );
 
                                                     // See which entities are already selected
                                                     log.debug "Filtering entity list for " + module
