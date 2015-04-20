@@ -775,9 +775,10 @@ class Search {
                                                         log.debug "Filtering entity list for " + module
                                                         entities = entities.findAll { it.UUID in moduleEntityUUIDs }
 						} catch( Exception e ) {
-							//log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
-							e.printStackTrace()
-							throw e
+						    log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+                                                    e.printStackTrace()
+                                                    
+                                                    // Don't do anything with the entities, but return to the user without exception    
 						}
 					}
 				}
@@ -812,9 +813,10 @@ class Search {
                                                     // Add the entities not yet selected 
                                                     resultingEntities += getEntitiesByUUID( resultingEntityUUIDs )
                         			} catch( Exception e ) {
-							//log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+							log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
 							e.printStackTrace()
-							throw e
+							
+                                                        // Don't do anything with the entities, but return to the user without exception
 						}
 					}
 				}
