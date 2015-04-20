@@ -658,7 +658,7 @@ class VisualizeController {
             return 0;
         }
 
-        combined.sort(comparator as Comparator);
+        combined.sort(comparator);
 
         // Put the elements back again. First empty the original lists
         data.each {
