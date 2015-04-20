@@ -385,41 +385,27 @@ class RestController {
             log.debug("Using all ${features.size()} features")
         }
 
-        if( sampleTokens ) {
-            // Return all requested samples
-            samples = SAMSample.executeQuery( "SELECT s FROM SAMSample s WHERE s.parentAssay = :assay AND s.parentSample.UUID IN (:sampleTokens)", [ "assay": assay, "sampleTokens": sampleTokens ] )
-            log.debug("Found ${samples.size()} samples matching the ${sampleTokens.size()} sample tokens")
-            /*log.debug("i got this: ${sampleTokens}")
-             def alles = Sample.executeQuery( "SELECT s.sampleToken FROM Sample s WHERE s.assay = :assay", [ "assay": assay] )
-             log.debug("alles is ${alles}")
-             alles.each {
-             log.debug(it.dump())
-             }*/
-        } else {
-            // If no sampleTokens are given, return all
-            samples = assay.samples;
-            log.debug("Using all ${samples.size()} samples")
-        }
-
         // If no samples or features are selected, return an empty list
-        if( !samples || !features ) {
+        if( !features ) {
             results = []
             log.debug("No samples or no features, returning empty result")
         }
         else {
             // Retrieve all measurements from the database
-            def measurements = Measurement.executeQuery("SELECT m, m.feature, m.sample FROM Measurement m WHERE m.feature IN (:features) AND m.sample IN (SELECT s FROM SAMSample s WHERE s.parentAssay = :assay)", ["assay": assay, "features": features])
+            log.debug "Start retrieving measuremens from the database"
+            def measurements = Measurement.executeQuery("SELECT m.sample.parentSample.UUID, m.feature.name, m.feature.unit, m.value FROM Measurement m WHERE m.feature IN (:features) AND m.sample.parentAssay = :assay", ["assay": assay, "features": features])
 
+            log.debug "Convert the measurements ino the proper format"
+            
             // Convert the measurements into the desired format
-            results = measurements.collect {
-                [
-                    "sampleToken": 		it[ 2 ].parentSample.UUID,
-                    "measurementToken": it[ 1 ].name + ( it[ 1 ].unit ? " (" + it[1].unit + ")" : "" ),
-                    "value":			it[ 0 ].value
-                ]
-            }
+            results = measurements.collect {[ 
+                "sampleToken": it[0], 
+                "measurementToken": it[1] + ( it[2] ? " " + it[2] + ")" : "" ), 
+                "value": it[3] 
+            ]}
 
             if(!verbose) {
+                log.debug "Start compacting table"
                 results = compactTable( results )
             }
         }
