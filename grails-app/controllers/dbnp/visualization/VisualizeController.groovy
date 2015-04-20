@@ -514,36 +514,34 @@ class VisualizeController {
 
         if (assay) {
             // Request for a particular assay and a particular feature
-            def urlVars = "assayToken=" + assay.UUID + "&measurementToken=" + fieldName.encodeAsURL()
-            urlVars += "&" + samples.collect { "sampleToken=" + it.UUID }.join("&");
+            def urlVars = "verbose=true&assayToken=" + assay.UUID + "&measurementToken=" + fieldName.encodeAsURL()
 
             def callUrl
             try {
                 callUrl = assay.module.baseUrl + "/rest/getMeasurementData"
+                log.trace "Retrieving data from assay " + assay
                 def json = moduleCommunicationService.callModuleMethod(assay.module.baseUrl, callUrl, urlVars, "POST");
-
+                
+                log.trace "Parsing data from assay " + assay
+                
                 if (json) {
-                    // First element contains sampletokens
-                    // Second element contains the featurename
-                    // Third element contains the measurement value
-                    def sampleTokens = json[0]
-                    def measurements = json[2]
-
-                    // Loop through the samples
-                    samples.each { sample ->
-                        // Search for this sampletoken
-                        def sampleToken = sample.UUID;
-                        def index = sampleTokens.findIndexOf { it == sampleToken }
-
+                    // We know we have only a single feature. Therefore, we can create a map
+                    // sample token -> value
+                    def valueMap = [:]
+                    json.each {
                         // Store the measurement value if found and if it is not JSONObject$Null
                         // See http://grails.1312388.n4.nabble.com/The-groovy-truth-of-JSONObject-Null-td3661040.html
                         // for this comparison
-                        if (index > -1 && !measurements[index].equals(null)) {
-                            data << measurements[index];
-                        } else {
-                            data << null
+                        if( !it.value.equals(null) ) {
+                            valueMap[it.sampleToken] = it.value
                         }
                     }
+                    
+                    // Now we can convert the map of values into a list of measurement values
+                    // for the samples we need data for
+                    data = samples.collect { valueMap[it.UUID] }
+
+                    log.trace "Finished converting all data"
                 } else {
                     // TODO: handle error
                     // Returns an empty list with as many elements as there are samples
