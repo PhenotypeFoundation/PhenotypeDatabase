@@ -33,12 +33,13 @@
 	
 		<g:each in="${templates}" var="template">
 			<h3>Template: ${template.name}</h3>
-			<table id="assaysTable_${template.id}" data-templateId="${template.id}" data-fieldPrefix="assay" data-formId="assayForm" class="assaysTable" rel="${g.createLink(action:"dataTableEntities", id: study.id, params: [template: template.id])}">
+			<table id="assaysTable_${template.id}" data-templateId="${template.id}" data-fieldPrefix="assay" data-formId="assayForm" class="assaysTable" rel="${g.createLink(action:"dataTableAssays", id: study.id, params: [template: template.id])}">
 				<thead>
 					<tr>
 						<g:each in="${domainFields + template.getFields()}" var="field">
 							<th data-fieldname="${field.escapedName()}">${field.name}</th>
 						</g:each>
+						<th>Details</th>
 					</tr>
 				</thead>
 				<tfoot>

@@ -113,6 +113,30 @@ class StudyController {
      * @return
      */
     def dataTableEntities() {
+        def datatableData = getTemplatedDatatablesData()
+        render datatableData as JSON
+    }
+    
+    /**
+     * Returns data for a templated datatable. The type of entities is based on the template given.
+     * @return
+     */
+    def dataTableAssays() {
+        def datatableData = getTemplatedDatatablesData({ assay ->
+            def data = datatablesService.defaultEntityFormatter(assay)
+            
+            // Remove the first column (ID) and add a link to this assay for the details column
+            data.tail() + g.link( url: assay.module.baseUrl + "/assay/showByToken/" + assay.UUID, "Details" ) 
+        })
+        
+        render datatableData as JSON
+    }
+
+    /**
+     * Returns data for a templated datatable. The type of entities is based on the template given.
+     * @return
+     */
+    protected def getTemplatedDatatablesData(Closure formatter = null) {
         def template = Template.read( params.long( "template" ) )
         def study = Study.read( params.long( "id" ) )
 
@@ -128,15 +152,23 @@ class StudyController {
 
         def searchParams = datatablesService.parseParams( params )
 
+        // Retrieve the data itself
         def data = studyEditService.getEntitiesForTemplate( searchParams, study, template )
 
-        // We have to remove the id from each data item
-        def datatableData = datatablesService.createDatatablesOutputForEntities( data, params )
-        datatableData.aaData = datatableData.aaData.collect { it.tail() }
-
-        render datatableData as JSON
+        // Format the data to be used in the datatable. If a custom formatter is given, use that one
+        def datatableData
+        if( formatter ) {
+            datatableData = datatablesService.createDatatablesOutput( data, params, formatter )
+        } else {
+            datatableData = datatablesService.createDatatablesOutputForEntities( data, params )
+            
+            // Remove the IDs, as they are irrelevant for now
+            datatableData.aaData = datatableData.aaData.collect { it.tail() }
+        }
+        
+        datatableData
     }
-
+    
     /**
      * Prepares the data for the datatable view
      * @param entityClass       Class for the type of entities to show. E.g. Subject
