@@ -22,6 +22,7 @@ import org.dbxp.sam.Measurement
 
 class SamSearch extends dbnp.query.Search {
     String module
+    List samResults
     
     /**
      * Constructor of this search object. Sets the user field to the 
@@ -41,7 +42,7 @@ class SamSearch extends dbnp.query.Search {
     protected void executeSearch() {
         if( !criteria ) {
             log.warn "Query without criteria should not be executed"
-            results = []
+            samResults = []
             return
         }
         
@@ -75,7 +76,7 @@ class SamSearch extends dbnp.query.Search {
         log.debug "HQL Query in SAM: " + hqlQuery
         log.debug "Parameters in SAM: " + parameters
         
-        results = Measurement.executeQuery( hqlQuery, parameters )
+        samResults = Measurement.executeQuery( hqlQuery, parameters )
     }
 
     /**
@@ -137,4 +138,17 @@ class SamSearch extends dbnp.query.Search {
         // Don't save result fields for now
         return
     }
+    
+    
+    /**
+     * Retrieves the results found using this query. The result is empty is
+     * the query has not been executed yet.
+     */
+    public List getResults() { return samResults }
+ 
+    /**
+     * Retrieves the results found using this query. The result is empty is
+     * the query has not been executed yet.
+     */
+    public List getResultIds() { return samResults.collect { it.id }; }
 }
