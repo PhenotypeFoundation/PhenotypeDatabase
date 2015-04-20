@@ -1,4 +1,5 @@
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+
+import grails.util.Holders
 
 /**
  * A script to automatically perform database changes
@@ -19,7 +20,7 @@ class DatabaseUpgrade {
         def databaseName = dataSource.getConnection().getCatalog();
 
 		// get configuration
-		def config = ConfigurationHolder.config
+		def config = Holders.config
 		def db = config.dataSource.driverClassName
 
 		// execute per-change check and upgrade code

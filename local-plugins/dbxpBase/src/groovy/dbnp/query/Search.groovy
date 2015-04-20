@@ -16,10 +16,9 @@
 package dbnp.query
 
 import org.dbnp.gdt.*
-
+import dbnp.studycapturing.Study
+import grails.util.Holders
 import java.text.SimpleDateFormat
-
-import org.codehaus.groovy.grails.commons.ApplicationHolder;
 
 import dbnp.authentication.*
 
@@ -70,7 +69,7 @@ class Search {
 	public SearchMode searchMode = SearchMode.and
 
 	protected List criteria;
-	protected List results;
+	protected Map _results;
 	protected Map resultFields = [:];
 
 	/**
@@ -79,7 +78,7 @@ class Search {
 	 * @see #user
 	 */
 	public Search() {
-		def ctx = ApplicationHolder.getApplication().getMainContext();
+		def ctx = Holders.grailsApplication.getMainContext();
 		def authenticationService = ctx.getBean("authenticationService");
 		def sessionUser = authenticationService?.getLoggedInUser();
 
@@ -94,8 +93,8 @@ class Search {
 	 * @return
 	 */
 	public int getNumResults() {
-		if( results )
-			return results.size();
+		if( _results )
+			return _results.size();
 
 		return 0;
 	}
@@ -118,10 +117,14 @@ class Search {
 		this.executionDate = new Date();
 
 		// Execute the search
+                log.debug "Executing search"
 		executeSearch();
+                log.debug "Finished executing search"
 
 		// Save the value of this results for later use
-		saveResultFields();
+                log.debug "Skip saving result fields for now"
+		//saveResultFields();
+                log.debug "Finished saving result fields"
 	}
 
 	/**
@@ -188,30 +191,81 @@ class Search {
 		// Combine all parts to generate a full HQL query
 		def hqlQuery = selectClause + " " + fullHQL.from + ( whereClause ? " WHERE " + whereClause : "" );
 		
-		// Find all objects 
+		// Find all objects
+                log.debug "Using query " + hqlQuery + " and parameters " + fullHQL.parameters + " to do first filtering" 
 		def entities = entityClass().findAll( hqlQuery, fullHQL.parameters );
-		
+                log.debug "Results from first filtering: " + entities
+        
 		// Find criteria that match one or more 'complex' fields
 		// These criteria must be checked extra, since they are not correctly handled
 		// by the HQL criteria. See also Criterion.manyToManyWhereCondition and
 		// http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
 		entities = filterForComplexCriteria( entities, getEntityCriteria( this.entity ) );
-		
+		log.debug "Results after filtering complex criteria: " + entities
+        
 		// Filter on module criteria. If the search is 'and', only the entities found until now
 		// should be queried in the module. Otherwise, all entities are sent, in order to retrieve
 		// data (to show on screen) for all entities
 		if( hasModuleCriteria() ) {
+                        log.debug "Starting to filter on module criteria."
 			if( searchMode == SearchMode.and ) {
 				entities = filterOnModuleCriteria( entities );
 			} else {
-				entities = filterOnModuleCriteria( entityClass().list().findAll { this.isAccessible( it ) } )
+				entities = filterOnModuleCriteria( entities )
 			}
 		}
 		
-		// Determine which studies can be read
-		results = entities;
-		
+		// Determine which entities can be read and store them
+                _results = [:]
+                filterAccessibleEntities( entities ).each {
+                    _results[it.id] = it.UUID
+                }
 	}
+    
+        /**
+         * Filters the list of entities on whether they are 
+         * accessible for the current user    
+         */
+        protected def filterAccessibleEntities( entities ) {
+            // For now, we retrieve a list of all readable studies (which 
+            // will be a reasonably small list. That list is used to filter the entities
+            def readableStudies = Study.giveReadableStudies(this.user)
+            
+            filterAccessibleEntities(entities, readableStudies)
+        }
+        
+        /**
+         * Returns a map with data about the results, based on the given parameters.
+         * The parameters are the ones returned from the dataTablesService.    
+         * @param searchParams        Parameters to search
+                        int      offset          Display start point in the current data set.
+                        int      max             Number of records that the table can display in the current draw. It is expected that the number of records returned will be equal to this number, unless the server has fewer records to return.
+                        
+                        string   search          Global search field
+                        
+                        int      sortColumn      Column being sorted on (you will need to decode this number for your database)
+                        string   sortDirection   Direction to be sorted - "desc" or "asc".
+         * @return A map with all data. For example:
+                        List     entities        List with all entities
+                        int      total           Total number of records in the whole dataset (without taking search, offset and max into account)
+                        int      totalFiltered   Total number of records in the search (without taking offset and max into account)
+                        int      ids             Total list of filtered ids
+         */
+        public Map getResultMap( searchParams) {
+            def hql = basicResultHQL(searchParams)
+            
+            // Retrieve the selected entities
+            def entities = entityClass().executeQuery( hql.select + " " + hql.from + " " + (hql.where ?: "") + " " + (hql.order ?: ""), hql.params, [ max: searchParams.max, offset: searchParams.offset ])
+            def totalFilteredIds = entityClass().executeQuery( "SELECT id " + hql.from + " " + (hql.where ?: ""), hql.params )
+            
+            // Return a proper structure
+            [
+                entities: entities,
+                ids: totalFilteredIds,
+                total: getNumResults(),
+                totalFiltered: totalFilteredIds.size()
+            ]
+        }
 		
 	/************************************************************************
 	 * 
@@ -220,6 +274,27 @@ class Search {
 	 * 
 	 ************************************************************************/
 
+        /**
+         * Returns a map with data about the results, based on the given parameters.
+         * The parameters are the ones returned from the dataTablesService.
+         * @param searchParams        Parameters to search
+                        int      offset          Display start point in the current data set.
+                        int      max             Number of records that the table can display in the current draw. It is expected that the number of records returned will be equal to this number, unless the server has fewer records to return.
+                        
+                        string   search          Global search field
+                        
+                        int      sortColumn      Column being sorted on (you will need to decode this number for your database)
+                        string   sortDirection   Direction to be sorted - "desc" or "asc".
+         * @return A map with HQL parts. Keys are
+                        from    From part including any required where clauses (e.g. FROM Study WHERE ids IN (:ids)
+                        where   (optional) where clause to filter
+                        order   (optional) order clause to sort the items
+                        params  Parameters to add to the HQL query
+         */
+        public Map basicResultHQL(def searchParams) {
+            [:]
+        }
+        
 	/**
 	 * Returns a closure for the given entitytype that determines the value for a criterion
 	 * on the given object. The closure receives two parameters: the object and a criterion.
@@ -332,6 +407,23 @@ class Search {
    protected boolean isAccessible( def entity ) {
 	   return false
    }
+   
+   /**
+    * Returns a list of entities from the database, based on the given UUIDs
+    * 
+    * @param uuids      A list of UUIDs for the entities to retrieve
+    */
+   protected List getEntitiesByUUID( List uuids ) {
+       return []
+   }
+   
+   /**
+    * Filters the list of entities, based on the studies that can be read.
+    * As this depends on the type of entity, it should be overridden in subclasses
+    */
+   protected def filterAccessibleEntities(entities, readableStudies) {
+       []
+   }
 
 	/****************************************************
 	 * 
@@ -382,7 +474,7 @@ class Search {
 			}
 			
 			// No results are found.
-			results = [];
+			_results = [];
 			return false
 		}
 		
@@ -659,7 +751,7 @@ class Search {
 
 		// Determine the moduleCommunicationService. Because this object
 		// is mocked in the tests, it can't be converted to a ApplicationContext object
-		def ctx = ApplicationHolder.getApplication().getMainContext();
+		def ctx = Holders.grailsApplication.getMainContext();
 		def moduleCommunicationService = ctx.getBean("moduleCommunicationService");
 
 		switch( searchMode ) {
@@ -672,47 +764,59 @@ class Search {
 					def moduleCriteria = getEntityCriteria( moduleName );
 		
 					if( moduleCriteria && moduleCriteria.size() > 0 ) {
+                                                log.info "Matching module criteria: " + moduleCriteria
 						def callUrl = moduleCriteriaUrl( module );
 						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						
 						try {
-							def json = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
-							Closure checkClosure = moduleCriterionClosure( json );
-							entities = filterEntityList( entities, moduleCriteria, checkClosure );
+                                                        log.debug "Retrieving module data from " + module
+							def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST", user );
+                            
+                                                        log.debug "Filtering entity list for " + module
+                                                        entities = entities.findAll { it.UUID in moduleEntityUUIDs }
 						} catch( Exception e ) {
-							//log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
-							e.printStackTrace()
-							throw e
+						    log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+                                                    e.printStackTrace()
+                                                    
+                                                    // Don't do anything with the entities, but return to the user without exception    
 						}
 					}
 				}
 		
 				return entities;
 			case SearchMode.or:
-				def resultingEntities = []
+				def resultingEntities = entities
 				
 				// Loop through all modules and check whether criteria have been given
 				// for that module
 				AssayModule.list().each { module ->
+                                        log.trace "Finding module criteria for module " + module
+                                        
 					// Remove 'module' from module name
 					def moduleName = module.name.replace( 'module', '' ).trim()
 					def moduleCriteria = getEntityCriteria( moduleName );
 		
 					if( moduleCriteria && moduleCriteria.size() > 0 ) {
+                                            log.info "Matching module criteria: " + moduleCriteria
 						def callUrl = moduleCriteriaUrl( module );
 						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
 						
 						try {
-							def json = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST" );
-							Closure checkClosure = moduleCriterionClosure( json );
-							
-							resultingEntities += filterEntityList( entities, moduleCriteria, checkClosure );
-							resultingEntities = resultingEntities.unique();
-							
-						} catch( Exception e ) {
-							//log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+                                                    log.debug "Retrieving module data from " + module
+                                                    def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST", user );
+
+                                                    // See which entities are already selected
+                                                    log.debug "Filtering entity list for " + module
+                                                    def existingEntityUUIDs = resultingEntities*.UUID
+                                                    def resultingEntityUUIDs = moduleEntityUUIDs.findAll { !existingEntityUUIDs.contains( it ) }
+                                                    
+                                                    // Add the entities not yet selected 
+                                                    resultingEntities += getEntitiesByUUID( resultingEntityUUIDs )
+                        			} catch( Exception e ) {
+							log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
 							e.printStackTrace()
-							throw e
+							
+                                                        // Don't do anything with the entities, but return to the user without exception
 						}
 					}
 				}
@@ -725,8 +829,12 @@ class Search {
 	
 	/**
 	 * Returns a closure for determining the value of a module field 
-	 * @param json
-	 * @return
+	 * @param json Should be a map, with the entity UUIDs as key, and the values being a map with keys 
+	 *             being the field name and the values the value for that entity and field.
+	 * @return Closure to see whether a specific entity matches a criterion. Gets two arguments:
+         *               element         The element to check
+         *               criterion       The criterion to check on.
+         *         Returns true if the criterion holds, false otherwise
 	 */
 	protected Closure moduleCriterionClosure( def json ) {
 		return { entity, criterion ->
@@ -782,26 +890,25 @@ class Search {
 	}
 	
 	protected String moduleCriteriaUrl( module ) {
-		def callUrl = module.baseUrl + '/rest/getQueryableFieldData'
+		def callUrl = module.baseUrl + '/rest/search'
 		return callUrl;
 	}
 	
 	protected String moduleCriteriaArguments( module, entities, moduleCriteria ) {
-		// Retrieve the data from the module
-		def tokens = entities.collect { it.UUID }.unique();
-		def fields = moduleCriteria.collect { it.field }.unique();
-	
-		def callUrl = 'entity=' + this.entity
-		tokens.sort().each { callUrl += "&tokens=" + it.encodeAsURL() }
-		
-		// If all fields are searched, all fields should be retrieved
-		if( fields.contains( '*' ) ) {
-			
-		} else {
-			fields.sort().each { callUrl += "&fields=" + it.encodeAsURL() }
-		}
+            // Make the module search its data as well. Specify the module criteria in the URL
+            // The module will return a list of UUIDs
+            def parameters = 'entity=' + this.entity
+            
+            def criterionNum = 0
+            moduleCriteria.each { criterion ->
+                parameters += "&criteria." + criterionNum + ".entityfield=" + criterion.entityField().encodeAsURL()
+                parameters += "&criteria." + criterionNum + ".operator=" + criterion.operator.toString().encodeAsURL()
+                parameters += "&criteria." + criterionNum + ".value=" + criterion.value.toString().encodeAsURL()
+                
+                criterionNum++
+            }
 
-		return callUrl;
+            parameters
 	}
 
 	/*********************************************************************
@@ -816,7 +923,7 @@ class Search {
 	 * @see #saveResultField()
 	 */
 	protected void saveResultFields() {
-		if( !results || !criteria )
+		if( !_results || !criteria )
 			return
 
 		criteria.each { criterion ->
@@ -826,7 +933,7 @@ class Search {
 				if( valueCallback != null ) {
 					def name = criterion.entity + ' ' + criterion.field
 	
-					results.each { result ->
+					_results.each { result ->
 						saveResultField( result.id, name, valueCallback( result, criterion ) );
 					}
 				}
@@ -941,20 +1048,27 @@ class Search {
 	* Retrieves the results found using this query. The result is empty is
 	* the query has not been executed yet.
 	*/
-   public List getResults() { return results; }
+   public List getResults() { return _results.collect { it.value } }
 
+   /**
+    * Retrieves the results found using this query. The result is empty is
+    * the query has not been executed yet.
+    */
+   public List getResultIds() { return _results.keySet().asList(); }
+
+   
    /**
 	* Returns the results found using this query, filtered by a list of ids.
 	* @param selectedIds	List with ids of the entities you want to return.
 	* @return	A list with only those results for which the id is in the selectedIds
 	*/
    public List filterResults( List selectedTokens ) {
-	   if( !selectedTokens || !results )
-		   return results
-
-	   return results.findAll {
-		   selectedTokens.contains( it.UUID )
-	   }
+	   if( !selectedTokens || !_results )
+		   return _results.collect { [ id: it.key, UUID: it.value ] }
+           
+	   return _results.findAll {
+		   selectedTokens.contains( it.value )
+	   }.collect { [ id: it.key, UUID: it.value ] }
    }
 
    /**
@@ -1043,7 +1157,7 @@ class Search {
 		// Set properties
 		s.description = description;
 		s.url = url
-		s.results = results
+		s._results = results
 		
 		return s;
 	}

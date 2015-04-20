@@ -1,6 +1,6 @@
 package dbnp.studycapturing
 
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import grails.converters.JSON
 import dbnp.authentication.SecUser
 import org.dbnp.gdt.*
@@ -51,7 +51,7 @@ class StudyController {
      * Shows studies for which the logged in user is the owner
      */
     @Secured(['IS_AUTHENTICATED_REMEMBERED'])
-    def myStudies = {
+    def myStudies() {
         def user = authenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
         def offset = params.offset ? params.int( 'offset' ) : 0

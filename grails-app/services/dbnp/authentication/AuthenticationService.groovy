@@ -14,40 +14,57 @@
  */
 package dbnp.authentication
 
-import org.codehaus.groovy.grails.plugins.springsecurity.GrailsUser
+import grails.plugin.springsecurity.userdetails.GrailsUser
 
 class AuthenticationService {
     def springSecurityService
-	def remoteAuthenticationService
+    def remoteAuthenticationService
 
     static transactional = true
 
     public boolean isLoggedIn() {
+        log.trace "isLoggedIn"
         return springSecurityService.isLoggedIn();
     }
 
     public SecUser getLoggedInUser() {
-      def principal = springSecurityService.getPrincipal()
+        log.debug "getLoggedInUser: getting principal"
+        def principal = springSecurityService.getPrincipal()
 
-      // If the user is logged in, the principal should be a GrailsUser object.
-      // If the user is not logged in, the principal is the 'anonymous username'
-      // i.e. a string
-      if( principal instanceof GrailsUser ) {
-          return SecUser.findByUsername( principal.username );
-      }
+        // If the user is logged in, the principal should be a GrailsUser object.
+        // If the user is not logged in, the principal is the 'anonymous username'
+        // i.e. a string
+        if( principal instanceof GrailsUser ) {
+            log.debug "retrieving SecUser for the user that is logged in"
+            return SecUser.where { username == principal.username }.find();
+        }
 
-      return null;
+        return null;
     }
 
+    /**
+     * Returns a session token to be used in communication with the modules
+     * If a session token already exists, it will be extended and reused
+     */
+    public String getRemoteSessionToken( String consumer, SecUser user ) {
+        log.trace "getRemoteSessionToken"
+        remoteAuthenticationService.getRemoteSessionToken(consumer, user);
+    }
+    
     /**
      * Logs a user in for a remote session
      */
     public boolean logInRemotely( String consumer, String token, SecUser user ) {
-		remoteAuthenticationService.logInRemotely( consumer, token, user );
+        log.trace "logInRemotely"
+        remoteAuthenticationService.logInRemotely( consumer, token, user );
     }
-    
+
+    /**
+     * Logs a user off in a remote session
+     */
     public boolean logOffRemotely( String consumer, String token ) {
-		remoteAuthenticationService.logOffRemotely( consumer, token );
+        log.trace "logOffRemotely"
+        remoteAuthenticationService.logOffRemotely( consumer, token );
     }
 
     /**
@@ -55,23 +72,26 @@ class AuthenticationService {
      * given token
      */
     public boolean isRemotelyLoggedIn( String consumer, String token ) {
-		remoteAuthenticationService.isRemotelyLoggedIn( consumer, token );
+        log.trace "isRemotelyLoggedIn"
+        remoteAuthenticationService.isRemotelyLoggedIn( consumer, token );
     }
 
     /**
      * Returns the user that is logged in remotely
      */
     public SecUser getRemotelyLoggedInUser( String consumer, String token ) {
-		remoteAuthenticationService.getRemotelyLoggedInUser( consumer, token );
+        log.trace "getRemotelyLoggedInUser"
+        remoteAuthenticationService.getRemotelyLoggedInUser( consumer, token );
     }
-	
-	/**
-	 * Remove all remote sessions for a user
-	 * @param user
-	 */
-	public void deleteRemoteSessions( SecUser user ) {
-		remoteAuthenticationService.deleteRemoteSessions( user );
-	}
+
+    /**
+     * Remove all remote sessions for a user
+     * @param user
+     */
+    public void deleteRemoteSessions( SecUser user ) {
+        log.trace "deleteRemoteSessions"
+        remoteAuthenticationService.deleteRemoteSessions( user );
+    }
 
     /**
      * Gets (template) admin emails by role

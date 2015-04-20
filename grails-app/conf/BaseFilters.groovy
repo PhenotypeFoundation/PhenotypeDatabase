@@ -46,18 +46,6 @@ class BaseFilters {
             }
         }
 
-        // we have to make sure only people with administrator rights can access this page
-        adminOnly(controller: 'trackr', action: '*') {
-            // before every execution
-            before = {
-                // set the secUser in the session
-                def secUser = authenticationService.getLoggedInUser()
-                if (!secUser || !secUser.hasAdminRights()){
-                    redirect(controller: 'home')
-                }
-            }
-        }
-
         // we need secUser in GDT::Template*, but we do not want GDT
         // to rely on authentication. Therefore we handle it through
         // a filter and store the loggedInUser in the session instead
@@ -80,18 +68,6 @@ class BaseFilters {
             }
         }
 
-        // disable all access to the query controller as this allows
-        // full access to the database
-        query(controller: 'query', action: '*') {
-            // before every execution
-            before = {
-                // only allow development
-                if (grails.util.GrailsUtil.environment != GrailsApplication.ENV_DEVELOPMENT) {
-                    redirect(controller: 'home')
-                }
-            }
-        }
-
         profiler(controller: '*', action: '*') {
             before = {
                 request._timeBeforeRequest = System.currentTimeMillis()
@@ -105,26 +81,6 @@ class BaseFilters {
                 def actionDuration = request._timeAfterRequest ? request._timeAfterRequest - request._timeBeforeRequest : 0
                 def viewDuration = request._timeAfterRequest ? System.currentTimeMillis() - request._timeAfterRequest : 0
                 log.info("Timer: ${controllerName}(${actionDuration}ms)::${actionName}(${viewDuration}ms)")
-            }
-        }
-
-        // Mapping filter for the gdtImporter-plugin
-        gdtImporter(controller:'gdtImporter', action:'*') {
-            before = {
-                if(!authenticationService.getLoggedInUser()) {
-                    redirect(controller:'home')
-                    return false
-                }
-            }
-        }
-
-        // Secure SAM controllers
-        samFilter(controller:'feature|measurement|platform|SAMAssay', action:'*') {
-            before = {
-                if(!authenticationService.getLoggedInUser()) {
-                    redirect(controller:'home')
-                    return false
-                }
             }
         }
     }

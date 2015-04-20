@@ -16,10 +16,9 @@ package dbnp.authentication
 
 import groovy.text.SimpleTemplateEngine
 
-import org.codehaus.groovy.grails.commons.ApplicationHolder as AH
-import org.codehaus.groovy.grails.plugins.springsecurity.NullSaltSource
-import org.codehaus.groovy.grails.plugins.springsecurity.SpringSecurityUtils
+import grails.plugin.springsecurity.SpringSecurityUtils
 import org.codehaus.groovy.grails.commons.GrailsApplication
+import grails.util.Holders
 
 /**
  * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
@@ -163,7 +162,7 @@ class RegisterCommand {
 	static constraints = {
 		username blank: false, validator: { value, command ->
 			if (value) {
-				def User = AH.application.getDomainClass(
+				def User = Holders.grailsApplication.getDomainClass(
 					SpringSecurityUtils.securityConfig.userLookup.userDomainClassName).clazz
 				if (User.findByUsername(value)) {
 					return 'registerCommand.username.unique'

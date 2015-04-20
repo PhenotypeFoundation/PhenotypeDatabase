@@ -110,4 +110,65 @@ class StudySearch extends Search {
 		}
 		return showableFields
 	}
+    
+    /**
+     * Returns a list of entities from the database, based on the given UUIDs
+     *
+     * @param uuids      A list of UUIDs for the entities to retrieve
+     */
+    protected List getEntitiesByUUID( List uuids ) {
+        if( !uuids )
+            return []
+            
+        return Study.findAll( "FROM Study WHERE UUID in (:uuids)", [ 'uuids': uuids ] )
+    }
+    
+    /**
+     * Filters the list of entities, based on the studies that can be read.
+     * As this depends on the type of entity, it should be overridden in subclasses
+     */
+    protected def filterAccessibleEntities(entities, readableStudies) {
+        // No need to do additional queries
+        entities.findAll { readableStudies.contains(it) }
+    }
+    
+    /**
+     * Returns a map with data about the results, based on the given parameters.
+     * The parameters are the ones returned from the dataTablesService.
+     * @param searchParams        Parameters to search
+                    int      offset          Display start point in the current data set.
+                    int      max             Number of records that the table can display in the current draw. It is expected that the number of records returned will be equal to this number, unless the server has fewer records to return.
+                    
+                    string   search          Global search field
+                    
+                    int      sortColumn      Column being sorted on (you will need to decode this number for your database)
+                    string   sortDirection   Direction to be sorted - "desc" or "asc".
+     * @return A map with HQL parts. Keys are
+                    from    From part including any required where clauses (e.g. FROM Study WHERE ids IN (:ids)
+                    where   (optional) where clause to filter
+                    order   (optional) order clause to sort the items
+                    params  Parameters to add to the HQL query
+     */
+    @Override
+    public Map basicResultHQL(def searchParams) {
+        def hql = [:]
+        hql.select = "SELECT s.id, s.title, s.code"
+        hql.from = "FROM Study s WHERE s.id IN (:ids)"
+        hql.params = [ ids: getResultIds() ]
+        
+        // Handle search parameter
+        if( searchParams.search ) {
+            hql.where = " AND ( s.title LIKE :searchLike OR s.code LIKE :searchLike )"
+            hql.params[ 'searchLike' ] = '%' + searchParams.search + '%'
+        }
+        
+        // Handle order
+        def columns = [ 's.title', 's.code' ]
+        if( searchParams.sortColumn != null && searchParams.sortColumn < columns.size() ) {
+            hql.order = " ORDER BY " + columns[ searchParams.sortColumn ] + " " + ( searchParams.sortDirection == "desc" ? "DESC" : "ASC" )
+        }
+        
+        hql
+    }
+
 }

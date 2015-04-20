@@ -16,8 +16,7 @@ package org.dbnp.gdt
 
 import java.io.File;
 
-import org.codehaus.groovy.grails.commons.ApplicationHolder
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.Holders
 
 class FileService implements Serializable {
     def grailsApplication
@@ -58,7 +57,7 @@ class FileService implements Serializable {
 	   } else {
 		   // Find the absolute path relative to the web-app directory. This code is found on
 		   // http://stackoverflow.com/questions/491067/how-to-find-the-physical-path-of-a-gsp-file-in-a-deployed-grails-application
-		   return ApplicationHolder.application.parentContext.getResource(pathname).getFile()
+		   return Holders.grailsApplication.parentContext.getResource(pathname).getFile()
 	   }
    }
 	

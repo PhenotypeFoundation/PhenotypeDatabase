@@ -287,7 +287,7 @@ class Criterion {
 			if( this.value?.results ) {
 				parameters[ prefix + "SearchResults" ] = this.value?.results
 
-				return [ "join": "", "where": "( " + objectToSearchIn + " in (:" + prefix + "SearchResults) )" , "parameters": parameters ];
+				return [ "join": "", "where": "( " + objectToSearchIn + ".UUID in (:" + prefix + "SearchResults) )" , "parameters": parameters ];
 			} else {
 				return emptyCriterion;
 			}

@@ -1,7 +1,7 @@
 package dbnp.studycapturing
 
 import org.dbnp.gdt.*
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import dbnp.authentication.SecUser
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 import grails.converters.JSON
@@ -922,5 +922,40 @@ class StudyEditController {
 		return errors
 	}
 
+    
+    /**
+     * Proxy for searching PubMed articles (or other articles from the Entrez DB).
+     *
+     * This proxy is needed because it is not allowed to fetch XML directly from a different
+     * domain using javascript. So we have the javascript call a function on our own domain
+     * and the proxy will fetch the data from Entrez
+     *
+     * @since       20100609
+     * @param       _utility        The name of the utility, without the complete path. Example: 'esearch.fcgi'
+     * @return      XML
+     */
+    def entrezProxy = {
+            // Remove unnecessary parameters
+            params.remove( "action" )
+            params.remove( "controller" )
 
+            def url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
+            def util = params.remove( "_utility" )
+            
+            if( !util ) {
+                    response.setStatus( 404, "File not found" );
+                    return;
+            }
+    
+            def paramString = params.collect { k, v -> k + '=' + v.encodeAsURL() }.join( '&' );
+
+            def fullUrl = url + '/' + util + '?' + paramString;
+
+            // Return the output of the request
+            response.setContentType("text/xml; charset=UTF-8")
+
+            response <<  new URL( fullUrl ).getText('UTF-8')
+
+            render ""
+    }
 }

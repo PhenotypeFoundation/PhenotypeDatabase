@@ -22,7 +22,7 @@ import grails.converters.*
 import nl.metabolomicscentre.dsp.http.BasicAuthentication
 import dbnp.rest.common.CommunicationManager
 import org.springframework.security.core.context.SecurityContextHolder
-import grails.plugins.springsecurity.Secured;
+import grails.plugin.springsecurity.annotation.Secured;
 
 class RestController {
 
@@ -36,7 +36,7 @@ class RestController {
 	def requestUser
 
 	@Secured(['ROLE_CLIENT'])
-	def hello = {
+	def hello() {
 		// client was authorized over basic http authentication
 		// (also see spring security section in Config.groovy)
 		// for now just return the token to authenticate with
@@ -100,7 +100,7 @@ class RestController {
 	 * @param	token		token for the authenticated user (e.g. session_id)
 	 * @return bool {"authenticated":true} when user/password is a valid GSCF account, {"authenticated":false} otherwise.
 	 */
-	def isUser = {
+	def isUser() {
 		boolean isUser = authenticationService.isRemotelyLoggedIn( params.consumer, params.token )
 		def reply = ['authenticated':isUser]
 
@@ -119,7 +119,7 @@ class RestController {
 	 * @param	token		token for the authenticated user (e.g. session_id)
 	 * @return bool {"username": "...", "id": ... } when user/password is logged in.
 	 */
-	def getUser = {
+	def getUser() {
 		if( !auth() )
 			return;
 		
@@ -179,7 +179,7 @@ class RestController {
 	 *
 	 * Result: same as result of Example 1. 
 	 */
-	def getStudies = {
+	def getStudies() {
 		def authenticateduser = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 		
 		List returnStudies = []
@@ -257,7 +257,7 @@ class RestController {
 	 *
 	 * Result: {"studyToken":"PPSH","version":31}
 	 */
-	def getStudyVersion = {
+	def getStudyVersion() {
 		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 		
 		def versionInfo = [:];
@@ -306,7 +306,7 @@ class RestController {
 	*
 	* Result: [{"studyToken":"PPSH","version":31},{"studyToken":"Other study", "version":3}]
 	*/
-   def getStudyVersions = {
+   def getStudyVersions() {
 	   // Check which user has been logged in
 	   def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 	   
@@ -337,7 +337,7 @@ class RestController {
 	 * @param	token		token for the authenticated user (e.g. session_id)
 	 * @return JSON object list of subject names
 	 */
-	def getSubjects = {
+	def getSubjects() {
 		// Check which user has been logged in
 		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
  
@@ -410,7 +410,7 @@ class RestController {
 	 *
 	 * Result: Same as result in Example 1.
 	 */
-	def getAssays = {
+	def getAssays() {
 		// Check which user has been logged in
 		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
  
@@ -554,7 +554,7 @@ class RestController {
 	 *  {"sampleToken":"6_A","material":"blood plasma","subject":"6","event":"Blood extraction","startTime":"4 days, 6 hours"}]
 	 *
 	 */
-	def getSamples = {
+	def getSamples() {
 		// Check which user has been logged in
 		def user = authenticationService.getRemotelyLoggedInUser( params.consumer, params.token )
 
@@ -656,7 +656,7 @@ class RestController {
 	 * @return	JSON Object
 	 * @return  { isOwner: true/false, 'canRead': true/false, 'canWrite': true/false }
 	 */
-	def getAuthorizationLevel = {
+	def getAuthorizationLevel() {
 		def study
 		
 		if( params.studyToken ) {
