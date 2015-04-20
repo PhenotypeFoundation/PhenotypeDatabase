@@ -39,7 +39,7 @@
 						<g:each in="${domainFields + template.getFields()}" var="field">
 							<th data-fieldname="${field.escapedName()}">${field.name}</th>
 						</g:each>
-						<th>Details</th>
+						<th class="nonsortable">Details</th>
 					</tr>
 				</thead>
 				<tfoot>
