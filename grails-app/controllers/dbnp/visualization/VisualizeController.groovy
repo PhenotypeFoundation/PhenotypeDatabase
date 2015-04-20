@@ -80,6 +80,7 @@ class VisualizeController {
         def study = Study.get(studies)
 
         if (study != null) {
+            log.trace( "Start retrieving fields from GSCF")
             fields += getFields(study, "subjects", "domainfields")
             fields += getFields(study, "subjects", "templatefields")
             /*fields += getFields(study, "events", "domainfields")
@@ -95,16 +96,17 @@ class VisualizeController {
             fields += formatGSCFFields("domainfields", [name: "name"], "GSCF", "eventGroups");
 
             /*
-                        Gather fields related to this study from modules.
-                        This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
-                        It does not actually return measurements (the getMeasurementData call does).
-                        The getFields method (or rather, the getMeasurements service) requires one or more assays and will return all measurement
-                        types related to these assays.
-                        So, the required variables for such a call are:
-                          - a source variable, which can be obtained from AssayModule.list() (use the 'name' field)
-                          - an assay, which can be obtained with study.getAssays()
-                         */
+                Gather fields related to this study from modules.
+                This will use the getMeasurements RESTful service. That service returns measurement types, AKA features.
+                It does not actually return measurements (the getMeasurementData call does).
+                The getFields method (or rather, the getMeasurements service) requires one or more assays and will return all measurement
+                types related to these assays.
+                So, the required variables for such a call are:
+                  - a source variable, which can be obtained from AssayModule.list() (use the 'name' field)
+                  - an assay, which can be obtained with study.getAssays()
+                 */
             study.getAssays().each { assay ->
+                log.trace( "Retrieving fields from module for assay " + assay )
                 def list = []
                 if (!offlineModules.contains(assay.module.id)) {
                     list = getFields(assay.module.toString(), assay)
@@ -126,8 +128,7 @@ class VisualizeController {
             return returnError(404, "The requested study could not be found.")
         }
 
-        fields.unique() // Todo: find out root cause of why some fields occur more than once
-
+        log.trace( "Sort fields" )
         fields.sort { a, b ->
             def sourceEquality = a.source.toString().toLowerCase().compareTo(b.source.toString().toLowerCase())
             if (sourceEquality == 0) {
@@ -138,6 +139,7 @@ class VisualizeController {
             } else return sourceEquality
         }
 
+        log.trace "Return results to the user"
         return sendResults(['studyIds': studies, 'fields': fields])
     }
 
@@ -265,26 +267,12 @@ class VisualizeController {
             // All templated GSCF domain classes implement giveDomainFields via a domainFields property
             collection = domainObjectCallback(category)?.domainFields;
         else
-            collection = templateObjectCallback(category, study)?.template?.fields
+            collection = templateObjectCallback(category, study)?.fields
 
         collection?.unique()
 
         // Formatting the data
         fields += formatGSCFFields(type, collection, source, category)
-
-        // Outcommented this part to speed up feature fetching at expense of the possibility of presenting empty fields to the user
-
-        // Here we will remove those fields, whose set of datapoints only contain null
-        /*def fieldsToBeRemoved = []
-        fields.each { field ->
-            def fieldData = getFieldData(study, study.samples, field.id)
-            fieldData.removeAll([null])
-            if (fieldData == []) {
-                // Field only contained nulls, so don't show it as a visualization option
-                fieldsToBeRemoved << field
-            }
-        }
-        fields.removeAll(fieldsToBeRemoved)*/
 
         return fields
     }
@@ -1197,33 +1185,33 @@ class VisualizeController {
     }
 
     /**
-     * Returns the objects within the given study that should be used with the given entity string
+     * Returns the templates for objects within the given study that should be used with the given entity string
      *
      * For example:
      * 		What object should be consulted if the user asks for "samples"
-     * 		Response: study.samples
-     * @return List of domain objects that should be used with the given entity string
+     * 		Response: all templates used for samples in the given study
+     * @return List of templates that should be used with the given entity string
      */
     protected def templateObjectCallback(String entity, Study study) {
         switch (entity) {
             case "Study":
             case "studies":
-                return study
+                return study?.template
             case "Subject":
             case "subjects":
-                return study?.subjects
+                return study?.giveSubjectTemplates()
             case "Sample":
             case "samples":
-                return study?.samples
+                return study?.giveSampleTemplates()
             case "Event":
             case "events":
-                return study?.events
+                return study?.giveEventTemplates()
             case "SamplingEvent":
             case "samplingEvents":
-                return study?.samplingEvents
+                return study?.giveSamplingEventTemplates()
             case "Assay":
             case "assays":
-                return study?.assays
+                return study?.giveAllAssayTemplates()
         }
     }
 
