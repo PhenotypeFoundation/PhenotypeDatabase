@@ -18,7 +18,7 @@ import grails.plugin.springsecurity.userdetails.GrailsUser
 
 class AuthenticationService {
     def springSecurityService
-	def remoteAuthenticationService
+    def remoteAuthenticationService
 
     static transactional = true
 
@@ -28,18 +28,18 @@ class AuthenticationService {
     }
 
     public SecUser getLoggedInUser() {
-      log.debug "getLoggedInUser: getting principal"
-      def principal = springSecurityService.getPrincipal()
+        log.debug "getLoggedInUser: getting principal"
+        def principal = springSecurityService.getPrincipal()
 
-      // If the user is logged in, the principal should be a GrailsUser object.
-      // If the user is not logged in, the principal is the 'anonymous username'
-      // i.e. a string
-      if( principal instanceof GrailsUser ) {
-          log.debug "retrieving SecUser for the user that is logged in"
-          return SecUser.where { username == principal.username }.find();
-      }
+        // If the user is logged in, the principal should be a GrailsUser object.
+        // If the user is not logged in, the principal is the 'anonymous username'
+        // i.e. a string
+        if( principal instanceof GrailsUser ) {
+            log.debug "retrieving SecUser for the user that is logged in"
+            return SecUser.where { username == principal.username }.find();
+        }
 
-      return null;
+        return null;
     }
 
     /**
@@ -47,12 +47,12 @@ class AuthenticationService {
      */
     public boolean logInRemotely( String consumer, String token, SecUser user ) {
         log.trace "logInRemotely"
-	remoteAuthenticationService.logInRemotely( consumer, token, user );
+        remoteAuthenticationService.logInRemotely( consumer, token, user );
     }
-    
+
     public boolean logOffRemotely( String consumer, String token ) {
         log.trace "logOffRemotely"
-		remoteAuthenticationService.logOffRemotely( consumer, token );
+        remoteAuthenticationService.logOffRemotely( consumer, token );
     }
 
     /**
@@ -61,7 +61,7 @@ class AuthenticationService {
      */
     public boolean isRemotelyLoggedIn( String consumer, String token ) {
         log.trace "isRemotelyLoggedIn"
-		remoteAuthenticationService.isRemotelyLoggedIn( consumer, token );
+        remoteAuthenticationService.isRemotelyLoggedIn( consumer, token );
     }
 
     /**
@@ -69,17 +69,17 @@ class AuthenticationService {
      */
     public SecUser getRemotelyLoggedInUser( String consumer, String token ) {
         log.trace "getRemotelyLoggedInUser"
-		remoteAuthenticationService.getRemotelyLoggedInUser( consumer, token );
+        remoteAuthenticationService.getRemotelyLoggedInUser( consumer, token );
     }
-	
-	/**
-	 * Remove all remote sessions for a user
-	 * @param user
-	 */
-	public void deleteRemoteSessions( SecUser user ) {
-            log.trace "deleteRemoteSessions"
-		remoteAuthenticationService.deleteRemoteSessions( user );
-	}
+
+    /**
+     * Remove all remote sessions for a user
+     * @param user
+     */
+    public void deleteRemoteSessions( SecUser user ) {
+        log.trace "deleteRemoteSessions"
+        remoteAuthenticationService.deleteRemoteSessions( user );
+    }
 
     /**
      * Gets (template) admin emails by role
