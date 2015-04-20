@@ -119,21 +119,17 @@ class ModuleCommunicationService implements Serializable {
 
         // Check whether the url is present in cache
         log.trace "Checking whether " + restUrl + " is present in cache with args " + args
-        def cacheData = retrieveFromCache( restUrl, args, userDependent );
+        def cacheData = retrieveFromCache( restUrl, args, userDependent, remoteUser );
         if( cacheData && cacheData[ "success" ] )
             return cacheData[ "contents" ];
         else if( cacheData && !cacheData[ "success" ] )
             throw new Exception( "Error while fetching data from " + restUrl + " (from cache): " + cacheData[ "error" ] )
 
         if( userDependent ) {
-            // create a random session token that will be used to allow to module to
-            // sync with gscf prior to presenting the measurement data
-            sessionToken= UUID.randomUUID().toString()
-
-            // put the session token to work
-            log.trace "Logging user in remotely to " + consumer
-            authenticationService.logInRemotely( consumer, sessionToken, remoteUser ?: authenticationService.getLoggedInUser() )
-
+            // Retrieve a session token we can use to communicate with the module
+            // If there is an existing one, it will be reused
+            sessionToken = authenticationService.getRemoteSessionToken( consumer, remoteUser ?: authenticationService.getLoggedInUser() )
+            
             // Append the sessionToken to the parameters
             if( !args ) {
                 args = ""
@@ -182,17 +178,12 @@ class ModuleCommunicationService implements Serializable {
             log.trace "GSCF response: " + textResponse
             restResponse = JSON.parse( textResponse )
         } catch (Exception e) {
-            storeErrorInCache( restUrl, e.getMessage(), args, userDependent );
+            storeErrorInCache( restUrl, e.getMessage(), args, userDependent, remoteUser );
             throw new Exception( "An error occurred while fetching " + restUrl + ".", e )
-        } finally {
-            if( userDependent ) {
-                // Dispose of the ephemeral session token
-                authenticationService.logOffRemotely(consumer, sessionToken)
-            }
         }
 
         // Store the response in cache
-        storeInCache( restUrl, restResponse, args, userDependent );
+        storeInCache( restUrl, restResponse, args, userDependent, remoteUser );
 
         return restResponse
 
@@ -203,8 +194,8 @@ class ModuleCommunicationService implements Serializable {
      * @param url	URL to call
      * @return		JSON object with the contents of the URL or null if the url doesn't exist in cache
      */
-    def retrieveFromCache( url, args = null, userDependent = true ) {
-        def cacheId = getCacheId(userDependent)
+    def retrieveFromCache( url, args = null, userDependent = true, user = null ) {
+        def cacheId = getCacheId(userDependent, user)
 
         url = cacheUrl( url, args )
 
@@ -228,8 +219,8 @@ class ModuleCommunicationService implements Serializable {
      * @param url		URL that has been called
      * @param contents	Contents of the URL
      */
-    def storeInCache( url, contents, args = null, userDependent = true ) {
-        def cacheId = getCacheId(userDependent)
+    def storeInCache( url, contents, args = null, userDependent = true, user = null ) {
+        def cacheId = getCacheId(userDependent, user)
         if( !cache[ cacheId ] )
             cache[ cacheId ] = [:]
 
@@ -246,8 +237,8 @@ class ModuleCommunicationService implements Serializable {
      * @param url		URL that has been called
      * @param contents	Contents of the URL
      */
-    def storeErrorInCache( url, error, args = null, userDependent = true ) {
-        def cacheId = getCacheId(userDependent)
+    def storeErrorInCache( url, error, args = null, userDependent = true, user ) {
+        def cacheId = getCacheId(userDependent, user)
 
         if( !cache[ cacheId ] )
             cache[ cacheId ] = [:]
@@ -264,10 +255,10 @@ class ModuleCommunicationService implements Serializable {
     /**
      * Returns the cache ID to store cached items 
      */
-    def getCacheId(userDependent = true) {
+    def getCacheId(userDependent = true, user = null) {
         if( userDependent ) {
-            def user = authenticationService.getLoggedInUser();
-            return user ? user.id : -1;
+            def userLoggedIn = user ?: authenticationService.getLoggedInUser()
+            return userLoggedIn ? userLoggedIn.id : -1;
         } else {
             return "generic"
         }
