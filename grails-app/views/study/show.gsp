@@ -123,14 +123,14 @@
 		
 			<br clear="all" />
 
-			<g:form controller="study" action="delete" id="deleteStudy">
+			<g:form controller="study" action="delete">
 				<p class="options">
 					<g:if test="${study.canWrite(loggedInUser)}">
 						<g:link class="edit" controller="studyEdit" action="properties" id="${study?.id}">edit</g:link>
 					
 						<g:if test="${study.isOwner(loggedInUser) || loggedInUser?.hasAdminRights()}">
 							<g:hiddenField name="id" value="${study?.id}"/>
-							<g:link class="delete" onClick="\$(this).closest('form').submit(); return false;">delete</g:link>
+							<g:link class="delete" onClick="if( confirm( 'Are you sure you want to delete this study? You cannot undo this operation!' ) ) { \$(this).closest('form').submit(); } return false;">delete</g:link>
 						</g:if>
 					</g:if>
 					<g:link class="back" controller="study" action="list" >back to list</g:link>

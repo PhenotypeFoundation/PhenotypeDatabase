@@ -279,7 +279,7 @@ class StudyController {
     }
 
     def delete = {
-        def studyInstance = Study.get(params.id)
+        def studyInstance = Study.get(params.long("id"))
         if (studyInstance) {
             try {
                 studyInstance.clearSAMDependencies()
