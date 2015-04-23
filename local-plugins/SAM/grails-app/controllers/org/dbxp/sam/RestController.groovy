@@ -372,16 +372,15 @@ class RestController {
         def sampleTokens = params.list( 'sampleToken' );
 
         def features
-        def samples
         def results
 
         if( measurementTokens ) {
-            // Return all requested features for the given assay
-            features = Feature.executeQuery( "SELECT DISTINCT f FROM Feature f, Measurement m, SAMSample s WHERE m.sample = s AND m.feature = f AND s.parentAssay = :assay AND f.name IN (:measurementTokens)", [ "assay": assay, "measurementTokens": measurementTokens ] )
+            // Return all requested features. The features are filtered when retrietving the measurements themselves
+            features = Feature.findAll( "FROM Feature f WHERE f.name IN (:measurementTokens)", [ "measurementTokens": measurementTokens ] )
             log.debug("Found ${features.size()} features matching the ${measurementTokens.size()} measurement tokens")
         } else {
             // If no measurement tokens are given, return values for all features
-            features = Feature.executeQuery( "SELECT DISTINCT f FROM Feature f, Measurement m, SAMSample s  WHERE m.sample = s AND m.feature = f AND s.parentAssay = :assay", [ "assay": assay ] )
+            features = Feature.list()
             log.debug("Using all ${features.size()} features")
         }
 
@@ -391,19 +390,28 @@ class RestController {
             log.debug("No samples or no features, returning empty result")
         }
         else {
-            // Retrieve all measurements from the database
-            log.debug "Start retrieving measuremens from the database"
-            def measurements = Measurement.executeQuery("SELECT m.sample.parentSample.UUID, m.feature.name, m.feature.unit, m.value FROM Measurement m WHERE m.feature IN (:features) AND m.sample.parentAssay = :assay", ["assay": assay, "features": features])
-
-            log.debug "Convert the measurements ino the proper format"
+            // Retrieve all samples from the database. We create a map of UUIDs in order to create a proper list later on
+            def samples = [:]
+            log.debug "Start retrieving sample list from the database"
+            SAMSample.executeQuery( "SELECT s.id, s.parentSample.UUID FROM SAMSample s WHERE s.parentAssay = :assay", [ assay: assay ] ).each { samples[it[0]] = it[1] }
             
-            // Convert the measurements into the desired format
-            results = measurements.collect {[ 
-                "sampleToken": it[0], 
-                "measurementToken": it[1] + ( it[2] ? " " + it[2] + ")" : "" ), 
-                "value": it[3] 
-            ]}
-
+            if( samples ) {
+                // Now retrieve the measurements themselves
+                log.debug "Start retrieving measuremens from the database"
+                def measurements = Measurement.executeQuery("SELECT m.sample.id, m.feature.name, m.feature.unit, m.value FROM Measurement m WHERE m.feature IN (:features) AND m.sample.id IN (:sampleIds)", ["features": features, "sampleIds": samples.keySet()])
+              
+                log.debug "Convert the measurements ino the proper format"
+                
+                // Convert the measurements into the desired format
+                results = measurements.collect {[
+                    "sampleToken": samples[it[0]],
+                    "measurementToken": it[1] + ( it[2] ? " " + it[2] + ")" : "" ),
+                    "value": it[3]
+                ]}
+            } else {
+                results = []
+            }
+            
             if(!verbose) {
                 log.debug "Start compacting table"
                 results = compactTable( results )
