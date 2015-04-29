@@ -79,41 +79,33 @@
 						<div class="element">
 							<div class="description">Readers</div>
 							<div class="input">
-								<g:each in="${study?.readers}" var="user">
-									${user}<br />
-								</g:each>
+								<span class="readers users">
+									<g:each in="${study?.readers}" var="user">
+										${user}<br />
+									</g:each>
+								</span>
+								<span class="readers groups">
+									<g:each in="${study?.readerGroups}" var="group">
+										${group.groupName}<br />
+									</g:each>
+								</span>
 							</div>
 						</div>
 						<div class="element">
 							<div class="description">Writers</div>
 							<div class="input">
-								<g:each in="${study?.writers}" var="user">
-									${user}<br />
-								</g:if>
-								<g:else>
-									${studyInstance.readerGroups.groupName.join(", ")}
-								</g:else>
-							</td>
-						</g:each>
-					</tr>
-					<tr>
-								</g:else>
-							</td>
-						</g:each>
-					</tr>
-					<tr>
-						<td>Writer Groups</td>
-						<g:each in="${studyList}" var="studyInstance">
-							<td>
-								<g:if test="${studyInstance.writerGroups?.size()==0}">
-									-
-								</g:if>
-								<g:else>
-									${studyInstance.writerGroups.groupName.join(", ")}
-								</g:each>
+								<span class="writers users">
+									<g:each in="${study?.writers}" var="user">
+										${user}<br />
+									</g:each>
+								</span>
+								<span class="writers groups">
+									<g:each in="${study?.writerGroups}" var="group">
+										${group.groupName}<br />
+									</g:each>
+								</span>
 							</div>
 						</div>
-						
 					</div>
 				</div>
 			</div>
