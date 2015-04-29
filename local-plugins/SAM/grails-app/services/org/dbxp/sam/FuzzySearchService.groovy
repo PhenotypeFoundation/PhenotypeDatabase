@@ -18,7 +18,7 @@ class FuzzySearchService {
 	 * 							candidate:	the best matching candidate for this pattern or null if no match has been found
 	 * 							index:		the index of the candidate in the original list				
 	 */
-	static def mostSimilarUnique( patterns, candidates, thresholdInput='default' ) {
+    static def mostSimilarUnique( patterns, candidates, thresholdInput='default' ) {
         def threshold = retrieveThresholdFromConfig(thresholdInput)
 		def matches = []
 		
@@ -35,7 +35,7 @@ class FuzzySearchService {
 		}
 		
 		// Sort the list on descending score
-		matches = matches.sort( { a, b -> b.score <=> a.score } as Comparator )
+		matches = matches.sort { a, b -> b.score <=> a.score }
 		
 		// Loop through the scores and select the best matching for every candidate
 		def results = patterns.collect { [ 'pattern': it, 'candidate': null, 'index': null ] }

@@ -16,6 +16,9 @@
 .studyView .element { margin-top: 5px; vertical-align: top; }
 .studyView .element .description { vertical-align: top; }
 .studyView .element .value { width: 470px; display: inline-block; vertical-align: top;  }
+.studyView .element .input { display: inline-block; }
+
+.studyView #authorization .groups { font-style: italic; }
 
 div .studyView .description { width: 170px; }
 .studyView .error, .studyView .required { background-position: 150px 2px; }

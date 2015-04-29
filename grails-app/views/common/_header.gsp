@@ -147,6 +147,8 @@
                                 <ul>
                                     <li><g:link controller="user" action="userSearch"><img src="${fam.icon(name: 'user')}" alt="user administration"/> List Users</g:link></li>
                                     <g:if test="${!session.gscfUser.shibbolethUser}"><li><g:link controller="user" action="create"><img src="${fam.icon(name: 'user')}" alt="user administration"/> Create User</g:link></li></g:if>
+                                    <li><g:link controller="userGroup" action="userGroupSearch"><img src="${fam.icon(name: 'group')}" alt="group administration"/> List Groups</g:link></li>
+                                    <g:if test="${!session.gscfUser.shibbolethUser}"><li><g:link controller="userGroup" action="create"><img src="${fam.icon(name: 'group')}" alt="group administration"/> Create Group</g:link></li></g:if>
                                     <li><g:link controller="assayModule" action="list"><img src="${fam.icon(name: 'disconnect')}" alt="module administration"/> Manage Modules</g:link></li>
                                     <li><g:link controller="setup"><img src="${fam.icon(name: 'wand')}" alt="module administration"/> Setup wizard</g:link></li>
                                     <li><g:link controller="tnoMigrate"><img src="${fam.icon(name: 'arrow_join')}" alt="TNO db migrate"/> Migrate Database (specific for TNO)</g:link></li>

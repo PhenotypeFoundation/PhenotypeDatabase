@@ -7,8 +7,6 @@ StudyView.initialize = function() {
 }
 
 StudyView.initializePropertiesPage = function() {
-	StudyView.form.initialize();
-	
     // Initialize help tooltips
     attachHelpTooltips();
 }
