@@ -167,21 +167,20 @@ class VisualizeController {
 
         // TODO: handle the case of multiple fields on an axis
         // Determine data types
-        log.trace "Determining rowType: " + inputData.rowIds[0]
-        def rowType = determineFieldType(inputData.studyIds[0], inputData.rowIds[0])
-
-        log.trace "Determining columnType: " + inputData.columnIds[0]
-        def columnType = determineFieldType(inputData.studyIds[0], inputData.columnIds[0])
-
-        log.trace "Determining groupType: " + inputData.groupIds[0]
-        def groupType = determineFieldType(inputData.studyIds[0], inputData.groupIds[0])
+        // TODO: When multiple fields are to be retrieved from a module, retrieve them all at once
+        log.trace "Determining fieldTypes: " + inputData.rowIds[0] + " / " + inputData.columnIds[0] + " / " + inputData.groupIds[0]
+        def fieldTypes = determineFieldTypes(inputData.studyIds[0], [
+            'row': inputData.rowIds[0],
+            'column': inputData.columnIds[0],
+            'group': inputData.groupIds[0]
+        ])
 
         // Determine possible visualization- and aggregationtypes
-        def visualizationTypes = determineVisualizationTypes(rowType, columnType)
-        def aggregationTypes = determineAggregationTypes(rowType, columnType, groupType)
+        def visualizationTypes = determineVisualizationTypes(fieldTypes['row'], fieldTypes['column'])
+        def aggregationTypes = determineAggregationTypes(fieldTypes['row'], fieldTypes['column'], fieldTypes['group'])
 
-        log.trace "visualization types: " + visualizationTypes + ", determined this based on " + rowType + " and " + columnType
-        log.trace "aggregation   types: " + aggregationTypes + ", determined this based on " + rowType + " and " + columnType + " and " + groupType
+        log.trace "visualization types: " + visualizationTypes + ", determined this based on " + fieldTypes['row'] + " and " + fieldTypes['column']
+        log.trace "aggregation   types: " + aggregationTypes + ", determined this based on " + fieldTypes['row'] + " and " + fieldTypes['column'] + " and " + fieldTypes['group']
 
         def fieldData = ['x': parseFieldId(inputData.columnIds[0]), 'y': parseFieldId(inputData.rowIds[0])];
 
@@ -197,13 +196,13 @@ class VisualizeController {
                         'id': fieldData.x.fieldId,
                         'name': fieldData.x.name,
                         'unit': fieldData.x.unit,
-                        'type': dataTypeString(columnType)
+                        'type': dataTypeString(fieldTypes['column'])
                 ],
                 'yaxis': [
                         'id': fieldData.y.fieldId,
                         'name': fieldData.y.name,
                         'unit': fieldData.y.unit,
-                        'type': dataTypeString(rowType)
+                        'type': dataTypeString(fieldTypes['row'])
                 ],
 
         ])
@@ -506,63 +505,82 @@ class VisualizeController {
      * 						could not be retrieved for a sample, null is returned. Examples:
      * 							[ 3, 6, null, 10 ] or [ "male", "male", "female", "female" ]
      */
-    def getModuleData(study, samples, assay_id, fieldName) {
-        def data = []
+    protected def getModuleData(def study, def samples, def assay_id, String fieldName) {
+        def data = getModuleData(study, samples, assay_id, [fieldName])
+        return data[fieldName]
+    }
+
+    /**
+     * Retrieve data for a given field from a data module
+     * @param study Study to retrieve data for
+     * @param samples Samples to retrieve data for
+     * @param source_module Name of the module to retrieve data from
+     * @param fieldName Name of the measurement type to retrieve (i.e. measurementToken)
+     * @return A list of values of the selected field for all samples. If a value
+     *                                          could not be retrieved for a sample, null is returned. Examples:
+     *                                                  [ 3, 6, null, 10 ] or [ "male", "male", "female", "female" ]
+     */
+    protected def getModuleData(def study, def samples, def assay_id, List fieldNames) {
+        def data = [:]
 
         // TODO: Handle values that should be retrieved from multiple assays
         def assay = Assay.get(assay_id);
 
         if (assay) {
             // Request for a particular assay and a particular feature
-            def urlVars = "verbose=true&assayToken=" + assay.UUID + "&measurementToken=" + fieldName.encodeAsURL()
+            def urlVars = "verbose=true&assayToken=" + assay.UUID + "&" + fieldNames.collect { "measurementToken=" + it.encodeAsURL() }.join("&")
 
             def callUrl
             try {
                 callUrl = assay.module.baseUrl + "/rest/getMeasurementData"
                 log.trace "Retrieving data from assay " + assay
+                log.trace "  URL arguments: " + urlVars
                 def json = moduleCommunicationService.callModuleMethod(assay.module.baseUrl, callUrl, urlVars, "POST");
                 
                 log.trace "Parsing data from assay " + assay
                 
                 if (json) {
-                    // We know we have only a single feature. Therefore, we can create a map
-                    // sample token -> value
-                    def valueMap = [:]
-                    json.each {
-                        // Store the measurement value if found and if it is not JSONObject$Null
-                        // See http://grails.1312388.n4.nabble.com/The-groovy-truth-of-JSONObject-Null-td3661040.html
-                        // for this comparison
-                        if( !it.value.equals(null) ) {
-                            valueMap[it.sampleToken] = it.value
-                        }
-                    }
+                    // We could have multiple features, so we will created a map
+                    // of not-null values, grouped by feature
+                    def valueMap = json.findAll { !it.value.equals(null) }.groupBy { it.measurementToken }
                     
-                    // Now we can convert the map of values into a list of measurement values
-                    // for the samples we need data for
-                    data = samples.collect { valueMap[it.UUID] }
+                    // Now return a list of measurements for all samples  
+                    valueMap.each { measurementToken, measurements ->
+                        // Group by sampleToken as well
+                        def grouped = measurements.groupBy { it.sampleToken }
+                        
+                        // Now we can convert the map of values into a list of measurement values
+                        // for the samples we need data for
+                        data[measurementToken] = samples.collect { grouped[it.UUID]?.value?.get(0) }
+                    }
 
                     log.trace "Finished converting all data"
                 } else {
                     // TODO: handle error
                     // Returns an empty list with as many elements as there are samples
-                    data = samples.collect { return null }
+                    fieldNames.each { 
+                        data[it] = samples.collect { return null }
+                    }
                 }
 
             } catch (Exception e) {
-                log.error("VisualizationController: getFields: " + e)
+                log.error("VisualizationController: getFields: " + e.getMessage(), e)
                 //return returnError(404, "An error occured while trying to collect data from a module. Most likely, this module is offline.")
                 return returnError(404, "Unfortunately, " + assay.module.name + " could not be reached. As a result, we cannot at this time visualize data contained in this module.")
             }
         } else {
             // TODO: Handle error correctly
             // Returns an empty list with as many elements as there are samples
-            data = samples.collect { return null }
+            fieldNames.each { 
+                data[it] = samples.collect { return null }
+            }
         }
 
-        //println "\t data request: "+data
+        println "\t data request: "+data
         return data
     }
 
+    
     /**
      * Aggregates the data based on the requested aggregation on the categorical fields
      * @param data Map with data for each dimension as retrieved using getAllFieldData. For example:
@@ -738,6 +756,7 @@ class VisualizeController {
         def dimension = categoricalDimensions.head();
 
         // Determine the unique values on the categorical axis and sort by toString method
+        log.trace( "Data on dimension " + dimension + " -> " + data[dimension] )
         def unique = data[dimension].flatten()
                 .unique { it == null ? "null" : it.class.name + it.toString() }
                 .sort {
@@ -1530,6 +1549,56 @@ class VisualizeController {
             // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
             return CATEGORICALDATA
         }
+    }
+    
+    /**
+     * Determines what type of data a field contains
+     * @param studyId An id that can be used with Study.get/1 to retrieve a study from the database
+     * @param fieldIds Map of the field ids as returned from the client, will be used to retrieve the data required to determine the type of data a field contains
+     * @return Map with either CATEGORICALDATA, NUMERICALDATA, DATE or RELTIME
+     */
+    protected Map determineFieldTypes(studyId, fieldIds) {
+        // By default, set all fields to categorical data
+        def fieldTypes = fieldIds.collectEntries { k, v -> [k, CATEGORICALDATA] }
+        def study = Study.get(studyId)
+        
+        // Combine fields per module
+        def parsedFields = fieldIds.collect { 
+            def parsedField = parseFieldId(it.value)
+            if( parsedField ) {
+                parsedField.key = it.key
+                parsedField
+            } else { 
+                null
+            }
+        }
+        
+        // Only use the fields that we could parse.
+        parsedFields = parsedFields.findAll().groupBy { it.source }
+        
+        // Loop through all fields, and retrieve the data 
+        // from the modules in a single call. If data from
+        // GSCF is requested, just run the default determineFieldTypes method
+        try { 
+            parsedFields.each { source, fields ->
+                if(source == "GSCF") {
+                    // Determine field type for each field independently
+                    fields.each {
+                        fieldTypes[it.key] = determineFieldType(studyId, it.fieldId)
+                    }
+                } else {
+                    // Data is in a module
+                    def moduleData = getModuleData(study, study.getSamples(), source, fields*.name);
+                    fields.each {
+                        fieldTypes[it.key] = determineCategoryFromData(moduleData[it.name]) 
+                    }
+                }
+            }
+        } catch( Exception e ) {
+            log.error( "Exception in getFieldTypes method", e )
+        } 
+        
+        fieldTypes
     }
 
     /**
