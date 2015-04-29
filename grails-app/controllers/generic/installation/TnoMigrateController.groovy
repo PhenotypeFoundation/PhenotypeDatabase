@@ -120,9 +120,6 @@ class TnoMigrateController {
                                 }
                                 samplingEvent.save( flush: true )
 
-                                println "ADFADSFASDFADSFASD!!!!!!!!!"
-                                println samplingEvent.parent
-
                                 newSamplingEventIdList << samplingEvent.id
                             }
 
