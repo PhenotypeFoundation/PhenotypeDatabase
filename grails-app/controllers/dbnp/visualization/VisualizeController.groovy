@@ -228,7 +228,7 @@ class VisualizeController {
         def urlVars = "assayToken=" + assay.UUID
         try {
             callUrl = "" + assay.module.baseUrl + "/rest/getMeasurementMetaData/query?" + urlVars
-            def json = moduleCommunicationService.callModuleRestMethodJSON(assay.module.baseUrl /* consumer */, callUrl);
+            def json = moduleCommunicationService.callModuleRestMethodJSON(assay.module.baseUrl, callUrl);
 
             def collection = []
             json.each { jason ->
@@ -353,12 +353,10 @@ class VisualizeController {
         // Retrieve the data for both axes for all samples
         // TODO: handle the case of multiple fields on an axis
         def fields = ["x": inputData.columnIds[0], "y": inputData.rowIds[0], "group": inputData.groupIds[0]];
-        def fieldInfo = [:]
-        fields.each {
-            fieldInfo[it.key] = parseFieldId(it.value)
-            if (fieldInfo[it.key])
-                fieldInfo[it.key].fieldType = determineFieldType(study.id, it.value);
-
+        def fieldInfo = parseFieldIds(fields)
+        
+        determineFieldTypes(studyId, fieldInfo).each { k, v ->
+            fieldInfo[k].fieldType = v
         }
 
         // If the groupAxis is numerical, we should ignore it, unless a table is asked for
@@ -439,17 +437,33 @@ class VisualizeController {
     def getAllFieldData(study, samples, fields) {
         def fieldData = [:]
         def numValues = 0;
-        fields.each { field ->
-            def fieldId = field.value ?: null;
-            fieldData[field.key] = getFieldData(study, samples, fieldId);
+        
+        // Parse the field IDs
+        def parsedFields = parseFieldIds(fields)
+        
+        // Group the field IDs per source
+        // Only use the fields that we could parse.
+        parsedFields = parsedFields.values().findAll().groupBy { it.source }
 
-            if (fieldData[field.key])
-                numValues = Math.max(numValues, fieldData[field.key].size());
+        parsedFields.each { source, sourceFields ->
+            if(source == "GSCF") {
+                // Determine field type for each field independently
+                sourceFields.each {
+                    fieldData[it.key] = getFieldData(study, samples, it)
+                }
+            } else {
+                // Data is in a module. Retrieve all data at once
+                def moduleData = getModuleData(study, samples, source, sourceFields*.name)
+                sourceFields.each {
+                    fieldData[it.key] = moduleData[it.name]
+                }
+            }
         }
+        
+        // Compute the number of values
+        fieldData.numValues = fieldData.values()*.size().max()
 
-        fieldData.numValues = numValues;
-
-        return fieldData;
+        fieldData
     }
 
     /**
@@ -1454,6 +1468,28 @@ class VisualizeController {
 
         return attrs
     }
+    
+    /**
+     * Convenience method for field IDs that have already been parsed
+     */
+    protected Map parseFieldId(Map fieldId) {
+        fieldId
+    }
+    
+    /**
+     * Parse multiple field IDs at once
+     */
+    protected Map parseFieldIds(Map fieldIds) {
+        fieldIds.collectEntries { k, v ->
+            def parsedField = parseFieldId(v)
+            if( parsedField ) {
+                parsedField.key = k
+                [k, parsedField]
+            } else {
+                [:]
+            }
+        }
+    }
 
     /**
      * Returns a string representation of the given fieldType, which can be sent to the userinterface
@@ -1563,18 +1599,10 @@ class VisualizeController {
         def study = Study.get(studyId)
         
         // Combine fields per module
-        def parsedFields = fieldIds.collect { 
-            def parsedField = parseFieldId(it.value)
-            if( parsedField ) {
-                parsedField.key = it.key
-                parsedField
-            } else { 
-                null
-            }
-        }
+        def parsedFields = parseFieldIds(fieldIds)
         
         // Only use the fields that we could parse.
-        parsedFields = parsedFields.findAll().groupBy { it.source }
+        parsedFields = parsedFields.values().findAll().groupBy { it.source }
         
         // Loop through all fields, and retrieve the data 
         // from the modules in a single call. If data from
