@@ -4,7 +4,7 @@
   <head>
 	<meta name="layout" content="main"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'templateImporter.css')}" />
+    <r:require module="templateImporter" />
     <title>Imported templates</title>
   </head>
   <body>

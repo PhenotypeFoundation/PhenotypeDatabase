@@ -7,6 +7,8 @@
 	        <r:require modules="sam2"/>
 
 	        <g:layoutHead />
+			
+			<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
 	        
 	        <script type="text/javascript">baseUrl = '${grailsApplication.config.grails.serverURL}';</script>
 	    </head>

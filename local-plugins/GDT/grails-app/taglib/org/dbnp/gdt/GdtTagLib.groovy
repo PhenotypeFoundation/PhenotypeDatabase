@@ -400,7 +400,7 @@ class GdtTagLib extends AjaxflowTagLib {
         // got result?
         if (attrs.from.size() > 0 || attrs.get('addDummy')) {
             // sort alphabetically
-            attrs.from.sort( { a, b -> a.toString() <=> b.toString() } as Comparator )
+            attrs.from.sort( { a, b -> a.toString() <=> b.toString() })
 
             // add a dummy field?
             if (attrs.remove('addDummy')) {

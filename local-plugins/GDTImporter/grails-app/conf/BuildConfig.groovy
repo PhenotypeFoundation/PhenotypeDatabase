@@ -14,8 +14,8 @@ grails.project.dependency.resolution = {
 	legacyResolve true
     repositories {
         grailsCentral()
-        grailsRepo "http://grails.org/plugins"
-
+        grailsHome()
+        
         mavenCentral()
         mavenRepo "http://nexus.dbnp.org/content/repositories/releases"
         mavenRepo "http://repository.springsource.com/maven/bundles/release"
@@ -30,7 +30,8 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        build(
+        build(  ":release:2.2.1",
+                //Temporary static version of Rest Client Builder due to compile error
                 ":rest-client-builder:1.0.3"
         ) {
             // plugin only plugin, should not be transitive to the application
@@ -38,19 +39,14 @@ grails.project.dependency.resolution = {
         }
 
         compile(
-        ":ajaxflow:0.2.4",
-        ":jquery:1.11.1",
-        ":crypto:2.0",
-        ":gdt:0.5.0.4"
+            ":ajaxflow:latest.integration",
+            ":jquery:latest.integration",
+            ":webflow:2.1.0",
+            ":rest:0.8"
         ) {
             export = false
         }
-
-        compile(
-            ":webflow:2.0.8.1",
-            ":rest:0.8"
-        )
     }
 }
 
-//grails.plugin.location.'gdt' = '../GDT'
+grails.plugin.location.'gdt' = '../GDT'

@@ -3,23 +3,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<meta name="layout" content="main"/>
 	<title>Visualization</title>
-	
-	<!--[if lt IE 9]><g:javascript src="jqplot/excanvas.min.js" /><![endif]-->
-	<g:javascript src="jqplot/jquery.jqplot.min.js" />
-	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='jquery.jqplot.min.css' />" />
-	
-	<!-- jqPlot plugins -->
-	<g:javascript src="jqplot/plugins/jqplot.barRenderer.min.js" />
-	<g:javascript src="jqplot/plugins/jqplot.categoryAxisRenderer.min.js" />
-	<g:javascript src="jqplot/plugins/jqplot.pointLabels.min.js" />	
-	<g:javascript src="jqplot/plugins/jqplot.canvasTextRenderer.min.js" />	
-	<g:javascript src="jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js" />
-    <g:javascript src="jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js" />
-    <g:javascript src="jqplot/plugins/jqplot.boxplotRenderer.js" />
-    <g:javascript src="jqplot/plugins/jqplot.highlighter.min.js" />
-
-	<g:javascript src="visualization.js" />
-	<link rel="stylesheet" type="text/css" href="<g:resource dir='css' file='visualization.css'/>"/>
+	<r:require modules="visualization"/>
+	 
     <style type="text/css">
         /** NEEDED FOR RESOURCES PLUGIN **/
         .menu_seperator {background-image: url(${resource(dir: 'images/visualization', file: 'seperator.gif')}); }

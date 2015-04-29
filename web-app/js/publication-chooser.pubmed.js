@@ -1,5 +1,5 @@
 function _createURL( utility, params ) {
-	return baseUrl + "/studyWizard/entrezProxy?_utility=" + utility + "&" + params;
+	return baseUrl + "/studyEdit/entrezProxy?_utility=" + utility + "&" + params;
 }
 sourcePubMed = function( chooserObject, searchterm, response ) {
     // Search for every term in both title and author fields

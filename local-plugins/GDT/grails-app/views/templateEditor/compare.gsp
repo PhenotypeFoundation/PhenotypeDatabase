@@ -18,21 +18,9 @@
 	<head>
 		<meta name="layout" content="${layout}"/>
 		<title>Compare templates</title>
-		<g:if env="development">
-			<script src="${createLinkTo(dir: 'js', file: 'templateEditor.js')}" type="text/javascript"></script>
-			<link rel="stylesheet" href="${createLinkTo(dir: 'css', file: 'templateEditor.css')}" />
-		</g:if>
-		<g:else>
-			<script src="${createLinkTo(dir: 'js', file: 'templateEditor.min.js')}" type="text/javascript"></script>
-			<link rel="stylesheet" href="${createLinkTo(dir: 'css', file: 'templateEditor.min.css')}" />
-		</g:else>
-		<script src="${createLinkTo(dir: 'js', file: 'jquery.dataTables.min.js')}" type="text/javascript"></script>
-
-		<style type="text/css">
-		  #content .templateEditorStep { font-size: 0.8em; }
-		</style>
-
-		<script type="text/javascript" language="javascript">
+		<r:require modules="templateEditor, gscf-datatables" />
+		
+		<r:script>
 		  var standalone = ${extraparams?.standalone ? 'true' : 'false'};
 
 		  $(document).ready(function() {
@@ -65,9 +53,7 @@
 			  $( '.shortTitle' ).show();
 			}
 		  }
-		</script>
-
-
+		</r:script>
 
 	</head>
 	<body>

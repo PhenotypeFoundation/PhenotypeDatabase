@@ -3,14 +3,12 @@ package generic.installation
 import dbnp.studycapturing.*
 import grails.converters.JSON
 import org.dbnp.gdt.Template
-import grails.plugins.springsecurity.Secured
 
 /**
  * User: Seth
  * Date: 28-11-13
  * Time: 12:10
  */
-@Secured(['ROLE_ADMIN'])
 class TnoMigrateController {
     def dataSource
 

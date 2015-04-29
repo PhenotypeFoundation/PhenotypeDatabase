@@ -15,14 +15,13 @@
 package dbnp.authentication
 
 import grails.converters.JSON
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import dbnp.studycapturing.Study
 import org.springframework.dao.DataIntegrityViolationException
 
 /**
  * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
  */
-@Secured(['ROLE_ADMIN'])
 class UserController {
 
 	def userCache
@@ -33,7 +32,7 @@ class UserController {
 	def create = {
 		if (!session.gscfUser.shibbolethUser) {
 			def user = new SecUser(params)
-			[user: user]
+			[user: user, authorityList: sortedRoles()]
 		} else {
 			response.sendError(404)
 		}
@@ -71,7 +70,8 @@ class UserController {
 		if (!versionCheck('user.label', 'User', user, [user: user])) {
 			return
 		}
-                
+        
+                // Handle relation with user groups
                 def selectedUserGroups = user.getUserGroups()
                 for(selectedUserGroup in selectedUserGroups){
                         def studies = Study.all.findAll{it.readerGroups.id.contains(selectedUserGroup.id)}
@@ -86,7 +86,6 @@ class UserController {
                         }
                         SecUserSecUserGroup.remove(user,selectedUserGroup, true)
                 }
-                
 		
 		def oldPassword = user.password
 		user.properties = params
@@ -101,7 +100,6 @@ class UserController {
 
 		SecUserSecRole.removeAll user
 		addRoles user
-		
                
                 if(params.optionalGroups){                  
                     def userGroups = params.list('optionalGroups')
@@ -212,15 +210,15 @@ class UserController {
 		if (params.term?.length() > 2) {
 			String username = params.term
 
-			setIfMissing 'max', 10, 100
+                        def max = Math.min( params.max ?: 10, 100 )
 
 			def results = SecUser.executeQuery(
 					"SELECT DISTINCT u.username " +
 					"FROM SecUser u " +
 					"WHERE LOWER(u.username) LIKE :name " +
 					"ORDER BY u.username",
-					[name: "${username.toLowerCase()}%"],
-					[max: params.max])
+					[name: username.toLowerCase() + "%"],
+					[max: max])
 
 			for (result in results) {
 				jsonData << [value: result]

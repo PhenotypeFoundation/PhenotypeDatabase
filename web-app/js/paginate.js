@@ -23,7 +23,7 @@ function initializePagination( selector ) {
 		var $el = $(el);
 		
 		// Hide pagination if only one page is present (that is: if no buttons can be clicked)
-		if($el.find('span span.ui-state-default:not(.ui-state-disabled)').size() == 0 ){
+		if($el.find('span .ui-state-default:not(.ui-state-disabled)').size() == 0 ){
 			$el.find('div.fg-toolbar').css( 'display', 'none' );
 		} else {
 			$el.find('div.fg-toolbar').css( 'display', 'block' );

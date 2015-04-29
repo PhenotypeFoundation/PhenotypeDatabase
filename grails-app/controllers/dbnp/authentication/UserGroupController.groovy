@@ -1,7 +1,6 @@
 package dbnp.authentication
 
 import grails.converters.JSON
-import grails.plugins.springsecurity.Secured
 import dbnp.studycapturing.Study
 import org.springframework.dao.DataIntegrityViolationException
 
@@ -10,7 +9,6 @@ import org.springframework.dao.DataIntegrityViolationException
  * @author Heleen de Weerd
  * @date 201502
  */
-@Secured(['ROLE_ADMIN'])
 class UserGroupController {
 
 	def springSecurityService

@@ -1,6 +1,6 @@
 package dbnp.configuration
 import dbnp.authentication.*
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.Holders
 
 /**
  * @Author Jeroen Wesbeek <work@osx.eu>
@@ -25,7 +25,7 @@ class BootStrapAuthentication {
 		def user=null
 
 		// get configuration
-		def config = ConfigurationHolder.config
+		def config = Holders.config
 
 		// create the admin role
 		def adminRole = SecRole.findByAuthority('ROLE_ADMIN') ?: new SecRole(authority: 'ROLE_ADMIN').save(flush:true, failOnError:true)

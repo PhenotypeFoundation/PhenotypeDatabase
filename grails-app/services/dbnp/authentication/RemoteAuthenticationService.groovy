@@ -26,13 +26,17 @@ class RemoteAuthenticationService implements Serializable {
 	 */
 	public boolean logInRemotely( String consumer, String token, SecUser user, Integer seconds = null ) {
 		// Remove expired users, otherwise they will be kept in the database forever
+                log.debug "Removing expired tokens"
 		removeExpiredTokens()
 
 		// Make sure there is no other logged in user anymore
+                log.debug "Logging off remotely"
 		logOffRemotely( consumer, token )
 
+                log.debug "Creating new object"
 		def SAUser = new SessionAuthenticatedUser( consumer: consumer, token: token, secUser: user, expiryDate: createExpiryDate( seconds ) )
 
+                log.debug "Saving new object"
 		return SAUser.save()
 	}
 
@@ -87,6 +91,35 @@ class RemoteAuthenticationService implements Serializable {
 		}
 	}
 
+        /**
+         * Returns a session token to be used in communicating with the modules    
+         */
+        public String getRemoteSessionToken( String consumer, SecUser user ) {
+            def c = SessionAuthenticatedUser.createCriteria()
+            def sessionAuthenticatedUser = c.get {
+                and {
+                        eq("consumer", consumer)
+                        eq("secUser", user)
+                        gt("expiryDate", new Date())
+                }
+            }
+
+            
+            if( sessionAuthenticatedUser ) {
+                // Reuse existing token
+                log.debug "Reuse existing module communication token"
+                updateExpiryDate(sessionAuthenticatedUser)
+            } else {
+                String token = UUID.randomUUID().toString()
+                
+                log.debug "Creating and saving new communication token"
+                sessionAuthenticatedUser = new SessionAuthenticatedUser( consumer: consumer, token: token, secUser: user, expiryDate: createExpiryDate() )
+                sessionAuthenticatedUser.save()
+            }
+            
+            return sessionAuthenticatedUser.token
+        }
+    
 	/**
 	 * Removes all tokens for remote logins that have expired
 	 */

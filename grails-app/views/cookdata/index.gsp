@@ -14,8 +14,7 @@
 <html>
 <head>
 	<meta name="layout" content="main"/>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'cookdata.css')}"/>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'cookdata_dataset_selection.js')}"></script>
+	<r:require module="cookdata" />
 </head>
 <body>
 	<g:render template="common/ajaxflow"/>

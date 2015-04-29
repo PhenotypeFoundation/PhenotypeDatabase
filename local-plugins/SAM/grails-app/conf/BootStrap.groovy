@@ -1,4 +1,5 @@
 import org.codehaus.groovy.grails.web.json.JSONObject
+import grails.util.Holders
 
 class BootStrap {
 
@@ -14,11 +15,11 @@ class BootStrap {
 		JSONObject.NULL.metaClass.asBoolean = {-> false}
 
         try {
-            if(org.codehaus.groovy.grails.commons.ConfigurationHolder.config.module.showVersionInfo) {
+            if(Holders.config.module.showVersionInfo) {
                 new File("grails-app/views/_version.gsp").text = "git rev-parse HEAD".execute().text;
             }
         } catch (Exception e) {
-            org.codehaus.groovy.grails.commons.ConfigurationHolder.config.module.showVersionInfo = false;
+            Holders.config.module.showVersionInfo = false;
             println("BootStrap.groovy Error: "+e);
         }
 

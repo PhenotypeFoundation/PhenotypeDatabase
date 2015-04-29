@@ -1,5 +1,4 @@
 <%@ page import="org.dbnp.gdt.AssayModule" %>
-<%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
 <div id="wrapper" xmlns="http://www.w3.org/1999/html">
     <div id="header">
         <div class="container">
@@ -154,7 +153,6 @@
                                     <li><g:link controller="setup"><img src="${fam.icon(name: 'wand')}" alt="module administration"/> Setup wizard</g:link></li>
                                     <li><g:link controller="tnoMigrate"><img src="${fam.icon(name: 'arrow_join')}" alt="TNO db migrate"/> Migrate Database (specific for TNO)</g:link></li>
                                     <li><g:link controller="info"><img src="${fam.icon(name: 'lightning')}" alt="application information"/> Application information</g:link></li>
-                                    <li><g:link controller="trackr"><img src="${fam.icon(name: 'lightning')}" alt="application access log"/> Application access log</g:link></li>
                                 </ul>
                             </div>
                         </li>

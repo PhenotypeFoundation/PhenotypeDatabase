@@ -5,13 +5,7 @@
 	<meta name="layout" content="main"/>
 	<g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}"/>
 	<title><g:message code="default.list.label" args="[entityName]"/></title>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
-	<script type="text/javascript">
-		$(document).ready(function() {
-			$("a.linktips").tipTip();
-		});
-	</script>
+	<r:require module="tiptip" />
 </head>
 <body>
 
@@ -54,33 +48,32 @@
 							${fieldValue(bean: studyInstance, field: "title")}
 						</td>
 						<td>
-							<g:if test="${studyInstance.subjects.species.size()==0}">
+							<% def subjectCounts = studyInstance.getSubjectCountsPerSpecies() %>
+							<g:if test="${!subjectCounts}">
 								-
 							</g:if>
 							<g:else>
-								<g:each in="${studyInstance.subjects.species.unique()}" var="currentSpecies" status="j">
-									<g:if test="${j > 0}">,</g:if>
-									<%=studyInstance.subjects.findAll { return it.species == currentSpecies; }.size()%>
-									${currentSpecies}
-								</g:each>
+								${subjectCounts.collect { it.value + " " + it.key }.join( ", " )}							
 							</g:else>
 						</td>
 
 						<td>
-							<g:if test="${studyInstance.giveEventTemplates().size()==0}">
+							<% def eventTemplates = studyInstance.giveEventTemplates() %>
+							<g:if test="${eventTemplates.size()==0}">
 								-
 							</g:if>
 							<g:else>
-								${studyInstance.giveEventTemplates().name.join(', ')}
+								${eventTemplates*.name.join(', ')}
 							</g:else>
 						</td>
 
 						<td>
-							<g:if test="${studyInstance.assays.size()==0}">
+							<% def assayModules = studyInstance.giveUsedModules() %>
+							<g:if test="${assayModules.size()==0}">
 								-
 							</g:if>
 							<g:else>
-								${studyInstance.assays.module.name.unique().join(', ')}
+								${assayModules*.name.join(', ')}
 							</g:else>
 						</td>
 
@@ -92,7 +85,7 @@
 		<div class="buttons">
 			<sec:ifLoggedIn>
 				<span class="button"><g:link class="buttonBg add" title="Create a new study" controller="studyEdit" action="add"><g:message code="default.new.label" args="[entityName]"/></g:link></span>
-				<span class="button"><a class="buttonBg compare" title="Compare the selected studies" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span>
+				<!-- <span class="button"><a class="buttonBg compare" title="Compare the selected studies" href="#" onClick="$( 'form#list_extended' ).first().submit(); return false;">Compare selected studies</a></span> -->
 			</sec:ifLoggedIn>
 		</div>
 		<div class="paginateButtons">

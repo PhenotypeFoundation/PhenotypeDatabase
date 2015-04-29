@@ -1,8 +1,7 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head>
 	<meta name="layout" content="main"/>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
+	<r:require module="tiptip" />
     <style stype="text/css">
     description {
         display: block;
@@ -27,7 +26,7 @@
         color: #f54d80;
     }
     </style>
-    <script>
+    <r:script>
         $(document).ready(function() {
             $('li').each(function() {
                 if (this.hasAttribute('description')) {
@@ -35,7 +34,7 @@
                 }
             });
         });
-    </script>
+    </r:script>
 </head>
 <body>
 

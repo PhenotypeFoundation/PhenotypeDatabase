@@ -201,6 +201,12 @@ span.menu_fill {
     line-height: 1.5;
 }
 
+.ui-autocomplete {
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 .settingInfo {
     font-size: smaller;
     color: #999;

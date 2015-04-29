@@ -13,17 +13,9 @@
 	<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
     <r:require modules="gscfmain"/>
     <r:layoutResources />
-    <script src="//code.jquery.com/jquery-migrate-1.2.1.js"></script>
 
     <script type="text/javascript">var baseUrl = '${resource(dir: '')}';</script>
 
-    <g:if env="production"><script src="//connect.facebook.net/en_US/all.js#xfbml=1"></script></g:if>
-    <g:if env="development">
-        <link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.css')}"/>
-    </g:if>
-    <g:else>
-        <link rel="stylesheet" href="${resource(dir: 'css', file: session.style + '.min.css')}"/>
-    </g:else>
     <g:layoutHead/>
 </head>
 <body>
@@ -35,18 +27,9 @@
         </div>
     </div>
 </div>
-%{--Disabled Facebook Recommend--}%
-%{--<g:if env="production">
-    <g:if test="${facebookLikeUrl}">
-        <div id="facebookConnect">
-            <fb:like href="${resource(absolute: true)}${facebookLikeUrl}" show_faces="true" width="450" action="recommend" font="arial"></fb:like>
-        </div>
-    </g:if>
-</g:if>--}%
 <div id="footer">
     <div class="container"><p class="copyright">Copyright © 2008 - <g:formatDate format="yyyy" date="${new Date()}"/> NuGO, NMC and NBIC. All rights reserved. For more information go to <a href="//dbnp.org">http://dbnp.org</a>.</p></div>
 </div>
-<trackr:track reference="${session?.gscfUser ? session.gscfUser : '-'}"/>
 
 <div id="dialog-creative-commons" title="License agreement" style="display:none">
     <p>

@@ -23,7 +23,6 @@ import dbnp.authentication.SecUser
 import org.springframework.context.ApplicationContextAware
 import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
 import org.springframework.context.ApplicationContext
-import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 class ApiService implements Serializable, ApplicationContextAware {
     // inject the module communication service
@@ -475,7 +474,7 @@ class ApiService implements Serializable, ApplicationContextAware {
 		def entities = [:]
 
 		// get the names of all domain classes ('entities') that extend GDT's TemplateEntity
-		ApplicationHolder.application.getArtefacts("Domain").each {
+		grailsApplication.getArtefacts("Domain").each {
 			def entityInstance = it.clazz
 
 			if (entityInstance.properties.superclass.toString() =~ 'TemplateEntity') {

@@ -1,393 +1,358 @@
 package dbnp.studycapturing
 
-import grails.plugins.springsecurity.Secured
-import org.dbnp.gdt.TemplateFieldType
-import org.dbnp.gdt.RelTime
+import grails.plugin.springsecurity.annotation.Secured
 import grails.converters.JSON
+import dbnp.authentication.SecUser
+import org.dbnp.gdt.*
 
 /**
  * Controller class for studies
  */
 class StudyController {
-        def authenticationService
-        def grailsApplication
+    def authenticationService
+    def grailsApplication
+    def datatablesService
+    def studyEditService
 
-        //static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
+    //static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
-        def index = {
-                redirect(action: "list", params: params)
+    def index = {
+        redirect(action: "list", params: params)
+    }
+
+    /**
+     * Shows all studies where the user has access to
+     */
+    def list = {
+        def user = authenticationService.getLoggedInUser()
+        def max = Math.min(params.max ? params.int('max') : 10, 100)
+        def offset = params.offset ? params.int( 'offset' ) : 0
+        def studies = Study.giveReadableStudies( user, max, offset );
+        [studyInstanceList: studies, studyInstanceTotal: Study.countReadableStudies( user ), loggedInUser: user]
+    }
+
+    /**
+     * Returns a list of study ids and titles that the current user can read
+     * 
+     * For each study, the id and title are returned. The output format is JSON
+     */
+    def json() {
+        def studies = Study.giveReadableStudies( authenticationService.getLoggedInUser() ).collect { study ->
+            [
+                id: study.id,
+                title: study.title
+            ]
         }
 
-        /**
-         * Shows all studies where the user has access to
-         */
-        def list = {
-                def user = authenticationService.getLoggedInUser()
-                def max = Math.min(params.max ? params.int('max') : 10, 100)
-                def offset = params.offset ? params.int( 'offset' ) : 0
-                def studies = Study.giveReadableStudies( user, max, offset );
-                [studyInstanceList: studies, studyInstanceTotal: Study.countReadableStudies( user ), loggedInUser: user]
-        }
+        render studies as JSON
+    }
 
-        def json() {
-                def studies = Study.giveReadableStudies( authenticationService.getLoggedInUser() ).collect { study ->
-                        [
-                                id: study.id,
-                                title: study.title
-                        ]
-                }
+    /**
+     * Shows studies for which the logged in user is the owner
+     */
+    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
+    def myStudies() {
+        def user = authenticationService.getLoggedInUser()
+        def max = Math.min(params.max ? params.int('max') : 10, 100)
+        def offset = params.offset ? params.int( 'offset' ) : 0
 
-                render studies as JSON
-        }
+        def studies = Study.findAllByOwner(user, [max:max,offset: offset]);
+        render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: studies.size(), loggedInUser: user] )
+    }
 
-        /**
-         * Shows studies for which the logged in user is the owner
-         */
-        @Secured(['IS_AUTHENTICATED_REMEMBERED'])
-        def myStudies = {
-                def user = authenticationService.getLoggedInUser()
-                def max = Math.min(params.max ? params.int('max') : 10, 100)
-                def offset = params.offset ? params.int( 'offset' ) : 0
-
-                def studies = Study.findAllByOwner(user, [max:max,offset: offset]);
-                render( view: "list", model: [studyInstanceList: studies, studyInstanceTotal: studies.size(), loggedInUser: user] )
-        }
-
-        /**
-         * Shows a comparison of multiple studies using the show view
-         *
-         */
-        def list_extended = {
-                def id = (params.containsKey('id')) ? params.get('id') : 0;
-                def numberOfStudies = Study.count()
-                def studyList;
-
-                // do we have a study id?
-                if (id == 0) {
-                        // no, go back to the overview
-                        redirect(action: 'list');
-                } else if (id instanceof String) {
-                        // yes, one study. Show it
-                        redirect(action: 'show', id: id)
-                } else {
-                        // multiple studies, compare them
-                        def c = Study.createCriteria()
-                        studyList = c {
-                'in'("id", id.collect { Long.parseLong(it) })
-                        }
-                        render(view:'show',model:[studyList: studyList, studyInstanceTotal: numberOfStudies, multipleStudies:(studyList instanceof ArrayList)])
-                }
-        }
-
-        /**
-         * Shows one or more studies
-         */
-        def show = {
-                def startTime = System.currentTimeMillis()
-
-
-
-                def studyInstance = Study.get( params.long( "id" ) )
-                if (!studyInstance) {
-                        flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                        redirect(action: "list")
-                }
-                else {
-                        // Check whether the user may see this study
-                        def loggedInUser = authenticationService.getLoggedInUser()
-                        if( !studyInstance.canRead(loggedInUser) ) {
-                                flash.message = "You have no access to this study"
-                                redirect(action: "list")
-                        }
-
-                        // The study instance is packed into an array, to be able to
-                        // use the same view for showing the study and comparing multiple
-                        // studies
-                        [studyList: [ studyInstance ], multipleStudies: false, loggedInUser: loggedInUser ]
-                }
-        }
-
-        /**
-         * Shows the subjects tab of one or more studies. Is called when opening the subjects-tab
-         * on the study overview screen.
-         */
-        def show_subjects = {
-                def studyList = readStudies( params.id );
-
-                if( !studyList )
-                return
-
-                [studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
-        }
-
-        /**
-         * Shows the events timeline tab of one or more studies. Is called when opening the events timeline-tab
-         * on the study overview screen.
-         */
-        def show_events_timeline = {
-                def studyList = readStudies( params.id );
-
-                if( !studyList )
-                return
-
-                [studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
-        }
-
-        /**
-         * Shows the events table tab of one or more studies. Is called when opening the events table-tab
-         * on the study overview screen.
-         */
-        def show_events_table = {
-                def studyList = readStudies( params.id );
-
-                if( !studyList )
-                return
-
-                [studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
-        }
-
-        /**
-         * Shows the assays tab of one or more studies. Is called when opening the assays tab
-         * on the study overview screen.
-         */
-        def show_assays = {
-                def studyList = readStudies( params.id );
-
-                if( !studyList )
-                return
-
-                [studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
-        }
-
-        /**
-         * Shows the samples tab of one or more studies. Is called when opening the samples-tab
-         * on the study overview screen.
-         */
-        def show_samples = {
-                def studyList = readStudies( params.id );
-
-                if( !studyList )
-                return
-
-                [studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
-        }
-
-        /**
-         * Shows the persons tab of one or more studies. Is called when opening the persons tab
-         * on the study overview screen.
-         */
-        def show_persons = {
-                def studyList = readStudies( params.id );
-
-                if( !studyList )
-                return
-
-                [studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
-        }
-
-        /**
-         * Shows the publications tab of one or more studies. Is called when opening the publications tab
-         * on the study overview screen.
-         */
-        def show_publications = {
-                def studyList = readStudies( params.id );
-
-                if( !studyList )
-                return
-
-                [studyList: studyList, studyInstanceTotal: Study.count(), multipleStudies: ( studyList.size() > 1 ), loggedInUser: authenticationService.getLoggedInUser() ]
-        }
-
-        /**
-         * Creates the javascript with data for the studies
-         */
-        def timelineData = {
-                def studyList = readStudies( params.id );
-
-                if( !studyList )
-                return
-
-                def timelineGroups = [:]
-
-                studyList.each { study ->
-                        def eventGroups = []
-                        study.subjectEventGroups.each { subjectEventGroup ->
-                                println "" + subjectEventGroup + " / " + subjectEventGroup.startDate + subjectEventGroup.startDate.time
-
-                                eventGroups << [
-                                        start: subjectEventGroup.startDate.time,
-                                        end: subjectEventGroup.endDate.time,
-                                        content: subjectEventGroup.eventGroup.name,
-                                        group: subjectEventGroup.subjectGroup.name
-                                ]
-                        }
-
-                        timelineGroups[ study.id ] = [
-                                id: study.id,
-                                title: study.title,
-                                eventGroups: eventGroups
-                        ]
-                }
-
-                // Make sure dates are formatted as javascript dates
-                render timelineGroups as JSON
-        }
-
-        /**
-         * Reads one or more studies from the database and checks whether the logged
-         * in user is allowed to access them.
-         *
-         * Is used by several show_-methods
-         *
-         * @return List with Study objects or false if an error occurred.
-         */
-        private def readStudies( id ) {
-                // If nothing has been selected, redirect the user
-                if( !id || !( id instanceof String)) {
-                        response.status = 500;
-                        render 'No study selected';
-                        return false
-                }
-
-                // Check whether one id has been selected or multiple.
-                def ids = URLDecoder.decode( id ).split( "," );
-
-                // Parse strings to a long
-                def long_ids = []
-                ids.each { long_ids.add( Long.parseLong( it ) ) }
-
-                def c = Study.createCriteria()
-
-                def studyList = c {
-                        maxResults( Math.min(params.max ? params.int('max') : 10, 100) )
-			'in'( "id", long_ids )
-                }
-
-                // Check whether the user may see these studies
-                def studiesAllowed = []
-                def loggedInUser = authenticationService.getLoggedInUser()
-
-                studyList.each { studyInstance ->
-                        if( studyInstance.canRead(loggedInUser) ) {
-                                studiesAllowed << studyInstance
-                        }
-                }
-
-                // If the user is not allowed to see any of the studies, return 404
-                if( studiesAllowed.size() == 0 ) {
-                        response.status = 404;
-                        render 'Selected studies not found';
-                        return false
-                }
-
-                return studyList
-        }
-
-        def showByToken = {
-                def studyInstance = Study.findWhere(UUID: params.id)
-                if (!studyInstance) {
-                        flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                        redirect(action: "list")
-                }
-                else {
-                        // Check whether the user may see this study
-                        def loggedInUser = authenticationService.getLoggedInUser()
-                        if( !studyInstance.canRead(loggedInUser) ) {
-                                flash.message = "You have no access to this study"
-                                redirect(action: "list")
-                        }
-
-                        redirect(action: "show", id: studyInstance.id)
-                }
-        }
-
-        def delete = {
-                def studyInstance = Study.get(params.id)
-                if (studyInstance) {
-                        try {
-                                studyInstance.clearSAMDependencies()
-                                studyInstance.delete(flush: true)
-                                flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                                redirect(action: "list")
-                        }
-                        catch (org.springframework.dao.DataIntegrityViolationException e) {
-                                flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                                redirect(action: "show", id: params.id)
-                        }
-                }
-                else {
-                        flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                        redirect(action: "list")
-                }
-        }
-
-        /**
-         * Renders assay names and id's as JSON
-         */
-        def ajaxGetAssays = {
-                def study = Study.read(params.id)
-
-                // set output header to json
-                response.contentType = 'application/json'
-
-                render ((study?.assays?.collect{[name: it.name, id: it.id]} ?: []) as JSON)
-        }
     
-        /**
-         * Renders assay names and id's as JSON
-         */
-        def ajaxGetUsersForUserGroup = {
-                def study = (params.id)
+    /***********************************************
+     *
+     * Different parts of the view process
+     *
+     ***********************************************/
 
-                // set output header to json
-                response.contentType = 'application/json'
+    /**
+     * Shows the properties page to edit study details
+     * @return
+     */
+    def show() {
+        def study = getStudyFromRequest( params )
 
-                render ((study?.assays?.collect{[name: it.name, id: it.id]} ?: []) as JSON)
+        [ study: study, loggedInUser: authenticationService.getLoggedInUser() ]
+    }
+
+    /**
+     * Shows the overview page to view subject details.
+     * @return
+     */
+    def subjects() {
+        prepareDataForDatatableView( Subject )
+    }
+
+    /**
+     * Shows the design page in a given study
+     */
+    def design() {
+        def study = getStudyFromRequest( params )
+        [study: study, loggedInUser: authenticationService.getLoggedInUser()]
+    }
+
+    /**
+     * Shows the sample overview page a given study
+     * @return
+     */
+    def samples() {
+        prepareDataForDatatableView( Sample )
+    }
+
+    /**
+     * Shows the assay page in the show process
+     */
+    def assays() {
+        prepareDataForDatatableView( Assay )
+    }
+
+    /**
+     * Returns data for a templated datatable. The type of entities is based on the template given.
+     * @return
+     */
+    def dataTableEntities() {
+        def datatableData = getTemplatedDatatablesData()
+        render datatableData as JSON
+    }
+    
+    /**
+     * Returns data for a templated datatable. The type of entities is based on the template given.
+     * @return
+     */
+    def dataTableAssays() {
+        def datatableData = getTemplatedDatatablesData({ assay ->
+            def data = datatablesService.defaultEntityFormatter(assay)
+            
+            // Remove the first column (ID) and add a link to this assay for the details column
+            data.tail() + g.link( url: assay.module.baseUrl + "/assay/showByToken/" + assay.UUID, "Details" ) 
+        })
+        
+        render datatableData as JSON
+    }
+
+    /**
+     * Returns data for a templated datatable. The type of entities is based on the template given.
+     * @return
+     */
+    protected def getTemplatedDatatablesData(Closure formatter = null) {
+        def template = Template.read( params.long( "template" ) )
+        def study = Study.read( params.long( "id" ) )
+
+        if( !study ) {
+            render dataTableError( "Invalid study given: " + study ) as JSON
+            return
         }
 
-        /**
-         * Exports all data from the given studies to excel. This is done using a redirect to the
-         * assay controller
-         *
-         * @param	ids				ids of the studies to export
-         * @param	params.format	"list" in order to export all assays in one big excel sheet
-         * 							"sheets" in order to export every assay on its own sheet (default)
-         * @see		AssayController.exportToExcel
-         */
-        def exportToExcel = {
-                def ids = params.list( 'ids' ).findAll { it.isLong() }.collect { Long.valueOf( it ) };
-                def tokens = params.list( 'tokens' );
-
-                if( !ids && !tokens ) {
-                        flash.errorMessage = "No study ids given";
-                        redirect( controller: "assay", action: "errorPage" );
-                        return;
-                }
-
-                // Find all assay ids for these studies
-                def assayIds = [];
-                ids.each { id ->
-                        def study = Study.get( id );
-                        if( study ) {
-                                assayIds += study.assays.collect { assay -> assay.id }
-                        }
-                }
-
-                // Also accept tokens for defining studies
-                tokens.each { token ->
-                        def study = Study.findWhere(UUID: token)
-                        if( study )
-                        assayIds += study.assays.collect { assay -> assay.id }
-                }
-
-                if( !assayIds ) {
-                        flash.errorMessage = "No assays found for the given studies";
-                        redirect( controller: "assay", action: "errorPage" );
-                        return;
-                }
-
-                // Create url to redirect to
-                def format = params.get( "format", "sheets" )
-                redirect( controller: "assay", action: "exportToExcel", params: [ "format": format, "ids": assayIds ] );
+        if( !template ) {
+            render dataTableError( "Invalid template given: " + template ) as JSON
+            return
         }
+
+        def searchParams = datatablesService.parseParams( params )
+
+        // Retrieve the data itself
+        def data = studyEditService.getEntitiesForTemplate( searchParams, study, template )
+
+        // Format the data to be used in the datatable. If a custom formatter is given, use that one
+        def datatableData
+        if( formatter ) {
+            datatableData = datatablesService.createDatatablesOutput( data, params, formatter )
+        } else {
+            datatableData = datatablesService.createDatatablesOutputForEntities( data, params )
+            
+            // Remove the IDs, as they are irrelevant for now
+            datatableData.aaData = datatableData.aaData.collect { it.tail() }
+        }
+        
+        datatableData
+    }
+    
+    /**
+     * Prepares the data for the datatable view
+     * @param entityClass       Class for the type of entities to show. E.g. Subject
+     * @return  a list of data to return to the view
+     */
+    protected def prepareDataForDatatableView( entityClass ) {
+        def study = getStudyFromRequest( params )
+        if( !study ) {
+            redirect action: "add"
+            return
+        }
+
+        // Check the distinct templates for these entities, without loading all
+        // entities for efficiency reasons
+        def templates = entityClass.executeQuery("select distinct s.template from " + entityClass.simpleName + " s WHERE s.parent = ?", [study ])
+
+        [
+            study: study,
+            templates: templates,
+            domainFields: entityClass.domainFields,
+            loggedInUser: authenticationService.getLoggedInUser()
+        ]
+
+    }
+
+    /**
+     * Returns an error response for the datatable
+     * @param error
+     * @return
+     */
+    protected def dataTableError( error ) {
+        return [
+            sEcho:                params.sEcho,
+            iTotalRecords:        0,
+            iTotalDisplayRecords: 0,
+            aaData:               [],
+            errorMessage:         error
+        ]
+    }
+
+    /**
+     * Retrieves the required study from the database or return an empty Study object if
+     * no id is given
+     *
+     * @param params    Request parameters with params.id being the ID of the study to be retrieved
+     * @return                  A study from the database or an empty study if no id was given
+     */
+    protected Study getStudyFromRequest(params) {
+        SecUser user = authenticationService.getLoggedInUser();
+        Study study  = (params.containsKey('id')) ? Study.findById(params.get('id')) : new Study(title: "New study", owner: user);
+
+        // got a study?
+        if (!study) {
+            flash.error = "No study found with given id";
+            redirect controller: "study", action: "list"
+        } else if(!study.canRead(user)) {
+            flash.error = "No authorization to view this study."
+            study = null;
+            redirect controller: "study", action: "list"
+        }
+
+        return study;
+    }
+    
+    
+    /**
+     * Shows a comparison of multiple studies using the show view
+     * 
+     */
+    def list_extended = {
+        def id = (params.containsKey('id')) ? params.get('id') : 0;
+        def numberOfStudies = Study.count()
+        def studyList;
+
+        // do we have a study id?
+        if (id == 0) {
+            // no, go back to the overview
+            redirect(action: 'list');
+        } else if (id instanceof String) {
+            // yes, one study. Show it
+            redirect(action: 'show', id: id)
+        } else {
+            // multiple studies, compare them
+            def c = Study.createCriteria()
+            studyList = c {
+                'in'("id", id.collect { Long.parseLong(it) })
+            }
+            render(view:'show',model:[studyList: studyList, studyInstanceTotal: numberOfStudies, multipleStudies:(studyList instanceof ArrayList)])
+        }
+    }
+
+    def showByToken = {
+        def studyInstance = Study.findWhere(UUID: params.id)
+        if (!studyInstance) {
+            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+            redirect(action: "list")
+        }
+        else {
+            // Check whether the user may see this study
+            def loggedInUser = authenticationService.getLoggedInUser()
+            if( !studyInstance.canRead(loggedInUser) ) {
+                flash.message = "You have no access to this study"
+                redirect(action: "list")
+            }
+
+            redirect(action: "show", id: studyInstance.id)
+        }
+    }
+
+    def delete = {
+        def studyInstance = Study.get(params.long("id"))
+        if (studyInstance) {
+            try {
+                studyInstance.clearSAMDependencies()
+                studyInstance.delete(flush: true)
+                flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+                redirect(action: "list")
+            }
+            catch (org.springframework.dao.DataIntegrityViolationException e) {
+                flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+                redirect(action: "show", id: params.id)
+            }
+        }
+        else {
+            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+            redirect(action: "list")
+        }
+    }
+
+    /**
+     * Renders assay names and id's as JSON
+     */
+    def ajaxGetAssays = {
+        def study = Study.read(params.id)
+
+        // set output header to json
+        response.contentType = 'application/json'
+
+        render ((study?.assays?.collect{[name: it.name, id: it.id]} ?: []) as JSON)
+    }
+
+    /**
+     * Exports all data from the given studies to excel. This is done using a redirect to the 
+     * assay controller
+     * 
+     * @param	ids				ids of the studies to export
+     * @param	params.format	"list" in order to export all assays in one big excel sheet
+     * 							"sheets" in order to export every assay on its own sheet (default)
+     * @see		AssayController.exportToExcel
+     */
+    def exportToExcel = {
+        def ids = params.list( 'ids' ).findAll { it.isLong() }.collect { Long.valueOf( it ) };
+        def tokens = params.list( 'tokens' );
+
+        if( !ids && !tokens ) {
+            flash.errorMessage = "No study ids given";
+            redirect( controller: "assay", action: "errorPage" );
+            return;
+        }
+
+        // Find all assay ids for these studies
+        def assayIds = [];
+        ids.each { id ->
+            def study = Study.get( id );
+            if( study ) {
+                assayIds += study.assays.collect { assay -> assay.id }
+            }
+        }
+
+        // Also accept tokens for defining studies
+        tokens.each { token ->
+            def study = Study.findWhere(UUID: token)
+            if( study )
+                assayIds += study.assays.collect { assay -> assay.id }
+        }
+
+        if( !assayIds ) {
+            flash.errorMessage = "No assays found for the given studies";
+            redirect( controller: "assay", action: "errorPage" );
+            return;
+        }
+
+        // Create url to redirect to
+        def format = params.get( "format", "sheets" )
+        redirect( controller: "assay", action: "exportToExcel", params: [ "format": format, "ids": assayIds ] );
+    }
 }

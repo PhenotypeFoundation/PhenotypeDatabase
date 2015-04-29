@@ -19,7 +19,7 @@
 <h3><a href="#">Where can I edit my assay?</a></h3>
 <div>
     <p>To change the name of an assay, or to add more samples to an assay, go to your study in GSCF using the button in the menubar.
-    In GSCF you can edit your assay in the studywizard.</p>
+    In GSCF you can edit your assay in the study editor.</p>
 </div>
 
 <h3><a href="#">I don't see my samples, what can I do?</a></h3>

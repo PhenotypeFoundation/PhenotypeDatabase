@@ -795,8 +795,6 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
                         }) );
                     },
                     select: function( event, ui ) {
-                        console.log(event);
-                        console.log(ui);
                         ui.item.option.selected = true;
                         self._trigger( "selected", event, {
                             item: ui.item.option
@@ -823,10 +821,9 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
                         } 
                     }
                 });
-/*
+
             input.data( "ui-autocomplete" )._renderMenu = function( ul, items ) {
-                var self = this,
-                    currentCategory = "";
+                var self = this, currentCategory = "";
                 $.each( items, function( index, item ) {
                     if ( item.category != currentCategory ) {
                         ul.append( "<li class='ui-autocomplete-category'>" + item.category + "</li>" );
@@ -837,12 +834,11 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
             };
 
             input.data( "ui-autocomplete" )._renderItem = function( ul, item ) {
-                console.log(item);
                 return $( "<li></li>" )
-                    .data( "item.autocomplete", item )
+                    .data( "ui-autocomplete-item", item )
                     .append( "<a>" + item.label + "</a>" )
                     .appendTo( ul );
-            }; */
+            };
         },
 
         destroy: function() {

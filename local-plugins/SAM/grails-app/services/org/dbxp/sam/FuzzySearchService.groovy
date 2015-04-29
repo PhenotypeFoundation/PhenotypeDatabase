@@ -1,6 +1,6 @@
 package org.dbxp.sam
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.Holders
 
 class FuzzySearchService {
 
@@ -18,7 +18,7 @@ class FuzzySearchService {
 	 * 							candidate:	the best matching candidate for this pattern or null if no match has been found
 	 * 							index:		the index of the candidate in the original list				
 	 */
-	static def mostSimilarUnique( patterns, candidates, thresholdInput='default' ) {
+    static def mostSimilarUnique( patterns, candidates, thresholdInput='default' ) {
         def threshold = retrieveThresholdFromConfig(thresholdInput)
 		def matches = []
 		
@@ -35,7 +35,7 @@ class FuzzySearchService {
 		}
 		
 		// Sort the list on descending score
-		matches = matches.sort( { a, b -> b.score <=> a.score } as Comparator )
+		matches = matches.sort { a, b -> b.score <=> a.score }
 		
 		// Loop through the scores and select the best matching for every candidate
 		def results = patterns.collect { [ 'pattern': it, 'candidate': null, 'index': null ] }
@@ -142,13 +142,13 @@ class FuzzySearchService {
      * @return  A double
      */
     static double retrieveThresholdFromConfig(thresholdInput){
-        Double defaultValue = Double.valueOf(ConfigurationHolder.config.fuzzyMatching.threshold.default)
+        Double defaultValue = Double.valueOf(Holders.config.fuzzyMatching.threshold.default)
         if(thresholdInput=='default'){
             return defaultValue
         }
 
         // Apparently it was not the default value that was requested so try to find the requested custom value
-        String requestedValueString = ConfigurationHolder.config.fuzzyMatching.threshold.get(thresholdInput['controller']).get(thresholdInput['item'])
+        String requestedValueString = Holders.config.fuzzyMatching.threshold.get(thresholdInput['controller']).get(thresholdInput['item'])
         if(requestedValueString!=null && requestedValueString!=''){
             return Double.valueOf(requestedValueString)
         } else {
