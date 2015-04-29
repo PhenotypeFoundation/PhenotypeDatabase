@@ -20,7 +20,7 @@
  */
 
 class GdtGrailsPlugin {
-    def version			= "0.5.0.5"
+    def version			= "0.5.0.6"
     def grailsVersion	= "2.0.0 > *"
     def dependsOn		= [ajaxflow: "0.2.1 > *", jquery: "1.7.1 > *" ]
     def pluginExcludes	= [
