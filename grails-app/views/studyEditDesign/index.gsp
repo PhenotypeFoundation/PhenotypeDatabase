@@ -129,6 +129,8 @@
 		<g:form action="eventInEventGroup" name="eventInEventGroup"></g:form>
 		<g:form action="samplingEventInEventGroup" name="samplingEventInEventGroup"></g:form>
 		<g:form action="subjectEventGroup" name="subjectEventGroup"></g:form>
+
+		<g:set var="timelineMax" value="${study.subjectEventGroups.endTime.max()}"/>
 		
 		<r:script>	
 			$(function() {
@@ -137,7 +139,7 @@
 				     data.push({
 				       'start': new Date(${group.startDate.time}),
 				       'end': new Date(${group.endDate.time}),  // end is optional
-				       'type': "${group.eventGroup?.duration?.value == 0 ? 'box' : 'range' }",	// ${group.eventGroup?.duration}
+				       'type': "${group.eventGroup?.duration?.value < (timelineMax/50) ? 'box' : 'range' }",	// ${group.eventGroup?.duration}
 				       'content': '${group.eventGroup?.name.encodeAsJavaScript()}',
 				       'group': '${group.subjectGroup?.name.encodeAsJavaScript()}',
 				       'className': 'eventgroup eventgroup-id-${group.id} <g:if test="${group.samples}">hasSamples</g:if>',
@@ -164,5 +166,43 @@
 			});
 		</r:script>
 	</div>
+
+	<sec:ifAnyGranted roles="ROLE_ADMIN">
+		<div>
+			<p>
+				<h2>Migrate this study!</h2>
+				<g:if test="${migrateDesign.step == 1}">
+					<p>
+						This seems to be a legacy study, click the 'migrate' button below to migrate this study to the new format<br>
+						<b>Note:</b> please do not make manual changes to this study before migration.
+					<g:form controller="tnoMigrate" action="migrateStudy">
+						<g:hiddenField name="id" value="${study.id}"/>
+						<g:submitButton name="Migrate" class="button-4 margin10 pie"/>
+					</g:form>
+					</p>
+				</g:if>
+				<g:elseif test="${migrateDesign.step == 2}">
+					<p>
+						<b>Please validate the complete study design.</b><br>
+						If something didn't work out the way it supposed, please click the 'reset' button below.
+						<g:form controller="tnoMigrate" action="deleteNewDesign">
+							<g:hiddenField name="id" value="${study.id}"/>
+							<g:hiddenField name="migrateDesign" value="${migrateDesign}"/>
+							<g:submitButton name="Reset" class="button-4 margin10 pie"/>
+						</g:form>
+					</p>
+					<br><br>
+					<p>
+						If it all worked out fine please click the 'proceed' button below to delete the old design and link the samples to the new design.
+						<g:form controller="tnoMigrate" action="deleteOldDesignAndLinkSamples">
+							<g:hiddenField name="id" value="${study.id}"/>
+							<g:hiddenField name="migrateDesign" value="${migrateDesign}"/>
+							<g:submitButton name="Proceed" class="button-4 margin10 pie"/>
+						</g:form>
+					</p>
+				</g:elseif>
+			</p>
+		</div>
+	</sec:ifAnyGranted>
 </body>
 </html>

@@ -1,14 +1,8 @@
 package generic.installation
 
-import dbnp.studycapturing.Event
-import dbnp.studycapturing.EventGroup
-import dbnp.studycapturing.EventInEventGroup
-import dbnp.studycapturing.Sample
-import dbnp.studycapturing.SamplingEvent
-import dbnp.studycapturing.SamplingEventInEventGroup
-import dbnp.studycapturing.Study
-import dbnp.studycapturing.SubjectGroup
-import dbnp.studycapturing.SubjectEventGroup
+import dbnp.studycapturing.*
+import grails.converters.JSON
+import org.dbnp.gdt.Template
 import grails.plugins.springsecurity.Secured
 
 /**
@@ -18,341 +12,219 @@ import grails.plugins.springsecurity.Secured
  */
 @Secured(['ROLE_ADMIN'])
 class TnoMigrateController {
+    def dataSource
 
-    def index() {
-    }
+    def migrateStudy() {
+        def study = Study.read( params.id )
 
+        def sql = new groovy.sql.Sql(dataSource)
 
-    def deduplicatetest() {
-        def message = "Succes!"
-        def study = Study.get(params.get("studyID"))
-        deduplicate(study)
-        [message: message]
-    }
+        def allEventGroups = []
 
-    def migrate() {
-        def message = "Good luck migrating!";
+        def oldEventGroupIdList = []
+        def oldEventIdList = []
+        def oldSamplingEventIdList = []
 
-        def studies = Study.findAll()
+        def newSubjectGroupIdList  = []
+        def newEventIdList = []
+        def newSamplingEventIdList = []
 
-        for (Study study in studies) {
-            def oldEventGroups = [] + study.eventGroups
-            HashMap<String, EventGroup> newEventGroups = []
-            //35827,1983094
-            //def selectedIDS = [35827,30986,1983094,96239,358848]
-            def selectedIDS = [1983094]
-            def collectedSurplusSamplingEvents = []
+        //Creation of subjectGroups
+        def oldEventGroups = sql.rows("SELECT id, name FROM event_group WHERE parent_id = ${study.id}")
 
-            if (selectedIDS.contains((int)study.id)) {
-				log.info( "Start migrating study " + study.id + " / " + study.code  )
-				log.info( "  Study has " + oldEventGroups?.size() + " subjectgroups" )
-				
-				for(EventGroup eventGroup in oldEventGroups) {
-					log.info( "  Migrating subjectgroup/eventgroup " + eventGroup.id + " / " + eventGroup )
-					
-                    def temporaryEventGroups = [:]
-                    def eventInstances = eventGroup.eventInstances + eventGroup.samplingEventInstances
-					SubjectGroup subjectGroup = SubjectGroup.find {id == eventGroup.id}
-					
-					log.info( "    Eventgroup has " + eventInstances?.size() + " events and samplingevents" )
-					
-                    // Collect unique set of eventgroups and their respective events
-                    eventInstances.each {
-                        def migrateEventGroups
-                        try {
-                            migrateEventGroups = it.event.getFieldValue( getColumnName(it.event) ).split(";");
-                        } catch (Exception e) {
-                            println (e)
-                        }
-                        for (String newEventGroup in migrateEventGroups) {
-                            this.registerUniqueEventGroup(temporaryEventGroups, newEventGroup)
-                            this.addEventToEventGroupSet(temporaryEventGroups, newEventGroup, it)
-                        }
-                    }
-					
-					log.info( "    Eventgroup has " + temporaryEventGroups?.size() + " new eventgroups, based on the migration:" )
-					temporaryEventGroups?.each  {
-						log.info( "      - " + it.key + " with " + it.value?.size() + " (sampling)events" )
-					}
+        oldEventGroups.each() { oldEventGroup ->
+            oldEventGroupIdList << oldEventGroup.id
 
-                    // Persist new eventgroups in database that:
-                    // - have multiple events
-                    // - or single event with only one eventgroup specified in migration column
-                    // Else ignore eventgroup
-                    temporaryEventGroups.each { eventGroupName, eventInstanceSet ->
-                        if(eventInstanceSet && eventInstanceSet.find { it instanceof EventInEventGroup }) {
-							log.info( "    New eventgroup " + eventGroupName + " contains at least an event, and will be persisted" )
-							
-                            // Collect minimum start to normalize starttimes
-                            def minimumStartTime = eventInstanceSet.collect { it.startTime }.min()
+            def subjectGroup = new SubjectGroup( name: oldEventGroup.name, parent: study )
+            subjectGroup.parent = study
 
-                            // Create and persist eventgroup
-                            eventGroupName += "_" + eventGroup.name
-                            EventGroup newEventGroup = this.createNewEventGroup(study, eventGroupName)
+            //Get subjects for event_group
+            sql.rows("SELECT subject_id FROM event_group_subject WHERE event_group_subjects_id = ${oldEventGroup.id}").collect() { it.subject_id }.each() { subjectId ->
+                def subject = Subject.read( subjectId)
+                subjectGroup.addToSubjects( subject )
+            }
 
-                            // Associate subject groups with the new eventgroup
-                            def newSubjectEventGroup = this.updateSubjectGroups(study, subjectGroup, newEventGroup, minimumStartTime)
+            study.addToSubjectGroups( subjectGroup )
+            study.save( flush: true, failOnError: true )
+            subjectGroup.save( flush: true, failOnError: true )
 
-                            // Associate events to the new eventgroup
-                            eventInstanceSet.each {
-								// Make sure the most recent data is available
-								it.refresh()
-								
-                                def newEventInEventGroup = this.addEventToEventGroup(it, newEventGroup, it.startTime - minimumStartTime)
-                                if(it.event instanceof SamplingEvent) {
-									log.info( "      SamplingEvent " + it + " (" + it.event.name + ") is moved to the new eventgroup, and sample associations are updated." )
-                                    this.updateSampleAssociations(it, newEventInEventGroup, newSubjectEventGroup)
-                                    it.event.name = it.event.template.name;
-                                } else {
-                                    try {
-										log.info( "      Event " + it + " (" + it.event.name + ") is moved to the new eventgroup." )
-                                        it.event.name = it.event.getFieldValue("Event name (STRING)");
-                                    } catch(NoSuchFieldException nsfe) {
-                                        log.warn( "      Event name field is not present in event " + it.event.id + ". No name is assigned." )
-                                    }
+            newSubjectGroupIdList  << subjectGroup.id
+
+            def oldEvents = sql.rows("SELECT id, start_time, end_time, template_id FROM event WHERE id IN (SELECT event_id FROM event_group_event WHERE event_group_events_id = ${oldEventGroup.id})")
+            oldEvents.each() { oldEvent ->
+                oldEventIdList << oldEvent.id
+
+                def eventName = sql.rows("SELECT template_string_fields_elt FROM event_template_string_fields WHERE event_id = ${oldEvent.id} AND template_string_fields_idx ='Event name (STRING)'").template_string_fields_elt[0]
+                def migration = sql.rows("SELECT template_string_fields_elt FROM event_template_string_fields WHERE event_id = ${oldEvent.id} AND template_string_fields_idx ='Migration'").template_string_fields_elt[0]
+
+                EventGroup eventGroup = allEventGroups.find() { it.name.equalsIgnoreCase(eventName) }
+                if (!eventGroup) {
+                    eventGroup = new EventGroup( name: eventName, parent: study )
+                    study.addToEventGroups( eventGroup )
+                    eventGroup.save( flush: true, failOnError: true )
+
+                    allEventGroups << eventGroup
+                }
+
+                SubjectEventGroup subjectEventGroup = new SubjectEventGroup( study: study, SubjectGroup: subjectGroup, eventGroup: eventGroup, startTime: oldEvent.start_time )
+                study.addToSubjectEventGroups(subjectEventGroup)
+                subjectGroup.addToSubjectEventGroups(subjectEventGroup)
+                eventGroup.addToSubjectEventGroups(subjectEventGroup)
+                subjectEventGroup.save( flush: true, failOnError: true )
+
+                def event = Event.findByParentAndName(study, eventName)
+                if (!event) {
+                    event = new Event( name: eventName, parent: study, template: Template.read( oldEvent.template_id ) )
+                    study.addToEvents( event )
+                    event.save( flush: true, failOnError: true )
+
+                    newEventIdList << event.id
+                }
+
+                def eventRelativeStartTime = (oldEvent.start_time - subjectEventGroup.startTime)
+                def eventDuration = (oldEvent.end_time - oldEvent.start_time)
+
+                def eventInEventGroup = EventInEventGroup.findByEventGroupAndEventAndStartTimeAndDuration(eventGroup, event, eventRelativeStartTime, eventDuration)
+                if (!eventInEventGroup) {
+                    eventInEventGroup = new EventInEventGroup( startTime: eventRelativeStartTime, duration: eventDuration, event: event, eventGroup: eventGroup ).save( flush: true, failOnError: true )
+                    eventGroup.addToEventInstances(eventInEventGroup)
+                }
+            }
+
+            def oldSamplingEvents = sql.rows("SELECT id, start_time, duration, template_id, sample_template_id FROM sampling_event WHERE id IN (SELECT sampling_event_id FROM event_group_sampling_event WHERE event_group_sampling_events_id = ${oldEventGroup.id})")
+            oldSamplingEvents.each() { oldSamplingEvent ->
+                oldSamplingEventIdList << oldSamplingEvent.id
+
+                def oldSamplingEventDetails = sql.rows("SELECT setsf.template_string_fields_elt, setrtf.template_rel_time_fields_elt FROM sampling_event_template_string_fields setsf, sampling_event_template_rel_time_fields setrtf WHERE setsf.sampling_event_id = ${oldSamplingEvent.id} AND setrtf.sampling_event_id = ${oldSamplingEvent.id} AND setsf.template_string_fields_idx = 'Migration' AND setrtf.template_rel_time_fields_idx = 'Relative time in related event'" )
+                def migration = oldSamplingEventDetails.template_string_fields_elt[0]
+                def relativeTimeField = oldSamplingEventDetails.template_rel_time_fields_elt[0]
+
+                migration.split(';').each() { eventName ->
+                    EventGroup eventGroup = allEventGroups.find() { it.name.equalsIgnoreCase(eventName) }
+
+                    if (eventGroup) {
+                        def correspondingSubjectEventGroup = eventGroup.subjectEventGroups.find() { it.startTime <= (oldSamplingEvent.start_time - relativeTimeField) && it.endTime >= ((oldSamplingEvent.start_time - relativeTimeField) + oldSamplingEvent.duration) }
+                        if (correspondingSubjectEventGroup) {
+                            def template = Template.read( oldSamplingEvent.template_id )
+
+                            //Set template name as samplingEvent name
+                            def samplingEventName = template.name
+
+                            def samplingEvent = SamplingEvent.findByParentAndName(study, samplingEventName)
+                            if (!samplingEvent) {
+                                def sampleTemplate = Template.read( oldSamplingEvent.sample_template_id )
+                                samplingEvent = new SamplingEvent( name: samplingEventName, parent: study, template: template, sampleTemplate: sampleTemplate )
+                                study.addToSamplingEvents( samplingEvent )
+                                samplingEvent.getRequiredFields().each() {
+                                    samplingEvent.setFieldValue(it.name, SamplingEvent.read(oldSamplingEvent.id).getFieldValue(it.name))
                                 }
-                                it.event.save()
+                                samplingEvent.save( flush: true )
+
+                                println "ADFADSFASDFADSFASD!!!!!!!!!"
+                                println samplingEvent.parent
+
+                                newSamplingEventIdList << samplingEvent.id
                             }
-                        } else {
-							// The eventgroup doesn't contain any events. For that reason, it is discarded
-							// However, if the samplingEvent 
-							log.info( "    New eventgroup " + eventGroupName + " doesn't contain events, so any sampling events will be moved to the SurplusSamplingEvents group." )
-                            collectedSurplusSamplingEvents = (collectedSurplusSamplingEvents << eventInstanceSet).flatten()
+
+                            def relativeStartTime = ( (long) oldSamplingEvent.start_time - (long) correspondingSubjectEventGroup.startTime )
+
+                            def samplingEventInEventGroup = SamplingEventInEventGroup.findByEventGroupAndEventAndStartTimeAndDuration( eventGroup, samplingEvent, relativeStartTime, oldSamplingEvent.duration )
+                            if (!samplingEventInEventGroup) {
+                                samplingEventInEventGroup = new SamplingEventInEventGroup( startTime: relativeStartTime, duration: oldSamplingEvent.duration, event: samplingEvent, eventGroup: eventGroup ).save( flush: true, failOnError: true )
+                                eventGroup.addToSamplingEventInstances(samplingEventInEventGroup)
+                            }
                         }
                     }
-
-					
-					// Make sure to only keep surplus sampling events that actually relate to samples
-					
-					def surplusEventsToStore = collectedSurplusSamplingEvents.findAll { it instanceof SamplingEventInEventGroup && it.samples }
-					
-					if( surplusEventsToStore ) {
-						log.info( "    Going to store " + surplusEventsToStore?.size() + " sampling events, as they are still associated with samples" )
-
-						def minimumStartTime = 0
-	                    Random rand = new Random()
-	                    def eventGroupName = "collectedSurplusSamplingEvents" + rand.nextInt(10000)
-	                    EventGroup newEventGroup = this.createNewEventGroup(study, eventGroupName)
-	
-	                    def newSubjectEventGroup = this.updateSubjectGroups(study, subjectGroup, newEventGroup, minimumStartTime)
-						log.info( "    Created a new surplusSamplingEvents group for subjectGroup " + subjectGroup )
-					
-	                    collectedSurplusSamplingEvents.each {
-	                        if(it.event instanceof SamplingEvent) {
-								log.info( "      Moving samplingevent " + it + " / " + it.event + " to the surplus group. Also updating sample associations." )
-	                            def newEventInEventGroup = this.addEventToEventGroup(it, newEventGroup, it.startTime - minimumStartTime)
-	                            this.updateSampleAssociations(it, newEventInEventGroup, newSubjectEventGroup)
-	                            it.event.name = it.event.template.name+" (surplus)";
-	                            it.event.save()
-	                        } else {
-	                            log.error( "      The collection of surplus events contains something other than a SamplingEvent: " + it + " / " + it.event?.class )
-	                        }
-	                    }
-					} else {
-						log.info( "    No surplus sampling events to be stored for this study. Yeah!" )
-					}
+                    else {
+                        println "No eventGroup found for migration column value ${eventName}"
+                    }
                 }
-
-                for (eventGroup in oldEventGroups) {
-					log.info( "    Deleting event group " + eventGroup )
-                    study.deleteEventGroup(eventGroup)
-                }
-                study.save(failOnError: true)
             }
         }
 
-        [message: message]
+        redirect controller: 'studyEditDesign', params: [ id: study.id, migrateDesign: [ oldEventGroupIdList: oldEventGroupIdList, oldEventIdList: oldEventIdList, oldSamplingEventIdList: oldSamplingEventIdList, newEventGroupIdList: allEventGroups.id, newSubjectGroupIdList: newSubjectGroupIdList, newEventIdList: newEventIdList, newSamplingEventIdList: newSamplingEventIdList ] ]
     }
 
-    private String getColumnName (event) {
-        if(event instanceof SamplingEvent) {
-            "Migration"
-        } else {
-            "Migration"
-        }
-    }
+    def deleteOldDesignAndLinkSamples() {
+        def migrateDesign = JSON.parse(params.migrateDesign)
 
-    private void registerUniqueEventGroup(newEventGroups, name) {
-        if (!newEventGroups.containsKey(name)) {
-            newEventGroups.putAt(name, [] as ArrayList)
-        }
-    }
-
-    private void addEventToEventGroupSet(eventListForEventGroup, name, event) {
-        def eventListForEG = eventListForEventGroup.get(name)
-        eventListForEG.push(event)
-        eventListForEventGroup.putAt(name, eventListForEG)
-    }
-
-    private EventGroup createNewEventGroup(Study study, String name) {
-            def eventGroup = new EventGroup()
-            eventGroup.name = name
-            study.addToEventGroups(eventGroup)
-            eventGroup.save(failOnError: true, flush: true)
-            eventGroup
-    }
-
-    def addEventToEventGroup(eventInstance, EventGroup eventGroup, startTime) {
-        def eventInEventGroup;
-        def event = eventInstance.event
-
-        if(event instanceof SamplingEvent) {
-            eventInEventGroup = new SamplingEventInEventGroup()
-            eventGroup.addToSamplingEventInstances(eventInEventGroup)
-        } else {
-            eventInEventGroup = new EventInEventGroup()
-            eventGroup.addToEventInstances(eventInEventGroup)
+        migrateDesign['oldEventGroupIdList'].each() { oldEventGroupId ->
         }
 
-        eventInEventGroup.startTime = startTime
-        eventInEventGroup.duration = eventInstance.duration
-        event.addToEventGroupInstances(eventInEventGroup)
-        eventInEventGroup.save(failOnError: true, flush: true)
-        return eventInEventGroup
-    }
-
-    private void updateSampleAssociations(oldEventInstance, eventInEventGroup, newSubjectEventGroup) {
-		log.info( "      Updating sample associations from " + oldEventInstance + " to " + eventInEventGroup + " and " + newSubjectEventGroup )
-            		
-        ([] + oldEventInstance.samples).each { Sample sample ->
-			log.info( "        Updating association for sample " + sample.id + " / " + sample )
-            sample.parentSubjectEventGroup.removeFromSamples(sample)
-            sample.parentEvent.removeFromSamples(sample)
-
-            eventInEventGroup.addToSamples( sample )
-            newSubjectEventGroup.addToSamples ( sample )
-
-            sample.save( flush: true )
-        }
-    }
-
-    private SubjectEventGroup updateSubjectGroups(Study study, SubjectGroup subjectGroup, EventGroup eventGroup, startTime) {
-        SubjectEventGroup subjectEventGroup = new SubjectEventGroup()
-        subjectEventGroup.startTime = startTime
-
-        eventGroup.addToSubjectEventGroups(subjectEventGroup)
-        subjectGroup.addToSubjectEventGroups(subjectEventGroup)
-        study.addToSubjectEventGroups(subjectEventGroup)
-        subjectEventGroup.save(failOnError: true, flush: true)
-        return subjectEventGroup
-    }
-
-    private void updateEventInEventGroup(event, oldEvent) {
-        def eventInEventGroups = oldEvent.eventGroupInstances;
-
-        ( [] + eventInEventGroups).each {
-            oldEvent.removeFromEventGroupInstances(it)
-            event.addToEventGroupInstances(it)
-            it.event = event
-            it.save(failOnError: true, flush: true)
+        migrateDesign['oldEventIdList'].each() { oldEventId ->
         }
 
-        oldEvent.save(failOnError: true, flush: true)
-        event.save(failOnError: true, flush: true)
+        migrateDesign['oldSamplingEventIdList'].each() { oldSamplingEventId ->
+        }
+
+        redirect controller: 'studyEditDesign', id: params.id
     }
-	
-	/**
-	 * Does a deduplication on the events and sampling events, as they may have been copied during the migration
-	 * @param study
-	 */
-	protected void deduplicate( Study study ) {
-		// Loop through all events/samplingevents.
-		deduplicateEntities( study, study.events );
-		deduplicateEntities( study, study.samplingEvents );
-	}
-	
-	/**
-	 * Deduplicate a list of entities within a study
-	 * @param study
-	 * @param entities
-	 */
-	protected void deduplicateEntities( Study study, entities ) {
-		if( !entities )
-			return 
-			 
-		def events = [] + entities
-		def deletedIds = []
 
-        ( [] + entities ).each { entity ->
-			// Check whether this event had been deleted before, if it was a 
-			// duplicate of another event. In that case, we can skip handling this event 
-			if( deletedIds.contains( entity.id ) )
-				return
-			
-			// If there are duplicates of an event/samplingevent in the database (i.e. another event with the exact same values, even in the templatefields)
-			def duplicates = findDuplicates( entities, entity );
+    def deleteNewDesign() {
+        def migrateDesign = JSON.parse(params.migrateDesign)
 
-			if( duplicates ) {
-				deletedIds += handleDuplicates( study, entity, duplicates )
-			}
-		}
-	}
-	
-	/**
-	 * Returns a list of ids that have been deleted
-	 * @param study
-	 * @param event
-	 * @param duplicates
-	 * @return
-	 */
-	protected List handleDuplicates( Study study, def original, def duplicates ) {
+        def study = Study.read( params.id )
 
+        migrateDesign['newEventIdList'].each() { newEventId ->
+            deleteNewDesignEvent( Event.read( newEventId ) )
+        }
+        migrateDesign.remove('newEventIdList')
+        study.save( flush: true )
 
-        ( [] + duplicates).each { duplicate ->
-            updateEventInEventGroup(original, duplicate)
+        migrateDesign['newSamplingEventIdList'].each() { newSamplingEventId ->
+            deleteNewDesignSamplingEvent( SamplingEvent.read( newSamplingEventId ) )
+        }
+        migrateDesign.remove('newSamplingEventIdList')
+        study.save( flush: true )
 
-            if(duplicate instanceof SamplingEvent) {
-                study.deleteSamplingEvent(duplicate)
-            } else {
-                study.deleteEvent(duplicate)
-            }
-		}
+        if( migrateDesign['newSubjectGroupIdList'].size() > 0 ) {
+            study.deleteSubjectGroup( SubjectGroup.read( migrateDesign['newSubjectGroupIdList'][0]) )
+            migrateDesign['newSubjectGroupIdList'].remove( 0 )
+            redirect( action: 'deleteNewDesign', params: [ id: params.id, migrateDesign: migrateDesign ] )
+            return
+        }
 
-		return duplicates*.id
-	}
-	
-	/**
-	 * Returns a list of duplicate entities for a given entity
-	 * @param entities
-	 * @param entity
-	 * @return
-	 */
-	protected List findDuplicates( entities, entity ) {
-		if( !entities || !entity )
-			return null
-			
-		def fieldsToIgnore = getFieldsToIgnore( entity.class )
-		return entities.findAll { otherEntity ->
-            if(otherEntity.id == entity.id || otherEntity.template.id != entity.template.id)
-                return false;
+        if( migrateDesign['newEventGroupIdList'].size() > 0 ) {
+            study.deleteEventGroup( EventGroup.read( migrateDesign['newEventGroupIdList'][0]) )
+            migrateDesign['newEventGroupIdList'].remove( 0 )
+            redirect( action: 'deleteNewDesign', params: [ id: params.id, migrateDesign: migrateDesign ] )
+            return
+        }
 
-			for( field in entity.giveFields() ) {
-				// Ignore some fields in comparison
-				if( fieldsToIgnore.contains( field.name ) )
-					continue
-				
-				// If the field in this entity is different from the reference entity, return false
-				if( otherEntity.getFieldValue( field.name ) != entity.getFieldValue( field.name ) )
-					return false;
-			}
-			
-			return true;
-		}
-	}
-	
-	/**
-	 * Returns a list of fields to ignore when comparing entities of some type
-	 * @param type
-	 * @return
-	 */
-	protected List getFieldsToIgnore( def type ) {
-		switch( type ) {
-			case Event:
-				return [ "Migration" ]
-			case SamplingEvent:
-				return [ "Migration", "Sampling name short", "Related Event/Chall.", "Relative time in related event" ]
-			default:
-				throw new Exception( "Invalid type: " + type )
-		}
-	}
+        redirect controller: 'studyEditDesign', id: params.id
+    }
+
+    private deleteNewDesignEvent( Event event ) {
+        // remove event from eventGroups
+        ( [] + event.eventGroupInstances ).each { eventGroupInstance ->
+            eventGroupInstance.eventGroup.removeFromEventInstances( eventGroupInstance )
+            eventGroupInstance.event.removeFromEventGroupInstances( eventGroupInstance )
+
+            eventGroupInstance.delete()
+        }
+
+        // remove event from the study
+        event.parent.removeFromEvents(event)
+
+        // and perform a hard delete
+        event.delete( flush: true )
+    }
+
+    private deleteNewDesignSamplingEvent( SamplingEvent samplingEvent ) {
+        // remove event from eventGroups
+        ( [] + samplingEvent.eventGroupInstances ).each { eventGroupInstance ->
+            eventGroupInstance.eventGroup.removeFromSamplingEventInstances( eventGroupInstance )
+            eventGroupInstance.event.removeFromEventGroupInstances( eventGroupInstance )
+
+            eventGroupInstance.delete()
+        }
+
+        // Remove event from the study
+        // This should remove the event group itself too, because of the cascading belongsTo relation
+        samplingEvent.parent.removeFromSamplingEvents(samplingEvent)
+
+        // But apparently it needs an explicit delete() too
+        // (Which can be verified by outcommenting this line, then SampleTests.testDeleteViaParentSamplingEvent fails
+        samplingEvent.delete( flush: true )
+    }
 }

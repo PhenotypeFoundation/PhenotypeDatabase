@@ -1,7 +1,7 @@
 package dbnp.studycapturing
 
 import grails.converters.JSON
-
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.dbnp.gdt.RelTime
 import org.dbnp.gdt.Template
 
@@ -9,7 +9,6 @@ import dbnp.authentication.SecUser
 
 class StudyEditDesignController {
 	def authenticationService
-	def datatablesService
 	def studyEditService
 	
 	def index() {
@@ -19,14 +18,26 @@ class StudyEditDesignController {
 			return
 		}
 
+		def migrateDesign
+		if( params.migrateDesign ) {
+			println params.migrateDesign
+			migrateDesign = JSON.parse(params.migrateDesign)
+			migrateDesign['step'] = 2
+		}
+
+		//Check if study is a legacy study
+		else if (1==1) {
+			migrateDesign = JSON.parse("{step:1}")
+		}
+
 		[
 			study: study,
 			templates: [
 				event: Template.findAllByEntity( Event.class ),
 				samplingEvent:  Template.findAllByEntity( SamplingEvent.class )
-			]
+			],
+			migrateDesign: migrateDesign
 		]
-
 	}
 
 	/**

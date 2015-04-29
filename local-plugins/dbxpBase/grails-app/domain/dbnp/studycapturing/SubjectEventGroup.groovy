@@ -55,6 +55,14 @@ class SubjectEventGroup implements Serializable {
     def getStartTimeString() {
         return new RelTime(startTime).toPrettyString();
     }
+
+	/**
+	 * Returns the absolute end time for this event group
+	 * @return
+	 */
+	public Long getEndTime() {
+		return (startTime + eventGroup?.duration?.value)
+	}
 	
 	static belongsTo = [ parent: Study, subjectGroup: SubjectGroup, eventGroup: EventGroup ]
 	static hasMany = [ samples: Sample ]

@@ -107,9 +107,6 @@ grails.project.dependency.resolution = {
 	}
 }
 
-//grails.plugin.location.'ajaxflow' = '../ajaxflow'
-//grails.plugin.location.'jumpbar' = '../jumpbar'
-//grails.plugin.location.'spring-security-core' = '../grails-spring-security-core'
 grails.plugin.location.'gdt' = './local-plugins/GDT'
 grails.plugin.location.'dbxpSam' = './local-plugins/SAM'
 grails.plugin.location.'gdtimporter' = './local-plugins/GDTImporter'
