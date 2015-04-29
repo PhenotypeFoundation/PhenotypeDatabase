@@ -26,6 +26,7 @@ div .simpleWizard .description { width: 170px; }
 .simpleWizard div ul.publication_list, 
 .simpleWizard div ul.contact_list { margin: 0; } 
 .simpleWizard div ul.user_list { margin: -22px 0 0 100px; }
+.simpleWizard div ul.userGroup_list { margin: -22px 0 0 100px; }
 
 /* template descriptions */
 .templatedescription {  display: block; padding: 2px 4px; border: 1px solid #4CAAED; /* #006DBA; */ }

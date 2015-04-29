@@ -89,6 +89,27 @@
 							<div class="input">
 								<g:each in="${study?.writers}" var="user">
 									${user}<br />
+								</g:if>
+								<g:else>
+									${studyInstance.readerGroups.groupName.join(", ")}
+								</g:else>
+							</td>
+						</g:each>
+					</tr>
+					<tr>
+								</g:else>
+							</td>
+						</g:each>
+					</tr>
+					<tr>
+						<td>Writer Groups</td>
+						<g:each in="${studyList}" var="studyInstance">
+							<td>
+								<g:if test="${studyInstance.writerGroups?.size()==0}">
+									-
+								</g:if>
+								<g:else>
+									${studyInstance.writerGroups.groupName.join(", ")}
 								</g:each>
 							</div>
 						</div>

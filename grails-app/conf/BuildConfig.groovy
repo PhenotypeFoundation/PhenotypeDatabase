@@ -40,6 +40,7 @@ grails.project.dependency.resolution = {
         // grails 1.3.9 does not seem to properly inherit maven repo's from plugins
         // so explicitely put mavenrepos in here. When upgraded to Grails 2.x this can
         // probably be removed
+        mavenRepo "http://repo.grails.org/grails/plugins/"
         mavenRepo "http://nexus.dbnp.org/content/repositories/releases"
         //mavenRepo "http://repository.springsource.com/maven/bundles/release"
         //mavenRepo "http://repository.springsource.com/maven/bundles/external"
@@ -85,9 +86,6 @@ grails.project.dependency.resolution = {
         compile(
                 ":hibernate4:4.3.6.1",
 
-                //            ":jquery:latest.integration",
-                //            ':jquery-ui:latest.integration',
-
                 ":jquery:1.11.1",
                 ':jquery-ui:1.10.4',
 
@@ -115,7 +113,6 @@ grails.project.dependency.resolution = {
     }
 }
 
-//grails.plugin.location.'grom' = '../grom'
 //grails.plugin.location.'ajaxflow' = '../ajaxflow'
 //grails.plugin.location.'jumpbar' = '../jumpbar'
 //grails.plugin.location.'spring-security-core' = '../grails-spring-security-core'

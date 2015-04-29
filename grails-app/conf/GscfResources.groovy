@@ -245,5 +245,11 @@ modules = {
         resource url: [dir: 'js/jqplot/plugins', file: 'jqplot.boxplotRenderer.js']
         resource url: [dir: 'js/jqplot/plugins', file: 'jqplot.highlighter.min.js']
     }
+    
+    multiselect {
+        dependsOn 'jquery'
+        resource url: [dir: 'js', file: 'jquery.multiselect.js' ]
+        resource url: [dir: 'css', file: 'jquery.multi-select.css']
+    }
 
 }
