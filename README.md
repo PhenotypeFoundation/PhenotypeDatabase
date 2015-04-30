@@ -190,7 +190,7 @@ Caveats: GSCF has not yet been tested in such an environment. Other things to ke
 * probably one PostgreSQL database can manager all members, however when load becomes too high one might also introduce one or more PostgreSQL servers. Possible read/write and read only database servers. This however required changes in the codebase to support such features.
 
 # Running the source
-The project is developed using the [Grails](http://grails.org) Framework, so you either need an IDE that supports Grails (we use Intellij) or run it in your terminal. In either case you need to [download](http://grails.org/download) install Grails (version [2.2.0](https://github.com/PhenotypeFoundation/GSCF/blob/master/application.properties) at the time of writing).
+The project is developed using the [Grails](http://grails.org) Framework, so you either need an IDE that supports Grails (we use Intellij) or run it in your terminal. In either case you need to [download](http://grails.org/download) and install Grails (version [2.4.4](https://github.com/PhenotypeFoundation/GSCF/blob/master/application.properties) at the time of writing).
 
 
 ### Running in your terminal
