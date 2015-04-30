@@ -72,7 +72,7 @@ Note: you may have to use double quotes (") rather than single quotes (').
 As of GSCF 0.8.3 a setup wizard is included which will create a configuration file for you (/path/to/homedir/.gscf/environment.properties). However, to run this wizard, you need a working instance, so it might be more convenient to write the configuration yourself.
 If you start the application, you will see exactly at which location it is looking for a configuration file. It is probably /usr/share/tomcat7/.gscf/production.properties. You can use it to specify the database connection.
 
-The latest version of the configuration file can be found [HERE](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties).
+The latest version of the configuration file can be found [here](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties).
 
 _Don't forget to change the default passwords to something more secure!_
 
@@ -202,9 +202,8 @@ When the application is running, you should be able to access it at http://local
 
 
 ### Running in your IDE
-Most of the developers on this project favor Intellij over Eclipse, as we feel it integrates best with Groovy & Grails. Running GSCF in Intellij is as easy as configuring Grails and running the Application.
+Most of the developers on this project favor [IntellijIDEA](https://www.jetbrains.com/idea/) over Eclipse/Netbeans, as we feel it integrates best with Groovy & Grails. Running GSCF in Intellij is as easy as configuring Grails and running the Application.
 
-[![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea120x60_blue.gif)](http://www.jetbrains.com/idea/features/javascript.html)
 
 ### VM Options
 
@@ -236,6 +235,6 @@ Most of the developers on this project favor Intellij over Eclipse, as we feel i
 [![JenkinsCI](http://blog.finalist.nl/wp-content/uploads/2012/03/jenkins-headshot.png)](http://jenkins-ci.org)
 [![Apache Tomcat](http://cdn.kemptechnologies.com/files/pages/kemp-loadmaster-remote-configuration-service/tomcat-logo.jpg)](http://tomcat.apache.org)
 [![Apache](http://imagenes.es.sftcdn.net/es/scrn/8000/8653/apache-http-server-11.jpg)](http://httpd.apache.org)
-[![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea120x60_blue.gif)](http://www.jetbrains.com/idea/features/javascript.html)
+[![Intellij](http://img.informer.com/icons_mac/png/48/207/207653.png)](http://www.jetbrains.com/idea/features/javascript.html)
 
 
