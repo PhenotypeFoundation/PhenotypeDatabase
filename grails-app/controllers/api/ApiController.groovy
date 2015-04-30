@@ -86,7 +86,14 @@ class ApiController {
             response.status = 500
             result = ['error':e.getMessage()]
         }
-        return result
+
+        response.contentType = 'application/json;charset=UTF-8'
+
+        if (params.containsKey('callback')) {
+            render "${params.callback}(${result as JSON})"
+        } else {
+            render result as JSON
+        }
     }
 
     /**
