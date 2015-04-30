@@ -7,9 +7,6 @@ We have the most recent builds available for download as ```war``` files which c
 War file | Build Environment | Build Status | Source | Config Location
 --- | --- | --- | --- | --- | ---
 [GSCF](http://download.dbnp.org/production/gscf.war) | ```production``` | [![Build Status](http://jenkins.dbnp.org/job/production-gscf/badge/icon)](http://jenkins.dbnp.org/job/production-gscf/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/production.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
-[Metabolomics Module](http://download.dbnp.org/production/metabolomicsModule.war) | ```production``` | [![Build Status](http://jenkins.dbnp.org/job/production-metabolomicsModule/badge/icon)](http://jenkins.dbnp.org/job/production-metabolomicsModule/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/metabolomicsModule) | ~/.metabolomicsModule/production.properties [?](https://github.com/PhenotypeFoundation/metabolomicsModule/blob/master/grails-app/conf/default.properties)
-[SAM Module](http://download.dbnp.org/production/sam.war) | ```production``` | [![Build Status](http://jenkins.dbnp.org/job/production-sam/badge/icon)](http://jenkins.dbnp.org/job/production-sam/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/TheHyve/SAM) | ~/.dbxp/production-sam.properties [?](https://github.com/thehyve/SAM/blob/master/grails-app/conf/default.properties)
-[GSCF CI](http://download.dbnp.org/ci2/gscf.war) | ```continious integration``` | [![Build Status](http://old.jenkins.dbnp.org/jenkins/job/ci2-gscf/badge/icon)](http://old.jenkins.dbnp.org/jenkins/job/ci2-gscf/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF/tree/events_refactoring) | ~/.gscf/ci2.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.propertie)
 _Note: each project / environment requires a specific configuration file._
 
 # Installation
@@ -26,14 +23,14 @@ The tutorial is based on a number of assumptions:
 
 ### Requirements
 Before we can set up the server, the following requirements should be met:
-* Apache Tomcat ≥ 6.x.x
+* Apache Tomcat ≥ 7.x.x
 * Apache Webserver ≥ 2.x (+mod_proxy, +mod_rewrite)
-* PostgreSQL database server ≥ 8.4
+* PostgreSQL database server ≥ 9.2
 * Active internet connection (with change of code other options are to install a local instance of BioPortal or remove the link to BioPortal)
 
 Installation is quick and easy:
 	
-	apt-get install tomcat6 postgresql-8.4 apache2 libapache2-mod-proxy-html libapache2-mod-jk
+	apt-get install tomcat7 postgresql-9.2 apache2 libapache2-mod-proxy-html libapache2-mod-jk
 	
 
 ### Set Up the Database
@@ -44,13 +41,8 @@ Note: you may have to use double quotes (") rather than single quotes (').
 	
 	root@nmcdsp:~# su - postgres
 	postgres@nmcdsp:~$ psql
-	Welcome to psql 8.3.14, the PostgreSQL interactive terminal.
-	
-	Type:  \copyright for distribution terms
-	       \h for help with SQL commands
-	       \? for help with psql commands
-	       \g or terminate with semicolon to execute query
-	       \q to quit
+	psql (9.2.4)
+	Type "help" for help.
 	
 	postgres=# create database 'gscf-www';
 	CREATE DATABASE
@@ -78,70 +70,32 @@ Note: you may have to use double quotes (") rather than single quotes (').
 
 ### Set up the application configuration
 As of GSCF 0.8.3 a setup wizard is included which will create a configuration file for you (/path/to/homedir/.gscf/environment.properties). However, to run this wizard, you need a working instance, so it might be more convenient to write the configuration yourself.
-If you start the application, you will see exactly at which location it is looking for a configuration file. It is probably /usr/share/tomcat6/.gscf/production.properties. You can use it to specify the database connection, for example as follows:
+If you start the application, you will see exactly at which location it is looking for a configuration file. It is probably /usr/share/tomcat7/.gscf/production.properties. You can use it to specify the database connection, for example as follows:
+
+The latest version of the configuration file can be found [HERE](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
 
 ```
-## Server URL ##
-grails.serverURL=http://dbnp.mysite.org
-gscf.baseURL=http://dbnp.mysite.org/
-gscf.issueURL=https://github.com/PhenotypeFoundation/GSCF/issues # In case you have your own fork, please change the Issue URL to fork issues
-
-## DATABASE ##
-dataSource.driverClassName=org.postgresql.Driver
-dataSource.dialect=org.hibernate.dialect.PostgreSQLDialect
-dataSource.url=jdbc:postgresql://localhost:5432/gscf-www
-dataSource.dbCreate=update
-dataSource.username=<gscfuser>
-dataSource.password=<password>
-#dataSource.logSql=false
-
-## SpringSecurity E-Mail Settings  ##
-grails.plugins.springsecurity.ui.forgotPassword.emailFrom=gscfproject@gmail.com
-
-## Module Configuration ##
-# modules.sam.url=http://sam.mysite.org
-# modules.metabolomics.url=http://metabolomics.mysite.org
-# modules.metagenomics.url=http://metagenomics.mysite.org
-
-## Default Application Users ##
-authentication.users.admin.username=<admin_user>
-authentication.users.admin.password=<password>
-authentication.users.admin.email=<your_email>
-authentication.users.admin.administrator=true
-authentication.users.user.username=<normal_user>
-authentication.users.user.password=<password>
-authentication.users.user.email=<your_email>
-authentication.users.user.administrator=false
-
-## Override Application Title ##
-application.title=Phenotype Database
-
-## Use Shibboleth Authentication? ##
-authentication.shibboleth=false
-
-## Set Upload Directory For Study Attached Files (/tmp By Default) ##
-uploads.uploadDir=/var/dbnp-uploadedFiles
-```
-
 Don't forget to change the default passwords to something more secure!
+You will need to request an API key by creating an account on http://bioportal.org.
+```
 
 ## Create a .grails directory
 Grails uses a cache folder, which should be created if the tomcat user cannot create it
 
 	
-	root@nmcdsp:~# mkdir -p /usr/share/tomcat6/.grails;chown tomcat6.tomcat6 /usr/share/tomcat6/.grails;chmod -R gou+rwx /usr/share/tomcat6/.grails
+	root@nmcdsp:~# mkdir -p /usr/share/tomcat7/.grails;chown tomcat7.tomcat7 /usr/share/tomcat7/.grails;chmod -R gou+rwx /usr/share/tomcat7/.grails
 	
 
 ### Install GSCF
 Download and install the latest WAR from the section above, and deploy it on your application container (e.g. Apache Tomcat).
 	
-
+	
 ### Start GSCF
 You should now be able to start tomcat and run the GSCF application:
 
 	
-	root@nmcdsp:~# /etc/init.d/tomcat6 start
-	Starting Tomcat servlet engine: tomcat6.
+	root@nmcdsp:~# /etc/init.d/tomcat7 start
+	 * Starting Tomcat servlet engine tomcat7                                [ OK ]
 	root@nmcdsp:~# 
 	
 
@@ -239,40 +193,19 @@ Caveats: GSCF has not yet been tested in such an environment. Other things to ke
 # Running the source
 The project is developed using the [Grails](http://grails.org) Framework, so you either need an IDE that supports Grails (we use Intellij) or run it in your terminal. In either case you need to [download](http://grails.org/download) install Grails (version [2.2.0](https://github.com/PhenotypeFoundation/GSCF/blob/master/application.properties) at the time of writing).
 
-[![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea125x37_blue.gif)](http://www.jetbrains.com/idea/) 
 
 ### Running in your terminal
 When you have successfully installed the Grails web application framework, you should be able to run Grails in your terminal:
 
-![grails version](https://dl.dropbox.com/s/n9r4m7s36x0l53z/grails%20version.png?token_hash=AAF6EjDSLSMm50LXniS9rCqNh9cb9erV9FOQWWxnlCe4Vg&dl=1)
-
-If grails is installed successfully, you can clone the project to your machine and run the project:
-
-![clone and run](https://dl.dropbox.com/s/rkle0zyys81xt3o/GSCF%20-%20Clone%20and%20Run.png?token_hash=AAEVU4XpCk7OVpACKbFWqNNbT4K6p_RGSyTdglj-hBFPKw&dl=1)
+	root@nmcdsp:~/projectRoot/ grails run-app 
 
 When the application is running, you should be able to access it at http://localhost:8080/gscf
+
 
 ### Running in your IDE
 Most of the developers on this project favor Intellij over Eclipse, as we feel it integrates best with Groovy & Grails. Running GSCF in Intellij is as easy as configuring Grails and running the Application.
 
 [![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea120x60_blue.gif)](http://www.jetbrains.com/idea/features/javascript.html)
-
-
-#### 1. making sure the grails distribution is configured
-
-![module settings 1](https://dl.dropbox.com/s/qwyrx2r6y7ft5uz/Intellij%20-%20Module%20Settings%201.png?token_hash=AAHsiLLLwwa4auW4Hyx5k3wvMsYeXNkMDjwtK3Gu_Rm6IA&dl=1)
-
-![module settings 2](https://dl.dropbox.com/s/sbidgds06pgb6wg/Intellij%20-%20Module%20Settings%202.png?token_hash=AAEZPWoE0HcTVdRqD2IsXCZBlVOR-HlZXQeuvi2OKTopQA&dl=1)
-
-#### 2. make sure the Groovy & Grails plugins are intalled
-
-![plugins](https://dl.dropbox.com/s/r3e1u27nlsunjr3/Intellij%20-%20Plugins.png?token_hash=AAHZnz5kX4rDRTaZMensbT8EbBl-h8kNDNNtdIwreFL2Tg&dl=1)
-
-#### 3. configuring the run
-
-![run config 1](https://dl.dropbox.com/s/4rslrbot0ryov1m/Intellij%20-%20Edit%20Configurations%201.png?token_hash=AAHl3tFNrChGPWeLQgX0GL_O2Z-26CVUe0iRXZwS_IXaKg&dl=1)
-
-![run config 2](https://dl.dropbox.com/s/9v00ns7nu6iaj73/Intellij%20-%20Edit%20Configurations%202.png?token_hash=AAHbx4nUy95pWDxHA9dWCs79gC75-pJizsQtkwuCdV5RMw&dl=1)
 
 The VM Options in this screenshot are:
 
@@ -281,10 +214,6 @@ The VM Options in this screenshot are:
 ```
 
 _Where the latter two (```-javaagent:… -Xverify:none```) can be omitted as they used to resolve a specific [dynamic reloading issue in Intellij 12](http://youtrack.jetbrains.com/issue/IDEA-98131) which was solved in the latest Intellij builds_
-
-#### 4. running the application
-
-![run](https://dl.dropbox.com/s/16wzrz9e9fdexjl/Intellij%20-%20Run%20Application.png?token_hash=AAEgsZhqxSBPxpINZ6NzKaUvpIBp8OmZnOywHU8lT6rctA&dl=1)
 
 # License
    Copyright 2009 Phenotype Foundation & Netherlands Metabolomics Centre
@@ -303,6 +232,13 @@ _Where the latter two (```-javaagent:… -Xverify:none```) can be omitted as the
    
 
 # Technologies
-[![Grails](http://www.chip.de/ii/6/0/5/9/2/7/1/95f75d6b0f329cb3.jpg)](http://www.grails.org)[![jQuery](https://twimg0-a.akamaihd.net/profile_images/59268975/jquery_avatar.png)](http://jquery.org)[![jQuery-UI](http://www.bits4beats.it/wp-content/uploads/2010/02/jquery_ui_logo.png)](http://jqueryui.com)[![PostgreSQL](http://avatar3.status.net/i/identica/42228-96-20090305041844.png)](http://www.postgresql.org)[![MongoDB](http://lh6.ggpht.com/1Y8VwD0Z3DPVQeLay95yh58Xhns19mXhmSTzVGKHW_rcUm0o1-jvWdCIcDsKyYJcwlY6rzbaI0ecN22oYg)](http://www.mongodb.org)[![JenkinsCI](http://blog.finalist.nl/wp-content/uploads/2012/03/jenkins-headshot.png)](http://jenkins-ci.org)[![Apache Tomcat](http://swik.net/swikIcons/img-242-96x96.jpg)](http://tomcat.apache.org)[![Apache](http://www.defects.nl/images/05_apache.png)](http://httpd.apache.org) [![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea120x60_blue.gif)](http://www.jetbrains.com/idea/features/javascript.html)
+[![Grails](http://www.chip.de/ii/6/0/5/9/2/7/1/95f75d6b0f329cb3.jpg)](http://www.grails.org)
+[![jQuery](http://3.bp.blogspot.com/-Pv6D2RbhMoY/UfklyE_3fkI/AAAAAAAAAo0/wftYaC95wQg/s1600/logo-jquery2.png)](http://jquery.org)
+[![jQuery-UI](http://www.bits4beats.it/wp-content/uploads/2010/02/jquery_ui_logo.png)](http://jqueryui.com)
+[![PostgreSQL](http://avatar3.status.net/i/identica/42228-96-20090305041844.png)](http://www.postgresql.org)
+[![JenkinsCI](http://blog.finalist.nl/wp-content/uploads/2012/03/jenkins-headshot.png)](http://jenkins-ci.org)
+[![Apache Tomcat](http://cdn.kemptechnologies.com/files/pages/kemp-loadmaster-remote-configuration-service/tomcat-logo.jpg)](http://tomcat.apache.org)
+[![Apache](http://imagenes.es.sftcdn.net/es/scrn/8000/8653/apache-http-server-11.jpg)](http://httpd.apache.org)
+[![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea120x60_blue.gif)](http://www.jetbrains.com/idea/features/javascript.html)
 
 
