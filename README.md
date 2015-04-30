@@ -74,10 +74,8 @@ If you start the application, you will see exactly at which location it is looki
 
 The latest version of the configuration file can be found [HERE](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
 
-```
-Don't forget to change the default passwords to something more secure!
-You will need to request an API key by creating an account on http://bioportal.org.
-```
+_Don't forget to change the default passwords to something more secure!_
+_You will need to request an API key by creating an account on bioportal.org._
 
 ## Create a .grails directory
 Grails uses a cache folder, which should be created if the tomcat user cannot create it
@@ -207,13 +205,11 @@ Most of the developers on this project favor Intellij over Eclipse, as we feel i
 
 [![Intellij](http://www.jetbrains.com/idea/opensource/img/all/banners/idea120x60_blue.gif)](http://www.jetbrains.com/idea/features/javascript.html)
 
-The VM Options in this screenshot are:
+### VM Options
 
 ```
 -Xms1048m -Xmx1048m -XX:PermSize=1048m -XX:MaxPermSize=2048m -XX:MaxHeapFreeRatio=70 -XX:MaxGCPauseMillis=10 -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -javaagent:/Users/jeroen/libs/grails-2.2.0/lib/org.springsource.springloaded/springloaded-core/jars/springloaded-core-1.1.1.jar -Xverify:none
 ```
-
-_Where the latter two (```-javaagent:… -Xverify:none```) can be omitted as they used to resolve a specific [dynamic reloading issue in Intellij 12](http://youtrack.jetbrains.com/issue/IDEA-98131) which was solved in the latest Intellij builds_
 
 # License
    Copyright 2009 Phenotype Foundation & Netherlands Metabolomics Centre
