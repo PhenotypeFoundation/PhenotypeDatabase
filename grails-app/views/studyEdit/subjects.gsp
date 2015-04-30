@@ -87,7 +87,7 @@
 	                Import
 	            </g:link>				
 	            
-	            <a href="#" class="delete" onClick="StudyEdit.subjects.delete(); return false;">Delete</a>
+	            <a href="#" class="delete" onClick="StudyEdit.subjects.deleteItem(); return false;">Delete</a>
 				
 			</p>			
 			

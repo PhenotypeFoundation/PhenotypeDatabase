@@ -1,0 +1,238 @@
+/** GENERAL **/
+.studyView { font-size: 11px; }
+.ui-dialog .studyView { font-size: 10pt; }
+.studyView .options { border-top: 1px solid #ccc; }
+.studyView h1 { border-bottom: 1px solid #006dba; }
+.studyView h1 .truncated-title { display: inline-block; width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.studyView .steps { font-size: 15px; float: right; color: #ccc;}
+.studyView .steps a { display: inline-block; margin: 0 6px;  }
+.studyView .steps .active { color: #006dba; font-weight: bold;  }
+#content .studyView .steps a.disabled { color: #ccc; }
+
+/** STUDY PAGE **/
+.studyProperties input, .studyProperties select, .studyProperties textarea { width: 220px; }
+.studyView .study-properties-list { margin-right: 300px; }
+.studyView .element { margin-top: 5px; vertical-align: top; }
+.studyView .element .description { vertical-align: top; }
+.studyView .element .value { width: 470px; display: inline-block; vertical-align: top;  }
+.studyView .element .input { display: inline-block; }
+
+.studyView #authorization .groups { font-style: italic; }
+
+div .studyView .description { width: 170px; }
+.studyView .error, .studyView .required { background-position: 150px 2px; }
+#contacts .required { background-position: 2px 4px; padding-left: 20px; }
+.samplespage td.required { background-position: 160px 6px; }
+
+/** Meta boxes **/
+.studyView div.meta { float: right; display: block; position: relative; width: 280px; }
+.studyView div.meta div.component { margin: 0 0 10px 0; border: 1px solid #555; display: block; }
+.studyView div.component h2 { margin: 0; padding: 5px 5px; background-color: #F8FEFF;  font-weight: bold; }
+.studyView div.component div.content { margin: 5px; }
+
+/** default selects for publications, contacts etc. should be changed to fit the simpleWizard layout **/
+.studyView div.meta .element .input input { vertical-align: middle; width: 120px; }
+.studyView div.meta .description { display: none; }
+
+.studyView div ul.publication_list, 
+.studyView div ul.contact_list { margin: 0; } 
+.studyView div ul.user_list { margin: -22px 0 0 100px; }
+
+/* template descriptions */
+.templatedescription {  display: block; padding: 2px 4px; border: 1px solid #4CAAED; /* #006DBA; */ }
+#studyProperties .templatedescription { margin-right: 300px;  }
+.event .templatedescription, .samplingEvent .templatedescription{ width: 220px; margin: 5px 0 5px 174px; }
+
+/* .studyView .publication_list li .authors { overflow: hidden; max-height: 8px; text-overflow:ellipsis; } */
+
+.studyView #contacts_dialog { margin: 4px; background-color: #f3f3f3; }
+.studyView #contacts_dialog select { width: 200px; }
+
+.studyView div#authorization .description { display: inline-block; *display: inline; width: 100px; margin-top: 6px; }
+
+/** START :: study page upload buttons **/
+.fileWrapper {
+    width: 140px;
+}
+
+div .upload_button {
+    display: inline;
+}
+
+div .upload_button img {
+    border-width: 0;
+    padding-left: 6px;
+}
+
+div .upload_info {
+    display: inline; color: #006dba;
+    margin-left: 5px; 
+}
+
+div .upload_info a {
+	text-decoration: underline;
+}
+
+div .upload_del img {
+	border-width: 0;
+	padding-left: 6px; 
+}
+
+div .upload_del {
+	display: none;
+}
+
+div .upload_info .error {
+    color: red;
+}
+/** END :: study page upload buttons **/
+
+
+/** START :: study page publication, contact and users lists **/
+div ul.publication_list, div ul.contact_list, div ul.user_list {
+    list-style-type: none;
+    margin: -10px 0 0 255px;
+    padding: 0;
+}
+div ul.publication_list li, div ul.contact_list li, div ul.user_list li {
+    margin-left: 0px;
+    padding: 4px 6px;
+}
+div li.even {
+    background-color: #F3F3F3;
+}
+div li.odd {
+    background-color: #FAFAFA;
+}
+div li .delete_button {
+	float: right;
+	margin-left: 10px;
+	cursor: pointer;
+}
+div ul.publication_list li .authors {
+	font-size: 10px;
+	margin-top: 3px;
+	color: #333;
+}
+div ul.contact_list li .person {
+	display: inline;
+}
+div ul.contact_list li .role {
+	color: #000099;
+	display: inline;
+	margin-left: 5px;
+}
+div ul.contact_list li .role:before {
+	content: ' / ';
+	color: #000099;
+}
+div .contacts_dialog {
+	margin: 5px 0;
+}
+/** END :: study page publication, contact and users lists **/
+
+/** Study design styles **/
+
+.subjectsTable th { white-space: nowrap;}
+table.dataTable td.dataTables_empty { text-align: left; }
+
+.addToTimeline ul {
+	list-style-type: none;
+	margin-left: 0;
+	padding-left: 0;
+}
+
+.addToTimeline li {
+    color: #1A1A1A;
+    border-color: #97B0F8;
+    background-color: #D5DDF6;
+    padding: 5px;
+    margin: 5px 0;
+    
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 2px;
+    -moz-border-radius: 2px;  /* For Firefox 3.6 and older */
+}
+
+.addToTimeline li.add {
+	border-color: #97F8B0; 
+	background: #D5F6DD url(../plugins/famfamfam-1.0.1/images/icons/add.png) no-repeat 4px 50%;
+	padding-left: 24px;
+	cursor: pointer;
+}
+
+.addToTimeline .name { font-weight: bold;  }
+.eventgroups .events { display: inline-block; margin-left: 10px; }
+.addToTimeline .eventgroup-buttons { float: right; }
+.addToTimeline .eventgroup-buttons a { display: inline-block; margin-left: 5px; }
+
+#timeline-eventgroups, #timeline-events { position: relative; }
+#timeline-eventgroups .timeline-groups-text { cursor: pointer; height: 30px; }
+
+.ui-draggable-dragging .buttons { display: none; }
+ 
+ #eventGroupDialog .addToTimeline { width: 48%; float: left; margin-right: 4%; } 
+ #eventGroupDialog #samplingEvents { margin-right: 0; }
+
+.timeline-content .event { /* Default, no override needed */ }
+.timeline-content .samplingEvent { background-color: white; background-image: none; }
+.timeline-content .samplingEvent.ui-state-active { color: black; }
+
+div.timeline-axis-group-divider { border-color: black; }
+
+#design-subjects { margin-top: 10px; border-top: 1px solid #006DBA; padding-top: 10px; }
+#design-subjects span.subjects { display: inline-block; width: 200px; }
+#design-subjects span.subject { display: inline-block; width: 180px; }
+#design-subjects .ui-selecting { background-color: #f8feff; }
+
+ #subjectForm { display: none; }
+ .dataTable .editableInput { padding: 0; }
+ .dataTable .changed { background-color: #75FFBD !important; }
+ .dataTable .invalid { background-color: #FF808E; }
+
+.dataTable .messagebar td {
+ 	display: none;
+	padding: 5px 10px;
+ 	text-align: left;
+ }
+
+ .dataTable .saveChanges .saving { display: none; }
+
+ /** Datatables **/
+ 
+/* Check all checkbox */
+input.transparent { 
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.3;
+	-moz-opacity: 0.3;
+	-khtml-opacity: 0.3;
+}
+
+div.dataTables_wrapper table.dataTable tr.ui-selecting.odd td { 
+	background-color: #FFFFF6; 
+}
+
+div.dataTables_wrapper table.dataTable tr.ui-selecting.even td{ 
+	background-color: #FFFFFB; 
+}
+
+div.dataTables_wrapper .ui-widget-header { text-align: center; }
+.dataTables_info, .dataTables_length { text-align: left; width: 30%; }
+.selectinfo { line-height: 1.4em; }
+.dataTables_info { text-align: left; }
+.messagebar { font-weight: normal; }
+#content .messagebar a { text-decoration: underline; }
+
+/* Make sure the datatables will scroll */
+.dataTables_scroll {
+    clear: both;
+    overflow: auto; 
+}
+
+.ui-front {
+	z-index: 1050;
+}
+.ui-autocomplete.ui-menu { z-index: 1051; }

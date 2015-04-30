@@ -83,12 +83,13 @@ td, th {
     /*font: 11px verdana, arial, helvetica, sans-serif;*/
 	font-size: 11pt;
     line-height: 12px;
-    padding: 5px 6px;
+    padding: 3px;
     text-align: left;
     vertical-align: top;
+    white-space: nowrap;
 }
 th {
-    background: #fff url(../images/default_style/tables/shadow.jpg);
+    background: #fff url(../images/skin/shadow.jpg);
     color: #666;
     font-size: 11px;
     font-weight: bold;
@@ -107,10 +108,10 @@ th.asc a, th.desc a {
     background-repeat: no-repeat;
 }
 th.asc a {
-    background-image: url(../images/default_style/tables/sorted_asc.gif);
+    background-image: url(../images/skin/sorted_asc.gif);
 }
 th.desc a {
-    background-image: url(../images/default_style/tables/sorted_desc.gif);
+    background-image: url(../images/skin/sorted_desc.gif);
 }
 
 .odd {

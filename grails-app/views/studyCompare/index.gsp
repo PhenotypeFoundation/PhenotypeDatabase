@@ -14,13 +14,7 @@
 <html>
 <head>
 	<meta name="layout" content="main"/>
-	<g:if env="development">
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.css')}"/>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'studyCompare.css')}"/>
-	</g:if><g:else>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ajaxflow.min.css')}"/>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'studyCompare.min.css')}"/>
-	</g:else>
+	<r:require modules="studycompare" />
 </head>
 <body>
 	<g:render template="common/ajaxflow"/>

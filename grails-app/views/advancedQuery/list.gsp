@@ -5,7 +5,6 @@
 	<meta name="layout" content="main"/>
 	<title>Previous queries</title>
 	<r:require module="advancedQuery" />
-	<g:javascript src="advancedQueryResults.js" />
 	<script type="text/javascript">
 		function searchWithinResults( form ) {
 			submitForm( form, '/advancedQuery/searchIn' );

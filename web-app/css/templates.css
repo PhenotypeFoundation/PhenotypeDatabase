@@ -138,18 +138,4 @@
     border: 1px solid #B2D1FF;
     background-color: #fff;
 }
-
-.element .helpIcon {
-    display: inline-block;
-    margin-top: 4px;
-    background: url(../plugins/famfamfam-1.0.1/images/icons/help.png) no-repeat left top;
-    width: 16px;
-    height: 16px;
-    zoom: 1; /* IE 6 & 7 hack */
-    *display: inline; /* IE 6 & 7 hack */
-}
-
-.element .helpContent {
-    display: none;
-}
 /** END :: TEMPLATE FORM ELEMENTS **/

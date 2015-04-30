@@ -16,10 +16,7 @@
 	</g:else>
 
 	<title>Select assay fields</title>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'tooltips.js', plugin: 'gdt')}"></script>
-	<script type="text/javascript"
-			src="${resource(dir: 'js', file: 'jquery.qtip-1.0.0-rc3.min.js', plugin: 'gdt')}"></script>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'templates.css')}"/>
+	<r:require modules="helptooltips" />
 
 	<style type="text/css">
 	.category {
@@ -34,12 +31,6 @@
 		margin-top: 0;
 	}
 	</style>
-
-	<script type="text/javascript">
-		$(document).ready(function() {
-			attachHelpTooltips();
-		})
-	</script>
 </head>
 
 <body>

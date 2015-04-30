@@ -35,7 +35,7 @@ class DatatablesService {
 		returnMap.offset = params.int( "iDisplayStart" ) ?: 0
 		returnMap.max = params.int( "iDisplayLength" ) ?: -1
 		returnMap.search = params.sSearch ?: ""
-		returnMap.sortColumn = params.int( "iSortCol_0" ) ?: null
+		returnMap.sortColumn = params.int( "iSortCol_0" ) != null ? params.int( "iSortCol_0" )  : null
 		returnMap.sortDirection = params.sSortDir_0 ?: "asc"
 		
 		returnMap
@@ -76,34 +76,41 @@ class DatatablesService {
 	 * 
 	 */
 	def createDatatablesOutputForEntities( entitiesMap, params ) {
-		createDatatablesOutput( entitiesMap, params, { entity ->
-			def data = [
-				entity.id
-			]
-			
-			entity.giveFields().each { field ->
-				def value = entity.getFieldValue( field.name )
-				
-				try {
-					if( field.type == TemplateFieldType.DATE ) {
-						// transform date instance to formatted string (dd/mm/yyyy)
-						data << ( value ? String.format('%td/%<tm/%<tY', value) : "" )
-					} else if ( field.type == TemplateFieldType.RELTIME ) {
-						data << ( value ? new RelTime( value ).toString() : "" )
-					} else {
-						data << ( value ? value.toString() : "" )
-					}
-				} catch( ObjectNotFoundException e ) {
-					// An ObjectNotFoundException occurs if the field references an object that doesn't
-					// exist anymore. For example, if a template-field references a template, that has
-					// been deleted.
-					data << ""
-				}
-			}
-			
-			data
-		})
+		createDatatablesOutput(entitiesMap, params, defaultEntityFormatter)
 	}
+    
+        /**
+         * Default closure to format an entity for usage in the datatable
+         * This closure returns an array with the first element being the id, and 
+         * after that, all fields for this element are returned
+         */
+        public def defaultEntityFormatter = { entity ->
+                def data = [
+                        entity.id
+                ]
+                
+                entity.giveFields().each { field ->
+                        def value = entity.getFieldValue( field.name )
+                        
+                        try {
+                                if( field.type == TemplateFieldType.DATE ) {
+                                        // transform date instance to formatted string (dd/mm/yyyy)
+                                        data << ( value ? String.format('%td/%<tm/%<tY', value) : "" )
+                                } else if ( field.type == TemplateFieldType.RELTIME ) {
+                                        data << ( value ? new RelTime( value ).toString() : "" )
+                                } else {
+                                        data << ( value ? value.toString() : "" )
+                                }
+                        } catch( ObjectNotFoundException e ) {
+                                // An ObjectNotFoundException occurs if the field references an object that doesn't
+                                // exist anymore. For example, if a template-field references a template, that has
+                                // been deleted.
+                                data << ""
+                        }
+                }
+                
+                data
+        } 
 	
 	/**
 	 *	Returns a map with data that could be sent to a serverside datatable.

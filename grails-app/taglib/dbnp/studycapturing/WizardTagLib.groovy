@@ -1,6 +1,7 @@
 package dbnp.studycapturing
 
 import dbnp.authentication.SecUser
+import dbnp.authentication.SecUserGroup
 import org.dbnp.gdt.*
 
 /**
@@ -314,7 +315,7 @@ class WizardTagLib extends GdtTagLib {
 		def selectAttrs = new LinkedHashMap();
 
 		// define 'from'
-		def persons = Person.findAll().sort({ a, b -> a.lastName == b.lastName ? (a.firstName <=> b.firstName) : (a.lastName <=> b.lastName) } as Comparator);
+		def persons = Person.findAll().sort({ a, b -> a.lastName == b.lastName ? (a.firstName <=> b.firstName) : (a.lastName <=> b.lastName) });
 		selectAttrs.from = persons.collect { it.lastName + ', ' + it.firstName + (it.prefix ? ' ' + it.prefix : '') }
 		selectAttrs.keys = persons.id;
 
@@ -362,6 +363,15 @@ class WizardTagLib extends GdtTagLib {
 		)
 	}
 
+    	def UserGroupSelectElement = { attrs, body ->
+		// render list with publications currently available
+		baseElement.call(
+			'_userGroupList',
+			attrs,
+			body
+		)
+	}
+    
 	/**
 	 * Renders an input box for publications
 	 */
@@ -389,7 +399,35 @@ class WizardTagLib extends GdtTagLib {
 		);
 		out << '</form>';
 	}
+        
+	/**
+	 * Renders an input box for publications
+	 */
+	def userGroupSelect = { attrs, body ->
+		if (attrs.get('value') == null) {
+			attrs.value = [];
+		}
+		if (attrs.get('description') == null) {
+			attrs.description = '';
+		}
 
+		def userGroupList = []
+		SecUserGroup.findAll().each {
+			userGroupList[ userGroupList.size() ] = ['name': it.groupName, 'id':it.id]
+		}
+
+		out << '<form id="' + attrs.name + '_form" onSubmit="return false;">';
+		out << select(
+			name: attrs.get("name"),
+			value: '',
+                        from: userGroupList,
+                        optionValue: 'name',
+                        optionKey: 'id',
+			style: 'width: 400px;'
+		);
+		out << '</form>';
+	}
+        
 	def _userList = { attrs, body ->
 		def display_none = 'none';
 		if (!attrs.get('value') || attrs.get('value').size() == 0) {
@@ -433,6 +471,49 @@ class WizardTagLib extends GdtTagLib {
 		out << _userAddButton( attrs, body );
 	}
 
+        def _userGroupList = { attrs, body ->
+		def display_none = 'none';
+		if (!attrs.get('value') || attrs.get('value').size() == 0) {
+			display_none = 'inline';
+		}
+
+		// Add a unordered list
+		out << '<ul class="userGroup_list" id="' + attrs.name + '_list">';
+
+		out << '<li>';
+		out << '<span class="userGroup_none" id="' + attrs.name + '_none" style="display: ' + display_none + ';">';
+		out << '-';
+		out << '</span>';
+		out << '</li>';
+
+		out << '</ul>';
+
+		// Add the publications using javascript
+		out << '<script type="text/javascript">'
+		if (attrs.get('value') && attrs.get('value').size() > 0) {
+			def i = 0;
+			attrs.get('value').each {
+				out << 'StudyEdit.userGroups.show( ';
+				out << '  "' + attrs.name + '",';
+				out << '  ' + it.id + ',';
+				out << '  "' + it.groupName + '",';
+				out << '  ' + i++;
+				out << ');';
+			}
+		}
+		out << '</script>';
+
+		def ids;
+		if (attrs.get('value') && attrs.get('value').size() > 0) {
+			ids = attrs.get('value').id.join(',')
+		} else {
+			ids = '';
+		}
+		out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
+		
+		out << _userGroupAddButton( attrs, body );
+	}
+    
 	def _userAddButton = { attrs, body ->
 		if( attrs.get( 'noForm', false ) ) {
 			// Only show the add button. The dialog that is created with this method otherwise,
@@ -443,6 +524,17 @@ class WizardTagLib extends GdtTagLib {
 
 		out << '<input class="addButton" type="button" onClick="StudyEdit.users.openUserDialog(\'' + attrs.name + '\' );" value="Add User">';
 	}
+        
+	def _userGroupAddButton = { attrs, body ->
+		if( attrs.get( 'noForm', false ) ) {
+			// Only show the add button. The dialog that is created with this method otherwise,
+			// should be created somewhere outside the form.
+		} else {
+			out << userGroupDialog( attrs, body );
+		}
+
+		out << '<input class="addButton" type="button" onClick="StudyEdit.userGroups.openUserGroupDialog(\'' + attrs.name + '\' );" value="Add UserGroup">';
+	}
 	
 	def userDialog = { attrs, body ->
 		// Output the dialog for the publications
@@ -452,6 +544,17 @@ class WizardTagLib extends GdtTagLib {
 		out << '</div>';
 		out << '<script type="text/javascript">';
 		out << '  StudyEdit.users.createUserDialog( "' + attrs.name + '" );'
+		out << '</script>';
+	}
+        
+    	def userGroupDialog = { attrs, body ->
+		// Output the dialog for the publications
+		out << '<div id="' + attrs.name + '_dialog">';
+		out << '<p>Select a UserGroup from the database.</p>';
+		out << userGroupSelect(attrs, body);
+		out << '</div>';
+		out << '<script type="text/javascript">';
+		out << '  StudyEdit.userGroups.createUserGroupDialog( "' + attrs.name + '" );'
 		out << '</script>';
 	}
 

@@ -328,9 +328,10 @@ class AssayService {
         try {
             jsonArray = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST", remoteUser)
         } catch (e) {
+			log.error "Exception while trying to get the measurement tokens form the $assay.module.name", e
             throw new Exception("An error occured while trying to get the measurement tokens from the $assay.module.name. \
              This means the module containing the measurement data is not available right now. Please try again \
-             later or notify the system administrator if the problem persists. URL: $path?$query.")
+             later or notify the system administrator if the problem persists. URL: $path?$query.", e)
         }
 
         def result = jsonArray.collect {

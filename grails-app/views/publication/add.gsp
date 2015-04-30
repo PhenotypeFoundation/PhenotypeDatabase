@@ -18,13 +18,11 @@
 <html>
  <head>
   <meta name="layout" content="dialog"/>
-  <script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.js')}"></script>
-  <script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.pubmed.js')}"></script>
-  <script type="text/javascript" src="${resource(dir: 'js', file: 'publication-chooser.programminglanguages.js')}"></script>
-  <script type="text/javascript">
+  <r:require module="publication-chooser" />
+  <r:script type="text/javascript">
     PublicationChooser.prototype.availableDBs[ "pubmed" ].select = selectPubMedAdd;
     PublicationChooser.prototype.availableDBs[ "pubmed" ].close  = closePubMedAdd;
-</script>
+</r:script>
  </head>
  <body>
    <p>

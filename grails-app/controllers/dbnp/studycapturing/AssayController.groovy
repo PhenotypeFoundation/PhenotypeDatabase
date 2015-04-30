@@ -1,6 +1,6 @@
 package dbnp.studycapturing
 
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import grails.converters.JSON
 import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 
@@ -259,7 +259,7 @@ class AssayController {
 	// This method is accessible for each user. However, he should return with a valid
 	// session token
 	@Secured(['true'])
-	def fetchGalaxyData = {
+	def fetchGalaxyData() {
 
 		def fieldMapSelection = JSON.parse((String) params.fieldMapSelection)
 		def measurementTokens = assayService.retrieveMeasurementTokenSelection(params.sessionToken)

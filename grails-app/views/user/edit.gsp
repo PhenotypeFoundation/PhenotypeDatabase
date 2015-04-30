@@ -2,23 +2,18 @@
 	<meta name='layout' content='main'/>
 	<g:set var="entityName" value="${message(code: 'user.label', default: 'User')}"/>
 	<title><g:message code="default.edit.label" args="[entityName]"/></title>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'tipTip.css')}"/>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tipTip.minified.js')}"></script>
-    <script type="text/javascript">
+	<r:require modules="tiptip, multiselect" />
+    <r:script type="text/javascript">
         $(document).ready(function() {
-            $(".tooltip").tipTip();
             $("#tabs").tabs();
+			$('#username').focus();
+			$("#optionalGroups").multiSelect({ selectableHeader: "Not in groups:", selectionHeader: "In groups:"});
         });
-    </script>
-	<style type="text/css">
-	div.usermanagement {
-		font-size: 0.8em;
-	}
-	</style>
+    </r:script>
 </head>
 
 <body>
-<script src="${resource(dir: 'js', file: 'jquery-callback-1.2.js')}" type="text/javascript"></script>
+
 
 <g:if test="${flash.userError}">
 	<div id="error" class="error" title="errors">
@@ -37,6 +32,7 @@
 		<ul>
 			<li><a href="#userinfo">User info</a></li>
 			<li><a href="#roles">Roles</a></li>
+                        <li><a href="#groups">User Groups</a></li>
 		</ul>
 
 		<div id="userinfo">
@@ -102,6 +98,10 @@
 				</div>
 			</g:each>
 		</div>
+                
+                <div id="groups">
+                        <g:select id="optionalGroups" name="optionalGroups" from="${groups}" optionKey="id" value="${selectedGroups?.id}" multiple="multiple" />
+		</div>
 
 	</div>
 
@@ -122,11 +122,4 @@
 		<g:hiddenField name="id" value="${user?.id}"/>
 	</g:form>
 </g:if>
-
-<script>
-	$(document).ready(function() {
-		$('#username').focus();
-	});
-</script>
-
 </body>

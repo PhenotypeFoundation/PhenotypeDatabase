@@ -15,7 +15,7 @@
  */
 package api
 
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import grails.converters.JSON
 import dbnp.authentication.SecUser
 import dbnp.studycapturing.*
@@ -32,7 +32,7 @@ class ApiController {
 	/**
 	 * index closure
 	 */
-    def index = {
+    def index() {
     }
 
     /**
@@ -49,8 +49,7 @@ class ApiController {
      *
      * @param string deviceID
      */
-    @Secured(['ROLE_CLIENT', 'ROLE_ADMIN'])
-    def authenticate = {
+    def authenticate() {
         println "api::authenticate: ${params}"
 
         // see if we already have a token on file for this device id
@@ -103,7 +102,7 @@ class ApiController {
      * @param string deviceID
      * @param string validation md5 sum
      */
-    def getStudies = {
+    def getStudies() {
         println "api::getStudies: ${params}"
 
         String deviceID = (params.containsKey('deviceID')) ? params.deviceID : ''
@@ -164,7 +163,7 @@ class ApiController {
      * @param string studyToken
      * @param string validation md5 sum
      */
-    def getSubjectsForStudy = {
+    def getSubjectsForStudy() {
         println "api::getSubjectsForStudy: ${params}"
 
         Study study = getStudy()
@@ -190,7 +189,7 @@ class ApiController {
      * @param string studyToken
      * @param string validation md5 sum
      */
-    def getAssaysForStudy = {
+    def getAssaysForStudy() {
         println "api::getAssaysForStudy: ${params}"
 
         Study study = getStudy()
@@ -215,7 +214,7 @@ class ApiController {
      * @param string studyToken
      * @param string validation md5 sum
      */
-    def getEventGroupsForStudy = {
+    def getEventGroupsForStudy() {
         println "api::getEventGroupsForStudy: ${params}"
 
         Study study = getStudy()
@@ -240,7 +239,7 @@ class ApiController {
      * @param string studyToken
      * @param string validation md5 sum
      */
-    def getEventsForStudy = {
+    def getEventsForStudy() {
         println "api::getEventsForStudy: ${params}"
 
         Study study = getStudy()
@@ -265,7 +264,7 @@ class ApiController {
      * @param string studyToken
      * @param string validation md5 sum
      */
-    def getSamplingEventsForStudy = {
+    def getSamplingEventsForStudy() {
         println "api::getSamplingEventsForStudy: ${params}"
 
         Study study = getStudy()
@@ -290,7 +289,7 @@ class ApiController {
 	 * @param string studyToken
 	 * @param string validation md5 sum
 	 */
-	def getSamplesForStudy = {
+	def getSamplesForStudy() {
 		println "api::getSamplesForStudy: ${params}"
 
         Study study = getStudy()
@@ -317,7 +316,7 @@ class ApiController {
      * @param string assayToken
      * @param string validation md5 sum
      */
-    def getSamplesForAssay = {
+    def getSamplesForAssay() {
         println "api::getSamplesForAssay: ${params}"
 
         // fetch assay
@@ -336,7 +335,7 @@ class ApiController {
         })
     }
 
-    def getSubjectGroupsForStudy = {
+    def getSubjectGroupsForStudy() {
         Study study = getStudy()
 
         render apiService.executeApiCall(params,response,'study',study,{
@@ -372,7 +371,7 @@ class ApiController {
      * @param string assayToken
      * @param string validation md5 sum
      */
-    def getMeasurementDataForAssay = {
+    def getMeasurementDataForAssay() {
         println "api::getMeasurementDataForAssay: ${params}"
 
         // fetch assay
@@ -432,7 +431,7 @@ class ApiController {
      * @param string assayToken
      * @param string validation md5 sum
      */
-    def getPlainMeasurementDataForAssay = {
+    def getPlainMeasurementDataForAssay() {
         println "api::getPlainMeasurementDataForAssay: ${params}"
 
         // fetch output parameter, features: feature metadata, subject: subject metadata
@@ -520,7 +519,7 @@ class ApiController {
 	 * @param string deviceID
 	 * @param string validation md5 sum
 	 */
-	def getModules = {
+	def getModules() {
 		println "api::getModules: ${params}"
 
 		// get all modules
@@ -556,7 +555,7 @@ class ApiController {
 	 * @param string deviceID
 	 * @param string validation md5 sum
 	 */
-	def getEntityTypes = {
+	def getEntityTypes() {
 		println "api::getEntityTypes: ${params}"
 
 		// list of entities
@@ -583,7 +582,7 @@ class ApiController {
 	 * @param string validation md5 sum
 	 * @param string entityType
 	 */
-	def getTemplatesForEntity = {
+	def getTemplatesForEntity() {
 		println "api::getTemplatesForEntity: ${params}"
 
 		def result = [:]
@@ -620,7 +619,7 @@ class ApiController {
 	 * @param string validation md5 sum
 	 * @param string entityType
 	 */
-	def getFieldsForEntity = {
+	def getFieldsForEntity() {
 		println "api::getFieldsForEntity: ${params}"
 
 		// while we pass this call through to getFieldsForEntityWithTemplate,
@@ -644,7 +643,7 @@ class ApiController {
 	 * @param string entityType
 	 * @param string templateToken
 	 */
-	def getFieldsForEntityWithTemplate = {
+	def getFieldsForEntityWithTemplate() {
 		if (!params.containsKey('passthrough')) {
 			// entityToken can only be passed by the getFieldsForEntity call
 			// so strip it if we're not passing through
@@ -740,7 +739,7 @@ class ApiController {
 	 * @param string validation md5 sum
 	 * @param string entityType
 	 */
-	def createEntity = {
+	def createEntity() {
 		println "api::createEntity: ${params}"
 
 		// while we pass this call through to createEntityWithTemplate,
@@ -764,7 +763,7 @@ class ApiController {
 	 * @param string entityType
 	 * @param string templateToken
 	 */
-	def createEntityWithTemplate = {
+	def createEntityWithTemplate() {
 		if (!params.containsKey('passthrough')) {
 			println "api::createEntityWithTemplate: ${params}"
 		}
@@ -973,7 +972,7 @@ println "   rollback ${instance}::${name}"
 	/**
 	 * Implementation of RFC 2324
 	 */
-	def teapot = {
+	def teapot() {
 		// ask, and the Mad Hatter will reply...
 		response.sendError(418, "'Twas brillig, and the slithy toves Did gyre and gimble in the wabe: All mimsy were the borogoves, And the mome raths outgrabe.")
 	}

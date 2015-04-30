@@ -1,7 +1,7 @@
 package dbnp.authentication
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import org.codehaus.groovy.grails.plugins.springsecurity.SpringSecurityUtils
+import grails.util.Holders
+import grails.plugin.springsecurity.SpringSecurityUtils
 
 class LogoutController {
 	def authenticationService
@@ -38,7 +38,7 @@ class LogoutController {
 			returnUrl = params.returnUrl;
 		} else {
 			// Return to baseURL
-			returnUrl = ConfigurationHolder.config.grails.serverURL
+			returnUrl = Holders.config.grails.serverURL
 		}
 		
 		// Try to rest the redirect url

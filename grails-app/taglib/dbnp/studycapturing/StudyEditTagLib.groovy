@@ -14,8 +14,6 @@
  */
 package dbnp.studycapturing
 
-import java.lang.ClassValue.Identity;
-
 // TODO: Refactor wizard tag library
 class StudyEditTagLib {
 	// define the tag namespace (e.g.: <edit:action ... />

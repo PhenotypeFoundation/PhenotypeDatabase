@@ -17,7 +17,7 @@ package dbnp.studycapturing
 // Automatic marshalling of XML and JSON
 import org.dbnp.gdt.*
 import grails.converters.*
-import grails.plugins.springsecurity.Secured
+import grails.plugin.springsecurity.annotation.Secured
 import dbnp.authentication.AuthenticationService
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])

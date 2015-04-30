@@ -38,6 +38,10 @@ $(document).ready(function() {
     });
 
     $.jqplot.config.enablePlugins = true;
+
+    var s1 = [2, -6, 7, -5];
+    var ticks = ['a', 'b', 'c', 'd'];
+    var combinedtest = [name='count', x=['a', 'b', 'c', 'd'], y=[2, -6, 7, -5]];
 });
 
 /**
@@ -359,7 +363,9 @@ function visualize() {
                                     // Highlight bars when mouse button pressed.
                                     // Disables default highlighting on mouse over.
                                     highlightMouseDown: true,
-                                    barDirection: 'horizontal'
+                                    barDirection: 'horizontal',
+                                    highlightMouseDown: true,
+                                    fillToZero: true
                                 },
                                 pointLabels: {show: blnShowDataValues}
                             },
@@ -409,11 +415,9 @@ function visualize() {
                             seriesDefaults:{
                                 renderer:$.jqplot.BarRenderer,
                                 rendererOptions: {
-                                    // Put a 30 pixel margin between bars.
                                     barMargin: 30,
-                                    // Highlight bars when mouse button pressed.
-                                    // Disables default highlighting on mouse over.
-                                    highlightMouseDown: true
+                                    highlightMouseDown: true,
+                                    fillToZero: true
                                 },
                                 pointLabels: {show: blnShowDataValues}
                             },
@@ -441,14 +445,14 @@ function visualize() {
                                 yaxis: {
                                     label: ylabel,
                                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    formatString:'%.2f',
-                                    min: 0
+                                    formatString:'%.2f'
                                 }
                             },
                             axesDefaults: {
                                 pad: 1.4
                             }
                         };
+
                 		break;
                 	case "table":
                         // create table
@@ -604,7 +608,7 @@ function visualize() {
                         bx.groupSamples(['xdata'], 'iqr');
                         bx.draw();
                     } */ else  {
-                        //console.log(dataPoints);
+                        // console.log(dataPoints);
                         visualization = $.jqplot('visualization', dataPoints, plotOptions );
                     }
                     $( "#visualization" ).show();
@@ -780,7 +784,7 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
                                                 "(?![^&;]+;)(?!<[^<>]*)(" +
                                                 $.ui.autocomplete.escapeRegex(request.term) +
                                                 ")(?![^<>]*>)(?![^&;]+;)", "gi"
-                                            ), "<strong>$1</strong>" ),
+                                            ), "$1" ),
                                         value: text,
                                         option: this
                                     };
@@ -819,8 +823,7 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
                 });
 
             input.data( "ui-autocomplete" )._renderMenu = function( ul, items ) {
-                var self = this,
-                    currentCategory = "";
+                var self = this, currentCategory = "";
                 $.each( items, function( index, item ) {
                     if ( item.category != currentCategory ) {
                         ul.append( "<li class='ui-autocomplete-category'>" + item.category + "</li>" );
@@ -832,7 +835,7 @@ function executeAjaxCall( action, selectid, ajaxParameters ) {
 
             input.data( "ui-autocomplete" )._renderItem = function( ul, item ) {
                 return $( "<li></li>" )
-                    .data( "item.autocomplete", item )
+                    .data( "ui-autocomplete-item", item )
                     .append( "<a>" + item.label + "</a>" )
                     .appendTo( ul );
             };
