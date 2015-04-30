@@ -70,11 +70,12 @@ Note: you may have to use double quotes (") rather than single quotes (').
 
 ### Set up the application configuration
 As of GSCF 0.8.3 a setup wizard is included which will create a configuration file for you (/path/to/homedir/.gscf/environment.properties). However, to run this wizard, you need a working instance, so it might be more convenient to write the configuration yourself.
-If you start the application, you will see exactly at which location it is looking for a configuration file. It is probably /usr/share/tomcat7/.gscf/production.properties. You can use it to specify the database connection, for example as follows:
+If you start the application, you will see exactly at which location it is looking for a configuration file. It is probably /usr/share/tomcat7/.gscf/production.properties. You can use it to specify the database connection.
 
-The latest version of the configuration file can be found [HERE](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
+The latest version of the configuration file can be found [HERE](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties).
 
 _Don't forget to change the default passwords to something more secure!_
+
 _You will need to request an API key by creating an account on bioportal.org._
 
 ## Create a .grails directory
