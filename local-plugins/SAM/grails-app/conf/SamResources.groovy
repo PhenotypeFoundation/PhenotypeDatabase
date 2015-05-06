@@ -3,13 +3,13 @@ modules = {
         dependsOn 'jquery'
         dependsOn 'datatables'  // from dbxpModuleBase
 
-        resource url: 'js/selectAddMore.js'
-        resource url: 'js/removeWebFlowExecutionKey.js'
-        resource url: 'css/sam.css'
-        resource url: 'css/tooltip.css'
-        resource url:'/images/subjectlayout.png', attrs:[alt:''], disposition:'inline'
-        resource url:'/images/samplelayout.png', attrs:[alt:''], disposition:'inline'
-        resource url:'/images/spinner.gif', attrs:[alt:''], disposition:'inline'
+        resource url: [dir: 'js', file: 'selectAddMore.js', plugin: 'dbxp-sam']
+        resource url: [dir: 'js', file: 'removeWebFlowExecutionKey.js', plugin: 'dbxp-sam']
+        resource url: [dir: 'css', file: 'sam.css', plugin: 'dbxp-sam']
+        resource url: [dir: 'css', file: 'tooltip.css', plugin: 'dbxp-sam']
+        resource url: [dir: 'images', file: 'subjectlayout.png', plugin: 'dbxp-sam'], attrs:[alt:''], disposition:'inline'
+        resource url: [dir: 'images', file: 'samplelayout.png', plugin: 'dbxp-sam'], attrs:[alt:''], disposition:'inline'
+        resource url: [dir: 'images', file: 'spinner.gif', plugin: 'dbxp-sam'], attrs:[alt:''], disposition:'inline'
     }
     
     samdialog {
@@ -27,14 +27,14 @@ modules = {
     }
 
     importer {
-        resource url: 'js/samimporter.js'
-        resource url: 'css/samimporter.css'
+        resource url: [dir: 'js', file: 'samimporter.js', plugin: 'dbxp-sam']
+        resource url: [dir: 'css', file: 'samimporter.css', plugin: 'dbxp-sam']
     }
 
     templateFieldsMisc {
         dependsOn 'samtooltips'
         dependsOn 'studywizard-files'
-        resource url: 'js/templateFields.js'
+        resource url: [dir: 'js', file: 'templateFields.js', plugin: 'dbxp-sam']
     }
 
     samtooltips {
