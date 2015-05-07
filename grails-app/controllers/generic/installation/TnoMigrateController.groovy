@@ -1,15 +1,8 @@
 package generic.installation
 
 import dbnp.studycapturing.*
-import grails.converters.JSON
-import org.dbnp.gdt.RelTime
 import org.dbnp.gdt.Template
 
-/**
- * User: Seth
- * Date: 28-11-13
- * Time: 12:10
- */
 class TnoMigrateController {
     def dataSource
 
@@ -104,11 +97,12 @@ class TnoMigrateController {
                 def relativeTimeField = oldSamplingEventDetails.template_rel_time_fields_elt[0]
 
                 migration.split(';').each() { eventName ->
-                    EventGroup eventGroup = allEventGroups.find() { it.name.equalsIgnoreCase(eventName) }
+                    def eventGroups = allEventGroups.findAll() { it.name.equalsIgnoreCase(eventName) }
 
-                    if (eventGroup) {
+                    if (eventGroups.size() == 1) {
+                        def eventGroup = eventGroups[0]
                         def correspondingSubjectEventGroups = eventGroup.subjectEventGroups.findAll() { it.subjectGroup.id == subjectGroup.id && it.startTime <= (oldSamplingEvent.start_time - relativeTimeField) && it.endTime >= ((oldSamplingEvent.start_time - relativeTimeField) + oldSamplingEvent.duration) }
-                        if (correspondingSubjectEventGroups && correspondingSubjectEventGroups.size() == 1) {
+                        if (correspondingSubjectEventGroups.size() == 1) {
                             def correspondingSubjectEventGroup = correspondingSubjectEventGroups[0]
                             def template = Template.read( oldSamplingEvent.template_id )
 
@@ -144,11 +138,15 @@ class TnoMigrateController {
                             }
                         }
                         else {
-                            println "ERRORRRRRRRRR ${correspondingSubjectEventGroups}"
+                            if (correspondingSubjectEventGroups.size() > 1) {
+                                println "Multiple corresponding SubjectEventGroups for eventGroup ${eventName}"
+                            }
                         }
                     }
                     else {
-                        println "No eventGroup found for migration column value ${eventName}"
+                        if (eventGroups.size() > 1) {
+                            println "Multiple eventGroups found for name ${eventName}"
+                        }
                     }
                 }
             }
