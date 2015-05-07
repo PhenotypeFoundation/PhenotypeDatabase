@@ -208,7 +208,7 @@ class Sample extends TemplateEntity {
 
             def subjectName = parentSubject.name
             def eventGroupName = parentSubjectEventGroup?.eventGroup?.name.replaceAll("([ ]{1,})", "")
-            def sampleTemplateName = parentEvent?.event.template?.name
+            def sampleTemplateName = parentEvent?.event.template?.name.replaceAll("([ ]{1,})", "")
             if (grailsApplication.config.gscf.reCapitalizeSampleNames != "false") {
                 subjectName = ucwords(subjectName)
                 eventGroupName = ucwords(eventGroupName)
@@ -218,7 +218,7 @@ class Sample extends TemplateEntity {
 			def subjectEventGroupStartTime = parentSubjectEventGroup ? parentSubjectEventGroup.startTime : '0'
 			def samplingEventInstanceStartTime = parentEvent ? parentEvent.startTime : '0'
 
-			def startTime = new RelTime( subjectEventGroupStartTime + samplingEventInstanceStartTime ).toString()
+			def startTime = new RelTime( subjectEventGroupStartTime + samplingEventInstanceStartTime ).toString().replaceAll( " ", "" )
 
 			this.name = ( subjectName + "_" + eventGroupName + "_" + sampleTemplateName + "_" + startTime ).replaceAll( " ", "_" )
 		}
