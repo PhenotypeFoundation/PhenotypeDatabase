@@ -363,7 +363,7 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def getPlainMeasurementData(Assay assay, SecUser user) {
-        def serviceURL = "${assay.module.baseUrl}/rest/getPlainMeasurementDataTemp"
+        def serviceURL = "${assay.module.baseUrl}/rest/getPlainMeasurementData"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json
 
