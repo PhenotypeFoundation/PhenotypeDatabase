@@ -97,7 +97,7 @@ modules = {
         
         resource url: [dir: 'js', file: 'templateEditor.js', plugin: 'gdt']
         resource url: [dir: 'css', file: 'templateEditor.css', plugin: 'gdt']
-        resource url: [dir: 'js', file: 'ontology-chooser.js' ], disposition: 'head'
+        resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt'], disposition: 'head'
         resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
     }
     
