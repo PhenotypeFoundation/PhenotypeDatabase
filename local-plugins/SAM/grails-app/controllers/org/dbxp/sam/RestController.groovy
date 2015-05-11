@@ -398,7 +398,7 @@ class RestController {
             if( samples ) {
                 // Now retrieve the measurements themselves
                 log.debug "Start retrieving measuremens from the database"
-                def measurements = Measurement.executeQuery("SELECT m.sample.id, m.feature.name, m.feature.unit, m.value FROM Measurement m WHERE m.feature IN (:features) AND m.sample.id IN (:sampleIds)", ["features": features, "sampleIds": samples.keySet()])
+                def measurements = Measurement.executeQuery("SELECT m.sample.id, m.feature.name, m.feature.unit, m.value, m.comments FROM Measurement m WHERE m.feature IN (:features) AND m.sample.id IN (:sampleIds)", ["features": features, "sampleIds": samples.keySet()])
               
                 log.debug "Convert the measurements ino the proper format"
                 
@@ -406,7 +406,7 @@ class RestController {
                 results = measurements.collect {[
                     "sampleToken": samples[it[0]],
                     "measurementToken": it[1] + ( it[2] ? " " + it[2] + ")" : "" ),
-                    "value": it[3]
+                    "value": it[3] != null ? it[3] : it[4]
                 ]}
             } else {
                 results = []
@@ -475,7 +475,7 @@ class RestController {
 
         def sql = new Sql(dataSource)
 
-        def pMeasurements = sql.rows("SELECT m.feature_id AS feature, m.value AS value, y.parent_sample_id as sample FROM measurement m, samsample y WHERE m.sample_id = y.id AND y.parent_assay_id = ${assay.id}")
+        def pMeasurements = sql.rows("SELECT m.feature_id AS feature, m.value AS value, m.comments AS comments, y.parent_sample_id as sample FROM measurement m, samsample y WHERE m.sample_id = y.id AND y.parent_assay_id = ${assay.id}")
 
         def featureMap = sql.rows("SELECT DISTINCT m.feature_id, f.name FROM measurement m JOIN feature f ON m.feature_id = f.id WHERE m.sample_id IN (SELECT id FROM samsample s WHERE s.parent_assay_id = ${assay.id});").collectEntries{ [it.feature_id, it.name]}
 
@@ -486,7 +486,7 @@ class RestController {
                 result.put(key, [:])
             }
             Map temp = result.get(key)
-            temp[it.sample] = it.value
+            temp[it.sample] = it.value != null ? it.value : it.comments
             result.put(key, temp)
         }
 
