@@ -23,6 +23,7 @@ import dbnp.authentication.SecUser
 import org.springframework.context.ApplicationContextAware
 import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
 import org.springframework.context.ApplicationContext
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 class ApiService implements Serializable, ApplicationContextAware {
     // inject the module communication service
@@ -362,7 +363,7 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @return
      */
     def getPlainMeasurementData(Assay assay, SecUser user) {
-        def serviceURL = "${assay.module.baseUrl}/rest/getPlainMeasurementDataTemp"
+        def serviceURL = "${assay.module.baseUrl}/rest/getPlainMeasurementData"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json
 
@@ -393,7 +394,7 @@ class ApiService implements Serializable, ApplicationContextAware {
                     def val
                     def measurement = sampleMeasurements[sample.id.toString()]
 
-                    if (measurement == null) val = ""
+                    if (measurement == null || measurement == JSONObject.NULL) val = ""
                     else if (measurement instanceof Number) val = measurement
                     else if (measurement.isDouble()) val = measurement.toDouble()
                     else val = measurement.toString()

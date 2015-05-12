@@ -95,9 +95,9 @@ modules = {
         dependsOn 'jquery'
         dependsOn 'jquery-ui'
         
-        resource url: [dir: 'js', file: 'templateEditor.js']
-        resource url: [dir: 'css', file: 'templateEditor.css']
-        resource url: [dir: 'js', file: 'ontology-chooser.js' ], disposition: 'head'
+        resource url: [dir: 'js', file: 'templateEditor.js', plugin: 'gdt']
+        resource url: [dir: 'css', file: 'templateEditor.css', plugin: 'gdt']
+        resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt'], disposition: 'head'
         resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
     }
     
@@ -150,10 +150,8 @@ modules = {
         resource url: [dir: 'css', file: 'demo_table_jui.css', plugin: 'gdtimporter']
         resource url: [dir: 'css', file: 'demo_page.css', plugin: 'gdtimporter']
 
-        resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt']
+        resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt'], disposition: 'head'
         resource url: [dir: 'js', file: 'table-editor.js', plugin: 'gdt']
-
-        resource url: [dir: 'js', file: 'ontology-chooser.js' ], disposition: 'head'
     }
     
     /**********************************************************

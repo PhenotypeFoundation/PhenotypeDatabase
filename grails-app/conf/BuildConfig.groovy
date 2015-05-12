@@ -99,7 +99,8 @@ grails.project.dependency.resolution = {
                 ":mail:1.0.7",
                 ":quartz:1.0.2",
                 ":ajaxflow:0.2.4",
-                ":webflow:2.1.0"
+                ":webflow:2.1.0",
+                ":scaffolding:2.1.1"
                 )
 
         compile ":yui-war-minify:1.5"

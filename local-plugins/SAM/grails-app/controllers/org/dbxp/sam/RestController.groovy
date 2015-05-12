@@ -398,7 +398,7 @@ class RestController {
             if( samples ) {
                 // Now retrieve the measurements themselves
                 log.debug "Start retrieving measuremens from the database"
-                def measurements = Measurement.executeQuery("SELECT m.sample.id, m.feature.name, m.feature.unit, m.value FROM Measurement m WHERE m.feature IN (:features) AND m.sample.id IN (:sampleIds)", ["features": features, "sampleIds": samples.keySet()])
+                def measurements = Measurement.executeQuery("SELECT m.sample.id, m.feature.name, m.feature.unit, m.value, m.comments FROM Measurement m WHERE m.feature IN (:features) AND m.sample.id IN (:sampleIds)", ["features": features, "sampleIds": samples.keySet()])
               
                 log.debug "Convert the measurements ino the proper format"
                 
@@ -406,7 +406,7 @@ class RestController {
                 results = measurements.collect {[
                     "sampleToken": samples[it[0]],
                     "measurementToken": it[1] + ( it[2] ? " " + it[2] + ")" : "" ),
-                    "value": it[3]
+                    "value": it[3] != null ? it[3] : it[4]
                 ]}
             } else {
                 results = []
@@ -462,7 +462,8 @@ class RestController {
     /**
      * Retrieves an assay from the database, based on a given assay token.
      * @param assayToken	Assaytoken for the assay to retrieve
-     * @return				Assay or null if assayToken doesn't exist
+     * @return				Map containing for each feature another map that
+     *                      maps samples to values.
      */
     def getPlainMeasurementData = {
         def assayToken = params.assayToken;
@@ -474,59 +475,7 @@ class RestController {
 
         def sql = new Sql(dataSource)
 
-        def pMeasurements = sql.rows("SELECT s.parent_subject_id AS subject, e.start_time AS startTime, m.feature_id AS feature, m.value AS value FROM measurement m, sample s, sampling_event e, samsample y WHERE m.sample_id = y.id AND s.parent_event_id = e.id AND y.parent_sample_id = s.id AND y.parent_assay_id = ${assay.id} ORDER BY s.parent_subject_id ASC, e.start_time DESC")
-
-        def subjectMap = assay.parent.subjects.collectEntries{ [it.id, it.name]}
-
-        def featureMap = sql.rows("SELECT DISTINCT m.feature_id, f.name FROM measurement m JOIN feature f ON m.feature_id = f.id WHERE m.sample_id IN (SELECT id FROM samsample s WHERE s.parent_assay_id = ${assay.id});").collectEntries{ [it.feature_id, it.name]}
-
-        // map for all measurements
-        def allMap = [:]
-        // map for subject + startTime measurements (goes in allMap)
-        def groupMap = [:]
-        // map for subject measurements (goes in groupMap)
-        def mMap = [:]
-        def i = 0
-        pMeasurements.each() { m ->
-            i++
-            mMap.put(featureMap.get(m.feature), m.value)
-            if (!m.subject.equals(pMeasurements[i]?.subject)) {
-                groupMap.put(new RelTime(m.starttime), mMap)
-                allMap.put(subjectMap.get(m.subject), groupMap)
-                groupMap = [:]
-                mMap = [:]
-
-            }
-            else if (m.starttime != pMeasurements[i]?.starttime) {
-                groupMap.put(new RelTime(m.startTime), mMap)
-                mMap = [:]
-            }
-        }
-        pMeasurements.clear()
-        subjectMap.clear()
-        featureMap.clear()
-        groupMap.clear()
-        mMap.clear()
-
-        render allMap as JSON
-    }
-
-    /**
-     * Retrieves an assay from the database, based on a given assay token.
-     * @param assayToken	Assaytoken for the assay to retrieve
-     * @return				Assay or null if assayToken doesn't exist
-     */
-    def getPlainMeasurementDataTemp = {
-        def assayToken = params.assayToken;
-        def assay = getAssay( assayToken );
-        if( !assay ) {
-            response.sendError(404)
-            return false
-        }
-
-        def sql = new Sql(dataSource)
-
-        def pMeasurements = sql.rows("SELECT m.feature_id AS feature, m.value AS value, y.parent_sample_id as sample FROM measurement m, samsample y WHERE m.sample_id = y.id AND y.parent_assay_id = ${assay.id}")
+        def pMeasurements = sql.rows("SELECT m.feature_id AS feature, m.value AS value, m.comments AS comments, y.parent_sample_id as sample FROM measurement m, samsample y WHERE m.sample_id = y.id AND y.parent_assay_id = ${assay.id}")
 
         def featureMap = sql.rows("SELECT DISTINCT m.feature_id, f.name FROM measurement m JOIN feature f ON m.feature_id = f.id WHERE m.sample_id IN (SELECT id FROM samsample s WHERE s.parent_assay_id = ${assay.id});").collectEntries{ [it.feature_id, it.name]}
 
@@ -537,7 +486,7 @@ class RestController {
                 result.put(key, [:])
             }
             Map temp = result.get(key)
-            temp[it.sample] = it.value
+            temp[it.sample] = it.value != null ? it.value : it.comments
             result.put(key, temp)
         }
 
