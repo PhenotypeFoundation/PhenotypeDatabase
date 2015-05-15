@@ -208,11 +208,7 @@ class Search {
 		// data (to show on screen) for all entities
 		if( hasModuleCriteria() ) {
                         log.debug "Starting to filter on module criteria."
-			if( searchMode == SearchMode.and ) {
-				entities = filterOnModuleCriteria( entities );
-			} else {
-				entities = filterOnModuleCriteria( entities )
-			}
+			entities = filterOnModuleCriteria( entities );
 		}
 		
 		// Determine which entities can be read and store them
@@ -745,86 +741,56 @@ class Search {
 	 * @return			List with all entities that match the module criteria
 	 */
 	protected List filterOnModuleCriteria( List entities ) {
-		// An empty list can't be filtered more than is has been now
-		if( !entities || entities.size() == 0 )
-			return [];
-
+                // An empty list can't be filtered more than is has been now
+                if( searchMode == SearchMode.and && !entities )
+                        return [];
+                        
 		// Determine the moduleCommunicationService. Because this object
 		// is mocked in the tests, it can't be converted to a ApplicationContext object
 		def ctx = Holders.grailsApplication.getMainContext();
 		def moduleCommunicationService = ctx.getBean("moduleCommunicationService");
 
-		switch( searchMode ) {
-			case SearchMode.and:
-				// Loop through all modules and check whether criteria have been given
-				// for that module
-				AssayModule.list().each { module ->
-					// Remove 'module' from module name
-					def moduleName = module.name.replace( 'module', '' ).trim()
-					def moduleCriteria = getEntityCriteria( moduleName );
-		
-					if( moduleCriteria && moduleCriteria.size() > 0 ) {
-                                                log.info "Matching module criteria: " + moduleCriteria
-						def callUrl = moduleCriteriaUrl( module );
-						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
-						
-						try {
-                                                        log.debug "Retrieving module data from " + module
-							def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST", user );
-                            
-                                                        log.debug "Filtering entity list for " + module
-                                                        entities = entities.findAll { it.UUID in moduleEntityUUIDs }
-						} catch( Exception e ) {
-						    log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
-                                                    e.printStackTrace()
-                                                    
-                                                    // Don't do anything with the entities, but return to the user without exception    
-						}
-					}
-				}
-		
-				return entities;
-			case SearchMode.or:
-				def resultingEntities = entities
-				
-				// Loop through all modules and check whether criteria have been given
-				// for that module
-				AssayModule.list().each { module ->
-                                        log.trace "Finding module criteria for module " + module
-                                        
-					// Remove 'module' from module name
-					def moduleName = module.name.replace( 'module', '' ).trim()
-					def moduleCriteria = getEntityCriteria( moduleName );
-		
-					if( moduleCriteria && moduleCriteria.size() > 0 ) {
-                                            log.info "Matching module criteria: " + moduleCriteria
-						def callUrl = moduleCriteriaUrl( module );
-						def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
-						
-						try {
-                                                    log.debug "Retrieving module data from " + module
-                                                    def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST", user );
-
-                                                    // See which entities are already selected
-                                                    log.debug "Filtering entity list for " + module
-                                                    def existingEntityUUIDs = resultingEntities*.UUID
-                                                    def resultingEntityUUIDs = moduleEntityUUIDs.findAll { !existingEntityUUIDs.contains( it ) }
-                                                    
-                                                    // Add the entities not yet selected 
-                                                    resultingEntities += getEntitiesByUUID( resultingEntityUUIDs )
-                        			} catch( Exception e ) {
-							log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
-							e.printStackTrace()
-							
-                                                        // Don't do anything with the entities, but return to the user without exception
-						}
-					}
-				}
-		
-				return resultingEntities;
-			default:
-				return [];
-		}
+                // Loop through all modules
+                // Loop through all modules and check whether criteria have been given
+                // for that module
+                def resultingEntities = entities
+                AssayModule.list().each { module ->
+                        // Remove 'module' from module name
+                        log.trace "Finding module criteria for module " + module
+                        def moduleName = module.name.replace( 'module', '' ).trim()
+                        def moduleCriteria = getEntityCriteria( moduleName );
+        
+                        if( moduleCriteria && moduleCriteria.size() > 0 ) {
+                                log.info "Matching module criteria: " + moduleCriteria
+                                def callUrl = moduleCriteriaUrl( module );
+                                def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
+                                
+                                try {
+                                        log.debug "Retrieving module data from " + module
+                                        def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST", user );
+            
+                                        if( searchMode == SearchMode.and ) {
+                                            log.debug "Filtering entity list for " + module
+                                            resultingEntities = resultingEntities.findAll { it.UUID in moduleEntityUUIDs }
+                                        } else {
+                                            // See which entities are already selected
+                                            log.debug "Filtering entity list for " + module
+                                            def existingEntityUUIDs = resultingEntities*.UUID
+                                            def resultingEntityUUIDs = moduleEntityUUIDs.findAll { !existingEntityUUIDs.contains( it ) }
+                                            
+                                            // Add the entities not yet selected
+                                            resultingEntities += getEntitiesByUUID( resultingEntityUUIDs )
+                                        }
+                                } catch( Exception e ) {
+                                    log.error( "Error while retrieving data from " + module.name + ": " + e.getMessage() )
+                                    e.printStackTrace()
+                                    
+                                    // Don't do anything with the entities, but return to the user without exception
+                                }
+                        }
+                }
+        
+                return resultingEntities;
 	}
 	
 	/**
