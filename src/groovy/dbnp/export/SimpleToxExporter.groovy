@@ -8,11 +8,18 @@ import org.apache.poi.ss.usermodel.DataFormatter
 
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
+import dbnp.authentication.SecUser
+
 
 /**
- * Defines the interface for an exporter
+ * Exporter to export a single study to a SimpleTox excel file
  */
 public class SimpleToxExporter implements Exporter {
+    /**
+     * SecUser that is used for authorization
+     */
+    SecUser user
+
     /**
      * Returns an identifier that describes this export
      */
@@ -33,6 +40,13 @@ public class SimpleToxExporter implements Exporter {
      * Exports multiple entities to the outputstream
      */
     public void exportMultiple( def entities, OutputStream out ) { throw new UnsupportedOperationException( getIdentifier() + " exporter can not export multiple entities" ) }
+
+    /**
+     * Returns the content type for the export
+     */
+    public String getContentType( def entity ) {
+        return "application/vnd.ms-excel"
+    }
 
     /**
      * Returns a proper filename for the given entity

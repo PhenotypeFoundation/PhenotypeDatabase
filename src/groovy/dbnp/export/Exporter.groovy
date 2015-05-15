@@ -1,9 +1,16 @@
 package dbnp.export
 
+import dbnp.authentication.SecUser
+
 /**
  * Defines the interface for an exporter
  */
 public interface Exporter {
+    /**
+     * Set the user into the exporter to make sure authorization is handled properly
+     */
+    public void setUser(SecUser user)
+
     /**
      * Returns an identifier that describes this export
      */
@@ -26,6 +33,11 @@ public interface Exporter {
      * Returns a proper filename for the given entity
      */
     public String getFilenameFor( def entity )
+    
+    /**
+     * Returns the content type for the export
+     */
+    public String getContentType( def entity )
 
     /**
      * Export a single entity to the outputstream

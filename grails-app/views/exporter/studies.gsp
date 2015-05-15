@@ -1,23 +1,20 @@
-
-<%@ page import="dbnp.studycapturing.Study" %>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="main" />
     <g:set var="entityName" value="${message(code: 'study.label', default: 'Study')}" />
-    <title>${format} Exporter</title>
-
+    <title>Study exporter</title>
 </head>
 <body>
 
-  <g:form action="export" name="simpleToxForm">
+  <g:form action="exportStudies" name="studyExportForm">
   <div class="body">
-    <h1>Export as ${format}</h1>
+    <h1>Export studies<g:if test="${format}"> as ${format}</g:if></h1>
     <br> Select the study you want to export in ${format} format.<br>
     If you choose multiple studies, a ZIP file will be created.
     <br><br>
     <g:if test="${flash.message}">
-      <div class="message">${flash.message}</div>
+      <div class="message infobox">${flash.message}</div>
     </g:if>
 
     <div class="list">

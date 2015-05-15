@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.DataFormatter
 
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
+import dbnp.authentication.SecUser
 
 /**
  * Defines the interface for an exporter.
@@ -16,6 +17,11 @@ import org.dbnp.gdt.*
  *      but it should implement the Export method itself.
  */
 public class IsaTabExporter extends SimpleToxExporter implements Exporter {
+    /**
+     * SecUser that is used for authorization
+     */
+    SecUser user
+
     /**
      * Returns an identifier that describes this export
      */

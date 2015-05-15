@@ -24,11 +24,15 @@ import grails.plugin.springsecurity.annotation.Secured
 class ExporterController {
     def authenticationService
 
+    def index = {
+        redirect( action: "studies" )
+    }
+    
     /*
      * List of all studies for selection the study to export
      * Using the same code as 'list' into StudyController
      */
-    def index = {
+    def studies = {
         def exporterFactory = new ExporterFactory()
         
         // If a type is already given, use that type
@@ -37,7 +41,7 @@ class ExporterController {
         if( format ) {
             if(exporterFactory.getExporter(format)?.type != "Study") {
                 flash.message = "The specified output type " + format + " is not supported. Please select one of the supported output types.";
-                redirect(action: 'index')
+                redirect(action: 'studies')
             }
             formats = [format]
         } else {
@@ -51,12 +55,85 @@ class ExporterController {
 
         [studyInstanceList: studies, studyInstanceTotal: Study.countReadableStudies( user ), formats: formats, format: format]
     }
+    
+    /*
+     * List of all studies for selection the study to export
+     * Using the same code as 'list' into StudyController
+     */
+    def assays = {
+        def exporterFactory = new ExporterFactory()
+        
+        // If a type is already given, use that type
+        def format = params.get('format')
+        def formats = []
+        if( format ) {
+            if(exporterFactory.getExporter(format)?.type != "Assay") {
+                flash.message = "The specified output type " + format + " is not supported. Please select one of the supported output types.";
+                redirect(action: 'assays')
+            }
+            formats = [format]
+        } else {
+            formats = exporterFactory.getExportersForType( "Assay" )*.identifier
+        }
 
-    def error = {
-        [errorText: params.errorText]
+        def user = authenticationService.getLoggedInUser()
+        def studies = Study.giveReadableStudies(user);
+
+        [studies: studies, formats: formats, format: format]
     }
+    
+    def exportAssays = {
+        def ids = params.list( 'assayId' )
+        def exportType = params.format
+        def user = authenticationService.getLoggedInUser()
+        def assays = []
 
-    def export = {
+        // Determine the exporter for the given type
+        def factory = new ExporterFactory()
+        def exporter = factory.getExporter(exportType, user)
+        
+        if( !exporter ) {
+            redirect(action: 'assays', params: [errorText: "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier ] );
+        }
+        
+        // Retrieve a list of studies
+        ids.each {
+            if( it.toString().isLong() ) {
+                def assay = Assay.get( Long.valueOf( it ) );
+                if( assay )
+                    assays << assay
+            }
+        }
+
+        // Filter on readable studies
+        assays = assays.findAll { it && it.parent.canRead(user) }
+        
+        if( assays.size() == 0 ) {
+            flash.message = "Please select one or more assays that you have access to";
+            redirect( action: 'assays', params: [ format: exportType ] );
+            return
+        }
+        
+        if( assays.size() == 1 ) {
+            def assay = assays[0]
+            addDownloadHeaders(exporter, assay)
+            exporter.export(assay, response.getOutputStream() )
+        } else {
+            // If multiple assays should be exported, but it is not supported by this exporter,
+            // warn the user
+            if( !exporter.supportsMultiple() ) {
+                flash.message = "The " + exporter.identifier + " exporter doesn't support exporting multiple assays. Please select a single assay or another exporter.";
+                redirect( action: 'assays' );
+            }
+            
+            addDownloadHeaders(exporter, assays)
+            exporter.exportMultiple(assays, response.getOutputStream() )
+        }
+        
+        response.outputStream.flush();
+    }
+        
+    def exportStudies = {
         def ids = params.list( 'ids' )
         def tokens = params.list( 'tokens' )
         def exportType = params.format
@@ -65,10 +142,10 @@ class ExporterController {
 
         // Determine the exporter for the given type
         def factory = new ExporterFactory()
-        def exporter = factory.getExporter(exportType)
+        def exporter = factory.getExporter(exportType, user)
         
         if( !exporter ) {
-            redirect(action: 'error', params: [errorText: "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier ] );
+            redirect(action: 'studies', params: [errorText: "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier ] );
         }
         
         // Retrieve a list of studies
@@ -92,17 +169,17 @@ class ExporterController {
         
         if( studies.size() == 0 ) {
             flash.message = "Please select one or more studies";
-            redirect( action: 'index', params: [ format: exportType ] );
+            redirect( action: 'studies', params: [ format: exportType ] );
             return
         }
 
         if(studies.size() > 1){
             def zipExporter = new ZipExporter( exporter )
-
+            zipExporter.user = user
+            
             // Send the right headers for the zip file to be downloaded
-            response.setContentType( "application/zip" ) ;
-            response.addHeader( "Content-Disposition", "attachment; filename=\"" + zipExporter.getFilenameFor(null) + "\"" ) ;
-
+            addDownloadHeaders(zipExporter, studies)
+            
             zipExporter.exportMultiple( studies, response.getOutputStream(), { study ->
                 if( study.getSampleCount() == 0 )
                     return "Study " + study.title + " doesn't contain any samples, so it is not exported";
@@ -114,18 +191,22 @@ class ExporterController {
             
             // make the file downloadable
             if ((studyInstance!=null) && (studyInstance.getSampleCount() > 0)){
-                response.setHeader("Content-disposition", "attachment;filename=\"" + exporter.getFilenameFor(studyInstance) + "\"")
-                response.setContentType("application/octet-stream")
+                addDownloadHeaders(exporter, studyInstance)
                 exporter.export( studyInstance, response.getOutputStream() )
             } else if( studyInstance.getSampleCount() == 0 ) {
                 flash.message = "Given study doesn't contain any samples, so no excel file is created. Please choose another study.";
-                redirect( action: 'index', params: [ format: exportType ] );
+                redirect( action: 'studies', params: [ format: exportType ] );
             } else {
                 flash.message= "Error while exporting the file, please try again or choose another study."
-                redirect( action: 'index', params: [ format: exportType ] )
+                redirect( action: 'studies', params: [ format: exportType ] )
             }
         }
         
         response.outputStream.flush();
+    }
+    
+    protected def addDownloadHeaders( Exporter exporter, def entity ) {
+        response.setHeader("Content-disposition", "attachment;filename=\"" + exporter.getFilenameFor(entity) + "\"")
+        response.setContentType(exporter.getContentType(entity))
     }
 }

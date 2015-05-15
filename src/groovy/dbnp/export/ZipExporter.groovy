@@ -4,10 +4,17 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import java.util.zip.ZipInputStream
 
+import dbnp.authentication.SecUser
+
 /**
  * Allows exporting multiple entities at once, in a zip file
  */
 public class ZipExporter implements Exporter {
+    /**
+     * SecUser that is used for authorization
+     */
+    SecUser user
+    
     // The actual exporter used to export each entity
     protected innerExporter
     
@@ -33,6 +40,13 @@ public class ZipExporter implements Exporter {
      */
     public boolean supportsMultiple() { true }
 
+    /**
+     * Returns the content type for the export
+     */
+    public String getContentType( def entity ) {
+        return "application/zip"
+    }
+    
     /**
      * Returns a proper filename for the given entity
      */

@@ -1,5 +1,7 @@
 package dbnp.export
 
+import dbnp.authentication.SecUser
+
 /**
  * Defines the interface for an exporter
  */
@@ -12,17 +14,28 @@ public class ExporterFactory {
            // this works fine.
            new SimpleToxExporter(),
            new IsaTabExporter(),
+           
+           new AssayDataExporter()
        ].collectEntries { [ (it.identifier): it ] }
     }()
     
     /**
      * Returns a specific instance
      */
-    public Exporter getExporter( String identifier ) { instances[identifier] }
+    public Exporter getExporter( String identifier, SecUser user = null ) { 
+        def exporter = instances[identifier] 
+    
+        if( exporter && user )
+            exporter.user = user
+            
+        exporter    
+    }
     
     /**
      * Returns a list of exporters that support the given type
      */
-    public List getExportersForType( String type ) { instances.values().findAll { it.type == type } }
+    public List getExportersForType( String type ) { 
+        instances.values().findAll { it.type == type } 
+    }
     
 }
