@@ -127,11 +127,14 @@ class StudySearch extends Search {
      * Filters the list of entities, based on the studies that can be read.
      * As this depends on the type of entity, it should be overridden in subclasses
      */
-    protected def filterAccessibleEntities(entities, readableStudies) {
+    protected def filterAccessibleUUIDs(UUIDs, readableStudies) {
+        if( !UUIDs || !readableStudies )
+            return []
+
         // No need to do additional queries
-        entities.findAll { readableStudies.contains(it) }
+        readableStudies.findAll { it.UUID in UUIDs }.collect { [ it.id, it.UUID ] }
     }
-    
+
     /**
      * Returns a map with data about the results, based on the given parameters.
      * The parameters are the ones returned from the dataTablesService.

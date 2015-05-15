@@ -109,7 +109,7 @@ class SampleSearch extends Search {
 	protected String entityClause( String entity ) {
 		switch( entity ) {
 			case "Assay":
-				return 'EXISTS( FROM Assay assay WHERE assay IN (:%3$s) AND EXISTS( FROM assay.samples assaySample WHERE assaySample = sample ) ) '
+				return 'EXISTS( FROM Assay assay WHERE assay.UUID IN (:%3$s) AND EXISTS( FROM assay.samples assaySample WHERE assaySample = sample ) ) '
 			default:
 				return super.entityClause( entity );
 		}
@@ -159,11 +159,11 @@ class SampleSearch extends Search {
      * Filters the list of entities, based on the studies that can be read.
      * As this depends on the type of entity, it should be overridden in subclasses
      */
-    protected def filterAccessibleEntities(entities, readableStudies) {
-        if( !entities || !readableStudies )
+    protected def filterAccessibleUUIDs(UUIDs, readableStudies) {
+        if( !UUIDs || !readableStudies )
             return []
             
-        Sample.findAll( "FROM Sample s where s in (:samples) and s.parent in (:studies)", [ samples: entities, studies: readableStudies ] )
+        Sample.executeQuery( "SELECT s.id, s.UUID FROM Sample s where s.UUID in (:uuids) and s.parent in (:studies)", [ uuids: UUIDs, studies: readableStudies ] )
     }
 
     /**
