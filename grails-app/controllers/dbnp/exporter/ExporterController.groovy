@@ -16,245 +16,116 @@ package dbnp.exporter
 
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
-
-import org.apache.poi.hssf.util.HSSFColor
-import org.apache.poi.*
-import org.apache.poi.hssf.usermodel.*
-import org.apache.poi.poifs.filesystem.POIFSFileSystem
-import org.apache.poi.ss.usermodel.DataFormatter
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-import java.util.zip.ZipInputStream
-import javax.servlet.ServletOutputStream
+import dbnp.export.*
 
 import grails.plugin.springsecurity.annotation.Secured
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ExporterController {
-
     def authenticationService
-	final List<String> supportedFormats = ["SimpleTox","ISATAB"]
 
     /*
      * List of all studies for selection the study to export
      * Using the same code as 'list' into StudyController
      */
     def index = {
-
-	    def format = params.get('format')
-	    if (!supportedFormats.contains(format)) {
-		    redirect(action: 'error', params: [errorText: "Format '${format}' is not supported!"])
-	    }
+        def exporterFactory = new ExporterFactory()
+        
+        // If a type is already given, use that type
+        def format = params.get('format')
+        def formats = []
+        if( format ) {
+            if(exporterFactory.getExporter(format)?.type != "Study") {
+                flash.message = "The specified output type " + format + " is not supported. Please select one of the supported output types.";
+                redirect(action: 'index')
+            }
+            formats = [format]
+        } else {
+            formats = exporterFactory.getExportersForType( "Study" )*.identifier
+        }
 
         def user = authenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
+        def offset = params.offset ? params.int( 'offset' ) : 0
+        def studies = Study.giveReadableStudies(user, max, offset);
 
-        def c = dbnp.studycapturing.Study.createCriteria()
-
-        def studies = Study.giveReadableStudies(user, max);
-        [studyInstanceList: studies, studyInstanceTotal: studies?.size() ?: 0, format: format]
+        [studyInstanceList: studies, studyInstanceTotal: Study.countReadableStudies( user ), formats: formats, format: format]
     }
 
-	def error = {
-		[errorText: params.errorText]
-	}
+    def error = {
+        [errorText: params.errorText]
+    }
 
     def export = {
-		def ids = params.list( 'ids' );
-		def tokens = params.list( 'tokens' );
-        def exportType = params.list( 'format' );
+        def ids = params.list( 'ids' )
+        def tokens = params.list( 'tokens' )
+        def exportType = params.format
+        def user = authenticationService.getLoggedInUser()
         def studies = []
-		
-		ids.each {
-			if( it.toString().isLong() ) {
-				def study = Study.get( Long.valueOf( it ) );
-				if( study )
-					studies << study
-			}
-		}
-		
-		// Also accept tokens for defining studies
-		tokens.each {
-			def study = Study.findWhere(UUID: it)
-			if( study )
-				studies << study;
-		}
+
+        // Determine the exporter for the given type
+        def factory = new ExporterFactory()
+        def exporter = factory.getExporter(exportType)
         
-        if(studies.size()>1){
+        if( !exporter ) {
+            redirect(action: 'error', params: [errorText: "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier ] );
+        }
+        
+        // Retrieve a list of studies
+        ids.each {
+            if( it.toString().isLong() ) {
+                def study = Study.get( Long.valueOf( it ) );
+                if( study )
+                    studies << study
+            }
+        }
 
-			// Send the right headers for the zip file to be downloaded
-			response.setContentType( "application/zip" ) ;
-			response.addHeader( "Content-Disposition", "attachment; filename=\"GSCF_"+exportType+"Studies.zip\"" ) ;
+        // Also accept tokens for defining studies
+        tokens.each {
+            def study = Study.findWhere(UUID: it)
+            if( study )
+                studies << study;
+        }
+        
+        // Filter on readable studies
+        studies = studies.findAll { it && it.canRead(user) }
+        
+        if( studies.size() == 0 ) {
+            flash.message = "Please select one or more studies";
+            redirect( action: 'index', params: [ format: exportType ] );
+            return
+        }
 
-			// Create a ZIP file containing all the SimpleTox files
-			ZipOutputStream zipFile = new ZipOutputStream( new BufferedOutputStream( response.getOutputStream() ) );
-			BufferedWriter zipWriter = new BufferedWriter( new OutputStreamWriter( zipFile ) );
-			
-			// Loop through the given studies and export them
-			for (studyInstance in studies){
-				if( studyInstance.samples?.size() ) {
-					try {
-						zipFile.putNextEntry( new ZipEntry( studyInstance.title + "_"+exportType+".xls" ));
-						downloadFile(studyInstance, zipFile);
-						zipWriter.flush();
-						zipFile.closeEntry();
-					} catch( Exception e ) {
-						log.error "Error while writing excelfile for zip for study " + studyInstance?.title + ": " + e.getMessage();
-					} finally {
-						// Always close zip entry
-						try {
-							zipWriter.flush();
-							zipFile.closeEntry();
-						} catch( Exception e ) {
-							log.error "Error while closing excelfile for zip for study: " + e.getMessage();
-						}
-					}
-				} else {
-					log.trace "Study " + studyInstance?.title + " doesn't contain any samples, so is not exported to "+exportType
-					
-					// Add a text file with explanation in the zip file
-					zipFile.putNextEntry(new ZipEntry( studyInstance.title + "_contains_no_samples.txt" ) );
-					zipFile.closeEntry();
-				}
-			}
-			
-			// Close zipfile and flush to the user
-			zipFile.close();
-			response.outputStream.flush();
-			
+        if(studies.size() > 1){
+            def zipExporter = new ZipExporter( exporter )
+
+            // Send the right headers for the zip file to be downloaded
+            response.setContentType( "application/zip" ) ;
+            response.addHeader( "Content-Disposition", "attachment; filename=\"" + zipExporter.getFilenameFor(null) + "\"" ) ;
+
+            zipExporter.exportMultiple( studies, response.getOutputStream(), { study ->
+                if( study.getSampleCount() == 0 )
+                    return "Study " + study.title + " doesn't contain any samples, so it is not exported";
+                else
+                    return ""
+            })
         } else {
             def studyInstance = studies.getAt(0)
+            
             // make the file downloadable
-            if ((studyInstance!=null) && (studyInstance.samples.size()>0)){
-	            response.setHeader("Content-disposition", "attachment;filename=\"${studyInstance.title}_"+exportType+".xls\"")
-	            response.setContentType("application/octet-stream")
-                downloadFile(studyInstance, response.getOutputStream())
-				response.getOutputStream().close()
-            } else if( studyInstance.samples.size() == 0 ) {
-				flash.message = "Given study doesn't contain any samples, so no excel file is created. Please choose another study.";
-				redirect( action: 'index' );
-			}
-            else {
+            if ((studyInstance!=null) && (studyInstance.getSampleCount() > 0)){
+                response.setHeader("Content-disposition", "attachment;filename=\"" + exporter.getFilenameFor(studyInstance) + "\"")
+                response.setContentType("application/octet-stream")
+                exporter.export( studyInstance, response.getOutputStream() )
+            } else if( studyInstance.getSampleCount() == 0 ) {
+                flash.message = "Given study doesn't contain any samples, so no excel file is created. Please choose another study.";
+                redirect( action: 'index', params: [ format: exportType ] );
+            } else {
                 flash.message= "Error while exporting the file, please try again or choose another study."
-                redirect( action: 'index' )
-            }
-
-        }
-
-    }
-    /* 
-     * the export method will create a SimpleTox format for the selected study 
-     * and write the file to the given output stream
-     */
-    private def downloadFile(studyInstance, OutputStream outStream) {
-        // the attributes list for the SimpleTox format
-        def attributes_list = ["SubjectID","DataFile","HybName","SampleName","ArrayType","Label","StudyTitle","Array_ID",
-        "Species"]
-        //println studyInstance.samples.size()
-        //println "StudyInstance :" + studyInstance
-                
-        // The first row contains the attributes names
-        HSSFWorkbook wb = new HSSFWorkbook()
-        HSSFSheet sheet = wb.createSheet()
-        HSSFRow row     = sheet.createRow((short)0)
-        for (i in 0..attributes_list.size()){
-            row.createCell((short)i).setCellValue(attributes_list[i])
-        }
-
-        // Adding the next lines
-        for (s in 1..studyInstance.samples.size()){
-            // creating new line for every sample
-            HSSFRow sub     = sheet.createRow((short)s)
-            def sample = studyInstance.samples.getAt(s-1)
-            
-            writeMandatoryFields(sub,sample,studyInstance)
-
-            try {
-                // adding the subject domain + template properties
-                writeSubjectProperties(sub,sample,row)
-
-                // adding the samplingEvent domain + template properties
-                writeSamplingEventProperties(sub,sample,row)
-            
-                // adding EventGroup domain + template properties
-                //                writeEventGroupProperties(sub,sample,rows)
-
-                // adding Sample domain + template properties
-                writeSampleProperties(sub,sample,row)
-            }
-            catch (Exception e){
-                //println "Error adding properties"
+                redirect( action: 'index', params: [ format: exportType ] )
             }
         }
-
-		wb.write( outStream );
-    }
-
-    private def writeMandatoryFields(sub,sample,study) {
-        // adding subject name in row 1
-        sample.parentSubject ? sub.createCell((short)0).setCellValue(sample.parentSubject.name) : "not defined"
-        // adding sample in row 4
-        sample.name!=null ? sub.createCell((short)3).setCellValue(sample.name) : "not defined"
-
-        // adding label (EventGroup) in row 6
-        if( sample.parentEvent ) {
-            sub.createCell((short)5).setCellValue(sample.parentEvent.eventGroup.name)
-        } else if( sample.SubjectEventGroup ) {
-            sub.createCell((short)5).setCellValue(sample.parentSubjectEventGroup.eventGroup.name)
-        } else {
-            sub.createCell((short)5).setCellValue(" ")
-        }
-
-        // adding study title in row 7
-        sub.createCell((short)6).setCellValue(study.title)
-        // Species row 9
-//        sample.parentSubject.species.name!=null ? sub.createCell((short)8).setCellValue(sample.parentSubject.species.name) : "not defined"
-        sample.parentSubject ? sub.createCell((short)8).setCellValue(sample.parentSubject.species.name) : "not defined"
-    }
-
-    // writing subject properties
-	private def writeSubjectProperties(sub,sample,row) {
-		if( sample.parentSubject ) {
-			log.trace "----- SUBJECT -----"
-	        for (u in 0..sample.parentSubject.giveFields().unique().size()-1){
-	            TemplateField tf = sample.parentSubject.giveFields().getAt(u)
-	            log.trace tf.name
-	            row.createCell((short)9+u).setCellValue(tf.name)
-	            sample.parentSubject.getFieldValue(tf.name) ? sub.createCell((short)9+u).setCellValue(sample.parentSubject.getFieldValue(tf.name).toString()) : "not define"
-	        }
-		} else {
-			log.trace "------ NO SUBJECT FOR SAMPLE " + sample.name + "-----";
-		}
-    }
-
-    // writing samplingEvent properties
-	private def writeSamplingEventProperties(sub,sample,row){
-		if( sample.parentEvent ) {
-	        log.trace "----- SAMPLING EVENT -----"
-	        for (t in 0..sample.parentEvent.event.giveFields().unique().size()-1){
-	            TemplateField tf =sample.parentEvent.event.giveFields().getAt(t)
-	            log.trace tf.name
-	            row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue("samplingEvent-"+tf.name)
-	            sample.parentEvent.event.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+t).setCellValue(sample.parentEvent.event.getFieldValue(tf.name).toString()) : "not define"
-	        }
-		} else {
-			log.trace "------ NO SAMPLING EVENT FOR SAMPLE " + sample.name + "-----";
-		}
-    }
-
-    // writing EventGroup properties
-	private def writeEventGroupProperties(sub,sample,row){
-      
-    }
-
-    // writing sample properties
-	private def writeSampleProperties(sub,sample,row){
-        log.trace "----- SAMPLE -----"
-        for (v in 0..sample.giveFields().unique().size()-1){
-            TemplateField tf =sample.giveFields().getAt(v)
-            log.trace tf.name
-            row.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.event.giveFields().unique().size()).setCellValue("sample-"+tf.name)
-            sample.getFieldValue(tf.name) ? sub.createCell((short)9+sample.parentSubject.giveFields().unique().size()+v+sample.parentEvent.event.giveFields().unique().size()).setCellValue(sample.getFieldValue(tf.name).toString()) : "not define"
-        }
+        
+        response.outputStream.flush();
     }
 }

@@ -73,7 +73,51 @@ class AssayService {
         ]
 
     }
-
+    
+    
+    /**
+     * Merges multiple fieldmaps as returned from assayService.collectAssayTemplateFields(). For each category,
+     * a list is returned without duplicates
+     * @param fieldMaps             ArrayList of fieldMaps
+     * @return                              A single fieldmap
+     */
+    def mergeFieldMaps( fieldMaps ) {
+            if( !fieldMaps || !( fieldMaps instanceof Collection ) )
+                    throw new Exception( "No or invalid fieldmaps given" )
+                    
+            if( fieldMaps.size() == 1 )
+                    return fieldMaps[ 0 ]
+                    
+            // Loop over each fieldmap and combine the fields from different categories
+            def mergedMap = fieldMaps[ 0 ]
+            fieldMaps[1..-1].each { fieldMap ->
+                    fieldMap.each { key, value ->
+                            if( value instanceof Collection ) {
+                                    if( mergedMap.containsKey( key ) ) {
+                                            value.each {
+                                                    if( !mergedMap[ key ].contains( it ) )
+                                                            mergedMap[ key ] << it
+                                            }
+                                    } else {
+                                            mergedMap[ key ] = value
+                                    }
+                            } else {
+                                    if( mergedMap.containsKey( key ) ) {
+                                            if( !mergedMap[ key ].contains( value ) )
+                                                    mergedMap[ key ] << value
+                                    } else {
+                                            mergedMap[ key ] = [ value ]
+                                    }
+                            }
+                    }
+            }
+            
+            mergedMap
+    }
+    
+    /**
+     * Returns a list of template fields that actually contain data.
+     */
     def getUsedTemplateFields = { templateEntities ->
         if (templateEntities instanceof ArrayList && templateEntities.size() > 0 && templateEntities[0] instanceof SamplingEventInEventGroup) {
             return [[name: 'startTime', comment: '', displayName: 'startTime'],
