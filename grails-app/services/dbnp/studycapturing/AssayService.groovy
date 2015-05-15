@@ -17,7 +17,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.dbnp.gdt.RelTime
-import org.dbnp.gdt.TemplateFieldType
+import org.dbnp.gdt.*
 import java.text.NumberFormat
 import dbnp.authentication.SecUser
 
@@ -61,10 +61,10 @@ class AssayService {
         if (!samples)
             samples = assay.samples
 
-        [       'Study Data': getUsedTemplateFields(samples.parent),
-                'Subject Data': getUsedTemplateFields(samples*."parentSubject".unique()),
-                'Sampling Event Data': (getUsedTemplateFields(samples*.parentEvent.unique()) << getUsedTemplateFields(samples*.parentEvent*.event.unique())).flatten(),
-                'Sample Data': getUsedTemplateFields(samples),
+        [       'Study Data': getAllTemplateFields(samples*.parent),
+                'Subject Data': getAllTemplateFields(samples*."parentSubject".unique()),
+                'Sampling Event Data': (getAllTemplateFields(samples*.parentEvent.unique()) << getAllTemplateFields(samples*.parentEvent*.event.unique())).flatten(),
+                'Sample Data': getAllTemplateFields(samples),
                 'Event Group': [
                         [name: 'name', comment: 'Name of Event Group', displayName: 'name']
                 ],
@@ -131,6 +131,32 @@ class AssayService {
 
         }.collect { [name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')] }
     }
+    
+    /**
+     * Returns a list of template fields that have been specified for the given set of entities
+     */
+    def getAllTemplateFields = { templateEntities ->
+        templateEntities = templateEntities.findAll()
+        
+        if( !templateEntities )
+            return []
+            
+        if (templateEntities instanceof ArrayList && templateEntities.size() > 0 && templateEntities[0] instanceof SamplingEventInEventGroup) {
+            return [[name: 'startTime', comment: '', displayName: 'startTime'],
+                    [name: 'duration', comment: '', displayName: 'duration']]
+        }
+
+        // Determine the type of data
+        def domainFields = templateEntities[0].giveDomainFields()
+        
+        // Determine the template for all templateEntities
+        def templates = templateEntities*.template.unique()
+        def templateFields = templates*.fields.flatten().unique()
+        
+        // Return the proper list
+        ( domainFields + templateFields ).collect { [name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')] }
+    }
+
 
     /**
      * Gathers all assay related data, including measurements from the module,
@@ -180,23 +206,22 @@ class AssayService {
         }
 
         [
-                'Subject Data': getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
-                'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
-                'Sample Data': getFieldValues(samples, fieldMap['Sample Data']),
-                'Event Group': eventFieldMap,
+            'Subject Data': getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
+            'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
+            'Sample Data': getFieldValues(samples, fieldMap['Sample Data']),
+            'Event Group': eventFieldMap,
 					('Module Measurement Data: ' + assay.name ): 		moduleMeasurementData,
-                'Module Error': moduleError
+            'Module Error': moduleError
         ]
     }
 
     def getFieldValues = { templateEntities, headerFields, propertyName = '' ->
-
         def returnValue
 
         // if no property name is given, simply collect the fields and
         // values of the template entities themselves
         if (propertyName == '') {
-
+            
             returnValue = collectFieldValuesForTemplateEntities(headerFields, templateEntities)
 
         } else {
@@ -277,33 +302,61 @@ class AssayService {
     }
 
     def collectFieldValuesForTemplateEntities = { headerFields, templateEntities ->
-
+        def firstNonEmptyTemplateEntity = templateEntities.findResult { it }
+        
+        if( !firstNonEmptyTemplateEntity ) {
+            return templateEntities.collect { "" }
+        }
+        
         // return a hash map with for each field name all values from the
         // template entity list
-        headerFields.inject([:]) { map, headerField ->
-
-            map + [(headerField.displayName): templateEntities.collect { entity ->
-
-                // default to an empty string
-                def val = ''
-
-                if (entity) {
-                    def field
-                    try {
-
+        headerFields.collectEntries { headerField ->
+            // Retrieve data for all templateEntities for the given field
+            def data
+             
+            // The data for domainfields has been retrieved already
+            if( firstNonEmptyTemplateEntity.isDomainField(headerField.name) ) {
+                def field = firstNonEmptyTemplateEntity.getField(headerField.name)
+                data = templateEntities.collect { entity ->
+                    def val = ''
+                    if( entity ) {
                         val = entity.getFieldValue(headerField.name)
-
+                        
                         // Convert RelTime fields to human readable strings
-                        field = entity.getField(headerField.name)
                         if (field.type == TemplateFieldType.RELTIME)
                             val = new RelTime(val as long)
-
-                    } catch (NoSuchFieldException e) { /* pass */ }
+                        
+                    }
+                    return val
                 }
-
-                (val instanceof Number) ? val : val.toString()
+            } else {
+                // Filtering on class doesn't seem to work properly
+                def field = TemplateField.findAllByName(headerField.name).find { it.entity == firstNonEmptyTemplateEntity.class } 
+                
+                if( !field ) {
+                    data = templateEntities.collect { "" }
+                } else {
+                    // Retrieve the data from the database at once
+                    data = firstNonEmptyTemplateEntity.getColumnForEntities( templateEntities, field ).collect { val ->
+                        // Convert RelTime fields to human readable strings
+                        if (field.type == TemplateFieldType.RELTIME)
+                            val = new RelTime(val as long)
+                        else
+                            val 
+                    }
+                }
+            }
+            
+            // Return data for the big data map
+            [(headerField.displayName): data.collect { 
+                if( it == null )
+                    return ""
+                else if( it instanceof Number )
+                    return it
+                else 
+                    return it.toString()
             }]
-        }
+         }
     }
 
     /**
