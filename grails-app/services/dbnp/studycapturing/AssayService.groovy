@@ -61,9 +61,20 @@ class AssayService {
         if (!samples)
             samples = assay.samples
 
-        [       'Study Data': getAllTemplateFields(samples*.parent),
-                'Subject Data': getAllTemplateFields(samples*."parentSubject".unique()),
-                'Sampling Event Data': (getAllTemplateFields(samples*.parentEvent.unique()) << getAllTemplateFields(samples*.parentEvent*.event.unique())).flatten(),
+        // Retrieve parent subjects and events.  
+        def subjectIds = samples*.parentSubjectId
+        def parentSubjects = Subject.getAll(subjectIds)
+        
+        def samplingEventInstanceIds = samples*.parentEventId.findAll()
+        def parentEvents = []
+        if( samplingEventInstanceIds ) {
+            def samplingEventIds = SamplingEventInEventGroup.executeQuery( "SELECT event.id FROM SamplingEventInEventGroup WHERE id IN (:ids)", [ ids: samplingEventInstanceIds ] )
+            parentEvents = SamplingEvent.getAll(samplingEventIds)
+        }
+        
+        [       'Study Data': getAllTemplateFields(assay.parent),
+                'Subject Data': getAllTemplateFields(parentSubjects),
+                'Sampling Event Data': getAllTemplateFields(parentEvents),
                 'Sample Data': getAllTemplateFields(samples),
                 'Event Group': [
                         [name: 'name', comment: 'Name of Event Group', displayName: 'name']
