@@ -186,8 +186,6 @@ class ExporterController {
             addDownloadHeaders(exporter, studies)
             exporter.exportMultiple(studies, response.getOutputStream() )
         }
-        
-        response.outputStream.flush();
     }
     
     protected def addDownloadHeaders( Exporter exporter, def entity ) {

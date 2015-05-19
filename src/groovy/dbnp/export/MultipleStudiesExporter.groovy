@@ -60,8 +60,10 @@ public class MultipleStudiesExporter implements Exporter {
         // Collect data to export for each study
         def assays = Assay.findAll( "FROM Assay WHERE parent IN (:studies)", [ studies: studies ] )
         def sampleData = []
+        
         def studyData = this.collectStudyData(studies)
         def subjectsData = this.collectSubjectData(studies)
+        
         if(assays) {
             def samples = assays*.samples.flatten().unique()
             sampleData = this.collectSampleData(assays, null, samples, authenticationService.getLoggedInUser())
@@ -124,10 +126,10 @@ public class MultipleStudiesExporter implements Exporter {
             collectedAssays += it.assays
         }
 
-        def usedStudyTemplateFields = assayService.getUsedTemplateFields(studies)
-        def usedEventTemplateFields = assayService.getUsedTemplateFields(collectedEvents)
-        def usedSamplingEventTemplateFields = assayService.getUsedTemplateFields(collectedSamplingEvents)
-        def usedAssayTemplateFields = assayService.getUsedTemplateFields(collectedAssays)
+        def usedStudyTemplateFields = assayService.getAllTemplateFields(studies)
+        def usedEventTemplateFields = assayService.getAllTemplateFields(collectedEvents)
+        def usedSamplingEventTemplateFields = assayService.getAllTemplateFields(collectedSamplingEvents)
+        def usedAssayTemplateFields = assayService.getAllTemplateFields(collectedAssays)
 
         def studyInformation = []
         studies.eachWithIndex { el, idx ->
@@ -154,7 +156,7 @@ public class MultipleStudiesExporter implements Exporter {
         studies.each {
             collectedSubjects += it.subjects
         }
-        def usedSubjectTemplateFields = assayService.getUsedTemplateFields(collectedSubjects)
+        def usedSubjectTemplateFields = assayService.getAllTemplateFields(collectedSubjects)
 
         def subjectInformation = []
         studies.eachWithIndex { el, idx ->
@@ -225,8 +227,8 @@ public class MultipleStudiesExporter implements Exporter {
      */
     def collectSampleTemplateFields(samples) throws Exception {
         [
-                'Subject Data': assayService.getUsedTemplateFields(samples*."parentSubject".unique()),
-                'Sample Data': assayService.getUsedTemplateFields(samples)
+                'Subject Data': assayService.getAllTemplateFields(samples*."parentSubject".unique()),
+                'Sample Data': assayService.getAllTemplateFields(samples)
         ]
     }
 
