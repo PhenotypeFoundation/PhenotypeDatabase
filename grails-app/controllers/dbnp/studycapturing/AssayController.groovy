@@ -58,9 +58,9 @@ class AssayController {
 				
 				// check if assay exists
 				if (!flow.assays) throw new Exception("No assays found with ids: ${assayIdList}")
-
+                                
 				// obtain fields for each category and for the union of assays
-				flow.fieldMap = mergeFieldMaps( flow.assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) } )
+				flow.fieldMap = assayService.mergeFieldMaps( flow.assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) } )
 				
 				flash.errorMessage = flow.fieldMap.remove('Module Error')
 				flow.measurementTokens = flow.fieldMap.remove('Module Measurement Data')
@@ -214,46 +214,6 @@ class AssayController {
 		}
 		
 		assayService.convertColumnToRowStructure(data)
-	}
-	
-	/**
-	 * Merges multiple fieldmaps as returned from assayService.collectAssayTemplateFields(). For each category, 
-	 * a list is returned without duplicates
-	 * @param fieldMaps		ArrayList of fieldMaps
-	 * @return				A single fieldmap
-	 */
-	def mergeFieldMaps( fieldMaps ) {
-		if( !fieldMaps || !( fieldMaps instanceof Collection ) )
-			throw new Exception( "No or invalid fieldmaps given" )
-			
-		if( fieldMaps.size() == 1 )
-			return fieldMaps[ 0 ]
-			
-		// Loop over each fieldmap and combine the fields from different categories
-		def mergedMap = fieldMaps[ 0 ]
-		fieldMaps[1..-1].each { fieldMap ->
-			fieldMap.each { key, value ->
-				if( value instanceof Collection ) {
-					if( mergedMap.containsKey( key ) ) {
-						value.each {
-							if( !mergedMap[ key ].contains( it ) )
-								mergedMap[ key ] << it
-						} 
-					} else {
-						mergedMap[ key ] = value
-					}
-				} else {
-					if( mergedMap.containsKey( key ) ) {
-						if( !mergedMap[ key ].contains( value ) )
-							mergedMap[ key ] << value 
-					} else {
-						mergedMap[ key ] = [ value ]
-					}
-				}
-			}
-		}
-		
-		mergedMap
 	}
 
 	// This method is accessible for each user. However, he should return with a valid
