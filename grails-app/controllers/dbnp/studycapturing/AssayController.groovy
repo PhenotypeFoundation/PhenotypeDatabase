@@ -58,15 +58,9 @@ class AssayController {
 				
 				// check if assay exists
 				if (!flow.assays) throw new Exception("No assays found with ids: ${assayIdList}")
-
-                                // Obtain template fields for the union of samples in the assays
-                                flow.fieldMap = assayService.mergeFieldMaps(
-                                    assayService.collectLocalAssayTemplateFields(flow.assays),
-                                    assayService.collectModuleAssayFields(flow.assays)
-                                )
                                 
 				// obtain fields for each category and for the union of assays
-				flow.fieldMap = mergeFieldMaps( flow.assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) } )
+				flow.fieldMap = assayService.mergeFieldMaps( flow.assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) } )
 				
 				flash.errorMessage = flow.fieldMap.remove('Module Error')
 				flow.measurementTokens = flow.fieldMap.remove('Module Measurement Data')
