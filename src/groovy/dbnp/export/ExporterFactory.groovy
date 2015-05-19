@@ -13,8 +13,6 @@ public class ExporterFactory {
            // flexible by allowing plugins to define exporters as well. However, for now
            // this works fine.
            new SimpleToxExporter(),
-           new IsaTabExporter(),
-           
            new AssayDataExporter()
        ].collectEntries { [ (it.identifier): it ] }
     }()

@@ -125,7 +125,6 @@
                                 <li><g:link controller="assay" action="assayExport">Assay Data to File</g:link> </li>
                                 <li><g:link controller="MultiStudy" action="index">Multiple studies to File</g:link> </li>
                                 <li><g:link controller="exporter" action="index" params="[format: 'SimpleTox']">Studies as SimpleTox Excel</g:link></li>
-                                <li><g:link controller="exporter" action="index" params="[format: 'IsaTab']">Studies as ISATAB archive</g:link></li>
                             </ul>
                         </div>
                     </li>
