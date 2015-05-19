@@ -162,7 +162,7 @@ class AssayService {
         
         // Determine the template for all templateEntities
         def templates = templateEntities*.template.unique()
-        def templateFields = templates*.fields.flatten().unique()
+        def templateFields = templates*.fields.flatten().findAll().unique()
         
         // Return the proper list
         ( domainFields + templateFields ).collect { [name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')] }
