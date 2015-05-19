@@ -10,9 +10,10 @@
   <g:form action="exportStudies" name="studyExportForm">
   <div class="body">
     <h1>Export studies<g:if test="${format}"> as ${format}</g:if></h1>
-    <br> Select the study you want to export in ${format} format.<br>
-    If you choose multiple studies, a ZIP file will be created.
-    <br><br>
+    <p>
+    	Select the studies you want to export<g:if test="${format}"> in ${format} format</g:if>.
+    </p>
+    
     <g:if test="${flash.message}">
       <div class="message infobox">${flash.message}</div>
     </g:if>
@@ -84,14 +85,10 @@
 			</table>    
     </div>
 
-    <div class="paginateButtons" id="button">
-        <div class="pager">
-		    <g:paginate max="10" total="${studyInstanceTotal}" params="${[format: format]}" prev="&laquo;Prev" next="Next&raquo;"/>
-        </div>
-    </div>
-    <div class="buttons">
+   	<h3>Export as</h3> 
+    <div class="buttons" style="padding-top:0px;">
     	<g:each in="${formats}" var="format">
-    		<g:submitButton class="button-2" style="margin-right: 5px;" title="${format}" value="${format}" name="format" />
+    		<g:submitButton class="button-1" style="margin-right: 5px;" title="${format}" value="${format}" name="format" />
     	</g:each>
     </div>
   </div>

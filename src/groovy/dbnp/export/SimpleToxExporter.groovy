@@ -15,6 +15,8 @@ import dbnp.authentication.SecUser
  * Exporter to export a single study to a SimpleTox excel file
  */
 public class SimpleToxExporter implements Exporter {
+    ZipExporter zipExporter = new ZipExporter( this )
+    
     /**
      * SecUser that is used for authorization
      */
@@ -34,25 +36,43 @@ public class SimpleToxExporter implements Exporter {
      * Returns whether this exporter supports exporting multiple entities at once
      * If so, the class should have a proper implementation of the exportMultiple method
      */
-    public boolean supportsMultiple() { false }
+    public boolean supportsMultiple() { true }
     
     /**
-     * Exports multiple entities to the outputstream
+     * Exports multiple entities to the outputstream. This is done by exporting
+     * everything to a file and combine the files together in a ZIP file
      */
-    public void exportMultiple( def entities, OutputStream out ) { throw new UnsupportedOperationException( getIdentifier() + " exporter can not export multiple entities" ) }
+    public void exportMultiple( def entities, OutputStream out ) {
+        zipExporter.user = user
+        
+        zipExporter.exportMultiple( entities, out, { study ->
+            if( study.getSampleCount() == 0 )
+                return "Study " + study.title + " doesn't contain any samples, so it is not exported";
+            else
+                return ""
+        })
+    }
 
     /**
      * Returns the content type for the export
      */
     public String getContentType( def entity ) {
-        return "application/vnd.ms-excel"
+        if( entity instanceof Collection ) {
+            return zipExporter.getContentType(entity)
+        } else {
+            return "application/vnd.ms-excel"
+        }
     }
 
     /**
      * Returns a proper filename for the given entity
      */
-    public String getFilenameFor( def study ) {
-        return "" + study.title + "_SimpleTox.xls"
+    public String getFilenameFor( def entity ) {
+        if( entity instanceof Collection ) {
+            return zipExporter.getFilenameFor(entity) 
+        } else {
+            return "" + entity.title + "_SimpleTox.xls"
+        }
     }
     
     /**

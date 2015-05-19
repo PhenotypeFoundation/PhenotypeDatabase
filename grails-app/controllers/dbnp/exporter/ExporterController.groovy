@@ -49,11 +49,9 @@ class ExporterController {
         }
 
         def user = authenticationService.getLoggedInUser()
-        def max = Math.min(params.max ? params.int('max') : 10, 100)
-        def offset = params.offset ? params.int( 'offset' ) : 0
-        def studies = Study.giveReadableStudies(user, max, offset);
+        def studies = Study.giveReadableStudies(user);
 
-        [studyInstanceList: studies, studyInstanceTotal: Study.countReadableStudies( user ), formats: formats, format: format]
+        [studyInstanceList: studies, formats: formats, format: format]
     }
     
     /*
@@ -172,34 +170,21 @@ class ExporterController {
             redirect( action: 'studies', params: [ format: exportType ] );
             return
         }
-
-        if(studies.size() > 1){
-            def zipExporter = new ZipExporter( exporter )
-            zipExporter.user = user
-            
-            // Send the right headers for the zip file to be downloaded
-            addDownloadHeaders(zipExporter, studies)
-            
-            zipExporter.exportMultiple( studies, response.getOutputStream(), { study ->
-                if( study.getSampleCount() == 0 )
-                    return "Study " + study.title + " doesn't contain any samples, so it is not exported";
-                else
-                    return ""
-            })
+        
+        if( studies.size() == 1 ) {
+            def study = studies[0]
+            addDownloadHeaders(exporter, study)
+            exporter.export(study, response.getOutputStream() )
         } else {
-            def studyInstance = studies.getAt(0)
-            
-            // make the file downloadable
-            if ((studyInstance!=null) && (studyInstance.getSampleCount() > 0)){
-                addDownloadHeaders(exporter, studyInstance)
-                exporter.export( studyInstance, response.getOutputStream() )
-            } else if( studyInstance.getSampleCount() == 0 ) {
-                flash.message = "Given study doesn't contain any samples, so no excel file is created. Please choose another study.";
-                redirect( action: 'studies', params: [ format: exportType ] );
-            } else {
-                flash.message= "Error while exporting the file, please try again or choose another study."
-                redirect( action: 'studies', params: [ format: exportType ] )
+            // If multiple studies should be exported, but it is not supported by this exporter,
+            // warn the user
+            if( !exporter.supportsMultiple() ) {
+                flash.message = "The " + exporter.identifier + " exporter doesn't support exporting multiple studies. Please select a single study or another exporter.";
+                redirect( action: 'studies' );
             }
+            
+            addDownloadHeaders(exporter, studies)
+            exporter.exportMultiple(studies, response.getOutputStream() )
         }
         
         response.outputStream.flush();

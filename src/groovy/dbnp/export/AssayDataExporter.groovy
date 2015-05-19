@@ -15,7 +15,9 @@ import dbnp.authentication.SecUser
 
 
 /**
- * This exporter allows exporting assay data to an excel file 
+ * This exporter allows exporting assay data to an excel file. 
+ * Multiple assays are supported, although all assays are supposed
+ * to belong to the same study 
  */
 public class AssayDataExporter implements Exporter {
     /**

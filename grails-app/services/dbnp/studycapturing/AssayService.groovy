@@ -350,7 +350,7 @@ class AssayService {
                     // Retrieve the data from the database at once
                     data = firstNonEmptyTemplateEntity.getColumnForEntities( templateEntities, field ).collect { val ->
                         // Convert RelTime fields to human readable strings
-                        if (field.type == TemplateFieldType.RELTIME)
+                        if (field.type == TemplateFieldType.RELTIME && val != null)
                             val = new RelTime(val as long)
                         else
                             val 
