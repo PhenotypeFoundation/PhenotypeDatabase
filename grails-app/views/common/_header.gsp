@@ -134,7 +134,7 @@
                         <a href="#" title="">Modules <img class="subicon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></a>
                         <div class="subnav">
                             <ul>
-                                <g:each in="${AssayModule.list()}" var="assayModule">
+                                <g:each in="${assayModules}" var="assayModule">
                                     <li><a href="${assayModule.url}">${assayModule.name}</a>
                                 </g:each>
                             </ul>

@@ -14,6 +14,7 @@
  * $Date$
  */
 import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.dbnp.gdt.AssayModule
 
 class BaseFilters {
     def authenticationService
@@ -65,6 +66,24 @@ class BaseFilters {
                     // and redirect to login page
                     redirect(controller: 'login', action: 'auth', params: [returnURI: returnURI, referer: request.getHeader('referer')] )
                 }
+            }
+        }
+        
+        // Add assay modules to the Layout
+        modulesInLayout(controller: '*', action: '*') {
+            before = {
+                // We need the assay modules in every request, so we store
+                // a (simplified) copy of the object in the session
+                if( session.assayModules == null ) {
+                    AssayModule.withTransaction {
+                        def assayModules = AssayModule.list()
+                        session.assayModules = assayModules.collect { 
+                            [ name: it.name, url: it.url ]
+                        }
+                    }
+                }
+                
+                request.setAttribute('assayModules', session.assayModules)
             }
         }
 
