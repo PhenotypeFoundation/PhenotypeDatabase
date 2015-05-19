@@ -122,10 +122,8 @@
                         <a href="#" title="">Export <img class="subicon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></a>
                         <div class="subnav">
                             <ul>
-                                <li><g:link controller="assay" action="assayExport">Assay Data to File</g:link> </li>
-                                <li><g:link controller="MultiStudy" action="index">Multiple studies to File</g:link> </li>
-                                <li><g:link controller="exporter" action="index" params="[format: 'SimpleTox']">Studies as SimpleTox Excel</g:link></li>
-                                <li><g:link controller="exporter" action="index" params="[format: 'ISATAB']">Studies as ISATAB archive</g:link></li>
+                                <li><g:link controller="assay" action="assayExport">Assay Data</g:link> </li>
+                                <li><g:link controller="exporter" action="studies">Studies</g:link></li>
                             </ul>
                         </div>
                     </li>
@@ -134,7 +132,7 @@
                         <a href="#" title="">Modules <img class="subicon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></a>
                         <div class="subnav">
                             <ul>
-                                <g:each in="${AssayModule.list()}" var="assayModule">
+                                <g:each in="${assayModules}" var="assayModule">
                                     <li><a href="${assayModule.url}">${assayModule.name}</a>
                                 </g:each>
                             </ul>

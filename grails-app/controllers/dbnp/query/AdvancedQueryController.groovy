@@ -146,11 +146,6 @@ class AdvancedQueryController {
             return;
         }
 
-        // Attach all objects to the current hibernate thread, because the
-        // object might be attached to an old thread, since the results are
-        // saved in session
-        s.getResults().each { it.attach(); }
-
         // Determine which view to show
         def view = determineView( s.entity );
         render( view: view, model: [search: s, queryId: queryId, actions: determineActions(s)] );

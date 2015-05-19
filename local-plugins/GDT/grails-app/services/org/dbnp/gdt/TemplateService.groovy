@@ -28,7 +28,7 @@ class TemplateService {
 
         def query = "SELECT COUNT(template_id) FROM ${template.entity.simpleName.replaceAll(/\B[A-Z]/) { '_' + it }.toLowerCase()} WHERE template_id = ${template.id}"
 
-        def count = sql.rows(query.toString())[0].size()
+        def count = sql.rows(query.toString())[0].count
 
         return count.toInteger()
     }
