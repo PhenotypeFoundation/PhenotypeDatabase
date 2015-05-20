@@ -196,6 +196,15 @@ class TnoMigrateController {
             sql.execute("UPDATE sample SET parent_event_id = ${remap[1]} WHERE id = ${sampleId as Long}")
         }
 
+        //Temporary workaround to prevent errors so testing can be continued (migration is not successful for all samples)
+        def ghostSamples = sql.rows("SELECT id FROM sample WHERE parent_id = ${study.id} AND parent_event_group_id IS NOT NULL")
+        if (ghostSamples.size() > 0) {
+            println "GHOST SAMPLE(S) FOUND: ${ghostSamples.collectAll() { it.id }.join(', ')}"
+        }
+        sql.execute("UPDATE sample SET parent_event_group_id = null WHERE parent_id = ${study.id} AND parent_event_group_id IS NOT NULL")
+        //End of temporary workaround
+
+
         migrateDesign['oldEventGroupIdList'].each() { oldEventGroupId ->
             def eventGroup = EventGroup.read( oldEventGroupId )
 
