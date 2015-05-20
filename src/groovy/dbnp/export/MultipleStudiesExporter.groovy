@@ -1,73 +1,75 @@
-package dbnp.exporter
+package dbnp.export
 
-import dbnp.studycapturing.*
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import grails.plugin.springsecurity.annotation.Secured
+import org.apache.poi.ss.usermodel.DataFormatter
 
-@Secured(['IS_AUTHENTICATED_REMEMBERED'])
-class MultiStudyController {
+import dbnp.studycapturing.*
+import org.dbnp.gdt.*
+import dbnp.authentication.SecUser
 
-    def assayService
-    def apiService
-    def authenticationService
-    def fileService
-    def AssayController = new AssayController()
+import grails.util.Holders
 
-    def index() {
-        def user = authenticationService.getLoggedInUser()
-        [userStudies :Study.giveReadableStudies(user)]
-    }
+/**
+ * Exporter to export multiple studies/assay into a single excel file
+ * There will be three sheets: one for study data, one for subject data and one for sample data
+ */
+public class MultipleStudiesExporter implements Exporter {
+    @Lazy
+    def assayService = {
+        Holders.grailsApplication.getMainContext().getBean("assayService")
+    }()
+    
+    @Lazy
+    def authenticationService = {
+        Holders.grailsApplication.getMainContext().getBean("authenticationService")
+    }()
+    
+    @Lazy
+    def apiService = {
+        Holders.grailsApplication.getMainContext().getBean("apiService")
+    }()
+    
+    /**
+     * SecUser that is used for authorization
+     */
+    SecUser user
 
-    def studyExport() {
-        def selectedStudies
-        def selectedAssays
-
-        if(!params['studies']) {
-            flash.errorMessage = "<script type=\"text/javascript\">alert('Please select a study.');</script>"
-            return redirect(action: "index")
-        }
-
-        (selectedStudies, selectedAssays) = collectDataFromParams()
-
-        try {
-            def filename = new Date().format('yyyy-MM-dd HH:mm') + " export.xls"
-            response.setHeader("Content-disposition", "attachment;filename=\"${filename}\"")
-            response.setContentType("application/octet-stream")
-
-            generateExcelFile(selectedStudies, selectedAssays)
-
-            response.outputStream.close()
-        } catch (Exception e) {
-            e.printStackTrace();
-            flash.errorMessage = "<script type=\"text/javascript\">alert('An error has occurred while performing the export. Please notify an administrator');</script>"
-            redirect(action: "index")
-        }
-    }
-
-    def collectDataFromParams() {
-        def selectedStudies = [], selectedAssays = []
-        params.list('studies').each {
-            def studyId = it.toInteger();
-            selectedStudies << Study.read(studyId)
-            if(params['study-'+studyId+'-assay']) {
-                params.list('study-'+studyId+'-assay').each {
-                    selectedAssays << Assay.read(it.toInteger())
-                }
-            }
-        }
-        [selectedStudies, selectedAssays]
-    }
-
-    def generateExcelFile(selectedStudies, selectedAssays) {
+    /**
+     * Returns an identifier that describes this export
+     */
+    public String getIdentifier() { "Combined excel" }
+    
+    /**
+     * Returns the type of entitites to export. Could be Study or Assay
+     */
+    public String getType() { "Study" }
+    
+    /**
+     * Returns whether this exporter supports exporting multiple entities at once
+     * If so, the class should have a proper implementation of the exportMultiple method
+     */
+    public boolean supportsMultiple() { true }
+    
+    /**
+     * Exports multiple entities to the outputstream
+     */
+    public void exportMultiple( def studies, OutputStream out ) { 
+        
+        // Collect data to export for each study
+        def assays = Assay.findAll( "FROM Assay WHERE parent IN (:studies)", [ studies: studies ] )
         def sampleData = []
-        def samples = selectedAssays*.samples.flatten().unique()
-        def studyData = this.collectStudyData(selectedStudies)
-        def subjectsData = this.collectSubjectData(selectedStudies)
-        if(selectedAssays) {
-            sampleData = this.collectSampleData(selectedAssays, null, samples, authenticationService.getLoggedInUser())
+        
+        def studyData = this.collectStudyData(studies)
+        def subjectsData = this.collectSubjectData(studies)
+        
+        if(assays) {
+            def samples = assays*.samples.flatten().unique()
+            sampleData = this.collectSampleData(assays, null, samples, authenticationService.getLoggedInUser())
         }
+        
+        // Combine everything into the excel workbook
         Workbook wb = new XSSFWorkbook()
 
         Sheet studySheet = wb.createSheet("Studies")
@@ -81,9 +83,38 @@ class MultiStudyController {
         assayService.exportRowWiseDataToExcelSheet(subjectsData, subjectSheet)
         assayService.exportRowWiseDataToExcelSheet(sampleData, samplesSheet)
 
-        wb.write(response.outputStream)
+        // Write the excel sheet to the outputstream
+        wb.write(out)
     }
 
+    /**
+     * Returns the content type for the export
+     */
+    public String getContentType( def entity ) {
+        return "application/vnd.ms-excel"
+    }
+
+    /**
+     * Returns a proper filename for the given entity
+     */
+    public String getFilenameFor( def entities ) {
+        if( entities instanceof Collection ) {
+            return "multiple_studies.xls"
+        } else {
+            return entities.title + ".xls"
+        }
+    }
+    
+    /**
+     * Export a single entity to the outputstream in SimpleTox format
+     */
+    public void export( def studyInstance, OutputStream outStream ) {
+        exportMultiple([studyInstance], outStream)
+    }
+    
+    /**
+     * Collect study data for the given set of studies
+     */
     def collectStudyData(studies) throws Exception {
         def collectedEvents = []
         def collectedSamplingEvents = []
@@ -95,10 +126,10 @@ class MultiStudyController {
             collectedAssays += it.assays
         }
 
-        def usedStudyTemplateFields = assayService.getUsedTemplateFields(studies)
-        def usedEventTemplateFields = assayService.getUsedTemplateFields(collectedEvents)
-        def usedSamplingEventTemplateFields = assayService.getUsedTemplateFields(collectedSamplingEvents)
-        def usedAssayTemplateFields = assayService.getUsedTemplateFields(collectedAssays)
+        def usedStudyTemplateFields = assayService.getAllTemplateFields(studies)
+        def usedEventTemplateFields = assayService.getAllTemplateFields(collectedEvents)
+        def usedSamplingEventTemplateFields = assayService.getAllTemplateFields(collectedSamplingEvents)
+        def usedAssayTemplateFields = assayService.getAllTemplateFields(collectedAssays)
 
         def studyInformation = []
         studies.eachWithIndex { el, idx ->
@@ -116,13 +147,16 @@ class MultiStudyController {
          studyInformation]
     }
 
+    /**
+     * Collect subject data for the given set of studies
+     */
     def collectSubjectData(studies) {
         def collectedSubjects = []
 
         studies.each {
             collectedSubjects += it.subjects
         }
-        def usedSubjectTemplateFields = assayService.getUsedTemplateFields(collectedSubjects)
+        def usedSubjectTemplateFields = assayService.getAllTemplateFields(collectedSubjects)
 
         def subjectInformation = []
         studies.eachWithIndex { el, idx ->
@@ -133,7 +167,14 @@ class MultiStudyController {
        [usedSubjectTemplateFields, subjectInformation]
     }
 
+    /**
+     * Collect sample data and measurement data for the given set of assays
+     */
     def collectSampleData(assays, measurementTokens, samples, remoteUser) {
+        //def data = assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) }
+        //return assayService.convertColumnToRowStructure(data)
+        
+        
         def data = this.collectSampleDetails(samples)
 
         assays.each{ assay ->
@@ -159,6 +200,9 @@ class MultiStudyController {
         assayService.convertColumnToRowStructure(data)
     }
 
+    /**
+     * Collect clinical sample data for the given set of samples
+     */
     def collectSampleDetails(samples) throws Exception {
         def samplingEventInEventGroup = [:]
         def subjectEventGroup = [:]
@@ -178,10 +222,13 @@ class MultiStudyController {
         ]
     }
 
+    /**
+     * Collect clinical sample data for the given set of samples
+     */
     def collectSampleTemplateFields(samples) throws Exception {
         [
-                'Subject Data': assayService.getUsedTemplateFields(samples*."parentSubject".unique()),
-                'Sample Data': assayService.getUsedTemplateFields(samples)
+                'Subject Data': assayService.getAllTemplateFields(samples*."parentSubject".unique()),
+                'Sample Data': assayService.getAllTemplateFields(samples)
         ]
     }
 
@@ -288,4 +335,11 @@ class MultiStudyController {
 
         [headers] + temporaryDataCollection
     }
+    
+    
+    
+    
+    
+    
+    
 }

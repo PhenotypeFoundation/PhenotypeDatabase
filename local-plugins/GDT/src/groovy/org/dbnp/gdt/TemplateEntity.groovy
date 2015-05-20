@@ -237,6 +237,19 @@ abstract class TemplateEntity extends Identity {
 			return getStore(field.type)[fieldName]
 		}
 	}
+    
+        /**
+         * Retrieve a the value of a single field for a set of entities
+         */
+        public getColumnForEntities( def entities, TemplateField field ) {
+            def fieldType = field.type
+            String store = "template${fieldType.casedName}Fields"
+            
+            def columnData = this.class.executeQuery( "SELECT e.id, store FROM " + this.class.simpleName + " e INNER JOIN e." + store + " store WHERE e in (:entities) AND index(store) = :fieldName", [entities: entities, fieldName: field.name ] )
+            def columnMap = columnData.collectEntries { [ (it[0]): it[1] ] }
+            
+            entities.collect { columnMap[ it.id ] }  
+        }
 
 	/**
 	 * Check whether a given template field exists or not

@@ -108,11 +108,11 @@ class AssaySearch extends Search {
 	protected String entityClause( String entity ) {
 		switch( entity ) {
 			case "Subject":
-				return 'EXISTS( FROM assay.samples sample WHERE sample.parentSubject IN (:%3$s) )'
+				return 'EXISTS( FROM assay.samples sample WHERE sample.parentSubject.UUID IN (:%3$s) )'
 			case "SamplingEvent":
-				return 'EXISTS( FROM assay.samples sample WHERE sample.parentEvent IN (:%3$s) )'
+				return 'EXISTS( FROM assay.samples sample WHERE sample.parentEvent.UUID IN (:%3$s) )'
 			case "Event":
-				return 'EXISTS( FROM assay.samples sample WHERE EXISTS( FROM sample.parentEventGroup.events event WHERE event IN (:%3$s) ) )'
+				return 'EXISTS( FROM assay.samples sample WHERE EXISTS( FROM sample.parentEventGroup.events event WHERE event.UUID IN (:%3$s) ) )'
 			default:
 				return super.entityClause( entity );
 		}
@@ -164,11 +164,11 @@ class AssaySearch extends Search {
      * Filters the list of entities, based on the studies that can be read.
      * As this depends on the type of entity, it should be overridden in subclasses
      */
-    protected def filterAccessibleEntities(entities, readableStudies) {
-        if( !entities || !readableStudies )
+    protected def filterAccessibleUUIDs(UUIDs, readableStudies) {
+        if( !UUIDs || !readableStudies )
             return []
             
-        Assay.findAll( "FROM Assay a where a in (:assays) and a.parent in (:studies)", [ assays: entities, studies: readableStudies ] )
+        Assay.executeQuery( "SELECT a.id, a.UUID FROM Assay a where a.UUID in (:uuids) and s.parent in (:studies)", [ uuids: UUIDs, studies: readableStudies ] )
     }
     
     /**

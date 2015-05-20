@@ -672,7 +672,7 @@ class StudyEditDesignController {
 				study.addToSubjectGroups( subjectGroup );
 				subjectGroup.save( flush: true )
 				
-				handleSubjectsInSubjectGroup( params[ "subjects[]" ], subjectGroup )
+				handleSubjectsInSubjectGroup( params.list( "subjects[]" ), subjectGroup )
 				result = [ status: "OK", id: subjectGroup.id, name: subjectGroup.name ]
 			} else {
 				response.status = 500
@@ -707,7 +707,7 @@ class StudyEditDesignController {
 			subjectGroup.name = name
 
 			if( subjectGroup.save() ) {
-				handleSubjectsInSubjectGroup( params[ "subjects[]" ], subjectGroup )
+				handleSubjectsInSubjectGroup( params.list( "subjects[]" ), subjectGroup )
 				studyEditService.generateSamples( subjectGroup )
 			} else {
 				response.status = 500
@@ -715,7 +715,7 @@ class StudyEditDesignController {
 			}
 			
 		} else {
-			handleSubjectsInSubjectGroup( params[ "subjects[]" ], subjectGroup )
+			handleSubjectsInSubjectGroup( params.list( "subjects[]" ), subjectGroup )
 			studyEditService.generateSamples( subjectGroup )
 		}
 		
