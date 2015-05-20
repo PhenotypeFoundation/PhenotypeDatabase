@@ -29,7 +29,7 @@ class DatatablesService {
 			int			sortColumn		Column being sorted on (you will need to decode this number for your database)
 			string		sortDirection	Direction to be sorted - "desc" or "asc".
 	 */
-	def parseParams( params ) {
+	def parseParams( params ) { 
 		def returnMap = [:]
 		
 		returnMap.offset = params.int( "iDisplayStart" ) ?: 0
@@ -84,7 +84,8 @@ class DatatablesService {
          * This closure returns an array with the first element being the id, and 
          * after that, all fields for this element are returned
          */
-        public def defaultEntityFormatter = { entity ->
+        public Closure getDefaultEntityFormatter() {
+             return { entity ->
                 def data = [
                         entity.id
                 ]
@@ -110,6 +111,7 @@ class DatatablesService {
                 }
                 
                 data
+             }
         } 
 	
 	/**
