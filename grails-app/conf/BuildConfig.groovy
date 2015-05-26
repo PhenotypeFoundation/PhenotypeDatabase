@@ -36,6 +36,8 @@ grails.project.dependency.resolution = {
 
 	    // Repository for ISATAB tools
 	    //mavenRepo "http://frog.oerc.ox.ac.uk:8080/nexus-2.1.2/content/repositories/releases"
+
+        mavenRepo "http://repo.grails.org/grails/plugins/"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -65,6 +67,8 @@ grails.project.dependency.resolution = {
 	    //runtime 'hsqldb:hsqldb:1.8.0.10'
 
         compile "org.grails:grails-webflow:$grailsVersion"
+
+        compile('org.codehaus.groovy.modules.http-builder:http-builder:0.5.0') { excludes "commons-logging", "xml-apis", "groovy" }
     }
 	plugins {
 
