@@ -23,6 +23,8 @@ class AssayController {
 		}
 	}
 
+        // TODO: Refactor this code to only work with Galaxy, 
+        // as the default export code is move to the ExporterController
 	def assayExportFlow = {
 		entry {
 			action{
