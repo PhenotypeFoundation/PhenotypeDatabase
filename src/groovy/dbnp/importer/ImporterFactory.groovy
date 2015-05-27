@@ -12,14 +12,20 @@ public class ImporterFactory {
            // This list enumerates all available importers. This could be made more 
            // flexible by allowing plugins to define importers as well. However, for now
            // this works fine.
+           new SubjectsImporter()
        ].collectEntries { [ (it.identifier): it ] }
     }()
     
     /**
      * Returns a specific instance
      */
-    public Importer getImporter( String identifier ) { 
-        instances[identifier] 
+    public Importer getImporter( String identifier, SecUser user = null ) {
+        def importer = instances[identifier]
+        
+        if( importer && user )
+            importer.user = user
+            
+        importer
     }
     
     /**

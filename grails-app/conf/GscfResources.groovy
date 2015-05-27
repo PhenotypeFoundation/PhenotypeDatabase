@@ -58,7 +58,7 @@ modules = {
     
     // Scripts needed for study edit
     studyEdit {
-        dependsOn 'basicTabLayout', 'timeline', 'upload-and-add-more', 'publication-chooser'
+        dependsOn 'basicTabLayout', 'timeline', 'fileupload', 'add-more', 'publication-chooser'
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.js']
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.meta.js'], disposition: 'head'
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.js']
@@ -83,7 +83,11 @@ modules = {
     }
     
     gscfimporter { 
-        dependsOn 'basicTabLayout'
+        dependsOn 'basicTabLayout',  'fileupload'
+        
+        resource url: [dir: 'js', file: 'fileupload.js', plugin: 'gdt']
+        resource url:[ dir:'js', file: 'importer.js']
+        resource url:[ dir:'css', file: 'importer.css']
         resource url:[ dir:'css', file: 'templates.css']
     }
     
@@ -152,7 +156,8 @@ modules = {
     gdtImporter {
         dependsOn 'helptooltips'
         dependsOn 'gscf-datatables'
-        dependsOn 'upload-and-add-more'
+        dependsOn 'add-more'
+        dependsOn 'fileupload'
         dependsOn 'studywizard-files'
         
         resource url: [dir: 'css', file: 'studywizard.css']
@@ -172,8 +177,14 @@ modules = {
      * 
      **********************************************************/
     
+    'fileupload' {
+        resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
+        resource url: [dir: 'css', file: 'fileupload.css']
+    }
+    
     'studywizard-files' {
-        dependsOn 'upload-and-add-more'
+        dependsOn 'fileupload'
+        dependsOn 'add-more'
         
         resource url: 'css/studywizard.css'
         
@@ -182,8 +193,7 @@ modules = {
         resource url: [dir: 'js', file: 'fileupload.js', plugin: 'gdt']
     }
     
-    'upload-and-add-more' {
-        resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
+    'add-more' {
         resource url: [dir: 'js', file: 'selectAddMore-1.0.js' ]
     }
     

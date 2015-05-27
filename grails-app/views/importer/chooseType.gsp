@@ -32,7 +32,7 @@
 			of data you want to import below.
 		</span>
 		 
-		<g:form action="index" name="chooseImportType">
+		<g:form action="chooseType" name="chooseImportType">
 			<g:hiddenField name="_action" />
 			<div class="element">
 				<div class="description">Type of import</div>
@@ -44,7 +44,7 @@
 			<br clear="all" />
 
 			<p class="options">
-				<a href="#" onClick="Importer.form.submit( 'importType', 'next' ); return false;" class="next">Next</a>
+				<a href="#" onClick="Importer.form.submit( 'chooseImportType', 'next' ); return false;" class="next">Next</a>
 			</p>
 		</g:form>
 	</div>

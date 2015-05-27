@@ -1,47 +1,68 @@
 package dbnp.importer
 
 import dbnp.authentication.SecUser
+import dbnp.studycapturing.*
 
 /**
  * Defines the interface for an exporter
  */
-public interface Importer {
+public class SubjectsImporter implements Importer {
     /**
-     * Set the user into the exporter to make sure authorization is handled properly
+     * SecUser that is used for authorization
      */
-    public void setUser(SecUser user)
-
+    SecUser user
+    
+    /**
+     * List with validation errors
+     */
+    protected List<ImportValidationError> errors = []
+    
     /**
      * Returns an identifier that describes this importer
      */
-    public String getIdentifier()
+    public String getIdentifier() {
+        "Subjects"
+    }
     
     /**
      * Returns true if this importer supports the given type
      */
-    public boolean supportsType(String type)
+    public boolean supportsType(String type) {
+        type in [ "clinicaldata", "subjects" ]
+    }
     
     /**
      * Returns a map of parameters that should be set for this importer
      */
-    public List<ImporterParameter> getParameters()
+    public List<ImporterParameter> getParameters() {
+        [
+            new ImporterParameter(name: 'study', label: 'Study', values: Study.giveWritableStudies(user))
+        ]
+    }
     
     /**
      * Method to access the data
      */
-    public def getData()
+    public def getData() {
+        null
+    }
     
     /**
      * Returns a list of validation errors
      */
-    public List<ImportValidationError> getValidationErrors()
+    public List<ImportValidationError> getValidationErrors() {
+        [] + validationErrors
+    }
 
     /**
      * Validates provided data.
      * @return  True if all objects were imported succesfully,
      *          false if the validation on any of the object has failed
      */
-    public boolean validateData()
+    public boolean validateData() {
+        validationErrors = []
+        return true
+    }
     
     /**
      * Imports provided data. This method should skip objects that fail validation
@@ -49,5 +70,8 @@ public interface Importer {
      * @return  True if all objects were imported succesfully, 
      *          false if the validation on any of the object has failed 
      */
-    public boolean importData()
+    public boolean importData() {
+        validationErrors = []
+        return true
+    }
 }

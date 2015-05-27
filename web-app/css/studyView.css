@@ -28,44 +28,6 @@
 
 .studyView div#authorization .description { display: inline-block; *display: inline; width: 100px; margin-top: 6px; }
 
-/** START :: study page upload buttons **/
-.fileWrapper {
-    width: 140px;
-}
-
-div .upload_button {
-    display: inline;
-}
-
-div .upload_button img {
-    border-width: 0;
-    padding-left: 6px;
-}
-
-div .upload_info {
-    display: inline; color: #006dba;
-    margin-left: 5px; 
-}
-
-div .upload_info a {
-	text-decoration: underline;
-}
-
-div .upload_del img {
-	border-width: 0;
-	padding-left: 6px; 
-}
-
-div .upload_del {
-	display: none;
-}
-
-div .upload_info .error {
-    color: red;
-}
-/** END :: study page upload buttons **/
-
-
 /** START :: study page publication, contact and users lists **/
 div ul.publication_list, div ul.contact_list, div ul.user_list {
     list-style-type: none;

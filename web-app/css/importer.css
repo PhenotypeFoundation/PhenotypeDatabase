@@ -1,3 +1,7 @@
+.importer .element { margin: 6px 0; }
+.uploadFile select { width: 250px; }
+
+
 /**
  * importer specific css
  *

@@ -13,6 +13,8 @@
 div .basicTabLayout .description { width: 170px; }
 .basicTabLayout .error, .basicTabLayout .required { background-position: 150px 2px; }
 
+.basicTabLayout .element { margin: 3px 0; }
+
 /** Meta boxes **/
 .basicTabLayout div.meta { float: right; display: block; position: relative; width: 280px; }
 .basicTabLayout div.meta div.component { margin: 0 0 10px 0; border: 1px solid #555; display: block; }
@@ -20,3 +22,7 @@ div .basicTabLayout .description { width: 170px; }
 .basicTabLayout div.component div.content { margin: 5px; }
 .basicTabLayout div.meta .element .input input { vertical-align: middle; width: 120px; }
 .basicTabLayout div.meta .description { display: none; }
+
+/** Fieldsets **/
+.basicTabLayout fieldset { padding: 15px; margin-bottom: 10px; }
+.basicTabLayout legend { font-size: 1.3em; }
