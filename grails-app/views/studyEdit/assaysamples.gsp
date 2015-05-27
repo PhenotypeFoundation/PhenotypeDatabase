@@ -7,7 +7,7 @@
 	<r:require modules="studyEdit,gscf-datatables" />
 </head>
 <body>
-	<div class="studyEdit studySamples">
+	<div class="basicTabLayout studyEdit studySamples">
 		<h1>
 			<span class="truncated-title">
 				Edit study [${study.code?.encodeAsHTML()}]

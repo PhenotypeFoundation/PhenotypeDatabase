@@ -1,0 +1,22 @@
+/** GENERAL **/
+.basicTabLayout { font-size: 11px; }
+.ui-dialog .basicTabLayout { font-size: 10pt; }
+.basicTabLayout .options { border-top: 1px solid #ccc; }
+.basicTabLayout h1 { border-bottom: 1px solid #006dba; }
+.basicTabLayout h1 .truncated-title { display: inline-block; width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.basicTabLayout .steps { font-size: 15px; float: right; color: #ccc;}
+.basicTabLayout .steps a { display: inline-block; margin: 0 6px;  }
+.basicTabLayout .steps .active { color: #006dba; font-weight: bold;  }
+#content .basicTabLayout .steps a.disabled { color: #ccc; }
+
+div .basicTabLayout .description { width: 170px; }
+.basicTabLayout .error, .basicTabLayout .required { background-position: 150px 2px; }
+
+/** Meta boxes **/
+.basicTabLayout div.meta { float: right; display: block; position: relative; width: 280px; }
+.basicTabLayout div.meta div.component { margin: 0 0 10px 0; border: 1px solid #555; display: block; }
+.basicTabLayout div.component h2 { margin: 0; padding: 5px 5px; background-color: #F8FEFF;  font-weight: bold; }
+.basicTabLayout div.component div.content { margin: 5px; }
+.basicTabLayout div.meta .element .input input { vertical-align: middle; width: 120px; }
+.basicTabLayout div.meta .description { display: none; }

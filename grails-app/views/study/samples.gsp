@@ -7,7 +7,7 @@
 	<r:require modules="studyView,gscf-datatables" />
 </head>
 <body>	
-	<div class="studyView studySamples">
+	<div class="basicTabLayout studyView studySamples">
 		<h1>
 			<span class="truncated-title">
 				Study [${study.code?.encodeAsHTML()}]

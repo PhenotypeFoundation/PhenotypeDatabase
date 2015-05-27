@@ -7,7 +7,7 @@
 	<r:require modules="studyView" />
 </head>
 <body>
-	<div class="studyView studyProperties">
+	<div class="basicTabLayout studyView studyProperties">
 		<h1>
 			<span class="truncated-title">
 			Study [${study.code?.encodeAsHTML()}]

@@ -7,7 +7,7 @@
 	<r:require modules="studyView" />
 </head>
 <body>
-	<div class="studyView studyDesign">
+	<div class="basicTabLayout studyView studyDesign">
 	
 		<h1>
 			<span class="truncated-title">

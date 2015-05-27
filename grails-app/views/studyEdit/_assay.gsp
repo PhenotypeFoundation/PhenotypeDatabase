@@ -1,4 +1,4 @@
-	<div class="studyEdit assay">
+	<div class="basicTabLayout studyEdit assay">
 		<g:if test="${flash.error}">
 			<div class="errormessage">
 				${flash.error.toString().encodeAsHTML()}

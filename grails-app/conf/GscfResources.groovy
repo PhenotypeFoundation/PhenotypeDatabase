@@ -48,10 +48,17 @@ modules = {
         resource url:[ dir:'css', file: 'home.css']
     }
 
+
+    // Defines the basic 'tab' layout, used in study edit, study view and importer    
+    basicTabLayout {
+        dependsOn 'jquery', 'jquery-ui', 'buttons', 'helptooltips'
+        resource url:[ dir:'css', file: 'basicTabLayout.css']
+        
+    }
     
     // Scripts needed for study edit
     studyEdit {
-        dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips', 'upload-and-add-more', 'publication-chooser'
+        dependsOn 'basicTabLayout', 'timeline', 'upload-and-add-more', 'publication-chooser'
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.js']
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.meta.js'], disposition: 'head'
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.js']
@@ -65,7 +72,7 @@ modules = {
 
     // Scripts needed for study view pages
     studyView {
-        dependsOn 'jquery', 'jquery-ui', 'timeline', 'buttons', 'helptooltips'
+        dependsOn 'basicTabLayout', 'timeline'
         resource url:[ dir:'js/studyView', file: 'studyView.js']
         resource url:[ dir:'js/studyView', file: 'studyView.meta.js'], disposition: 'head'
         resource url:[ dir:'js/studyView', file: 'studyView.design.js']

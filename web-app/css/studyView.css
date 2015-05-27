@@ -1,15 +1,3 @@
-/** GENERAL **/
-.studyView { font-size: 11px; }
-.ui-dialog .studyView { font-size: 10pt; }
-.studyView .options { border-top: 1px solid #ccc; }
-.studyView h1 { border-bottom: 1px solid #006dba; }
-.studyView h1 .truncated-title { display: inline-block; width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.studyView .steps { font-size: 15px; float: right; color: #ccc;}
-.studyView .steps a { display: inline-block; margin: 0 6px;  }
-.studyView .steps .active { color: #006dba; font-weight: bold;  }
-#content .studyView .steps a.disabled { color: #ccc; }
-
 /** STUDY PAGE **/
 .studyProperties input, .studyProperties select, .studyProperties textarea { width: 220px; }
 .studyView .study-properties-list { margin-right: 300px; }
@@ -20,21 +8,10 @@
 
 .studyView #authorization .groups { font-style: italic; }
 
-div .studyView .description { width: 170px; }
-.studyView .error, .studyView .required { background-position: 150px 2px; }
 #contacts .required { background-position: 2px 4px; padding-left: 20px; }
 .samplespage td.required { background-position: 160px 6px; }
 
 /** Meta boxes **/
-.studyView div.meta { float: right; display: block; position: relative; width: 280px; }
-.studyView div.meta div.component { margin: 0 0 10px 0; border: 1px solid #555; display: block; }
-.studyView div.component h2 { margin: 0; padding: 5px 5px; background-color: #F8FEFF;  font-weight: bold; }
-.studyView div.component div.content { margin: 5px; }
-
-/** default selects for publications, contacts etc. should be changed to fit the simpleWizard layout **/
-.studyView div.meta .element .input input { vertical-align: middle; width: 120px; }
-.studyView div.meta .description { display: none; }
-
 .studyView div ul.publication_list, 
 .studyView div ul.contact_list { margin: 0; } 
 .studyView div ul.user_list { margin: -22px 0 0 100px; }
