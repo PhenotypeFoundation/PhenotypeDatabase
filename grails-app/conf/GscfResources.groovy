@@ -82,6 +82,11 @@ modules = {
         resource url:[ dir:'css', file: 'templates.css']
     }
     
+    gscfimporter { 
+        dependsOn 'basicTabLayout'
+        resource url:[ dir:'css', file: 'templates.css']
+    }
+    
     // Advanced Query functionality
     advancedQuery {
         dependsOn "gscf-datatables", "buttons"

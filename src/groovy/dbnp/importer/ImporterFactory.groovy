@@ -29,4 +29,11 @@ public class ImporterFactory {
         instances.values().findAll { it.supportsType(type) } 
     }
     
+    /**
+     * Returns a list of all importers
+     */
+    public List getAllImporters() {
+        instances.values().toList()
+    }
+    
 }
