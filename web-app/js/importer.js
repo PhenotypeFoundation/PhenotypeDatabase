@@ -25,7 +25,7 @@ Importer.form = {
 
 Importer.upload = {
 	initialize: function() {
-		$( "#uploadFile" ).on("change", "input, select", function() {
+		$( "#uploadParameters" ).on("change", "input, select", function() {
 			Importer.upload.updateDataPreview();
 		});
 	},
@@ -62,7 +62,7 @@ Importer.upload = {
 			
 			dataTable = $('#datapreview #datamatrix').dataTable({
 				"oLanguage": {
-					"sInfo": "Showing rows _START_ to _END_ out of a total of _TOTAL_ (inluding header)"
+					"sInfo": "Showing rows _START_ to _END_ out of a total of _TOTAL_ example rows"
 				},
 
 				"sScrollX": "100%",

@@ -27,7 +27,28 @@ class ImporterController {
     def upload() {
         def importer = getImporterFromRequest()
         
+        if( request.post && params.importer ) {
+            // Only do something if a file has been specified
+            if( params.file && params.file != "existing*" ) {
+                def sessionKey = generateSessionKey()
+                storeInSession(sessionKey, parseParams())
+                redirect action: 'match', params: [key: sessionKey, importer: params.importer]
+            }
+        }
+        
         [ importer: importer ]
+    }
+    
+    /**
+     * Screen to match headers and upload the file and select the parameters
+     */
+    def match() {
+        def importer = getImporterFromRequest()
+        def importInfo = getFromSession(params.key)
+        
+        def importedMatrix = parseFile(importInfo)
+        
+        [ importer: importer, matrix: importedMatrix, sessionKey: params.sessionKey ]
     }
     
     /**
@@ -36,31 +57,7 @@ class ImporterController {
      * @param sheetIndex sheet to read
      */
     def datapreview() {
-        // Retrieve the file
-        def importedFile = fileService.get(params.file)
-        
-        if(!importedFile.exists()) {
-            response.status = 404
-            render "File not found"
-            return
-        }
-        
-        // Parse the separator that was given. 
-        def delimiter = params.upload.separator
-        if( delimiter == "\\t" ) {
-            delimiter = "\t"
-        }
-
-        // Read the start of the file using the matrix importer
-        def importOptions = [
-            delimiter: delimiter,
-            sheetIndex: params.int('upload.sheetIndex'),
-            dateFormat: params.upload.dateFormat,
-            startRow: params.int('upload.headerRow'),
-            endRow: params.int('upload.headerRow') + 10
-        ]
-        
-        def importedMatrix = MatrixImporter.getInstance().importFile(importedFile, importOptions, false);
+        def importedMatrix = parseFile(parseParams())
         
         if( !importedMatrix ) {
             log.error ".importer doesn't recognize the uploaded file, try a supported format like XLS(X)"
@@ -78,6 +75,87 @@ class ImporterController {
         ]
         
         render data as JSON
+    }
+    
+    /**
+     * Returns a map with the parameters set by the user
+     */
+    def parseParams() {
+        [
+            file: params.file,
+
+            upload: [
+                sheetIndex: params.int( 'upload.sheetIndex' ),
+                dateFormat: params.upload.dateFormat,
+                headerRow: params.int( 'upload.headerRow' )
+            ],
+            parameter: params.parameter
+        ]
+    }
+    
+    /**
+     * Parses a provided file, using the parameters given
+     * If the file could not be found, a 404 error is given
+     * @param data Map with information on the file and the way to parse it
+     */
+    def parseFile(data) {
+
+        // Retrieve the file
+        def importedFile = fileService.get(data.file)
+        
+        if(!importedFile.exists()) {
+            response.status = 404
+            render "File not found"
+            return
+        }
+        
+        // Parse the separator that was given.
+        def delimiter = data.upload.separator
+        if( delimiter == "\\t" ) {
+            delimiter = "\t"
+        }
+
+        // Read the start of the file using the matrix importer
+        def importOptions = [
+            delimiter: delimiter,
+            sheetIndex: data.upload.sheetIndex,
+            dateFormat: data.upload.dateFormat,
+            startRow: data.upload.headerRow,
+            endRow: data.upload.headerRow + 10
+        ]
+        
+        MatrixImporter.getInstance().importFile(importedFile, importOptions, false);
+    }
+    
+    /**
+     * Returns a unique session key
+     */
+    protected generateSessionKey() {
+        org.apache.commons.lang.RandomStringUtils.random(20, true, true)
+    }
+    
+    /**
+     * Stores a set of parameters in the session
+     */
+    protected storeInSession( String sessionKey, Map parameters ) {
+        // Store parameters in session and pass the importKey
+        // This effectively mimics the webflow functionality
+        // but will prevent the overhead and errors coming with it
+        // The only thing is to simply pass a simple set of parameters
+        if( !session.importer ) 
+            session.importer = [:]
+            
+        if( !session.importer.containsKey(sessionKey) )
+            session.importer[sessionKey] = [:]
+        
+        session.importer[sessionKey] += parameters
+    }
+    
+    /**
+     * Returns a map of parameters from the session
+     */
+    protected getFromSession(String sessionKey) {
+        session.importer[sessionKey] ?: [:]
     }
     
     /** 
@@ -111,6 +189,6 @@ class ImporterController {
         }
         
         return importer
-    } 
+    }
     
 }

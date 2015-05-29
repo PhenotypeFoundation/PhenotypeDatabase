@@ -13,7 +13,7 @@
 		<span class="disabled">Upload file</span>
 	</g:else>
 	/
-	<g:if test="${active == 'matchDdata'}">
+	<g:if test="${active == 'matchData'}">
 		<span class="active">Match data</span>
 	</g:if>
 	<g:else>

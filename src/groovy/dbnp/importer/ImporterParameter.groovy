@@ -6,5 +6,6 @@ package dbnp.importer
 public class ImporterParameter {
     String name
     String label
+    String type = "text"
     def values
 }

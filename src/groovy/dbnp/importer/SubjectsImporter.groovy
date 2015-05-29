@@ -2,6 +2,7 @@ package dbnp.importer
 
 import dbnp.authentication.SecUser
 import dbnp.studycapturing.*
+import org.dbnp.gdt.*
 
 /**
  * Defines the interface for an exporter
@@ -36,7 +37,8 @@ public class SubjectsImporter implements Importer {
      */
     public List<ImporterParameter> getParameters() {
         [
-            new ImporterParameter(name: 'study', label: 'Study', values: Study.giveWritableStudies(user))
+            new ImporterParameter(name: 'study', label: 'Study', type: 'select', values: Study.giveWritableStudies(user)),
+            new ImporterParameter(name: 'template', label: 'Template', type: 'select', values: Template.findAllByEntity(Subject))
         ]
     }
     

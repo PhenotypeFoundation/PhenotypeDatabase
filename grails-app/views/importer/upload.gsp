@@ -42,10 +42,8 @@
 		 
 		<g:form action="upload" name="uploadFile">
 			<g:hiddenField name="_action" />
-			<g:if test="${study?.id}">
-				<g:hiddenField name="id" value="${study?.id}" />
-			</g:if>
-			<fieldset>
+			<g:hiddenField name="importer" value="${importer.identifier}" />
+			<fieldset id="uploadParameters">
 				<legend>Upload file</legend>
 				
 				<af:fileFieldElement name="file"
@@ -98,12 +96,17 @@
 			
 			<g:if test="${importer.getParameters()}">
 				<fieldset>
-					<legend>Import</legend>
+					<legend>Parameters</legend>
 					<g:each in="${importer.parameters}" var="parameter">
 						<div class="element">
 							<div class="description">${parameter.label}</div>
 							<div class="input">
-								<input type="text" name="parameter.${parameter.name}" />
+								<g:if test="${parameter.type == 'select'}">
+									<g:select name="parameter.${parameter.name}" from="${parameter.values}" optionKey="id" />
+								</g:if>
+								<g:else>
+									<input type="text" name="parameter.${parameter.name}" />
+								</g:else>
 							</div>
 						</div>				
 					</g:each>
