@@ -5,13 +5,20 @@
  ************************************************/
 var FileUpload = {
 	// Create a file upload field
-	convertFileField: function(field_id, truncate) {
+	// Options can include:
+	//		truncate: 	the maximum number of characters in the filename to be shown
+	//		onUpload:	method to be called after a file is uploaded
+	convertFileField: function(field_id, options) {
 		var that = this;
 		
+		if( typeof(options) == 'undefined' ) {
+			options = {};
+		}
+		
 		// Convert the file field
-		new AjaxUpload('#upload_button_' + field_id, {
+		var upload = new AjaxUpload('#upload_button_' + field_id, {
 			//action: 'upload.php',
-			action: baseUrl + '/file/upload/hoihoi', // I disabled uploads in this example for security reaaons
+			action: baseUrl + '/file/upload', // I disabled uploads in this example for security reaaons
 			data : {},
 			name : field_id,
 			autoSubmit: true,
@@ -29,7 +36,7 @@ var FileUpload = {
 				});
 
 				// Give feedback to the user
-				$('#' + field_id + 'Example').html('Uploading ' + that.createFileHTML(file, truncate));
+				$('#' + field_id + 'Example').html('Uploading ' + that.createFileHTML(file, options.truncate));
 				$('#' + field_id + 'Delete').hide();
 
 			},
@@ -40,12 +47,17 @@ var FileUpload = {
 	            }
 				if (response == "") {
 					$('#' + field_id).val('');
-					$('#' + field_id + 'Example').html('<span class="error">Error uploading ' + that.createFileHTML(file, truncate) + '</span>');
+					$('#' + field_id + 'Example').html('<span class="error">Error uploading ' + that.createFileHTML(file, options.truncate) + '</span>');
 					$('#' + field_id + 'Delete').hide();
 				} else {
 					$('#' + field_id).val(response);
-					$('#' + field_id + 'Example').html('Uploaded ' + that.createFileHTML(file, truncate));
+					$('#' + field_id + 'Example').html('Uploaded ' + that.createFileHTML(file, options.truncate));
 					$('#' + field_id + 'Delete').show();
+				}
+				
+				// Call user specified onComplete method
+				if( typeof(options.onUpload) != 'undefined' ) {
+					options.onUpload(file, response);
 				}
 			}
 		});
@@ -57,7 +69,8 @@ var FileUpload = {
 			} 
 			return false;
 		});
-
+		
+		return upload;
 	},
 	
 	deleteFile: function(field_id) {

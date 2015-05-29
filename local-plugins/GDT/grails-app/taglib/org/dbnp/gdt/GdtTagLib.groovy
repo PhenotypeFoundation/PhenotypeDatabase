@@ -470,6 +470,7 @@ class GdtTagLib extends AjaxflowTagLib {
         */
         def buttonText = attrs.buttonText ?: '<img src="' + resource(dir: 'images/icons', file: 'folder_add.png', plugin: 'famfamfam') + '">';
         def hideDelete = attrs.hideDelete ?: false;
+        def onUpload   = attrs.onUpload ?: false;
 
         out << '<input type="hidden" name="' + attrs.name + '" id="' + attrs.name + '" value="existing*' + ( attrs.value ?: "" ) + '">';
         out << '<div id="' + attrs.name + 'Example" class="upload_info"></div>';
@@ -481,7 +482,10 @@ class GdtTagLib extends AjaxflowTagLib {
         out << '<script type="text/javascript">';
         out << '  $(document).ready( function() { ';
         out << '    var filename = "' + ( attrs.value ?: "" ) + '";';
-        out << '    FileUpload.convertFileField( "' + attrs.name + '", 20 );';
+        
+        out << '    var upload = FileUpload.convertFileField( "' + attrs.name + '", { truncate: 20' + ( onUpload ? ',onUpload: ' + onUpload : '' ) + ' } );';
+        out << '    $("#' + attrs.name + '").data( "ajaxUploadObject", upload );'
+        
         out << '    if( filename != "" ) {';
         out << '      $("#' + attrs.name + 'Delete").show();';
         out << '      $("#' + attrs.name + 'Example").html("File: " + FileUpload.createFileHTML( filename, 20 ))';

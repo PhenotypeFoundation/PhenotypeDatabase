@@ -50,7 +50,8 @@
 				
 				<af:fileFieldElement name="file"
 									 description="Choose a file"
-									 id="importFileName"/>
+									 id="importFileName"
+									 onUpload="Importer.upload.updateDataPreview" />
 	
 				<div class="element">
 					<div class="description">Use data from sheet</div>
