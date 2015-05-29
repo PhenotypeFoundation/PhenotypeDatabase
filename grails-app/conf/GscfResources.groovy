@@ -85,7 +85,6 @@ modules = {
     gscfimporter { 
         dependsOn 'basicTabLayout',  'fileupload'
         
-        resource url: [dir: 'js', file: 'fileupload.js', plugin: 'gdt']
         resource url:[ dir:'js', file: 'importer.js']
         resource url:[ dir:'css', file: 'importer.css']
         resource url:[ dir:'css', file: 'templates.css']
@@ -179,6 +178,7 @@ modules = {
     
     'fileupload' {
         resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
+        resource url: [dir: 'js', file: 'fileupload.js']
         resource url: [dir: 'css', file: 'fileupload.css']
     }
     
@@ -190,7 +190,6 @@ modules = {
         
         resource url: [dir: 'js', file: 'studywizard.js']
         resource url:[dir:'js', file: 'fuzzyStringMatch.js', plugin: 'gdt']
-        resource url: [dir: 'js', file: 'fileupload.js', plugin: 'gdt']
     }
     
     'add-more' {
