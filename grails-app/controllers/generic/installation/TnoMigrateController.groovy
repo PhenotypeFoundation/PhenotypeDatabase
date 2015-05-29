@@ -1,6 +1,7 @@
 package generic.installation
 
 import dbnp.studycapturing.*
+import org.dbnp.gdt.RelTime
 import org.dbnp.gdt.Template
 
 class TnoMigrateController {
@@ -25,6 +26,12 @@ class TnoMigrateController {
 
         //oldId:newId
         def sampleMigration = [:]
+
+        def allOldSamplingEvents = sql.rows("SELECT id FROM sampling_event WHERE parent_id = ${study.id}").collectAll() { it.id }
+        def allOldSamples = sql.rows("SELECT id FROM sample WHERE parent_id = ${study.id}").collectAll() { it.id }
+
+        def subjectEventGroupConflicts = []
+        def eventGroupConflicts = []
 
         //Creation of subjectGroups
         def oldEventGroups = sql.rows("SELECT id, name FROM event_group WHERE parent_id = ${study.id}")
@@ -89,6 +96,7 @@ class TnoMigrateController {
             }
 
             def oldSamplingEvents = sql.rows("SELECT id, start_time, duration, template_id, sample_template_id FROM sampling_event WHERE id IN (SELECT sampling_event_id FROM event_group_sampling_event WHERE event_group_sampling_events_id = ${oldEventGroup.id})")
+
             oldSamplingEvents.each() { oldSamplingEvent ->
                 oldSamplingEventIdList << oldSamplingEvent.id
 
@@ -101,8 +109,10 @@ class TnoMigrateController {
 
                     if (eventGroups.size() == 1) {
                         def eventGroup = eventGroups[0]
+
                         def correspondingSubjectEventGroups = eventGroup.subjectEventGroups.findAll() { it.subjectGroup.id == subjectGroup.id && it.startTime <= (oldSamplingEvent.start_time - relativeTimeField) && it.endTime >= ((oldSamplingEvent.start_time - relativeTimeField) + oldSamplingEvent.duration) }
                         if (correspondingSubjectEventGroups.size() == 1) {
+
                             def correspondingSubjectEventGroup = correspondingSubjectEventGroups[0]
                             def template = Template.read( oldSamplingEvent.template_id )
 
@@ -115,7 +125,7 @@ class TnoMigrateController {
                                 samplingEvent = new SamplingEvent( name: samplingEventName, parent: study, template: template, sampleTemplate: sampleTemplate )
                                 study.addToSamplingEvents( samplingEvent )
                                 samplingEvent.getRequiredFields().each() {
-                                    samplingEvent.setFieldValue(it.name, SamplingEvent.read(oldSamplingEvent.id).getFieldValue(it.name))
+                                    samplingEvent.setFieldValue(it.name, SamplingEvent.findById(oldSamplingEvent.id).getFieldValue(it.name))
                                 }
                                 samplingEvent.save( flush: true )
 
@@ -130,7 +140,6 @@ class TnoMigrateController {
                                 eventGroup.addToSamplingEventInstances(samplingEventInEventGroup)
                             }
 
-
                             def samples = sql.rows("SELECT id FROM sample WHERE parent_event_id = ${oldSamplingEvent.id} AND parent_event_group_id = ${oldEventGroup.id}").collectAll() { it.id }
 
                             samples.each() { sampleId ->
@@ -140,16 +149,25 @@ class TnoMigrateController {
                         else {
                             if (correspondingSubjectEventGroups.size() > 1) {
                                 println "Multiple corresponding SubjectEventGroups for eventGroup ${eventName}"
+                                subjectEventGroupConflicts << eventName
                             }
                         }
                     }
                     else {
                         if (eventGroups.size() > 1) {
                             println "Multiple eventGroups found for name ${eventName}"
+                            eventGroupConflicts << eventName
                         }
                     }
                 }
             }
+        }
+
+        def lostSamplingEvents = allOldSamplingEvents - oldSamplingEventIdList
+        def lostSamples = allOldSamples - sampleMigration.keySet()
+
+        if (subjectEventGroupConflicts.size() != 0 || eventGroupConflicts.size() != 0 || lostSamplingEvents.size() != 0 || lostSamples.size() != 0) {
+            flash.error = "Lost SamplingEvents (${lostSamplingEvents.size()}): ${lostSamplingEvents.join(', ')} | Lost Samples (${lostSamples.size()}): ${lostSamples.join(', ')} | eventGroupConflicts: ${eventGroupConflicts.unique().join(', ')} | subjectEventGroupConflicts: ${subjectEventGroupConflicts.unique().join(', ')}"
         }
 
         session.migrateDesign = [ studyId: study.id, oldEventGroupIdList: oldEventGroupIdList.unique(), oldEventIdList: oldEventIdList.unique(), oldSamplingEventIdList: oldSamplingEventIdList.unique(), newEventGroupIdList: allEventGroups.id, newSubjectGroupIdList: newSubjectGroupIdList, newEventIdList: newEventIdList, newSamplingEventIdList: newSamplingEventIdList, sampleMigration: sampleMigration ]
@@ -195,15 +213,6 @@ class TnoMigrateController {
             sql.execute("UPDATE sample SET parent_subject_event_group_id = ${remap[0]} WHERE id = ${sampleId as Long}")
             sql.execute("UPDATE sample SET parent_event_id = ${remap[1]} WHERE id = ${sampleId as Long}")
         }
-
-        //Temporary workaround to prevent errors so testing can be continued (migration is not successful for all samples)
-        def ghostSamples = sql.rows("SELECT id FROM sample WHERE parent_id = ${study.id} AND parent_event_group_id IS NOT NULL")
-        if (ghostSamples.size() > 0) {
-            println "GHOST SAMPLE(S) FOUND: ${ghostSamples.collectAll() { it.id }.join(', ')}"
-        }
-        sql.execute("UPDATE sample SET parent_event_group_id = null WHERE parent_id = ${study.id} AND parent_event_group_id IS NOT NULL")
-        //End of temporary workaround
-
 
         migrateDesign['oldEventGroupIdList'].each() { oldEventGroupId ->
             def eventGroup = EventGroup.read( oldEventGroupId )
@@ -283,5 +292,12 @@ class TnoMigrateController {
         session.removeAttribute('migrateDesign')
 
         redirect controller: 'studyEditDesign', id: study.id
+    }
+
+    def quit() {
+
+        session.removeAttribute('migrateDesign')
+
+        redirect controller: 'studyEditDesign', action: 'index', params: [ id: params.id ]
     }
 }

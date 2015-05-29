@@ -191,6 +191,7 @@
 								<g:hiddenField name="migrateDesign" value="${migrateDesign}"/>
 								<g:submitButton name="Reset" class="button-4 margin10 pie"/>
 							</g:form>
+							<g:link controller="tnoMigrate" action="quit" id="${study.id}"><input type="button" class="button-4 margin10 pie" value="Quit"/></g:link>
 						</p>
 						<br><br>
 					</g:if>
