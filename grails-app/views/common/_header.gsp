@@ -122,7 +122,7 @@
                         <a href="#" title="">Export <img class="subicon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></a>
                         <div class="subnav">
                             <ul>
-                                <li><g:link controller="assay" action="assayExport">Assay Data</g:link> </li>
+                                <li><g:link controller="exporter" action="assays">Assay Data</g:link> </li>
                                 <li><g:link controller="exporter" action="studies">Studies</g:link></li>
                             </ul>
                         </div>

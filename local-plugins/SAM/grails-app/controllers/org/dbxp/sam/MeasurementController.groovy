@@ -424,21 +424,21 @@ class MeasurementController {
 	def importDataFlow = {
         startUp {
             action{
-
+                if( params.module )
+                    flow.module = params.module
+                
                 if(Feature.count() == 0){
-                    redirect(action: 'nofeatures', params: [module: params.module])
+                    redirect(action: 'nofeatures', params: [module: flow.module])
                     return
                 }
 
-	            flow.assayList = Assay.giveWritableAssays(session.gscfUser).findAll { it.module.name == params.module }
-                flow.module = params.module
-
+	        flow.assayList = Assay.giveWritableAssays(session.gscfUser).findAll { it.module.name == flow.module }
+                
 	            if( flow.assayList.isEmpty() ) {
-		            redirect(action: 'noassays', params: [module: params.module])
-                    return
+		        redirect(action: 'noassays', params: [module: flow.module])
+                        return
 	            }
-
-	            //flow.assayList = Assay.executeQuery( "SELECT DISTINCT a FROM Assay a WHERE  a.id in (:list)", [ "list": assayIdList ])
+                
 
                 flow.pages = [
                     "chooseAssay": "Choose Assay",
