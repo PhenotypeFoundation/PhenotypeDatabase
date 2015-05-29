@@ -35,7 +35,7 @@ class UserRegistrationController {
      * for confirmation
      */
     def add = { RegisterUserCommand command ->
-		
+
 		command.validate()
 
 		if (command.hasErrors()) {
@@ -110,12 +110,13 @@ class UserRegistrationController {
         try {
             sendMail {
                 to      user.email
-                subject "Registration at GSCF"
+                subject "Registration at Phenotype Database"
                 html    g.render(template:'/email/registrationConfirmationUser', model:[username: user.username, password: password, expiryDate: userCode.expiryDate, link: userLink])
             }
         } catch(Exception e) {
             log.error "Problem sending email $e.message", e
             flash.message = 'Email could not be sent'
+
 			return false
         }
 
