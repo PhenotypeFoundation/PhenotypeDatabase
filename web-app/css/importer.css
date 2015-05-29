@@ -1,5 +1,7 @@
 .importer .element { margin: 6px 0; }
-.uploadFile select { width: 250px; }
+.uploadFile select { width: 350px; }
+#datapreview #datamatrix_length select { width: auto; }
+#datapreview { width: 920px; }
 
 
 /**

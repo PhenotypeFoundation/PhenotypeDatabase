@@ -84,6 +84,7 @@ modules = {
     
     gscfimporter { 
         dependsOn 'basicTabLayout',  'fileupload'
+        dependsOn 'gscf-datatables'
         
         resource url:[ dir:'js', file: 'importer.js']
         resource url:[ dir:'css', file: 'importer.css']

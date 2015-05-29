@@ -57,9 +57,8 @@
 					<div class="description">Use data from sheet</div>
 					<div class="input">
 						<g:select name="upload.sheetIndex" value="${refreshParams?.sheetIndex}"
-								  from="${sheetList}"
-								  optionKey="${{it-1}}"
-								  onchange="Importer.updateDatamatrixPreview()"/>
+								  from="${1..50}"
+								  optionKey="${{it-1}}" />
 					</div>
 				</div>				
 				<div class="element">
@@ -94,6 +93,7 @@
 				<legend>Data preview</legend>
 				<div id="datapreview" data-url="${g.createLink(action: 'datapreview')}">
 				</div>
+				<g:img class="spinner" dir="images" file="spinner.gif" />
 			</fieldset>
 			
 			<g:if test="${importer.getParameters()}">
@@ -119,6 +119,9 @@
 			
 		</g:form>
 
+		<r:script>
+			Importer.upload.initialize();
+		</r:script>
 	</div>
 </body>
 </html>
