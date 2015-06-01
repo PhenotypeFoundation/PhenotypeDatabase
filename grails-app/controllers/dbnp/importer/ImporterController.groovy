@@ -8,6 +8,7 @@ class ImporterController {
 
     def authenticationService
     def fileService
+    def fuzzySearchService
     
     /**
      * Shows the initial screen to select the type of importer
@@ -32,7 +33,7 @@ class ImporterController {
             if( params.file && params.file != "existing*" ) {
                 def sessionKey = generateSessionKey()
                 storeInSession(sessionKey, parseParams())
-                redirect action: 'match', params: [key: sessionKey, importer: params.importer]
+                redirect action: 'match', params: [key: sessionKey]
             }
         }
         
@@ -43,21 +44,43 @@ class ImporterController {
      * Screen to match headers and upload the file and select the parameters
      */
     def match() {
-        def importer = getImporterFromRequest()
+        // Retrieve information from request and from session
         def importInfo = getFromSession(params.key)
+        def importer = getImporter(importInfo.importer)
         
+        // Parse the excel file
         def importedMatrix = parseFile(importInfo)
         
-        [ importer: importer, matrix: importedMatrix, sessionKey: params.sessionKey ]
+        // Determine the headers to match against
+        def headerOptions = importer.getHeaderOptions(importInfo.parameter)
+        
+        [ 
+            importer: importer, 
+            importInfo: importInfo,
+            matrix: importedMatrix, 
+            headerOptions: headerOptions,
+            sessionKey: params.key 
+        ]
     }
     
     /**
-     * Method to return a data preview, based on the uploaded file
+     * AJAX Method to return a data preview, based on the uploaded file
      * @param importFileName Excel file to return as JSON
      * @param sheetIndex sheet to read
      */
     def datapreview() {
-        def importedMatrix = parseFile(parseParams())
+        // Parameters can be specified either by providing a session key
+        // or by providing the parameters in the URL itself. Is a session 
+        // key is given, it is used.
+        def importInfo
+        
+        if( params.key ) {
+            importInfo = getFromSession(params.key)
+        } else {
+            importInfo = parseParams()
+        }
+        
+        def importedMatrix = parseFile(importInfo)
         
         if( !importedMatrix ) {
             log.error ".importer doesn't recognize the uploaded file, try a supported format like XLS(X)"
@@ -67,8 +90,6 @@ class ImporterController {
         }
         
         // Convert the data into a header and the real data
-        def header = []
-        importedMatrix[0].size().times { header << [sTitle: getExcelColumnName(it) ] }
         def data = [
             aoColumns: importedMatrix[0].collect { [sTitle: it ] },
             aaData: importedMatrix[1..-1]
@@ -78,16 +99,44 @@ class ImporterController {
     }
     
     /**
+     * AJAX method to match 
+     */
+    def matchHeaders() {
+        // Parse the file and retrieve only the headers
+        def importInfo = getFromSession(params.key)
+        def importedMatrix = parseFile(importInfo, 0)
+        def fileHeaders = importedMatrix[0]
+        
+        // Retrieve the list of possible matches
+        def importer = getImporter(importInfo.importer)
+        def headerOptions = importer.getHeaderOptions(importInfo.parameter)
+        
+        // Perform the match itself
+        def matches = fuzzySearchService.mostSimilarUnique( fileHeaders, headerOptions*.name );
+        
+        // Convert the data into a proper format, that can be used by the javascript
+        // That is: a map with the key being the index of the header and the value being the value (=id) of the matched option
+        def matchMap = [:]
+        matches.eachWithIndex { match, idx ->
+            matchMap[idx] = match.candidate ? headerOptions[ match.index ].id : null
+        }
+        
+        render matchMap as JSON
+    }
+    
+    
+    /**
      * Returns a map with the parameters set by the user
      */
-    def parseParams() {
+    protected def parseParams() {
         [
             file: params.file,
+            importer: params.importer,
 
             upload: [
                 sheetIndex: params.int( 'upload.sheetIndex' ),
                 dateFormat: params.upload.dateFormat,
-                headerRow: params.int( 'upload.headerRow' )
+                headerRow: params.int( 'upload.headerRow' ),
             ],
             parameter: params.parameter
         ]
@@ -98,7 +147,7 @@ class ImporterController {
      * If the file could not be found, a 404 error is given
      * @param data Map with information on the file and the way to parse it
      */
-    def parseFile(data) {
+    protected def parseFile(data, numLines = 10) {
 
         // Retrieve the file
         def importedFile = fileService.get(data.file)
@@ -121,7 +170,7 @@ class ImporterController {
             sheetIndex: data.upload.sheetIndex,
             dateFormat: data.upload.dateFormat,
             startRow: data.upload.headerRow,
-            endRow: data.upload.headerRow + 10
+            endRow: data.upload.headerRow + numLines
         ]
         
         MatrixImporter.getInstance().importFile(importedFile, importOptions, false);
@@ -158,30 +207,11 @@ class ImporterController {
         session.importer[sessionKey] ?: [:]
     }
     
-    /** 
-     * Return excel column name for example data matrix
+    /**
+     * Returns an importer instance, based on the parameter specified in the request
      */
-    protected String getExcelColumnName (int columnNumber)
-    {
-        int dividend = columnNumber;
-        int i;
-        String columnName = "";
-        int modulo;
-        while (dividend > 0)
-        {
-            modulo = (dividend - 1) % 26;
-            i = 65 + modulo;
-            columnName = new Character((char)i).toString() + columnName;
-            dividend = (int)((dividend - modulo) / 26);
-        }
-        return columnName;
-    }
-    
     protected Importer getImporterFromRequest() {
-        def user = authenticationService.getLoggedInUser()
-        def importerFactory = new ImporterFactory()
-        def importerIdentifier = params.importer
-        def importer = importerFactory.getImporter(importerIdentifier, user)
+        def importer = getImporter(params.importer)
 
         if( !importer ) {
             flash.error = "The importer you specified (" + importerIdentifier + ") cannot be found. Please select another importer from the list"
@@ -189,6 +219,15 @@ class ImporterController {
         }
         
         return importer
+    }
+    
+    /**
+     * Retrieves an importer, based on the identifier given
+     */
+    protected getImporter(importerIdentifier) {
+        def user = authenticationService.getLoggedInUser()
+        def importerFactory = new ImporterFactory()
+        return importerFactory.getImporter(importerIdentifier, user)
     }
     
 }

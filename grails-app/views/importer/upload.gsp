@@ -43,7 +43,7 @@
 		<g:form action="upload" name="uploadFile">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="importer" value="${importer.identifier}" />
-			<fieldset id="uploadParameters">
+			<fieldset id="uploadParameters" class="importerParameters">
 				<legend>Upload file</legend>
 				
 				<af:fileFieldElement name="file"
@@ -95,7 +95,7 @@
 			</fieldset>
 			
 			<g:if test="${importer.getParameters()}">
-				<fieldset>
+				<fieldset id="importerParameters" class="importerParameters">
 					<legend>Parameters</legend>
 					<g:each in="${importer.parameters}" var="parameter">
 						<div class="element">
@@ -119,7 +119,7 @@
 				<g:link action="chooseType" class="previous">Previous</g:link>
 				<a href="#" onClick="Importer.form.submit( 'uploadFile', 'next' ); return false;" class="next">Next</a>
 			</p>
-			
+
 		</g:form>
 
 		<r:script>

@@ -26,7 +26,8 @@ public class SubjectsImporter implements Importer {
     }
     
     /**
-     * Returns true if this importer supports the given type
+     * Returns true if this importer supports the given type.
+     * Can be used to filter the available importers on a certain type
      */
     public boolean supportsType(String type) {
         type in [ "clinicaldata", "subjects" ]
@@ -42,6 +43,34 @@ public class SubjectsImporter implements Importer {
         ]
     }
     
+    /**
+     * Returns a list of header options to match the headers against.
+     * Each item should have an id and a name. A description can be specified with extra information
+     * 
+     * @param parameters        Map with settings for the parameters specified in the getParameters method
+     * @return 
+     * @see getParameters()
+     */
+    public List getHeaderOptions(def parameters) {
+        def templateId = parameters.template.isLong() ? parameters.template.toLong() : null
+        def template
+        
+        // Load the template from the database
+        if( templateId ) {
+            template = Template.get(templateId)
+        }
+        
+        if( !template ) {
+            throw new IllegalArgumentException( "No template with the templateId " + templateId + " could be found." )
+        }
+        
+        // Create a list of domain fields and template fields to match against
+        def fields = Subject.domainFields + ( template.fields ?: [] )
+         
+        // Return a proper format
+        fields.collect { [ id: it.name, name: it.name, description: it.comment ] }
+    }
+
     /**
      * Method to access the data
      */

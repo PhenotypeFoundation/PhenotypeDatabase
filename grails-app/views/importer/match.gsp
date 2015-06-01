@@ -1,3 +1,4 @@
+<%! import grails.converters.JSON %>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -44,9 +45,15 @@
 			<g:hiddenField name="importer" value="${importer.identifier}" />
 			<g:hiddenField name="sessionKey" value="${sessionKey}" />
 			
+			<div id="data-with-headers" data-url="${g.createLink(action: 'datapreview')}" data-match-url="${g.createLink(action: 'matchHeaders')}">
+			</div>
 			
-			${matrix}
-			
+			<g:select 
+				name="example-header-select" class="header-select" 
+				from="${headerOptions}" optionKey="id" optionValue="name" 
+				noSelection="${["": "[Don't import]"]}"
+				/>
+						
 			<br clear="all" />
 
 			<p class="options">
@@ -57,7 +64,7 @@
 		</g:form>
 
 		<r:script>
-			Importer.upload.initialize();
+			Importer.match.initialize( '${sessionKey}' );
 		</r:script>
 	</div>
 </body>
