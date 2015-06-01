@@ -72,9 +72,13 @@ Importer.datatable = {
 
 Importer.upload = {
 	initialize: function() {
+		// Update data preview when something changes in the parameters
 		$( "#uploadParameters" ).on("change", "input, select", function() {
 			Importer.upload.updateDataPreview();
 		});
+		
+		// Also initialize the data preview now, in case a filename has been given already
+		Importer.upload.updateDataPreview();
 	},
 	
 	updateDataPreview: function() {

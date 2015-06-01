@@ -49,7 +49,9 @@
 				<af:fileFieldElement name="file"
 									 description="Choose a file"
 									 id="importFileName"
-									 onUpload="Importer.upload.updateDataPreview" />
+									 onUpload="Importer.upload.updateDataPreview" 
+ 									 value="${savedParameters?.file}"
+ 									 />
 	
 				<div class="element">
 					<div class="description">Use data from sheet</div>
@@ -62,7 +64,7 @@
 				<div class="element">
 					<div class="description">Column header at line</div>
 					<div class="input">
-						<g:select name="upload.headerRow" value="${refreshParams?.headerRow}"
+						<g:select name="upload.headerRow" value="${savedParameters?.upload?.headerRow}"
 								  from="${1..9}"
 								  optionKey="${{it-1}}" />
 					</div>
@@ -71,7 +73,7 @@
 				<div class="element">
 					<div class="description">Separator</div>
 					<div class="input">
-						<g:select name="upload.separator" value="${refreshParams?.separator}"
+						<g:select name="upload.separator" value="${savedParameters?.upload?.separator}"
 								  keys="${[ ",", ";", "\\t"]}"
 								  from="${[ ",", ";", "{tab}"]}" />
 					</div>
@@ -80,7 +82,7 @@
 				<div class="element">
 					<div class="description">Date format</div>
 					<div class="input">
-						<g:select name="upload.dateFormat" value="${refreshParams?.dateFormat}"
+						<g:select name="upload.dateFormat" value="${savedParameters?.upload?.dateFormat}"
 								  from="${['dd/MM/yyyy (EU/India/South America/North Africa/Asia/Australia)', 'yyyy/MM/dd (China/Korea/Iran/Japan)', 'MM/dd/yyyy (US)']}"
 								  keys="${['dd/MM/yyyy','yyyy/MM/dd','MM/dd/yyyy']}"/>
 					</div>
@@ -102,10 +104,10 @@
 							<div class="description">${parameter.label}</div>
 							<div class="input">
 								<g:if test="${parameter.type == 'select'}">
-									<g:select name="parameter.${parameter.name}" from="${parameter.values}" optionKey="id" />
+									<g:select name="parameter.${parameter.name}" from="${parameter.values}" optionKey="id" value="${savedParameters?.parameter?.get(parameter.name)}"/>
 								</g:if>
 								<g:else>
-									<input type="text" name="parameter.${parameter.name}" />
+									<input type="text" name="parameter.${parameter.name}" value="${savedParameters?.parameter?.get(parameter.name)}" />
 								</g:else>
 							</div>
 						</div>				

@@ -26,8 +26,23 @@ class ImporterController {
      * Screen to upload the file and select the parameters
      */
     def upload() {
-        def importer = getImporterFromRequest()
+        // If the user returns from the match page,
+        // data is provided in the session. Parse that data as well
+        def importInfo
+        if( params.key ) {
+            importInfo = getFromSession(params.key)
+        } else {
+            importInfo = [ importer: params.importer ]
+        }
         
+        // See if an importer has been set
+        def importer = getImporter( importInfo.importer )
+        if( !importer ) {
+            flash.error = "The importer you specified (" + importerIdentifier + ") cannot be found. Please select another importer from the list"
+            redirect action: "chooseType"
+        }
+        
+        // Handle form submission
         if( request.post && params.importer ) {
             // Only do something if a file has been specified
             if( params.file && params.file != "existing*" ) {
@@ -37,7 +52,14 @@ class ImporterController {
             }
         }
         
-        [ importer: importer ]
+        [ 
+            importer: importer,
+            savedParameters: [
+                file: importInfo.file,
+                upload: importInfo.upload,
+                parameter: importInfo.parameter
+            ]
+        ]
     }
     
     /**
@@ -47,6 +69,13 @@ class ImporterController {
         // Retrieve information from request and from session
         def importInfo = getFromSession(params.key)
         def importer = getImporter(importInfo.importer)
+        
+        if( request.post && params.key ) {
+            switch( params._action ) {
+                case 'previous':
+                    redirect action: "upload", params: [key: params.key]
+            }
+        }
         
         // Parse the excel file
         def importedMatrix = parseFile(importInfo)
@@ -129,14 +158,19 @@ class ImporterController {
      * Returns a map with the parameters set by the user
      */
     protected def parseParams() {
+        // The file could be prefixed with 'existing*' due to the way
+        // the ajaxupload widget works
+        def filename = params.file.replace( "existing*", "" )
+        
         [
-            file: params.file,
+            file: filename,
             importer: params.importer,
 
             upload: [
                 sheetIndex: params.int( 'upload.sheetIndex' ),
                 dateFormat: params.upload.dateFormat,
                 headerRow: params.int( 'upload.headerRow' ),
+                separator: params.upload.separator
             ],
             parameter: params.parameter
         ]
@@ -211,14 +245,7 @@ class ImporterController {
      * Returns an importer instance, based on the parameter specified in the request
      */
     protected Importer getImporterFromRequest() {
-        def importer = getImporter(params.importer)
-
-        if( !importer ) {
-            flash.error = "The importer you specified (" + importerIdentifier + ") cannot be found. Please select another importer from the list"
-            redirect action: "chooseType"
-        }
-        
-        return importer
+        getImporter(params.importer)
     }
     
     /**

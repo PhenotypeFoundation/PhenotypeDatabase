@@ -42,8 +42,7 @@
 		 
 		<g:form action="match" name="matchData">
 			<g:hiddenField name="_action" />
-			<g:hiddenField name="importer" value="${importer.identifier}" />
-			<g:hiddenField name="sessionKey" value="${sessionKey}" />
+			<g:hiddenField name="key" value="${sessionKey}" />
 			
 			<div id="data-with-headers" data-url="${g.createLink(action: 'datapreview')}" data-match-url="${g.createLink(action: 'matchHeaders')}">
 			</div>
