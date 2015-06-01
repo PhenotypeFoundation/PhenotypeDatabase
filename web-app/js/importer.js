@@ -104,11 +104,11 @@ Importer.upload = {
 }
 
 Importer.match = {
-	initialize: function(sessionKey) {
-		Importer.match.showDatatable(sessionKey);
+	initialize: function(sessionKey, initialMapping) {
+		Importer.match.showDatatable(sessionKey, initialMapping);
 	},
 
-	showDatatable: function(sessionKey) {
+	showDatatable: function(sessionKey, initialMapping) {
 		var previewElement = $( "#data-with-headers" );
 		
 		// Perform the ajax call to retrieve the data
@@ -117,7 +117,7 @@ Importer.match = {
 			previewElement.data("url"), 
 			{ key: sessionKey }
 		).done(function(data) {
-			Importer.match.addSelectBoxesToHeader(previewElement);
+			Importer.match.addSelectBoxesToHeader(previewElement, initialMapping);
 
 			if( previewElement.data( "match-url" ) ) {
 				Importer.match.addMatchButtonsToDatatable(previewElement, sessionKey);
@@ -128,7 +128,7 @@ Importer.match = {
 	/**
 	 * Adds a select box for each column
 	 */
-	addSelectBoxesToHeader: function(element) {
+	addSelectBoxesToHeader: function(element, initialMapping) {
 		// Update the datatable with select boxes to match the headers
 		var header = element.find(".dataTables_scrollHead");
 		header.find( "thead th" ).each( function( idx, th) {
@@ -139,6 +139,11 @@ Importer.match = {
 			select
 				.attr("id", "column-match-" + idx)
 				.attr("name", "column.match." + idx);
+			
+			// Set the initial mapping
+			if( initialMapping && initialMapping[idx] ) {
+				select.val(initialMapping[idx]);
+			}
 			
 			// Add the select to the table (and show it)
 			$(th).append(select.show());

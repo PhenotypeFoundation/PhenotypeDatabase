@@ -47,7 +47,7 @@ class ImporterController {
             // Only do something if a file has been specified
             if( params.file && params.file != "existing*" ) {
                 def sessionKey = generateSessionKey()
-                storeInSession(sessionKey, parseParams())
+                storeInSession(sessionKey, parseUploadParams())
                 redirect action: 'match', params: [key: sessionKey]
             }
         }
@@ -67,18 +67,44 @@ class ImporterController {
      */
     def match() {
         // Retrieve information from request and from session
-        def importInfo = getFromSession(params.key)
+        def sessionKey = params.key
+        def importInfo = getFromSession(sessionKey)
         def importer = getImporter(importInfo.importer)
         
         if( request.post && params.key ) {
             switch( params._action ) {
                 case 'previous':
-                    redirect action: "upload", params: [key: params.key]
+                    redirect action: "upload", params: [key: sessionKey]
+                case 'validate':
+                case 'import':
+                    // Parse parameters and store in session
+                    importInfo.mapping = parseMappingParams(importer, importInfo)
+                    
+                    if( validateMappingParameters( importInfo ) ) {
+                        if( params._action == "validate" ) {
+                            // Validate the provided data 
+                            importer.validateData(parseFile(importInfo), importInfo.mapping, importInfo.parameter)
+                        } else {
+                            // Import the data and ignore entities that fail validation
+                            importer.importData(parseFile(importInfo), importInfo.mapping, importInfo.parameter)
+                        }
+        
+                        // Store provided parameters and validation result in session
+                        importInfo.validationErrors = importer.getValidationErrors()
+                        storeInSession(sessionKey, importInfo)
+    
+                        // Redirect to the validation page
+                        redirect action: ( params._action == "validate" ? "validation" : "finish" ), params: [key: sessionKey]
+                    } else {
+                        flash.error = "Please provide a valid set of mapping parameters. That includes at least one column of data and no duplicates."
+                    }
+
+                    break;
             }
         }
         
-        // Parse the excel file
-        def importedMatrix = parseFile(importInfo)
+        // Parse the excel file to show an example
+        def importedMatrix = parseFile(importInfo, 10)
         
         // Determine the headers to match against
         def headerOptions = importer.getHeaderOptions(importInfo.parameter)
@@ -88,7 +114,23 @@ class ImporterController {
             importInfo: importInfo,
             matrix: importedMatrix, 
             headerOptions: headerOptions,
-            sessionKey: params.key 
+            sessionKey: sessionKey,
+            savedMapping: importInfo.mapping?.collectEntries { [ (it.key): it.value?.field?.id ] }
+        ]
+    }
+    
+    /**
+     * Shows a page with the result of validation
+     */
+    def validation() {
+        // Retrieve information from request and from session
+        def sessionKey = params.key
+        def importInfo = getFromSession(sessionKey)
+        
+        // Show validation errors
+        [
+            sessionKey: sessionKey,
+            validationErrors: importInfo.validationErrors
         ]
     }
     
@@ -106,10 +148,11 @@ class ImporterController {
         if( params.key ) {
             importInfo = getFromSession(params.key)
         } else {
-            importInfo = parseParams()
+            importInfo = parseUploadParams()
         }
         
-        def importedMatrix = parseFile(importInfo)
+        // Parse the file to show an example
+        def importedMatrix = parseFile(importInfo, 10)
         
         if( !importedMatrix ) {
             log.error ".importer doesn't recognize the uploaded file, try a supported format like XLS(X)"
@@ -133,7 +176,7 @@ class ImporterController {
     def matchHeaders() {
         // Parse the file and retrieve only the headers
         def importInfo = getFromSession(params.key)
-        def importedMatrix = parseFile(importInfo, 0)
+        def importedMatrix = parseFile(importInfo, 1)
         def fileHeaders = importedMatrix[0]
         
         // Retrieve the list of possible matches
@@ -157,7 +200,7 @@ class ImporterController {
     /**
      * Returns a map with the parameters set by the user
      */
-    protected def parseParams() {
+    protected def parseUploadParams() {
         // The file could be prefixed with 'existing*' due to the way
         // the ajaxupload widget works
         def filename = params.file.replace( "existing*", "" )
@@ -177,11 +220,56 @@ class ImporterController {
     }
     
     /**
+     * Returns a map with the parsed mapping parameters
+     */
+    protected def parseMappingParams(importer, importInfo) {
+        def mappingParams = params.column?.match
+        
+        if( !mappingParams )
+            return [:]
+            
+        // Loop through each parameter given
+        def headerOptions = importer.getHeaderOptions(importInfo.parameter)
+        def parameters = [:]
+        
+        mappingParams.sort { a,b -> a.key.toLong() <=> b.key.toLong() }.each { mapping ->
+            parameters[mapping.key] = [
+                columnNumber: mapping.key,
+                ignore: !mapping.value,
+                field: mapping.value ? headerOptions.find { it.id == mapping.value } : null
+            ]
+        }
+        
+        return parameters
+    }
+    
+    /**
+     * Validates the import parameters
+     */
+    protected def validateMappingParameters( parameters ) {
+       if( !parameters.mapping )
+           return false
+       
+       // Make sure that at least one column will be imported
+       def mapping = parameters.mapping.values()
+       def nonNullMapping = mapping.findAll { !it.ignore }
+       
+       if( !nonNullMapping ) 
+           return false
+       
+       // Make sure that there are no duplicates in the mapping
+       if( nonNullMapping*.field.id.unique().size() != nonNullMapping.size() ) 
+           return false
+           
+       return true
+    }
+    
+    /**
      * Parses a provided file, using the parameters given
      * If the file could not be found, a 404 error is given
      * @param data Map with information on the file and the way to parse it
      */
-    protected def parseFile(data, numLines = 10) {
+    protected def parseFile(data, numLines = 0) {
 
         // Retrieve the file
         def importedFile = fileService.get(data.file)
@@ -204,8 +292,12 @@ class ImporterController {
             sheetIndex: data.upload.sheetIndex,
             dateFormat: data.upload.dateFormat,
             startRow: data.upload.headerRow,
-            endRow: data.upload.headerRow + numLines
         ]
+        
+        // If a certain number of lines is provided, use that. Otherwise, load the whole file
+        if( numLines ) {
+            endRow: data.upload.headerRow + numLines - 1
+        }
         
         MatrixImporter.getInstance().importFile(importedFile, importOptions, false);
     }

@@ -31,14 +31,6 @@
 			<span class="title">Match the rows and columns from your file</span> 
 			Below you can specify where and how to store the data you provided.
 		</span>
-		
-		<g:if test="${flash.validationErrors}">
-			<div class="errormessage">
-				<g:each var="error" in="${flash.validationErrors}">
-					${error.value}<br />
-				</g:each>
-			</div>
-		</g:if>  
 		 
 		<g:form action="match" name="matchData">
 			<g:hiddenField name="_action" />
@@ -57,13 +49,13 @@
 
 			<p class="options">
 				<a href="#" onClick="Importer.form.submit( 'matchData', 'previous' ); return false;" class="previous">Previous</a>
-				<a href="#" onClick="Importer.form.submit( 'matchData', 'next' ); return false;" class="next">Next</a>
+				<a href="#" onClick="Importer.form.submit( 'matchData', 'validate' ); return false;" class="validate">Validate</a>
+				<a href="#" onClick="Importer.form.submit( 'matchData', 'import' ); return false;" class="import">Import</a>
 			</p>
-			
 		</g:form>
 
 		<r:script>
-			Importer.match.initialize( '${sessionKey}' );
+			Importer.match.initialize( '${sessionKey}' <g:if test="${savedMapping}">, ${savedMapping as JSON}</g:if> );
 		</r:script>
 	</div>
 </body>

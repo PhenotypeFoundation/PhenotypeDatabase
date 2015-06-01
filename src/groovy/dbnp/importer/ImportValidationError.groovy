@@ -4,8 +4,12 @@ package dbnp.importer
  * Defines a validation error during import
  */
 public class ImportValidationError {
-    public int code
+    public Integer code
     public String message
-    public int line
-    public int column = null
+    public Integer line  = null 
+    public Integer column = null
+    
+    public String toString() {
+        return "[" + code + "] " + message + ( line ? " on line " + line : "" ) + ( column ? " for column " + column : "" )
+    }
 }

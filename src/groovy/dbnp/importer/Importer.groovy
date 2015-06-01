@@ -27,27 +27,30 @@ public interface Importer {
     public List<ImporterParameter> getParameters()
     
     /**
-     * Method to access the data
-     */
-    public def getData()
-    
-    /**
      * Returns a list of validation errors
      */
     public List<ImportValidationError> getValidationErrors()
 
     /**
      * Validates provided data.
+     * @param   data            Matrix (List of lists) with the data that has been loaded from the excel/csv file
+     * @param   parameters      Parameters provided by the user. This map includes keys:
+     *                            upload        Parameters about the uploaded file. Should not be needed, as the file has been parsed already
+     *                            parameter     Refers to a map with parameter values for the parameters needed by the importer
      * @return  True if all objects were imported succesfully,
      *          false if the validation on any of the object has failed
      */
-    public boolean validateData()
+    public boolean validateData(def data, def mapping, def parameters)
     
     /**
      * Imports provided data. This method should skip objects that fail validation
      * but store the validation errors.
+     * @param   data            Matrix (List of lists) with the data that has been loaded from the excel/csv file
+     * @param   parameters      Parameters provided by the user. This map includes keys:
+     *                            upload        Parameters about the uploaded file. Should not be needed, as the file has been parsed already
+     *                            parameter     Refers to a map with parameter values for the parameters needed by the importer
      * @return  True if all objects were imported succesfully, 
      *          false if the validation on any of the object has failed 
      */
-    public boolean importData()
+    public boolean importData(def data, def mapping, def parameters)
 }
