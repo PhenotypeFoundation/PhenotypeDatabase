@@ -149,6 +149,9 @@ public class SubjectsImporter implements Importer {
         // Create an initial object
         def object = new Subject(template: getTemplate(parameters))
         
+        // Associate the object with its parent
+        object.parent = Study.get(parameters.study)
+        
         // Loop through all columns
         data.eachWithIndex { cell, columnIndex ->
             // Retrieve the mapping
