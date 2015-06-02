@@ -53,8 +53,8 @@
 			<br clear="all" />
 
 			<p class="options">
-				<a href="#" onClick="Importer.form.submit( 'validation', 'upload' ); return false;" class="upload">Back to upload</a>
-				<a href="#" onClick="Importer.form.submit( 'validation', 'mapping' ); return false;" class="mapping">Back to mapping</a>
+				<g:link action="upload" params="${[key: sessionKey]}" class="upload">Back to upload</g:link>
+				<g:link action="match" params="${[key: sessionKey]}" class="mapping">Back to mapping</g:link>
 				<a href="#" onClick="Importer.form.submit( 'validation', 'import' ); return false;" class="import">Import</a>
 			</p>
 		</g:form>

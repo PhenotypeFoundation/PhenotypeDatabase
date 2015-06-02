@@ -3,11 +3,14 @@ package dbnp.importer
 import dbnp.authentication.SecUser
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
+import grails.util.Holders
 
 /**
  * Defines the interface for an exporter
  */
 public class SubjectsImporter implements Importer {
+    def messageSource = Holders.grailsApplication.mainContext.getBean('messageSource')
+    
     /**
      * SecUser that is used for authorization
      */
@@ -96,8 +99,24 @@ public class SubjectsImporter implements Importer {
             return false;
         }
         
+        // After that, validate each line. The header line is not needed anymore
+        for( def lineNr = 1; lineNr < data.size(); lineNr++) {
+            def line = data[lineNr]
+            def object = createObject(line, mapping, parameters)
+            
+            if( !object.validate() ) {
+                object.errors.allErrors.each {
+                    errors << new ImportValidationError(
+                        code: 2,
+                        message: messageSource.getMessage(it, null),
+                        line: lineNr
+                    )
+                }
+            }
+        }
         
-        return true
+        // Return true if no errors were found, false otherwise
+        return !errors
     }
     
     /**
@@ -114,9 +133,48 @@ public class SubjectsImporter implements Importer {
     }
     
     /**
-     * Retrieves a list of domain and template fields, given the set of parameters
+     * Creates an object, based on the specified parameters
+     * @param   data            List with the data from one line in the file, used to create this specific object 
+     * @param   mapping         Mapping from field number to object property name. The key in this map is the column number,
+     *                                  the value is a map that contains 2 entries: 
+     *                                          ignore (boolean)        Whether this column should be ignored
+     *                                          field (map)             Map describing the field selected. The format 
+     *                                                                  is the same as the output from getHeaderOptions 
+     * @param   parameters      Refers to a map with parameter values for the parameters needed by the importer
+     * @return  True if all objects were imported succesfully,
+     *          false if the validation on any of the object has failed
+     * @see     getHeaderOptions()
      */
-    protected List getAllFields(parameters) {
+    public def createObject(def data, def mapping, def parameters) {
+        // Create an initial object
+        def object = new Subject(template: getTemplate(parameters))
+        
+        // Loop through all columns
+        data.eachWithIndex { cell, columnIndex ->
+            // Retrieve the mapping
+            def columnMapping = mapping[columnIndex.toString()]
+
+            if( !columnMapping || columnMapping.ignore || !columnMapping.field?.id ) {
+                log.debug( "Ignoring column " + columnIndex )
+                return
+            }
+            
+            // Determine where to store this value
+            def fieldName = columnMapping.field.id
+            log.debug( "Setting column " + columnIndex + " to field " + fieldName )
+            
+            // Store the value itself
+            // TODO: Format and/or parse the value
+            object.setFieldValue(fieldName, cell, true)
+        }
+        
+        object
+    }
+
+    /**
+     * Retrieves a template selected by the user
+     */
+    protected Template getTemplate(parameters) {
         def templateId = parameters?.template?.isLong() ? parameters.template.toLong() : null
         def template
         
@@ -128,6 +186,15 @@ public class SubjectsImporter implements Importer {
         if( !template ) {
             throw new IllegalArgumentException( "No template with the templateId " + templateId + " could be found." )
         }
+        
+        template
+    }
+    
+    /**
+     * Retrieves a list of domain and template fields, given the set of parameters
+     */
+    protected List getAllFields(parameters) {
+        def template = getTemplate(parameters)
         
         // Create a list of domain fields and template fields to match against
         Subject.domainFields + ( template.fields ?: [] )
