@@ -14,6 +14,9 @@ class Assay extends TemplateEntity {
 
     // The dbNP module in which the assay omics data can be found. */
     AssayModule module
+    
+    // Determines whether anonymous users are allowed to see this study. This has only effect when published = true    
+    boolean publicassay = false  
 
     /**
      * return the domain fields for this domain class
@@ -35,6 +38,12 @@ class Assay extends TemplateEntity {
                     type: TemplateFieldType.MODULE,
                     comment: 'Select the dbNP module where the actual assay measurement data is stored',
                     required: true
+            ),
+            new TemplateField(
+                    name: 'publicassay',
+                    type: TemplateFieldType.BOOLEAN,
+                    comment: 'If selected the assay will become public',
+                    required: false
             )
     ]
 
@@ -123,5 +132,38 @@ class Assay extends TemplateEntity {
 			log.warn "Invalid result for retrieving samples counts on assay " + this + ": " + result
 			return 0
 		}
+	}
+        
+        /**
+	 * Returns true if the given user is allowed to read this study
+	 */
+	public boolean canReadAssay(SecUser loggedInUser) {
+		// Public studies may be read by anyone
+		if( this.parent.publicstudy && this.publicassay) {
+			return true;
+		}
+
+		// Anonymous readers are only given access when published and public
+		if (loggedInUser == null) {
+			return false;
+		}
+
+		// Administrators are allowed to read every study
+		if (loggedInUser.hasAdminRights()) {
+			return true;
+		}
+
+		// Owners and writers are allowed to read this study
+		if (this.parent.owner == loggedInUser || this.parent.writers.contains(loggedInUser)) {
+			return true
+		}
+
+		// Readers are allowed to read this study when it is published
+		//		if (this.readers.contains(loggedInUser) && this.published) {
+		if (this.parent.readers.contains(loggedInUser)) {
+			return true
+		}
+
+		return false
 	}
 }
