@@ -69,7 +69,7 @@ class TnoMigrateController {
 
                 if (!eventName.equalsIgnoreCase(migration)) {
                     println "EventName field (${eventName}) not matching migration field (${migration}). Using ${migration}"
-                    eventName = migration
+                    eventName = migration.trim()
                 }
 
                 EventGroup eventGroup = allEventGroups.find() { it.name.equalsIgnoreCase(eventName) }
@@ -116,6 +116,8 @@ class TnoMigrateController {
                 def relativeTimeField = oldSamplingEventDetails.template_rel_time_fields_elt[0]
 
                 migration.split(';').each() { eventName ->
+
+                    eventName = eventName.trim()
 
                     def eventGroups = allEventGroups.findAll() { it.name.equalsIgnoreCase(eventName) }
 
