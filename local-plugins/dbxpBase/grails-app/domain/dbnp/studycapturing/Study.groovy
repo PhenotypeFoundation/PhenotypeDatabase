@@ -25,15 +25,15 @@ class Study extends TemplateEntity {
 	Date lastUpdated
 	Date startDate
 
-	List subjects
-	List subjectGroups
-
-	List events
-	List samplingEvents
-	List eventGroups
-
-	List samples
-	List assays
+//	List subjects
+//	List subjectGroups
+//
+//	List events
+//	List samplingEvents
+//	List eventGroups
+//
+//	List samples
+//	List assays
 
 	boolean publicstudy = false  // Determines whether anonymous users are allowed to see this study. This has only effect when published = true
 
@@ -84,7 +84,17 @@ class Study extends TemplateEntity {
 		description type: 'text'
 		// Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
 		templateTextFields type: 'text'
+        
+                // Add default order for related entities
+                subjects sort: 'name', order: 'asc'
+                subjectGroups sort: 'name', order: 'asc'
+                
+                events sort: 'name', order: 'asc'
+                samplingEvents sort: 'name', order: 'asc'
+                eventGroups sort: 'name', order: 'asc'
 
+                samples sort: 'name', order: 'asc'
+                assays sort: 'name', order: 'asc'
 	}
 
 	/**
