@@ -68,6 +68,16 @@ public class SubjectsImporter implements Importer {
     public List<ImportValidationError> getValidationErrors() {
         [] + errors
     }
+    
+    /**
+     * Returns a link to the results page
+     */
+    public Map getLinkToResults(def parameters) {
+        [
+            url: [ controller: 'study', action: 'subjects', id: parameters.study],
+            label: "Subjects for study " + Study.get(parameters.study.toLong()).title
+        ]
+    }
 
     /**
      * Validates provided data.
@@ -128,8 +138,29 @@ public class SubjectsImporter implements Importer {
      *          false if the validation on any of the object has failed 
      */
     public boolean importData(def data, def mapping, def parameters) {
+        // Reset validation errors
         errors = []
-        return true
+        
+        // Now loop through each line and try to import the object.
+        for( def lineNr = 1; lineNr < data.size(); lineNr++) {
+            def line = data[lineNr]
+            def object = createObject(line, mapping, parameters)
+            
+            if( object.validate() ) {
+                object.save()
+            } else {
+                object.errors.allErrors.each {
+                    errors << new ImportValidationError(
+                        code: 2,
+                        message: messageSource.getMessage(it, null),
+                        line: lineNr
+                    )
+                }
+            }
+        }
+        
+        // Return true if no errors were found, false otherwise
+        return !errors
     }
     
     /**

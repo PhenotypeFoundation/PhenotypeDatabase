@@ -27,10 +27,16 @@ public interface Importer {
     public List<ImporterParameter> getParameters()
     
     /**
-     * Returns a list of validation errors
+     * Returns a list of validation errors, after validateData or importData has been called
      */
     public List<ImportValidationError> getValidationErrors()
 
+    /**
+     * Returns a link to a page where results of the import can be seen. 
+     * @return a map with two keys: url and label
+     */
+    public Map getLinkToResults(def parameters)
+    
     /**
      * Validates provided data.
      * @param   data            Matrix (List of lists) with the data that has been loaded from the excel/csv file

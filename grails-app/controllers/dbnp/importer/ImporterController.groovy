@@ -80,17 +80,21 @@ class ImporterController {
                     // Parse parameters and store in session
                     importInfo.mapping = parseMappingParams(importer, importInfo)
                     
+                    def data = parseFile(importInfo)
+                    
                     if( validateMappingParameters( importInfo ) ) {
                         if( params._action == "validate" ) {
                             // Validate the provided data 
-                            importer.validateData(parseFile(importInfo), importInfo.mapping, importInfo.parameter)
+                            importer.validateData(data, importInfo.mapping, importInfo.parameter)
                         } else {
                             // Import the data and ignore entities that fail validation
-                            importer.importData(parseFile(importInfo), importInfo.mapping, importInfo.parameter)
+                            importer.importData(data, importInfo.mapping, importInfo.parameter)
                         }
         
                         // Store provided parameters and validation result in session
                         importInfo.validationErrors = importer.getValidationErrors()
+                        importInfo.numLines = data.size()
+                        
                         storeInSession(sessionKey, importInfo)
     
                         // Redirect to the validation page
@@ -126,11 +130,57 @@ class ImporterController {
         // Retrieve information from request and from session
         def sessionKey = params.key
         def importInfo = getFromSession(sessionKey)
+        def importer = getImporter(importInfo.importer)
+        
+        if( request.post && params.key ) {
+            switch( params._action ) {
+                case 'import':
+                    // Import the data and ignore entities that fail validation
+                    def data = parseFile(importInfo)
+                    importer.importData(data, importInfo.mapping, importInfo.parameter)
+    
+                    // Store provided parameters and validation result in session
+                    importInfo.validationErrors = importer.getValidationErrors()
+                    importInfo.numLines = data.size()
+                    storeInSession(sessionKey, importInfo)
+
+                    // Redirect to the last page
+                    redirect action: "finish", params: [key: sessionKey]
+
+                    break;
+            }
+        }
         
         // Show validation errors
         [
             sessionKey: sessionKey,
             validationErrors: importInfo.validationErrors
+        ]
+    }
+    
+    /**
+     * Shows a page with the result of importing
+     */
+    def finish() {
+        // Retrieve information from request and from session
+        def sessionKey = params.key
+        def importInfo = getFromSession(sessionKey)
+        def importer = getImporter(importInfo.importer)
+        
+        // Determine import results
+        def groupedErrors = importInfo.validationErrors?.groupBy { it.line }
+        def numLinesImported = importInfo.numLines - 1 - groupedErrors.size() 
+        
+        // Show results of importing
+        [
+            sessionKey: sessionKey,
+            validationErrors: importInfo.validationErrors,
+            groupedErrors: groupedErrors,
+            numLinesImported: numLinesImported,
+            
+            resultLink: importer.getLinkToResults(importInfo.parameter),
+            
+            importInfo: importInfo
         ]
     }
     

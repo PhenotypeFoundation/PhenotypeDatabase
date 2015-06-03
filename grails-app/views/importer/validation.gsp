@@ -18,7 +18,7 @@
 		
 		<g:render template="/common/flashmessages" />
 		
-		<g:form action="match" name="validation">
+		<g:form action="validation" name="validation">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="key" value="${sessionKey}" />
 
