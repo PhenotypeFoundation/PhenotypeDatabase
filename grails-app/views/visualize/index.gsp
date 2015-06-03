@@ -114,7 +114,7 @@
             </div>
 
             <div id="dialog_messages">
-                <p class="info">Messages:</p>
+                <p class="message info">Messages:</p>
                 <div id="message_container">
                 <g:if test="${flash.error}">
                     <div class="message_box message_error">

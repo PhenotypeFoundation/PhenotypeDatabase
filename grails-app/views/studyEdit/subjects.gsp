@@ -15,30 +15,15 @@
 			<g:render template="steps" model="[study: study, active: 'subjects']"  />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">Define or import your subjects</span> 
 			List all subjects and enter information about them. You can also import your subjects from an excel sheet.
 		</span>
 		
-		<g:if test="${flash.validationErrors}">
-			<div class="errormessage">
-				<g:each var="error" in="${flash.validationErrors}">
-					${error.value}<br />
-				</g:each>
-			</div>
-		</g:if>  
-		 
+		<g:render template="/common/flash_validation_messages" />
+		
 		<g:form action="subjects" name="subjects">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="id" value="${study.id}" />

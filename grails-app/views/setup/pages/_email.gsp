@@ -14,7 +14,7 @@
 <af:page>
 	<h1>Email and URL configuration</h1>
 
-	<span class="info">
+	<span class="message info">
 		<span class="title">Email configuration</span>
 		The application uses the default system mailer, which is probably postfix or sendmail, so you only need to
 		configure what email adress will be used to send out emails to the users.
@@ -24,7 +24,7 @@
 		The from address used for communication to the users.
 	</af:textFieldElement>
 
-	<span class="info">
+	<span class="message info">
 		<span class="title">URL configuration</span>
 		Define the URL the application will be running on. If you would like to run from Apache (preferable) and not directly from Tomcat
 		see the Summary tab for an Apache virtual host configuration example.

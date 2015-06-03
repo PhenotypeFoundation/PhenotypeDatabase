@@ -15,30 +15,13 @@
 			<g:render template="steps" model="[active: 'uploadFile']" />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">Upload file and specify parameters</span> 
 			Below you can upload an excel file, csv file or tab separated file. 
 			Please also specify the parameters for the import.
 		</span>
-		
-		<g:if test="${flash.validationErrors}">
-			<div class="errormessage">
-				<g:each var="error" in="${flash.validationErrors}">
-					${error.value}<br />
-				</g:each>
-			</div>
-		</g:if>  
 		 
 		<g:form action="upload" name="uploadFile">
 			<g:hiddenField name="_action" />

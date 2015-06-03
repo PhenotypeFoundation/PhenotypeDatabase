@@ -15,18 +15,9 @@
 			<g:render template="steps" model="[study: study, active: 'study']" />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">Basic properties of your study</span>
 			This page shows the basic information about your study, as well as information on the authorizations. 
 		</span>

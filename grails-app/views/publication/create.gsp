@@ -10,14 +10,10 @@
     <body>
         <div class="body">
             <h1><g:message code="default.create.label" args="[entityName]" /></h1>
-            <g:if test="${flash.message}">
-            <div class="message">${flash.message}</div>
-            </g:if>
-            <g:hasErrors bean="${publicationInstance}">
-            <div class="errors">
-                <g:renderErrors bean="${publicationInstance}" as="list" />
-            </div>
-            </g:hasErrors>
+
+			<g:render template="/common/flashmessages" />
+			<g:render template="/common/instance_errors" model="[instance: publicationInstance]" />
+
             <g:form action="save" method="post" >
                 <div class="dialog">
                     <table>

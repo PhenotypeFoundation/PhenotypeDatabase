@@ -20,30 +20,15 @@
 			<g:render template="steps" model="[study: study, active: 'study']" />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">Define the basic properties of your study</span> 
 			Enter all the basic information of your study. Keep in mind that the more specific the information that is
 			filled out, the more valuable the system will be.
 		</span>
 		
-		<g:if test="${flash.validationErrors}">
-			<div class="errormessage">
-				<g:each var="error" in="${flash.validationErrors}">
-					${error.value}<br />
-				</g:each>
-			</div>
-		</g:if>  
+		<g:render template="/common/flash_validation_messages" />
 		 
 		<g:form action="properties" name="studyProperties">
 			<g:hiddenField name="_action" />

@@ -16,18 +16,9 @@
 			<g:render template="/studyEdit/steps" model="[study: study, active: 'design']"  />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">Define or import your study design</span> 
 			The study design consists of treatement types and sample types, grouped together in sample & treatment groups. Sample & treatment groups can be assigned to groups of subjects.
 		</span>
@@ -74,7 +65,7 @@
 		</g:form>
 		
 		<div id="eventGroupDialog">
-			<span class="info"> 
+			<span class="message info"> 
 				<span class="title">Edit the details of the sample & treatment group</span> 
 				Drag treatement types and sample types into the group. Changes will be saved immediately. However, changes in the name require a click on the 'save name' button.<br />
 				<strong>Please note</strong>: changes to this sample & treatment group will affect all instances of the group.
@@ -96,7 +87,7 @@
 		<div id="eventGroupContentsDialog">
 		</div>
 		<div id="subjectGroupDialog">
-			<span class="info"> 
+			<span class="message info"> 
 				<span class="title">Edit the details of the subjectgroup</span> 
 				Check the subjects that are in this group
 			</span>

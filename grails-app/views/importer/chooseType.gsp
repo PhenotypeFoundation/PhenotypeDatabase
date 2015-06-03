@@ -15,18 +15,9 @@
 			<g:render template="steps" model="[active: 'chooseType']" />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">Choose the type of import</span> 
 			The Phenotype Database is capable of importing many types of data. Please select the type
 			of data you want to import below.

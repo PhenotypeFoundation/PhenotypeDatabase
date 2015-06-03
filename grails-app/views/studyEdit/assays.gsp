@@ -15,29 +15,14 @@
 			<g:render template="steps" model="[study: study, active: 'assays']"  />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">Edit assays or import more</span> 
 			Add or edit details about the assays done on the samples. Please note that on the next page you can specify which samples were handled in an assay.
 		</span>
-		
-		<g:if test="${flash.validationErrors}">
-			<div class="errormessage">
-				<g:each var="error" in="${flash.validationErrors}">
-					${error.value}<br />
-				</g:each>
-			</div>
-		</g:if>  
+
+		<g:render template="/common/flash_validation_messages" />
 		 
 		<g:form action="assays" name="assays">
 			<g:hiddenField name="_action" />
