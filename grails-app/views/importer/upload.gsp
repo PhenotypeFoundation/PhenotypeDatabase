@@ -10,7 +10,7 @@
 	<div class="basicTabLayout importer uploadFile">
 		<h1>
 			<span class="truncated-title">
-				Upload file
+				Upload file: ${importer.identifier}
 			</span>
 			<g:render template="steps" model="[active: 'uploadFile']" />
 		</h1>

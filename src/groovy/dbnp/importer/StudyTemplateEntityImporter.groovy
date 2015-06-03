@@ -44,5 +44,15 @@ public abstract class StudyTemplateEntityImporter<T extends TemplateEntity> exte
         
         object
     }
+    
+    /**
+     * Returns the study selected by the user
+     */
+    public Study getStudy(def parameters) {
+        if( !parameters.study || !parameters.study.isLong() ) 
+            return null
+            
+        Study.get(parameters.study.toLong())
+    }
 
 }

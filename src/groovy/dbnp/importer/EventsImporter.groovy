@@ -6,15 +6,15 @@ import org.dbnp.gdt.*
 import grails.util.Holders
 
 /**
- * Defines the interface for an exporter
+ * Importer to store events
  */
-public class SubjectsImporter extends StudyTemplateEntityImporter<Subject> {
+public class EventsImporter extends StudyTemplateEntityImporter<Event> {
     
     /**
      * Returns an identifier that describes this importer
      */
     public String getIdentifier() {
-        "Subjects"
+        "Events"
     }
     
     /**
@@ -22,7 +22,7 @@ public class SubjectsImporter extends StudyTemplateEntityImporter<Subject> {
      * Can be used to filter the available importers on a certain type
      */
     public boolean supportsType(String type) {
-        type in [ "clinicaldata", "subjects" ]
+        type in [ "clinicaldata", "events" ]
     }
     
     /**
@@ -30,8 +30,8 @@ public class SubjectsImporter extends StudyTemplateEntityImporter<Subject> {
      */
     public Map getLinkToResults(def parameters) {
         [
-            url: [ controller: 'study', action: 'subjects', id: parameters.study],
-            label: "Subjects for study " + getStudy(parameters)?.title
+            url: [ controller: 'study', action: 'design', id: parameters.study],
+            label: "Design for study " + getStudy(parameters)?.title
         ]
     }
     
@@ -39,6 +39,6 @@ public class SubjectsImporter extends StudyTemplateEntityImporter<Subject> {
      * Returns an entity object for this TemplateEntity (T)
      */
     public Class getEntity() {
-        Subject
+        Event
     }
 }

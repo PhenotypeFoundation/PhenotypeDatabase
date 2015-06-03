@@ -10,13 +10,14 @@ import grails.util.Holders
  * in the imported file is being matched to a field in the template
  */
 public abstract class TemplateEntityImporter<T extends TemplateEntity> extends AbstractImporter {
+    def messageSource = Holders.grailsApplication.mainContext.getBean('messageSource')
     
     /**
      * Returns a map of parameters that should be set for this importer
      */
     public List<ImporterParameter> getParameters() {
         [
-            new ImporterParameter(name: 'template', label: 'Template', type: 'select', values: Template.findAllByEntity(Subject))
+            new ImporterParameter(name: 'template', label: 'Template', type: 'select', values: Template.findAllByEntity(getEntity()))
         ]
     }
     
@@ -66,7 +67,57 @@ public abstract class TemplateEntityImporter<T extends TemplateEntity> extends A
             return false;
         }
         
-        return true
+        // After that, validate each line. The header line is not needed anymore
+        for( def lineNr = 1; lineNr < data.size(); lineNr++) {
+            def line = data[lineNr]
+            def object = createObject(line, mapping, parameters)
+            
+            if( !object.validate() ) {
+                object.errors.allErrors.each {
+                    errors << new ImportValidationError(
+                        code: 2,
+                        message: messageSource.getMessage(it, null),
+                        line: lineNr
+                    )
+                }
+            }
+        }
+        
+        return !errors
+    }
+    
+    
+    /**
+     * Imports provided data. This method should skip objects that fail validation
+     * but store the validation errors.
+     * @param   data            Matrix (List of lists) with the data that has been loaded from the excel/csv file
+     * @param   parameters      Refers to a map with parameter values for the parameters needed by the importer
+     * @return  True if all objects were imported succesfully,
+     *          false if the validation on any of the object has failed
+     */
+    public boolean importData(def data, def mapping, def parameters) {
+        resetValidationErrors()
+        
+        // Now loop through each line and try to import the object.
+        for( def lineNr = 1; lineNr < data.size(); lineNr++) {
+            def line = data[lineNr]
+            def object = createObject(line, mapping, parameters)
+            
+            if( object.validate() ) {
+                object.save()
+            } else {
+                object.errors.allErrors.each {
+                    errors << new ImportValidationError(
+                        code: 2,
+                        message: messageSource.getMessage(it, null),
+                        line: lineNr
+                    )
+                }
+            }
+        }
+        
+        // Return true if no errors were found, false otherwise
+        return !errors
     }
     
     /**
@@ -140,10 +191,19 @@ public abstract class TemplateEntityImporter<T extends TemplateEntity> extends A
     /**
      * Returns a list of domain fields for the current template entity
      */
-    public abstract List getDomainFields();
+    public List getDomainFields() {
+        getEntity().domainFields
+    }
     
     /**
      * Returns a new instance of the correct type
      */
-    public abstract T newInstance(def parameters);
+    public T newInstance(def parameters) {
+        getEntity().newInstance(parameters)
+    }
+    
+    /**
+     * Returns an entity object for this TemplateEntity (T)
+     */
+    public abstract Class getEntity();
 }

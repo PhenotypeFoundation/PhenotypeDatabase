@@ -12,7 +12,11 @@ public class ImporterFactory {
            // This list enumerates all available importers. This could be made more 
            // flexible by allowing plugins to define importers as well. However, for now
            // this works fine.
-           new SubjectsImporter()
+           new SubjectsImporter(),
+           new SamplesImporter(),
+           new EventsImporter(),
+           new SamplingEventsImporter(),
+           new AssaysImporter(),
        ].collectEntries { [ (it.identifier): it ] }
     }()
     

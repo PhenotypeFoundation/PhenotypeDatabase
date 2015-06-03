@@ -8,13 +8,13 @@ import grails.util.Holders
 /**
  * Defines the interface for an exporter
  */
-public class SubjectsImporter extends StudyTemplateEntityImporter<Subject> {
+public class SamplesImporter extends StudyTemplateEntityImporter<Sample> {
     
     /**
      * Returns an identifier that describes this importer
      */
     public String getIdentifier() {
-        "Subjects"
+        "Samples"
     }
     
     /**
@@ -22,7 +22,7 @@ public class SubjectsImporter extends StudyTemplateEntityImporter<Subject> {
      * Can be used to filter the available importers on a certain type
      */
     public boolean supportsType(String type) {
-        type in [ "clinicaldata", "subjects" ]
+        type in [ "clinicaldata", "samples" ]
     }
     
     /**
@@ -30,8 +30,8 @@ public class SubjectsImporter extends StudyTemplateEntityImporter<Subject> {
      */
     public Map getLinkToResults(def parameters) {
         [
-            url: [ controller: 'study', action: 'subjects', id: parameters.study],
-            label: "Subjects for study " + getStudy(parameters)?.title
+            url: [ controller: 'study', action: 'samples', id: parameters.study],
+            label: "Samples for study " + getStudy(parameters)?.title
         ]
     }
     
@@ -39,6 +39,6 @@ public class SubjectsImporter extends StudyTemplateEntityImporter<Subject> {
      * Returns an entity object for this TemplateEntity (T)
      */
     public Class getEntity() {
-        Subject
+        Sample
     }
 }
