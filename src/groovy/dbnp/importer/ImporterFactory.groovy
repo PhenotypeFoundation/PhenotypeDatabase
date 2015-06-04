@@ -1,6 +1,7 @@
 package dbnp.importer
 
 import dbnp.authentication.SecUser
+import dbnp.importer.impl.*
 
 /**
  * Defines the interface for an exporter

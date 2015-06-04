@@ -1,20 +1,21 @@
-package dbnp.importer
+package dbnp.importer.impl
 
+import dbnp.importer.*
 import dbnp.authentication.SecUser
 import dbnp.studycapturing.*
 import org.dbnp.gdt.*
 import grails.util.Holders
 
 /**
- * Importer to store sampling events
+ * Importer to store events
  */
-public class SamplingEventsImporter extends StudyTemplateEntityImporter<SamplingEvent> {
+public class EventsImporter extends StudyTemplateEntityImporter<Event> {
     
     /**
      * Returns an identifier that describes this importer
      */
     public String getIdentifier() {
-        "Sampling Events"
+        "Events"
     }
     
     /**
@@ -22,7 +23,7 @@ public class SamplingEventsImporter extends StudyTemplateEntityImporter<Sampling
      * Can be used to filter the available importers on a certain type
      */
     public boolean supportsType(String type) {
-        type in [ "clinicaldata", "samplingevents" ]
+        type in [ "clinicaldata", "events" ]
     }
     
     /**
@@ -39,6 +40,6 @@ public class SamplingEventsImporter extends StudyTemplateEntityImporter<Sampling
      * Returns an entity object for this TemplateEntity (T)
      */
     public Class getEntity() {
-        SamplingEvent
+        Event
     }
 }
