@@ -153,7 +153,15 @@ public abstract class TemplateEntityImporter<T extends TemplateEntity> extends A
             
             // Store the value itself
             // TODO: Format and/or parse the value
-            object.setFieldValue(fieldName, cell, true)
+            try {
+                object.setFieldValue(fieldName, cell, true)
+            } catch( Exception e ) {
+                errors << new ImportValidationError(
+                    code: 3,
+                    message: e.getMessage(),
+                    column: columnIndex
+                )
+            }
         }
         
         object

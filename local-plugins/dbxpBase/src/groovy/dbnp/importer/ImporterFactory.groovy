@@ -2,24 +2,26 @@ package dbnp.importer
 
 import dbnp.authentication.SecUser
 import dbnp.importer.impl.*
+import org.dbxp.sam.importer.*
 
 /**
  * Defines the interface for an exporter
  */
 public class ImporterFactory {
-    @Lazy
-    protected instances = {
-       [ 
-           // This list enumerates all available importers. This could be made more 
-           // flexible by allowing plugins to define importers as well. However, for now
-           // this works fine.
-           new SubjectsImporter(),
-           new SamplesImporter(),
-           new EventsImporter(),
-           new SamplingEventsImporter(),
-           new AssaysImporter(),
-       ].collectEntries { [ (it.identifier): it ] }
-    }()
+    protected static final ImporterFactory instance = new ImporterFactory()
+    
+    public static ImporterFactory getInstance() {
+        instance
+    }
+    
+    protected instances = [:]
+
+    /**
+     * Register a new importer with the factory
+     */
+    public void register(Importer importer) {
+        instances[importer.identifier] = importer
+    }
     
     /**
      * Returns a specific instance

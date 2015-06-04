@@ -2,7 +2,6 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta name="layout" content="main" />
 	<title>Import data</title>
 	
 	<r:require modules="gscfimporter" />
@@ -13,7 +12,7 @@
 			<span class="truncated-title">
 				Match data
 			</span>
-			<g:render template="steps" model="[active: 'matchData']" />
+			<g:render template="/importer/steps" model="[active: 'matchData']" />
 		</h1>
 		
 		<g:render template="/common/flashmessages" />
@@ -23,11 +22,11 @@
 			Below you can specify where and how to store the data you provided.
 		</span>
 		 
-		<g:form action="match" name="matchData">
+		<g:form action="match" name="matchData" params="${defaultParams}">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="key" value="${sessionKey}" />
 			
-			<div id="data-with-headers" data-url="${g.createLink(action: 'datapreview')}" data-match-url="${g.createLink(action: 'matchHeaders')}">
+			<div id="data-with-headers" data-url="${g.createLink(action: 'datapreview', params: defaultParams)}" data-match-url="${g.createLink(action: 'matchHeaders', params: defaultParams)}">
 			</div>
 			
 			<g:select 

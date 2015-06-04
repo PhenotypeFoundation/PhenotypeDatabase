@@ -2,7 +2,6 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta name="layout" content="main" />
 	<title>Import data</title>
 	
 	<r:require modules="gscfimporter" />
@@ -13,7 +12,7 @@
 			<span class="truncated-title">
 				Store data
 			</span>
-			<g:render template="steps" model="[active: 'store']" />
+			<g:render template="/importer/steps" model="[active: 'store']" />
 		</h1>
 		
 		<g:render template="/common/flashmessages" />

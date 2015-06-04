@@ -5,7 +5,6 @@ import grails.converters.JSON
 
 class ImporterController {
     static defaultAction = "chooseType"
-    static layout = "main"
 
     def authenticationService
     def fileService
@@ -16,11 +15,11 @@ class ImporterController {
      */
     def chooseType() {
         if( request.post && params.importer ) {
-            doRedirect action: "upload", params: [ "importer": params.importer ]
+            redirect action: "upload", params: [ "importer": params.importer ]
         }
         
-        def importerFactory = ImporterFactory.getInstance()
-        render( view: "/importer/chooseType", model: [ importers: importerFactory.allImporters*.getIdentifier() ])
+        def importerFactory = new ImporterFactory()
+        [ importers: importerFactory.allImporters*.getIdentifier() ]
     }
     
     /**
@@ -40,7 +39,7 @@ class ImporterController {
         def importer = getImporter( importInfo.importer )
         if( !importer ) {
             flash.error = "The importer you specified (" + importInfo.importer + ") cannot be found. Please select another importer from the list"
-            doRedirect action: "chooseType", params: defaultParams
+            redirect action: "chooseType"
         }
         
         // Handle form submission
@@ -49,18 +48,18 @@ class ImporterController {
             if( params.file && params.file != "existing*" ) {
                 def sessionKey = generateSessionKey()
                 storeInSession(sessionKey, parseUploadParams())
-                doRedirect action: 'match', params: defaultParams + [key: sessionKey]
+                redirect action: 'match', params: [key: sessionKey]
             }
         }
         
-        render( view: "/importer/upload", model: [ 
+        [ 
             importer: importer,
             savedParameters: [
                 file: importInfo.file,
                 upload: importInfo.upload,
                 parameter: importInfo.parameter
             ]
-        ])
+        ]
     }
     
     /**
@@ -75,7 +74,7 @@ class ImporterController {
         if( request.post && params.key ) {
             switch( params._action ) {
                 case 'previous':
-                    doRedirect action: "upload", params: [key: sessionKey]
+                    redirect action: "upload", params: [key: sessionKey]
                 case 'validate':
                 case 'import':
                     // Parse parameters and store in session
@@ -99,7 +98,7 @@ class ImporterController {
                         storeInSession(sessionKey, importInfo)
     
                         // Redirect to the validation page
-                        doRedirect action: ( params._action == "validate" ? "validation" : "finish" ), params: [key: sessionKey]
+                        redirect action: ( params._action == "validate" ? "validation" : "finish" ), params: [key: sessionKey]
                     } else {
                         flash.error = "Please provide a valid set of mapping parameters. That includes at least one column of data and no duplicates."
                     }
@@ -114,14 +113,14 @@ class ImporterController {
         // Determine the headers to match against
         def headerOptions = importer.getHeaderOptions(importInfo.parameter)
         
-        render( view: "/importer/match", model: [ 
+        [ 
             importer: importer, 
             importInfo: importInfo,
             matrix: importedMatrix, 
             headerOptions: headerOptions,
             sessionKey: sessionKey,
             savedMapping: importInfo.mapping?.collectEntries { [ (it.key): it.value?.field?.id ] }
-        ])
+        ]
     }
     
     /**
@@ -146,17 +145,17 @@ class ImporterController {
                     storeInSession(sessionKey, importInfo)
 
                     // Redirect to the last page
-                    doRedirect action: "finish", params: [key: sessionKey]
+                    redirect action: "finish", params: [key: sessionKey]
 
                     break;
             }
         }
         
         // Show validation errors
-        render( view: "/importer/validation", model: [
+        [
             sessionKey: sessionKey,
             validationErrors: importInfo.validationErrors
-        ])
+        ]
     }
     
     /**
@@ -173,7 +172,7 @@ class ImporterController {
         def numLinesImported = importInfo.numLines - 1 - groupedErrors.size() 
         
         // Show results of importing
-        render( view: "/importer/finish", model: [
+        [
             sessionKey: sessionKey,
             validationErrors: importInfo.validationErrors,
             groupedErrors: groupedErrors,
@@ -182,7 +181,7 @@ class ImporterController {
             resultLink: importer.getLinkToResults(importInfo.parameter),
             
             importInfo: importInfo
-        ])
+        ]
     }
     
     /**
@@ -396,27 +395,8 @@ class ImporterController {
      */
     protected getImporter(importerIdentifier) {
         def user = authenticationService.getLoggedInUser()
-        def importerFactory = ImporterFactory.getInstance()
+        def importerFactory = new ImporterFactory()
         return importerFactory.getImporter(importerIdentifier, user)
-    }
-    
-    /**
-     * Returns default parameters for each URL
-     */
-    protected Map getDefaultParams() {
-        [:]
-    }
-    
-    def afterInterceptor = { model ->
-        model.defaultParams = defaultParams
-    }
-
-    /**
-     * Redirects the user, also using the default parameters
-     */
-    protected void doRedirect(parameters) {
-        parameters.params = defaultParams + ( parameters.params ?: [:] )
-        redirect(parameters) 
     }
     
 }

@@ -1,7 +1,6 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta name="layout" content="main" />
 	<title>Import data</title>
 	
 	<r:require modules="gscfimporter" />
@@ -12,7 +11,7 @@
 			<span class="truncated-title">
 				Choose the type of import
 			</span>
-			<g:render template="steps" model="[active: 'chooseType']" />
+			<g:render template="/importer/steps" model="[active: 'chooseType']" />
 		</h1>
 		
 		<g:render template="/common/flashmessages" />
@@ -23,7 +22,7 @@
 			of data you want to import below.
 		</span>
 		 
-		<g:form action="chooseType" name="chooseImportType">
+		<g:form action="chooseType" name="chooseImportType" params="${defaultParams}">
 			<g:hiddenField name="_action" />
 			<div class="element">
 				<div class="description">Type of import</div>

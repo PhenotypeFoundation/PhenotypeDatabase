@@ -1,7 +1,6 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta name="layout" content="main" />
 	<title>Import data</title>
 	
 	<r:require modules="gscfimporter" />
@@ -12,7 +11,7 @@
 			<span class="truncated-title">
 				Upload file: ${importer.identifier}
 			</span>
-			<g:render template="steps" model="[active: 'uploadFile']" />
+			<g:render template="/importer/steps" model="[active: 'uploadFile']" />
 		</h1>
 		
 		<g:render template="/common/flashmessages" />
@@ -23,7 +22,7 @@
 			Please also specify the parameters for the import.
 		</span>
 		 
-		<g:form action="upload" name="uploadFile">
+		<g:form action="upload" name="uploadFile" params="${defaultParams}">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="importer" value="${importer.identifier}" />
 			<fieldset id="uploadParameters" class="importerParameters">
@@ -74,7 +73,7 @@
 
 			<fieldset id="exampleData" style="display: none;">
 				<legend>Data preview</legend>
-				<div id="datapreview" data-url="${g.createLink(action: 'datapreview')}">
+				<div id="datapreview" data-url="${g.createLink(action: 'datapreview', params: defaultParams)}">
 				</div>
 				<g:img class="spinner" dir="images" file="spinner.gif" />
 			</fieldset>
@@ -101,7 +100,7 @@
 			<br clear="all" />
 
 			<p class="options">
-				<g:link action="chooseType" class="previous">Previous</g:link>
+				<g:link action="chooseType" params="${defaultParams}" class="previous">Previous</g:link>
 				<a href="#" onClick="Importer.form.submit( 'uploadFile', 'next' ); return false;" class="next">Next</a>
 			</p>
 

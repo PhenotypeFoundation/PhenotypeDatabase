@@ -2,7 +2,6 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta name="layout" content="main" />
 	<title>Import data</title>
 	
 	<r:require modules="gscfimporter" />
@@ -13,12 +12,12 @@
 			<span class="truncated-title">
 				Validation results
 			</span>
-			<g:render template="steps" model="[active: 'validation']" />
+			<g:render template="/importer/steps" model="[active: 'validation']" />
 		</h1>
 		
 		<g:render template="/common/flashmessages" />
 		
-		<g:form action="validation" name="validation">
+		<g:form action="validation" name="validation" params="${defaultParams}">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="key" value="${sessionKey}" />
 
@@ -50,8 +49,8 @@
 			<br clear="all" />
 
 			<p class="options">
-				<g:link action="upload" params="${[key: sessionKey]}" class="restart">Back to upload</g:link>
-				<g:link action="match" params="${[key: sessionKey]}" class="previous">Back to mapping</g:link>
+				<g:link action="upload" params="${defaultParams + [key: sessionKey]}" class="restart">Back to upload</g:link>
+				<g:link action="match" params="${defaultParams + [key: sessionKey]}" class="previous">Back to mapping</g:link>
 				<a href="#" onClick="Importer.form.submit( 'validation', 'import' ); return false;" class="import">Import</a>
 			</p>
 		</g:form>
