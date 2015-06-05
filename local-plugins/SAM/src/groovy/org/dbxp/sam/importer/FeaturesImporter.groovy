@@ -6,7 +6,7 @@ import org.dbxp.sam.*
 /**
  * Defines the interface for an exporter
  */
-public class FeaturesImporter extends TemplateEntityImporter<Platform> {
+public class FeaturesImporter extends TemplateEntityImporter<Feature> {
     
     /**
      * Returns an identifier that describes this importer
@@ -28,7 +28,7 @@ public class FeaturesImporter extends TemplateEntityImporter<Platform> {
      */
     public Map getLinkToResults(def parameters) {
         [
-            url: [ controller: 'feature', action: 'list', module: parameters.module],
+            url: [ controller: 'feature', action: 'list', params: [module: parameters.module]],
             label: "Features"
         ]
     }
@@ -40,14 +40,40 @@ public class FeaturesImporter extends TemplateEntityImporter<Platform> {
         Feature
     }
     
+    
+    /**
+     * Creates an object, based on the specified parameters
+     * @param   data            List with the data from one line in the file, used to create this specific object
+     * @param   mapping         Mapping from field number to object property name. The key in this map is the column number,
+     *                                  the value is a map that contains 2 entries:
+     *                                          ignore (boolean)        Whether this column should be ignored
+     *                                          field (map)             Map describing the field selected. The format
+     *                                                                  is the same as the output from getHeaderOptions
+     * @param   parameters      Refers to a map with parameter values for the parameters needed by the importer
+     * @return  True if all objects were imported succesfully,
+     *          false if the validation on any of the object has failed
+     * @see     getHeaderOptions()
+     */
+    public Feature createObject(def data, def mapping, def parameters) {
+        // Create an initial object
+        def object = super.createObject(data, mapping, parameters)
+        
+        // Store the platform
+        object.platform = Platform.get(parameters.platform.toLong())
+        
+        object
+    }
+    
     /**
      * Returns a map of parameters that should be set for this importer
      * As features belong to platforms, the user should select a platform as well
      */
     public List<ImporterParameter> getParameters(def settings = [:]) {
+
         super.getParameters(settings) +
         [
             new ImporterParameter(name: 'platform', label: 'Platform', type: 'select', values: Platform.findAllByPlatformtype(settings.module) ),
+            new ImporterParameter(name: 'module', label: 'Module', type: 'hidden' ),
         ]
     }
 

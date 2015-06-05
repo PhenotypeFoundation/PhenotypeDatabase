@@ -112,6 +112,8 @@ class BootStrap {
                 factory.register(new AssaysImporter() )
                 
                 factory.register(new org.dbxp.sam.importer.PlatformsImporter() )
+                factory.register(new org.dbxp.sam.importer.FeaturesImporter() )
+                factory.register(new org.dbxp.sam.importer.MeasurementsImporter() )
 	}
 
 	def destroy = {

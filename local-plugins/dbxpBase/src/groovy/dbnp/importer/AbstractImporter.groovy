@@ -33,4 +33,14 @@ public abstract class AbstractImporter implements Importer {
     public void resetValidationErrors() {
         errors = []
     }
+    
+    /**
+     * Returns a list of header options to match the headers against.
+     * Each item should have an id and a name. A description can be specified with extra information
+     *
+     * @param parameters        Map with settings for the parameters specified in the getParameters method
+     * @return
+     * @see getParameters()
+     */
+    public abstract List getHeaderOptions(def parameters);
 }

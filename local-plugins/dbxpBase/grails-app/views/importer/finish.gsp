@@ -40,7 +40,7 @@
 		
 		<p>
 			You can review your data at the following page: <g:link url="${resultLink.url}">${resultLink.label}</g:link> or 
-			<g:link controller="importer" action="upload" params="[importer:importInfo.importer]">restart the importer</g:link>.  
+			<g:link action="upload" params="${defaultParams + [importer:importInfo.importer]}">restart the importer</g:link>.  
 		</p>
 					 
 

@@ -81,7 +81,7 @@
 			<g:if test="${importerParameters}">
 				<fieldset id="importerParameters" class="importerParameters">
 					<legend>Parameters</legend>
-					<g:each in="${importer.parameters}" var="parameter">
+					<g:each in="${importerParameters}" var="parameter">
 						<g:if test="${parameter.type == 'hidden'}">
 							<g:hiddenField name="parameter.${parameter.name}" value="${savedParameters?.parameter?.get(parameter.name)}"/>
 						</g:if>

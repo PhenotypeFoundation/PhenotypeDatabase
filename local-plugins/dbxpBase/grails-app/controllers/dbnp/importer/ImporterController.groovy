@@ -412,14 +412,14 @@ class ImporterController {
     /**
      * Returns an importer instance, based on the parameter specified in the request
      */
-    protected Importer getImporterFromRequest() {
+    protected AbstractImporter getImporterFromRequest() {
         getImporter(params.importer)
     }
     
     /**
      * Retrieves an importer, based on the identifier given
      */
-    protected getImporter(importerIdentifier) {
+    protected AbstractImporter getImporter(importerIdentifier) {
         def user = authenticationService.getLoggedInUser()
         def importerFactory = ImporterFactory.getInstance()
         return importerFactory.getImporter(importerIdentifier, user)
