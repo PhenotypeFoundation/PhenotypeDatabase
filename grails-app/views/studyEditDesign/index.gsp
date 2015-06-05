@@ -7,7 +7,7 @@
 	<r:require modules="studyEdit" />
 </head>
 <body>
-	<div class="studyEdit studyProperties">
+	<div class="basicTabLayout studyEdit studyProperties">
 	
 		<h1>
 			<span class="truncated-title">
