@@ -23,7 +23,7 @@ public class SamplesImporter extends StudyTemplateEntityImporter<Sample> {
      * Can be used to filter the available importers on a certain type
      */
     public boolean supportsType(String type) {
-        type in [ "clinicaldata", "samples" ]
+        type in [ "study", "clinicaldata", "samples" ]
     }
     
     /**

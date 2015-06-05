@@ -4,6 +4,7 @@ import org.dbxp.matriximporter.MatrixImporter
 import grails.converters.JSON
 
 class ImporterController {
+    static layout = "main"
     static defaultAction = "chooseType"
 
     def authenticationService
@@ -15,11 +16,11 @@ class ImporterController {
      */
     def chooseType() {
         if( request.post && params.importer ) {
-            redirect action: "upload", params: [ "importer": params.importer ]
+            doRedirect action: "upload", params: [ "importer": params.importer ]
+            return
         }
         
-        def importerFactory = new ImporterFactory()
-        [ importers: importerFactory.allImporters*.getIdentifier() ]
+        render( view: "/importer/chooseType", model: [ importers: getListOfImporters()*.identifier ])
     }
     
     /**
@@ -32,14 +33,32 @@ class ImporterController {
         if( params.key ) {
             importInfo = getFromSession(params.key)
         } else {
-            importInfo = [ importer: params.importer ]
+            importInfo = parseUploadParams()
         }
         
         // See if an importer has been set
         def importer = getImporter( importInfo.importer )
         if( !importer ) {
             flash.error = "The importer you specified (" + importInfo.importer + ") cannot be found. Please select another importer from the list"
-            redirect action: "chooseType"
+            doRedirect action: "chooseType", params: defaultParams
+            return
+        }
+        
+        // If any of the parameters has been set initially, store them
+        // in the parameter value list. This enables calling the importer
+        // with preset values (e.g. study id)
+        def importerParameters = importer.getParameters(importInfo.initial)
+        importerParameters.each { ImporterParameter parameter ->
+            // Only store the initial value if the value has not been set by the user
+            if( !importInfo.parameter || !importInfo.parameter[parameter.name] ) {
+                // Only store the parameter if an initial value has been specified
+                if( importInfo.initial && importInfo.initial[parameter.name] ) {
+                    if( !importInfo.parameter ) {
+                        importInfo.parameter = [:]
+                    }
+                    importInfo.parameter[parameter.name] = importInfo.initial[parameter.name]
+                }
+            }
         }
         
         // Handle form submission
@@ -48,18 +67,23 @@ class ImporterController {
             if( params.file && params.file != "existing*" ) {
                 def sessionKey = generateSessionKey()
                 storeInSession(sessionKey, parseUploadParams())
-                redirect action: 'match', params: [key: sessionKey]
+                doRedirect action: 'match', params: defaultParams + [key: sessionKey]
+                return
+            } else {
+                flash.error = "Please upload a valid file"
             }
         }
         
-        [ 
+        render( view: "/importer/upload", model: [ 
             importer: importer,
             savedParameters: [
                 file: importInfo.file,
                 upload: importInfo.upload,
-                parameter: importInfo.parameter
-            ]
-        ]
+                parameter: importInfo.parameter,
+                inital: importInfo.initial
+            ],
+            importerParameters: importerParameters
+        ])
     }
     
     /**
@@ -74,7 +98,8 @@ class ImporterController {
         if( request.post && params.key ) {
             switch( params._action ) {
                 case 'previous':
-                    redirect action: "upload", params: [key: sessionKey]
+                    doRedirect action: "upload", params: [key: sessionKey]
+                    break
                 case 'validate':
                 case 'import':
                     // Parse parameters and store in session
@@ -98,7 +123,7 @@ class ImporterController {
                         storeInSession(sessionKey, importInfo)
     
                         // Redirect to the validation page
-                        redirect action: ( params._action == "validate" ? "validation" : "finish" ), params: [key: sessionKey]
+                        doRedirect action: ( params._action == "validate" ? "validation" : "finish" ), params: [key: sessionKey]
                     } else {
                         flash.error = "Please provide a valid set of mapping parameters. That includes at least one column of data and no duplicates."
                     }
@@ -113,14 +138,14 @@ class ImporterController {
         // Determine the headers to match against
         def headerOptions = importer.getHeaderOptions(importInfo.parameter)
         
-        [ 
+        render( view: "/importer/match", model: [ 
             importer: importer, 
             importInfo: importInfo,
             matrix: importedMatrix, 
             headerOptions: headerOptions,
             sessionKey: sessionKey,
             savedMapping: importInfo.mapping?.collectEntries { [ (it.key): it.value?.field?.id ] }
-        ]
+        ])
     }
     
     /**
@@ -145,17 +170,17 @@ class ImporterController {
                     storeInSession(sessionKey, importInfo)
 
                     // Redirect to the last page
-                    redirect action: "finish", params: [key: sessionKey]
+                    doRedirect action: "finish", params: [key: sessionKey]
 
                     break;
             }
         }
         
         // Show validation errors
-        [
+        render( view: "/importer/validation", model: [
             sessionKey: sessionKey,
             validationErrors: importInfo.validationErrors
-        ]
+        ])
     }
     
     /**
@@ -172,7 +197,7 @@ class ImporterController {
         def numLinesImported = importInfo.numLines - 1 - groupedErrors.size() 
         
         // Show results of importing
-        [
+        render( view: "/importer/finish", model: [
             sessionKey: sessionKey,
             validationErrors: importInfo.validationErrors,
             groupedErrors: groupedErrors,
@@ -181,7 +206,7 @@ class ImporterController {
             resultLink: importer.getLinkToResults(importInfo.parameter),
             
             importInfo: importInfo
-        ]
+        ])
     }
     
     /**
@@ -253,7 +278,7 @@ class ImporterController {
     protected def parseUploadParams() {
         // The file could be prefixed with 'existing*' due to the way
         // the ajaxupload widget works
-        def filename = params.file.replace( "existing*", "" )
+        def filename = params.file?.replace( "existing*", "" )
         
         [
             file: filename,
@@ -261,11 +286,12 @@ class ImporterController {
 
             upload: [
                 sheetIndex: params.int( 'upload.sheetIndex' ),
-                dateFormat: params.upload.dateFormat,
+                dateFormat: params.upload?.dateFormat,
                 headerRow: params.int( 'upload.headerRow' ),
-                separator: params.upload.separator
+                separator: params.upload?.separator
             ],
-            parameter: params.parameter
+            parameter: params.parameter,
+            initial: params.initial
         ]
     }
     
@@ -395,8 +421,37 @@ class ImporterController {
      */
     protected getImporter(importerIdentifier) {
         def user = authenticationService.getLoggedInUser()
-        def importerFactory = new ImporterFactory()
+        def importerFactory = ImporterFactory.getInstance()
         return importerFactory.getImporter(importerIdentifier, user)
     }
     
+    /**
+     * Returns a list of importers to be shown in the chooseType step
+     */
+    protected def getListOfImporters() {
+        def importerFactory = ImporterFactory.getInstance()
+        importerFactory.allImporters
+    }
+    
+    /**
+     * Returns default parameters for each URL
+     */
+    protected Map getDefaultParams() {
+        [:]
+    }
+
+    /**
+     * Redirects the user, also using the default parameters
+     */
+    protected void doRedirect(parameters) {
+        parameters.params = defaultParams + ( parameters.params ?: [:] )
+        redirect(parameters) 
+    }
+
+    /**
+     * Method to put the default parameters into the view
+     */
+    def afterInterceptor = { model ->
+        model.defaultParams = defaultParams
+    }
 }

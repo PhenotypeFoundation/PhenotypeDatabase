@@ -25,7 +25,13 @@ public interface Importer {
      * Returns a map of parameters that should be set for this importer
      */
     public List<ImporterParameter> getParameters()
-    
+
+    /**
+     * Returns a map of parameters that should be set for this importer
+     * The parameters could be based on the initial settings
+     */
+    public List<ImporterParameter> getParameters(def settings)
+
     /**
      * Returns a list of validation errors, after validateData or importData has been called
      */

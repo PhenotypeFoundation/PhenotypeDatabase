@@ -78,21 +78,29 @@
 				<g:img class="spinner" dir="images" file="spinner.gif" />
 			</fieldset>
 			
-			<g:if test="${importer.getParameters()}">
+			<g:if test="${importerParameters}">
 				<fieldset id="importerParameters" class="importerParameters">
 					<legend>Parameters</legend>
 					<g:each in="${importer.parameters}" var="parameter">
-						<div class="element">
-							<div class="description">${parameter.label}</div>
-							<div class="input">
-								<g:if test="${parameter.type == 'select'}">
-									<g:select name="parameter.${parameter.name}" from="${parameter.values}" optionKey="id" value="${savedParameters?.parameter?.get(parameter.name)}"/>
-								</g:if>
-								<g:else>
-									<input type="text" name="parameter.${parameter.name}" value="${savedParameters?.parameter?.get(parameter.name)}" />
-								</g:else>
+						<g:if test="${parameter.type == 'hidden'}">
+							<g:hiddenField name="parameter.${parameter.name}" value="${savedParameters?.parameter?.get(parameter.name)}"/>
+						</g:if>
+						<g:else>
+							<div class="element">
+								<div class="description">${parameter.label}</div>
+								<div class="input">
+									<g:if test="${parameter.type == 'select'}">
+										<g:select name="parameter.${parameter.name}" from="${parameter.values}" optionKey="id" value="${savedParameters?.parameter?.get(parameter.name)}"/>
+									</g:if>
+									<g:elseif test="${parameter.type == 'checkbox'}">
+										<g:checkbox name="parameter.${parameter.name}" checked="${savedParameters?.parameter?.get(parameter.name)}"/>
+									</g:elseif>
+									<g:else>
+										<input type="text" name="parameter.${parameter.name}" value="${savedParameters?.parameter?.get(parameter.name)}" />
+									</g:else>
+								</div>
 							</div>
-						</div>				
+						</g:else>				
 					</g:each>
 				</fieldset>			
 			</g:if>		

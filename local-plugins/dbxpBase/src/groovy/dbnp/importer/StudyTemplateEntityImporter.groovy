@@ -14,8 +14,8 @@ public abstract class StudyTemplateEntityImporter<T extends TemplateEntity> exte
     /**
      * Returns a map of parameters that should be set for this importer
      */
-    public List<ImporterParameter> getParameters() {
-        super.getParameters() + 
+    public List<ImporterParameter> getParameters(def settings = [:]) {
+        super.getParameters(settings) + 
         [
             new ImporterParameter(name: 'study', label: 'Study', type: 'select', values: Study.giveWritableStudies(user)),
         ]

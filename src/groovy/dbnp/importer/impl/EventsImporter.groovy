@@ -23,7 +23,7 @@ public class EventsImporter extends StudyTemplateEntityImporter<Event> {
      * Can be used to filter the available importers on a certain type
      */
     public boolean supportsType(String type) {
-        type in [ "clinicaldata", "events" ]
+        type in [ "study", "clinicaldata", "events" ]
     }
     
     /**

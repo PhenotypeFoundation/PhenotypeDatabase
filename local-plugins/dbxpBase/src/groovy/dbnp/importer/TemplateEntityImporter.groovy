@@ -15,7 +15,7 @@ public abstract class TemplateEntityImporter<T extends TemplateEntity> extends A
     /**
      * Returns a map of parameters that should be set for this importer
      */
-    public List<ImporterParameter> getParameters() {
+    public List<ImporterParameter> getParameters(def settings = [:]) {
         [
             new ImporterParameter(name: 'template', label: 'Template', type: 'select', values: Template.findAllByEntity(getEntity()))
         ]
