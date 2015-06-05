@@ -68,7 +68,7 @@
 	            <a class="separator add" href="#" data-url="${g.createLink( controller: "studyEdit", action: "addSubjects", params: [ parentId: study.id ] )}" onClick="StudyEdit.subjects.add(); return false;">
 	                Add
 	            </a>				
-	            <g:link class="import" controller="gdtImporter" action="index" params="[id: study?.id, template: 'subject']">
+	            <g:link class="import" controller="importer" action="upload" params="['initial.study': study?.id, importer: 'Subjects']">
 	                Import
 	            </g:link>				
 	            

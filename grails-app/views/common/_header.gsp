@@ -52,7 +52,7 @@
                         <a href="#" title="">Import <img class="subicon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></a>
                         <div class="subnav">
                             <ul>
-                                <li><g:link controller="gdtImporter" action="index">A part of the study design</g:link></li>
+                                <li><g:link controller="studyImporter" action="chooseType">A part of the study design</g:link></li>
                             </ul>
                         </div>
                     </li>

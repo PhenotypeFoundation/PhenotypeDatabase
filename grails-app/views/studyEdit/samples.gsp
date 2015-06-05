@@ -67,7 +67,7 @@
 				
 				<g:link controller="studyEdit" action="regenerateSampleNames" id="${study.id}" class="performAction separator">Regenerate sample names</g:link>
 				
-	            <g:link class="import" controller="gdtImporter" action="index" params="[id: study?.id, template: 'sample']">
+	            <g:link class="import" controller="importer" action="upload" params="['initial.study': study?.id, importer: 'Samples']">
 	                Import
 	            </g:link>				
 	            
