@@ -95,22 +95,22 @@
 											<g:if test="${cellMeasurements[0].operator}">${cellMeasurements[0].operator}</g:if>
                                             <g:if test="${isNumeric}">
                                                 <g:if test="${comments}">
-                                                    <!-- numeric value and comments -->
+                                                    <%-- numeric value and comments --%>
                                                     <span class="tooltip"> ${cellMeasurements[0].value} [${cellMeasurements[0].feature.unit}]<span>${comments}</span></span>
                                                 </g:if>
                                                 <g:else>
                                                     <g:if test="${cellMeasurements[0].value==cellMeasurements[0].value.round(3)}">
-                                                        <!-- short numeric value without comments -->
+                                                        <%-- short numeric value without comments --%>
                                                         <span> ${cellMeasurements[0].value} [${cellMeasurements[0].feature.unit}]</span>
                                                     </g:if>
                                                     <g:else>
-                                                        <!-- long numeric value without comments; render short version and put entire number in tooltip -->
+                                                        <%-- long numeric value without comments; render short version and put entire number in tooltip --%>
                                                         <span class="tooltip"> ${cellMeasurements[0].value.round(3).toString()} [${cellMeasurements[0].feature.unit}]<span>${cellMeasurements[0].value}</span></span>
                                                     </g:else>
                                                 </g:else>
                                             </g:if>
                                             <g:else>
-                                                <!-- measurement is not numeric, so use text value from comments -->
+                                                <%-- measurement is not numeric, so use text value from comments --%>
                                                 <span>${comments}</span>
 											</g:else>
 										</td>
