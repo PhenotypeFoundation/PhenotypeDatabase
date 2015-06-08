@@ -7,7 +7,7 @@
 	<r:require modules="studyEdit,gscf-datatables" />
 </head>
 <body>	
-	<div class="studyEdit studySubjects">
+	<div class="basicTabLayout studyEdit studySubjects">
 		<h1>
 			<span class="truncated-title">
 				Edit study [${study.code?.encodeAsHTML()}]
@@ -15,30 +15,15 @@
 			<g:render template="steps" model="[study: study, active: 'subjects']"  />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">Define or import your subjects</span> 
 			List all subjects and enter information about them. You can also import your subjects from an excel sheet.
 		</span>
 		
-		<g:if test="${flash.validationErrors}">
-			<div class="errormessage">
-				<g:each var="error" in="${flash.validationErrors}">
-					${error.value}<br />
-				</g:each>
-			</div>
-		</g:if>  
-		 
+		<g:render template="/common/flash_validation_messages" />
+		
 		<g:form action="subjects" name="subjects">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="id" value="${study.id}" />
@@ -83,7 +68,7 @@
 	            <a class="separator add" href="#" data-url="${g.createLink( controller: "studyEdit", action: "addSubjects", params: [ parentId: study.id ] )}" onClick="StudyEdit.subjects.add(); return false;">
 	                Add
 	            </a>				
-	            <g:link class="import" controller="gdtImporter" action="index" params="[id: study?.id, template: 'subject']">
+	            <g:link class="import" controller="importer" action="upload" params="['initial.study': study?.id, importer: 'Subjects']">
 	                Import
 	            </g:link>				
 	            

@@ -15,12 +15,12 @@
 <h1>Configuration file</h1>
 
 <g:if test="${configInfo.pathSummary && configInfo.fileSummary}">
-	<span class="info">
+	<span class="message info">
 		<span class="okay">The configuration file and path are okay!</span>
 		Click next to continue...
 	</span>
 </g:if><g:else>
-	<span class="info">
+	<span class="message info">
 		<span class="warning">
 			You need to fix the configuration
 			<g:if test="${!configInfo.pathSummary && !configInfo.fileSummary}">path and file</g:if>

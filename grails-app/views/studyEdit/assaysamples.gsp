@@ -7,7 +7,7 @@
 	<r:require modules="studyEdit,gscf-datatables" />
 </head>
 <body>
-	<div class="studyEdit studySamples">
+	<div class="basicTabLayout studyEdit studySamples">
 		<h1>
 			<span class="truncated-title">
 				Edit study [${study.code?.encodeAsHTML()}]
@@ -15,29 +15,14 @@
 			<g:render template="steps" model="[study: study, active: 'assaysamples']"  />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">Associate samples to assays</span> 
 			Review the list of samples and specify the assays they have been analysed in.
 		</span>
 		
-		<g:if test="${flash.validationErrors}">
-			<div class="errormessage">
-				<g:each var="error" in="${flash.validationErrors}">
-					${error.value}<br />
-				</g:each>
-			</div>
-		</g:if>  
+		<g:render template="/common/flash_validation_messages" />
 		 
 		<g:form action="assaysamples" id="${study.id}" name="assaysamples">
 			<g:hiddenField name="_action" />

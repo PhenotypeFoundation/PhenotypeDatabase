@@ -7,7 +7,7 @@
     <r:require modules="studyEdit,gscf-datatables" />
 </head>
 <body>
-<div class="studyEdit studyAssays">
+<div class="basicTabLayout studyEdit studyAssays">
     <h1>
         <span class="truncated-title">
             Edit study [${study.code?.encodeAsHTML()}]
@@ -15,26 +15,10 @@
         <g:render template="steps" model="[study: study, active: 'finished']"  />
     </h1>
 
-    <g:if test="${flash.error}">
-        <div class="errormessage">
-            ${flash.error.toString().encodeAsHTML()}
-        </div>
-    </g:if>
-    <g:if test="${flash.message}">
-        <div class="message">
-            ${flash.message.toString().encodeAsHTML()}
-        </div>
-    </g:if>
-
-    <g:if test="${flash.validationErrors}">
-        <div class="errormessage">
-            <g:each var="error" in="${flash.validationErrors}">
-                ${error.value}<br />
-            </g:each>
-        </div>
-    </g:if>
-
-    <span class="info">
+	<g:render template="/common/flashmessages" />
+	<g:render template="/common/flash_validation_messages" />
+	
+    <span class="message info">
         <span class="title">Finished</span>
         You are done creating your study. Below you will find a summary of the study you have just defined.
         Click <g:link controller="study" action="list">here</g:link> to back to the studies overview page.

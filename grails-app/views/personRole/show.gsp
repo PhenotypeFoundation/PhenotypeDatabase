@@ -11,9 +11,7 @@
     
         <div class="body">
             <h1><g:message code="default.show.label" args="['Role']" /></h1>
-            <g:if test="${flash.message}">
-            <div class="message">${flash.message}</div>
-            </g:if>
+  			<g:render template="/common/flashmessages" />
             <div class="dialog">
                 <table>
                     <tbody>

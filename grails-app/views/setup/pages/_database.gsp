@@ -78,7 +78,7 @@
 	</af:selectElement>
 
 	<g:if test="${connection==false}">
-	<span class="info">
+	<span class="message info">
 		<span class="error">Could not connect to database</span>
 		Please make sure the database settings are correct
 		<g:if test="${configInfo?.properties.getProperty('dataSource.driverClassName') == 'org.postgresql.Driver'}">

@@ -52,7 +52,7 @@
  <body>
 
 	<g:if test="${errors}">
- 		<span class="info">
+ 		<span class="message info">
 			<span class="error">Oops!</span>
 			<g:each in="${errors}" var="error">
 				${error}<br/>
@@ -60,13 +60,13 @@
 		</span>
 	</g:if>
  	<g:elseif test="${message}">
-  		<span class="info">
+  		<span class="message info">
 			<span class="known">Success</span>
 			${message}
  		</span>
  	</g:elseif>
  	<g:else>
-		<span class="info">
+		<span class="message info">
 			<span class="title">Add a term</span>
 			Use the search box below to find the term you would like to add.
 		</span>

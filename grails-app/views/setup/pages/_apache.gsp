@@ -14,7 +14,7 @@
 <af:page>
 	<h1>Apache Configuration</h1>
 
-	<span class="info">
+	<span class="message info">
 		<span class="title">Apache Virtual Host Configuration</span>
 		If you would like to use the Apache webserver as an entry point for this application because
 		<li>you want the user to user ${configInfo?.properties.getProperty('grails.serverURL')} instead of http://</li>

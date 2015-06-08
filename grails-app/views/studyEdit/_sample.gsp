@@ -1,14 +1,5 @@
-	<div class="studyEdit subject">
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+	<div class="basicTabLayout studyEdit subject">
+		<g:render template="/common/flashmessages" />
 		
 		<p>
 			Please note that all required fields have to be filled, before the samples can be added. You can enter specific information
@@ -16,7 +7,7 @@
 		</p>
 
 		<g:hasErrors bean="${entity}">
-			<div class="info">
+			<div class="message errormessage">
 				<g:renderErrors bean="${entity}" />
 			</div>
 		</g:hasErrors>  

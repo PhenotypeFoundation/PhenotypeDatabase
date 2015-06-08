@@ -14,7 +14,7 @@
 <af:page>
 	<h1>Configuration path</h1>
 
-	<span class="info">
+	<span class="message info">
 		<span class="error">Errors encountered</span>
 		Unfortunately we could not create the the Configuration path. Please do so manually by issuing the following commands:
 	</span>

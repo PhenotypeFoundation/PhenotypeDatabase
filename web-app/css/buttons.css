@@ -77,6 +77,9 @@
 	background-image: url(../plugins/famfamfam-1.0.1/images/icons/delete.png);
 }
 
+.options a.validate {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/accept.png);
+}
 .options a.import {
 	background-image: url(../plugins/famfamfam-1.0.1/images/icons/database_add.png);
 }
