@@ -44,7 +44,7 @@ class TnoMigrateController {
 
             //Get subjects for event_group
             sql.rows("SELECT subject_id FROM event_group_subject WHERE event_group_subjects_id = ${oldEventGroup.id}").collect() { it.subject_id }.each() { subjectId ->
-                def subject = Subject.read( subjectId)
+                def subject = Subject.findById( subjectId )
                 subjectGroup.addToSubjects( subject )
             }
 
@@ -59,7 +59,18 @@ class TnoMigrateController {
                 oldEventIdList << oldEvent.id
 
                 def eventName = sql.rows("SELECT template_string_fields_elt FROM event_template_string_fields WHERE event_id = ${oldEvent.id} AND template_string_fields_idx ='Event name (STRING)'").template_string_fields_elt[0]
-//                def migration = sql.rows("SELECT template_string_fields_elt FROM event_template_string_fields WHERE event_id = ${oldEvent.id} AND template_string_fields_idx ='Migration'").template_string_fields_elt[0]
+                def migration = sql.rows("SELECT template_string_fields_elt FROM event_template_string_fields WHERE event_id = ${oldEvent.id} AND template_string_fields_idx ='Migration'").template_string_fields_elt[0]
+
+                if (migration.split(';').size() != 1) {
+                    flash.error = "Events should have one item in migration column, not multiple"
+                    redirect controller: 'studyEditDesign', action: 'index', params: [ id: study.id ]
+                    return
+                }
+
+                if (!eventName.equalsIgnoreCase(migration)) {
+                    println "EventName field (${eventName}) not matching migration field (${migration}). Using ${migration}"
+                    eventName = migration.trim()
+                }
 
                 EventGroup eventGroup = allEventGroups.find() { it.name.equalsIgnoreCase(eventName) }
                 if (!eventGroup) {
@@ -105,12 +116,16 @@ class TnoMigrateController {
                 def relativeTimeField = oldSamplingEventDetails.template_rel_time_fields_elt[0]
 
                 migration.split(';').each() { eventName ->
+
+                    eventName = eventName.trim()
+
                     def eventGroups = allEventGroups.findAll() { it.name.equalsIgnoreCase(eventName) }
 
                     if (eventGroups.size() == 1) {
                         def eventGroup = eventGroups[0]
 
-                        def correspondingSubjectEventGroups = eventGroup.subjectEventGroups.findAll() { it.subjectGroup.id == subjectGroup.id && it.startTime <= (oldSamplingEvent.start_time - relativeTimeField) && it.endTime >= ((oldSamplingEvent.start_time - relativeTimeField) + oldSamplingEvent.duration) }
+//                        def correspondingSubjectEventGroups = eventGroup.subjectEventGroups.findAll() { it.subjectGroup.id == subjectGroup.id && it.startTime <= (oldSamplingEvent.start_time - relativeTimeField) && it.endTime >= ((oldSamplingEvent.start_time - relativeTimeField) + oldSamplingEvent.duration) }
+                        def correspondingSubjectEventGroups = SubjectEventGroup.findAllByParentAndSubjectGroupAndEventGroupAndStartTimeLessThanEquals(study, subjectGroup, eventGroup, (oldSamplingEvent.start_time - relativeTimeField)).findAll() { it.endTime >= ((oldSamplingEvent.start_time - relativeTimeField) + oldSamplingEvent.duration) }
                         if (correspondingSubjectEventGroups.size() == 1) {
 
                             def correspondingSubjectEventGroup = correspondingSubjectEventGroups[0]
