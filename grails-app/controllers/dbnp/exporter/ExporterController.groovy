@@ -104,7 +104,7 @@ class ExporterController {
         }
 
         // Filter on readable studies
-        assays = assays.findAll { it && it.parent.canRead(user) }
+        assays = assays.findAll { it && it.canReadAssay(user) }
         
         if( assays.size() == 0 ) {
             flash.message = "Please select one or more assays that you have access to";

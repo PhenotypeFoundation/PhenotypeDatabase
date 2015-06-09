@@ -23,7 +23,7 @@ class SecUserGroup implements Serializable {
 	}
 
         /**
-	 * return the text representation of this user
+	 * return the text representation of this userGroup
 	 * @return
 	 */
 	def String toString() {

@@ -77,9 +77,9 @@ class SAMAssayController {
 	   if( session.gscfUser ) {
 		   if( !session.gscfUser.hasAdminRights() ) {
 			   // Make sure only visible studies are shown
-               // 			   whereHQL += " ( a.parent.publicstudy = true OR a.parent.owner = :user OR :user IN a.parent.readers OR :user IN a.parent.writers )" renders a very interesting query, possible Hibernate bug
-			   //same here: whereHQL += " ( a.parent.publicstudy = true OR a.parent.owner = :user OR EXISTS( FROM Study x WHERE x.id = a.parent.id AND :user IN x.readers OR :user IN x.writers) )"
-               whereHQL += " ( a.parent.publicstudy = true OR a.parent.owner = :user OR :user in elements(a.parent.readers) OR :user in elements(a.parent.writers))"
+               // 			   whereHQL += " ( a.publicassay = true OR a.parent.owner = :user OR :user IN a.parent.readers OR :user IN a.parent.writers )" renders a very interesting query, possible Hibernate bug
+			   //same here: whereHQL += " ( a.publicassay = true OR a.parent.owner = :user OR EXISTS( FROM Study x WHERE x.id = a.parent.id AND :user IN x.readers OR :user IN x.writers) )"
+               whereHQL += " ( a.publicassay = true OR a.parent.owner = :user OR :user in elements(a.parent.readers) OR :user in elements(a.parent.writers))"
 		   	   hqlParams[ "user" ] = session.gscfUser
 		   } else {
 		   		// Administrators are allowed to see all assays, but we have to add some HQL here,
@@ -87,7 +87,7 @@ class SAMAssayController {
 		   		whereHQL += " 1 = 1 "
 		   }
 	   } else {
-	   		whereHQL += " a.parent.publicstudy = true ";
+	   		whereHQL += " a.publicassay = true ";
 	   }
 
 	   // Search properties
