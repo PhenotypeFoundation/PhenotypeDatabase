@@ -12,6 +12,8 @@ class TnoMigrateController {
 
         def study = Study.read( params.id )
 
+        println "Start migration for ${study.title} (${study.code})"
+
         def sql = new groovy.sql.Sql(dataSource)
 
         def allEventGroups = []
@@ -37,6 +39,8 @@ class TnoMigrateController {
         def oldEventGroups = sql.rows("SELECT id, name FROM event_group WHERE parent_id = ${study.id}")
 
         oldEventGroups.each() { oldEventGroup ->
+            def subjectGroupEventGroups = []
+
             oldEventGroupIdList << oldEventGroup.id
 
             def subjectGroup = new SubjectGroup( name: oldEventGroup.name, parent: study )
@@ -70,6 +74,10 @@ class TnoMigrateController {
                 if (!eventName.equalsIgnoreCase(migration)) {
                     println "EventName field (${eventName}) not matching migration field (${migration}). Using ${migration}"
                     eventName = migration.trim()
+                }
+
+                if ( subjectGroupEventGroups.contains(eventName )) {
+                    subjectGroupEventGroups << eventName
                 }
 
                 EventGroup eventGroup = allEventGroups.find() { it.name.equalsIgnoreCase(eventName) }
@@ -121,7 +129,7 @@ class TnoMigrateController {
 
                     def eventGroups = allEventGroups.findAll() { it.name.equalsIgnoreCase(eventName) }
 
-                    if (eventGroups.size() == 1) {
+                    if (!subjectGroupEventGroups.contains(eventName) && eventGroups.size() == 1) {
                         def eventGroup = eventGroups[0]
 
 //                        def correspondingSubjectEventGroups = eventGroup.subjectEventGroups.findAll() { it.subjectGroup.id == subjectGroup.id && it.startTime <= (oldSamplingEvent.start_time - relativeTimeField) && it.endTime >= ((oldSamplingEvent.start_time - relativeTimeField) + oldSamplingEvent.duration) }
@@ -166,12 +174,21 @@ class TnoMigrateController {
                                 println "Multiple corresponding SubjectEventGroups for eventGroup ${eventName}"
                                 subjectEventGroupConflicts << eventName
                             }
+
+                            else {
+                                println "No correspondingSubjectEventGroup for oldSamplingEvent: ${oldSamplingEvent.id}"
+                            }
                         }
                     }
                     else {
-                        if (eventGroups.size() > 1) {
-                            println "Multiple eventGroups found for name ${eventName}"
-                            eventGroupConflicts << eventName
+                        if (subjectGroupEventGroups.contains(eventName)) {
+                            if (eventGroups.size() > 1) {
+                                println "Multiple eventGroups found for name ${eventName}"
+                                eventGroupConflicts << eventName
+                            }
+                            else {
+                                println "No eventGroup found for name ${eventName}"
+                            }
                         }
                     }
                 }
