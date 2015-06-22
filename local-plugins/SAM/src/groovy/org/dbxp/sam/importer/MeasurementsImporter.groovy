@@ -222,11 +222,15 @@ public class MeasurementsImporter extends AbstractImporter {
         // Create a map of samSamples by sample name
         def groupedAssaySamples = assaySamples.groupBy { it.id }
         def groupedSamSamples = [:]
-        samSamples.each {
-            def samples = groupedAssaySamples[it.parentSample.id]
-            
-            if(samples) {
-                groupedSamSamples[samples[0].name] = it
+        groupedAssaySamples.each { group ->
+            def sample = group.value[0]
+            if (sample in samSamples*.parentSample) {
+                groupedSamSamples[sample.name] = samSamples.find { it.parentSample == sample }
+            }
+            else {
+                def samSample = new SAMSample(parentSample: sample, parentAssay: assay)
+                groupedSamSamples[sample.name] = samSample
+                samSample.save(flush: true)
             }
         }
         
