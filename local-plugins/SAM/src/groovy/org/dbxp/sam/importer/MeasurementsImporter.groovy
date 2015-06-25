@@ -241,7 +241,7 @@ public class MeasurementsImporter extends AbstractImporter {
             def samSample
             
             // Start a SQL batch statement
-            sql.withBatch( 250, "INSERT INTO measurement (id, version, feature_id, sample_id, value) VALUES (nextval('hibernate_sequence'), 0, :featureId, :sampleId, :value)" ) { preparedStatement ->
+            sql.withBatch( 250, "INSERT INTO measurement (id, version, comments, feature_id, sample_id, value) VALUES (nextval('hibernate_sequence'), 0, :comments, :featureId, :sampleId, :value)" ) { preparedStatement ->
                 
                 // The header line is not used as measurements, so the first line is skipped
                 for( def lineNr = 1; lineNr < data.size(); lineNr++) {
@@ -285,7 +285,11 @@ public class MeasurementsImporter extends AbstractImporter {
                         // Only import the value if the value is numeric
                         if (value instanceof Double) {
                             preparedStatement.addBatch( [featureId: feature.id, sampleId: samSample.id, value: value ] )
-                        } else {
+                        }
+                        else if (value instanceof String) {
+                            preparedStatement.addBatch( [featureId: feature.id, sampleId: samSample.id, comments: value ] )
+                        }
+                        else {
                             errors << new ImportValidationError(
                                 code: 8,
                                 message: "Invalid measurement given for sample '" + requiredSampleName + "' and feature '" + feature.name + "': " + value + ".",
