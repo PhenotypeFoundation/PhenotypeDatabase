@@ -104,7 +104,7 @@ log4j = {
 			'org.hibernate'
 			
 	info 'grails.app.controllers.generic.installation.TnoMigrateController' 
-        all 'grails.app', 'dbnp.query'
+        all 'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter'
         
         // Disable logging for resources plugin
         error 'grails.app.services.org.grails.plugin.resource', 

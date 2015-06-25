@@ -7,7 +7,7 @@
 	<r:require modules="studyView" />
 </head>
 <body>
-	<div class="studyView studyDesign">
+	<div class="basicTabLayout studyView studyDesign">
 	
 		<h1>
 			<span class="truncated-title">
@@ -16,18 +16,9 @@
 			<g:render template="steps" model="[study: study, active: 'design']"  />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">This page shows your study design</span> 
 			The study design consists of treatement types and sample types, grouped together in sample & treatment groups. Sample & treatment groups can be assigned to groups of subjects.
 		</span>

@@ -522,7 +522,7 @@ class StudyEditDesignController {
 		}
 		
 		if( request.post ) {
-			putParamsIntoEntity( entity ) 
+			studyEditService.putParamsIntoEntity( entity, params )
 	
 			if( params._action == "save" ) {
 				if( entity.validate() ) {
@@ -614,7 +614,7 @@ class StudyEditDesignController {
 		}
 		
 		if( request.post ) {
-			putParamsIntoEntity( entity )
+			studyEditService.putParamsIntoEntity( entity, params )
 	
 			if( params._action == "save" ) {
 				if( entity.validate() ) {

@@ -10,14 +10,10 @@
     <body>
         <div class="body">
             <h1><g:message code="default.edit.label" args="['Affiliation']" /></h1>
-            <g:if test="${flash.message}">
-            <div class="message">${flash.message}</div>
-            </g:if>
-            <g:hasErrors bean="${personAffiliationInstance}">
-            <div class="errors">
-                <g:renderErrors bean="${personAffiliationInstance}" as="list" />
-            </div>
-            </g:hasErrors>
+
+  			<g:render template="/common/flashmessages" />
+			<g:render template="/common/instance_errors" model="[instance: personAffiliationInstance]" />
+            
             <g:form method="post" >
                 <g:hiddenField name="id" value="${personAffiliationInstance?.id}" />
                 <g:hiddenField name="version" value="${personAffiliationInstance?.version}" />

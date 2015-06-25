@@ -8,13 +8,7 @@
 <div>
 
 	<g:form action='userGroupSearch' name='userGroupSearchForm'>
-
-		<g:if test="${flash.message}">
-		  <p>
-			${flash.message}
-		  </p>
-		</g:if>
-		<br/>
+  		<g:render template="/common/flashmessages" />
 
 		<table>
 			<tbody>

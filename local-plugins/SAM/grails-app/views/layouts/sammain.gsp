@@ -28,9 +28,9 @@
 				<li>
 					<a href="#">Import</a>
 					<ul class="subnav">
-						<li><g:link controller="feature" action="importData" params="${[module: module]}">Features</g:link></li>
-		    			<li><g:link controller="measurement" action="importData" params="${[module: module]}">Measurements</g:link></li>
-		    			<li><g:link controller="measurement" action="exactImportSelect" params="${[module: module]}">Large amounts of measurements</g:link></li>
+                        <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Platforms", module: module]}">Platforms</g:link></li>
+                        <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Features", module: module]}">Features</g:link></li>
+                        <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements", module: module]}">Measurements</g:link></li>
 		    		</ul>
 		    	</li>
                 <li>
