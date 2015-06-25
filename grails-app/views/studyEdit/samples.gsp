@@ -7,7 +7,7 @@
 	<r:require modules="studyEdit,gscf-datatables" />
 </head>
 <body>
-	<div class="studyEdit studySamples">
+	<div class="basicTabLayout studyEdit studySamples">
 		<h1>
 			<span class="truncated-title">
 				Edit study [${study.code?.encodeAsHTML()}]
@@ -15,30 +15,15 @@
 			<g:render template="steps" model="[study: study, active: 'samples']"  />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">Edit samples or import more</span> 
 			Review the list of samples and edit their details. You can also import more samples from an excel sheet.
 		</span>
 		
-		<g:if test="${flash.validationErrors}">
-			<div class="errormessage">
-				<g:each var="error" in="${flash.validationErrors}">
-					${error.value}<br />
-				</g:each>
-			</div>
-		</g:if>  
-		 
+		<g:render template="/common/flash_validation_messages" />
+
 		<g:form action="samples" name="samples">
 			<g:hiddenField name="_action" />
 			<g:hiddenField name="id" value="${study.id}" />
@@ -82,7 +67,7 @@
 				
 				<g:link controller="studyEdit" action="regenerateSampleNames" id="${study.id}" class="performAction separator">Regenerate sample names</g:link>
 				
-	            <g:link class="import" controller="gdtImporter" action="index" params="[id: study?.id, template: 'sample']">
+	            <g:link class="import" controller="importer" action="upload" params="['initial.study': study?.id, importer: 'Samples']">
 	                Import
 	            </g:link>				
 	            

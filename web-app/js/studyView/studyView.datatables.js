@@ -459,7 +459,7 @@ StudyView.datatables = {
 			initializeFileFields: function( selector ) {
 				$(selector).find( ".fileField" ).each( function( idx, el ) {
 					var fieldId = $(el).attr( "id" );
-					fileUploadField( fieldId );
+					FileUpload.convertFileField( fieldId );
 					$(el).removeClass( "fileField" );
 				});
 			},

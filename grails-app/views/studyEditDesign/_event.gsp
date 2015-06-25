@@ -8,25 +8,9 @@
 			</g:else>
 		</h1>
 		
-		<g:if test="${error}">
-			<div class="errormessage">
-				${error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${message}">
-			<div class="message">
-				${message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
-		
-		<g:if test="${flash.validationErrors}">
-			<div class="errormessage">
-				<g:each var="error" in="${flash.validationErrors}">
-					${error.encodeAsHTML()}<br />
-				</g:each>
-			</div>
-		</g:if>  
-		 
+		<g:render template="/common/flashmessages" />
+		<g:render template="/common/flash_validation_messages" />
+
 		<g:form action="${actionName}" name="eventDetails">
 			<g:hiddenField name="_action" />
 			<g:if test="${entity?.id}">

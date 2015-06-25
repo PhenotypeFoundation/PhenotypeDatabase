@@ -14,9 +14,7 @@
     	Select the studies you want to export<g:if test="${format}"> in ${format} format</g:if>.
     </p>
     
-    <g:if test="${flash.message}">
-      <div class="message infobox">${flash.message}</div>
-    </g:if>
+  	<g:render template="/common/flashmessages" />
 
     <div class="list">
 			<table>

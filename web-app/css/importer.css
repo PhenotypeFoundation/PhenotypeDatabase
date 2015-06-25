@@ -1,3 +1,20 @@
+/** First upload page of importer */
+.importer .element { margin: 6px 0; }
+.importerParameters select { width: 350px; }
+#datapreview { width: 920px; }
+
+/** Data preview in importer (several steps show a preview */
+.dataTables_wrapper .dataTables_length { width: 35%; }
+.dataTables_wrapper .dataTables_filter { width: 35%; }
+
+/** Importer match page */
+#example-header-select { display: none; }
+.header-select { color: black; }
+#data-with-headers { width: 960px; }
+.dataTables_wrapper .match_options { width: 27%; float: left; text-align: center; }
+
+
+
 /**
  * importer specific css
  *

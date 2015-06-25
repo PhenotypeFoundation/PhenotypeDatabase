@@ -34,9 +34,7 @@
 		First, select a study from the first list and then select an assay from that study from the second list.
 	</p>
   
-    <g:if test="${flash.message}">
-    	<div class="message infobox">${flash.message}</div>
-    </g:if>
+  	<g:render template="/common/flashmessages" />
 
 	<h3>Study</h3>
 	<g:select style="width: 400px;" optionKey="id" optionValue="title" name="studyId" from="${studies}" id="study"

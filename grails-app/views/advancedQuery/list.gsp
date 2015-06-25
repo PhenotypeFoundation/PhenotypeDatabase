@@ -22,16 +22,7 @@
 
 <h1>Previous queries</h1>
 
-<g:if test="${flash.error}">
-	<div class="errormessage">
-		${flash.error.toString().encodeAsHTML()}
-	</div>
-</g:if>
-<g:if test="${flash.message}">
-	<div class="message">
-		${flash.message.toString().encodeAsHTML()}
-	</div>
-</g:if>
+<g:render template="/common/flashmessages" />
 
 <g:if test="${searches.size() > 0}">
 	<form id="searchform" method="post">

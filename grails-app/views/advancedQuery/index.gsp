@@ -68,16 +68,7 @@
 
 <h1>Search database</h1>
 
-<g:if test="${flash.error}">
-	<div class="errormessage">
-		${flash.error.toString().encodeAsHTML()}
-	</div>
-</g:if>
-<g:if test="${flash.message}">
-	<div class="message">
-		${flash.message.toString().encodeAsHTML()}
-	</div>
-</g:if>
+<g:render template="/common/flashmessages" />
 
 <div id="searchForm">
 	<g:form action="search" method="get">

@@ -18,7 +18,9 @@
 	  <h1>Below you see a preview of the resulting file, click OK to download</h1>
 	
 	  <g:if test="${errorMessage}">
-	  	<div class="errormessage">${errorMessage}</div>
+	  	<div class="errormessage">
+	  		${errorMessage}
+	  	</div>
 	  </g:if>
 	
 	  <table>

@@ -63,10 +63,12 @@
 										next measurement. If there are multiple measurements, we combine the data.
 									--%>
 									<g:if test="${cellMeasurements.size() > 0}">
-										<% def comments = cellMeasurements[ 0 ].comments?.encodeAsHTML(); %>
+										<% def comments = cellMeasurements[ 0 ].comments?.encodeAsHTML()
+                                           def isNumeric = cellMeasurements[0].value.toString().isNumber() %>
+
 										<g:if test="${cellMeasurements.size() > 1}">
 											<%
-                                                // Multiple measurements are no longer allowed, so this code should not be triggered
+                                                // Multiple measurements are no longer   allowed, so this code should not be triggered
                                                 // TODO: Remove the multiple measurements code
 												comments = cellMeasurements.collect {
 													def description = ""
@@ -86,33 +88,31 @@
 												}.join( "<hr>" );
 											%>
 										</g:if>
-										<td class="${comments ? 'comments tooltip' : ''}">
+										<td class="${comments && isNumeric ? 'comments' : ''}">
 											<% /* TODO: if multiple measurements are shown, this checkbox is not sufficient anymore */ %>
 											<input type="checkbox" name="ids" value="${cellMeasurements[0].id}" />
 										
 											<g:if test="${cellMeasurements[0].operator}">${cellMeasurements[0].operator}</g:if>
-                                            <g:if test="${cellMeasurements[0].value.toString().isNumber()}">
-                                                <!-- You can't put a tooltip in a tooltip, so check if we are in a tooltip -->
+                                            <g:if test="${isNumeric}">
                                                 <g:if test="${comments}">
-                                                    ${cellMeasurements[0].value}
-                                                    [${cellMeasurements[0].feature.unit}]
+                                                    <%-- numeric value and comments --%>
+                                                    <span class="tooltip"> ${cellMeasurements[0].value} [${cellMeasurements[0].feature.unit}]<span>${comments}</span></span>
                                                 </g:if>
                                                 <g:else>
                                                     <g:if test="${cellMeasurements[0].value==cellMeasurements[0].value.round(3)}">
-                                                        ${cellMeasurements[0].value}
-                                                        [${cellMeasurements[0].feature.unit}]
+                                                        <%-- short numeric value without comments --%>
+                                                        <span> ${cellMeasurements[0].value} [${cellMeasurements[0].feature.unit}]</span>
                                                     </g:if>
                                                     <g:else>
-                                                        <span class='tooltip'> ${cellMeasurements[0].value.round(3).toString()}<span>${cellMeasurements[0].value}</span>[${cellMeasurements[0].feature.unit}]</span>
+                                                        <%-- long numeric value without comments; render short version and put entire number in tooltip --%>
+                                                        <span class="tooltip"> ${cellMeasurements[0].value.round(3).toString()} [${cellMeasurements[0].feature.unit}]<span>${cellMeasurements[0].value}</span></span>
                                                     </g:else>
                                                 </g:else>
                                             </g:if>
-                                            
-											<g:if test="${comments}">
-												<span>
-													${comments}
-												</span>
-											</g:if>
+                                            <g:else>
+                                                <%-- measurement is not numeric, so use text value from comments --%>
+                                                <span>${comments}</span>
+											</g:else>
 										</td>
 									</g:if>
 									<g:else>

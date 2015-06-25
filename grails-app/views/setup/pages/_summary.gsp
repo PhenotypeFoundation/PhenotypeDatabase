@@ -14,7 +14,7 @@
 <af:page>
 	<h1>Summary</h1>
 
-	<span class="info">
+	<span class="message info">
 		<span class="title">New application configuration</span>
 		Congratulations, you just finished setting up and configuring the application. Below you see the configuration
 		file (${configInfo.file}) you have just created.

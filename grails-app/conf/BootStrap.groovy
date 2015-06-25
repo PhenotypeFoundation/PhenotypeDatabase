@@ -9,6 +9,9 @@ import dbnp.studycapturing.Sample
 import dbnp.rest.common.CommunicationManager
 import dbnp.configuration.*
 
+import dbnp.importer.impl.*
+import dbnp.importer.ImporterFactory
+
 /**
  * Application Bootstrapper
  * @Author Jeroen Wesbeek
@@ -99,6 +102,18 @@ class BootStrap {
 		// Preventing SSL Handshake exception for HTTPS connections java 1.7 
 		// See http://stackoverflow.com/questions/7615645/ssl-handshake-alert-unrecognized-name-error-since-upgrade-to-java-1-7-0
 		System.setProperty "jsse.enableSNIExtension", "false";
+        
+                log.info("Register importers with factory")
+                def factory = ImporterFactory.getInstance()
+                factory.register(new SubjectsImporter() )
+                factory.register(new SamplesImporter() )
+                factory.register(new EventsImporter() )
+                factory.register(new SamplingEventsImporter() )
+                factory.register(new AssaysImporter() )
+                
+                factory.register(new org.dbxp.sam.importer.PlatformsImporter() )
+                factory.register(new org.dbxp.sam.importer.FeaturesImporter() )
+                factory.register(new org.dbxp.sam.importer.MeasurementsImporter() )
 	}
 
 	def destroy = {

@@ -1,35 +1,12 @@
-/** GENERAL **/
-.studyEdit { font-size: 11px; }
-.ui-dialog .studyEdit { font-size: 10pt; }
-.studyEdit .options { border-top: 1px solid #ccc; }
-.studyEdit h1 { border-bottom: 1px solid #006dba; }
-.studyEdit h1 .truncated-title { display: inline-block; width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.studyEdit .steps { font-size: 15px; float: right; color: #ccc;}
-.studyEdit .steps a { display: inline-block; margin: 0 6px;  }
-.studyEdit .steps .active { color: #006dba; font-weight: bold;  }
-#content .studyEdit .steps a.disabled { color: #ccc; }
-
 /** STUDY PAGE **/
 .studyProperties input, .studyProperties select, .studyProperties textarea { width: 220px; }
 .studyEdit .tableEditor input, .studyEdit .tableEditor  select { width: 100px; }
 .studyEdit .element .input .addButton { margin-left: 0px; }
 
-div .studyEdit .description { width: 170px; }
-.studyEdit .error, .studyEdit .required { background-position: 150px 2px; }
 #contacts .required { background-position: 2px 4px; padding-left: 20px; }
 .samplespage td.required { background-position: 160px 6px; }
 
 /** Meta boxes **/
-.studyEdit div.meta { float: right; display: block; position: relative; width: 280px; }
-.studyEdit div.meta div.component { margin: 0 0 10px 0; border: 1px solid #555; display: block; }
-.studyEdit div.component h2 { margin: 0; padding: 5px 5px; background-color: #F8FEFF;  font-weight: bold; }
-.studyEdit div.component div.content { margin: 5px; }
-
-/** default selects for publications, contacts etc. should be changed to fit the simpleWizard layout **/
-.studyEdit div.meta .element .input input { vertical-align: middle; width: 120px; }
-.studyEdit div.meta .description { display: none; }
-
 .studyEdit div ul.publication_list, 
 .studyEdit div ul.contact_list { margin: 0; } 
 .studyEdit div ul.user_list { margin: -22px 0 0 100px; }
@@ -46,44 +23,6 @@ div .studyEdit .description { width: 170px; }
 .studyEdit #contacts_dialog select { width: 200px; }
 
 .studyEdit div#authorization .description { display: inline-block; *display: inline; width: 100px; margin-top: 6px; }
-
-/** START :: study page upload buttons **/
-.fileWrapper {
-    width: 140px;
-}
-
-div .upload_button {
-    display: inline;
-}
-
-div .upload_button img {
-    border-width: 0;
-    padding-left: 6px;
-}
-
-div .upload_info {
-    display: inline; color: #006dba;
-    margin-left: 5px; 
-}
-
-div .upload_info a {
-	text-decoration: underline;
-}
-
-div .upload_del img {
-	border-width: 0;
-	padding-left: 6px; 
-}
-
-div .upload_del {
-	display: none;
-}
-
-div .upload_info .error {
-    color: red;
-}
-/** END :: study page upload buttons **/
-
 
 /** START :: study page publication, contact and users lists **/
 div ul.publication_list, div ul.contact_list, div ul.user_list, div ul.userGroup_list{

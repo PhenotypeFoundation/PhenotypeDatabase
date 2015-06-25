@@ -297,7 +297,7 @@ abstract class TemplateEntity extends Identity {
 			def errorMessage = "Error casting ${field.name} of type ${field.type.casedName} with value ${value} (${value?.class}) :: " + e.getMessage()
 			if (throwException) {
 			    // propagate the exception to the calling code
-				throw new Exception(errorMessage)
+				throw new Exception(errorMessage, e)
 			} else if (log) {
 				// do not propagate the exception as the dynamic validators will notify
 				// the user the value was wrong

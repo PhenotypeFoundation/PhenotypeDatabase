@@ -7,7 +7,7 @@
 	<r:require modules="studyView,gscf-datatables" />
 </head>
 <body>	
-	<div class="studyView studySamples">
+	<div class="basicTabLayout studyView studySamples">
 		<h1>
 			<span class="truncated-title">
 				Study [${study.code?.encodeAsHTML()}]
@@ -15,18 +15,9 @@
 			<g:render template="steps" model="[study: study, active: 'samples']"  />
 		</h1>
 		
-		<g:if test="${flash.error}">
-			<div class="errormessage">
-				${flash.error.toString().encodeAsHTML()}
-			</div>
-		</g:if>
-		<g:if test="${flash.message}">
-			<div class="message">
-				${flash.message.toString().encodeAsHTML()}
-			</div>
-		</g:if>	
+		<g:render template="/common/flashmessages" />
 		
-		<span class="info"> 
+		<span class="message info"> 
 			<span class="title">This view shows all samples</span> 
 			For every template, a list of samples  is shown
 		</span>

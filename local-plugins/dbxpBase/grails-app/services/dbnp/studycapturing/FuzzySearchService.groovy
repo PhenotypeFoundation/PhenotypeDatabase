@@ -1,4 +1,4 @@
-package org.dbxp.sam
+package dbnp.studycapturing
 
 import grails.util.Holders
 
@@ -16,7 +16,7 @@ class FuzzySearchService {
 	 * @return				A list with each element being a map with three elements:
 	 * 							pattern:	the pattern that has been matched
 	 * 							candidate:	the best matching candidate for this pattern or null if no match has been found
-	 * 							index:		the index of the candidate in the original list				
+	 * 							index:		the index of the candidate in the original list	
 	 */
     static def mostSimilarUnique( patterns, candidates, thresholdInput='default' ) {
         def threshold = retrieveThresholdFromConfig(thresholdInput)
