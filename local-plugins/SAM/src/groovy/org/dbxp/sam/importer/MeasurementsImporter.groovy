@@ -216,7 +216,7 @@ public class MeasurementsImporter extends AbstractImporter {
         def assay = Assay.get(parameters.assay)
         def assaySamples = assay.samples
         def samSamples = SAMSample.findAll {
-            parentSample in assaySamples
+            parentSample in assaySamples && parentAssay == assay
         }
         
         // Create a map of samSamples by sample name
