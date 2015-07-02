@@ -89,19 +89,23 @@ public class AssayDataExporter implements Exporter {
         // Determine the fields to export
         def fieldMaps = assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) }
         def fieldMap = assayService.mergeFieldMaps( fieldMaps )
-        
+
+        // Get the samples and sort them; this will be the sort order to use for
+        // both retrieving the assay data and the measurements
+        def samples = assays[0].samples.toList().sort({it.name})
+
         // First retrieve the subject/sample/event/assay data from GSCF, as it is the same for each list
-        data = assayService.collectAssayData(assays[0], fieldMap, [], [])
+        data = assayService.collectAssayData(assays[0], fieldMap, [], samples)
         
         assays.each{ assay ->
             def moduleMeasurementData
-            def samples = assay.samples
+
             try {
                 moduleMeasurementData = apiService.getPlainMeasurementData(assay, user)
                 data[ "Module measurement data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
             } catch (GroovyCastException gce) {
                 //This module probably does not support the 'getPlainMeasurementData' method, try it the old way.
-                moduleMeasurementData = assayService.requestModuleMeasurements(assay)
+                moduleMeasurementData = assayService.requestModuleMeasurements(assay, [], samples)
                 data[ "Module measurement data: " + assay.name ] = moduleMeasurementData
             } catch (e) {
                 moduleMeasurementData = ['error' : [
