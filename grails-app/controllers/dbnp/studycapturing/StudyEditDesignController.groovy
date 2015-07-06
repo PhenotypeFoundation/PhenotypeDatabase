@@ -10,6 +10,7 @@ import dbnp.authentication.SecUser
 class StudyEditDesignController {
 	def authenticationService
 	def studyEditService
+	def dataSource
 	
 	def index() {
 		def study = getStudyFromRequest( params )
@@ -18,16 +19,18 @@ class StudyEditDesignController {
 			return
 		}
 
-		def migrateDesign
-		if( params.migrateDesign ) {
-			println params.migrateDesign
-			migrateDesign = JSON.parse(params.migrateDesign)
-			migrateDesign['step'] = 2
+		def sql = new groovy.sql.Sql(dataSource)
+		def samplingEventStartTime = sql.rows("SELECT start_time FROM sampling_event WHERE parent_id = ${study.id}").findAll() { it.start_time != null }.collectAll() { it.start_time }
+		if( session.migrateDesign?.studyId ) {
+			if (session.migrateDesign.studyId == study.id) {
+				session.migrateDesign['step'] = 2
+			}
+			else {
+				flash.error = "You are still migration another study: ${Study.read( session.migrateDesign.studyId  ).title}"
+			}
 		}
-
-		//Check if study is a legacy study
-		else if (1==1) {
-			migrateDesign = JSON.parse("{step:1}")
+		else if ( samplingEventStartTime.size() > 0 ) {
+			session.migrateDesign = [ step: 1 ]
 		}
 
 		[
@@ -36,7 +39,7 @@ class StudyEditDesignController {
 				event: Template.findAllByEntity( Event.class ),
 				samplingEvent:  Template.findAllByEntity( SamplingEvent.class )
 			],
-			migrateDesign: migrateDesign
+			migrateDesign: session.migrateDesign
 		]
 	}
 

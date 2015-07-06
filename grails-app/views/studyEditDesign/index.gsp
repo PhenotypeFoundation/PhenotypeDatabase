@@ -159,32 +159,40 @@
 	</div>
 
 	<sec:ifAnyGranted roles="ROLE_ADMIN">
-		<div>
-			<p>
-				<h2>Migrate this study!</h2>
+		<g:if test="${migrateDesign}">
+			<div>
+        		<h2>Migrate this study!</h2>
 				<g:if test="${migrateDesign.step == 1}">
 					<p>
 						This seems to be a legacy study, click the 'migrate' button below to migrate this study to the new format<br>
 						<b>Note:</b> please do not make manual changes to this study before migration.
-					<g:form controller="tnoMigrate" action="migrateStudy">
-						<g:hiddenField name="id" value="${study.id}"/>
-						<g:submitButton name="Migrate" class="button-4 margin10 pie"/>
-					</g:form>
-					</p>
-				</g:if>
-				<g:elseif test="${migrateDesign.step == 2}">
-					<p>
-						<b>Please validate the complete study design.</b><br>
-						If something didn't work out the way it supposed, please click the 'reset' button below.
-						<g:form controller="tnoMigrate" action="deleteNewDesign">
+						<g:form controller="tnoMigrate" action="migrateStudy">
 							<g:hiddenField name="id" value="${study.id}"/>
-							<g:hiddenField name="migrateDesign" value="${migrateDesign}"/>
-							<g:submitButton name="Reset" class="button-4 margin10 pie"/>
+							<g:submitButton name="Migrate" class="button-4 margin10 pie"/>
 						</g:form>
 					</p>
-					<br><br>
+				</g:if>
+				<g:elseif test="${migrateDesign.step == 2 || migrateDesign.step == 3}">
+					<g:if test="${migrateDesign.step == 2}">
+						<p>
+							<b>Please validate the complete study design.</b><br>
+							If something didn't work out the way it supposed, please click the 'reset' button below.
+							<g:form controller="tnoMigrate" action="deleteNewDesign">
+								<g:hiddenField name="id" value="${study.id}"/>
+								<g:hiddenField name="migrateDesign" value="${migrateDesign}"/>
+								<g:submitButton name="Reset" class="button-4 margin10 pie"/>
+							</g:form>
+							<g:link controller="tnoMigrate" action="quit" id="${study.id}"><input type="button" class="button-4 margin10 pie" value="Quit"/></g:link>
+						</p>
+						<br><br>
+					</g:if>
 					<p>
-						If it all worked out fine please click the 'proceed' button below to delete the old design and link the samples to the new design.
+						<g:if test="${migrateDesign.step == 2}">
+							If it all worked out fine please click the 'proceed' button below to delete the old design and link the samples to the new design.
+						</g:if>
+						<g:if test="${migrateDesign.step == 3}">
+							You already started the completion of the migration, please click the 'proceed' button below to continue
+						</g:if>
 						<g:form controller="tnoMigrate" action="deleteOldDesignAndLinkSamples">
 							<g:hiddenField name="id" value="${study.id}"/>
 							<g:hiddenField name="migrateDesign" value="${migrateDesign}"/>
@@ -192,8 +200,8 @@
 						</g:form>
 					</p>
 				</g:elseif>
-			</p>
-		</div>
+			</div>
+		</g:if>
 	</sec:ifAnyGranted>
 </body>
 </html>

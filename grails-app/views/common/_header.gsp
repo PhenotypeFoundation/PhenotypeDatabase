@@ -176,23 +176,29 @@
     <div class="content">
         <div class="fieldset signupForm">
             <h2>Not a member yet? Sign up!</h2>
-            <ul class="form">
-                <li>
-                    <input type="text" placeholder="Username" />
-                </li>
-                <li>
-                    <input type="text" placeholder="Email" />
-                </li>
-                <li>A password will be emailed to you</li>
-                <li class="buttons">
-                    <input class="button-2 pie" type="submit" value="Sign up" />
-                </li>
-            </ul>
+            <g:form url="[action:'add',controller:'userRegistration']" class="clearfix registration">
+                <ul class="form">
+                    <li>
+                        <input class="field" type="text" name="username" id="username" size="23" placeholder="Username"/>
+                    </li>
+                    <li>
+                        <input class="field" type="text" name="email" id="email" size="23" placeholder="Email"/>
+                    </li>
+                    <li>A password will be emailed to you</li>
+                    <li class="buttons">
+                        <input class="button-2 pie" type="submit" value="Sign up" />
+                    </li>
+                </ul>
+            </g:form>
         </div>
         <div class="fieldset loginForm">
             <h2>Login</h2>
             <g:form controller="." action="j_spring_security_check" method='POST' class="clearfix">
                 <ul class="form">
+                    <g:if test="${redirectUrl}">
+                        <g:hiddenField name="spring-security-redirect" value="${redirectUrl}"/>
+                    </g:if>
+
                     <li>
                         <input type="text" placeholder="Username" name="j_username" id="j_username" value="${username}" size="23"/>
                     </li>
@@ -200,7 +206,10 @@
                         <input type="password" placeholder="Password" name="j_password" id="password" size="23"/>
                     </li>
                     <li><input type="checkbox" class="icheckbox" name='_spring_security_remember_me' id='remember_me' <g:if test='${hasCookie}'>checked='checked'</g:if>/>
-                        <label for="remember_me">Remember me</label><a href="#" title="">Forgot password?</a></li>
+                        <label for="remember_me">Remember me</label>
+
+                        <a class="lost-pwd" href="<g:createLink url="[action:'forgotPassword',controller:'register']"/>">Lost your password?</a>
+                    </li>
                     <li class="buttons">
                         <input class="button-1 pie" type="submit" name="submit" value="Login"/>
                     </li>

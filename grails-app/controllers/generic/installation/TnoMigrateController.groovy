@@ -1,19 +1,18 @@
 package generic.installation
 
 import dbnp.studycapturing.*
-import grails.converters.JSON
+import org.dbnp.gdt.RelTime
 import org.dbnp.gdt.Template
 
-/**
- * User: Seth
- * Date: 28-11-13
- * Time: 12:10
- */
 class TnoMigrateController {
     def dataSource
 
     def migrateStudy() {
+        session.removeAttribute('migrateDesign')
+
         def study = Study.read( params.id )
+
+        println "Start migration for ${study.title} (${study.code})"
 
         def sql = new groovy.sql.Sql(dataSource)
 
@@ -27,10 +26,21 @@ class TnoMigrateController {
         def newEventIdList = []
         def newSamplingEventIdList = []
 
+        //oldId:newId
+        def sampleMigration = [:]
+
+        def allOldSamplingEvents = sql.rows("SELECT id FROM sampling_event WHERE parent_id = ${study.id}").collectAll() { it.id }
+        def allOldSamples = sql.rows("SELECT id FROM sample WHERE parent_id = ${study.id}").collectAll() { it.id }
+
+        def subjectEventGroupConflicts = []
+        def eventGroupConflicts = []
+
         //Creation of subjectGroups
         def oldEventGroups = sql.rows("SELECT id, name FROM event_group WHERE parent_id = ${study.id}")
 
         oldEventGroups.each() { oldEventGroup ->
+            def subjectGroupEventGroups = []
+
             oldEventGroupIdList << oldEventGroup.id
 
             def subjectGroup = new SubjectGroup( name: oldEventGroup.name, parent: study )
@@ -38,7 +48,7 @@ class TnoMigrateController {
 
             //Get subjects for event_group
             sql.rows("SELECT subject_id FROM event_group_subject WHERE event_group_subjects_id = ${oldEventGroup.id}").collect() { it.subject_id }.each() { subjectId ->
-                def subject = Subject.read( subjectId)
+                def subject = Subject.findById( subjectId )
                 subjectGroup.addToSubjects( subject )
             }
 
@@ -54,6 +64,21 @@ class TnoMigrateController {
 
                 def eventName = sql.rows("SELECT template_string_fields_elt FROM event_template_string_fields WHERE event_id = ${oldEvent.id} AND template_string_fields_idx ='Event name (STRING)'").template_string_fields_elt[0]
                 def migration = sql.rows("SELECT template_string_fields_elt FROM event_template_string_fields WHERE event_id = ${oldEvent.id} AND template_string_fields_idx ='Migration'").template_string_fields_elt[0]
+
+                if (migration.split(';').size() != 1) {
+                    flash.error = "Events should have one item in migration column, not multiple"
+                    redirect controller: 'studyEditDesign', action: 'index', params: [ id: study.id ]
+                    return
+                }
+
+                if (!eventName.equalsIgnoreCase(migration)) {
+                    println "EventName field (${eventName}) not matching migration field (${migration}). Using ${migration}"
+                    eventName = migration.trim()
+                }
+
+                if ( subjectGroupEventGroups.contains(eventName )) {
+                    subjectGroupEventGroups << eventName
+                }
 
                 EventGroup eventGroup = allEventGroups.find() { it.name.equalsIgnoreCase(eventName) }
                 if (!eventGroup) {
@@ -90,6 +115,7 @@ class TnoMigrateController {
             }
 
             def oldSamplingEvents = sql.rows("SELECT id, start_time, duration, template_id, sample_template_id FROM sampling_event WHERE id IN (SELECT sampling_event_id FROM event_group_sampling_event WHERE event_group_sampling_events_id = ${oldEventGroup.id})")
+
             oldSamplingEvents.each() { oldSamplingEvent ->
                 oldSamplingEventIdList << oldSamplingEvent.id
 
@@ -98,11 +124,19 @@ class TnoMigrateController {
                 def relativeTimeField = oldSamplingEventDetails.template_rel_time_fields_elt[0]
 
                 migration.split(';').each() { eventName ->
-                    EventGroup eventGroup = allEventGroups.find() { it.name.equalsIgnoreCase(eventName) }
 
-                    if (eventGroup) {
-                        def correspondingSubjectEventGroup = eventGroup.subjectEventGroups.find() { it.startTime <= (oldSamplingEvent.start_time - relativeTimeField) && it.endTime >= ((oldSamplingEvent.start_time - relativeTimeField) + oldSamplingEvent.duration) }
-                        if (correspondingSubjectEventGroup) {
+                    eventName = eventName.trim()
+
+                    def eventGroups = allEventGroups.findAll() { it.name.equalsIgnoreCase(eventName) }
+
+                    if (!subjectGroupEventGroups.contains(eventName) && eventGroups.size() == 1) {
+                        def eventGroup = eventGroups[0]
+
+//                        def correspondingSubjectEventGroups = eventGroup.subjectEventGroups.findAll() { it.subjectGroup.id == subjectGroup.id && it.startTime <= (oldSamplingEvent.start_time - relativeTimeField) && it.endTime >= ((oldSamplingEvent.start_time - relativeTimeField) + oldSamplingEvent.duration) }
+                        def correspondingSubjectEventGroups = SubjectEventGroup.findAllByParentAndSubjectGroupAndEventGroupAndStartTimeLessThanEquals(study, subjectGroup, eventGroup, (oldSamplingEvent.start_time - relativeTimeField)).findAll() { it.endTime >= ((oldSamplingEvent.start_time - relativeTimeField) + oldSamplingEvent.duration) }
+                        if (correspondingSubjectEventGroups.size() == 1) {
+
+                            def correspondingSubjectEventGroup = correspondingSubjectEventGroups[0]
                             def template = Template.read( oldSamplingEvent.template_id )
 
                             //Set template name as samplingEvent name
@@ -114,7 +148,7 @@ class TnoMigrateController {
                                 samplingEvent = new SamplingEvent( name: samplingEventName, parent: study, template: template, sampleTemplate: sampleTemplate )
                                 study.addToSamplingEvents( samplingEvent )
                                 samplingEvent.getRequiredFields().each() {
-                                    samplingEvent.setFieldValue(it.name, SamplingEvent.read(oldSamplingEvent.id).getFieldValue(it.name))
+                                    samplingEvent.setFieldValue(it.name, SamplingEvent.findById(oldSamplingEvent.id).getFieldValue(it.name))
                                 }
                                 samplingEvent.save( flush: true )
 
@@ -128,98 +162,174 @@ class TnoMigrateController {
                                 samplingEventInEventGroup = new SamplingEventInEventGroup( startTime: relativeStartTime, duration: oldSamplingEvent.duration, event: samplingEvent, eventGroup: eventGroup ).save( flush: true, failOnError: true )
                                 eventGroup.addToSamplingEventInstances(samplingEventInEventGroup)
                             }
+
+                            def samples = sql.rows("SELECT id FROM sample WHERE parent_event_id = ${oldSamplingEvent.id} AND parent_event_group_id = ${oldEventGroup.id}").collectAll() { it.id }
+
+                            samples.each() { sampleId ->
+                                sampleMigration[sampleId] = [ correspondingSubjectEventGroup.id, samplingEventInEventGroup.id ]
+                            }
+                        }
+                        else {
+                            if (correspondingSubjectEventGroups.size() > 1) {
+                                println "Multiple corresponding SubjectEventGroups for eventGroup ${eventName}"
+                                subjectEventGroupConflicts << eventName
+                            }
+
+                            else {
+                                println "No correspondingSubjectEventGroup for oldSamplingEvent: ${oldSamplingEvent.id}"
+                            }
                         }
                     }
                     else {
-                        println "No eventGroup found for migration column value ${eventName}"
+                        if (subjectGroupEventGroups.contains(eventName)) {
+                            if (eventGroups.size() > 1) {
+                                println "Multiple eventGroups found for name ${eventName}"
+                                eventGroupConflicts << eventName
+                            }
+                            else {
+                                println "No eventGroup found for name ${eventName}"
+                            }
+                        }
                     }
                 }
             }
         }
 
-        redirect controller: 'studyEditDesign', params: [ id: study.id, migrateDesign: [ oldEventGroupIdList: oldEventGroupIdList, oldEventIdList: oldEventIdList, oldSamplingEventIdList: oldSamplingEventIdList, newEventGroupIdList: allEventGroups.id, newSubjectGroupIdList: newSubjectGroupIdList, newEventIdList: newEventIdList, newSamplingEventIdList: newSamplingEventIdList ] ]
+        def lostSamplingEvents = allOldSamplingEvents - oldSamplingEventIdList
+        def lostSamples = allOldSamples - sampleMigration.keySet()
+
+        if (subjectEventGroupConflicts.size() != 0 || eventGroupConflicts.size() != 0 || lostSamplingEvents.size() != 0 || lostSamples.size() != 0) {
+            flash.error = "Lost SamplingEvents (${lostSamplingEvents.size()}): ${lostSamplingEvents.join(', ')} | Lost Samples (${lostSamples.size()}): ${lostSamples.join(', ')} | eventGroupConflicts: ${eventGroupConflicts.unique().join(', ')} | subjectEventGroupConflicts: ${subjectEventGroupConflicts.unique().join(', ')}"
+        }
+
+        session.migrateDesign = [ studyId: study.id, oldEventGroupIdList: oldEventGroupIdList.unique(), oldEventIdList: oldEventIdList.unique(), oldSamplingEventIdList: oldSamplingEventIdList.unique(), newEventGroupIdList: allEventGroups.id, newSubjectGroupIdList: newSubjectGroupIdList, newEventIdList: newEventIdList, newSamplingEventIdList: newSamplingEventIdList, sampleMigration: sampleMigration ]
+
+        redirect controller: 'studyEditDesign', action: 'index', params: [ id: study.id ]
     }
 
     def deleteOldDesignAndLinkSamples() {
-        def migrateDesign = JSON.parse(params.migrateDesign)
+        session.migrateDesign['step'] = 3
 
-        migrateDesign['oldEventGroupIdList'].each() { oldEventGroupId ->
-        }
+        def study = Study.read( params.id )
+        def sql = new groovy.sql.Sql(dataSource)
+
+        def migrateDesign = session.migrateDesign
 
         migrateDesign['oldEventIdList'].each() { oldEventId ->
+            def event = Event.read( oldEventId )
+
+            if ( event ) {
+                sql.execute("DELETE FROM event_group_event WHERE event_id = ${oldEventId}")
+
+                study.removeFromEvents( event )
+                study.save( flush: true )
+
+                event.delete( flush: true, failOnError: true )
+            }
         }
 
         migrateDesign['oldSamplingEventIdList'].each() { oldSamplingEventId ->
+            def samplingEvent = SamplingEvent.read( oldSamplingEventId )
+
+            if ( samplingEvent ) {
+                sql.execute("DELETE FROM event_group_sampling_event WHERE sampling_event_id = ${oldSamplingEventId}")
+
+                study.removeFromSamplingEvents( samplingEvent )
+                study.save( flush: true )
+                samplingEvent.delete( flush: true )
+            }
         }
+
+        migrateDesign['sampleMigration'].each() { sampleId, remap ->
+            sql.execute("UPDATE sample SET parent_event_group_id = null WHERE id = ${sampleId as Long}")
+            sql.execute("UPDATE sample SET parent_subject_event_group_id = ${remap[0]} WHERE id = ${sampleId as Long}")
+            sql.execute("UPDATE sample SET parent_event_id = ${remap[1]} WHERE id = ${sampleId as Long}")
+        }
+
+        migrateDesign['oldEventGroupIdList'].each() { oldEventGroupId ->
+            def eventGroup = EventGroup.read( oldEventGroupId )
+
+            if ( eventGroup ) {
+                sql.execute("DELETE FROM event_group_subject WHERE event_group_subjects_id = ${oldEventGroupId}")
+                sql.execute("DELETE FROM event_group_sampling_event WHERE event_group_sampling_events_id = ${oldEventGroupId}")
+
+                study.removeFromEventGroups( eventGroup )
+                study.save( flush: true )
+                eventGroup.delete( flush: true )
+            }
+        }
+
+        session.removeAttribute('migrateDesign')
 
         redirect controller: 'studyEditDesign', id: params.id
     }
 
     def deleteNewDesign() {
-        def migrateDesign = JSON.parse(params.migrateDesign)
+        def migrateDesign = session.migrateDesign
 
         def study = Study.read( params.id )
 
         migrateDesign['newEventIdList'].each() { newEventId ->
-            deleteNewDesignEvent( Event.read( newEventId ) )
+            def event = Event.read( newEventId )
+
+            ( [] + event.eventGroupInstances ).each { eventGroupInstance ->
+                eventGroupInstance.eventGroup.removeFromEventInstances( eventGroupInstance )
+                eventGroupInstance.event.removeFromEventGroupInstances( eventGroupInstance )
+
+                eventGroupInstance.delete( flush: true )
+            }
+
+            study.removeFromEvents( event )
+            study.save( flush: true )
+
+            event.delete( flush: true )
         }
         migrateDesign.remove('newEventIdList')
-        study.save( flush: true )
 
         migrateDesign['newSamplingEventIdList'].each() { newSamplingEventId ->
-            deleteNewDesignSamplingEvent( SamplingEvent.read( newSamplingEventId ) )
+            def samplingEvent = SamplingEvent.read( newSamplingEventId )
+
+            ( [] + samplingEvent.eventGroupInstances ).each { eventGroupInstance ->
+                eventGroupInstance.eventGroup.removeFromSamplingEventInstances( eventGroupInstance )
+                eventGroupInstance.event.removeFromEventGroupInstances( eventGroupInstance )
+
+                eventGroupInstance.delete( flush: true )
+            }
+
+            study.removeFromSamplingEvents( samplingEvent )
+            study.save( flush: true )
+
+            samplingEvent.delete( flush: true )
         }
         migrateDesign.remove('newSamplingEventIdList')
-        study.save( flush: true )
 
         if( migrateDesign['newSubjectGroupIdList'].size() > 0 ) {
             study.deleteSubjectGroup( SubjectGroup.read( migrateDesign['newSubjectGroupIdList'][0]) )
+            study.save( flush: true )
+
             migrateDesign['newSubjectGroupIdList'].remove( 0 )
-            redirect( action: 'deleteNewDesign', params: [ id: params.id, migrateDesign: migrateDesign ] )
+            redirect( action: 'deleteNewDesign', params: [ id:  study.id ] )
             return
         }
 
         if( migrateDesign['newEventGroupIdList'].size() > 0 ) {
             study.deleteEventGroup( EventGroup.read( migrateDesign['newEventGroupIdList'][0]) )
+            study.save( flush: true )
+
             migrateDesign['newEventGroupIdList'].remove( 0 )
-            redirect( action: 'deleteNewDesign', params: [ id: params.id, migrateDesign: migrateDesign ] )
+            redirect( action: 'deleteNewDesign', params: [ id: study.id ] )
             return
         }
 
-        redirect controller: 'studyEditDesign', id: params.id
+        session.removeAttribute('migrateDesign')
+
+        redirect controller: 'studyEditDesign', id: study.id
     }
 
-    private deleteNewDesignEvent( Event event ) {
-        // remove event from eventGroups
-        ( [] + event.eventGroupInstances ).each { eventGroupInstance ->
-            eventGroupInstance.eventGroup.removeFromEventInstances( eventGroupInstance )
-            eventGroupInstance.event.removeFromEventGroupInstances( eventGroupInstance )
+    def quit() {
 
-            eventGroupInstance.delete()
-        }
+        session.removeAttribute('migrateDesign')
 
-        // remove event from the study
-        event.parent.removeFromEvents(event)
-
-        // and perform a hard delete
-        event.delete( flush: true )
-    }
-
-    private deleteNewDesignSamplingEvent( SamplingEvent samplingEvent ) {
-        // remove event from eventGroups
-        ( [] + samplingEvent.eventGroupInstances ).each { eventGroupInstance ->
-            eventGroupInstance.eventGroup.removeFromSamplingEventInstances( eventGroupInstance )
-            eventGroupInstance.event.removeFromEventGroupInstances( eventGroupInstance )
-
-            eventGroupInstance.delete()
-        }
-
-        // Remove event from the study
-        // This should remove the event group itself too, because of the cascading belongsTo relation
-        samplingEvent.parent.removeFromSamplingEvents(samplingEvent)
-
-        // But apparently it needs an explicit delete() too
-        // (Which can be verified by outcommenting this line, then SampleTests.testDeleteViaParentSamplingEvent fails
-        samplingEvent.delete( flush: true )
+        redirect controller: 'studyEditDesign', action: 'index', params: [ id: params.id ]
     }
 }
