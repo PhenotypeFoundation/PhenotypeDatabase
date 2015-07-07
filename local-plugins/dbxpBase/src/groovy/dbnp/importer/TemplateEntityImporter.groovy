@@ -151,20 +151,29 @@ public abstract class TemplateEntityImporter<T extends TemplateEntity> extends A
             def fieldName = columnMapping.field.id
             log.debug( "Setting column " + columnIndex + " to field " + fieldName )
             
-            // Store the value itself
-            // TODO: Format and/or parse the value
-            try {
-                object.setFieldValue(fieldName, cell, true)
-            } catch( Exception e ) {
-                errors << new ImportValidationError(
-                    code: 3,
-                    message: e.getMessage(),
-                    column: columnIndex
-                )
-            }
+            // Store the field value
+            storeField(object, fieldName, cell, columnIndex, parameters)
         }
         
         object
+    }
+    
+    /**
+     * Store the given value in a certain field on the object
+     */
+    protected boolean storeField(def object, String fieldName, def cell, def columnIndex, def parameters) {
+        println "StoreField TemplateEntity"
+        
+        // TODO: Format and/or parse the value
+        try {
+            object.setFieldValue(fieldName, cell, true)
+        } catch( Exception e ) {
+            errors << new ImportValidationError(
+                code: 3,
+                message: e.getMessage(),
+                column: columnIndex
+            )
+        }
     }
 
     /**

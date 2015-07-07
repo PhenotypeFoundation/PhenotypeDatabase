@@ -95,6 +95,13 @@ class ImporterController {
         def importInfo = getFromSession(sessionKey)
         def importer = getImporter(importInfo.importer)
         
+        // Check if data is correct
+        if( !importInfo || !importer ) {
+            flash.message = "A problem occurred while retrieving your parameters. Please restart the wizard."
+            redirect action: "chooseType"
+            return
+        }
+        
         if( request.post && params.key ) {
             switch( params._action ) {
                 case 'previous':
@@ -156,6 +163,13 @@ class ImporterController {
         def sessionKey = params.key
         def importInfo = getFromSession(sessionKey)
         def importer = getImporter(importInfo.importer)
+        
+        // Check if data is correct
+        if( !importInfo || !importer ) {
+            flash.message = "A problem occurred while retrieving your parameters. Please restart the wizard."
+            redirect action: "chooseType"
+            return
+        }
         
         if( request.post && params.key ) {
             switch( params._action ) {
@@ -406,6 +420,9 @@ class ImporterController {
      * Returns a map of parameters from the session
      */
     protected getFromSession(String sessionKey) {
+        if(!session.importer)
+            return [:]
+            
         session.importer[sessionKey] ?: [:]
     }
     
