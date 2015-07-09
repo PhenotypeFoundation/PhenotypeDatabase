@@ -100,17 +100,16 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
 
-	warn  'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
-			'org.hibernate'
-			
-	info 'grails.app.controllers.generic.installation.TnoMigrateController' 
-        all 'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter'
+	warn   'org.codehaus.groovy.grails.orm.hibernate',
+           'org.hibernate'                                  // hibernate integration
+
+    all    'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter'
         
-        // Disable logging for resources plugin
-        error 'grails.app.services.org.grails.plugin.resource', 
-            'grails.app.taglib.org.grails.plugin.resource',
-            'grails.app.resourceMappers.org.grails.plugin.resource', 
-            'org.grails.plugin.resource'
+    // Disable logging for resources plugin
+    error  'grails.app.services.org.grails.plugin.resource',
+           'grails.app.taglib.org.grails.plugin.resource',
+           'grails.app.resourceMappers.org.grails.plugin.resource',
+           'org.grails.plugin.resource'
 }
 
 graphviz {

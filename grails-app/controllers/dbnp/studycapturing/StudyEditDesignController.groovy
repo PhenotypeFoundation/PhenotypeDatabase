@@ -10,7 +10,6 @@ import dbnp.authentication.SecUser
 class StudyEditDesignController {
 	def authenticationService
 	def studyEditService
-	def dataSource
 	
 	def index() {
 		def study = getStudyFromRequest( params )
@@ -18,29 +17,15 @@ class StudyEditDesignController {
 			redirect action: "add"
 			return
 		}
-
-		def sql = new groovy.sql.Sql(dataSource)
-		def samplingEventStartTime = sql.rows("SELECT start_time FROM sampling_event WHERE parent_id = ${study.id}").findAll() { it.start_time != null }.collectAll() { it.start_time }
-		if( session.migrateDesign?.studyId ) {
-			if (session.migrateDesign.studyId == study.id) {
-				session.migrateDesign['step'] = 2
-			}
-			else {
-				flash.error = "You are still migration another study: ${Study.read( session.migrateDesign.studyId  ).title}"
-			}
-		}
-		else if ( samplingEventStartTime.size() > 0 ) {
-			session.migrateDesign = [ step: 1 ]
-		}
-
+		
 		[
 			study: study,
 			templates: [
 				event: Template.findAllByEntity( Event.class ),
 				samplingEvent:  Template.findAllByEntity( SamplingEvent.class )
-			],
-			migrateDesign: session.migrateDesign
+			]
 		]
+
 	}
 
 	/**
