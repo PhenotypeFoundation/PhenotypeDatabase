@@ -21,6 +21,7 @@
 			<div class="element"> 
 				<div class="description">Count </div>
 				<div class="input"><input type="text" name="count" value="${number}" /></div>
+				<div class="helpIcon" />
 				<div class="helpContent">The number of assays to be added</div>
 			</div>
 			
@@ -42,5 +43,6 @@
 			</g:if>
 		
 		</g:form>
-	
+
+		<script>attachHelpTooltips();</script>
 	</div>
