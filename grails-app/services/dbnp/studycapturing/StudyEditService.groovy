@@ -74,7 +74,7 @@ class StudyEditService {
 		def output = [:]
 		
 		// First select the number of results
-		def filteredIds = entity.executeQuery( "SELECT s.id FROM " + query.from + " WHERE " + query.where, query.params );
+		def filteredIds = entity.executeQuery( "SELECT DISTINCT s.id FROM " + query.from + " WHERE " + query.where, query.params );
 		output.totalFiltered = filteredIds.size()
 		output.ids = filteredIds
 		
@@ -204,7 +204,7 @@ class StudyEditService {
 			where += " AND (" + whereClause.join( " OR " ) + ") "
 			
 		[
-			select: "s",
+			select: "DISTINCT s",
 			from: from,
 			where: where,
 			order: orderBy,
