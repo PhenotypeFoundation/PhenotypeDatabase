@@ -42,8 +42,13 @@ class GdtTagLib extends AjaxflowTagLib {
         }
 
         // export and import links
-        out << "${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}<a href=\"${resource()}/template/export\">Export</a>${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}\n"
-        out << "${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}<a href=\"${resource()}/template/importTemplate\">Import</a>${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}\n"
+        if(!attrs.skipExport) {
+            out << "${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}<a href=\"${resource()}/template/export\">Export</a>${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}\n"
+        }
+        
+        if(!attrs.skipImport) {
+            out << "${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}<a href=\"${resource()}/template/importTemplate\">Import</a>${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}\n"
+        }
     }
 
     /**

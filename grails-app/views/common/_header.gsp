@@ -43,7 +43,6 @@
                         <div class="subnav">
                             <ul>
                                 <li><g:link controller="studyEdit" action="add">Create a new study</g:link></li>
-                                <li><g:link controller="studyEdit" action="edit">Edit a study</g:link></li>
                             </ul>
                         </div>
                     </li>
@@ -53,6 +52,9 @@
                         <div class="subnav">
                             <ul>
                                 <li><g:link controller="studyImporter" action="chooseType">A part of the study design</g:link></li>
+   			                    <sec:ifAnyGranted roles="ROLE_ADMIN,ROLE_TEMPLATEADMIN">
+                                	<li><g:link controller="template" action="importTemplate">Templates</g:link></li>
+                                </sec:ifAnyGranted>
                             </ul>
                         </div>
                     </li>
@@ -68,16 +70,16 @@
                                 <sec:ifNotLoggedIn>
                                     <li><g:link controller="study" action="list">View studies</g:link></li>
                                 </sec:ifNotLoggedIn>
-                                <sec:ifLoggedIn>
+   			                    <sec:ifAnyGranted roles="ROLE_ADMIN,ROLE_TEMPLATEADMIN">
                                     <li class="has-child">
                                         <a href="#">Templates</a>
                                         <div class="subsubnav">
                                             <ul>
-                                                <af:templateEditorMenu wrap="li" />
+                                                <af:templateEditorMenu wrap="li" skipImport="true" skipExport="true" />
                                             </ul>
                                         </div>
                                     </li>
-                                </sec:ifLoggedIn>
+                                </sec:ifAnyGranted>
                                 <sec:ifLoggedIn>
                                     <li class="has-child">
                                         <a href="#">Contacts</a>
@@ -124,6 +126,9 @@
                             <ul>
                                 <li><g:link controller="exporter" action="assays">Assay Data</g:link> </li>
                                 <li><g:link controller="exporter" action="studies">Studies</g:link></li>
+			                    <sec:ifAnyGranted roles="ROLE_ADMIN,ROLE_TEMPLATEADMIN">
+                                	<li><g:link controller="template" action="export">Templates</g:link></li>
+                                </sec:ifAnyGranted>
                             </ul>
                         </div>
                     </li>
