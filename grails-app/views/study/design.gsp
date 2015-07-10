@@ -36,7 +36,7 @@
 		
 		<p class="options">
 			<g:if test="${study.canWrite(loggedInUser)}">
-				<g:link class="edit" controller="studyEdit" action="design" id="${study?.id}">edit</g:link>
+				<g:link class="edit" controller="studyEditDesign" action="index" id="${study?.id}">edit</g:link>
 			</g:if>
 			<g:link class="back" controller="study" action="list" >back to list</g:link>
 		</p>					
