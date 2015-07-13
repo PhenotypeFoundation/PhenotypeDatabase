@@ -221,14 +221,6 @@ if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) {
     uploads.storageDir = (new File("/tmp/filestorage")?.canWrite()) ? "/tmp/filestorage" : "filestorage"
 }
 
-// Required configuration variables for gdtImporter plugin
-// Does the parent entity have an owner (SecUser in GSCF)
-gdtImporter.parentEntityHasOwner = true
-// How do children refer to the parent (belongsTo)
-gdtImporter.childEntityParentName = "parent"
-// What is the class name of the parent entity
-gdtImporter.parentEntityClassName = "dbnp.studycapturing.Study"
-
 // default application properties
 application.title = "Generic Study Capture Framework"
 application.template.admin.email = "me@example.com"

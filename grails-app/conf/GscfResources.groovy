@@ -152,25 +152,7 @@ modules = {
         resource url: "http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js"
     }
     
-    // GDT importer for importing several entitites
-    gdtImporter {
-        dependsOn 'helptooltips'
-        dependsOn 'gscf-datatables'
-        dependsOn 'add-more'
-        dependsOn 'fileupload'
-        dependsOn 'studywizard-files'
-        
-        resource url: [dir: 'css', file: 'studywizard.css']
-        resource url: [dir: 'css', file: 'gdtimporter.css', plugin: 'gdtimporter']
-        resource url: [dir: 'css', file: 'table-editor.css', plugin: 'gdt']
-        resource url: [dir: 'css', file: 'demo_table.css', plugin: 'gdtimporter']
-        resource url: [dir: 'css', file: 'demo_table_jui.css', plugin: 'gdtimporter']
-        resource url: [dir: 'css', file: 'demo_page.css', plugin: 'gdtimporter']
 
-        resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt'], disposition: 'head'
-        resource url: [dir: 'js', file: 'table-editor.js', plugin: 'gdt']
-    }
-    
     /**********************************************************
      * 
      * Modules below are libraries and plugins

@@ -116,7 +116,6 @@ grails.project.dependency.resolution = {
 
 grails.plugin.location.'gdt' = './local-plugins/GDT'
 grails.plugin.location.'dbxpSam' = './local-plugins/SAM'
-grails.plugin.location.'gdtimporter' = './local-plugins/GDTImporter'
 grails.plugin.location.'dbxp-base' = './local-plugins/dbxpBase'
 
 //grails.plugin.location.'dbxpModuleBase' = '../dbxpModuleBase'
