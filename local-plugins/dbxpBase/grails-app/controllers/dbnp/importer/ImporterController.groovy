@@ -250,6 +250,13 @@ class ImporterController {
             return
         }
         
+        if(importedMatrix.size() < 2) {
+            log.error "Selected sheet from uploaded file doesn't contain at least two lines."
+            response.status = 400
+            render "Provided sheet should contain at least two lines"
+            return
+        }
+        
         // Truncate each cells content to max 30 characters
         // This ensures the visibility of multiple rows, while the data can still be used to validate the settings
         def maxCharacters = 30
