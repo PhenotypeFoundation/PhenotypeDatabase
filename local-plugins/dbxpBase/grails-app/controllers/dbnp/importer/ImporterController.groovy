@@ -250,6 +250,20 @@ class ImporterController {
             return
         }
         
+        // Truncate each cells content to max 30 characters
+        // This ensures the visibility of multiple rows, while the data can still be used to validate the settings
+        def maxCharacters = 30
+        for(def row = 1; row < importedMatrix.size(); row++) {
+            for(def col = 0; col < importedMatrix[row].size(); col++) {
+                def value = importedMatrix[row][col]
+                
+                // Only do the check for strings
+                if(value instanceof String && value.size() > maxCharacters) {
+                    importedMatrix[row][col] = value.substring(0, maxCharacters - 3) + "..."
+                }
+            }
+        }
+        
         // Convert the data into a header and the real data
         def data = [
             aoColumns: importedMatrix[0].collect { [sTitle: it ] },
