@@ -82,6 +82,9 @@ Importer.upload = {
 		
 		// Also initialize the data preview now, in case a filename has been given already
 		Importer.upload.updateDataPreview();
+		
+		// Make sure to add an add/modify button to the template dropdown (if present)
+		Importer.upload.addMoreForTemplates();
 	},
 	
 	updateDataPreview: function() {
@@ -103,7 +106,47 @@ Importer.upload = {
 		
 		// Perform the ajax call to retrieve the data
 		Importer.datatable.load(previewTable, previewTable.data("url"), form.serialize());
+	},
+	
+	/**
+	 * Enables the addmore entry on a template selectbox
+	 */
+	addMoreForTemplates: function() {
+	    new SelectAddMore().init({
+	        rel	 : 'template',
+	        url	 : baseUrl + '/templateEditor',
+	        vars	: 'entity,ontologies',
+	        label   : 'add / modify..',
+	        style   : 'modify',
+	        onClose : function() {
+	            Importer.upload.refreshTemplates();
+	        }
+	    });		
+	},
+	
+	/**
+	 * Refreshes the list of templates on screen
+	 */
+	refreshTemplates: function() {
+		$( "[rel=template]").each(function(idx,el) {
+			var select = $(el);
+			var entity = select.data("entity");
+			
+			$.get( baseUrl + "/template/getAllForEntity", { entity: entity }, function(data) {
+				// Empty select 
+				select.empty();
+				select.off("change");
+				
+				// Add new templates
+				$.each(data, function(templateId, templateName) {
+					select.append( $("<option>").attr( "value", templateId ).text( templateName ) );
+				});
+				
+				Importer.upload.addMoreForTemplates();
+			});
+		});
 	}
+	
 }
 
 Importer.match = {

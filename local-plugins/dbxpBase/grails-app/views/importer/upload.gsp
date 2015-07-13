@@ -92,6 +92,9 @@
 									<g:if test="${parameter.type == 'select'}">
 										<g:select name="parameter.${parameter.name}" from="${parameter.values}" optionKey="id" value="${savedParameters?.parameter?.get(parameter.name)}"/>
 									</g:if>
+									<g:elseif test="${parameter.type == 'templates'}">
+										<g:select rel="template" entity="${importer.getEncodedEntityName()}" data-entity="${importer.entity.name}" name="parameter.${parameter.name}" from="${parameter.values}" optionKey="id" value="${savedParameters?.parameter?.get(parameter.name)}"/>
+									</g:elseif>
 									<g:elseif test="${parameter.type == 'checkbox'}">
 										<g:checkBox name="parameter.${parameter.name}" value="${savedParameters?.parameter?.get(parameter.name)}"/>
 									</g:elseif>

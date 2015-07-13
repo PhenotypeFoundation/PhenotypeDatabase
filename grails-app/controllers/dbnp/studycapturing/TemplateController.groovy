@@ -19,6 +19,7 @@ import org.dbnp.gdt.*
 import grails.converters.*
 import grails.plugin.springsecurity.annotation.Secured
 import dbnp.authentication.AuthenticationService
+import grails.util.Holders
 
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class TemplateController {
@@ -30,6 +31,24 @@ class TemplateController {
 	def importTemplate = {
 	}
 
+        /**
+         * Returns a JSON list with all templates for the given entity
+         */
+        
+        def getAllForEntity() {
+            def entityName = params.entity
+            def entity 
+            
+            try {
+                entity = Class.forName(entityName, true, Holders.grailsApplication.getClassLoader())
+                
+                render Template.findAllByEntity(entity).collectEntries { [ (it.id): it.name ] } as JSON
+            } catch( Exception e ) {
+                response.status = 400
+                render "Invalid entity given"
+            }
+        }
+    
 	/**
 	 * Handles file import
 	 */
