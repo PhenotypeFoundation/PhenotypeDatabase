@@ -93,7 +93,7 @@
 										<g:select name="parameter.${parameter.name}" from="${parameter.values}" optionKey="id" value="${savedParameters?.parameter?.get(parameter.name)}"/>
 									</g:if>
 									<g:elseif test="${parameter.type == 'checkbox'}">
-										<g:checkbox name="parameter.${parameter.name}" checked="${savedParameters?.parameter?.get(parameter.name)}"/>
+										<g:checkBox name="parameter.${parameter.name}" value="${savedParameters?.parameter?.get(parameter.name)}"/>
 									</g:elseif>
 									<g:else>
 										<input type="text" name="parameter.${parameter.name}" value="${savedParameters?.parameter?.get(parameter.name)}" />

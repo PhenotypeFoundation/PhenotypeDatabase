@@ -20,7 +20,6 @@ public abstract class StudyTemplateEntityImporter<T extends TemplateEntity> exte
             new ImporterParameter(name: 'study', label: 'Study', type: 'select', values: Study.giveWritableStudies(user)),
         ]
     }
-    
 
     /**
      * Creates an object, based on the specified parameters
