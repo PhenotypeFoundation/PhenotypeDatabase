@@ -42,6 +42,11 @@
 								  from="${1..50}"
 								  optionKey="${{it-1}}" />
 					</div>
+					
+					<div class="helpIcon"></div>
+					<div class="helpContent">
+						Choosing a sheet is only possible when uploading excel sheets. CSV or tab separated files only have a single sheet.
+					</div>
 				</div>				
 				<div class="element">
 					<div class="description">Column header at line</div>
@@ -59,6 +64,11 @@
 								  keys="${[ ",", ";", "\\t"]}"
 								  from="${[ ",", ";", "{tab}"]}" />
 					</div>
+
+					<div class="helpIcon"></div>
+					<div class="helpContent">
+						Choosing a separator is only applicable for text files (csv or tab separated). For excel files, this option will be ignored.
+					</div>
 				</div>				
 								
 				<div class="element">
@@ -68,7 +78,7 @@
 								  from="${['dd/MM/yyyy (EU/India/South America/North Africa/Asia/Australia)', 'yyyy/MM/dd (China/Korea/Iran/Japan)', 'MM/dd/yyyy (US)']}"
 								  keys="${['dd/MM/yyyy','yyyy/MM/dd','MM/dd/yyyy']}"/>
 					</div>
-				</div>				
+				</div>
 			</fieldset>
 
 			<fieldset id="exampleData" style="display: none;">
