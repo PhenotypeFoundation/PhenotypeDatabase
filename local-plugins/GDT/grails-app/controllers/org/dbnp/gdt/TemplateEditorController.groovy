@@ -189,6 +189,18 @@ class TemplateEditorController {
 
 		// Create the template fields and add it to the template
 		def template = new Template(params);
+        
+                // Check whether the name is unique. This validation is not added to the domain object
+                // due to a bug in GORM/Hibernate.
+                // As we are importing, we can be sure that the entity is not persisted yet.
+                def existingTemplates = Template.findAllByEntity(template.entity)
+                
+                if( existingTemplates.find { it.name.toLowerCase() == template.name.toLowerCase() } ) {
+                    response.status = 400
+                    render 'Template could not be created because another template with this name already exists.'
+                    return
+                }
+        
 		if (template.validate() && template.save(flush: true)) {
 			def html = g.render(plugin: 'gdt', template: 'elements/liTemplate', model: [template: template, templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights()]);
 			def output = [id: template.id, html: html];
