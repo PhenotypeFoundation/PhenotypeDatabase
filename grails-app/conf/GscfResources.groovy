@@ -119,6 +119,7 @@ modules = {
     
     // Template importer 
     templateImporter {
+        resource url: [dir: 'js', file: 'templateImporter.js']
         resource url: [dir: 'css', file: 'templateImporter.css']
     }
 
