@@ -43,6 +43,4 @@
 			</g:if>
 		
 		</g:form>
-
-		<script>attachHelpTooltips();</script>
 	</div>

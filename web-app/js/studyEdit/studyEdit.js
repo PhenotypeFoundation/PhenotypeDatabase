@@ -291,7 +291,9 @@ StudyEdit.studyChildren = {
 			// Add add/modify option again for all selects
 			StudyEdit.datatables.editable.fields.initializeSelectAddMoreTemplates( "#" + dialog.attr( "id" ) );
 			StudyEdit.datatables.editable.fields.initializeSelectAddMoreTerms( "#" + dialog.attr( "id" ) );
-			
+
+			// Initialize help icons
+			attachHelpTooltips();
 		}
 		
 }
