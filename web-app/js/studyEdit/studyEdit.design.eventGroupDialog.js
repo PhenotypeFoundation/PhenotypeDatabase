@@ -637,5 +637,7 @@ StudyEdit.design.events = {
 		    );
 		    e.preventDefault(); //STOP default action
 		});
+
+		attachHelpTooltips();
 	}
 };
