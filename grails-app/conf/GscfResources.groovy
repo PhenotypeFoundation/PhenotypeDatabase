@@ -10,6 +10,7 @@ modules = {
     gscfmain {
         dependsOn 'jquery'
         dependsOn 'jquery-ui'
+        dependsOn 'infoboxes'
 
         resource url:[ dir:'css', file: 'default.css']
         resource url:[ dir:'js', file: 'disableKeys.js']
@@ -24,7 +25,8 @@ modules = {
     gscfdialog {
         dependsOn 'jquery'
         dependsOn 'jquery-ui'
-
+        dependsOn 'infoboxes'
+        
         resource url:[ dir:'css', file: 'dialog.css']
         resource url:[ dir:'js', file: 'disableKeys.js']
         resource url:[ dir:'js', file: 'paginate.js']
@@ -159,7 +161,11 @@ modules = {
      * Modules below are libraries and plugins
      * 
      **********************************************************/
-    
+
+    'infoboxes' {
+        resource url: [dir: 'css', file: 'infoboxes.css']
+    }
+
     'fileupload' {
         resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
         resource url: [dir: 'js', file: 'fileupload.js']

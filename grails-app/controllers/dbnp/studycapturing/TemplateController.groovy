@@ -33,7 +33,6 @@ class TemplateController {
     /**
      * Returns a JSON list with all templates for the given entity
      */
-
     def getAllForEntity() {
         def entityName = params.entity
         def entity
