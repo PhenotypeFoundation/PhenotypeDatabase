@@ -29,11 +29,6 @@
 	<label for="required">Required:</label> <input type="checkbox" disabled <g:if test="${templateField?.required}">checked</g:if><br />
 
 	<div class="templateFieldButtons">
-	  <g:if test="${ templateField?.type.toString() == 'STRINGLIST' || templateField?.type.toString() == 'EXTENDABLESTRINGLIST' || templateField?.type.toString() == 'ONTOLOGYTERM' }">
 		<input type="button" value="Save" onClick="updateTemplateField( ${templateField?.id} );">
 		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} );">
-	  </g:if>
-	  <g:else>
-		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} );">
-	  </g:else>
 	</div>
