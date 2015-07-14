@@ -18,7 +18,7 @@
     <p class="noEditsPossible">You can only add or remove ontologies that are not used. Field is used in ${numUses} template(s).</p>
 	</g:if>
 	<g:else>
-	  <p class="noEditsPossible">Editing not possible. Field is used in ${numUses} template(s).</p>
+	  <p class="noEditsPossible">Limited editing. Field is used in ${numUses} template(s).</p>
 	</g:else>
   </g:else>
   <g:render template="elements/disabledFieldForm" model="['templateField': templateField, 'ontologies': ontologies, 'fieldTypes': fieldTypes]"/>
