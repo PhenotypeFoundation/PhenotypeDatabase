@@ -144,8 +144,6 @@ class TemplateController {
                 // Check whether the name is unique. This validation is not added to the domain object
                 // due to a bug in GORM/Hibernate.
                 // As we are importing, we can be sure that the entity is not persisted yet.
-                println "Entity: " + importTemplate.entity
-                println "Name: " + importTemplate.name
                 def existingTemplates = Template.findAllByEntity(importTemplate.entity)
                 
                 if( existingTemplates.find { it.name == importTemplate.name } ) {
