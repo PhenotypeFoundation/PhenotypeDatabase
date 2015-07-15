@@ -47,8 +47,8 @@
 				$("#ontologyDialog").dialog({
 				  autoOpen: false,
 				  title: 'Search for ontology',
-				  height: 290,
-				  width: 350,
+				  height: 320,
+				  width: 400,
 				  modal: true,
 				  position: "center",
 				  buttons: {

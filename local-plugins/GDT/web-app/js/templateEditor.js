@@ -35,8 +35,6 @@ function userMessage( message, type ) {
 						.on( "click", function() { $(this).parent().remove(); return false; } )
 				)
 	);
-	
-	// alert( message );
 }
 
 /*************************************
@@ -810,9 +808,14 @@ function addOntology() {
 }
 
 function updateOntologyLists( newObject) {
-    if( $('#selectedTemplateFields :not(.ui-state-disabled) option[value='+newObject.id+']').length <= 0 ) {
-	    $( '.ontologySelect' ).append( '<option title="' + newObject.name + '" value="' + newObject.id + '">' +
-            newObject.name + '</option>');
+	var ontologyList = $( ".templateField_form:visible .ontologySelect" );
+    if( ontologyList.find( "option[value=" + newObject.id + "]").length == 0 ) {
+	    $( '.ontologySelect' ).append( 
+	    	$( "<option>" )
+	    		.attr( "title", newObject.name )
+	    		.attr( "value", newObject.id )
+	    		.text( newObject.name )
+	    );
     } else {
         userMessage("This ontology is already added.", "warning");
     }
@@ -820,4 +823,5 @@ function updateOntologyLists( newObject) {
 
 function deleteOntology( id ) {
     $("#ontologies_" + id).children().remove(":selected");
+    return false;
 }

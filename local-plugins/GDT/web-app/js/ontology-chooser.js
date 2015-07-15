@@ -57,10 +57,6 @@
  * 		});
  *	});
  *
- * N.B. In order to show the labels of the terms correctly (i.e.
- * no ugly HTML tags, you also have to include jquery.ui.autocomplete.html.js
- * in your page!
- *
  * Documentation:
  * --------------
  * https://wiki.nbic.nl/index.php/DbNP_Technical_Documentation#Ontology_Chooser
@@ -120,7 +116,7 @@ OntologyChooser.prototype = {
 	},
 
 	/**
-	 * initialize the ontology autocomplete
+	 * initialize the ontology autocomplete to search for a term
 	 * @param element
 	 */
 	initAutocomplete: function(element) {
@@ -186,7 +182,7 @@ OntologyChooser.prototype = {
 			},
 			source: function(request, response) {
 				var q = $.trim(request.term);
-                var url = "http://data.bioontology.org/search?q="+ q +"&ontologies="+ ontology_id + "&apikey=" + ontologyApiKey;
+                var url = "http://data.bioontology.org/search?pagesize=30&q="+ q +"&ontologies="+ ontology_id + "&apikey=" + ontologyApiKey;
 				
 				// got cache?
 				if (that.cache[ q ]) {
@@ -208,7 +204,7 @@ OntologyChooser.prototype = {
 						inputElement.css({ 'background': 'none' });
 
 						// no results?
-						if (!data.collection) {
+						if (!data) {
 							// hide showHide element?
 							if (that.options.showHide) that.options.showHide.hide();
 
@@ -254,13 +250,19 @@ OntologyChooser.prototype = {
 					element.addClass('error');
 				}
 			},
-			html: true
 		}).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+			var ontologyAcronym = item.ontologyUrl.substring( item.ontologyUrl.lastIndexOf( "/" ) + 1 );
             return $( "<li></li>" )
-                .data( "item.autocomplete", item )
-                .append( '<a><span class="about">' + item.value + '</span><span class="from">' + item.ontologyUrl + '</span></a>' )
-                .appendTo( ul );
-        };
+            .data( "item.autocomplete", item )
+            .data( "value", item.value )
+            .append( $("<a>")
+                .append( $( "<span class='about'>" ).text( "(" + ontologyAcronym + ")" ) )
+                .append( " " )
+                .append( $( "<span class='from'>" ).text( item.name ) )
+            )
+            .appendTo( ul );
+    };
+
 	},
 
     initOntologyAutocomplete: function(element) {
@@ -334,6 +336,11 @@ OntologyChooser.prototype = {
                         // parse result data, array of terms is stored in collection
                         var terms = that.parseOntologies(data);
 
+                        // Make sure that at most 30 results are returned
+                        if( terms.length > 30 ) {
+                        	terms = terms.slice(0, 29);
+                        }
+                        
                         // cache results
                         that.cache[ q ] = terms;
 
@@ -341,7 +348,7 @@ OntologyChooser.prototype = {
                         inputElement.css({ 'background': 'none' });
 
                         // no results?
-                        if (!data.collection) {
+                        if (!data) {
                             // hide showHide element?
                             if (that.options.showHide) that.options.showHide.hide();
 
@@ -385,7 +392,17 @@ OntologyChooser.prototype = {
                 }
             },
             html: true
-        });
+        }).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+            return $( "<li></li>" )
+                .data( "item.autocomplete", item )
+                .data( "value", item.value )
+                .append( $("<a>")
+	                .append( $( "<span class='about'>" ).text( "(" + item.acronym + ")" ) )
+	                .append( " " )
+	                .append( $( "<span class='from'>" ).text( item.name ) )
+	            )
+                .appendTo( ul );
+        };
     },
 
 	/**
@@ -441,7 +458,7 @@ OntologyChooser.prototype = {
         $.each(terms, function(index, term) {
             parsed[ index ] = {
                 value			: term.prefLabel,
-                preferred_name	: term.prefLabel,
+                name			: term.prefLabel,
                 ontologyUrl     : term.links.ontology,
                 concept_id      : term['@id']
             }
@@ -450,16 +467,21 @@ OntologyChooser.prototype = {
 		return parsed;
 	},
 
-    parseOntologies: function(ontologies) {
+    /**
+     * Converts a list of ontologies from bioportal into a list used for the autocomplete
+     * Please note that no label is returned, as the label will be made up from the name and acronym
+     */
+	parseOntologies: function(ontologies) {
         var parsed = [];
 
         $.each(ontologies, function(index, ontology) {
             parsed[ index ] = {
                 value			: ontology.acronym,
-                label			: '<span class="about">(' + ontology.acronym + ')</span> <span class="from">full name: ' + ontology.name + '</span>',
+                name			: ontology.name,
+                acronym			: ontology.acronym,
                 preferred_name	: ontology.acronym,
                 ontologyUrl     : ontology['@id']
-            }
+            };
         });
         return parsed;
     },

@@ -1353,6 +1353,11 @@ label.r_on { }
     font-size: 10px;
     color: #666;
 }
+
+/* Make sure the autocomplete still shows within a dialog */
+.ui-front { z-index: 1050; }
+.ui-autocomplete.ui-menu { z-index: 1051; }
+
 /** END :: Tooltip & Autocomplete**/
 /** START :: Custom scrollbar **/
 .scrollable {

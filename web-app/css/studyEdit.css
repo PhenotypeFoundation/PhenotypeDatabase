@@ -172,7 +172,3 @@ table.dataTable td select {
     width: 98%;
 }
 
-.ui-front {
-	z-index: 1050;
-}
-.ui-autocomplete.ui-menu { z-index: 1051; }
