@@ -50,6 +50,7 @@
 				  height: 290,
 				  width: 350,
 				  modal: true,
+				  position: "center",
 				  buttons: {
 					  'Add': addOntology,
 					  Cancel: function() {

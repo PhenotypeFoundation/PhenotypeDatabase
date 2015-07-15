@@ -768,7 +768,9 @@ function hideWaiting() { $( '.wait' ).hide() }
  */
 
 function openOntologyDialog() {
+	$('#ontologyDialog').dialog('option', 'position', 'center');
 	$('#ontologyDialog').dialog('open');
+	return false;
 }
 
 function addOntology() {
