@@ -31,36 +31,36 @@ class FileService implements Serializable {
      * path to the directory, if needed
      */
     def File getUploadDir() {
-		// Find the file upload directory name from the configuration
-		String dir = grailsApplication.config.uploads.uploadDir
+        // Find the file upload directory name from the configuration
+        String dir = grailsApplication.config.uploads.uploadDir
 
-		if( !dir )
-			dir = "fileuploads"
+        if( !dir )
+            dir = "fileuploads"
 
-		return absolutePath( dir );
+        return absolutePath( dir );
     }
 
-	/**
-	* Returns the absolute path for the given pathname. If the pathname is relative, it is taken relative to the web-app directory
-	* @param pathname
-	* @return
-	*/
-   private File absolutePath( String pathname ) {
-	   if( pathname == null)
-	   	return null
+    /**
+     * Returns the absolute path for the given pathname. If the pathname is relative, it is taken relative to the web-app directory
+     * @param pathname
+     * @return
+     */
+    private File absolutePath( String pathname ) {
+        if( pathname == null)
+            return null
 
-	   // Check if this is an absolute path
-	   File f = new File( pathname );
+        // Check if this is an absolute path
+        File f = new File( pathname );
 
-	   if( f.isAbsolute() ) {
-		   return f
-	   } else {
-		   // Find the absolute path relative to the web-app directory. This code is found on
-		   // http://stackoverflow.com/questions/491067/how-to-find-the-physical-path-of-a-gsp-file-in-a-deployed-grails-application
-		   return Holders.grailsApplication.parentContext.getResource(pathname).getFile()
-	   }
-   }
-	
+        if( f.isAbsolute() ) {
+            return f
+        } else {
+            // Find the absolute path relative to the web-app directory. This code is found on
+            // http://stackoverflow.com/questions/491067/how-to-find-the-physical-path-of-a-gsp-file-in-a-deployed-grails-application
+            return Holders.grailsApplication.parentContext.getResource(pathname).getFile()
+        }
+    }
+
     /**
      * Returns as File object to a given file
      */
@@ -151,7 +151,7 @@ class FileService implements Serializable {
         if( fileExists( originalFilename ) ) {
             def basename;
             def extension;
-            
+
             // Split the filename into basename and extension
             if( originalFilename.lastIndexOf('.') >= 0 ) {
                 basename = originalFilename[ 0 .. originalFilename.lastIndexOf('.') - 1 ];

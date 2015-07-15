@@ -21,62 +21,62 @@
 package org.dbnp.gdt
 
 class TemplateExtendableStringListField extends TemplateFieldTypeNew {
-	static contains				= TemplateFieldListItem
-	static String type			= "EXTENDABLESTRINGLIST"
-	static String casedType		= "ExtendableStringList"
-	static String description	= "Extendable selection of items"
-	static String category		= "Text"
-	static String example		= ""
+    static contains				= TemplateFieldListItem
+    static String type			= "EXTENDABLESTRINGLIST"
+    static String casedType		= "ExtendableStringList"
+    static String description	= "Extendable selection of items"
+    static String category		= "Text"
+    static String example		= ""
 
-	/**
-	 * Static validator closure
-	 * @param fields
-	 * @param obj
-	 * @param errors
-	 */
-	static def validator = { fields, obj, errors ->
-		genericValidator(fields, obj, errors, TemplateFieldListItem, { value -> (value as TemplateFieldListItem) })
-	}
+    /**
+     * Static validator closure
+     * @param fields
+     * @param obj
+     * @param errors
+     */
+    static def validator = { fields, obj, errors ->
+        genericValidator(fields, obj, errors, TemplateFieldListItem, { value -> (value as TemplateFieldListItem) })
+    }
 
-	/**
-	 * cast value to the proper type (if required and if possible)
-	 * @param TemplateField field
-	 * @param mixed value
-	 * @return TemplateFieldListItem
-	 * @throws IllegalArgumentException
-	 */
-	static TemplateFieldListItem castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
-		// have we got a value?
-		if (value)  {
-			if (value.class == TemplateFieldListItem) {
-				return value
-			} else if (value.class == String) {
-				// cast it to TemplateFieldListItem
-				def escapedLowerCaseValue = value.toLowerCase().replaceAll("([[ \\t\\r\\n\\v\\f]])", "_")
-				def item = field.listEntries.find { listEntry ->
-					listEntry.name.toLowerCase().replaceAll("([[ \\t\\r\\n\\v\\f]])", "_") == escapedLowerCaseValue
-				}
+    /**
+     * cast value to the proper type (if required and if possible)
+     * @param TemplateField field
+     * @param mixed value
+     * @return TemplateFieldListItem
+     * @throws IllegalArgumentException
+     */
+    static TemplateFieldListItem castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
+        // have we got a value?
+        if (value)  {
+            if (value.class == TemplateFieldListItem) {
+                return value
+            } else if (value.class == String) {
+                // cast it to TemplateFieldListItem
+                def escapedLowerCaseValue = value.toLowerCase().replaceAll("([[ \\t\\r\\n\\v\\f]])", "_")
+                def item = field.listEntries.find { listEntry ->
+                    listEntry.name.toLowerCase().replaceAll("([[ \\t\\r\\n\\v\\f]])", "_") == escapedLowerCaseValue
+                }
 
-				// found a field list item by this name?
-				if (item) {
-					return item
-				} else {
-					// Create a new field item
-					println "Create a new list item: " + value
-					TemplateFieldListItem listitem = new TemplateFieldListItem( name: value );
-					field.addToListEntries( listitem );
-					listitem.save();
-					field.save();
-					
-					return listitem;
-				}
-			} else {
-				// invalid value
-				throw new IllegalArgumentException("Stringlist item not recognized: ${value}")
-			}
+                // found a field list item by this name?
+                if (item) {
+                    return item
+                } else {
+                    // Create a new field item
+                    println "Create a new list item: " + value
+                    TemplateFieldListItem listitem = new TemplateFieldListItem( name: value );
+                    field.addToListEntries( listitem );
+                    listitem.save();
+                    field.save();
 
-		} else {
-			return null
-		}
-	}
+                    return listitem;
+                }
+            } else {
+                // invalid value
+                throw new IllegalArgumentException("Stringlist item not recognized: ${value}")
+            }
+
+        } else {
+            return null
+        }
+    }
 }

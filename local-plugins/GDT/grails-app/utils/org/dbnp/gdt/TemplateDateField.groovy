@@ -21,59 +21,59 @@
 package org.dbnp.gdt
 
 class TemplateDateField extends TemplateFieldTypeNew {
-	static contains				= Date
-	static String type			= "DATE"
-	static String casedType		= "Date"
-	static String description	= "Date"
-	static String category		= "Date"
-	static String example		= "2010-01-01"
+    static contains				= Date
+    static String type			= "DATE"
+    static String casedType		= "Date"
+    static String description	= "Date"
+    static String category		= "Date"
+    static String example		= "2010-01-01"
 
-	/**
-	 * Static validator closure
-	 * @param fields
-	 * @param obj
-	 * @param errors
-	 */
-	static def validator = { fields, obj, errors ->
-		genericValidator(fields, obj, errors, TemplateFieldType.DATE, { value -> (value as Date) })
-	}
+    /**
+     * Static validator closure
+     * @param fields
+     * @param obj
+     * @param errors
+     */
+    static def validator = { fields, obj, errors ->
+        genericValidator(fields, obj, errors, TemplateFieldType.DATE, { value -> (value as Date) })
+    }
 
-	/**
-	 * cast value to the proper type (if required and if possible)
-	 * @param TemplateField field
-	 * @param mixed value
-	 * @return Date
-	 * @throws IllegalArgumentException
-	 */
-	static Date castValue(org.dbnp.gdt.TemplateField field, value, def currentValue ) {
-		if (value) {
-			if (value instanceof Date) {
-				return value
-			} else if (value instanceof String) {
+    /**
+     * cast value to the proper type (if required and if possible)
+     * @param TemplateField field
+     * @param mixed value
+     * @return Date
+     * @throws IllegalArgumentException
+     */
+    static Date castValue(org.dbnp.gdt.TemplateField field, value, def currentValue ) {
+        if (value) {
+            if (value instanceof Date) {
+                return value
+            } else if (value instanceof String) {
 
-				// a string was given, attempt to transform it into a date instance
-				// and -for now- assume the dd/mm/yyyy format
-				def dateMatch = value =~ /^([0-9]{1,})([^0-9]{1,})([0-9]{1,})([^0-9]{1,})([0-9]{1,})((([^0-9]{1,})([0-9]{1,2}):([0-9]{1,2})){0,})/
-				if (dateMatch.matches()) {
-					// create limited 'autosensing' datetime parser
-					// assume dd mm yyyy  or dd mm yy
-					def parser = 'd' + dateMatch[0][2] + 'M' + dateMatch[0][4] + (((dateMatch[0][5] as int) > 999) ? 'yyyy' : 'yy')
+                // a string was given, attempt to transform it into a date instance
+                // and -for now- assume the dd/mm/yyyy format
+                def dateMatch = value =~ /^([0-9]{1,})([^0-9]{1,})([0-9]{1,})([^0-9]{1,})([0-9]{1,})((([^0-9]{1,})([0-9]{1,2}):([0-9]{1,2})){0,})/
+                if (dateMatch.matches()) {
+                    // create limited 'autosensing' datetime parser
+                    // assume dd mm yyyy  or dd mm yy
+                    def parser = 'd' + dateMatch[0][2] + 'M' + dateMatch[0][4] + (((dateMatch[0][5] as int) > 999) ? 'yyyy' : 'yy')
 
-					// add time as well?
-					if (dateMatch[0][7] != null) {
-						parser += dateMatch[0][8] + 'HH:mm'
-					}
+                    // add time as well?
+                    if (dateMatch[0][7] != null) {
+                        parser += dateMatch[0][8] + 'HH:mm'
+                    }
 
-					return new Date().parse(parser, value)
-				} else {
-					throw new IllegalArgumentException("Date string not recognized: ${value} (${value.class})")
-				}
-			} else {
-				throw new IllegalArgumentException("Date value not recognized: ${value} (${value.class})")
+                    return new Date().parse(parser, value)
+                } else {
+                    throw new IllegalArgumentException("Date string not recognized: ${value} (${value.class})")
+                }
+            } else {
+                throw new IllegalArgumentException("Date value not recognized: ${value} (${value.class})")
 
-			}
-		} else {
-			return null
-		}
-	}
+            }
+        } else {
+            return null
+        }
+    }
 }

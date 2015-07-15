@@ -17,30 +17,30 @@ package org.dbnp.gdt
 import grails.converters.JSON
 
 class FuzzyStringMatchController {
-	def fuzzyStringMatchService
-	def gdtService
+    def fuzzyStringMatchService
+    def gdtService
 
-	/**
-	 * find properties of a given entity that have similar values
-	 */
-	def ajaxFuzzyFind = {
-		def result			= []
-		def searchValue		= params.value
-		def searchProperty	= params.property
-		def searchEntity	= gdtService.getInstanceByEntity(params.entity)
+    /**
+     * find properties of a given entity that have similar values
+     */
+    def ajaxFuzzyFind = {
+        def result			= []
+        def searchValue		= params.value
+        def searchProperty	= params.property
+        def searchEntity	= gdtService.getInstanceByEntity(params.entity)
 
-		// got a proper entity?
-		if (searchEntity) {
-			// find property values that match this search value
-			try {
-				result = fuzzyStringMatchService.findByDifference(searchEntity,searchProperty,searchValue)
-			} catch (Exception e) {
-				//println "error searching --> ${e.getMessage()}"
-			}
-		}
+        // got a proper entity?
+        if (searchEntity) {
+            // find property values that match this search value
+            try {
+                result = fuzzyStringMatchService.findByDifference(searchEntity,searchProperty,searchValue)
+            } catch (Exception e) {
+                //println "error searching --> ${e.getMessage()}"
+            }
+        }
 
-		// output result
-		response.setContentType("application/json; charset=UTF-8")
-		render "${params.callback}(${result as JSON})"
-	}
+        // output result
+        response.setContentType("application/json; charset=UTF-8")
+        render "${params.callback}(${result as JSON})"
+    }
 }
