@@ -61,9 +61,8 @@ class TermEditorController {
                 try {
                     ontology = Ontology.getOrCreateOntology(ontologyUrl)
                 } catch (Exception e) {
-                    response.status = 500;
-                    render 'Ontology with ID ' + ontologyUrl + ' not found';
-                    return;
+                    flash.errors = ["Could not add the given term: no or invalid ontology was given. Make sure to choose an option from the dropdown"]
+                    return error()
                 }
 
                 try {

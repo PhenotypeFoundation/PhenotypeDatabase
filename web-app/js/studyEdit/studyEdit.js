@@ -77,6 +77,17 @@ StudyEdit.initializePropertiesPage = function() {
             refreshFlow();
         }
     });
+    
+	new SelectAddMore().init({
+		rel	 : 'term',
+		url	 : baseUrl + '/termEditor',
+		vars	: 'ontologies',
+		label   : 'add more...',
+		style   : 'addMore',
+		onClose : function(scope) {
+            refreshFlow();
+		}
+	});
 
     new SelectAddMore().init({
         rel	 : 'person',

@@ -518,7 +518,6 @@ StudyEdit.datatables = {
 					}
 				});
 			},
-
 			
 			/**
 			 * Reloads the prototyped input fields, and propagates changes in selectboxes

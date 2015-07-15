@@ -193,29 +193,37 @@ OntologyChooser.prototype = {
 					response(that.cache[ q ]);
 				} else {
 					// nope, fetch it from NCBO
-					$.getJSON(url, function(data) {
-						// parse result data, array of terms is stored in collection
-						var terms = that.parseTerms(data.collection);
+					$.getJSON(url)
+						.done(function(data) {
+							// parse result data, array of terms is stored in collection
+							var terms = that.parseTerms(data.collection);
 
-						// cache results
-						that.cache[ q ] = terms;
+							// cache results
+							that.cache[ q ] = terms;
 
-						// hide spinner
-						inputElement.css({ 'background': 'none' });
+							// hide spinner
+							inputElement.css({ 'background': 'none' });
 
-						// no results?
-						if (!data) {
-							// hide showHide element?
-							if (that.options.showHide) that.options.showHide.hide();
+							// no results?
+							if (!data) {
+								// hide showHide element?
+								if (that.options.showHide) that.options.showHide.hide();
 
-							// clear hidden field
-							that.setInputValue(inputElement, 'ontology_id', null);
-                            that.setInputValue(inputElement, 'concept_id', null);
-						}
+								// clear hidden field
+								that.setInputValue(inputElement, 'ontology_id', null);
+	                            that.setInputValue(inputElement, 'concept_id', null);
+							}
 
-						// response callback
-						response(terms);
-					});
+							// response callback
+							response(terms);
+						})
+						.fail(function() {
+							// An error occurred
+							
+							// hide spinner
+							inputElement.css({ 'background': 'none' });
+						})
+					;
 				}
 			},
 			select: function(event, ui) {
