@@ -799,10 +799,9 @@ function addOntology() {
 			$('#ontologyDialog').dialog('close');
         },
         error: function( request ) {
-			alert( "Could not add ontology: " + request.responseText );
+			alert( "Could not add ontology. Make sure you select an option from the dropdown." );
 			$( '#term_spinner' ).hide();
 			$( '#ncbo_spinner' ).hide();
-			$('#ontologyDialog').dialog('close');
         }
     });
 }
