@@ -23,7 +23,7 @@ function userMessage( message, type ) {
 	if( typeof( type ) == "undefined" )
 		type = "info";
 	
-	$( ".templateEditorStep" ).before( 
+	$( ".templateEditorStep" ).first().before( 
 			$("<div>")
 				.addClass( "message" )
 				.addClass( type )
