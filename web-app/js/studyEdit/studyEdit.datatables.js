@@ -95,6 +95,7 @@ StudyEdit.datatables = {
 		}
 	
 		// Initialize serverside pagination and (if needed) editable behavior
+		var dataTables = [];
 		$( selector ).each(function(idx, el) {
 			var $el = $(el);
 			
@@ -160,13 +161,17 @@ StudyEdit.datatables = {
 				opts = defaultOptions;	
 			}
 			
-			// Convert into datatale
-			$el.dataTable(opts);
-	
+			// Convert into datatable
+			var dataTable = $el.dataTable(opts);
+			
 			// Add extra options for selections
 			StudyEdit.datatables.selection.postInitialization( $el );
 
+			dataTables.push(dataTable);
+			
 		});
+		
+		return dataTables;
 	},
 	
 	retrieveData: function( sSource, aoData, fnCallback, id ) {

@@ -31,26 +31,25 @@
 			<table id="samplestable" data-formId="sampleForm" class="samplesTable selectMulti" rel="${g.createLink(action:"dataTableAssaySamples", id: study.id)}">
 				<thead>
 					<tr>
-					
+						<g:each in="${study.assays.sort {it.name} }" var="assay">
+							<th class="assay" data-id="${assay.id}">${assay.name}</th>
+						</g:each>
 						<th>Sample</th>
 						<th>Subject</th>
 						<th>Eventgroup</th>
 						<th>Sampling event</th>
 						<th>Sample template</th>
 						<th>Starttime (combined)</th>
-						<g:each in="${study.assays.sort {it.name} }" var="assay">
-							<th class="assay" data-id="${assay.id}">${assay.name}</th>
-						</g:each>
 					</tr>
 				</thead>
 				<tfoot>
 					<tr class="messagebar selectAll">
-						<td colspan="${study.assays.size() + 5}">
+						<td colspan="${study.assays.size() + 6}">
 							You selected all items on this page. Would you <a href="#">select all items on other pages</a> as well? 
 						</td>
 					</tr>
 					<tr class="messagebar saveChanges">
-						<td class="" colspan="${study.assays.size() + 5}">
+						<td class="" colspan="${study.assays.size() + 6}">
 							<span class="links">
 								<a href="#" onClick="StudyEdit.datatables.editable.save(this); return false;">Save</a> or 
 								<a href="#" onClick="StudyEdit.datatables.editable.discardChanges(this); return false;">Discard</a>
