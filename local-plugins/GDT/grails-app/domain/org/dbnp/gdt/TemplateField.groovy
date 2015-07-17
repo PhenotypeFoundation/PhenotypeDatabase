@@ -122,7 +122,6 @@ class TemplateField implements Serializable {
      * @returns a list of templates that use this template field.
      */
     def getUses() {
-        log.info "TemplateField::getUses"
         def sql = new Sql(dataSource)
 
         def query = "SELECT DISTINCT template_fields_id FROM template_template_field WHERE template_field_id = :templateFieldId"
@@ -146,13 +145,7 @@ class TemplateField implements Serializable {
             return []
         }
 
-        def entities = getEntities()
-
-        if (entities.size() == 0) {
-            return []
-        }
-
-        return this.ontologies.findAll { ontologyEntryUsed(it, entities) }
+        return this.ontologies.findAll { ontologyEntryUsed(it) }
     }
 
     /**
@@ -166,14 +159,7 @@ class TemplateField implements Serializable {
             return []
         }
 
-        def entities = getEntities()
-
-
-        if (entities.size() == 0) {
-            return []
-        }
-
-        return this.ontologies.findAll { !ontologyEntryUsed(it, entities) }
+        return this.ontologies.findAll { !ontologyEntryUsed(it) }
     }
 
     /**
@@ -203,23 +189,35 @@ class TemplateField implements Serializable {
     /**
      * Checks whether the item is selected in an entity where this ontology template field is used
      * @param mixed item
+     * @param List entities List of entities to search in. If not given, the method searches in all entities
      * @returns boolean
      */
-    def ontologyEntryUsed(item, entities) {
-        //Checks is the ontology is part of this template field and a term from the given
-        //ontology is selected in an entity where this template field is used. false otherwise
-        //Returns false if the type of this template field is other than ONTOLOGYTERM
-        def entitiesWithOntology = entities.findAll { entity ->
-
-            //Quite inefficient to just check wether a entry is used or not.
-            def value = entity.getFieldValue(this.name);
-
-            if (value)
-                return value.ontology.equals(item)
-            else
-                return false;
+    def ontologyEntryUsed(item, entities = null) {
+        // Checks is the ontology is part of this template field and a term from the given
+        // ontology is selected in an entity where this template field is used. false otherwise
+        
+        // Returns false if the type of this template field is other than ONTOLOGYTERM
+        if(this.type != TemplateFieldType.ONTOLOGYTERM)
+            return false
+            
+        // Create HQL query
+        def entityName = entity.simpleName
+        String store = "template${this.type.casedName}Fields"
+        def hql = "SELECT COUNT(*) " +
+                        "FROM " + entityName + " entity " +
+                          "INNER JOIN entity." + store + " store " +
+                        "WHERE index(store) = :fieldName " + 
+                          "AND store.ontology = :ontology"
+        def hqlParams = [ fieldName: this.name, ontology: item ]
+                        
+        if( entities ) {
+            hql += " AND entity in (:entities)"
+            hqlParams.entities = entities
         }
-        return entitiesWithOntology.size() > 0;
+        
+        def numUses = entity.executeQuery(hql, hqlParams)
+            
+        return numUses[0] > 0;
     }
 
     /**
@@ -229,8 +227,6 @@ class TemplateField implements Serializable {
      * 				and an instance has a value for this field. false otherwise
      */
     def isFilled() {
-        log.info( "TemplateField::isFilled")
-        
         // Find all templates that use this template field
         def templates = getUses();
 

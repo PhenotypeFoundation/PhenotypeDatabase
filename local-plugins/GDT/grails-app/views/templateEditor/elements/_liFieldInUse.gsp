@@ -1,8 +1,7 @@
 <g:set var="templateFieldService" bean="templateFieldService"/>
-<g:set var="numUses" value="${templateFieldService.numUses(templateField)}" />
 <span class="listButtons">
   <img onClick="showTemplateFieldForm( ${templateField.id}); this.blur(); return false;" src="${resource( dir: 'images/icons', file: 'application_edit.png', plugin: 'famfamfam' )}" alt="Edit template field properties" title="Edit template field properties">
-  <img class="disabled" src="${resource( dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam' )}" alt="Deleting this field is not possible. Field is used in ${numUses} templates." title="Deleting this field is not possible. Field is used in ${numUses} templates.">
+  <img class="disabled" src="${resource( dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam' )}" alt="Deleting this field is not possible. Field is used in one or more templates." title="Deleting this field is not possible. Field is used in one or more templates.">
   <img onClick="addTemplateField( ${templateField.id}, null, true );" src="${resource( dir: 'images/icons', file: 'add.png', plugin: 'famfamfam' )}" alt="Add field to template" title="Add field to template">
 </span>
 
@@ -15,7 +14,7 @@
   </g:if>
   <g:else>
     <g:if test="${templateField?.type.toString() == 'ONTOLOGYTERM' }">
-    <p class="noEditsPossible">You can only add or remove ontologies that are not used. Field is used in ${numUses} template(s).</p>
+    <p class="noEditsPossible">You can only add or remove ontologies that are not used. Field is used in one or more template(s).</p>
 	</g:if>
 	<g:else>
 	  <p class="noEditsPossible">Limited editing. Field is used in ${numUses} template(s).</p>

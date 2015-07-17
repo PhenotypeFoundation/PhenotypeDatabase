@@ -16,8 +16,6 @@ class TemplateFieldService {
      * @return ArrayList containing all list items of this template field that have been used in an object.
      */
     def List getUsedListEntries( TemplateField templateField ) {
-        log.info "TemplateFieldService::getUsedListEntries"
-        
         if ((templateField.type != TemplateFieldType.STRINGLIST && templateField.type != TemplateFieldType.EXTENDABLESTRINGLIST) || templateField.listEntries.size() == 0)
             return []
 
@@ -44,8 +42,6 @@ class TemplateFieldService {
      * @return ArrayList containing all list items of this template field that have never been used in an object.
      */
     def List getNonUsedListEntries( TemplateField templateField ) {
-        log.info "TemplateFieldService::nonUsedListEntries(1)"
-        
         if ((templateField.type != TemplateFieldType.STRINGLIST && templateField.type != TemplateFieldType.EXTENDABLESTRINGLIST) || templateField.listEntries.size() == 0)
             return []
 
@@ -60,8 +56,6 @@ class TemplateFieldService {
      * @return ArrayList containing all list items of this template field that have never been used in an object.
      */
     def List getNonUsedListEntries( TemplateField templateField, List usedFields ) {
-        log.info "TemplateFieldService::nonUsedListEntries(2)"
-        
         if ((templateField.type != TemplateFieldType.STRINGLIST && templateField.type != TemplateFieldType.EXTENDABLESTRINGLIST) || templateField.listEntries.size() == 0)
             return []
 
@@ -75,7 +69,6 @@ class TemplateFieldService {
      * @returns true iff this template field is used in a template (even if the template is never used), false otherwise
      */
     def inUse( TemplateField templateField ) {
-        log.info "TemplateFieldService::inUse"
         return numUses( templateField ) > 0;
     }
 
@@ -85,7 +78,6 @@ class TemplateFieldService {
      * @returns the number of templates that use this template field.
      */
     def numUses( TemplateField templateField ) {
-        log.info "TemplateFieldService::numUses"
         def sql = new Sql(dataSource)
         def query = "SELECT COUNT(template_fields_id) FROM template_template_field WHERE template_field_id = ${templateField.id};"
 
@@ -97,7 +89,6 @@ class TemplateFieldService {
      * Counts the number of uses for all template fields
      */
     def countUses() {
-        log.info "TemplateFieldService::countUses"
         def sql = new Sql(dataSource)
 
         def query = "SELECT template_field_id, COUNT(template_field_id) FROM templates_template_field GROUP BY template_field_id"
@@ -110,7 +101,6 @@ class TemplateFieldService {
      * Return all template field ids for template fields that are used in a template
      */
     def getUsedTemplateFieldIds() {
-        log.info "TemplateFieldService::getUsedTemplateFieldIds"
         def sql = new Sql(dataSource)
 
         def query = "SELECT DISTINCT template_field_id FROM template_template_field"

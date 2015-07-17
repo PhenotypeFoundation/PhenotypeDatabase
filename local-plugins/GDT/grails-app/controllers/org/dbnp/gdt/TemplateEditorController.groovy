@@ -524,13 +524,9 @@ class TemplateEditorController {
             }
 
             if (params.ontologies) {
-                def ontologies = params.ontologies;
+                def ontologies = params.list('ontologies');
 
-                if(ontologies instanceof String) {
-                    params.ontologies = usedOntologies + Ontology.get( Integer.parseInt(ontologies) );
-                } else {
-                    params.ontologies = usedOntologies + Ontology.getAll(ontologies.collect { Integer.parseInt(it) });
-                }
+                params.ontologies = usedOntologies + Ontology.getAll(ontologies.collect { Integer.parseInt(it) });
             }
         } else {
             params.remove('ontologies');
@@ -571,7 +567,12 @@ class TemplateEditorController {
             if (params.templateId)
                 template = Template.findById(params.templateId);
 
-            def html = g.render(plugin: 'gdt', template: renderTemplate, model: [template: template, templateField: templateField, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list(), templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights()]);
+            def html = g.render(plugin: 'gdt', template: renderTemplate, model: [
+                 template: template, templateField: templateField, ontologies: Ontology.list(), 
+                 fieldTypes: TemplateFieldType.list(), 
+                 templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights(),
+                 fieldIdsInUse: templateFieldService.getUsedTemplateFieldIds()
+            ]);
             def output = [id: templateField.id, html: html];
             response.setContentType("application/json; charset=UTF-8")
             render output as JSON;
