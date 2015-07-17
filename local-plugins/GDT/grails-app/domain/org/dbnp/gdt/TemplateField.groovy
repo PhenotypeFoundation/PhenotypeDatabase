@@ -20,6 +20,8 @@ import groovy.sql.Sql
  * $Date: 2010-12-15 13:53:28 +0100 (Wed, 15 Dec 2010) $
  */
 class TemplateField implements Serializable {
+    transient def dataSource
+    
     /** The name of the TemplateField, by which it is represented to the user.   */
     String name
 
@@ -120,16 +122,17 @@ class TemplateField implements Serializable {
      * @returns a list of templates that use this template field.
      */
     def getUses() {
-        def templates = Template.all;
-        def elements;
+        log.info "TemplateField::getUses"
+        def sql = new Sql(dataSource)
 
-        if (templates && templates.size() > 0) {
-            elements = templates.findAll { template -> template.fields.contains(this) };
+        def query = "SELECT DISTINCT template_fields_id FROM template_template_field WHERE template_field_id = :templateFieldId"
+        def ids = sql.rows(query.toString(), [ templateFieldId: this.id])
+        
+        if( ids ) {
+            Template.getAll(ids.collect { it.template_fields_id })
         } else {
-            return [];
+            []
         }
-
-        return elements;
     }
 
     /**
@@ -226,21 +229,27 @@ class TemplateField implements Serializable {
      * 				and an instance has a value for this field. false otherwise
      */
     def isFilled() {
+        log.info( "TemplateField::isFilled")
+        
         // Find all templates that use this template field
         def templates = getUses();
 
         if (templates.size() == 0)
             return false;
 
-        // Find all entities that use these templates
-        def c = this.entity.createCriteria()
-        def entities = c {
-            'in'("template", templates)
-        }
-
-        def filledEntities = entities.findAll { entity -> entity.getFieldValue(this.name) }
-
-        return filledEntities.size() > 0;
+        // Determine whether this field is filled in any of the entities
+        def entityName = entity.simpleName
+        String store = "template${this.type.casedName}Fields"
+        def hql = "SELECT COUNT(*) " +
+                        "FROM " + entityName + " entity " +
+                          "INNER JOIN entity." + store + " store " +
+                        "WHERE index(store) = :fieldName " +
+                          "AND entity.template IN (:templates) " +
+                          "AND store IS NOT NULL"
+            
+        def numUses = entity.executeQuery(hql, [ fieldName: this.name, templates: templates])
+            
+        return numUses[0] > 0;
     }
 
     /**
@@ -257,11 +266,19 @@ class TemplateField implements Serializable {
         if (!t.fields.contains(this))
             return false;
 
-        // Find all entities that use this template
-        def entities = entity.findAllByTemplate(t);
-        def filledEntities = entities.findAll { entity -> entity.getFieldValue(this.name) }
-
-        return filledEntities.size() > 0;
+        // Determine whether this field is filled in any of the entities
+        def entityName = t.entity.simpleName
+        String store = "template${this.type.casedName}Fields"
+        def hql = "SELECT COUNT(*) " + 
+                    "FROM " + entityName + " entity " +
+                      "INNER JOIN entity." + store + " store " + 
+                    "WHERE index(store) = :fieldName " +
+                      "AND entity.template = :template " +
+                      "AND store IS NOT NULL"
+        
+        def numUses = t.entity.executeQuery(hql, [ fieldName: this.name, template: t])
+        
+        return numUses[0] > 0;
     }
 
     /**

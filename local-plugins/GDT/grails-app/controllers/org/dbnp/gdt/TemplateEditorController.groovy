@@ -135,7 +135,10 @@ class TemplateEditorController {
 
         // Find all available fields
         def allFields = TemplateField.findAllByEntity(entity).sort { a, b -> a.name <=> b.name }
-
+        
+        // Determine which fields are actually in use
+        def fieldIdsInUse = templateFieldService.getUsedTemplateFieldIds()
+        
         return [
             entity: entity,
             templates: templates,
@@ -148,7 +151,9 @@ class TemplateEditorController {
             template: template,
             allFields: allFields,
             domainFields: domainFields,
-            templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights()
+            templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights(),
+            
+            fieldIdsInUse: fieldIdsInUse
         ];
 
     }
@@ -732,7 +737,11 @@ class TemplateEditorController {
         template.save(flush: true);
 
 
-        def html = g.render(plugin: 'gdt', template: 'elements/available', model: [templateField: templateField, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list(), templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights()]);
+        def html = g.render(plugin: 'gdt', template: 'elements/available', model: [
+            templateField: templateField, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list(), 
+            templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights(),
+            fieldIdsInUse: templateFieldService.getUsedTemplateFieldIds()
+        ]);
         def output = [id: templateField.id, html: html];
         response.setContentType("application/json; charset=UTF-8")
         render output as JSON;
