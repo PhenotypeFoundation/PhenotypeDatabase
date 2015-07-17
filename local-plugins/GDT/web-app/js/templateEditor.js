@@ -373,9 +373,9 @@ function hideTemplateFieldForm( id ) {
 function clearTemplateFieldForm( id ) {
     $( '#templateField_' + id + '_form input[name=name]' ).val( "" );
     $( '#templateField_' + id + '_form input[name=unit]' ).val( "" );
-    $( '#templateField_' + id + '_form input[name=required]' ).attr( "checked", "" );
+    $( '#templateField_' + id + '_form input[name=required]' ).attr( "checked", false );
     $( '#templateField_' + id + '_form textarea' ).val( "" );
-    $( '#templateField_' + id + '_form select' ).attr( 'selectedIndex', 0 );
+    $( '#templateField_' + id + '_form select' ).get(0).selectedIndex = 0;
     $( '#templateField_' + id + '_form .extra' ).hide();
 }
 
