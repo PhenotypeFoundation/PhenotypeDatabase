@@ -19,8 +19,8 @@
 	<g:render template="/common/flash_validation_messages" />
 	
     <span class="message info">
-        <span class="title">Finished</span>
-        You are done creating your study. Below you will find a summary of the study you have just defined.
+        <span class="title">Overview</span>
+        Below you will find a summary of the current study.
         Click <g:link controller="study" action="list">here</g:link> to back to the studies overview page.
     </span>
 
@@ -28,10 +28,18 @@
         <h3><a href="#">General overview</a></h3>
         <div>
             <p>
-                You have created a study containing ${(study.subjects) ? study.subjects.size() : 0} subjects,
-                ${(study.events) ? study.events.size() : 0} events and ${(study.samplingEvents) ? study.samplingEvents.size(): 0} sampling events grouped into
-                ${(study.eventGroups) ? study.eventGroups.size() : 0} event groups. The study results in
-                ${(study.samples) ? study.samples.size() : 0} samples analyzed using ${(study.assays) ? study.assays.size() : 0} assays.
+                You have created a study containing ${(study.subjects) ? study.subjects.size() : 0} subjects grouped into ${(study.subjectGroups) ? study.subjectGroups.size() : 0} groups.<br />
+                
+                The design consists of ${(study.events) ? study.events.size() : 0} treatment type(s) and ${(study.samplingEvents) ? study.samplingEvents.size(): 0} sample type(s). 
+                They are grouped into ${(study.eventGroups) ? study.eventGroups.size() : 0} groups.
+                
+                <g:set var="groupsNotUsed" value="${study.eventGroups?.findAll { !it.subjectEventGroups }?.size() ?: 0}" />
+                <g:if test="${groupsNotUsed}">
+                	Please note: ${groupsNotUsed} sample &amp; treatement group(s) have not been used in the study design.
+                </g:if>
+                <br />
+                
+                The study results in ${(study.samples) ? study.samples.size() : 0} samples analyzed using ${(study.assays) ? study.assays.size() : 0} assays.
             </p>
         </div>
         <h3><a href="#">Study</a></h3>
@@ -58,14 +66,14 @@
 
             Not right? Click <g:link controller="studyEdit" action="subjects" id="${study.id}">here</g:link> to go back to the subjects page and make corrections.
         </div>
-        <h3><a href="#">Events</a></h3>
+        <h3><a href="#">Sample &amp; Treatment types</a></h3>
         <div>
             <g:each var="template" in="${study.giveAllEventTemplates()}">
                 <p><b>${template}</b></p>
                 <ul>
                     <g:each var="event" in="${study.giveEventsForTemplate(template)}">
                         <li>
-                            <i><g:if test="${(event.getClass() == 'SamplingEvent')}">Sampling </g:if>Event</i>
+                            <i><g:if test="${(event.class.simpleName == 'SamplingEvent')}">Sample type</g:if><g:else>Treatment type</g:else></i>
                             <ul>
                                 <g:each var="field" in="${event?.giveFields()}">
                                     <li>${field} - ${(field.type.toString() == "RELTIME") ? new org.dbnp.gdt.RelTime(event.getFieldValue(field.name)) : event.getFieldValue(field.name)}</li>
