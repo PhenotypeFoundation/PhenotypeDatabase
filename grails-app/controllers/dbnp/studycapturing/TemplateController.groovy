@@ -52,7 +52,7 @@ class TemplateController {
      */
     def handleImportedFile = {
         if( !request.getFile("file") ) {
-            flash.message = "No file given.";
+            flash.message = "No file given. Please specify an XML template file.";
             redirect( action: 'importTemplate' );
             return;
         }
@@ -64,8 +64,10 @@ class TemplateController {
             xml = XML.parse( request.getFile("file").inputStream.text )
         } catch( Exception e ) {
             // Error in parsing. Probably the file is not a XML file
+            log.error "Error when parsing file to import templates", e
             flash.message = "Imported file could not be read. Please specify an XML template file.";
             redirect( action: 'importTemplate' );
+            return
         }
 
         def numTemplates = xml.@count;
@@ -73,6 +75,7 @@ class TemplateController {
         if( !xml.template ) {
             flash.message = "No templates could be found in the imported file. Please specify an XML template file.";
             redirect( action: 'importTemplate' );
+            return
         }
 
         // Check whether the templates already exist
