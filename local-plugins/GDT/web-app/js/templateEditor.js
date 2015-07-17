@@ -438,13 +438,13 @@ function updateTemplateField( id ) {
         success:    function(data, textStatus, request) {
             hideTemplateFieldForm( id );
             updateFieldListItem( id, data.html );
+			userMessage( 'Your template field has been updated.', "okay" );
         },
         error:      function( request ) {
         	userMessage( "Could not update template field: " + request.responseText, "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
-			userMessage( 'Your template field has been updated.', "okay" );
 		}
     });
 }
@@ -463,15 +463,14 @@ function deleteTemplateField( id ) {
         success:    function(data, textStatus, request) {
 			// Put the new HTML into the list item
 			deleteFieldListItem( id );
-
 			showHideEmpty( '#availableTemplateFields' );
+			userMessage( 'Your template field has been deleted.', "info" );
         },
         error:      function( request ) {
         	userMessage( "Could not delete template field: " + request.responseText, "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
-			userMessage( 'Your template field has been deleted.', "info" );
 		}
     });
 
@@ -644,6 +643,7 @@ function removeTemplateField( id, moveAfterwards ) {
 			showHideEmpty( '#selectedTemplateFields' );
 			showHideEmpty( '#availableTemplateFields' );
 
+			userMessage( "Template field is removed from the template", "success" );
         },
         error:      function( request ) {
 			if( !moveAfterwards ) {
