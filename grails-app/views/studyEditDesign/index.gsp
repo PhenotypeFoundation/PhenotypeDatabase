@@ -45,7 +45,7 @@
 								<span class="events">
 									${eventgroup.contents}
 								</span>
-								<span class="eventgroup-buttons">
+								<span class="designobject-buttons">
 									<a href="#" class="edit">edit</a>
 									<a href="#" class="delete">del</a>
 								</span>

@@ -100,13 +100,13 @@ table.dataTable td.dataTables_empty { text-align: left; }
 
 .addToTimeline .name { font-weight: bold;  }
 .eventgroups .events { display: inline-block; margin-left: 10px; }
-.addToTimeline .eventgroup-buttons { float: right; }
-.addToTimeline .eventgroup-buttons a { display: inline-block; margin-left: 5px; }
+.addToTimeline .designobject-buttons { float: right; }
+.addToTimeline .designobject-buttons a { display: inline-block; margin-left: 5px; }
 
 #timeline-eventgroups, #timeline-events { position: relative; }
 #timeline-eventgroups .timeline-groups-text { cursor: pointer; height: 30px; }
 
-.ui-draggable-dragging .buttons { display: none; }
+.ui-draggable-dragging .designobject-buttons { display: none; }
  
  #eventGroupDialog .addToTimeline { width: 48%; float: left; margin-right: 4%; } 
  #eventGroupDialog #samplingEvents { margin-right: 0; }

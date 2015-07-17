@@ -222,7 +222,7 @@ StudyEdit.design.eventGroups = {
 			.append( $( "<span class='name'>" ).text( eventGroupData.name ) )
 			.append( $( "<span class='events'>" ) )
 			.append( 
-				$( "<span class='buttons'>" )
+				$( "<span class='designobject-buttons'>" )
 					.append( '<a href="#" class="edit">edit</a>') 
 					.append( '<a href="#" class="delete">del</a>') 
 			);
