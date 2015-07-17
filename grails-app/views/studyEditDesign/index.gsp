@@ -29,6 +29,7 @@
 			
 			<div id="studydesign">
 				<div id="timeline-eventgroups"></div>
+				<div class="overlay">The first step is to add one or more subject groups.<br />After that, you can create sample &amp; treatment groups and assign them to the subject groups.</div>
 			</div>
 			<div id="design-meta">
 				<div id="subjectGroups" class="subjectgroups addToTimeline">

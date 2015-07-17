@@ -106,6 +106,10 @@ table.dataTable td.dataTables_empty { text-align: left; }
 #timeline-eventgroups, #timeline-events { position: relative; }
 #timeline-eventgroups .timeline-groups-text { cursor: pointer; height: 30px; }
 
+/* Overlay on timeline to prevent adding events if no subject group is present yet */
+#studydesign { position: relative; }
+#studydesign .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; opacity: 0.8; text-align: center; line-height: 2em; display: none; font-size: 10pt; }
+
 .ui-draggable-dragging .designobject-buttons { display: none; }
  
  #eventGroupDialog .addToTimeline { width: 48%; float: left; margin-right: 4%; } 
