@@ -18,7 +18,7 @@ body {
 .container { margin: 0 auto;}
 .ui-widget, .simileAjax-bubble-container { text-align: left; }
 
-a {
+a, .ui-widget-content a  {
     color:#45bee1;
     text-decoration: none;
     outline: none;
