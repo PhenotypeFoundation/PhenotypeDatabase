@@ -498,7 +498,7 @@ class StudyEditDesignController {
 	}
 	
 	def eventUpdate() {
-		def entity = Event.read( params.long( "id" ) )
+		def entity = Event.get( params.long( "id" ) )
 		
 		if( !entity ) {
 			response.status = 404
@@ -532,7 +532,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventDelete() {
-		def event = Event.read( params.long( "id" ) );
+		def event = Event.get( params.long( "id" ) );
 
 		if( !event ) {
 			response.status = 404
@@ -590,7 +590,7 @@ class StudyEditDesignController {
 	}
 	
 	def samplingEventUpdate() {
-		def entity = SamplingEvent.read( params.long( "id" ) )
+		def entity = SamplingEvent.get( params.long( "id" ) )
 		
 		if( !entity ) {
 			response.status = 404
@@ -624,7 +624,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def samplingEventDelete() {
-		def samplingEvent = SamplingEvent.read( params.long( "id" ) );
+		def samplingEvent = SamplingEvent.get( params.long( "id" ) );
 
 		if( !samplingEvent ) {
 			response.status = 404
