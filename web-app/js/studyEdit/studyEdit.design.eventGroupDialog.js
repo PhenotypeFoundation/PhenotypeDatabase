@@ -318,7 +318,7 @@ StudyEdit.design.eventGroups = {
 	    	// If the user drags in an event, he should specify the duration
 	    	var duration = 0;
 	    	if( eventType == "event" ) {
-	    		duration = prompt( "Please specify the duration of this treatment type. Specify 0 for no duration." );
+	    		duration = prompt( "Please specify the duration of this treatment type.\nUse 's', 'm', 'h', 'd', 'w' or 'y' to denote seconds, minutes, hours, days, weeks or years. Specify 0 for no duration.\n\nExamples: '1d', '2d 12h', '3h 45m'" );
 	    		
 	    		if( duration == null ) {
 		    		timeline.cancelAdd();
