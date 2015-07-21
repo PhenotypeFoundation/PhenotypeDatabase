@@ -98,9 +98,9 @@ class DatatablesService {
                                         // transform date instance to formatted string (dd/mm/yyyy)
                                         data << ( value ? String.format('%tY-%<tm-%<td', value) : "" )
                                 } else if ( field.type == TemplateFieldType.RELTIME ) {
-                                        data << ( value ? new RelTime( value ).toString() : "" )
+                                        data << ( value == null ? "" : new RelTime( value ).toString())
                                 } else {
-                                        data << ( value ? value.toString() : "" )
+                                        data << ( value == null ? "" : value.toString() )
                                 }
                         } catch( ObjectNotFoundException e ) {
                                 // An ObjectNotFoundException occurs if the field references an object that doesn't

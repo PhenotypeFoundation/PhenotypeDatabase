@@ -162,8 +162,6 @@ public abstract class TemplateEntityImporter<T extends TemplateEntity> extends A
      * Store the given value in a certain field on the object
      */
     protected boolean storeField(def object, String fieldName, def cell, def columnIndex, def parameters) {
-        println "StoreField TemplateEntity"
-        
         // TODO: Format and/or parse the value
         try {
             object.setFieldValue(fieldName, cell, true)

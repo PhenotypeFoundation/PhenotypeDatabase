@@ -46,19 +46,20 @@ class TemplateDoubleField extends TemplateFieldTypeNew {
      * @throws IllegalArgumentException
      */
     static Double castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
-        if (value) {
-            if (value instanceof Double) {
-                return value
-            } else if (value.class == String) {
+        if (value instanceof Double) {
+            return value
+        } else if (value.class == String) {
+            if( value == "" ) 
+                return null
+            else 
                 return Double.parseDouble(value)
-            } else if (isNumeric(value)) {
-                return value.toDouble()
-            } else {
-                // invalid value
-                throw new IllegalArgumentException("Double value not recognized: ${value} (${value.class})")
-            }
+        } else if (isNumeric(value)) {
+            return value.toDouble()
         } else {
-            return new Double(0)
+            // invalid value
+            throw new IllegalArgumentException("Double value not recognized: ${value} (${value.class})")
         }
+            
+            
     }
 }

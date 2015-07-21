@@ -46,19 +46,18 @@ class TemplateLongField extends TemplateFieldTypeNew {
      * @throws IllegalArgumentException
      */
     static Long castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
-        if (value) {
-            if (value instanceof Long) {
-                return value
-            } else if (value.class == String) {
+        if (value instanceof Long) {
+            return value
+        } else if (value.class == String) {
+            if( value == "" ) 
+                return null
+            else 
                 return Long.parseLong(value)
-            } else if (isNumeric(value)) {
-                return value.toLong()
-            } else {
-                // invalid value
-                throw new IllegalArgumentException("Long value not recognized: ${value} (${value.class})")
-            }
+        } else if (isNumeric(value)) {
+            return value.toLong()
         } else {
-            return new Long(0)
+            // invalid value
+            throw new IllegalArgumentException("Long value not recognized: ${value} (${value.class})")
         }
     }
 }
