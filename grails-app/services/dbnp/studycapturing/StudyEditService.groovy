@@ -82,6 +82,10 @@ class StudyEditService {
 		def hql = "SELECT " + query.select + " FROM " + query.from + " WHERE " + query.where + " " + ( query.order ? " ORDER BY " + query.order : "" )
 		output.entities = entity.executeQuery( hql, query.params, [ max: searchParams.max, offset: searchParams.offset ] )
 
+                if( query.chooseFirst ) {
+                    output.entities = output.entities.collect { it[0] }
+                }
+        
 		output
 
 	}
@@ -178,6 +182,10 @@ class StudyEditService {
 		def sortColumnIndex = searchParams.sortColumn ?: 0
 		def sortOrder = searchParams.sortDirection ?: "ASC"
 		
+                // Prepare for differences in selection
+                def select = "DISTINCT s"
+                def chooseFirst = false
+                
 		if( sortColumnIndex != null || sortColumnIndex >= ( domainFields.size() + template.fields.size() ) ) {
 			if( sortColumnIndex < domainFields.size() ) {
 				def sortOn = domainFields[ sortColumnIndex ]?.name;
@@ -191,6 +199,12 @@ class StudyEditService {
 				joins << "s." + store + " as orderJoin WITH index( orderJoin ) = :sortField"
 				hqlParams[ "sortField" ] = sortField.name
 				orderBy = "orderJoin " + sortOrder
+                                
+                                // When ordering  by a templatefield, we have to include it in the query as well
+                                // However, in order to handle the object properly, we will need to tell the 
+                                // calling method that only the first object should be chosen.
+                                select += ", orderJoin"
+                                chooseFirst = true
 			}
 		}
 			
@@ -204,11 +218,12 @@ class StudyEditService {
 			where += " AND (" + whereClause.join( " OR " ) + ") "
 			
 		[
-			select: "DISTINCT s",
+			select: select,
 			from: from,
 			where: where,
 			order: orderBy,
-			params: hqlParams
+			params: hqlParams,
+                        chooseFirst: chooseFirst
 		]
 	}
 	
