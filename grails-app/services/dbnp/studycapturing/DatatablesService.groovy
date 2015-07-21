@@ -96,7 +96,7 @@ class DatatablesService {
                         try {
                                 if( field.type == TemplateFieldType.DATE ) {
                                         // transform date instance to formatted string (dd/mm/yyyy)
-                                        data << ( value ? String.format('%td/%<tm/%<tY', value) : "" )
+                                        data << ( value ? String.format('%tY-%<tm-%<td', value) : "" )
                                 } else if ( field.type == TemplateFieldType.RELTIME ) {
                                         data << ( value ? new RelTime( value ).toString() : "" )
                                 } else {

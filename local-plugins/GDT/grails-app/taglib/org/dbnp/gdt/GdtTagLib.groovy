@@ -300,7 +300,7 @@ class GdtTagLib extends AjaxflowTagLib {
         // transform value?
         if (attrs.value instanceof Date) {
             // transform date instance to formatted string (dd/mm/yyyy)
-            attrs.value = String.format('%td/%<tm/%<tY', attrs.value)
+            attrs.value = String.format('%tY-%<tm-%<td', attrs.value)
         }
 
         // add 'rel' field to identity the datefield using javascript
@@ -328,7 +328,7 @@ class GdtTagLib extends AjaxflowTagLib {
         // transform value?
         if (attrs.value instanceof Date) {
             // transform date instance to formatted string (dd/mm/yyyy)
-            attrs.value = String.format('%td/%<tm/%<tY %<tH:%<tM', attrs.value)
+            attrs.value = String.format('%tY-%<tm-%<td %<tH:%<tM', attrs.value)
         }
 
         // add 'rel' field to identity the field using javascript
@@ -786,10 +786,10 @@ class GdtTagLib extends AjaxflowTagLib {
                         if (fieldValue instanceof Date) {
                             if (fieldValue.getHours() == 0 && fieldValue.getMinutes() == 0) {
                                 // transform date instance to formatted string (dd/mm/yyyy)
-                                fieldValue = String.format('%td/%<tm/%<tY', fieldValue)
+                                fieldValue = String.format('%tY-%<tm-%<td', fieldValue)
                             } else {
                                 // transform to date + time
-                                fieldValue = String.format('%td/%<tm/%<tY %<tH:%<tM', fieldValue)
+                                fieldValue = String.format('%tY-%<tm-%<td %<tH:%<tM', fieldValue)
                             }
                         }
 
@@ -1028,10 +1028,10 @@ class GdtTagLib extends AjaxflowTagLib {
                 if (fieldValue instanceof Date) {
                     if (fieldValue.getHours() == 0 && fieldValue.getMinutes() == 0) {
                         // transform date instance to formatted string (dd/mm/yyyy)
-                        fieldValue = String.format('%td/%<tm/%<tY', fieldValue)
+                        fieldValue = String.format('%tY-%<tm-%<td', fieldValue)
                     } else {
                         // transform to date + time
-                        fieldValue = String.format('%td/%<tm/%<tY %<tH:%<tM', fieldValue)
+                        fieldValue = String.format('%tY-%<tm-%<td %<tH:%<tM', fieldValue)
                     }
                 }
 
@@ -1086,6 +1086,8 @@ class GdtTagLib extends AjaxflowTagLib {
                 ) {helpText}
                 break
             case ['MODULE']:
+                inputElement = (renderType == 'element') ? 'selectElement' : 'select'
+                    
                 params = [
                     description: ucName,
                     name: prependName + templateField.escapedName(),

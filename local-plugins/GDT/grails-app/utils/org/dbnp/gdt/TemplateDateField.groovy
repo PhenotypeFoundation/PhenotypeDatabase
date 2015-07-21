@@ -50,27 +50,25 @@ class TemplateDateField extends TemplateFieldTypeNew {
             if (value instanceof Date) {
                 return value
             } else if (value instanceof String) {
-
                 // a string was given, attempt to transform it into a date instance
-                // and -for now- assume the dd/mm/yyyy format
-                def dateMatch = value =~ /^([0-9]{1,})([^0-9]{1,})([0-9]{1,})([^0-9]{1,})([0-9]{1,})((([^0-9]{1,})([0-9]{1,2}):([0-9]{1,2})){0,})/
-                if (dateMatch.matches()) {
-                    // create limited 'autosensing' datetime parser
-                    // assume dd mm yyyy  or dd mm yy
-                    def parser = 'd' + dateMatch[0][2] + 'M' + dateMatch[0][4] + (((dateMatch[0][5] as int) > 999) ? 'yyyy' : 'yy')
-
-                    // add time as well?
-                    if (dateMatch[0][7] != null) {
-                        parser += dateMatch[0][8] + 'HH:mm'
+                // and -for now- assume the yyyy-mm-dd format
+                def format = "yyyy-MM-dd"
+                def date = null
+                
+                try { 
+                    // Date parsing using the Date class also accepts many other formats, without warning.
+                    // For that reason, we do a custom validation first
+                    def dateMatch = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/
+                    if( value.size() == format.size() && value =~ dateMatch ) {
+                        return Date.parse(format, value)
+                    } else {
+                        throw new IllegalArgumentException("Date string not recognized: ${value} (${value.class})")
                     }
-
-                    return new Date().parse(parser, value)
-                } else {
-                    throw new IllegalArgumentException("Date string not recognized: ${value} (${value.class})")
+                } catch( Exception e ) {
+                    throw new IllegalArgumentException("Date string not recognized: ${value} (${value.class})", e)
                 }
             } else {
                 throw new IllegalArgumentException("Date value not recognized: ${value} (${value.class})")
-
             }
         } else {
             return null

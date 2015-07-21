@@ -143,7 +143,7 @@ StudyEdit.form = {
 				changeYear  : true,
 				/*numberOfMonths: 3,*/
 				showButtonPanel: true,
-				dateFormat  : 'dd/mm/yy',
+				dateFormat  : 'yy-mm-dd',
 				yearRange   : 'c-80:c+20',
 				altField	: '#' + $(this).attr('name') + 'Example',
 				altFormat   : 'DD, d MM, yy'
@@ -162,7 +162,7 @@ StudyEdit.form = {
 			$(this).datepicker({
 				changeMonth	 : true,
 				changeYear	  : true,
-				dateFormat	  : 'dd/mm/yy',
+				dateFormat	  : 'yy-mm-dd',
 				altField		: '#' + $(this).attr('name') + 'Example',
 				altTimeField	: '#' + $(this).attr('name') + 'Example2',
 				altFormat	   : 'DD, d MM, yy',
