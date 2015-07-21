@@ -38,5 +38,5 @@
 
 	<div class="templateFieldButtons">
 		<input type="button" value="Save" onClick="updateTemplateField( ${templateField?.id} );">
-		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} );">
+		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} );  resetTemplateFieldForm( ${templateField?.id} );">
 	</div>

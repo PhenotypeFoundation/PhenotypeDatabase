@@ -49,10 +49,10 @@
 	<div class="templateFieldButtons">
 	  <g:if test="${is_new}">
 		<input type="button" value="Save" onClick="createTemplateField( 'new' );">
-		<input type="button" value="Cancel" onClick="hideTemplateFieldForm( 'new' );">
+		<input type="button" value="Cancel" onClick="hideTemplateFieldForm( 'new' ); clearTemplateFieldForm( 'new' );">
 	  </g:if>
 	  <g:else>
 		<input type="button" value="Save" onClick="updateTemplateField( ${templateField?.id} );">
-		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} );">
+		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} ); resetTemplateFieldForm( ${templateField?.id} );">
 	  </g:else>
 	</div>

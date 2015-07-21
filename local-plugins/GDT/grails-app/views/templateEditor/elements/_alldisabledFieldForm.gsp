@@ -29,5 +29,5 @@
 	<label for="required">Required:</label> <input type="checkbox" disabled <g:if test="${templateField?.required}">checked</g:if><br />
 
 	<div class="templateFieldButtons">
-		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} );">
+		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} ); resetTemplateFieldForm( ${templateField?.id} );">
 	</div>

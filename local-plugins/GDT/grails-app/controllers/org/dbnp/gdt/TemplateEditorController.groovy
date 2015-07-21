@@ -278,6 +278,8 @@ class TemplateEditorController {
         render output as JSON;
     }
 
+    
+    
     /**
      * Updates a selected template using a AJAX call
      *
@@ -355,6 +357,30 @@ class TemplateEditorController {
             render 'Template could not be deleted: ' + e.getMessage();
         }
     }
+    
+    
+    /**
+     * Returns the template form to update the given template
+     *
+     * @param id ID of the template to update
+     * @return HTML with the complete list item including the template form.
+     *                          On error the method gives a HTTP response status 500 and the error
+     */
+    def templateForm() {
+        // set content type
+        response.setContentType("text/html; charset=UTF-8")
+
+        // Search for the template field
+        def template = Template.get(params.template);
+        if (!template) {
+            response.status = 404;
+            render 'Template not found'
+            return;
+        }
+
+        render plugin: 'gdt', template: 'elements/liTemplate', model: [template: template, templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights()]
+    }
+
 
     /**
      * Creates a new template field using a AJAX call
@@ -799,6 +825,45 @@ class TemplateEditorController {
         response.setContentType("application/json; charset=UTF-8")
         render output as JSON;
     }
+    
+    
+    /**
+     * Returns the field form to update the given field
+     *
+     * @param id ID of the field to update
+     * @return JSON object with two entries:
+     *                                  id: [id of this object]
+     *                                  html: HTML to replace the contents of the LI-item that was updated.
+     *                          On error the method gives a HTTP response status 500 and the error
+     */
+    def fieldForm() {
+        // set content type
+        response.setContentType("text/html; charset=UTF-8")
+
+        // Search for the template field
+        def templateField = TemplateField.findById(params.id);
+        if (!templateField) {
+            response.status = 404;
+            render 'TemplateField not found'
+            return;
+        }
+
+        // Select the template to use for the HTML output
+        def template = Template.get(params.template)
+        def renderTemplate
+        if( template && template.fields.contains(templateField))
+            renderTemplate = 'elements/selected';
+        else
+            renderTemplate = 'elements/available';
+                
+        render plugin: 'gdt', template: renderTemplate, model: [
+             template: template, templateField: templateField, ontologies: Ontology.list(),
+             fieldTypes: TemplateFieldType.list(),
+             templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights(),
+             fieldIdsInUse: templateFieldService.getUsedTemplateFieldIds()
+        ]
+    }
+    
 
     /**
      * Checks how many template use a specific template field

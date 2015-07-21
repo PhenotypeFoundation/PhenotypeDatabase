@@ -14,6 +14,6 @@ ${template.name}
 	<g:render template="elements/templateForm" model="['template': template]"/>
 	<div class="templateFieldButtons">
 		<input type="button" value="Save" onClick="updateTemplate( ${template.id} );">
-		<input type="button" value="Close" onClick="hideTemplateForm( ${template.id} );">
+		<input type="button" value="Close" onClick="hideTemplateForm( ${template.id} ); resetTemplateForm( ${template.id} );">
 	</div>
 </form>

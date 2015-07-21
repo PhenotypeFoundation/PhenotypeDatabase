@@ -95,6 +95,30 @@ function hideTemplateForm( id ) {
 }
 
 
+
+/**
+ * Resets the form to update a template field after adding one
+ */
+function resetTemplateForm( id ) {
+    // Retrieve the initial form from the server
+    $.ajax({
+        url:        baseUrl + '/templateEditor/templateForm',
+        data:       {
+        	'template': id, 
+        },
+        type:       "GET",
+        success:    function(data, textStatus, request) {
+        	$( "#template_" + id ).replaceWith(data);
+        },
+        error:       function( request ) {
+            userMessage( "Could not reset form. Please note that some of the values may not have been erased.", "errormessage" );
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
+    });
+}
+
 /**
  * Clears the form after adding a template
  */
@@ -365,6 +389,30 @@ function hideTemplateFieldForm( id ) {
 	$( '#addNew').removeClass( 'ui-state-disabled' );
 
     formOpened = false;
+}
+
+/**
+ * Resets the form to update a template field after adding one
+ */
+function resetTemplateFieldForm( id ) {
+    // Retrieve the initial form from the server
+    $.ajax({
+        url:        baseUrl + '/templateEditor/fieldForm',
+        data:       {
+        	'template': $('#templateSelect').val(), 
+        	'id': id,
+        },
+        type:       "GET",
+        success:    function(data, textStatus, request) {
+        	$( "#templateField_" + id ).replaceWith(data);
+        },
+        error:       function( request ) {
+            userMessage( "Could not reset form. Please note that some of the values may not have been erased.", "errormessage" );
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
+    });
 }
 
 /**
