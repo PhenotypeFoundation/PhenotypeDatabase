@@ -461,7 +461,7 @@ class TemplateEditorController {
         templateField.properties = params;
         if (templateField.save(flush: true)) {
 
-            def html = g.render(plugin: 'gdt', template: 'elements/available', model: [templateField: templateField, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list(), templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights() ||  authenticationService.getLoggedInUser().hasAdminRights()]);
+            def html = g.render(plugin: 'gdt', template: 'elements/available', model: [templateField: templateField, ontologies: Ontology.list(), fieldTypes: TemplateFieldType.list(), templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights() ||  authenticationService.getLoggedInUser().hasAdminRights(), fieldIdsInUse: templateFieldService.getUsedTemplateFieldIds() ]);
             def output = [id: templateField.id, html: html];
             response.setContentType("application/json; charset=UTF-8")
             render output as JSON;
