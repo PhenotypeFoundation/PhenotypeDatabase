@@ -260,8 +260,13 @@ StudyEdit.design.eventGroups = {
 				StudyEdit.design.timelineObject.redraw();
 			
 			// Update the duration and text in the eventgroup box
-			$( '#eventgroup-' + eventGroupData.id ).data( "duration", eventGroupData.duration );
-			$( '#eventgroup-' + eventGroupData.id + ' .name' ).text( eventGroupData.name );
+			eventGroupElement = $( '#eventgroup-' + eventGroupData.id ); 
+			eventGroupElement.data( "duration", eventGroupData.duration );
+			eventGroupElement.find ('.name' ).text( eventGroupData.name );
+			
+			// Update the contents of the event group as well
+			eventGroupElement.find ('.events' ).text( eventGroupData.contents );
+			
 		});
 	},
 	

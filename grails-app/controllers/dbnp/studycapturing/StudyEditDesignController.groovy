@@ -235,6 +235,7 @@ class StudyEditDesignController {
 			name: eventGroup.name,
 			start: studyStart * 1000,
 			duration: eventGroup.duration.value,
+                        contents: eventGroup.contents,
 			end: ( studyStart + eventGroup.duration.value ) * 1000,
 			events: []
 		]
