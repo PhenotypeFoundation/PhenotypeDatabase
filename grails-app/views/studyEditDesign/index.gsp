@@ -69,7 +69,8 @@
 			<span class="message info"> 
 				<span class="title">Edit the details of the sample & treatment group</span> 
 				Drag treatement types and sample types into the group. Changes will be saved immediately. However, changes in the name require a click on the 'save name' button.<br />
-				<strong>Please note</strong>: changes to this sample & treatment group will affect all instances of the group.
+				<strong>Please note</strong>: changes to this sample &amp; treatment group will affect all instances of the group.<br />
+				<strong>Please note</strong>: the timing of treatment and sample types also depends on the timing of the group within the study.
 			</span>
 					
 			<label>Name: </label><input type="text" name="eventgroup-name" id="eventgroup-name" /><br />
