@@ -52,7 +52,7 @@ var FileUpload = {
 					$('#' + field_id + 'Example').html('<span class="error">Error uploading ' + that.createFileHTML(filename, options.truncate) + '</span>');
 					$('#' + field_id + 'Delete').hide();
 				} else {
-					$('#' + field_id).val(response);
+					$('#' + field_id).val(response).change(); // explicitly trigger change event, as this is not called when changing programmatically
 					$('#' + field_id + 'Example').html('Uploaded ' + that.createFileHTML(filename, options.truncate));
 					$('#' + field_id + 'Delete').show();
 				}
