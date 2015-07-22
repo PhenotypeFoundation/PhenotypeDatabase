@@ -363,9 +363,18 @@ StudyEdit.datatables = {
 					.attr( "id", fieldId + "Example" )
 					.html( value ? "File: " + FileUpload.createFileHTML( value ) : "" );
 				
-				// UPdate the upload button
+				// Update the upload button
 				field.filter( ".upload_button" )
 					.attr( "id", "upload_button_" + fieldId );
+
+				// Update the upload icon
+				field.filter( ".upload_icon" )
+					.attr( "id", "upload_icon_" + fieldId );
+
+				// Connect the click event of the icon to the (hidden) button
+				$('#upload_icon_' + fieldId).on('click', function() {
+					$('#upload_button_' + fieldId).click();
+				})
 
 				return field;
 			},

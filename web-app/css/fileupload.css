@@ -3,7 +3,7 @@
     width: 140px;
 }
 
-div .upload_button {
+div .upload_button, div .upload_icon {
     display: inline;
 }
 
