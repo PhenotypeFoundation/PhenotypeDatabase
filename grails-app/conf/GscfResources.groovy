@@ -166,9 +166,11 @@ modules = {
     }
 
     'fileupload' {
-        resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
         resource url: [dir: 'js', file: 'fileupload.js']
         resource url: [dir: 'css', file: 'fileupload.css']
+        resource url: [dir: 'js', file: 'jquery.fileupload.js']
+        resource url: [dir: 'js', file: 'jquery.iframe-transport.js']
+        resource url: [dir: 'js', file: 'jquery.ui.widget.js']
     }
     
     'studywizard-files' {

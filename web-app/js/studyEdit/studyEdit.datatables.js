@@ -316,7 +316,7 @@ StudyEdit.datatables = {
 				var fieldId = fieldId.replace( /\./g, "_" );
 				
 				// Update the hidden field
-				field.filter( "input" )
+				field.filter( "input[type=hidden]" )
 					.attr( "name", fieldName )
 					.attr( "id", fieldId )
 					.addClass( "fileField" )

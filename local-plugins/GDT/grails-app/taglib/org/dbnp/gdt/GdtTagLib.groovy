@@ -479,7 +479,8 @@ class GdtTagLib extends AjaxflowTagLib {
 
         out << '<input type="hidden" name="' + attrs.name + '" id="' + attrs.name + '" value="existing*' + ( attrs.value ?: "" ) + '">';
         out << '<div id="' + attrs.name + 'Example" class="upload_info"></div>';
-        out << '<div id="upload_button_' + attrs.name + '" class="upload_button">'+buttonText+'</div>';
+        out << '<div id="upload_icon_' + attrs.name + '" class="upload_button"><a href="#">'+buttonText+'</a></div>';
+        out << '<input id="upload_button_' + attrs.name + '" type="file" style="display: none;" />';
 
         if( !hideDelete )
             out << '<a id="' + attrs.name + 'Delete" class="upload_del" href="#"><img src="' + resource(dir: 'images/icons', file: 'delete.png', plugin: 'famfamfam') + '"></a>';
