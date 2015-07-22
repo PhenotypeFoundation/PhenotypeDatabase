@@ -316,7 +316,7 @@ StudyView.datatables = {
 					.on( "mousedown", function(e) {
 						e.stopPropagation();
 						if( confirm( "Are you sure you want to delete this file?" ) ) {
-							deleteFile( fieldId );
+							FileUpload.deleteFile( fieldId );
 
 							// Mark this cell as being changed
 							StudyView.datatables.editable.markChanged( $(event.target).parent() );
