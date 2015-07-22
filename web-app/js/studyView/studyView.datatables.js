@@ -335,7 +335,7 @@ StudyView.datatables = {
 				// Update the info field
 				field.filter( ".upload_info" )
 					.attr( "id", fieldId + "Example" )
-					.html( value ? "File: " + createFileHTML( value ) : "" );
+					.html( value ? "File: " + FileUpload.createFileHTML( value ) : "" );
 				
 				// UPdate the upload button
 				field.filter( ".upload_button" )
@@ -646,7 +646,7 @@ StudyView.datatables = {
 							otherTd.find( ".upload_info" ).html( "" );
 						} else {
 							otherTd.find( ".upload_del" ).show();
-							otherTd.find( ".upload_info" ).html( createFileHTML(value) );							
+							otherTd.find( ".upload_info" ).html( FileUpload.createFileHTML(value) );
 						}
 						
 						StudyView.datatables.editable.markChanged( field );
