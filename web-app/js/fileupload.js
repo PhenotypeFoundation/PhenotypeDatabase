@@ -59,7 +59,7 @@ var FileUpload = {
 
 				// Call user specified onComplete method
 				if( typeof(options.onUpload) != 'undefined' ) {
-					options.onUpload(file, response);
+					options.onUpload(filename, response);
 				}
 			}
 		});
