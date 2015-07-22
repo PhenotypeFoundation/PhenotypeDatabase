@@ -17,7 +17,7 @@ public abstract class TemplateEntityImporter<T extends TemplateEntity> extends A
      */
     public List<ImporterParameter> getParameters(def settings = [:]) {
         [
-            new ImporterParameter(name: 'template', label: 'Template', type: 'select', values: Template.findAllByEntity(getEntity()))
+            new ImporterParameter(name: 'template', label: 'Template', type: 'templates', values: Template.findAllByEntity(getEntity()))
         ]
     }
     
@@ -151,20 +151,27 @@ public abstract class TemplateEntityImporter<T extends TemplateEntity> extends A
             def fieldName = columnMapping.field.id
             log.debug( "Setting column " + columnIndex + " to field " + fieldName )
             
-            // Store the value itself
-            // TODO: Format and/or parse the value
-            try {
-                object.setFieldValue(fieldName, cell, true)
-            } catch( Exception e ) {
-                errors << new ImportValidationError(
-                    code: 3,
-                    message: e.getMessage(),
-                    column: columnIndex
-                )
-            }
+            // Store the field value
+            storeField(object, fieldName, cell, columnIndex, parameters)
         }
         
         object
+    }
+    
+    /**
+     * Store the given value in a certain field on the object
+     */
+    protected boolean storeField(def object, String fieldName, def cell, def columnIndex, def parameters) {
+        // TODO: Format and/or parse the value
+        try {
+            object.setFieldValue(fieldName, cell, true)
+        } catch( Exception e ) {
+            errors << new ImportValidationError(
+                code: 3,
+                message: e.getMessage(),
+                column: columnIndex
+            )
+        }
     }
 
     /**
@@ -214,4 +221,11 @@ public abstract class TemplateEntityImporter<T extends TemplateEntity> extends A
      * Returns an entity object for this TemplateEntity (T)
      */
     public abstract Class getEntity();
+    
+    /**
+     * Returns the encoded entity name, as it is used for the template editor
+     */
+    public String getEncodedEntityName() {
+        java.net.URLEncoder.encode(getEntity().name.bytes.encodeBase64().toString(),"UTF-8")
+    }
 }

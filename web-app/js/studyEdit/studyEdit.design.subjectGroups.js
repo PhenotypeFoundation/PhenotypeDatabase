@@ -159,7 +159,10 @@ StudyEdit.design.subjectGroups = {
 			StudyEdit.design.subjectGroups.edit( $(e.target).text() );
 		});
 		
-		// Enable selectable behaviour
+		// Update overlay
+		StudyEdit.design.subjectGroups.updateOverlay();
+		
+		// Enable selectable behaviour on subjects
 		$( "#design-subjects" ).selectable({
 			filter: ".subject",
 		    stop: function() {        
@@ -167,7 +170,19 @@ StudyEdit.design.subjectGroups = {
 		            this.checked= !this.checked
 		        });
 		    }
-		})
+		});
+	},
+	
+	/**
+	 * Updates the overlay visibility, based on the number of subject groups
+	 */
+	updateOverlay: function() {
+		// Add overlay if no subjectgroups are defined
+		if( StudyEdit.design.subjectGroups.groups.size() == 0 ) {
+			$( "#studydesign .overlay" ).show();
+		} else {
+			$( "#studydesign .overlay" ).hide();
+		}
 	},
 	
 	/**
@@ -243,6 +258,7 @@ StudyEdit.design.subjectGroups = {
 				StudyEdit.design.subjectGroups.groups.add( returnData );
 			}
 			
+			// Update timeline and overlay
 			StudyEdit.design.subjectGroups.updateTimeline();
 		});
 		
@@ -269,10 +285,9 @@ StudyEdit.design.subjectGroups = {
 	},
 
 	updateTimeline: function() {
-		if( StudyEdit.design.subjectGroups.groups.size() == 0 ) {
-			$("#timeline-eventgroups" ).hide();
-		} else {
-			$("#timeline-eventgroups" ).show();
+		StudyEdit.design.subjectGroups.updateOverlay();
+		
+		if( StudyEdit.design.subjectGroups.groups.size() > 0 ) {
 			StudyEdit.design.timelineObject.redraw();
 		}
 	},

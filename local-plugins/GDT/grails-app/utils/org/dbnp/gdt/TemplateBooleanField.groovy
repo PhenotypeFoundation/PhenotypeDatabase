@@ -21,48 +21,48 @@
 package org.dbnp.gdt
 
 class TemplateBooleanField extends TemplateFieldTypeNew {
-	static contains				= Boolean
-	static String type			= "BOOLEAN"
-	static String casedType		= "Boolean"
-	static String description	= "true/false"
-	static String category		= "Other"
-	static String example		= "A term that comes from one or more selected ontologies"
+    static contains				= Boolean
+    static String type			= "BOOLEAN"
+    static String casedType		= "Boolean"
+    static String description	= "true/false"
+    static String category		= "Other"
+    static String example		= "A term that comes from one or more selected ontologies"
 
-	/**
-	 * Static validator closure
-	 * @param fields
-	 * @param obj
-	 * @param errors
-	 */
-	static def validator = { fields, obj, errors ->
-		genericValidator(fields, obj, errors, TemplateFieldType.BOOLEAN, { value -> (value) ? true : false })
-	}
+    /**
+     * Static validator closure
+     * @param fields
+     * @param obj
+     * @param errors
+     */
+    static def validator = { fields, obj, errors ->
+        genericValidator(fields, obj, errors, TemplateFieldType.BOOLEAN, { value -> (value) ? true : false })
+    }
 
-	/**
-	 * cast value to the proper type (if required and if possible)
-	 * @param TemplateField field
-	 * @param mixed value
-	 * @return Boolean
-	 * @throws IllegalArgumentException
-	 */
-	static Boolean castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
-		if (!value) {
-			return false
-		} else if (value instanceof Boolean) {
-			return value
-		} else if (value instanceof String) {
-			def lower	= value.toLowerCase()
-			def trueMap	= ["true","on","x","yes","ja","aan","+","*"]
-			def falseMap= ["false","off","","no","nee","uit","-"]
+    /**
+     * cast value to the proper type (if required and if possible)
+     * @param TemplateField field
+     * @param mixed value
+     * @return Boolean
+     * @throws IllegalArgumentException
+     */
+    static Boolean castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
+        if (!value) {
+            return false
+        } else if (value instanceof Boolean) {
+            return value
+        } else if (value instanceof String) {
+            def lower	= value.toLowerCase()
+            def trueMap	= ["true","on","x","yes","ja","aan","+","*"]
+            def falseMap= ["false","off","","no","nee","uit","-"]
 
-			// do some 'smart' recognitions
-			if (trueMap.find{it == lower}) {
-				return true
-			} else if (falseMap.find{it == lower}) {
-				return false
-			} else {
-				throw new IllegalArgumentException("Boolean not recognized and could not be cast to Boolean: ${value}")
-			}
-		}
-	}
+            // do some 'smart' recognitions
+            if (trueMap.find{it == lower}) {
+                return true
+            } else if (falseMap.find{it == lower}) {
+                return false
+            } else {
+                throw new IllegalArgumentException("Boolean not recognized and could not be cast to Boolean: ${value}")
+            }
+        }
+    }
 }

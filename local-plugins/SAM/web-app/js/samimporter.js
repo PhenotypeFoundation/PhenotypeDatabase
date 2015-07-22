@@ -10,7 +10,7 @@ function insertOnRedirectWarning() {
 		var re = /^#/gi;
 
 		// bind to the anchor?
-		if (!element.attr('href').match(/^#/gi) && !element.attr('href').match(/importData/gi)) {
+		if (!element.attr('href').match(/^#/gi) && !element.attr('href').match(/SAMImporter/gi)) {
 			// bind a warning to the onclick event
 			element.bind('click', function() {
 				if (warnOnRedirect) {

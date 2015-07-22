@@ -34,7 +34,11 @@
 		<g:textArea name="listEntries" value="${templateField?.listEntries?.name?.join( '\n' )}" />
 	</div>
 	<div class="extra ontologyterm_options" <g:if test="${templateField?.type.toString() == 'ONTOLOGYTERM'}">style='display: block;'</g:if>>
-        <label for="type">Ontologies:<br /><a href="#" style="text-decoration: underline;" onClick="openOntologyDialog();">Add new</a><br /><br /> <a href="#" style="text-decoration: underline;" onClick="deleteOntology(${templateField?.id});">Remove</a></label>
+        <label for="type">
+        	Ontologies:<br />
+        	<a href="#" style="text-decoration: underline;" onClick="return openOntologyDialog();">Add new</a><br /><br /> 
+        	<a href="#" style="text-decoration: underline;" onClick="return deleteOntology(${templateField?.id});">Remove</a>
+        </label>
 		<g:select multiple="yes" size="5" from="${templateField?.ontologies}" class="ontologySelect" optionValue="name" optionKey="id" name="ontologies" id="ontologies_${templateField?.id}" /><br />
 	</div>
 
@@ -45,10 +49,10 @@
 	<div class="templateFieldButtons">
 	  <g:if test="${is_new}">
 		<input type="button" value="Save" onClick="createTemplateField( 'new' );">
-		<input type="button" value="Cancel" onClick="hideTemplateFieldForm( 'new' );">
+		<input type="button" value="Cancel" onClick="hideTemplateFieldForm( 'new' ); clearTemplateFieldForm( 'new' );">
 	  </g:if>
 	  <g:else>
 		<input type="button" value="Save" onClick="updateTemplateField( ${templateField?.id} );">
-		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} );">
+		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} ); resetTemplateFieldForm( ${templateField?.id} );">
 	  </g:else>
 	</div>

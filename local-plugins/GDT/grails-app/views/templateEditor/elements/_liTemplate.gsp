@@ -1,5 +1,4 @@
 <g:set var="templateService" bean="templateService"/>
-<g:set var="numUses" value="${templateService.numUses(template)}" />
 <li id="template_${template.id}"class="ui-state-default">
   <g:if test='${templateadmin}'>
       <g:if test="${numUses > 0}">

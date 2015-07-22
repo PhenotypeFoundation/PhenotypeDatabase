@@ -235,20 +235,6 @@ td.buttons input { font-weight: normal; }
 
 /** END :: pagination buttons **/
 
-/* START :: ontology autocomplete */
-.ui-autocomplete .ui-menu-item {
-    font-size: 10px;
-}
-.ui-autocomplete .about {
-    font-size: 8px;
-    color: #006DBA;
-}
-.ui-autocomplete .from {
-    font-size: 8px;
-    color: #666;
-}
-/* END :: ontology autocomplete */
-
 /* START :: special select option styles */
 option.addMore {
     background: url(../plugins/famfamfam-1.0.1/images/icons/add.png) no-repeat left top;

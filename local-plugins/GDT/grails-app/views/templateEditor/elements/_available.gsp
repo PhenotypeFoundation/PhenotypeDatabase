@@ -1,6 +1,6 @@
 <g:if test='${templateadmin}'>
     <li class="ui-state-default <g:if test="${templateField.required}">required</g:if>" id="templateField_${templateField.id}">
-        <g:render template="elements/liField" model="['templateField': templateField, 'ontologies': ontologies, 'fieldTypes': fieldTypes]"/>
+        <g:render template="elements/liField" model="['templateField': templateField, 'ontologies': ontologies, 'fieldTypes': fieldTypes, 'fieldIdsInUse': fieldIdsInUse]"/>
     </li>
 </g:if>
 

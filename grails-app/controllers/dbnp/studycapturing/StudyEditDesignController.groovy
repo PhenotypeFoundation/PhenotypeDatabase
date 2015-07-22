@@ -75,7 +75,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def subjectEventGroupUpdate() {
-		def subjectEventGroup = SubjectEventGroup.read( params.long( "id" ) );
+		def subjectEventGroup = SubjectEventGroup.get( params.long( "id" ) );
 
 		if( !subjectEventGroup ) {
 			response.status = 404
@@ -172,7 +172,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventGroupUpdate() {
-		def eventGroup = EventGroup.read( params.long( "id" ) );
+		def eventGroup = EventGroup.get( params.long( "id" ) );
 
 		if( !eventGroup ) {
 			response.status = 404
@@ -200,7 +200,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventGroupDelete() {
-		def eventGroup = EventGroup.read( params.long( "id" ) );
+		def eventGroup = EventGroup.get( params.long( "id" ) );
 
 		if( !eventGroup ) {
 			response.status = 404
@@ -235,6 +235,7 @@ class StudyEditDesignController {
 			name: eventGroup.name,
 			start: studyStart * 1000,
 			duration: eventGroup.duration.value,
+                        contents: eventGroup.contents,
 			end: ( studyStart + eventGroup.duration.value ) * 1000,
 			events: []
 		]
@@ -328,7 +329,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventInEventGroupUpdate() {
-		def eventInEventGroup = EventInEventGroup.read( params.long( "id" ) );
+		def eventInEventGroup = EventInEventGroup.get( params.long( "id" ) );
 
 		if( !eventInEventGroup ) {
 			response.status = 404
@@ -359,7 +360,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventInEventGroupDelete() {
-		def eventInEventGroup = EventInEventGroup.read( params.long( "id" ) );
+		def eventInEventGroup = EventInEventGroup.get( params.long( "id" ) );
 
 		if( !eventInEventGroup ) {
 			response.status = 404
@@ -413,7 +414,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def samplingEventInEventGroupUpdate() {
-		def samplingEventInEventGroup = SamplingEventInEventGroup.read( params.long( "id" ) );
+		def samplingEventInEventGroup = SamplingEventInEventGroup.get( params.long( "id" ) );
 
 		if( !samplingEventInEventGroup ) {
 			response.status = 404
@@ -441,7 +442,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def samplingEventInEventGroupDelete() {
-		def samplingEventInEventGroup = SamplingEventInEventGroup.read( params.long( "id" ) );
+		def samplingEventInEventGroup = SamplingEventInEventGroup.get( params.long( "id" ) );
 
 		if( !samplingEventInEventGroup ) {
 			response.status = 404
@@ -498,7 +499,7 @@ class StudyEditDesignController {
 	}
 	
 	def eventUpdate() {
-		def entity = Event.read( params.long( "id" ) )
+		def entity = Event.get( params.long( "id" ) )
 		
 		if( !entity ) {
 			response.status = 404
@@ -532,7 +533,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventDelete() {
-		def event = Event.read( params.long( "id" ) );
+		def event = Event.get( params.long( "id" ) );
 
 		if( !event ) {
 			response.status = 404
@@ -590,7 +591,7 @@ class StudyEditDesignController {
 	}
 	
 	def samplingEventUpdate() {
-		def entity = SamplingEvent.read( params.long( "id" ) )
+		def entity = SamplingEvent.get( params.long( "id" ) )
 		
 		if( !entity ) {
 			response.status = 404
@@ -624,7 +625,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def samplingEventDelete() {
-		def samplingEvent = SamplingEvent.read( params.long( "id" ) );
+		def samplingEvent = SamplingEvent.get( params.long( "id" ) );
 
 		if( !samplingEvent ) {
 			response.status = 404
@@ -677,7 +678,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def subjectGroupUpdate() {
-		def subjectGroup = SubjectGroup.read( params.long( "id" ) );
+		def subjectGroup = SubjectGroup.get( params.long( "id" ) );
 
 		if( !subjectGroup ) {
 			response.status = 404
@@ -712,7 +713,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def subjectGroupDelete() {
-		def subjectGroup = SubjectGroup.read( params.long( "id" ) );
+		def subjectGroup = SubjectGroup.get( params.long( "id" ) );
 
 		if( !subjectGroup ) {
 			response.status = 404

@@ -42,8 +42,13 @@ class GdtTagLib extends AjaxflowTagLib {
         }
 
         // export and import links
-        out << "${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}<a href=\"${resource()}/template/export\">Export</a>${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}\n"
-        out << "${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}<a href=\"${resource()}/template/importTemplate\">Import</a>${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}\n"
+        if(!attrs.skipExport) {
+            out << "${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}<a href=\"${resource()}/template/export\">Export</a>${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}\n"
+        }
+        
+        if(!attrs.skipImport) {
+            out << "${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}<a href=\"${resource()}/template/importTemplate\">Import</a>${((attrs.get('wrap')) ? '<' + attrs.get('wrap') + '>' : '')}\n"
+        }
     }
 
     /**
@@ -295,7 +300,7 @@ class GdtTagLib extends AjaxflowTagLib {
         // transform value?
         if (attrs.value instanceof Date) {
             // transform date instance to formatted string (dd/mm/yyyy)
-            attrs.value = String.format('%td/%<tm/%<tY', attrs.value)
+            attrs.value = String.format('%tY-%<tm-%<td', attrs.value)
         }
 
         // add 'rel' field to identity the datefield using javascript
@@ -323,7 +328,7 @@ class GdtTagLib extends AjaxflowTagLib {
         // transform value?
         if (attrs.value instanceof Date) {
             // transform date instance to formatted string (dd/mm/yyyy)
-            attrs.value = String.format('%td/%<tm/%<tY %<tH:%<tM', attrs.value)
+            attrs.value = String.format('%tY-%<tm-%<td %<tH:%<tM', attrs.value)
         }
 
         // add 'rel' field to identity the field using javascript
@@ -712,13 +717,19 @@ class GdtTagLib extends AjaxflowTagLib {
                     case 'STRINGLIST':
                         inputElement = (renderType == 'element') ? 'selectElement' : 'select'
                         if (!templateField.listEntries.isEmpty()) {
-                            out << "$inputElement"(
-                                    description: ucName,
-                                    name: prependName + templateField.escapedName(),
-                                    from: templateField.listEntries,
-                                    value: fieldValue,
-                                    required: templateField.isRequired()
-                            ) {helpText}
+                            params = [
+                                description: ucName,
+                                name: prependName + templateField.escapedName(),
+                                from: templateField.listEntries,
+                                value: fieldValue,
+                                required: templateField.isRequired()
+                            ]
+                            
+                            if( !templateField.isRequired() ) {
+                                params.noSelection = [ '': '' ]
+                            }
+                            
+                            out << "$inputElement"(params) {helpText}
                         } else {
                             out << '<span class="warning">no values!!</span>'
                         }
@@ -753,27 +764,20 @@ class GdtTagLib extends AjaxflowTagLib {
                         // @see ontology-chooser.js
                         inputElement = (renderType == 'element') ? 'termElement' : 'termSelect'
 
-                        // override addDummy to always add the dummy...
-                        addDummy = true
-
+                        params = [
+                            description: ucName,
+                            name: prependName + templateField.escapedName(),
+                            value: fieldValue.toString(),
+                            addDummy: !templateField.isRequired(),
+                            required: templateField.isRequired()
+                        ]
+                        
                         if (templateField.ontologies) {
-                            out << "$inputElement"(
-                                    description: ucName,
-                                    name: prependName + templateField.escapedName(),
-                                    value: fieldValue.toString(),
-                                    ontologies: templateField.ontologies,
-                                    addDummy: addDummy,
-                                    required: templateField.isRequired()
-                            ) {helpText}
-                        } else {
-                            out << "$inputElement"(
-                                    description: ucName,
-                                    name: prependName + templateField.escapedName(),
-                                    value: fieldValue.toString(),
-                                    addDummy: addDummy,
-                                    required: templateField.isRequired()
-                            ) {helpText}
+                            params.ontologies = templateField.ontologies
                         }
+                        
+                        out << "$inputElement"(params) {helpText}
+                        
                         break
                     case 'DATE':
                         inputElement = (renderType == 'element') ? 'dateElement' : 'textField'
@@ -782,10 +786,10 @@ class GdtTagLib extends AjaxflowTagLib {
                         if (fieldValue instanceof Date) {
                             if (fieldValue.getHours() == 0 && fieldValue.getMinutes() == 0) {
                                 // transform date instance to formatted string (dd/mm/yyyy)
-                                fieldValue = String.format('%td/%<tm/%<tY', fieldValue)
+                                fieldValue = String.format('%tY-%<tm-%<td', fieldValue)
                             } else {
                                 // transform to date + time
-                                fieldValue = String.format('%td/%<tm/%<tY %<tH:%<tM', fieldValue)
+                                fieldValue = String.format('%tY-%<tm-%<td %<tH:%<tM', fieldValue)
                             }
                         }
 
@@ -833,7 +837,7 @@ class GdtTagLib extends AjaxflowTagLib {
                         out << "$inputElement"(
                                 description: ucName,
                                 name: prependName + templateField.escapedName(),
-                                addDummy: true,
+                                addDummy: !templateField.isRequired(),
                                 entity: templateField.entity,
                                 value: fieldValue,
                                 required: templateField.isRequired()
@@ -955,13 +959,19 @@ class GdtTagLib extends AjaxflowTagLib {
             case 'STRINGLIST':
                 inputElement = (renderType == 'element') ? 'selectElement' : 'select'
                 if (!templateField.listEntries.isEmpty()) {
-                    out << "$inputElement"(
+                    params = [
                             description: ucName,
                             name: prependName + templateField.escapedName(),
                             from: templateField.listEntries,
                             value: fieldValue,
                             required: templateField.isRequired()
-                    ) {helpText}
+                    ]
+                    
+                    if( !templateField.isRequired() ) {
+                        params.noSelection = [ '': '' ]
+                    }
+                    
+                    out << "$inputElement"(params) {helpText}
                 } else {
                     out << '<span class="warning">no values!!</span>'
                 }
@@ -996,27 +1006,20 @@ class GdtTagLib extends AjaxflowTagLib {
                 // @see ontology-chooser.js
                 inputElement = (renderType == 'element') ? 'termElement' : 'termSelect'
 
-                // override addDummy to always add the dummy...
-                addDummy = true
-
-                if (templateField.ontologies) {
-                    out << "$inputElement"(
-                            description: ucName,
-                            name: prependName + templateField.escapedName(),
-                            value: fieldValue.toString(),
-                            ontologies: templateField.ontologies,
-                            addDummy: addDummy,
-                            required: templateField.isRequired()
-                    ) {helpText}
-                } else {
-                    out << "$inputElement"(
-                            description: ucName,
-                            name: prependName + templateField.escapedName(),
-                            value: fieldValue.toString(),
-                            addDummy: addDummy,
-                            required: templateField.isRequired()
-                    ) {helpText}
+                params = [
+                    description: ucName,
+                    name: prependName + templateField.escapedName(),
+                    value: fieldValue.toString(),
+                    addDummy: !templateField.isRequired(),
+                    required: templateField.isRequired()
+                ]
+                
+                if( templateField.ontologies ) {
+                    params.ontologies = templateField.ontologies
+                    
                 }
+            
+                out << "$inputElement"(params)  {helpText}
                 break
             case 'DATE':
                 inputElement = (renderType == 'element') ? 'dateElement' : 'textField'
@@ -1025,10 +1028,10 @@ class GdtTagLib extends AjaxflowTagLib {
                 if (fieldValue instanceof Date) {
                     if (fieldValue.getHours() == 0 && fieldValue.getMinutes() == 0) {
                         // transform date instance to formatted string (dd/mm/yyyy)
-                        fieldValue = String.format('%td/%<tm/%<tY', fieldValue)
+                        fieldValue = String.format('%tY-%<tm-%<td', fieldValue)
                     } else {
                         // transform to date + time
-                        fieldValue = String.format('%td/%<tm/%<tY %<tH:%<tM', fieldValue)
+                        fieldValue = String.format('%tY-%<tm-%<td %<tH:%<tM', fieldValue)
                     }
                 }
 
@@ -1076,25 +1079,29 @@ class GdtTagLib extends AjaxflowTagLib {
                 out << "$inputElement"(
                         description: ucName,
                         name: prependName + templateField.escapedName(),
-                        addDummy: true,
+                        addDummy: !templateField.isRequired(),
                         entity: templateField.entity,
                         value: fieldValue,
                         required: templateField.isRequired()
                 ) {helpText}
                 break
             case ['MODULE']:
-                def from = []
-                AssayModule.findAll().each { from[from.size()] = it.toString() }
-
                 inputElement = (renderType == 'element') ? 'selectElement' : 'select'
-                out << "$inputElement"(
-                        description: ucName,
-                        name: prependName + templateField.escapedName(),
-                        from: from,
-                        value: fieldValue.toString(),
-                        required: templateField.isRequired()
-                ) {helpText}
-                break
+                    
+                params = [
+                    description: ucName,
+                    name: prependName + templateField.escapedName(),
+                    from: AssayModule.findAll().collect { it.toString() },
+                    value: fieldValue.toString(),
+                    required: templateField.isRequired()
+                ]
+            
+                if( !templateField.isRequired() ) {
+                    params.noSelection = [ '': '' ]
+                }
+                
+                out << "$inputElement"(params) {helpText}
+                
                 break
             default:
                 // unsupported field type
@@ -1176,7 +1183,7 @@ class GdtTagLib extends AjaxflowTagLib {
 
             // add a dummy field?
             if (attrs.remove('addDummy')) {
-                from.add(0, '')
+                attrs.noSelection = [ '' : '' ]
             }
 
             // define 'from'

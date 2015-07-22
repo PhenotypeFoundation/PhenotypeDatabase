@@ -9,7 +9,7 @@ import grails.util.Holders
  * Abstract importer class for all importers, defining some basic functionality
  */
 public abstract class AbstractImporter implements Importer {
-    
+     
     /**
      * SecUser that is used for authorization
      */

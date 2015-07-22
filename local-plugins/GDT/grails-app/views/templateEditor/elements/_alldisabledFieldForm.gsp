@@ -19,7 +19,7 @@
 	<div class="extra ontologyterm_options" <g:if test="${templateField?.type.toString() == 'ONTOLOGYTERM'}">style='display: block;'</g:if>>
 	  <label for="type">Used ontologies:</label> <g:textArea name="ontology" disabled="disabled" value="${templateField?.getUsedOntologies().name?.join( '\n' )}" /><br />
 
-	  <label for="type">Extra ontologies:<br /><br /><a href="#" style="text-decoration: underline;" onClick="openOntologyDialog();">Add new</a></label>
+	  <label for="type">Extra ontologies:<br /><br /><a href="#" style="text-decoration: underline;" onClick="return openOntologyDialog();">Add new</a></label>
 		<g:select multiple="yes" size="5" from="${templateField?.getNonUsedOntologies()}" class="ontologySelect" optionValue="name" optionKey="id" name="ontologies" id="ontologies_${templateField?.id}" value="${templateField?.getNonUsedOntologies()}" /><br />
 
 	</div>
@@ -29,5 +29,5 @@
 	<label for="required">Required:</label> <input type="checkbox" disabled <g:if test="${templateField?.required}">checked</g:if><br />
 
 	<div class="templateFieldButtons">
-		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} );">
+		<input type="button" value="Close" onClick="hideTemplateFieldForm( ${templateField?.id} ); resetTemplateFieldForm( ${templateField?.id} );">
 	</div>

@@ -10,6 +10,7 @@ modules = {
     gscfmain {
         dependsOn 'jquery'
         dependsOn 'jquery-ui'
+        dependsOn 'infoboxes'
 
         resource url:[ dir:'css', file: 'default.css']
         resource url:[ dir:'js', file: 'disableKeys.js']
@@ -24,7 +25,8 @@ modules = {
     gscfdialog {
         dependsOn 'jquery'
         dependsOn 'jquery-ui'
-
+        dependsOn 'infoboxes'
+        
         resource url:[ dir:'css', file: 'dialog.css']
         resource url:[ dir:'js', file: 'disableKeys.js']
         resource url:[ dir:'js', file: 'paginate.js']
@@ -83,7 +85,7 @@ modules = {
     }
     
     gscfimporter { 
-        dependsOn 'basicTabLayout',  'fileupload'
+        dependsOn 'basicTabLayout',  'fileupload', 'add-more' 
         dependsOn 'gscf-datatables'
         
         resource url:[ dir:'js', file: 'importer.js']
@@ -114,11 +116,11 @@ modules = {
         resource url: [dir: 'js', file: 'templateEditor.js', plugin: 'gdt']
         resource url: [dir: 'css', file: 'templateEditor.css', plugin: 'gdt']
         resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt'], disposition: 'head'
-        resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
     }
     
     // Template importer 
     templateImporter {
+        resource url: [dir: 'js', file: 'templateImporter.js']
         resource url: [dir: 'css', file: 'templateImporter.css']
     }
 
@@ -152,31 +154,17 @@ modules = {
         resource url: "http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js"
     }
     
-    // GDT importer for importing several entitites
-    gdtImporter {
-        dependsOn 'helptooltips'
-        dependsOn 'gscf-datatables'
-        dependsOn 'add-more'
-        dependsOn 'fileupload'
-        dependsOn 'studywizard-files'
-        
-        resource url: [dir: 'css', file: 'studywizard.css']
-        resource url: [dir: 'css', file: 'gdtimporter.css', plugin: 'gdtimporter']
-        resource url: [dir: 'css', file: 'table-editor.css', plugin: 'gdt']
-        resource url: [dir: 'css', file: 'demo_table.css', plugin: 'gdtimporter']
-        resource url: [dir: 'css', file: 'demo_table_jui.css', plugin: 'gdtimporter']
-        resource url: [dir: 'css', file: 'demo_page.css', plugin: 'gdtimporter']
 
-        resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt'], disposition: 'head'
-        resource url: [dir: 'js', file: 'table-editor.js', plugin: 'gdt']
-    }
-    
     /**********************************************************
      * 
      * Modules below are libraries and plugins
      * 
      **********************************************************/
-    
+
+    'infoboxes' {
+        resource url: [dir: 'css', file: 'infoboxes.css']
+    }
+
     'fileupload' {
         resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
         resource url: [dir: 'js', file: 'fileupload.js']

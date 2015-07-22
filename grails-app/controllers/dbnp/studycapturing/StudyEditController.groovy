@@ -347,16 +347,20 @@ class StudyEditController {
                 render datatablesService.createDatatablesOutput( data, params, { entry ->
                                 def output = entry as List
                                 def sample = entry[ 0 ]
+                                
+                                // Convert columns
                                 output[ 0 ] = sample.id
                                 output[ 6 ] = new RelTime( entry[ 6 ] ).toString()
 
                                 // Collect values for the assays
+                                def assaySamples = []
                                 assays.each { assay ->
-                                        def sampleIds = assay.samples*.id
-                                        output << sampleIds.contains( sample.id )
+                                    def sampleIds = assay.samples*.id
+                                    assaySamples << sampleIds.contains( sample.id )
                                 }
 
-                                output
+                                // Generate output (the checkbox columns should be first
+                                [output[0]] + assaySamples + output[1..6]
                         }) as JSON
         }
 

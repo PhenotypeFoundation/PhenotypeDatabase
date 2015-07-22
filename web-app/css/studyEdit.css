@@ -100,13 +100,17 @@ table.dataTable td.dataTables_empty { text-align: left; }
 
 .addToTimeline .name { font-weight: bold;  }
 .eventgroups .events { display: inline-block; margin-left: 10px; }
-.addToTimeline .eventgroup-buttons { float: right; }
-.addToTimeline .eventgroup-buttons a { display: inline-block; margin-left: 5px; }
+.addToTimeline .designobject-buttons { float: right; }
+.addToTimeline .designobject-buttons a { display: inline-block; margin-left: 5px; }
 
 #timeline-eventgroups, #timeline-events { position: relative; }
 #timeline-eventgroups .timeline-groups-text { cursor: pointer; height: 30px; }
 
-.ui-draggable-dragging .buttons { display: none; }
+/* Overlay on timeline to prevent adding events if no subject group is present yet */
+#studydesign { position: relative; }
+#studydesign .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; opacity: 0.9; text-align: center; line-height: 2em; display: none; font-size: 11pt; }
+
+.ui-draggable-dragging .designobject-buttons { display: none; }
  
  #eventGroupDialog .addToTimeline { width: 48%; float: left; margin-right: 4%; } 
  #eventGroupDialog #samplingEvents { margin-right: 0; }
@@ -172,7 +176,3 @@ table.dataTable td select {
     width: 98%;
 }
 
-.ui-front {
-	z-index: 1050;
-}
-.ui-autocomplete.ui-menu { z-index: 1051; }

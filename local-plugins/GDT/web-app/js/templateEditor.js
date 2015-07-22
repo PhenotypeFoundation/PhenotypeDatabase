@@ -18,8 +18,23 @@ var formOpened = false;
 // Contains information about the original position of an item, when it is being dragged
 var currentSort = null;
 
-function userMessage( message ) {
-	alert( message );
+// Type can be 'info', 'error', 'warning' or 'okay'
+function userMessage( message, type ) {
+	if( typeof( type ) == "undefined" )
+		type = "info";
+	
+	$( ".templateEditorStep" ).first().before( 
+			$("<div>")
+				.addClass( "message" )
+				.addClass( type )
+				.text( message )
+				.append( 
+					$( "<a href='#'>" )
+						.addClass( "close" )
+						.text( "X" )
+						.on( "click", function() { $(this).parent().remove(); return false; } )
+				)
+	);
 }
 
 /*************************************
@@ -80,6 +95,30 @@ function hideTemplateForm( id ) {
 }
 
 
+
+/**
+ * Resets the form to update a template field after adding one
+ */
+function resetTemplateForm( id ) {
+    // Retrieve the initial form from the server
+    $.ajax({
+        url:        baseUrl + '/templateEditor/templateForm',
+        data:       {
+        	'template': id, 
+        },
+        type:       "GET",
+        success:    function(data, textStatus, request) {
+        	$( "#template_" + id ).replaceWith(data);
+        },
+        error:       function( request ) {
+            userMessage( "Could not reset form. Please note that some of the values may not have been erased.", "errormessage" );
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
+    });
+}
+
 /**
  * Clears the form after adding a template
  */
@@ -114,13 +153,13 @@ function createTemplate( id ) {
             clearTemplateForm( id );
 			hideTemplateForm( id );
             addTemplateListItem( data.id, data.html );
+			userMessage( 'Your template was created and added to the list.', 'okay' );
         },
-        error:      function( request ) {
-            alert( "Could not create template: " + request.responseText );
+        error: function( request ) {
+        	userMessage( "Could not create template: " + request.responseText, "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
-			userMessage( 'Your template was created and added to the list.' );
 		}
     });
 }
@@ -142,13 +181,13 @@ function updateTemplate( id ) {
         success:    function(data, textStatus, request) {
             hideTemplateForm( id );
             updateTemplateListItem( id, data.html );
+			userMessage( 'Your template was updated.', "okay" );
         },
         error:      function( request ) {
-        	userMessage( "Could not update template" );
+        	userMessage( "Could not update template", "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
-			userMessage( 'Your template was updated.' );
 		}
     });
 }
@@ -168,15 +207,14 @@ function deleteTemplate( id ) {
         success:    function(data, textStatus, request) {
 			// Remove the list item
 			deleteTemplateListItem( id );
-
 			showHideEmpty( '#templates' );
+			userMessage( 'Your template was deleted.', "info" );
         },
         error:      function( request ) {
-            alert( "Could not delete template: " + request.responseText );
+            userMessage( "Could not delete template: " + request.responseText, "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
-			userMessage( 'Your template was deleted.' );
 		}
     });
 
@@ -196,13 +234,13 @@ function cloneTemplate( id ) {
         type:       "POST",
         success:    function(data, textStatus, request) {
             addTemplateListItem( data.id, data.html );
+			userMessage( 'A copy of your template has been created.', "okay" );
         },
         error:      function( request ) {
             alert( "Could not clone template: " + request.responseText );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
-			userMessage( 'A copy of your template has been created.' );
 		}
     });
 }
@@ -224,13 +262,13 @@ function requestTemplate( id ) {
         success:    function(data, textStatus, request) {
             clearTemplateRequestForm( id );
 			hideTemplateForm( id );
+			userMessage("Your request has been sent to the templateadmin(s)", "info")
         },
         error:      function( request ) {
-            alert( "Could not create template: " + request.responseText );
+            userMessage( "Could not create template: " + request.responseText, "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
-            alert ("Your request has been sent to the templateadmin(s)")
         }
     });
 }
@@ -252,13 +290,13 @@ function requestTemplateField( id ) {
         success:    function(data, textStatus, request) {
             clearTemplateFieldRequestForm( id );
 			hideTemplateFieldForm( id );
+			userMessage("Your request has been sent to the templateadmin(s)", "info")
         },
         error:      function( request ) {
-            alert( "Could not create template: " + request.responseText );
+        	userMessage( "Could not request templatefield: " + request.responseText, "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
-            alert ("Your request has been sent to the templateadmin(s)")
 		}
     });
 }
@@ -354,14 +392,38 @@ function hideTemplateFieldForm( id ) {
 }
 
 /**
+ * Resets the form to update a template field after adding one
+ */
+function resetTemplateFieldForm( id ) {
+    // Retrieve the initial form from the server
+    $.ajax({
+        url:        baseUrl + '/templateEditor/fieldForm',
+        data:       {
+        	'template': $('#templateSelect').val(), 
+        	'id': id,
+        },
+        type:       "GET",
+        success:    function(data, textStatus, request) {
+        	$( "#templateField_" + id ).replaceWith(data);
+        },
+        error:       function( request ) {
+            userMessage( "Could not reset form. Please note that some of the values may not have been erased.", "errormessage" );
+        },
+		complete: function( request, textStatus ) {
+			hideWaiting();
+		}
+    });
+}
+
+/**
  * Clears the form to add a template field after adding one
  */
 function clearTemplateFieldForm( id ) {
     $( '#templateField_' + id + '_form input[name=name]' ).val( "" );
     $( '#templateField_' + id + '_form input[name=unit]' ).val( "" );
-    $( '#templateField_' + id + '_form input[name=required]' ).attr( "checked", "" );
+    $( '#templateField_' + id + '_form input[name=required]' ).attr( "checked", false );
     $( '#templateField_' + id + '_form textarea' ).val( "" );
-    $( '#templateField_' + id + '_form select' ).attr( 'selectedIndex', 0 );
+    $( '#templateField_' + id + '_form select' ).get(0).selectedIndex = 0;
     $( '#templateField_' + id + '_form .extra' ).hide();
 }
 
@@ -393,10 +455,10 @@ function createTemplateField( id ) {
             clearTemplateFieldForm( id );
             hideTemplateFieldForm( id );
             addFieldListItem( data.id, data.html );
-			userMessage( 'A new template field was created and can be added to your template.' );
+			userMessage( 'A new template field was created and can be added to your template.', "okay" );
         },
         error:       function( request ) {
-            alert( "Could not add template field: " + request.responseText );
+            userMessage( "Could not add template field: " + request.responseText, "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
@@ -424,13 +486,13 @@ function updateTemplateField( id ) {
         success:    function(data, textStatus, request) {
             hideTemplateFieldForm( id );
             updateFieldListItem( id, data.html );
+			userMessage( 'Your template field has been updated.', "okay" );
         },
         error:      function( request ) {
-            alert( "Could not update template field: " + request.responseText );
+        	userMessage( "Could not update template field: " + request.responseText, "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
-			userMessage( 'Your template field has been updated.' );
 		}
     });
 }
@@ -449,15 +511,14 @@ function deleteTemplateField( id ) {
         success:    function(data, textStatus, request) {
 			// Put the new HTML into the list item
 			deleteFieldListItem( id );
-
 			showHideEmpty( '#availableTemplateFields' );
+			userMessage( 'Your template field has been deleted.', "info" );
         },
         error:      function( request ) {
-            alert( "Could not delete template field: " + request.responseText );
+        	userMessage( "Could not delete template field: " + request.responseText, "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
-			userMessage( 'Your template field has been deleted.' );
 		}
     });
 
@@ -512,7 +573,7 @@ function updateTemplateFieldPosition( event, ui ) {
         },
         error: function( request ) {
 			undoMove();
-			alert( "Could not move template field: " + request.responseText );
+			userMessage( "Could not move template field: " + request.responseText, "warning" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
@@ -580,7 +641,7 @@ function addTemplateField( id, newposition, moveAfterwards ) {
 				undoMove();
 			}
 
-            alert( "Could not add template field: " + request.responseText );
+            userMessage( "Could not add template field: " + request.responseText, "errormessage" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
@@ -630,13 +691,14 @@ function removeTemplateField( id, moveAfterwards ) {
 			showHideEmpty( '#selectedTemplateFields' );
 			showHideEmpty( '#availableTemplateFields' );
 
+			userMessage( "Template field is removed from the template", "success" );
         },
         error:      function( request ) {
 			if( !moveAfterwards ) {
 				undoMove();
 			}
 
-			alert( "Could not delete template field: " + request.responseText );
+			userMessage( "Could not delete template field: " + request.responseText, "warning" );
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();
@@ -752,7 +814,9 @@ function hideWaiting() { $( '.wait' ).hide() }
  */
 
 function openOntologyDialog() {
+	$('#ontologyDialog').dialog('option', 'position', 'center');
 	$('#ontologyDialog').dialog('open');
+	return false;
 }
 
 function addOntology() {
@@ -783,23 +847,28 @@ function addOntology() {
 			$('#ontologyDialog').dialog('close');
         },
         error: function( request ) {
-			alert( "Could not add ontology: " + request.responseText );
+			alert( "Could not add ontology. Make sure you select an option from the dropdown." );
 			$( '#term_spinner' ).hide();
 			$( '#ncbo_spinner' ).hide();
-			$('#ontologyDialog').dialog('close');
         }
     });
 }
 
 function updateOntologyLists( newObject) {
-    if( $('#selectedTemplateFields :not(.ui-state-disabled) option[value='+newObject.id+']').length <= 0 ) {
-	    $( '.ontologySelect' ).append( '<option title="' + newObject.name + '" value="' + newObject.id + '">' +
-            newObject.name + '</option>');
+	var ontologyList = $( ".templateField_form:visible .ontologySelect" );
+    if( ontologyList.find( "option[value=" + newObject.id + "]").length == 0 ) {
+	    $( '.ontologySelect' ).append( 
+	    	$( "<option>" )
+	    		.attr( "title", newObject.name )
+	    		.attr( "value", newObject.id )
+	    		.text( newObject.name )
+	    );
     } else {
-        userMessage("This ontology is already added.");
+        userMessage("This ontology is already added.", "warning");
     }
 }
 
 function deleteOntology( id ) {
     $("#ontologies_" + id).children().remove(":selected");
+    return false;
 }

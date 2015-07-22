@@ -73,10 +73,10 @@
  	</g:else>
 
  	<div id="termForm">
-        <g:form action="pages" name="wizardForm" id="wizardForm">
+        <g:form action="pages" name="wizardForm" id="wizardForm" onSubmit="if( !\$(this).find('[name=term-ontology_id]').val() || !\$(this).find('[name=term-concept_id]').val() ) { alert( 'Please select a term from the dropdown' ); return false }">
             <div id="label">search term: </div>
             <div id="term"><g:textField name="term" rel="ontology-${ontologies}" size="40" /></div>
-            <div id="button"><g:submitButton name="add" value="Add term" /></div>
+            <div id="button"><g:submitButton name="add" value="Add term"/></div>
         </g:form>
         <g:hiddenField name="apikey" value="${apikey}" />
 	</div>

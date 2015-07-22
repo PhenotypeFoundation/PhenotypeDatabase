@@ -21,49 +21,49 @@
 package org.dbnp.gdt
 
 class TemplateModuleField extends TemplateFieldTypeNew {
-	static contains				= AssayModule
-	static String type			= "MODULE"
-	static String casedType		= "Module"
-	static String description	= "Omics module"
-	static String category		= "Other"
-	static String example		= ""
+    static contains				= AssayModule
+    static String type			= "MODULE"
+    static String casedType		= "Module"
+    static String description	= "Omics module"
+    static String category		= "Other"
+    static String example		= ""
 
-	/**
-	 * Static validator closure
-	 * @param fields
-	 * @param obj
-	 * @param errors
-	 */
-	static def validator = { fields, obj, errors ->
-		genericValidator(fields, obj, errors, TemplateFieldType.MODULE, { value -> (value as AssayModule) })
-	}
+    /**
+     * Static validator closure
+     * @param fields
+     * @param obj
+     * @param errors
+     */
+    static def validator = { fields, obj, errors ->
+        genericValidator(fields, obj, errors, TemplateFieldType.MODULE, { value -> (value as AssayModule) })
+    }
 
-	/**
-	 * cast value to the proper type (if required and if possible)
-	 * @param TemplateField field
-	 * @param mixed value
-	 * @return Module
-	 * @throws IllegalArgumentException
-	 */
-	static AssayModule castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
-		if (value) {
-			if (value instanceof AssayModule) {
-				return value
-			} else if (value instanceof String) {
-				def assayModule = AssayModule.findByName(value)
+    /**
+     * cast value to the proper type (if required and if possible)
+     * @param TemplateField field
+     * @param mixed value
+     * @return Module
+     * @throws IllegalArgumentException
+     */
+    static AssayModule castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
+        if (value) {
+            if (value instanceof AssayModule) {
+                return value
+            } else if (value instanceof String) {
+                def assayModule = AssayModule.findByName(value)
 
-				if (assayModule) {
-					return assayModule
-				} else {
-					// invalid value
-					throw new IllegalArgumentException("Module value not recognized: ${value} (${value.class})")
-				}
-			} else {
-				// invalid value
-				throw new IllegalArgumentException("Module value not recognized: ${value} (${value.class})")
-			}
-		} else {
-			return null
-		}
-	}
+                if (assayModule) {
+                    return assayModule
+                } else {
+                    // invalid value
+                    throw new IllegalArgumentException("Module value not recognized: ${value} (${value.class})")
+                }
+            } else {
+                // invalid value
+                throw new IllegalArgumentException("Module value not recognized: ${value} (${value.class})")
+            }
+        } else {
+            return null
+        }
+    }
 }

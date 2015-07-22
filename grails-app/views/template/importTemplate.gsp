@@ -8,14 +8,14 @@
   </head>
   <body>
     <sec:ifAnyGranted roles="ROLE_ADMIN, ROLE_TEMPLATEADMIN">
-    <h1>Select XML file to import </h1>
-    
-	<g:render template="/common/flashmessages" />
-	
-    <g:form controller="template" method="post" action="handleImportedFile" enctype="multipart/form-data">
-        <input type="file" name="file"/><br />
-        <input type="submit" value="Import" />
-    </g:form>
+	    <h1>Select XML file to import </h1>
+	    
+		<g:render template="/common/flashmessages" />
+		
+	    <g:form controller="template" method="post" action="handleImportedFile" enctype="multipart/form-data">
+	        <input type="file" name="file"/><br />
+	        <input type="submit" value="Import" />
+	    </g:form>
     </sec:ifAnyGranted>
     <sec:ifNotGranted roles="ROLE_ADMIN, ROLE_TEMPLATEADMIN">
         <h1>Template import </h1>

@@ -28,92 +28,92 @@ class GdtService implements Serializable {
     static transactional = false
 
 
-	// cached template entities
-	static cachedEntities
+    // cached template entities
+    static cachedEntities
 
-	/**
-	 * return the templateField class based on casedName
-	 * @param casedName
-	 * @return
-	 */
-	def public getTemplateFieldTypeByCasedName(String casedName) {
-		return Holders.grailsApplication.getAllClasses().find{it.name =~ "${casedName}Field" && it.name =~ /Template([A-Za-z]{1,})Field$/}
-	}
+    /**
+     * return the templateField class based on casedName
+     * @param casedName
+     * @return
+     */
+    def public getTemplateFieldTypeByCasedName(String casedName) {
+        return Holders.grailsApplication.getAllClasses().find{it.name =~ "${casedName}Field" && it.name =~ /Template([A-Za-z]{1,})Field$/}
+    }
 
-	/**
-	 * get all domain classes that use the domain templates
-	 * @return map
-	 */
-	def getTemplateEntities() {
-		// return cached entities if present
-		if (cachedEntities) return cachedEntities
+    /**
+     * get all domain classes that use the domain templates
+     * @return map
+     */
+    def getTemplateEntities() {
+        // return cached entities if present
+        if (cachedEntities) return cachedEntities
 
-		// fetch entities and cache them
-		def entities = []
+        // fetch entities and cache them
+        def entities = []
 
-		// iterate through domain classes
-		Holders.grailsApplication.getArtefacts("Domain").each {
-			def myInstance = it.clazz
-			if (myInstance.properties.superclass.toString() =~ 'TemplateEntity') {
-				def matches	= myInstance.toString() =~ /\.([^\.]+)$/
+        // iterate through domain classes
+        Holders.grailsApplication.getArtefacts("Domain").each {
+            def myInstance = it.clazz
+            if (myInstance.properties.superclass.toString() =~ 'TemplateEntity') {
+                def matches	= myInstance.toString() =~ /\.([^\.]+)$/
 
                 entities[entities.size()] = [
-                        name		: matches[0][1],
-                        description	: matches[0][1].replaceAll(/([A-Z])/, ' $1').replaceFirst(/^ /,''),
-                        entity		: prepareEntity(myInstance.toString()),
-                        instance	: myInstance,
-                        encoded		: encodeEntity(prepareEntity(myInstance.toString()))
+                    name		: matches[0][1],
+                    description	: matches[0][1].replaceAll(/([A-Z])/, ' $1').replaceFirst(/^ /,''),
+                    entity		: prepareEntity(myInstance.toString()),
+                    instance	: myInstance,
+                    encoded		: encodeEntity(prepareEntity(myInstance.toString()))
                 ]
-			}
-		}
+            }
+        }
 
-		// cache entities
-		cachedEntities = entities
+        // cache entities
+        cachedEntities = entities
 
-		return cachedEntities
-	}
+        return cachedEntities
+    }
 
-	/**
-	 * encrypt the name of an entity
-	 * @param String entityName
-	 * @return String
-	 */
-	def String encodeEntity(String entityName) {
-		// encode the class name, looks unprofessional to have Java class names in URL
+    /**
+     * encrypt the name of an entity
+     * @param String entityName
+     * @return String
+     */
+    def String encodeEntity(String entityName) {
+        // encode the class name, looks unprofessional to have Java class names in URL
         java.net.URLEncoder.encode(entityName.replaceAll(/^class /, '').bytes.encodeBase64().toString(),"UTF-8")
-	}
+    }
 
     def String prepareEntity(String entityName) {
         return entityName.replaceAll(/^class /, '');
     }
 
-	/**
-	 * decrypt an entity
-	 * @param String entity
-	 * @return String
-	 */
-	def String decodeEntity(String entity) {
+    /**
+     * decrypt an entity
+     * @param String entity
+     * @return String
+     */
+    def String decodeEntity(String entity) {
         // URL decode and base64 decode
         new String(java.net.URLDecoder.decode(entity,"UTF-8").decodeBase64())
 
-	}
+    }
 
-	/**
-	 * instantiate by encrypted entity
-	 * @param String entity
-	 * @return Object
-	 */
-	def getInstanceByEntity(String entity) {
-		return getInstanceByEntityName(decodeEntity(entity))
-	}
+    /**
+     * instantiate by encrypted entity
+     * @param String entity
+     * @return Object
+     */
+    def getInstanceByEntity(String entity) {
+        return getInstanceByEntityName(decodeEntity(entity))
+    }
 
-	/**
-	 * instantiate by entity name
-	 * @param String entityName
-	 * @return Object
-	 */
-	def getInstanceByEntityName(String entityName) {
-		def entity
+    /**
+     * instantiate by entity name
+     * @param String entityName
+     * @return Object
+     */
+    def getInstanceByEntityName(String entityName) {
+        def entity
 
         // Check whether the entityName is actually a domain class
         def entities = getTemplateEntities()
@@ -121,29 +121,29 @@ class GdtService implements Serializable {
             throw new InvalidClassException("Unregistered class name passed: ${entityName}")
         }
 
-		// dynamically instantiate the entity (if possible)
-		try {
-			entity = Class.forName(entityName, true, Holders.grailsApplication.getClassLoader())
+        // dynamically instantiate the entity (if possible)
+        try {
+            entity = Class.forName(entityName, true, Holders.grailsApplication.getClassLoader())
 
-			// succes, is entity an instance of TemplateEntity?
-			if (entity && entity.superclass =~ /TemplateEntity$/ || entity.superclass.superclass =~ /TemplateEntity$/) {
-				return entity
-			}
-		} catch (Exception e) {}
+            // succes, is entity an instance of TemplateEntity?
+            if (entity && entity.superclass =~ /TemplateEntity$/ || entity.superclass.superclass =~ /TemplateEntity$/) {
+                return entity
+            }
+        } catch (Exception e) {}
 
-		return false
-	}
+        return false
+    }
 
-	/**
-	 * check if an entity is valid
-	 * @param entity
-	 * @return
-	 */
-	def Boolean checkEntity(String entity) {
-		if (getInstanceByEntity(entity)) {
-			return true
-		} else {
-			return false
-		}
-	}
+    /**
+     * check if an entity is valid
+     * @param entity
+     * @return
+     */
+    def Boolean checkEntity(String entity) {
+        if (getInstanceByEntity(entity)) {
+            return true
+        } else {
+            return false
+        }
+    }
 }
