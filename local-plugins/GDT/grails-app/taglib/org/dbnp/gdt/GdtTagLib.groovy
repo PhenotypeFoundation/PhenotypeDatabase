@@ -691,7 +691,8 @@ class GdtTagLib extends AjaxflowTagLib {
                                 description: ucName,
                                 name: prependName + templateField.escapedName(),
                                 value: fieldValue,
-                                required: templateField.isRequired()
+                                required: templateField.isRequired(),
+                                maxLength: templateField.type.toString() == "STRING" ? 255 : 0
                         ]
 
                         // fuzzy matching enabled?
@@ -933,7 +934,8 @@ class GdtTagLib extends AjaxflowTagLib {
                         description: ucName,
                         name: prependName + templateField.escapedName(),
                         value: fieldValue,
-                        required: templateField.isRequired()
+                        required: templateField.isRequired(),
+                        maxLength: templateField.type.toString() == "STRING" ? 255 : 0
                 ]
 
                 // fuzzy matching enabled?
