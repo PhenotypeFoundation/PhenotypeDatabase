@@ -706,9 +706,7 @@ class StudyEditController {
                 }
 
                 // handle public checkbox
-                if (params.get("publicstudy")) {
-                        study.publicstudy = params.get("publicstudy")
-                }
+                study.publicstudy = params.get("publicstudy") ? true : false
 
                 // handle publications
                 handleStudyPublications(study, params)
