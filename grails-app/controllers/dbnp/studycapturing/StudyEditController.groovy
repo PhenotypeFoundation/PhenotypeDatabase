@@ -413,7 +413,7 @@ class StudyEditController {
 
                         def study = Study.get( entity.parent?.id )
                         def template = entity.template
-
+                        
                         if( params._action == "save" ) {
                                 if( entity.validate() ) {
                                         // We have to store multiple entities.

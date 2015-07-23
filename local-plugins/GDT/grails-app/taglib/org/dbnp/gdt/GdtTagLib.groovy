@@ -383,7 +383,8 @@ class GdtTagLib extends AjaxflowTagLib {
 
         // enctrypt entity
         attrs['entity'] = gdtService.encodeEntity(entity.toString())
-
+        attrs['data-entity'] = entity.name
+        
         // fetch templates
         attrs.from = (entity) ? Template.findAllByEntity(entity) : Template.findAll()
 
@@ -422,6 +423,8 @@ class GdtTagLib extends AjaxflowTagLib {
                 out << ' rel="' + attrs.rel.encodeAsHTML() + '"'
             if( attrs.entity )
                 out << ' entity="' + attrs.entity.encodeAsHTML() + '"'
+            if( attrs["data-entity"] )
+                out << ' data-entity="' + attrs["data-entity"].encodeAsHTML() + '"'
             if( attrs.onChange )
                 out << ' onChange="' + attrs.onChange.encodeAsHTML() + '"'
             out << ">\n";

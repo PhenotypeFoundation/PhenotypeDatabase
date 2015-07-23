@@ -14,6 +14,8 @@
  */
 package org.dbnp.gdt
 
+import grails.converters.JSON
+
 class TermEditorController {
     /**
      * index closure
@@ -101,5 +103,26 @@ class TermEditorController {
                 }
             }.to "terms"
         }
+    }
+    
+    def getAllTermsForOntologies() {
+        def acronyms = params.list('ontologies')
+        def ontologies = acronyms.collect { Ontology.findByAcronym(it) }.findAll()
+        
+        println "Ontologies: " + ontologies
+        
+        if( !ontologies ) {
+            response.status = 404
+            render "Not found"
+            return
+        }
+        
+        def terms = []
+        
+        if( ontologies ) {
+            terms = Term.findAllByOntologyInList(ontologies, [ 'sort': 'name', 'order': 'asc' ]).collect { it.name }
+        }
+        
+        render terms as JSON
     }
 }
