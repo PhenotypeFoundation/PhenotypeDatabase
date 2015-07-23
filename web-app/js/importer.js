@@ -76,7 +76,7 @@ Importer.datatable = {
 Importer.upload = {
 	initialize: function() {
 		// Update data preview when something changes in the parameters
-		$( "#uploadParameters" ).on("change", "input, select", function() {
+		$( "#uploadParameters" ).on("change", "input[type=hidden], select", function() {
 			Importer.upload.updateDataPreview();
 		});
 		

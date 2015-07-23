@@ -316,7 +316,7 @@ StudyEdit.datatables = {
 				var fieldId = fieldId.replace( /\./g, "_" );
 				
 				// Update the hidden field
-				field.filter( "input" )
+				field.filter( "input[type=hidden]" )
 					.attr( "name", fieldName )
 					.attr( "id", fieldId )
 					.addClass( "fileField" )
@@ -342,7 +342,7 @@ StudyEdit.datatables = {
 					.on( "mousedown", function(e) {
 						e.stopPropagation();
 						if( confirm( "Are you sure you want to delete this file?" ) ) {
-							deleteFile( fieldId );
+							FileUpload.deleteFile( fieldId );
 
 							// Mark this cell as being changed
 							StudyEdit.datatables.editable.markChanged( $(event.target).parent() );
@@ -361,11 +361,20 @@ StudyEdit.datatables = {
 				// Update the info field
 				field.filter( ".upload_info" )
 					.attr( "id", fieldId + "Example" )
-					.html( value ? "File: " + createFileHTML( value ) : "" );
+					.html( value ? "File: " + FileUpload.createFileHTML( value ) : "" );
 				
-				// UPdate the upload button
+				// Update the upload button
 				field.filter( ".upload_button" )
 					.attr( "id", "upload_button_" + fieldId );
+
+				// Update the upload icon
+				field.filter( ".upload_icon" )
+					.attr( "id", "upload_icon_" + fieldId );
+
+				// Connect the click event of the icon to the (hidden) button
+				$('#upload_icon_' + fieldId).on('click', function() {
+					$('#upload_button_' + fieldId).click();
+				})
 
 				return field;
 			},
@@ -671,7 +680,7 @@ StudyEdit.datatables = {
 							otherTd.find( ".upload_info" ).html( "" );
 						} else {
 							otherTd.find( ".upload_del" ).show();
-							otherTd.find( ".upload_info" ).html( createFileHTML(value) );							
+							otherTd.find( ".upload_info" ).html( FileUpload.createFileHTML(value) );
 						}
 						
 						StudyEdit.datatables.editable.markChanged( field );

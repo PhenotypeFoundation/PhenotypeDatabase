@@ -14,54 +14,61 @@ var FileUpload = {
 		if( typeof(options) == 'undefined' ) {
 			options = {};
 		}
-		
-		// Convert the file field
-		var upload = new AjaxUpload('#upload_button_' + field_id, {
-			//action: 'upload.php',
-			action: baseUrl + '/file/upload', // I disabled uploads in this example for security reaaons
-			data : {},
-			name : field_id,
-			autoSubmit: true,
-			onChange : function(file, ext) {
+
+		var upload = $('#upload_button_' + field_id).fileupload({
+			dataType: 'text', // type of the response
+			replaceFileInput: false,
+			url: baseUrl + '/file/upload',
+			paramName: field_id,
+			add: function(e, data) {
 				oldFile = $('#' + field_id).val();
 				if (oldFile != '' && oldFile != 'existing*' && oldFile != '*deleted*' ) {
 					if (!confirm('The old file is deleted when uploading a new file. Do you want to continue?')) {
 						return false;
 					}
 				}
-
-				this.setData({
-					'field':   field_id,
+				data.formData = {
+					'field': field_id,
 					'oldFile': oldFile
-				});
+				};
 
 				// Give feedback to the user
-				$('#' + field_id + 'Example').html('Uploading ' + that.createFileHTML(file, options.truncate));
+				var filename = data.files[0].name;
+				$('#' + field_id + 'Example').html('Uploading ' + that.createFileHTML(filename, options.truncate));
 				$('#' + field_id + 'Delete').hide();
 
+				data.submit();
 			},
-			onComplete : function(file, response) {
-	            //If there is HTML in the response, just retrieve the text value.
-	            if(response.indexOf("<") != -1) {
-	                response = $(response).text().split("//<![CDATA[")[0];
-	            }
+			done: function (e, data) {
+				var response = data.result;
+				var filename = data.files[0].name;
+
+				//If there is HTML in the response, just retrieve the text value.
+				if(response.indexOf("<") != -1) {
+					response = $(response).text().split("//<![CDATA[")[0];
+				}
 				if (response == "") {
 					$('#' + field_id).val('');
-					$('#' + field_id + 'Example').html('<span class="error">Error uploading ' + that.createFileHTML(file, options.truncate) + '</span>');
+					$('#' + field_id + 'Example').html('<span class="error">Error uploading ' + that.createFileHTML(filename, options.truncate) + '</span>');
 					$('#' + field_id + 'Delete').hide();
 				} else {
-					$('#' + field_id).val(response);
-					$('#' + field_id + 'Example').html('Uploaded ' + that.createFileHTML(file, options.truncate));
+					$('#' + field_id).val(response).change(); // explicitly trigger change event, as this is not called when changing programmatically
+					$('#' + field_id + 'Example').html('Uploaded ' + that.createFileHTML(filename, options.truncate));
 					$('#' + field_id + 'Delete').show();
 				}
-				
+
 				// Call user specified onComplete method
 				if( typeof(options.onUpload) != 'undefined' ) {
-					options.onUpload(file, response);
+					options.onUpload(filename, response);
 				}
 			}
 		});
-		
+
+		// Reroute click from icon to (invisible) file input
+		$('#upload_icon_' + field_id).on('click', function() {
+			$('#upload_button_' + field_id).click();
+		})
+
 		// Enable delete button
 		$( '#' + field_id + "Delete").on( "click", function() {
 			if( confirm( 'Are you sure to delete this file?' ) ) { 
@@ -89,5 +96,3 @@ var FileUpload = {
 		return '<a target="_blank" href="' + baseUrl + '/file/get/' + filename + '">' + label + '</a>';
 	}
 };
-
-
