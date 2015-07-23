@@ -613,6 +613,7 @@ class StudyEditController {
                                 entity.errors.allErrors.each { error ->
                                         errors[ error.getArguments()[0] ] = g.message(error: error)
                                 }
+                                entity.discard()
                         }
                 }
 
