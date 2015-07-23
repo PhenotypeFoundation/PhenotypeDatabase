@@ -747,7 +747,7 @@ StudyEdit.datatables = {
 				.always( function(data) {
 					// TODO: handle the case that the save failed
 					if( data.errors ) {
-						StudyEdit.datatables.editable.showError( table.attr( "id" ), "An error occurred while saving your data. Please try again." );
+						StudyEdit.datatables.editable.showError( table.attr( "id" ), "An error occurred while saving your data. Please try again.", data.errors );
 					}
 					
 					// Set the 'changed' flag to false
@@ -805,27 +805,54 @@ StudyEdit.datatables = {
 			
 		},
 
-		showError: function( tableId, message ) {
+		showError: function( tableId, message, details ) {
 			var table = $( '#' + tableId );
 			var wrapper = table.parents( ".dataTables_wrapper" );
 			var footer = wrapper.find( ".dataTables_scrollFoot .dataTable tfoot" );
 			var numColumns = table.find( "tr" ).first().children().length;
 
 			var td = $( "<td>" )
-			.attr( "colspan", numColumns )
-			.text( message )
-			.append( 
-				$( "<a>" )
-					.attr( "href", "#" )
-					.addClass( "close" )
-					.text( "x" )
-					.on( "click", function() {
-						// Hide the error bar
-						td.slideUp( 100, function() {
-							tr.remove();
-						});
-					})
-			);	
+				.attr( "colspan", numColumns )
+				.text( message );
+			
+			// Add details button if details are given
+			if( typeof(details) != "undefined" ) {
+				td.append( 
+						$( "<a>" )
+							.attr( "href", "#" )
+							.addClass( "details" )
+							.text( "Details" )
+							.on( "click", function() {
+								// Show details about the error
+								var messages = [];
+								
+								$.each(details, function(id, errors) {
+									$.each(errors, function(fieldname, msg) {
+										messages.push(msg);
+									});
+								});
+								
+								alert( "The following error(s) occured:\n\n" + messages.join( "\n" ) );
+								return false;
+							})
+					);	
+			}
+			
+			// Enable the user to close the message
+			td.append( 
+					$( "<a>" )
+						.attr( "href", "#" )
+						.addClass( "close" )
+						.text( "Close" )
+						.on( "click", function() {
+							// Hide the error bar
+							td.slideUp( 100, function() {
+								tr.remove();
+							});
+							return false;
+						})
+				);	
+			
 		
 			var tr = $( "<tr>" )
 				.addClass( "messagebar" )

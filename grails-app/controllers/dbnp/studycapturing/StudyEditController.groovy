@@ -610,9 +610,14 @@ class StudyEditController {
                                 entitiesToSave << entity
                         } else {
                                 success = false
+                                
                                 entity.errors.allErrors.each { error ->
-                                        errors[ error.getArguments()[0] ] = g.message(error: error)
+                                    if( !errors[entity.id] )
+                                        errors[entity.id] = [:]
+                                        
+                                    errors[entity.id][ error.getArguments()[0] ] = g.message(error: error)
                                 }
+                                
                                 entity.discard()
                         }
                 }
