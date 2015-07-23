@@ -432,6 +432,12 @@ class StudyEditController {
                                                         break
                                                 }
 
+                                                // Add _1 to the entity name if multiple entities are required
+                                                if( numEntities > 1 ) {
+                                                    // Make sure the name is unique
+                                                    entity.name = entity.name + "_1"
+                                                }
+                                                
                                                 study.save( flush: true );
                                                 index++
 
