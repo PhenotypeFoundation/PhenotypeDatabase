@@ -31,7 +31,7 @@
 						<tr>
 							<th></th>
 							<g:each var="feature" in="${features}">
-								<th>${feature }</th>
+								<th>${feature} [${feature.unit}]</th>
 							</g:each>
 						</tr>
 					</thead>
@@ -96,16 +96,16 @@
                                             <g:if test="${isNumeric}">
                                                 <g:if test="${comments}">
                                                     <%-- numeric value and comments --%>
-                                                    <span class="tooltip"> ${cellMeasurements[0].value} [${cellMeasurements[0].feature.unit}]<span>${comments}</span></span>
+                                                    <span class="tooltip"> ${cellMeasurements[0].value}<span>${comments}</span></span>
                                                 </g:if>
                                                 <g:else>
                                                     <g:if test="${cellMeasurements[0].value==cellMeasurements[0].value.round(3)}">
                                                         <%-- short numeric value without comments --%>
-                                                        <span> ${cellMeasurements[0].value} [${cellMeasurements[0].feature.unit}]</span>
+                                                        <span> ${cellMeasurements[0].value}</span>
                                                     </g:if>
                                                     <g:else>
                                                         <%-- long numeric value without comments; render short version and put entire number in tooltip --%>
-                                                        <span class="tooltip"> ${cellMeasurements[0].value.round(3).toString()} [${cellMeasurements[0].feature.unit}]<span>${cellMeasurements[0].value}</span></span>
+                                                        <span class="tooltip"> ${cellMeasurements[0].value.round(3).toString()}<span>${cellMeasurements[0].value}</span></span>
                                                     </g:else>
                                                 </g:else>
                                             </g:if>
