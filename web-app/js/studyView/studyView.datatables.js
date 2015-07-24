@@ -148,6 +148,14 @@ StudyView.datatables = {
 		});
 	},
 	
+	destroy: function( id ) {
+		delete this.numElements[id];
+		delete this.elementsSelected[id];
+		delete this.tableType[id];
+		delete this.selectType[id];
+		delete this.allElements[id];
+	},
+	
 	retrieveData: function( sSource, aoData, fnCallback, id ) {
         if( StudyView.datatables.selectType[ id ] != "selectNone") {
             aoData = StudyView.datatables.removeColumnInParam(aoData);
