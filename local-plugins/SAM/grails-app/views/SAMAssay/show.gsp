@@ -88,10 +88,10 @@
 												}.join( "<hr>" );
 											%>
 										</g:if>
-										<td class="${comments && isNumeric ? 'comments' : ''}">
+										<td id="td${cellMeasurements[0].id}" class="${comments && isNumeric ? 'comments' : ''}">
 											<% /* TODO: if multiple measurements are shown, this checkbox is not sufficient anymore */ %>
-											<input type="checkbox" name="ids" value="${cellMeasurements[0].id}" />
-										
+											<input type="checkbox" id="check${cellMeasurements[0].id}" name="ids" value="${cellMeasurements[0].id}" style="display:none;" />
+
 											<g:if test="${cellMeasurements[0].operator}">${cellMeasurements[0].operator}</g:if>
                                             <g:if test="${isNumeric}">
                                                 <g:if test="${comments}">
@@ -114,6 +114,13 @@
                                                 <span>${comments}</span>
 											</g:else>
 										</td>
+										<script>
+											$('#td${cellMeasurements[0].id}').on('click', function() {
+												var checkbox = $('#check${cellMeasurements[0].id}');
+												checkbox.prop('checked', !checkbox.prop('checked'));
+												$(this).toggleClass('selected', checkbox.prop('checked'));
+											});
+										</script>
 									</g:if>
 									<g:else>
 										<td></td>
