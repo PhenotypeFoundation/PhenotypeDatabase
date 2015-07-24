@@ -4,7 +4,7 @@
 	<meta name="layout" content="main" />
 	<title>Study edit wizard</title>
 	
-	<r:require modules="studyEdit" />
+	<r:require modules="studyEdit,gscf-datatables" />
 </head>
 <body>
 	<div class="basicTabLayout studyEdit studyProperties">
@@ -98,20 +98,25 @@
 			<label>Name: </label><input type="text" name="subjectgroup-name" id="subjectgroup-name" /><br />
 			
 			<div id="design-subjects">
-				<span class="subjects">
-					<g:set var="subjectCount" value="${study.subjects?.size()}" />
-					<g:set var="numRows" value="${Math.max( (int)subjectCount / 3, 1 )}" />
-					<g:each in="${study.subjects}" var="subject" status="i">
-						<span class="subject">
-							<input type="checkbox" name="subjectgroup_subjects" id="subjectgroup_subjects_${subject.id}" value="${subject.id}" /> ${subject.name}
-						</span>
-						
-						<g:if test="${( i + 1 ) % numRows == 0}">
-							</span>
-							<span class="subjects">
-						</g:if>
-					</g:each>
-				</span>
+				<table id="selectSubjectsTable" data-fieldPrefix="subject" class="subjectsTable selectMulti" rel="${g.createLink(action:"dataTableSubjectSelection", id: study.id)}">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Template</th>
+							<th>Species</th>
+						</tr>
+					</thead>
+					<tfoot>
+						<tr><td>
+							<div class="messagebar loadingSelection">
+								Loading selection of subjects. Please be patient. 
+							</div>						
+							<div class="messagebar selectAll">
+								You selected all items on this page. Would you <a href="#">select all items on other pages</a> as well? 
+							</div>						
+						</td></tr>
+					</tfoot>
+				</table>	
 			</div>				
 		</div>
 		

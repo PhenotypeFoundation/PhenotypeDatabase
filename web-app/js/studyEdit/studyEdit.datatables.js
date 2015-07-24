@@ -110,7 +110,7 @@ StudyEdit.datatables = {
 					var dataUrl = $el.attr('rel');
 					var id = $el.attr('id');
 
-					tableType[id] = "serverside";
+					StudyEdit.datatables.tableType[id] = "serverside";
 					StudyEdit.datatables.elementsSelected[id] = new Array();
 
 					StudyEdit.datatables.selection.initialize(el);
@@ -196,7 +196,25 @@ StudyEdit.datatables = {
 
 		return dataTables;
 	},
-
+	
+	destroy: function( id ) {
+		$el = $('#' + id );
+		
+		// Clear data on selections
+		StudyEdit.datatables.selection.destroy($el);		
+		
+		// Move elements back to their original position
+		var wrapper = $el.parents(".dataTables_wrapper");
+		wrapper.find("tfoot td").prepend(
+				wrapper.find(".fg-toolbar:eq(1) .messagebar"));
+		
+		delete this.numElements[id];
+		delete this.elementsSelected[id];
+		delete this.tableType[id];
+		delete this.selectType[id];
+		delete this.allElements[id];
+	},
+	
 	retrieveData : function(sSource, aoData, fnCallback, id) {
 		if (StudyEdit.datatables.selectType[id] != "selectNone") {
 			aoData = StudyEdit.datatables.removeColumnInParam(aoData);
@@ -1099,7 +1117,7 @@ StudyEdit.datatables = {
 	 * with the selected selectboxes in it.
 	 * 
 	 **************************************************************************/
-	selection : {
+	selection: {
 
 		/**
 		 * Initializes the select boxes for a datatables
@@ -1113,7 +1131,7 @@ StudyEdit.datatables = {
 				StudyEdit.datatables.selectType[id] = "selectMulti";
 				$("#" + id + ' thead tr')
 						.prepend(
-								"<th class='selectColumn nonsortable'><input id='"
+								"<th class='datatablesSelection selectColumn nonsortable'><input id='"
 										+ id
 										+ "_checkAll' class='checkall' type='checkbox' onClick='StudyEdit.datatables.selection.clickCheckAll(this);'></th>");
 				$("#" + id + ' tbody tr')
@@ -1138,13 +1156,13 @@ StudyEdit.datatables = {
 												.clickRow(this);
 									});
 									$(row).prepend(
-											$("<td class='selectColumn'></td>")
+											$("<td class='datatablesSelection selectColumn'></td>")
 													.append(input));
 								});
 			} else if ($el.hasClass('selectOne')) {
 				StudyEdit.datatables.selectType[id] = "selectOne";
 				$("#" + id + ' thead tr').prepend(
-						"<th class='selectColumn nonsortable'></th>");
+						"<th class='datatablesSelection selectColumn nonsortable'></th>");
 				$("#" + id + ' tbody tr')
 						.each(
 								function(idxrow, row) {
@@ -1166,7 +1184,7 @@ StudyEdit.datatables = {
 												.clickRow(this);
 									});
 									$(row).prepend(
-											$("<td class='selectColumn'></td>")
+											$("<td class='datatablesSelection selectColumn'></td>")
 													.append(input));
 								});
 			} else {
@@ -1190,11 +1208,15 @@ StudyEdit.datatables = {
 				// Add extra selection information span
 				$("#" + id + "_info").after(
 						"<span id='" + id
-								+ "_selectinfo' class='selectinfo'></span>");
+								+ "_selectinfo' class='selectinfo datatablesSelection'></span>");
 
 				// Initialize selectable
 				StudyEdit.datatables.selection.initializeSelectable($el);
 			}
+		},
+		
+		destroy: function(element) {
+			$(element).parents( ".dataTables_wrapper").find(".datatablesSelection").remove();
 		},
 
 		/**
@@ -1498,6 +1520,10 @@ StudyEdit.datatables = {
 			}
 
 			StudyEdit.datatables.selection.updateCheckAll(trsOnScreen.parent());
+		},
+		
+		getSelectedIds: function(tableId) {
+			return StudyEdit.datatables.elementsSelected[tableId];			
 		},
 
 		/**

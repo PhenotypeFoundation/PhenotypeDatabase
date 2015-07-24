@@ -69,6 +69,7 @@ div .contacts_dialog {
 
 /** Study design styles **/
 
+#subjectGroupDialog table { width: 100%; }
 .subjectsTable th { white-space: nowrap;}
 table.dataTable td.dataTables_empty { text-align: left; }
 
