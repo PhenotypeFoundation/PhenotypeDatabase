@@ -20,7 +20,8 @@
 		
 		<span class="message info"> 
 			<span class="title">Define or import your study design</span> 
-			The study design consists of treatement types and sample types, grouped together in sample & treatment groups. Sample & treatment groups can be assigned to groups of subjects.
+			The study design consists of treatement types and sample types, grouped together in sample & treatment groups. Sample & treatment groups can be assigned to groups of subjects.<br /><br />
+			<strong>N.B.</strong>You can edit your subject groups by double clicking on its name.
 		</span>
 		
 		<g:form action="design" name="design">
