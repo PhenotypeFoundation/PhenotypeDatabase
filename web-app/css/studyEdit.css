@@ -131,13 +131,15 @@ div.timeline-axis-group-divider { border-color: black; }
  .dataTable .changed { background-color: #75FFBD !important; }
  .dataTable .invalid { background-color: #FF808E; }
 
-.dataTable .messagebar td {
+.dataTables_wrapper .messagebar {
  	display: none;
-	padding: 5px 10px;
+	padding: 8px 10px;
  	text-align: left;
+ 	border-bottom: 1px solid#ccc;
+    margin-bottom: 5px;
  }
 
- .dataTable .saveChanges .saving { display: none; }
+ .dataTables_wrapper .saveChanges .saving { display: none; }
 
  /** Datatables **/
  
@@ -163,7 +165,10 @@ div.dataTables_wrapper .ui-widget-header { text-align: center; }
 .selectinfo { line-height: 1.4em; }
 .dataTables_info { text-align: left; }
 .messagebar { font-weight: normal; }
+
 #content .messagebar a { text-decoration: underline; }
+.messagebar a.close, .messagebar a.details { display: inline-block; margin-left: 10px; font-weight: bold; }
+#content .errorbar td { color: red; }
 
 /* Make sure the datatables will scroll */
 .dataTables_scroll {

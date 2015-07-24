@@ -39,20 +39,18 @@
 						</tr>
 					</thead>
 					<tfoot>
-						<tr class="messagebar selectAll">
-							<td  colspan="${1 + domainFields.size() + template.getFields().size()}">
+						<tr><td>
+							<div class="messagebar selectAll">
 								You selected all items on this page. Would you <a href="#">select all items on other pages</a> as well? 
-							</td>
-						</tr>						
-						<tr class="messagebar saveChanges">
-							<td class="" colspan="${1 + domainFields.size() + template.getFields().size()}">
+							</div>						
+							<div class="messagebar saveChanges">
 								<span class="links">
 									<a href="#" onClick="StudyEdit.datatables.editable.save(this); return false;">Save</a> or 
 									<a href="#" onClick="StudyEdit.datatables.editable.discardChanges(this); return false;">Discard</a>
 								</span>
 								<span class="saving">Saving...</span>
-							</td>
-						</tr>
+							</div>
+						</td></tr>
 					</tfoot>
 				</table>
 				

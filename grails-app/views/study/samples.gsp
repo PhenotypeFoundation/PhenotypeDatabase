@@ -32,13 +32,6 @@
 						</g:each>
 					</tr>
 				</thead>
-				<tfoot>
-					<tr class="messagebar selectAll">
-						<td  colspan="${1 + domainFields.size() + template.getFields().size()}">
-							You selected all items on this page. Would you <a href="#">select all items on other pages</a> as well? 
-						</td>
-					</tr>						
-				</tfoot>
 			</table>
 		</g:each>			
 			

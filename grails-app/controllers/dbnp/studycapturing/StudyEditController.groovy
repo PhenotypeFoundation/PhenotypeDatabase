@@ -413,7 +413,7 @@ class StudyEditController {
 
                         def study = Study.get( entity.parent?.id )
                         def template = entity.template
-
+                        
                         if( params._action == "save" ) {
                                 if( entity.validate() ) {
                                         // We have to store multiple entities.
@@ -432,6 +432,12 @@ class StudyEditController {
                                                         break
                                                 }
 
+                                                // Add _1 to the entity name if multiple entities are required
+                                                if( numEntities > 1 ) {
+                                                    // Make sure the name is unique
+                                                    entity.name = entity.name + "_1"
+                                                }
+                                                
                                                 study.save( flush: true );
                                                 index++
 
@@ -610,9 +616,15 @@ class StudyEditController {
                                 entitiesToSave << entity
                         } else {
                                 success = false
+                                
                                 entity.errors.allErrors.each { error ->
-                                        errors[ error.getArguments()[0] ] = g.message(error: error)
+                                    if( !errors[entity.id] )
+                                        errors[entity.id] = [:]
+                                        
+                                    errors[entity.id][ error.getArguments()[0] ] = g.message(error: error)
                                 }
+                                
+                                entity.discard()
                         }
                 }
 
@@ -694,9 +706,7 @@ class StudyEditController {
                 }
 
                 // handle public checkbox
-                if (params.get("publicstudy")) {
-                        study.publicstudy = params.get("publicstudy")
-                }
+                study.publicstudy = params.get("publicstudy") ? true : false
 
                 // handle publications
                 handleStudyPublications(study, params)

@@ -85,16 +85,20 @@ abstract class TemplateFieldTypeNew implements Serializable {
                 // check if the value exists and is of the proper type
                 if (value) {
                     // check if it is of the proper type
-                    if (value.class.toString().toLowerCase() != lowerFieldTypeName) {
+                    if (value.class.simpleName.toLowerCase() != lowerFieldTypeName) {
+                        if (debug) println "     - 0 Casting value as the type is not the right one: " + value.class.simpleName.toLowerCase() + " instead of " + lowerFieldTypeName
                         // no, try to cast value
+                        def success = false
                         try {
-                            fields[key] = castClosure(value)
+                            value = castClosure(value)
+                            success = true
                         } catch (Exception castException) {
                             if (debug) println "    - 1 ${castException.getMessage()}"
 
                             // could not cast value to the proper type, try to parse value
                             try {
-                                fields[key] = parseClosure(value)
+                                value = parseClosure(value)
+                                success = true
                             } catch (Exception parseException) {
                                 if (debug) println "    - 2 ${parseException.getMessage()}"
 
@@ -108,23 +112,28 @@ abstract class TemplateFieldTypeNew implements Serializable {
                                         )
                             }
                         }
-                    } else {
-                        // yes, try extra validation
-                        // 	- return boolean: validation success
-                        //	- return string: validation failed (contains i18n translation
-                        //    location, e.g. templateEntity.tooLong.string)
-                        def extraValidation = extraValidationClosure(value)
-                        if (extraValidation.class == String) {
-                            if (debug) println "    - 3"
-
-                            error = true
-                            errors.rejectValue(
-                                    "template${capitalizedFieldTypeName}Fields",
-                                    extraValidation,
-                                    [key] as Object[],
-                                    "Property {0} does not pass extra validation (${extraValidation})"
-                                    )
+                        
+                        // Store the new value on success
+                        if( success ) {
+                            fields[key] = value
                         }
+                    }
+                    
+                    // yes, try extra validation
+                    // 	- return boolean: validation success
+                    //	- return string: validation failed (contains i18n translation
+                    //    location, e.g. templateEntity.tooLong.string)
+                    def extraValidation = extraValidationClosure(value)
+                    if (extraValidation.class == String) {
+                        if (debug) println "    - 3"
+
+                        error = true
+                        errors.rejectValue(
+                                "template${capitalizedFieldTypeName}Fields",
+                                extraValidation,
+                                [key] as Object[],
+                                "Property {0} does not pass extra validation (${extraValidation})"
+                                )
                     }
                 }
             }

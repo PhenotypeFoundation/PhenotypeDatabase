@@ -35,7 +35,7 @@ class TemplateDoubleField extends TemplateFieldTypeNew {
      * @param errors
      */
     static def validator = { fields, obj, errors ->
-        genericValidator(fields, obj, errors, TemplateFieldType.DOUBLE, { value -> (value.toDouble()) }, { value -> println "obsolete?"; return (value as Double) })
+        genericValidator(fields, obj, errors, TemplateFieldType.DOUBLE, { value -> (value.toDouble()) }, { value -> return (value as Double) })
     }
 
     /**
