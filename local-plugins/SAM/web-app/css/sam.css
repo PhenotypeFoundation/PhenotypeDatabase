@@ -135,6 +135,12 @@ td.errors input, td.errors select { background-color: #fcc; }
 /* Width of a field name in the edit feature editor */
 .fieldName { width: 25%; }
 
+/* Table cells */
+td {
+    overflow: hidden;
+    text-overflow: clip;
+}
+
 /* Comments field in the assay overview */
 td.comments { background-color: pink; }
 
