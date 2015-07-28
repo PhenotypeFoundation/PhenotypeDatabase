@@ -233,18 +233,23 @@ class StudyEditController {
          */
         def deleteAssays() {
                 if( !request.post ) {
-                        response.status = 400
-                        render "Bad Request"
-                        return
+                    response.status = 400
+                    render "Bad Request"
+                    return
                 }
 
+                def numIds = params.list( 'ids' )?.size()
                 def numDeleted = deleteEntities( Assay )
 
-                if( numDeleted )
-                flash.message = "" + numDeleted + " assay(s) were deleted"
-                else
-                flash.error= "No assays were selected"
-
+                if( numIds ) {
+                    if( numDeleted == numIds )
+                        flash.message = "All " + numDeleted + " selected assay(s) were deleted"
+                    else
+                        flash.error = "" + numDeleted + " of the " + numIds + " selected assay(s) were deleted. Most probably the other assays contain measurements in one of the modules and cannot be deleted."
+                } else {
+                    flash.error= "No assays were selected"
+                }
+                
                 redirect action: "assays", id: params.id
         }
 
@@ -481,13 +486,17 @@ class StudyEditController {
                                                 def entity = entityType.get( id.toLong() )
 
                                                 switch( entityType ) {
-                                                case Subject:
+                                                    case Subject:
                                                         study.deleteSubject( entity )
                                                         break
-                                                case Sample:
+                                                    case Sample:
                                                         study.deleteSample( entity )
                                                         break
-                                                case Assay:
+                                                    case Assay:
+                                                        // Can't delete assays with measurements    
+                                                        if( entity.hasMeasurements() ) {
+                                                            return
+                                                        }
                                                         study.deleteAssay( entity )
                                                         break
                                                 }

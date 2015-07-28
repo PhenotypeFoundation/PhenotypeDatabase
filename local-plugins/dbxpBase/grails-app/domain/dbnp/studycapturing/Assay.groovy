@@ -2,6 +2,7 @@ package dbnp.studycapturing
 
 import org.dbnp.gdt.*
 import dbnp.authentication.*
+import org.dbxp.sam.Measurement
 
 /**
  * This class describes an Assay, which describes the application of a certain (omics) measurement to multiple samples.
@@ -124,4 +125,13 @@ class Assay extends TemplateEntity {
 			return 0
 		}
 	}
+    
+    /**
+     * Checks whether the SAM module has measurements associated with this assay
+     */
+    public boolean hasMeasurements() {
+        def num = Measurement.executeQuery( "SELECT COUNT(*) FROM Measurement m WHERE m.sample.parentAssay = :assay", [ "assay": this ] )
+        
+        return num[0] > 0
+    }
 }
