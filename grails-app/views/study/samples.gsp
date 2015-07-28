@@ -24,11 +24,17 @@
 	
 		<g:each in="${templates}" var="template">
 			<h3>Template: ${template.name}</h3>
-			<table id="samplesTable_${template.id}" data-templateId="${template.id}" data-fieldPrefix="sample" data-formId="sampleForm" class="samplesTable" rel="${g.createLink(action:"dataTableEntities", id: study.id, params: [template: template.id])}">
+			<table id="samplesTable_${template.id}" data-templateId="${template.id}" data-fieldPrefix="sample" data-formId="sampleForm" class="samplesTable" rel="${g.createLink(action:"dataTableSamples", id: study.id, params: [template: template.id])}">
 				<thead>
 					<tr>
+						<th data-fieldname="name">Name</th>
+						<th data-fieldname="subject" class="nonsortable">Subject</th>
+						<th data-fieldname="event" class="nonsortable">Event</th>
+						<th data-fieldname="group" class="nonsortable">Group</th>
 						<g:each in="${domainFields + template.getFields()}" var="field">
-							<th data-fieldname="${field.escapedName()}">${field.name}</th>
+							<g:unless test="${field.name == 'name'}">
+								<th data-fieldname="${field.escapedName()}">${field.name}</th>
+							</g:unless>
 						</g:each>
 					</tr>
 				</thead>
