@@ -405,7 +405,7 @@ class RestController {
                 // Convert the measurements into the desired format
                 results = measurements.collect {[
                     "sampleToken": samples[it[0]],
-                    "measurementToken": it[1] + ( it[2] ? " " + it[2] + ")" : "" ),
+                    "measurementToken": it[1],
                     "value": it[3] != null ? it[3] : it[4]
                 ]}
             } else {
