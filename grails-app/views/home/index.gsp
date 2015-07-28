@@ -288,7 +288,7 @@
                     <li><a target="_blank" href="${resource(dir:'downloads', file: 'license_terms.pdf')}" title="">License Terms</a></li>
                 </ul>
             </div>
-            <p class="note">If you encounter a problem or have a suggestion for improvement feel free to submit an issue <a href="#" title="">here</a></p>
+            <p class="note">If you encounter a problem or have a suggestion for improvement feel free to submit an issue <a href="${issueUrl}" title="">here</a></p>
         </div>
     </div>
 	<h1>Usage Statistics</h1>

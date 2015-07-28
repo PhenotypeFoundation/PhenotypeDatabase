@@ -25,7 +25,7 @@
 
  <p>
 	 You tried to access the template editor in an invalid way. If you feel you get this message
-	 in error, please file a bugreport <a href="https://trac.nbic.nl/gscf/newticket?summary=templateEditor%20invalid%20request&version=${meta(name: 'app.version')}" target="_new">here</a> with as many details as possible.
+	 in error, please file a bugreport <a href="${issueUrl}" target="_new">here</a> with as many details as possible.
  </p>
 
  <g:if test="${layout == 'main'}">
