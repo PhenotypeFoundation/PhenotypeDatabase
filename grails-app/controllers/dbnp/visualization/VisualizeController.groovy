@@ -976,19 +976,13 @@ class VisualizeController {
                 // Calcultate 1.5* inter-quartile-distance
                 double dblIQD = (Q3 - Q1) * 1.5;
 
-                /* // DEBUG
-                println("---");
-                println("  dataMap["+key+"]:: "+dataMap.get(key));
-                println("  dblMEDIAN:: "+dblMEDIAN);
-                println("  dblIQD:: "+dblIQD);
-                println("  Q1:: "+Q1);
-                println("  Q3:: "+Q3);
-                println("---");
-                */
-
+                // Set min and max to be the whiskers, so the outliers do not change the axes
+                double min = (dblMEDIAN - dblIQD)
+                double max = (dblMEDIAN + dblIQD)
+                
                 return_data["series"] << [
                         "name": key,
-                        "y": [key, objInfos.get("max"), (dblMEDIAN + dblIQD), Q3, dblMEDIAN, Q1, (dblMEDIAN - dblIQD), objInfos.get("min")]
+                        "y": [key, max, (dblMEDIAN + dblIQD), Q3, dblMEDIAN, Q1, (dblMEDIAN - dblIQD), min]
                 ];
             }
 
