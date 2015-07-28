@@ -512,3 +512,12 @@ StudyEdit.assays = {
 		return StudyEdit.studyChildren.onLoad( StudyEdit.assays );
 	}
 };
+
+StudyEdit.spinner = {
+	show: function( text ) {
+		$('body').append( $( "<div>" ).addClass( "spinner overlay" ).append( $( "<div>" ).addClass( "message" ).text(text) ) );
+	},
+	hide: function() {
+		$( ".overlay.spinner" ).remove();
+	}
+}

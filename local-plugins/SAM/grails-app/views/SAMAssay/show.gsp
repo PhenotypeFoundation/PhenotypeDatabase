@@ -31,7 +31,7 @@
 						<tr>
 							<th></th>
 							<g:each var="feature" in="${features}">
-								<th>${feature }</th>
+								<th>${feature} [${feature.unit}]</th>
 							</g:each>
 						</tr>
 					</thead>
@@ -88,24 +88,24 @@
 												}.join( "<hr>" );
 											%>
 										</g:if>
-										<td class="${comments && isNumeric ? 'comments' : ''}">
+										<td id="td${cellMeasurements[0].id}" class="${comments && isNumeric ? 'comments' : ''}">
 											<% /* TODO: if multiple measurements are shown, this checkbox is not sufficient anymore */ %>
-											<input type="checkbox" name="ids" value="${cellMeasurements[0].id}" />
-										
+											<input type="checkbox" id="check${cellMeasurements[0].id}" name="ids" value="${cellMeasurements[0].id}" style="display:none;" />
+
 											<g:if test="${cellMeasurements[0].operator}">${cellMeasurements[0].operator}</g:if>
                                             <g:if test="${isNumeric}">
                                                 <g:if test="${comments}">
                                                     <%-- numeric value and comments --%>
-                                                    <span class="tooltip"> ${cellMeasurements[0].value} [${cellMeasurements[0].feature.unit}]<span>${comments}</span></span>
+                                                    <span class="tooltip"> ${cellMeasurements[0].value}<span>${comments}</span></span>
                                                 </g:if>
                                                 <g:else>
                                                     <g:if test="${cellMeasurements[0].value==cellMeasurements[0].value.round(3)}">
                                                         <%-- short numeric value without comments --%>
-                                                        <span> ${cellMeasurements[0].value} [${cellMeasurements[0].feature.unit}]</span>
+                                                        <span> ${cellMeasurements[0].value}</span>
                                                     </g:if>
                                                     <g:else>
                                                         <%-- long numeric value without comments; render short version and put entire number in tooltip --%>
-                                                        <span class="tooltip"> ${cellMeasurements[0].value.round(3).toString()} [${cellMeasurements[0].feature.unit}]<span>${cellMeasurements[0].value}</span></span>
+                                                        <span class="tooltip"> ${cellMeasurements[0].value.round(3).toString()}<span>${cellMeasurements[0].value}</span></span>
                                                     </g:else>
                                                 </g:else>
                                             </g:if>
@@ -114,6 +114,13 @@
                                                 <span>${comments}</span>
 											</g:else>
 										</td>
+										<script>
+											$('#td${cellMeasurements[0].id}').on('click', function() {
+												var checkbox = $('#check${cellMeasurements[0].id}');
+												checkbox.prop('checked', !checkbox.prop('checked'));
+												$(this).toggleClass('selected', checkbox.prop('checked'));
+											});
+										</script>
 									</g:if>
 									<g:else>
 										<td></td>

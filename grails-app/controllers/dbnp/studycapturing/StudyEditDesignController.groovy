@@ -10,6 +10,7 @@ import dbnp.authentication.SecUser
 class StudyEditDesignController {
 	def authenticationService
 	def studyEditService
+        def datatablesService
 	
 	def index() {
 		def study = getStudyFromRequest( params )
@@ -679,7 +680,7 @@ class StudyEditDesignController {
 	 */
 	def subjectGroupUpdate() {
 		def subjectGroup = SubjectGroup.get( params.long( "id" ) );
-
+                
 		if( !subjectGroup ) {
 			response.status = 404
 			render "Not found"
@@ -688,12 +689,12 @@ class StudyEditDesignController {
 
 		def name = params.get( "name" )
 		def result = [ "OK" ]
-		
+		def subjectIds = params.subjects?.split(",")
 		if( name && name != subjectGroup.name ) {
 			subjectGroup.name = name
 
 			if( subjectGroup.save() ) {
-				handleSubjectsInSubjectGroup( params.list( "subjects[]" ), subjectGroup )
+				handleSubjectsInSubjectGroup( subjectIds, subjectGroup )
 				studyEditService.generateSamples( subjectGroup )
 			} else {
 				response.status = 500
@@ -701,7 +702,7 @@ class StudyEditDesignController {
 			}
 			
 		} else {
-			handleSubjectsInSubjectGroup( params.list( "subjects[]" ), subjectGroup )
+			handleSubjectsInSubjectGroup( subjectIds, subjectGroup )
 			studyEditService.generateSamples( subjectGroup )
 		}
 		
@@ -781,6 +782,48 @@ class StudyEditDesignController {
 		}
 
 	}
+    
+        /**
+         * Returns data for the datatable to select subjects in a subjectgroup
+         * @return
+         */
+        def dataTableSubjectSelection() {
+                def study = Study.read( params.long( "id" ) )
+    
+                if( !study ) {
+                    render dataTableError( "Invalid study given: " + study ) as JSON
+                    return
+                }
+    
+                def searchParams = datatablesService.parseParams( params )
+                def data = studyEditService.getSubjectsForSubjectSelection( searchParams, study )
+    
+                render datatablesService.createDatatablesOutput( data, params, { entry ->
+                        def output = entry as List
+                        def subject = entry[ 0 ]
+                        
+                        // Convert columns
+                        output[ 0 ] = subject.id
+
+                        // Generate output (the checkbox columns should be first
+                        output
+                }) as JSON
+        }
+        
+        /**
+         * Returns an error response for the datatable
+         * @param error
+         * @return
+         */
+        protected def dataTableError( error ) {
+                return [
+                        sEcho:                                  params.sEcho,
+                        iTotalRecords:                  0,
+                        iTotalDisplayRecords:   0,
+                        aaData:                                 [],
+                        errorMessage:                   error
+                ]
+        }
 
 	
 	/**
