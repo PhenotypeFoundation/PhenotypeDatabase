@@ -174,7 +174,7 @@ StudyEdit.design.eventGroups = {
 	
 	edit: function( id, dataUrl ) {
 		var dialog = StudyEdit.design.eventGroups.dialog.get();
-		dialog.dialog( "option", "title", "Edit treatment & sample group" );
+		dialog.dialog( "option", "title", "Edit sample & treatment group" );
 		dialog.data( "eventgroup-id", id );
 		
 		StudyEdit.design.eventGroups.dialog.open()
@@ -278,7 +278,8 @@ StudyEdit.design.eventGroups = {
 		
 		if( confirm( "Deleting this treatment&sample group will also delete all samples that originated from it, and remove all instances of this group. Are you sure you want to delete the treatment&sample group?" ) ) {
 			$.post( url, data, function() {
-				console.log( "Eventgroup deleted" );
+				if( console && console.log )
+					console.log( "Eventgroup deleted" );
 			});
 			
 			// Also delete the eventgroup from the timeline with subjectEventgroups

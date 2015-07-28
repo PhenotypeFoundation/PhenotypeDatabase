@@ -36,7 +36,7 @@
 						</g:each>
 						<th>Sample</th>
 						<th>Subject</th>
-						<th>Eventgroup</th>
+						<th>Group</th>
 						<th>Sampling event</th>
 						<th>Sample template</th>
 						<th>Starttime (combined)</th>

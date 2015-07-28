@@ -15,6 +15,7 @@
 package org.dbnp.gdt
 
 import grails.converters.*
+import grails.util.Holders
 
 class TemplateEditorController {
     def entityName
@@ -167,7 +168,7 @@ class TemplateEditorController {
         // set content type
         response.setContentType("text/html; charset=UTF-8")
 
-        render('view': 'error');
+        render('view': 'error', model: [ issueUrl: Holders.config.gscf.issueURL ] );
     }
 
     /**
