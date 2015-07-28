@@ -278,7 +278,8 @@ StudyEdit.design.eventGroups = {
 		
 		if( confirm( "Deleting this treatment&sample group will also delete all samples that originated from it, and remove all instances of this group. Are you sure you want to delete the treatment&sample group?" ) ) {
 			$.post( url, data, function() {
-				console.log( "Eventgroup deleted" );
+				if( console && console.log )
+					console.log( "Eventgroup deleted" );
 			});
 			
 			// Also delete the eventgroup from the timeline with subjectEventgroups
