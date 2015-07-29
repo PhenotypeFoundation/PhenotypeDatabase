@@ -77,7 +77,7 @@
 function OntologyChooser() {
 }
 OntologyChooser.prototype = {
-	cache		: [],		// ontology cache
+	cache		: {},		// ontology cache
 	ctrl		: false,	// work variable to search for copy/paste events
 	noSearch	: false,	// work variable to disable/enable autocomplete search
 	clipboard   : [],		// a clipboard to contain copied ontologies
@@ -185,12 +185,22 @@ OntologyChooser.prototype = {
                 var url = "http://data.bioontology.org/search?pagesize=30&q="+ q +"&ontologies="+ ontology_id + "&apikey=" + ontologyApiKey;
 				
 				// got cache?
-				if (that.cache[ q ]) {
+				if (q in that.cache) {
 					// hide spinner
 					inputElement.css({ 'background': 'none' });
 
-					// yeah, lucky us! ;-P
-					response(that.cache[ q ]);
+					if( that.cache[ q ].length > 0 ) {
+						// yeah, lucky us! ;-P
+						response();
+					} else {
+						// hide showHide element?
+						if (that.options.showHide) 
+							that.options.showHide.hide();
+
+						// clear hidden field
+						that.setInputValue(inputElement, 'ontology_id', null);
+                        that.setInputValue(inputElement, 'concept_id', null);						
+					}
 				} else {
 					// nope, fetch it from NCBO
 					$.getJSON(url)
@@ -205,9 +215,10 @@ OntologyChooser.prototype = {
 							inputElement.css({ 'background': 'none' });
 
 							// no results?
-							if (!data) {
+							if (terms.length == 0) {
 								// hide showHide element?
-								if (that.options.showHide) that.options.showHide.hide();
+								if (that.options.showHide) 
+									that.options.showHide.hide();
 
 								// clear hidden field
 								that.setInputValue(inputElement, 'ontology_id', null);
@@ -250,13 +261,16 @@ OntologyChooser.prototype = {
 					var element = inputElement;
 
 					// set fields
-					inputElement.val('');
 					that.setInputValue(element, 'ontology_id', '');
                     that.setInputValue(inputElement, 'concept_id', '');
+                    
+    				if (that.options.showHide) {
+    					that.options.showHide.hide();
+    				}
 
 					// add error class
 					element.addClass('error');
-				}
+				} 
 			},
 		}).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
 			var ontologyAcronym = item.ontologyUrl.substring( item.ontologyUrl.lastIndexOf( "/" ) + 1 );
@@ -330,7 +344,7 @@ OntologyChooser.prototype = {
                 var q = $.trim(request.term);
                 var url = "http://data.bioontology.org/ontologies?apikey=" + ontologyApiKey;
 
-                if (that.cache[ q ]) {
+                if (q in that.cache) {
                     inputElement.css({ 'background': 'none' });
                     response(that.cache[ q ]);
                 } else {
