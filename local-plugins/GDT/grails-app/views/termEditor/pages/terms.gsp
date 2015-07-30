@@ -17,37 +17,7 @@
 <html>
  <head>
   <meta name="layout" content="dialog"/>
-  <style type="text/css">
-#termForm {
-	display: block;
-	vertical-align: top;
-}
-#termForm #label {
-    color:#006DBA;
-    font-size:14px;
-    font-weight:normal;
-    display: inline-block;
-    zoom: 1; /* IE 6 & 7 hack */
-    *display: inline; /* IE 6 & 7 hack */
-}
-#termForm #term {
-    display: inline-block;
-    zoom: 1; /* IE 6 & 7 hack */
-    *display: inline; /* IE 6 & 7 hack */
-}
-#termForm #button {
-    display: inline-block;
-    zoom: 1; /* IE 6 & 7 hack */
-    *display: inline; /* IE 6 & 7 hack */
-}
-  </style>
-<g:if env="development">
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt')}"></script>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt')}"></script>
-</g:if><g:else>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.min.js', plugin: 'gdt')}"></script>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.min.js', plugin: 'gdt')}"></script>
-</g:else>
+  <r:require module="termEditor" />
  </head>
  <body>
 

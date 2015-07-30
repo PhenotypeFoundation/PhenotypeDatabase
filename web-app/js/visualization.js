@@ -1,865 +1,898 @@
-/**
- * This variable holds the currently displayed visualization
- */
-var visualization = null;
-var currType = null;
-var currAggr = null;
+var Visualization = {
+	initialize: function() {
+		// Initialize dialogs
+		Visualization.dialogs.initialize();
+		
+		// Initialize comboboxes
+	    $( "#select_study" ).combobox().on("change", Visualization.handlers.study );
+	    $( "#select_rows" ).combobox().on("change", Visualization.handlers.field );
+	    $( "#select_columns" ).combobox().on("change", Visualization.handlers.field );
+	    $( "#select_groups" ).combobox().on("change", Visualization.handlers.field );
 
-jQuery.expr[':'].Contains = function(a, i, m) {
-  return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
-};
+	    // Initialize handlers
+	    $( "input[name=aggregation]" ).on( "click", Visualization.handlers.aggregation );
+	    $( "input[name=types]" ).on( "click", Visualization.handlers.type );
+	    
+	    // Enable visualize and dialog buttons
+	    $( "#button_visualize" ).on( "click", function() { Visualization.visualize.perform(); return false; } );
+	    
+	    $( "#button_advanced_settings" ).on( "click", function() { Visualization.dialogs.openAdvancedSettings(); return false; } );
+	    $( "#button_messages" ).on( "click", function() { Visualization.dialogs.openMessages(); return false; } );
 
-$(document).ready(function() {
+	    // Do auto visualization when changing settings
+	    $( "#dialog_advanced_settings [type=checkbox]" ).on( "click", Visualization.visualization.auto );
+	    
+	    $(".ui-autocomplete-input").click(function() {
+	        $( this ).blur();
+	        // pass empty string as value to search for, displaying all results
+	        $( this ).autocomplete( "search", "" );
+	        $( this ).focus();
+	    });
+		
+	    // Make sure to enable plugins for jqplot
+	    $.jqplot.config.enablePlugins = true;
+	},
+	
+	dialogs: {
+		initialize: function() {
+		    $( "#dialog_messages, #dialog_advanced_settings" ).dialog({
+		        autoOpen: false, // don't open on startup
+		        modal: true, // set dialogs as modal
+		        resizable: false, // don't allow resize
+		        show: "slide", // open effect is slide
+		        hide: "slide", // close effect is slide
+		        zIndex: 10002, // 1 higher than the login panel
+		        buttons: {
+		            Ok: function() {
+		                $( this ).dialog( "close" );
+		            }
+		        }
+		    });
+		},
+		
+		openMessages: function() {
+			$('#dialog_messages').dialog('open'); 
+		},
+		
+		openAdvancedSettings: function() {
+			$('#dialog_advanced_settings').dialog('open'); 
+		}
+		
+	},
+	
+	/**
+	 * Methods to handle messages for the user
+	 */
+	messages: {
+		/**
+		 * Show a new message
+		 */
+		show: function( messages, strClass ) {
+			// Handle special case where only one message is given
+			if( typeof messages == "string" )
+				messages = [messages];
+			
+			// Add the message to the container
+		    for (index in messages) {
+		        var newClose = $( "<div>" ).css("position","absolute").css("top","3px").css("right","10px").html("<a href='#' onclick='Visualization.messages.remove(this); return false;'>x</a>");
+			    $( '#message_container' ).prepend( $( "<div>" ).addClass("message_box "+strClass).html( messages[index] ).css("position","relative").fadeIn().append(newClose) );
+		    }
+		    
+		    // Update the link to the messages
+		    this.updateMessageCount();
+		    
+		    // Highlight the message count
+		    switch( strClass ) {
+		    	case "message_error": highlightColor = "#FDA5A5"; break;
+		    	case "message_warning": highlightColor = "#FDF9A5"; break;
+		    	default: highlightColor = "#A5DCFD"; break;
+		    }
+		    this.highlightMessageCount(highlightColor);
+		},
+		
+		// Remove a single message
+		remove: function(strSelector) {
+		    $( strSelector ).closest(".message_box").remove();
+		    
+		    this.updateMessageCount();
+		    
+		    if($(".message_box").length==0) {
+		        $('#dialog_messages').dialog('close');
+		    }			
+		},
+		
+		/**
+		 * Update the message count to reflect the actual number of messages
+		 */
+		updateMessageCount: function() {
+		    var newMessage = "&nbsp;" + $('.message_box').length + " message";
+		    if($('.message_box').length!=1) {
+		        newMessage = newMessage + "s";
+		    }
+		    $( '#messages_link' ).html(newMessage);
+		},
+		
+		/**
+		 * Highlights the message count to indicate something has changed
+		 */
+		highlightMessageCount: function(color) {
+		    $( '#messages_link' ).hide().show( 
+			    	"highlight", 
+			    	{ color: color }, 
+			    	1000 );
+		},
+		
+		/**
+		 * Adds field indications (red, green or blue)
+		 */
+		indicate: {
+			getElement: function(selector) {
+				return $(selector).parents(".menu_header").find(".menu_header_count");
+			},
+			error: function(selector) {
+                this.getElement(selector).switchClass("menu_fill", "menu_error", 1000);
+			},
+			ready: function(selector) {
+                this.getElement(selector).removeClass().addClass( "menu_header_count").addClass("menu_fill");
+			},
+			done: function(selector) {
+				this.getElement(selector).switchClass("menu_fill", "menu_done", 1000);				
+			}
+		}
+	},
+	
+	/**
+	 * Methods to show/hide a spinner
+	 */
+	spinner: {
+		show: function(selector) {
+            $(selector).parents(".menu_header").find("img.spinner").show();
+		},
+		hide: function(selector) {
+            $(selector).parents(".menu_header").find("img.spinner").hide();
+		}
+	},
+	
+	/**
+	 * Information and methods for the current status
+	 */
+	current: {
+		visualization: null,
+		type: null,
+		aggregation: null,
+		
+		// Create a chart based on the given parameters
+		draw: function( type, dataPoints, plotOptions ) {
+			if( type == "table" ) 
+            	this.showHTML(plotOptions);
+			else
+				this.visualization = $.jqplot('visualization', dataPoints, plotOptions );
+		},
+		
+		// Show HTML in the visualization pane
+		showHTML: function( html ) {
+			this.clearVisualization();
+			$( '#visualization' ).html(html);
+		},
 
-    $( "#dialog_messages, #dialog_advanced_settings" ).dialog({
-        autoOpen: false, // don't open on startup
-        modal: true, // set dialogs as modal
-        resizable: false, // don't allow resize
-        show: "slide", // open effect is slide
-        hide: "slide", // close effect is slide
-        zIndex: 10002, // 1 higher than the login panel
-        buttons: {
-            Ok: function() {
-                $( this ).dialog( "close" );
-            }
-        }
-    });
+		// Remove the chart, if it exists
+		clearVisualization: function() {
+		    if( this.visualization )
+		    	this.visualization.destroy();
+		},
+	},
+	
+	/**
+	 * Event handles to be used when something changes in the interface. Please note,
+	 * 'this' will refer to the object to which the handler is attached, instead of to
+	 * the current object.
+	 */
+	handlers: {
+		study: function() {
+			// Clear all select boxes for fields
+		    $( '#select_rows, #select_columns, #select_groups' ).empty();
+		    $( '#select_rows, #select_columns, #select_groups' ).next().val("");
 
-    $( "#select_study" ).combobox();
-    $( "#select_rows" ).combobox();
-    $( "#select_columns" ).combobox();
-    $( "#select_groups" ).combobox();
+		    // Clear visualization
+		    Visualization.current.clearVisualization();
 
-    $(".ui-autocomplete-input").click(function() {
-        $( this ).blur();
-        // pass empty string as value to search for, displaying all results
-        $( this ).autocomplete( "search", "" );
-        $( this ).focus();
-    });
+		    // Update fields
+		    if($( '#select_study' ).find( 'option:selected' ).length>0) {
+		    	Visualization.update.fields();
+		    }			
+		},
+		
+		field: function() {
+			Visualization.messages.indicate.done(this);
 
-    $.jqplot.config.enablePlugins = true;
+			// If both the rows and columns have been selected, update aggregation and visualization types
+		    if($( '#select_rows' ).val().length>0 && $( '#select_columns' ).val().length>0) {
+		    	Visualization.update.types(this);
+		    }			
+		},
+		
+		aggregation: function() {
+			Visualization.messages.indicate.done(this);
+	        Visualization.current.aggregation = $(this).val();
+	
+	        // Boxplot is only allowed for no aggregation
+	        if(Visualization.current.aggregation != "none") {
+	            $("#vis_boxplot").attr("disabled","disabled");
+	            
+	            // If boxplot was chosen, reset the type
+	            if(Visualization.current.type=="boxplot") {
+	                $("#vis_boxplot").attr("checked",false);
+	    			Visualization.messages.indicate.ready($("#vis_boxplot"));
+	    	        Visualization.current.type = null;
+	            }
+	        } else {
+	        	// Allow boxplots, if it would fit the data
+	            $("#vis_boxplot").attr("disabled", !$("#vis_boxplot").data( "allowed" ));
+	        }
+	        
+            // If we already have enough data to visualize, and the automatic visualization is on,
+            // start the visualization already
+            Visualization.visualization.auto();
+		},
+		type: function() {
+			Visualization.messages.indicate.done(this);
+	        Visualization.current.type = $(this).val();
 
-    var s1 = [2, -6, 7, -5];
-    var ticks = ['a', 'b', 'c', 'd'];
-    var combinedtest = [name='count', x=['a', 'b', 'c', 'd'], y=[2, -6, 7, -5]];
-});
+	        if(Visualization.current.type == "boxplot") {
+	            $( "#aggr_none" )
+	            	.attr("checked","checked")
+	            	.trigger("click");
+	        } else {
+                // If we already have enough data to visualize, and the automatic visualization is on,
+                // start the visualization already
+                Visualization.visualization.auto();
+	        }			
+		}
+	},
+	
+	update: {
+		/**
+		 * Gathers data for the given request type from the form elements on the page
+		 * @param type	String	Can be 'getStudies', 'getFields', 'getVisualizationType' or 'getData'
+		 * @return Object		Object with the data to be sent to the server
+		 */
+		gatherData: function( type ) {
+			// For simplicity, we send the whole form to the server. In the
+			// future this might be enhanced, based on the given type
+			return $( '#visualizationForm' ).serialize();
+		},
+		
+		/**
+		 * Checks whether the data in the getData call can be handled correctly
+		 * @param	JSON object to check
+		 * @return	boolean	True if the data is correctly formatted, false otherwise
+		 */
+		checkCorrectData: function( data ) {
+			/*
+			Data expected:
+			{
+				"type": "barchart",
+				"xaxis": { "title": "quarter 2011", "unit": "" },
+				"yaxis": { "title": "temperature", "unit": "degrees C" },
+				"series": [
+					{
+						"name": "series name",
+						"x": [ "Q1", "Q2", "Q3", "Q4" ],
+						"y": [ 5.1, 3.1, 20.6, 15.4 ],
+						"error": [ 0.5, 0.2, 0.4, 0.5 ]
+					},
+				]
+			}
+			*/
 
-/**
- * Retrieve new fields based on the study that the user has selected.
- */
-function changeStudy() {
+			return ( "type" in data && "xaxis" in data && "yaxis" in data && "series" in data && $.isArray( data.series ) );
+		},
+	
+		/**
+		 * Executes an ajax call in a standardized way. Retrieves data to be sent with gatherData
+		 * The ajaxParameters map will be sent to the $.ajax call
+		 * @param action			Name of the action to execute. Is also given to the gatherData method
+		 * 							as a parameter and the url will be determined based on this parameter.
+		 * @param ajaxParameters	Hashmap with parameters that are sent to the $.ajax call. The entries
+		 *							url, data and dataType are set by this method. 
+		 *							An additional key 'errorMessage' can be given, with the message that will be
+		 *							shown if an error occurrs in this method. In that case, the 'error' method from
+		 *							the ajaxParameters method will be overwritten.
+		 * @see visualizationUrls
+		 * @see jQuery.ajax
+		 */		
+		executeAjaxCall: function( action, ajaxParameters ) {
+			var data = this.gatherData( action );
 
-    $( '#select_rows, #select_columns, #select_groups' ).empty();
-    $( '#select_rows, #select_columns, #select_groups' ).next().val("");
+			// If no parameters are given, create an empty map
+			if( !ajaxParameters ) 
+				ajaxParameters = {}
 
-    if( visualization )
-        visualization.destroy();
+			// Retrieve a new list of fields from the controller
+			// based on the study we chose
+			return $.ajax($.extend({
+				url: visualizationUrls[ action ],
+		        type: 'POST',
+				data: data,
+				dataType: "json"
+			}, ajaxParameters ) );
+		},
+		
+		/**
+		 * Retrieve a list of fields from the server and put them into the select boxes for rows, columns and groups
+		 */
+		fields: function() {
+			var spinnerSelector = "#select_rows, #select_columns, #select_groups";
+	    	Visualization.spinner.show( spinnerSelector );
+			
+	        this.executeAjaxCall( "getFields" )
+	        	.done(function( data, textStatus, jqXHR ) {
+	                if(data.infoMessage) {
+	                    Visualization.messages.show(data.infoMessage,"message_warning");
+	                }
 
-    if($( '#select_study' ).find( 'option:selected' ).length>0) {
-        $( "#select_rows, #select_columns, #select_groups" ).parents(".menu_header").find("img.spinner").show();
+	                // Add all fields to the lists
+	                if( data.returnData && data.returnData.studyIds==$( '#select_study' ).val() ) {
+	                    var returnData = data.returnData.fields;
 
-        executeAjaxCall( "getFields", 'menu_study', {
-            "errorMessage": "An error occurred while retrieving variables from the server. Please try again or contact a system administrator.",
-            "success": function( data, textStatus, jqXHR ) {
+	                    var prevCat = "";
+	                    var strOptions = "<option value=''>Select One...</option>";
+		                $.each( returnData, function( idx, field ) {
+	                        if(field.category!=prevCat) {
+	                            if(prevCat.length>0) strOptions += "</optgroup>";
+	                            strOptions += "<optgroup label='"+field.source+": "+field.category+"' onClick='return false;'>";
+	                            prevCat = field.category;
+	                        }
+		                    strOptions += "<option value='"+field.id+"'>"+field.name+"</option>";
+		                });
+	                    if(strOptions.length>0) {
+	                        strOptions += "</optgroup>";
+	                        $( "#select_rows, #select_columns, #select_groups" ).html(strOptions);
+		                	Visualization.messages.indicate.ready( spinnerSelector );
+	                        
+	                    } else {
+	                    	Visualization.current.showHTML('<div style="padding: 30px">No fields could be found. This visualization step requires studies with samples.</div>');
+		                	Visualization.messages.indicate.error( spinnerSelector );
+	                    }
+	                    
+	                    Visualization.messages.indicate.done( '#select_study' );
+	                }
+	            })
+	        	.fail(function( jqXHR, textStatus, errorThrown ) {
+					// An error occurred while retrieving fields from the server
+					Visualization.messages.show( "An error occurred while retrieving variables from the server. Please try again or contact a system administrator<br />" + textStatus, "message_error" );
+					Visualization.messages.indicate.error( '#select_study' );
+				})
+	        	.always(function() {
+					Visualization.spinner.hide( spinnerSelector );
+	        	});
+		},
+		
+		/**
+		 * Retrieve a list of types from the server, based on the chosen fields
+		 */		
+		types: function(originatingElement) {
+			var spinnerSelector = "#select_types, #select_aggregation";
+	    	Visualization.spinner.show( spinnerSelector );
+			
+	        this.executeAjaxCall( "getVisualizationTypes" )
+	        	.done(function( data, textStatus, jqXHR ) {
+	                if( data.infoMessage!=null ) {
+	                    Visualization.messages.show(data.infoMessage,"message_warning");
+	                }
 
-                if(data.infoMessage) {
-                    showError(data.infoMessage,"message_warning");
-                }
+	                if( data.returnData && data.returnData.rowIds==$( '#select_rows' ).val() && data.returnData.columnIds==$( '#select_columns' ).val() ) {
+	                    // Add all fields to the lists
+	                    var returnDataTypes = data.returnData.types;
+	                    var returnDataAggregations = data.returnData.aggregations;
 
-                // Add all fields to the lists
-                if( data.returnData && data.returnData.studyIds==$( '#select_study option:selected' ).val() ) {
-                    var returnData = data.returnData.fields;
+	                    // Store current aggregation and type
+	                    if(Visualization.current.aggregation == null) {
+	                        Visualization.current.aggregation = "average";
+	                    } else {
+	                        Visualization.current.aggregation = $("#select_aggregation input:checked").val();
+	                    }
+	                    Visualization.current.type = $("#select_types input:checked").val();
 
-                    var prevCat = "";
-                    var strOptions = "<option value=''>Select One...</option>";
-	                $.each( returnData, function( idx, field ) {
-                        if(field.category!=prevCat) {
-                            if(prevCat.length>0) strOptions += "</optgroup>";
-                            strOptions += "<optgroup label='"+field.source+": "+field.category+"' onClick='return false;'>";
-                            prevCat = field.category;
-                        }
-	                    strOptions += "<option value='"+field.id+"'>"+field.name+"</option>";
-	                });
-                    if(strOptions.length>0) {
-                        strOptions += "</optgroup>";
-                        $( "#select_rows, #select_columns, #select_groups" ).html(strOptions);
-                    } else {
-                        $("#visualization").html('<div style="padding: 30px">No fields could be found. This visualization prototype requires studies with samples.</div>');
-                    }
-                    $( "#select_study" ).parents(".menu_header").find(".menu_header_count").switchClass("menu_fill", "menu_done", 1000);
-                    $( "#select_rows, #select_columns, #select_groups" ).parents(".menu_header").find("img.spinner").hide();
-	                $( "#select_rows, #select_columns, #select_groups" ).parents(".menu_header").find(".menu_header_count").addClass("menu_fill");
-                }
-            }
-        });
-    }
-}
+	                    // Indicate the types and aggreation and ready
+	                    Visualization.messages.indicate.ready( "#select_types, #select_aggregation" );
 
-/**
- * Retrieve the possible visualization types based on the fields that the user has selected.
- */
-function changeFields(selectid) {
+	                    // Disable all aggregation- and visualizationoptions
+	                    $("#select_aggregation input, #select_types input").each(function(index) {
+	                        $(this).attr("disabled","disabled").attr( "checked", false ).removeData( "allowed" );
+	                    });
 
-    $( "#"+selectid ).parents(".menu_header").find(".menu_header_count").switchClass("menu_fill", "menu_done", 1000);
+	                    // Enable some visualizationoptions
+	                    $.each( returnDataTypes, function( idx, field ) {
+	                        $("#vis_"+field.id).attr("disabled",false).data( "allowed", true);
+	                        if( field.id == Visualization.current.type || returnDataTypes.length==1 ) {
+	                            Visualization.current.type = field.id;
+	                            $("#vis_"+field.id).attr("checked","checked");
+	                            
+	    	                    Visualization.messages.indicate.done( "#select_types" );
+	                        };
+	                    });
 
-    if($( '#select_rows' ).find( 'option:selected' ).val().length>0 && $( '#select_columns' ).find( 'option:selected' ).val().length>0) {
-
-        $( "#select_types, #select_aggregation" ).parents(".menu_header").find("img.spinner").show();
-
-        executeAjaxCall( "getVisualizationTypes", selectid, {
-            "errorMessage": "An error occurred while retrieving visualization types from the server. Please try again or contact a system administrator.",
-            "success": function( data, textStatus, jqXHR ) {
-                // Remove all previous entries from the list
-
-                if( data.infoMessage!=null ) {
-                    showError(data.infoMessage,"message_warning");
-                }
-
-                if( data.returnData && data.returnData.rowIds==$( '#select_rows option:selected' ).val() && data.returnData.columnIds==$( '#select_columns option:selected' ).val() ) {
-                    // Add all fields to the lists
-                    var returnDataTypes = data.returnData.types;
-                    var returnDataAggregation = data.returnData.aggregations;
-
-                    if(currAggr==null) {
-                        currAggr = "average";
-                    } else {
-                        currAggr = $("#select_aggregation input:checked").val();
-                    }
-                    currType = $("#select_types input:checked").val();
-
-                    $( "#select_types, #select_aggregation" )
-                        .parents(".menu_header")
-                        .find(".menu_header_count")
-                        .addClass("menu_fill");
-
-                    // Disable all aggregation- and visualizationoptions
-                    $("#select_aggregation input, #select_types input").each(function(index) {
-                        $(this).attr("disabled","disabled");
-                    });
-
-                    // Enable some visualizationoptions
-                    $.each( returnDataTypes, function( idx, field ) {
-                        $("#vis_"+field.id).attr("disabled",false);
-                        if( field.id==currType || returnDataTypes.length==1 ) {
-                            currType = field.id;
-                            $("#vis_"+field.id).attr("checked","checked");
-                            $( "#select_types" )
-                                .parents(".menu_header")
-                                .find(".menu_header_count")
-                                .switchClass("menu_fill", "menu_done", 1000);
-                        };
-                    });
-
-                    // Enable some aggregationoptions
-                    $.each( returnDataAggregation, function( idx, field ) {
-                        if(!field.disabled)
-                            $("#aggr_"+field.id).attr("disabled",false);
-                            if( field.id==currAggr || returnDataAggregation.length==1 ) {
-                                currAggr = field.id;
-                                $("#aggr_"+field.id).attr("checked","checked");
-                                $( "#select_aggregation" )
-                                    .parents(".menu_header")
-                                    .find(".menu_header_count")
-                                    .switchClass("menu_fill", "menu_done", 1000);
+	                    // Enable some aggregationoptions
+	                    var enabledAggregations = $.grep(returnDataAggregations, function(field) { return !field.disabled; } );
+	                    $.each( enabledAggregations, function( idx, field ) {
+                            $("#aggr_"+field.id).attr("disabled",false).data( "allowed", true);
+                            if( field.id == Visualization.current.aggregation || enabledAggregations.length==1 ) {
+                                Visualization.current.aggregation = field.id;
+                                $("#aggr_"+field.id).attr("checked", "checked");
+                                
+	    	                    Visualization.messages.indicate.done( "#select_aggregation" );
                             };
-                    });
+	                    });
 
-                    changeVis();
-                }
-
-                $( "#select_types, #select_aggregation" ).parents(".menu_header").find("img.spinner").hide();
-
-            }
-        });
-    }
-}
-
-/**
- *
- */
-function changeRadio(that) {
-
-    if($(that).attr("name")=="aggregation") {
-        $( "#select_aggregation" )
-            .parents(".menu_header")
-            .find(".menu_header_count")
-            .switchClass("menu_fill", "menu_done", 1000);
-        currAggr = $(that).val();
-
-        if(currAggr!="none") {
-            $("#vis_boxplot").attr("disabled","disabled");
-            if(currType=="boxplot") {
-                $("#vis_boxplot").attr("checked",false);
-            }
-        } else {
-            $("#vis_boxplot").attr("disabled",false);
-        }
-    } else {
-        $( "#select_types" )
-            .parents(".menu_header")
-            .find(".menu_header_count")
-            .switchClass("menu_fill", "menu_done", 1000);
-        currType = $(that).val();
-
-        if($(that).val()=="boxplot") {
-            $( "#select_aggregation input[value=none]" ).attr("checked","checked");
-            $( "#select_aggregation" )
-                .parents(".menu_header")
-                .find(".menu_header_count")
-                .switchClass("menu_fill", "menu_done", 1000);
-            currAggr = "none";
-        }
-    }
-
-    changeVis();
-
-}
-
-function changeVis() {
-    if($("#autovis").attr("checked")=="checked") {
-        visualize();
-    }
-}
-
-
-/**
- * Create a visualization based on the parameters entered in the form
- * The data for the visualization is retrieved from the serverside getData method
- */ 
-function visualize() {
-
-    if($( "#select_rows" ).val() &&
-        $( "#select_columns" ).val() &&
-        $( "#select_types input:checked" ).length>0 &&
-        $( "#select_aggregation input:checked" ).length>0
-       ) {
-
-        $( "#menu_go" ).find(".spinner").show();
-
-        executeAjaxCall( "getData", "menu_go", {
-            "errorMessage": "An error occurred while retrieving data from the server. Please try again or contact a system administrator.",
-            "success": function( data, textStatus, jqXHR ) {
-                // Remove old chart, if available
-                if( visualization )
-                    visualization.destroy();
-
-                if(data.infoMessage!=null) {
-                    showError(data.infoMessage,"message_warning");
-                }
-
-                // Handle erroneous data
-                if( !checkCorrectData( data.returnData ) && data.returnData.type!="boxplot" ) {
-                    showError( ["Unfortunately the server returned data in a format that we did not expect."], "message_error" );
-                    return;
-                }
-
-                // Retrieve the datapoints from the json object
-                var dataPoints = new Array();
-                var series = [];
-                
-                //data = {"returnData":{"type":null,"xaxis":{"title":"Gender","unit":"","type":"categorical"},"yaxis":{"title":"Weight","unit":"kg","type":"numerical"},"groupaxis":{"title":null,"unit":null,"type":"numerical"},"series":[{"name":"count","x":["Male","Male","Female","Male","Male","Male","Male","Male","Female","Female","Female"],"y":[1,2,3,4,2,2,3,1,2,3,5]}]}}
-
-                var returnData = data.returnData;
-
+	                    // If we already have enough data to visualize, and the automatic visualization is on,
+	                    // start the visualization already
+	                    Visualization.visualization.auto();
+	                }	        		
+	            })
+	        	.fail(function( jqXHR, textStatus, errorThrown ) {
+					// An error occurred while retrieving fields from the server
+					Visualization.messages.show( "An error occurred while retrieving visualization types from the server. Please try again or contact a system administrator<br />" + textStatus, "message_error" );
+					Visualization.messages.indicate.error( originatingElement );
+				})
+	        	.always(function() {
+					Visualization.spinner.hide( spinnerSelector );
+	        	});	        
+		},
+	},
+	
+	/**
+	 * Methods for converting server side data into the proper format for plotting charts
+	 */
+	data: {
+		_generic: {
+			/**
+			 * Converts raw data into series and datapoints to be used for plotting
+			 * @param returnData
+			 * @param convertElementIntoDataPoint	Function that converts a raw element into a datapoint
+			 * @param serieOptions					Function that returns the serieOptions for a given element
+			 */
+			convertData: function(returnData, convertElementIntoDataPoint, serieOptions) {
+				// Use defaults if no methods are specified
+				if( !serieOptions )
+					serieOptions = this.serieOptions;
+				
+				// Use defaults if no methods are specified
+				if( !convertElementIntoDataPoint )
+					convertElementIntoDataPoint = this.convertElementIntoDataPoint
+				
+				// Initialize empty lists
+				var series = [];
+				var dataPoints = [];
+				
                 $.each(returnData.series, function(idx, element ) {
                 	if( element.y && element.y.length > 0 ) {
-                        if(returnData.type=="horizontal_barchart") {
-                            // The horizontal barchart needs special dataPoints
-                            var newArr = new Array();
-                            for(var i=0; i<element.y.length; i++) {
-                                newArr[ newArr.length ] = new Array(element.y[i],i+1);
-                            }
-                            dataPoints[ dataPoints.length ] = newArr;
-                        } else if(returnData.type=="boxplot")  {
-                            var tempArr = element.y;
-                            tempArr = [tempArr[0],tempArr[4],tempArr[1],tempArr[2],tempArr[3],tempArr[4],tempArr[5],tempArr[6],tempArr[7]];
-                            dataPoints[ dataPoints.length ] = tempArr;
-                        } else {
-                            dataPoints[ dataPoints.length ] = element.y;
-                        }
-	                    series[ series.length ] = { "label": element.name };
+                		dataPoints.push(convertElementIntoDataPoint(element));
+                		series.push(serieOptions(element));
                 	}
                 });
-
-                // If no datapoints are found, return an error
-                if( dataPoints.length == 0 ) {
-                    showError( ["Unfortunately the server returned data without any measurements"], "message_error" );
-                    $( "#menu_go" ).find(".spinner").hide();
-                    return;
-                }
                 
-                var xlabel = returnData[ "xaxis" ].unit=="" ? returnData[ "xaxis" ].title : returnData[ "xaxis" ].title + " (" + returnData[ "xaxis" ].unit + ")";
-                var ylabel = returnData[ "yaxis" ].unit=="" ? returnData[ "yaxis" ].title : returnData[ "yaxis" ].title + " (" + returnData[ "yaxis" ].unit + ")";
-                var grouplabel = "";
-                if(returnData[ "groupaxis" ]!==undefined) {
-                    grouplabel = returnData[ "groupaxis" ].unit=="" ? returnData[ "groupaxis" ].title : returnData[ "groupaxis" ].title + " (" + returnData[ "groupaxis" ].unit + ")";
-                }
-
-                // TODO: create a chart based on the data that is sent by the user and the type of chart
-                // chosen by the user
-                var plotOptions = null;
-
-                var blnShowDataValues = $("#showvalues").attr("checked")=="checked";
-                var blnShowLegend = returnData.series.length>1;
-                var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" && blnShowLegend ? "outsideGrid" : "insideGrid";
-                var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
-
-                switch( returnData.type ) {
-                	case "scatterplot":
-
-                        $.each(returnData.series, function(idx, element ) {
-                            series[idx].showLine = false;
-                            series[idx].markerOptions = { "size": 7, "style":"filledCircle" };
-                        });
-                        // No break, scatterplot gets the plotoptions of the linechart
-                	case "linechart":
-                        plotOptions = {
-                            stackSeries: false,
-                            seriesDefaults:{
-                                renderer:$.jqplot.LineRenderer,
-                                pointLabels: {show: blnShowDataValues}
-                            },
-                            series: series,
-                            highlighter: {
-                                show: !blnShowDataValues,
-                                sizeAdjust: 7.5,
-                                tooltipAxes: "y"
-                            },
-                            legend: {
-                                show: blnShowLegend,
-                                placement: strLegendPlacement
-                            },
-                            axes: {
-                                xaxis: {
-                                    renderer: $.jqplot.CategoryAxisRenderer,
-                                    ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    label: xlabel,
-                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                                    tickOptions: {
-                                        angle: xangle
-                                    }
-                                },
-                                yaxis: {
-                                    label: ylabel,
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    formatString:'%.2f'
-                                }
-                            },
-                            axesDefaults: {
-                                pad: 1.4
-                            }
-                        };                		
-                		break;
-                    case "horizontal_barchart":
-                        plotOptions = {
-                            // Tell the plot to stack the bars.
-                            stackSeries: false,
-                            seriesDefaults:{
-                                renderer:$.jqplot.BarRenderer,
-                                rendererOptions: {
-                                    // Put a 30 pixel margin between bars.
-                                    barMargin: 30,
-                                    // Highlight bars when mouse button pressed.
-                                    // Disables default highlighting on mouse over.
-                                    highlightMouseDown: true,
-                                    barDirection: 'horizontal',
-                                    highlightMouseDown: true,
-                                    fillToZero: true
-                                },
-                                pointLabels: {show: blnShowDataValues}
-                            },
-                            highlighter: {
-                                show: !blnShowDataValues,
-                                sizeAdjust: 7.5,
-                                tooltipAxes: "x"
-                            },
-                            legend: {
-                                show: blnShowLegend,
-                                placement: strLegendPlacement
-                            },
-                            series: series,
-                            axes: {
-                                xaxis: {
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    label: xlabel,
-                                    
-                                    formatString:'%.2f',
-                                    min: 0,
-
-                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                                    tickOptions: {
-                                        angle: xangle
-                                    }
-
-                                },
-                                yaxis: {
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    label: ylabel,
-
-                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                                    ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
-
-                                    renderer: $.jqplot.CategoryAxisRenderer
-                                }
-                            },
-                            axesDefaults: {
-                                pad: 1.4
-                            }
-                        };
-                		break;
-                	case "barchart":
-                        plotOptions = {
-                            // Tell the plot to stack the bars.
-                            stackSeries: false,
-                            seriesDefaults:{
-                                renderer:$.jqplot.BarRenderer,
-                                rendererOptions: {
-                                    barMargin: 30,
-                                    highlightMouseDown: true,
-                                    fillToZero: true
-                                },
-                                pointLabels: {show: blnShowDataValues}
-                            },
-                            highlighter: {
-                                show: !blnShowDataValues,
-                                sizeAdjust: 7.5,
-                                tooltipAxes: "y"
-                            },
-                            legend: {
-                                show: blnShowLegend,
-                                placement: strLegendPlacement
-                            },
-                            series: series,
-                            axes: {
-                                xaxis: {
-                                    renderer: $.jqplot.CategoryAxisRenderer,
-                                    ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
-                                    label: xlabel,
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                                    tickOptions: {
-                                        angle: xangle
-                                    }
-                                },
-                                yaxis: {
-                                    label: ylabel,
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    formatString:'%.2f'
-                                }
-                            },
-                            axesDefaults: {
-                                pad: 1.4
-                            }
-                        };
-
-                		break;
-                	case "table":
-                        // create table
-                        var table = $("<table>").addClass("tablevis");
-
-                        // create caption-row
-                        var row = $("<tr>");
-                        // create empty top-left-field
-                        if(series.length==1) {
-                            row.append("<td class='caption' colspan='2' rowspan='2'>&nbsp;</td>");
-                        } else {
-                            row.append("<td class='caption' colspan='2'>&nbsp;</td>");
-                        }
-                        // create caption
-                        row.append("<td class='caption' colspan='"+returnData.series[0].x.length+"'>"+xlabel+"</td>");
-                        row.appendTo(table);
-
-                        // create header-row
-                        var row = $("<tr>");
-                        // create headers
-                        if(series.length>1) {
-                            row.append("<td class='caption'>"+grouplabel+"</td>");
-                            row.append("<td class='caption'>"+ylabel+"</td>");
-                        }
-                        for(j=0; j<returnData.series[0].x.length; j++) {
-                            row.append("<th>"+returnData.series[0].x[j]+"</th>");
-                        }
-                        row.appendTo(table);
-
-                        for(k=0; k<returnData.series.length; k++) {
-                        // create data-rows
-                            for(i=0; i<returnData.series[0].y.length; i++) {
-                                var row = $("<tr>");
-                                for(j=-1; j<returnData.series[0].x.length; j++) {
-                                    if(j<0) {
-                                        if(i==0) {
-                                            if(series.length==1) {
-                                            // create caption-column
-                                                row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+ylabel+"</td>");
-                                            } else {
-                                                row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+returnData.series[k].name+"</td>");
-                                            }
-                                        }
-
-                                        // create row-header
-                                        row.append("<th>"+returnData.series[k].y[i]+"</th>");
-                                    } else {
-                                        // row-data
-                                        row.append("<td>"+returnData.series[k].data[j][i]+"</td>");
-                                    }
-                                }
-                                row.appendTo(table);
-                            }
-                        }
-
-                        plotOptions = table;
-                		break;
-                    case "boxplot":
-                        /* code for canvasXpress
-                        var arrSmps = new Array();
-                        for(i=0; i<returnData.series[0].x.length; i++) {
-                            arrSmps[i] = "Smp"+i;
-                        }
-                        plotOptions = {
-                              x: {xdata: returnData.series[0].x},
-                              y: {vars:  ['blabla'],
-                                   smps:  arrSmps,
-                                   desc:  [ylabel],
-                                   data:  [returnData.series[0].y]
-                                 }
-                        };
-                        var plotOptions2 = {
-                            graphType: 'Boxplot',
-                            graphOrientation: 'vertical',
-                            showDataValues: true,
-                            //title: 'Boxplots',
-                            //maxTextSize: 5,
-                            colorScheme: 'basic',
-                            blockFactor: 1.5,
-                            smpLabelRotate: -xangle,
-                            legendBackgroundColor: false,
-                            blockSeparationFactor: 2,
-                            //showLegend: blnShowLegend
-                            showLegend: false
-                        };*/
-                        dataPoints = [dataPoints];
-
-                        plotOptions = {
-                            series: [{
-                                renderer: $.jqplot.BoxplotRenderer,
-                                rendererOptions: {
-
-                                }
-                            }]/*,
-                            seriesDefaults:{
-                                pointLabels: {show: blnShowDataValues}
-                            }*/,
-                            highlighter: {
-                                show: true,
-                                sizeAdjust: 7.5,
-                                showMarker: true,
-                                tooltipAxes: 'y',
-                                yvalues: 8,
-                                formatString: '<table class="jqplot-highlighter dummy%s">' +
-                                              '<tr><td>Maximum:</td><td>%s</td></tr>' +
-                                              '<tr><td>Median + 1.5*IQR:</td><td>%s</td></tr>' +
-                                              '<tr><td>Q3:</td><td>%s</td></tr>' +
-                                              '<tr><td>Median:</td><td>%s</td></tr>' +
-                                              '<tr><td>Q1:</td><td>%s</td></tr>' +
-                                              '<tr><td>Median - 1.5*IQR:</td><td>%s</td></tr>' +
-                                              '<tr><td>Minimum:</td><td>%s</td></tr>' +
-                                              '</table>'
-                            },
-                            axesDefaults: {
-                                pad: 1.4
-                            },
-                            axes: {
-                                xaxis: {
-                                    renderer: $.jqplot.CategoryAxisRenderer,
-                                    label: xlabel,
-                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                                    tickOptions: {
-                                        angle: xangle
-                                    }
-                                },
-                                yaxis: {
-                                    min: 0
-                                }
-                            }
-                        };
-                        break;
-                }
-                
-                // If a chart has been created, show it
-                if( plotOptions != null ) {
-
-                    $( "#visualization" ).css("width",$( "#visualization_container" ).innerWidth()-2);
-                    $( "#visualization" ).css("height",$( "#visualization_container" ).innerHeight()-2);
-
-                    $( "#visualization" ).empty();
-                    /*if(bx!==undefined) {
-                        bx.destroy();
-                    }*/
-                    
-                    if(returnData.type=="table") {
-                        $( "#visualization" ).html(plotOptions);
-                    } /* else if(returnData.type=="boxplot") {
-                        $( "#visualization" ).html('<canvas id="boxplotcanvas"></canvas>');
-                        $( "#boxplotcanvas" ).css("width",$( "#visualization" ).innerWidth()-2);
-                        $( "#boxplotcanvas" ).css("height",$( "#visualization" ).innerHeight()-2);
-                        var bx = new CanvasXpress('boxplotcanvas',plotOptions, plotOptions2);
-                        bx.groupSamples(['xdata'], 'iqr');
-                        bx.draw();
-                    } */ else  {
-                        // console.log(dataPoints);
-                        visualization = $.jqplot('visualization', dataPoints, plotOptions );
-                    }
-                    $( "#visualization" ).show();
-                }
-
-                $( "#menu_go" ).find(".spinner").hide();
-            }
-        });
-    }
-}
-
-/**
- * Shows an error message in a proper way
- * @param messages	array of Strings
- * @param strClass  the Class the messages get
- */
-function showError( messages, strClass ) {
-	// Add the message to the container
-    for (index in messages) {
-        var newClose = $( "<div>" ).css("position","absolute").css("top","3px").css("right","10px").html("<a href='#' onclick='removeError(this); return false;'>x</a>");
-	    $( '#message_container' ).prepend( $( "<div>" ).addClass("message_box "+strClass).html( messages[index] ).css("position","relative").fadeIn().append(newClose) );
-    }
-    
-    // Update the link to the messages
-    var newMessage = "&nbsp;" + $('.message_box').length + " message";
-    
-    if($('.message_box').length!=1) {
-        newMessage = newMessage + "s";
-    }
-    
-    // Determine highlight color
-    switch( strClass ) {
-    	case "message_error": highlightColor = "#FDA5A5"; break;
-    	case "message_warning": highlightColor = "#FDF9A5"; break;
-    	default: highlightColor = "#A5DCFD"; break;
-    }
-    
-    $( '#messages_link' ).html(newMessage).hide().show( 
-    	"highlight", 
-    	{ color: highlightColor }, 
-    	1000 );
-}
-
-function removeError(strSelector) {
-    $( strSelector ).closest(".message_box").remove();
-    var newMessage = "&nbsp;" + $('.message_box').length + " message";
-    if($('.message_box').length!=1) {
-        newMessage = newMessage + "s";
-    }
-    $( '#messages_link' ).html(newMessage);
-    if($(".message_box").length==0) {
-        $('#dialog_messages').dialog('close');
-    }
-}
-
-function clearSelect(that, stepNr) {
-
-    var block = $(that).parents(".menu_header").find(".block_variable");
-    $(block).children("input, select").val("");
-    $(block).children("input").data( "ui-autocomplete" ).term = "";
-
-    if(stepNr==1) {
-        $(that).parents(".menu_item").children(".menu_header").each(function(index) {
-
-            if($(this).find("select").val()!=null && $(this).find("select").val()!="") {
-                clearSelect($(this).find("select"),0);
-                $(this).find("select").empty();
-                $(this).find("input").val("");
-                $(this).children(".menu_header_count").removeClass().addClass("menu_header_count");
-            }
-            
-        });
-    }
-    if(stepNr>=1) {
-        $(that).parents(".menu_header").children(".menu_header_count").removeClass().addClass("menu_header_count menu_fill");
-        visualize();
-    }
-}
-
-/**
- * Checks whether the data in the getData call can be handled correctly
- * @param	JSON object to check
- * @return	boolean	True if the data is correctly formatted, false otherwise
- */
-function checkCorrectData( data ) {
-	/*
-	Data expected:
-	{
-		"type": "barchart",
-		"xaxis": { "title": "quarter 2011", "unit": "" },
-		"yaxis": { "title": "temperature", "unit": "degrees C" },
-		"series": [
-			{
-				"name": "series name",
-				"x": [ "Q1", "Q2", "Q3", "Q4" ],
-				"y": [ 5.1, 3.1, 20.6, 15.4 ],
-				"error": [ 0.5, 0.2, 0.4, 0.5 ]
+                return { series: series, dataPoints: dataPoints };
 			},
-		]
-	}
-	*/
+			convertElementIntoDataPoint: function(element) {
+				return element.y
+			},
+			serieOptions: function(element) {
+				return { "label": element.name };
+			},
+			
+			plotOptions: function(returnData, series, settings) {
+                return {
+                    // Tell the plot to stack the bars.
+                    stackSeries: false,
+                    legend: {
+                        show: settings.showLegend,
+                        placement: settings.legendPlacement
+                    },
+                    series: series,
+                    highlighter: {
+                        show: !settings.showDataValues,
+                        sizeAdjust: 7.5,
+                    },                    
+                    axes: {
+                        xaxis: {
+                            label: settings.labels.x,
+                            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                            tickOptions: {
+                                angle: settings.xangle
+                            }
+                        },
+                        yaxis: {
+                            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                            label: settings.labels.y,
+                        }
+                    },
+                    axesDefaults: {
+                        pad: 1.4
+                    }
+                };
+			}
+		},
+		
+		barchart: {
+			convertData: function(returnData) {
+				return Visualization.data._generic.convertData(returnData);
+			},
+			plotOptions: function(returnData, series, settings) {
+                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                        // Tell the plot to stack the bars.
+                        seriesDefaults:{
+                            renderer:$.jqplot.BarRenderer,
+                            rendererOptions: {
+                                barMargin: 30,
+                                highlightMouseDown: true,
+                                fillToZero: true
+                            },
+                            pointLabels: {show: settings.showDataValues}
+                        },
+                        highlighter: {
+                            tooltipAxes: "y"
+                        },
+                        axes: {
+                            xaxis: {
+                                renderer: $.jqplot.CategoryAxisRenderer,
+                                ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
+                            },
+                            yaxis: {
+                                formatString:'%.2f'
+                            }
+                        },
+                    });
+			}
+		},
+		
+		horizontal_barchart: {
+			convertData: function(returnData) {
+				return Visualization.data._generic.convertData(returnData, this.convertElementIntoDataPoint);
+			},
+			convertElementIntoDataPoint: function(element) {
+                // The horizontal barchart needs special dataPoints
+                var dataPoint = new Array();
+                for(var i=0; i < element.y.length; i++) {
+                	dataPoint.push( new Array(element.y[i], i+1) );
+                }
+                
+                return dataPoint;
+			},
+			plotOptions: function( returnData, series, settings ) {
+                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                        // Tell the plot to stack the bars.
+                        stackSeries: false,
+                        seriesDefaults:{
+                            renderer:$.jqplot.BarRenderer,
+                            rendererOptions: {
+                                // Put a 30 pixel margin between bars.
+                                barMargin: 30,
+                                // Highlight bars when mouse button pressed.
+                                // Disables default highlighting on mouse over.
+                                highlightMouseDown: true,
+                                barDirection: 'horizontal',
+                                highlightMouseDown: true,
+                                fillToZero: true
+                            },
+                            pointLabels: {show: settings.showDataValues}
+                        },
+                        highlighter: {
+                            tooltipAxes: "x"
+                        },
+                        axes: {
+                            xaxis: {
+                                formatString:'%.2f',
+                                min: 0,
+                            },
+                            yaxis: {
+                                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
 
-	return ( "type" in data && "xaxis" in data && "yaxis" in data && "series" in data && $.isArray( data.series ) );
-}
+                                renderer: $.jqplot.CategoryAxisRenderer
+                            }
+                        },
+                    });				
+			}
+		},
+		
+		linechart: {
+			convertData: function(returnData) {
+				return Visualization.data._generic.convertData(returnData);
+			},
+			plotOptions: function(returnData, series, settings) {
+				return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                    stackSeries: false,
+                    seriesDefaults:{
+                        renderer:$.jqplot.LineRenderer,
+                        pointLabels: {show: settings.showDataValues}
+                    },
+                    highlighter: {
+                        tooltipAxes: "y"
+                    },
+                    axes: {
+                        xaxis: {
+                            renderer: $.jqplot.CategoryAxisRenderer,
+                            ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
+                        },
+                        yaxis: {
+                            formatString:'%.2f'
+                        }
+                    },
+                });				
+			}
+		},
+		
+		table: {
+			convertData: function(returnData) {
+				return Visualization.data._generic.convertData(returnData);
+			},
+			
+			// Plot options for tables are used to store the HTML table structure
+			plotOptions: function(returnData, series, settings) {
+                // create table
+                var table = $("<table>").addClass("tablevis");
 
-/**
- * Gathers data for the given request type from the form elements on the page
- * @param type	String	Can be 'getStudies', 'getFields', 'getVisualizationType' or 'getData'
- * @return Object		Object with the data to be sent to the server
- */
-function gatherData( type ) {
-	// For simplicity, we send the whole form to the server. In the
-	// future this might be enhanced, based on the given type
-	return $( '#visualizationForm' ).serialize();
-}
+                // create caption-row
+                var row = $("<tr>");
+                // create empty top-left-field
+                if(series.length==1) {
+                    row.append("<td class='caption' colspan='2' rowspan='2'>&nbsp;</td>");
+                } else {
+                    row.append("<td class='caption' colspan='2'>&nbsp;</td>");
+                }
+                // create caption
+                row.append("<td class='caption' colspan='"+returnData.series[0].x.length+"'>"+settings.labels.x+"</td>");
+                row.appendTo(table);
 
-/**
- * Executes an ajax call in a standardized way. Retrieves data to be sent with gatherData
- * The ajaxParameters map will be sent to the $.ajax call
- * @param action			Name of the action to execute. Is also given to the gatherData method
- * 							as a parameter and the url will be determined based on this parameter.
- * @param ajaxParameters	Hashmap with parameters that are sent to the $.ajax call. The entries
- *							url, data and dataType are set by this method. 
- *							An additional key 'errorMessage' can be given, with the message that will be
- *							shown if an error occurrs in this method. In that case, the 'error' method from
- *							the ajaxParameters method will be overwritten.
- * @see visualizationUrls
- * @see jQuery.ajax
- */
-function executeAjaxCall( action, selectid, ajaxParameters ) {
-	var data = gatherData( action );
+                // create header-row
+                var row = $("<tr>");
+                // create headers
+                if(series.length>1) {
+                    row.append("<td class='caption'>"+settings.labels.group+"</td>");
+                    row.append("<td class='caption'>"+settings.labels.y+"</td>");
+                }
+                for(j=0; j<returnData.series[0].x.length; j++) {
+                    row.append("<th>"+returnData.series[0].x[j]+"</th>");
+                }
+                row.appendTo(table);
 
-	// If no parameters are given, create an empty map
-	if( !ajaxParameters ) 
-		ajaxParameters = {}
-
-	if( ajaxParameters[ "errorMessage" ] ) {
-		var message = ajaxParameters[ "errorMessage" ];
-		ajaxParameters[ "error" ] = function( jqXHR, textStatus, errorThrown ) {
-			// An error occurred while retrieving fields from the server
-			showError( ["An error occurred while retrieving variables from the server. Please try again or contact a system administrator.<br />"+textStatus], "message_error" );
-            $( "#"+selectid ).parents(".menu_header").find(".menu_header_count").switchClass("menu_fill", "menu_error", 1000);
-            $( "#"+selectid ).parents(".menu_header").find("img.spinner").hide();
-		}
-
-		// Remove the error message
-		delete ajaxParameters[ "errorMessage" ];
-	}
-	
-	// Retrieve a new list of fields from the controller
-	// based on the study we chose
-	$.ajax($.extend({
-		url: visualizationUrls[ action ],
-        type: 'POST',
-		data: data,
-		dataType: "json"
-	}, ajaxParameters ) );
-}
-
-/*
- * Create autocomplete with a select
- * From : http://jqueryui.com/demos/autocomplete/#combobox
- */
-(function( $ ) {
-    $.widget( "ui.combobox", $.ui.autocomplete, {
-        _create: function() {
-            var self = this,
-                select = this.element.hide(),
-                selected = select.children( ":selected" ),
-                value = selected.val() ? selected.text() : "";
-            var input = this.input = $( "<input>" )
-                .insertAfter( select )
-                .val( value )
-                .autocomplete({
-                    delay: 0,
-                    minLength: 0,
-                    source: function( request, response ) {
-                        var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
-                        var currCat = "";
-                        response( select.find( "option, optgroup" ).map(function() {
-                            if(this.nodeName=="OPTION") {
-                                var text = $( this ).text();
-                                if ( this.value && (( !request.term || matcher.test(text) ) || matcher.test(currCat)) ) {
-                                    return {
-                                        category: currCat,
-                                        label: text.replace(
-                                            new RegExp(
-                                                "(?![^&;]+;)(?!<[^<>]*)(" +
-                                                $.ui.autocomplete.escapeRegex(request.term) +
-                                                ")(?![^<>]*>)(?![^&;]+;)", "gi"
-                                            ), "$1" ),
-                                        value: text,
-                                        option: this
-                                    };
+                for(k=0; k<returnData.series.length; k++) {
+                // create data-rows
+                    for(i=0; i<returnData.series[0].y.length; i++) {
+                        var row = $("<tr>");
+                        for(j=-1; j<returnData.series[0].x.length; j++) {
+                            if(j<0) {
+                                if(i==0) {
+                                    if(series.length==1) {
+                                    // create caption-column
+                                        row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+settings.labels.y+"</td>");
+                                    } else {
+                                        row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+returnData.series[k].name+"</td>");
+                                    }
                                 }
+
+                                // create row-header
+                                row.append("<th>"+returnData.series[k].y[i]+"</th>");
                             } else {
-                                currCat = $( this ).attr("label");
+                                // row-data
+                                row.append("<td>"+returnData.series[k].data[j][i]+"</td>");
                             }
-                        }) );
-                    },
-                    select: function( event, ui ) {
-                        ui.item.option.selected = true;
-                        self._trigger( "selected", event, {
-                            item: ui.item.option
-                        });
-                        select.trigger("change");
-                    },
-                    change: function( event, ui ) {
-                        if ( !ui.item ) {
-                            var matcher = new RegExp( "^" + $.ui.autocomplete.escapeRegex( $(this).val() ) + "$", "i" ),
-                                valid = false;
-                            select.children( "option" ).each(function() {
-                                if ( $( this ).text().match( matcher ) ) {
-                                    this.selected = valid = true;
-                                    return false;
-                                }
-                            });
-                            if ( !valid ) {
-                                // remove invalid value, as it didn't match anything
-                                $( this ).val( "" );
-                                select.val( "" );
-                                input.data( "ui-autocomplete" ).term = "";
-                                return false;
+                        }
+                        row.appendTo(table);
+                    }
+                }
+
+                return table;				
+			}
+		},
+		scatterplot: {
+			convertData: function(returnData) {
+				return Visualization.data._generic.convertData(returnData, null, this.serieOptions);
+			},
+			serieOptions: function(element) {
+				var options = Visualization.data._generic.serieOptions(element);
+				options.showLine = false;
+				options.markerOptions = { "size": 7, "style":"filledCircle" };
+				
+				return options;
+			},
+			
+			plotOptions: function(element, series, settings ) { 
+				// Use the same settings as for linecharts
+				return Visualization.data.linechart.plotOptions(element, series, settings);
+			}
+		},
+		boxplot: {
+			convertData: function(returnData) {
+				var data = Visualization.data._generic.convertData(returnData, this.convertElementIntoDataPoint);
+				
+				return {
+					series: data.series,
+					dataPoints: [data.dataPoints]
+				};
+			},
+			convertElementIntoDataPoint: function(element) {
+	            // The fifth element of the list should be repeated on the second position
+                var dataPoint = element.y;
+                return [dataPoint[0], dataPoint[4],dataPoint[1],dataPoint[2],dataPoint[3],dataPoint[4],dataPoint[5],dataPoint[6],dataPoint[7]];
+			},
+			
+			plotOptions: function(returnData, series, settings) {
+                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                        series: [{
+                            renderer: $.jqplot.BoxplotRenderer,
+                            rendererOptions: {
+
                             }
-                        } 
-                    }
-                });
+                        }],
+                        highlighter: {
+                            show: true,
+                            sizeAdjust: 7.5,
+                            showMarker: true,
+                            tooltipAxes: 'y',
+                            yvalues: 8,
+                            formatString: '<table class="jqplot-highlighter dummy%s">' +
+                                          '<tr><td>Maximum:</td><td>%s</td></tr>' +
+                                          '<tr><td>Median + 1.5*IQR:</td><td>%s</td></tr>' +
+                                          '<tr><td>Q3:</td><td>%s</td></tr>' +
+                                          '<tr><td>Median:</td><td>%s</td></tr>' +
+                                          '<tr><td>Q1:</td><td>%s</td></tr>' +
+                                          '<tr><td>Median - 1.5*IQR:</td><td>%s</td></tr>' +
+                                          '<tr><td>Minimum:</td><td>%s</td></tr>' +
+                                          '</table>'
+                        },
+                        axes: {
+                            xaxis: {
+                                renderer: $.jqplot.CategoryAxisRenderer,
+                            },
+                            yaxis: {
+                                min: 0
+                            }
+                        },
+                        title: 'Please note: outliers are not shown'
+                    });				
+			}
+		},		
+	},
+	
+	visualization: {
+		auto: function() {
+		    if($("#autovis").attr("checked")=="checked") {
+		        this.perform();
+		    }			
+		},
+		
+		/**
+		 * Create a visualization based on the parameters entered in the form
+		 * The data for the visualization is retrieved from the serverside getData method
+		 */ 
+		perform: function() {
+			// Do nothing if we don't have the right parameters
+		    if( !$( "#select_rows" ).val() || !$( "#select_columns" ).val() || $( "#select_types input:checked" ).length == 0 || $( "#select_aggregation input:checked" ).length == 0 ) 
+		    	return;
 
-            input.data( "ui-autocomplete" )._renderMenu = function( ul, items ) {
-                var self = this, currentCategory = "";
-                $.each( items, function( index, item ) {
-                    if ( item.category != currentCategory ) {
-                        ul.append( "<li class='ui-autocomplete-category'>" + item.category + "</li>" );
-                        currentCategory = item.category;
-                    }
-                    self._renderItem( ul, item );
-                });
-            };
+	        $( "#menu_go" ).find(".spinner").show();
 
-            input.data( "ui-autocomplete" )._renderItem = function( ul, item ) {
-                return $( "<li></li>" )
-                    .data( "ui-autocomplete-item", item )
-                    .append( "<a>" + item.label + "</a>" )
-                    .appendTo( ul );
-            };
-        },
+	        Visualization.update.executeAjaxCall( "getData" )
+	        	.done(function(data, textStatus, jqXHR) {
+	                // Remove old chart, if available
+	            	Visualization.current.clearVisualization();
 
-        destroy: function() {
-            this.input.remove();
-            this.element.show();
-            $.Widget.prototype.destroy.call( this );
-        }
-    });
-})( jQuery );
+	                if(data.infoMessage!=null) {
+	                    Visualization.messages.show(data.infoMessage,"message_warning");
+	                }
+
+	                // Handle erroneous data
+	                if( !Visualization.update.checkCorrectData( data.returnData ) && data.returnData.type!="boxplot" ) {
+	                    Visualization.messages.show( "Unfortunately the server returned data in a format that we did not expect.", "message_error" );
+	                    return;
+	                }
+
+	                // Retrieve the datapoints from the json object
+	                var returnData = data.returnData;
+	                
+	                // Convert the raw data into the proper format for plotting. 
+	                // Plotdata will contain series and dataPoints
+	                var plotData = Visualization.data[returnData.type].convertData(returnData);
+	                var dataPoints = plotData.dataPoints;
+	                var series = plotData.series;
+
+	                // If no datapoints are found, return an error
+	                if( dataPoints.length == 0 ) {
+	                    Visualization.messages.show( "Unfortunately the server returned data without any measurements", "message_error" );
+	                    $( "#menu_go" ).find(".spinner").hide();
+	                    return;
+	                }
+	                
+	                var xlabel = Visualization.visualization.axisLabel(returnData[ "xaxis" ]);
+	                var ylabel = Visualization.visualization.axisLabel(returnData[ "yaxis" ]);
+	                var grouplabel = "";
+	                if(returnData[ "groupaxis" ]!==undefined) {
+	                    grouplabel = Visualization.visualization.axisLabel(returnData[ "groupaxis" ]);
+	                }
+
+	                // TODO: create a chart based on the data that is sent by the user and the type of chart
+	                // chosen by the user
+	                var plotOptions = null;
+
+	                // Determine options to show
+	                var blnShowDataValues = $("#showvalues").attr("checked")=="checked";
+	                var blnShowLegend = returnData.series.length > 1;
+	                var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" && blnShowLegend ? "outsideGrid" : "insideGrid";
+	                var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
+
+	                var plotOptions = Visualization.data[returnData.type].plotOptions(returnData, series, {
+	                	 showDataValues: blnShowDataValues, 
+	                	 showLegend: blnShowLegend, 
+	                	 legendPlacement: strLegendPlacement,
+	                	 xangle: xangle,
+	                	 labels: {
+	                		 x: xlabel,
+	                		 y: ylabel,
+	                		 group: grouplabel
+	                	 }
+	                });
+
+	                // If a chart has been created, show it
+	                if( plotOptions != null ) {
+
+	                    $( "#visualization" ).css("width",$( "#visualization_container" ).innerWidth()-2);
+	                    $( "#visualization" ).css("height",$( "#visualization_container" ).innerHeight()-2);
+
+	                    $( "#visualization" ).empty();
+	                    
+                    	Visualization.current.draw( returnData.type, dataPoints, plotOptions );
+	                    $( "#visualization" ).show();
+	                }
+	        		
+	        	})
+	        	.fail(function( jqXHR, textStatus, errorThrown ) {
+					// An error occurred while retrieving fields from the server
+					Visualization.messages.show( "An error occurred while retrieving data from the server. Please try again or contact a system administrator<br />" + textStatus, "message_error" );
+					Visualization.messages.indicate.error( "#menu_go" );
+				})
+	        	.always(function() {
+	                $( "#menu_go" ).find(".spinner").hide();
+	        	});	           	
+	    },
+	    
+	    /**
+	     * Generate a label to show on the axis
+	     */
+	    axisLabel: function(axisData) {
+	    	return axisData.unit=="" ? axisData.title : axisData.title + " (" + axisData.unit + ")";		    	
+	    }
+	},
+	
+	/**
+	 * Clears a select in the interface, and optionally the select boxes dependant on it
+	 */
+	clearSelect: function (that, stepNr) {
+
+	    var block = $(that).parents(".menu_header").find(".block_variable");
+	    $(block).children("input, select").val("");
+	    $(block).children("input").data( "ui-autocomplete" ).term = "";
+
+    	Visualization.messages.indicate.ready(that);
+    	
+	    if(stepNr==1) {
+	        $(that).parents(".menu_item").children(".menu_header").each(function(index) {
+	            if($(this).find("select").val()!=null && $(this).find("select").val()!="") {
+	                this.clearSelect($(this).find("select"),0);
+	                $(this).find("select").empty();
+	                $(this).find("input").val("");
+	                $(this).children(".menu_header_count").removeClass().addClass("menu_header_count");
+	            }
+	            
+	        });
+	    }
+	    if(stepNr>=1) {
+	    	Visualization.visualization.perform();
+	    }
+	}
+		
+};
+
+$(Visualization.initialize);

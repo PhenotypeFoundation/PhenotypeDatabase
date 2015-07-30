@@ -118,6 +118,16 @@ modules = {
         resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt'], disposition: 'head'
     }
     
+    // Term editor
+    termEditor {
+        dependsOn 'jquery'
+        dependsOn 'jquery-ui'
+        
+        resource url: [dir: 'css', file: 'termEditor.css', plugin: 'gdt']
+        resource url: [dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
+        resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt']
+    }
+    
     // Template importer 
     templateImporter {
         resource url: [dir: 'js', file: 'templateImporter.js']
@@ -132,6 +142,7 @@ modules = {
         dependsOn 'jqplot'
 
         resource url: [dir: 'js', file: 'visualization.js']
+        resource url: [dir: 'js', file: 'jquery.ui.combo.js']
         resource url: [dir: 'css', file: 'visualization.css']
     }
     
