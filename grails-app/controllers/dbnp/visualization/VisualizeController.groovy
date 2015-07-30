@@ -1150,27 +1150,28 @@ class VisualizeController {
             case "Event":
             case "events":
                 return { sample, field ->
-                    if (!sample || !sample.parentEventGroup || !sample.parentEventGroup.events || sample.parentEventGroup.events.size() == 0)
+                    if (!sample || !sample.parentSubjectEventGroup || !sample.parentSubjectEventGroup.eventGroup || !sample.parentSubjectEventGroup.eventGroup.eventInstances )
                         return null
-
-                    return sample.parentEventGroup.events?.collect { getFieldValue(it, field) };
+                       
+                    def events = sample.parentSubjectEventGroup.eventGroup.eventInstances*.event.findAll()
+                    return events?.collect { getFieldValue(it, field) };
                 }
             case "EventGroup":
             case "eventGroups":
                 return { sample, field ->
-                    if (!sample || !sample.parentEventGroup)
+                    if (!sample || !sample.parentSubjectEventGroup || !sample.parentSubjectEventGroup.eventGroup)
                         return null
 
                     // For eventgroups only the name is supported
                     if (field == "name")
-                        return sample.parentEventGroup.name
+                        return sample.parentSubjectEventGroup.eventGroup.name
                     else
                         return null
                 }
 
             case "SamplingEvent":
             case "samplingEvents":
-                return { sample, field -> return getFieldValue(sample.parentEvent, field); }
+                return { sample, field -> return getFieldValue(sample?.parentEvent?.event, field); }
             case "Assay":
             case "assays":
                 return { sample, field ->
