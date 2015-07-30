@@ -626,15 +626,30 @@ function visualize() {
  * @param strClass  the Class the messages get
  */
 function showError( messages, strClass ) {
+	// Add the message to the container
     for (index in messages) {
         var newClose = $( "<div>" ).css("position","absolute").css("top","3px").css("right","10px").html("<a href='#' onclick='removeError(this); return false;'>x</a>");
 	    $( '#message_container' ).prepend( $( "<div>" ).addClass("message_box "+strClass).html( messages[index] ).css("position","relative").fadeIn().append(newClose) );
     }
+    
+    // Update the link to the messages
     var newMessage = "&nbsp;" + $('.message_box').length + " message";
+    
     if($('.message_box').length!=1) {
         newMessage = newMessage + "s";
     }
-    $( '#messages_link' ).html(newMessage);
+    
+    // Determine highlight color
+    switch( strClass ) {
+    	case "message_error": highlightColor = "#FDA5A5"; break;
+    	case "message_warning": highlightColor = "#FDF9A5"; break;
+    	default: highlightColor = "#A5DCFD"; break;
+    }
+    
+    $( '#messages_link' ).html(newMessage).hide().show( 
+    	"highlight", 
+    	{ color: highlightColor }, 
+    	1000 );
 }
 
 function removeError(strSelector) {

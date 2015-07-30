@@ -88,13 +88,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="menu_item" id="menu_go">
-                        <button id="button_visualize" onClick="visualize(); return false;" >
-                            <img src="${resource(dir: 'images/ajaxflow', file: 'spacer.gif')}" class="spinner" />
-                            VISUALIZE
-                            <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" />
-                        </button>
-                    </div>
+                    <div class="menu_header">
+	                    <div class="menu_item" id="menu_go">
+	                        <button id="button_visualize" onClick="visualize(); return false;" >
+	                            <img src="${resource(dir: 'images/ajaxflow', file: 'spacer.gif')}" class="spinner" />
+	                            VISUALIZE
+	                            <img src="${resource(dir: 'images', file: 'spinner.gif')}" class="spinner" />
+	                        </button>
+	                    </div>
+	                </div>
 
                     <div class="settings">
                         <a href="#" onclick="$('#dialog_advanced_settings').dialog('open'); return false;"><img src="${fam.icon( name: 'cog' )}" style="vertical-align: text-bottom; display: inline-block;"/>&nbsp;advanced settings</a>

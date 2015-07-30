@@ -373,28 +373,28 @@ class VisualizeController {
             }
         }
 
-        println "Fields: "
-        fieldInfo.each { println it }
+        log.trace "Fields: "
+        fieldInfo.each { log.trace it }
 
         // Fetch all data from the system. data will be in the format:
         // 		[ "x": [ 3, 6, null, 10 ], "y": [ "male", "male", "female", "female" ], "group": [ "US", "NL", "NL", "NL" ]
         //	If a field is not given, the data will be NULL
         def data = getAllFieldData(study, samples, fields);
 
-        println "All Data: "
-        data.each { println it }
+        log.trace "All Data: "
+        data.each { log.trace it }
 
         // Aggregate the data based on the requested aggregation
         def aggregatedData = aggregateData(data, fieldInfo, inputData.aggregation);
 
-        println "Aggregated Data: "
-        aggregatedData.each { println it }
+        log.trace "Aggregated Data: "
+        aggregatedData.each { log.trace it }
 
         // No convert the aggregated data into a format we can use
         def returnData = formatData(inputData.visualizationType, aggregatedData, fieldInfo);
 
-        println "Returndata: "
-        returnData.each { println it }
+        log.trace "Returndata: "
+        returnData.each { log.trace it }
 
         // Make sure no changes are written to the database
         study.discard()
@@ -454,6 +454,7 @@ class VisualizeController {
             } else {
                 // Data is in a module. Retrieve all data at once
                 def moduleData = getModuleData(study, samples, source, sourceFields*.name)
+                
                 sourceFields.each {
                     fieldData[it.key] = moduleData[it.name]
                 }
@@ -493,6 +494,8 @@ class VisualizeController {
                     // Retrieve the value for the selected field for this sample
                     def value = closure(sample, parsedField.name);
 
+                    log.trace "  Retrieving " + parsedField.name + " for sample " + sample.UUID + ": " + value
+                    
                     data << value;
                 }
             } else {
@@ -565,7 +568,14 @@ class VisualizeController {
                         
                         // Now we can convert the map of values into a list of measurement values
                         // for the samples we need data for
-                        data[measurementToken] = samples.collect { grouped[it.UUID]?.value?.get(0) }
+                        data[measurementToken] = samples.collect { 
+                            def value = grouped[it.UUID]?.value?.get(0)
+                            
+                            log.trace "  Retrieving MODULE " + measurementToken + " for sample " + it.UUID + ": " + value
+                            
+                            value 
+                        }
+                        
                     }
 
                     log.trace "Finished converting all data"
@@ -589,8 +599,7 @@ class VisualizeController {
                 data[it] = samples.collect { return null }
             }
         }
-
-        println "\t data request: "+data
+        
         return data
     }
 
@@ -967,19 +976,13 @@ class VisualizeController {
                 // Calcultate 1.5* inter-quartile-distance
                 double dblIQD = (Q3 - Q1) * 1.5;
 
-                /* // DEBUG
-                println("---");
-                println("  dataMap["+key+"]:: "+dataMap.get(key));
-                println("  dblMEDIAN:: "+dblMEDIAN);
-                println("  dblIQD:: "+dblIQD);
-                println("  Q1:: "+Q1);
-                println("  Q3:: "+Q3);
-                println("---");
-                */
-
+                // Set min and max to be the whiskers, so the outliers do not change the axes
+                double min = (dblMEDIAN - dblIQD)
+                double max = (dblMEDIAN + dblIQD)
+                
                 return_data["series"] << [
                         "name": key,
-                        "y": [key, objInfos.get("max"), (dblMEDIAN + dblIQD), Q3, dblMEDIAN, Q1, (dblMEDIAN - dblIQD), objInfos.get("min")]
+                        "y": [key, max, (dblMEDIAN + dblIQD), Q3, dblMEDIAN, Q1, (dblMEDIAN - dblIQD), min]
                 ];
             }
 
