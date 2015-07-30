@@ -68,6 +68,10 @@ var Visualization = {
 		 * Show a new message
 		 */
 		show: function( messages, strClass ) {
+			// Handle special case where only one message is given
+			if( typeof messages == "string" )
+				messages = [messages];
+			
 			// Add the message to the container
 		    for (index in messages) {
 		        var newClose = $( "<div>" ).css("position","absolute").css("top","3px").css("right","10px").html("<a href='#' onclick='Visualization.messages.remove(this); return false;'>x</a>");
@@ -158,8 +162,11 @@ var Visualization = {
 		aggregation: null,
 		
 		// Create a chart based on the given parameters
-		draw: function( dataPoints, plotOptions ) {
-            this.visualization = $.jqplot('visualization', dataPoints, plotOptions );
+		draw: function( type, dataPoints, plotOptions ) {
+			if( type == "table" ) 
+            	this.showHTML(plotOptions);
+			else
+				this.visualization = $.jqplot('visualization', dataPoints, plotOptions );
 		},
 		
 		// Show HTML in the visualization pane
@@ -219,7 +226,8 @@ var Visualization = {
 	    	        Visualization.current.type = null;
 	            }
 	        } else {
-	            $("#vis_boxplot").attr("disabled",false);
+	        	// Allow boxplots, if it would fit the data
+	            $("#vis_boxplot").attr("disabled", !$("#vis_boxplot").data( "allowed" ));
 	        }
 	        
             // If we already have enough data to visualize, and the automatic visualization is on,
@@ -376,10 +384,10 @@ var Visualization = {
 	                if( data.returnData && data.returnData.rowIds==$( '#select_rows' ).val() && data.returnData.columnIds==$( '#select_columns' ).val() ) {
 	                    // Add all fields to the lists
 	                    var returnDataTypes = data.returnData.types;
-	                    var returnDataAggregation = data.returnData.aggregations;
+	                    var returnDataAggregations = data.returnData.aggregations;
 
 	                    // Store current aggregation and type
-	                    if(Visualization.current.aggregation==null) {
+	                    if(Visualization.current.aggregation == null) {
 	                        Visualization.current.aggregation = "average";
 	                    } else {
 	                        Visualization.current.aggregation = $("#select_aggregation input:checked").val();
@@ -391,13 +399,13 @@ var Visualization = {
 
 	                    // Disable all aggregation- and visualizationoptions
 	                    $("#select_aggregation input, #select_types input").each(function(index) {
-	                        $(this).attr("disabled","disabled");
+	                        $(this).attr("disabled","disabled").attr( "checked", false ).removeData( "allowed" );
 	                    });
 
 	                    // Enable some visualizationoptions
 	                    $.each( returnDataTypes, function( idx, field ) {
-	                        $("#vis_"+field.id).attr("disabled",false);
-	                        if( field.id==Visualization.current.type || returnDataTypes.length==1 ) {
+	                        $("#vis_"+field.id).attr("disabled",false).data( "allowed", true);
+	                        if( field.id == Visualization.current.type || returnDataTypes.length==1 ) {
 	                            Visualization.current.type = field.id;
 	                            $("#vis_"+field.id).attr("checked","checked");
 	                            
@@ -406,15 +414,15 @@ var Visualization = {
 	                    });
 
 	                    // Enable some aggregationoptions
-	                    $.each( returnDataAggregation, function( idx, field ) {
-	                        if(!field.disabled)
-	                            $("#aggr_"+field.id).attr("disabled",false);
-	                            if( field.id==Visualization.current.aggregation || returnDataAggregation.length==1 ) {
-	                                Visualization.current.aggregation = field.id;
-	                                $("#aggr_"+field.id).attr("checked","checked");
-	                                
-		    	                    Visualization.messages.indicate.done( "#select_aggregation" );
-	                            };
+	                    var enabledAggregations = $.grep(returnDataAggregations, function(field) { return !field.disabled; } );
+	                    $.each( enabledAggregations, function( idx, field ) {
+                            $("#aggr_"+field.id).attr("disabled",false).data( "allowed", true);
+                            if( field.id == Visualization.current.aggregation || enabledAggregations.length==1 ) {
+                                Visualization.current.aggregation = field.id;
+                                $("#aggr_"+field.id).attr("checked", "checked");
+                                
+	    	                    Visualization.messages.indicate.done( "#select_aggregation" );
+                            };
 	                    });
 
 	                    // If we already have enough data to visualize, and the automatic visualization is on,
@@ -433,13 +441,320 @@ var Visualization = {
 		},
 	},
 	
-	types: {
-		barchart: {},
-		horizontal_barchart: {},
-		linechart: {},
-		table: {},
-		scatterplot: {},
-		boxplot: {},
+	/**
+	 * Methods for converting server side data into the proper format for plotting charts
+	 */
+	data: {
+		_generic: {
+			/**
+			 * Converts raw data into series and datapoints to be used for plotting
+			 * @param returnData
+			 * @param convertElementIntoDataPoint	Function that converts a raw element into a datapoint
+			 * @param serieOptions					Function that returns the serieOptions for a given element
+			 */
+			convertData: function(returnData, convertElementIntoDataPoint, serieOptions) {
+				// Use defaults if no methods are specified
+				if( !serieOptions )
+					serieOptions = this.serieOptions;
+				
+				// Use defaults if no methods are specified
+				if( !convertElementIntoDataPoint )
+					convertElementIntoDataPoint = this.convertElementIntoDataPoint
+				
+				// Initialize empty lists
+				var series = [];
+				var dataPoints = [];
+				
+                $.each(returnData.series, function(idx, element ) {
+                	if( element.y && element.y.length > 0 ) {
+                		dataPoints.push(convertElementIntoDataPoint(element));
+                		series.push(serieOptions(element));
+                	}
+                });
+                
+                return { series: series, dataPoints: dataPoints };
+			},
+			convertElementIntoDataPoint: function(element) {
+				return element.y
+			},
+			serieOptions: function(element) {
+				return { "label": element.name };
+			},
+			
+			plotOptions: function(returnData, series, settings) {
+                return {
+                    // Tell the plot to stack the bars.
+                    stackSeries: false,
+                    legend: {
+                        show: settings.showLegend,
+                        placement: settings.legendPlacement
+                    },
+                    series: series,
+                    highlighter: {
+                        show: !settings.showDataValues,
+                        sizeAdjust: 7.5,
+                    },                    
+                    axes: {
+                        xaxis: {
+                            label: settings.labels.x,
+                            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                            tickOptions: {
+                                angle: settings.xangle
+                            }
+                        },
+                        yaxis: {
+                            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                            label: settings.labels.y,
+                        }
+                    },
+                    axesDefaults: {
+                        pad: 1.4
+                    }
+                };
+			}
+		},
+		
+		barchart: {
+			convertData: function(returnData) {
+				return Visualization.data._generic.convertData(returnData);
+			},
+			plotOptions: function(returnData, series, settings) {
+                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                        // Tell the plot to stack the bars.
+                        seriesDefaults:{
+                            renderer:$.jqplot.BarRenderer,
+                            rendererOptions: {
+                                barMargin: 30,
+                                highlightMouseDown: true,
+                                fillToZero: true
+                            },
+                            pointLabels: {show: settings.showDataValues}
+                        },
+                        highlighter: {
+                            tooltipAxes: "y"
+                        },
+                        axes: {
+                            xaxis: {
+                                renderer: $.jqplot.CategoryAxisRenderer,
+                                ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
+                            },
+                            yaxis: {
+                                formatString:'%.2f'
+                            }
+                        },
+                    });
+			}
+		},
+		
+		horizontal_barchart: {
+			convertData: function(returnData) {
+				return Visualization.data._generic.convertData(returnData, this.convertElementIntoDataPoint);
+			},
+			convertElementIntoDataPoint: function(element) {
+                // The horizontal barchart needs special dataPoints
+                var dataPoint = new Array();
+                for(var i=0; i < element.y.length; i++) {
+                	dataPoint.push( new Array(element.y[i], i+1) );
+                }
+                
+                return dataPoint;
+			},
+			plotOptions: function( returnData, series, settings ) {
+                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                        // Tell the plot to stack the bars.
+                        stackSeries: false,
+                        seriesDefaults:{
+                            renderer:$.jqplot.BarRenderer,
+                            rendererOptions: {
+                                // Put a 30 pixel margin between bars.
+                                barMargin: 30,
+                                // Highlight bars when mouse button pressed.
+                                // Disables default highlighting on mouse over.
+                                highlightMouseDown: true,
+                                barDirection: 'horizontal',
+                                highlightMouseDown: true,
+                                fillToZero: true
+                            },
+                            pointLabels: {show: settings.showDataValues}
+                        },
+                        highlighter: {
+                            tooltipAxes: "x"
+                        },
+                        axes: {
+                            xaxis: {
+                                formatString:'%.2f',
+                                min: 0,
+                            },
+                            yaxis: {
+                                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
+
+                                renderer: $.jqplot.CategoryAxisRenderer
+                            }
+                        },
+                    });				
+			}
+		},
+		
+		linechart: {
+			convertData: function(returnData) {
+				return Visualization.data._generic.convertData(returnData);
+			},
+			plotOptions: function(returnData, series, settings) {
+				return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                    stackSeries: false,
+                    seriesDefaults:{
+                        renderer:$.jqplot.LineRenderer,
+                        pointLabels: {show: settings.showDataValues}
+                    },
+                    highlighter: {
+                        tooltipAxes: "y"
+                    },
+                    axes: {
+                        xaxis: {
+                            renderer: $.jqplot.CategoryAxisRenderer,
+                            ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
+                        },
+                        yaxis: {
+                            formatString:'%.2f'
+                        }
+                    },
+                });				
+			}
+		},
+		
+		table: {
+			convertData: function(returnData) {
+				return Visualization.data._generic.convertData(returnData);
+			},
+			
+			// Plot options for tables are used to store the HTML table structure
+			plotOptions: function(returnData, series, settings) {
+                // create table
+                var table = $("<table>").addClass("tablevis");
+
+                // create caption-row
+                var row = $("<tr>");
+                // create empty top-left-field
+                if(series.length==1) {
+                    row.append("<td class='caption' colspan='2' rowspan='2'>&nbsp;</td>");
+                } else {
+                    row.append("<td class='caption' colspan='2'>&nbsp;</td>");
+                }
+                // create caption
+                row.append("<td class='caption' colspan='"+returnData.series[0].x.length+"'>"+settings.labels.x+"</td>");
+                row.appendTo(table);
+
+                // create header-row
+                var row = $("<tr>");
+                // create headers
+                if(series.length>1) {
+                    row.append("<td class='caption'>"+settings.labels.group+"</td>");
+                    row.append("<td class='caption'>"+settings.labels.y+"</td>");
+                }
+                for(j=0; j<returnData.series[0].x.length; j++) {
+                    row.append("<th>"+returnData.series[0].x[j]+"</th>");
+                }
+                row.appendTo(table);
+
+                for(k=0; k<returnData.series.length; k++) {
+                // create data-rows
+                    for(i=0; i<returnData.series[0].y.length; i++) {
+                        var row = $("<tr>");
+                        for(j=-1; j<returnData.series[0].x.length; j++) {
+                            if(j<0) {
+                                if(i==0) {
+                                    if(series.length==1) {
+                                    // create caption-column
+                                        row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+settings.labels.y+"</td>");
+                                    } else {
+                                        row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+returnData.series[k].name+"</td>");
+                                    }
+                                }
+
+                                // create row-header
+                                row.append("<th>"+returnData.series[k].y[i]+"</th>");
+                            } else {
+                                // row-data
+                                row.append("<td>"+returnData.series[k].data[j][i]+"</td>");
+                            }
+                        }
+                        row.appendTo(table);
+                    }
+                }
+
+                return table;				
+			}
+		},
+		scatterplot: {
+			convertData: function(returnData) {
+				return Visualization.data._generic.convertData(returnData, null, this.serieOptions);
+			},
+			serieOptions: function(element) {
+				var options = Visualization.data._generic.serieOptions(element);
+				options.showLine = false;
+				options.markerOptions = { "size": 7, "style":"filledCircle" };
+				
+				return options;
+			},
+			
+			plotOptions: function(element, series, settings ) { 
+				// Use the same settings as for linecharts
+				return Visualization.data.linechart.plotOptions(element, series, settings);
+			}
+		},
+		boxplot: {
+			convertData: function(returnData) {
+				var data = Visualization.data._generic.convertData(returnData, this.convertElementIntoDataPoint);
+				
+				return {
+					series: data.series,
+					dataPoints: [data.dataPoints]
+				};
+			},
+			convertElementIntoDataPoint: function(element) {
+	            // The fifth element of the list should be repeated on the second position
+                var dataPoint = element.y;
+                return [dataPoint[0], dataPoint[4],dataPoint[1],dataPoint[2],dataPoint[3],dataPoint[4],dataPoint[5],dataPoint[6],dataPoint[7]];
+			},
+			
+			plotOptions: function(returnData, series, settings) {
+                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                        series: [{
+                            renderer: $.jqplot.BoxplotRenderer,
+                            rendererOptions: {
+
+                            }
+                        }],
+                        highlighter: {
+                            show: true,
+                            sizeAdjust: 7.5,
+                            showMarker: true,
+                            tooltipAxes: 'y',
+                            yvalues: 8,
+                            formatString: '<table class="jqplot-highlighter dummy%s">' +
+                                          '<tr><td>Maximum:</td><td>%s</td></tr>' +
+                                          '<tr><td>Median + 1.5*IQR:</td><td>%s</td></tr>' +
+                                          '<tr><td>Q3:</td><td>%s</td></tr>' +
+                                          '<tr><td>Median:</td><td>%s</td></tr>' +
+                                          '<tr><td>Q1:</td><td>%s</td></tr>' +
+                                          '<tr><td>Median - 1.5*IQR:</td><td>%s</td></tr>' +
+                                          '<tr><td>Minimum:</td><td>%s</td></tr>' +
+                                          '</table>'
+                        },
+                        axes: {
+                            xaxis: {
+                                renderer: $.jqplot.CategoryAxisRenderer,
+                            },
+                            yaxis: {
+                                min: 0
+                            }
+                        },
+                        title: 'Please note: outliers are not shown'
+                    });				
+			}
+		},		
 	},
 	
 	visualization: {
@@ -454,366 +769,101 @@ var Visualization = {
 		 * The data for the visualization is retrieved from the serverside getData method
 		 */ 
 		perform: function() {
+			// Do nothing if we don't have the right parameters
+		    if( !$( "#select_rows" ).val() || !$( "#select_columns" ).val() || $( "#select_types input:checked" ).length == 0 || $( "#select_aggregation input:checked" ).length == 0 ) 
+		    	return;
 
-		    if($( "#select_rows" ).val() &&
-		        $( "#select_columns" ).val() &&
-		        $( "#select_types input:checked" ).length>0 &&
-		        $( "#select_aggregation input:checked" ).length>0
-		       ) {
+	        $( "#menu_go" ).find(".spinner").show();
 
-		        $( "#menu_go" ).find(".spinner").show();
+	        Visualization.update.executeAjaxCall( "getData" )
+	        	.done(function(data, textStatus, jqXHR) {
+	                // Remove old chart, if available
+	            	Visualization.current.clearVisualization();
 
-		        Visualization.update.executeAjaxCall( "getData" )
-		        	.done(function(data, textStatus, jqXHR) {
-		                // Remove old chart, if available
-		            	Visualization.current.clearVisualization();
+	                if(data.infoMessage!=null) {
+	                    Visualization.messages.show(data.infoMessage,"message_warning");
+	                }
 
-		                if(data.infoMessage!=null) {
-		                    Visualization.messages.show(data.infoMessage,"message_warning");
-		                }
+	                // Handle erroneous data
+	                if( !Visualization.update.checkCorrectData( data.returnData ) && data.returnData.type!="boxplot" ) {
+	                    Visualization.messages.show( "Unfortunately the server returned data in a format that we did not expect.", "message_error" );
+	                    return;
+	                }
 
-		                // Handle erroneous data
-		                if( !Visualization.update.checkCorrectData( data.returnData ) && data.returnData.type!="boxplot" ) {
-		                    Visualization.messages.show( ["Unfortunately the server returned data in a format that we did not expect."], "message_error" );
-		                    return;
-		                }
+	                // Retrieve the datapoints from the json object
+	                var returnData = data.returnData;
+	                
+	                // Convert the raw data into the proper format for plotting. 
+	                // Plotdata will contain series and dataPoints
+	                var plotData = Visualization.data[returnData.type].convertData(returnData);
+	                var dataPoints = plotData.dataPoints;
+	                var series = plotData.series;
 
-		                // Retrieve the datapoints from the json object
-		                var dataPoints = new Array();
-		                var series = [];
-		                
-		                //data = {"returnData":{"type":null,"xaxis":{"title":"Gender","unit":"","type":"categorical"},"yaxis":{"title":"Weight","unit":"kg","type":"numerical"},"groupaxis":{"title":null,"unit":null,"type":"numerical"},"series":[{"name":"count","x":["Male","Male","Female","Male","Male","Male","Male","Male","Female","Female","Female"],"y":[1,2,3,4,2,2,3,1,2,3,5]}]}}
+	                // If no datapoints are found, return an error
+	                if( dataPoints.length == 0 ) {
+	                    Visualization.messages.show( "Unfortunately the server returned data without any measurements", "message_error" );
+	                    $( "#menu_go" ).find(".spinner").hide();
+	                    return;
+	                }
+	                
+	                var xlabel = Visualization.visualization.axisLabel(returnData[ "xaxis" ]);
+	                var ylabel = Visualization.visualization.axisLabel(returnData[ "yaxis" ]);
+	                var grouplabel = "";
+	                if(returnData[ "groupaxis" ]!==undefined) {
+	                    grouplabel = Visualization.visualization.axisLabel(returnData[ "groupaxis" ]);
+	                }
 
-		                var returnData = data.returnData;
+	                // TODO: create a chart based on the data that is sent by the user and the type of chart
+	                // chosen by the user
+	                var plotOptions = null;
 
-		                $.each(returnData.series, function(idx, element ) {
-		                	if( element.y && element.y.length > 0 ) {
-		                        if(returnData.type=="horizontal_barchart") {
-		                            // The horizontal barchart needs special dataPoints
-		                            var newArr = new Array();
-		                            for(var i=0; i<element.y.length; i++) {
-		                                newArr[ newArr.length ] = new Array(element.y[i],i+1);
-		                            }
-		                            dataPoints[ dataPoints.length ] = newArr;
-		                        } else if(returnData.type=="boxplot")  {
-		                            var tempArr = element.y;
-		                            tempArr = [tempArr[0],tempArr[4],tempArr[1],tempArr[2],tempArr[3],tempArr[4],tempArr[5],tempArr[6],tempArr[7]];
-		                            dataPoints[ dataPoints.length ] = tempArr;
-		                        } else {
-		                            dataPoints[ dataPoints.length ] = element.y;
-		                        }
-			                    series[ series.length ] = { "label": element.name };
-		                	}
-		                });
+	                // Determine options to show
+	                var blnShowDataValues = $("#showvalues").attr("checked")=="checked";
+	                var blnShowLegend = returnData.series.length > 1;
+	                var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" && blnShowLegend ? "outsideGrid" : "insideGrid";
+	                var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
 
-		                // If no datapoints are found, return an error
-		                if( dataPoints.length == 0 ) {
-		                    Visualization.messages.show( ["Unfortunately the server returned data without any measurements"], "message_error" );
-		                    $( "#menu_go" ).find(".spinner").hide();
-		                    return;
-		                }
-		                
-		                var xlabel = returnData[ "xaxis" ].unit=="" ? returnData[ "xaxis" ].title : returnData[ "xaxis" ].title + " (" + returnData[ "xaxis" ].unit + ")";
-		                var ylabel = returnData[ "yaxis" ].unit=="" ? returnData[ "yaxis" ].title : returnData[ "yaxis" ].title + " (" + returnData[ "yaxis" ].unit + ")";
-		                var grouplabel = "";
-		                if(returnData[ "groupaxis" ]!==undefined) {
-		                    grouplabel = returnData[ "groupaxis" ].unit=="" ? returnData[ "groupaxis" ].title : returnData[ "groupaxis" ].title + " (" + returnData[ "groupaxis" ].unit + ")";
-		                }
+	                var plotOptions = Visualization.data[returnData.type].plotOptions(returnData, series, {
+	                	 showDataValues: blnShowDataValues, 
+	                	 showLegend: blnShowLegend, 
+	                	 legendPlacement: strLegendPlacement,
+	                	 xangle: xangle,
+	                	 labels: {
+	                		 x: xlabel,
+	                		 y: ylabel,
+	                		 group: grouplabel
+	                	 }
+	                });
 
-		                // TODO: create a chart based on the data that is sent by the user and the type of chart
-		                // chosen by the user
-		                var plotOptions = null;
+	                // If a chart has been created, show it
+	                if( plotOptions != null ) {
 
-		                var blnShowDataValues = $("#showvalues").attr("checked")=="checked";
-		                var blnShowLegend = returnData.series.length>1;
-		                var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" && blnShowLegend ? "outsideGrid" : "insideGrid";
-		                var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
+	                    $( "#visualization" ).css("width",$( "#visualization_container" ).innerWidth()-2);
+	                    $( "#visualization" ).css("height",$( "#visualization_container" ).innerHeight()-2);
 
-		                switch( returnData.type ) {
-		                	case "scatterplot":
-
-		                        $.each(returnData.series, function(idx, element ) {
-		                            series[idx].showLine = false;
-		                            series[idx].markerOptions = { "size": 7, "style":"filledCircle" };
-		                        });
-		                        // No break, scatterplot gets the plotoptions of the linechart
-		                	case "linechart":
-		                        plotOptions = {
-		                            stackSeries: false,
-		                            seriesDefaults:{
-		                                renderer:$.jqplot.LineRenderer,
-		                                pointLabels: {show: blnShowDataValues}
-		                            },
-		                            series: series,
-		                            highlighter: {
-		                                show: !blnShowDataValues,
-		                                sizeAdjust: 7.5,
-		                                tooltipAxes: "y"
-		                            },
-		                            legend: {
-		                                show: blnShowLegend,
-		                                placement: strLegendPlacement
-		                            },
-		                            axes: {
-		                                xaxis: {
-		                                    renderer: $.jqplot.CategoryAxisRenderer,
-		                                    ticks: returnData.series[ 0 ].x,	// Use the x-axis of the first serie
-		                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-		                                    label: xlabel,
-		                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-		                                    tickOptions: {
-		                                        angle: xangle
-		                                    }
-		                                },
-		                                yaxis: {
-		                                    label: ylabel,
-		                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-		                                    formatString:'%.2f'
-		                                }
-		                            },
-		                            axesDefaults: {
-		                                pad: 1.4
-		                            }
-		                        };                		
-		                		break;
-		                    case "horizontal_barchart":
-		                        plotOptions = {
-		                            // Tell the plot to stack the bars.
-		                            stackSeries: false,
-		                            seriesDefaults:{
-		                                renderer:$.jqplot.BarRenderer,
-		                                rendererOptions: {
-		                                    // Put a 30 pixel margin between bars.
-		                                    barMargin: 30,
-		                                    // Highlight bars when mouse button pressed.
-		                                    // Disables default highlighting on mouse over.
-		                                    highlightMouseDown: true,
-		                                    barDirection: 'horizontal',
-		                                    highlightMouseDown: true,
-		                                    fillToZero: true
-		                                },
-		                                pointLabels: {show: blnShowDataValues}
-		                            },
-		                            highlighter: {
-		                                show: !blnShowDataValues,
-		                                sizeAdjust: 7.5,
-		                                tooltipAxes: "x"
-		                            },
-		                            legend: {
-		                                show: blnShowLegend,
-		                                placement: strLegendPlacement
-		                            },
-		                            series: series,
-		                            axes: {
-		                                xaxis: {
-		                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-		                                    label: xlabel,
-		                                    
-		                                    formatString:'%.2f',
-		                                    min: 0,
-
-		                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-		                                    tickOptions: {
-		                                        angle: xangle
-		                                    }
-
-		                                },
-		                                yaxis: {
-		                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-		                                    label: ylabel,
-
-		                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-		                                    ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
-
-		                                    renderer: $.jqplot.CategoryAxisRenderer
-		                                }
-		                            },
-		                            axesDefaults: {
-		                                pad: 1.4
-		                            }
-		                        };
-		                		break;
-		                	case "barchart":
-		                        plotOptions = {
-		                            // Tell the plot to stack the bars.
-		                            stackSeries: false,
-		                            seriesDefaults:{
-		                                renderer:$.jqplot.BarRenderer,
-		                                rendererOptions: {
-		                                    barMargin: 30,
-		                                    highlightMouseDown: true,
-		                                    fillToZero: true
-		                                },
-		                                pointLabels: {show: blnShowDataValues}
-		                            },
-		                            highlighter: {
-		                                show: !blnShowDataValues,
-		                                sizeAdjust: 7.5,
-		                                tooltipAxes: "y"
-		                            },
-		                            legend: {
-		                                show: blnShowLegend,
-		                                placement: strLegendPlacement
-		                            },
-		                            series: series,
-		                            axes: {
-		                                xaxis: {
-		                                    renderer: $.jqplot.CategoryAxisRenderer,
-		                                    ticks: returnData.series[ 0 ].x,		// Use the x-axis of the first serie
-		                                    label: xlabel,
-		                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-		                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-		                                    tickOptions: {
-		                                        angle: xangle
-		                                    }
-		                                },
-		                                yaxis: {
-		                                    label: ylabel,
-		                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-		                                    formatString:'%.2f'
-		                                }
-		                            },
-		                            axesDefaults: {
-		                                pad: 1.4
-		                            }
-		                        };
-
-		                		break;
-		                	case "table":
-		                        // create table
-		                        var table = $("<table>").addClass("tablevis");
-
-		                        // create caption-row
-		                        var row = $("<tr>");
-		                        // create empty top-left-field
-		                        if(series.length==1) {
-		                            row.append("<td class='caption' colspan='2' rowspan='2'>&nbsp;</td>");
-		                        } else {
-		                            row.append("<td class='caption' colspan='2'>&nbsp;</td>");
-		                        }
-		                        // create caption
-		                        row.append("<td class='caption' colspan='"+returnData.series[0].x.length+"'>"+xlabel+"</td>");
-		                        row.appendTo(table);
-
-		                        // create header-row
-		                        var row = $("<tr>");
-		                        // create headers
-		                        if(series.length>1) {
-		                            row.append("<td class='caption'>"+grouplabel+"</td>");
-		                            row.append("<td class='caption'>"+ylabel+"</td>");
-		                        }
-		                        for(j=0; j<returnData.series[0].x.length; j++) {
-		                            row.append("<th>"+returnData.series[0].x[j]+"</th>");
-		                        }
-		                        row.appendTo(table);
-
-		                        for(k=0; k<returnData.series.length; k++) {
-		                        // create data-rows
-		                            for(i=0; i<returnData.series[0].y.length; i++) {
-		                                var row = $("<tr>");
-		                                for(j=-1; j<returnData.series[0].x.length; j++) {
-		                                    if(j<0) {
-		                                        if(i==0) {
-		                                            if(series.length==1) {
-		                                            // create caption-column
-		                                                row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+ylabel+"</td>");
-		                                            } else {
-		                                                row.append("<td class='caption' rowspan='"+returnData.series[0].y.length+"'>"+returnData.series[k].name+"</td>");
-		                                            }
-		                                        }
-
-		                                        // create row-header
-		                                        row.append("<th>"+returnData.series[k].y[i]+"</th>");
-		                                    } else {
-		                                        // row-data
-		                                        row.append("<td>"+returnData.series[k].data[j][i]+"</td>");
-		                                    }
-		                                }
-		                                row.appendTo(table);
-		                            }
-		                        }
-
-		                        plotOptions = table;
-		                		break;
-		                    case "boxplot":
-		                        dataPoints = [dataPoints];
-
-		                        plotOptions = {
-		                            series: [{
-		                                renderer: $.jqplot.BoxplotRenderer,
-		                                rendererOptions: {
-
-		                                }
-		                            }]/*,
-		                            seriesDefaults:{
-		                                pointLabels: {show: blnShowDataValues}
-		                            }*/,
-		                            highlighter: {
-		                                show: true,
-		                                sizeAdjust: 7.5,
-		                                showMarker: true,
-		                                tooltipAxes: 'y',
-		                                yvalues: 8,
-		                                formatString: '<table class="jqplot-highlighter dummy%s">' +
-		                                              '<tr><td>Maximum:</td><td>%s</td></tr>' +
-		                                              '<tr><td>Median + 1.5*IQR:</td><td>%s</td></tr>' +
-		                                              '<tr><td>Q3:</td><td>%s</td></tr>' +
-		                                              '<tr><td>Median:</td><td>%s</td></tr>' +
-		                                              '<tr><td>Q1:</td><td>%s</td></tr>' +
-		                                              '<tr><td>Median - 1.5*IQR:</td><td>%s</td></tr>' +
-		                                              '<tr><td>Minimum:</td><td>%s</td></tr>' +
-		                                              '</table>'
-		                            },
-		                            axesDefaults: {
-		                                pad: 1.4
-		                            },
-		                            axes: {
-		                                xaxis: {
-		                                    renderer: $.jqplot.CategoryAxisRenderer,
-		                                    label: xlabel,
-		                                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-		                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-		                                    tickOptions: {
-		                                        angle: xangle
-		                                    }
-		                                },
-		                                yaxis: {
-		                                    min: 0
-		                                }
-		                            },
-		                            title: 'Please note: outliers are not shown'
-		                        };
-		                        break;
-		                }
-		                
-		                // If a chart has been created, show it
-		                if( plotOptions != null ) {
-
-		                    $( "#visualization" ).css("width",$( "#visualization_container" ).innerWidth()-2);
-		                    $( "#visualization" ).css("height",$( "#visualization_container" ).innerHeight()-2);
-
-		                    $( "#visualization" ).empty();
-		                    
-		                    if(returnData.type=="table") {
-		                    	Visualization.current.showHTML(plotOptions);
-		                    } else {
-		                    	Visualization.current.draw( dataPoints, plotOptions );
-		                    }
-		                    $( "#visualization" ).show();
-		                }
-		        		
-		        	})
-		        	.fail(function( jqXHR, textStatus, errorThrown ) {
-						// An error occurred while retrieving fields from the server
-						Visualization.messages.show( "An error occurred while retrieving data from the server. Please try again or contact a system administrator<br />" + textStatus, "message_error" );
-						Visualization.messages.indicate.error( "#menu_go" );
-					})
-		        	.always(function() {
-		                $( "#menu_go" ).find(".spinner").hide();
-		        	});	           	
-		        	
-		    }			
-		},
+	                    $( "#visualization" ).empty();
+	                    
+                    	Visualization.current.draw( returnData.type, dataPoints, plotOptions );
+	                    $( "#visualization" ).show();
+	                }
+	        		
+	        	})
+	        	.fail(function( jqXHR, textStatus, errorThrown ) {
+					// An error occurred while retrieving fields from the server
+					Visualization.messages.show( "An error occurred while retrieving data from the server. Please try again or contact a system administrator<br />" + textStatus, "message_error" );
+					Visualization.messages.indicate.error( "#menu_go" );
+				})
+	        	.always(function() {
+	                $( "#menu_go" ).find(".spinner").hide();
+	        	});	           	
+	    },
+	    
+	    /**
+	     * Generate a label to show on the axis
+	     */
+	    axisLabel: function(axisData) {
+	    	return axisData.unit=="" ? axisData.title : axisData.title + " (" + axisData.unit + ")";		    	
+	    }
 	},
 	
 	/**
