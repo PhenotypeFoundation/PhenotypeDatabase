@@ -11,12 +11,13 @@
 
 	<g:if test="${templateField?.type.toString() == 'STRINGLIST' || templateField?.type.toString() == 'EXTENDABLESTRINGLIST'}">
     	<g:set var="usedFields" value="${templateFieldService.getUsedListEntries( templateField )}"/>
-		<div class="extra extendablestringlist_options stringlist_options">
+		<div class="extendablestringlist_options stringlist_options">
 		  <label for="type">Used items:</label>
 			<g:textArea name="usedListEntries" disabled="disabled" value="${usedFields.join( '\n' )}" />
 		  <label for="type">Extra Items (every item on a new line):</label>
-			<g:textArea name="listEntries" value="${(templateField.listEntries - usedFields ).join( '\n' )}" />
+			<g:textArea name="listEntries" value="${(templateField.listEntries*.toString() - usedFields ).join( '\n' )}" />
 		</div>
+		
 	</g:if>
 	<g:if test="${templateField?.type.toString() == 'ONTOLOGYTERM'}">
     	<g:set var="usedOntologies" value="${templateField.getUsedOntologies()}"/>
