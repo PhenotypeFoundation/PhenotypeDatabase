@@ -1,0 +1,22 @@
+#termForm {
+	display: block;
+	vertical-align: top;
+}
+#termForm #label {
+    color:#006DBA;
+    font-size:14px;
+    font-weight:normal;
+    display: inline-block;
+    zoom: 1; /* IE 6 & 7 hack */
+    *display: inline; /* IE 6 & 7 hack */
+}
+#termForm #term {
+    display: inline-block;
+    zoom: 1; /* IE 6 & 7 hack */
+    *display: inline; /* IE 6 & 7 hack */
+}
+#termForm #button {
+    display: inline-block;
+    zoom: 1; /* IE 6 & 7 hack */
+    *display: inline; /* IE 6 & 7 hack */
+}
