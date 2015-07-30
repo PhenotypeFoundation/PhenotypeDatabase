@@ -142,6 +142,7 @@ modules = {
         dependsOn 'jqplot'
 
         resource url: [dir: 'js', file: 'visualization.js']
+        resource url: [dir: 'js', file: 'jquery.ui.combo.js']
         resource url: [dir: 'css', file: 'visualization.css']
     }
     
