@@ -37,9 +37,9 @@
         <label for="type">
         	Ontologies:<br />
         	<a href="#" style="text-decoration: underline;" onClick="return openOntologyDialog();">Add new</a><br /><br /> 
-        	<a href="#" style="text-decoration: underline;" onClick="return deleteOntology(${templateField?.id});">Remove</a>
+        	<a href="#" style="text-decoration: underline;" onClick="return deleteOntology(${templateField ? templateField?.id : "'new'"});">Remove</a>
         </label>
-		<g:select multiple="yes" size="5" from="${templateField?.ontologies}" class="ontologySelect" optionValue="name" optionKey="id" name="ontologies" id="ontologies_${templateField?.id}" /><br />
+		<g:select multiple="yes" size="5" from="${templateField?.ontologies}" class="ontologySelect" optionValue="name" optionKey="id" name="ontologies" id="ontologies_${templateField ? templateField?.id : "new"}" /><br />
 	</div>
 
 	<label for="unit">Unit:</label> <g:textField name="unit" value="${templateField?.unit}" /><br />
