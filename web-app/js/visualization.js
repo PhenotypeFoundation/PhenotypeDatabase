@@ -509,7 +509,7 @@ var Visualization = {
                         }
                     },
                     axesDefaults: {
-                        pad: 1.4
+                        pad: 1.2
                     }
                 };
 			}
@@ -747,9 +747,6 @@ var Visualization = {
                             xaxis: {
                                 renderer: $.jqplot.CategoryAxisRenderer,
                             },
-                            yaxis: {
-                                min: 0
-                            }
                         },
                         title: 'Please note: outliers are not shown'
                     });				

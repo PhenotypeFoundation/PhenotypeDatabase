@@ -51,11 +51,15 @@
                     db.max = dk;
             }
         }
+        
+        var invertedPadding = 1 / this._yaxis.pad;
         if(this._yaxis.min==null) {
-            this._yaxis.min = db.min*this._yaxis.pad;
+        	// If min > 0, than the minimum incl padding should be lower, and we use the inverted padding
+            this._yaxis.min = db.min * ( db.min > 0 ? invertedPadding : this._yaxis.pad );
         }
         if(this._yaxis.max==null) {
-            this._yaxis.max = db.max*this._yaxis.pad;
+        	// If max < 0, than the minimum incl padding should be lower, and we use the inverted padding
+            this._yaxis.max = db.max * ( db.max < 0 ? invertedPadding : this._yaxis.pad );;
         }
     };
     
