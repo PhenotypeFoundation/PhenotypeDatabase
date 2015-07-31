@@ -415,48 +415,30 @@ class StudyEditController {
                         def index = 0
 
                         studyEditService.putParamsIntoEntity( entity, params )
-
-                        def study = Study.get( entity.parent?.id )
                         def template = entity.template
                         
                         if( params._action == "save" ) {
                                 if( entity.validate() ) {
-                                        // We have to store multiple entities.
+                                        // Now we know that the entity validates, see how many entites
+                                        // we have to store
+                                        def originalEntityName = entity.name
+                                        entity.discard();
+                                        
+                                        for( index = 0; index < numEntities; index++ ) {
+                                            def entityToSave = entity.class.newInstance()
+                                            entityToSave.template = template
+                                            studyEditService.putParentIntoEntity( entityToSave, params )
+                                            studyEditService.putParamsIntoEntity( entityToSave, params )
 
-                                        while( index < numEntities ) {
-                                                // If the entity validates, make sure it is added properly to the study
-                                                switch( entity.class ) {
-                                                case Subject:
-                                                        study.addToSubjects( entity )
-                                                        break
-                                                case Sample:
-                                                        study.addToSamples( entity )
-                                                        break
-                                                case Assay:
-                                                        study.addToAssays( entity )
-                                                        break
-                                                }
-
-                                                // Add _1 to the entity name if multiple entities are required
-                                                if( numEntities > 1 ) {
-                                                    // Make sure the name is unique
-                                                    entity.name = entity.name + "_1"
-                                                }
-                                                
-                                                study.save( flush: true );
-                                                index++
-
-                                                // Create a clone to store another one
-                                                if( index < numEntities ) {
-                                                        entity = entity.class.newInstance( parent: study )
-                                                        entity.template = template
-                                                        studyEditService.putParamsIntoEntity( entity, params )
-
-                                                        // Make sure the name is unique
-                                                        entity.name = entity.name + "_" + ( index + 1 )
-                                                }
+                                            // Add _<num> postfix to the entity name if multiple entities
+                                            // are created to ensure uniqueness 
+                                            if( numEntities > 1 ) {
+                                                entityToSave.name = originalEntityName + "_" + ( index + 1 )
+                                            }
+                                            
+                                            entityToSave.save(flush:true)
                                         }
-
+                                    
                                         // Tell the frontend the save has succeeded
                                         response.status = 210
                                         def returnJSON = [ templateId: template.id ]
