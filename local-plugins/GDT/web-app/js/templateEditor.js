@@ -816,6 +816,10 @@ function hideWaiting() { $( '.wait' ).hide() }
 function openOntologyDialog() {
 	$('#ontologyDialog').dialog('option', 'position', 'center');
 	$('#ontologyDialog').dialog('open');
+	
+	// Clear all fields when opening
+	$('#ontologyDialog').find( "input[type=text], input[type=hidden]" ).val("");
+	$('#ontologyDialog').find( "#searchType_ncbo" ).attr( "checked", true );
 	return false;
 }
 
