@@ -689,8 +689,12 @@ var Visualization = {
 		},
 		scatterplot: {
 			convertData: function(returnData) {
-				return Visualization.data._generic.convertData(returnData, null, this.serieOptions);
+				return Visualization.data._generic.convertData(returnData, this.convertElementIntoDataPoint, this.serieOptions);
 			},
+			
+			convertElementIntoDataPoint: function(element) {
+				return Visualization.data.transpose([element.x, element.y]);
+			},			
 			serieOptions: function(element) {
 				var options = Visualization.data._generic.serieOptions(element);
 				options.showLine = false;
@@ -699,9 +703,22 @@ var Visualization = {
 				return options;
 			},
 			
-			plotOptions: function(element, series, settings ) { 
-				// Use the same settings as for linecharts
-				return Visualization.data.linechart.plotOptions(element, series, settings);
+			plotOptions: function(returnData, series, settings ) { 
+				return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                    stackSeries: false,
+                    seriesDefaults:{
+                        renderer:$.jqplot.LineRenderer,
+                        pointLabels: {show: settings.showDataValues}
+                    },
+                    highlighter: {
+                        tooltipAxes: "y"
+                    },
+                    axes: {
+                        yaxis: {
+                            formatString:'%.2f'
+                        }
+                    },
+                });		
 			}
 		},
 		boxplot: {
@@ -752,6 +769,13 @@ var Visualization = {
                     });				
 			}
 		},		
+
+		transpose: function(a) {
+			return Object.keys(a[0]).map(
+	            function (c) { return a.map(function (r) { return r[c]; }); }
+            );
+        }
+		
 	},
 	
 	visualization: {
