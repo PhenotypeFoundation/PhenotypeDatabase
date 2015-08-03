@@ -723,29 +723,25 @@ var Visualization = {
 		},
 		boxplot: {
 			convertData: function(returnData) {
-				var data = Visualization.data._generic.convertData(returnData, this.convertElementIntoDataPoint);
-				
-				return {
-					series: data.series,
-					dataPoints: [data.dataPoints]
-				};
+				return Visualization.data._generic.convertData(returnData, this.convertElementIntoDataPoint);
 			},
 			convertElementIntoDataPoint: function(element) {
 	            // The fifth element of the list should be repeated on the second position
-                var dataPoint = element.y;
-                return [dataPoint[0], dataPoint[4],dataPoint[1],dataPoint[2],dataPoint[3],dataPoint[4],dataPoint[5],dataPoint[6],dataPoint[7]];
+				var data = element.y;
+				for(i = 0; i < data.length; i++ ) {
+					var dataPoint = data[i];
+					data[i] = [dataPoint[0], dataPoint[4],dataPoint[1],dataPoint[2],dataPoint[3],dataPoint[4],dataPoint[5],dataPoint[6],dataPoint[7]]; 
+				}
+                return data;
 			},
 			
 			plotOptions: function(returnData, series, settings) {
                 return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
-                        series: [{
+                        seriesDefaults: {
                             renderer: $.jqplot.BoxplotRenderer,
-                            rendererOptions: {
-
-                            }
-                        }],
+                        },
                         highlighter: {
-                            show: true,
+                            show: false,
                             sizeAdjust: 7.5,
                             showMarker: true,
                             tooltipAxes: 'y',
@@ -763,6 +759,7 @@ var Visualization = {
                         axes: {
                             xaxis: {
                                 renderer: $.jqplot.CategoryAxisRenderer,
+                                
                             },
                         },
                         title: 'Please note: outliers are not shown'

@@ -881,7 +881,7 @@ class VisualizeController {
      ]
      }*
      */
-	protected def formatData(type, groupedData, fieldInfo, xAxis = "x", yAxis = "y", serieAxis = "group", errorName = "error") {
+    protected def formatData(type, groupedData, fieldInfo, xAxis = "x", yAxis = "y", serieAxis = "group", errorName = "error") {
         // Format categorical axes by setting the names correct
         fieldInfo.each { field, info ->
             if (field && info) {
@@ -957,38 +957,21 @@ class VisualizeController {
             return_data["series"] = [];
             HashMap dataMap = new HashMap();
 
-            List xValues = [];
-            groupedData[xAxis].eachWithIndex { category, i ->
-                if (!dataMap.containsKey(category)) {
-                    dataMap.put(category, []);
-                    xValues << category;
-                }
-                dataMap.put(category, dataMap.get(category) + groupedData[yAxis][i]);
-
+            if (fieldInfo[serieAxis] && fieldInfo[serieAxis].fieldType == NUMERICALDATA) {
+                // No numerical series field is allowed in a chart.
+                throw new Exception("No numerical series field is allowed here.");
             }
-
-            for (String key : xValues) {
-                def objInfos = computePercentile(dataMap.get(key), 50);
-                double dblMEDIAN = objInfos.get("value");
-                double Q1 = computePercentile(dataMap.get(key), 25).get("value");
-                double Q3 = computePercentile(dataMap.get(key), 75).get("value");
-
-                // Calcultate 1.5* inter-quartile-distance
-                double dblIQD = (Q3 - Q1) * 1.5;
-
-                // Set min and max to be the whiskers, so the outliers do not change the axes
-                double min = (dblMEDIAN - dblIQD)
-                double max = (dblMEDIAN + dblIQD)
-                
+            
+            def boxplotData = computeBoxplotData(groupedData[xAxis], groupedData[yAxis], groupedData[serieAxis])
+            
+            boxplotData.each { serie, serieData ->
                 return_data["series"] << [
-                        "name": key,
-                        "y": [key, max, (dblMEDIAN + dblIQD), Q3, dblMEDIAN, Q1, (dblMEDIAN - dblIQD), min]
-                ];
+                    name: serie,
+                    x: serieData.keySet(),
+                    y: serieData.values()
+                ]
             }
-
-            //println(return_data);
-
-
+            
         } else {
             // For a horizontal barchart, the two axes should be swapped
             if (type == "horizontal_barchart") {
@@ -1030,6 +1013,49 @@ class VisualizeController {
         return return_data;
     }
 
+    /**
+     * Compute boxplot data
+     */
+    protected def computeBoxplotData( xAxisData, yAxisData, groupAxisData = null ) {
+        def groupedData = [:]
+        def boxplotData = [:]
+        
+        // Group the values on the y-axis
+        yAxisData.eachWithIndex { value, idx ->
+            def key = xAxisData[idx]
+            def groupKey = groupAxisData ? groupAxisData[idx] : "boxplot"
+            
+            if( !groupedData[groupKey] )
+                groupedData[groupKey] = [:]
+            
+            if( !groupedData[groupKey][key] )
+                groupedData[groupKey][key] = []
+
+            groupedData[groupKey][key] << value
+        }
+        
+        groupedData.each { serie, groupedValues->
+            boxplotData[serie] = [:]
+            groupedValues.each { key, values ->
+                def objInfos = computePercentile(values, 50);
+                double dblMEDIAN = objInfos.get("value");
+                double Q1 = computePercentile(values, 25).get("value");
+                double Q3 = computePercentile(values, 75).get("value");
+    
+                // Calcultate 1.5* inter-quartile-distance
+                double dblIQD = (Q3 - Q1) * 1.5;
+    
+                // Set min and max to be the whiskers, so the outliers do not change the axes
+                double min = (dblMEDIAN - dblIQD)
+                double max = (dblMEDIAN + dblIQD)
+                
+                boxplotData[serie][key] = [key, max, (dblMEDIAN + dblIQD), Q3, dblMEDIAN, Q1, (dblMEDIAN - dblIQD), min]
+            }
+        }
+    
+        return boxplotData
+    }
+    
     /**
      * Formats the requested data for a table
      * @param groupedData

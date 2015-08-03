@@ -53,13 +53,16 @@
 		}
 
 		var invertedPadding = 1 / this._yaxis.pad;
-		if(this._yaxis.min==null) {
-			// If min > 0, than the minimum incl padding should be lower, and we use the inverted padding
-			this._yaxis.min = db.min * ( db.min > 0 ? invertedPadding : this._yaxis.pad );
+		// If min > 0, than the minimum incl padding should be lower, and we use the inverted padding
+		var newMin = db.min * ( db.min > 0 ? invertedPadding : this._yaxis.pad );
+		// If max < 0, than the minimum incl padding should be lower, and we use the inverted padding
+		var newMax = db.max * ( db.max < 0 ? invertedPadding : this._yaxis.pad );
+		
+		if(this._yaxis.min==null || newMin < this._yaxis.min) {
+			this._yaxis.min = newMin
 		}
-		if(this._yaxis.max==null) {
-			// If max < 0, than the minimum incl padding should be lower, and we use the inverted padding
-			this._yaxis.max = db.max * ( db.max < 0 ? invertedPadding : this._yaxis.pad );;
+		if(this._yaxis.max==null || newMax > this._yaxis.max) {
+			this._yaxis.max = newMax;
 		}
 	};
 
