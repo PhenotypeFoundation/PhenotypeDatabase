@@ -67,6 +67,7 @@ var FileUpload = {
 		// Reroute click from icon to (invisible) file input
 		$('#upload_icon_' + field_id).on('click', function() {
 			$('#upload_button_' + field_id).click();
+			return false;
 		})
 
 		// Enable delete button
