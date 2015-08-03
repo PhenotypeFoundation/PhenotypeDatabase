@@ -561,7 +561,12 @@ var Visualization = {
                 return dataPoint;
 			},
 			plotOptions: function( returnData, series, settings ) {
+				var numSeries = series.length;
+				var numWithinSerie = Math.max($.map( returnData.series, function(el) { return el.x.length; } ));
+        		var bWidth = 460 / ( numSeries * numWithinSerie ) * 0.6;
+        		
                 return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                		// Compute barwidth ourselves, as jqPlot fails at that
                         // Tell the plot to stack the bars.
                         stackSeries: false,
                         seriesDefaults:{
@@ -574,7 +579,9 @@ var Visualization = {
                                 highlightMouseDown: true,
                                 barDirection: 'horizontal',
                                 highlightMouseDown: true,
-                                fillToZero: true
+                                fillToZero: true,
+                                barWidth: bWidth,
+                                shadowOffset: 0
                             },
                             pointLabels: {show: settings.showDataValues}
                         },
