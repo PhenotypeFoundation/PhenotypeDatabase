@@ -23,8 +23,15 @@ function userMessage( message, type ) {
 	if( typeof( type ) == "undefined" )
 		type = "info";
 	
-	$( ".templateEditorStep" ).first().before( 
+	// The element to add the message to depends on 
+	// whether we are in a dialog or not
+	var container = $( "#content .container" );
+	if( container.length == 0 )
+		container = $( "body" );
+	
+	container.append( 
 			$("<div>")
+				.addClass( "templateeditor-message" )
 				.addClass( "message" )
 				.addClass( type )
 				.text( message )
@@ -32,8 +39,9 @@ function userMessage( message, type ) {
 					$( "<a href='#'>" )
 						.addClass( "close" )
 						.text( "X" )
-						.on( "click", function() { $(this).parent().remove(); return false; } )
 				)
+				.on( "click", function() { $(this).remove(); return false; } )
+				
 	);
 }
 
