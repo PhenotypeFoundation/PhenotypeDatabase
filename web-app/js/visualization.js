@@ -520,14 +520,24 @@ var Visualization = {
 				return Visualization.data._generic.convertData(returnData);
 			},
 			plotOptions: function(returnData, series, settings) {
-                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+        		// Compute barwidth ourselves, as jqPlot fails at that
+				var numSeries = series.length;
+				var numWithinSerie = Visualization.data.maxOfArray($.map( returnData.series, function(el) { return el.y.length; } ));
+        		var bWidth = 560 / ( numSeries * numWithinSerie ) * 0.6;
+        						
+                return $.extend( true, Visualization.data._generic.plotOptions(returnData, series, settings), {
                         // Tell the plot to stack the bars.
                         seriesDefaults:{
                             renderer:$.jqplot.BarRenderer,
                             rendererOptions: {
-                                barMargin: 30,
+                                barWidth: bWidth,
+                                barMargin: 5,
+                                barPadding: 3,
+
                                 highlightMouseDown: true,
-                                fillToZero: true
+                                fillToZero: true,
+
+                                shadowOffset: 0
                             },
                             pointLabels: {show: settings.showDataValues}
                         },
@@ -561,26 +571,28 @@ var Visualization = {
                 return dataPoint;
 			},
 			plotOptions: function( returnData, series, settings ) {
+        		// Compute barwidth ourselves, as jqPlot fails at that
 				var numSeries = series.length;
-				var numWithinSerie = Math.max($.map( returnData.series, function(el) { return el.x.length; } ));
+				var numWithinSerie = Visualization.data.maxOfArray($.map( returnData.series, function(el) { return el.x.length; } ));
         		var bWidth = 460 / ( numSeries * numWithinSerie ) * 0.6;
         		
-                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
-                		// Compute barwidth ourselves, as jqPlot fails at that
-                        // Tell the plot to stack the bars.
+                // Tell the plot to stack the bars.
+                return $.extend( true, Visualization.data._generic.plotOptions(returnData, series, settings), {
                         stackSeries: false,
                         seriesDefaults:{
                             renderer:$.jqplot.BarRenderer,
                             rendererOptions: {
-                                // Put a 30 pixel margin between bars.
-                                barMargin: 30,
                                 // Highlight bars when mouse button pressed.
                                 // Disables default highlighting on mouse over.
                                 highlightMouseDown: true,
-                                barDirection: 'horizontal',
                                 highlightMouseDown: true,
                                 fillToZero: true,
+                                
+                                barDirection: 'horizontal',
                                 barWidth: bWidth,
+                                barMargin: 5,
+                                barPadding: 3,
+                                
                                 shadowOffset: 0
                             },
                             pointLabels: {show: settings.showDataValues}
@@ -774,18 +786,25 @@ var Visualization = {
 			}
 		},		
 
+		/**
+		 * Transposes a matrix (2d array)
+		 */
 		transpose: function(a) {
 			return Object.keys(a[0]).map(
 	            function (c) { return a.map(function (r) { return r[c]; }); }
             );
-        }
-		
+        },
+        
+        /**
+         * Returns the maximum value of an array
+         */
+        maxOfArray: function(array) { return Math.max.apply(Math, array); }
 	},
 	
 	visualization: {
 		auto: function() {
 		    if($("#autovis").attr("checked")=="checked") {
-		        this.perform();
+		        Visualization.visualization.perform();
 		    }			
 		},
 		
