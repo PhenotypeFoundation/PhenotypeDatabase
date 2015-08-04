@@ -239,11 +239,18 @@ class VisualizeController {
                 // For getting this field from this assay
                 fields << ["id": createFieldId(id: field.name, name: field.name, source: "" + assay.id, type: "" + assay.name, unit: (field.unit ?: "")), "source": source, "category": "" + assay.name, "name": field.name + (field.unit ? " (" + field.unit + ")" : "")]
             }
+            
+            // Also add the 'all fields for assay x' option
+            fields << [
+                "id": createFieldId(id: "*", name: "*", source: "" + assay.id, type: "" + assay.name, unit: ""), 
+                "source": source, 
+                "category": "" + assay.name, "name": "[All " + collection.size() + " features]"
+            ]
         } catch (Exception e) {
             //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
             offlineModules.add(assay.module.id)
             infoMessageOfflineModules.add(assay.module.name)
-            log.error("VisualizationController: getFields: " + e)
+            log.error( "An error occurred while retrieving fields from " + assay.module + " for assay " + assay, e)
         }
 
         return fields
