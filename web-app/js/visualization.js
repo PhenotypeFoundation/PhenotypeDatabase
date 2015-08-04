@@ -21,6 +21,7 @@ var Visualization = {
 
 	    // Do auto visualization when changing settings
 	    $( "#dialog_advanced_settings [type=checkbox]" ).on( "click", Visualization.visualization.auto );
+	    $( "#dialog_advanced_settings [type=number]" ).on( "change", Visualization.visualization.auto );
 	    
 	    $(".ui-autocomplete-input").click(function() {
 	        $( this ).blur();
@@ -621,7 +622,7 @@ var Visualization = {
 				return Visualization.data._generic.convertData(returnData);
 			},
 			plotOptions: function(returnData, series, settings) {
-				return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+				return $.extend( true, Visualization.data._generic.plotOptions(returnData, series, settings), {
                     stackSeries: false,
                     seriesDefaults:{
                         renderer:$.jqplot.LineRenderer,
@@ -723,7 +724,7 @@ var Visualization = {
 			},
 			
 			plotOptions: function(returnData, series, settings ) { 
-				return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+				return $.extend( true, Visualization.data._generic.plotOptions(returnData, series, settings), {
                     stackSeries: false,
                     seriesDefaults:{
                         renderer:$.jqplot.LineRenderer,
@@ -755,7 +756,7 @@ var Visualization = {
 			},
 			
 			plotOptions: function(returnData, series, settings) {
-                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+                return $.extend( true, Visualization.data._generic.plotOptions(returnData, series, settings), {
                         seriesDefaults: {
                             renderer: $.jqplot.BoxplotRenderer,
                         },
@@ -865,7 +866,7 @@ var Visualization = {
 	                var blnShowDataValues = $("#showvalues").attr("checked")=="checked";
 	                var blnShowLegend = returnData.series.length > 1;
 	                var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" && blnShowLegend ? "outsideGrid" : "insideGrid";
-	                var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
+	                var xangle = ( 360 + parseInt( $("#anglelabels").val() ) ) % 360;
 
 	                var plotOptions = Visualization.data[returnData.type].plotOptions(returnData, series, {
 	                	 showDataValues: blnShowDataValues, 
