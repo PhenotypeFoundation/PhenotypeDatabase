@@ -991,7 +991,6 @@ td.buttons input {
 .ui-datepicker.ui-widget-content {
     border: 1px solid #d5d5d5;
     background: #fff;
-    z-index: 10 !important;
 }
 .ui-datepicker td span, .ui-datepicker td a {
     border: 1px solid #d5d5d5;

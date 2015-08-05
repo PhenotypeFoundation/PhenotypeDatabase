@@ -143,3 +143,6 @@ table#compare_templates { clear: both; }
 #importTemplate li { margin-left: 0; padding-left: 0; }
 #importTemplates .otherTemplateName { display: none; }
 #importTemplates .error { color: #AA0000; }
+
+div.templateeditor-message { position: fixed; top: 50%; margin-top: -30px; left: 50%; margin-left: -40%; width: 80%; cursor: pointer; }
+#content .container .templateeditor-message { width: 800px; margin-left: -400px; }

@@ -68,6 +68,7 @@ modules = {
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.subjectGroups.js']
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.assaySamples.js']
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
+        resource url:[ dir:'js/studyEdit', file: 'studyEdit.addmore.js']
         resource url:[ dir:'css', file: 'studyEdit.css']
         resource url:[ dir:'css', file: 'templates.css']
     }

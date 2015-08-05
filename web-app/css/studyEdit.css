@@ -109,7 +109,7 @@ table.dataTable td.dataTables_empty { text-align: left; }
 
 /* Overlay on timeline to prevent adding events if no subject group is present yet */
 #studydesign { position: relative; }
-#studydesign .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; opacity: 0.9; text-align: center; line-height: 2em; display: none; font-size: 11pt; }
+#studydesign .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; opacity: 0.9; text-align: center; line-height: 2em; display: none; font-size: 11pt; z-index: 1020; }
 
 .ui-draggable-dragging .designobject-buttons { display: none; }
  

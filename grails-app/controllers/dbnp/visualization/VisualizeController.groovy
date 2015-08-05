@@ -239,11 +239,18 @@ class VisualizeController {
                 // For getting this field from this assay
                 fields << ["id": createFieldId(id: field.name, name: field.name, source: "" + assay.id, type: "" + assay.name, unit: (field.unit ?: "")), "source": source, "category": "" + assay.name, "name": field.name + (field.unit ? " (" + field.unit + ")" : "")]
             }
+            
+            // Also add the 'all fields for assay x' option
+            fields << [
+                "id": createFieldId(id: "*", name: "*", source: "" + assay.id, type: "" + assay.name, unit: ""), 
+                "source": source, 
+                "category": "" + assay.name, "name": "[All " + collection.size() + " features]"
+            ]
         } catch (Exception e) {
             //returnError(404, "An error occured while trying to collect field data from a module. Most likely, this module is offline.")
             offlineModules.add(assay.module.id)
             infoMessageOfflineModules.add(assay.module.name)
-            log.error("VisualizationController: getFields: " + e)
+            log.error( "An error occurred while retrieving fields from " + assay.module + " for assay " + assay, e)
         }
 
         return fields
@@ -359,12 +366,13 @@ class VisualizeController {
             fieldInfo[k].fieldType = v
         }
 
-        // If the groupAxis is numerical, we should ignore it, unless a table is asked for
-        if (fieldInfo.group && fieldInfo.group.fieldType == NUMERICALDATA && inputData.visualizationType != "table") {
+        // If the groupAxis is numerical, we should ignore it, unless it is for grouping on all features or a table is asked for
+        if (fieldInfo.group && fieldInfo.group.fieldType == NUMERICALDATA && fieldInfo.group.name != '*' && inputData.visualizationType != "table") {
             fields.group = null;
             fieldInfo.group = null;
         }
 
+        // Enable charting of barcharts with numerical data on both axes
         if (fieldInfo.x.fieldType == NUMERICALDATA && fieldInfo.y.fieldType == NUMERICALDATA) {
             if (inputData.visualizationType == "horizontal_barchart") {
                 fieldInfo.y.fieldType = CATEGORICALDATA;
@@ -437,15 +445,22 @@ class VisualizeController {
     def getAllFieldData(study, samples, fields) {
         def fieldData = [:]
         def numValues = 0;
+        def numSamples = samples.size()
+        
+        // Flag to keep track of whether the '*' is chosen
+        // for one or more of the fields. In that case, the other
+        // values should be repeated to make sure that there are
+        // enough items 
+        def multipleFieldsMultiplier = 1
         
         // Parse the field IDs
         def parsedFields = parseFieldIds(fields)
         
         // Group the field IDs per source
         // Only use the fields that we could parse.
-        parsedFields = parsedFields.values().findAll().groupBy { it.source }
+        def groupedParsedFields = parsedFields.values().findAll().groupBy { it.source }
 
-        parsedFields.each { source, sourceFields ->
+        groupedParsedFields.each { source, sourceFields ->
             if(source == "GSCF") {
                 // Determine field type for each field independently
                 sourceFields.each {
@@ -456,7 +471,39 @@ class VisualizeController {
                 def moduleData = getModuleData(study, samples, source, sourceFields*.name)
                 
                 sourceFields.each {
-                    fieldData[it.key] = moduleData[it.name]
+                    if( it.name == '*' ) {
+                        // Concatenate the values and feature names for all features
+                        // If this field is chosen for X or Y, return the values
+                        // If this field is chosen on the Group axis, return the feature names
+                        def multipleFieldValues = []
+                        
+                        if( it.key == 'group' ) {
+                            moduleData.each  { fieldName, fieldValues ->
+                                multipleFieldValues += ( [fieldName] * numSamples )
+                            }
+                        } else {
+                            moduleData.each  { fieldName, fieldValues ->
+                                multipleFieldValues += fieldValues
+                            }
+                        }
+                        
+                        fieldData[it.key] = multipleFieldValues
+                        
+                        // Make sure to multiply all 'single' values later on 
+                        multipleFieldsMultiplier = moduleData.size() 
+                    } else {
+                        println "  " + it.key + " / " + it.name
+                        fieldData[it.key] = moduleData[it.name]
+                    }
+                }
+            }
+        }
+        
+        // Handle the special case that for one or more axes the '*' is selected
+        if( multipleFieldsMultiplier > 1 ) {
+            fieldData.each { key, data ->
+                if( parsedFields[key].name != '*' ) {
+                    fieldData[key] = data * multipleFieldsMultiplier
                 }
             }
         }
@@ -544,8 +591,13 @@ class VisualizeController {
         def assay = Assay.get(assay_id);
 
         if (assay) {
-            // Request for a particular assay and a particular feature
-            def urlVars = "verbose=true&assayToken=" + assay.UUID + "&" + fieldNames.collect { "measurementToken=" + it.encodeAsURL() }.join("&")
+            // Request for a particular assay and one or more features
+            def urlVars = "verbose=true&assayToken=" + assay.UUID
+            
+            // However, if the fieldNames contains '*', data for all features 
+            // should be retrieved
+            if( !fieldNames.contains('*')) 
+                urlVars += "&" + fieldNames.collect { "measurementToken=" + it.encodeAsURL() }.join("&")
 
             def callUrl
             try {
@@ -881,7 +933,7 @@ class VisualizeController {
      ]
      }*
      */
-	protected def formatData(type, groupedData, fieldInfo, xAxis = "x", yAxis = "y", serieAxis = "group", errorName = "error") {
+    protected def formatData(type, groupedData, fieldInfo, xAxis = "x", yAxis = "y", serieAxis = "group", errorName = "error") {
         // Format categorical axes by setting the names correct
         fieldInfo.each { field, info ->
             if (field && info) {
@@ -957,38 +1009,21 @@ class VisualizeController {
             return_data["series"] = [];
             HashMap dataMap = new HashMap();
 
-            List xValues = [];
-            groupedData[xAxis].eachWithIndex { category, i ->
-                if (!dataMap.containsKey(category)) {
-                    dataMap.put(category, []);
-                    xValues << category;
-                }
-                dataMap.put(category, dataMap.get(category) + groupedData[yAxis][i]);
-
+            if (fieldInfo[serieAxis] && fieldInfo[serieAxis].fieldType == NUMERICALDATA) {
+                // No numerical series field is allowed in a chart.
+                throw new Exception("No numerical series field is allowed here.");
             }
-
-            for (String key : xValues) {
-                def objInfos = computePercentile(dataMap.get(key), 50);
-                double dblMEDIAN = objInfos.get("value");
-                double Q1 = computePercentile(dataMap.get(key), 25).get("value");
-                double Q3 = computePercentile(dataMap.get(key), 75).get("value");
-
-                // Calcultate 1.5* inter-quartile-distance
-                double dblIQD = (Q3 - Q1) * 1.5;
-
-                // Set min and max to be the whiskers, so the outliers do not change the axes
-                double min = (dblMEDIAN - dblIQD)
-                double max = (dblMEDIAN + dblIQD)
-                
+            
+            def boxplotData = computeBoxplotData(groupedData[xAxis], groupedData[yAxis], groupedData[serieAxis])
+            
+            boxplotData.each { serie, serieData ->
                 return_data["series"] << [
-                        "name": key,
-                        "y": [key, max, (dblMEDIAN + dblIQD), Q3, dblMEDIAN, Q1, (dblMEDIAN - dblIQD), min]
-                ];
+                    name: serie,
+                    x: serieData.keySet(),
+                    y: serieData.values()
+                ]
             }
-
-            //println(return_data);
-
-
+            
         } else {
             // For a horizontal barchart, the two axes should be swapped
             if (type == "horizontal_barchart") {
@@ -1030,6 +1065,49 @@ class VisualizeController {
         return return_data;
     }
 
+    /**
+     * Compute boxplot data
+     */
+    protected def computeBoxplotData( xAxisData, yAxisData, groupAxisData = null ) {
+        def groupedData = [:]
+        def boxplotData = [:]
+        
+        // Group the values on the y-axis
+        yAxisData.eachWithIndex { value, idx ->
+            def key = xAxisData[idx]
+            def groupKey = groupAxisData ? groupAxisData[idx] : "boxplot"
+            
+            if( !groupedData[groupKey] )
+                groupedData[groupKey] = [:]
+            
+            if( !groupedData[groupKey][key] )
+                groupedData[groupKey][key] = []
+
+            groupedData[groupKey][key] << value
+        }
+        
+        groupedData.each { serie, groupedValues->
+            boxplotData[serie] = [:]
+            groupedValues.each { key, values ->
+                def objInfos = computePercentile(values, 50);
+                double dblMEDIAN = objInfos.get("value");
+                double Q1 = computePercentile(values, 25).get("value");
+                double Q3 = computePercentile(values, 75).get("value");
+    
+                // Calcultate 1.5* inter-quartile-distance
+                double dblIQD = (Q3 - Q1) * 1.5;
+    
+                // Set min and max to be the whiskers, so the outliers do not change the axes
+                double min = (dblMEDIAN - dblIQD)
+                double max = (dblMEDIAN + dblIQD)
+                
+                boxplotData[serie][key] = [key, max, (dblMEDIAN + dblIQD), Q3, dblMEDIAN, Q1, (dblMEDIAN - dblIQD), min]
+            }
+        }
+    
+        return boxplotData
+    }
+    
     /**
      * Formats the requested data for a table
      * @param groupedData
@@ -1576,7 +1654,11 @@ class VisualizeController {
                     }
                 }
             } else {
-                if (inputData == null) { // If we did not get data, we need to request it from the module first
+                if( parsedField.name == '*' ) {
+                    // Treat 'all features' as numerical data
+                    return parsedField.key == 'group' ? CATEGORICALDATA : NUMERICALDATA
+                } else if (inputData == null) { 
+                    // If we did not get data, we need to request it from the module first
                     data = getModuleData(study, study.getSamples(), parsedField.source, parsedField.name);
                     return determineCategoryFromData(data)
                 } else {
@@ -1584,8 +1666,7 @@ class VisualizeController {
                 }
             }
         } catch (Exception e) {
-            log.error("VisualizationController: determineFieldType: " + e)
-            e.printStackTrace()
+            log.error("VisualizationController: determineFieldType: " + e.getMessage(), e)
             // If we cannot figure out what kind of a datatype a piece of data is, we treat it as categorical data
             return CATEGORICALDATA
         }
@@ -1619,10 +1700,17 @@ class VisualizeController {
                         fieldTypes[it.key] = determineFieldType(studyId, it.fieldId)
                     }
                 } else {
-                    // Data is in a module
-                    def moduleData = getModuleData(study, study.getSamples(), source, fields*.name);
+                    // Data is in a module. If the name '*' is given, don't take it into account 
+                    def fieldNames = fields*.name - '*'
+                    def moduleData = getModuleData(study, study.getSamples(), source, fieldNames);
+                    
                     fields.each {
-                        fieldTypes[it.key] = determineCategoryFromData(moduleData[it.name]) 
+                        // If all features from an assay are requested, treat is as numerical data
+                        // However, if the feature names are requested, it is categorical
+                        if( it.name == '*' )
+                            fieldTypes[it.key] = it.key == 'group' ? CATEGORICALDATA : NUMERICALDATA
+                        else
+                            fieldTypes[it.key] = determineCategoryFromData(moduleData[it.name]) 
                     }
                 }
             }

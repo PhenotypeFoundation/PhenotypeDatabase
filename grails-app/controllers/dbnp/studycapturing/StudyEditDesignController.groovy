@@ -659,7 +659,7 @@ class StudyEditDesignController {
 				study.addToSubjectGroups( subjectGroup );
 				subjectGroup.save( flush: true )
 				
-				handleSubjectsInSubjectGroup( params.list( "subjects[]" ), subjectGroup )
+				handleSubjectsInSubjectGroup( params.subjects?.split(","), subjectGroup )
 				result = [ status: "OK", id: subjectGroup.id, name: subjectGroup.name ]
 			} else {
 				response.status = 500

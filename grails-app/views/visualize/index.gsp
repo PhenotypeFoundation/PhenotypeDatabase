@@ -141,8 +141,8 @@
                         <td><input type="checkbox" name="showvalues" id="showvalues" CHECKED /></td>
                     </tr>
                     <tr>
-                        <td><label for="anglelabels">Angle labels on the x-axis.<br /><span class="settingInfo">(if this box is checked, labels are shown at a 45&deg; angle)</span></label></td>
-                        <td><input type="checkbox" name="anglelabels" id="anglelabels" CHECKED /></td>
+                        <td><label for="anglelabels">Angle labels on the x-axis.<br /><span class="settingInfo">(in degrees; enter 0 to have no angle at all)</span></label></td>
+                        <td><input type="number" min="-360" max="360" name="anglelabels" id="anglelabels" value="315" style="width: 50px;" /></td>
                     </tr>
                     <tr>
                         <td><label for="legendplacement">Place legend outside the graph.<br /><span class="settingInfo">(legend is only shown when the group-by option is used)</span></label></td>

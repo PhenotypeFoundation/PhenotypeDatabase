@@ -644,6 +644,14 @@ StudyEdit.design.events = {
 		    e.preventDefault(); //STOP default action
 		});
 
+		// Make sure to add the template and term editors
+		// Add add/modify option again for all selects
+		StudyEdit.addMore.initialize( '#eventGroupContentsDialog' );
+		
+		// Initialize datepickers
+		StudyEdit.form.attachDatePickers( '#eventGroupContentsDialog' );
+
+		// Initialize help icons
 		attachHelpTooltips();
 	}
 };

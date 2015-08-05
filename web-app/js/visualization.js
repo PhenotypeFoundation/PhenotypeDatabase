@@ -21,6 +21,7 @@ var Visualization = {
 
 	    // Do auto visualization when changing settings
 	    $( "#dialog_advanced_settings [type=checkbox]" ).on( "click", Visualization.visualization.auto );
+	    $( "#dialog_advanced_settings [type=number]" ).on( "change", Visualization.visualization.auto );
 	    
 	    $(".ui-autocomplete-input").click(function() {
 	        $( this ).blur();
@@ -509,7 +510,7 @@ var Visualization = {
                         }
                     },
                     axesDefaults: {
-                        pad: 1.4
+                        pad: 1.2
                     }
                 };
 			}
@@ -520,14 +521,24 @@ var Visualization = {
 				return Visualization.data._generic.convertData(returnData);
 			},
 			plotOptions: function(returnData, series, settings) {
-                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+        		// Compute barwidth ourselves, as jqPlot fails at that
+				var numSeries = series.length;
+				var numWithinSerie = Visualization.data.maxOfArray($.map( returnData.series, function(el) { return el.y.length; } ));
+        		var bWidth = 560 / ( numSeries * numWithinSerie ) * 0.6;
+        						
+                return $.extend( true, Visualization.data._generic.plotOptions(returnData, series, settings), {
                         // Tell the plot to stack the bars.
                         seriesDefaults:{
                             renderer:$.jqplot.BarRenderer,
                             rendererOptions: {
-                                barMargin: 30,
+                                barWidth: bWidth,
+                                barMargin: 5,
+                                barPadding: 3,
+
                                 highlightMouseDown: true,
-                                fillToZero: true
+                                fillToZero: true,
+
+                                shadowOffset: 0
                             },
                             pointLabels: {show: settings.showDataValues}
                         },
@@ -561,20 +572,29 @@ var Visualization = {
                 return dataPoint;
 			},
 			plotOptions: function( returnData, series, settings ) {
-                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
-                        // Tell the plot to stack the bars.
+        		// Compute barwidth ourselves, as jqPlot fails at that
+				var numSeries = series.length;
+				var numWithinSerie = Visualization.data.maxOfArray($.map( returnData.series, function(el) { return el.x.length; } ));
+        		var bWidth = 460 / ( numSeries * numWithinSerie ) * 0.6;
+        		
+                // Tell the plot to stack the bars.
+                return $.extend( true, Visualization.data._generic.plotOptions(returnData, series, settings), {
                         stackSeries: false,
                         seriesDefaults:{
                             renderer:$.jqplot.BarRenderer,
                             rendererOptions: {
-                                // Put a 30 pixel margin between bars.
-                                barMargin: 30,
                                 // Highlight bars when mouse button pressed.
                                 // Disables default highlighting on mouse over.
                                 highlightMouseDown: true,
-                                barDirection: 'horizontal',
                                 highlightMouseDown: true,
-                                fillToZero: true
+                                fillToZero: true,
+                                
+                                barDirection: 'horizontal',
+                                barWidth: bWidth,
+                                barMargin: 5,
+                                barPadding: 3,
+                                
+                                shadowOffset: 0
                             },
                             pointLabels: {show: settings.showDataValues}
                         },
@@ -602,7 +622,7 @@ var Visualization = {
 				return Visualization.data._generic.convertData(returnData);
 			},
 			plotOptions: function(returnData, series, settings) {
-				return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
+				return $.extend( true, Visualization.data._generic.plotOptions(returnData, series, settings), {
                     stackSeries: false,
                     seriesDefaults:{
                         renderer:$.jqplot.LineRenderer,
@@ -689,8 +709,12 @@ var Visualization = {
 		},
 		scatterplot: {
 			convertData: function(returnData) {
-				return Visualization.data._generic.convertData(returnData, null, this.serieOptions);
+				return Visualization.data._generic.convertData(returnData, this.convertElementIntoDataPoint, this.serieOptions);
 			},
+			
+			convertElementIntoDataPoint: function(element) {
+				return Visualization.data.transpose([element.x, element.y]);
+			},			
 			serieOptions: function(element) {
 				var options = Visualization.data._generic.serieOptions(element);
 				options.showLine = false;
@@ -699,36 +723,45 @@ var Visualization = {
 				return options;
 			},
 			
-			plotOptions: function(element, series, settings ) { 
-				// Use the same settings as for linecharts
-				return Visualization.data.linechart.plotOptions(element, series, settings);
+			plotOptions: function(returnData, series, settings ) { 
+				return $.extend( true, Visualization.data._generic.plotOptions(returnData, series, settings), {
+                    stackSeries: false,
+                    seriesDefaults:{
+                        renderer:$.jqplot.LineRenderer,
+                        pointLabels: {show: settings.showDataValues}
+                    },
+                    highlighter: {
+                        tooltipAxes: "y"
+                    },
+                    axes: {
+                        yaxis: {
+                            formatString:'%.2f'
+                        }
+                    },
+                });		
 			}
 		},
 		boxplot: {
 			convertData: function(returnData) {
-				var data = Visualization.data._generic.convertData(returnData, this.convertElementIntoDataPoint);
-				
-				return {
-					series: data.series,
-					dataPoints: [data.dataPoints]
-				};
+				return Visualization.data._generic.convertData(returnData, this.convertElementIntoDataPoint);
 			},
 			convertElementIntoDataPoint: function(element) {
 	            // The fifth element of the list should be repeated on the second position
-                var dataPoint = element.y;
-                return [dataPoint[0], dataPoint[4],dataPoint[1],dataPoint[2],dataPoint[3],dataPoint[4],dataPoint[5],dataPoint[6],dataPoint[7]];
+				var data = element.y;
+				for(i = 0; i < data.length; i++ ) {
+					var dataPoint = data[i];
+					data[i] = [dataPoint[0], dataPoint[4],dataPoint[1],dataPoint[2],dataPoint[3],dataPoint[4],dataPoint[5],dataPoint[6],dataPoint[7]]; 
+				}
+                return data;
 			},
 			
 			plotOptions: function(returnData, series, settings) {
-                return $.extend( Visualization.data._generic.plotOptions(returnData, series, settings), {
-                        series: [{
+                return $.extend( true, Visualization.data._generic.plotOptions(returnData, series, settings), {
+                        seriesDefaults: {
                             renderer: $.jqplot.BoxplotRenderer,
-                            rendererOptions: {
-
-                            }
-                        }],
+                        },
                         highlighter: {
-                            show: true,
+                            show: false,
                             sizeAdjust: 7.5,
                             showMarker: true,
                             tooltipAxes: 'y',
@@ -746,21 +779,33 @@ var Visualization = {
                         axes: {
                             xaxis: {
                                 renderer: $.jqplot.CategoryAxisRenderer,
+                                
                             },
-                            yaxis: {
-                                min: 0
-                            }
                         },
                         title: 'Please note: outliers are not shown'
                     });				
 			}
 		},		
+
+		/**
+		 * Transposes a matrix (2d array)
+		 */
+		transpose: function(a) {
+			return Object.keys(a[0]).map(
+	            function (c) { return a.map(function (r) { return r[c]; }); }
+            );
+        },
+        
+        /**
+         * Returns the maximum value of an array
+         */
+        maxOfArray: function(array) { return Math.max.apply(Math, array); }
 	},
 	
 	visualization: {
 		auto: function() {
 		    if($("#autovis").attr("checked")=="checked") {
-		        this.perform();
+		        Visualization.visualization.perform();
 		    }			
 		},
 		
@@ -821,7 +866,7 @@ var Visualization = {
 	                var blnShowDataValues = $("#showvalues").attr("checked")=="checked";
 	                var blnShowLegend = returnData.series.length > 1;
 	                var strLegendPlacement = $("#legendplacement").attr("checked")=="checked" && blnShowLegend ? "outsideGrid" : "insideGrid";
-	                var xangle = $("#anglelabels").attr("checked")=="checked" ? -45 : 0;
+	                var xangle = ( 360 + parseInt( $("#anglelabels").val() ) ) % 360;
 
 	                var plotOptions = Visualization.data[returnData.type].plotOptions(returnData, series, {
 	                	 showDataValues: blnShowDataValues, 

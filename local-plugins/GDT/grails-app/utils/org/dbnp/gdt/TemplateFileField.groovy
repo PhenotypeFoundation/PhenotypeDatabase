@@ -96,7 +96,7 @@ class TemplateFileField extends TemplateFieldTypeNew {
                 value = "";
             } else if (value.size() >= 9 && value[0..8] == "existing*") {
                 // Keep current file
-                value = currentFile;
+                value = value.substring(9);
             } else {
                 if (fileService.fileExists(value)) {
                     // When a FILE field is filled, and a new file is set

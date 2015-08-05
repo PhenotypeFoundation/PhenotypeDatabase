@@ -370,7 +370,7 @@ OntologyChooser.prototype = {
                         inputElement.css({ 'background': 'none' });
 
                         // no results?
-                        if (!data) {
+                        if (terms.length == 0) {
                             // hide showHide element?
                             if (that.options.showHide) that.options.showHide.hide();
 
@@ -406,8 +406,10 @@ OntologyChooser.prototype = {
                     var element = inputElement;
 
                     // set fields
-                    inputElement.val('');
                     that.setInputValue(element, 'ontology_id', '');
+    				if (that.options.showHide) {
+    					that.options.showHide.hide();
+    				}                    
 
                     // add error class
                     element.addClass('error');

@@ -356,6 +356,7 @@ StudyView.datatables = {
 				// Connect the click event of the icon to the (hidden) button
 				$('#upload_icon_' + fieldId).on('click', function() {
 					$('#upload_button_' + fieldId).click();
+					return false;
 				})
 
 				return field;

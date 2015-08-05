@@ -21,11 +21,11 @@
     <span class="message info">
         <span class="title">Overview</span>
         Below you will find a summary of the current study.
-        Click <g:link controller="study" action="list">here</g:link> to back to the studies overview page.
+        Click <g:link controller="study" action="list">here</g:link> to go back to the "All studies" overview page.
     </span>
 
     <div>
-        <h3><a href="#">General overview</a></h3>
+        <h3>General overview</h3>
         <p>
             You have created a study containing ${study.subjectCount} subjects grouped into ${(study.subjectGroups) ? study.subjectGroups.size() : 0} groups.<br />
             
