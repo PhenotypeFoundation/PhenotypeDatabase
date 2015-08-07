@@ -9,6 +9,13 @@
   </head>
   <body>
     <h1>Select templates to import</h1>
+    
+	<span class="message info"> 
+		Tick the checkboxes for all templates you want to import. <br />
+		<strong>N.B.</strong>Please check the alternative templates before importing a new one. 
+	</span>
+    
+    
 	<g:if test="${templates?.size() > 0}">
 	  <form method="post" action="<g:createLink action="saveImportedTemplates" />">
 		<table id="importTemplates">
