@@ -2,8 +2,7 @@ package org.dbxp.sam
 
 import grails.converters.JSON
 import dbnp.studycapturing.*
-import org.dbnp.gdt.RelTime
-import org.dbnp.gdt.TemplateEntity
+import org.dbnp.gdt.*
 import org.dbxp.sam.query.*
 import dbnp.query.SearchMode
 import dbnp.query.Criterion
@@ -194,7 +193,15 @@ class RestController {
         }
 
         // Return only domain fields for the features to improve performance
-        render features.collect { [ name: it.name, unit: it.unit ] } as JSON
+        render features.collect { feature -> 
+            feature.giveFields().collectEntries { field ->
+                def value = feature.getFieldValue(field.name);
+                if( value instanceof TemplateFieldListItem || value instanceof Term || value instanceof Template || value instanceof AssayModule )
+                    value = value.toString();
+                    
+                [ (field.name): value ]
+            }
+        } as JSON
     }
     
     /**
