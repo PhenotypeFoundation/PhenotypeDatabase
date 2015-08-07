@@ -191,7 +191,7 @@ OntologyChooser.prototype = {
 
 					if( that.cache[ q ].length > 0 ) {
 						// yeah, lucky us! ;-P
-						response();
+						response(that.cache[q]);
 					} else {
 						// hide showHide element?
 						if (that.options.showHide) 
