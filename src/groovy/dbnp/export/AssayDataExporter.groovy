@@ -44,10 +44,10 @@ public class AssayDataExporter implements Exporter {
     /**
      * Exports multiple entities to the outputstream
      */
-    public void exportMultiple( def assays, OutputStream out ) { 
+    public void exportMultiple( def assays, OutputStream out ) {
         def rowData = collectAssayData(assays)
         def outputDelimiter = "\t"
-        
+
         def assayService = Holders.grailsApplication.getMainContext().getBean("assayService")
         assayService.exportRowWiseDataToCSVFile(rowData, out, outputDelimiter, java.util.Locale.US)
     }
@@ -82,10 +82,10 @@ public class AssayDataExporter implements Exporter {
         def ctx = Holders.grailsApplication.getMainContext()
         def assayService = ctx.getBean("assayService")
         def apiService = ctx.getBean("apiService")
-        
+
         // collect the assay data according to user selection
         def data = []
-        
+
         // Determine the fields to export
         def fieldMaps = assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) }
         def fieldMap = assayService.mergeFieldMaps( fieldMaps )
@@ -96,7 +96,7 @@ public class AssayDataExporter implements Exporter {
 
         // First retrieve the subject/sample/event/assay data from GSCF, as it is the same for each list
         data = assayService.collectAssayData(assays[0], fieldMap, [], samples)
-        
+
         assays.each{ assay ->
             def moduleMeasurementData
 

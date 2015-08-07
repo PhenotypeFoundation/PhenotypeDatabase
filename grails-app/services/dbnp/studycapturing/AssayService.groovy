@@ -61,31 +61,31 @@ class AssayService {
         if (!samples)
             samples = assay.samples
 
-        // Retrieve parent subjects and events.  
+        // Retrieve parent subjects and events.
         def subjectIds = samples*.parentSubjectId
         def parentSubjects = Subject.getAll(subjectIds)
-        
+
         def samplingEventInstanceIds = samples*.parentEventId.findAll()
         def parentEvents = []
         if( samplingEventInstanceIds ) {
             def samplingEventIds = SamplingEventInEventGroup.executeQuery( "SELECT event.id FROM SamplingEventInEventGroup WHERE id IN (:ids)", [ ids: samplingEventInstanceIds ] )
             parentEvents = SamplingEvent.getAll(samplingEventIds)
         }
-        
+
         [       'Study Data': getAllTemplateFields(assay.parent),
-                'Subject Data': getAllTemplateFields(parentSubjects),
-                'Sampling Event Data': getAllTemplateFields(parentEvents),
-                'Sample Data': getAllTemplateFields(samples),
-                'Event Group': [
-                        [name: 'name', comment: 'Name of Event Group', displayName: 'name']
-                ],
-                'Module Measurement Data': moduleMeasurements,
-                'Module Error': moduleError
+            'Subject Data': getAllTemplateFields(parentSubjects),
+            'Sampling Event Data': getAllTemplateFields(parentEvents),
+            'Sample Data': getAllTemplateFields(samples),
+            'Event Group': [
+                [name: 'name', comment: 'Name of Event Group', displayName: 'name']
+            ],
+            'Module Measurement Data': moduleMeasurements,
+            'Module Error': moduleError
         ]
 
     }
-    
-    
+
+
     /**
      * Merges multiple fieldmaps as returned from assayService.collectAssayTemplateFields(). For each category,
      * a list is returned without duplicates
@@ -93,46 +93,46 @@ class AssayService {
      * @return                              A single fieldmap
      */
     def mergeFieldMaps( fieldMaps ) {
-            if( !fieldMaps || !( fieldMaps instanceof Collection ) )
-                    throw new Exception( "No or invalid fieldmaps given" )
-                    
-            if( fieldMaps.size() == 1 )
-                    return fieldMaps[ 0 ]
-                    
-            // Loop over each fieldmap and combine the fields from different categories
-            def mergedMap = fieldMaps[ 0 ]
-            fieldMaps[1..-1].each { fieldMap ->
-                    fieldMap.each { key, value ->
-                            if( value instanceof Collection ) {
-                                    if( mergedMap.containsKey( key ) ) {
-                                            value.each {
-                                                    if( !mergedMap[ key ].contains( it ) )
-                                                            mergedMap[ key ] << it
-                                            }
-                                    } else {
-                                            mergedMap[ key ] = value
-                                    }
-                            } else {
-                                    if( mergedMap.containsKey( key ) ) {
-                                            if( !mergedMap[ key ].contains( value ) )
-                                                    mergedMap[ key ] << value
-                                    } else {
-                                            mergedMap[ key ] = [ value ]
-                                    }
-                            }
+        if( !fieldMaps || !( fieldMaps instanceof Collection ) )
+            throw new Exception( "No or invalid fieldmaps given" )
+
+        if( fieldMaps.size() == 1 )
+            return fieldMaps[ 0 ]
+
+        // Loop over each fieldmap and combine the fields from different categories
+        def mergedMap = fieldMaps[ 0 ]
+        fieldMaps[1..-1].each { fieldMap ->
+            fieldMap.each { key, value ->
+                if( value instanceof Collection ) {
+                    if( mergedMap.containsKey( key ) ) {
+                        value.each {
+                            if( !mergedMap[ key ].contains( it ) )
+                                mergedMap[ key ] << it
+                        }
+                    } else {
+                        mergedMap[ key ] = value
                     }
+                } else {
+                    if( mergedMap.containsKey( key ) ) {
+                        if( !mergedMap[ key ].contains( value ) )
+                            mergedMap[ key ] << value
+                    } else {
+                        mergedMap[ key ] = [ value ]
+                    }
+                }
             }
-            
-            mergedMap
+        }
+
+        mergedMap
     }
-    
+
     /**
      * Returns a list of template fields that actually contain data.
      */
     def getUsedTemplateFields = { templateEntities ->
         if (templateEntities instanceof ArrayList && templateEntities.size() > 0 && templateEntities[0] instanceof SamplingEventInEventGroup) {
             return [[name: 'startTime', comment: '', displayName: 'startTime'],
-                    [name: 'duration', comment: '', displayName: 'duration']]
+                [name: 'duration', comment: '', displayName: 'duration']]
         }
 
         // gather all unique and non null template fields that haves values
@@ -142,28 +142,28 @@ class AssayService {
 
         }.collect { [name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')] }
     }
-    
+
     /**
      * Returns a list of template fields that have been specified for the given set of entities
      */
     def getAllTemplateFields = { templateEntities ->
         templateEntities = templateEntities.findAll()
-        
+
         if( !templateEntities )
             return []
-            
+
         if (templateEntities instanceof ArrayList && templateEntities.size() > 0 && templateEntities[0] instanceof SamplingEventInEventGroup) {
             return [[name: 'startTime', comment: '', displayName: 'startTime'],
-                    [name: 'duration', comment: '', displayName: 'duration']]
+                [name: 'duration', comment: '', displayName: 'duration']]
         }
 
         // Determine the type of data
         def domainFields = templateEntities[0].giveDomainFields()
-        
+
         // Determine the template for all templateEntities
         def templates = templateEntities*.template.unique()
         def templateFields = templates*.fields.flatten().findAll().unique()
-        
+
         // Return the proper list
         ( domainFields + templateFields ).collect { [name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')] }
     }
@@ -210,7 +210,7 @@ class AssayService {
             } catch (e) {
                 moduleMeasurementData = ['error': [
                         'Module error, module not available or unknown assay']
-                        * samples.size()]
+                    * samples.size()]
                 e.printStackTrace()
                 moduleError = e.message
             }
@@ -221,7 +221,7 @@ class AssayService {
             'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
             'Sample Data': getFieldValues(samples, fieldMap['Sample Data']),
             'Event Group': eventFieldMap,
-					('Module Measurement Data: ' + assay.name ): 		moduleMeasurementData,
+            ('Module Measurement Data: ' + assay.name ): 		moduleMeasurementData,
             'Module Error': moduleError
         ]
     }
@@ -232,7 +232,7 @@ class AssayService {
         // if no property name is given, simply collect the fields and
         // values of the template entities themselves
         if (propertyName == '') {
-            
+
             returnValue = collectFieldValuesForTemplateEntities(headerFields, templateEntities)
 
         } else {
@@ -296,35 +296,35 @@ class AssayService {
     def collectStaticFieldValuesForTemplateEntities = { headerFields, templateEntities ->
         headerFields.inject([:]) { map, headerField ->
             map + [(headerField.displayName): templateEntities.collectEntries { entity ->
-                def returnVal = ''
-                switch (headerField.displayName) {
-                    case 'startTime':
-                        returnVal = entity.startTime
-                        break
-                    case 'duration':
-                        returnVal = entity.duration
-                        break
-                    default:
-                        break
-                }
-                [(entity.id): returnVal]
-            }]
+                    def returnVal = ''
+                    switch (headerField.displayName) {
+                        case 'startTime':
+                            returnVal = entity.startTime
+                            break
+                        case 'duration':
+                            returnVal = entity.duration
+                            break
+                        default:
+                            break
+                    }
+                    [(entity.id): returnVal]
+                }]
         }
     }
 
     def collectFieldValuesForTemplateEntities = { headerFields, templateEntities ->
         def firstNonEmptyTemplateEntity = templateEntities.findResult { it }
-        
+
         if( !firstNonEmptyTemplateEntity ) {
             return templateEntities.collect { "" }
         }
-        
+
         // return a hash map with for each field name all values from the
         // template entity list
         headerFields.collectEntries { headerField ->
             // Retrieve data for all templateEntities for the given field
             def data
-             
+
             // The data for domainfields has been retrieved already
             if( firstNonEmptyTemplateEntity.isDomainField(headerField.name) ) {
                 def field = firstNonEmptyTemplateEntity.getField(headerField.name)
@@ -332,18 +332,18 @@ class AssayService {
                     def val = ''
                     if( entity ) {
                         val = entity.getFieldValue(headerField.name)
-                        
+
                         // Convert RelTime fields to human readable strings
                         if (field.type == TemplateFieldType.RELTIME)
                             val = new RelTime(val as long)
-                        
+
                     }
                     return val
                 }
             } else {
                 // Filtering on class doesn't seem to work properly
-                def field = TemplateField.findAllByName(headerField.name).find { it.entity == firstNonEmptyTemplateEntity.class } 
-                
+                def field = TemplateField.findAllByName(headerField.name).find { it.entity == firstNonEmptyTemplateEntity.class }
+
                 if( !field ) {
                     data = templateEntities.collect { "" }
                 } else {
@@ -353,21 +353,21 @@ class AssayService {
                         if (field.type == TemplateFieldType.RELTIME && val != null)
                             val = new RelTime(val as long)
                         else
-                            val 
+                            val
                     }
                 }
             }
-            
+
             // Return data for the big data map
-            [(headerField.displayName): data.collect { 
-                if( it == null )
-                    return ""
-                else if( it instanceof Number )
-                    return it
-                else 
-                    return it.toString()
-            }]
-         }
+            [(headerField.displayName): data.collect {
+                    if( it == null )
+                        return ""
+                    else if( it instanceof Number )
+                        return it
+                    else
+                        return it.toString()
+                }]
+        }
     }
 
     /**
@@ -390,7 +390,7 @@ class AssayService {
         }
 
         return [
-                'Study Data': studyData
+            'Study Data': studyData
         ] + inputData
     }
 
@@ -414,7 +414,7 @@ class AssayService {
         }
 
         return [
-                'Assay Data': assayData
+            'Assay Data': assayData
         ] + inputData
     }
 
@@ -436,7 +436,7 @@ class AssayService {
         try {
             jsonArray = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST", remoteUser)
         } catch (e) {
-			log.error "Exception while trying to get the measurement tokens form the $assay.module.name", e
+            log.error "Exception while trying to get the measurement tokens form the $assay.module.name", e
             throw new Exception("An error occured while trying to get the measurement tokens from the $assay.module.name. \
              This means the module containing the measurement data is not available right now. Please try again \
              later or notify the system administrator if the problem persists. URL: $path?$query.", e)
@@ -1046,9 +1046,9 @@ class AssayService {
                     def value = rowData[ri][ci]
 
                     value = (value instanceof Number | value?.class in [
-                            boolean.class,
-                            String.class,
-                            Date.class
+                        boolean.class,
+                        String.class,
+                        Date.class
                     ]) ? value : value?.toString()
 
                     // write the value (or an empty String if null) to the cell
