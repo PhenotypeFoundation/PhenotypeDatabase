@@ -56,7 +56,7 @@ public class AssayDataExporter implements Exporter {
      * Returns the content type for the export
      */
     public String getContentType( def entity ) {
-        return "application/vnd.ms-excel"
+        return "text/tab-separated-values"
     }
 
     /**
@@ -64,9 +64,9 @@ public class AssayDataExporter implements Exporter {
      */
     public String getFilenameFor( def entity ) {
         if( entity instanceof Collection ) {
-            return "multiple_assays.xls"
+            return "multiple_assays.tsv"
         } else {
-            return entity.name + ".xls"
+            return entity.name + ".tsv"
         }
     }
 
