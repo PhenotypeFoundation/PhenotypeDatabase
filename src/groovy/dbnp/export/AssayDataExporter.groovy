@@ -26,6 +26,13 @@ public class AssayDataExporter implements Exporter {
     SecUser user
 
     /**
+     * Map with export parameters. Can be overridden using the setParameters call
+     */
+    Map exportParameters = [
+        'decimal': '.'
+    ]
+    
+    /**
      * Returns an identifier that describes this export
      */
     public String getIdentifier() { "AssayData" }
@@ -49,7 +56,16 @@ public class AssayDataExporter implements Exporter {
         def outputDelimiter = "\t"
 
         def assayService = Holders.grailsApplication.getMainContext().getBean("assayService")
-        assayService.exportRowWiseDataToCSVFile(rowData, out, outputDelimiter, java.util.Locale.US)
+        
+        // Use the parameters
+        def exportLocale
+        switch( exportParameters.decimal ) {
+            case ',': exportLocale = new java.util.Locale( "nl" ); break;
+            case '.':
+            default: exportLocale = java.util.Locale.US; break;
+        }
+        
+        assayService.exportRowWiseDataToCSVFile(rowData, out, outputDelimiter, exportLocale)
     }
 
     /**
@@ -123,6 +139,18 @@ public class AssayDataExporter implements Exporter {
         
         // Add feature data to the structure
         assayService.addFeatureMetadata( rowStructuredData, features )
+    }
+    
+    /**
+     * Use the given parameters for exporting
+     * 
+     * Please note: only the parameters for which a default is already set in this file are used
+     */
+    public void setParameters(def parameters) {
+        exportParameters.each { k, v ->
+            if( parameters.containsKey(k) )
+                exportParameters[k] = parameters[k]
+        }
     }
 
 }

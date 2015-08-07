@@ -94,6 +94,10 @@ class ExporterController {
             redirect(action: 'assays', params: [errorText: "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier ] );
         }
         
+        // Use the given parameters
+        if(params.exportParameters)
+            exporter.setParameters(params.exportParameters)
+        
         // Retrieve a list of studies
         ids.each {
             if( it.toString().isLong() ) {
