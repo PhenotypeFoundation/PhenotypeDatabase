@@ -80,6 +80,7 @@ class TemplateController {
 
         // Check whether the templates already exist
         def templates = []
+        def templateXml = [:]
         def id = 0;
         xml.template.each { template ->
             try {
@@ -107,13 +108,14 @@ class TemplateController {
                 templateData.existingNames = existingTemplates*.name
 
                 templates << templateData
+                templateXml[ templateData.key ] = template
             } catch (Exception e) {
                 templates << [ template: null, error: "Template " + ( template.name ?: " without name" ) + " could not be parsed: " + e ];
             }
         }
 
         // Save templates in session in order to have data available in the next (import) step
-        session.templates = templates
+        session.templateXml = templateXml
 
         [templates: templates]
     }
@@ -122,18 +124,19 @@ class TemplateController {
      * Saves the imported templates that the user has chosen
      */
     def saveImportedTemplates = {
-        def ids = params.selectedTemplate
-        def templates = session.templates
+        def ids = params.list('selectedTemplate')
+        def templatesXml = session.templateXml
         def messages = []
 
         // Save all selected templates
         ids.each { id ->
-            def templateData = templates.find { template -> template.key == id.toLong() }
-            def importTemplate = templateData?.template
-
-            if( !importTemplate ) {
+            def templateXml = templatesXml[id.toInteger()]
+            
+            if( !templateXml ) {
                 messages << "Template with id " + id + " could not be found."
             } else {
+                def importTemplate = Template.parse( templateXml, authenticationService.getLoggedInUser() )
+                
                 def originalName = importTemplate.name
                 def newName = null
 
