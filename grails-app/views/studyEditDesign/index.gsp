@@ -129,8 +129,6 @@
 		<g:form action="samplingEventInEventGroup" name="samplingEventInEventGroup"></g:form>
 		<g:form action="subjectEventGroup" name="subjectEventGroup"></g:form>
 
-		<g:set var="timelineMax" value="${study.subjectEventGroups.endTime.max()}"/>
-		
 		<r:script>	
 			$(function() {
 				var data = [];
@@ -138,7 +136,7 @@
 				     data.push({
 				       'start': new Date(${group.startDate.time}),
 				       'end': new Date(${group.endDate.time}),  // end is optional
-				       'type': "${group.eventGroup?.duration?.value < (timelineMax/50) ? 'box' : 'range' }",	// ${group.eventGroup?.duration}
+				       'type': "${group.eventGroup?.duration?.value == 0 ? 'box' : 'range' }",
 				       'content': '${group.eventGroup?.name.encodeAsJavaScript()}',
 				       'group': '${group.subjectGroup?.name.encodeAsJavaScript()}',
 				       'className': 'eventgroup eventgroup-id-${group.id} <g:if test="${group.samples}">hasSamples</g:if>',
