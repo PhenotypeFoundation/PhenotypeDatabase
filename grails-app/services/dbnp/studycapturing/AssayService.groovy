@@ -50,10 +50,12 @@ class AssayService {
      */
     def collectAssayTemplateFields(assay, samples, SecUser remoteUser = null) throws Exception {
 
-        def moduleError = '', moduleMeasurements = []
+        def moduleError = '', moduleMeasurements = [], features = []
 
         try {
-            moduleMeasurements = requestModuleMeasurementNames(assay, remoteUser)
+            def featureData = requestModuleMeasurementMetadata(assay, remoteUser)
+            moduleMeasurements = featureData.collect { it.name }
+            features = featureData
         } catch (e) {
             moduleError = e.message
         }
@@ -72,13 +74,14 @@ class AssayService {
             parentEvents = SamplingEvent.getAll(samplingEventIds)
         }
 
-        [       'Study Data': getAllTemplateFields(assay.parent),
+        [   'Study Data': getAllTemplateFields(assay.parent),
             'Subject Data': getAllTemplateFields(parentSubjects),
             'Sampling Event Data': getAllTemplateFields(parentEvents),
             'Sample Data': getAllTemplateFields(samples),
             'Event Group': [
                 [name: 'name', comment: 'Name of Event Group', displayName: 'name']
             ],
+            'Features': features,
             'Module Measurement Data': moduleMeasurements,
             'Module Error': moduleError
         ]
@@ -221,6 +224,7 @@ class AssayService {
             'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
             'Sample Data': getFieldValues(samples, fieldMap['Sample Data']),
             'Event Group': eventFieldMap,
+            'Features': fieldMap['Features'],
             ('Module Measurement Data: ' + assay.name ): 		moduleMeasurementData,
             'Module Error': moduleError
         ]
@@ -451,7 +455,35 @@ class AssayService {
 
         return result
     }
+    
+    /**
+     * Retrieves measurement metadata from the module through a rest call
+     *
+     * @param consumer the url of the module
+     * @param path path of the rest call to the module
+     * @return
+     */
+    def requestModuleMeasurementMetadata(assay, SecUser remoteUser = null) {
 
+        def moduleUrl = assay.module.baseUrl
+
+        def path = moduleUrl + "/rest/getMeasurementMetaData"
+        def query = "assayToken=${assay.UUID}"
+        def jsonArray
+
+        try {
+            jsonArray = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST", remoteUser)
+        } catch (e) {
+            log.error "Exception while trying to get the measurement tokens form the $assay.module.name", e
+            throw new Exception("An error occured while trying to get the measurement tokens from the $assay.module.name. \
+             This means the module containing the measurement data is not available right now. Please try again \
+             later or notify the system administrator if the problem persists. URL: $path?$query.", e)
+        }
+
+        return jsonArray
+    }
+
+    
     /**
      * Retrieves module measurement data through a rest call to the module
      *
@@ -889,17 +921,16 @@ class AssayService {
         if (columnData.every { it.value.every { it.value instanceof ArrayList } }) {
 
             def headers = [[], []]
-
-            columnData.each { category ->
-
-                if (category.value.size()) {
+            
+            columnData.each { category, categoryValues ->
+                if (categoryValues) {
 
                     // put category keys into first row separated by null values
                     // wherever there are > 1 columns per category
-                    headers[0] += [category.key] + [null] * (category.value.size() - 1)
+                    headers[0] += [category] + [null] * (categoryValues.size() - 1)
 
                     // put non-category column headers into 2nd row
-                    headers[1] += category.value.collect { it.key }
+                    headers[1] += categoryValues.collect { it.key }
 
                 }
 
@@ -912,8 +943,77 @@ class AssayService {
 
             // transpose d into row wise data and combine with header rows
             headers + d.transpose()
-        } else []
+        } else {
+            log.error "Invalid structure of exported data"
+            return []
+        }
 
+    }
+    
+    /**
+     * Adds feature metadata to the existing row structure.
+     * @param Map Existing data structured in rows. The method convertColumnToRowStructure can be used to convert data in this way
+     * @param List Metadata about the features used. Each entry is a map with all feature metadata
+     * 
+     * The input can be as follows
+     *  
+     * | Category1  |           | Module data |           |           |
+     * | Column1    | Column2   | FeatureA    | FeatureB  | FeatureC  |
+     * | 1          | 4         | 7           | 10        | 13        |
+     * | 2          | 5         | 8           | 11        | 14        |
+     * | 3          | 6         | 9           | 12        | 15        |
+     * 
+     * [ [ name: FeatureA, unit: ml, language: NL ],
+     *   [ name: FeatureB, unit: ml, author: Noone ] ] 
+     *
+     * The output will be
+     * 
+     * | Category1  |           |          | Module data |           |           |
+     * |            |           | unit     | ml          |           | ml        |
+     * |            |           | language | NL          |           |           |
+     * |            |           | author   |             |           | Noone     |
+     * | Column1    | Column2   |          | FeatureA    | FeatureB  | FeatureC  |
+     * | 1          | 4         |          | 7           | 10        | 13        |
+     * | 2          | 5         |          | 8           | 11        | 14        |
+     * | 3          | 6         |          | 9           | 12        | 15        |
+     * 
+     */
+    def addFeatureMetadata(existingData, featureMetadata) {
+        if( !featureMetadata || !existingData )
+            return existingData
+            
+        // Determine the set of distinct feature properties to add
+        // Name is not needed, as it is already added
+        def featureMap = featureMetadata.collectEntries { [ (it.name): it ] }
+        def featureProperties = featureMap.values()*.keySet().flatten().unique() - 'name'
+        
+        if( !featureProperties )
+            return existingData
+            
+        // Determine the first column where the module measurements start
+        def firstModuleColumn = existingData[0].findIndexOf { it && it.startsWith( "Module" ) }
+        if( firstModuleColumn == -1 )
+            return existingData
+            
+        // Determine the ordered list of feature names
+        def featureNames = existingData[1][firstModuleColumn..-1]
+         
+        // Inject a new column before the module measurements start
+        existingData.each { it.add( firstModuleColumn, "" ) }
+        
+        // Create new feature property rows
+        def featurePropertyRows = []
+        featureProperties.each { propertyName ->
+            // A row consists of some empty columns, the property name and the property values for each feature
+            def row = [""] * firstModuleColumn
+            row << propertyName
+            row += featureNames.collect { featureName -> featureMap[featureName][propertyName] ?: "" }
+            
+            featurePropertyRows << row
+        } 
+        
+        // Insert the newly created rows between the first and the second row
+        return [existingData[0]] + featurePropertyRows + existingData[1..-1]
     }
 
     /**
@@ -990,8 +1090,8 @@ class AssayService {
                     addQuotes = true
                     s = s.replaceAll('"', '""')
                 } else {
-                    // enable surround with quotes in case of comma's
-                    if (s.contains(',') || s.contains('\n')) addQuotes = true
+                    // enable surround with quotes in case of comma's, newlines or semicolons
+                    if (s.contains(',') || s.contains('\n') || s.contains(';')) addQuotes = true
                 }
 
                 addQuotes ? "\"$s\"" : s

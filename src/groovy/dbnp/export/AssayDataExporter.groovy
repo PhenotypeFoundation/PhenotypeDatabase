@@ -90,6 +90,9 @@ public class AssayDataExporter implements Exporter {
         def fieldMaps = assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) }
         def fieldMap = assayService.mergeFieldMaps( fieldMaps )
 
+        // Extract the features, as they are not needed in the rest of the calculations
+        def features = fieldMap.remove( 'Features' )
+        
         // Get the samples and sort them; this will be the sort order to use for
         // both retrieving the assay data and the measurements
         def samples = assays[0].samples.toList().sort({it.name})
@@ -114,8 +117,12 @@ public class AssayDataExporter implements Exporter {
                 e.printStackTrace()
             }
         }
-
-        assayService.convertColumnToRowStructure(data)
+        
+        // Convert the data into a proper structure
+        def rowStructuredData = assayService.convertColumnToRowStructure(data)
+        
+        // Add feature data to the structure
+        assayService.addFeatureMetadata( rowStructuredData, features )
     }
 
 }

@@ -192,7 +192,7 @@ class RestController {
             features = Feature.executeQuery( "SELECT DISTINCT f FROM Feature f, Measurement m, SAMSample s WHERE m.sample = s AND m.feature = f AND s.parentAssay = :assay", [ "assay": assay ] )
         }
 
-        // Return only domain fields for the features to improve performance
+        // Return all fields, including template fields
         render features.collect { feature -> 
             feature.giveFields().collectEntries { field ->
                 def value = feature.getFieldValue(field.name);
