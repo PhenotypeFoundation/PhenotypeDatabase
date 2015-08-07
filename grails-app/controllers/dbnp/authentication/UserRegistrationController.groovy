@@ -226,6 +226,7 @@ class UserRegistrationController {
     def updateProfile(ProfileCommand command) {
         def user = authenticationService.getLoggedInUser();
         command.username = user.username
+        command.email = user.email
         command.oldPass = user.password
         command.validate()
 
