@@ -11,8 +11,8 @@
     <h1>Select templates to import</h1>
     
 	<span class="message info"> 
-		Tick the checkboxes for all templates you want to import. <br />
-		<strong>N.B.</strong>Please check the alternative templates before importing a new one. 
+		For unticked templates similar templates already exist in the database. Please check whether these alternatives would suit your study. 
+		If you still want to import your template, tick the box for that template.	
 	</span>
     
     
