@@ -245,7 +245,7 @@ class StudyEditController {
                     if( numDeleted == numIds )
                         flash.message = "All " + numDeleted + " selected assay(s) were deleted"
                     else
-                        flash.error = "" + numDeleted + " of the " + numIds + " selected assay(s) were deleted. Most probably the other assays contain measurements in one of the modules and cannot be deleted."
+                        flash.error = "" + numDeleted + " of the " + numIds + " selected assay(s) were deleted. The assays that could not be deleted probably contain measurements in one of the modules and can't be deleted for that reason."
                 } else {
                     flash.error= "No assays were selected"
                 }
