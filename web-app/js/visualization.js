@@ -14,7 +14,7 @@ var Visualization = {
 	    $( "input[name=types]" ).on( "click", Visualization.handlers.type );
 	    
 	    // Enable visualize and dialog buttons
-	    $( "#button_visualize" ).on( "click", function() { Visualization.visualize.perform(); return false; } );
+	    $( "#button_visualize" ).on( "click", function() { Visualization.visualization.perform(); return false; } );
 	    
 	    $( "#button_advanced_settings" ).on( "click", function() { Visualization.dialogs.openAdvancedSettings(); return false; } );
 	    $( "#button_messages" ).on( "click", function() { Visualization.dialogs.openMessages(); return false; } );
