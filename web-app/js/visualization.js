@@ -525,7 +525,8 @@ var Visualization = {
                             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                             tickRenderer: $.jqplot.CanvasAxisTickRenderer,
                             tickOptions: {
-                                angle: settings.xangle
+                                angle: settings.xangle,
+                                labelPosition: 'middle'
                             }
                         },
                         yaxis: {
