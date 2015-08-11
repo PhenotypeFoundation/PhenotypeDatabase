@@ -497,7 +497,7 @@ class Search {
             }
 
             // No results are found.
-            _results = [];
+            _results = [:];
             return false
         }
 
