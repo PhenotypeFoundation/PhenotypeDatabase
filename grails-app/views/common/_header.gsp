@@ -115,7 +115,6 @@
                                 <g:if env="development">
                                     <li><g:link controller="studyCompare" action="index">Compare</g:link></li>
                                 </g:if>
-                                <li><g:link controller="cookdata" action="index">Prepare Data</g:link></li>
                             </ul>
                         </div>
                     </li>

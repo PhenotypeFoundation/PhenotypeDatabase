@@ -108,13 +108,6 @@ modules = {
         resource url: [dir: 'css', file: 'advancedQuery.css']
     }
     
-    // Cookdata functionality
-    cookdata {
-        dependsOn 'jquery'
-        resource url:[ dir:'css', file: 'cookdata.css']
-        resource url:[ dir:'js', file: 'cookdata_dataset_selection.js']
-    }
-    
     // Template editor functionality
     templateEditor {
         dependsOn 'jquery'
