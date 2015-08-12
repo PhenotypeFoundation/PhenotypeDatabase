@@ -164,9 +164,6 @@
                         <g:if test="${search_term}"><g:set var="preterm" value="${search_term}"/></g:if>
                         <g:textField name="search_term" id="search_term" placeholder="Search term" value="${preterm}"/>
                         <img name="search_spinner" id="search_spinner" class="search_spinner" src="${resource(dir: 'images', file: 'spinner.gif')}" alt="" />
-                        %{--<input class="pie" type="submit" value="Search" title="Search"  name="searchSubmit" id="searchSubmit" disabled="disabled"/>--}%
-                        %{--Actual submit button is not needed, will use as label--}%
-                        <input name="search_button" id="search_button" class="pie" type="button" value="Search" disabled="disabled"/>
                     </g:form>
                 </div>
             </div>
