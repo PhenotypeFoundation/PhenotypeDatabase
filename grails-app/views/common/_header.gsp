@@ -1,4 +1,7 @@
 <%@ page import="org.dbnp.gdt.AssayModule" %>
+
+<r:require module="autocomplete" />
+
 <div id="wrapper" xmlns="http://www.w3.org/1999/html">
     <div id="header">
         <div class="container">
@@ -218,3 +221,63 @@
         </div>
     </div>
 </div>
+
+<r:script>
+$(document).ready(function() {
+    var quickSearch = $("#search_term");
+    var search_spinner = $("#search_spinner");
+    var search_button =  $("#search_button");
+    quickSearch.autocomplete({
+        minLength: 2,
+        delay: 300,
+        search: function(event, ui) {
+            search_spinner.css ({ 'opacity': 100 });
+            search_button.css ({ 'color': '#2087a3' });
+        },
+        source: function(request, response) {
+            search_spinner.css ({ 'opacity': 0 });
+            search_button.css ({ 'color': '#fff' });
+
+            $.ajax({
+                //url: "http://ws.geonames.org/searchJSON",
+                url: "${createLink(action: 'ajaxQuickSearch', controller: 'home')}",
+                dataType: "jsonp",
+                data: {
+                    featureClass: "P",
+                    style: "full",
+                    maxRows: 12,
+                    name_startsWith: request.term
+                },
+                success: function(data) {
+                    response($.map(data.data, function(item) {
+                        return {
+                            label:
+                                '<span class="about">' + item.category +
+                                '</span> <span class="from">' + item.name + '</span>',
+                            value: item.link
+                        }
+                    }));
+                }
+            });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+            // redirect ?
+            if (ui.item.value) {
+                // hide, so the URL does not show in the input field
+                quickSearch.css( { 'display': 'none' } );
+
+                // and redirect
+                window.location = ui.item.value;
+            }
+        },
+        open: function() {
+            $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+        },
+        close: function() {
+            $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+        },
+        html: true
+    });
+});
+</r:script>

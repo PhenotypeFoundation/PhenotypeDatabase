@@ -46,10 +46,12 @@ modules = {
     "home-stats" {
         dependsOn 'jquery-ui'
         resource url:[ dir:'js', file: 'highcharts.js']
-        resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
         resource url:[ dir:'css', file: 'home.css']
     }
 
+    "autocomplete" {
+        resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
+    }
 
     // Defines the basic 'tab' layout, used in study edit, study view and importer    
     basicTabLayout {
