@@ -46,10 +46,12 @@ modules = {
     "home-stats" {
         dependsOn 'jquery-ui'
         resource url:[ dir:'js', file: 'highcharts.js']
-        resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
         resource url:[ dir:'css', file: 'home.css']
     }
 
+    "autocomplete" {
+        resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
+    }
 
     // Defines the basic 'tab' layout, used in study edit, study view and importer    
     basicTabLayout {
@@ -94,19 +96,18 @@ modules = {
         resource url:[ dir:'css', file: 'templates.css']
     }
     
+    exporter {
+        dependsOn 'basicTabLayout'
+        resource url:[ dir:'css', file: 'exporter.css']
+        resource url:[ dir:'css', file: 'templates.css']
+    }
+    
     // Advanced Query functionality
     advancedQuery {
         dependsOn "gscf-datatables", "buttons"
         resource url: [dir: 'js', file: 'advancedQuery.js']
         resource url: [dir: 'js', file: 'advancedQueryResults.js']
         resource url: [dir: 'css', file: 'advancedQuery.css']
-    }
-    
-    // Cookdata functionality
-    cookdata {
-        dependsOn 'jquery'
-        resource url:[ dir:'css', file: 'cookdata.css']
-        resource url:[ dir:'js', file: 'cookdata_dataset_selection.js']
     }
     
     // Template editor functionality

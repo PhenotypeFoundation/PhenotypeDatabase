@@ -367,12 +367,12 @@ ul.topnav li .subnav .subsubnav li:first-child .subsubnav li:first-child > a  {
 }
 .topbar .search input[type="text"] {
     border: none;
-    background: url(../images/default_style/bg-input.png) 0 0 no-repeat;
+    border-radius: 15px;
     height: 18px;
     padding: 8px 15px;
     float: left;
     margin: 0;
-    width: 120px;
+    width: 170px;
     font-size: 14px;
     font-family: 'Open Sans', sans-serif;
     box-shadow: none;

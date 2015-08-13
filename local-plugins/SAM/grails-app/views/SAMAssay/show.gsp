@@ -167,14 +167,18 @@
 		<r:script>
 			$('.measurements td').on('click', function() {
 				// Update checkbox on click
-				var checkbox = $(this).find( "input[type=checkbox]" );
-				checkbox.prop('checked', !checkbox.prop('checked'));
-				$(this).toggleClass('selected', checkbox.prop('checked'));
-			}).each(function(idx,el) {
+				var checkbox = $(this).find("input[type=checkbox]");
+				if (checkbox.length > 0) {
+					checkbox.prop('checked', !checkbox.prop('checked'));
+					$(this).toggleClass('selected', checkbox.prop('checked'));
+				}
+			}).each(function (idx, el) {
 				// Initialize styling based on checkboxes
-				var checkbox = $(this).find( "input[type=checkbox]" );
-				$(this).toggleClass('selected', checkbox.prop('checked'));
-			});;
+				var checkbox = $(this).find("input[type=checkbox]");
+				if (checkbox.length > 0) {
+					$(this).toggleClass('selected', checkbox.prop('checked'));
+				}
+			});
 		</r:script>
     </body>
 </html>

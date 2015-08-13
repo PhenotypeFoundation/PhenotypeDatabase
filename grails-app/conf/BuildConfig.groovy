@@ -56,7 +56,7 @@ grails.project.dependency.resolution = {
         runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
         compile 'org.apache.poi:poi:3.12'
         compile 'org.apache.poi:poi-ooxml:3.12'
-        compile 'org.apache.poi:poi-ooxml-schemas:3.12'
+        compile 'org.apache.poi:ooxml-schemas:1.1'
 
         // quartz jar is not packaged in the war properly
         // make sure to pull it in

@@ -39,6 +39,13 @@ public class SimpleToxExporter implements Exporter {
     public boolean supportsMultiple() { true }
     
     /**
+     * Use the given parameters for exporting
+     */
+    public void setParameters(def parameters) {
+        // Ignore the parameters for now
+    }
+
+    /**
      * Exports multiple entities to the outputstream. This is done by exporting
      * everything to a file and combine the files together in a ZIP file
      */

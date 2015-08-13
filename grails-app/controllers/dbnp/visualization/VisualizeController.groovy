@@ -492,7 +492,6 @@ class VisualizeController {
                         // Make sure to multiply all 'single' values later on 
                         multipleFieldsMultiplier = moduleData.size() 
                     } else {
-                        println "  " + it.key + " / " + it.name
                         fieldData[it.key] = moduleData[it.name]
                     }
                 }

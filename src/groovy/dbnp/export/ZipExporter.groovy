@@ -39,7 +39,14 @@ public class ZipExporter implements Exporter {
      * If so, the class should have a proper implementation of the exportMultiple method
      */
     public boolean supportsMultiple() { true }
-
+    
+    /**
+     * Use the given parameters for exporting
+     */
+    public void setParameters(def parameters) {
+        // Ignore the parameters for now
+    }
+    
     /**
      * Returns the content type for the export
      */

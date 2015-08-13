@@ -34,7 +34,7 @@
 		    		</ul>
 		    	</li>
                 <li>
-                    <a href="${resource(dir: 'guides', file: 'SAM_User_Guide.pdf')}" target="_blank">
+                    <a href="${resource(dir: 'guides', file: 'SAM_User_Guide.pdf', plugin: 'dbxp-sam')}" target="_blank">
                         User Guide
                         <img src="${fam.icon(name:"page_white_acrobat")}" alt="(pdf)" style="vertical-align:text-bottom;"/>
                     </a>

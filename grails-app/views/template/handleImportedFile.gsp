@@ -9,6 +9,13 @@
   </head>
   <body>
     <h1>Select templates to import</h1>
+    
+	<span class="message info"> 
+		For unticked templates similar templates already exist in the database. Please check whether these alternatives would suit your study. 
+		If you still want to import your template, tick the box for that template.	
+	</span>
+    
+    
 	<g:if test="${templates?.size() > 0}">
 	  <form method="post" action="<g:createLink action="saveImportedTemplates" />">
 		<table id="importTemplates">

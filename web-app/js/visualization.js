@@ -14,7 +14,7 @@ var Visualization = {
 	    $( "input[name=types]" ).on( "click", Visualization.handlers.type );
 	    
 	    // Enable visualize and dialog buttons
-	    $( "#button_visualize" ).on( "click", function() { Visualization.visualize.perform(); return false; } );
+	    $( "#button_visualize" ).on( "click", function() { Visualization.visualization.perform(); return false; } );
 	    
 	    $( "#button_advanced_settings" ).on( "click", function() { Visualization.dialogs.openAdvancedSettings(); return false; } );
 	    $( "#button_messages" ).on( "click", function() { Visualization.dialogs.openMessages(); return false; } );
@@ -216,20 +216,8 @@ var Visualization = {
 			Visualization.messages.indicate.done(this);
 	        Visualization.current.aggregation = $(this).val();
 	
-	        // Boxplot is only allowed for no aggregation
-	        if(Visualization.current.aggregation != "none") {
-	            $("#vis_boxplot").attr("disabled","disabled");
-	            
-	            // If boxplot was chosen, reset the type
-	            if(Visualization.current.type=="boxplot") {
-	                $("#vis_boxplot").attr("checked",false);
-	    			Visualization.messages.indicate.ready($("#vis_boxplot"));
-	    	        Visualization.current.type = null;
-	            }
-	        } else {
-	        	// Allow boxplots, if it would fit the data
-	            $("#vis_boxplot").attr("disabled", !$("#vis_boxplot").data( "allowed" ));
-	        }
+	        // Update type and aggregation combinations
+	        Visualization.update.typesAndAggregations();
 	        
             // If we already have enough data to visualize, and the automatic visualization is on,
             // start the visualization already
@@ -425,6 +413,9 @@ var Visualization = {
 	    	                    Visualization.messages.indicate.done( "#select_aggregation" );
                             };
 	                    });
+	                    
+	                    // Enable/disable options based on other choices
+	                    Visualization.update.typesAndAggregations();
 
 	                    // If we already have enough data to visualize, and the automatic visualization is on,
 	                    // start the visualization already
@@ -440,6 +431,39 @@ var Visualization = {
 					Visualization.spinner.hide( spinnerSelector );
 	        	});	        
 		},
+		
+		/**
+		 * Enable/disable certain checkboxes based on other choices made by the user
+		 */
+		typesAndAggregations: function() {
+	        // Boxplot is only allowed for no aggregation
+	        if(Visualization.current.aggregation == "none") {
+	        	// Allow boxplots, if it would fit the data
+	            $("#vis_boxplot").attr("disabled", !$("#vis_boxplot").data( "allowed" ));
+	            
+	            // If no aggregation is selected and grouping is selected, only allow boxplots
+	            if( $( '#select_groups' ).val() ) {
+	            	$( "#select_types input:not(#vis_boxplot)" ).attr( "disabled", true ).attr( "checked", false );
+	            }
+	        } else {
+	            $("#vis_boxplot").attr("disabled","disabled");
+	            
+	            // If aggregation is selected and grouping is selected, also allow other items than boxplots
+            	$( "#select_types input:not(#vis_boxplot)" ).each(function(idx, el) { 
+            		$(el).attr( "disabled", !$(el).data( "allowed" ) ); 
+            	} );
+	        }
+	        
+            // If current type is disabled, reset the checkboxes
+            if(Visualization.current.type) {
+            	var el = $("#vis_" + Visualization.current.type);
+                if( el.attr( "disabled" ) ) {
+                	el.attr("checked",false);
+	    			Visualization.messages.indicate.ready(el);
+	    	        Visualization.current.type = null;
+                }
+            }
+		}
 	},
 	
 	/**
@@ -501,7 +525,8 @@ var Visualization = {
                             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                             tickRenderer: $.jqplot.CanvasAxisTickRenderer,
                             tickOptions: {
-                                angle: settings.xangle
+                                angle: settings.xangle,
+                                labelPosition: 'middle'
                             }
                         },
                         yaxis: {
@@ -915,7 +940,6 @@ var Visualization = {
 	 * Clears a select in the interface, and optionally the select boxes dependant on it
 	 */
 	clearSelect: function (that, stepNr) {
-
 	    var block = $(that).parents(".menu_header").find(".block_variable");
 	    $(block).children("input, select").val("");
 	    $(block).children("input").data( "ui-autocomplete" ).term = "";
@@ -924,17 +948,15 @@ var Visualization = {
     	
 	    if(stepNr==1) {
 	        $(that).parents(".menu_item").children(".menu_header").each(function(index) {
-	            if($(this).find("select").val()!=null && $(this).find("select").val()!="") {
-	                this.clearSelect($(this).find("select"),0);
-	                $(this).find("select").empty();
-	                $(this).find("input").val("");
-	                $(this).children(".menu_header_count").removeClass().addClass("menu_header_count");
+	            if($(this).find("select").length > 0) {
+	                Visualization.clearSelect($(this).find("select"),0);
 	            }
 	            
 	        });
 	    }
 	    if(stepNr>=1) {
-	    	Visualization.visualization.perform();
+	    	Visualization.update.typesAndAggregations();
+	    	Visualization.visualization.auto();
 	    }
 	}
 		

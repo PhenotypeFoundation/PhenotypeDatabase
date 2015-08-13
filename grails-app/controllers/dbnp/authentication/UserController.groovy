@@ -169,7 +169,7 @@ class UserController {
 		}
 
 		for (name in ['enabled', 'accountExpired', 'accountLocked', 'passwordExpired']) {
-            def value = params.name as Integer
+			def value = params[name] as Integer
 			if (value) {
 				hql.append " AND u.$name=:$name"
 				queryParams[name] = value == 1
