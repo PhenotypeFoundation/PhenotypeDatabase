@@ -33,4 +33,21 @@ div .upload_del {
 div .upload_info .error {
     color: red;
 }
+
+.upload_file_container{
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-width: 0;
+    position: relative;
+    background: url('/images/icons/folder_add.png'), no-repeat;
+}
+
+.upload_file_container input{
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    opacity: 0;
+}
+
 /** END :: study page upload buttons **/
