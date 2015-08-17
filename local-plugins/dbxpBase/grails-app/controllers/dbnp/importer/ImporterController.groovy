@@ -131,6 +131,7 @@ class ImporterController {
     
                         // Redirect to the validation page
                         doRedirect action: ( params._action == "validate" ? "validation" : "finish" ), params: [key: sessionKey]
+                        return
                     } else {
                         flash.error = "Please provide a valid set of mapping parameters. That includes at least one column of data and no duplicates."
                     }
@@ -333,6 +334,7 @@ class ImporterController {
     /**
      * Returns a map with the parsed mapping parameters
      */
+    
     protected def parseMappingParams(importer, importInfo) {
         def mappingParams = params.column?.match
         
@@ -381,7 +383,6 @@ class ImporterController {
      * @param data Map with information on the file and the way to parse it
      */
     protected def parseFile(data, numLines = 0) {
-
         // Retrieve the file
         def importedFile = fileService.get(data.file)
         
@@ -407,10 +408,17 @@ class ImporterController {
         
         // If a certain number of lines is provided, use that. Otherwise, load the whole file
         if( numLines ) {
-            endRow: data.upload.headerRow + numLines - 1
+            importOptions.endRow = data.upload.headerRow + numLines - 1
         }
         
-        MatrixImporter.getInstance().importFile(importedFile, importOptions, false);
+        // Disable logging for apache poi
+        System.setProperty("org.apache.poi.util.POILogger", "org.apache.commons.logging.impl.NoOpLog");
+        
+        log.debug "Start parsing file " + data.file
+        def matrix = MatrixImporter.getInstance().importFile(importedFile, importOptions, false);
+        log.debug "Finished parsing file " + data.file
+        
+        return matrix
     }
     
     /**
