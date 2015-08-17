@@ -16,40 +16,21 @@
 			<g:if test="${flash.message}">
 			<div class="message" role="status">${flash.message}</div>
 			</g:if>
-			<table>
-				<thead>
+
+			<div class="data">
+				<dt:dataTable id="fList" class="paginate sortable filter serverside" rel="${g.createLink( controller: 'Platform', action: 'datatables_list', params: [module: module] )}">
+					<thead>
 					<tr>
-					
-						<g:sortableColumn property="name" title="${message(code: 'platform.name.label', default: 'Name')}" />
-					
-						<g:sortableColumn property="comments" title="${message(code: 'platform.comments.label', default: 'Comments')}" />
-					
-						<g:sortableColumn property="platformtype" title="${message(code: 'platform.platformtype.label', default: 'Platformtype')}" />
-					
-						<g:sortableColumn property="platformversion" title="${message(code: 'platform.platformversion.label', default: 'Platformversion')}" />
-
-                        <g:sortableColumn property="template" title="${message(code: 'platform.template.label', default: 'Template')}" />
+						<th>Name</th>
+						<th>Comments</th>
+						<th>Type</th>
+						<th>Version</th>
+						<th>Template</th>
+						<th class="nonsortable"></th>
+						<th class="nonsortable"></th>
 					</tr>
-				</thead>
-				<tbody>
-				<g:each in="${platformInstanceList}" status="i" var="platformInstance">
-					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
-					
-						<td><g:link action="show" id="${platformInstance.id}" params="${[module: module]}">${fieldValue(bean: platformInstance, field: "name")}</g:link></td>
-					
-						<td>${fieldValue(bean: platformInstance, field: "comments")}</td>
-					
-						<td>${fieldValue(bean: platformInstance, field: "platformtype")}</td>
-					
-						<td>${fieldValue(bean: platformInstance, field: "platformversion")}</td>
-
-                        <td>${fieldValue(bean: platformInstance, field: "template")}</td>
-					</tr>
-				</g:each>
-				</tbody>
-			</table>
-			<div class="pagination">
-				<g:paginate total="${platformInstanceTotal}" params="${[module: module]}" />
+					</thead>
+				</dt:dataTable>
 			</div>
 		</div>
 	</body>

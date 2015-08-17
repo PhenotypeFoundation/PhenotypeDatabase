@@ -438,12 +438,13 @@ var Visualization = {
 		typesAndAggregations: function() {
 	        // Boxplot is only allowed for no aggregation
 	        if(Visualization.current.aggregation == "none") {
-	        	// Allow boxplots, if it would fit the data
+	        	// Allow boxplots and scatterplots, if it would fit the data
 	            $("#vis_boxplot").attr("disabled", !$("#vis_boxplot").data( "allowed" ));
+	            $("#vis_scatterplot").attr("disabled", !$("#vis_scatterplot").data( "allowed" ));
 	            
 	            // If no aggregation is selected and grouping is selected, only allow boxplots
 	            if( $( '#select_groups' ).val() ) {
-	            	$( "#select_types input:not(#vis_boxplot)" ).attr( "disabled", true ).attr( "checked", false );
+	            	$( "#select_types input:not(#vis_boxplot):not(#vis_scatterplot)" ).attr( "disabled", true ).attr( "checked", false );
 	            }
 	        } else {
 	            $("#vis_boxplot").attr("disabled","disabled");
@@ -946,7 +947,8 @@ var Visualization = {
 
     	Visualization.messages.indicate.ready(that);
     	
-	    if(stepNr==1) {
+	    // If study is cleared, clear everything
+    	if(stepNr==1) {
 	        $(that).parents(".menu_item").children(".menu_header").each(function(index) {
 	            if($(this).find("select").length > 0) {
 	                Visualization.clearSelect($(this).find("select"),0);
@@ -954,6 +956,11 @@ var Visualization = {
 	            
 	        });
 	    }
+    	
+    	// Make sure to update fields depending on this select 
+    	$(block).find( "select" ).trigger( "change" );
+    	
+    	//
 	    if(stepNr>=1) {
 	    	Visualization.update.typesAndAggregations();
 	    	Visualization.visualization.auto();

@@ -73,7 +73,7 @@
                                 <sec:ifNotLoggedIn>
                                     <li><g:link controller="study" action="list">View studies</g:link></li>
                                 </sec:ifNotLoggedIn>
-   			                    <sec:ifAnyGranted roles="ROLE_ADMIN,ROLE_TEMPLATEADMIN">
+                                <sec:ifLoggedIn>
                                     <li class="has-child">
                                         <a href="#">Templates</a>
                                         <div class="subsubnav">
@@ -82,8 +82,6 @@
                                             </ul>
                                         </div>
                                     </li>
-                                </sec:ifAnyGranted>
-                                <sec:ifLoggedIn>
                                     <li class="has-child">
                                         <a href="#">Contacts</a>
                                         <div class="subsubnav">

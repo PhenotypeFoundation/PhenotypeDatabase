@@ -1678,8 +1678,8 @@ class VisualizeController {
      * @return Map with either CATEGORICALDATA, NUMERICALDATA, DATE or RELTIME
      */
     protected Map determineFieldTypes(studyId, fieldIds) {
-        // By default, set all fields to categorical data
-        def fieldTypes = fieldIds.collectEntries { k, v -> [k, CATEGORICALDATA] }
+        // By default, set all fields to NULL
+        def fieldTypes = fieldIds.collectEntries { k, v -> [k, null] }
         def study = Study.get(studyId)
         
         // Combine fields per module
@@ -1917,7 +1917,8 @@ class VisualizeController {
             if (columnType == CATEGORICALDATA || columnType == DATE || columnType == RELTIME) {
                 types = [["id": "barchart", "name": "Barchart"], ["id": "linechart", "name": "Linechart"], ["id": "boxplot", "name": "Boxplot"]];
             } else {
-                types = [["id": "scatterplot", "name": "Scatterplot"], ["id": "linechart", "name": "Linechart"], ["id": "barchart", "name": "Barchart"], ["id": "horizontal_barchart", "name": "Horizontal barchart"]];
+                // Only allow scatterplots for numerical/numerical charts
+                types = [["id": "scatterplot", "name": "Scatterplot"]];
             }
         }
         return types
@@ -1945,7 +1946,6 @@ class VisualizeController {
         //		Grouping on a numerical field is not possible. In that case, it is ignored
         //			Grouping on a numerical field with categorical data on both axes (table) enabled aggregation,
         //			In that case we can aggregate on the numerical field.
-
         if (rowType == CATEGORICALDATA || rowType == DATE || rowType == RELTIME) {
             if (columnType == CATEGORICALDATA || columnType == DATE || columnType == RELTIME) {
 
@@ -1964,7 +1964,21 @@ class VisualizeController {
                 }
             }
         }
-
+        
+        // Numerical data on both axes only allows scatterplot. 
+        if( rowType == NUMERICALDATA && columnType == NUMERICALDATA ) {
+            println "   --- groupType: " + groupType + " / " + CATEGORICALDATA
+            // When not grouping, disable aggregation
+            if( groupType != CATEGORICALDATA ) {
+                types.each {
+                    if( it.id != "none" )
+                        it.disabled = true
+                }
+            }
+        }
+        
+        println "-------------- TYPES --------------------"
+        types.each { println it }
         return types
     }
 }
