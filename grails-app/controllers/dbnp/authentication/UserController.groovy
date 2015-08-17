@@ -181,10 +181,7 @@ class UserController {
 	    def max = params.max as Integer
 		def offset = params.offset as Integer
 
-		String orderBy = ''
-		if (params.sort) {
-			orderBy = " ORDER BY u.$params.sort ${params.order ?: 'ASC'}"
-		}
+		def orderBy = " ORDER BY u.${params.sort ?: 'username'} ${params.order ?: 'ASC'}"
 
 		def results = SecUser.executeQuery(
 				"SELECT DISTINCT u $hql $orderBy",

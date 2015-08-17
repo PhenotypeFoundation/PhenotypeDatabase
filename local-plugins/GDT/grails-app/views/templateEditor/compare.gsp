@@ -73,8 +73,8 @@
 	<div id="pager"></div>
 
 	<% /* Length of long titles depends on the number of templates.
-		  We've got about 90 characters to show in total */
-		  def numCharsLongTitle = Math.floor( 90 / templates.size() ).intValue();
+		  We've got about 90 characters to show in total. However, we should show at least 3 characters */
+		  def numCharsLongTitle = Math.max( 6, Math.floor( 90 / templates.size() ).intValue() );
 	%>
 	<table id="compare_templates">
 	  <thead>
