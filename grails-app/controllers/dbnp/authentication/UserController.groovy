@@ -169,7 +169,7 @@ class UserController {
 		}
 
 		for (name in ['enabled', 'accountExpired', 'accountLocked', 'passwordExpired']) {
-            def value = params.name as Integer
+			def value = params[name] as Integer
 			if (value) {
 				hql.append " AND u.$name=:$name"
 				queryParams[name] = value == 1
@@ -181,10 +181,7 @@ class UserController {
 	    def max = params.max as Integer
 		def offset = params.offset as Integer
 
-		String orderBy = ''
-		if (params.sort) {
-			orderBy = " ORDER BY u.$params.sort ${params.order ?: 'ASC'}"
-		}
+		def orderBy = " ORDER BY u.${params.sort ?: 'username'} ${params.order ?: 'ASC'}"
 
 		def results = SecUser.executeQuery(
 				"SELECT DISTINCT u $hql $orderBy",

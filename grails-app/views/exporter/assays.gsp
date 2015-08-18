@@ -3,6 +3,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="main" />
     <title>Assay exporter</title>
+	<r:require modules="exporter" />
     
 	<script type="text/javascript">
 		function updateAssay(jsonData, selectID) {
@@ -25,33 +26,69 @@
 </head>
 <body>
 
-  <g:form action="exportAssays" name="assayExportForm">
-  <div class="body">
-  	<h1>Select the assay you want to export data from</h1>
+  <div class="body exporter">
+  	<h1>Export assays</h1>
   	
-  	<p>
+	<span class="message info"> 
 		With this exporter you can export (meta) data about samples from an assay to a file.
-		First, select a study from the first list and then select an assay from that study from the second list.
-	</p>
-  
+	</span>
+	 
   	<g:render template="/common/flashmessages" />
-
-	<h3>Study</h3>
-	<g:select style="width: 400px;" optionKey="id" optionValue="title" name="studyId" from="${studies}" id="study"
-			  onChange="${remoteFunction(controller:'study',action:'ajaxGetAssays',params:'\'id=\'+escape(this.value)',onComplete: 'updateAssay(XMLHttpRequest.responseText, \'assay\')')}"/>
-			  
-	<h3>Assay</h3>
-	<g:select style="width: 400px;" multiple="multiple" optionKey="id" name="assayId" id="assay" from=""/>
-	
-    <div class="buttons">
-    	<g:each in="${formats}" var="format">
-    		<g:submitButton class="button-2" style="margin-right: 5px;" title="${format}" value="${format}" name="format" />
-    	</g:each>
-    </div>
+  	
+	<g:form action="exportAssays" name="assayExportForm">
+		<fieldset id="exportData">
+			<div class="element">
+				<div class="description">Study</div>
+				<div class="input">
+					<g:select name="studyId"  id="study"
+						optionKey="id" optionValue="title" from="${studies}"
+				  		onChange="${remoteFunction(controller:'study',action:'ajaxGetAssays',params:'\'id=\'+escape(this.value)',onComplete: 'updateAssay(XMLHttpRequest.responseText, \'assay\')')}"
+				  		/>
+				</div>
+				
+				<div class="helpIcon"></div>
+				<div class="helpContent">
+					Choose the study you want to export data from
+				</div>
+			</div>
+			<div class="element">
+				<div class="description">Assay</div>
+				<div class="input">
+					<g:select style="width: 400px;" multiple="multiple" optionKey="id" name="assayId" id="assay" from=""/>
+				</div>
+				
+				<div class="helpIcon"></div>
+				<div class="helpContent">
+					Choose one or more assays you want to export data from
+				</div>
+			</div>		
+		</fieldset>
 		
+		<fieldset id="exportParameters">
+			<legend>Parameters</legend>
+			<div class="element">
+				<div class="description">Decimal separator</div>
+				<div class="input">
+					<g:select name="exportParameters.decimal" 
+						optionKey="key" optionValue="value" from="${[ '.': '.', ',': ',']}"
+				  		/>
+				</div>
+				
+				<div class="helpIcon"></div>
+				<div class="helpContent">
+					Choose the decimal separator to be used in the output file
+				</div>
+			</div>
+		</fieldset>
+				
+		<p class="options">
+			<g:each in="${formats}" var="format">
+    			<g:submitButton class="button-2" style="margin-right: 5px;" title="${format}" value="${format}" name="format" />
+    		</g:each>
+		</p>
+		
+	</g:form>
   </div>
-
-</g:form>
 
 </body>
 </html>

@@ -669,7 +669,7 @@ class Study extends TemplateEntity {
 			return c.listDistinct {
 				if (max != null) maxResults(max)
 				firstResult(offset)
-				order("title", "asc")
+				order("code", "asc")
 				and {
 					//					eq("published", true)
 					eq("publicstudy", true)
@@ -680,7 +680,7 @@ class Study extends TemplateEntity {
 			return c.listDistinct {
 				if (max != null) maxResults(max)
 				firstResult(offset)
-				order("title", "asc")
+				order("code", "asc")
 			}
 		} else {
 			def hqlString = "from Study s where s.publicstudy = true or s.owner = :user or :user in elements(s.readers) OR :user in elements(s.writers) order by s.title asc"

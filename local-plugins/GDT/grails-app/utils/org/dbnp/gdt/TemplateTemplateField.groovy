@@ -21,49 +21,49 @@
 package org.dbnp.gdt
 
 class TemplateTemplateField extends TemplateFieldTypeNew {
-	static contains				= Template
-	static String type			= "TEMPLATE"
-	static String casedType		= "Template"
-	static String description	= "Template"
-	static String category		= "Other"
-	static String example		= ""
+    static contains				= Template
+    static String type			= "TEMPLATE"
+    static String casedType		= "Template"
+    static String description	= "Template"
+    static String category		= "Other"
+    static String example		= ""
 
-	/**
-	 * Static validator closure
-	 * @param fields
-	 * @param obj
-	 * @param errors
-	 */
-	static def validator = { fields, obj, errors ->
-		genericValidator(fields, obj, errors, TemplateFieldType.TEMPLATE, { value -> (value as Template) })
-	}
+    /**
+     * Static validator closure
+     * @param fields
+     * @param obj
+     * @param errors
+     */
+    static def validator = { fields, obj, errors ->
+        genericValidator(fields, obj, errors, TemplateFieldType.TEMPLATE, { value -> (value as Template) })
+    }
 
-	/**
-	 * cast value to the proper type (if required and if possible)
-	 * @param TemplateField field
-	 * @param mixed value
-	 * @return Template
-	 * @throws IllegalArgumentException
-	 */
-	static Template castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
-		if (value) {
-			if (value instanceof Template) {
-				return value
-			} else if (value instanceof String) {
-				def template = Template.findByName(value)
+    /**
+     * cast value to the proper type (if required and if possible)
+     * @param TemplateField field
+     * @param mixed value
+     * @return Template
+     * @throws IllegalArgumentException
+     */
+    static Template castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
+        if (value) {
+            if (value instanceof Template) {
+                return value
+            } else if (value instanceof String) {
+                def template = Template.findByName(value)
 
-				if (template) {
-					return template
-				} else {
-					// invalid value
-					throw new IllegalArgumentException("Template value not recognized: ${value} (${value.class})")
-				}
-			} else {
-					// invalid value
-					throw new IllegalArgumentException("Template value not recognized: ${value} (${value.class})")
-			}
-		} else {
-			return null
-		}
-	}
+                if (template) {
+                    return template
+                } else {
+                    // invalid value
+                    throw new IllegalArgumentException("Template value not recognized: ${value} (${value.class})")
+                }
+            } else {
+                // invalid value
+                throw new IllegalArgumentException("Template value not recognized: ${value} (${value.class})")
+            }
+        } else {
+            return null
+        }
+    }
 }

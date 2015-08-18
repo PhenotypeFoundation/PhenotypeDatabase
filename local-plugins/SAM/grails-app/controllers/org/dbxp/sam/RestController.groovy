@@ -2,8 +2,7 @@ package org.dbxp.sam
 
 import grails.converters.JSON
 import dbnp.studycapturing.*
-import org.dbnp.gdt.RelTime
-import org.dbnp.gdt.TemplateEntity
+import org.dbnp.gdt.*
 import org.dbxp.sam.query.*
 import dbnp.query.SearchMode
 import dbnp.query.Criterion
@@ -193,8 +192,16 @@ class RestController {
             features = Feature.executeQuery( "SELECT DISTINCT f FROM Feature f, Measurement m, SAMSample s WHERE m.sample = s AND m.feature = f AND s.parentAssay = :assay", [ "assay": assay ] )
         }
 
-        // Return only domain fields for the features to improve performance
-        render features.collect { [ name: it.name, unit: it.unit ] } as JSON
+        // Return all fields, including template fields
+        render features.collect { feature -> 
+            feature.giveFields().collectEntries { field ->
+                def value = feature.getFieldValue(field.name);
+                if( value instanceof TemplateFieldListItem || value instanceof Term || value instanceof Template || value instanceof AssayModule )
+                    value = value.toString();
+                    
+                [ (field.name): value ]
+            }
+        } as JSON
     }
     
     /**
@@ -405,7 +412,7 @@ class RestController {
                 // Convert the measurements into the desired format
                 results = measurements.collect {[
                     "sampleToken": samples[it[0]],
-                    "measurementToken": it[1] + ( it[2] ? " " + it[2] + ")" : "" ),
+                    "measurementToken": it[1],
                     "value": it[3] != null ? it[3] : it[4]
                 ]}
             } else {

@@ -28,16 +28,16 @@ class FileController {
     def get = {
         def fileExists;
 
-		// Filename is not url decoded for some reason
-		def coder = new org.apache.commons.codec.net.URLCodec()
-		def filename = coder.decode(params.id)
+        // Filename is not url decoded for some reason
+        def coder = new org.apache.commons.codec.net.URLCodec()
+        def filename = coder.decode(params.id)
 
-		// Security check to prevent accessing files in other directories
-		if( filename.contains( '..' ) ) {
-			response.status = 500;
-			render "Invalid filename given";
-			return;
-		}
+        // Security check to prevent accessing files in other directories
+        if( filename.contains( '..' ) ) {
+            response.status = 500;
+            render "Invalid filename given";
+            return;
+        }
 
         try {
             fileExists = fileService.fileExists( filename )
@@ -55,9 +55,9 @@ class FileController {
         //response.setContentType( "image/jpeg" );
 
         // Return the file
-		response.setHeader "Content-disposition", "attachment; filename=${filename}"
+        response.setHeader "Content-disposition", "attachment; filename=${filename}"
         response.outputStream << file.newInputStream()
-		response.outputStream.flush()
+        response.outputStream.flush()
     }
 
     /**

@@ -54,9 +54,9 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.5'
         runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
-        compile 'org.apache.poi:poi:3.7'
-        compile 'org.apache.poi:poi-ooxml:3.7'
-        compile 'org.apache.poi:poi-ooxml-schemas:3.7'
+        compile 'org.apache.poi:poi:3.12'
+        compile 'org.apache.poi:poi-ooxml:3.12'
+        compile 'org.apache.poi:ooxml-schemas:1.1'
 
         // quartz jar is not packaged in the war properly
         // make sure to pull it in
@@ -116,7 +116,6 @@ grails.project.dependency.resolution = {
 
 grails.plugin.location.'gdt' = './local-plugins/GDT'
 grails.plugin.location.'dbxpSam' = './local-plugins/SAM'
-grails.plugin.location.'gdtimporter' = './local-plugins/GDTImporter'
 grails.plugin.location.'dbxp-base' = './local-plugins/dbxpBase'
 
 //grails.plugin.location.'dbxpModuleBase' = '../dbxpModuleBase'

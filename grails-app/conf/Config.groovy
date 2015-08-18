@@ -100,17 +100,16 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
 
-	warn  'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
-			'org.hibernate'
-			
-	info 'grails.app.controllers.generic.installation.TnoMigrateController' 
-        all 'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter'
+	warn   'org.codehaus.groovy.grails.orm.hibernate',
+           'org.hibernate'                                  // hibernate integration
+
+    all    'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter'
         
-        // Disable logging for resources plugin
-        error 'grails.app.services.org.grails.plugin.resource', 
-            'grails.app.taglib.org.grails.plugin.resource',
-            'grails.app.resourceMappers.org.grails.plugin.resource', 
-            'org.grails.plugin.resource'
+    // Disable logging for resources plugin
+    error  'grails.app.services.org.grails.plugin.resource',
+           'grails.app.taglib.org.grails.plugin.resource',
+           'grails.app.resourceMappers.org.grails.plugin.resource',
+           'org.grails.plugin.resource'
 }
 
 graphviz {
@@ -175,7 +174,6 @@ grails.plugin.springsecurity.interceptUrlMap = [
     '/api/**':                               ['ROLE_ADMIN', 'ROLE_CLIENT'],
 
     // Template editor is only accessible for specific users
-    '/templateEditor/**':                    ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
     '/template/**':                          ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
      
     // Configuration by administrators
@@ -221,14 +219,6 @@ if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) {
     uploads.uploadDir = (new File("/tmp/fileuploads")?.canWrite()) ? "/tmp/fileuploads" : "fileuploads"
     uploads.storageDir = (new File("/tmp/filestorage")?.canWrite()) ? "/tmp/filestorage" : "filestorage"
 }
-
-// Required configuration variables for gdtImporter plugin
-// Does the parent entity have an owner (SecUser in GSCF)
-gdtImporter.parentEntityHasOwner = true
-// How do children refer to the parent (belongsTo)
-gdtImporter.childEntityParentName = "parent"
-// What is the class name of the parent entity
-gdtImporter.parentEntityClassName = "dbnp.studycapturing.Study"
 
 // default application properties
 application.title = "Generic Study Capture Framework"

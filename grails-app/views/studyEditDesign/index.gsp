@@ -4,7 +4,7 @@
 	<meta name="layout" content="main" />
 	<title>Study edit wizard</title>
 	
-	<r:require modules="studyEdit" />
+	<r:require modules="studyEdit,gscf-datatables" />
 </head>
 <body>
 	<div class="basicTabLayout studyEdit studyProperties">
@@ -20,7 +20,8 @@
 		
 		<span class="message info"> 
 			<span class="title">Define or import your study design</span> 
-			The study design consists of treatement types and sample types, grouped together in sample & treatment groups. Sample & treatment groups can be assigned to groups of subjects.
+			The study design consists of treatement types and sample types, grouped together in sample & treatment groups. Sample & treatment groups can be assigned to groups of subjects.<br /><br />
+			<strong>N.B.</strong>You can edit your subject groups by double clicking on its name.
 		</span>
 		
 		<g:form action="design" name="design">
@@ -29,6 +30,7 @@
 			
 			<div id="studydesign">
 				<div id="timeline-eventgroups"></div>
+				<div class="overlay">The first step is to add one or more subject groups.<br />After that, you can create sample &amp; treatment groups and assign them to the subject groups.</div>
 			</div>
 			<div id="design-meta">
 				<div id="subjectGroups" class="subjectgroups addToTimeline">
@@ -45,7 +47,7 @@
 								<span class="events">
 									${eventgroup.contents}
 								</span>
-								<span class="eventgroup-buttons">
+								<span class="designobject-buttons">
 									<a href="#" class="edit">edit</a>
 									<a href="#" class="delete">del</a>
 								</span>
@@ -68,7 +70,8 @@
 			<span class="message info"> 
 				<span class="title">Edit the details of the sample & treatment group</span> 
 				Drag treatement types and sample types into the group. Changes will be saved immediately. However, changes in the name require a click on the 'save name' button.<br />
-				<strong>Please note</strong>: changes to this sample & treatment group will affect all instances of the group.
+				<strong>Please note</strong>: changes to this sample &amp; treatment group will affect all instances of the group.<br />
+				<strong>Please note</strong>: the timing of treatment and sample types also depends on the timing of the group within the study.
 			</span>
 					
 			<label>Name: </label><input type="text" name="eventgroup-name" id="eventgroup-name" /><br />
@@ -95,20 +98,25 @@
 			<label>Name: </label><input type="text" name="subjectgroup-name" id="subjectgroup-name" /><br />
 			
 			<div id="design-subjects">
-				<span class="subjects">
-					<g:set var="subjectCount" value="${study.subjects?.size()}" />
-					<g:set var="numRows" value="${Math.max( (int)subjectCount / 3, 1 )}" />
-					<g:each in="${study.subjects}" var="subject" status="i">
-						<span class="subject">
-							<input type="checkbox" name="subjectgroup_subjects" id="subjectgroup_subjects_${subject.id}" value="${subject.id}" /> ${subject.name}
-						</span>
-						
-						<g:if test="${( i + 1 ) % numRows == 0}">
-							</span>
-							<span class="subjects">
-						</g:if>
-					</g:each>
-				</span>
+				<table id="selectSubjectsTable" data-fieldPrefix="subject" class="subjectsTable selectMulti" rel="${g.createLink(action:"dataTableSubjectSelection", id: study.id)}">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Template</th>
+							<th>Species</th>
+						</tr>
+					</thead>
+					<tfoot>
+						<tr><td>
+							<div class="messagebar loadingSelection">
+								Loading selection of subjects. Please be patient. 
+							</div>						
+							<div class="messagebar selectAll">
+								You selected all items on this page. Would you <a href="#">select all items on other pages</a> as well? 
+							</div>						
+						</td></tr>
+					</tfoot>
+				</table>	
 			</div>				
 		</div>
 		
@@ -121,8 +129,6 @@
 		<g:form action="samplingEventInEventGroup" name="samplingEventInEventGroup"></g:form>
 		<g:form action="subjectEventGroup" name="subjectEventGroup"></g:form>
 
-		<g:set var="timelineMax" value="${study.subjectEventGroups.endTime.max()}"/>
-		
 		<r:script>	
 			$(function() {
 				var data = [];
@@ -130,7 +136,7 @@
 				     data.push({
 				       'start': new Date(${group.startDate.time}),
 				       'end': new Date(${group.endDate.time}),  // end is optional
-				       'type': "${group.eventGroup?.duration?.value < (timelineMax/50) ? 'box' : 'range' }",	// ${group.eventGroup?.duration}
+				       'type': "${group.eventGroup?.duration?.value == 0 ? 'box' : 'range' }",
 				       'content': '${group.eventGroup?.name.encodeAsJavaScript()}',
 				       'group': '${group.subjectGroup?.name.encodeAsJavaScript()}',
 				       'className': 'eventgroup eventgroup-id-${group.id} <g:if test="${group.samples}">hasSamples</g:if>',
@@ -157,51 +163,5 @@
 			});
 		</r:script>
 	</div>
-
-	<sec:ifAnyGranted roles="ROLE_ADMIN">
-		<g:if test="${migrateDesign}">
-			<div>
-        		<h2>Migrate this study!</h2>
-				<g:if test="${migrateDesign.step == 1}">
-					<p>
-						This seems to be a legacy study, click the 'migrate' button below to migrate this study to the new format<br>
-						<b>Note:</b> please do not make manual changes to this study before migration.
-						<g:form controller="tnoMigrate" action="migrateStudy">
-							<g:hiddenField name="id" value="${study.id}"/>
-							<g:submitButton name="Migrate" class="button-4 margin10 pie"/>
-						</g:form>
-					</p>
-				</g:if>
-				<g:elseif test="${migrateDesign.step == 2 || migrateDesign.step == 3}">
-					<g:if test="${migrateDesign.step == 2}">
-						<p>
-							<b>Please validate the complete study design.</b><br>
-							If something didn't work out the way it supposed, please click the 'reset' button below.
-							<g:form controller="tnoMigrate" action="deleteNewDesign">
-								<g:hiddenField name="id" value="${study.id}"/>
-								<g:hiddenField name="migrateDesign" value="${migrateDesign}"/>
-								<g:submitButton name="Reset" class="button-4 margin10 pie"/>
-							</g:form>
-							<g:link controller="tnoMigrate" action="quit" id="${study.id}"><input type="button" class="button-4 margin10 pie" value="Quit"/></g:link>
-						</p>
-						<br><br>
-					</g:if>
-					<p>
-						<g:if test="${migrateDesign.step == 2}">
-							If it all worked out fine please click the 'proceed' button below to delete the old design and link the samples to the new design.
-						</g:if>
-						<g:if test="${migrateDesign.step == 3}">
-							You already started the completion of the migration, please click the 'proceed' button below to continue
-						</g:if>
-						<g:form controller="tnoMigrate" action="deleteOldDesignAndLinkSamples">
-							<g:hiddenField name="id" value="${study.id}"/>
-							<g:hiddenField name="migrateDesign" value="${migrateDesign}"/>
-							<g:submitButton name="Proceed" class="button-4 margin10 pie"/>
-						</g:form>
-					</p>
-				</g:elseif>
-			</div>
-		</g:if>
-	</sec:ifAnyGranted>
 </body>
 </html>

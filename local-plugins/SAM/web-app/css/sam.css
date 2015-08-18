@@ -135,8 +135,14 @@ td.errors input, td.errors select { background-color: #fcc; }
 /* Width of a field name in the edit feature editor */
 .fieldName { width: 25%; }
 
-/* Comments field in the assay overview */
-td.comments { background-color: pink; }
+/* Table cells */
+td {
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+/* Selected cells */
+td.selected { background-color: #CCFFCC; }
 
 /* FeatureGroups list in /feature/edit.gsp  */
 td.styleFeatureGroup {
@@ -203,3 +209,17 @@ td.styleFeatureGroup {
     text-decoration: underline;
 }
 
+table.measurements td { 
+	vertical-align: middle; 
+	white-space: nowrap;
+	max-width: 60px;
+	overflow: hidden;
+	text-overflow: ellipsis; 
+}
+
+table.measurements td.comments { 
+	background-size: 12px 12px;
+	background-image: url(../../famfamfam-1.0.1/images/icons/page_edit.png);
+	background-position: center right;
+	background-repeat: no-repeat; 
+}

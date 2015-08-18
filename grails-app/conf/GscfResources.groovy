@@ -10,6 +10,7 @@ modules = {
     gscfmain {
         dependsOn 'jquery'
         dependsOn 'jquery-ui'
+        dependsOn 'infoboxes'
 
         resource url:[ dir:'css', file: 'default.css']
         resource url:[ dir:'js', file: 'disableKeys.js']
@@ -24,7 +25,8 @@ modules = {
     gscfdialog {
         dependsOn 'jquery'
         dependsOn 'jquery-ui'
-
+        dependsOn 'infoboxes'
+        
         resource url:[ dir:'css', file: 'dialog.css']
         resource url:[ dir:'js', file: 'disableKeys.js']
         resource url:[ dir:'js', file: 'paginate.js']
@@ -44,10 +46,12 @@ modules = {
     "home-stats" {
         dependsOn 'jquery-ui'
         resource url:[ dir:'js', file: 'highcharts.js']
-        resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
         resource url:[ dir:'css', file: 'home.css']
     }
 
+    "autocomplete" {
+        resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
+    }
 
     // Defines the basic 'tab' layout, used in study edit, study view and importer    
     basicTabLayout {
@@ -66,6 +70,7 @@ modules = {
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.design.subjectGroups.js']
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.assaySamples.js']
         resource url:[ dir:'js/studyEdit', file: 'studyEdit.datatables.js']
+        resource url:[ dir:'js/studyEdit', file: 'studyEdit.addmore.js']
         resource url:[ dir:'css', file: 'studyEdit.css']
         resource url:[ dir:'css', file: 'templates.css']
     }
@@ -83,11 +88,17 @@ modules = {
     }
     
     gscfimporter { 
-        dependsOn 'basicTabLayout',  'fileupload'
+        dependsOn 'basicTabLayout',  'fileupload', 'add-more' 
         dependsOn 'gscf-datatables'
         
         resource url:[ dir:'js', file: 'importer.js']
         resource url:[ dir:'css', file: 'importer.css']
+        resource url:[ dir:'css', file: 'templates.css']
+    }
+    
+    exporter {
+        dependsOn 'basicTabLayout'
+        resource url:[ dir:'css', file: 'exporter.css']
         resource url:[ dir:'css', file: 'templates.css']
     }
     
@@ -99,13 +110,6 @@ modules = {
         resource url: [dir: 'css', file: 'advancedQuery.css']
     }
     
-    // Cookdata functionality
-    cookdata {
-        dependsOn 'jquery'
-        resource url:[ dir:'css', file: 'cookdata.css']
-        resource url:[ dir:'js', file: 'cookdata_dataset_selection.js']
-    }
-    
     // Template editor functionality
     templateEditor {
         dependsOn 'jquery'
@@ -114,11 +118,21 @@ modules = {
         resource url: [dir: 'js', file: 'templateEditor.js', plugin: 'gdt']
         resource url: [dir: 'css', file: 'templateEditor.css', plugin: 'gdt']
         resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt'], disposition: 'head'
-        resource url:[ dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
+    }
+    
+    // Term editor
+    termEditor {
+        dependsOn 'jquery'
+        dependsOn 'jquery-ui'
+        
+        resource url: [dir: 'css', file: 'termEditor.css', plugin: 'gdt']
+        resource url: [dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt']
+        resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt']
     }
     
     // Template importer 
     templateImporter {
+        resource url: [dir: 'js', file: 'templateImporter.js']
         resource url: [dir: 'css', file: 'templateImporter.css']
     }
 
@@ -130,6 +144,7 @@ modules = {
         dependsOn 'jqplot'
 
         resource url: [dir: 'js', file: 'visualization.js']
+        resource url: [dir: 'js', file: 'jquery.ui.combo.js']
         resource url: [dir: 'css', file: 'visualization.css']
     }
     
@@ -152,35 +167,23 @@ modules = {
         resource url: "http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js"
     }
     
-    // GDT importer for importing several entitites
-    gdtImporter {
-        dependsOn 'helptooltips'
-        dependsOn 'gscf-datatables'
-        dependsOn 'add-more'
-        dependsOn 'fileupload'
-        dependsOn 'studywizard-files'
-        
-        resource url: [dir: 'css', file: 'studywizard.css']
-        resource url: [dir: 'css', file: 'gdtimporter.css', plugin: 'gdtimporter']
-        resource url: [dir: 'css', file: 'table-editor.css', plugin: 'gdt']
-        resource url: [dir: 'css', file: 'demo_table.css', plugin: 'gdtimporter']
-        resource url: [dir: 'css', file: 'demo_table_jui.css', plugin: 'gdtimporter']
-        resource url: [dir: 'css', file: 'demo_page.css', plugin: 'gdtimporter']
 
-        resource url: [dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt'], disposition: 'head'
-        resource url: [dir: 'js', file: 'table-editor.js', plugin: 'gdt']
-    }
-    
     /**********************************************************
      * 
      * Modules below are libraries and plugins
      * 
      **********************************************************/
-    
+
+    'infoboxes' {
+        resource url: [dir: 'css', file: 'infoboxes.css']
+    }
+
     'fileupload' {
-        resource url: [dir: 'js', file: 'ajaxupload.3.6.js']
         resource url: [dir: 'js', file: 'fileupload.js']
         resource url: [dir: 'css', file: 'fileupload.css']
+        resource url: [dir: 'js', file: 'jquery.fileupload.js']
+        resource url: [dir: 'js', file: 'jquery.iframe-transport.js']
+        resource url: [dir: 'js', file: 'jquery.ui.widget.js']
     }
     
     'studywizard-files' {

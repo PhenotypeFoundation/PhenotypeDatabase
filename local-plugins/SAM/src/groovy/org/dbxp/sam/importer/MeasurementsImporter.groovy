@@ -216,7 +216,7 @@ public class MeasurementsImporter extends AbstractImporter {
         def assay = Assay.get(parameters.assay)
         def assaySamples = assay.samples
         def samSamples = SAMSample.findAll {
-            parentSample in assaySamples
+            parentSample in assaySamples && parentAssay == assay
         }
         
         // Create a map of samSamples by sample name
@@ -282,8 +282,8 @@ public class MeasurementsImporter extends AbstractImporter {
                             value = value.toDouble()
                         }
 
-                        // Only import the value if the value is numeric
-                        if (value instanceof Double) {
+                        // Distinguish between numeric and text values
+                        if (value instanceof Double || value instanceof Integer) {
                             preparedStatement.addBatch( [featureId: feature.id, sampleId: samSample.id, value: value ] )
                         }
                         else if (value instanceof String) {

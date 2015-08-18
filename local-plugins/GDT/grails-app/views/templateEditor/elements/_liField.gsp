@@ -1,5 +1,4 @@
-<g:set var="templateFieldService" bean="templateFieldService"/>
-<g:if test="${templateFieldService.inUse(templateField)}">
+<g:if test="${fieldIdsInUse.contains(templateField.id)}">
     <g:render template="elements/liFieldInUse" model="['templateField': templateField, 'ontologies': ontologies, 'fieldTypes': fieldTypes]"/>
 </g:if>
 <g:else>

@@ -21,44 +21,43 @@
 package org.dbnp.gdt
 
 class TemplateLongField extends TemplateFieldTypeNew {
-	static contains				= Long
-	static String type			= "LONG"
-	static String casedType		= "Long"
-	static String description	= "Natural number"
-	static String category		= "Numerical"
-	static String example		= "100"
+    static contains				= Long
+    static String type			= "LONG"
+    static String casedType		= "Long"
+    static String description	= "Natural number"
+    static String category		= "Numerical"
+    static String example		= "100"
 
-	/**
-	 * Static validator closure
-	 * @param fields
-	 * @param obj
-	 * @param errors
-	 */
-	static def validator = { fields, obj, errors ->
-		genericValidator(fields, obj, errors, TemplateFieldType.LONG, { value -> value.toLong() }, { value -> Long.parseLong(value.trim()) })
-	}
+    /**
+     * Static validator closure
+     * @param fields
+     * @param obj
+     * @param errors
+     */
+    static def validator = { fields, obj, errors ->
+        genericValidator(fields, obj, errors, TemplateFieldType.LONG, { value -> value.toLong() }, { value -> Long.parseLong(value.trim()) })
+    }
 
-	/**
-	 * cast value to the proper type (if required and if possible)
-	 * @param TemplateField field
-	 * @param mixed value
-	 * @return Long
-	 * @throws IllegalArgumentException
-	 */
-	static Long castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
-		if (value) {
-			if (value instanceof Long) {
-				return value
-			} else if (value.class == String) {
-				return Long.parseLong(value)
-			} else if (isNumeric(value)) {
-				return value.toLong()
-			} else {
-				// invalid value
-				throw new IllegalArgumentException("Long value not recognized: ${value} (${value.class})")
-			}
-		} else {
-			return new Long(0)
-		}
-	}
+    /**
+     * cast value to the proper type (if required and if possible)
+     * @param TemplateField field
+     * @param mixed value
+     * @return Long
+     * @throws IllegalArgumentException
+     */
+    static Long castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
+        if (value instanceof Long) {
+            return value
+        } else if (value.class == String) {
+            if( value == "" ) 
+                return null
+            else 
+                return Long.parseLong(value)
+        } else if (isNumeric(value)) {
+            return value.toLong()
+        } else {
+            // invalid value
+            throw new IllegalArgumentException("Long value not recognized: ${value} (${value.class})")
+        }
+    }
 }

@@ -168,7 +168,8 @@ StudyEdit.design.subjectEventGroups = {
 		
 		if( !hasSamples || confirm( "Deleting this treatment&sample group will also delete all samples that originated from it. Are you sure you want to delete the group?" ) ) {
 			$.post( url, data, function() {
-				console.log( "SubjectEventgroup deleted" );
+				if( console && console.log )
+					console.log( "SubjectEventgroup deleted" );
 			});
 			
 			return true;

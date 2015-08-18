@@ -109,8 +109,11 @@
 		<input type="submit" value="Save"/>
 
 		<g:if test='${user}'>
-			<input type="button" value="Delete" onClick="$('#userDeleteForm').submit();
-			return false;"/>
+			<input type="button" value="Delete" onClick="
+				if (confirm('Are you sure you want to delete the user?')) {
+					$('#userDeleteForm').submit();
+				}
+				return false;"/>
 		</g:if>
 
 	</div>

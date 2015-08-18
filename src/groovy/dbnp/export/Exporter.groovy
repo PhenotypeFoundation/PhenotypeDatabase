@@ -49,4 +49,9 @@ public interface Exporter {
      */
     public void exportMultiple( def entities, OutputStream out )
 
+    /**
+     * Adds a set of parameters to use for exporting
+     */
+    public void setParameters(def exportParameters)
+    
 }

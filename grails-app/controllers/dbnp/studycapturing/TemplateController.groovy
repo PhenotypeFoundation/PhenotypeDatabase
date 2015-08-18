@@ -19,157 +19,196 @@ import org.dbnp.gdt.*
 import grails.converters.*
 import grails.plugin.springsecurity.annotation.Secured
 import dbnp.authentication.AuthenticationService
+import grails.util.Holders
 
-@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class TemplateController {
-	def authenticationService
+    def authenticationService
 
-	/**
-	 * Shows a form to pick a file to import templates
-	 */
-	def importTemplate = {
-	}
+    /**
+     * Shows a form to pick a file to import templates
+     */
+    def importTemplate = {
+    }
 
-	/**
-	 * Handles file import
-	 */
-	def handleImportedFile = {
-		if( !request.getFile("file") ) {
-			flash.message = "No file given.";
-			redirect( action: 'importTemplate' );
-			return;
-		}
+    /**
+     * Returns a JSON list with all templates for the given entity
+     */
+    def getAllForEntity() {
+        def entityName = params.entity
+        def entity
 
-		// Parse XML
-		def xml
-		
-		try {
-			xml = XML.parse( request.getFile("file").inputStream.text )
-		} catch( Exception e ) {
-			// Error in parsing. Probably the file is not a XML file
-			flash.message = "Imported file could not be read. Please specify an XML template file.";
-			redirect( action: 'importTemplate' );
-		}
-		
-		def numTemplates = xml.@count;
+        try {
+            entity = Class.forName(entityName, true, Holders.grailsApplication.getClassLoader())
 
-		if( !xml.template ) {
-			flash.message = "No templates could be found in the imported file. Please specify an XML template file.";
-			redirect( action: 'importTemplate' );
-		}
+            render Template.findAllByEntity(entity).collectEntries { [ (it.id): it.name ] } as JSON
+        } catch( Exception e ) {
+            response.status = 400
+            render "Invalid entity given"
+        }
+    }
 
-		// Check whether the templates already exist
-		def templates = []
-		def id = 0;
-		xml.template.each { template ->
-			try {
-				def t = Template.parse( template, authenticationService.getLoggedInUser() );
+    /**
+     * Handles file import
+     */
+    def handleImportedFile = {
+        if( !request.getFile("file") ) {
+            flash.message = "No file given. Please specify an XML template file.";
+            redirect( action: 'importTemplate' );
+            return;
+        }
 
-				def templateData = [:]
-				templateData.key = id++;
-				templateData.template = t
-				templateData.alternatives = []
+        // Parse XML
+        def xml
 
-				// If a template exists that equals this xml template , return it.
-				for( def otherTemplate in Template.findAllByEntity( t.entity ) ) {
-					if( t.contentEquals( otherTemplate ) ) {
-						templateData.alternatives << otherTemplate;
-					}
-				}
+        try {
+            xml = XML.parse( request.getFile("file").inputStream.text )
+        } catch( Exception e ) {
+            // Error in parsing. Probably the file is not a XML file
+            log.error "Error when parsing file to import templates", e
+            flash.message = "Imported file could not be read. Please specify an XML template file.";
+            redirect( action: 'importTemplate' );
+            return
+        }
 
-				templates << templateData
-			} catch (Exception e) {
-				templates << [ template: null, error: "Template " + ( template.name ?: " without name" ) + " could not be parsed: " + e ];
-			}
-		}
+        def numTemplates = xml.@count;
 
-		// Save templates in session in order to have data available in the next (import) step
-		session.templates = templates
-		
-		[templates: templates]
-	}
+        if( !xml.template ) {
+            flash.message = "No templates could be found in the imported file. Please specify an XML template file.";
+            redirect( action: 'importTemplate' );
+            return
+        }
 
-	/**
-	 * Saves the imported templates that the user has chosen
-	 */
-	def saveImportedTemplates = {
-		def ids = params.selectedTemplate
-		def templates = session.templates
-		def messages = []
-		
-		// Save all selected templates
-		ids.each { id ->
-			def templateData = templates.find { template -> template.key == id.toLong() }
-			def importTemplate = templateData?.template
+        // Check whether the templates already exist
+        def templates = []
+        def templateXml = [:]
+        def id = 0;
+        xml.template.each { template ->
+            try {
+                def t = Template.parse( template, authenticationService.getLoggedInUser() );
 
-			if( !importTemplate ) {
-				messages << "Template with id " + id + " could not be found."
-			} else {
-				def originalName = importTemplate.name
-				def newName = null
+                def templateData = [:]
+                templateData.key = id++;
+                templateData.template = t
+                templateData.alternatives = []
 
-				// Check whether a new name has been given
-				if( params[ 'templateNames_' + id ] && params[ 'templateNames_' + id ] != importTemplate.name ) {
-					importTemplate.name = params[ 'templateNames_' + id ]
-					newName = params[ 'templateNames_' + id ]
-				}
+                // If a template exists that equals this xml template , return it.
+                def existingTemplates = Template.findAllByEntity( t.entity )
+                for( def otherTemplate in existingTemplates ) {
+                    if( t.contentEquals( otherTemplate ) ) {
+                        templateData.alternatives << otherTemplate;
+                    }
+                }
 
-				if( importTemplate.save() ) {
-					messages << "Template " + originalName + " saved" + ( newName ? " as " + newName : "" )
-				} else {
-					messages << "Template " + originalName + " could not be saved"
-				}
-			}
-		}
+                // If a template with this name already exists, tell the user to choose another name
+                if( existingTemplates.find { it.name == t.name } ) {
+                    templateData.requireNameChange = true
+                }
 
-		// Remove templates from the session
-		session.templates = null
+                // Pass existing template names to the view, to ensure uniqueness
+                templateData.existingNames = existingTemplates*.name
 
-		[messages: messages]
-	}
+                templates << templateData
+                templateXml[ templateData.key ] = template
+            } catch (Exception e) {
+                templates << [ template: null, error: "Template " + ( template.name ?: " without name" ) + " could not be parsed: " + e ];
+            }
+        }
 
-	/**
-	 * Shows a form to select templates for export
-	 */
-	def export = {
-		// If the templates are already selected, export them
-		if( params.templates ) {
-			if( !( params.templates instanceof String ) ) {
-				params.templates = params.templates.join(",")
-			}
+        // Save templates in session in order to have data available in the next (import) step
+        session.templateXml = templateXml
 
-			switch( params.type ) {
-				case "xml":
-				default:
-					xml();
-					return
-			}
-			return;
-		} else {
-			[templates: Template.findAll()]
-		}
-	}
+        [templates: templates]
+    }
 
-	/**
-	 * XML Export of given templates, or all templates if no templates are given
-	 */
-	def xml = {
-		def templates
-		if( params.templates ) {
-			def ids = [];
-			params.templates.split(",").each { ids << it.toLong() }
+    /**
+     * Saves the imported templates that the user has chosen
+     */
+    def saveImportedTemplates = {
+        def ids = params.list('selectedTemplate')
+        def templatesXml = session.templateXml
+        def messages = []
 
-			def c = Template.createCriteria()
-			templates = c {
-				'in'("id", ids)
-			}
-		} else {
-			templates = Template.findAll()
-		}
-		
-		response.setHeader "Content-disposition", "attachment; filename=templates.xml"
+        // Save all selected templates
+        ids.each { id ->
+            def templateXml = templatesXml[id.toInteger()]
+            
+            if( !templateXml ) {
+                messages << "Template with id " + id + " could not be found."
+            } else {
+                def importTemplate = Template.parse( templateXml, authenticationService.getLoggedInUser() )
+                
+                def originalName = importTemplate.name
+                def newName = null
 
-		render(view: 'xml', contentType:"text/xml", model: [templates: templates])
-	}
+                // Check whether a new name has been given
+                if( params[ 'templateNames_' + id ] && params[ 'templateNames_' + id ] != importTemplate.name ) {
+                    importTemplate.name = params[ 'templateNames_' + id ]
+                    newName = params[ 'templateNames_' + id ]
+                }
+
+                // Check whether the name is unique. This validation is not added to the domain object
+                // due to a bug in GORM/Hibernate.
+                // As we are importing, we can be sure that the entity is not persisted yet.
+                def existingTemplates = Template.findAllByEntity(importTemplate.entity)
+                
+                if( existingTemplates.find { it.name == importTemplate.name } ) {
+                    messages << "Template " + originalName + " could not be saved, as a template with the name " + importTemplate.name + " already exists."
+                } else if( importTemplate.save() ) {
+                    messages << "Template " + originalName + " saved" + ( newName ? " as " + newName : "" )
+                } else {
+                    messages << "Template " + originalName + " could not be saved"
+                }
+            }
+        }
+
+        // Remove templates from the session
+        session.templates = null
+
+        [messages: messages]
+    }
+
+    /**
+     * Shows a form to select templates for export
+     */
+    def export = {
+        // If the templates are already selected, export them
+        if( params.templates ) {
+            if( !( params.templates instanceof String ) ) {
+                params.templates = params.templates.join(",")
+            }
+
+            switch( params.type ) {
+                case "xml":
+                default:
+                    xml();
+                    return
+            }
+            return;
+        } else {
+            [templates: Template.findAll()]
+        }
+    }
+
+    /**
+     * XML Export of given templates, or all templates if no templates are given
+     */
+    def xml = {
+        def templates
+        if( params.templates ) {
+            def ids = [];
+            params.templates.split(",").each { ids << it.toLong() }
+
+            def c = Template.createCriteria()
+            templates = c {
+                'in'("id", ids)
+            }
+        } else {
+            templates = Template.findAll()
+        }
+
+        response.setHeader "Content-disposition", "attachment; filename=templates.xml"
+
+        render(view: 'xml', contentType:"text/xml", model: [templates: templates])
+    }
 
 }

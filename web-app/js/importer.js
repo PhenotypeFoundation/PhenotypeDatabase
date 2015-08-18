@@ -28,7 +28,7 @@ Importer.datatable = {
 	 * Loads data from the given URL using the specified parameters into a datatable
 	 * @return jQuery promise object to retrieve the data.
 	 */
-	load: function(element, url, parameters) {
+	load: function(element, url, parameters, callback) {
 		var dataTable;
 		var spinner = element.parent().find( ".spinner" );
 		
@@ -42,6 +42,9 @@ Importer.datatable = {
 				element.html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="datamatrix"></table>');
 				element.show();
 				spinner.hide();
+				
+				if( typeof(callback) != "undefined" )
+					data = callback(data);
 				
 				dataTable = element.find( "#datamatrix" ).dataTable({
 					"oLanguage": {
@@ -73,12 +76,15 @@ Importer.datatable = {
 Importer.upload = {
 	initialize: function() {
 		// Update data preview when something changes in the parameters
-		$( "#uploadParameters" ).on("change", "input, select", function() {
+		$( "#uploadParameters" ).on("change", "input[type=hidden], select", function() {
 			Importer.upload.updateDataPreview();
 		});
 		
 		// Also initialize the data preview now, in case a filename has been given already
 		Importer.upload.updateDataPreview();
+		
+		// Make sure to add an add/modify button to the template dropdown (if present)
+		Importer.upload.addMoreForTemplates();
 	},
 	
 	updateDataPreview: function() {
@@ -100,7 +106,47 @@ Importer.upload = {
 		
 		// Perform the ajax call to retrieve the data
 		Importer.datatable.load(previewTable, previewTable.data("url"), form.serialize());
+	},
+	
+	/**
+	 * Enables the addmore entry on a template selectbox
+	 */
+	addMoreForTemplates: function() {
+	    new SelectAddMore().init({
+	        rel	 : 'template',
+	        url	 : baseUrl + '/templateEditor',
+	        vars	: 'entity,ontologies',
+	        label   : 'add / modify..',
+	        style   : 'modify',
+	        onClose : function() {
+	            Importer.upload.refreshTemplates();
+	        }
+	    });		
+	},
+	
+	/**
+	 * Refreshes the list of templates on screen
+	 */
+	refreshTemplates: function() {
+		$( "[rel=template]").each(function(idx,el) {
+			var select = $(el);
+			var entity = select.data("entity");
+			
+			$.get( baseUrl + "/template/getAllForEntity", { entity: entity }, function(data) {
+				// Empty select 
+				select.empty();
+				select.off("change");
+				
+				// Add new templates
+				$.each(data, function(templateId, templateName) {
+					select.append( $("<option>").attr( "value", templateId ).text( templateName ) );
+				});
+				
+				Importer.upload.addMoreForTemplates();
+			});
+		});
 	}
+	
 }
 
 Importer.match = {
@@ -115,10 +161,12 @@ Importer.match = {
 		Importer.datatable.load(
 			previewElement, 
 			previewElement.data("url"), 
-			{ key: sessionKey }
+			{ key: sessionKey },
+			function(data) {
+				console.log( "Enhance data", data);
+				return Importer.match.addSelectBoxesToHeader(data, initialMapping);
+			}
 		).done(function(data) {
-			Importer.match.addSelectBoxesToHeader(previewElement, initialMapping);
-
 			if( previewElement.data( "match-url" ) ) {
 				Importer.match.addMatchButtonsToDatatable(previewElement, sessionKey);
 			}
@@ -128,10 +176,9 @@ Importer.match = {
 	/**
 	 * Adds a select box for each column
 	 */
-	addSelectBoxesToHeader: function(element, initialMapping) {
+	addSelectBoxesToHeader: function(data, initialMapping) {
 		// Update the datatable with select boxes to match the headers
-		var header = element.find(".dataTables_scrollHead");
-		header.find( "thead th" ).each( function( idx, th) {
+		$.each(data.aoColumns, function(idx) {
 			// Create a clone of the example header select
 			var select = $("#example-header-select").clone();
 			
@@ -146,8 +193,10 @@ Importer.match = {
 			}
 			
 			// Add the select to the table (and show it)
-			$(th).append(select.show());
+			data.aoColumns[idx].sTitle += " " + select[0].outerHTML;
 		});		
+		
+		return data;
 	},
 
 	/**

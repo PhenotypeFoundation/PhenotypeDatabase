@@ -148,6 +148,14 @@ StudyView.datatables = {
 		});
 	},
 	
+	destroy: function( id ) {
+		delete this.numElements[id];
+		delete this.elementsSelected[id];
+		delete this.tableType[id];
+		delete this.selectType[id];
+		delete this.allElements[id];
+	},
+	
 	retrieveData: function( sSource, aoData, fnCallback, id ) {
         if( StudyView.datatables.selectType[ id ] != "selectNone") {
             aoData = StudyView.datatables.removeColumnInParam(aoData);
@@ -316,7 +324,7 @@ StudyView.datatables = {
 					.on( "mousedown", function(e) {
 						e.stopPropagation();
 						if( confirm( "Are you sure you want to delete this file?" ) ) {
-							deleteFile( fieldId );
+							FileUpload.deleteFile( fieldId );
 
 							// Mark this cell as being changed
 							StudyView.datatables.editable.markChanged( $(event.target).parent() );
@@ -335,11 +343,21 @@ StudyView.datatables = {
 				// Update the info field
 				field.filter( ".upload_info" )
 					.attr( "id", fieldId + "Example" )
-					.html( value ? "File: " + createFileHTML( value ) : "" );
-				
-				// UPdate the upload button
+					.html( value ? "File: " + FileUpload.createFileHTML( value ) : "" );
+
+				// Update the upload button
 				field.filter( ".upload_button" )
 					.attr( "id", "upload_button_" + fieldId );
+
+				// Update the upload icon
+				field.filter( ".upload_icon" )
+					.attr( "id", "upload_icon_" + fieldId );
+
+				// Connect the click event of the icon to the (hidden) button
+				$('#upload_icon_' + fieldId).on('click', function() {
+					$('#upload_button_' + fieldId).click();
+					return false;
+				})
 
 				return field;
 			},
@@ -646,7 +664,7 @@ StudyView.datatables = {
 							otherTd.find( ".upload_info" ).html( "" );
 						} else {
 							otherTd.find( ".upload_del" ).show();
-							otherTd.find( ".upload_info" ).html( createFileHTML(value) );							
+							otherTd.find( ".upload_info" ).html( FileUpload.createFileHTML(value) );
 						}
 						
 						StudyView.datatables.editable.markChanged( field );

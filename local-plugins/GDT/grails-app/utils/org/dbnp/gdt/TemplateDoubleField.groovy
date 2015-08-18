@@ -21,44 +21,45 @@
 package org.dbnp.gdt
 
 class TemplateDoubleField extends TemplateFieldTypeNew {
-	static contains				= Double
-	static String type			= "DOUBLE"
-	static String casedType		= "Double"
-	static String description	= "Decimal number"
-	static String category		= "Numerical"
-	static String example		= "1.31"
+    static contains				= Double
+    static String type			= "DOUBLE"
+    static String casedType		= "Double"
+    static String description	= "Decimal number"
+    static String category		= "Numerical"
+    static String example		= "1.31"
 
-	/**
-	 * Static validator closure
-	 * @param fields
-	 * @param obj
-	 * @param errors
-	 */
-	static def validator = { fields, obj, errors ->
-		genericValidator(fields, obj, errors, TemplateFieldType.DOUBLE, { value -> (value.toDouble()) }, { value -> println "obsolete?"; return (value as Double) })
-	}
+    /**
+     * Static validator closure
+     * @param fields
+     * @param obj
+     * @param errors
+     */
+    static def validator = { fields, obj, errors ->
+        genericValidator(fields, obj, errors, TemplateFieldType.DOUBLE, { value -> (value.toDouble()) }, { value -> return (value as Double) })
+    }
 
-	/**
-	 * cast value to the proper type (if required and if possible)
-	 * @param TemplateField field
-	 * @param mixed value
-	 * @return String
-	 * @throws IllegalArgumentException
-	 */
-	static Double castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
-		if (value) {
-			if (value instanceof Double) {
-				return value
-			} else if (value.class == String) {
-				return Double.parseDouble(value)
-			} else if (isNumeric(value)) {
-				return value.toDouble()
-			} else {
-				// invalid value
-				throw new IllegalArgumentException("Double value not recognized: ${value} (${value.class})")
-			}
-		} else {
-			return new Double(0)
-		}
-	}
+    /**
+     * cast value to the proper type (if required and if possible)
+     * @param TemplateField field
+     * @param mixed value
+     * @return String
+     * @throws IllegalArgumentException
+     */
+    static Double castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
+        if (value instanceof Double) {
+            return value
+        } else if (value.class == String) {
+            if( value == "" ) 
+                return null
+            else 
+                return Double.parseDouble(value)
+        } else if (isNumeric(value)) {
+            return value.toDouble()
+        } else {
+            // invalid value
+            throw new IllegalArgumentException("Double value not recognized: ${value} (${value.class})")
+        }
+            
+            
+    }
 }

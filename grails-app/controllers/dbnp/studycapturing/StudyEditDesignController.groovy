@@ -10,7 +10,7 @@ import dbnp.authentication.SecUser
 class StudyEditDesignController {
 	def authenticationService
 	def studyEditService
-	def dataSource
+        def datatablesService
 	
 	def index() {
 		def study = getStudyFromRequest( params )
@@ -18,29 +18,15 @@ class StudyEditDesignController {
 			redirect action: "add"
 			return
 		}
-
-		def sql = new groovy.sql.Sql(dataSource)
-		def samplingEventStartTime = sql.rows("SELECT start_time FROM sampling_event WHERE parent_id = ${study.id}").findAll() { it.start_time != null }.collectAll() { it.start_time }
-		if( session.migrateDesign?.studyId ) {
-			if (session.migrateDesign.studyId == study.id) {
-				session.migrateDesign['step'] = 2
-			}
-			else {
-				flash.error = "You are still migration another study: ${Study.read( session.migrateDesign.studyId  ).title}"
-			}
-		}
-		else if ( samplingEventStartTime.size() > 0 ) {
-			session.migrateDesign = [ step: 1 ]
-		}
-
+		
 		[
 			study: study,
 			templates: [
 				event: Template.findAllByEntity( Event.class ),
 				samplingEvent:  Template.findAllByEntity( SamplingEvent.class )
-			],
-			migrateDesign: session.migrateDesign
+			]
 		]
+
 	}
 
 	/**
@@ -90,7 +76,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def subjectEventGroupUpdate() {
-		def subjectEventGroup = SubjectEventGroup.read( params.long( "id" ) );
+		def subjectEventGroup = SubjectEventGroup.get( params.long( "id" ) );
 
 		if( !subjectEventGroup ) {
 			response.status = 404
@@ -187,7 +173,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventGroupUpdate() {
-		def eventGroup = EventGroup.read( params.long( "id" ) );
+		def eventGroup = EventGroup.get( params.long( "id" ) );
 
 		if( !eventGroup ) {
 			response.status = 404
@@ -215,7 +201,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventGroupDelete() {
-		def eventGroup = EventGroup.read( params.long( "id" ) );
+		def eventGroup = EventGroup.get( params.long( "id" ) );
 
 		if( !eventGroup ) {
 			response.status = 404
@@ -250,6 +236,7 @@ class StudyEditDesignController {
 			name: eventGroup.name,
 			start: studyStart * 1000,
 			duration: eventGroup.duration.value,
+                        contents: eventGroup.contents,
 			end: ( studyStart + eventGroup.duration.value ) * 1000,
 			events: []
 		]
@@ -343,7 +330,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventInEventGroupUpdate() {
-		def eventInEventGroup = EventInEventGroup.read( params.long( "id" ) );
+		def eventInEventGroup = EventInEventGroup.get( params.long( "id" ) );
 
 		if( !eventInEventGroup ) {
 			response.status = 404
@@ -374,7 +361,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventInEventGroupDelete() {
-		def eventInEventGroup = EventInEventGroup.read( params.long( "id" ) );
+		def eventInEventGroup = EventInEventGroup.get( params.long( "id" ) );
 
 		if( !eventInEventGroup ) {
 			response.status = 404
@@ -428,7 +415,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def samplingEventInEventGroupUpdate() {
-		def samplingEventInEventGroup = SamplingEventInEventGroup.read( params.long( "id" ) );
+		def samplingEventInEventGroup = SamplingEventInEventGroup.get( params.long( "id" ) );
 
 		if( !samplingEventInEventGroup ) {
 			response.status = 404
@@ -456,7 +443,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def samplingEventInEventGroupDelete() {
-		def samplingEventInEventGroup = SamplingEventInEventGroup.read( params.long( "id" ) );
+		def samplingEventInEventGroup = SamplingEventInEventGroup.get( params.long( "id" ) );
 
 		if( !samplingEventInEventGroup ) {
 			response.status = 404
@@ -513,7 +500,7 @@ class StudyEditDesignController {
 	}
 	
 	def eventUpdate() {
-		def entity = Event.read( params.long( "id" ) )
+		def entity = Event.get( params.long( "id" ) )
 		
 		if( !entity ) {
 			response.status = 404
@@ -547,7 +534,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def eventDelete() {
-		def event = Event.read( params.long( "id" ) );
+		def event = Event.get( params.long( "id" ) );
 
 		if( !event ) {
 			response.status = 404
@@ -605,7 +592,7 @@ class StudyEditDesignController {
 	}
 	
 	def samplingEventUpdate() {
-		def entity = SamplingEvent.read( params.long( "id" ) )
+		def entity = SamplingEvent.get( params.long( "id" ) )
 		
 		if( !entity ) {
 			response.status = 404
@@ -639,7 +626,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def samplingEventDelete() {
-		def samplingEvent = SamplingEvent.read( params.long( "id" ) );
+		def samplingEvent = SamplingEvent.get( params.long( "id" ) );
 
 		if( !samplingEvent ) {
 			response.status = 404
@@ -672,7 +659,7 @@ class StudyEditDesignController {
 				study.addToSubjectGroups( subjectGroup );
 				subjectGroup.save( flush: true )
 				
-				handleSubjectsInSubjectGroup( params.list( "subjects[]" ), subjectGroup )
+				handleSubjectsInSubjectGroup( params.subjects?.split(","), subjectGroup )
 				result = [ status: "OK", id: subjectGroup.id, name: subjectGroup.name ]
 			} else {
 				response.status = 500
@@ -692,8 +679,8 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def subjectGroupUpdate() {
-		def subjectGroup = SubjectGroup.read( params.long( "id" ) );
-
+		def subjectGroup = SubjectGroup.get( params.long( "id" ) );
+                
 		if( !subjectGroup ) {
 			response.status = 404
 			render "Not found"
@@ -702,12 +689,12 @@ class StudyEditDesignController {
 
 		def name = params.get( "name" )
 		def result = [ "OK" ]
-		
+		def subjectIds = params.subjects?.split(",")
 		if( name && name != subjectGroup.name ) {
 			subjectGroup.name = name
 
 			if( subjectGroup.save() ) {
-				handleSubjectsInSubjectGroup( params.list( "subjects[]" ), subjectGroup )
+				handleSubjectsInSubjectGroup( subjectIds, subjectGroup )
 				studyEditService.generateSamples( subjectGroup )
 			} else {
 				response.status = 500
@@ -715,7 +702,7 @@ class StudyEditDesignController {
 			}
 			
 		} else {
-			handleSubjectsInSubjectGroup( params.list( "subjects[]" ), subjectGroup )
+			handleSubjectsInSubjectGroup( subjectIds, subjectGroup )
 			studyEditService.generateSamples( subjectGroup )
 		}
 		
@@ -727,7 +714,7 @@ class StudyEditDesignController {
 	 * @return
 	 */
 	def subjectGroupDelete() {
-		def subjectGroup = SubjectGroup.read( params.long( "id" ) );
+		def subjectGroup = SubjectGroup.get( params.long( "id" ) );
 
 		if( !subjectGroup ) {
 			response.status = 404
@@ -795,6 +782,48 @@ class StudyEditDesignController {
 		}
 
 	}
+    
+        /**
+         * Returns data for the datatable to select subjects in a subjectgroup
+         * @return
+         */
+        def dataTableSubjectSelection() {
+                def study = Study.read( params.long( "id" ) )
+    
+                if( !study ) {
+                    render dataTableError( "Invalid study given: " + study ) as JSON
+                    return
+                }
+    
+                def searchParams = datatablesService.parseParams( params )
+                def data = studyEditService.getSubjectsForSubjectSelection( searchParams, study )
+    
+                render datatablesService.createDatatablesOutput( data, params, { entry ->
+                        def output = entry as List
+                        def subject = entry[ 0 ]
+                        
+                        // Convert columns
+                        output[ 0 ] = subject.id
+
+                        // Generate output (the checkbox columns should be first
+                        output
+                }) as JSON
+        }
+        
+        /**
+         * Returns an error response for the datatable
+         * @param error
+         * @return
+         */
+        protected def dataTableError( error ) {
+                return [
+                        sEcho:                                  params.sEcho,
+                        iTotalRecords:                  0,
+                        iTotalDisplayRecords:   0,
+                        aaData:                                 [],
+                        errorMessage:                   error
+                ]
+        }
 
 	
 	/**

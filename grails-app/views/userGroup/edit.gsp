@@ -54,8 +54,11 @@
 		<input type="submit" value="Save"/>
 
 		<g:if test='${userGroup}'>
-			<input type="button" value="Delete" onClick="$('#userGroupDeleteForm').submit();
-			return false;"/>
+			<input type="button" value="Delete" onClick="
+				if (confirm('Are you sure you want to delete the user group?')) {
+					$('#userGroupDeleteForm').submit();
+				}
+				return false;"/>
 		</g:if>
 
 	</div>

@@ -416,7 +416,7 @@ class Search {
      * @return			HQL where clause for this element or collection of elements
      */
     protected String entityClause( String entity ) {
-        return ' EXISTS( FROM %1$s %2$s WHERE %2$s.uuid IN (:%3$s) )'
+        return ' EXISTS( FROM %1$s %2$s WHERE %2$s.UUID IN (:%3$s) )'
     }
 
     /**
@@ -478,7 +478,7 @@ class Search {
         if( whereClauses ) {
             // First find all entities that match these criteria
             def hqlQuery = entityHQL.select + " " + entityHQL.from + " WHERE " + whereClauses.join( searchMode == SearchMode.and ? " AND " : " OR " );
-            def UUIDs = entityClass.executeQuery( hqlQuery, entityHQL.parameters )*.uuid
+            def UUIDs = entityClass.executeQuery( hqlQuery, entityHQL.parameters ).collect { it[1] }
 
             // If there are entities matching these criteria, put a where clause in the full HQL query
             if( UUIDs ) {
@@ -497,7 +497,7 @@ class Search {
             }
 
             // No results are found.
-            _results = [];
+            _results = [:];
             return false
         }
 

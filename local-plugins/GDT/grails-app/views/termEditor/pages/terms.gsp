@@ -17,37 +17,7 @@
 <html>
  <head>
   <meta name="layout" content="dialog"/>
-  <style type="text/css">
-#termForm {
-	display: block;
-	vertical-align: top;
-}
-#termForm #label {
-    color:#006DBA;
-    font-size:14px;
-    font-weight:normal;
-    display: inline-block;
-    zoom: 1; /* IE 6 & 7 hack */
-    *display: inline; /* IE 6 & 7 hack */
-}
-#termForm #term {
-    display: inline-block;
-    zoom: 1; /* IE 6 & 7 hack */
-    *display: inline; /* IE 6 & 7 hack */
-}
-#termForm #button {
-    display: inline-block;
-    zoom: 1; /* IE 6 & 7 hack */
-    *display: inline; /* IE 6 & 7 hack */
-}
-  </style>
-<g:if env="development">
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.js', plugin: 'gdt')}"></script>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.js', plugin: 'gdt')}"></script>
-</g:if><g:else>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'ontology-chooser.min.js', plugin: 'gdt')}"></script>
-	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.autocomplete.html.min.js', plugin: 'gdt')}"></script>
-</g:else>
+  <r:require module="termEditor" />
  </head>
  <body>
 
@@ -73,10 +43,10 @@
  	</g:else>
 
  	<div id="termForm">
-        <g:form action="pages" name="wizardForm" id="wizardForm">
+        <g:form action="pages" name="wizardForm" id="wizardForm" onSubmit="if( !\$(this).find('[name=term-ontology_id]').val() || !\$(this).find('[name=term-concept_id]').val() ) { alert( 'Please select a term from the dropdown' ); return false }">
             <div id="label">search term: </div>
             <div id="term"><g:textField name="term" rel="ontology-${ontologies}" size="40" /></div>
-            <div id="button"><g:submitButton name="add" value="Add term" /></div>
+            <div id="button"><g:submitButton name="add" value="Add term"/></div>
         </g:form>
         <g:hiddenField name="apikey" value="${apikey}" />
 	</div>

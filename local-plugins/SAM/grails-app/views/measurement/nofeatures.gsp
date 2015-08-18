@@ -11,6 +11,8 @@
         </content>
         <h1>Before we can start importing measurements, we need features</h1>
 
-        <p>At this moment the measurement importer can not be used. The reason for this is that no features are known at this moment. Please import the features you want using the <g:link class="import" controller="feature" action="importData" params="${[module: module]}">feature importer</g:link> or <g:link class="create" controller="feature" action="create" params="${[module: module]}">create the features by hand</g:link>. As soon as features are present the measurement importer will become usable.</p>
+        <p>At this moment the measurement importer can not be used. The reason for this is that no features are known at this moment. Please import the features you want using the 
+        <g:link controller="SAMImporter" action="upload" params="${[importer: "Features", module: module]}">feature importer</g:link>
+         or <g:link class="create" controller="feature" action="create" params="${[module: module]}">create the features by hand</g:link>. As soon as features are present the measurement importer will become usable.</p>
     </body>
 </html>

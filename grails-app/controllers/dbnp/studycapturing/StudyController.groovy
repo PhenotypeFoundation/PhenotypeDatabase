@@ -118,6 +118,36 @@ class StudyController {
         render datatableData as JSON
     }
     
+    
+    /**
+     * Returns data for a templated datatable with samples.
+     * 
+     * Due to the formatting of the data, this is a separate method
+     * @return
+     */
+    def dataTableSamples() {
+        // As we add columns to the table, we should shift the sort column
+        def sortColumn = params.int( "iSortCol_0" )
+        
+        if( sortColumn > 3 )
+            params.iSortCol_0 = sortColumn - 3
+        
+        def datatableData = getTemplatedDatatablesData({ sample ->
+            def defaultData = datatablesService.defaultEntityFormatter(sample)
+            
+            // Remove the IDs, as they are irrelevant for now
+            defaultData = defaultData.tail()
+
+            // Add additional columns
+            defaultData.add(1, sample.parentSubject?.name )
+            defaultData.add(2, sample.parentEvent?.event?.name )
+            defaultData.add(3, sample.parentEvent?.eventGroup?.name )
+            
+            defaultData
+        })
+        render datatableData as JSON
+    }
+    
     /**
      * Returns data for a templated datatable. The type of entities is based on the template given.
      * @return

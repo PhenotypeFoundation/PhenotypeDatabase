@@ -5,4 +5,13 @@
 #importTemplates ul { margin-left: 0px; padding-left: 15px; }
 #importTemplate li { margin-left: 0; padding-left: 0; }
 #importTemplates .otherTemplateName { display: none; }
+#importTemplates .otherTemplateName input { float: none;}
 #importTemplates .error { color: #AA0000; }
+
+#importTemplates .nameAlreadyInUse { display: none; }
+#importTemplates .existingNames { display: none; }
+
+/* Handle templates where name change is required */
+#importTemplates .requireNameChange h3 { display: none; }
+#importTemplates .requireNameChange .otherTemplateName { display: block; }
+#importTemplates .requireNameChange .nameAlreadyInUse { display: block; }

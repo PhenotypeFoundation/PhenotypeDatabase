@@ -1,0 +1,79 @@
+/** START :: INFO BOXES **/
+/**
+	Stucture should be:
+	<div class="message info|errormessage|warning|okay">
+		<span class="title">Title of the box (nice icon is added automatically)</span>
+		Lorem ipsum dolor sit amet....
+	</div>
+**/
+.message {
+    display: block;
+    padding: 10px;
+    font-size: 10pt;
+    margin: 10px 0px 10px 0px;
+}
+
+.message li {
+	padding-left: 10px;
+	list-style-position: inside;
+}
+
+.message .close { float: right; margin-top: 3px; margin-right: 10px; }
+
+.message .title {
+    font-size:14px;
+    font-weight:normal;
+    display: block;
+    margin-bottom: 5px;
+    padding-left: 20px;
+}
+
+/* Info messages: blue */
+.message.info {
+    border: 1px solid #006DBA;
+    background-color: #f8feff;
+}
+
+.info .title {
+    color:#006DBA;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/information.png) no-repeat center left;
+}
+
+/* Error messages: red */
+.message.errormessage {
+    border: 1px solid #FF9999;
+    background-color: #fff8f8;
+}
+
+.errormessage .title {
+    color:#BA0000;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat center left;
+}
+
+/* Warning messages: yellow */
+.message.warning {
+    border: 1px solid #BAB100;
+    background-color: #FFFEF8;
+}
+
+.warning .title {
+    color:#A5B800;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/exclamation.png) no-repeat center left;
+}
+
+/* Okay messages: green */
+.message.okay {
+  border: 1px solid #00BA42;
+  background-color: #F9FFF8;
+}
+
+.okay .title {
+    color:#5BA300;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/accept.png) no-repeat center left;
+}
+
+.famfamfam {
+    width: 16px;
+    height: 16px;
+}
+/** END :: INFO BOXES **/

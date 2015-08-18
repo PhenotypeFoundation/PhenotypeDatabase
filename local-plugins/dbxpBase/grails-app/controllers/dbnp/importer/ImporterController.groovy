@@ -95,6 +95,13 @@ class ImporterController {
         def importInfo = getFromSession(sessionKey)
         def importer = getImporter(importInfo.importer)
         
+        // Check if data is correct
+        if( !importInfo || !importer ) {
+            flash.message = "A problem occurred while retrieving your parameters. Please restart the wizard."
+            redirect action: "chooseType"
+            return
+        }
+        
         if( request.post && params.key ) {
             switch( params._action ) {
                 case 'previous':
@@ -156,6 +163,13 @@ class ImporterController {
         def sessionKey = params.key
         def importInfo = getFromSession(sessionKey)
         def importer = getImporter(importInfo.importer)
+        
+        // Check if data is correct
+        if( !importInfo || !importer ) {
+            flash.message = "A problem occurred while retrieving your parameters. Please restart the wizard."
+            redirect action: "chooseType"
+            return
+        }
         
         if( request.post && params.key ) {
             switch( params._action ) {
@@ -234,6 +248,27 @@ class ImporterController {
             response.status = 400
             render "Bad Request"
             return
+        }
+        
+        if(importedMatrix.size() < 2) {
+            log.error "Selected sheet from uploaded file doesn't contain at least two lines."
+            response.status = 400
+            render "Provided sheet should contain at least two lines"
+            return
+        }
+        
+        // Truncate each cells content to max 30 characters
+        // This ensures the visibility of multiple rows, while the data can still be used to validate the settings
+        def maxCharacters = 30
+        for(def row = 1; row < importedMatrix.size(); row++) {
+            for(def col = 0; col < importedMatrix[row].size(); col++) {
+                def value = importedMatrix[row][col]
+                
+                // Only do the check for strings
+                if(value instanceof String && value.size() > maxCharacters) {
+                    importedMatrix[row][col] = value.substring(0, maxCharacters - 3) + "..."
+                }
+            }
         }
         
         // Convert the data into a header and the real data
@@ -406,6 +441,9 @@ class ImporterController {
      * Returns a map of parameters from the session
      */
     protected getFromSession(String sessionKey) {
+        if(!session.importer)
+            return [:]
+            
         session.importer[sessionKey] ?: [:]
     }
     

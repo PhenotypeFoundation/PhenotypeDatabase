@@ -26,6 +26,13 @@ public class AssayDataExporter implements Exporter {
     SecUser user
 
     /**
+     * Map with export parameters. Can be overridden using the setParameters call
+     */
+    Map exportParameters = [
+        'decimal': '.'
+    ]
+    
+    /**
      * Returns an identifier that describes this export
      */
     public String getIdentifier() { "AssayData" }
@@ -44,19 +51,28 @@ public class AssayDataExporter implements Exporter {
     /**
      * Exports multiple entities to the outputstream
      */
-    public void exportMultiple( def assays, OutputStream out ) { 
+    public void exportMultiple( def assays, OutputStream out ) {
         def rowData = collectAssayData(assays)
         def outputDelimiter = "\t"
-        
+
         def assayService = Holders.grailsApplication.getMainContext().getBean("assayService")
-        assayService.exportRowWiseDataToCSVFile(rowData, out, outputDelimiter, java.util.Locale.US)
+        
+        // Use the parameters
+        def exportLocale
+        switch( exportParameters.decimal ) {
+            case ',': exportLocale = new java.util.Locale( "nl" ); break;
+            case '.':
+            default: exportLocale = java.util.Locale.US; break;
+        }
+        
+        assayService.exportRowWiseDataToCSVFile(rowData, out, outputDelimiter, exportLocale)
     }
 
     /**
      * Returns the content type for the export
      */
     public String getContentType( def entity ) {
-        return "application/vnd.ms-excel"
+        return "text/tab-separated-values"
     }
 
     /**
@@ -64,9 +80,9 @@ public class AssayDataExporter implements Exporter {
      */
     public String getFilenameFor( def entity ) {
         if( entity instanceof Collection ) {
-            return "multiple_assays.xls"
+            return "multiple_assays.tsv"
         } else {
-            return entity.name + ".xls"
+            return entity.name + ".tsv"
         }
     }
 
@@ -82,26 +98,33 @@ public class AssayDataExporter implements Exporter {
         def ctx = Holders.grailsApplication.getMainContext()
         def assayService = ctx.getBean("assayService")
         def apiService = ctx.getBean("apiService")
-        
+
         // collect the assay data according to user selection
         def data = []
-        
+
         // Determine the fields to export
         def fieldMaps = assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) }
         def fieldMap = assayService.mergeFieldMaps( fieldMaps )
+
+        // Extract the features, as they are not needed in the rest of the calculations
+        def features = fieldMap.remove( 'Features' )
         
+        // Get the samples and sort them; this will be the sort order to use for
+        // both retrieving the assay data and the measurements
+        def samples = assays[0].samples.toList().sort({it.name})
+
         // First retrieve the subject/sample/event/assay data from GSCF, as it is the same for each list
-        data = assayService.collectAssayData(assays[0], fieldMap, [], [])
-        
+        data = assayService.collectAssayData(assays[0], fieldMap, [], samples)
+
         assays.each{ assay ->
             def moduleMeasurementData
-            def samples = assay.samples
+
             try {
                 moduleMeasurementData = apiService.getPlainMeasurementData(assay, user)
                 data[ "Module measurement data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
             } catch (GroovyCastException gce) {
                 //This module probably does not support the 'getPlainMeasurementData' method, try it the old way.
-                moduleMeasurementData = assayService.requestModuleMeasurements(assay)
+                moduleMeasurementData = assayService.requestModuleMeasurements(assay, [], samples)
                 data[ "Module measurement data: " + assay.name ] = moduleMeasurementData
             } catch (e) {
                 moduleMeasurementData = ['error' : [
@@ -110,8 +133,24 @@ public class AssayDataExporter implements Exporter {
                 e.printStackTrace()
             }
         }
-
-        assayService.convertColumnToRowStructure(data)
+        
+        // Convert the data into a proper structure
+        def rowStructuredData = assayService.convertColumnToRowStructure(data)
+        
+        // Add feature data to the structure
+        assayService.addFeatureMetadata( rowStructuredData, features )
+    }
+    
+    /**
+     * Use the given parameters for exporting
+     * 
+     * Please note: only the parameters for which a default is already set in this file are used
+     */
+    public void setParameters(def parameters) {
+        exportParameters.each { k, v ->
+            if( parameters.containsKey(k) )
+                exportParameters[k] = parameters[k]
+        }
     }
 
 }

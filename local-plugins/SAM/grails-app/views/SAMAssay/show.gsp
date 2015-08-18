@@ -17,6 +17,11 @@
         </content>    
 		<h1>${module} ${assayInstance.name} / ${assayInstance.parent.title}</h1>
 		
+		<span class="message info"> 
+			<span class="title">List of measurements</span> 
+			You can select measurements by clicking on them. Comments to the measurements are denoted with an icon.
+		</span>
+		
 		<g:if test="${measurements.size() > 0}">
             <ul class="data_nav buttons ontop">
            		<li><g:link class="delete" controller="measurement" action="deleteByAssay" id="${assayInstance.id}" params="${[module: module]}" onClick="return confirm('Are you sure?');">Delete all measurements</g:link></li>
@@ -26,12 +31,12 @@
 			<form id="deleteform" action="<g:createLink controller="measurement" action="delete" />" method="post">
 				<input type="hidden" name="assayId" value="${assayInstance.id}" />
                 <input type="hidden" name="module" value="${module}" />
-				<table>
+				<table class="measurements"> 
 					<thead>
 						<tr>
 							<th></th>
 							<g:each var="feature" in="${features}">
-								<th>${feature }</th>
+								<th>${feature} [${feature.unit}]</th>
 							</g:each>
 						</tr>
 					</thead>
@@ -39,7 +44,7 @@
 						<g:set var="measurementIndex" value="${0}" />
 						<g:each var="sample" in="${samples}">
 							<tr>
-								<td>${sample.name}</td>
+								<th>${sample.name}</th>
 								
 								<g:each var="feature" in="${features}">
 									<%--
@@ -88,30 +93,36 @@
 												}.join( "<hr>" );
 											%>
 										</g:if>
-										<td class="${comments && isNumeric ? 'comments' : ''}">
+										<td id="td${cellMeasurements[0].id}" class="${comments && isNumeric ? 'comments' : ''}">
 											<% /* TODO: if multiple measurements are shown, this checkbox is not sufficient anymore */ %>
-											<input type="checkbox" name="ids" value="${cellMeasurements[0].id}" />
-										
+											<input type="checkbox" id="check${cellMeasurements[0].id}" name="ids" value="${cellMeasurements[0].id}" style="display:none;" />
+
 											<g:if test="${cellMeasurements[0].operator}">${cellMeasurements[0].operator}</g:if>
                                             <g:if test="${isNumeric}">
                                                 <g:if test="${comments}">
                                                     <%-- numeric value and comments --%>
-                                                    <span class="tooltip"> ${cellMeasurements[0].value} [${cellMeasurements[0].feature.unit}]<span>${comments}</span></span>
+                                                    <div class="tooltip">
+                                                    	${cellMeasurements[0].value}
+                                                    	<span>${comments}</span>
+                                                    </div>
                                                 </g:if>
                                                 <g:else>
                                                     <g:if test="${cellMeasurements[0].value==cellMeasurements[0].value.round(3)}">
                                                         <%-- short numeric value without comments --%>
-                                                        <span> ${cellMeasurements[0].value} [${cellMeasurements[0].feature.unit}]</span>
+                                                        <span> ${cellMeasurements[0].value}</span>
                                                     </g:if>
                                                     <g:else>
                                                         <%-- long numeric value without comments; render short version and put entire number in tooltip --%>
-                                                        <span class="tooltip"> ${cellMeasurements[0].value.round(3).toString()} [${cellMeasurements[0].feature.unit}]<span>${cellMeasurements[0].value}</span></span>
+                                                        <span class="tooltip"> ${cellMeasurements[0].value.round(3).toString()}<span>${cellMeasurements[0].value}</span></span>
                                                     </g:else>
                                                 </g:else>
                                             </g:if>
                                             <g:else>
                                                 <%-- measurement is not numeric, so use text value from comments --%>
-                                                <span>${comments}</span>
+                                                <div class="tooltip">
+                                                	${comments}
+                                                	<span>${comments}</span>
+                                                </div>
 											</g:else>
 										</td>
 									</g:if>
@@ -147,9 +158,27 @@
 		</g:if>
 		<g:else>
 			<p>
-				No measurements were found for this assay. Use the <g:link controller="measurement" action="importData" params="${[module: module]}">importer</g:link>
+				No measurements were found for this assay. Use the 
+				<g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements", module: module]}">importer</g:link>
 				to import your data	or add your measurements <g:link controller="measurement" action="create" params="${[module: module]}">manually</g:link>.
 			</p>
 		</g:else>
+		
+		<r:script>
+			$('.measurements td').on('click', function() {
+				// Update checkbox on click
+				var checkbox = $(this).find("input[type=checkbox]");
+				if (checkbox.length > 0) {
+					checkbox.prop('checked', !checkbox.prop('checked'));
+					$(this).toggleClass('selected', checkbox.prop('checked'));
+				}
+			}).each(function (idx, el) {
+				// Initialize styling based on checkboxes
+				var checkbox = $(this).find("input[type=checkbox]");
+				if (checkbox.length > 0) {
+					$(this).toggleClass('selected', checkbox.prop('checked'));
+				}
+			});
+		</r:script>
     </body>
 </html>

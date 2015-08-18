@@ -21,48 +21,48 @@
 package org.dbnp.gdt
 
 class TemplateRelTimeField extends TemplateFieldTypeNew {
-	static contains				= Long
-	static String type			= "RELTIME"
-	static String casedType		= "RelTime"
-	static String description	= "Relative time"
-	static String category		= "Date"
-	static String example		= "3w 5d 2h"
+    static contains				= Long
+    static String type			= "RELTIME"
+    static String casedType		= "RelTime"
+    static String description	= "Relative time"
+    static String category		= "Date"
+    static String example		= "3w 5d 2h"
 
-	/**
-	 * Static validator closure
-	 * @param fields
-	 * @param obj
-	 * @param errors
-	 */
-	static def validator = { fields, obj, errors ->
-		genericValidator(fields, obj, errors, TemplateFieldType.RELTIME, { value -> (value as long) })
-	}
+    /**
+     * Static validator closure
+     * @param fields
+     * @param obj
+     * @param errors
+     */
+    static def validator = { fields, obj, errors ->
+        genericValidator(fields, obj, errors, TemplateFieldType.RELTIME, { value -> (value as long) })
+    }
 
-	/**
-	 * cast value to the proper type (if required and if possible)
-	 * @param TemplateField field
-	 * @param mixed value
-	 * @return RelTime
-	 * @throws IllegalArgumentException
-	 */
-	static Long castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
-		if (value) {
-			if (value instanceof Long) {
-				return value
-			} else if (value instanceof String) {
-				try {
-					return RelTime.parseRelTime(value).getValue();
-				} catch (IllegalArgumentException e) {
-					return Long.MIN_VALUE;
-				}
-			} else if (isNumeric(value)) {
-				return value.toLong()
-			} else {
-				// invalid value
-				throw new IllegalArgumentException("RelTime value not recognized: ${value} (${value.class})")
-			}
-		} else {
-			return Long.MIN_VALUE
-		}
-	}
+    /**
+     * cast value to the proper type (if required and if possible)
+     * @param TemplateField field
+     * @param mixed value
+     * @return RelTime
+     * @throws IllegalArgumentException
+     */
+    static Long castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
+        if (value) {
+            if (value instanceof Long) {
+                return value
+            } else if (value instanceof String) {
+                try {
+                    return RelTime.parseRelTime(value).getValue();
+                } catch (IllegalArgumentException e) {
+                    return Long.MIN_VALUE;
+                }
+            } else if (isNumeric(value)) {
+                return value.toLong()
+            } else {
+                // invalid value
+                throw new IllegalArgumentException("RelTime value not recognized: ${value} (${value.class})")
+            }
+        } else {
+            return Long.MIN_VALUE
+        }
+    }
 }

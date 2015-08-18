@@ -77,6 +77,17 @@ StudyEdit.initializePropertiesPage = function() {
             refreshFlow();
         }
     });
+    
+	new SelectAddMore().init({
+		rel	 : 'term',
+		url	 : baseUrl + '/termEditor',
+		vars	: 'ontologies',
+		label   : 'add more...',
+		style   : 'addMore',
+		onClose : function(scope) {
+            refreshFlow();
+		}
+	});
 
     new SelectAddMore().init({
         rel	 : 'person',
@@ -132,7 +143,7 @@ StudyEdit.form = {
 				changeYear  : true,
 				/*numberOfMonths: 3,*/
 				showButtonPanel: true,
-				dateFormat  : 'dd/mm/yy',
+				dateFormat  : 'yy-mm-dd',
 				yearRange   : 'c-80:c+20',
 				altField	: '#' + $(this).attr('name') + 'Example',
 				altFormat   : 'DD, d MM, yy'
@@ -151,7 +162,7 @@ StudyEdit.form = {
 			$(this).datepicker({
 				changeMonth	 : true,
 				changeYear	  : true,
-				dateFormat	  : 'dd/mm/yy',
+				dateFormat	  : 'yy-mm-dd',
 				altField		: '#' + $(this).attr('name') + 'Example',
 				altTimeField	: '#' + $(this).attr('name') + 'Example2',
 				altFormat	   : 'DD, d MM, yy',
@@ -280,8 +291,8 @@ StudyEdit.studyChildren = {
 			    		
 			        })
 			    .fail( function(jqXHR, textStatus, errorThrown) {
-			    		dialog.html( jqXHR.responseText );   
-			    		entityMethods.onLoad();
+		    		dialog.html( jqXHR.responseText );   
+		    		entityMethods.onLoad();
 			        }
 			    );
 			    e.preventDefault(); //STOP default action
@@ -289,11 +300,16 @@ StudyEdit.studyChildren = {
 			
 			// Make sure to add the template and term editors
 			// Add add/modify option again for all selects
-			StudyEdit.datatables.editable.fields.initializeSelectAddMoreTemplates( "#" + dialog.attr( "id" ) );
-			StudyEdit.datatables.editable.fields.initializeSelectAddMoreTerms( "#" + dialog.attr( "id" ) );
+			StudyEdit.addMore.initialize( "#" + dialog.attr( "id" ) );
 			
-		}
+			// Initialize datepickers
+			StudyEdit.form.attachDatePickers( "#" + dialog.attr( "id" ) );
+
+			// Initialize help icons
+			attachHelpTooltips();
+		},
 		
+
 }
 
 /**
@@ -393,3 +409,12 @@ StudyEdit.assays = {
 		return StudyEdit.studyChildren.onLoad( StudyEdit.assays );
 	}
 };
+
+StudyEdit.spinner = {
+	show: function( text ) {
+		$('body').append( $( "<div>" ).addClass( "spinner overlay" ).append( $( "<div>" ).addClass( "message" ).text(text) ) );
+	},
+	hide: function() {
+		$( ".overlay.spinner" ).remove();
+	}
+}

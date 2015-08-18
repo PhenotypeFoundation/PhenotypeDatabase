@@ -233,18 +233,23 @@ class StudyEditController {
          */
         def deleteAssays() {
                 if( !request.post ) {
-                        response.status = 400
-                        render "Bad Request"
-                        return
+                    response.status = 400
+                    render "Bad Request"
+                    return
                 }
 
+                def numIds = params.list( 'ids' )?.size()
                 def numDeleted = deleteEntities( Assay )
 
-                if( numDeleted )
-                flash.message = "" + numDeleted + " assay(s) were deleted"
-                else
-                flash.error= "No assays were selected"
-
+                if( numIds ) {
+                    if( numDeleted == numIds )
+                        flash.message = "All " + numDeleted + " selected assay(s) were deleted"
+                    else
+                        flash.error = "" + numDeleted + " of the " + numIds + " selected assay(s) were deleted. The assays that could not be deleted probably contain measurements in one of the modules and can't be deleted for that reason."
+                } else {
+                    flash.error= "No assays were selected"
+                }
+                
                 redirect action: "assays", id: params.id
         }
 
@@ -347,16 +352,20 @@ class StudyEditController {
                 render datatablesService.createDatatablesOutput( data, params, { entry ->
                                 def output = entry as List
                                 def sample = entry[ 0 ]
+                                
+                                // Convert columns
                                 output[ 0 ] = sample.id
                                 output[ 6 ] = new RelTime( entry[ 6 ] ).toString()
 
                                 // Collect values for the assays
+                                def assaySamples = []
                                 assays.each { assay ->
-                                        def sampleIds = assay.samples*.id
-                                        output << sampleIds.contains( sample.id )
+                                    def sampleIds = assay.samples*.id
+                                    assaySamples << sampleIds.contains( sample.id )
                                 }
 
-                                output
+                                // Generate output (the checkbox columns should be first
+                                [output[0]] + assaySamples + output[1..6]
                         }) as JSON
         }
 
@@ -406,42 +415,30 @@ class StudyEditController {
                         def index = 0
 
                         studyEditService.putParamsIntoEntity( entity, params )
-
-                        def study = Study.get( entity.parent?.id )
                         def template = entity.template
-
+                        
                         if( params._action == "save" ) {
                                 if( entity.validate() ) {
-                                        // We have to store multiple entities.
+                                        // Now we know that the entity validates, see how many entites
+                                        // we have to store
+                                        def originalEntityName = entity.name
+                                        entity.discard();
+                                        
+                                        for( index = 0; index < numEntities; index++ ) {
+                                            def entityToSave = entity.class.newInstance()
+                                            entityToSave.template = template
+                                            studyEditService.putParentIntoEntity( entityToSave, params )
+                                            studyEditService.putParamsIntoEntity( entityToSave, params )
 
-                                        while( index < numEntities ) {
-                                                // If the entity validates, make sure it is added properly to the study
-                                                switch( entity.class ) {
-                                                case Subject:
-                                                        study.addToSubjects( entity )
-                                                        break
-                                                case Sample:
-                                                        study.addToSamples( entity )
-                                                        break
-                                                case Assay:
-                                                        study.addToAssays( entity )
-                                                        break
-                                                }
-
-                                                study.save( flush: true );
-                                                index++
-
-                                                // Create a clone to store another one
-                                                if( index < numEntities ) {
-                                                        entity = entity.class.newInstance( parent: study )
-                                                        entity.template = template
-                                                        studyEditService.putParamsIntoEntity( entity, params )
-
-                                                        // Make sure the name is unique
-                                                        entity.name = entity.name + "_" + ( index + 1 )
-                                                }
+                                            // Add _<num> postfix to the entity name if multiple entities
+                                            // are created to ensure uniqueness 
+                                            if( numEntities > 1 ) {
+                                                entityToSave.name = originalEntityName + "_" + ( index + 1 )
+                                            }
+                                            
+                                            entityToSave.save(flush:true)
                                         }
-
+                                    
                                         // Tell the frontend the save has succeeded
                                         response.status = 210
                                         def returnJSON = [ templateId: template.id ]
@@ -471,13 +468,17 @@ class StudyEditController {
                                                 def entity = entityType.get( id.toLong() )
 
                                                 switch( entityType ) {
-                                                case Subject:
+                                                    case Subject:
                                                         study.deleteSubject( entity )
                                                         break
-                                                case Sample:
+                                                    case Sample:
                                                         study.deleteSample( entity )
                                                         break
-                                                case Assay:
+                                                    case Assay:
+                                                        // Can't delete assays with measurements    
+                                                        if( entity.hasMeasurements() ) {
+                                                            return
+                                                        }
                                                         study.deleteAssay( entity )
                                                         break
                                                 }
@@ -606,9 +607,15 @@ class StudyEditController {
                                 entitiesToSave << entity
                         } else {
                                 success = false
+                                
                                 entity.errors.allErrors.each { error ->
-                                        errors[ error.getArguments()[0] ] = g.message(error: error)
+                                    if( !errors[entity.id] )
+                                        errors[entity.id] = [:]
+                                        
+                                    errors[entity.id][ error.getArguments()[0] ] = g.message(error: error)
                                 }
+                                
+                                entity.discard()
                         }
                 }
 
@@ -690,9 +697,7 @@ class StudyEditController {
                 }
 
                 // handle public checkbox
-                if (params.get("publicstudy")) {
-                        study.publicstudy = params.get("publicstudy")
-                }
+                study.publicstudy = params.get("publicstudy") ? true : false
 
                 // handle publications
                 handleStudyPublications(study, params)

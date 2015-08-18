@@ -174,7 +174,7 @@ StudyEdit.design.eventGroups = {
 	
 	edit: function( id, dataUrl ) {
 		var dialog = StudyEdit.design.eventGroups.dialog.get();
-		dialog.dialog( "option", "title", "Edit treatment & sample group" );
+		dialog.dialog( "option", "title", "Edit sample & treatment group" );
 		dialog.data( "eventgroup-id", id );
 		
 		StudyEdit.design.eventGroups.dialog.open()
@@ -222,7 +222,7 @@ StudyEdit.design.eventGroups = {
 			.append( $( "<span class='name'>" ).text( eventGroupData.name ) )
 			.append( $( "<span class='events'>" ) )
 			.append( 
-				$( "<span class='buttons'>" )
+				$( "<span class='designobject-buttons'>" )
 					.append( '<a href="#" class="edit">edit</a>') 
 					.append( '<a href="#" class="delete">del</a>') 
 			);
@@ -260,8 +260,13 @@ StudyEdit.design.eventGroups = {
 				StudyEdit.design.timelineObject.redraw();
 			
 			// Update the duration and text in the eventgroup box
-			$( '#eventgroup-' + eventGroupData.id ).data( "duration", eventGroupData.duration );
-			$( '#eventgroup-' + eventGroupData.id + ' .name' ).text( eventGroupData.name );
+			eventGroupElement = $( '#eventgroup-' + eventGroupData.id ); 
+			eventGroupElement.data( "duration", eventGroupData.duration );
+			eventGroupElement.find ('.name' ).text( eventGroupData.name );
+			
+			// Update the contents of the event group as well
+			eventGroupElement.find ('.events' ).text( eventGroupData.contents );
+			
 		});
 	},
 	
@@ -273,7 +278,8 @@ StudyEdit.design.eventGroups = {
 		
 		if( confirm( "Deleting this treatment&sample group will also delete all samples that originated from it, and remove all instances of this group. Are you sure you want to delete the treatment&sample group?" ) ) {
 			$.post( url, data, function() {
-				console.log( "Eventgroup deleted" );
+				if( console && console.log )
+					console.log( "Eventgroup deleted" );
 			});
 			
 			// Also delete the eventgroup from the timeline with subjectEventgroups
@@ -318,7 +324,7 @@ StudyEdit.design.eventGroups = {
 	    	// If the user drags in an event, he should specify the duration
 	    	var duration = 0;
 	    	if( eventType == "event" ) {
-	    		duration = prompt( "Please specify the duration of this treatment type. Specify 0 for no duration." );
+	    		duration = prompt( "Please specify the duration of this treatment type.\nUse 's', 'm', 'h', 'd', 'w' or 'y' to denote seconds, minutes, hours, days, weeks or years. Specify 0 for no duration.\n\nExamples: '1d', '2d 12h', '3h 45m'" );
 	    		
 	    		if( duration == null ) {
 		    		timeline.cancelAdd();
@@ -637,5 +643,15 @@ StudyEdit.design.events = {
 		    );
 		    e.preventDefault(); //STOP default action
 		});
+
+		// Make sure to add the template and term editors
+		// Add add/modify option again for all selects
+		StudyEdit.addMore.initialize( '#eventGroupContentsDialog' );
+		
+		// Initialize datepickers
+		StudyEdit.form.attachDatePickers( '#eventGroupContentsDialog' );
+
+		// Initialize help icons
+		attachHelpTooltips();
 	}
 };

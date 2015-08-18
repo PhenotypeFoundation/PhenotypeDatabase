@@ -53,6 +53,13 @@ public class MultipleStudiesExporter implements Exporter {
     public boolean supportsMultiple() { true }
     
     /**
+     * Use the given parameters for exporting
+     */
+    public void setParameters(def parameters) {
+        // Ignore the parameters for now
+    }
+    
+    /**
      * Exports multiple entities to the outputstream
      */
     public void exportMultiple( def studies, OutputStream out ) { 

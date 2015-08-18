@@ -21,7 +21,10 @@ StudyEdit.assaySamples = {
 						return '<input type="checkbox" data-original="' + val + '" ' + ( val ? 'yy checked="checked" ' : "" ) + '> ';
 					},
 					"fnCreatedCell": function( nTd, sData, oData, iRow, iCol ) {
-						if( iCol > 5 ) {
+						// Handle checkboxes to select samples for an assay
+						// The first column contains the 'select' checkbox, however, the next
+						// columns will contain the checkboxes
+						if( iCol > 0 ) {
 							var fieldInput = $(nTd).find( "input" );
 							var rowId = oData[0];
 							var colId = $( "#samplestable_wrapper th:eq(" + iCol + ")" ).data( "id" );

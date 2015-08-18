@@ -2,7 +2,8 @@ modules = {
     sam2 {
         dependsOn 'jquery'
         dependsOn 'datatables'  // from dbxpModuleBase
-
+        dependsOn 'infoboxes'
+        
         resource url: [dir: 'js', file: 'selectAddMore.js', plugin: 'dbxp-sam']
         resource url: [dir: 'js', file: 'removeWebFlowExecutionKey.js', plugin: 'dbxp-sam']
         resource url: [dir: 'css', file: 'sam.css', plugin: 'dbxp-sam']

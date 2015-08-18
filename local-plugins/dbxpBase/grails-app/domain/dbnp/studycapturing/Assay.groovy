@@ -2,6 +2,7 @@ package dbnp.studycapturing
 
 import org.dbnp.gdt.*
 import dbnp.authentication.*
+import org.dbxp.sam.Measurement
 
 /**
  * This class describes an Assay, which describes the application of a certain (omics) measurement to multiple samples.
@@ -111,59 +112,68 @@ class Assay extends TemplateEntity {
             return []
     }*/
 	
-	/**
-	 * Return 
-	 * @return
-	 */
-	public int getSampleCount() {
-		def c = Assay.createCriteria()
-		def result = c.list {
-			eq("id", this.id)
-			createAlias('samples', 'samples')
-			projections {
-				rowCount()
-			}
-			groupProperty("id")
-		}
-		
-		if( result && result[0] ) {
-			return result[0][0]
-		} else {
-			log.warn "Invalid result for retrieving samples counts on assay " + this + ": " + result
-			return 0
-		}
-	}
+    /**
+     * Return 
+     * @return
+     */
+    public int getSampleCount() {
+            def c = Assay.createCriteria()
+            def result = c.list {
+                    eq("id", this.id)
+                    createAlias('samples', 'samples')
+                    projections {
+                            rowCount()
+                    }
+                    groupProperty("id")
+            }
+
+            if( result && result[0] ) {
+                    return result[0][0]
+            } else {
+                    log.warn "Invalid result for retrieving samples counts on assay " + this + ": " + result
+                    return 0
+            }
+    }
+
+    /**
+     * Returns true if the given user is allowed to read this study
+     */
+    public boolean canReadAssay(SecUser loggedInUser) {
+            // Public studies may be read by anyone
+            if( this.parent.publicstudy && this.publicassay) {
+                    return true;
+            }
+
+            // Anonymous readers are only given access when published and public
+            if (loggedInUser == null) {
+                    return false;
+            }
+
+            // Administrators are allowed to read every study
+            if (loggedInUser.hasAdminRights()) {
+                    return true;
+            }
+
+            // Owners and writers are allowed to read this study
+            if (this.parent.owner == loggedInUser || this.parent.writers.contains(loggedInUser)) {
+                    return true
+            }
+
+            // Readers are allowed to read this study when it is published
+            //		if (this.readers.contains(loggedInUser) && this.published) {
+            if (this.parent.readers.contains(loggedInUser)) {
+                    return true
+            }
+
+            return false
+    }
+  
+    /**
+     * Checks whether the SAM module has measurements associated with this assay
+     */
+    public boolean hasMeasurements() {
+        def num = Measurement.executeQuery( "SELECT COUNT(*) FROM Measurement m WHERE m.sample.parentAssay = :assay", [ "assay": this ] )
         
-        /**
-	 * Returns true if the given user is allowed to read this study
-	 */
-	public boolean canReadAssay(SecUser loggedInUser) {
-		// Public studies may be read by anyone
-		if( this.parent.publicstudy && this.publicassay) {
-			return true;
-		}
-
-		// Anonymous readers are only given access when published and public
-		if (loggedInUser == null) {
-			return false;
-		}
-
-		// Administrators are allowed to read every study
-		if (loggedInUser.hasAdminRights()) {
-			return true;
-		}
-
-		// Owners and writers are allowed to read this study
-		if (this.parent.owner == loggedInUser || this.parent.writers.contains(loggedInUser)) {
-			return true
-		}
-
-		// Readers are allowed to read this study when it is published
-		//		if (this.readers.contains(loggedInUser) && this.published) {
-		if (this.parent.readers.contains(loggedInUser)) {
-			return true
-		}
-
-		return false
-	}
+        return num[0] > 0
+    }
 }

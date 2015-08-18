@@ -16,7 +16,6 @@ class TemplateFieldService {
      * @return ArrayList containing all list items of this template field that have been used in an object.
      */
     def List getUsedListEntries( TemplateField templateField ) {
-
         if ((templateField.type != TemplateFieldType.STRINGLIST && templateField.type != TemplateFieldType.EXTENDABLESTRINGLIST) || templateField.listEntries.size() == 0)
             return []
 
@@ -43,7 +42,6 @@ class TemplateFieldService {
      * @return ArrayList containing all list items of this template field that have never been used in an object.
      */
     def List getNonUsedListEntries( TemplateField templateField ) {
-
         if ((templateField.type != TemplateFieldType.STRINGLIST && templateField.type != TemplateFieldType.EXTENDABLESTRINGLIST) || templateField.listEntries.size() == 0)
             return []
 
@@ -58,7 +56,6 @@ class TemplateFieldService {
      * @return ArrayList containing all list items of this template field that have never been used in an object.
      */
     def List getNonUsedListEntries( TemplateField templateField, List usedFields ) {
-
         if ((templateField.type != TemplateFieldType.STRINGLIST && templateField.type != TemplateFieldType.EXTENDABLESTRINGLIST) || templateField.listEntries.size() == 0)
             return []
 
@@ -86,4 +83,30 @@ class TemplateFieldService {
 
         return sql.rows(query.toString())[0].count.toInteger()
     }
+    
+    
+    /**
+     * Counts the number of uses for all template fields
+     */
+    def countUses() {
+        def sql = new Sql(dataSource)
+
+        def query = "SELECT template_field_id, COUNT(template_field_id) FROM templates_template_field GROUP BY template_field_id"
+
+        def counts = sql.rows(query.toString())
+        counts
+    }
+    
+    /**
+     * Return all template field ids for template fields that are used in a template
+     */
+    def getUsedTemplateFieldIds() {
+        def sql = new Sql(dataSource)
+
+        def query = "SELECT DISTINCT template_field_id FROM template_template_field"
+
+        def counts = sql.rows(query.toString())
+        counts.collect { it.template_field_id }
+    }
+
 }

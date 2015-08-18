@@ -83,6 +83,14 @@
 					</tr>
 					<tr class="prop">
 						<td valign="top" class="name">
+							<label for="email">Email address</label>
+						</td>
+						<td valign="top" class="value ${hasErrors(bean: command, field: 'email', 'errors')}">
+							<g:textField disabled="disabled" name="email" value="${user?.email}"/>
+						</td>
+					</tr>
+					<tr class="prop">
+						<td valign="top" class="name">
 							<label for="password">Password</label>
 						</td>
 						<td valign="top" class="value ${hasErrors(bean: command, field: 'password', 'errors')}">
@@ -95,14 +103,6 @@
 						</td>
 						<td valign="top" class="value ${hasErrors(bean: command, field: 'password2', 'errors')}">
 							<g:passwordField name="password2" value=""/>
-						</td>
-					</tr>
-					<tr class="prop">
-						<td valign="top" class="name">
-							<label for="email">Email address</label>
-						</td>
-						<td valign="top" class="value ${hasErrors(bean: command, field: 'email', 'errors')}">
-							<g:textField name="email" value="${user?.email}"/>
 						</td>
 					</tr>
 					</tbody>

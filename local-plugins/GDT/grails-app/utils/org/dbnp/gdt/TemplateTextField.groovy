@@ -21,40 +21,40 @@
 package org.dbnp.gdt
 
 class TemplateTextField extends TemplateFieldTypeNew {
-	static contains				= String
-	static String type			= "TEXT"
-	static String casedType		= "Text"
-	static String description	= "Long text"
-	static String category		= "Text"
-	static String example		= "unlimited number of characters"
+    static contains				= String
+    static String type			= "TEXT"
+    static String casedType		= "Text"
+    static String description	= "Long text"
+    static String category		= "Text"
+    static String example		= "unlimited number of characters"
 
-	/**
-	 * Static validator closure
-	 * @param fields
-	 * @param obj
-	 * @param errors
-	 */
-	static def validator = { fields, obj, errors ->
-		genericValidator(fields, obj, errors, TemplateFieldType.TEXT, { value -> (value as String) })
-	}
+    /**
+     * Static validator closure
+     * @param fields
+     * @param obj
+     * @param errors
+     */
+    static def validator = { fields, obj, errors ->
+        genericValidator(fields, obj, errors, TemplateFieldType.TEXT, { value -> (value as String) })
+    }
 
-	/**
-	 * cast value to the proper type (if required and if possible)
-	 * @param TemplateField field
-	 * @param mixed value
-	 * @return String
-	 * @throws IllegalArgumentException
-	 */
-	static String castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
-		if (!value) {
-			return null
-		} else if (value instanceof String) {
-			return value
-		} else if (value.class != String) {
-			return value.toString()
-		} else {
-			// invalid value
-			throw new IllegalArgumentException("Text value not recognized: ${value} (${value.class})")
-		}
-	}
+    /**
+     * cast value to the proper type (if required and if possible)
+     * @param TemplateField field
+     * @param mixed value
+     * @return String
+     * @throws IllegalArgumentException
+     */
+    static String castValue(org.dbnp.gdt.TemplateField field, value, def currentValue) {
+        if (!value) {
+            return null
+        } else if (value instanceof String) {
+            return value
+        } else if (value.class != String) {
+            return value.toString()
+        } else {
+            // invalid value
+            throw new IllegalArgumentException("Text value not recognized: ${value} (${value.class})")
+        }
+    }
 }

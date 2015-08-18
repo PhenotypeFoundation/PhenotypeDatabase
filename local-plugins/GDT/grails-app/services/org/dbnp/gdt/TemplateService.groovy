@@ -32,4 +32,13 @@ class TemplateService {
 
         return count.toInteger()
     }
+
+    def countUses( String entityName ) {
+        def sql = new Sql(dataSource)
+
+        def query = "SELECT template_id, COUNT(template_id) FROM ${entityName} GROUP BY template_id"
+
+        def counts = sql.rows(query.toString())
+        counts
+    }
 }

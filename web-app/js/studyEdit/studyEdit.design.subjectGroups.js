@@ -106,7 +106,13 @@ StudyEdit.design.subjectGroups = {
 		},
 		open: function() {
 			// open the dialog
-			StudyEdit.design.subjectGroups.dialog.get().dialog( 'open' );
+			var dialog = StudyEdit.design.subjectGroups.dialog;
+			
+			dialog.get().dialog( 'open' );
+			
+			// Initialize the datatable only after opening the dialog
+			// to make sure column width are correct
+			StudyEdit.design.subjectGroups.dialog.dataTable.initialize();
 		},
 		close: function() {
 			// Close the dialog
@@ -118,7 +124,12 @@ StudyEdit.design.subjectGroups = {
 				modal: true, 
 				autoOpen: false,
 				width: 900,
-			});			
+				close: function(event,ui) {
+					// Clear the datatable
+					StudyEdit.design.subjectGroups.dialog.dataTable.destroy();
+					
+				}
+			});
 		},
 		
 		addButtons: function( ok, del, cancel ) {
@@ -147,7 +158,26 @@ StudyEdit.design.subjectGroups = {
 			}
 
 			StudyEdit.design.subjectGroups.dialog.get().dialog( "option", "buttons", buttons );
-		} 
+		},
+		
+		dataTable: {
+			getId: function() { 
+				return 'selectSubjectsTable'; 
+			},
+			get: function() {
+				return StudyEdit.design.subjectGroups.dialog.get().find( "#" + this.getId() ).dataTable();
+			},
+			initialize: function() {
+				return StudyEdit.datatables.initialize( "#" + this.getId() );
+			},
+			destroy: function() {
+				// Clear any references on selection
+				StudyEdit.datatables.destroy( this.getId() );
+				
+				// Clear the datatable itself
+				this.get().fnDestroy();
+			}
+		}
 	},
 	
 	initialize: function() {
@@ -159,7 +189,10 @@ StudyEdit.design.subjectGroups = {
 			StudyEdit.design.subjectGroups.edit( $(e.target).text() );
 		});
 		
-		// Enable selectable behaviour
+		// Update overlay
+		StudyEdit.design.subjectGroups.updateOverlay();
+		
+		// Enable selectable behaviour on subjects
 		$( "#design-subjects" ).selectable({
 			filter: ".subject",
 		    stop: function() {        
@@ -167,7 +200,19 @@ StudyEdit.design.subjectGroups = {
 		            this.checked= !this.checked
 		        });
 		    }
-		})
+		});
+	},
+	
+	/**
+	 * Updates the overlay visibility, based on the number of subject groups
+	 */
+	updateOverlay: function() {
+		// Add overlay if no subjectgroups are defined
+		if( StudyEdit.design.subjectGroups.groups.size() == 0 ) {
+			$( "#studydesign .overlay" ).show();
+		} else {
+			$( "#studydesign .overlay" ).hide();
+		}
 	},
 	
 	/**
@@ -182,7 +227,8 @@ StudyEdit.design.subjectGroups = {
 		
 		// Clear the name box and subject checkboxes
 		$( '[name=subjectgroup-name]' ).val( "" );
-		$( '#design-subjects .subject input' ).attr( "checked", false );
+		
+		// Selection is initially empty, as the datatable is refreshed
 	},
 	
 	edit: function( groupName ) {
@@ -198,15 +244,26 @@ StudyEdit.design.subjectGroups = {
 		StudyEdit.design.subjectGroups.dialog.open();
 
 		// Load the data for the timeline
+		var tableId = StudyEdit.design.subjectGroups.dialog.dataTable.getId();
+		var loadingSelection = $( "#" + tableId ).parents( ".dataTables_wrapper" ).find( ".loadingSelection");
+		loadingSelection.slideDown(100);
+		
 		$.get( StudyEdit.design.subjectGroups.getDataUrl( subjectGroup ), function( data ) {
 			// Put data into the dialog
 			$( '[name=subjectgroup-name]' ).val( data.name );
 				
 			// Check the right checkboxes
-			$( '#design-subjects .subject input' ).attr( "checked", false );
 			$.each( data.subjects, function( idx, el ) {
-				$( "#subjectgroup_subjects_" + el.id ).attr( "checked", true );				
+				StudyEdit.datatables.selection.select( tableId, el.id, true );
+				$( "#selectSubjectsTable_ids_" + el.id ).attr( "checked", true );
 			} );
+			
+			// Notify the user of having a selection
+			StudyEdit.datatables.selection.updateCheckAll($('#' + tableId));
+			StudyEdit.datatables.selection.updateLabel(tableId);
+			
+			// Remove loading message
+			loadingSelection.slideUp(100);
 		});
 	},
 	
@@ -219,32 +276,46 @@ StudyEdit.design.subjectGroups = {
 		var action = ( id ? "Update" : "Add" );
 		var url = $( 'form#subjectGroup' ).attr( 'action' ) + action;
 				
+		var subjectIds = StudyEdit.datatables.selection.getSelectedIds( StudyEdit.design.subjectGroups.dialog.dataTable.getId() );
+		
 		var data = { 
 			name: $( '[name=subjectgroup-name]' ).val(),
-			subjects: $( '#design-subjects .subject input:checked' ).map( function( idx, el ) {
-				return $(el).val();
-			}).get()
+			
+			// Create a string of subjectIds, as tomcat has a maximum number of
+			// parameters being sent to the server (defaults to 10000). 
+			subjects: subjectIds ? subjectIds.join(",") : "" 
 		};
 		
 		if( id ) {
-			// On update, the eventgroupId should be sent
+			// On update, the subjectGroupId should be sent
 			data.id = id;
 		} else {
 			// On add, the studyId must be put in place
 			data.id = $( "#design" ).find( "#id" ).val();
 		}
 		
-		$.post( url, data, function( returnData ) {
-			if( id ) {
-				// Update existing eventgroup
-				StudyEdit.design.subjectGroups.groups.update( data );
-			} else {
-				// Add new eventgroup
-				StudyEdit.design.subjectGroups.groups.add( returnData );
-			}
-			
-			StudyEdit.design.subjectGroups.updateTimeline();
-		});
+		// Start spinner for the user to wait
+		StudyEdit.spinner.show( "Please wait while saving your subjectgroup. For many subjects, this may take up to a minute.");
+
+		$.post( url, data )
+			.done( function( returnData ) {
+				if( id ) {
+					// Update existing eventgroup
+					StudyEdit.design.subjectGroups.groups.update( data );
+				} else {
+					// Add new eventgroup
+					StudyEdit.design.subjectGroups.groups.add( returnData );
+				}
+				
+				// Update timeline and overlay
+				StudyEdit.design.subjectGroups.updateTimeline();
+			})
+			.fail(function() {
+				alert( "Failure in saving subject group data. Please try again." );
+			})
+			.always(function() {
+				StudyEdit.spinner.hide();
+			})
 		
 		return true;
 	},
@@ -269,10 +340,9 @@ StudyEdit.design.subjectGroups = {
 	},
 
 	updateTimeline: function() {
-		if( StudyEdit.design.subjectGroups.groups.size() == 0 ) {
-			$("#timeline-eventgroups" ).hide();
-		} else {
-			$("#timeline-eventgroups" ).show();
+		StudyEdit.design.subjectGroups.updateOverlay();
+		
+		if( StudyEdit.design.subjectGroups.groups.size() > 0 ) {
 			StudyEdit.design.timelineObject.redraw();
 		}
 	},

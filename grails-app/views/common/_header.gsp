@@ -1,4 +1,7 @@
 <%@ page import="org.dbnp.gdt.AssayModule" %>
+
+<r:require module="autocomplete" />
+
 <div id="wrapper" xmlns="http://www.w3.org/1999/html">
     <div id="header">
         <div class="container">
@@ -43,7 +46,6 @@
                         <div class="subnav">
                             <ul>
                                 <li><g:link controller="studyEdit" action="add">Create a new study</g:link></li>
-                                <li><g:link controller="studyEdit" action="edit">Edit a study</g:link></li>
                             </ul>
                         </div>
                     </li>
@@ -53,6 +55,9 @@
                         <div class="subnav">
                             <ul>
                                 <li><g:link controller="studyImporter" action="chooseType">A part of the study design</g:link></li>
+   			                    <sec:ifAnyGranted roles="ROLE_ADMIN,ROLE_TEMPLATEADMIN">
+                                	<li><g:link controller="template" action="importTemplate">Templates</g:link></li>
+                                </sec:ifAnyGranted>
                             </ul>
                         </div>
                     </li>
@@ -73,12 +78,10 @@
                                         <a href="#">Templates</a>
                                         <div class="subsubnav">
                                             <ul>
-                                                <af:templateEditorMenu wrap="li" />
+                                                <af:templateEditorMenu wrap="li" skipImport="true" skipExport="true" />
                                             </ul>
                                         </div>
                                     </li>
-                                </sec:ifLoggedIn>
-                                <sec:ifLoggedIn>
                                     <li class="has-child">
                                         <a href="#">Contacts</a>
                                         <div class="subsubnav">
@@ -113,7 +116,6 @@
                                 <g:if env="development">
                                     <li><g:link controller="studyCompare" action="index">Compare</g:link></li>
                                 </g:if>
-                                <li><g:link controller="cookdata" action="index">Prepare Data</g:link></li>
                             </ul>
                         </div>
                     </li>
@@ -124,6 +126,9 @@
                             <ul>
                                 <li><g:link controller="exporter" action="assays">Assay Data</g:link> </li>
                                 <li><g:link controller="exporter" action="studies">Studies</g:link></li>
+			                    <sec:ifAnyGranted roles="ROLE_ADMIN,ROLE_TEMPLATEADMIN">
+                                	<li><g:link controller="template" action="export">Templates</g:link></li>
+                                </sec:ifAnyGranted>
                             </ul>
                         </div>
                     </li>
@@ -149,7 +154,6 @@
                                     <g:if test="${!session.gscfUser.shibbolethUser}"><li><g:link controller="userGroup" action="create"><img src="${fam.icon(name: 'group')}" alt="group administration"/> Create Group</g:link></li></g:if>
                                     <li><g:link controller="assayModule" action="index"><img src="${fam.icon(name: 'disconnect')}" alt="module administration"/> Manage Modules</g:link></li>
                                     <li><g:link controller="setup"><img src="${fam.icon(name: 'wand')}" alt="module administration"/> Setup wizard</g:link></li>
-                                    <li><g:link controller="tnoMigrate"><img src="${fam.icon(name: 'arrow_join')}" alt="TNO db migrate"/> Migrate Database (specific for TNO)</g:link></li>
                                     <li><g:link controller="info"><img src="${fam.icon(name: 'lightning')}" alt="application information"/> Application information</g:link></li>
                                 </ul>
                             </div>
@@ -161,9 +165,6 @@
                         <g:if test="${search_term}"><g:set var="preterm" value="${search_term}"/></g:if>
                         <g:textField name="search_term" id="search_term" placeholder="Search term" value="${preterm}"/>
                         <img name="search_spinner" id="search_spinner" class="search_spinner" src="${resource(dir: 'images', file: 'spinner.gif')}" alt="" />
-                        %{--<input class="pie" type="submit" value="Search" title="Search"  name="searchSubmit" id="searchSubmit" disabled="disabled"/>--}%
-                        %{--Actual submit button is not needed, will use as label--}%
-                        <input name="search_button" id="search_button" class="pie" type="button" value="Search" disabled="disabled"/>
                     </g:form>
                 </div>
             </div>
@@ -218,3 +219,63 @@
         </div>
     </div>
 </div>
+
+<r:script>
+$(document).ready(function() {
+    var quickSearch = $("#search_term");
+    var search_spinner = $("#search_spinner");
+    var search_button =  $("#search_button");
+    quickSearch.autocomplete({
+        minLength: 2,
+        delay: 300,
+        search: function(event, ui) {
+            search_spinner.css ({ 'opacity': 100 });
+            search_button.css ({ 'color': '#2087a3' });
+        },
+        source: function(request, response) {
+            search_spinner.css ({ 'opacity': 0 });
+            search_button.css ({ 'color': '#fff' });
+
+            $.ajax({
+                //url: "http://ws.geonames.org/searchJSON",
+                url: "${createLink(action: 'ajaxQuickSearch', controller: 'home')}",
+                dataType: "jsonp",
+                data: {
+                    featureClass: "P",
+                    style: "full",
+                    maxRows: 12,
+                    name_startsWith: request.term
+                },
+                success: function(data) {
+                    response($.map(data.data, function(item) {
+                        return {
+                            label:
+                                '<span class="about">' + item.category +
+                                '</span> <span class="from">' + item.name + '</span>',
+                            value: item.link
+                        }
+                    }));
+                }
+            });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+            // redirect ?
+            if (ui.item.value) {
+                // hide, so the URL does not show in the input field
+                quickSearch.css( { 'display': 'none' } );
+
+                // and redirect
+                window.location = ui.item.value;
+            }
+        },
+        open: function() {
+            $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+        },
+        close: function() {
+            $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+        },
+        html: true
+    });
+});
+</r:script>

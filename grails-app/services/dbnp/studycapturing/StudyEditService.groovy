@@ -61,6 +61,35 @@ class StudyEditService {
 		
 		output 
 	}
+    
+        /**
+         * Returns a proper list of subjects samples to generate a datatable for subject selection in a group
+         * @param params        Parameters to search
+                        int                     offset                  Display start point in the current data set.
+                        int                     max                             Number of records that the table can display in the current draw. It is expected that the number of records returned will be equal to this number, unless the server has fewer records to return.
+                        
+                        string          search                  Global search field
+                        
+                        int                     sortColumn              Column being sorted on (you will need to decode this number for your database)
+                        string          sortDirection   Direction to be sorted - "desc" or "asc".
+    
+                          Template      template                Template for the entities to read
+         * @return                      A map with all data. For example:
+                         List           entities                List with all entities
+                         int                    total                   Total number of records in the whole dataset (without taking search, offset and max into account)
+                         int                    totalFiltered   Total number of records in the search (without taking offset and max into account)
+                         int                    ids                             Total list of filtered ids
+         */
+        def getSubjectsForSubjectSelection( searchParams, study ) {
+            def query = generateHQLForSubjectSelection( searchParams, study )
+            
+            // Also count the total number of results in the dataset
+            def output = generateOutput( query, searchParams, Subject )
+            output.total = Subject.countByParent( study )
+            
+            output
+        }
+    
 	
 	/**
 	 * Returns a proper list of samples to generate a datatable with templated entities.
@@ -74,7 +103,7 @@ class StudyEditService {
 		def output = [:]
 		
 		// First select the number of results
-		def filteredIds = entity.executeQuery( "SELECT s.id FROM " + query.from + " WHERE " + query.where, query.params );
+		def filteredIds = entity.executeQuery( "SELECT DISTINCT s.id FROM " + query.from + " WHERE " + query.where, query.params );
 		output.totalFiltered = filteredIds.size()
 		output.ids = filteredIds
 		
@@ -82,11 +111,14 @@ class StudyEditService {
 		def hql = "SELECT " + query.select + " FROM " + query.from + " WHERE " + query.where + " " + ( query.order ? " ORDER BY " + query.order : "" )
 		output.entities = entity.executeQuery( hql, query.params, [ max: searchParams.max, offset: searchParams.offset ] )
 
+                if( query.chooseFirst ) {
+                    output.entities = output.entities.collect { it[0] }
+                }
+        
 		output
 
 	}
 
-	
 	/**
 	 * Generates the HQL to search
 	 * @return Map	
@@ -178,6 +210,10 @@ class StudyEditService {
 		def sortColumnIndex = searchParams.sortColumn ?: 0
 		def sortOrder = searchParams.sortDirection ?: "ASC"
 		
+                // Prepare for differences in selection
+                def select = "DISTINCT s"
+                def chooseFirst = false
+                
 		if( sortColumnIndex != null || sortColumnIndex >= ( domainFields.size() + template.fields.size() ) ) {
 			if( sortColumnIndex < domainFields.size() ) {
 				def sortOn = domainFields[ sortColumnIndex ]?.name;
@@ -191,6 +227,12 @@ class StudyEditService {
 				joins << "s." + store + " as orderJoin WITH index( orderJoin ) = :sortField"
 				hqlParams[ "sortField" ] = sortField.name
 				orderBy = "orderJoin " + sortOrder
+                                
+                                // When ordering  by a templatefield, we have to include it in the query as well
+                                // However, in order to handle the object properly, we will need to tell the 
+                                // calling method that only the first object should be chosen.
+                                select += ", orderJoin"
+                                chooseFirst = true
 			}
 		}
 			
@@ -204,11 +246,12 @@ class StudyEditService {
 			where += " AND (" + whereClause.join( " OR " ) + ") "
 			
 		[
-			select: "s",
+			select: select,
 			from: from,
 			where: where,
 			order: orderBy,
-			params: hqlParams
+			params: hqlParams,
+                        chooseFirst: chooseFirst
 		]
 	}
 	
@@ -293,7 +336,78 @@ class StudyEditService {
 			params: hqlParams
 		]
 	}
-	
+    
+    /**
+     * Generates the HQL to search assay samples
+     * @return Map
+     *              select
+     *              from
+     *              where
+     *              order
+     *              params
+     */
+    def generateHQLForSubjectSelection( searchParams, study ) {
+            def entity = Subject
+            
+            // Search in
+            //      subject name
+            //      subject template name
+            //      subject speciies
+            
+            // Create an HQL query as it gives us the most flexibility in searching and ordering
+            def from = " Subject s "
+            def joins = []
+            def whereClause = []
+            def hqlParams = [ study: study ]
+            def orderBy = ""
+
+            // Add joins for related information
+            joins << "s.template as template"
+            
+            // First add searching
+            if( searchParams.search ) {
+                    // With searching, retrieving the data requires joining all text and term fields
+                    def searchTerm = searchParams.search.toLowerCase()
+                    hqlParams[ "search" ] = "%" + searchTerm + "%"
+                    
+                    whereClause << "lower(s.name) LIKE :search"
+                    whereClause << "lower(template.name) LIKE :search"
+                    whereClause << "lower(s.species.name) LIKE :search"
+            }
+            
+            // Add ordering; to determine the column to sort on
+            def sortColumnIndex = searchParams.sortColumn ?: 0
+            def sortOrder = searchParams.sortDirection ?: "ASC"
+            
+            def fields = [
+                    "s.name",
+                    "template.name",
+                    "s.species.name",
+            ]
+            
+            if( sortColumnIndex != null || sortColumnIndex < fields.size() ) {
+                    orderBy = fields[ sortColumnIndex ] + " " + sortOrder
+            }
+                    
+            // Now build up the query, except for the SELECT part.
+            if( joins )
+                    from += " LEFT JOIN " + joins.join( " LEFT JOIN " )
+            
+            def where =  "s.parent = :study"
+                    
+            if( whereClause )
+                    where += " AND (" + whereClause.join( " OR " ) + ") "
+                    
+            [
+                    select: "s, " + fields.join( ", " ),
+                    from: from,
+                    where: where,
+                    order: orderBy,
+                    params: hqlParams
+            ]
+    }
+
+
 	def putParentIntoEntity( entity, params ) {
 		// Was a parentID given
 		if( params.parentId ) {
