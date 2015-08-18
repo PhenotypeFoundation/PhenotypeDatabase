@@ -31,7 +31,7 @@ function onStudyWizardPage() {
         if (box.is(':checked')) {
             $( "#dialog-creative-commons" ).dialog({
                 resizable: false,
-                height:250,
+                height:350,
                 width: 800,
                 modal: true,
                 buttons: {
@@ -46,7 +46,7 @@ function onStudyWizardPage() {
             });
         }
     });
-
+    
 	// handle and initialize table(s)
 	tableEditor = new TableEditor().init({
 		tableIdentifier : 'div.tableEditor',

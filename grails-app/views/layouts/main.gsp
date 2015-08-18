@@ -33,10 +33,29 @@
 
 <div id="dialog-creative-commons" title="License agreement" style="display:none">
     <p>
-        By publishing this study you agree that:<br/>
-    <li>the study will be available under the <a target="_ccl" rel="license" href="//creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a></li>
+        By publishing the <b>design</b> of this study you agree that:<br/>
+    <li>the information about this study will be available under the <a target="_ccl" rel="license" href="//creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a></li>
     <li>you are legally entitled to accept this agreement</li>
-</p>
+    </p>
+    <p>
+        The <b>measurements</b> of the assays can be made public separately.
+    </p>
+    <p>
+        Do you agree to these terms?
+    </p>
+    <p>
+        <a target="_ccl" rel="license" href="//creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
+    </p>
+</div>
+<div id="dialog-creative-commons-assay" title="License agreement" style="display:none">
+    <p>
+        By publishing this <b>assay</b> you agree that:<br/>
+    <li>the measurements in this assay will be available under the <a target="_ccl" rel="license" href="//creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a></li>
+    <li>you are legally entitled to accept this agreement</li>
+    </p>
+    <p>
+        The <b>design</b> of the study can be made public separately.
+    </p>
     <p>
         Do you agree to these terms?
     </p>

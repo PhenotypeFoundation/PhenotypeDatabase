@@ -43,7 +43,7 @@ class Assay extends TemplateEntity {
             new TemplateField(
                     name: 'publicassay',
                     type: TemplateFieldType.BOOLEAN,
-                    comment: 'If selected the assay will become public',
+                    comment: 'By selecting this option you accept that the measurements of this assay will become <b>public</b> under the <b>Creative Commons Attribution-ShareAlike 3.0 Unported License</b>',
                     required: false
             )
     ]

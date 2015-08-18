@@ -152,6 +152,8 @@ grails.plugin.springsecurity.securityConfigType = grails.plugin.springsecurity.S
 grails.plugin.springsecurity.interceptUrlMap = [
     '/':                  ['permitAll'],
     '/home':              ['permitAll'],
+    '/study/**':          ['permitAll'],
+    '/publication/list':  ['permitAll'],
     '/assets/**':         ['permitAll'],
     '/**/js/**':          ['permitAll'],
     '/**/css/**':         ['permitAll'],
@@ -159,7 +161,7 @@ grails.plugin.springsecurity.interceptUrlMap = [
     '/**/favicon.ico':    ['permitAll'],
     '/login/**':          ['permitAll'],
     '/logout/**':         ['permitAll'],
-
+    
     // Registration and confirming new accounts
     '/register/forgotPassword':                 ['permitAll'],
     '/userRegistration/add':                    ['permitAll'],

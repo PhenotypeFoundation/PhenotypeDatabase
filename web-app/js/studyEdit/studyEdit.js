@@ -43,7 +43,7 @@ StudyEdit.showOpenStudyDialog = function() {
 }
 
 StudyEdit.initializePropertiesPage = function() {
-	StudyEdit.form.initialize();
+    StudyEdit.form.initialize();
 	
     // show creative commons agreement popup
     $(":checkbox[name^='public']").on('change', function() {
@@ -51,7 +51,7 @@ StudyEdit.initializePropertiesPage = function() {
         if (box.is(':checked')) {
             $( "#dialog-creative-commons" ).dialog({
                 resizable: false,
-                height:250,
+                height:350,
                 width: 800,
                 modal: true,
                 buttons: {
@@ -66,7 +66,7 @@ StudyEdit.initializePropertiesPage = function() {
             });
         }
     });
-
+    
     new SelectAddMore().init({
         rel	 : 'template',
         url	 : baseUrl + '/templateEditor',

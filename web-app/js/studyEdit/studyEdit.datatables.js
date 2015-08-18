@@ -560,9 +560,29 @@ StudyEdit.datatables = {
 								"change",
 								function(event) {
 									// Mark this cell as being changed
-									StudyEdit.datatables.editable
-											.markChanged(event.target);
+									StudyEdit.datatables.editable.markChanged(event.target);
+                                                                        if(event.target.name.indexOf('publicassay') >= 0){
+                                                                            if (event.target.checked == 1) {
 
+                                                                                $( "#dialog-creative-commons-assay" ).dialog({
+                                                                                    resizable: false,
+                                                                                    height:350,
+                                                                                    width: 800,
+                                                                                    modal: true,
+                                                                                    buttons: {
+                                                                                        "Yes": function() {
+                                                                                            $( this ).dialog( "close" );
+                                                                                        },
+                                                                                        "No": function() {
+                                                                                            $( this ).dialog( "close" );
+                                                                                            event.target.checked = 0;
+                                                                                        }
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                            
+                                                                        }
+                                                                        
 									// Change other cells as well, if this row
 									// is selected
 									var selectedIds = StudyEdit.datatables.elementsSelected[tableId];
