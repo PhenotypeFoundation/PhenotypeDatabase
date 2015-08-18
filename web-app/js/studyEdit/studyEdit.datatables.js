@@ -508,7 +508,7 @@ StudyEdit.datatables = {
 					// checkbox must have a value and be checked if given value
 					// != empty
 					if (fieldType == "BOOLEAN") {
-						fieldInput.val("on").attr("checked", value != "");
+						fieldInput.val("on").attr("checked", value != "false");
 					}
 				}
 

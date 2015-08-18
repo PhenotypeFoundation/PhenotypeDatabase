@@ -386,7 +386,7 @@ StudyView.datatables = {
 					if( fieldType == "BOOLEAN" ) {
 						fieldInput
 							.val( "on" )
-							.attr( "checked", value != "" );
+							.attr( "checked", value != "false" );
 					}
 				}
 				
