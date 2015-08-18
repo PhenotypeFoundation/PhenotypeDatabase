@@ -1,5 +1,6 @@
 package dbnp.studycapturing
 
+import dbnp.studycapturing.*
 import grails.plugin.springsecurity.annotation.Secured
 import grails.converters.JSON
 import dbnp.authentication.SecUser
@@ -333,11 +334,13 @@ class StudyController {
      */
     def ajaxGetAssays = {
         def study = Study.read(params.id)
-
+        def user = authenticationService.getLoggedInUser()
+        
         // set output header to json
         response.contentType = 'application/json'
-
-        render ((study?.assays?.collect{[name: it.name, id: it.id]} ?: []) as JSON)
+        def assayscom = study.assays.findAll { it.canReadAssay(user) }
+        def assays = assayscom.collect{[name: it.name, id: it.id]}
+        render (assays as JSON)
     }
 
     /**

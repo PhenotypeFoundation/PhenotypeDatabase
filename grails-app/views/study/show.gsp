@@ -63,7 +63,7 @@
 					<h2>Authorization</h2>
 					<div class="content">
 						<div class="element">
-							<div class="description">Public</div>
+							<div class="description">Public Design</div>
 							<div class="input"><g:if test="${study?.publicstudy}">Yes</g:if><g:else>No</g:else></div>
 						</div>
 						

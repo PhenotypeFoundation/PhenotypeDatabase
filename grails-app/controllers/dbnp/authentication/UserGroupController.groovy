@@ -49,6 +49,7 @@ class UserGroupController {
 			return
 		}
 		
+                // For the old users in the selected usergroup, remove them from the linked studies
                 def selectedUsers = userGroup.getUsers()
                 for(selectedUser in selectedUsers){
                         def selectedGroups = selectedUser.getUserGroups().id
@@ -74,7 +75,6 @@ class UserGroupController {
                         SecUserSecUserGroup.remove(selectedUser,userGroup, true)
                 }
                 
-                //def readersGroups = Study.findAllReadersIsNotNull()
                 def readerGroups = Study.all.findAll{it.readerGroups.contains(userGroup)}
                 def writerGroups = Study.all.findAll{it.writerGroups.contains(userGroup)}
                 
@@ -88,7 +88,8 @@ class UserGroupController {
 			render view: 'edit', model: buildUserGroupModel(userGroup)
 			return
 		}
-                                
+                         
+                // For the selected users, add them to the selected usergroup and the studies
                 def users
                 if(params.optionalUsers){                  
                     users = params.list('optionalUsers')

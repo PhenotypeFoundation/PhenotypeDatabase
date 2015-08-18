@@ -52,10 +52,10 @@
 					<h2>Authorization</h2>
 					<div class="content">
 						<div class="element">
-							<div class="description">Public</div>
+							<div class="description">Public Design</div>
 							<div class="input"><g:checkBox name="publicstudy" value="${study?.publicstudy}"/></div>
 							<div class="helpIcon"></div>
-							<div class="helpContent">Public studies are visible to anonymous users, not only to the readers specified below.</div>
+							<div class="helpContent">Public design makes the design of the study visible to anonymous users, not only to the readers specified below. Assays have to be made public separately.</div>
 						</div>
 						%{--<div class="element">--}%
 							%{--<div class="description">Published</div>--}%
