@@ -99,22 +99,31 @@ public abstract class TemplateEntityImporter<T extends TemplateEntity> extends A
         resetValidationErrors()
         
         // Now loop through each line and try to import the object.
-        for( def lineNr = 1; lineNr < data.size(); lineNr++) {
-            def line = data[lineNr]
-            def object = createObject(line, mapping, parameters)
-            
-            if( object.validate() ) {
-                object.save()
-            } else {
-                object.errors.allErrors.each {
-                    errors << new ImportValidationError(
-                        code: 2,
-                        message: messageSource.getMessage(it, null),
-                        line: lineNr
-                    )
+        getEntity().withSession { session ->
+            for( def lineNr = 1; lineNr < data.size(); lineNr++) {
+                def line = data[lineNr]
+                def object = createObject(line, mapping, parameters)
+                
+                if( object.validate() ) {
+                    object.save()
+                } else {
+                    object.errors.allErrors.each {
+                        errors << new ImportValidationError(
+                            code: 2,
+                            message: messageSource.getMessage(it, null),
+                            line: lineNr
+                        )
+                    }
+                }
+                
+                
+                if( lineNr % 1000 == 0 ) {
+                    session.flush() // make sure you flush so saves are saved to the DB BEFORE you clear
+                    session.clear()
                 }
             }
         }
+
         
         // Return true if no errors were found, false otherwise
         return !errors
