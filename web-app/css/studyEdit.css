@@ -182,3 +182,10 @@ table.dataTable td select {
     width: 98%;
 }
 
+/* Hide dialogs initially */
+#generateSamplesDialog, #eventGroupDialog, #eventGroupContentsDialog, #subjectGroupDialog { display: none; }
+
+/* Generate samples dialog */
+#generateSamplesDialog ul ul { margin-left: 30px; }
+#generateSamplesDialog li { margin: 4px 0; }
+ul#studydesign > li { margin-bottom: 15px;  }

@@ -59,7 +59,6 @@ class StudyEditDesignController {
 		def result
 		if( subjectEventGroup.save() ) {
 			study.addToSubjectEventGroups( subjectEventGroup );
-			studyEditService.generateSamples( subjectEventGroup )
 			
 			result = [ status: "OK", id: subjectEventGroup.id, group: subjectGroupName, subjectGroupId: subjectEventGroup.subjectGroup?.id, eventGroupId: subjectEventGroup.eventGroup?.id ]
 		} else {
@@ -398,9 +397,6 @@ class StudyEditDesignController {
 	
 		def result
 		if( samplingEventInEventGroup.save() ) {
-			// Generate new samples for this eventGroup
-			studyEditService.generateSamples( samplingEventInEventGroup )
-			
 			result = [ status: "OK", id: samplingEventInEventGroup.id, eventGroupId: eventGroupId, eventId: eventId, type: "samplingEvent" ]
 		} else {
 			response.status = 500
@@ -652,6 +648,8 @@ class StudyEditDesignController {
 
 		def name = params.get( "name" )
 		def result
+                def subjectIds = params.subjects ? params.subjects.split(",") : []
+                
 		if( name ) {
 			subjectGroup.name = name
 			
@@ -659,7 +657,7 @@ class StudyEditDesignController {
 				study.addToSubjectGroups( subjectGroup );
 				subjectGroup.save( flush: true )
 				
-				handleSubjectsInSubjectGroup( params.subjects?.split(","), subjectGroup )
+				handleSubjectsInSubjectGroup( subjectIds, subjectGroup )
 				result = [ status: "OK", id: subjectGroup.id, name: subjectGroup.name ]
 			} else {
 				response.status = 500
@@ -689,13 +687,12 @@ class StudyEditDesignController {
 
 		def name = params.get( "name" )
 		def result = [ "OK" ]
-		def subjectIds = params.subjects?.split(",")
+		def subjectIds = params.subjects ? params.subjects.split(",") : []
 		if( name && name != subjectGroup.name ) {
 			subjectGroup.name = name
 
 			if( subjectGroup.save() ) {
 				handleSubjectsInSubjectGroup( subjectIds, subjectGroup )
-				studyEditService.generateSamples( subjectGroup )
 			} else {
 				response.status = 500
 				result  = [ status: "Error" ]
@@ -703,7 +700,6 @@ class StudyEditDesignController {
 			
 		} else {
 			handleSubjectsInSubjectGroup( subjectIds, subjectGroup )
-			studyEditService.generateSamples( subjectGroup )
 		}
 		
 		render result as JSON
@@ -758,6 +754,7 @@ class StudyEditDesignController {
 		
 		if( !subjectIds && subjectGroup.subjects ) {
 			subjectGroup.subjects.clear()
+                        subjectGroup.save(flush: true)
 			return
 		}
 		
@@ -780,7 +777,8 @@ class StudyEditDesignController {
 				subjectGroup.addToSubjects( subject )
 			} 
 		}
-
+        
+                subjectGroup.save(flush: true)
 	}
     
         /**

@@ -45,6 +45,9 @@
 	background-image: url(../plugins/famfamfam-1.0.1/images/icons/application_form_edit.png);
 }
 
+.options a.refresh {
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/arrow_refresh.png);
+}
 .options a.performAction {
 	background-image: url(../plugins/famfamfam-1.0.1/images/icons/brick_go.png);
 }
