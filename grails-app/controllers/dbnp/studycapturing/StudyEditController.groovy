@@ -175,6 +175,33 @@ class StudyEditController {
         }
 
         /**
+         * Generates samples based on the study design
+         * @return
+         */
+        def generateSamples() {
+            def subjectEventGroupIds = params.list( "subjectEventGroup" )
+            def result = [:]
+            
+            if( !subjectEventGroupIds ) {
+                result = [ "No event groups were checked" ]
+            } else {
+                subjectEventGroupIds.each {
+                    log.debug "Generating samples for subjectEventGroup " + it
+                    def subjectEventGroup = SubjectEventGroup.read(it as Long)
+                    
+                    if( !subjectEventGroup )
+                        return
+                    
+                    studyEditService.generateSamples(subjectEventGroup)
+                }
+
+                result = [ "OK" ]
+            }
+            
+            render result as JSON
+        }
+        
+        /**
          * Regenerates the sample names for all samples, based on the subject and event it belongs to
          * @param id
          * @see Sample.generateName

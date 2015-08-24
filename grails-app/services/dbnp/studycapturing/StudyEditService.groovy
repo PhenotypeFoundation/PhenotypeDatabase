@@ -475,7 +475,7 @@ class StudyEditService {
 	 */
 	protected def generateSamples( SubjectGroup subjectGroup ) {
 		def study = subjectGroup.parent
-		
+        
 		// Find all samples that reference this subjectgroup
 		def criteria = Sample.createCriteria()
 		def samples = criteria {
@@ -521,10 +521,6 @@ class StudyEditService {
 	 * @return	The newly created sample
 	 */
 	protected boolean createSample( Study study, Subject subject, SamplingEventInEventGroup samplingEventInstance, SubjectEventGroup subjectEventGroup ) {
-		// Make sure we have a fresh subject instance. Otherwise, calling this method after altering the subjectgroup
-		// will raise Hibernate exceptions
-		subject.refresh()
-		
 		def currentSample = new Sample(
 			parent: study,
 			parentSubject: subject,
@@ -534,8 +530,7 @@ class StudyEditService {
 		);
 	
 		currentSample.generateName()
-		study.addToSamples( currentSample )
-		currentSample.save( flush: true );
+		currentSample.save();
 		
 		currentSample
 	}

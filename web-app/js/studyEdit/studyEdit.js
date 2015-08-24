@@ -355,6 +355,12 @@ StudyEdit.samples = {
 	},
 	initialize: function() {
 		StudyEdit.studyChildren.initialize( StudyEdit.samples, "Add sample(s)" );
+		this.generateSamplesDialog.initialize();
+		
+		$( ".options .generateSamples" ).on( "click", function() {
+			StudyEdit.samples.generateSamplesDialog.show();
+			return false;
+		});
 	},
 	add: function() {
 		StudyEdit.studyChildren.add( StudyEdit.samples, $( '#samples .add' ).data( 'url' ) );
@@ -369,6 +375,73 @@ StudyEdit.samples = {
 		return $( "#samplesTable_" + templateId ).length > 0;
 	},
 	
+	generateSamplesDialog: {
+		initialize: function() {
+			$( "#generateSamplesDialog" ).dialog({
+				title: "Generate samples",
+	            height:500,
+	            width: 800,
+	            modal: true,
+	            autoOpen: false,
+	            buttons: {
+	                "Generate": function() {
+	                	StudyEdit.samples.generateSamplesDialog.submit();
+	                    $( this ).dialog( "close" );
+	                },
+	                "Cancel": function() {
+	                    $( this ).dialog( "close" );
+	                },
+	            }
+	        });
+			
+			this.initializeTree();
+		},
+		
+		initializeTree: function() {
+			var dialog = $( "#generateSamplesDialog" );
+			
+			dialog.find( "li input[type=checkbox]" ).on( "click", function() {
+				var li = $(this).closest( "li" );
+				
+				// Children should get the same state as this item
+				li.find( "ul li input[type=checkbox]" ).attr( "checked", $(this).is( ":checked" ) );
+				
+				// If the item is selected, make sure to select its ancestors as well
+				if( $(this).is( ":checked" ) ) {
+					var parentLis = li.parents( "li" );
+					parentLis.find( "> input[type=checkbox]" ).attr( "checked", true );
+				}
+				
+			});
+		},
+		
+		show: function() {
+			$( "#generateSamplesDialog" ).dialog( "open" );
+		},
+		
+		submit: function() {
+			// Start spinner for the user to wait
+			StudyEdit.spinner.show( "Please wait patiently while generating your samples. This may take a while");
+
+			var form = $( "#generateSamplesDialog form" );
+			var url = form.attr( "action" );
+			var data = form.serialize();
+			
+			$.post( url, data )
+				.done( function( returnData ) {
+					// Update the samples
+					StudyEdit.samples.refresh();
+				})
+				.fail(function() {
+					alert( "Failure in generating samples. Please try again." );
+				})
+				.always(function() {
+					StudyEdit.spinner.hide();
+				})
+			
+			return false;
+		}
+	},
 	
 	/**
 	 * Handles loading new data into the popup dialog
