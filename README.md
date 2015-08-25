@@ -4,9 +4,9 @@ Generic Study Capture Framework
 ## WAR files
 We have the most recent builds available for download as ```war``` files which can be deployed on an application container (e.g. Apache Tomcat). 
 
-War file | Build Environment | Build Status | Source | Config Location
---- | --- | --- | --- | --- | ---
-[GSCF](http://download.dbnp.org/production/gscf.war) | ```production``` | [![Build Status](http://jenkins.dbnp.org/job/production-gscf/badge/icon)](http://jenkins.dbnp.org/job/production-gscf/) | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/production.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
+War file | Build Environment | Source | Config Location
+--- | --- | --- | --- | ---
+[PhenotypeDatabase.war](http://download.dbnp.org/production/PhenotypeDatabase.war) | ```production``` | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/production.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
 _Note: each project / environment requires a specific configuration file._
 
 # Installation
