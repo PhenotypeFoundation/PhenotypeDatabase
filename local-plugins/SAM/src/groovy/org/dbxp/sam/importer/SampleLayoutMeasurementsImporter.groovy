@@ -11,14 +11,14 @@ import grails.util.Holders
 /**
  * Defines the interface for an exporter
  */
-public class MeasurementsImporter extends AbstractImporter {
+public class SampleLayoutMeasurementsImporter extends AbstractImporter {
     def dataSource = Holders.grailsApplication.mainContext.getBean('dataSource')
      
     /**
      * Returns an identifier that describes this importer
      */
     public String getIdentifier() {
-        "Measurements"
+        "Measurements (sample layout)"
     }
     
     /**
