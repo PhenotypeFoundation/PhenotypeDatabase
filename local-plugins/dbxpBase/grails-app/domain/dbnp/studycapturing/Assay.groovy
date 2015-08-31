@@ -59,6 +59,11 @@ class Assay extends TemplateEntity {
 
         // Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
         templateTextFields type: 'text'
+        
+        // Set default value for publicAssay field. This will ensure
+        // that the application will properly upgrade the database for
+        // older versions of the applications
+        publicassay defaultValue: "false"
     }
 
     def String toString() {
