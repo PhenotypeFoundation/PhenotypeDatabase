@@ -387,7 +387,7 @@ class StudyEditController {
                     }
                     
                     log.debug "Start saving assay " + assayId
-                    assay.save()
+                    assay.save(flush: true)
                     log.debug "Finished saving assay " + assayId
                 }
 
@@ -687,8 +687,6 @@ class StudyEditController {
                 def entityIds = data[paramsProperty].keySet().findAll { it.isLong() }.collect { it.toLong() } 
                 def entities = entityClass.getAll(entityIds).groupBy { it.id }
                 
-                log.debug( "# Entities to change: " + entities.size() )
-                
                 // Loop over all entities
                 def success = true
                 def errors = [:]
@@ -739,12 +737,8 @@ class StudyEditController {
                 def result
                 if( success ) {
                         // Save all subjects
-                        def i = 0
                         entitiesToSave.each {
-                            it.save()
-                            
-                            if( ++i % 100 == 0 )
-                                println ""
+                            it.save(flush: true)
                         }
 
                         result = ["OK"]
