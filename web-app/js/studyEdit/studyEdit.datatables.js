@@ -961,7 +961,7 @@ StudyEdit.datatables = {
 									newData[$(el).attr("name")] = $(el).val();
 								}
 							});
-
+			
 			// Add data from the hidden fields (fields on other pages that have
 			// been changed
 			// because they were selected
@@ -977,15 +977,16 @@ StudyEdit.datatables = {
 			wrapper.find("tbody input, tbody select, tbody textarea").attr(
 					"disabled", true);
 
+			
 			// Send the data to the server
 			var table = wrapper.find(".dataTables_scrollBody .dataTable");
 			var formId = StudyEdit.datatables.editable.getFormId(table
 					.attr("id"));
 			var form = $("#" + formId);
-			newData["id"] = form.find("[name=id]").val();
+			studyId = form.find("[name=id]").val();
 
 			$
-					.post(form.attr("action"), newData)
+					.post(form.attr("action"), { id: studyId, data: JSON.stringify(newData)})
 					.fail(
 							function() {
 								StudyEdit.datatables.editable
