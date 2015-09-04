@@ -355,7 +355,18 @@ class StudyEditController {
                 
                 // Retrieve the objects from the database
                 def assays = Assay.getAll(assayIds).groupBy { it.id }
-                def samples = Sample.getAll(sampleIds).groupBy { it.id }
+                
+                // The database cannot handle queries that are too long (e.g. contains a list of many ids)
+                // This results in the database closing the connection with status 08003 and 08006
+                // For that reason, retrieve the data in batches
+                def sampleBatchSize = 2500
+                def batches = ( sampleIds as List ).collate(sampleBatchSize)
+                def samples = []
+                batches.each { batch ->
+                    samples += Sample.getAll(batch)
+                }
+                
+                def groupedSamples = samples.groupBy { it.id }
                 
                 // Perform the updates themselves
                 def success = true
@@ -373,7 +384,7 @@ class StudyEditController {
                     def limit = 1000
                     assayUpdates.each { type, actionSampleIds ->
                         actionSampleIds.each { sampleId ->
-                            def sample = samples[sampleId][0]
+                            def sample = groupedSamples[sampleId][0]
                             if( type == "add" )
                                 assay.addToSamples(sample)
                             else
