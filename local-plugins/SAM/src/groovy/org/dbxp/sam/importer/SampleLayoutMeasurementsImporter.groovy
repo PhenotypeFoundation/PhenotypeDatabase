@@ -153,7 +153,7 @@ public class SampleLayoutMeasurementsImporter extends AbstractImporter {
             // Check whether all measurements are given
             measurementColumns.each { columnIndex, feature ->
                 def value = line[columnIndex]
-                if( value == null || ( value instanceof String && value == "" ) ) {
+                if( !isValue(value) ) {
                     errors << new ImportValidationError(
                         code: 7,
                         message: "No measurement given for sample '" + requiredSampleName + "' and feature '" + feature.name + "'.",
@@ -266,7 +266,7 @@ public class SampleLayoutMeasurementsImporter extends AbstractImporter {
                     // Now import each measurement
                     measurementColumns.each { columnIndex, feature ->
                         def value = line[columnIndex] 
-                        if( value == null || ( value instanceof String && value == "" ) ) {
+                        if( !isValue(value) ) {
                             errors << new ImportValidationError(
                                 code: 7,
                                 message: "No measurement given for sample '" + requiredSampleName + "' and feature '" + feature.name + "'.",
@@ -316,5 +316,10 @@ public class SampleLayoutMeasurementsImporter extends AbstractImporter {
         
         // Return true if no errors were found, false otherwise
         return !errors
+    }
+    
+    protected boolean isValue(def value) {
+        def noValue = ( value == null || ( value instanceof String && value == "" ) )
+        !noValue
     }
 }
