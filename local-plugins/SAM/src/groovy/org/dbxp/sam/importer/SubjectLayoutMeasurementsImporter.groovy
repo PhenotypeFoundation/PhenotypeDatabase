@@ -102,6 +102,8 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
         resetValidationErrors()
 
         def metadata = getMetadataFromData(data, mapping, parameters)
+        def uniqueTimepoints = metadata.timepointColumns.values()*.value.unique()
+        
         def subjectMapping = getSubjectMapping(parameters.assay as Long)
 
         def sampleMap = getSamples( subjectMapping.values(), metadata, parameters.assay as Long).groupBy({it[1]}, {it[2]})
@@ -130,7 +132,7 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
             def timepointsAvailable = sampleMap[subjectId].keySet()
             
             // First check whether there are duplicates for a single timepoint. If so, the system cannot distinguish
-            def duplicates = sampleMap[subjectId].findAll{ it.value.size() > 1 }
+            def duplicates = sampleMap[subjectId].findAll{ it.key in uniqueTimepoints && it.value.size() > 1 }
             if( duplicates ) {
                 errors << new ImportValidationError(
                     code: 13,
@@ -148,15 +150,16 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
                     return
                 
                 def hasSampleForTimepoint = timepoint && timepointsAvailable.contains(timepoint.value)
+                def valueIsValid = isValue(line[columnIndex])
                 
-                if( line[columnIndex] && !hasSampleForTimepoint ) {
+                if( valueIsValid && !hasSampleForTimepoint ) {
                     errors << new ImportValidationError(
                         code: 12,
                         message: "No sample was found for subject '" + requiredSubjectName + "' and timepoint '" + timepoint + ".",
                         line: lineNr,
                         column: columnIndex
                     )
-                } else if( !line[columnIndex] && hasSampleForTimepoint) {
+                } else if( !valueIsValid && hasSampleForTimepoint) {
                     errors << new ImportValidationError(
                         code: 7,
                         message: "No measurement given for subject '" + requiredSubjectName + "', timepoint '" + timepoint + "' and feature '" + feature.name + "'.",
@@ -190,27 +193,23 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
         def samples = getSamples( subjectMapping.values(), metadata, parameters.assay as Long)
         def groupedSamples = samples.groupBy({it[1]}, {it[2]})
         
-        // Convert the groupedSamples into a list of sampleIds
-        def sampleIdList = samples.collect { it[0] }
-        def sampleObjects = Sample.findAll( "FROM Sample WHERE id in(:ids)", [ ids: sampleIdList ] ).collectEntries{ [ (it.id): it ] }
-            
-        // Retrieve a list of samSamples already existing for the given samples
-        def samSamples = SAMSample.executeQuery( "SELECT samsample.id, samsample.parentSample.id FROM SAMSample samsample WHERE parentSample.id IN (:sampleIdList)", [ sampleIdList: sampleIdList ] )
+        // Retrieve some data to use for importing
+        def assay = Assay.get(parameters.assay)
         
-        // Group the list by sampleId. As we can be sure that each sampleId results in 
-        // a single row, we flatten the values of the map and use only the first element of the list (=samsample id)
-        def samSampleMap = samSamples.groupBy { it[1] }.collectEntries { k, v -> [ (k): v[0][0] ] }
+        // Determine all samples for which we don't have a samSample
+        def samplesWithoutSamSample= Sample.executeQuery( "SELECT sample FROM Assay assay INNER JOIN assay.samples sample WHERE assay.id = :assayId AND NOT EXISTS( FROM SAMSample samsample WHERE samsample.parentSample = sample AND samsample.parentAssay = assay)", [ assayId: assay.id ])
         
-        // Make sure there is a SAMSample for every sample
-        def assay = Assay.get(parameters.assay as Long)
-        samples.each { sampleGroup ->
-            def sampleId = sampleGroup[0]
-            if( !samSampleMap.containsKey(sampleId) ) {
-                def samSample = new SAMSample(parentSample: sampleObjects[sampleId], parentAssay: assay)
-                samSample.save(flush: true)
-                samSampleMap[sampleId] = samSample.id
-            }
+        log.debug "# samples without samsample for assay " + assay + " : " + samplesWithoutSamSample.size()
+        samplesWithoutSamSample.each { sample ->
+            def samSample = new SAMSample(parentSample: sample, parentAssay: assay)
+            samSample.save()
         }
+        
+        // Retrieve all samsamples
+        def samSampleData = SAMSample.executeQuery( "SELECT samsample.id, sample.id from SAMSample samsample INNER JOIN samsample.parentSample sample WHERE samsample.parentAssay = :assay", [ assay: assay ] )
+        
+        // Create a map of samSamples by sample name
+        def samSampleMap = samSampleData.groupBy { it[1] }.collectEntries { k, v -> [ (k): v[0][0] ] }
         
         // Now loop through each line and try to import the data.
         def sql = new Sql(dataSource)
@@ -266,7 +265,7 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
                             )
                             
                             return
-                        } else if( !value && sampleId) {
+                        } else if( !isValue(value) && sampleId) {
                             errors << new ImportValidationError(
                                 code: 7,
                                 message: "No measurement given for subject '" + requiredSubjectName + "', timepoint '" + timepoint + "' and feature '" + feature.name + "'.",
@@ -274,7 +273,7 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
                                 column: columnIndex
                             )
                             return
-                        } else if( !value && !sampleId ) {
+                        } else if( !isValue(value) && !sampleId ) {
                             // No value and no sample found
                             return
                         }
@@ -367,11 +366,24 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
             
             // Try to parse the time
             try {
+                if( givenTimepoint instanceof Double || givenTimepoint instanceof Float ) {
+                    givenTimepoint = givenTimepoint.toLong()
+                }
+                
                 def reltime = new RelTime(givenTimepoint)
                 timepointColumns[columnIndex] = reltime
             } catch( IllegalArgumentException e ) {
                 errors << new ImportValidationError(
                     code: 10,
+                    message: "The timepoint '" + givenTimepoint + "' is invalid. Please use the format '#w #d #h #m #s'",
+                    line: 1,
+                    column: columnIndex
+                )
+                
+                return  // continue looping
+            } catch( Exception e ) {
+                errors << new ImportValidationError(
+                    code: 15,
                     message: "The timepoint '" + givenTimepoint + "' is invalid. Please use the format '#w #d #h #m #s'",
                     line: 1,
                     column: columnIndex
@@ -433,9 +445,15 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
         // Create a list of samples to be used, grouped by subjectName and timepoint
         Sample.executeQuery(
             "SELECT sample.id, sample.parentSubject.id, sample.parentSubjectEventGroup.startTime + sample.parentEvent.startTime " +
-                 "FROM Sample sample " +
-                 "WHERE sample.parentSubject.id IN (:subjectIds) AND sample.parentSubjectEventGroup.startTime + sample.parentEvent.startTime IN (:timepoints) AND sample IN (SELECT assaySample FROM Assay a inner join a.samples assaySample WHERE a.id = :assayId)",
-            [subjectIds: subjectIds, timepoints: metadata.timepointColumns.values().collect { it.value }, assayId: assayId ]
+                 "FROM Assay assay INNER JOIN assay.samples sample " +
+                 "WHERE assay.id = :assayId",
+            [assayId: assayId ]
         )
     }
+    
+    protected boolean isValue(def value) {
+        def noValue = ( value == null || ( value instanceof String && value == "" ) )
+        !noValue
+    }
+
 }
