@@ -65,8 +65,17 @@ class AssayService {
 
         // Retrieve parent subjects and events.
         def subjectIds = samples*.parentSubjectId
-        def parentSubjects = Subject.getAll(subjectIds)
-
+        
+        // A query with a large number of ids will raise an error (as the query will grow too long).
+        // For that reason, we use a workaround
+        def parentSubjects
+        if( subjectIds.size() < 5 ) {
+            parentSubjects = Subject.getAll(subjectIds)
+        } else {
+            def allSubjects = Subject.findAllByParent(assay.parent).groupBy { it.id }
+            parentSubjects = subjectIds.collect { allSubjects[it]?.get(0) }
+        }
+        
         def samplingEventInstanceIds = samples*.parentEventId.findAll()
         def parentEvents = []
         if( samplingEventInstanceIds ) {
