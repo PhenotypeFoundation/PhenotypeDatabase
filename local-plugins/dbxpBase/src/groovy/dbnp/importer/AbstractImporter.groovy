@@ -43,4 +43,9 @@ public abstract class AbstractImporter implements Importer {
      * @see getParameters()
      */
     public abstract List getHeaderOptions(def parameters);
+    
+    /**
+     * Returns whether the header options can only be selected for a single header.
+     */
+    public boolean headerMappingIsUnique() { true }
 }

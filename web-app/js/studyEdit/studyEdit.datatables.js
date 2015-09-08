@@ -775,129 +775,163 @@ StudyEdit.datatables = {
 		 * Propagates the change in a given input field to other
 		 */
 		propagateChange : function(input, selectedIds) {
-			var value = $(input).val();
-
-			var nameParts = $(input).attr("name").split(".");
-			var container = $(input).closest(".dataTables_wrapper");
-
-			// Check for each selectedId, if a field with this name already
-			// exists,
-			// change that field. Otherwise, create a new field
-			$.each(selectedIds,
-					function(idx, id) {
-						// Skip the current one
-						if (id == nameParts[1]) {
-							return true;
-						}
-
-						// If the field exists, update it
-						var fieldName = [ nameParts[0], id, nameParts[2] ]
-								.join(".");
-						var escapedFieldName = fieldName.replace(/\./g, "\\."); // Escape
-																				// dots,
-																				// because
-																				// they
-																				// have
-																				// special
-																				// meaning
-																				// in
-																				// jquery
-																				// selectors
-						var field = $("[name=" + escapedFieldName + "]");
-
-						if ($(input).is("[type=checkbox]")) {
-							value = $(input).is(":checked") ? "on" : "";
-						}
-
-						if (field.length > 0) {
-							field.val(value);
+			if( selectedIds.length > 100 )
+				StudyEdit.spinner.show( "Please wait patiently while propagating the change to all fields. This may take a while");
+			
+			// Run the propagation after a timeout, to prevent the browser of blocking
+			// See http://benjaminhorn.io/code/cpu-intensive-javascript-computations-without-blocking-the-single-thread/
+			// for an explanation
+			setTimeout(function() {
+				var value = $(input).val();
+	
+				var nameParts = $(input).attr("name").split(".");
+				var container = $(input).closest(".dataTables_wrapper");
+	
+				// Check for each selectedId, if a field with this name already
+				// exists,
+				// change that field. Otherwise, create a new field
+				var newFields = [];
+				
+				// First determine the fields that are already on screen.
+				// Those are the fields starting with nameParts[0] and ending with nameparts[2]
+				var existingFields = StudyEdit.datatables.editable.getExistingFields(nameParts);
+			
+				$.each(selectedIds,
+						function(idx, id) {
+							
+							// Skip the current one
+							if (id == nameParts[1]) {
+								return true;
+							}
 
 							if ($(input).is("[type=checkbox]")) {
-								field.attr("checked", $(input).is(":checked"));
+								value = $(input).is(":checked") ? "on" : "";
 							}
 
-							// Only mark visible fields as changed
-							if (!field.is(".hiddenAndChanged")) {
-								StudyEdit.datatables.editable
-										.markChanged(field);
+							// If the field exists, update it
+							var field = existingFields[id];
+							
+							if (field && field.length > 0) {
+								field.val(value);
+
+								if ($(input).is("[type=checkbox]")) {
+									field.attr("checked", $(input).is(":checked"));
+								}
+
+								// Only mark visible fields as changed
+								if (!field.is(".hiddenAndChanged")) {
+									StudyEdit.datatables.editable
+											.markChanged(field);
+								}
+							} else {
+								var fieldName = [ nameParts[0], id, nameParts[2] ].join(".");
+						
+								// Add a hidden field to the wrapper div
+								newFields.push($("<input type='hidden' />").attr(
+										"name", fieldName).addClass(
+										"hiddenAndChanged").val(value));
 							}
-						} else {
-							// Add a hidden field to the wrapper div
-							container.append($("<input type='hidden' />").attr(
-									"name", fieldName).addClass(
-									"hiddenAndChanged").val(value));
-						}
-					});
+						});
+				
+				container.append(newFields);
+				
+				StudyEdit.spinner.hide();
+			}, 0);
 		},
 
 		/**
 		 * Propagates the change in a given input field to other
 		 */
 		propagateChangeInFileField : function(td, selectedIds) {
-			var input = td.find("input");
-			var value = input.val();
-
-			var nameParts = $(input).attr("name").split(".");
-			var container = $(input).closest(".dataTables_wrapper");
-
-			// Check for each selectedId, if a field with this name already
-			// exists,
-			// change that field. Otherwise, create a new field
-			$.each(selectedIds,
-					function(idx, id) {
-						// Skip the current one
-						if (id == nameParts[1]) {
-							return true;
-						}
-
-						// If the field exists, update it
-						var fieldName = [ nameParts[0], id, nameParts[2] ]
-								.join(".");
-						var escapedFieldName = fieldName.replace(/\./g, "\\."); // Escape
-																				// dots,
-																				// because
-																				// they
-																				// have
-																				// special
-																				// meaning
-																				// in
-																				// jquery
-																				// selectors
-						var field = $("[name=" + escapedFieldName + "]");
-						if (field.length > 0) {
-							if (field.is(".hiddenAndChanged")) {
-								// Hidden fields will only have to be changed,
-								// but nothing visual has to be done
-								field.val(value);
-							} else {
-								// For visible fields, many things have to be
-								// changed
-								var otherTd = field.closest("td");
-
-								// Update the field
-								field.val(value);
-
-								// Update info text and button
-								if (value == "" || value == "*deleted*") {
-									otherTd.find(".upload_del").hide();
-									otherTd.find(".upload_info").html("");
-								} else {
-									otherTd.find(".upload_del").show();
-									otherTd.find(".upload_info").html(
-											FileUpload.createFileHTML(value));
-								}
-
-								StudyEdit.datatables.editable
-										.markChanged(field);
+			if( selectedIds.length > 100 )
+				StudyEdit.spinner.show( "Please wait patiently while propagating the change to all fields. This may take a while");
+			
+			// Run the propagation after a timeout, to prevent the browser of blocking
+			// See http://benjaminhorn.io/code/cpu-intensive-javascript-computations-without-blocking-the-single-thread/
+			// for an explanation
+			setTimeout(function() {			
+				var input = td.find("input");
+				var value = input.val();
+	
+				var nameParts = $(input).attr("name").split(".");
+				var container = $(input).closest(".dataTables_wrapper");
+	
+				// Check for each selectedId, if a field with this name already
+				// exists,
+				// change that field. Otherwise, create a new field
+				var newFields = [];
+				
+				// First determine the fields that are already on screen.
+				// Those are the fields starting with nameParts[0] and ending with nameparts[2]
+				var existingFields = StudyEdit.datatables.editable.getExistingFields(nameParts);
+				
+				// Check for each selectedId, if a field with this name already
+				// exists,
+				// change that field. Otherwise, create a new field
+				$.each(selectedIds,
+						function(idx, id) {
+							// Skip the current one
+							if (id == nameParts[1]) {
+								return true;
 							}
-						} else {
-							// Add a hidden field to the wrapper div
-							container.append($("<input type='hidden' />").attr(
-									"name", fieldName).addClass(
-									"hiddenAndChanged").val(value));
-						}
-					});
+	
+							var field = existingFields[id];
+							
+							if (field && field.length > 0) {							
+								if (field.is(".hiddenAndChanged")) {
+									// Hidden fields will only have to be changed,
+									// but nothing visual has to be done
+									field.val(value);
+								} else {
+									// For visible fields, many things have to be
+									// changed
+									var otherTd = field.closest("td");
+	
+									// Update the field
+									field.val(value);
+	
+									// Update info text and button
+									if (value == "" || value == "*deleted*") {
+										otherTd.find(".upload_del").hide();
+										otherTd.find(".upload_info").html("");
+									} else {
+										otherTd.find(".upload_del").show();
+										otherTd.find(".upload_info").html(FileUpload.createFileHTML(value));
+									}
+	
+									StudyEdit.datatables.editable.markChanged(field);
+								}
+							} else {
+								var fieldName = [ nameParts[0], id, nameParts[2] ].join(".");
+								
+								// Add a hidden field to the wrapper div
+								newFields.push($("<input type='hidden' />").attr(
+										"name", fieldName).addClass(
+										"hiddenAndChanged").val(value));
+							}
+						});
+				
+				container.append(newFields);
+				
+				StudyEdit.spinner.hide();
+				
+			}, 0);
+			
 		},
+		
+		getExistingFields: function(nameParts) {
+			var fieldsOnScreen = $("[name^=" + nameParts[0] + "][name$=" + nameParts[2] + "]");
+			var existingFields = {};
+			fieldsOnScreen.each(function(idx,el) {
+				// Group the fields by ID
+				var parts = $(el).attr( "name" ).split(".");
+				var id = parts[1];
+				existingFields[id] = $(el);
+			});		
+			
+			return existingFields;
+		},
+		
 		/**
 		 * Submits data from an editable studyedit datatable, to the server
 		 * using ajax
@@ -927,7 +961,7 @@ StudyEdit.datatables = {
 									newData[$(el).attr("name")] = $(el).val();
 								}
 							});
-
+			
 			// Add data from the hidden fields (fields on other pages that have
 			// been changed
 			// because they were selected
@@ -943,15 +977,16 @@ StudyEdit.datatables = {
 			wrapper.find("tbody input, tbody select, tbody textarea").attr(
 					"disabled", true);
 
+			
 			// Send the data to the server
 			var table = wrapper.find(".dataTables_scrollBody .dataTable");
 			var formId = StudyEdit.datatables.editable.getFormId(table
 					.attr("id"));
 			var form = $("#" + formId);
-			newData["id"] = form.find("[name=id]").val();
+			studyId = form.find("[name=id]").val();
 
 			$
-					.post(form.attr("action"), newData)
+					.post(form.attr("action"), { id: studyId, data: JSON.stringify(newData)})
 					.fail(
 							function() {
 								StudyEdit.datatables.editable

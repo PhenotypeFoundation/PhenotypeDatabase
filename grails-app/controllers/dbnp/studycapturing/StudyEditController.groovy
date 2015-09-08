@@ -306,44 +306,100 @@ class StudyEditController {
                         return
                 }
 
+                def data = getDataFromParams()
                 def paramsProperty = "assay"
 
-                if(!params[ paramsProperty ] ) {
+                if(!data[ paramsProperty ] ) {
                         // Not a big problem, apparently no entities are altered
                         log.warn "No data given while editing assaysamples"
-                        return [ "OK" ]
+                        render [ "OK" ] as JSON
+                        return
                 }
-                // Loop over all subjects
-                def success = true
-                def errors = [:]
-                def entitiesToSave = []
-
-                params[ paramsProperty ].each { sampleId, assayData->
+                
+                // Only updates to the current situation are given. That could be two ways:
+                // Either the value of the property resolves to true, then the sample should
+                // be associated with an assay. Or the value resolves to false (is empty), then 
+                // the sample should be removed from the assay
+                def assayIds = [] as Set
+                def sampleIds = [] as Set
+                def updates = [:]
+                
+                // Loop through the parameters, create a list of assay IDs and sample IDs so 
+                // the objects can be retrieved in a performant way. Also, build a map with 
+                // updates 
+                data[ paramsProperty ].each { sampleId, assayData->
                         // Key should be a subject ID
                         if( !sampleId.isLong() ) {
                                 return;
                         }
-
-                        def sample = Sample.get( sampleId.toLong() )
-
-                        // If no proper sample is found, (or it belongs to another study), return
-                        if( !sample || sample.parent != study ) {
-                                return
-                        }
-
+                        
+                        def sampleIdLong = sampleId.toLong() 
+                        sampleIds << sampleIdLong
+                        
                         assayData.each { assayId, value ->
-                                def assay = Assay.get( assayId.toLong() )
-                                if( !assay )
+                            if( !assayId.isLong() ) {
                                 return
-
-                                if( value ) {
-                                        assay.addToSamples( sample )
-                                } else {
-                                        assay.removeFromSamples( sample )
-                                }
+                            }
+                            def assayIdLong = assayId.toLong()
+                            assayIds << assayIdLong
+                            
+                            if( !updates[assayIdLong] )
+                                updates[assayIdLong] = ["add": [], "remove": []]
+                                
+                            if( value )
+                                updates[assayIdLong].add << sampleIdLong
+                            else
+                                updates[assayIdLong].remove << sampleIdLong
                         }
-
-                        sample.save( flush: true )
+                }
+                
+                // Retrieve the objects from the database
+                def assays = Assay.getAll(assayIds).groupBy { it.id }
+                
+                // The database cannot handle queries that are too long (e.g. contains a list of many ids)
+                // This results in the database closing the connection with status 08003 and 08006
+                // For that reason, retrieve the data in batches
+                def sampleBatchSize = 2500
+                def batches = ( sampleIds as List ).collate(sampleBatchSize)
+                def samples = []
+                batches.each { batch ->
+                    samples += Sample.getAll(batch)
+                }
+                
+                def groupedSamples = samples.groupBy { it.id }
+                
+                // Perform the updates themselves
+                def success = true
+                def errors = [:]
+                updates.each { assayId, assayUpdates ->
+                    log.debug "Start adding samples to " + assayId
+                    def assay = assays[assayId][0]
+                    
+                    if( !assay ) {
+                        errors[ assayId + " not found" ] = "No assay could be found with id " + assayId
+                        return
+                    }
+                    
+                    def i = 0
+                    def limit = 1000
+                    assayUpdates.each { type, actionSampleIds ->
+                        actionSampleIds.each { sampleId ->
+                            def sample = groupedSamples[sampleId][0]
+                            if( type == "add" )
+                                assay.addToSamples(sample)
+                            else
+                                assay.removeFromSamples(sample)
+                        }
+                        
+                        if( i++ > limit ) {
+                            assay.save(flush: true)
+                            i = 0
+                        }
+                    }
+                    
+                    log.debug "Start saving assay " + assayId
+                    assay.save(flush: true)
+                    log.debug "Finished saving assay " + assayId
                 }
 
                 def result
@@ -358,7 +414,42 @@ class StudyEditController {
 
                 render result as JSON
         }
+        
+        protected def getDataFromParams( def propertyName = "data" ) {
+            // Data is provided as JSON
+            def providedData = JSON.parse(params[propertyName])
+            
+            // Loop through all data entries, and create a map if the name contains a dot
+            def data = [:]
+            providedData.each { key, value ->
+                addValueToMap(key, value, data)
+            } 
+            
+            data
+        }
 
+        protected def addValueToMap(key, value, data) {
+            if( !key )
+                return
+                
+            def idx = key.indexOf( "." )
+            
+            if( idx == 0 && key.size() > 1 ) {
+                // If the key starts with a dot, ignore the dot
+                addValueToMap(key[1..-1], value, data)
+            } else if( idx > 0 && key.size() > (idx+1) ) {
+                def head = key[0..idx-1]
+                def tail = key[idx+1..-1]
+                
+                if( !data[head] )
+                    data[head] = [:]
+                    
+                addValueToMap( tail, value, data[head])
+            }
+            
+            data[key] = value
+        }
+        
         /**
          * Returns data for the assaysample datatable
          * @return
@@ -595,24 +686,30 @@ class StudyEditController {
                         return
                 }
 
-                if(!params[ paramsProperty ] ) {
+                def data = getDataFromParams()
+                
+                if(!data[ paramsProperty ] ) {
                         // Not a big problem, apparently no entities are altered
                         log.warn "No entities given while editing " + entityClass
                         return [ "OK" ]
                 }
 
-                // Loop over all subjects
+                // Retrieve all entities at once to change something for
+                def entityIds = data[paramsProperty].keySet().findAll { it.isLong() }.collect { it.toLong() } 
+                def entities = entityClass.getAll(entityIds).groupBy { it.id }
+                
+                // Loop over all entities
                 def success = true
                 def errors = [:]
                 def entitiesToSave = []
 
-                params[ paramsProperty ].each { key, newProperties ->
+                data[ paramsProperty ].each { key, newProperties ->
                         // Key should be a subject ID
                         if( !key.isLong() ) {
                                 return;
                         }
 
-                        def entity = entityClass.read( key.toLong() )
+                        def entity = entities[ key.toLong() ]?.get(0)
 
                         // If no proper subject is found, (or it belongs to another study), return
                         if( !entity || entity.parent != study ) {
@@ -629,7 +726,7 @@ class StudyEditController {
                                         )
                                 }
                         }
-
+                        
                         if( entity.validate() ) {
                                 entitiesToSave << entity
                         } else {
@@ -646,11 +743,13 @@ class StudyEditController {
                         }
                 }
 
+                log.debug( "Finished updating entities, start saving" );
+                
                 def result
                 if( success ) {
                         // Save all subjects
                         entitiesToSave.each {
-                                it.save()
+                            it.save(flush: true)
                         }
 
                         result = ["OK"]

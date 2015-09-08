@@ -56,6 +56,30 @@ class FuzzySearchService {
 
         return results
     }
+    
+    /**
+     * Matches the patterns with the candidates, and returns the best candidate for each patterns
+     *
+     * @param patterns          List with patterns to search for
+     * @param candidates        List with candidates to search in
+     * @param threshold         Threshold the matches have to be above. This input variable is either 'default', or a map whose keys can be used to look up the requested threshold value. The 'retrieveThresholdFromConfig' function will look for a value associated to this key in a map located in the configurationHolder, at 'config.fuzzyMatching.threshold'.
+     * @return                          A list with each element being a map with three elements:
+     *                                                  pattern:        the pattern that has been matched
+     *                                                  candidate:      the best matching candidate for this pattern or null if no match has been found
+     *                                                  index:          the index of the candidate in the original list
+     */
+    static def mostSimilarNonUnique( patterns, candidates, thresholdInput='default' ) {
+        // Find the best matching candidate for each pattern
+        patterns.collect { pattern ->
+            if( !pattern ) 
+                return [ pattern: pattern, index: null, candidate: null]
+                
+            def bestFitIndex = mostSimilarWithIndex(pattern, candidates, thresholdInput)
+            def candidate = (bestFitIndex == null) ? null : candidates[bestFitIndex]
+            
+            [ pattern: pattern, index: bestFitIndex, candidate: candidate]
+        }
+    }
 
     // classes for fuzzy string matching
     // <FUZZY MATCHING>

@@ -30,7 +30,8 @@
 					<ul class="subnav">
                         <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Platforms", module: module]}">Platforms</g:link></li>
                         <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Features", module: module]}">Features</g:link></li>
-                        <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements", module: module]}">Measurements</g:link></li>
+                        <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements (sample layout)", module: module]}">Measurements (sample layout)</g:link></li>
+                        <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements (subject layout)", module: module]}">Measurements (subject layout)</g:link></li>
 		    		</ul>
 		    	</li>
                 <li>

@@ -114,7 +114,7 @@ class ImporterController {
                     
                     def data = parseFile(importInfo)
                     
-                    if( validateMappingParameters( importInfo ) ) {
+                    if( validateMappingParameters( importInfo, importer.headerMappingIsUnique() ) ) {
                         if( params._action == "validate" ) {
                             // Validate the provided data 
                             importer.validateData(data, importInfo.mapping, importInfo.parameter)
@@ -133,7 +133,10 @@ class ImporterController {
                         doRedirect action: ( params._action == "validate" ? "validation" : "finish" ), params: [key: sessionKey]
                         return
                     } else {
-                        flash.error = "Please provide a valid set of mapping parameters. That includes at least one column of data and no duplicates."
+                        if( importer.headerMappingIsUnique())
+                            flash.error = "Please provide a valid set of mapping parameters. That includes at least one column of data and no duplicates."
+                        else
+                            flash.error = "Please provide a valid set of mapping parameters. That includes at least one column of data."
                     }
 
                     break;
@@ -295,7 +298,12 @@ class ImporterController {
         def headerOptions = importer.getHeaderOptions(importInfo.parameter)
         
         // Perform the match itself
-        def matches = fuzzySearchService.mostSimilarUnique( fileHeaders, headerOptions*.name );
+        def matches
+        if( importer.headerMappingIsUnique() ) {
+            matches = fuzzySearchService.mostSimilarUnique( fileHeaders, headerOptions*.name )
+        } else {
+            matches = fuzzySearchService.mostSimilarNonUnique( fileHeaders, headerOptions*.name )
+        }
         
         // Convert the data into a proper format, that can be used by the javascript
         // That is: a map with the key being the index of the header and the value being the value (=id) of the matched option
@@ -359,7 +367,7 @@ class ImporterController {
     /**
      * Validates the import parameters
      */
-    protected def validateMappingParameters( parameters ) {
+    protected def validateMappingParameters( def parameters, boolean shouldBeUnique = true ) {
        if( !parameters.mapping )
            return false
        
@@ -371,7 +379,7 @@ class ImporterController {
            return false
        
        // Make sure that there are no duplicates in the mapping
-       if( nonNullMapping*.field.id.unique().size() != nonNullMapping.size() ) 
+       if( shouldBeUnique && nonNullMapping*.field.id.unique().size() != nonNullMapping.size() ) 
            return false
            
        return true
