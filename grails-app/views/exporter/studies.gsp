@@ -32,7 +32,7 @@
 				<g:each in="${studyInstanceList}" var="studyInstance" status="i">
 					<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
 						<td><input type="checkbox" name="ids" value="${studyInstance.id}" id="${studyInstance.title}"></td>
-						<td><g:link class="linktips" action="show" title="View this study" id="${studyInstance?.id}"><img class="icon searchIcon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></g:link></td>
+						<td><g:link class="linktips" controller="study" action="show" title="View this study" id="${studyInstance?.id}"><img class="icon searchIcon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></g:link></td>
 						<td><g:if test="${studyInstance.canWrite(loggedInUser)}">
 							<g:link class="edit linktips" title="Edit this study" controller="studyEdit" action="edit" id="${studyInstance?.id}">
                                 <img class="icon editIcon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></g:link>
