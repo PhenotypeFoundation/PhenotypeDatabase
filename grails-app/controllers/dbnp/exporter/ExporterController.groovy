@@ -93,7 +93,8 @@ class ExporterController {
         def exporter = factory.getExporter(exportType, user)
         
         if( !exporter ) {
-            redirect(action: 'assays', params: [errorText: "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier ] );
+            flash.message = "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier
+            redirect(action: 'assays')
             return
         }
         
@@ -151,7 +152,8 @@ class ExporterController {
         def exporter = factory.getExporter(exportType, user)
         
         if( !exporter ) {
-            redirect(action: 'studies', params: [errorText: "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier ] );
+            flash.message = "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier
+            redirect(action: 'studies')
             return
         }
         
