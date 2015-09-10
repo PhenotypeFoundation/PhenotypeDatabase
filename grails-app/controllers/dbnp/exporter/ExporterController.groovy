@@ -42,6 +42,7 @@ class ExporterController {
             if(exporterFactory.getExporter(format)?.type != "Study") {
                 flash.message = "The specified output type " + format + " is not supported. Please select one of the supported output types.";
                 redirect(action: 'studies')
+                return
             }
             formats = [format]
         } else {
@@ -68,6 +69,7 @@ class ExporterController {
             if(exporterFactory.getExporter(format)?.type != "Assay") {
                 flash.message = "The specified output type " + format + " is not supported. Please select one of the supported output types.";
                 redirect(action: 'assays')
+                return
             }
             formats = [format]
         } else {
@@ -92,6 +94,7 @@ class ExporterController {
         
         if( !exporter ) {
             redirect(action: 'assays', params: [errorText: "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier ] );
+            return
         }
         
         // Use the given parameters
@@ -126,6 +129,7 @@ class ExporterController {
             if( !exporter.supportsMultiple() ) {
                 flash.message = "The " + exporter.identifier + " exporter doesn't support exporting multiple assays. Please select a single assay or another exporter.";
                 redirect( action: 'assays' );
+                return
             }
             
             addDownloadHeaders(exporter, assays)
@@ -148,6 +152,7 @@ class ExporterController {
         
         if( !exporter ) {
             redirect(action: 'studies', params: [errorText: "Please select a valid export type. Valid types are " + factory.getExportersForType( "Study" )*.identifier ] );
+            return
         }
         
         // Retrieve a list of studies
@@ -185,6 +190,7 @@ class ExporterController {
             if( !exporter.supportsMultiple() ) {
                 flash.message = "The " + exporter.identifier + " exporter doesn't support exporting multiple studies. Please select a single study or another exporter.";
                 redirect( action: 'studies' );
+                return
             }
             
             addDownloadHeaders(exporter, studies)
