@@ -767,7 +767,7 @@ class AssayService {
             def categoryData = columnWiseAssayData*.getAt(category);
 
             // Find the different fields in all assays
-            def categoryFields = categoryData.findAll { it }*.keySet().toList().flatten().unique();
+            def categoryFields = categoryData.findAll({it instanceof Map})*.keySet().flatten().unique();
 
             // Find data for all assays for these fields. If the fields do not exist, return an empty string
             def categoryValues = [:]
