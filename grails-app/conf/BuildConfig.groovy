@@ -81,10 +81,10 @@ grails.project.dependency.resolution = {
     }
     plugins {
         // plugins for the build system only
-        build ":tomcat:7.0.55"
+        build ":tomcat:7.0.55.3"
         
         compile(
-                ":hibernate4:4.3.6.1",
+                ":hibernate4:4.3.10",
 
                 ":jquery:1.11.1",
                 ':jquery-ui:1.10.4',
@@ -100,7 +100,7 @@ grails.project.dependency.resolution = {
                 ":quartz:1.0.2",
                 ":ajaxflow:0.2.4",
                 ":webflow:2.1.0",
-                ":scaffolding:2.1.1"
+                ":scaffolding:2.1.2"
                 )
 
         compile ":yui-war-minify:1.5"

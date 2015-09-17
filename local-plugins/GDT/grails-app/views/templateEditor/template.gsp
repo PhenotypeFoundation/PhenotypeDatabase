@@ -146,8 +146,6 @@
                     </form>
             	</div>
                 </g:else>
-
-
 			</div>
 		</g:if>
 		<br clear="all" />

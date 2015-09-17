@@ -30,11 +30,12 @@
 					<ul class="subnav">
                         <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Platforms", module: module]}">Platforms</g:link></li>
                         <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Features", module: module]}">Features</g:link></li>
-                        <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements", module: module]}">Measurements</g:link></li>
+                        <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements (sample layout)", module: module]}">Measurements (sample layout)</g:link></li>
+                        <li><g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements (subject layout)", module: module]}">Measurements (subject layout)</g:link></li>
 		    		</ul>
 		    	</li>
                 <li>
-                    <a href="${grailsApplication.config.gscf.documents.sam_userguide}" target="_blank">
+                    <a href="${grailsApplication.config.gscf.baseURL + grailsApplication.config.gscf.documents.sam_userguide}" target="_blank">
                         User Guide
                         <img src="${fam.icon(name:"page_white_acrobat")}" alt="(pdf)" style="vertical-align:text-bottom;"/>
                     </a>

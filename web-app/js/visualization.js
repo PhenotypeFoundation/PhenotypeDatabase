@@ -83,11 +83,17 @@ var Visualization = {
 		    this.updateMessageCount();
 		    
 		    // Highlight the message count
-		    switch( strClass ) {
-		    	case "message_error": highlightColor = "#FDA5A5"; break;
-		    	case "message_warning": highlightColor = "#FDF9A5"; break;
-		    	default: highlightColor = "#A5DCFD"; break;
-		    }
+        switch( strClass ) {
+          case "message_error":
+            highlightColor = "#FDA5A5";
+            // In case of an error, open the dialog window
+            Visualization.dialogs.openMessages();
+            break;
+          case "message_warning":
+            highlightColor = "#FDF9A5";
+            break;
+          default: highlightColor = "#A5DCFD"; break;
+        }
 		    this.highlightMessageCount(highlightColor);
 		},
 		

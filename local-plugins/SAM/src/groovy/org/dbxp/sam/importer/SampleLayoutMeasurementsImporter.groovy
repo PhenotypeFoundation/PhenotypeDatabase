@@ -4,6 +4,7 @@ import dbnp.importer.*
 import org.dbxp.sam.*
 import org.dbnp.gdt.AssayModule
 import dbnp.studycapturing.Assay
+import dbnp.studycapturing.Sample
 import groovy.sql.Sql
 
 import grails.util.Holders
@@ -11,14 +12,14 @@ import grails.util.Holders
 /**
  * Defines the interface for an exporter
  */
-public class MeasurementsImporter extends AbstractImporter {
+public class SampleLayoutMeasurementsImporter extends AbstractImporter {
     def dataSource = Holders.grailsApplication.mainContext.getBean('dataSource')
      
     /**
      * Returns an identifier that describes this importer
      */
     public String getIdentifier() {
-        "Measurements"
+        "Measurements (sample layout)"
     }
     
     /**
@@ -131,7 +132,7 @@ public class MeasurementsImporter extends AbstractImporter {
              
         // Afterwards, check for each line if the sample could be found and a measurement is given for each column
         def assay = Assay.get(parameters.assay)
-        def sampleNames = assay.samples*.name
+        def sampleNames = Sample.executeQuery( "SELECT sample.name FROM Assay assay INNER JOIN assay.samples sample WHERE assay.id = :assayId", [ assayId: assay.id ])
         
         // The header line is not used as measurements, so the first line is skipped
         for( def lineNr = 1; lineNr < data.size(); lineNr++) {
@@ -151,7 +152,8 @@ public class MeasurementsImporter extends AbstractImporter {
             
             // Check whether all measurements are given
             measurementColumns.each { columnIndex, feature ->
-                if( !line[columnIndex] ) {
+                def value = line[columnIndex]
+                if( !isValue(value) ) {
                     errors << new ImportValidationError(
                         code: 7,
                         message: "No measurement given for sample '" + requiredSampleName + "' and feature '" + feature.name + "'.",
@@ -214,31 +216,28 @@ public class MeasurementsImporter extends AbstractImporter {
         
         // Retrieve some data to use for importing
         def assay = Assay.get(parameters.assay)
-        def assaySamples = assay.samples
-        def samSamples = SAMSample.findAll {
-            parentSample in assaySamples && parentAssay == assay
+        
+        // Determine all samples for which we don't have a samSample
+        def samplesWithoutSamSample= Sample.executeQuery( "SELECT sample FROM Assay assay INNER JOIN assay.samples sample WHERE assay.id = :assayId AND NOT EXISTS( FROM SAMSample samsample WHERE samsample.parentSample = sample AND samsample.parentAssay = assay)", [ assayId: assay.id ])
+        
+        log.debug "# samples without samsample for assay " + assay + " : " + samplesWithoutSamSample.size()
+        samplesWithoutSamSample.each { sample ->
+            def samSample = new SAMSample(parentSample: sample, parentAssay: assay)
+            samSample.save()
         }
         
+        // Retrieve all samsamples
+        def samSampleData = SAMSample.executeQuery( "SELECT samsample.id, sample.id, sample.name from SAMSample samsample INNER JOIN samsample.parentSample sample WHERE samsample.parentAssay = :assay", [ assay: assay ] )
+        
         // Create a map of samSamples by sample name
-        def groupedAssaySamples = assaySamples.groupBy { it.id }
-        def groupedSamSamples = [:]
-        groupedAssaySamples.each { group ->
-            def sample = group.value[0]
-            if (sample in samSamples*.parentSample) {
-                groupedSamSamples[sample.name] = samSamples.find { it.parentSample == sample }
-            }
-            else {
-                def samSample = new SAMSample(parentSample: sample, parentAssay: assay)
-                groupedSamSamples[sample.name] = samSample
-                samSample.save(flush: true)
-            }
-        }
+        def groupedSamSamples = samSampleData.groupBy { it[2] }
         
         // Now loop through each line and try to import the data.
         def sql = new Sql(dataSource)
         try {
             def sample 
-            def samSample
+            def samSampleId
+            def samSampleInfo
             
             // Start a SQL batch statement
             sql.withBatch( 250, "INSERT INTO measurement (id, version, comments, feature_id, sample_id, value) VALUES (nextval('hibernate_sequence'), 0, :comments, :featureId, :sampleId, :value)" ) { preparedStatement ->
@@ -248,9 +247,9 @@ public class MeasurementsImporter extends AbstractImporter {
                     def line = data[lineNr]
                     
                     def requiredSampleName = line[sampleColumn]
-                    samSample = groupedSamSamples[requiredSampleName]
+                    samSampleInfo = groupedSamSamples[requiredSampleName]
 
-                    if( !samSample ) {
+                    if( !samSampleInfo ) {
                         errors << new ImportValidationError(
                             code: 6,
                             message: "A sample with sample name '" + requiredSampleName + "' could not be found in the specified assay.",
@@ -262,10 +261,12 @@ public class MeasurementsImporter extends AbstractImporter {
                         continue
                     }
                     
+                    samSampleId = samSampleInfo[0][0]
+                    
                     // Now import each measurement
                     measurementColumns.each { columnIndex, feature ->
                         def value = line[columnIndex] 
-                        if( !value ) {
+                        if( !isValue(value) ) {
                             errors << new ImportValidationError(
                                 code: 7,
                                 message: "No measurement given for sample '" + requiredSampleName + "' and feature '" + feature.name + "'.",
@@ -284,10 +285,10 @@ public class MeasurementsImporter extends AbstractImporter {
 
                         // Distinguish between numeric and text values
                         if (value instanceof Double || value instanceof Integer) {
-                            preparedStatement.addBatch( [featureId: feature.id, sampleId: samSample.id, value: value ] )
+                            preparedStatement.addBatch( [featureId: feature.id, sampleId: samSampleId, value: value ] )
                         }
                         else if (value instanceof String) {
-                            preparedStatement.addBatch( [featureId: feature.id, sampleId: samSample.id, comments: value ] )
+                            preparedStatement.addBatch( [featureId: feature.id, sampleId: samSampleId, comments: value ] )
                         }
                         else {
                             errors << new ImportValidationError(
@@ -315,5 +316,10 @@ public class MeasurementsImporter extends AbstractImporter {
         
         // Return true if no errors were found, false otherwise
         return !errors
+    }
+    
+    protected boolean isValue(def value) {
+        def noValue = ( value == null || ( value instanceof String && value == "" ) )
+        !noValue
     }
 }

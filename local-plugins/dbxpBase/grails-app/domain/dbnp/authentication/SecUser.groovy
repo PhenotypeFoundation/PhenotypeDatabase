@@ -38,7 +38,7 @@ class SecUser implements Serializable {
 
 	static mapping = {
 		password column: '`password`'
-		enabled formula: 'USER_CONFIRMED AND ADMIN_CONFIRMED'
+		enabled formula: '(USER_CONFIRMED AND ADMIN_CONFIRMED)'
 	}
 
 	Set<SecRole> getAuthorities() {

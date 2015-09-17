@@ -70,9 +70,11 @@ public class MultipleStudiesExporter implements Exporter {
         
         def studyData = this.collectStudyData(studies)
         def subjectsData = this.collectSubjectData(studies)
-        
+
         if(assays) {
-            def samples = assays*.samples.flatten().unique()
+            // Get the samples and sort them; this will be the sort order to use for
+            // both retrieving the assay data and the measurements
+            def samples = assays*.samples.flatten().unique().sort({it.name})
             sampleData = this.collectSampleData(assays, null, samples, authenticationService.getLoggedInUser())
         }
         

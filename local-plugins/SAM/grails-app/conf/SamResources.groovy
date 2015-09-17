@@ -11,6 +11,7 @@ modules = {
         resource url: [dir: 'images', file: 'subjectlayout.png', plugin: 'dbxp-sam'], attrs:[alt:''], disposition:'inline'
         resource url: [dir: 'images', file: 'samplelayout.png', plugin: 'dbxp-sam'], attrs:[alt:''], disposition:'inline'
         resource url: [dir: 'images', file: 'spinner.gif', plugin: 'dbxp-sam'], attrs:[alt:''], disposition:'inline'
+        resource url: [ dir:'js', file: 'jquery-migrate-1.2.1.js'], linkOverride: '//code.jquery.com/jquery-migrate-1.2.1.js'
     }
     
     samdialog {

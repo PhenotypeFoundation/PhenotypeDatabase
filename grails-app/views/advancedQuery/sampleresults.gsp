@@ -14,14 +14,14 @@
 	<g:render template="criteria" model="[criteria: search.getCriteria()]" />
 </div>
 <g:if test="${search.getNumResults() > 0}">
-	<table id="searchresults" class="datatables serverside selectMulti" rel="${g.createLink(action:"results", id: search.id)}">
+	<dt:dataTable id="searchresults" class="datatables serverside selectMulti" rel="${g.createLink(action:"results", id: search.id)}">
 		<thead>
 			<tr>
 				<th>Name</th>
 				<th>Study</th>
 			</tr>
 		</thead>
-	</table>
+	</dt:dataTable>
 	<g:render template="resultsform" />
 
 </g:if>
