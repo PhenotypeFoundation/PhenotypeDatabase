@@ -33,7 +33,7 @@ class TemplateFieldService {
             return []
         }
 
-        return sql.rows(query.toString()).collect() { it?.templatefieldlistitemname }
+        return sql.rows(query.toString()).collect({ it.templatefieldlistitemname })
     }
 
     /**

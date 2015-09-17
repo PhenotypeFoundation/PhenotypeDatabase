@@ -719,8 +719,8 @@ class AdvancedQueryController {
                         name:"simpletox",
                         type: "export",
                         description: "Export as SimpleTox",
-                        url: createLink( controller: "exporter", action: "export", params: [ 'format': 'list', 'ids' : ids ] ),
-                        submitUrl: createLink( controller: "exporter", action: "export", params: [ 'format': 'list' ] ),
+                        url: createLink( controller: "exporter", action: "exportStudies", params: [ 'format': 'SimpleTox', 'ids' : ids ] ),
+                        submitUrl: createLink( controller: "exporter", action: "exportStudies", params: [ 'format': 'SimpleTox' ] ),
                     ],
                     [
                         module: "gscf",
@@ -755,7 +755,7 @@ class AdvancedQueryController {
                         name:"excel",
                         type: "export",
                         description: "Export as CSV",
-                        url: createLink( controller: "assay", action: "exportToSamplesToCsv", params: [ 'ids' : ids ] ),
+                        url: createLink( controller: "assay", action: "exportSamplesToCsv", params: [ 'ids' : ids ] ),
                         submitUrl: createLink( controller: "assay", action: "exportSamplesToCsv" ),
                     ]
                 ]

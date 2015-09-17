@@ -10,18 +10,18 @@
 <h1>Query results: ${search.toString()}</h1>
 
 <div class="searchoptions">
-	${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">study</g:if><g:else>studies</g:else> found 
+	${search.getNumResults()} <g:if test="${search.getNumResults() == 1}">study</g:if><g:else>studies</g:else> found
 	<g:render template="criteria" model="[criteria: search.getCriteria()]" />
 </div>
 <g:if test="${search.getNumResults() > 0}">
-	<table id="searchresults" class="datatables serverside selectMulti" rel="${g.createLink(action:"results", id: search.id)}">
+	<dt:dataTable id="searchresults" class="datatables serverside selectMulti" rel="${g.createLink(action:"results", id: search.id)}">
 		<thead>
 		<tr>
 			<th>Title</th>
 			<th>Code</th>
 		</tr>
 		</thead>
-	</table>
+	</dt:dataTable>
 	<g:render template="resultsform" />
 
 </g:if>
