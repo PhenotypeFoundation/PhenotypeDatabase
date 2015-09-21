@@ -10,6 +10,7 @@
         	.delete_button { display: none; }
         	td:hover .delete_button { display: inline; }
         </style>
+        <r:require modules="tiptip" />
     </head>
     <body>
         <content tag="contextmenu">
@@ -101,10 +102,7 @@
                                             <g:if test="${isNumeric}">
                                                 <g:if test="${comments}">
                                                     <%-- numeric value and comments --%>
-                                                    <div class="tooltip">
-                                                    	${cellMeasurements[0].value}
-                                                    	<span>${comments}</span>
-                                                    </div>
+                                                    <span class="tooltip" title="${comments}"> ${cellMeasurements[0].value}</span>
                                                 </g:if>
                                                 <g:else>
                                                     <g:if test="${cellMeasurements[0].value==cellMeasurements[0].value.round(3)}">
@@ -113,16 +111,13 @@
                                                     </g:if>
                                                     <g:else>
                                                         <%-- long numeric value without comments; render short version and put entire number in tooltip --%>
-                                                        <span class="tooltip"> ${cellMeasurements[0].value.round(3).toString()}<span>${cellMeasurements[0].value}</span></span>
+                                                        <span class="tooltip" title="${cellMeasurements[0].value}"> ${cellMeasurements[0].value.round(3).toString()}</span>
                                                     </g:else>
                                                 </g:else>
                                             </g:if>
                                             <g:else>
                                                 <%-- measurement is not numeric, so use text value from comments --%>
-                                                <div class="tooltip">
-                                                	${comments}
-                                                	<span>${comments}</span>
-                                                </div>
+                                                <span class="tooltip" title="${comments}">${comments}</span>
 											</g:else>
 										</td>
 									</g:if>

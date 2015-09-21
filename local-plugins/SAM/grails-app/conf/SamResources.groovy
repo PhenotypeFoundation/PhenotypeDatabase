@@ -7,7 +7,6 @@ modules = {
         resource url: [dir: 'js', file: 'selectAddMore.js', plugin: 'dbxp-sam']
         resource url: [dir: 'js', file: 'removeWebFlowExecutionKey.js', plugin: 'dbxp-sam']
         resource url: [dir: 'css', file: 'sam.css', plugin: 'dbxp-sam']
-        resource url: [dir: 'css', file: 'tooltip.css', plugin: 'dbxp-sam']
         resource url: [dir: 'images', file: 'subjectlayout.png', plugin: 'dbxp-sam'], attrs:[alt:''], disposition:'inline'
         resource url: [dir: 'images', file: 'samplelayout.png', plugin: 'dbxp-sam'], attrs:[alt:''], disposition:'inline'
         resource url: [dir: 'images', file: 'spinner.gif', plugin: 'dbxp-sam'], attrs:[alt:''], disposition:'inline'
