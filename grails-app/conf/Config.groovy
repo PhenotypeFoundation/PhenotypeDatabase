@@ -266,9 +266,9 @@ gscf.baseURL = grails.serverURL
 // Default configuration of manuals
 gscf {
     documents {
-        quickstart = "downloads/quickstart_study_capturing.pdf"
-        manual = "downloads/gscf_user_guide.pdf"
-        license = "downloads/license_terms.pdf"
-        sam_userguide = "downloads/SAM_User_Guide.pdf"
+        quickstart = "/downloads/quickstart_study_capturing.pdf"
+        manual = "/downloads/gscf_user_guide.pdf"
+        license = "/downloads/license_terms.pdf"
+        sam_userguide = "/downloads/SAM_User_Guide.pdf"
     }
 }
