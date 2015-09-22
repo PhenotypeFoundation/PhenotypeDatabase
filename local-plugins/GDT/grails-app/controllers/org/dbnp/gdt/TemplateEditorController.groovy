@@ -291,13 +291,12 @@ class TemplateEditorController {
      * 				On error the method gives a HTTP response status 500 and the error
      */
     def updateTemplate = {
-        // set content type
-        response.setContentType("text/plain; charset=UTF-8")
 
         // Search for the template field
         def template = Template.get(params.id);
         if (!template) {
             response.status = 404;
+            response.setContentType("text/plain; charset=UTF-8")
             render 'Template not found';
             return;
         }
@@ -307,6 +306,7 @@ class TemplateEditorController {
             def version = params.version.toLong()
             if (template.version > version) {
                 response.status = 500;
+                response.setContentType("text/plain; charset=UTF-8")
                 render 'Template was updated while you were working on it. Please reload and try again.';
                 return
             }
@@ -320,6 +320,7 @@ class TemplateEditorController {
             render output as JSON;
         } else {
             response.status = 500;
+            response.setContentType("text/plain; charset=UTF-8")
             render 'Template was not updated because errors occurred.';
             return
         }
