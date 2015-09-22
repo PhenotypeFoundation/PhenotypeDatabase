@@ -312,6 +312,15 @@ class TemplateEditorController {
             }
         }
 
+        // Check if the name already exists
+        def dupeCandidate = Template.findByName(params.name)
+        if (dupeCandidate && dupeCandidate != template) {
+            response.status = 500
+            response.setContentType("text/plain; charset=UTF-8")
+            render 'A template with that name already exists. Please choose a different name.'
+            return
+        }
+
         template.properties = params
         if (!template.hasErrors() && template.save(flush: true)) {
             def html = g.render(plugin: 'gdt', template: 'elements/liTemplate', model: [template: template, templateadmin: authenticationService.getLoggedInUser().hasTemplateAdminRights()]);
