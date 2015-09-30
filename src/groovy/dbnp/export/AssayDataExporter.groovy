@@ -52,6 +52,7 @@ public class AssayDataExporter implements Exporter {
      * Exports multiple entities to the outputstream
      */
     public void exportMultiple( def assays, OutputStream out ) {
+        println "Start collecting assay data"
         def rowData = collectAssayData(assays)
         def outputDelimiter = "\t"
 
@@ -65,6 +66,7 @@ public class AssayDataExporter implements Exporter {
             default: exportLocale = java.util.Locale.US; break;
         }
         
+        println "Start exporting assay data"
         assayService.exportRowWiseDataToCSVFile(rowData, out, outputDelimiter, exportLocale)
     }
 
@@ -102,23 +104,34 @@ public class AssayDataExporter implements Exporter {
         // collect the assay data according to user selection
         def data = []
 
+        // Determine associated IDs
+        def ids = [:]
+        
         // Determine the fields to export
-        def fieldMaps = assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) }
+        def fieldMaps = assays.collect { assay ->
+            ids[assay.id] = assayService.getAssociatedIds(assay, assay.samples)
+            assayService.collectAssayTemplateFields(assay, ids[assay.id]) 
+        }
         def fieldMap = assayService.mergeFieldMaps( fieldMaps )
 
         // Extract the features, as they are not needed in the rest of the calculations
         def features = fieldMap.remove( 'Features' )
         
+        println "Start finding samples for the given assay"
+        
         // Get the samples and sort them; this will be the sort order to use for
         // both retrieving the assay data and the measurements
-        def samples = assays[0].samples.toList().sort({it.name})
+        def firstAssay = assays[0]
+        def samples = firstAssay.samples.toList()
 
+        println "Start collecting actual assay data"
+        
         // First retrieve the subject/sample/event/assay data from GSCF, as it is the same for each list
-        data = assayService.collectAssayData(assays[0], fieldMap, [], samples)
+        data = assayService.collectAssayData(firstAssay, fieldMap, [], samples, ids[firstAssay.id] )
 
         assays.each{ assay ->
             def moduleMeasurementData
-
+            println "Collecting data for " + assay
             try {
                 moduleMeasurementData = apiService.getPlainMeasurementData(assay, user)
                 data[ "Module measurement data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
@@ -132,11 +145,16 @@ public class AssayDataExporter implements Exporter {
                     * samples.size() ]
                 e.printStackTrace()
             }
+            
+            println "Finished collecting data for " + assay
         }
+        
+        println "  Collected assay data - start converting to columns"
         
         // Convert the data into a proper structure
         def rowStructuredData = assayService.convertColumnToRowStructure(data)
         
+        println "  Add feature metadata"
         // Add feature data to the structure
         assayService.addFeatureMetadata( rowStructuredData, features )
     }
