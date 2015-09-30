@@ -52,7 +52,6 @@ public class AssayDataExporter implements Exporter {
      * Exports multiple entities to the outputstream
      */
     public void exportMultiple( def assays, OutputStream out ) {
-        println "Start collecting assay data"
         def rowData = collectAssayData(assays)
         def outputDelimiter = "\t"
 
@@ -66,7 +65,6 @@ public class AssayDataExporter implements Exporter {
             default: exportLocale = java.util.Locale.US; break;
         }
         
-        println "Start exporting assay data"
         assayService.exportRowWiseDataToCSVFile(rowData, out, outputDelimiter, exportLocale)
     }
 
