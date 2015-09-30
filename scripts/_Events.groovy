@@ -25,3 +25,14 @@ eventCompileEnd = {
    ant.copy(file:"${basedir}/grails-app/conf/default.properties", todir:classesDirPath)
    ant.echo (message: "Default configuration file moved.")
 }
+
+eventConfigureTomcat = { tomcat ->
+        println "Configuring tomcat max post size"
+        
+        try {
+            tomcat.connector.maxPostSize = 1073741824
+        }
+        catch (Throwable t) {
+            println t
+        }
+    }
