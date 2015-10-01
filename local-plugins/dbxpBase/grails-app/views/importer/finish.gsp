@@ -39,8 +39,11 @@
 		</g:else>
 		
 		<p>
-			You can review your data at the following page: <g:link url="${resultLink.url}">${resultLink.label}</g:link> or 
-			<g:link action="upload" params="${defaultParams + [importer:importInfo.importer]}">restart the importer</g:link>.  
+			You can choose to: <g:link url="${resultLink.url}">${resultLink.label}</g:link>,
+			<g:if test="${editLink}">
+				<g:link url="${editLink.url}">${editLink.label}</g:link>
+			</g:if>
+			or <g:link action="upload" params="${defaultParams + [importer:importInfo.importer]}">restart the importer</g:link>.
 		</p>
 					 
 

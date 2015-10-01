@@ -32,10 +32,20 @@ public class EventsImporter extends StudyTemplateEntityImporter<Event> {
     public Map getLinkToResults(def parameters) {
         [
             url: [ controller: 'study', action: 'design', id: parameters.study],
-            label: "Design for study " + getStudy(parameters)?.title
+            label: "view design for study " + getStudy(parameters)?.title
         ]
     }
-    
+
+    /**
+     * Returns a link to the edit page
+     */
+    public Map getLinkToEdit(def parameters) {
+        [
+                url: [ controller: 'studyEditDesign', id: parameters.study],
+                label: "edit design for study " + getStudy(parameters)?.title
+        ]
+    }
+
     /**
      * Returns an entity object for this TemplateEntity (T)
      */

@@ -38,11 +38,17 @@ public interface Importer {
     public List<ImportValidationError> getValidationErrors()
 
     /**
-     * Returns a link to a page where results of the import can be seen. 
+     * Returns a link to a page where results of the import can be seen.
      * @return a map with two keys: url and label
      */
     public Map getLinkToResults(def parameters)
-    
+
+    /**
+     * Returns a link to a page where results of the import can be edited.
+     * @return a map with two keys: url and label
+     */
+    public Map getLinkToEdit(def parameters)
+
     /**
      * Validates provided data.
      * @param   data            Matrix (List of lists) with the data that has been loaded from the excel/csv file

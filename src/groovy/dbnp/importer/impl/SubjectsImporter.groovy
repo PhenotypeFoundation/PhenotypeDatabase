@@ -32,10 +32,20 @@ public class SubjectsImporter extends StudyTemplateEntityImporter<Subject> {
     public Map getLinkToResults(def parameters) {
         [
             url: [ controller: 'study', action: 'subjects', id: parameters.study],
-            label: "Subjects for study " + getStudy(parameters)?.title
+            label: "view subjects for study " + getStudy(parameters)?.title
         ]
     }
-    
+
+    /**
+     * Returns a link to the edit page
+     */
+    public Map getLinkToEdit(def parameters) {
+        [
+                url: [ controller: 'studyEdit', action: 'subjects', id: parameters.study],
+                label: "edit subjects for study " + getStudy(parameters)?.title
+        ]
+    }
+
     /**
      * Returns an entity object for this TemplateEntity (T)
      */
