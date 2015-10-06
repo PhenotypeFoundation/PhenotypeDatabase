@@ -48,4 +48,11 @@ public abstract class AbstractImporter implements Importer {
      * Returns whether the header options can only be selected for a single header.
      */
     public boolean headerMappingIsUnique() { true }
+
+    /**
+     * Returns a link to the edit page
+     */
+    public Map getLinkToEdit(def parameters) {
+        return null
+    }
 }

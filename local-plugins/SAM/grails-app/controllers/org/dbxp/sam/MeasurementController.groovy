@@ -162,8 +162,13 @@ class MeasurementController {
 		ids.each { id ->
 			def measurementInstance = Measurement.get(id)
 	        if (measurementInstance) {
+                def samSample = SAMSample.get(measurementInstance.sampleId)
                 try {
 					measurementInstance.delete(flush: true)
+                    // If this was the last measurement in the SAMSample, delete it also
+                    if (samSample.measurements.size() == 0) {
+                        samSample.delete(flush: true)
+                    }
 					numDeleted++;
 	            } catch (org.springframework.dao.DataIntegrityViolationException e) {
 	                log.error(e)

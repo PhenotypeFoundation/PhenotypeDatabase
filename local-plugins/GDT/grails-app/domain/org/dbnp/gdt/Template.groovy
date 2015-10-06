@@ -105,7 +105,7 @@ class Template extends Identity {
 		this()
 
 		// copy base values
-		this.name			= otherTemplate.name + " (Copy)"
+		this.name			= createUniqueName(otherTemplate.name)
 		this.description	= otherTemplate.description
 		this.entity			= otherTemplate.entity
 
@@ -114,6 +114,16 @@ class Template extends Identity {
 		otherTemplate.fields.each {
 			this.fields.add( it )
 		}
+	}
+
+	private static createUniqueName(name) {
+		def originalName = name
+		def i = 2
+		while (Template.findByName(name)) {
+			name = "${originalName} - ${i}"
+			i++
+		}
+		return name
 	}
 
 	/**
