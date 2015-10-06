@@ -222,7 +222,7 @@ class ImporterController {
             numLinesImported: numLinesImported,
             
             resultLink: importer.getLinkToResults(importInfo.parameter),
-            
+            editLink: importer.getLinkToEdit(importInfo.parameter),
             importInfo: importInfo
         ])
     }

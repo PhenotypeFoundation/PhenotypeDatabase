@@ -15,6 +15,7 @@ package dbnp.studycapturing
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import org.apache.poi.xssf.streaming.SXSSFWorkbook
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.dbnp.gdt.RelTime
 import org.dbnp.gdt.*
@@ -48,7 +49,7 @@ class AssayService {
      * @return a map of categories as keys and field names or measurements as
      *  values
      */
-    def collectAssayTemplateFields(assay, samples, SecUser remoteUser = null) throws Exception {
+    def collectAssayTemplateFields(assay, ids, SecUser remoteUser = null) throws Exception {
 
         def moduleError = '', moduleMeasurements = [], features = []
 
@@ -60,33 +61,10 @@ class AssayService {
             moduleError = e.message
         }
 
-        if (!samples)
-            samples = assay.samples
-
-        // Retrieve parent subjects and events.
-        def subjectIds = samples*.parentSubjectId
-        
-        // A query with a large number of ids will raise an error (as the query will grow too long).
-        // For that reason, we use a workaround
-        def parentSubjects
-        if( subjectIds.size() < 5000 ) {
-            parentSubjects = Subject.getAll(subjectIds)
-        } else {
-            def allSubjects = Subject.findAllByParent(assay.parent).groupBy { it.id }
-            parentSubjects = subjectIds.collect { allSubjects[it]?.get(0) }
-        }
-        
-        def samplingEventInstanceIds = samples*.parentEventId.findAll().unique()
-        def parentEvents = []
-        if( samplingEventInstanceIds ) {
-            def samplingEventIds = SamplingEventInEventGroup.executeQuery( "SELECT event.id FROM SamplingEventInEventGroup WHERE id IN (:ids)", [ ids: samplingEventInstanceIds ] )
-            parentEvents = SamplingEvent.getAll(samplingEventIds)
-        }
-
-        [   'Study Data': getAllTemplateFields(assay.parent),
-            'Subject Data': getAllTemplateFields(parentSubjects),
-            'Sampling Event Data': getAllTemplateFields(parentEvents),
-            'Sample Data': getAllTemplateFields(samples),
+        [   'Study Data': getAllTemplateFields( Study, ids.study ),
+            'Subject Data': getAllTemplateFields( Subject, ids.subject ),
+            'Sampling Event Data': getAllTemplateFields( SamplingEvent, ids.samplingEvent ),
+            'Sample Data': getAllTemplateFields(Sample, ids.sample),
             'Event Group': [
                 [name: 'name', comment: 'Name of Event Group', displayName: 'name']
             ],
@@ -94,7 +72,32 @@ class AssayService {
             'Module Measurement Data': moduleMeasurements,
             'Module Error': moduleError
         ]
-
+    }
+    
+    def getAssociatedIds(assay, samples) {
+        // Retrieve parent subjects and events.
+        def subjectIds = []
+        def samplingEventInstanceIds = []
+        samples.collate(2500).each { batch ->
+            if( batch ) {
+                def data = Sample.executeQuery( "SELECT s.parentSubject.id, s.parentEvent.id FROM Sample s WHERE id IN (:ids)", [ ids: batch*.id ] )
+                subjectIds += data.collect { it[0] }
+                samplingEventInstanceIds += data.collect { it[1] }
+            }
+        }
+        
+        def eventIds = []
+        if( samplingEventInstanceIds ) {
+            samplingEventInstanceIds = samplingEventInstanceIds.unique()
+            eventIds = SamplingEventInEventGroup.executeQuery( "SELECT event.id FROM SamplingEventInEventGroup WHERE id IN (:ids)", [ ids: samplingEventInstanceIds ] )
+        }
+        
+        [ 
+            study: [ assay.parentId ],
+            subject: subjectIds,
+            samplingEvent: eventIds,
+            sample: samples*.id
+        ]
     }
 
 
@@ -158,24 +161,33 @@ class AssayService {
     /**
      * Returns a list of template fields that have been specified for the given set of entities
      */
-    def getAllTemplateFields = { templateEntities ->
-        templateEntities = templateEntities.findAll()
-
-        if( !templateEntities )
-            return []
-
-        if (templateEntities instanceof ArrayList && templateEntities.size() > 0 && templateEntities[0] instanceof SamplingEventInEventGroup) {
+    def getAllTemplateFields = { entity, ids ->
+        // Special case of sample event instances
+        if( entity == SamplingEventInEventGroup ) {
             return [[name: 'startTime', comment: '', displayName: 'startTime'],
                 [name: 'duration', comment: '', displayName: 'duration']]
         }
-
+                
         // Determine the type of data
-        def domainFields = templateEntities[0].giveDomainFields()
+        def domainFields = entity.domainFields
 
-        // Determine the template for all templateEntities
-        def templates = templateEntities*.template.unique()
-        def templateFields = templates*.fields.flatten().findAll().unique()
-
+        // Determine template IDs
+        def templateIds = []
+        ids.collate(2500).each { idBatch -> 
+            if( idBatch ) {
+                templateIds += entity.executeQuery( "SELECT DISTINCT e.template.id FROM " + entity.simpleName + " e WHERE e.id IN (:ids)", [ ids: idBatch ] )
+            }
+        }
+        
+        def templateFields = []
+        if( templateIds ) {
+            
+            // Determine the template for all templateEntities
+            def templates = Template.getAll(templateIds)
+            
+            templateFields = templates*.fields.flatten().findAll().unique()
+        }
+        
         // Return the proper list
         ( domainFields + templateFields ).collect { [name: it.name, comment: it.comment, displayName: it.name + (it.unit ? " ($it.unit)" : '')] }
     }
@@ -197,7 +209,7 @@ class AssayService {
      * 								null to include all samples.
      * @return The assay data structure as described above.
      */
-    def collectAssayData(assay, fieldMap, measurementTokens, samples, SecUser remoteUser = null) throws Exception {
+    def collectAssayData(assay, fieldMap, measurementTokens, samples, ids, SecUser remoteUser = null) throws Exception {
         // Find samples and sort by name
         if (!samples) samples = assay.samples.toList()
 
@@ -210,9 +222,8 @@ class AssayService {
 
             // only set name field when there's actual data
             if (!names.every { !it }) eventFieldMap['name'] = names
-
         }
-
+        
         def moduleError = '', moduleMeasurementData = [:], moduleMeasurementMetaData = [:]
 
         if (measurementTokens) {
@@ -229,9 +240,9 @@ class AssayService {
         }
 
         [
-            'Subject Data': getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
-            'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], 'parentEvent'),
-            'Sample Data': getFieldValues(samples, fieldMap['Sample Data']),
+            'Subject Data': getFieldValues(samples, fieldMap['Subject Data'], { sample -> sample.parentSubjectId }, Subject, ids.subject),
+            'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], { sample -> sample.parentEventId }, SamplingEvent, ids.samplingEvent),
+            'Sample Data': getFieldValues(samples, fieldMap['Sample Data'], { sample -> sample.id }, Sample, ids.sample),
             'Event Group': eventFieldMap,
             'Features': fieldMap['Features'],
             ('Module Measurement Data: ' + assay.name ): 		moduleMeasurementData,
@@ -239,70 +250,27 @@ class AssayService {
         ]
     }
 
-    def getFieldValues = { templateEntities, headerFields, propertyName = '' ->
+    def getFieldValues = { templateEntities, headerFields, getIdFromEntity, entity, ids ->
         def returnValue
 
         // if no property name is given, simply collect the fields and
         // values of the template entities themselves
-        if (propertyName == '') {
+        def data = collectFieldValuesForTemplateEntities(headerFields, entity, ids)
 
-            returnValue = collectFieldValuesForTemplateEntities(headerFields, templateEntities)
-
-        } else {
-
-            // if a property name is given, we'll have to do a bit more work
-            // to ensure efficiency. The reason for this is that for a list
-            // of template entities, the properties referred to by
-            // propertyName can include duplicates. For example, for 10
-            // samples, there may be less than 10 parent subjects. Maybe
-            // there's only 1 parent subject. We don't want to collect field
-            // values for this single subject 10 times ...
-            def fieldValues
-            def staticFieldValues
-            def uniqueProperties
-
-            // we'll get the unique list of properties to make sure we're
-            // not getting the field values for identical template entity
-            // properties more then once.
-            if (propertyName.equals('parentEvent')) {
-                uniqueProperties = templateEntities*.parentEvent*.event.unique()
-                staticFieldValues = collectStaticFieldValuesForTemplateEntities(headerFields, templateEntities*.parentEvent.unique())
-            } else {
-                uniqueProperties = templateEntities*."$propertyName".unique()
+        // Make sure each field is shown on the correct line
+        def returnData = [:]
+        data.each { columnName, columnData ->
+            def columnStructure = templateEntities.collect { templateEntity ->
+                def id = getIdFromEntity(templateEntity)
+                if( id )
+                    columnData[ id ]
+                else
+                    null
             }
-
-            fieldValues = collectFieldValuesForTemplateEntities(headerFields, uniqueProperties)
-
-            // prepare a lookup hashMap to be able to map an entities'
-            // property (e.g. a sample's parent subject) to an index value
-            // from the field values list
-            int i = 0
-            def propertyToFieldValueIndexMap = uniqueProperties.inject([:]) { map, item -> map + [(item): i++] }
-
-            // prepare the return value so that it has an entry for field
-            // name. This will be the column name (second header line).
-            returnValue = headerFields*.displayName.inject([:]) { map, item -> map + [(item): []] }
-
-            // finally, fill map the unique field values to the (possibly
-            // not unique) template entity properties. In our example with
-            // 1 unique parent subject, this means copying that subject's
-            // field values to all 10 samples.
-            templateEntities.each { te ->
-
-                headerFields*.displayName.each {
-                    if (propertyName.equals('parentEvent')) {
-                        if (it.equals('startTime') || it.equals('duration')) {
-                            returnValue[it] << staticFieldValues[it][te.parentEvent.id]
-                        } else {
-                            returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te.parentEvent['event']]]
-                        }
-                    } else {
-                        returnValue[it] << fieldValues[it][propertyToFieldValueIndexMap[te[propertyName]]]
-                    }
-                }
-            }
+            returnData[columnName] = columnStructure
         }
-        returnValue
+        
+        returnData
     }
 
 
@@ -325,13 +293,9 @@ class AssayService {
         }
     }
 
-    def collectFieldValuesForTemplateEntities = { headerFields, templateEntities ->
-        def firstNonEmptyTemplateEntity = templateEntities.findResult { it }
-
-        if( !firstNonEmptyTemplateEntity ) {
-            return templateEntities.collect { "" }
-        }
-
+    def collectFieldValuesForTemplateEntities = { headerFields, entity, ids ->
+        def firstNonEmptyTemplateEntity = entity.newInstance()
+        
         // return a hash map with for each field name all values from the
         // template entity list
         headerFields.collectEntries { headerField ->
@@ -339,47 +303,43 @@ class AssayService {
             def data
 
             // The data for domainfields has been retrieved already
+            def field
             if( firstNonEmptyTemplateEntity.isDomainField(headerField.name) ) {
-                def field = firstNonEmptyTemplateEntity.getField(headerField.name)
-                data = templateEntities.collect { entity ->
-                    def val = ''
-                    if( entity ) {
-                        val = entity.getFieldValue(headerField.name)
-
-                        // Convert RelTime fields to human readable strings
-                        if (field.type == TemplateFieldType.RELTIME)
-                            val = new RelTime(val as long)
-
-                    }
-                    return val
-                }
+                field = firstNonEmptyTemplateEntity.getField(headerField.name)
             } else {
                 // Filtering on class doesn't seem to work properly
-                def field = TemplateField.findAllByName(headerField.name).find { it.entity == firstNonEmptyTemplateEntity.class }
-
-                if( !field ) {
-                    data = templateEntities.collect { "" }
-                } else {
-                    // Retrieve the data from the database at once
-                    data = firstNonEmptyTemplateEntity.getColumnForEntities( templateEntities, field ).collect { val ->
-                        // Convert RelTime fields to human readable strings
-                        if (field.type == TemplateFieldType.RELTIME && val != null)
-                            val = new RelTime(val as long)
-                        else
-                            val
-                    }
-                }
+                field = TemplateField.findAllByName(headerField.name).find { it.entity == entity }
             }
-
-            // Return data for the big data map
-            [(headerField.displayName): data.collect {
+            
+            // Retrieve data
+            if( !field ) {
+                data = ids.collect { "" }
+            } else {
+                // Retrieve the data from the database at once
+                data = firstNonEmptyTemplateEntity.getColumnForEntities( ids, field ).collect { val ->
+                    // Convert RelTime fields to human readable strings
+                    if (field.type == TemplateFieldType.RELTIME && val != null)
+                        val = new RelTime(val as long)
+                    else
+                        val
+                }
+                
+                // Convert data into the proper format
+                data = data.collect {
                     if( it == null )
                         return ""
                     else if( it instanceof Number )
                         return it
                     else
                         return it.toString()
-                }]
+                }
+            }
+
+            // Create a map with the ids being the keys
+            def dataMap = [ ids, data ].transpose().flatten().toSpreadMap() 
+            
+            // Return data for the big data map
+            [(headerField.displayName): dataMap ]
         }
     }
 
@@ -1120,7 +1080,7 @@ class AssayService {
      * @return
      */
     def exportRowWiseDataForMultipleAssaysToExcelFile(assayData, outputStream, useOfficeOpenXML = true) {
-        Workbook wb = useOfficeOpenXML ? new XSSFWorkbook() : new HSSFWorkbook()
+        Workbook wb = useOfficeOpenXML ? new SXSSFWorkbook(100) : new HSSFWorkbook()
 
         assayData.each { rowData ->
             Sheet sheet = wb.createSheet()
@@ -1130,6 +1090,8 @@ class AssayService {
 
         wb.write(outputStream)
         outputStream.close()
+        
+        wb.dispose()
     }
 
     /**
@@ -1140,30 +1102,29 @@ class AssayService {
      * @return
      */
     def exportRowWiseDataToExcelSheet(rowData, Sheet sheet) {
-        // create all rows
-        rowData.size().times { sheet.createRow it }
+        rowData.each { ri, data ->
+            Row row = sh.createRow(ri)
+            
+            data.each { ci, cellData ->
+                Cell cell = row.createCell(ci)
+                
+                // Numbers and values of type boolean, String, and Date can be
+                // written as is, other types need converting to String
+                def value = rowData[ri][ci]
 
-        sheet.eachWithIndex { Row row, ri ->
-            if (rowData[ri]) {
-                // create appropriate number of cells for this row
-                rowData[ri].size().times { row.createCell it }
-
-                row.eachWithIndex { Cell cell, ci ->
-
-                    // Numbers and values of type boolean, String, and Date can be
-                    // written as is, other types need converting to String
-                    def value = rowData[ri][ci]
-
-                    value = (value instanceof Number | value?.class in [
+                if( value == null ) {
+                    value = ""
+                } else if(value instanceof Number | value?.class in [
                         boolean.class,
                         String.class,
                         Date.class
-                    ]) ? value : value?.toString()
-
-                    // write the value (or an empty String if null) to the cell
-                    cell.setCellValue(value ?: '')
-
+                    ]) {
+                    value = value
+                } else {
+                    value = value.toString()
                 }
+                
+                cell.setCellValue(value)
             }
         }
     }

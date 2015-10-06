@@ -241,17 +241,23 @@ abstract class TemplateEntity extends Identity {
     /**
      * Retrieve a the value of a single field for a set of entities
      */
-    public getColumnForEntities( def entities, TemplateField field ) {
-        if( !entities ) 
+    public getColumnForEntities( def ids, TemplateField field ) {
+        if( !ids ) 
             return []
             
         def fieldType = field.type
         String store = "template${fieldType.casedName}Fields"
 
-        def columnData = this.class.executeQuery( "SELECT e.id, store FROM " + this.class.simpleName + " e INNER JOIN e." + store + " store WHERE e in (:entities) AND index(store) = :fieldName", [entities: entities, fieldName: field.name ] )
+        def columnData
+        if( isDomainField(field) ) {
+            columnData = this.class.executeQuery( "SELECT e.id, e." + field.name + " FROM " + this.class.simpleName + " e WHERE e.id in (:ids)", [ids: ids] )
+        } else {
+            columnData = this.class.executeQuery( "SELECT e.id, store FROM " + this.class.simpleName + " e INNER JOIN e." + store + " store WHERE e.id in (:ids) AND index(store) = :fieldName", [ids: ids, fieldName: field.name ] )
+        }
+        
         def columnMap = columnData.collectEntries { [ (it[0]): it[1] ] }
 
-        entities.collect { it ? columnMap[ it.id ] : null }
+        ids.collect { it ? columnMap[ it ] : null }
     }
 
     /**

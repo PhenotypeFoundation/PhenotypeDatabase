@@ -98,7 +98,17 @@ public class SamplesImporter extends StudyTemplateEntityImporter<Sample> {
     public Map getLinkToResults(def parameters) {
         [
             url: [ controller: 'study', action: 'samples', id: parameters.study],
-            label: "Samples for study " + getStudy(parameters)?.title
+            label: "view samples for study " + getStudy(parameters)?.title
+        ]
+    }
+
+    /**
+     * Returns a link to the edit page
+     */
+    public Map getLinkToEdit(def parameters) {
+        [
+                url: [ controller: 'studyEdit', action: 'samples', id: parameters.study],
+                label: "edit samples for study " + getStudy(parameters)?.title
         ]
     }
     

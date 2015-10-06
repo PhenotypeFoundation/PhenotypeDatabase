@@ -191,8 +191,14 @@ function updateTemplate( id ) {
             updateTemplateListItem( id, data.html );
 			userMessage( 'Your template was updated.', "okay" );
         },
-        error:      function( request ) {
-        	userMessage( "Could not update template", "errormessage" );
+        error:      function( request, textStatus, error ) {
+          var contentType = request.getResponseHeader('content-type')
+          if (contentType.indexOf('text/plain') > -1) {
+            userMessage( "Could not update template: " + request.responseText, "errormessage" );
+          }
+          else {
+            userMessage( "Could not update template: " + error, "errormessage" );
+          }
         },
 		complete: function( request, textStatus ) {
 			hideWaiting();

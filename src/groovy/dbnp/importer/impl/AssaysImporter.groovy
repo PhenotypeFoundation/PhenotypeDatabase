@@ -32,7 +32,17 @@ public class AssaysImporter extends StudyTemplateEntityImporter<Assay> {
     public Map getLinkToResults(def parameters) {
         [
             url: [ controller: 'study', action: 'assays', id: parameters.study],
-            label: "Assays for study " + getStudy(parameters)?.title
+            label: "view assays for study " + getStudy(parameters)?.title
+        ]
+    }
+
+    /**
+     * Returns a link to the edit page
+     */
+    public Map getLinkToEdit(def parameters) {
+        [
+                url: [ controller: 'studyEdit', action: 'assays', id: parameters.study],
+                label: "edit assays for study " + getStudy(parameters)?.title
         ]
     }
     
