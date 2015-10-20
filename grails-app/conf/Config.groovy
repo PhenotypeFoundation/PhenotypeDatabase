@@ -164,6 +164,7 @@ grails.plugin.springsecurity.interceptUrlMap = [
     
     // Registration and confirming new accounts
     '/register/forgotPassword':                 ['permitAll'],
+    '/register/resetPassword':                  ['permitAll'],
     '/userRegistration/add':                    ['permitAll'],
     '/userRegistration/sendUserConfirmation':   ['permitAll'],
     '/userRegistration/confirmUser':            ['permitAll'],
