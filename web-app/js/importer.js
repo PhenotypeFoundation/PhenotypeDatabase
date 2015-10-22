@@ -61,7 +61,9 @@ Importer.datatable = {
 					"iDisplayLength": 5,
 					"bSort" : false,
 					"aaData": data.aaData,
-					"aoColumns": data.aoColumns
+					"aoColumns": data.aoColumns,
+					"bFilter": false,
+					"bLengthChange": false
 				});
 			})
 			.fail(function() {
