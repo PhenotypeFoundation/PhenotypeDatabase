@@ -210,8 +210,8 @@ Importer.match = {
 			.addClass( 'match_options' )
 			.append( "<button class='match'>Match</button>" )
 			.append( "<button class='clear'>Clear mapping</button>" );
-		
-		optionsHeader.find( ".dataTables_length" ).after(matchOptions);
+
+		optionsHeader.append(matchOptions);
 		
 		// Add click handlers to match buttons
 		element.on( "click", "button.match", function() {
