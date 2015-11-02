@@ -20,6 +20,13 @@
  */
 package org.dbnp.gdt
 
+import grails.util.Holders
+import groovyx.net.http.HTTPBuilder
+import static groovyx.net.http.Method.GET
+import static groovyx.net.http.ContentType.JSON
+
+import groovy.json.JsonSlurper
+
 class TemplateOntologyTermField extends TemplateFieldTypeNew {
     static contains				= Term
     static String type			= "ONTOLOGYTERM"
@@ -63,9 +70,76 @@ class TemplateOntologyTermField extends TemplateFieldTypeNew {
                 if (ontology) {
                     return ontology.giveTermByName(value)
                 } else {
-                    // TODO: search ontology for the term online (it may still exist) and insert it into the Term cache
-                    // if not found, throw exception
-                    throw new IllegalArgumentException("Ontology term not recognized (not in the ontology cache): ${value}")
+                    def ontoTerm = Term.findAllByName(value).find {
+                        it.name == value
+                    }
+
+                    // Term has been used before and is cached in DB
+                    if (ontoTerm) {
+                        return ontoTerm
+                    }
+
+                    // Use Bioontology recommender (configured in the properties)
+                    def config = Holders.config
+                    String recommenderUrl = config.bioontology.recommender
+                    String apiKey = config.bioontology.apikey
+
+                    if (recommenderUrl.empty) {
+                        println "Recommender URL not set"
+                        throw new IllegalArgumentException("BioOntology Recommender URL not set")
+                    }
+                    def searchParams = [:]
+                    searchParams['input'] = value.replaceAll("\\s", "+")
+                    searchParams['pagesize'] = "1"
+                    searchParams['display_links'] = "false"
+                    searchParams['display_context'] = "false"
+                    searchParams['format'] = "json"
+
+                    String queryArgs = searchParams
+                            .collect { k,v -> "$k=$v" }
+                            .join('&')
+                    String queryUrl =  recommenderUrl + "?" + queryArgs
+                    def http = new HTTPBuilder(queryUrl)
+
+                    /*
+                     * Parsed as JSON by HTTPBuilder
+                     */
+                    http.request( GET, JSON ) {
+                        // Set Apikey in the header. Using QueryString in a URL object does not suffice
+                        headers.'Authorization' = 'apikey token='+ apiKey
+
+                        response.success = { response, resOnt ->
+                            def result = resOnt[0]
+                            if (result) {
+                                if (result.ontologies.length == 0) {
+                                    println "Not in the cache search online. "
+                                    throw new IllegalArgumentException("Ontology not found in bioontology.org database for: ${value}")
+                                }
+
+                                def firstOntology = result.ontologies[0]['@id']
+                                def resolvedOntology = Ontology.getOrCreateOntology(firstOntology)
+                                if (result.coverageResult.annotations.length == 0) {
+                                    println "Annotations not available for ontology."
+                                    throw new IllegalArgumentException("Annotations not available for ontology : ${value}")
+                                }
+                                def ontologyAnnotation = result.coverageResult.annotations[0].annotatedClass['@id']
+                                Term ontologyTerm = Term.getOrCreateTerm(value, resolvedOntology, ontologyAnnotation)
+
+                                return ontologyTerm
+                            } else {
+                                println "Error accessing BioOntologyAPI for ${recommenderUrl}"
+                                throw new IllegalArgumentException("Error accessing BioOntologyAPI for ${recommenderUrl}")
+                            }
+
+                        }
+
+                        response.failure = { resp ->
+                            println ("ERROR: ontology with ontologyUrl ${apiUrl} could not be found! Server terturned: ${resp.statusLine.statusCode} : ${resp.statusLine.reasonPhrase}")
+                            throw new IllegalArgumentException("Error accessing BioOntologyAPI for ${recommenderUrl}")
+                        }
+                    }
+
+
                 }
             } else {
                 throw new IllegalArgumentException("Ontology term not recognized (not in the ontology cache): ${value}")
