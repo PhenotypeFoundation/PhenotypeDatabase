@@ -129,6 +129,7 @@
 						</g:each>
 					</tbody>
 				</table>
+				<g:paginate controller="SAMAssay" action="show" total="${numberOfSamples}" offset=${offset} />
 			</form>
 			
             <br />

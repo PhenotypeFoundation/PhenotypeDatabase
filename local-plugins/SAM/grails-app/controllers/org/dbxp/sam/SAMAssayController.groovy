@@ -164,6 +164,8 @@ class SAMAssayController {
         if (moduleService.validateModule(params?.module)) {
             def hideEmpty = params.hideEmpty ? Boolean.parseBoolean( params.hideEmpty ) : true
             def assayInstance = Assay.get(params.id)
+			def maxResults = params.max ? params.max : 10;
+			def queryOffset = params.offset ? params.offset : 0;
 
             if (!assayInstance) {
                 flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
@@ -182,7 +184,8 @@ class SAMAssayController {
 				return
 			}
 
-            def ssamples = SAMSample.findAllByParentAssay(assayInstance)
+			// Is this to lazy fetch all the associated (belongsTo) data?
+            //def ssamples = SAMSample.findAllByParentAssay(assayInstance)
 
             // Lookup all samples for this assay
             def numberOfSamples = assayInstance.getSampleCount();
@@ -191,9 +194,9 @@ class SAMAssayController {
             // If samples without measurements should be hidden, we don't retrieve them from the database at all
             if( hideEmpty ) {
                 //samples = assayInstance.samples.sort { it.name}
-                samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay AND s.measurements.size > 0 ORDER BY s.parentSample.name", [ assay: assayInstance ] );
+                samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay AND s.measurements.size > 0 ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] );
             } else {
-                samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.name", [ assay: assayInstance ] );
+                samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset ] );
             }
 
             // Compute the number of samples without measurements
@@ -210,7 +213,16 @@ class SAMAssayController {
                     features = Feature.findAll( "from Feature f WHERE EXISTS( FROM Measurement m WHERE m IN (:measurements) AND m.feature = f ) ORDER BY f.name", [ measurements: measurements ] )
                 }
             }
-            return [assayInstance: assayInstance, samples: samples, features: features, measurements: measurements, hideEmpty: hideEmpty, module: params.module]
+            return [
+					assayInstance: assayInstance,
+					samples: samples,
+					features: features,
+					measurements: measurements,
+					hideEmpty: hideEmpty,
+					module: params.module,
+					numberOfSamples: numberOfSamples,
+					offset: queryOffset
+			]
         }
         else {
             redirect(controller: 'error', action: 'notFound')
@@ -222,7 +234,7 @@ class SAMAssayController {
         def assay = Assay.findWhere(UUID: params.id)
 
         if (!assay) {
-            flash.message = "The assay you requested could not be found. PLease use your browser back button."
+            flash.message = "The assay you requested could not be found. Please use your browser back button."
             redirect(action: "list")
 			return
         }
