@@ -7,6 +7,7 @@ We have the most recent builds available for download as ```war``` files which c
 War file | Build Environment | Source | Config Location
 --- | --- | --- | --- | ---
 [PhenotypeDatabase.war](http://download.dbnp.org/production/PhenotypeDatabase.war) | ```production``` | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/production.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
+[PhenotypeDatabase.war](http://download.dbnp.org/production/PhenotypeDatabase.war) | ```continuous integration``` | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/ci.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
 _Note: each project / environment requires a specific configuration file._
 
 # Installation
