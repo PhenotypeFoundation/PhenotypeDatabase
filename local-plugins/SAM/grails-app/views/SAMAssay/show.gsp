@@ -129,6 +129,9 @@
 						</g:each>
 					</tbody>
 				</table>
+				<div class="paginateButtons">
+					<g:paginate controller="measurements" mapping="showAssayPagination" action="show" id="${assayInstance.id}" total="${numberOfSamples}" offset="${offset}" params='[module: "${module}"]' />
+				</div>
 			</form>
 			
             <br />
