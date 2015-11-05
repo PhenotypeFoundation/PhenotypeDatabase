@@ -61,7 +61,9 @@ Importer.datatable = {
 					"iDisplayLength": 5,
 					"bSort" : false,
 					"aaData": data.aaData,
-					"aoColumns": data.aoColumns
+					"aoColumns": data.aoColumns,
+					"bFilter": false,
+					"bLengthChange": false
 				});
 			})
 			.fail(function() {
@@ -208,8 +210,8 @@ Importer.match = {
 			.addClass( 'match_options' )
 			.append( "<button class='match'>Match</button>" )
 			.append( "<button class='clear'>Clear mapping</button>" );
-		
-		optionsHeader.find( ".dataTables_length" ).after(matchOptions);
+
+		optionsHeader.append(matchOptions);
 		
 		// Add click handlers to match buttons
 		element.on( "click", "button.match", function() {
