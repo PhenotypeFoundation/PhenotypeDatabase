@@ -37,6 +37,9 @@ class UrlMappings {
 			}
 		}
 
+		// Duplicate but named mapping for g:paginate component
+		name showAssayPagination: "/measurements/$module/assay/$action?/$id?"(controller: 'SAMAssay')
+
 		 // landing page for alternative SAM url
 		"/measurements/$module/assay/$action?/$id?"(controller: 'SAMAssay')
 		
