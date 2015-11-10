@@ -74,6 +74,7 @@ public class MultipleStudiesExporter implements Exporter {
         if(assays) {
             // Get the samples and sort them; this will be the sort order to use for
             // both retrieving the assay data and the measurements
+            // SELECT DISTINCT s FROM Assay a INNER JOIN a.samples s WHERE a IN (?) ORDER BY s.name 
             def samples = assays*.samples.flatten().unique().sort({it.name})
             sampleData = this.collectSampleData(assays, null, samples, authenticationService.getLoggedInUser())
         }
@@ -224,8 +225,8 @@ public class MultipleStudiesExporter implements Exporter {
 
         [
                 'Study' : ['Code': samples.parent.code],
-                'Subject Data': assayService.getFieldValues(samples, fieldMap['Subject Data'], { sample -> sample.parentSubjectId }, Subject, []),
-                'Sample Data': assayService.getFieldValues(samples, fieldMap['Sample Data'], { sample -> sample.id }, Sample, []),
+                'Subject Data': assayService.getFieldValues(samples, fieldMap['Subject Data'], { sample -> sample.parentSubjectId }, Subject, samples*.parentSubjectId),
+                'Sample Data': assayService.getFieldValues(samples, fieldMap['Sample Data'], { sample -> sample.id }, Sample, samples*.id),
                 'Sampling Event in Group': samplingEventInEventGroup,
                 'Subject Event Group': subjectEventGroup
         ]
