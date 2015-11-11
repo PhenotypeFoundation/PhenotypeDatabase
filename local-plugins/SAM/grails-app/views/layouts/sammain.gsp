@@ -35,7 +35,7 @@
 		    		</ul>
 		    	</li>
                 <li>
-                    <a href="${grailsApplication.config.gscf.baseURL + grailsApplication.config.gscf.documents.sam_userguide}" target="_blank">
+                    <a href="${grailsApplication.config.gscf.documents.sam_userguide}" target="_blank">
                         User Guide
                         <img src="${fam.icon(name:"page_white_acrobat")}" alt="(pdf)" style="vertical-align:text-bottom;"/>
                     </a>

@@ -74,6 +74,7 @@ public class MultipleStudiesExporter implements Exporter {
         if(assays) {
             // Get the samples and sort them; this will be the sort order to use for
             // both retrieving the assay data and the measurements
+            // SELECT DISTINCT s FROM Assay a INNER JOIN a.samples s WHERE a IN (?) ORDER BY s.name 
             def samples = assays*.samples.flatten().unique().sort({it.name})
             sampleData = this.collectSampleData(assays, null, samples, authenticationService.getLoggedInUser())
         }
@@ -135,17 +136,17 @@ public class MultipleStudiesExporter implements Exporter {
             collectedAssays += it.assays
         }
 
-        def usedStudyTemplateFields = assayService.getAllTemplateFields(studies)
-        def usedEventTemplateFields = assayService.getAllTemplateFields(collectedEvents)
-        def usedSamplingEventTemplateFields = assayService.getAllTemplateFields(collectedSamplingEvents)
-        def usedAssayTemplateFields = assayService.getAllTemplateFields(collectedAssays)
+        def usedStudyTemplateFields = assayService.getAllTemplateFields(Study, studies*.id)
+        def usedEventTemplateFields = assayService.getAllTemplateFields(Event, collectedEvents*.id)
+        def usedSamplingEventTemplateFields = assayService.getAllTemplateFields(SamplingEvent, collectedSamplingEvents*.id)
+        def usedAssayTemplateFields = assayService.getAllTemplateFields(Assay, collectedAssays*.id)
 
         def studyInformation = []
         studies.eachWithIndex { el, idx ->
-            studyInformation[idx] = [assayService.getFieldValues(el, usedStudyTemplateFields),
-                    assayService.getFieldValues(el.events, usedEventTemplateFields),
-                    assayService.getFieldValues(el.samplingEvents, usedSamplingEventTemplateFields),
-                    assayService.getFieldValues(el.assays, usedAssayTemplateFields)]
+            studyInformation[idx] = [assayService.getFieldValues(el, usedStudyTemplateFields, { study -> study.id }, Study, [el.id]),
+                    assayService.getFieldValues(el.events, usedEventTemplateFields, { event -> event.id }, Event, el.events*.id),
+                    assayService.getFieldValues(el.samplingEvents, usedSamplingEventTemplateFields, { samplingEvent -> samplingEvent.id }, SamplingEvent, el.samplingEvents*.id),
+                    assayService.getFieldValues(el.assays, usedAssayTemplateFields, { assay -> assay.id }, Assay, el.assays*.id)]
         }
 
         //Return a list with describing headers and return a list with the actual data
@@ -165,11 +166,11 @@ public class MultipleStudiesExporter implements Exporter {
         studies.each {
             collectedSubjects += it.subjects
         }
-        def usedSubjectTemplateFields = assayService.getAllTemplateFields(collectedSubjects)
+        def usedSubjectTemplateFields = assayService.getAllTemplateFields(Subject, collectedSubjects*.id)
 
         def subjectInformation = []
         studies.eachWithIndex { el, idx ->
-            subjectInformation[idx] = ([el.code] + assayService.getFieldValues(el.subjects, usedSubjectTemplateFields)).flatten()
+            subjectInformation[idx] = ([el.code] + assayService.getFieldValues(el.subjects, usedSubjectTemplateFields, { subject -> subject.id }, Subject, el.subjects*.id)).flatten()
         }
         usedSubjectTemplateFields = (["Study code"] + usedSubjectTemplateFields).flatten()
 
@@ -224,8 +225,8 @@ public class MultipleStudiesExporter implements Exporter {
 
         [
                 'Study' : ['Code': samples.parent.code],
-                'Subject Data': assayService.getFieldValues(samples, fieldMap['Subject Data'], 'parentSubject'),
-                'Sample Data': assayService.getFieldValues(samples, fieldMap['Sample Data']),
+                'Subject Data': assayService.getFieldValues(samples, fieldMap['Subject Data'], { sample -> sample.parentSubjectId }, Subject, samples*.parentSubjectId),
+                'Sample Data': assayService.getFieldValues(samples, fieldMap['Sample Data'], { sample -> sample.id }, Sample, samples*.id),
                 'Sampling Event in Group': samplingEventInEventGroup,
                 'Subject Event Group': subjectEventGroup
         ]
@@ -236,8 +237,8 @@ public class MultipleStudiesExporter implements Exporter {
      */
     def collectSampleTemplateFields(samples) throws Exception {
         [
-                'Subject Data': assayService.getAllTemplateFields(samples*."parentSubject".unique()),
-                'Sample Data': assayService.getAllTemplateFields(samples)
+                'Subject Data': assayService.getAllTemplateFields(Subject, samples*."parentSubject".unique()*.id),
+                'Sample Data': assayService.getAllTemplateFields(Sample, samples*.id)
         ]
     }
 

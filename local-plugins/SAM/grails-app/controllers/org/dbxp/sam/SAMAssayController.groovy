@@ -184,23 +184,13 @@ class SAMAssayController {
 				return
 			}
 
-			// Is this to lazy fetch all the associated (belongsTo) data?
-            //def ssamples = SAMSample.findAllByParentAssay(assayInstance)
-
             // Lookup all samples for this assay
             def numberOfSamples = assayInstance.getSampleCount();
             def samples;
 
-            // If samples without measurements should be hidden, we don't retrieve them from the database at all
-            if( hideEmpty ) {
-                //samples = assayInstance.samples.sort { it.name}
-                samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay AND s.measurements.size > 0 ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] );
-            } else {
-                samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset ] );
-            }
-
-            // Compute the number of samples without measurements
-            def emptySamples = numberOfSamples - samples.size();
+			// Possibly not query samples that dont hold measurements.
+			// Filtering samples.measurements.size > 0 causes a tremendous slowdown.
+			samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] );
 
             def measurements = [];
             def features = [];
