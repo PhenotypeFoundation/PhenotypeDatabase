@@ -21,7 +21,8 @@ grails.config.locations = [
 
 	// the external configuration to override the default
 	// configuration (e.g. ~/.gscf/ci.properties)
-	"file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.properties"
+	"file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.properties",
+    "file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.groovy"
 ]
 
 grails.config.locations.each { println "Reading configuration from ${it}" }
@@ -264,12 +265,14 @@ fuzzyMatching.threshold = [
 
 gscf.baseURL = grails.serverURL
 
-// Default configuration of manuals
-gscf {
-    documents {
-        quickstart = "/downloads/quickstart_study_capturing.pdf"
-        manual = "/downloads/gscf_user_guide.pdf"
-        license = "/downloads/license_terms.pdf"
-        sam_userguide = "/downloads/SAM_User_Guide.pdf"
+grails {
+    mail {
+        disabled = false
+        props = [
+            "mail.smtp.auth": "true",
+            "mail.smtp.socketFactory.port": "465",
+            "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+            "mail.smtp.socketFactory.fallback": "false"
+        ]
     }
 }

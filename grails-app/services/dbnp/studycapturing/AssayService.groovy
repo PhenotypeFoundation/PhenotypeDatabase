@@ -1102,10 +1102,10 @@ class AssayService {
      * @return
      */
     def exportRowWiseDataToExcelSheet(rowData, Sheet sheet) {
-        rowData.each { ri, data ->
-            Row row = sh.createRow(ri)
+        rowData.eachWithIndex { data, ri ->
+            Row row = sheet.createRow(ri)
             
-            data.each { ci, cellData ->
+            data.eachWithIndex { cellData, ci ->
                 Cell cell = row.createCell(ci)
                 
                 // Numbers and values of type boolean, String, and Date can be
