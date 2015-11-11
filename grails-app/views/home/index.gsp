@@ -230,9 +230,9 @@
             <div class="document">
                 <h2>User Guide Downloads</h2>
                 <ul class="doclist">
-                    <li><a target="_blank" href="${grailsApplication.config.gscf.baseURL + grailsApplication.config.gscf.documents.quickstart}" title="">Quick Start User Guide</a></li>
-                    <li><a target="_blank" href="${grailsApplication.config.gscf.baseURL + grailsApplication.config.gscf.documents.manual}" title="">In Depth User Guide</a></li>
-                    <li><a target="_blank" href="${grailsApplication.config.gscf.baseURL + grailsApplication.config.gscf.documents.license}" title="">License Terms</a></li>
+                    <li><a target="_blank" href="${grailsApplication.config.gscf.documents.quickstart}" title="">Quick Start User Guide</a></li>
+                    <li><a target="_blank" href="${grailsApplication.config.gscf.documents.manual}" title="">In Depth User Guide</a></li>
+                    <li><a target="_blank" href="${grailsApplication.config.gscf.documents.license}" title="">License Terms</a></li>
                 </ul>
             </div>
             <p class="note">If you encounter a problem or have a suggestion for improvement feel free to submit an issue <a href="${issueUrl}" title="">here</a></p>
