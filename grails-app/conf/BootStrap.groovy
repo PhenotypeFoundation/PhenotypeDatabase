@@ -61,9 +61,6 @@ class BootStrap {
 			CommunicationManager.registerRestWrapperMethodsFromSAM()
 		}
 
-		// automatically handle database upgrades
-		DatabaseUpgrade.handleUpgrades(dataSource, grailsApplication)
-
 		// developmental/test template/ontology/study bootstrapping:
 //		if ( Environment.current == Environment.DEVELOPMENT ||  Environment.current == Environment.TEST ) {
 //			// add ontologies?

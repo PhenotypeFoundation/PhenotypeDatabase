@@ -23,8 +23,6 @@ class BootStrap {
             println("BootStrap.groovy Error: "+e);
         }
 
-        // automatically handle database upgrades
-		DatabaseUpgrade.handleUpgrades(dataSource)
     }
     def destroy = {
     }
