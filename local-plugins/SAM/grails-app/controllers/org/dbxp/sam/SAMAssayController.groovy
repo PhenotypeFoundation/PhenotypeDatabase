@@ -179,11 +179,6 @@ class SAMAssayController {
                 return
             }
 
-			if (Measurement.executeQuery("SELECT COUNT(*) FROM Measurement m WHERE m.sample.parentAssay = :assay", [ assay: assayInstance])[0]  > 10000) {
-				redirect(controller: 'SAMAssay', action: 'summary', params: [id: assayInstance.id, module: params.module])
-				return
-			}
-
             // Lookup all samples for this assay
             def numberOfSamples = assayInstance.getSampleCount();
             def samples;
@@ -231,34 +226,5 @@ class SAMAssayController {
 
         redirect(action:"show", params:[id: assay.id, module: assay.module.name])
     }
-	
-    def summary = {
 
-        def assayInstance = Assay.findById(params.id)
-
-		def totalSamples = assayInstance.getSampleCount()
-		
-        // Retrieve only samsample ID and sample name from the database, returned in tuples
-		def samples = SAMSample.executeQuery( "SELECT s.id, s.parentSample.name from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.parentSample.name", [ assay: assayInstance ] )
-		
-		// Retrieve measurement counts at once. The results are returned in tuples: sample.id, measurementCount
-		def c = Measurement.createCriteria()
-		def counts = c.list {
-			sample {
-				eq( 'parentAssay', assayInstance )
-			}
-			projections {
-				groupProperty("sample.id")
-				rowCount()
-			}
-		}
-		
-		// Convert into a map, so the counts can be retrieved easily
-		def measurementCounts = [:] 
-		counts.each { 
-			measurementCounts[ it[0] ] = it[1]
-		}
-
-        [ module: params.module, assayInstance: assayInstance, totalSamples: totalSamples, samples: samples, measurementCounts: measurementCounts ]
-    }
 }
