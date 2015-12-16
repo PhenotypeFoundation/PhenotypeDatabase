@@ -384,7 +384,7 @@ class WizardTagLib extends GdtTagLib {
 		}
 
 		def userList = []
-		SecUser.findAll().each {
+		SecUser.findAllByAccountExpiredAndAccountLocked( false, false )?.sort() { it.username.toLowerCase() }.each {
 			userList[ userList.size() ] = ['name':(it.shibbolethUser) ? it.displayName : it.username, 'id':it.id]
 		}
 
