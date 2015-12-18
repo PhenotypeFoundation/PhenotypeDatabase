@@ -44,8 +44,6 @@
                 </g:else>
                 </li>
                 <g:set var="templateService" bean="templateService"/>
-                <g:set var="templateEntity" value="${templates[0].entity.simpleName.replaceAll(/\B[A-Z]/) { '_' + it }.toLowerCase()}" />
-                <g:set var="countUses" value="${templateService.countUses(templateEntity)}" />
                 <g:each in="${templates}" var="currentTemplate">
                     <g:set var="numUses" value="${countUses.find({it.template_id == currentTemplate.id})?.count}"/>
 				  <g:render template="elements/liTemplate" model="['template': currentTemplate, 'numUses':numUses, 'extraparams': extraparams]"/>
