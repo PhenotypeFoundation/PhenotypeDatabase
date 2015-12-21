@@ -266,17 +266,13 @@ fuzzyMatching.threshold = [
 gscf.baseURL = grails.serverURL
 
 grails {
-    // Mail configuration for Mail plugin
     mail {
-        // Sending mails is disabled by default, since we don't have a valid configuration
-        // (no username and password supplied for security reasons)
-        // Should be enabled in externalized configuration
-        // N.B. Setting disabled to false will not work in a config.properties file. Use
-        // the ConfigSlurper variant
-        disabled = true
-
-        "default" {
-            from = "no-reply@phenotype-database.org"
-        }
+        disabled = false
+        props = [
+            "mail.smtp.auth": "true",
+            "mail.smtp.socketFactory.port": "465",
+            "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+            "mail.smtp.socketFactory.fallback": "false"
+        ]
     }
 }
