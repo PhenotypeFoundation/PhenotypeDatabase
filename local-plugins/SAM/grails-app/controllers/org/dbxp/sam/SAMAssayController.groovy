@@ -179,28 +179,13 @@ class SAMAssayController {
                 return
             }
 
-			if (Measurement.executeQuery("SELECT COUNT(*) FROM Measurement m WHERE m.sample.parentAssay = :assay", [ assay: assayInstance])[0]  > 10000) {
-				redirect(controller: 'SAMAssay', action: 'summary', params: [id: assayInstance.id, module: params.module])
-				return
-			}
-
-			// Is this to lazy fetch all the associated (belongsTo) data?
-            //def ssamples = SAMSample.findAllByParentAssay(assayInstance)
-
             // Lookup all samples for this assay
             def numberOfSamples = assayInstance.getSampleCount();
             def samples;
 
-            // If samples without measurements should be hidden, we don't retrieve them from the database at all
-            if( hideEmpty ) {
-                //samples = assayInstance.samples.sort { it.name}
-                samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay AND s.measurements.size > 0 ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] );
-            } else {
-                samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset ] );
-            }
-
-            // Compute the number of samples without measurements
-            def emptySamples = numberOfSamples - samples.size();
+			// Possibly not query samples that dont hold measurements.
+			// Filtering samples.measurements.size > 0 causes a tremendous slowdown.
+			samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] );
 
             def measurements = [];
             def features = [];
@@ -241,34 +226,5 @@ class SAMAssayController {
 
         redirect(action:"show", params:[id: assay.id, module: assay.module.name])
     }
-	
-    def summary = {
 
-        def assayInstance = Assay.findById(params.id)
-
-		def totalSamples = assayInstance.getSampleCount()
-		
-        // Retrieve only samsample ID and sample name from the database, returned in tuples
-		def samples = SAMSample.executeQuery( "SELECT s.id, s.parentSample.name from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.parentSample.name", [ assay: assayInstance ] )
-		
-		// Retrieve measurement counts at once. The results are returned in tuples: sample.id, measurementCount
-		def c = Measurement.createCriteria()
-		def counts = c.list {
-			sample {
-				eq( 'parentAssay', assayInstance )
-			}
-			projections {
-				groupProperty("sample.id")
-				rowCount()
-			}
-		}
-		
-		// Convert into a map, so the counts can be retrieved easily
-		def measurementCounts = [:] 
-		counts.each { 
-			measurementCounts[ it[0] ] = it[1]
-		}
-
-        [ module: params.module, assayInstance: assayInstance, totalSamples: totalSamples, samples: samples, measurementCounts: measurementCounts ]
-    }
 }

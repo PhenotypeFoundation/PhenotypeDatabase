@@ -4,8 +4,8 @@
  * environments. See basefilters.groovy
  */
 /* Import google web fonts*/
-@import url(http://fonts.googleapis.com/css?family=Raleway:400,300,500,600,700,800,900,200);
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300italic,400italic,600,600italic,700,700italic,800,800italic,300);
+@import url(//fonts.googleapis.com/css?family=Raleway:400,300,500,600,700,800,900,200);
+@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300italic,400italic,600,600italic,700,700italic,800,800italic,300);
 body {
     margin: 0;
     padding: 0;

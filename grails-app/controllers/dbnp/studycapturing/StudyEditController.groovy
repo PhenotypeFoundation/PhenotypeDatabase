@@ -53,28 +53,28 @@ class StudyEditController {
 
                 // If this page is posted to, handle the input
                 if( study && request.post ) {
-                        handleStudyProperties( study, params )
+                    handleStudyProperties(study, params)
 
-                        // If the user wants to continue to another page, validate and save the object
-                        if( params._action == "save" ) {
-                                if( validateObject( study ) ) {
-                                        study.save( flush: true )
-                                        flash.message = "The study details have been saved."
-                                        redirect controller: "study", action: "list"
-                                }
+                    // If the user wants to continue to another page, validate and save the object
+                    if (params._action == "save") {
+                        if (validateObject(study)) {
+                            study.save(flush: true)
+                            flash.message = "The study details have been saved."
+                            redirect controller: "study", action: "list"
                         }
+                    }
 
-                        if( params._action == "next" ) {
-                                if( validateObject( study ) ) {
-                                        if( study.save( flush: true) ) {
-                                                redirect action: "subjects", id: study.id
-                                                return
-                                        } else {
-                                                log.error "Study " + study + " could not be saved, even though it has been validated."
-                                                flash.error = "The study could not be saved. Please contact an administrator"
-                                        }
-                                }
+                    if (params._action == "next") {
+                        if (validateObject(study)) {
+                            if (study.save(flush: true)) {
+                                redirect action: "subjects", id: study.id
+                                return
+                            } else {
+                                log.error "Study " + study + " could not be saved, even though it has been validated."
+                                flash.error = "The study could not be saved. Please contact an administrator"
+                            }
                         }
+                    }
                 }
 
                 [ study: study ]
@@ -465,7 +465,7 @@ class StudyEditController {
                 def searchParams = datatablesService.parseParams( params )
                 def data = studyEditService.getSamplesForAssaySamplePage( searchParams, study )
 
-                def assays = study.assays.sort { it.name }
+                def assays = study.assays?.sort { it.name }
 
                 render datatablesService.createDatatablesOutput( data, params, { entry ->
                                 def output = entry as List

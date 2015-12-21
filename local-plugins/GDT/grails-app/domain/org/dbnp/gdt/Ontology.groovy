@@ -69,7 +69,13 @@ class Ontology implements Serializable {
     }
 
     static Ontology getBioOntology(String ontologyUrl) {
+        def grailsApplication = new Ontology().domainClass.grailsApplication
         def http = new HTTPBuilder( ontologyUrl )
+
+        if ( grailsApplication.config.bioontology.proxy ) {
+            http.setProxy( grailsApplication.config.bioontology.proxy, grailsApplication.config.bioontology.proxyPort, grailsApplication.config.bioontology.proxyScheme )
+        }
+
         http.request( GET, JSON ) {
             headers.'Authorization' = 'apikey token='+ getBioOntologyApiKey()
 

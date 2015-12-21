@@ -248,11 +248,13 @@ abstract class TemplateEntity extends Identity {
         def fieldType = field.type
         String store = "template${fieldType.casedName}Fields"
 
-        def columnData
-        if( isDomainField(field) ) {
-            columnData = this.class.executeQuery( "SELECT e.id, e." + field.name + " FROM " + this.class.simpleName + " e WHERE e.id in (:ids)", [ids: ids] )
-        } else {
-            columnData = this.class.executeQuery( "SELECT e.id, store FROM " + this.class.simpleName + " e INNER JOIN e." + store + " store WHERE e.id in (:ids) AND index(store) = :fieldName", [ids: ids, fieldName: field.name ] )
+        def columnData = []
+        ids.collate(2500).each { batch ->
+            if (isDomainField(field)) {
+                columnData += this.class.executeQuery("SELECT e.id, e." + field.name + " FROM " + this.class.simpleName + " e WHERE e.id in (:ids)", [ids: batch] )
+            } else {
+                columnData += this.class.executeQuery("SELECT e.id, store FROM " + this.class.simpleName + " e INNER JOIN e." + store + " store WHERE e.id in (:ids) AND index(store) = :fieldName", [ids: batch, fieldName: field.name ] )
+            }
         }
         
         def columnMap = columnData.collectEntries { [ (it[0]): it[1] ] }
