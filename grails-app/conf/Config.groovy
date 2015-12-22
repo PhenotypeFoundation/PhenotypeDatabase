@@ -225,9 +225,7 @@ if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) {
 }
 
 // default application properties
-application.title = "Generic Study Capture Framework"
-application.template.admin.email = "me@example.com"
-
+application.title = "Phenotype Database"
 
 grails.resources.modules = {
 	overrides {

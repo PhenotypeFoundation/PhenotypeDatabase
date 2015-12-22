@@ -40,7 +40,7 @@
                         <img src="${fam.icon(name:"page_white_acrobat")}" alt="(pdf)" style="vertical-align:text-bottom;"/>
                     </a>
                 </li>
-				<li><g:link url="${grailsApplication.config.gscf.baseURL}">Go to GSCF</g:link></li>
+				<li><g:link url="${grailsApplication.config.gscf.baseURL}">Back to main page</g:link></li>
                 <g:if test="${grailsApplication.config.module.showVersionInfo}">
                     <li style="font-size: 9px; color: #888;"><g:message code="meta.app.version" default="Version: {0}" args="[meta(name: 'app.version')]"/><br />Changeset: <g:render template="/version"/></li>
                 </g:if>
