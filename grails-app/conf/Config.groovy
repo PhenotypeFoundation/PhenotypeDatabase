@@ -29,7 +29,8 @@ grails.config.locations.each { println "Reading configuration from ${it}" }
 
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
-grails.mime.types = [html: ['text/html', 'application/xhtml+xml'],
+grails.mime.types = [
+	html: ['text/html', 'application/xhtml+xml'],
 	xml: ['text/xml', 'application/xml'],
 	text: 'text/plain',
 	js: 'text/javascript',
@@ -42,6 +43,7 @@ grails.mime.types = [html: ['text/html', 'application/xhtml+xml'],
 	form: 'application/x-www-form-urlencoded',
 	multipartForm: 'multipart/form-data'
 ]
+
 // The default codec used to encode data with ${}
 grails.views.default.codec = "none" // none, html, base64
 grails.views.gsp.encoding = "UTF-8"
@@ -51,37 +53,6 @@ grails.converters.encoding = "UTF-8"
 grails.enable.native2ascii = true
 
 // log4j configuration
-//log4j = {
-	// Example of changing the log pattern for the default console
-	// appender:
-	//
-	//appenders {
-	//    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-	//}
-	/*appenders {
-		rollingFile name: "stacktrace", maxFileSize: 1024, file: "/tmp/gscf-${grails.util.GrailsUtil.environment}.log"
-	}
-
-	error 'org.codehaus.groovy.grails.web.servlet',  //  controllers
-		'org.codehaus.groovy.grails.web.pages', //  GSP
-		'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-		'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-		'org.codehaus.groovy.grails.web.mapping', // URL mapping
-		'org.codehaus.groovy.grails.commons', // core / classloading
-		'org.codehaus.groovy.grails.plugins', // plugins
-		'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
-		'org.springframework',
-		'org.hibernate'
-
-    error stdout:"StackTrace"
-	warn 'org.mortbay.log'*/
-
-	//info 'org.codehaus.groovy.grails.web.servlet',
-	//	 'org.codehaus.groovy.grails.plugins'
-	//
-	//debug 'org.codehaus.groovy.grails.plugins'
-//}
-
 log4j = {
     // Example of changing the log pattern for the default console appender:
     //
@@ -130,7 +101,6 @@ graphviz {
 
 // jquery plugin
 grails.views.javascript.library = "jquery"
-
 
 // Needed for the Spring Security Core plugin:
 grails.plugin.springsecurity.userLookup.userDomainClassName = 'dbnp.authentication.SecUser'
@@ -225,9 +195,7 @@ if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) {
 }
 
 // default application properties
-application.title = "Generic Study Capture Framework"
-application.template.admin.email = "me@example.com"
-
+application.title = "Phenotype Database"
 
 grails.resources.modules = {
 	overrides {
@@ -263,8 +231,10 @@ fuzzyMatching.threshold = [
         ]
 ]
 
+// By default gscf.baseURL (used in SAM plugin) equals grails.serverURL
 gscf.baseURL = grails.serverURL
 
+// Mail plugin config, also see default.properties or your external config file
 grails {
     mail {
         disabled = false
