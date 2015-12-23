@@ -149,10 +149,8 @@ grails.plugin.springsecurity.interceptUrlMap = [
 
     // Template editor is only accessible for specific users
     '/template/**':                         	['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
-    '/templateEditor/**':                       ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
      
     // Configuration by administrators
-    '/studyEdit/**':						    ['ROLE_ADMIN'],
     '/assayModule/**':                      	['ROLE_ADMIN'],
     '/setup/**':                            	['ROLE_ADMIN'],
     '/info/**':                             	['ROLE_ADMIN'],
