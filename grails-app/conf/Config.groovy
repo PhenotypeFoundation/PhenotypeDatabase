@@ -121,17 +121,17 @@ grails.plugin.springsecurity.fii.rejectPublicInvocations = false
 grails.plugin.springsecurity.securityConfigType = grails.plugin.springsecurity.SecurityConfigType.InterceptUrlMap
 
 grails.plugin.springsecurity.interceptUrlMap = [
-    '/':                  ['permitAll'],
-    '/home':              ['permitAll'],
-    '/study/**':          ['permitAll'],
-    '/publication/list':  ['permitAll'],
-    '/assets/**':         ['permitAll'],
-    '/**/js/**':          ['permitAll'],
-    '/**/css/**':         ['permitAll'],
-    '/**/images/**':      ['permitAll'],
-    '/**/favicon.ico':    ['permitAll'],
-    '/login/**':          ['permitAll'],
-    '/logout/**':         ['permitAll'],
+    '/':                  						['permitAll'],
+    '/home':              						['permitAll'],
+    '/study/**':          						['permitAll'],
+    '/publication/list':  						['permitAll'],
+    '/assets/**':         						['permitAll'],
+    '/**/js/**':          						['permitAll'],
+    '/**/css/**':         						['permitAll'],
+    '/**/images/**':      						['permitAll'],
+    '/**/favicon.ico':    						['permitAll'],
+    '/login/**':          						['permitAll'],
+    '/logout/**':         						['permitAll'],
     
     // Registration and confirming new accounts
     '/register/forgotPassword':                 ['permitAll'],
@@ -145,22 +145,20 @@ grails.plugin.springsecurity.interceptUrlMap = [
     '/measurements/*/rest/**':                  ['permitAll'],
     
     // API is only accessible for specific users
-    '/api/**':                               ['ROLE_ADMIN', 'ROLE_CLIENT'],
+    '/api/**':                               	['ROLE_ADMIN', 'ROLE_CLIENT'],
 
     // Template editor is only accessible for specific users
-    '/template/**':                          ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
+    '/template/**':                         	['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
      
     // Configuration by administrators
-    '/assayModule/**':                       ['ROLE_ADMIN'],
-    '/setup/**':                             ['ROLE_ADMIN'],
-    '/info/**':                              ['ROLE_ADMIN'],
-    '/tnoMigrate/**':                        ['ROLE_ADMIN'],
-    '/assayModule/**':                       ['ROLE_ADMIN'],
-    '/user/**':                              ['ROLE_ADMIN', 'isFullyAuthenticated()'],
-    '/userRegistration/confirmAdmin':        ['ROLE_ADMIN', 'isFullyAuthenticated()'],
+    '/assayModule/**':                      	['ROLE_ADMIN'],
+    '/setup/**':                            	['ROLE_ADMIN'],
+    '/info/**':                             	['ROLE_ADMIN'],
+    '/user/**':                             	['ROLE_ADMIN', 'isFullyAuthenticated()'],
+    '/userRegistration/confirmAdmin':       	['ROLE_ADMIN', 'isFullyAuthenticated()'],
     
-    // Other urls are allowed for logged in users
-    '/**':                                   ['IS_AUTHENTICATED_REMEMBERED']
+    // All other urls are allowed for logged in users
+    '/**':										['IS_AUTHENTICATED_REMEMBERED']
  ]
 
 
