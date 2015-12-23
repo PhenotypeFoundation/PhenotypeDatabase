@@ -21,8 +21,8 @@ grails.config.locations = [
 
 	// the external configuration to override the default
 	// configuration (e.g. ~/.gscf/ci.properties)
-	"file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.properties",
-    "file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.groovy"
+    "file:${userHome}/.gscf/oralhealth-${grails.util.GrailsUtil.environment}.properties",
+    "file:${userHome}/.gscf/oralhealth-${grails.util.GrailsUtil.environment}.groovy"
 ]
 
 grails.config.locations.each { println "Reading configuration from ${it}" }
@@ -60,9 +60,9 @@ log4j = {
     //}
 
     // To decrease logging level use 'trace', 'debug', 'info', 'warn', 'error', 'fatal' or 'off' instead of 'all'
-    all    'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter'
+    info    'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter'
 
-    error  'org.codehaus.groovy.grails.web.servlet',        // controllers
+    error   'org.codehaus.groovy.grails.web.servlet',        // controllers
             'org.codehaus.groovy.grails.web.pages',          // GSP
             'org.codehaus.groovy.grails.web.sitemesh',       // layouts
             'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
@@ -75,12 +75,12 @@ log4j = {
             'net.sf.ehcache.hibernate'
 
     // Disable logging for resources plugin
-    error  'grails.app.services.org.grails.plugin.resource',
+    error   'grails.app.services.org.grails.plugin.resource',
             'grails.app.taglib.org.grails.plugin.resource',
             'grails.app.resourceMappers.org.grails.plugin.resource',
             'org.grails.plugin.resource'
 
-    warn   'org.codehaus.groovy.grails.orm.hibernate',
+    warn    'org.codehaus.groovy.grails.orm.hibernate',
             'org.hibernate'                                  // hibernate integration
 }
 
@@ -149,8 +149,10 @@ grails.plugin.springsecurity.interceptUrlMap = [
 
     // Template editor is only accessible for specific users
     '/template/**':                         	['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
+    '/templateEditor/**':                       ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
      
     // Configuration by administrators
+    '/studyEdit/**':						    ['ROLE_ADMIN'],
     '/assayModule/**':                      	['ROLE_ADMIN'],
     '/setup/**':                            	['ROLE_ADMIN'],
     '/info/**':                             	['ROLE_ADMIN'],
