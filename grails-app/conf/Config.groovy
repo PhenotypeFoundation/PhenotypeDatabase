@@ -21,8 +21,8 @@ grails.config.locations = [
 
 	// the external configuration to override the default
 	// configuration (e.g. ~/.gscf/ci.properties)
-    "file:${userHome}/.gscf/oralhealth-${grails.util.GrailsUtil.environment}.properties",
-    "file:${userHome}/.gscf/oralhealth-${grails.util.GrailsUtil.environment}.groovy"
+	"file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.properties",
+    "file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.groovy"
 ]
 
 grails.config.locations.each { println "Reading configuration from ${it}" }
