@@ -55,33 +55,33 @@ grails.enable.native2ascii = true
 // log4j configuration
 log4j = {
     // Example of changing the log pattern for the default console appender:
-    //
     //appenders {
     //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
     //}
-	
-    error  'org.codehaus.groovy.grails.web.servlet',        // controllers
-           'org.codehaus.groovy.grails.web.pages',          // GSP
-           'org.codehaus.groovy.grails.web.sitemesh',       // layouts
-           'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-           'org.codehaus.groovy.grails.web.mapping',        // URL mapping
-           'org.codehaus.groovy.grails.commons',            // core / classloading
-           'org.codehaus.groovy.grails.plugins',            // plugins
-           'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
-           'org.springframework',
-           'org.hibernate',
-           'net.sf.ehcache.hibernate'
 
-	warn   'org.codehaus.groovy.grails.orm.hibernate',
-           'org.hibernate'                                  // hibernate integration
-
+    // To decrease logging level use 'trace', 'debug', 'info', 'warn', 'error', 'fatal' or 'off' instead of 'all'
     all    'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter'
-        
+
+    error  'org.codehaus.groovy.grails.web.servlet',        // controllers
+            'org.codehaus.groovy.grails.web.pages',          // GSP
+            'org.codehaus.groovy.grails.web.sitemesh',       // layouts
+            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+            'org.codehaus.groovy.grails.web.mapping',        // URL mapping
+            'org.codehaus.groovy.grails.commons',            // core / classloading
+            'org.codehaus.groovy.grails.plugins',            // plugins
+            'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
+            'org.springframework',
+            'org.hibernate',
+            'net.sf.ehcache.hibernate'
+
     // Disable logging for resources plugin
     error  'grails.app.services.org.grails.plugin.resource',
-           'grails.app.taglib.org.grails.plugin.resource',
-           'grails.app.resourceMappers.org.grails.plugin.resource',
-           'org.grails.plugin.resource'
+            'grails.app.taglib.org.grails.plugin.resource',
+            'grails.app.resourceMappers.org.grails.plugin.resource',
+            'org.grails.plugin.resource'
+
+    warn   'org.codehaus.groovy.grails.orm.hibernate',
+            'org.hibernate'                                  // hibernate integration
 }
 
 graphviz {
