@@ -204,7 +204,7 @@ Most of the developers on this project favor [IntellijIDEA](https://www.jetbrain
 ### VM Options
 
 ```
--Xms1048m -Xmx1048m -XX:PermSize=1048m -XX:MaxPermSize=2048m -XX:MaxHeapFreeRatio=70 -XX:MaxGCPauseMillis=10 -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -javaagent:/Users/jeroen/libs/grails-2.2.0/lib/org.springsource.springloaded/springloaded-core/jars/springloaded-core-1.1.1.jar -Xverify:none
+-Xms1048m -Xmx1048m -XX:PermSize=1048m -XX:MaxPermSize=2048m -XX:MaxHeapFreeRatio=70 -XX:MaxGCPauseMillis=10 -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -Xverify:none
 ```
 
 # License

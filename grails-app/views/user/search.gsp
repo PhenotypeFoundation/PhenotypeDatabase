@@ -26,26 +26,26 @@
 			</tr>
 			<tr>
 				<td><g:message code='user.enabled.label' default='Enabled'/>:</td>
-				<g:radioGroup name='enabled' labels="['','','']" values="[1,-1,0]" value='${enabled}'>
+				<g:radioGroup name='enabled' labels="['','','']" values="[1,-1,0]" value='${enabled ?: 0}'>
 				<td><%=it.radio%></td>
 				</g:radioGroup>
 			</tr>
 
 			<tr>
 				<td><g:message code='user.accountExpired.label' default='Account Expired'/>:</td>
-				<g:radioGroup name='accountExpired' labels="['','','']" values="[1,-1,0]" value='${accountExpired}'>
+				<g:radioGroup name='accountExpired' labels="['','','']" values="[1,-1,0]" value='${accountExpired ?: 0}'>
 				<td><%=it.radio%></td>
 				</g:radioGroup>
 			</tr>
 			<tr>
 				<td><g:message code='user.accountLocked.label' default='Account Locked'/>:</td>
-				<g:radioGroup name='accountLocked' labels="['','','']" values="[1,-1,0]" value='${accountLocked}'>
+				<g:radioGroup name='accountLocked' labels="['','','']" values="[1,-1,0]" value='${accountLocked ?: 0}'>
 				<td><%=it.radio%></td>
 				</g:radioGroup>
 			</tr>
 			<tr>
 				<td><g:message code='user.passwordExpired.label' default='Password Expired'/>:</td>
-				<g:radioGroup name='passwordExpired' labels="['','','']" values="[1,-1,0]" value='${passwordExpired}'>
+				<g:radioGroup name='passwordExpired' labels="['','','']" values="[1,-1,0]" value='${passwordExpired ?: 0}'>
 				<td><%=it.radio%></td>
 				</g:radioGroup>
 			</tr>

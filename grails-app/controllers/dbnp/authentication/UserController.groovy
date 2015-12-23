@@ -164,15 +164,15 @@ class UserController {
 		for (name in ['username']) {
 			if (params[name]) {
 				hql.append " AND LOWER(u.$name) LIKE :$name"
-				queryParams[name] = params[name].toLowerCase() + '%'
+				queryParams[name] = "%${params[name].toLowerCase()}%"
 			}
 		}
 
 		for (name in ['enabled', 'accountExpired', 'accountLocked', 'passwordExpired']) {
-			def value = params[name] as Integer
-			if (value) {
+			def value = params[name]
+			if (value && !value.equals('0')) {
 				hql.append " AND u.$name=:$name"
-				queryParams[name] = value == 1
+				queryParams[name] = value.equals('1')
 			}
 		}
 
