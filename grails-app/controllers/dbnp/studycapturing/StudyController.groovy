@@ -214,7 +214,7 @@ class StudyController {
 
         // Check the distinct templates for these entities, without loading all
         // entities for efficiency reasons
-        def templates = entityClass.executeQuery("select distinct s.template from " + entityClass.simpleName + " s WHERE s.parent = ?", [study ])
+        def templates = entityClass.executeQuery("select distinct s.template from " + entityClass.simpleName + " s WHERE s.parent = :study", [ study: study ] )
 
         [
             study: study,
