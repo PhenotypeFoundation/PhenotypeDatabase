@@ -1,5 +1,6 @@
 package dbnp.studycapturing
 
+import groovy.sql.Sql
 import org.dbnp.gdt.*
 import grails.plugin.springsecurity.annotation.Secured
 import dbnp.authentication.SecUser
@@ -17,6 +18,7 @@ class StudyEditController {
         def authenticationService
         def datatablesService
         def studyEditService
+        def dataSource
 
         /**
          * Instance of the validation tag library used to retrieve validation errors
@@ -219,12 +221,16 @@ class StudyEditController {
                 // Loop through all samples. Regenerate the name, and if it has changed, store it into the database
                 def samples = Sample.findAllByParent( study )
                 def numChanged = 0
-                samples.each {
+
+                def sql = new Sql(dataSource)
+                sql.withBatch( 250, "UPDATE sample SET name = :name WHERE id = :sampleId" ) { preparedStatement ->
+                    samples.each {
                         def oldName = it.name
                         if( it.generateName() != oldName ) {
-                                it.save( flush: true )
-                                numChanged++
+                            preparedStatement.addBatch( [sampleId: it.id, name: it.name ] )
+                            numChanged++
                         }
+                    }
                 }
 
                 flash.message = "Samples names have been regenerated for " + numChanged + " / " + samples.size() + " samples in this study."
@@ -650,7 +656,7 @@ class StudyEditController {
 
                 // Check the distinct templates for these entities, without loading all
                 // entities for efficiency reasons
-                def templates = entityClass.executeQuery("select distinct s.template from " + entityClass.simpleName + " s WHERE s.parent = ?", [ study ] )
+                def templates = entityClass.executeQuery("select distinct s.template from " + entityClass.simpleName + " s WHERE s.parent = :study", [ study: study ] )
 
                 [
                         study: study,
