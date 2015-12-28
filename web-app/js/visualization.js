@@ -335,7 +335,9 @@ var Visualization = {
 		                $.each( returnData, function( idx, field ) {
 	                        if(field.category!=prevCat) {
 	                            if(prevCat.length>0) strOptions += "</optgroup>";
-	                            strOptions += "<optgroup label='"+field.source+": "+field.category+"' onClick='return false;'>";
+								var source = field.source;
+								if(source = 'GSCF') source = 'Design';
+	                            strOptions += "<optgroup label='"+source+": "+field.category+"' onClick='return false;'>";
 	                            prevCat = field.category;
 	                        }
 		                    strOptions += "<option value='"+field.id+"'>"+field.name+"</option>";
