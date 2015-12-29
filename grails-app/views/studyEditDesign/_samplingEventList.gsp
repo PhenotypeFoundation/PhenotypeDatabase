@@ -1,6 +1,6 @@
 	<h3>Available sample types</h3>
 	<ul>
-		<g:each in="${study.samplingEvents}" var="samplingEvent">
+		<g:each in="${study.samplingEvents.sort() { it.name } }" var="samplingEvent">
 			<li id="samplingEvent-${samplingEvent.id}" data-origin-id="${samplingEvent.id}" data-origin-type="samplingEvent" data-url="${g.createLink( action: 'samplingEventUpdate', id: samplingEvent.id  )}">
 				<span class="name">${samplingEvent.name?.trim() ?: '[samplingevent without name]'}</span>
 				<span class="designobject-buttons">

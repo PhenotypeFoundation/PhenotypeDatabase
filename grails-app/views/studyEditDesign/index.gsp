@@ -41,7 +41,7 @@
 				<div id="eventgroups" class="eventgroups addToTimeline">
 					<h3>Available sample & treatment groups</h3>
 					<ul>
-						<g:each in="${study.eventGroups}" var="eventgroup">
+						<g:each in="${study.eventGroups.sort() { it.name } }" var="eventgroup">
 							<li id="eventgroup-${eventgroup.id}" data-duration="${eventgroup.duration.value}" data-origin-id="${eventgroup.id}" data-url="${g.createLink( controller: 'studyEditDesign', action: 'eventGroupDetails', id: eventgroup.id)}">
 								<span class="name">${eventgroup.name}</span>
 								<span class="events">
