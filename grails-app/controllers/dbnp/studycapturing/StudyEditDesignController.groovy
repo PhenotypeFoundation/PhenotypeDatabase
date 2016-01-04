@@ -220,11 +220,20 @@ class StudyEditDesignController {
 	 * 		events
 	 */
 	def eventGroupDetails( long id ) {
-		def eventGroup = EventGroup.read( id );
+		def eventGroup = EventGroup.read( id )
 
 		if( !eventGroup ) {
 			response.status = 404
 			render "Not found"
+			return
+		}
+
+		def study = eventGroup.parent
+		def user = authenticationService.getLoggedInUser()
+
+		if( !study.canRead( user ) ) {
+			response.status = 404
+			render "Not authorized"
 			return
 		}
 
@@ -739,6 +748,15 @@ class StudyEditDesignController {
 			return
 		}
 
+		def study = subjectGroup.parent
+		def user = authenticationService.getLoggedInUser()
+
+		if( !study.canRead( user ) ) {
+			response.status = 404
+			render "Not authorized"
+			return
+		}
+
 		def resultData = [
 			id: subjectGroup.id,
 			name: subjectGroup.name,
@@ -790,6 +808,14 @@ class StudyEditDesignController {
     
                 if( !study ) {
                     render dataTableError( "Invalid study given: " + study ) as JSON
+                    return
+                }
+
+                def user = authenticationService.getLoggedInUser()
+
+                if( !study.canRead( user ) ) {
+                    response.status = 404
+                    render "Not authorized" as JSON
                     return
                 }
     

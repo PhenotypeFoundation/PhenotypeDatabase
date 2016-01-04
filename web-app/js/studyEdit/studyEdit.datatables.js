@@ -216,7 +216,7 @@ StudyEdit.datatables = {
 	},
 	
 	retrieveData : function(sSource, aoData, fnCallback, id) {
-		if (StudyEdit.datatables.selectType[id] != "selectNone") {
+		if (StudyEdit.datatables.selectType[ id ] != "selectNone" && StudyEdit.datatables.selectType[ id ] != undefined ) {
 			aoData = StudyEdit.datatables.removeColumnInParam(aoData);
 		}
 		$.ajax({
@@ -232,7 +232,7 @@ StudyEdit.datatables = {
 				StudyEdit.datatables.allElements[id] = data["aIds"];
 
 				// Find which checkboxes are selected
-				if (StudyEdit.datatables.selectType[id] != "selectNone") {
+				if (StudyEdit.datatables.selectType[ id ] != "selectNone" && StudyEdit.datatables.selectType[ id ] != undefined ) {
 					StudyEdit.datatables.selection.checkSelectedCheckboxes(id);
 				}
 			}

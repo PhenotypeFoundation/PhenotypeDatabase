@@ -21,7 +21,7 @@
 			<span class="title">This view shows your subjects</span> 
 			For every template, a list of subjects is shown
 		</span>
-	
+
 		<g:each in="${templates}" var="template">
 			<h3>Template: ${template.name}</h3>
 			<table id="subjectsTable_${template.id}" data-templateId="${template.id}" data-fieldPrefix="subject" data-formId="subjectForm" class="subjectsTable" rel="${g.createLink(action:"dataTableEntities", id: study.id, params: [template: template.id])}">
@@ -46,7 +46,7 @@
 
 		<r:script>
 			$(function() {
-				StudyEdit.datatables.initialize( ".subjectsTable" );
+				StudyView.datatables.initialize( ".subjectsTable" );
 				StudyView.subjects.initialize();
 			});
 		</r:script>
