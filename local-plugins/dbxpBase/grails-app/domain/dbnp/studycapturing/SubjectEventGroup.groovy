@@ -69,4 +69,14 @@ class SubjectEventGroup implements Serializable {
 	static constraints = {
 		description nullable: true
     }
+
+    /**
+     * Returns the sample count for this group
+     * @return
+     */
+    public int getSampleCount() {
+        Sample.createCriteria().count {
+            eq("parentSubjectEventGroup.id", this.id)
+        }
+    }
 }

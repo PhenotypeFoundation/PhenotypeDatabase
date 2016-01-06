@@ -103,6 +103,8 @@ StudyView.datatables = {
 			
 			tableType[ id ] = "serverside";
 			StudyView.datatables.elementsSelected[ id ] = new Array();
+
+			StudyView.datatables.selection.initialize(el);
 			
 			// Determine default options
 			var defaultOptions = { 
@@ -110,7 +112,10 @@ StudyView.datatables = {
 				"bServerSide": true,
 				"sAjaxSource": dataUrl,
 				sDom: '<"H"lf>rt<"F"ip>',
-	
+
+				"sScrollX" : "100%",
+				"bScrollCollapse" : true,
+
 				bJQueryUI: true, 
 				bAutoWidth: false,
 				bFilter: true, 
@@ -138,26 +143,31 @@ StudyView.datatables = {
 			var opts;
 			
 			if( $el.data( "datatable-options" ) ) {
-				opts = $.extend( true, {}, defaultOptions, $el.data( "datatable-options" ) );	
+				opts = $.extend( true, {}, defaultOptions, $el.data( "datatable-options" ) );
 			} else {
-				opts = defaultOptions;	
+				opts = defaultOptions;
 			}
 			
 			// Convert into datatale
 			$el.dataTable(opts);
 		});
 	},
-	
-	destroy: function( id ) {
-		delete this.numElements[id];
-		delete this.elementsSelected[id];
-		delete this.tableType[id];
-		delete this.selectType[id];
-		delete this.allElements[id];
-	},
+
+    destroy: function( id ) {
+        $el = $('#' + id );
+
+        // Clear data on selections
+        StudyView.datatables.selection.destroy($el);
+
+        delete this.numElements[id];
+        delete this.elementsSelected[id];
+        delete this.tableType[id];
+        delete this.selectType[id];
+        delete this.allElements[id];
+    },
 	
 	retrieveData: function( sSource, aoData, fnCallback, id ) {
-        if( StudyView.datatables.selectType[ id ] != "selectNone") {
+        if (StudyView.datatables.selectType[ id ] != "selectNone" && StudyView.datatables.selectType[ id ] != undefined ) {
             aoData = StudyView.datatables.removeColumnInParam(aoData);
         }
 		$.ajax( {
@@ -173,7 +183,7 @@ StudyView.datatables = {
 				StudyView.datatables.allElements[ id ] = data[ "aIds" ];
 				
 				// Find which checkboxes are selected
-                if(StudyView.datatables.selectType[ id ] != "selectNone") {
+                if (StudyView.datatables.selectType[ id ] != "selectNone" && StudyView.datatables.selectType[ id ] != undefined ) {
 				    StudyView.datatables.selection.checkSelectedCheckboxes( id );
                 }
 			}
@@ -911,14 +921,11 @@ StudyView.datatables = {
 		    } else {
 		    	StudyView.datatables.selectType[ id ] = "selectNone";
 		    }
-		    
-		    // Make sure the select all link works
-		    $el.find( ".selectAll a" ).on( "click", function() {
-		    	StudyView.datatables.selection.selectAll( id ); return false;
-		    	$(this).closest( "td" ).slideUp( 100 );
-		    } );
-		    
 		},
+
+        destroy: function(element) {
+            $(element).parents( ".dataTables_wrapper").find(".selectColumn").remove();
+        },
 		
 		/**
 		 * Handle a click on an input to select a specific row

@@ -47,7 +47,7 @@
 
 		<r:script>
 			$(function() {
-				StudyEdit.datatables.initialize( ".assaysTable" );
+				StudyView.datatables.initialize( ".assaysTable" );
 				StudyView.assays.initialize();
 			});
 		</r:script>

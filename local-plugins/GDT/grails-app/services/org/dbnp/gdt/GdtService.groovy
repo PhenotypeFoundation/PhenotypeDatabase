@@ -56,10 +56,19 @@ class GdtService implements Serializable {
             def myInstance = it.clazz
             if (myInstance.properties.superclass.toString() =~ 'TemplateEntity') {
                 def matches	= myInstance.toString() =~ /\.([^\.]+)$/
+                def match = matches[0][1]
+
+                //TODO: hacked this in to show users a more understandable term for certain Template classes, to really fix all design related DomainClasses in dbxpBase should be renamed.
+                if ( match.equals('SamplingEvent') ) {
+                    match = 'SampleType'
+                }
+                else if ( match.equals('Event') ) {
+                    match = 'TreatmentType'
+                }
 
                 entities[entities.size()] = [
-                    name		: matches[0][1],
-                    description	: matches[0][1].replaceAll(/([A-Z])/, ' $1').replaceFirst(/^ /,''),
+                    name		: match,
+                    description	: match.replaceAll(/([A-Z])/, ' $1').replaceFirst(/^ /,''),
                     entity		: prepareEntity(myInstance.toString()),
                     instance	: myInstance,
                     encoded		: encodeEntity(prepareEntity(myInstance.toString()))

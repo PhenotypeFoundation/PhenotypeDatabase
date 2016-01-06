@@ -16,11 +16,20 @@
 		</h1>
 		
 		<g:render template="/common/flashmessages" />
-		
-		<span class="message info"> 
-			<span class="title">Edit samples or import more</span> 
-			Review the list of samples and edit their details. You can also import more samples from an excel sheet.
-		</span>
+
+		<g:if test="${study.sampleCount != 0}">
+			<span class="message info">
+				<span class="title">Edit samples or import more</span>
+				Review the list of samples and edit their details. You can also import more samples from an excel sheet.
+			</span>
+		</g:if>
+		<g:else>
+			<span class="message info">
+				<span class="title">Generate samples</span>
+				Click 'Generate samples' to initiate the sample generation based on your study design.
+			</span>
+		</g:else>
+
 		
 		<g:render template="/common/flash_validation_messages" />
 

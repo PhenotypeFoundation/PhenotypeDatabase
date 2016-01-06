@@ -1,6 +1,5 @@
 package dbnp.studycapturing
 
-import groovy.sql.Sql
 import org.dbnp.gdt.*
 import grails.plugin.springsecurity.annotation.Secured
 import dbnp.authentication.SecUser
@@ -182,24 +181,30 @@ class StudyEditController {
          */
         def generateSamples() {
             def subjectEventGroupIds = params.list( "subjectEventGroup" )
+
             def result = [:]
             
-            if( !subjectEventGroupIds ) {
+            if ( !subjectEventGroupIds ) {
                 result = [ "No event groups were checked" ]
-            } else {
+            }
+            else {
+
+                def study = Study.read( params.id )
+                def subjectEventGroups = []
                 subjectEventGroupIds.each {
-                    log.debug "Generating samples for subjectEventGroup " + it
                     def subjectEventGroup = SubjectEventGroup.read(it as Long)
-                    
-                    if( !subjectEventGroup )
-                        return
-                    
-                    studyEditService.generateSamples(subjectEventGroup)
+
+                    if( subjectEventGroup ) {
+                        subjectEventGroups << subjectEventGroup
+                    }
                 }
 
+                def count = studyEditService.generateSamples( study, subjectEventGroups )
+
+                log.info( "Generated/updated ${count} samples for study ${study.id}" )
                 result = [ "OK" ]
             }
-            
+
             render result as JSON
         }
         
@@ -210,31 +215,19 @@ class StudyEditController {
          * @return
          */
         def regenerateSampleNames( long id ) {
-                def study = Study.read( id );
+            def study = Study.read( id );
 
-                if( !study ) {
-                        response.status = 404
-                        render "Not found"
-                        return
-                }
+            if( !study ) {
+                response.status = 404
+                render "Not found"
+                return
+            }
 
-                // Loop through all samples. Regenerate the name, and if it has changed, store it into the database
-                def samples = Sample.findAllByParent( study )
-                def numChanged = 0
+            def count = studyEditService.regenerateSampleNames( study )
 
-                def sql = new Sql(dataSource)
-                sql.withBatch( 250, "UPDATE sample SET name = :name WHERE id = :sampleId" ) { preparedStatement ->
-                    samples.each {
-                        def oldName = it.name
-                        if( it.generateName() != oldName ) {
-                            preparedStatement.addBatch( [sampleId: it.id, name: it.name ] )
-                            numChanged++
-                        }
-                    }
-                }
-
-                flash.message = "Samples names have been regenerated for " + numChanged + " / " + samples.size() + " samples in this study."
-                redirect controller: "studyEdit", action: "samples", id: id
+            log.info( "Regenerated ${count} sampleNames for study ${study.id}" )
+            flash.message = "Samples names have been regenerated for ${count} samples in this study."
+            redirect controller: "studyEdit", action: "samples", id: id
         }
 
 

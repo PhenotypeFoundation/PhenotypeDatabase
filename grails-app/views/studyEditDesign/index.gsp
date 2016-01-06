@@ -41,7 +41,7 @@
 				<div id="eventgroups" class="eventgroups addToTimeline">
 					<h3>Available sample & treatment groups</h3>
 					<ul>
-						<g:each in="${study.eventGroups}" var="eventgroup">
+						<g:each in="${study.eventGroups.sort() { it.name } }" var="eventgroup">
 							<li id="eventgroup-${eventgroup.id}" data-duration="${eventgroup.duration.value}" data-origin-id="${eventgroup.id}" data-url="${g.createLink( controller: 'studyEditDesign', action: 'eventGroupDetails', id: eventgroup.id)}">
 								<span class="name">${eventgroup.name}</span>
 								<span class="events">
@@ -133,16 +133,19 @@
 			$(function() {
 				var data = [];
 				<g:each in="${study.subjectEventGroups}" var="group">
+
+					<g:set var="hasSamples" value="${group.sampleCount != 0}"/>
+
 				     data.push({
 				       'start': new Date(${group.startDate.time}),
 				       'end': new Date(${group.endDate.time}),  // end is optional
 				       'type': "${group.eventGroup?.duration?.value == 0 ? 'box' : 'range' }",
 				       'content': '${group.eventGroup?.name.encodeAsJavaScript()}',
 				       'group': '${group.subjectGroup?.name.encodeAsJavaScript()}',
-				       'className': 'eventgroup eventgroup-id-${group.id} <g:if test="${group.samples}">hasSamples</g:if>',
+				       'className': 'eventgroup eventgroup-id-${group.id} <g:if test="${hasSamples}">hasSamples</g:if>',
 				       'data': { 
 				       		id: ${group.id},
-				       		hasSamples: <g:if test="${group.samples}">true</g:if><g:else>false</g:else>,
+				       		hasSamples: <g:if test="${hasSamples}">true</g:if><g:else>false</g:else>,
 				       		group: '${group.subjectGroup?.name.encodeAsJavaScript()}',
 				       		subjectGroupId: ${group.subjectGroup?.id},
 				       		eventGroupId: ${group.eventGroup?.id}

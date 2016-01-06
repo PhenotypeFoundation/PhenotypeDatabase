@@ -52,7 +52,7 @@
 
 		<r:script>
 			$(function() {
-				StudyEdit.datatables.initialize( ".samplesTable" );
+				StudyView.datatables.initialize( ".samplesTable" );
 				StudyView.samples.initialize();
 			});
 		</r:script>
