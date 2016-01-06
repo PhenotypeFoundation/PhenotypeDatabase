@@ -65,6 +65,14 @@ class TemplateEditorController {
         def parts = entityName.tokenize('.');
         def humanReadableEntity = parts[parts.size() - 1];
 
+        //TODO: hacked this in to show users a more understandable term for certain Template classes, to really fix all design related DomainClasses in dbxpBase should be renamed.
+        if ( humanReadableEntity.equals('SamplingEvent') ) {
+            humanReadableEntity = 'SampleType'
+        }
+        else if ( humanReadableEntity.equals('Event') ) {
+            humanReadableEntity = 'TreatmentType'
+        }
+
         return [
             entity: entity,
             templates: templates,
