@@ -1,9 +1,11 @@
 package dbnp.studycapturing
 
+import groovy.sql.Sql
 import org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsDomainBinder
 import org.dbnp.gdt.*
 
 class StudyEditService {
+	def dataSource
 
 	/**
 	 * Returns a proper list of data to generate a datatable with templated entities.
@@ -434,105 +436,85 @@ class StudyEditService {
 
 		return entity
 	}
-	
-	/**
-	 * Generate new samples for a newly created subjectEventGroup
-	 * @param subjectEventGroup
-	 * @return
-	 */
-	protected def generateSamples( SubjectEventGroup subjectEventGroup ) {
-		def study = subjectEventGroup.parent
-		
-		// Make sure we have a sample for each subject in combination with each samplingevent
-		subjectEventGroup.subjectGroup.subjects?.each { subject ->
-			subjectEventGroup.eventGroup.samplingEventInstances?.each { samplingEventInstance ->
-				createSample( study, subject, samplingEventInstance, subjectEventGroup )
-			}
-		}
-	}
-	
-	/**
-	 * Generate new samples for a newly created samplingEventInEventGroup
-	 * @param subjectEventGroup
-	 * @return
-	 */
-	protected def generateSamples( SamplingEventInEventGroup samplingEventInEventGroup ) {
-		def study = samplingEventInEventGroup.event.parent
-		def eventGroup = samplingEventInEventGroup.eventGroup
-		
-		// Create a new sample for this sampling event and each subject that is connected to this eventgroup
-		eventGroup.subjectEventGroups?.each { subjectEventGroup ->
-			subjectEventGroup.subjectGroup.subjects?.each { subject ->
-				createSample( study, subject, samplingEventInEventGroup, subjectEventGroup )
-			}
-		}
-	}
 
 	/**
-	 * Generate new samples for an updated subjectGroup
-	 * @param subjectEventGroup
-	 * @return
+	 * Generate new samples for a newly created subjectEventGroup
+	 * @param study the study
+	 * @param subjectEventGroups list of SubjectEventGroups
+	 * @return Number of inserts/updates
 	 */
-	protected def generateSamples( SubjectGroup subjectGroup ) {
-		def study = subjectGroup.parent
-        
-		// Find all samples that reference this subjectgroup
-		def criteria = Sample.createCriteria()
-		def samples = criteria {
-			parentSubjectEventGroup {
-				eq( 'subjectGroup', subjectGroup )
-			}
-		}
-		
-		// Make sure we have a sample for each subject in combination with each samplingevent
-		subjectGroup.subjects?.each { subject ->
-			subjectGroup.subjectEventGroups?.each { subjectEventGroup ->
-				subjectEventGroup.eventGroup.samplingEventInstances?.each { samplingEventInstance ->
-					def currentSample = samples.find {
-						it.parentSubject.id == subject.id &&
-						it.parentEvent.id == samplingEventInstance.id
-					}
-					
-					// If the currentSample is found, remove it from the list to be removed
-					if( currentSample ) {
-						log.debug "Sample generation: Sample already exists: " + currentSample
-						samples -= currentSample
-					} else {
-						createSample( study, subject, samplingEventInstance, subjectEventGroup )
-						log.debug "Sample generation: Creating new sample for subject: " + subject + " / " + samplingEventInstance
+	protected Integer generateSamples( Study study, List subjectEventGroups ) {
+		def numChanged = 0
+		def samples = Sample.executeQuery("SELECT id, name FROM Sample WHERE parent = :study", [ study: study ])
+
+        def sampleIds
+        def sampleNames
+        if ( samples ) {
+            sampleIds = samples.collect() { it[0] }
+            sampleNames = samples.collect() { it[1] }
+        }
+
+		def sql = new Sql(dataSource)
+		sql.withBatch( 250, "INSERT INTO sample(id, version, name, parent_id, parent_event_id, parent_subject_id, template_id, parent_subject_event_group_id) VALUES (nextval('hibernate_sequence'), 0, :name, :study, :event, :subject, :template, :subjectEventGroup)" ) { preparedStatement ->
+			subjectEventGroups.each { SubjectEventGroup subjectEventGroup ->
+				subjectEventGroup.subjectGroup.subjects?.each { subject ->
+					subjectEventGroup.eventGroup.samplingEventInstances?.each { samplingEventInstance ->
+
+						def newSample = new Sample(
+								parent: subjectEventGroup.parent,
+								parentSubject: subject,
+								parentEvent: samplingEventInstance,
+								parentSubjectEventGroup: subjectEventGroup,
+								template: samplingEventInstance.event.sampleTemplate
+						)
+
+						newSample.generateName()
+
+						def sampleIndex = -1
+						if ( sampleNames ) {
+							sampleIndex = sampleNames.indexOf(newSample.name)
+						}
+
+						if ( sampleIndex == -1 ) {
+                            preparedStatement.addBatch( [ name: newSample.name, study: newSample.parent.id, event: newSample.parentEvent.id, subject: newSample.parentSubject.id, template: newSample.template.id, subjectEventGroup: newSample.parentSubjectEventGroup.id ] )
+                            numChanged++
+						}
+						else {
+                            def oldSample = Sample.read( sampleIds[sampleIndex] )
+
+                            if ( oldSample.template != newSample.template ) {
+                                oldSample.template = newSample.template
+                                oldSample.save()
+                                numChanged++
+                            }
+						}
 					}
 				}
 			}
 		}
-		
-		// Remove samples from subjects that have been removed
-		samples.each { sample ->
-			log.debug "Sample generation: Deleting sample: " + sample
-			study.deleteSample( sample )
-		}
+
+        return numChanged
 	}
-	
+
 	/**
-	 * Creates a new sample, based on the parent properties given
-	 * @param study
-	 * @param subject
-	 * @param samplingEventInstance
-	 * @param subjectEventGroup
-	 * @return	The newly created sample
+	 * Regenerate sampleNames for all samples in a study.
+	 * @param study the study
+	 * @return Number of updates
 	 */
-	protected boolean createSample( Study study, Subject subject, SamplingEventInEventGroup samplingEventInstance, SubjectEventGroup subjectEventGroup ) {
-		def currentSample = new Sample(
-			parent: study,
-			parentSubject: subject,
-			parentEvent: samplingEventInstance,
-			parentSubjectEventGroup: subjectEventGroup,
-			template: samplingEventInstance.event.sampleTemplate
-		);
-	
-		currentSample.generateName()
-		currentSample.save();
-		
-		currentSample
+	protected Integer regenerateSampleNames( Study study ) {
+        def numChanged = 0
+
+		def sql = new Sql(dataSource)
+		sql.withBatch( 250, "UPDATE sample SET name = :name WHERE id = :sampleId" ) { preparedStatement ->
+			study.samples.each { sample ->
+				def oldName = sample.name
+				if( sample.generateName().equals(oldName) ) {
+					preparedStatement.addBatch( [sampleId: sample.id, name: sample.name ] )
+					numChanged++
+				}
+			}
+		}
+
+		return numChanged
 	}
-	
 }

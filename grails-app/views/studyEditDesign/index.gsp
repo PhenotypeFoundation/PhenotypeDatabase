@@ -133,16 +133,19 @@
 			$(function() {
 				var data = [];
 				<g:each in="${study.subjectEventGroups}" var="group">
+
+					<g:set var="hasSamples" value="${group.sampleCount != 0}"/>
+
 				     data.push({
 				       'start': new Date(${group.startDate.time}),
 				       'end': new Date(${group.endDate.time}),  // end is optional
 				       'type': "${group.eventGroup?.duration?.value == 0 ? 'box' : 'range' }",
 				       'content': '${group.eventGroup?.name.encodeAsJavaScript()}',
 				       'group': '${group.subjectGroup?.name.encodeAsJavaScript()}',
-				       'className': 'eventgroup eventgroup-id-${group.id} <g:if test="${group.samples}">hasSamples</g:if>',
+				       'className': 'eventgroup eventgroup-id-${group.id} <g:if test="${hasSamples}">hasSamples</g:if>',
 				       'data': { 
 				       		id: ${group.id},
-				       		hasSamples: <g:if test="${group.samples}">true</g:if><g:else>false</g:else>,
+				       		hasSamples: <g:if test="${hasSamples}">true</g:if><g:else>false</g:else>,
 				       		group: '${group.subjectGroup?.name.encodeAsJavaScript()}',
 				       		subjectGroupId: ${group.subjectGroup?.id},
 				       		eventGroupId: ${group.eventGroup?.id}
