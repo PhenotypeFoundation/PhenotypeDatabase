@@ -52,6 +52,7 @@
 				<li>Domains: ${grailsApplication.domainClasses.size()}</li>
 				<li>Services: ${grailsApplication.serviceClasses.size()}</li>
 				<li>Tag Libraries: ${grailsApplication.tagLibClasses.size()}</li>
+				<li>Environment: ${grails.util.Environment.current}</li>
 			</ul>
 			<h1>Installed Plugins</h1>
 			<ul>

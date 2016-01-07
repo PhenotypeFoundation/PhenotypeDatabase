@@ -62,23 +62,24 @@ class BootStrap {
 		}
 
 		// developmental/test template/ontology/study bootstrapping:
-//		if ( Environment.current == Environment.DEVELOPMENT ||  Environment.current == Environment.TEST ) {
-//			// add ontologies?
-//			if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
-//
-//			// add templates?
-//			if (!Template.count()) ExampleTemplates.initTemplates()
-//
-//			// add data required for the webtests?
-//			if (Environment.current == Environment.TEST) ExampleStudies.addTestData()
-//
-//            println "Study COUNT"
-//            println Study.count()
-//
-//			// add example studies?
-//			if (!Study.count() && Environment.current == Environment.DEVELOPMENT)
-//				ExampleStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
-//		}
+		if ( Environment.current == Environment.DEVELOPMENT ||  Environment.current == Environment.TEST ||
+				config.gscf.doBootstrapData == 'true') {
+
+			// add ontologies?
+			if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
+
+			// add templates?
+			if (!Template.count()) ExampleTemplates.initTemplates()
+
+			// add data required for the webtests?
+			if (Environment.current == Environment.TEST) ExampleStudies.addTestData()
+
+            println "Study COUNT: " + Study.count()
+
+			// add example studies?
+			if (!Study.count() && Environment.current == Environment.DEVELOPMENT)
+				ExampleStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
+		}
 
 		/**
 		 * attach ontologies in runtime. Possible problem is that you need
