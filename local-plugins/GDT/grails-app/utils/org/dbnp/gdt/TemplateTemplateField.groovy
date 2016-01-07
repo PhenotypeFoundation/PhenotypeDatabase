@@ -50,7 +50,7 @@ class TemplateTemplateField extends TemplateFieldTypeNew {
             if (value instanceof Template) {
                 return value
             } else if (value instanceof String) {
-                def template = Template.findByName(value)
+                def template = Template.findAllByName( value ).find { it.entity == field.entity }
 
                 if (template) {
                     return template
