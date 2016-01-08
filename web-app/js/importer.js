@@ -45,26 +45,42 @@ Importer.datatable = {
 				
 				if( typeof(callback) != "undefined" )
 					data = callback(data);
-				
-				dataTable = element.find( "#datamatrix" ).dataTable({
-					"oLanguage": {
-						"sInfo": "Showing rows _START_ to _END_ out of a total of _TOTAL_ example rows"
-					},
-	
-					"sScrollX": "100%",
-					"sScrollY": "200px",
-					"bScrollCollapse": true,
-					"bAutoWidth": false,
-					"bJQueryUI": true,
-					"bRetrieve": false,
-					"bDestroy": true,
-					"iDisplayLength": 5,
-					"bSort" : false,
-					"aaData": data.aaData,
-					"aoColumns": data.aoColumns,
-					"bFilter": false,
-					"bLengthChange": false
-				});
+
+				if ( data.aoColumns.length < 100 ) {
+					dataTable = element.find( "#datamatrix" ).dataTable({
+						"oLanguage": {
+							"sInfo": "Showing rows _START_ to _END_ out of a total of _TOTAL_ example rows"
+						},
+
+						"sScrollX": "100%",
+						"sScrollY": "200px",
+						"bScrollCollapse": true,
+						"bAutoWidth": false,
+						"bJQueryUI": true,
+						"bRetrieve": false,
+						"bDestroy": true,
+						"iDisplayLength": 5,
+						"bSort" : false,
+						"aaData": data.aaData,
+						"aoColumns": data.aoColumns,
+						"bFilter": false,
+						"bLengthChange": false
+					});
+
+					//If the data file has <200 column, 'next' action should be 'match'.
+					element.parents().find('#next-exact').hide();
+					element.parents().find('#next-match').show();
+				}
+				else {
+					// Hide the spinner and show the preview pane
+					element.empty().text( "Matrix too big to show preview ("+data.aoColumns.length+" columns). 'Match data' will be skipped, make sure your matrix corresponds to the study perfectly" );
+					element.show();
+					spinner.hide();
+
+					//If the data file has >200 column, 'next' action should be 'exact'.
+					element.parents().find('#next-match').hide();
+					element.parents().find('#next-exact').show();
+				}
 			})
 			.fail(function() {
 				// Hide the spinner and show the preview pane
@@ -73,10 +89,14 @@ Importer.datatable = {
 				spinner.hide();
 			});
 	}
-}
+};
 
 Importer.upload = {
 	initialize: function() {
+        // Hide buttons of both 'next' options on upload page
+        $( '#next-match' ).hide();
+        $( '#next-exact' ).hide();
+
 		// Update data preview when something changes in the parameters
 		$( "#uploadParameters" ).on("change", "select", function() {
 			Importer.upload.updateDataPreview();
@@ -149,7 +169,7 @@ Importer.upload = {
 		});
 	}
 	
-}
+};
 
 Importer.match = {
 	initialize: function(sessionKey, initialMapping) {
@@ -232,7 +252,7 @@ Importer.match = {
 	matchHeaders: function( element, sessionKey ) {
 		var url = element.data( "match-url" );
 		var parameters = { key: sessionKey };
-		
+
 		return $.get( url, parameters )
 			.done(function(data) {
 				// The data returns contains the proposed selections. Select the right
@@ -242,4 +262,25 @@ Importer.match = {
 				}
 			});
 	}
-}
+};
+
+Importer.exact = {
+	initialize: function(sessionKey) {
+        $( '.options' ).hide();
+		Importer.exact.matchHeaders( sessionKey );
+	},
+
+	/**
+	 * Perform a match for each header against the possibilities
+	 */
+	matchHeaders: function( sessionKey ) {
+        var url = $( '#match-headers' ).data( "match-url" );
+		var parameters = { key: sessionKey };
+
+		return $.get( url, parameters )
+			.done(function(data) {
+				$( '#match-text' ).text("Successful matched "+data.count+" Features, you can now import your data!");
+				$( '.options' ).show();
+			});
+	}
+};

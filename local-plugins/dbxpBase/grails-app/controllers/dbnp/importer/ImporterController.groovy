@@ -67,8 +67,15 @@ class ImporterController {
             if( params.file && params.file != "existing*" ) {
                 def sessionKey = generateSessionKey()
                 storeInSession(sessionKey, parseUploadParams())
-                doRedirect action: 'match', params: defaultParams + [key: sessionKey]
-                return
+
+                if (params._action == 'exact') {
+                    doRedirect action: 'exact', params: defaultParams + [key: sessionKey]
+                    return
+                }
+                else {
+                    doRedirect action: 'match', params: defaultParams + [key: sessionKey]
+                    return
+                }
             } else {
                 flash.error = "Please upload a valid file"
             }
@@ -98,7 +105,7 @@ class ImporterController {
         // Check if data is correct
         if( !importInfo || !importer ) {
             flash.message = "A problem occurred while retrieving your parameters. Please restart the wizard."
-            redirect action: "chooseType"
+            doRedirect action: "chooseType"
             return
         }
         
@@ -158,6 +165,58 @@ class ImporterController {
             savedMapping: importInfo.mapping?.collectEntries { [ (it.key): it.value?.field?.id ] }
         ])
     }
+
+    /**
+     * Screen to match headers and upload the file and select the parameters
+     */
+    def exact() {
+        // Retrieve information from request and from session
+        def sessionKey = params.key
+        def importInfo = getFromSession(sessionKey)
+        def importer = getImporter(importInfo.importer)
+
+        // Check if data is correct
+        if( !importInfo || !importer ) {
+            flash.message = "A problem occurred while retrieving your parameters. Please restart the wizard."
+            doRedirect action: "chooseType"
+            return
+        }
+
+        if( request.post && params.key ) {
+            switch( params._action ) {
+                case 'previous':
+                    doRedirect action: "upload", params: [key: sessionKey]
+                    break
+                case 'import':
+
+                    def data = parseFile(importInfo)
+
+                    importer.importData(data, importInfo.mapping, importInfo.parameter)
+
+                    // Store provided parameters and validation result in session
+                    importInfo.validationErrors = importer.getValidationErrors()
+                    importInfo.numLines = data.size()
+
+                    storeInSession(sessionKey, importInfo)
+
+                    // Redirect to the validation page
+                    doRedirect action: ( params._action == "validate" ? "validation" : "finish" ), params: [key: sessionKey]
+                    return
+            }
+        }
+
+        // Parse the excel file to show an example
+        def importedMatrix = parseFile(importInfo, 10)
+
+        // Determine the headers to match against
+        def headerOptions = importer.getHeaderOptions(importInfo.parameter)
+
+        defaultParams['match'] = 'exact'
+
+        render( view: "/importer/exact", model: [
+                sessionKey: sessionKey
+        ])
+    }
     
     /**
      * Shows a page with the result of validation
@@ -171,7 +230,7 @@ class ImporterController {
         // Check if data is correct
         if( !importInfo || !importer ) {
             flash.message = "A problem occurred while retrieving your parameters. Please restart the wizard."
-            redirect action: "chooseType"
+            doRedirect action: "chooseType"
             return
         }
         
@@ -288,33 +347,62 @@ class ImporterController {
      * AJAX method to match 
      */
     def matchHeaders() {
+
+        def matchMap = [:]
+
         // Parse the file and retrieve only the headers
         def importInfo = getFromSession(params.key)
         def importedMatrix = parseFile(importInfo, 1)
         def fileHeaders = importedMatrix[0]
-        
+
         // Retrieve the list of possible matches
         def importer = getImporter(importInfo.importer)
         def headerOptions = importer.getHeaderOptions(importInfo.parameter)
-        
-        // Perform the match itself
-        def matches
-        if( importer.headerMappingIsUnique() ) {
-            matches = fuzzySearchService.mostSimilarUnique( fileHeaders, headerOptions*.name )
-        } else {
-            matches = fuzzySearchService.mostSimilarNonUnique( fileHeaders, headerOptions*.name )
+
+        if ( params?.id.equals('exact') ) {
+            // Perform the exact match itself
+            def exactMap = [:]
+
+            def headerOptionNames = headerOptions*.name
+            def headerOptionIds = headerOptions*.id
+
+            headerOptions.clear()
+
+            fileHeaders.eachWithIndex{ String featureName, int i ->
+                // matchMap[i] = headerOptions.find() { it.name.equalsIgnoreCase(header) }.id
+                // This proved to be a lot faster than the find method above
+                def featureId = headerOptionIds[headerOptionNames.indexOf(featureName)]
+
+                if (!featureId) {
+                    flash.message = "Header ${header} could not be matched!"
+                    doRedirect action: "chooseType"
+                    return
+                }
+
+                exactMap[i] = [ columnNumber: i, ignore: false, field: [ id: featureId, name: featureName ]]
+            }
+
+            importInfo.mapping = exactMap
+            matchMap = [ count: exactMap.size() ]
         }
-        
-        // Convert the data into a proper format, that can be used by the javascript
-        // That is: a map with the key being the index of the header and the value being the value (=id) of the matched option
-        def matchMap = [:]
-        matches.eachWithIndex { match, idx ->
-            matchMap[idx] = match.candidate ? headerOptions[ match.index ].id : null
+        else {
+            // Perform the match itself
+            def matches
+            if( importer.headerMappingIsUnique() ) {
+                matches = fuzzySearchService.mostSimilarUnique( fileHeaders, headerOptions*.name )
+            } else {
+                matches = fuzzySearchService.mostSimilarNonUnique( fileHeaders, headerOptions*.name )
+            }
+
+            // Convert the data into a proper format, that can be used by the javascript
+            // That is: a map with the key being the index of the header and the value being the value (=id) of the matched option
+            matches.eachWithIndex { match, idx ->
+                matchMap[idx] = match.candidate ? headerOptions[ match.index ].id : null
+            }
         }
-        
+
         render matchMap as JSON
     }
-    
     
     /**
      * Returns a map with the parameters set by the user
@@ -332,6 +420,7 @@ class ImporterController {
                 sheetIndex: params.int( 'upload.sheetIndex' ),
                 dateFormat: params.upload?.dateFormat,
                 headerRow: params.int( 'upload.headerRow' ),
+
                 separator: params.upload?.separator
             ],
             parameter: params.parameter,

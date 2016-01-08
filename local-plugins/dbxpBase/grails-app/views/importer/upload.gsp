@@ -122,7 +122,8 @@
 
 			<p class="options">
 				<g:link action="chooseType" params="${defaultParams}" class="previous">Previous</g:link>
-				<a href="#" onClick="Importer.form.submit( 'uploadFile', 'next' ); return false;" class="next">Next</a>
+				<a id="next-match" href="#" onClick="Importer.form.submit( 'uploadFile', 'match' ); return false;" class="next">Next</a>
+				<a id="next-exact" href="#" onClick="Importer.form.submit( 'uploadFile', 'exact' ); return false;" class="next">Next</a>
 			</p>
 
 		</g:form>
