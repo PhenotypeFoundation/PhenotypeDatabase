@@ -62,8 +62,7 @@ class BootStrap {
 		}
 
 		// developmental/test template/ontology/study bootstrapping:
-		if ( Environment.current == Environment.DEVELOPMENT ||  Environment.current == Environment.TEST ||
-				config.gscf.doBootstrapData == 'true') {
+		if (config.gscf.doBootstrapData == 'true') {
 
 			// add ontologies?
 			if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
