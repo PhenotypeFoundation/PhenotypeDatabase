@@ -61,11 +61,13 @@ class BootStrap {
 			CommunicationManager.registerRestWrapperMethodsFromSAM()
 		}
 
+		// bootstrap ontologies
+		if (config.gscf.doBootstrapOntologies == 'true') {
+			if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
+		}
+
 		// developmental/test template/ontology/study bootstrapping:
 		if (config.gscf.doBootstrapData == 'true') {
-
-			// add ontologies?
-			if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
 
 			// add templates?
 			if (!Template.count()) ExampleTemplates.initTemplates()
