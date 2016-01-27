@@ -120,7 +120,7 @@ public class AssayDataExporter implements Exporter {
         // Get the samples and sort them; this will be the sort order to use for
         // both retrieving the assay data and the measurements
         def firstAssay = assays[0]
-        def samples = firstAssay.samples.toList()
+        def samples = firstAssay.samples.toList().sort({it.name})
 
         println "Start collecting actual assay data"
         
@@ -132,11 +132,11 @@ public class AssayDataExporter implements Exporter {
             println "Collecting data for " + assay
             try {
                 moduleMeasurementData = apiService.getPlainMeasurementData(assay, user)
-                data[ "Module measurement data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
+                data[ "Module Measurement Data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
             } catch (GroovyCastException gce) {
                 //This module probably does not support the 'getPlainMeasurementData' method, try it the old way.
                 moduleMeasurementData = assayService.requestModuleMeasurements(assay, [], samples)
-                data[ "Module measurement data: " + assay.name ] = moduleMeasurementData
+                data[ "Module Measurement Data: " + assay.name ] = moduleMeasurementData
             } catch (e) {
                 moduleMeasurementData = ['error' : [
                         'Module error, module not available or unknown assay']
