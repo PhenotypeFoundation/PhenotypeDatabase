@@ -182,7 +182,7 @@ OntologyChooser.prototype = {
 			},
 			source: function(request, response) {
 				var q = $.trim(request.term);
-                var url = "http://data.bioontology.org/search?pagesize=30&q="+ q +"&ontologies="+ ontology_id + "&apikey=" + ontologyApiKey;
+                var url = "https://data.bioontology.org/search?pagesize=30&q="+ q +"&ontologies="+ ontology_id + "&apikey=" + ontologyApiKey;
 				
 				// got cache?
 				if (q in that.cache) {
@@ -342,7 +342,7 @@ OntologyChooser.prototype = {
             },
             source: function(request, response) {
                 var q = $.trim(request.term);
-                var url = "http://data.bioontology.org/ontologies?apikey=" + ontologyApiKey;
+                var url = "https://data.bioontology.org/ontologies?apikey=" + ontologyApiKey;
 
                 if (q in that.cache) {
                     inputElement.css({ 'background': 'none' });
