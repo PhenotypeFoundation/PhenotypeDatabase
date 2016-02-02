@@ -424,7 +424,7 @@ class TemplateEditorController {
 
         params.entity = entity;
 
-        // See whether this field already exists. It is checked by name, type and unit and entity
+        // See whether this field already exists. It is checked by name and entity
         // The search is done using search by example (see http://grails.org/DomainClass+Dynamic+Methods, method find)
         def uniqueParams = [name: params.name, entity: params.entity];
         if (TemplateField.find(new org.dbnp.gdt.TemplateField(uniqueParams))) {
