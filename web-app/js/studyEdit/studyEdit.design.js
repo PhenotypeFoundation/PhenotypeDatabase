@@ -6,6 +6,11 @@ StudyEdit.design = {
 	timelineObject: null,
 	studyStartDate: null,
 	initialize: function( data, studyStartDate, groupReference ) {
+
+		if ( data.length == 0 ) {
+			studyStartDate = 0;
+		}
+
 		StudyEdit.design.studyStartDate = studyStartDate;
 		StudyEdit.design.timelineObject = StudyEdit.design.editableTimeline( 
 			"#timeline-eventgroups", 
