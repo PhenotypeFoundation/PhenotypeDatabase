@@ -211,15 +211,28 @@ class StudyEditService {
 		// Add ordering; to determine the column to sort on
 		def sortColumnIndex = searchParams.sortColumn ?: 0
 		def sortOrder = searchParams.sortDirection ?: "ASC"
-		
-                // Prepare for differences in selection
-                def select = "DISTINCT s"
-                def chooseFirst = false
+
+		//In order to have a natural 'order by' for the domainField 'name' we have to use a custom sort
+		def naturalSort = domainFields[ sortColumnIndex ]?.name.equals('name') ? true : false
+
+		// Prepare for differences in selection
+		def select = "DISTINCT s"
+
+		// Custom 'order by' is not allowed when using DISTINCT
+		if ( naturalSort ) {
+			select = "s"
+		}
+
+		def chooseFirst = false
                 
 		if( sortColumnIndex != null || sortColumnIndex >= ( domainFields.size() + template.fields.size() ) ) {
 			if( sortColumnIndex < domainFields.size() ) {
-				def sortOn = domainFields[ sortColumnIndex ]?.name;
+				def sortOn = domainFields[ sortColumnIndex ]?.name
 				orderBy = "s." + sortOn + " " + sortOrder
+
+				if ( naturalSort ) {
+					orderBy = "length(s." + sortOn + ") " + sortOrder + ", s." + sortOn + " " + sortOrder
+				}
 			} else {
 				// Sort on template field: use a join in the sql
 				// select * from subjects inner join template_fields sortField on ....
@@ -318,7 +331,13 @@ class StudyEditService {
 		]
 		
 		if( sortColumnIndex != null || sortColumnIndex < fields.size() ) {
-			orderBy = fields[ sortColumnIndex ] + " " + sortOrder
+			//In order to have a natural 'order by' for sample names we have to use a custom sort for that field
+			if ( sortColumnIndex == 0 ) {
+				orderBy = "length(" + fields[ sortColumnIndex ] + ") " + sortOrder + ", " + fields[ sortColumnIndex ] + " " + sortOrder
+			}
+			else {
+				orderBy = fields[ sortColumnIndex ] + " " + sortOrder
+			}
 		}
 			
 		// Now build up the query, except for the SELECT part.
@@ -388,7 +407,13 @@ class StudyEditService {
             ]
             
             if( sortColumnIndex != null || sortColumnIndex < fields.size() ) {
-                    orderBy = fields[ sortColumnIndex ] + " " + sortOrder
+				//In order to have a natural 'order by' for subject names we have to use a custom sort for that field
+				if ( sortColumnIndex == 0 ) {
+					orderBy = "length(" + fields[ sortColumnIndex ] + ") " + sortOrder + ", " + fields[ sortColumnIndex ] + " " + sortOrder
+				}
+				else {
+					orderBy = fields[ sortColumnIndex ] + " " + sortOrder
+				}
             }
                     
             // Now build up the query, except for the SELECT part.
