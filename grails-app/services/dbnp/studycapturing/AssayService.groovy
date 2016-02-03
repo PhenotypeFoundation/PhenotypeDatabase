@@ -218,7 +218,7 @@ class AssayService {
         // check whether event group data was requested
         if (fieldMap['Event Group']) {
 
-            def names = samples*.parentEvent*.event.name.flatten()
+            def names = samples*.parentEvent*.event*.name
 
             // only set name field when there's actual data
             if (!names.every { !it }) eventFieldMap['name'] = names

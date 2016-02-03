@@ -459,6 +459,9 @@ function createTemplateField( id ) {
 
 	showWaiting();
 
+    //ensure all ontologies present in the selectbox are selected
+    $("#ontologies_" + id).children().attr("selected", "selected");
+
     // Update the field
     $.ajax({
         url:        baseUrl + '/templateEditor/' + formEl.attr( 'action' ),

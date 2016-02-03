@@ -62,39 +62,42 @@ class BootStrap {
 		}
 
 		// developmental/test template/ontology/study bootstrapping:
-//		if ( Environment.current == Environment.DEVELOPMENT ||  Environment.current == Environment.TEST ) {
-//			// add ontologies?
-//			if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
-//
-//			// add templates?
-//			if (!Template.count()) ExampleTemplates.initTemplates()
-//
-//			// add data required for the webtests?
-//			if (Environment.current == Environment.TEST) ExampleStudies.addTestData()
-//
-//            println "Study COUNT"
-//            println Study.count()
-//
-//			// add example studies?
-//			if (!Study.count() && Environment.current == Environment.DEVELOPMENT)
-//				ExampleStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
-//		}
+		if (config.gscf.doBootstrapData == 'true') {
 
-		/**
-		 * attach ontologies in runtime. Possible problem is that you need
-		 * an internet connection when bootstrapping though.
-		 * @see dbnp.studycapturing.Subject
-		 * @see dbnp.studycapturing.Sample
-		 */
-		TemplateEntity.getField(Subject.domainFields, 'species')
-                .ontologies = [
-            Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON"),
-            Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/ENVO")
-		]
-		TemplateEntity.getField(Sample.domainFields, 'material')
-                .ontologies = [
-			Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
-		]
+			// add ontologies?
+			if (!Ontology.count()) ExampleTemplates.initTemplateOntologies()
+
+			// add templates?
+			if (!Template.count()) ExampleTemplates.initTemplates()
+
+			// add data required for the webtests?
+			if (Environment.current == Environment.TEST) ExampleStudies.addTestData()
+
+            println "Study COUNT: " + Study.count()
+
+			// add example studies?
+			if (!Study.count() && Environment.current == Environment.DEVELOPMENT)
+				ExampleStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
+		}
+
+		// bootstrap ontologies
+		if (config.gscf.doBootstrapOntologies == 'true') {
+			/**
+			 * attach ontologies in runtime. Possible problem is that you need
+			 * an internet connection when bootstrapping though.
+			 * @see dbnp.studycapturing.Subject
+			 * @see dbnp.studycapturing.Sample
+			 */
+			TemplateEntity.getField(Subject.domainFields, 'species')
+					.ontologies = [
+					Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON"),
+					Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/ENVO")
+			]
+			TemplateEntity.getField(Sample.domainFields, 'material')
+					.ontologies = [
+					Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
+			]
+		}
 				
 		// Preventing SSL Handshake exception for HTTPS connections java 1.7 
 		// See http://stackoverflow.com/questions/7615645/ssl-handshake-alert-unrecognized-name-error-since-upgrade-to-java-1-7-0
