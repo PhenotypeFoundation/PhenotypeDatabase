@@ -45,7 +45,7 @@
 		<tfoot>
 			<tr class="messagebar selectAll">
 				<td  colspan="13">
-					You selected all items on this page. Would you <a href="#">select all items on other pages</a> as well? 
+					You selected all items on this page. Would you like to <a href="#">select all items on other pages</a> as well?
 				</td>
 			</tr>						
 			<tr class="messagebar saveChanges">
