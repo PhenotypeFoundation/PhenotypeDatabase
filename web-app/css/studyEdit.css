@@ -177,9 +177,14 @@ div.dataTables_wrapper .ui-widget-header { text-align: center; }
     overflow: auto; 
 }
 
+table.dataTable td {
+    padding: 3px;
+}
+
 table.dataTable td input,
 table.dataTable td select {
-    width: 98%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Hide dialogs initially */

@@ -80,25 +80,22 @@ class BootStrap {
 				ExampleStudies.addExampleStudies(SecUser.findByUsername('user'), SecUser.findByUsername('admin'))
 		}
 
-		// bootstrap ontologies
-		if (config.gscf.doBootstrapOntologies == 'true') {
-			/**
-			 * attach ontologies in runtime. Possible problem is that you need
-			 * an internet connection when bootstrapping though.
-			 * @see dbnp.studycapturing.Subject
-			 * @see dbnp.studycapturing.Sample
-			 */
-			TemplateEntity.getField(Subject.domainFields, 'species')
-					.ontologies = [
-					Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON"),
-					Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/ENVO")
-			]
-			TemplateEntity.getField(Sample.domainFields, 'material')
-					.ontologies = [
-					Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
-			]
-		}
-				
+		/**
+		 * attach ontologies in runtime. Possible problem is that you need
+		 * an internet connection when bootstrapping though.
+		 * @see dbnp.studycapturing.Subject
+		 * @see dbnp.studycapturing.Sample
+		 */
+		TemplateEntity.getField(Subject.domainFields, 'species')
+				.ontologies = [
+				Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON"),
+				Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/ENVO")
+		]
+		TemplateEntity.getField(Sample.domainFields, 'material')
+				.ontologies = [
+				Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
+		]
+		
 		// Preventing SSL Handshake exception for HTTPS connections java 1.7 
 		// See http://stackoverflow.com/questions/7615645/ssl-handshake-alert-unrecognized-name-error-since-upgrade-to-java-1-7-0
 		System.setProperty "jsse.enableSNIExtension", "false";

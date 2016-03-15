@@ -878,7 +878,7 @@ function addOntology() {
 function updateOntologyLists( newObject) {
 	var ontologyList = $( ".templateField_form:visible .ontologySelect" );
     if( ontologyList.find( "option[value=" + newObject.id + "]").length == 0 ) {
-	    $( '.ontologySelect' ).append( 
+	    ontologyList.append(
 	    	$( "<option>" )
 	    		.attr( "title", newObject.name )
 	    		.attr( "value", newObject.id )

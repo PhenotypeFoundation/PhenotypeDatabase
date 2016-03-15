@@ -2,11 +2,9 @@ package dbnp.export
 
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
-import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import org.apache.poi.ss.usermodel.DataFormatter
+import org.apache.poi.xssf.streaming.SXSSFWorkbook
 
 import dbnp.studycapturing.*
-import org.dbnp.gdt.*
 import dbnp.authentication.SecUser
 
 import grails.util.Holders
@@ -80,7 +78,7 @@ public class MultipleStudiesExporter implements Exporter {
         }
         
         // Combine everything into the excel workbook
-        Workbook wb = new XSSFWorkbook()
+        Workbook wb = new SXSSFWorkbook(1000)
 
         Sheet studySheet = wb.createSheet("Studies")
         Sheet subjectSheet = wb.createSheet("Subjects")
@@ -95,6 +93,7 @@ public class MultipleStudiesExporter implements Exporter {
 
         // Write the excel sheet to the outputstream
         wb.write(out)
+        wb.dispose()
     }
 
     /**

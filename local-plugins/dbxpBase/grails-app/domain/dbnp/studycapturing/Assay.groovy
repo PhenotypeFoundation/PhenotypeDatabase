@@ -54,6 +54,11 @@ class Assay extends TemplateEntity {
     // An Assay can have many samples on which it is performed, but all samples should be within the 'parent' Study.
     static hasMany = [samples: Sample]
 
+    static constraints = {
+        // Ensure that the assay name is unique within the study
+        name(unique: ['parent'])
+    }
+
     static mapping = {
         sort "name"
 
