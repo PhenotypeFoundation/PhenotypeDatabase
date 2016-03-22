@@ -7,19 +7,22 @@ StudyEdit.design = {
 	studyStartDate: null,
 	initialize: function( data, studyStartDate, groupReference ) {
 
+		var options = {
+			dragAreaWidth: 0,
+			dragFrom: "#eventgroups",
+			t0: studyStartDate
+		};
+
+		// If there are no sample & treatment groups in timeline yet, set start to study start (timeline will start at 0)
 		if ( data.length == 0 ) {
-			studyStartDate = 0;
+			options.start = studyStartDate;
 		}
 
 		StudyEdit.design.studyStartDate = studyStartDate;
 		StudyEdit.design.timelineObject = StudyEdit.design.editableTimeline( 
 			"#timeline-eventgroups", 
 			data, 
-			{ 
-				dragAreaWidth: 0, 
-				dragFrom: "#eventgroups",
-				t0: studyStartDate
-			},
+			options,
 			StudyEdit.design.subjectEventGroups.eventListeners
 		);
 		StudyEdit.design.timelineObject.groupReference = groupReference;
