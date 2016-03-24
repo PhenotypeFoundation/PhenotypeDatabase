@@ -180,7 +180,9 @@ class SAMAssayController {
             }
 
             // Lookup all samples for this assay
-			def numberOfSAMSamples = SAMSample.executeQuery("SELECT COUNT(*) FROM SAMSample s WHERE s.parentAssay = :assay", [ assay: assayInstance ] )
+            def numberOfSAMSamples = SAMSample.executeQuery("SELECT COUNT(*) " +
+                    "FROM SAMSample s WHERE s.parentAssay = :assay",
+                    [ assay: assayInstance ])[0]
             def samples;
 
 			// Possibly not query samples that dont hold measurements.
