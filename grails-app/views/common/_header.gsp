@@ -29,7 +29,9 @@
                             <g:link class="open" controller="login">Log in</g:link>
                         </g:if>
                         <g:else>
-                            <li><a class="signup pie" href="#" title="">Sign up</a></li>
+                            <g:if test="${grailsApplication.config.gscf.allowSignUp != "false"}">
+                                <li><a class="signup pie" href="#" title="">Sign up</a></li>
+                            </g:if>
                             <li><a class="login pie" href="#" title="">Log In</a></li>
                         </g:else>
                     </sec:ifNotLoggedIn>
@@ -177,23 +179,25 @@
 <div class="popup loginPopup">
     <a class="close" href="#" title="">x</a>
     <div class="content">
-        <div class="fieldset signupForm">
-            <h2>Not a member yet? Sign up!</h2>
-            <g:form url="[action:'add',controller:'userRegistration']" class="clearfix registration">
-                <ul class="form">
-                    <li>
-                        <input class="field" type="text" name="username" id="username" size="23" placeholder="Username"/>
-                    </li>
-                    <li>
-                        <input class="field" type="text" name="email" id="email" size="23" placeholder="Email"/>
-                    </li>
-                    <li>A password will be emailed to you</li>
-                    <li class="buttons">
-                        <input class="button-2 pie" type="submit" value="Sign up" />
-                    </li>
-                </ul>
-            </g:form>
-        </div>
+        <g:if test="${grailsApplication.config.gscf.allowSignUp != "false"}">
+            <div class="fieldset signupForm">
+                <h2>Not a member yet? Sign up!</h2>
+                <g:form url="[action:'add',controller:'userRegistration']" class="clearfix registration">
+                    <ul class="form">
+                        <li>
+                            <input class="field" type="text" name="username" id="username" size="23" placeholder="Username"/>
+                        </li>
+                        <li>
+                            <input class="field" type="text" name="email" id="email" size="23" placeholder="Email"/>
+                        </li>
+                        <li>A password will be emailed to you</li>
+                        <li class="buttons">
+                            <input class="button-2 pie" type="submit" value="Sign up" />
+                        </li>
+                    </ul>
+                </g:form>
+            </div>
+        </g:if>
         <div class="fieldset loginForm">
             <h2>Login</h2>
             <g:form controller="." action="j_spring_security_check" method='POST' class="clearfix">
