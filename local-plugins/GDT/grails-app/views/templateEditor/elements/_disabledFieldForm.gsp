@@ -27,7 +27,7 @@
 	
 		  <label for="type">
 		  	Extra ontologies:<br />
-		  	<a href="#" style="text-decoration: underline;" onClick="return openOntologyDialog();">Add new</a><br /><br /> 
+		  	<a href="#" style="text-decoration: underline;" onClick="return openOntologyDialog();">Add new</a>
 		  	<a href="#" style="text-decoration: underline;" onClick="return deleteOntology(${templateField?.id});">Remove</a>
 		  </label>
 			<g:select multiple="yes" size="5" from="${templateField.ontologies - usedOntologies}" class="ontologySelect" optionValue="name" optionKey="id" name="ontologies" id="ontologies_${templateField?.id}" /><br />
