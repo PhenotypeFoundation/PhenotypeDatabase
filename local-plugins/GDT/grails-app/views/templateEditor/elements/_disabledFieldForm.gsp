@@ -23,7 +23,7 @@
     	<g:set var="usedOntologies" value="${templateField.getUsedOntologies()}"/>
 		<div class="extra ontologyterm_options" style='display: block;'>
 		  <label for="type">Used ontologies:</label>
-	        <g:select size="5" from="${usedOntologies}" disabled="true" class="ontologySelect" optionValue="name" optionKey="id" name="ontologies" id="used_ontologies_${templateField?.id}" /> <br />
+	        <g:select size="5" from="${usedOntologies}" disabled="true" optionValue="name" optionKey="id" name="ontologies" id="used_ontologies_${templateField?.id}" /> <br />
 	
 		  <label for="type">
 		  	Extra ontologies:<br />
