@@ -553,7 +553,7 @@ class TemplateEditorController {
         // For stringlist and ontologyterm fields, the list items can be changed, even when the field is in use
         // In that case, only never-used items can be removed or changed and items can be added. If that is the case
         // params.is_disabled is true and we should combine ontologies with the ontologies already in use.
-        if ((params.type.toString() == 'ONTOLOGYTERM' || (templateField.type == TemplateFieldType.ONTOLOGYTERM && params.is_disabled)) && params.ontologies) {
+        if ((params.type.toString() == 'ONTOLOGYTERM' || (templateField.type == TemplateFieldType.ONTOLOGYTERM && params.is_disabled))) {
             def usedOntologies = [];
 
             if (params.is_disabled) {
@@ -564,6 +564,10 @@ class TemplateEditorController {
                 def ontologies = params.list('ontologies');
 
                 params.ontologies = usedOntologies + Ontology.getAll(ontologies.collect { Integer.parseInt(it) });
+            }
+            else {
+                // keep the used ontologies
+                params.ontologies = usedOntologies;
             }
         } else {
             params.remove('ontologies');
