@@ -516,6 +516,14 @@ class TemplateEditorController {
             }
         }
 
+        // See whether this field already exists. It is checked by name and entity
+        def uniqueParams = [name: params.name, entity: templateField.entity];
+        if (TemplateField.find(new org.dbnp.gdt.TemplateField(uniqueParams))) {
+            response.status = 500;
+            render "A field with this name already exists.";
+            return;
+        }
+
         // If this field is type stringlist or ontology, we have to prepare the parameters
         //
         // For stringlist and ontologyterm fields, the list items can be changed, even when the field is in use
