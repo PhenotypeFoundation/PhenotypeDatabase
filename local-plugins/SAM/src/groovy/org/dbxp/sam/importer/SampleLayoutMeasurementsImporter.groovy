@@ -214,54 +214,54 @@ public class SampleLayoutMeasurementsImporter extends AbstractImporter {
             return false;
         }
         
-        // Retrieve some data to use for importing
+        // Retrieve Assay
         def assay = Assay.get(parameters.assay)
         
-        // Determine all samples for which we don't have a samSample
-        def samplesWithoutSamSample= Sample.executeQuery( "SELECT sample FROM Assay assay INNER JOIN assay.samples sample WHERE assay.id = :assayId AND NOT EXISTS( FROM SAMSample samsample WHERE samsample.parentSample = sample AND samsample.parentAssay = assay)", [ assayId: assay.id ])
+        // Retrieve all Samples for this Assay and create a map of it by name
+        def sampleData = Sample.executeQuery("SELECT sample FROM Assay assay INNER JOIN assay.samples sample WHERE assay.id = :assayId", [ assayId: assay.id ])
+        def sampleMap = sampleData.collectEntries { [(it.name): it] }
         
-        log.debug "# samples without samsample for assay " + assay + " : " + samplesWithoutSamSample.size()
-        samplesWithoutSamSample.each { sample ->
-            def samSample = new SAMSample(parentSample: sample, parentAssay: assay)
-            samSample.save()
-        }
-        
-        // Retrieve all samsamples
-        def samSampleData = SAMSample.executeQuery( "SELECT samsample.id, sample.id, sample.name from SAMSample samsample INNER JOIN samsample.parentSample sample WHERE samsample.parentAssay = :assay", [ assay: assay ] )
-        
-        // Create a map of samSamples by sample name
-        def groupedSamSamples = samSampleData.groupBy { it[2] }
+        // Retrieve all SAMSamples for this Assay and create a map of it by name
+        def samSampleData = SAMSample.executeQuery( "SELECT samsample, sample.name from SAMSample samsample INNER JOIN samsample.parentSample sample WHERE samsample.parentAssay = :assay", [ assay: assay ] )
+        def samSampleMap = samSampleData.collectEntries { [(it[1]): it[0]] }
         
         // Now loop through each line and try to import the data.
         def sql = new Sql(dataSource)
         try {
-            def sample 
-            def samSampleId
-            def samSampleInfo
-            
+            def sample
+            def samSample
+
             // Start a SQL batch statement
             sql.withBatch( 250, "INSERT INTO measurement (id, version, comments, feature_id, sample_id, value) VALUES (nextval('hibernate_sequence'), 0, :comments, :featureId, :sampleId, :value)" ) { preparedStatement ->
                 
                 // The header line is not used as measurements, so the first line is skipped
                 for( def lineNr = 1; lineNr < data.size(); lineNr++) {
                     def line = data[lineNr]
-                    
-                    def requiredSampleName = line[sampleColumn]
-                    samSampleInfo = groupedSamSamples[requiredSampleName]
 
-                    if( !samSampleInfo ) {
-                        errors << new ImportValidationError(
-                            code: 6,
-                            message: "A sample with sample name '" + requiredSampleName + "' could not be found in the specified assay.",
-                            line: lineNr,
-                            column: sampleColumn
-                        )
-                        
-                        // Skip this line 
-                        continue
+                    // Try to look up the SAMSample by the Sample name
+                    def requiredSampleName = line[sampleColumn]
+                    samSample = samSampleMap[requiredSampleName]
+
+                    if (!samSample) {
+
+                        // No SAMSample yet, but to create it, we need the Sample
+                        sample = sampleMap[requiredSampleName]
+                        if (!sample) {
+                            errors << new ImportValidationError(
+                                    code: 6,
+                                    message: "A sample with sample name '" + requiredSampleName + "' could not be found in the specified assay.",
+                                    line: lineNr,
+                                    column: sampleColumn
+                            )
+
+                            // Skip this line
+                            continue
+                        }
+
+                        // Create a new SAMSample
+                        samSample = new SAMSample(parentSample: sample, parentAssay: assay)
+                        samSample.save()
                     }
-                    
-                    samSampleId = samSampleInfo[0][0]
                     
                     // Now import each measurement
                     measurementColumns.each { columnIndex, feature ->
@@ -285,10 +285,10 @@ public class SampleLayoutMeasurementsImporter extends AbstractImporter {
 
                         // Distinguish between numeric and text values
                         if (value instanceof Double || value instanceof Integer) {
-                            preparedStatement.addBatch( [featureId: feature.id, sampleId: samSampleId, value: value ] )
+                            preparedStatement.addBatch( [featureId: feature.id, sampleId: samSample.id, value: value ] )
                         }
                         else if (value instanceof String) {
-                            preparedStatement.addBatch( [featureId: feature.id, sampleId: samSampleId, comments: value ] )
+                            preparedStatement.addBatch( [featureId: feature.id, sampleId: samSample.id, comments: value ] )
                         }
                         else {
                             errors << new ImportValidationError(

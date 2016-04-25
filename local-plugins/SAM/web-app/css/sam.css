@@ -8,23 +8,23 @@ body { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11px; }
 
 div#contextmenu { margin-top: 0; margin-bottom: 20px; }
 div#contextmenu ul {
-    list-style-type: none;
-    margin: 0 0 0 11px;
-    padding: 0;
-    background-color: #FBFDFF;
+	list-style-type: none;
+	margin: 0 0 0 11px;
+	padding: 0;
+	background-color: #FBFDFF; 
 }
-div#contextmenu ul li {
-    display: inline-block; *display: inline; zoom: 1;
+div#contextmenu ul li { 
+	display: inline-block; *display: inline; zoom: 1; 
 }
 div#contextmenu a {
-    display: inline-block;
-    *display: inline; zoom: 1;
-    padding-top: 6px; padding-bottom: 6px;
+	display: inline-block;
+ 	*display: inline; zoom: 1;
+ 	padding-top: 6px; padding-bottom: 6px;
 }
-
+	
 div#contextmenu a:hover {
-    background-color: #F0FBFF;
-    color: #359;
+	background-color: #F0FBFF;
+	color: #359; 
 }
 
 /* Header above each page */
@@ -43,7 +43,7 @@ ul.data_nav {
     color: #333333;
     font-weight: bold;
     margin: 2px 3px;
-    padding: 0px;
+    padding: 0px; 
     list-style-type: none;
 }
 ul.data_nav li { display: inline-block; *display: inline; zoom: 1; margin-right: 20px; }
@@ -60,7 +60,7 @@ ul.data_nav li { display: inline-block; *display: inline; zoom: 1; margin-right:
 /* This class is used for error messages. However, sometimes a 
 td.errors occurs, and that shouldn't be made up like this.*/
 div.errors {
-    background: url(../../famfamfam-1.0.1/images/icons/error.png) no-repeat scroll 10px 10px #ffcccc;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat scroll 10px 10px #ffcccc;
     border: 1px solid #FF0000;
     margin: 10px 10px 0px 10px;
     padding: 10px 10px 10px 33px;
@@ -71,7 +71,7 @@ div.errors ul { margin-top: 0; margin-bottom: 0; }
 td.errors input, td.errors select { background-color: #fcc; }
 
 .badcell {
-    background: url(../../famfamfam-1.0.1/images/icons/error.png) no-repeat scroll 2px 1px #ffcccc;
+    background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat scroll 2px 1px #ffcccc;
     border: 1px solid #FF0000;
     margin: 2px 2px 0px 2px;
     padding: 2px 2px 2px 20px;
@@ -84,8 +84,8 @@ td.errors input, td.errors select { background-color: #fcc; }
     text-align: left;
 }
 
-.buttons .import {
-    background-image: url(../../famfamfam-1.0.1/images/icons/page_white_add.png);
+.buttons .import { 
+	background-image: url(../plugins/famfamfam-1.0.1/images/icons/page_white_add.png);
 }
 
 /* Color of cells in the importer */
@@ -209,17 +209,30 @@ td.styleFeatureGroup {
     text-decoration: underline;
 }
 
-table.measurements td {
-    vertical-align: middle;
-    white-space: nowrap;
-    max-width: 60px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+table.measurements td { 
+	vertical-align: middle; 
+	white-space: nowrap;
+	max-width: 60px;
+	overflow: hidden;
+	text-overflow: ellipsis; 
 }
 
-table.measurements td.comments {
-    background-size: 12px 12px;
-    background-image: url(../../famfamfam-1.0.1/images/icons/page_edit.png);
-    background-position: center right;
-    background-repeat: no-repeat;
+table.measurements td.comments { 
+	background-size: 12px 12px;
+	background-image: url(../../famfamfam-1.0.1/images/icons/page_edit.png);
+	background-position: center right;
+	background-repeat: no-repeat; 
+}
+
+table.measurements th {
+    background: #eee; /* For browsers that do not support gradients */
+    background: -webkit-linear-gradient(#fff, #eee); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(#fff, #eee); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(#fff, #eee); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(#fff, #eee); /* Standard syntax (must be last) */
+    color: #666;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 17px;
+    padding: 2px 6px;
 }

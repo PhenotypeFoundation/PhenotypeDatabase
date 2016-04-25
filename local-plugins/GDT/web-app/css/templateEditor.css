@@ -72,10 +72,12 @@ a.switch { font-size: small; color: #68BFEF; text-decoration: none; }
 #addNew.ui-state-disabled { opacity:0.35; }
 #addNew a {
 	display: block;
-	padding: 7px 7px;
 	cursor: pointer;
 	color:#79AA27;
 	text-decoration: none;
+}
+#addNew > a {
+  padding: 7px 7px;
 }
 
 #addNew form{

@@ -439,6 +439,7 @@ function clearTemplateFieldForm( id ) {
     $( '#templateField_' + id + '_form textarea' ).val( "" );
     $( '#templateField_' + id + '_form select' ).get(0).selectedIndex = 0;
     $( '#templateField_' + id + '_form .extra' ).hide();
+    $( '#templateField_' + id + '_form select[name=ontologies]' ).empty();
 }
 
 /**

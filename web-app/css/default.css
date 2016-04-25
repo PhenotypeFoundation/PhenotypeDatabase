@@ -184,7 +184,6 @@ h2 {
     top: -150000em;
     left: -150000em;
     z-index: 11;
-    width: 680px;
 }
 .popup .close {
     position: absolute;
@@ -223,6 +222,9 @@ h2 {
 .loginPopup .fieldset {
     width: 295px;
     float: left;
+}
+.loginPopup .fieldset.signupForm {
+    margin-right: 30px;
 }
 .loginPopup .fieldset.loginForm {
     float: right;
