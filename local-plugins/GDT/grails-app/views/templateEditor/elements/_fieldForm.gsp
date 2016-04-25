@@ -36,7 +36,7 @@
 	<div class="extra ontologyterm_options" <g:if test="${templateField?.type.toString() == 'ONTOLOGYTERM'}">style='display: block;'</g:if>>
         <label for="type">
         	Ontologies:<br />
-        	<a href="#" style="text-decoration: underline;" onClick="return openOntologyDialog();">Add new</a><br /><br /> 
+        	<a href="#" style="text-decoration: underline;" onClick="return openOntologyDialog();">Add new</a>
         	<a href="#" style="text-decoration: underline;" onClick="return deleteOntology(${templateField ? templateField?.id : "'new'"});">Remove</a>
         </label>
 		<g:select multiple="yes" size="5" from="${templateField?.ontologies}" class="ontologySelect" optionValue="name" optionKey="id" name="ontologies" id="ontologies_${templateField ? templateField?.id : "new"}" /><br />
