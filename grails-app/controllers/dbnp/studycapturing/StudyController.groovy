@@ -255,10 +255,12 @@ class StudyController {
         if (!study) {
             flash.error = "No study found with given id";
             redirect controller: "study", action: "list"
+            return
         } else if(!study.canRead(user)) {
             flash.error = "No authorization to view this study."
             study = null;
             redirect controller: "study", action: "list"
+            return
         }
 
         return study;
@@ -277,18 +279,21 @@ class StudyController {
         // do we have a study id?
         if (id == 0) {
             // no, go back to the overview
-            redirect(action: 'list');
+            redirect(action: 'list')
+            return
         } else if (id instanceof String) {
             // yes, one study. Show it
             redirect(action: 'show', id: id)
-        } else {
-            // multiple studies, compare them
-            def c = Study.createCriteria()
-            studyList = c {
-                'in'("id", id.collect { Long.parseLong(it) })
-            }
-            render(view:'show',model:[studyList: studyList, studyInstanceTotal: numberOfStudies, multipleStudies:(studyList instanceof ArrayList)])
+            return
         }
+
+        // multiple studies, compare them
+        def c = Study.createCriteria()
+        studyList = c {
+            'in'("id", id.collect { Long.parseLong(it) })
+        }
+
+        render(view:'show',model:[studyList: studyList, studyInstanceTotal: numberOfStudies, multipleStudies:(studyList instanceof ArrayList)])
     }
 
     def showByToken = {
@@ -296,6 +301,7 @@ class StudyController {
         if (!studyInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
             redirect(action: "list")
+            return
         }
         else {
             // Check whether the user may see this study
@@ -303,30 +309,43 @@ class StudyController {
             if( !studyInstance.canRead(loggedInUser) ) {
                 flash.message = "You have no access to this study"
                 redirect(action: "list")
+                return
             }
-
-            redirect(action: "show", id: studyInstance.id)
         }
+
+        redirect(action: "show", id: studyInstance.id)
     }
 
     def delete = {
         def studyInstance = Study.get(params.long("id"))
-        if (studyInstance) {
-            try {
-                studyInstance.clearSAMDependencies()
-                studyInstance.delete(flush: true)
-                flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                redirect(action: "list")
-            }
-            catch (org.springframework.dao.DataIntegrityViolationException e) {
-                flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                redirect(action: "show", id: params.id)
-            }
-        }
-        else {
+
+        if (!studyInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
             redirect(action: "list")
+            return
         }
+
+        // Check whether the user may delete this study
+        def loggedInUser = authenticationService.getLoggedInUser()
+
+        if (!studyInstance.canWrite(loggedInUser)) {
+            flash.message = "You ar not allowed to delete this study!"
+            redirect(action: "show", id: params.id)
+            return
+        }
+
+        try {
+            studyInstance.clearSAMDependencies()
+            studyInstance.delete(flush: true)
+        }
+        catch (org.springframework.dao.DataIntegrityViolationException e) {
+            flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+            redirect(action: "show", id: params.id)
+            return
+        }
+
+        flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+        redirect(action: "list")
     }
 
     /**
