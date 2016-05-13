@@ -148,34 +148,52 @@ class Assay extends TemplateEntity {
     /**
      * Returns true if the given user is allowed to read this study
      */
-    public boolean canReadAssay(SecUser loggedInUser) {
-            // Public studies may be read by anyone
-            if( this.parent.publicstudy && this.publicassay) {
-                    return true;
-            }
+    public boolean canRead(SecUser loggedInUser) {
 
-            // Anonymous readers are only given access when published and public
-            if (loggedInUser == null) {
-                    return false;
-            }
+        // Public studies may be read by anyone
+        if( this.parent.publicstudy && this.publicassay ) {
+            return true;
+        }
 
-            // Administrators are allowed to read every study
-            if (loggedInUser.hasAdminRights()) {
-                    return true;
-            }
+        // Anonymous readers are only given access when published and public
+        if ( loggedInUser == null ) {
+            return false;
+        }
 
-            // Owners and writers are allowed to read this study
-            if (this.parent.owner == loggedInUser || this.parent.writers.contains(loggedInUser)) {
-                    return true
-            }
+        // Administrators are allowed to read every study
+        if ( loggedInUser.hasAdminRights() ) {
+            return true;
+        }
 
-            // Readers are allowed to read this study when it is published
-            //		if (this.readers.contains(loggedInUser) && this.published) {
-            if (this.parent.readers.contains(loggedInUser)) {
-                    return true
-            }
+        // Owners, writers and readers are allowed to read this study
+        if ( this.parent.owner == loggedInUser || this.parent.writers.contains(loggedInUser) || this.parent.readers.contains(loggedInUser) ) {
+            return true
+        }
 
-            return false
+        return false
+    }
+
+    /**
+     * Returns true if the given user is allowed to read this study
+     */
+    public boolean canWrite(SecUser loggedInUser) {
+
+        // Administrators are allowed to read every study
+        if ( loggedInUser.hasAdminRights() ) {
+            return true;
+        }
+
+        // Anonymous readers are only given access when published and public
+        if ( loggedInUser == null ) {
+            return false;
+        }
+
+        // Owners, writers are allowed to write this study
+        if ( this.parent.owner == loggedInUser || this.parent.writers.contains(loggedInUser) ) {
+            return true
+        }
+
+        return false
     }
   
     /**

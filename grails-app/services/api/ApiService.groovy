@@ -230,11 +230,15 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @param itemName
      * @param item
      * @param block
+     * @param type (get or create)
      */
     def executeApiCall(params,response,itemName,item,Closure block) {
-	    executeApiCall(params,response,itemName,item,block,{ })
+        executeApiCall(params,response,itemName,item,block,'get',{})
     }
-	def executeApiCall(params,response,itemName,item,Closure block,Closure cleanUpBlock) {
+    def executeApiCall(params,response,itemName,item,Closure block,String type) {
+        executeApiCall(params,response,itemName,item,block,type,{})
+    }
+	def executeApiCall(params,response,itemName,item,Closure block,String type,Closure cleanUpBlock) {
         // get variables from parameters
         String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
         String validation   = (params.containsKey('validation')) ? params.validation : ''
@@ -255,7 +259,7 @@ class ApiService implements Serializable, ApplicationContextAware {
             // the user cannot read this data
 	        cleanUpBlock()
 	        response.sendError(401, "Unauthorized")
-        } else if (!canWriteBelongsToRelationships(item, user)) {
+        } else if (type.equals('create') && !canWriteBelongsToRelationships(item, user)) {
             // the user cannot read this data
 	        cleanUpBlock()
 	        response.sendError(401, "Unauthorized")
@@ -335,35 +339,6 @@ class ApiService implements Serializable, ApplicationContextAware {
      */
     def getMeasurementData(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.baseUrl}/rest/getMeasurementData"
-        def serviceArguments = "assayToken=${assay.UUID}&verbose=true"
-        def json
-
-        // call module method
-        try {
-            json = moduleCommunicationService.callModuleMethod(
-                    assay.module.baseUrl,
-                    serviceURL,
-                    serviceArguments,
-                    "POST",
-                    user
-            );
-        } catch (Exception e) {
-            log.error "api.getMeasurementData failed :: ${e.getMessage()}"
-            json = new org.codehaus.groovy.grails.web.json.JSONArray()
-        }
-
-        return json
-    }
-
-    /**
-     * get measurement data from the remote module in verbose format
-     *
-     * @param assay
-     * @param user
-     * @return
-     */
-    def getPlainMeasurementData(Assay assay, SecUser user) {
-        def serviceURL = "${assay.module.baseUrl}/rest/getPlainMeasurementData"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json
 

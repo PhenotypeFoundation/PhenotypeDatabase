@@ -338,7 +338,7 @@ class StudyController {
         
         // set output header to json
         response.contentType = 'application/json'
-        def assayscom = study.assays.findAll { it.canReadAssay(user) }
+        def assayscom = study.assays.findAll { it.canRead(user) }
         def assays = assayscom.collect{[name: it.name, id: it.id]}
         render (assays as JSON)
     }

@@ -113,7 +113,9 @@
                         <a href="#" title="">Analyze <img class="subicon" src="${resource(dir: 'images/default_style', file: 'blank.gif')}" alt="" /></a>
                         <div class="subnav">
                             <ul>
-                                <li><g:link controller="advancedQuery">Search</g:link></li>
+                                <g:if env="development">
+                                    <li><g:link controller="advancedQuery">Search</g:link></li>
+                                </g:if>
                                 <li><g:link controller="visualize" action="index">Visualize</g:link></li>
                                 <g:if env="development">
                                     <li><g:link controller="studyCompare" action="index">Compare</g:link></li>

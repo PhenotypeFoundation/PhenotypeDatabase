@@ -10,10 +10,10 @@ import grails.converters.JSON
  * @author Robert Horlings (robert@isdat.nl)
  */
 class AdvancedQueryController {
-    def moduleCommunicationService;
+    def moduleCommunicationService
     def authenticationService
     def datatablesService
-    
+
     def entitiesToSearchFor = [ 'Study': 'Studies', 'Sample': 'Samples', 'Assay': 'Assays']
 
     /**
@@ -30,7 +30,7 @@ class AdvancedQueryController {
 
     /**
      * Searches for studies or samples based on the user parameters.
-     * 
+     *
      * @param	entity		The entity to search for ( 'Study' or 'Sample' )
      * @param	criteria	HashMap with the values being hashmaps with field, operator and value.
      * 						[ 0: [ field: 'Study.name', operator: 'equals', value: 'term' ], 1: [..], .. ]
@@ -63,15 +63,15 @@ class AdvancedQueryController {
         log.trace "Start searching"
         search.execute( parseCriteria( params.criteria ) );
         log.trace "Finished executing search"
-        
+
         // Save search in session
         def queryId = saveSearch( search );
         log.trace "Saved the search"
-        
+
         log.trace "Start determining actions"
         def actions = determineActions(search)
         log.trace "Determined possible actions"
-        
+
         render( view: view, model: [search: search, queryId: queryId, actions: actions] );
     }
 
@@ -81,24 +81,24 @@ class AdvancedQueryController {
     def results(int id) {
         // Retrieve the search to find data for
         def search = retrieveSearch(id)
-        
+
         if( !search ) {
             response.status = 404
             return
         }
-        
+
         // Determine the datatable parameters
         def searchParams = datatablesService.parseParams( params )
-        
+
         // Retrieve data from the results
         def resultMap = search.getResultMap(searchParams)
-        
+
         // Return the data to the user
         def datatableData = datatablesService.createDatatablesOutput( resultMap, params )
-         
+
         render datatableData as JSON
     }
-    
+
     /**
      * Removes a specified search from session
      * @param 	id	queryId of the search to discard
@@ -198,8 +198,8 @@ class AdvancedQueryController {
     }
 
     /**
-     * Combines the results of multiple searches 
-     * @param	id	queryIds of the searches to combine 
+     * Combines the results of multiple searches
+     * @param	id	queryIds of the searches to combine
      */
     def combine = {
         def queryIds = params.list( 'id' );
@@ -289,10 +289,10 @@ class AdvancedQueryController {
 
         // Convert results into map
         def resultMap = [:]
-        results.each { 
+        results.each {
             resultMap[it[0]] = it[1]
         }
-        
+
         // Register and save search
         Search s = Search.register( name, url, entity, resultMap );
         int searchId = saveSearch( s );
@@ -457,7 +457,7 @@ class AdvancedQueryController {
             }
         }
 
-        // Return fields per module. 
+        // Return fields per module.
         AssayModule.list().each { module ->
             try {
                 def callUrl = "" + module.baseUrl + "/rest/getMeasurements"
@@ -470,14 +470,14 @@ class AdvancedQueryController {
             }
 
         }
-        
+
         return fields;
     }
 
     /**
      * Parses the criteria from the query form given by the user
      * @param	c	Data from the input form and had a form like
-     * 
+     *
      *	[
      *		0: [entityfield:a.b, operator: b, value: c],
      *		0.entityfield: a.b,
@@ -591,14 +591,14 @@ class AdvancedQueryController {
 
 
     /***************************************************************************
-     * 
+     *
      * Methods for saving results in session
-     * 
+     *
      ***************************************************************************/
 
     /**
      * Saves the given search in session. Any search with the same criteria will be overwritten
-     *  
+     *
      * @param s		Search to save
      * @return		Id of the search for later reference
      */

@@ -117,26 +117,22 @@ class ApiController {
             def studies = []
 
             // iterate through studies and define resultset
-            readableStudies.each { study ->
+            readableStudies.each { Study study ->
                 // get result data
                 studies[ studies.size() ] = [
-                        'token'                 : study.UUID,
-                        'code'                  : study.code,
-                        'title'                 : study.title,
-                        'description'           : study.description,
-                        'subjects'              : study.subjects.size(),
-                        'species'               : study.subjects.species.collect { it.name }.unique(),
-                        'assays'                : study.assays.collect { it.name }.unique(),
-                        'modules'               : study.assays.collect { it.module.name }.unique(),
-                        'events'                : study.events.size(),
-                        'uniqueEvents'          : study.events.collect { it.toString() }.unique(),
-                        'samplingEvents'        : study.samplingEvents.size(),
-                        'uniqueSamplingEvents'  : study.samplingEvents.collect { it.toString() }.unique(),
-                        'eventGroups'           : study.eventGroups.size(),
-                        'uniqueEventGroups'     : study.eventGroups.collect { it.name }.unique(),
-                        'samples'               : study.samples.size(),
-                        'subjectGroups'         : study.subjectGroups.size(),
-                        'uniqueSubjectGroups'   : study.subjectGroups.collect { it.name }.unique()
+                        'token'                     : study.UUID,
+                        'code'                      : study.code,
+                        'title'                     : study.title,
+                        'description'               : study.description,
+                        'subjectCount'              : study.subjectCount,
+                        'species'                   : study.subjects.species.unique().name,
+                        'subjectGroups'             : study.subjectGroups.name,
+                        'sampleAndTreatmentGroups'  : study.eventGroups.name,
+                        'treatmentTypes'            : study.events.name,
+                        'sampleTypes'               : study.samplingEvents.name,
+                        'assays'                    : study.assays.name,
+                        'modules'                   : study.assays.collect { it.module.name }.unique(),
+                        'sampleCount'               : study.sampleCount,
                 ]
             }
 
@@ -374,74 +370,10 @@ class ApiController {
     def getMeasurementDataForAssay() {
         println "api::getMeasurementDataForAssay: ${params}"
 
-        // fetch assay
-        String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
-	    def assay           = Assay.findWhere(UUID: assayToken)
-
-	    // fetch user based on deviceID
-        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
-        def user            = Token.findByDeviceID(deviceID)?.user
-
-        // wrap result in api call validator
-        apiService.executeApiCall(params,response,'assay',assay,{
-            // define sample measurement data matrix
-            def matrix = [:]
-            def measurementData = apiService.getMeasurementData(assay, user).toArray()
-            //def measurementMetaData = apiService.getMeasurementData(assay, user)
-
-            // iterate through measurementData and build data matrix
-            try {
-                measurementData.each { data ->
-                    try {
-                        if (!matrix.containsKey(data.sampleToken)) matrix[data.sampleToken] = [:]
-                        matrix[data.sampleToken][data.measurementToken] = data.value
-                    } catch (Exception e) {
-                        // it seems that some measurement data does not contain a sample token?
-                        println "getMeasurementDataForAssay error for data of assay '${assay.name}' (token '${assayToken}', module: '${assay.module.name}'): ${e.getMessage()}"
-                        println data.dump()
-                    }
-                }
-
-                // define result
-                def result = [:]
-                result = [
-                    'measurements'  : matrix
-                ]
-
-                // set output headers
-                response.status = 200
-                response.contentType = 'application/json;charset=UTF-8'
-
-                if (params.containsKey('callback')) {
-                    render "${params.callback}(${result as JSON})"
-                } else {
-                    render result as JSON
-                }
-            } catch (Exception e) {
-                println "getMeasurementDataForAssay exception: ${e.getMessage()}"
-                response.sendError(500, "module '${assay.module}' does not properly implement getMeasurementData REST specification (${e.getMessage()})")
-            }
-        })
-    }
-
-    /**
-     * get all measurement data from a linked module for an assay
-     *
-     * @param string deviceID
-     * @param string assayToken
-     * @param string validation md5 sum
-     */
-    def getPlainMeasurementDataForAssay() {
-        println "api::getPlainMeasurementDataForAssay: ${params}"
-
         // fetch output parameter, features: feature metadata, subject: subject metadata
         // measurements: subjectname, starttime, featurename, value, all: all (default)
         String outputOptions = ['all', 'measurements', 'subjects', 'features']
-        String output = params.containsKey('dataSelection') ? params.dataSelection : ''
-
-        if(!outputOptions.contains(output)) {
-            output = "all"
-        }
+        String output = outputOptions.contains(params?.dataSelection) ? params.dataSelection : 'all'
 
         // fetch assay
         String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
@@ -480,7 +412,7 @@ class ApiController {
 
                 if (output.equals('all') || output.equals('measurements')) {
                     // get measurements for assay
-                    measurements = apiService.getPlainMeasurementData(assay, user)
+                    measurements = apiService.getMeasurementData(assay, user)
                 }
 
                 if (output.equals('all') || output.equals('features')) {
@@ -940,7 +872,7 @@ class ApiController {
 							instance[name] = null
 						}
 						entityInstance.delete(flush: true)
-					})
+					}, 'create')
 				} else {
 					// blast, we've got errors
 					// undo relationships - CLEANUP!
