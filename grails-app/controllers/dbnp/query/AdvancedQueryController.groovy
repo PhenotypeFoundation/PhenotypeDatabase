@@ -721,14 +721,6 @@ class AdvancedQueryController {
                         description: "Export as SimpleTox",
                         url: createLink( controller: "exporter", action: "exportStudies", params: [ 'format': 'SimpleTox', 'ids' : ids ] ),
                         submitUrl: createLink( controller: "exporter", action: "exportStudies", params: [ 'format': 'SimpleTox' ] ),
-                    ],
-                    [
-                        module: "gscf",
-                        name:"excel",
-                        type: "export",
-                        description: "Export as CSV",
-                        url: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] ),
-                        submitUrl: createLink( controller: "study", action: "exportToExcel", params: [ 'format': 'list' ] ),
                     ]
                 ]
             case "Assay":
@@ -736,28 +728,12 @@ class AdvancedQueryController {
                 s.filterResults(selectedTokens).each { ids << it.id }
 
                 return [
-                    [
-                        module: "gscf",
-                        name:"excel",
-                        type: "export",
-                        description: "Export as CSV",
-                        url: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list', 'ids' : ids ] ),
-                        submitUrl: createLink( controller: "assay", action: "exportToExcel", params: [ 'format': 'list' ] ),
-                    ]
                 ]
             case "Sample":
                 def ids = []
                 s.filterResults(selectedTokens).each { ids << it.id }
 
                 return [
-                    [
-                        module: "gscf",
-                        name:"excel",
-                        type: "export",
-                        description: "Export as CSV",
-                        url: createLink( controller: "assay", action: "exportSamplesToCsv", params: [ 'ids' : ids ] ),
-                        submitUrl: createLink( controller: "assay", action: "exportSamplesToCsv" ),
-                    ]
                 ]
             default:
                 return [];

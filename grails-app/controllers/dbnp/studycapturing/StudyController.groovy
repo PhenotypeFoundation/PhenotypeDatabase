@@ -38,7 +38,8 @@ class StudyController {
      * For each study, the id and title are returned. The output format is JSON
      */
     def json() {
-        def studies = Study.giveReadableStudies( authenticationService.getLoggedInUser() ).collect { study ->
+        def user = authenticationService.getLoggedInUser()
+        def studies = Study.giveReadableStudies( user ).collect { study ->
             [
                 id: study.id,
                 title: study.title
@@ -51,7 +52,6 @@ class StudyController {
     /**
      * Shows studies for which the logged in user is the owner
      */
-    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
     def myStudies() {
         def user = authenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
