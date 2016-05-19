@@ -55,9 +55,9 @@ class Study extends TemplateEntity {
 		persons: StudyPerson,
 		publications: Publication,
 		readers: SecUser,
-                readerGroups: SecUserGroup,
+		readerGroups: SecUserGroup,
 		writers: SecUser,
-                writerGroups: SecUserGroup
+		writerGroups: SecUserGroup
 	]
 
 	static constraints = {

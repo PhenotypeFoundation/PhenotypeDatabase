@@ -50,7 +50,7 @@
 <div class="api">
 <h1 class="header">API specification</h1>
 
-The API allows third party software to interface with GSCF and connected modules.
+The API allows third party software to interface with the Phenotype Database.
 
 <h2>prerequisites</h2>
     <li>
@@ -88,14 +88,20 @@ The API allows third party software to interface with GSCF and connected modules
     <li><a href="#authenticate">authenticate</a> - set up / synchronize client-server session</li>
     <li><a href="#getStudies">getStudies</a> - fetch all (readable) studies</li>
     <li><a href="#getSubjectsForStudy">getSubjectsForStudy</a> - fetch all subjects in a given study</li>
+    <li><a href="#getSubjectGroupsForStudy">getSubjectGroupsForStudy</a> - fetch all subjectGroups in a given study</li>
+    <li><a href="#getSampleAndTreatmentGroupsForStudy">getSampleAndTreatmentGroupsForStudy</a> - fetch all sample & treatment groups in a given study</li>
+    <li><a href="#getTreatmentTypesForStudy">getTreatmentTypesForStudy</a> - fetch all treatment types in a given study</li>
+    <li><a href="#getSampleTypesForStudy">getSampleTypesForStudy</a> - fetch all subjectGroups in a given study</li>
     <li><a href="#getAssaysForStudy">getAssaysForStudy</a> - fetch all assays in a given study</li>
+    <li><a href="#getSubjectsForAssay">getSubjectsForAssay</a> - fetch all subjects in a given assay</li>
     <li><a href="#getSamplesForAssay">getSamplesForAssay</a> - fetch all samples in a given assay</li>
-    <li><a href="#getMeasurementDataForAssay">getMeasurementDataForAssay</a> - fetch all measurement data for a given assay</li>
+    <li><a href="#getFeaturesForAssay">getFeaturesAssay</a> - fetch all features for a given assay</li>
+    <li><a href="#getMeasurementDataForAssay">getMeasurementDataAssay</a> - fetch all measurements for a given assay</li>
 
 <h2>SDK packages</h2>
-    <li><a href="https://github.com/4np/GSCF-PHPClient" target="_new">PHP</a> - Object Oriented SDK for interacting with GSCF using PHP</li>
-    <li><a href="https://github.com/4np/GSCF-GroovyClient" target="_new">Groovy</a> - Object Oriented SDK for interacting with GSCF using Groovy</li>
     <li><a href="https://github.com/PhenotypeFoundation/GSCF-RClient" target="_new">R</a> - R Client to interface with GSCF using R</li>
+    <li><s><a href="https://github.com/4np/GSCF-PHPClient" target="_new">PHP</a> - Object Oriented SDK for interacting with GSCF using PHP</s> (needs to be updated)</li>
+    <li><s><a href="https://github.com/4np/GSCF-GroovyClient" target="_new">Groovy</a> - Object Oriented SDK for interacting with GSCF using Groovy</s> (needs to be updated)</li>
 
 <a name="authenticate"></a>
 <h1>authenticate</h1>
@@ -170,7 +176,10 @@ The API allows third party software to interface with GSCF and connected modules
 
     <h2>example reply</h2>
     <blockquote>
-        {"token":"78b070a6-e68c-436e-a81b-2db08840e809","sequence":0}
+        {
+        "token":"78b070a6-e68c-436e-a81b-2db08840e809",
+        "sequence":0
+        }
     </blockquote>
 </p>
 
@@ -211,7 +220,30 @@ The API allows third party software to interface with GSCF and connected modules
 
     <h2>example reply</h2>
     <blockquote>
-        {"count":2,"studies":[{"token":"f2e085fb-9138-4ebe-a59f-82f1bdc21d7e","title":"NuGO PPS human study","description":"Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U.","subjects":11,"species":["Homo sapiens"],"assays":["Mass Sequencing module","SAM module for clinical data","Metabolomics module"],"events":1,"uniqueEvents":["start: 3 days, 22 hours, duration: 8 hours"],"samplingEvents":2,"uniqueSamplingEvents":["start: 0 seconds","start: 4 days, 6 hours"],"eventGroups":1,"uniqueEventGroups":["Root group"],"samples":22},{"token":"6b7e85b3-b174-492c-ba27-fbfb71ab9b8b","title":"NuGO PPS3 mouse study leptin module","description":"C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet.","subjects":80,"species":["Mus musculus"],"assays":["SAM module for clinical data","Metabolomics module"],"events":8,"uniqueEvents":["start: 1 hour, duration: 1 week","start: 1 hour, duration: 4 weeks"],"samplingEvents":2,"uniqueSamplingEvents":["start: 1 week, 1 hour"],"eventGroups":8,"uniqueEventGroups":["10% fat + vehicle for 1 week","10% fat + leptin for 1 week","45% fat + vehicle for 1 week","45% fat + leptin for 1 week","10% fat + vehicle for 4 weeks","10% fat + leptin for 4 weeks","45% fat + vehicle for 4 weeks","45% fat + leptin for 4 weeks"],"samples":80}]}
+        {
+        "count":2,
+        "studies":
+        [
+        {
+        "token":"f2e085fb-9138-4ebe-a59f-82f1bdc21d7e",
+        "title":"NuGO PPS human study",
+        "code":"NuGO_PPSH",
+        "description":"Human study performed at RRI; centres involved: RRI, IFR, TUM, Maastricht U.",
+        "subjectCount":11,
+        "species":["Homo sapiens"],
+        "assays":["Mass Sequencing module","SAM module for clinical data","Metabolomics module"],
+        },
+        {
+        "token":"6b7e85b3-b174-492c-ba27-fbfb71ab9b8b",
+        "title":"NuGO PPS3 mouse study leptin module",
+        "code":"NuGO_PPS3",
+        "description":"C57Bl/6 mice were fed a high fat (45 en%) or low fat (10 en%) diet after a four week run-in on low fat diet.",
+        "subjectCount":80,
+        "species":["Mus musculus"],
+        "assays":["SAM module for clinical data","Metabolomics module"],
+        }
+        ]
+        }
     </blockquote>
 </p>
 
@@ -259,7 +291,414 @@ The API allows third party software to interface with GSCF and connected modules
 
     <h2>example reply</h2>
     <blockquote>
-        {"count":11,"subjects":[{"id":81,"name":"1","species":"Homo sapiens","Gender":"Female","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":82,"name":"2","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":83,"name":"3","species":"Homo sapiens","Gender":"Female","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":84,"name":"4","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":85,"name":"5","species":"Homo sapiens","Gender":"Female","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":86,"name":"6","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":87,"name":"7","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":88,"name":"8","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":89,"name":"9","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":90,"name":"10","species":"Homo sapiens","Gender":"Male","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null},{"id":91,"name":"11","species":"Homo sapiens","Gender":"Female","Age":null,"DOB":null,"Height":null,"Weight":null,"BMI":null,"Race":null,"Waist circumference":null,"Hip circumference":null,"Systolic blood pressure":null,"Diastolic blood pressure":null,"Heart rate":null,"Run-in-food":null}]}
+        {
+        "count":11,
+        "subjects":
+        [
+        {
+        "id":81,
+        "name":"1",
+        "species":"Homo sapiens",
+        "Gender":"Female",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":82,
+        "name":"2",
+        "species":"Homo sapiens",
+        "Gender":"Male",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":83,
+        "name":"3",
+        "species":"Homo sapiens",
+        "Gender":"Female",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":84,
+        "name":"4",
+        "species":"Homo sapiens",
+        "Gender":"Male",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":85,
+        "name":"5",
+        "species":"Homo sapiens",
+        "Gender":"Female",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":86,
+        "name":"6",
+        "species":"Homo sapiens",
+        "Gender":"Male",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":87,
+        "name":"7",
+        "species":"Homo sapiens",
+        "Gender":"Male",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":88,
+        "name":"8",
+        "species":"Homo sapiens",
+        "Gender":"Male",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":89,
+        "name":"9",
+        "species":"Homo sapiens",
+        "Gender":"Male",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":90,
+        "name":"10",
+        "species":"Homo sapiens",
+        "Gender":"Male",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":91,
+        "name":"11",
+        "species":"Homo sapiens",
+        "Gender":"Female",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        }
+        ]
+        }
+    </blockquote>
+</p>
+
+<a name="getSubjectGroupsForStudy"></a>
+<h1>getSubjectGroupsForStudy</h1>
+<h3>url: <g:createLink controller="api" action="getSubjectGroupsForStudy" absolute="true" /></h3>
+    <p>
+        Returns the subjectGroups for a particular study
+
+    <h2>Request parameters</h2>
+    <table>
+        <thead>
+        <th>argument</th>
+        <th>type</th>
+        <th>length</th>
+        <th>description</th>
+        <th>example</th>
+        <th>required</th>
+        </thead>
+        <tr>
+            <td>deviceID</td>
+            <td>string</td>
+            <td>36 (max)</td>
+            <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
+            <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>validation</td>
+            <td>string</td>
+            <td>-</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
+            <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>studyToken</td>
+            <td>string</td>
+            <td>255</td>
+            <td>study token (see getStudies)</td>
+            <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+            <td>yes</td>
+        </tr>
+    </table>
+
+    <h2>example reply</h2>
+    <blockquote>
+        {
+        "count":2,
+        "subjectGroups":[]
+        }
+    </blockquote>
+</p>
+
+<a name="getSampleAndTreatmentGroupsForStudy"></a>
+<h1>getSampleAndTreatmentGroupsForStudy</h1>
+<h3>url: <g:createLink controller="api" action="getSampleAndTreatmentGroupsForStudy" absolute="true" /></h3>
+    <p>
+        Returns the sample & treatment groups for a particular study
+
+    <h2>Request parameters</h2>
+    <table>
+        <thead>
+        <th>argument</th>
+        <th>type</th>
+        <th>length</th>
+        <th>description</th>
+        <th>example</th>
+        <th>required</th>
+        </thead>
+        <tr>
+            <td>deviceID</td>
+            <td>string</td>
+            <td>36 (max)</td>
+            <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
+            <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>validation</td>
+            <td>string</td>
+            <td>-</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
+            <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>studyToken</td>
+            <td>string</td>
+            <td>255</td>
+            <td>study token (see getStudies)</td>
+            <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+            <td>yes</td>
+        </tr>
+    </table>
+
+    <h2>example reply</h2>
+    <blockquote>
+        {
+        "count":4,
+        "sampleAndTreatmentGroups":[]
+        }
+    </blockquote>
+</p>
+
+<a name="getTreatmentTypesForStudy"></a>
+<h1>getTreatmentTypesForStudy</h1>
+<h3>url: <g:createLink controller="api" action="getTreatmentTypesForStudy" absolute="true" /></h3>
+    <p>
+        Returns the treatment types for a particular study
+
+    <h2>Request parameters</h2>
+    <table>
+        <thead>
+        <th>argument</th>
+        <th>type</th>
+        <th>length</th>
+        <th>description</th>
+        <th>example</th>
+        <th>required</th>
+        </thead>
+        <tr>
+            <td>deviceID</td>
+            <td>string</td>
+            <td>36 (max)</td>
+            <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
+            <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>validation</td>
+            <td>string</td>
+            <td>-</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
+            <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>studyToken</td>
+            <td>string</td>
+            <td>255</td>
+            <td>study token (see getStudies)</td>
+            <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+            <td>yes</td>
+        </tr>
+    </table>
+
+    <h2>example reply</h2>
+    <blockquote>
+        {
+        "count":1,
+        "treatmentTypes":[]
+        }
+    </blockquote>
+</p>
+
+<a name="getSampleTypesForStudy"></a>
+<h1>getSampleTypesForStudy</h1>
+<h3>url: <g:createLink controller="api" action="getSampleTypesForStudy" absolute="true" /></h3>
+    <p>
+        Returns the sample types for a particular study
+
+    <h2>Request parameters</h2>
+    <table>
+        <thead>
+        <th>argument</th>
+        <th>type</th>
+        <th>length</th>
+        <th>description</th>
+        <th>example</th>
+        <th>required</th>
+        </thead>
+        <tr>
+            <td>deviceID</td>
+            <td>string</td>
+            <td>36 (max)</td>
+            <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
+            <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>validation</td>
+            <td>string</td>
+            <td>-</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
+            <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>studyToken</td>
+            <td>string</td>
+            <td>255</td>
+            <td>study token (see getStudies)</td>
+            <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+            <td>yes</td>
+        </tr>
+    </table>
+
+    <h2>example reply</h2>
+    <blockquote>
+        {
+        "count":4,
+        "sampleTypes":[]
+        }
     </blockquote>
 </p>
 
@@ -307,7 +746,175 @@ The API allows third party software to interface with GSCF and connected modules
 
     <h2>example reply</h2>
     <blockquote>
-        {"count":6,"assays":[{"token":"253ec24f-9bac-4f2b-b9cf-f84b86376a4e","name":"16S Sequencing assay","module":"Mass Sequencing module","Description":null},{"token":"4df2f49d-1d8c-48bd-8ebd-d267164948ec","name":"18S Sequencing assay","module":"Mass Sequencing module","Description":null},{"token":"828cf2d6-d797-484b-82f9-df9933d76d77","name":"Glucose assay after","module":"SAM module for clinical data","Description":null},{"token":"d68e8fed-41ca-4408-9d8e-f3598eca9183","name":"Glucose assay before","module":"SAM module for clinical data","Description":null},{"token":"32945764-6c5e-497c-8b1e-0d5e0dfa8221","name":"Lipidomics profile after","module":"Metabolomics module","Description":null,"Spectrometry technique":"GC/MS"},{"token":"92f42f77-1c13-4b25-aa57-b444e355fbf4","name":"Lipidomics profile before","module":"Metabolomics module","Description":null,"Spectrometry technique":"GC/MS"}]}
+        {
+        "count":6,
+        "assays":
+        [
+        {
+        "token":"253ec24f-9bac-4f2b-b9cf-f84b86376a4e",
+        "name":"16S Sequencing assay",
+        "module":"Mass Sequencing module",
+        "Description":null
+        },
+        {
+        "token":"4df2f49d-1d8c-48bd-8ebd-d267164948ec",
+        "name":"18S Sequencing assay",
+        "module":"Mass Sequencing module",
+        "Description":null
+        },
+        {
+        "token":"828cf2d6-d797-484b-82f9-df9933d76d77",
+        "name":"Glucose assay after",
+        "module":"SAM module for clinical data",
+        "Description":null
+        },
+        {
+        "token":"d68e8fed-41ca-4408-9d8e-f3598eca9183",
+        "name":"Glucose assay before",
+        "module":"SAM module for clinical data",
+        "Description":null
+        },
+        {
+        "token":"32945764-6c5e-497c-8b1e-0d5e0dfa8221",
+        "name":"Lipidomics profile after",
+        "module":"Metabolomics module",
+        "Description":null,
+        "Spectrometry technique":"GC/MS"
+        },
+        {
+        "token":"92f42f77-1c13-4b25-aa57-b444e355fbf4",
+        "name":"Lipidomics profile before",
+        "module":"Metabolomics module",
+        "Description":null,
+        "Spectrometry technique":"GC/MS"
+        }
+        ]
+        }
+    </blockquote>
+</p>
+
+<a name="getSubjectsForAssay"></a>
+<h1>getSubjectsForAssay</h1>
+<h3>url: <g:createLink controller="api" action="getSubjectsForStudy" absolute="true" /></h3>
+<p>
+    Returns the subjects for a particular assay.
+    Not all study subjects have to be in an assay.
+
+    <h2>Request parameters</h2>
+    <table>
+        <thead>
+        <th>argument</th>
+        <th>type</th>
+        <th>length</th>
+        <th>description</th>
+        <th>example</th>
+        <th>required</th>
+        </thead>
+        <tr>
+            <td>deviceID</td>
+            <td>string</td>
+            <td>36 (max)</td>
+            <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
+            <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>validation</td>
+            <td>string</td>
+            <td>-</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
+            <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <td>assayToken</td>
+        <td>string</td>
+        <td>255</td>
+        <td>assay token (see getAssays)</td>
+        <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+        <td>yes</td>
+        </tr>
+    </table>
+
+    <h2>example reply</h2>
+    <blockquote>
+        {
+        "count":4,
+        "subjects":
+        [
+        {
+        "id":81,
+        "name":"1",
+        "species":"Homo sapiens",
+        "Gender":"Female",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":82,
+        "name":"2",
+        "species":"Homo sapiens",
+        "Gender":"Male",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":83,
+        "name":"3",
+        "species":"Homo sapiens",
+        "Gender":"Female",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        },
+        {
+        "id":84,
+        "name":"4",
+        "species":"Homo sapiens",
+        "Gender":"Male",
+        "Age":null,
+        "DOB":null,
+        "Height":null,
+        "Weight":null,
+        "BMI":null,
+        "Race":null,
+        "Waist circumference":null,
+        "Hip circumference":null,
+        "Systolic blood pressure":null,
+        "Diastolic blood pressure":null,
+        "Heart rate":null,
+        "Run-in-food":null
+        }
+        ]
+        }
     </blockquote>
 </p>
 
@@ -356,167 +963,151 @@ The API allows third party software to interface with GSCF and connected modules
 <h2>example reply</h2>
 <blockquote>
     {
-    "count":
-    11,
+    "count":11,
     "samples":
     [
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T58.66620961739546",
-    "material":
-    "blood plasma",
-    "name":
-    "7_A",
-    "token":
-    "c705668a-81c4-4d80-83df-96bb477aeb0b"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T58.66620961739546",
+    "material":"blood plasma",
+    "name":"7_A",
+    "token":"c705668a-81c4-4d80-83df-96bb477aeb0b"
     },
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T39.7483280873287",
-    "material":
-    "blood plasma",
-    "name":
-    "9_A",
-    "token":
-    "d81bdda8-4684-45b9-b254-1ec4756cfc71"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T39.7483280873287",
+    "material":"blood plasma",
+    "name":"9_A",
+    "token":"d81bdda8-4684-45b9-b254-1ec4756cfc71"
     },
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T43.20628871191769",
-    "material":
-    "blood plasma",
-    "name":
-    "2_A",
-    "token":
-    "2f501b55-ffdd-4bf2-a598-dcf24d3fac63"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T43.20628871191769",
+    "material":"blood plasma",
+    "name":"2_A",
+    "token":"2f501b55-ffdd-4bf2-a598-dcf24d3fac63"
     },
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T88.40760089710538",
-    "material":
-    "blood plasma",
-    "name":
-    "8_A",
-    "token":
-    "f908ae2a-3df7-4eb7-be2a-0b8859c20bfc"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T88.40760089710538",
+    "material":"blood plasma",
+    "name":"8_A",
+    "token":"f908ae2a-3df7-4eb7-be2a-0b8859c20bfc"
     },
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T58.14619508995611",
-    "material":
-    "blood plasma",
-    "name":
-    "11_A",
-    "token":
-    "6763cff4-8113-4614-85b9-ef98fb34beba"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T58.14619508995611",
+    "material":"blood plasma",
+    "name":"11_A",
+    "token":"6763cff4-8113-4614-85b9-ef98fb34beba"
     },
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T71.86067212685215",
-    "material":
-    "blood plasma",
-    "name":
-    "6_A",
-    "token":
-    "5a339aaa-9bb6-4a0a-9ce7-4c42ceaf5771"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T71.86067212685215",
+    "material":"blood plasma",
+    "name":"6_A",
+    "token":"5a339aaa-9bb6-4a0a-9ce7-4c42ceaf5771"
     },
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T2.395117860298579",
-    "material":
-    "blood plasma",
-    "name":
-    "3_A",
-    "token":
-    "a9e73abe-aed3-4c43-8fe7-a6b3dfe6e2ed"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T2.395117860298579",
+    "material":"blood plasma",
+    "name":"3_A",
+    "token":"a9e73abe-aed3-4c43-8fe7-a6b3dfe6e2ed"
     },
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T98.99437236833568",
-    "material":
-    "blood plasma",
-    "name":
-    "10_A",
-    "token":
-    "3e63a493-c69d-4cd4-ba23-eeafe962b17f"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T98.99437236833568",
+    "material":"blood plasma",
+    "name":"10_A",
+    "token":"3e63a493-c69d-4cd4-ba23-eeafe962b17f"
     },
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T25.420102086098005",
-    "material":
-    "blood plasma",
-    "name":
-    "4_A",
-    "token":
-    "34d5611b-7407-489a-b25a-00ad2b0d8789"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T25.420102086098005",
+    "material":"blood plasma",
+    "name":"4_A",
+    "token":"34d5611b-7407-489a-b25a-00ad2b0d8789"
     },
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T69.55369597806298",
-    "material":
-    "blood plasma",
-    "name":
-    "1_A",
-    "token":
-    "5c9dce07-ca4d-4bcb-8ac3-c8488bd7247a"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T69.55369597806298",
+    "material":"blood plasma",
+    "name":"1_A",
+    "token":"5c9dce07-ca4d-4bcb-8ac3-c8488bd7247a"
     },
     {
-    "Remarks":
-    null,
-    "Sample measured volume":
-    null,
-    "Text on vial":
-    "T50.41146383561054",
-    "material":
-    "blood plasma",
-    "name":
-    "5_A",
-    "token":
-    "21a07d33-6d95-46f9-a80d-cd58d7e140d0"
+    "Remarks":null,
+    "Sample measured volume":null,
+    "Text on vial":"T50.41146383561054",
+    "material":"blood plasma",
+    "name":"5_A",
+    "token":"21a07d33-6d95-46f9-a80d-cd58d7e140d0"
     }
     ]
     }
 </blockquote>
+</p>
+
+<a name="getFeaturesForAssay"></a>
+<h1>getFeaturesForAssay</h1>
+<h3>url: <g:createLink controller="api" action="getFeaturesForAssay" absolute="true" /></h3>
+    <p>
+        Returns the features for a particular assay
+
+    <h2>Request parameters</h2>
+    <table>
+        <thead>
+        <th>argument</th>
+        <th>type</th>
+        <th>length</th>
+        <th>description</th>
+        <th>example</th>
+        <th>required</th>
+        </thead>
+        <tr>
+            <td>deviceID</td>
+            <td>string</td>
+            <td>36 (max)</td>
+            <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
+            <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>validation</td>
+            <td>string</td>
+            <td>-</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
+            <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>assayToken</td>
+            <td>string</td>
+            <td>255</td>
+            <td>assay token (see getAssays)</td>
+            <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+            <td>yes</td>
+        </tr>
+    </table>
+
+    <h2>example reply</h2>
+    <blockquote>
+        {
+        "count":100,
+        "features":[]
+        }
+    </blockquote>
 </p>
 
 <a name="getMeasurementDataForAssay"></a>
@@ -525,75 +1116,49 @@ The API allows third party software to interface with GSCF and connected modules
 <p>
     Returns the measurement data for a particular assay
 
-<h2>Request parameters</h2>
-<table>
-    <thead>
-    <th>argument</th>
-    <th>type</th>
-    <th>length</th>
-    <th>description</th>
-    <th>example</th>
-    <th>required</th>
-    </thead>
-    <tr>
-        <td>deviceID</td>
-        <td>string</td>
-        <td>36 (max)</td>
-        <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
-        <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
-        <td>yes</td>
-    </tr>
-    <tr>
-        <td>validation</td>
-        <td>string</td>
-        <td>-</td>
-        <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
-        <td>9ae87836d38d4b86be6aeff93f2b049a</td>
-        <td>yes</td>
-    </tr>
-    <tr>
-        <td>assayToken</td>
-        <td>string</td>
-        <td>255</td>
-        <td>assay token (see getAssays)</td>
-        <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
-        <td>yes</td>
-    </tr>
-    <tr>
-        <td>assayToken</td>
-        <td>string</td>
-        <td>255</td>
-        <td>features: feature metadata, subject: subject metadata, measurements: subjectname, starttime, featurename, value, all: all (default)</td>
-        <td>all/measurements/features/subjects</td>
-        <td>no</td>
-    </tr>
-</table>
+    <h2>Request parameters</h2>
+    <table>
+        <thead>
+        <th>argument</th>
+        <th>type</th>
+        <th>length</th>
+        <th>description</th>
+        <th>example</th>
+        <th>required</th>
+        </thead>
+        <tr>
+            <td>deviceID</td>
+            <td>string</td>
+            <td>36 (max)</td>
+            <td>a unique <i>stable</i> identifier of the device making the call (for example: md5sum(mac-address+username))</td>
+            <td>9ae87836-d38d-4b86-be6a-eff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>validation</td>
+            <td>string</td>
+            <td>-</td>
+            <td><a href="http://www.miraclesalad.com/webtools/md5.php" target="_new">md5sum</a>( token + sequence + api key )</td>
+            <td>9ae87836d38d4b86be6aeff93f2b049a</td>
+            <td>yes</td>
+        </tr>
+        <tr>
+            <td>assayToken</td>
+            <td>string</td>
+            <td>255</td>
+            <td>assay token (see getAssays)</td>
+            <td>b6e0c6f4-d8db-4a43-91fa-a157d2d492f0</td>
+            <td>yes</td>
+        </tr>
+    </table>
 
-<h2>example reply</h2>
-<blockquote>
-    {"
-    measurements":
-    {"Subject1":
-    {"4w":
-    {"feature1":"7.8", "feature2":"8.2"}
-    "6w":
-    {"feature1":"8.4", "feature2":"6.2"} }
-    "Subject2":{
-    "4w":
-    {"feature1":"4.4", "feature2":"4.2"}
-    "6w":
-    {"feature1":"5.3", "feature2":"4.2"} } }
-    "subjects":{
-    "Subject1":
-    {"Gender":"Male", "Age":"54"}
-    "Subject2":
-    {"Gender":"Female", "Age":"62"} }
-    "features":"
-    {"feature1":"
-    {"property1":"value", "property2":"value"},
-    "feature2":
-    {"property1":"value", "property2":"value"} } }
-</blockquote>
+    <h2>example reply</h2>
+    <blockquote>
+        {
+        "count":500,
+        "measurements":[]
+        }
+    </blockquote>
 </p>
 
 </div>

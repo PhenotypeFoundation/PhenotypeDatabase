@@ -133,6 +133,7 @@
 			                    <sec:ifAnyGranted roles="ROLE_ADMIN,ROLE_TEMPLATEADMIN">
                                 	<li><g:link controller="template" action="export">Templates</g:link></li>
                                 </sec:ifAnyGranted>
+                                <li><g:link controller="api" action="index">API</g:link></li>
                             </ul>
                         </div>
                     </li>

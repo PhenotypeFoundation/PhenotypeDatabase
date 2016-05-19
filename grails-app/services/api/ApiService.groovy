@@ -139,17 +139,17 @@ class ApiService implements Serializable, ApplicationContextAware {
             // add token
 	        if (it.UUID) {
                 // some domain methods implement giveUUID
-		        // (and this has system wide been implemented
-		        //  in GDT 1.3.1)...
+                // (and this has system wide been implemented
+                //  in GDT 1.3.1)...
                 item['token'] = it.UUID
 
-            if(it instanceof Sample) {
-                item['subject'] = it.parentSubject.UUID
-                item['samplingEvent'] = it.parentEvent.event.UUID
-                item['eventGroup'] = it.parentEvent.event.UUID
+                if(it instanceof Sample) {
+                    item['subject'] = it.parentSubject?.UUID
+                    item['sampleType'] = it.parentEvent.event?.UUID
+                    item['sampleAndTreatmentGroup'] = it.eventGroup?.UUID
+                }
             }
-
-            } else {
+            else {
                 // and others don't at all, so far
                 // the consistency...
                 item['id'] = it.id
@@ -250,7 +250,7 @@ class ApiService implements Serializable, ApplicationContextAware {
         if (!validateRequest(deviceID,validation)) {
             // validation md5sum does not match predicted hash
 	        cleanUpBlock()
-            //response.sendError(401, "Unauthorized")
+            response.sendError(401, "Unauthorized")
         } else if (!item) {
             // no results, invalid 'item'
 	        cleanUpBlock()
