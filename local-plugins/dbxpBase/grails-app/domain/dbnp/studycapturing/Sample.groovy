@@ -120,7 +120,7 @@ class Sample extends TemplateEntity {
     }
 
     public String getSamplingTimeString() {
-        return new RelTime( getSamplingTime() ).toString()
+        return new RelTime( getSamplingTime() ).toString().replaceAll(" ", "")
     }
 
     public String getSubjectName() {
@@ -220,7 +220,7 @@ class Sample extends TemplateEntity {
                 parentEventName = ucwords(parentEventName)
             }
 
-			def startTime = getSamplingTimeString().replaceAll( " ", "" )
+			def startTime = getSamplingTimeString()
 
 			this.name = ( subjectName + "_" + eventGroupName + "_" + parentEventName + "_" + startTime ).replaceAll( " ", "_" )
 		}
