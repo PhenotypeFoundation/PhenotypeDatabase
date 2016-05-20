@@ -208,7 +208,7 @@ class StudyController {
     protected def prepareDataForDatatableView( entityClass ) {
         def study = getStudyFromRequest( params )
         if( !study ) {
-            redirect action: "add"
+            redirect action: 'list'
             return
         }
 
