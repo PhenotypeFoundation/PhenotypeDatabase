@@ -205,7 +205,7 @@ class AssayServiceTests extends GrailsUnitTestCase {
 
         String.metaClass.'encodeAsURL' = {delegate}
 
-        def assayData = service.collectAssayData(assay, fieldMap, measurementTokens, [])
+        def assayData = service.collectAssayData(assay, fieldMap, [])
 
         def sample1index = assayData.'Sample Data'.'name'.findIndexOf{it == 'sample1'}
         def sample2index = assayData.'Sample Data'.'name'.findIndexOf{it == 'sample2'}

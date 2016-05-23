@@ -11,7 +11,7 @@ class SAMImporterController extends ImporterController {
      */
     protected def getListOfImporters() {
         def importerFactory = ImporterFactory.getInstance()
-        importerFactory.getImportersForType( "SAM")
+        importerFactory.getImportersForType("SAM")
     }
 
     /**

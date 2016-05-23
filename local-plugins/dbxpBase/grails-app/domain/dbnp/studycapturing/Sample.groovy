@@ -111,25 +111,31 @@ class Sample extends TemplateEntity {
         // Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
 	}
 
-    def getSamplingTime() {
-        parentEvent?.startTime
+    public Long getSamplingTimeInSubjectEventGroup() {
+        return parentEvent.startTime
+    }
+
+    public Long getSamplingTime() {
+        return parentSubjectEventGroup.startTime + getSamplingTimeInSubjectEventGroup()
+    }
+
+    public String getSamplingTimeString() {
+        return new RelTime( getSamplingTime() ).toString().replaceAll(" ", "")
     }
 
     public String getSubjectName() {
-        parentSubject?.name
+        return parentSubject?.name
     }
 
     public EventGroup getEventGroup() {
-        if( parentEvent ) {
-            return sample.parentEvent.eventGroup
-        } else if( sample.SubjectEventGroup ) {
-            return sample.parentSubjectEventGroup.eventGroup
-        } else {
+        if( !parentEvent ) {
             return null
         }
+
+        return parentEvent.eventGroup
     }
 
-    static getSamplesFor(event) {
+    static getSamplesForEvent(event) {
         return Sample.findAll('from Sample s where s.parentEvent =:event', [event: event])
     }
 
@@ -205,7 +211,6 @@ class Sample extends TemplateEntity {
 
     public String generateName() {
 		if( parentSubject && parentEvent && parentSubjectEventGroup) {
-
             def subjectName = parentSubject.name
             def eventGroupName = parentSubjectEventGroup?.eventGroup?.name.replaceAll("([ ]{1,})", "")
             def parentEventName = parentEvent.event.name
@@ -215,13 +220,11 @@ class Sample extends TemplateEntity {
                 parentEventName = ucwords(parentEventName)
             }
 
-			def subjectEventGroupStartTime = parentSubjectEventGroup ? parentSubjectEventGroup.startTime : '0'
-			def samplingEventInstanceStartTime = parentEvent ? parentEvent.startTime : '0'
-
-			def startTime = new RelTime( subjectEventGroupStartTime + samplingEventInstanceStartTime ).toString().replaceAll( " ", "" )
+			def startTime = getSamplingTimeString()
 
 			this.name = ( subjectName + "_" + eventGroupName + "_" + parentEventName + "_" + startTime ).replaceAll( " ", "_" )
 		}
+
 		return this.name
     }
 

@@ -210,24 +210,27 @@ class RestController {
      *
      * The module is allowed to return different fields when the user searches for different entities
      *
-     * Example call:                [moduleurl]/rest/getPossibleActions?entity=Assay&entity=Sample
+     * Example call:        [moduleurl]/rest/getPossibleActions?entity=Assay&entity=Sample
      * Example response:    { "Assay": [ { name: "excel", description: "Export as excel" } ],
-     *                                                "Sample": [ { name: "excel", description: "Export as excel" }, { name: "fasta", description: : "Export as fasta" } ] }
+     *                        "Sample": [ { name: "excel", description: "Export as excel" } ]
+     *                      }
      *
-     * @param       params.entity   Entity that is searched for. Might be more than one. If no entity is given,
+     * @param               params.entity   Entity that is searched for. Might be more than one. If no entity is given,
      *                                                      a list of searchable fields for all entities is given
-     * @return      JSON                    Hashmap with keys being the entities and the values are lists with the action this module can
+     * @return              JSON            Hashmap with keys being the entities and the values are lists with the action this module can
      *                                                      perform on this entity. The actions as hashmaps themselves, with keys
-     *                                                      'name'                  Unique name of the action, as used for distinguishing actions
-     *                                                      'description'   Human readable description
-     *                                                      'url'                   URL to send the user to when performing this action. The user is sent there using POST with
-     *                                                                                      the following parameters:
-     *                                                                                              actionName:             Name of the action to perform
-     *                                                                                              name:                   Name of the search that the action resulted from
-     *                                                                                              url:                    Url of the search that the action resulted from
-     *                                                                                              entity:                 Type of entity being returned
-     *                                                                                              tokens:                 List of entity tokens
-     *                                                      'type'                  (optional) Determines what type of action it is. Possible values: 'default', 'refine', 'export', ''
+     * 'name'               Unique name of the action, as used for distinguishing actions
+     * 'description'        Human readable description
+     * 'url'                URL to send the user to when performing this action. The user is sent there using POST with
+     *
+     * the following parameters:
+     *
+     * actionName:          Name of the action to perform
+     * name:                Name of the search that the action resulted from
+     * url:                 Url of the search that the action resulted from
+     * entity:              Type of entity being returned
+     * tokens:              List of entity tokens
+     * 'type'               (optional) Determines what type of action it is. Possible values: 'default', 'refine', 'export', ''
      */
     def getPossibleActions = {
             def entities = params.entity ?: []
@@ -255,176 +258,6 @@ class RestController {
             }
             
             render actions as JSON
-    }
-    
-
-    /**
-     * Return list of measurement data.
-     *
-     * @param assayToken
-     * @param measurementToken. Restrict the returned data to the measurementTokens specified here.
-     * 						If this argument is not given, all samples for the measurementTokens are returned.
-     * 						Multiple occurrences of this argument are possible.
-     * @param sampleToken. Restrict the returned data to the samples specified here.
-     * 						If this argument is not given, all samples for the measurementTokens are returned.
-     * 						Multiple occurrences of this argument are possible.
-     * @param boolean verbose. If this argument is not present or it's value is true, then return
-     *                    getAssay  the date in a redundant format that is easier to process.
-     *						By default, return a more compact JSON object as follows.
-     *
-     * 						The list contains three elements:
-     *
-     *						(1) a list of sampleTokens,
-     *						(2) a list of measurementTokens,
-     * 						(3) a list of values.
-     *
-     * 						The list of values is a matrix represented as a list. Each row of the matrix
-     * 						contains the values of a measurementToken (in the order given in the measurement
-     * 						token list, (2)). Each column of the matrix contains the values for the sampleTokens
-     * 						(in the order given in the list of sampleTokens, (1)).
-     * 						(cf. example below.)
-     *
-     *
-     * @return  table (as hash) with values for given samples and measurements
-     *
-     *
-     * List of examples.
-     *
-     *
-     * Example REST call:
-     * http://localhost:8184/metagenomics/rest/getMeasurementData/doit?assayToken=PPSH-Glu-A
-     *    &measurementToken=total carbon dioxide (tCO)
-     *    &sampleToken=5_A
-     *    &sampleToken=1_A
-     *    &verbose=true
-     *
-     * Resulting JSON object:
-     * [ {"sampleToken":"1_A","measurementToken":"total carbon dioxide (tCO)","value":28},
-     *   {"sampleToken":"5_A","measurementToken":"total carbon dioxide (tCO)","value":29} ]
-     *
-     *
-     *
-     * Example REST call without sampleToken, without measurementToken,
-     *    and with verbose representation:
-     * http://localhost:8184/metagenomics/rest/getMeasurementData/dossit?assayToken=PPSH-Glu-A
-     *    &verbose=true
-     *
-     * Resulting JSON object:
-     * [ {"sampleToken":"1_A","measurementToken":"sodium (Na+)","value":139},
-     *	 {"sampleToken":"1_A","measurementToken":"potassium (K+)","value":4.5},
-     *	 {"sampleToken":"1_A","measurementToken":"total carbon dioxide (tCO)","value":26},
-     *	 {"sampleToken":"2_A","measurementToken":"sodium (Na+)","value":136},
-     *	 {"sampleToken":"2_A","measurementToken":"potassium (K+)","value":4.3},
-     *	 {"sampleToken":"2_A","measurementToken":"total carbon dioxide (tCO)","value":28},
-     *	 {"sampleToken":"3_A","measurementToken":"sodium (Na+)","value":139},
-     *	 {"sampleToken":"3_A","measurementToken":"potassium (K+)","value":4.6},
-     *	 {"sampleToken":"3_A","measurementToken":"total carbon dioxide (tCO)","value":27},
-     *	 {"sampleToken":"4_A","measurementToken":"sodium (Na+)","value":137},
-     *	 {"sampleToken":"4_A","measurementToken":"potassium (K+)","value":4.6},
-     *	 {"sampleToken":"4_A","measurementToken":"total carbon dioxide (tCO)","value":26},
-     *	 {"sampleToken":"5_A","measurementToken":"sodium (Na+)","value":133},
-     *	 {"sampleToken":"5_A","measurementToken":"potassium (K+)","value":4.5},
-     *	 {"sampleToken":"5_A","measurementToken":"total carbon dioxide (tCO)","value":29} ]
-     *
-     *
-     *
-     * Example REST call with default (non-verbose) view and without sampleToken:
-     *
-     * Resulting JSON object:
-     * http://localhost:8184/metagenomics/rest/getMeasurementData/query?
-     * 	assayToken=PPSH-Glu-A&
-     * 	measurementToken=sodium (Na+)&
-     * 	measurementToken=potassium (K+)&
-     *	measurementToken=total carbon dioxide (tCO)
-     *
-     * Resulting JSON object:
-     * [ ["1_A","2_A","3_A","4_A","5_A"],
-     *   ["sodium (Na+)","potassium (K+)","total carbon dioxide (tCO)"],
-     *   [139,136,139,137,133,4.5,4.3,4.6,4.6,4.5,26,28,27,26,29] ]
-     *
-     * Explanation:
-     * The JSON object returned by default (i.e., unless verbose is set) is an array of three arrays.
-     * The first nested array gives the sampleTokens for which data was retrieved.
-     * The second nested array gives the measurementToken for which data was retrieved.
-     * The thrid nested array gives the data for sampleTokens and measurementTokens.
-     *
-     *
-     * In the example, the matrix represents the values of the above Example and
-     * looks like this:
-     *
-     * 			1_A		2_A		3_A		4_A		5_A
-     *
-     * Na+		139		136		139		137		133
-     *
-     * K+ 		4.5		4.3		4.6		4.6		4.5
-     *
-     * tCO		26		28		27		26		29
-     *
-     */
-    def getMeasurementData = {
-        def verbose = false
-
-        if(params.verbose && (params.verbose=='true'||params.verbose==true) ) {
-            verbose=true
-        }
-
-        def assayToken = params.assayToken;
-        def assay = getAssay( assayToken );
-        if( !assay ) {
-            response.sendError(404)
-            return false
-        }
-
-        def measurementTokens = params.list( 'measurementToken' );
-        def sampleTokens = params.list( 'sampleToken' );
-
-        def features
-        def results
-
-        if( measurementTokens ) {
-            // Return all requested features. The features are filtered when retrietving the measurements themselves
-            features = Feature.findAll( "FROM Feature f WHERE f.name IN (:measurementTokens)", [ "measurementTokens": measurementTokens ] )
-            log.debug("Found ${features.size()} features matching the ${measurementTokens.size()} measurement tokens")
-        } else {
-            // If no measurement tokens are given, return values for all features
-            features = Feature.list()
-            log.debug("Using all ${features.size()} features")
-        }
-
-        // If no samples or features are selected, return an empty list
-        if( !features ) {
-            results = []
-            log.debug("No samples or no features, returning empty result")
-        }
-        else {
-            // Retrieve all samples from the database. We create a map of UUIDs in order to create a proper list later on
-            def samples = [:]
-            log.debug "Start retrieving sample list from the database"
-            SAMSample.executeQuery( "SELECT s.id, s.parentSample.UUID FROM SAMSample s WHERE s.parentAssay = :assay", [ assay: assay ] ).each { samples[it[0]] = it[1] }
-            
-            if( samples ) {
-                // Now retrieve the measurements themselves
-                log.debug "Start retrieving measuremens from the database"
-                def measurements = Measurement.executeQuery("SELECT m.sample.id, m.feature.name, m.feature.unit, m.value, m.comments FROM Measurement m WHERE m.feature IN (:features) AND m.sample.id IN (:sampleIds)", ["features": features, "sampleIds": samples.keySet()])
-              
-                log.debug "Convert the measurements ino the proper format"
-                
-                // Convert the measurements into the desired format
-                results = measurements.collect {[
-                    "sampleToken": samples[it[0]],
-                    "measurementToken": it[1],
-                    "value": it[3] != null ? it[3] : it[4]
-                ]}
-            } else {
-                results = []
-            }
-            
-            if(!verbose) {
-                log.debug "Start compacting table"
-                results = compactTable( results )
-            }
-        }
-        render results as JSON
     }
 
     def getFeaturesForAssay = {
@@ -472,7 +305,7 @@ class RestController {
      * @return				Map containing for each feature another map that
      *                      maps samples to values.
      */
-    def getPlainMeasurementData = {
+    def getMeasurementData = {
         def assayToken = params.assayToken;
         def assay = getAssay( assayToken );
         if( !assay ) {

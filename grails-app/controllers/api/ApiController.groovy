@@ -112,31 +112,27 @@ class ApiController {
         if (!apiService.validateRequest(deviceID,validation)) {
             response.sendError(401, 'Unauthorized')
         } else {
-            def user = Token.findByDeviceID(deviceID)?.user
+            def user = getUser()
             def readableStudies = Study.giveReadableStudies(user)
             def studies = []
 
             // iterate through studies and define resultset
-            readableStudies.each { study ->
+            readableStudies.each { Study study ->
                 // get result data
                 studies[ studies.size() ] = [
-                        'token'                 : study.UUID,
-                        'code'                  : study.code,
-                        'title'                 : study.title,
-                        'description'           : study.description,
-                        'subjects'              : study.subjects.size(),
-                        'species'               : study.subjects.species.collect { it.name }.unique(),
-                        'assays'                : study.assays.collect { it.name }.unique(),
-                        'modules'               : study.assays.collect { it.module.name }.unique(),
-                        'events'                : study.events.size(),
-                        'uniqueEvents'          : study.events.collect { it.toString() }.unique(),
-                        'samplingEvents'        : study.samplingEvents.size(),
-                        'uniqueSamplingEvents'  : study.samplingEvents.collect { it.toString() }.unique(),
-                        'eventGroups'           : study.eventGroups.size(),
-                        'uniqueEventGroups'     : study.eventGroups.collect { it.name }.unique(),
-                        'samples'               : study.samples.size(),
-                        'subjectGroups'         : study.subjectGroups.size(),
-                        'uniqueSubjectGroups'   : study.subjectGroups.collect { it.name }.unique()
+                        'token'                     : study.UUID,
+                        'code'                      : study.code,
+                        'title'                     : study.title,
+                        'description'               : study.description,
+                        'subjectCount'              : study.subjectCount,
+                        'species'                   : study.subjects.species.unique().name,
+                        'subjectGroups'             : study.subjectGroups.name,
+                        'sampleAndTreatmentGroups'  : study.eventGroups.name,
+                        'treatmentTypes'            : study.events.name,
+                        'sampleTypes'               : study.samplingEvents.name,
+                        'assays'                    : study.assays.name,
+                        'modules'                   : study.assays.collect { it.module.name }.unique(),
+                        'sampleCount'               : study.sampleCount,
                 ]
             }
 
@@ -169,7 +165,7 @@ class ApiController {
         Study study = getStudy()
 
         // wrap result in api call validator
-        render apiService.executeApiCall(params,response,'study',study,{
+        apiService.executeApiCall(params,response,'study',study,{
             def subjects = apiService.flattenDomainData( study.subjects )
 
             // define result
@@ -177,9 +173,130 @@ class ApiController {
                     'count'     : subjects.size(),
                     'subjects'  : subjects
             ]
-            return result
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
         })
 
+    }
+
+    /**
+     * get all subjectGroups for a study
+     *
+     * @param string deviceID
+     * @param string studyToken
+     * @param string validation md5 sum
+     */
+    def getSubjectGroupsForStudy() {
+        Study study = getStudy()
+
+        apiService.executeApiCall(params,response,'study',study,{
+            def studySubjectGroups = study.subjectGroups.findAll()
+
+            def result = [
+                    'count'         : studySubjectGroups.size(),
+                    'subjectGroups' : getSubjectGroups(studySubjectGroups)
+            ]
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        })
+    }
+
+    /**
+     * get all sampleAndTreatmentGroupsForStudy (eventGroups) for a study
+     *
+     * @param string deviceID
+     * @param string studyToken
+     * @param string validation md5 sum
+     */
+    def getSampleAndTreatmentGroupsForStudy() {
+        println "api::getEventGroupsForStudy: ${params}"
+
+        Study study = getStudy()
+
+	    // wrap result in api call validator
+        apiService.executeApiCall(params,response,'study',study,{
+            def eventGroups = apiService.flattenDomainData( study.eventGroups )
+
+            // define result
+            def result = [
+                'count'         : eventGroups.size(),
+                'sampleAndTreatmentGroups'   : eventGroups
+            ]
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        })
+    }
+
+    /**
+     * get all treatmentTypes (events) for a study
+     *
+     * @param string deviceID
+     * @param string studyToken
+     * @param string validation md5 sum
+     */
+    def getTreatmentTypesForStudy() {
+        println "api::getEventsForStudy: ${params}"
+
+        Study study = getStudy()
+
+	    // wrap result in api call validator
+        apiService.executeApiCall(params,response,'study',study,{
+            def events = apiService.flattenDomainData( study.events )
+
+            // define result
+            def result = [
+                'count' : events.size(),
+                'treatmentTypes': events
+            ]
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        })
+    }
+
+    /**
+     * get all sampleTypes (samplingEvents) for a study
+     *
+     * @param string deviceID
+     * @param string studyToken
+     * @param string validation md5 sum
+     */
+    def getSampleTypesForStudy() {
+        println "api::getSamplingEventsForStudy: ${params}"
+
+        Study study = getStudy()
+
+	    // wrap result in api call validator
+        apiService.executeApiCall(params,response,'study',study,{
+            def samplingEvents = apiService.flattenDomainData( study.samplingEvents )
+
+            // define result
+            def result = [
+                    'count': samplingEvents.size(),
+                    'sampleTypes': samplingEvents
+            ]
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        })
     }
 
     /**
@@ -194,8 +311,8 @@ class ApiController {
 
         Study study = getStudy()
 
-	    // wrap result in api call validator
-        render apiService.executeApiCall(params,response,'study',study,{
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'study',study,{
             def assays = apiService.flattenDomainData( study.assays )
 
             // define result
@@ -203,82 +320,12 @@ class ApiController {
                     'count'     : assays.size(),
                     'assays'    : assays
             ]
-            return result
-        })
-    }
 
-    /**
-     * get all eventGroups for a study
-     *
-     * @param string deviceID
-     * @param string studyToken
-     * @param string validation md5 sum
-     */
-    def getEventGroupsForStudy() {
-        println "api::getEventGroupsForStudy: ${params}"
-
-        Study study = getStudy()
-
-	    // wrap result in api call validator
-        render apiService.executeApiCall(params,response,'study',study,{
-            def eventGroups = apiService.flattenDomainData( study.eventGroups )
-
-            // define result
-            def result = [
-                'count'         : eventGroups.size(),
-                'eventGroups'   : eventGroups
-            ]
-            return result
-        })
-    }
-
-    /**
-     * get all events for a study
-     *
-     * @param string deviceID
-     * @param string studyToken
-     * @param string validation md5 sum
-     */
-    def getEventsForStudy() {
-        println "api::getEventsForStudy: ${params}"
-
-        Study study = getStudy()
-
-	    // wrap result in api call validator
-        render apiService.executeApiCall(params,response,'study',study,{
-            def events = apiService.flattenDomainData( study.events )
-
-            // define result
-            def result = [
-                'count' : events.size(),
-                'events': events
-            ]
-            return result
-        })
-    }
-
-    /**
-     * get all samplingEvents for a study
-     *
-     * @param string deviceID
-     * @param string studyToken
-     * @param string validation md5 sum
-     */
-    def getSamplingEventsForStudy() {
-        println "api::getSamplingEventsForStudy: ${params}"
-
-        Study study = getStudy()
-
-	    // wrap result in api call validator
-        render apiService.executeApiCall(params,response,'study',study,{
-            def samplingEvents = apiService.flattenDomainData( study.samplingEvents )
-
-            // define result
-            def result = [
-                    'count'         : samplingEvents.size(),
-                    'samplingEvents': samplingEvents
-            ]
-            return result
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
         })
     }
 
@@ -295,7 +342,7 @@ class ApiController {
         Study study = getStudy()
 
 		// wrap result in api call validator
-		render apiService.executeApiCall(params,response,'study',study,{
+		apiService.executeApiCall(params,response,'study',study,{
 
 			def studySamples = study.samples
 
@@ -305,9 +352,44 @@ class ApiController {
 					'count'     : samples.size(),
 					'samples'   : samples
 			]
-            return result
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
 		})
 	}
+
+    /**
+     * get all subjects for a assay
+     *
+     * @param string deviceID
+     * @param string studyToken
+     * @param string validation md5 sum
+     */
+    def getSubjectsForAssay() {
+        println "api::getSubjectsForAssay: ${params}"
+
+        Assay assay = getAssay()
+
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'assay',assay,{
+            def subjects = apiService.flattenDomainData( assay.samples.parentSubject.unique() )
+
+            // define result
+            def result = [
+                    'count'     : subjects.size(),
+                    'subjects'  : subjects
+            ]
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
+        })
+    }
 
     /**
      * get all samples for an assay
@@ -319,49 +401,54 @@ class ApiController {
     def getSamplesForAssay() {
         println "api::getSamplesForAssay: ${params}"
 
-        // fetch assay
-        String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
-	    def assay           = Assay.findWhere(UUID: assayToken)
+        Assay assay = getAssay()
 
-	    // wrap result in api call validator
-        render apiService.executeApiCall(params,response,'assay',assay,{
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'assay',assay,{
             def samples = apiService.flattenDomainData( assay.samples )
 
             def result = [
                     'count'     : samples.size(),
                     'samples'   : samples
             ]
-            return result
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
         })
     }
 
-    def getSubjectGroupsForStudy() {
-        Study study = getStudy()
+    /**
+     * get all features for an assay
+     *
+     * @param string deviceID
+     * @param string assayToken
+     * @param string validation md5 sum
+     */
+    def getFeaturesForAssay() {
+        println "api::getFeaturesForAssay: ${params}"
 
-        render apiService.executeApiCall(params,response,'study',study,{
-            def studySubjectGroups = study.subjectGroups.findAll()
+        Assay assay = getAssay()
+        // fetch user based on deviceID
+        SecUser user = getUser()
 
-            [
-                'count'         : studySubjectGroups.size(),
-                'subjectGroups' : getSubjectGroups(studySubjectGroups)
+        // wrap result in api call validator
+        apiService.executeApiCall(params,response,'assay',assay,{
+            def features = apiService.getFeaturesForAssay(assay, user)
+
+            def result = [
+                    'count': features.size(),
+                    'features': features
             ]
+
+            if (params.containsKey('callback')) {
+                render "${params.callback}(${result as JSON})"
+            } else {
+                render result as JSON
+            }
         })
-    }
-
-    private Study getStudy() {
-        Study.findWhere(UUID: getStudyToken())
-    }
-
-    private String getStudyToken() {
-        (params.containsKey('studyToken')) ? params.studyToken : ''
-    }
-
-    private ArrayList<Map<String, ArrayList<Map<String, String, Integer>>>> getSubjectGroups(studySubjectGroup) {
-        studySubjectGroup.collect {
-            [name: it.name, subjectEventGroups: it.subjectEventGroups.collect {
-                [startTime: it.startTime, description: it.description, eventGroupId: it.eventGroup.id]
-            }]
-        }
     }
 
     /**
@@ -374,138 +461,50 @@ class ApiController {
     def getMeasurementDataForAssay() {
         println "api::getMeasurementDataForAssay: ${params}"
 
-        // fetch assay
-        String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
-	    def assay           = Assay.findWhere(UUID: assayToken)
-
-	    // fetch user based on deviceID
-        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
-        def user            = Token.findByDeviceID(deviceID)?.user
-
-        // wrap result in api call validator
-        apiService.executeApiCall(params,response,'assay',assay,{
-            // define sample measurement data matrix
-            def matrix = [:]
-            def measurementData = apiService.getMeasurementData(assay, user).toArray()
-            //def measurementMetaData = apiService.getMeasurementData(assay, user)
-
-            // iterate through measurementData and build data matrix
-            try {
-                measurementData.each { data ->
-                    try {
-                        if (!matrix.containsKey(data.sampleToken)) matrix[data.sampleToken] = [:]
-                        matrix[data.sampleToken][data.measurementToken] = data.value
-                    } catch (Exception e) {
-                        // it seems that some measurement data does not contain a sample token?
-                        println "getMeasurementDataForAssay error for data of assay '${assay.name}' (token '${assayToken}', module: '${assay.module.name}'): ${e.getMessage()}"
-                        println data.dump()
-                    }
-                }
-
-                // define result
-                def result = [:]
-                result = [
-                    'measurements'  : matrix
-                ]
-
-                // set output headers
-                response.status = 200
-                response.contentType = 'application/json;charset=UTF-8'
-
-                if (params.containsKey('callback')) {
-                    render "${params.callback}(${result as JSON})"
-                } else {
-                    render result as JSON
-                }
-            } catch (Exception e) {
-                println "getMeasurementDataForAssay exception: ${e.getMessage()}"
-                response.sendError(500, "module '${assay.module}' does not properly implement getMeasurementData REST specification (${e.getMessage()})")
-            }
-        })
-    }
-
-    /**
-     * get all measurement data from a linked module for an assay
-     *
-     * @param string deviceID
-     * @param string assayToken
-     * @param string validation md5 sum
-     */
-    def getPlainMeasurementDataForAssay() {
-        println "api::getPlainMeasurementDataForAssay: ${params}"
-
-        // fetch output parameter, features: feature metadata, subject: subject metadata
-        // measurements: subjectname, starttime, featurename, value, all: all (default)
-        String outputOptions = ['all', 'measurements', 'subjects', 'features']
-        String output = params.containsKey('dataSelection') ? params.dataSelection : ''
-
-        if(!outputOptions.contains(output)) {
-            output = "all"
-        }
-
-        // fetch assay
-        String assayToken   = (params.containsKey('assayToken')) ? params.assayToken : ''
-        def assay           = Assay.findWhere(UUID: assayToken)
-
+        Assay assay = getAssay()
         // fetch user based on deviceID
-        String deviceID     = (params.containsKey('deviceID')) ? params.deviceID : ''
-        def user            = Token.findByDeviceID(deviceID)?.user
+        SecUser user = getUser()
 
         // wrap result in api call validator
         apiService.executeApiCall(params,response,'assay',assay,{
-            // define data elements
-            def measurements
-            def features
-            def subjects
-
-            // get subjects (metadata) data for assay
-            def subjectMap = [:]
-            assay.parent.subjects.each() { Subject subject ->
-                def fieldMap = [:]
-                subject.giveFields().each() { field ->
-                    // skip field 'name' since this is already the key
-                    if (!field.name.equals('name')) {
-                        fieldMap.put(field.name, subject.getFieldValue(field.name).toString())
-                    }
-                }
-                subjectMap.put(subject.name, fieldMap)
-            }
-
             // iterate through measurementData and build data matrix
             try {
-                if (output.equals('all') || output.equals('subjects')) {
-                    // cast subjectMap to JSON
-                    subjects = new JSONObject(subjectMap)
+
+                def count = 0
+                def measurements =  [:]
+
+                apiService.getMeasurementData(assay, user).each() { feature, featureMeasurements ->
+                    featureMeasurements.each() { sampleId, value ->
+                        Sample sample = Sample.read(sampleId)
+
+                        String featureName = feature.intern()
+                        String startTime = sample.getSamplingTimeString().intern()
+                        String subjectName = sample.getSubjectName().intern()
+
+                        if ( !measurements[featureName] ) {
+                            measurements[featureName] = [:]
+                        }
+
+                        if ( !measurements[featureName][startTime] ) {
+                            measurements[featureName][startTime] = [:]
+                        }
+
+                        measurements[featureName][startTime].put(subjectName, value)
+                        count += 1
+                    }
                 }
 
-                if (output.equals('all') || output.equals('measurements')) {
-                    // get measurements for assay
-                    measurements = apiService.getPlainMeasurementData(assay, user)
-                }
-
-                if (output.equals('all') || output.equals('features')) {
-                    // get features (metadata) for assay
-                    features = apiService.getFeaturesForAssay(assay, user)
-                }
-
-                // define result
-                def result = [:]
-                result = [
-                        "measurements" : measurements,
-                        "features" : features,
-                        "subjects" : subjects
+                def result = [
+                        'count': count,
+                        'measurements': measurements
                 ]
-
-                // set output headers
-                response.status = 200
-                response.contentType = 'plain/text;charset=UTF-8'
-                //response.contentType = 'application/json;charset=UTF-8'
 
                 if (params.containsKey('callback')) {
                     render "${params.callback}(${result as JSON})"
                 } else {
                     render result as JSON
                 }
+
             } catch (Exception e) {
                 println "getMeasurementDataForAssay exception: ${e.getMessage()}"
                 response.sendError(500, "module '${assay.module}' does not properly implement getMeasurementData REST specification (${e.getMessage()})")
@@ -940,20 +939,20 @@ class ApiController {
 							instance[name] = null
 						}
 						entityInstance.delete(flush: true)
-					})
+					}, 'create')
 				} else {
 					// blast, we've got errors
 					// undo relationships - CLEANUP!
 					hasManyRelationships.each { name, instance ->
-println "   rollback ${instance}::${name}"
+                        println "   rollback ${instance}::${name}"
 						instance."removeFrom${name}"(entityInstance)
 					}
 					relationships.each { name, instance ->
-println "   rollback ${instance}::${name}"
+                        println "   rollback ${instance}::${name}"
 						instance[name] = null
 					}
 					reverseRelationships.each { name, instance ->
-println "   rollback ${instance}::${name}"
+                        println "   rollback ${instance}::${name}"
 						instance."removeFrom${name}"(entityInstance)
 					}
 					entityInstance.delete(flush: true)
@@ -976,4 +975,36 @@ println "   rollback ${instance}::${name}"
 		// ask, and the Mad Hatter will reply...
 		response.sendError(418, "'Twas brillig, and the slithy toves Did gyre and gimble in the wabe: All mimsy were the borogoves, And the mome raths outgrabe.")
 	}
+
+    private Study getStudy() {
+        return Study.findWhere(UUID: getStudyToken())
+    }
+
+    private String getStudyToken() {
+        return (params.containsKey('studyToken')) ? params.studyToken : ''
+    }
+
+    private Assay getAssay() {
+        return Assay.findWhere(UUID: getAssayToken())
+    }
+
+    private String getAssayToken() {
+        return (params.containsKey('assayToken')) ? params.assayToken : ''
+    }
+
+    private SecUser getUser() {
+        return Token.findByDeviceID(getDeviceId())?.user
+    }
+
+    private String getDeviceId() {
+        return (params.containsKey('deviceID')) ? params.deviceID : ''
+    }
+
+    private ArrayList<Map<String, ArrayList<Map<String, String, Integer>>>> getSubjectGroups(studySubjectGroup) {
+        studySubjectGroup.collect {
+            [name: it.name, subjectEventGroups: it.subjectEventGroups.collect {
+                [startTime: it.startTime, description: it.description, eventGroupId: it.eventGroup.id]
+            }]
+        }
+    }
 }

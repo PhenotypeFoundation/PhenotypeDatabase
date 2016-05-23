@@ -150,8 +150,9 @@ grails.plugin.springsecurity.interceptUrlMap = [
     '/studyEditDesign/subjectGroupDetails/*':			['permitAll'],
     '/studyEditDesign/dataTableSubjectSelection/*':		['permitAll'],
 
-    // API is only accessible for specific users
-    '/api/**':                               	        ['ROLE_ADMIN', 'ROLE_CLIENT'],
+    // API authentication is only accessible for specific users
+	'/api/authenticate/**':								['ROLE_ADMIN', 'ROLE_CLIENT'],
+	'/api/**':											['permitAll'],
 
     // Template editor is only accessible for specific users
     '/template/**':                         	        ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],

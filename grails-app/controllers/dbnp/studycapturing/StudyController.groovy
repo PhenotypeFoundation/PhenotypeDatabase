@@ -38,7 +38,8 @@ class StudyController {
      * For each study, the id and title are returned. The output format is JSON
      */
     def json() {
-        def studies = Study.giveReadableStudies( authenticationService.getLoggedInUser() ).collect { study ->
+        def user = authenticationService.getLoggedInUser()
+        def studies = Study.giveReadableStudies( user ).collect { study ->
             [
                 id: study.id,
                 title: study.title
@@ -51,7 +52,6 @@ class StudyController {
     /**
      * Shows studies for which the logged in user is the owner
      */
-    @Secured(['IS_AUTHENTICATED_REMEMBERED'])
     def myStudies() {
         def user = authenticationService.getLoggedInUser()
         def max = Math.min(params.max ? params.int('max') : 10, 100)
@@ -208,7 +208,7 @@ class StudyController {
     protected def prepareDataForDatatableView( entityClass ) {
         def study = getStudyFromRequest( params )
         if( !study ) {
-            redirect action: "add"
+            redirect action: 'list'
             return
         }
 
@@ -255,10 +255,12 @@ class StudyController {
         if (!study) {
             flash.error = "No study found with given id";
             redirect controller: "study", action: "list"
+            return
         } else if(!study.canRead(user)) {
             flash.error = "No authorization to view this study."
             study = null;
             redirect controller: "study", action: "list"
+            return
         }
 
         return study;
@@ -277,18 +279,21 @@ class StudyController {
         // do we have a study id?
         if (id == 0) {
             // no, go back to the overview
-            redirect(action: 'list');
+            redirect(action: 'list')
+            return
         } else if (id instanceof String) {
             // yes, one study. Show it
             redirect(action: 'show', id: id)
-        } else {
-            // multiple studies, compare them
-            def c = Study.createCriteria()
-            studyList = c {
-                'in'("id", id.collect { Long.parseLong(it) })
-            }
-            render(view:'show',model:[studyList: studyList, studyInstanceTotal: numberOfStudies, multipleStudies:(studyList instanceof ArrayList)])
+            return
         }
+
+        // multiple studies, compare them
+        def c = Study.createCriteria()
+        studyList = c {
+            'in'("id", id.collect { Long.parseLong(it) })
+        }
+
+        render(view:'show',model:[studyList: studyList, studyInstanceTotal: numberOfStudies, multipleStudies:(studyList instanceof ArrayList)])
     }
 
     def showByToken = {
@@ -296,6 +301,7 @@ class StudyController {
         if (!studyInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
             redirect(action: "list")
+            return
         }
         else {
             // Check whether the user may see this study
@@ -303,30 +309,43 @@ class StudyController {
             if( !studyInstance.canRead(loggedInUser) ) {
                 flash.message = "You have no access to this study"
                 redirect(action: "list")
+                return
             }
-
-            redirect(action: "show", id: studyInstance.id)
         }
+
+        redirect(action: "show", id: studyInstance.id)
     }
 
     def delete = {
         def studyInstance = Study.get(params.long("id"))
-        if (studyInstance) {
-            try {
-                studyInstance.clearSAMDependencies()
-                studyInstance.delete(flush: true)
-                flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                redirect(action: "list")
-            }
-            catch (org.springframework.dao.DataIntegrityViolationException e) {
-                flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
-                redirect(action: "show", id: params.id)
-            }
-        }
-        else {
+
+        if (!studyInstance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
             redirect(action: "list")
+            return
         }
+
+        // Check whether the user may delete this study
+        def loggedInUser = authenticationService.getLoggedInUser()
+
+        if (!studyInstance.canWrite(loggedInUser)) {
+            flash.message = "You ar not allowed to delete this study!"
+            redirect(action: "show", id: params.id)
+            return
+        }
+
+        try {
+            studyInstance.clearSAMDependencies()
+            studyInstance.delete(flush: true)
+        }
+        catch (org.springframework.dao.DataIntegrityViolationException e) {
+            flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+            redirect(action: "show", id: params.id)
+            return
+        }
+
+        flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'study.label', default: 'Study'), params.id])}"
+        redirect(action: "list")
     }
 
     /**
@@ -338,54 +357,8 @@ class StudyController {
         
         // set output header to json
         response.contentType = 'application/json'
-        def assayscom = study.assays.findAll { it.canReadAssay(user) }
+        def assayscom = study.assays.findAll { it.canRead(user) }
         def assays = assayscom.collect{[name: it.name, id: it.id]}
         render (assays as JSON)
-    }
-
-    /**
-     * Exports all data from the given studies to excel. This is done using a redirect to the 
-     * assay controller
-     * 
-     * @param	ids				ids of the studies to export
-     * @param	params.format	"list" in order to export all assays in one big excel sheet
-     * 							"sheets" in order to export every assay on its own sheet (default)
-     * @see		AssayController.exportToExcel
-     */
-    def exportToExcel = {
-        def ids = params.list( 'ids' ).findAll { it.isLong() }.collect { Long.valueOf( it ) };
-        def tokens = params.list( 'tokens' );
-
-        if( !ids && !tokens ) {
-            flash.errorMessage = "No study ids given";
-            redirect( controller: "assay", action: "errorPage" );
-            return;
-        }
-
-        // Find all assay ids for these studies
-        def assayIds = [];
-        ids.each { id ->
-            def study = Study.get( id );
-            if( study ) {
-                assayIds += study.assays.collect { assay -> assay.id }
-            }
-        }
-
-        // Also accept tokens for defining studies
-        tokens.each { token ->
-            def study = Study.findWhere(UUID: token)
-            if( study )
-                assayIds += study.assays.collect { assay -> assay.id }
-        }
-
-        if( !assayIds ) {
-            flash.errorMessage = "No assays found for the given studies";
-            redirect( controller: "assay", action: "errorPage" );
-            return;
-        }
-
-        // Create url to redirect to
-        def format = params.get( "format", "sheets" )
-        redirect( controller: "assay", action: "exportToExcel", params: [ "format": format, "ids": assayIds ] );
     }
 }

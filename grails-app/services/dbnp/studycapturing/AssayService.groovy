@@ -209,7 +209,7 @@ class AssayService {
      * 								null to include all samples.
      * @return The assay data structure as described above.
      */
-    def collectAssayData(assay, fieldMap, measurementTokens, samples, ids, SecUser remoteUser = null) throws Exception {
+    def collectAssayData(assay, fieldMap, samples, ids, SecUser remoteUser = null) throws Exception {
         // Find samples and sort by name
         if (!samples) samples = assay.samples.toList()
 
@@ -223,30 +223,13 @@ class AssayService {
             // only set name field when there's actual data
             if (!names.every { !it }) eventFieldMap['name'] = names
         }
-        
-        def moduleError = '', moduleMeasurementData = [:], moduleMeasurementMetaData = [:]
-
-        if (measurementTokens) {
-
-            try {
-                moduleMeasurementData = requestModuleMeasurements(assay, measurementTokens, samples, remoteUser)
-            } catch (e) {
-                moduleMeasurementData = ['error': [
-                        'Module error, module not available or unknown assay']
-                    * samples.size()]
-                e.printStackTrace()
-                moduleError = e.message
-            }
-        }
 
         [
             'Subject Data': getFieldValues(samples, fieldMap['Subject Data'], { sample -> sample.parentSubjectId }, Subject, ids.subject),
             'Sampling Event Data': getFieldValues(samples, fieldMap['Sampling Event Data'], { sample -> sample.parentEventId }, SamplingEvent, ids.samplingEvent),
             'Sample Data': getFieldValues(samples, fieldMap['Sample Data'], { sample -> sample.id }, Sample, ids.sample),
             'Event Group': eventFieldMap,
-            'Features': fieldMap['Features'],
-            ('Module Measurement Data: ' + assay.name ): 		moduleMeasurementData,
-            'Module Error': moduleError
+            'Features': fieldMap['Features']
         ]
     }
 
@@ -450,92 +433,6 @@ class AssayService {
         }
 
         return jsonArray
-    }
-
-    
-    /**
-     * Retrieves module measurement data through a rest call to the module
-     *
-     * @param assay Assay for which the module measurements should be retrieved
-     * @param measurementTokens List with the names of the fields to be retrieved. Format: [ 'measurementName1', 'measurementName2' ]
-     * @param samples Samples to collect measurements for
-     * @return
-     */
-    def requestModuleMeasurements(assay, List inputMeasurementTokens, List samples, SecUser remoteUser = null) {
-
-        def moduleUrl = assay.module.baseUrl
-
-        def tokenString = ''
-
-        inputMeasurementTokens.each { tokenString += "&measurementToken=${it.encodeAsURL()}" }
-
-        /* Contact module to fetch measurement data */
-        def path = moduleUrl + "/rest/getMeasurementData/query"
-        def query = "assayToken=$assay.UUID$tokenString"
-
-        if (samples) {
-            query += '&' + samples*.UUID.collect { "sampleToken=$it" }.join('&')
-        }
-
-        def sampleTokens = [], measurementTokens = [], moduleData = []
-
-        try {
-            (sampleTokens, measurementTokens, moduleData) = moduleCommunicationService.callModuleMethod(moduleUrl, path, query, "POST", remoteUser)
-        } catch (e) {
-            e.printStackTrace()
-            throw new Exception("An error occured while trying to get the measurement data from the $assay.module.name. \
-             This means the module containing the measurement data is not available right now. Please try again \
-             later or notify the system administrator if the problem persists. URL: $path?$query.")
-        }
-
-        if (!sampleTokens?.size()) return []
-
-        // Convert the three different maps into a map like:
-        //
-        // [ "measurement 1": [ value1, value2, value3 ],
-        //   "measurement 2": [ value4, value5, value6 ] ]
-        //
-        // The returned values should be in the same order as the given samples-list
-        def map = [:]
-        def numSampleTokens = sampleTokens.size();
-
-        measurementTokens.eachWithIndex { measurementToken, measurementIndex ->
-            def measurements = [];
-
-            samples.each { sample ->
-
-                // Do measurements for this sample exist? If not, a null value is returned
-                // for this sample. Otherwise, the measurement is looked up in the list with
-                // measurements, based on the sample token
-                if (sampleTokens.collect { it.toString() }.contains(sample.UUID)) {
-                    def tokenIndex = sampleTokens.indexOf(sample.UUID);
-                    def valueIndex = measurementIndex * numSampleTokens + tokenIndex;
-
-                    // If the module data is in the wrong format, show an error in the log file
-                    // and return a null value for this measurement.
-                    if (valueIndex >= moduleData.size()) {
-                        log.error "Module measurements given by module " + assay.module.name + " are not in the right format: " + measurementTokens?.size() + " measurements, " + sampleTokens?.size() + " samples, " + moduleData?.size() + " values"
-                        measurements << null
-                    } else {
-
-                        def val
-                        def measurement = moduleData[valueIndex]
-
-                        if (measurement == JSONObject.NULL) val = ""
-                        else if (measurement instanceof Number) val = measurement
-                        else if (measurement.isDouble()) val = measurement.toDouble()
-                        else val = measurement.toString()
-                        measurements << val
-
-                    }
-                } else {
-                    measurements << null
-                }
-            }
-            map[measurementToken.toString()] = measurements
-        }
-
-        return map;
     }
 
     /**

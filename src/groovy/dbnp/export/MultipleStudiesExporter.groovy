@@ -196,7 +196,7 @@ public class MultipleStudiesExporter implements Exporter {
 
             def moduleMeasurementData
             try {
-                moduleMeasurementData = apiService.getPlainMeasurementData(assay, remoteUser)
+                moduleMeasurementData = apiService.getMeasurementData(assay, remoteUser)
                 data[ "Module measurement data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
             } catch (e) {
                 moduleMeasurementData = ['error' : [

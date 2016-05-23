@@ -125,18 +125,14 @@ public class AssayDataExporter implements Exporter {
         println "Start collecting actual assay data"
         
         // First retrieve the subject/sample/event/assay data from GSCF, as it is the same for each list
-        data = assayService.collectAssayData(firstAssay, fieldMap, [], samples, ids[firstAssay.id] )
+        data = assayService.collectAssayData(firstAssay, fieldMap, samples, ids[firstAssay.id] )
 
         assays.each{ assay ->
             def moduleMeasurementData
             println "Collecting data for " + assay
             try {
-                moduleMeasurementData = apiService.getPlainMeasurementData(assay, user)
+                moduleMeasurementData = apiService.getMeasurementData(assay, user)
                 data[ "Module Measurement Data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
-            } catch (GroovyCastException gce) {
-                //This module probably does not support the 'getPlainMeasurementData' method, try it the old way.
-                moduleMeasurementData = assayService.requestModuleMeasurements(assay, [], samples)
-                data[ "Module Measurement Data: " + assay.name ] = moduleMeasurementData
             } catch (e) {
                 moduleMeasurementData = ['error' : [
                         'Module error, module not available or unknown assay']
