@@ -2,7 +2,7 @@ package dbnp.export
 
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
-import org.apache.poi.xssf.streaming.SXSSFWorkbook
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
 import dbnp.studycapturing.*
 import dbnp.authentication.SecUser
@@ -78,7 +78,7 @@ public class MultipleStudiesExporter implements Exporter {
         }
         
         // Combine everything into the excel workbook
-        Workbook wb = new SXSSFWorkbook(1000)
+        Workbook wb = new XSSFWorkbook()
 
         Sheet studySheet = wb.createSheet("Studies")
         Sheet subjectSheet = wb.createSheet("Subjects")
@@ -93,7 +93,6 @@ public class MultipleStudiesExporter implements Exporter {
 
         // Write the excel sheet to the outputstream
         wb.write(out)
-        wb.dispose()
     }
 
     /**
