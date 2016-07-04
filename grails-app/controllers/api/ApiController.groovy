@@ -478,18 +478,23 @@ class ApiController {
                         Sample sample = Sample.read(sampleId)
 
                         String featureName = feature.intern()
-                        String startTime = sample.getSamplingTimeString().intern()
+                        String subjectEventGroupStartTime = sample.getSubjectEventGroupStartTimeString().intern()
+                        String sampleRelativeStartTime = sample.getSampleRelativeStartTimeString().intern()
                         String subjectName = sample.getSubjectName().intern()
 
                         if ( !measurements[featureName] ) {
                             measurements[featureName] = [:]
                         }
 
-                        if ( !measurements[featureName][startTime] ) {
-                            measurements[featureName][startTime] = [:]
+                        if ( !measurements[featureName][subjectEventGroupStartTime] ) {
+                            measurements[featureName][subjectEventGroupStartTime] = [:]
                         }
 
-                        measurements[featureName][startTime].put(subjectName, value)
+                        if ( !measurements[featureName][subjectEventGroupStartTime][sampleRelativeStartTime] ) {
+                            measurements[featureName][subjectEventGroupStartTime][sampleRelativeStartTime] = [:]
+                        }
+
+                        measurements[featureName][subjectEventGroupStartTime][sampleRelativeStartTime].put(subjectName, value)
                         count += 1
                     }
                 }
