@@ -111,12 +111,12 @@ class Sample extends TemplateEntity {
         // Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
 	}
 
-    public Long getSubjectEventGroupStartTime() {
+    public Long getParentSubjectEventGroupStartTime() {
         return parentSubjectEventGroup.startTime
     }
 
-    public String getSubjectEventGroupStartTimeString() {
-        return new RelTime( getSubjectEventGroupStartTime() ).toString().replaceAll(" ", "")
+    public String getParentSubjectEventGroupStartTimeString() {
+        return new RelTime( getParentSubjectEventGroupStartTime() ).toString().replaceAll(" ", "")
     }
 
     public Long getSampleRelativeStartTime() {
@@ -128,23 +128,31 @@ class Sample extends TemplateEntity {
     }
 
     public Long getSampleStartTime() {
-        return getSubjectEventGroupStartTime() + getSampleRelativeStartTime()
+        return getParentSubjectEventGroupStartTime() + getSampleRelativeStartTime()
     }
 
-    public String getSampleSummedStartTimeString() {
+    public String getSampleStartTimeString() {
         return new RelTime( getSampleStartTime() ).toString().replaceAll(" ", "")
     }
 
-    public String getSubjectName() {
+    public String getParentSubjectName() {
         return parentSubject?.name
     }
 
-    public EventGroup getEventGroup() {
-        if( !parentEvent ) {
+    public String getParentEventGroupName() {
+        return getParentEventGroup().name
+    }
+
+    public EventGroup getParentEventGroup() {
+        if ( !parentSubjectEventGroup ) {
+            if( parentEvent ) {
+                return parentEvent.eventGroup
+            }
+
             return null
         }
 
-        return parentEvent.eventGroup
+        return parentSubjectEventGroup.eventGroup
     }
 
     static getSamplesForEvent( SamplingEventInEventGroup samplingEventInEventGroup ) {

@@ -478,23 +478,28 @@ class ApiController {
                         Sample sample = Sample.read(sampleId)
 
                         String featureName = feature.intern()
-                        String subjectEventGroupStartTime = sample.getSubjectEventGroupStartTimeString().intern()
+                        String eventGroupName = sample.getParentEventGroupName().intern()
+                        String subjectEventGroupStartTime = sample.getParentSubjectEventGroupStartTimeString().intern()
                         String sampleRelativeStartTime = sample.getSampleRelativeStartTimeString().intern()
-                        String subjectName = sample.getSubjectName().intern()
+                        String subjectName = sample.getParentSubjectName().intern()
 
                         if ( !measurements[featureName] ) {
                             measurements[featureName] = [:]
                         }
 
-                        if ( !measurements[featureName][subjectEventGroupStartTime] ) {
-                            measurements[featureName][subjectEventGroupStartTime] = [:]
+                        if ( !measurements[featureName][eventGroupName] ) {
+                            measurements[featureName][eventGroupName] = [:]
                         }
 
-                        if ( !measurements[featureName][subjectEventGroupStartTime][sampleRelativeStartTime] ) {
-                            measurements[featureName][subjectEventGroupStartTime][sampleRelativeStartTime] = [:]
+                        if ( !measurements[featureName][eventGroupName][subjectEventGroupStartTime] ) {
+                            measurements[featureName][eventGroupName][subjectEventGroupStartTime] = [:]
                         }
 
-                        measurements[featureName][subjectEventGroupStartTime][sampleRelativeStartTime].put(subjectName, value)
+                        if ( !measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime] ) {
+                            measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime] = [:]
+                        }
+
+                        measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime].put(subjectName, value)
                         count += 1
                     }
                 }
