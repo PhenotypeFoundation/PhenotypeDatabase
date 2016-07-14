@@ -117,8 +117,15 @@
 						<% def fieldValue = study.getFieldValue( field.name ) %>
 						<g:if test="${fieldValue}">
 							<div class="element"> 
-								<div class="description">${field.name}</div> 
-								<div class="value">${fieldValue}</div>
+								<div class="description">${field.name}</div>
+								<div class="value">
+									<g:if test="${field.type == org.dbnp.gdt.TemplateFieldType.FILE}">
+										<g:link controller="file" action="get" id="${fieldValue}">${fieldValue}</g:link>
+									</g:if>
+									<g:else>
+										${fieldValue}
+									</g:else>
+								</div>
 							</div>			
 						</g:if>
 					</g:if>
