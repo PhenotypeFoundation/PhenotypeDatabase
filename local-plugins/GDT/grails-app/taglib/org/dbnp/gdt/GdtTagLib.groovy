@@ -773,7 +773,7 @@ class GdtTagLib extends AjaxflowTagLib {
                             description: ucName,
                             name: prependName + templateField.escapedName(),
                             value: fieldValue.toString(),
-                            addDummy: !templateField.isRequired(),
+                            addDummy: true, // always add a dummy, as this could interfere with the 'add more' functionality for and empty list
                             required: templateField.isRequired()
                         ]
                         
