@@ -51,7 +51,7 @@
 			</tr>
 			<tr><td colspan='4'>&nbsp;</td></tr>
 			<tr>
-				<td colspan='4'><input type="submit" value="Search" /></td>
+				<td colspan='4'><input type="submit" value="Search" class="button-1" /></td>
 			</tr>
 			</tbody>
 		</table>
