@@ -42,8 +42,7 @@ class Measurement {
 	
 	public static deleteByAssay( Assay a ) {
 		try {
-			Measurement.executeUpdate( "delete Measurement m WHERE m.sample IN( FROM SAMSample s where s.parentAssay = :assay )", [ assay: a ] );
-			SAMSample.executeUpdate("delete SAMSample s where s.parentAssay = :assay", [ assay: a ] )
+			Measurement.executeUpdate( "delete Measurement m WHERE m.sample IN( FROM SAMSample s where s.parentAssay = :assay )", [ assay: a ] )
 			return true;
 		} catch( Exception e ) {
 			e.printStackTrace();

@@ -245,7 +245,7 @@ class Sample extends TemplateEntity {
                 parentEventName = ucwords(parentEventName)
             }
 
-			def startTime = getSamplingTimeString()
+			def startTime = getSampleStartTimeString()
 
 			sampleName = ( subjectName + "_" + eventGroupName + "_" + parentEventName + "_" + startTime ).replaceAll( " ", "_" )
 		}

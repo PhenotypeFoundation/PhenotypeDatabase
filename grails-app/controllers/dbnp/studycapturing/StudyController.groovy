@@ -139,9 +139,9 @@ class StudyController {
             defaultData = defaultData.tail()
 
             // Add additional columns
-            defaultData.add(1, sample.parentSubject?.name )
-            defaultData.add(2, sample.parentEvent?.event?.name )
-            defaultData.add(3, sample.parentEvent?.eventGroup?.name )
+            defaultData.add(1, sample?.parentSubject?.name )
+            defaultData.add(2, sample?.parentEvent?.event?.name )
+            defaultData.add(3, sample?.parentEvent?.eventGroup?.name )
             
             defaultData
         })
