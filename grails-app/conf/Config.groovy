@@ -264,14 +264,45 @@ fuzzyMatching.threshold = [
 
 gscf.baseURL = grails.serverURL
 
+// Example email server configurations, to be put in external configuration file
+// (production.groovy or development.groovy)
+
+// Example gmail configuration
+/*
 grails {
     mail {
-        disabled = false
+        host = "smtp.gmail.com"
+        port = 465
+        username = "<your_address>@gmail.com"
+        password = "<your_password>"
         props = [
             "mail.smtp.auth": "true",
             "mail.smtp.socketFactory.port": "465",
             "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-            "mail.smtp.socketFactory.fallback": "false"
+            "mail.smtp.socketFactory.fallback": "false",
+            "mail.smtp.starttls.enable": "true"
         ]
     }
 }
+*/
+
+// Example configuration for mail server without authentication
+/*
+grails {
+    mail {
+        "default" {
+            from = "<from_address>@example.com"
+        }
+        host = "127.0.0.1"
+        port = 25
+        props = [:]
+    }
+}
+*/
+
+// Alternatively, the configuration can be put in the external production.properties or
+// development.properties:
+/*
+#grails.mail.host=127.0.0.1
+#grails.mail.port=2525
+*/
