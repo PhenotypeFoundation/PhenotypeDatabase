@@ -236,9 +236,6 @@ fuzzyMatching.threshold = [
         ]
 ]
 
-// By default gscf.baseURL (used in SAM plugin) equals grails.serverURL
-gscf.baseURL = grails.serverURL
-
 // Mail plugin config, also see default.properties or your external config file
 grails {
     mail {

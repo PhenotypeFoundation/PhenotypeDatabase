@@ -122,14 +122,16 @@ class SAMAssayController {
 	   // This is not the most efficient way of performing this query, but still
 	   def extendedRecords = []
 
+
+
 	   if( records.size() > 0 ) {
 		   records.each { record ->
                //Should display number of filled samples but this gives performance issues with a large amount of assays. Something like:
-               //def measurementList = Measurment.executeQuery("SELECT sample.id FROM Measurment")
-               //def numFilledSamples = SAMSample.executeQuery("SELECT COUNT(*) FROM SAMSample s WHERE s.parentAssay.id = :assay AND s.id IN :mList", [ assay: record[ 0 ], mList: measurementList ] )
-               def numSAMSamples = SAMSample.executeQuery("SELECT COUNT(*) FROM SAMSample s WHERE s.parentAssay.id = :assay", [ assay: record[ 0 ] ] )
+			   //def sampleCount = SAMSample.executeQuery("SELECT COUNT(DISTINCT m.sample) FROM Measurement m WHERE m.sample.parentAssay.id = :assay", [ assay: record[0] ])
+			   def sampleCount = SAMSample.executeQuery("SELECT COUNT(DISTINCT s) FROM SAMSample s WHERE s.parentAssay.id = :assay", [ assay: record[ 0 ] ] )
+
 			   def extendedRecord = record as List;
-			   extendedRecord[ 3 ] = numSAMSamples[0] + " / " + extendedRecord[ 3 ]
+			   extendedRecord[ 3 ] = sampleCount[0] + "/" + extendedRecord[ 3 ]
 
 			   extendedRecords << extendedRecord
 		   }
@@ -164,8 +166,8 @@ class SAMAssayController {
         if (moduleService.validateModule(params?.module)) {
             def hideEmpty = params.hideEmpty ? Boolean.parseBoolean( params.hideEmpty ) : true
             def assayInstance = Assay.get(params.id)
-			def maxResults = params.max ? params.max : 10;
-			def queryOffset = params.offset ? params.offset : 0;
+			def maxResults = params.max ?: 10;
+			def queryOffset = params.offset ?: 0;
 
             if (!assayInstance) {
                 flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
@@ -180,24 +182,26 @@ class SAMAssayController {
             }
 
             // Lookup all samples for this assay
-            def numberOfSAMSamples = SAMSample.executeQuery("SELECT COUNT(*) " +
-                    "FROM SAMSample s WHERE s.parentAssay = :assay",
-                    [ assay: assayInstance ])[0]
-            def samples;
+          	def numberOfSAMSamples = params?.numberOfSamples ?: SAMSample.executeQuery("SELECT COUNT(*) FROM SAMSample s WHERE s.parentAssay = :assay", [ assay: assayInstance ])[0]
+//          def numberOfSAMSamples = params?.numberOfSamples ?: SAMSample.executeQuery("select count(distinct m.sample) from Measurement m where m.sample.parentAssay = :assay", [ assay: assayInstance ])[0]
 
-			// Possibly not query samples that dont hold measurements.
-			// Filtering samples.measurements.size > 0 causes a tremendous slowdown.
-			samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] );
+            def samples
+			samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] )
 
-            def measurements = [];
-            def features = [];
+//			samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay AND s.measurements.size > 0 ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] )
+//			samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay AND s.id IN ( SELECT DISTINCT m.sample.id from Measurement m where m.sample.parentAssay = :assay ) ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] )
+//          samples = SAMSample.executeQuery( "SELECT DISTINCT m.sample from Measurement m where m.sample.parentAssay = :assay", [ assay: assayInstance ], [max: maxResults, offset: queryOffset])
+
+            def measurements = []
+            def features = []
 
             if( samples ) {
                 // If samples are found lookup all measurements. They are ordered by sample name and after that feature name.
                 // This order ensures that we can easily walk through the list when showing them on screen
                 measurements = Measurement.findAll( "from Measurement m WHERE m.sample IN (:samples) ORDER BY m.sample.parentSample.name, m.feature.name", [ samples: samples ] );
                 if( measurements ) {
-                    features = Feature.findAll( "from Feature f WHERE EXISTS( FROM Measurement m WHERE m IN (:measurements) AND m.feature = f ) ORDER BY f.name", [ measurements: measurements ] )
+					features = measurements.feature.unique()
+//                  features = Feature.findAll( "from Feature f WHERE EXISTS( FROM Measurement m WHERE m IN (:measurements) AND m.feature = f ) ORDER BY f.name", [ measurements: measurements ] )
                 }
             }
             return [

@@ -12,13 +12,9 @@
             <dt:dataTable id="fList" class="paginate sortable filter serverside" rel="${g.createLink( controller: 'SAMAssay', action: 'datatables_list', params: [module: module] )}">
                 <thead>
                     <tr>
-
                         <th>Study</th>
-
                         <th>Assay</th>
-
-                        <th class="nonsortable"># Samples</th>
-
+                        <th class="nonsortable">Samples/ModuleSamples</th>
 						<th class="nonsortable"></th>
                     </tr>
                 </thead>

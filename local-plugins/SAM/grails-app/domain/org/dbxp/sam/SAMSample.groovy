@@ -52,31 +52,45 @@ class SAMSample {
 		}
 
 	}
-	
+
 	/**
-	* Return all samples this user may read
-	* @param user
-	* @return
-	*/
-   public static giveReadableSamples( user ) {
-	   def assays = Assay.giveReadableAssays( user );
-	   if( !assays )
-		   return []
-		   
-	   return SAMSample.findAll( "FROM SAMSample s WHERE s.parentAssay IN (:assays)", [ "assays": assays ] )
-   }
-   
-   
-   /**
-   * Return all samples this user may write
-   * @param user
-   * @return
-   */
-  public static giveWritableSamples( user ) {
-	  def assays = Assay.giveWritableAssays( user );
-	  if( !assays )
-		  return []
-		  
-	  return SAMSample.findAll( "FROM SAMSample s WHERE s.parentAssay IN (:assays)", [ "assays": assays ] )
-  }
+	 * Return all samples this user may read
+	 * @param user
+	 * @return
+	 */
+	public static giveReadableSamples( user ) {
+		def assays = Assay.giveReadableAssays( user );
+		if( !assays )
+			return []
+
+		return SAMSample.findAll( "FROM SAMSample s WHERE s.parentAssay IN (:assays)", [ "assays": assays ] )
+	}
+
+	/**
+	 * Return all samples this user may write
+	 * @param user
+	 * @return
+	 */
+	public static giveWritableSamples( user ) {
+		def assays = Assay.giveWritableAssays( user );
+		if( !assays )
+			return []
+
+		return SAMSample.findAll( "FROM SAMSample s WHERE s.parentAssay IN (:assays)", [ "assays": assays ] )
+	}
+
+	/**
+	 * Deletes all samples for an assay
+	 * @param user
+	 * @return
+	 */
+	public static deleteByAssay( Assay a ) {
+	try {
+		SAMSample.executeUpdate("delete SAMSample s where s.parentAssay = :assay", [ assay: a ] )
+		return true;
+	} catch( Exception e ) {
+		e.printStackTrace();
+		return false;
+	}
+}
 }

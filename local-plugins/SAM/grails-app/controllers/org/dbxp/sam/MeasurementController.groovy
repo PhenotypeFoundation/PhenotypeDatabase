@@ -11,7 +11,7 @@ class MeasurementController {
 	public static final SUBJECT_LAYOUT = "Subject layout"
 	
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
-    def fuzzySearchService
+    def authenticationService
     def moduleService
     def dataSource
 
@@ -155,25 +155,35 @@ class MeasurementController {
 			return;
 		}
 
-		def numDeleted = 0;
-		def numErrors = 0;
-		def numNotFound = 0;
+        def user = authenticationService.getLoggedInUser()
+
+		def numDeleted = 0
+		def numErrors = 0
+		def numNotFound = 0
+        def numNoPermission = 0
 
 		ids.each { id ->
 			def measurementInstance = Measurement.get(id)
 	        if (measurementInstance) {
-                def samSample = SAMSample.get(measurementInstance.sampleId)
-                try {
-					measurementInstance.delete(flush: true)
-                    // If this was the last measurement in the SAMSample, delete it also
-                    if (samSample.measurements.size() == 0) {
-                        samSample.delete(flush: true)
+
+                //Check if loggedInUser is authorized to delete the measurement
+                if ( measurementInstance.sample.parentAssay.canWrite( user ) ) {
+                    def samSample = SAMSample.get(measurementInstance.sampleId)
+                    try {
+                        measurementInstance.delete(flush: true)
+                        // If this was the last measurement in the SAMSample, delete it also
+                        if (samSample.measurements.size() == 0) {
+                            samSample.delete(flush: true)
+                        }
+                        numDeleted++
+                    } catch (org.springframework.dao.DataIntegrityViolationException e) {
+                        log.error(e)
+                        numErrors++
                     }
-					numDeleted++;
-	            } catch (org.springframework.dao.DataIntegrityViolationException e) {
-	                log.error(e)
-					numErrors++;
-	            }
+                }
+                else {
+                    numNoPermission++
+                }
 	        }
 	        else {
 				numNotFound++;
@@ -196,6 +206,11 @@ class MeasurementController {
 		if( numErrors > 1 )
 			flash.error += numErrors + " measurements could not be deleted. Please try again"
 
+        if( numNoPermission == 1 )
+            flash.error += "You do not have permission to delete 1 measurement"
+        if( numNoPermission > 1 )
+            flash.error += "You do not have permission to delete ${numNoPermission} measurements"
+
 		// Redirect to the assay list, because that is the only place where a
 		// delete button exists.
 		if( params.assayId ) {
@@ -204,7 +219,6 @@ class MeasurementController {
 			redirect(action: "list", params: [module: params.module])
 		}
     }
-
 
     def nofeatures = {
 	    flash.message = "There are no features defined. Without features, you can't add measurements."
@@ -229,7 +243,7 @@ class MeasurementController {
 			return;
 		}
 
-		def assay = Assay.get( assayId.toLong() );
+		def assay = Assay.get( assayId.toLong() )
 
 		if( !assay ) {
 			flash.error = "Incorrect assay Id given"
@@ -237,13 +251,18 @@ class MeasurementController {
 			return;
 		}
 
-		if( Measurement.deleteByAssay( assay ) ) {
-			flash.message = "Your measurements for assay " + assay + " have been deleted."
-		} else {
-			flash.error = "An error occurred while deleting measurements for this assay. Please try again or contact your system administrator."
-		}
+        //Check if loggedInUser is authorized to delete the assay's measurements
+        if ( assay.canWrite( authenticationService.getLoggedInUser() ) ) {
+            if( Measurement.deleteByAssay( assay ) ) {
+                flash.message = "Your measurements for assay " + assay + " have been deleted."
+            } else {
+                flash.error = "An error occurred while deleting measurements for this assay. Please try again or contact your system administrator."
+            }
+        }
+        else {
+            flash.error = "You do not have permission to delete these measurements."
+        }
 
 		redirect( controller: "SAMAssay", view: "list", params: [module: params.module] );
 	}
-
 }

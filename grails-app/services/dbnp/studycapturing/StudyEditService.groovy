@@ -492,7 +492,7 @@ class StudyEditService {
 								template: samplingEventInstance.event.sampleTemplate
 						)
 
-						newSample.generateName()
+						newSample.name = newSample.generateName()
 
 						def sampleIndex = -1
 						if ( sampleNames ) {
@@ -526,19 +526,37 @@ class StudyEditService {
 	 * @return Number of updates
 	 */
 	protected Integer regenerateSampleNames( Study study ) {
-        def numChanged = 0
-
+        def count = 0
 		def sql = new Sql(dataSource)
+
 		sql.withBatch( 250, "UPDATE sample SET name = :name WHERE id = :sampleId" ) { preparedStatement ->
-			study.samples.each { sample ->
-				def oldName = sample.name
-				if( sample.generateName().equals(oldName) ) {
-					preparedStatement.addBatch( [sampleId: sample.id, name: sample.name ] )
-					numChanged++
-				}
-			}
+            study.samples.each() { Sample sample ->
+                preparedStatement.addBatch( [sampleId: sample.id, name: java.util.UUID.randomUUID().toString() ] )
+            }
 		}
 
-		return numChanged
+        def samples = []
+        sql.withBatch( 250, "UPDATE sample SET name = :name WHERE id = :sampleId" ) { preparedStatement ->
+            study.samples.each() { Sample sample ->
+
+                String generatedSampleName = sample.generateName()
+
+                if (samples.contains(generatedSampleName)) {
+                    def i = 1
+                    while (samples.contains(generatedSampleName + '_' + i.toString())) {
+                        i++
+                    }
+
+                    generatedSampleName = generatedSampleName + '_' + i.toString()
+                }
+
+                samples << generatedSampleName
+
+                preparedStatement.addBatch( [sampleId: sample.id, name: generatedSampleName ] )
+                count++
+            }
+        }
+
+		return count
 	}
 }

@@ -111,32 +111,56 @@ class Sample extends TemplateEntity {
         // Workaround for bug http://jira.codehaus.org/browse/GRAILS-6754
 	}
 
-    public Long getSamplingTimeInSubjectEventGroup() {
+    public Long getParentSubjectEventGroupStartTime() {
+        return parentSubjectEventGroup.startTime
+    }
+
+    public String getParentSubjectEventGroupStartTimeString() {
+        return new RelTime( getParentSubjectEventGroupStartTime() ).toString().replaceAll(" ", "")
+    }
+
+    public Long getSampleRelativeStartTime() {
         return parentEvent.startTime
     }
 
-    public Long getSamplingTime() {
-        return parentSubjectEventGroup.startTime + getSamplingTimeInSubjectEventGroup()
+    public String getSampleRelativeStartTimeString() {
+        return new RelTime( getSampleRelativeStartTime() ).toString().replaceAll(" ", "")
     }
 
-    public String getSamplingTimeString() {
-        return new RelTime( getSamplingTime() ).toString().replaceAll(" ", "")
+    public Long getSampleStartTime() {
+        return getParentSubjectEventGroupStartTime() + getSampleRelativeStartTime()
     }
 
-    public String getSubjectName() {
+    public String getSampleStartTimeString() {
+        return new RelTime( getSampleStartTime() ).toString().replaceAll(" ", "")
+    }
+
+    public String getParentSubjectName() {
         return parentSubject?.name
     }
 
-    public EventGroup getEventGroup() {
-        if( !parentEvent ) {
+    public String getParentEventGroupName() {
+        return getParentEventGroup().name
+    }
+
+    public EventGroup getParentEventGroup() {
+        if ( !parentSubjectEventGroup ) {
+            if( parentEvent ) {
+                return parentEvent.eventGroup
+            }
+
             return null
         }
 
-        return parentEvent.eventGroup
+        return parentSubjectEventGroup.eventGroup
     }
 
-    static getSamplesForEvent(event) {
-        return Sample.findAll('from Sample s where s.parentEvent =:event', [event: event])
+    static getSamplesForEvent( SamplingEventInEventGroup samplingEventInEventGroup ) {
+        return Sample.findAllByParentEvent( samplingEventInEventGroup )
+    }
+
+    static getSamplesForSubject( Subject subject ) {
+        return Sample.findAllByParentSubject( subject )
     }
 
     /**
@@ -210,7 +234,8 @@ class Sample extends TemplateEntity {
     }
 
     public String generateName() {
-		if( parentSubject && parentEvent && parentSubjectEventGroup) {
+        String sampleName = ""
+		if( parentSubject && parentEvent?.event && parentSubjectEventGroup?.subjectGroup && parentSubjectEventGroup?.eventGroup ) {
             def subjectName = parentSubject.name
             def eventGroupName = parentSubjectEventGroup?.eventGroup?.name.replaceAll("([ ]{1,})", "")
             def parentEventName = parentEvent.event.name
@@ -220,12 +245,15 @@ class Sample extends TemplateEntity {
                 parentEventName = ucwords(parentEventName)
             }
 
-			def startTime = getSamplingTimeString()
+			def startTime = getSampleStartTimeString()
 
-			this.name = ( subjectName + "_" + eventGroupName + "_" + parentEventName + "_" + startTime ).replaceAll( " ", "_" )
+			sampleName = ( subjectName + "_" + eventGroupName + "_" + parentEventName + "_" + startTime ).replaceAll( " ", "_" )
 		}
+        else {
+            sampleName = java.util.UUID.randomUUID().toString()
+        }
 
-		return this.name
+		return sampleName
     }
 
     /**

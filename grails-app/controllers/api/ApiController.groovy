@@ -478,18 +478,28 @@ class ApiController {
                         Sample sample = Sample.read(sampleId)
 
                         String featureName = feature.intern()
-                        String startTime = sample.getSamplingTimeString().intern()
-                        String subjectName = sample.getSubjectName().intern()
+                        String eventGroupName = sample.getParentEventGroupName().intern()
+                        String subjectEventGroupStartTime = sample.getParentSubjectEventGroupStartTimeString().intern()
+                        String sampleRelativeStartTime = sample.getSampleRelativeStartTimeString().intern()
+                        String subjectName = sample.getParentSubjectName().intern()
 
                         if ( !measurements[featureName] ) {
                             measurements[featureName] = [:]
                         }
 
-                        if ( !measurements[featureName][startTime] ) {
-                            measurements[featureName][startTime] = [:]
+                        if ( !measurements[featureName][eventGroupName] ) {
+                            measurements[featureName][eventGroupName] = [:]
                         }
 
-                        measurements[featureName][startTime].put(subjectName, value)
+                        if ( !measurements[featureName][eventGroupName][subjectEventGroupStartTime] ) {
+                            measurements[featureName][eventGroupName][subjectEventGroupStartTime] = [:]
+                        }
+
+                        if ( !measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime] ) {
+                            measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime] = [:]
+                        }
+
+                        measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime].put(subjectName, value)
                         count += 1
                     }
                 }

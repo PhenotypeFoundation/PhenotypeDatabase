@@ -276,8 +276,15 @@ class TemplateEditorController {
         response.setContentType("application/json; charset=UTF-8")
         def body = g.render(plugin: 'gdt', template: 'requestEmail', model: [user: authenticationService.getLoggedInUser(), requestcat: params.requestcat, requestnm: params.requestnm, rname: params.rname, rtype: params.rtype, specification: params.specification]);
 
+        // If we are in production, send the mails to all administrators
+        // Otherwise, send it to a default (spam) mail address
+        def adminMail = "gscfproject@gmail.com";
+        if ( grails.util.Environment.current != grails.util.Environment.DEVELOPMENT ) {
+            adminMail = grailsApplication.config.gscf.admin.email ?: authenticationService.getTemplateAdminEmails()
+        }
+
         mailService.sendMail {
-            to      authenticationService.getTemplateAdminEmails()
+            to adminMail
             subject "New template request"
             html    body.toString()
         }

@@ -48,41 +48,41 @@ class UserGroupController {
 		if (!versionCheck('usergroup.label', 'UserGroup', userGroup, [userGroup: userGroup])) {
 			return
 		}
-		
-                // For the old users in the selected usergroup, remove them from the linked studies
-                def selectedUsers = userGroup.getUsers()
-                for(selectedUser in selectedUsers){
-                        def selectedGroups = selectedUser.getUserGroups().id
-                        def studies = Study.all.findAll{it.readers.contains(selectedUser)}
-                        
-                        for (studyU in studies){
-                                def studyGroups = studyU.readerGroups.id
-                                def overlap = selectedGroups.intersect(studyGroups)
-                                if(overlap.size() <= 1){
-                                        studyU.removeFromReaders(selectedUser)
-                                        studyU.save(flush: true) 
-                                }
-                        }
-                        studies = Study.all.findAll{it.writers.contains(selectedUser)}
-                        for (studyU in studies){
-                                def studyGroups = studyU.writerGroups.id
-                                def overlap = selectedGroups.intersect(studyGroups)
-                                if(overlap.size() <= 1){
-                                        studyU.removeFromWriters(selectedUser)
-                                        studyU.save(flush: true) 
-                                }
-                        }
-                        SecUserSecUserGroup.remove(selectedUser,userGroup, true)
-                }
-                
-                def readerGroups = Study.all.findAll{it.readerGroups.contains(userGroup)}
-                def writerGroups = Study.all.findAll{it.writerGroups.contains(userGroup)}
-                
+
 		def oldDescription = userGroup.groupDescription
 		userGroup.properties = params
 		if (params.groupDescription && !params.groupDescription.equals(oldDescription)) {
 			userGroup.groupDescription = params.groupDescription
 		}
+		
+		// For the old users in the selected usergroup, remove them from the linked studies
+		def selectedUsers = userGroup.getUsers()
+		for(selectedUser in selectedUsers){
+				def selectedGroups = selectedUser.getUserGroups().id
+				def studies = Study.all.findAll{it.readers.contains(selectedUser)}
+
+				for (studyU in studies){
+						def studyGroups = studyU.readerGroups.id
+						def overlap = selectedGroups.intersect(studyGroups)
+						if(overlap.size() <= 1){
+								studyU.removeFromReaders(selectedUser)
+								studyU.save(flush: true)
+						}
+				}
+				studies = Study.all.findAll{it.writers.contains(selectedUser)}
+				for (studyU in studies){
+						def studyGroups = studyU.writerGroups.id
+						def overlap = selectedGroups.intersect(studyGroups)
+						if(overlap.size() <= 1){
+								studyU.removeFromWriters(selectedUser)
+								studyU.save(flush: true)
+						}
+				}
+				SecUserSecUserGroup.remove(selectedUser,userGroup, true)
+		}
+
+		def readerGroups = Study.all.findAll{it.readerGroups.contains(userGroup)}
+		def writerGroups = Study.all.findAll{it.writerGroups.contains(userGroup)}
 
 		if (!userGroup.save()) {
 			render view: 'edit', model: buildUserGroupModel(userGroup)
@@ -109,7 +109,7 @@ class UserGroupController {
                 }
                 for (writerGroupStudy in writerGroups){
                        for(user in users){
-                               SecUser singleUser = SecUser.get(user)
+                                SecUser singleUser = SecUser.get(user)
                                 writerGroupStudy.addToWriters(singleUser)
                                 writerGroupStudy.save(flush: true)
                         }
@@ -166,8 +166,6 @@ class UserGroupController {
 		if (params.sort) {
 			orderBy = " ORDER BY u.$params.sort ${params.order ?: 'ASC'}"
 		}
-
-                println("SELECT DISTINCT u $hql $orderBy")
         
 		def results = SecUserGroup.executeQuery(
 				"SELECT DISTINCT u $hql $orderBy",

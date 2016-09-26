@@ -130,10 +130,17 @@ class UserRegistrationController {
         // If we are in production, send the mails to all administrators
         // Otherwise, send it to a default (spam) mail address
         def adminMail = "gscfproject@gmail.com";
-        if ( !GrailsUtil.getEnvironment().equals(GrailsApplication.ENV_DEVELOPMENT) ) {
-            def administrators = SecRole.findUsers( 'ROLE_ADMIN' );
-            if( administrators.size() > 0 ) {
-                adminMail = administrators.email.toArray();
+        if ( grails.util.Environment.current != grails.util.Environment.DEVELOPMENT ) {
+
+            if ( grailsApplication.config.gscf.admin.email ) {
+                adminMail = grailsApplication.config.gscf.admin.email
+            }
+            else {
+                def administrators = SecRole.findUsers( 'ROLE_ADMIN' );
+
+                if( administrators.size() > 0 ) {
+                    adminMail = administrators.email.toArray();
+                }
             }
         }
 

@@ -67,7 +67,11 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
         // The user could choose from the features belonging to the selected platform
         // The user could also choose a column to contain the sample name
         def options = [
-            [ id: 'subject', name: "Subject name" ]
+            [ id: 'subject', name: "Subject name" ],
+            [ id: 'subject', name: "Subjectname" ],
+            [ id: 'subject', name: "subjectname" ],
+            [ id: 'subject', name: "Name" ],
+            [ id: 'subject', name: "name" ]
         ]
         
         // Create a list of domain fields and template fields to match against

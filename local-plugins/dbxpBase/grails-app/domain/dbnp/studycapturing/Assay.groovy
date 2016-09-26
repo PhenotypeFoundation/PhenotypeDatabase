@@ -72,7 +72,14 @@ class Assay extends TemplateEntity {
     }
 
     def String toString() {
-        return name;
+
+        String string = ""
+
+        if ( parent ) {
+            string = parent.code + " - "
+        }
+
+        return string+=name;
     }
 
     /**

@@ -25,8 +25,9 @@
 		
 		<g:if test="${measurements.size() > 0}">
             <ul class="data_nav buttons ontop">
-           		<li><g:link class="delete" controller="measurement" action="deleteByAssay" id="${assayInstance.id}" params="${[module: module]}" onClick="return confirm('Are you sure?');">Delete all measurements</g:link></li>
-           		<li><g:link class="delete" controller="measurement" action="delete" onClick="if( \$( '#deleteform input:checked' ).length != 0 && confirm('Are you sure?') ) { \$( '#deleteform' ).submit(); } return false; ">Delete selected measurements</g:link></li>
+				<li><g:link class="delete" controller="measurement" action="delete" onClick="if( \$( '#deleteform input:checked' ).length != 0 && confirm('Are you sure?') ) { \$( '#deleteform' ).submit(); } return false; ">Delete selected measurements</g:link></li>
+				<li><g:link class="delete" controller="measurement" action="deleteByAssay" id="${assayInstance.id}" params="${[module: module]}" onClick="return confirm('Are you sure?');">Delete all measurements</g:link></li>
+				<li><g:link class="delete" controller="SAMSample" action="deleteByAssay" id="${assayInstance.id}" params="${[module: module]}" onClick="return confirm('Are you sure?');">Delete all measurements & module samples</g:link></li>
             </ul>
             		
 			<form id="deleteform" action="<g:createLink controller="measurement" action="delete" />" method="post">
@@ -35,7 +36,7 @@
 				<table class="measurements"> 
 					<thead>
 						<tr>
-							<th></th>
+                            <th></th>
 							<g:each var="feature" in="${features}">
 								<th>${feature} [${feature.unit}]</th>
 							</g:each>
@@ -45,7 +46,7 @@
 						<g:set var="measurementIndex" value="${0}" />
 						<g:each var="sample" in="${samples}">
 							<tr>
-								<th>${sample.name}</th>
+								<th style="min-width: 200px">${sample.name}</th>
 								
 								<g:each var="feature" in="${features}">
 									<%--
@@ -130,14 +131,15 @@
 					</tbody>
 				</table>
 				<div class="paginateButtons">
-					<g:paginate controller="measurements" mapping="showAssayPagination" action="show" id="${assayInstance.id}" total="${numberOfSamples}" offset="${offset}" params='[module: "${module}"]' />
+					<g:paginate controller="measurements" mapping="showAssayPagination" action="show" id="${assayInstance.id}" total="${numberOfSamples}" offset="${offset}" params='[ numberOfSamples: numberOfSamples, module: "${module}"]' />
 				</div>
 			</form>
 			
             <br />
             <ul class="data_nav buttons">
-           		<li><g:link class="delete" controller="measurement" action="deleteByAssay" id="${assayInstance.id}" params="${[module: module]}" onClick="return confirm('Are you sure?');">Delete all measurements</g:link></li>
-           		<li><g:link class="delete" controller="measurement" action="delete" onClick="if( \$( '#deleteform input:checked' ).length != 0 && confirm('Are you sure?') ) { \$( '#deleteform' ).submit(); } return false; ">Delete selected measurements</g:link></li>
+				<li><g:link class="delete" controller="measurement" action="delete" onClick="if( \$( '#deleteform input:checked' ).length != 0 && confirm('Are you sure?') ) { \$( '#deleteform' ).submit(); } return false; ">Delete selected measurements</g:link></li>
+				<li><g:link class="delete" controller="measurement" action="deleteByAssay" id="${assayInstance.id}" params="${[module: module]}" onClick="return confirm('Are you sure?');">Delete all measurements</g:link></li>
+				<li><g:link class="delete" controller="SAMSample" action="deleteByAssay" id="${assayInstance.id}" params="${[module: module]}" onClick="return confirm('Are you sure?');">Delete all measurements & module samples</g:link></li>
             </ul>
             			
 			<g:if test="${hideEmpty}">
