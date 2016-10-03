@@ -313,7 +313,8 @@ class TemplateEditorController {
         }
 
         // Check if the name already exists
-        def dupeCandidate = Template.findByName(params.name)
+        def uniqueParams = [name: params.name, entity: template.entity]
+        def dupeCandidate = Template.find(new Template(uniqueParams))
         if (dupeCandidate && dupeCandidate != template) {
             response.status = 500
             response.setContentType("text/plain; charset=UTF-8")
@@ -517,11 +518,12 @@ class TemplateEditorController {
         }
 
         // See whether this field already exists. It is checked by name and entity
-        def uniqueParams = [name: params.name, entity: templateField.entity];
-        if (TemplateField.find(new org.dbnp.gdt.TemplateField(uniqueParams))) {
-            response.status = 500;
-            render "A field with this name already exists.";
-            return;
+        def uniqueParams = [name: params.name, entity: templateField.entity]
+        def dupeCandidate = TemplateField.find(new org.dbnp.gdt.TemplateField(uniqueParams))
+        if (dupeCandidate && dupeCandidate != templateField) {
+            response.status = 500
+            render "A field with this name already exists."
+            return
         }
 
         // If this field is type stringlist or ontology, we have to prepare the parameters
