@@ -163,6 +163,7 @@ grails.plugin.springsecurity.interceptUrlMap = [
     '/login/**':          ['permitAll'],
     '/logout/**':         ['permitAll'],
     '/downloads/**':      ['permitAll'],
+    '/info':              ['permitAll'],
     
     // Registration and confirming new accounts
     '/register/forgotPassword':                 ['permitAll'],
