@@ -181,18 +181,6 @@ grails.plugin.springsecurity.filterChain.chainMap = [
         '/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter'
 ]
 
-// Temporary directory to upload files to.
-// If the directory is given relative (e.g. 'fileuploads/temp'), it is taken relative to the web-app directory
-// Otherwise, it should be given as an absolute path (e.g. '/home/user/sequences')
-// The directory should be writable by the webserver user
-if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) {
-    uploads.uploadDir = "webtestfiles"
-    uploads.storageDir = "storagetestfiles"
-} else {
-    uploads.uploadDir = (new File("/tmp/fileuploads")?.canWrite()) ? "/tmp/fileuploads" : "fileuploads"
-    uploads.storageDir = (new File("/tmp/filestorage")?.canWrite()) ? "/tmp/filestorage" : "filestorage"
-}
-
 // default application properties
 application.title = "Phenotype Database"
 
@@ -205,16 +193,6 @@ grails.resources.modules = {
 }
 
 // SAM Configuration
-
-// Temporary directory to upload files to.
-// If the directory is given relative (e.g. 'fileuploads/temp'), it is taken relative to the web-app directory
-// Otherwise, it should be given as an absolute path (e.g. '/home/user/sequences')
-// The directory should be writable by the webserver user
-if (grails.util.GrailsUtil.environment == GrailsApplication.ENV_TEST) {
-    uploads.uploadDir = "webtestfiles"
-} else {
-    uploads.uploadDir = (new File("/tmp")?.canWrite()) ? "/tmp" : "fileuploads"
-}
 
 // Fuzzy matching configuration
 fuzzyMatching.threshold = [
