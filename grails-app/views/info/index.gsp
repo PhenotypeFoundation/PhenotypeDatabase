@@ -53,7 +53,21 @@
 				<li>Services: ${grailsApplication.serviceClasses.size()}</li>
 				<li>Tag Libraries: ${grailsApplication.tagLibClasses.size()}</li>
 				<li>Environment: ${grails.util.Environment.current}</li>
-			</ul>
+        <li>Startup date: <g:formatDate date="${grailsApplication.mainContext.getStartupDate()}" format="yyyy-MM-dd HH:mm:ss"/></li>
+      </ul>
+      <h1>Build Information</h1>
+      <ul>
+        <li>Commit: <g:meta name="scm.version"></g:meta></li>
+        <li>Date: <g:meta name="build.date"></g:meta></li>
+        <li>Timezone: <g:meta name="build.timezone"></g:meta></li>
+        <li>Java version: <g:meta name="build.java"></g:meta></li>
+        <li>OS name: <g:meta name="env.os.name"></g:meta></li>
+        <li>OS version: <g:meta name="env.os.version"></g:meta></li>
+        <li>Username: <g:meta name="env.username"></g:meta></li>
+        <li>Computer: <g:meta name="env.computer"></g:meta></li>
+        <li>Architecture: <g:meta name="env.proc.type"></g:meta></li>
+        <li>Cores: <g:meta name="env.proc.cores"></g:meta></li>
+      </ul>
 			<h1>Installed Plugins</h1>
 			<ul>
 				<g:set var="pluginManager"

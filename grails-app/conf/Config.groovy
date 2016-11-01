@@ -52,17 +52,8 @@ grails.converters.encoding = "UTF-8"
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
 
-// log4j configuration
 log4j = {
-    // Example of changing the log pattern for the default console appender:
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
-
-    // To decrease logging level use 'trace', 'debug', 'info', 'warn', 'error', 'fatal' or 'off' instead of 'all'
-    info    'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter'
-
-    error   'org.codehaus.groovy.grails.web.servlet',        // controllers
+    error  'org.codehaus.groovy.grails.web.servlet',        // controllers
             'org.codehaus.groovy.grails.web.pages',          // GSP
             'org.codehaus.groovy.grails.web.sitemesh',       // layouts
             'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
@@ -74,14 +65,16 @@ log4j = {
             'org.hibernate',
             'net.sf.ehcache.hibernate'
 
+    warn   'org.codehaus.groovy.grails.orm.hibernate',
+            'org.hibernate'                                  // hibernate integration
+
+    all    'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter'
+
     // Disable logging for resources plugin
-    error   'grails.app.services.org.grails.plugin.resource',
+    error  'grails.app.services.org.grails.plugin.resource',
             'grails.app.taglib.org.grails.plugin.resource',
             'grails.app.resourceMappers.org.grails.plugin.resource',
             'org.grails.plugin.resource'
-
-    warn    'org.codehaus.groovy.grails.orm.hibernate',
-            'org.hibernate'                                  // hibernate integration
 }
 
 graphviz {
@@ -121,51 +114,52 @@ grails.plugin.springsecurity.fii.rejectPublicInvocations = false
 grails.plugin.springsecurity.securityConfigType = grails.plugin.springsecurity.SecurityConfigType.InterceptUrlMap
 
 grails.plugin.springsecurity.interceptUrlMap = [
-    '/':                  						        ['permitAll'],
-    '/home':              						        ['permitAll'],
-    '/study/**':          						        ['permitAll'],
-    '/publication/list':  						        ['permitAll'],
-    '/assets/**':         						        ['permitAll'],
-    '/**/js/**':          						        ['permitAll'],
-    '/**/css/**':         						        ['permitAll'],
-    '/**/images/**':      						        ['permitAll'],
-    '/**/favicon.ico':    						        ['permitAll'],
-    '/login/**':          						        ['permitAll'],
-    '/logout/**':         						        ['permitAll'],
-	'/downloads/**':          						    ['permitAll'],
-    
-    // Registration and confirming new accounts
-    '/register/forgotPassword':                         ['permitAll'],
-    '/register/resetPassword':                          ['permitAll'],
-    '/userRegistration/add':                            ['permitAll'],
-    '/userRegistration/sendUserConfirmation':           ['permitAll'],
-    '/userRegistration/confirmUser':                    ['permitAll'],
-    
-    // Rest controllers have their own authentication
-    '/rest/**':                                         ['permitAll'],
-    '/measurements/*/rest/**':                          ['permitAll'],
+        '/':                  						        ['permitAll'],
+        '/home':              						        ['permitAll'],
+        '/study/**':          						        ['permitAll'],
+        '/publication/list':  						        ['permitAll'],
+        '/assets/**':         						        ['permitAll'],
+        '/**/js/**':          						        ['permitAll'],
+        '/**/css/**':         						        ['permitAll'],
+        '/**/images/**':      						        ['permitAll'],
+        '/**/favicon.ico':    						        ['permitAll'],
+        '/login/**':          						        ['permitAll'],
+        '/logout/**':         						        ['permitAll'],
+        '/downloads/**':          						    ['permitAll'],
+        '/info':                                            ['permitAll'],
 
-	// Design view of public studies
-    '/studyEditDesign/eventGroupDetails/*':		        ['permitAll'],
-    '/studyEditDesign/subjectGroupDetails/*':			['permitAll'],
-    '/studyEditDesign/dataTableSubjectSelection/*':		['permitAll'],
+        // Registration and confirming new accounts
+        '/register/forgotPassword':                         ['permitAll'],
+        '/register/resetPassword':                          ['permitAll'],
+        '/userRegistration/add':                            ['permitAll'],
+        '/userRegistration/sendUserConfirmation':           ['permitAll'],
+        '/userRegistration/confirmUser':                    ['permitAll'],
 
-    // API authentication is only accessible for specific users
-	'/api/authenticate/**':								['ROLE_ADMIN', 'ROLE_CLIENT'],
-	'/api/**':											['permitAll'],
+        // Rest controllers have their own authentication
+        '/rest/**':                                         ['permitAll'],
+        '/measurements/*/rest/**':                          ['permitAll'],
 
-    // Template editor is only accessible for specific users
-    '/template/**':                         	        ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
-     
-    // Configuration by administrators
-    '/assayModule/**':                      	        ['ROLE_ADMIN'],
-    '/setup/**':                            	        ['ROLE_ADMIN'],
-    '/info/**':                             	        ['ROLE_ADMIN'],
-    '/user/**':                             	        ['ROLE_ADMIN', 'isFullyAuthenticated()'],
-    '/userRegistration/confirmAdmin':       	        ['ROLE_ADMIN', 'isFullyAuthenticated()'],
-    
-    // All other urls are allowed for logged in users
-    '/**':										        ['IS_AUTHENTICATED_REMEMBERED']
+        // Design view of public studies
+        '/studyEditDesign/eventGroupDetails/*':		        ['permitAll'],
+        '/studyEditDesign/subjectGroupDetails/*':			['permitAll'],
+        '/studyEditDesign/dataTableSubjectSelection/*':		['permitAll'],
+
+        // API authentication is only accessible for specific users
+        '/api/authenticate/**':								['ROLE_ADMIN', 'ROLE_CLIENT'],
+        '/api/**':											['permitAll'],
+
+        // Template editor is only accessible for specific users
+        '/template/**':                         	        ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
+
+        // Configuration by administrators
+        '/assayModule/**':                      	        ['ROLE_ADMIN'],
+        '/setup/**':                            	        ['ROLE_ADMIN'],
+        '/info/**':                             	        ['ROLE_ADMIN'],
+        '/user/**':                             	        ['ROLE_ADMIN', 'isFullyAuthenticated()'],
+        '/userRegistration/confirmAdmin':       	        ['ROLE_ADMIN', 'isFullyAuthenticated()'],
+
+        // All other urls are allowed for logged in users
+        '/**':										        ['IS_AUTHENTICATED_REMEMBERED']
  ]
 
 
@@ -236,15 +230,45 @@ fuzzyMatching.threshold = [
         ]
 ]
 
-// Mail plugin config, also see default.properties or your external config file
+// Example email server configurations, to be put in external configuration file
+// (production.groovy or development.groovy)
+
+// Example gmail configuration
+/*
 grails {
     mail {
-        disabled = false
+        host = "smtp.gmail.com"
+        port = 465
+        username = "<your_address>@gmail.com"
+        password = "<your_password>"
         props = [
             "mail.smtp.auth": "true",
             "mail.smtp.socketFactory.port": "465",
             "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-            "mail.smtp.socketFactory.fallback": "false"
+            "mail.smtp.socketFactory.fallback": "false",
+            "mail.smtp.starttls.enable": "true"
         ]
     }
 }
+*/
+
+// Example configuration for mail server without authentication
+/*
+grails {
+    mail {
+        "default" {
+            from = "<from_address>@example.com"
+        }
+        host = "127.0.0.1"
+        port = 25
+        props = [:]
+    }
+}
+*/
+
+// Alternatively, the configuration can be put in the external production.properties or
+// development.properties:
+/*
+#grails.mail.host=127.0.0.1
+#grails.mail.port=2525
+*/

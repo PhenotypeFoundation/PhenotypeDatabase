@@ -169,11 +169,13 @@ class UserController {
 		}
 
 		for (name in ['enabled', 'accountExpired', 'accountLocked', 'passwordExpired']) {
-			def value = params[name]
-			if (value && !value.equals('0')) {
-				hql.append " AND u.$name=:$name"
-				queryParams[name] = value.equals('1')
-			}
+			if (params[name]) { // check if a value is specified at all
+				def value = params[name] as Integer
+				if (value) { // 0 indicates either option, so don't filter in that case
+					hql.append " AND u.$name=:$name"
+					queryParams[name] = value == 1 // value can be 1 or -1
+				}
+            }
 		}
 
 		int totalCount = SecUser.executeQuery("SELECT COUNT(DISTINCT u) $hql", queryParams)[0]
@@ -189,9 +191,17 @@ class UserController {
 		def model = [results: results, totalCount: totalCount, searched: true]
 
 		// add query params to model for paging
-		for (name in ['username', 'enabled', 'accountExpired', 'accountLocked',
-		              'passwordExpired', 'sort', 'order']) {
-		 	model[name] = params[name]
+		def defaultParams = [
+				username: '',
+				enabled: 0,
+				accountExpired: 0,
+				accountLocked: 0,
+				passwordExpired: 0,
+				sort: null,
+				order: null
+		]
+		defaultParams.each{ key, defaultValue ->
+			model[key] = params[key] ?: defaultValue
 		}
 
 		render view: 'search', model: model
