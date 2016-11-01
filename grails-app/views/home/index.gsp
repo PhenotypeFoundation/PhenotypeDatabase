@@ -72,7 +72,7 @@
 							{ name: 'Published public', y: ${publishedPublicStudyCount}, color: '#45bee1' },
 							{ name: 'Unpublished Public', y: ${unPublishedPublicStudyCount}, color: '#e9644f' },
 							{ name: 'Published Private', y: ${publishedPrivateStudyCount}, color: '#2087a3' },
-							{ name: 'Unpublished Private', y: ${unPublishedPrivateStudyCount}, color: '#2087a3' }
+							{ name: 'Unpublished Private', y: ${unPublishedPrivateStudyCount}, color: '#e9644f' }
 						],
 						dataLabels: {
 							enabled: false

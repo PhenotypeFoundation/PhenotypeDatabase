@@ -162,7 +162,7 @@ class PlatformController {
 
         // Attempt to save platform
         if (!platformInstance.save(flush: true)) {
-            render(view: "create", model: [platformInstance: platformInstance], module: params.module)
+            render(view: "create", model: [platformInstance: platformInstance, module: params.module])
             return
         }
 
@@ -246,7 +246,7 @@ class PlatformController {
         platformInstance.properties = params
 
         if (!platformInstance.save(flush: true)) {
-            render(view: "edit", model: [platformInstance: platformInstance], module: params.module)
+            render(view: "edit", model: [platformInstance: platformInstance, module: params.module])
             return
         }
 
@@ -275,7 +275,7 @@ class PlatformController {
 	
 	// Get a list of template specific fields
 	def templateSelection = {
-		render(template: "templateSelection", model: [template: _determineTemplate()], module: params.module)
+		render(template: "templateSelection", model: [template: _determineTemplate(), module: params.module])
 	}
 
     def returnUpdatedTemplateSpecificFields = {
@@ -293,7 +293,7 @@ class PlatformController {
             log.error( e );
         }
 
-        render(template: "templateSpecific", model: [template: template, values: values], module: params.module)
+        render(template: "templateSpecific", model: [template: template, values: values, module: params.module])
     }
 
     /**
