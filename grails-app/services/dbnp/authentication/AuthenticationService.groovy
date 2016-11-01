@@ -15,12 +15,10 @@
 package dbnp.authentication
 
 import grails.plugin.springsecurity.userdetails.GrailsUser
-import org.codehaus.groovy.grails.commons.GrailsApplication
 
 class AuthenticationService {
     def springSecurityService
     def remoteAuthenticationService
-    GrailsApplication grailsApplication
 
     static transactional = true
 
@@ -96,25 +94,14 @@ class AuthenticationService {
     }
 
     /**
-     * Gets the email addresses to send template change requests to.
-     * If not overridden in the configuration (grails.mail.overrideTemplateRequestAddresses),
-     * these will be the addresses of all users that have the template admin role,
-     * or if there are none, the users that have the admin role.
+     * Gets (template) admin emails by role
      */
     public getTemplateAdminEmails() {
-        // Check if we're overriding the template request addresses
-        def overrideAddresses = grailsApplication.config.grails.mail.overrideTemplateRequestAddresses
-        if (overrideAddresses) {
-            return overrideAddresses.split(",").collect({s -> s.trim()})
-        }
-
-        // Not overriding, so find the template admin users
         def administrators = SecRole.findUsers( 'ROLE_TEMPLATEADMIN' )
         if (administrators.size() > 0) {
             return administrators.email.toArray()
         }
         else {
-            // If there are no template admins, send the request to the admins
             return SecRole.findUsers( 'ROLE_ADMIN' ).email.toArray()
         }
     }
