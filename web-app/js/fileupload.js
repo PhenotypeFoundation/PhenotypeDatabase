@@ -68,7 +68,7 @@ var FileUpload = {
 		$('#upload_icon_' + field_id).on('click', function() {
 			$('#upload_button_' + field_id).click();
 			return false;
-		})
+		});
 
 		// Enable delete button
 		$( '#' + field_id + "Delete").on( "click", function() {

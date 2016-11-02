@@ -60,7 +60,8 @@ ul.data_nav li { display: inline-block; *display: inline; zoom: 1; margin-right:
 /* This class is used for error messages. However, sometimes a 
 td.errors occurs, and that shouldn't be made up like this.*/
 div.errors {
-    background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat scroll 10px 10px #ffcccc;
+    background-color: #ffcccc;
+    /*background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat scroll 10px 10px #ffcccc;*/
     border: 1px solid #FF0000;
     margin: 10px 10px 0px 10px;
     padding: 10px 10px 10px 33px;
@@ -71,7 +72,8 @@ div.errors ul { margin-top: 0; margin-bottom: 0; }
 td.errors input, td.errors select { background-color: #fcc; }
 
 .badcell {
-    background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat scroll 2px 1px #ffcccc;
+    background-color: #ffcccc;
+    /*background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat scroll 2px 1px #ffcccc;*/
     border: 1px solid #FF0000;
     margin: 2px 2px 0px 2px;
     padding: 2px 2px 2px 20px;
@@ -85,7 +87,7 @@ td.errors input, td.errors select { background-color: #fcc; }
 }
 
 .buttons .import { 
-	background-image: url(../plugins/famfamfam-1.0.1/images/icons/page_white_add.png);
+	/*background-image: url(../plugins/famfamfam-1.0.1/images/icons/page_white_add.png);*/
 }
 
 /* Color of cells in the importer */
