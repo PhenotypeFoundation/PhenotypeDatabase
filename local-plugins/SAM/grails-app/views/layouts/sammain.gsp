@@ -7,8 +7,10 @@
 	        <r:require modules="sam2"/>
 
 	        <g:layoutHead />
-			
+
 			<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon"/>
+
+			<script type="text/javascript">baseUrl = '${grailsApplication.config.grails.serverURL}';</script>
 	    </head>
 	    <body>
 			<content tag="topnav">
@@ -38,7 +40,7 @@
                         <img src="${fam.icon(name:"page_white_acrobat")}" alt="(pdf)" style="vertical-align:text-bottom;"/>
                     </a>
                 </li>
-				<li><g:link url="${grailsApplication.config.gscf.baseURL}">Back to design</g:link></li>
+				<li><g:link url="${grailsApplication.config.grails.serverURL}">Back to design</g:link></li>
                 <g:if test="${grailsApplication.config.module.showVersionInfo}">
                     <li style="font-size: 9px; color: #888;"><g:message code="meta.app.version" default="Version: {0}" args="[meta(name: 'app.version')]"/><br />Changeset: <g:render template="/version"/></li>
                 </g:if>
