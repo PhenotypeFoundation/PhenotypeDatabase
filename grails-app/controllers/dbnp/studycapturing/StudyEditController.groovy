@@ -18,6 +18,7 @@ class StudyEditController {
         def datatablesService
         def studyEditService
         def dataSource
+        def grailsApplication
 
         /**
          * Instance of the validation tag library used to retrieve validation errors
@@ -1178,7 +1179,8 @@ class StudyEditController {
             params.remove( "action" )
             params.remove( "controller" )
 
-            def url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
+            def url = grailsApplication.config.gscf.entrez.url ?:
+                    "https://eutils.ncbi.nlm.nih.gov/entrez/eutils";
             def util = params.remove( "_utility" )
             
             if( !util ) {
