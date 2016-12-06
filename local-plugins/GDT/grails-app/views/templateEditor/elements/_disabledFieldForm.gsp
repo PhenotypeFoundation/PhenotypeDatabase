@@ -9,6 +9,10 @@
 	<label for="name">Name:</label> <g:textField disabled="disabled" name="name" value="${templateField?.name}" /><br />
 	<label for="type">Type:</label> <g:textField disabled="disabled" name="type" value="${templateField?.type}" /><br />
 
+	%{-- The disabled="disabled" tag in the textFields above will exclude them from the form, hiddenFields are set to add them--}%
+	<g:hiddenField name="name" value="${templateField?.name}"/>
+	<g:hiddenField name="type" value="${templateField?.type}"/>
+
 	<g:if test="${templateField?.type.toString() == 'STRINGLIST' || templateField?.type.toString() == 'EXTENDABLESTRINGLIST'}">
     	<g:set var="usedFields" value="${templateFieldService.getUsedListEntries( templateField )}"/>
 		<div class="extendablestringlist_options stringlist_options">
