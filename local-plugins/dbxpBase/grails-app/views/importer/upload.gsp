@@ -100,7 +100,7 @@
 								<div class="description">${parameter.label}</div>
 								<div class="input">
 									<g:if test="${parameter.type == 'select'}">
-										<g:select name="parameter.${parameter.name}" from="${parameter.values}" optionKey="id" value="${savedParameters?.parameter?.get(parameter.name)}"/>
+										<g:select name="parameter.${parameter.name}" from="${parameter.values.sort() { it.toString() }}" optionKey="id" value="${savedParameters?.parameter?.get(parameter.name)}"/>
 									</g:if>
 									<g:elseif test="${parameter.type == 'templates'}">
 										<g:select rel="template" entity="${importer.getEncodedEntityName()}" data-entity="${importer.entity.name}" name="parameter.${parameter.name}" from="${parameter.values}" optionKey="id" value="${savedParameters?.parameter?.get(parameter.name)}"/>
