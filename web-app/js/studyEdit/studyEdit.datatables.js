@@ -1019,6 +1019,9 @@ StudyEdit.datatables = {
 								wrapper.find(".saveChanges .links").show();
 								wrapper.find(".saveChanges .saving").hide();
 								wrapper.find(".saveChanges").slideUp(100);
+
+                                // Clear current selection
+                                StudyEdit.datatables.selection.deselectAll(table.attr("id"));
 							});
 		},
 
@@ -1082,6 +1085,8 @@ StudyEdit.datatables = {
 			wrapper.find(".saveChanges .saving").hide();
 			wrapper.find(".saveChanges").slideUp(100);
 
+			// Clear current selection
+            StudyEdit.datatables.selection.deselectAll(table.attr("id"));
 		},
 
 		showError : function(tableId, message, details) {
