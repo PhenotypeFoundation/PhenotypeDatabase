@@ -111,9 +111,9 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
         // The first two lines are not used as measurements, so these lines are skipped
         for( def lineNr = 2; lineNr < data.size(); lineNr++) {
             def line = data[lineNr]
-            
-            // Check subject name
-            def requiredSubjectName = line[metadata.subjectColumn]
+
+            // Check subject name and cast to String
+            def requiredSubjectName = line[metadata.subjectColumn].toString()
             
             if( !subjectMapping.containsKey(requiredSubjectName) ) {
                 errors << new ImportValidationError(
@@ -155,14 +155,14 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
                 if( valueIsValid && !hasSampleForTimepoint ) {
                     errors << new ImportValidationError(
                         code: 12,
-                        message: "No sample was found for subject '" + requiredSubjectName + "' and timepoint '" + timepoint + ".",
+                        message: "No sample was found for subject '" + requiredSubjectName + "' and timepoint '" + timepoint + "'",
                         line: lineNr,
                         column: columnIndex
                     )
                 } else if( !valueIsValid && hasSampleForTimepoint) {
                     errors << new ImportValidationError(
                         code: 7,
-                        message: "No measurement given for subject '" + requiredSubjectName + "', timepoint '" + timepoint + "' and feature '" + feature.name + "'.",
+                        message: "No measurement given for subject '" + requiredSubjectName + "', timepoint '" + timepoint + "' and feature '" + feature.name + "'",
                         line: lineNr,
                         column: columnIndex
                     )
@@ -225,7 +225,7 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
                     def line = data[lineNr]
 
                     // Check subject name
-                    def requiredSubjectName = line[metadata.subjectColumn]
+                    def requiredSubjectName = line[metadata.subjectColumn].toString()
                     
                     if( !subjectMapping.containsKey(requiredSubjectName) ) {
                         errors << new ImportValidationError(
