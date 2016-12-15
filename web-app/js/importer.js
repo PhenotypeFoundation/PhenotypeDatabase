@@ -67,17 +67,27 @@ Importer.datatable = {
 						"bLengthChange": false
 					});
 
-					//If the data file has <200 column, 'next' action should be 'match'.
+					//If the data file has <100 column, 'next' action should be 'match'.
 					element.parents().find('#next-exact').hide();
 					element.parents().find('#next-match').show();
 				}
 				else {
+
+                    var previewMessage = "You are importing a large dataset ("+data.aoColumns.length+" columns). Make sure your matrix corresponds to the study perfectly since the wizard will skip the 'matching' step.";
+
+					if(parameters.indexOf('sample+layout') !== -1) {
+                        previewMessage += " Please make sure the first column is 'Sample name'."
+                    }
+                    else if(parameters.indexOf('subject+layout') !== -1) {
+                        previewMessage += " Please make sure the first column is 'Subject name'."
+                    }
+
 					// Hide the spinner and show the preview pane
-					element.empty().text( "Matrix too big to show preview ("+data.aoColumns.length+" columns). 'Match data' will be skipped, make sure your matrix corresponds to the study perfectly" );
+					element.empty().text( previewMessage );
 					element.show();
 					spinner.hide();
 
-					//If the data file has >200 column, 'next' action should be 'exact'.
+					//If the data file has >100 column, 'next' action should be 'exact'.
 					element.parents().find('#next-match').hide();
 					element.parents().find('#next-exact').show();
 				}
