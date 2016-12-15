@@ -114,7 +114,7 @@ grails.plugin.springsecurity.fii.rejectPublicInvocations = false
 grails.plugin.springsecurity.securityConfigType = grails.plugin.springsecurity.SecurityConfigType.InterceptUrlMap
 
 grails.plugin.springsecurity.interceptUrlMap = [
-        '/':                  						        ['permitAll'],
+        '/*':                  						        ['permitAll'],
         '/home':              						        ['permitAll'],
         '/study/**':          						        ['permitAll'],
         '/publication/list':  						        ['permitAll'],
@@ -126,6 +126,7 @@ grails.plugin.springsecurity.interceptUrlMap = [
         '/login/**':          						        ['permitAll'],
         '/logout/**':         						        ['permitAll'],
         '/downloads/**':          						    ['permitAll'],
+		'/error/**':										['permitAll'],
         '/info':                                            ['permitAll'],
 
         // Registration and confirming new accounts

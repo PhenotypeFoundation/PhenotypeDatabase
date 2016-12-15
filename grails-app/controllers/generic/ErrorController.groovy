@@ -18,24 +18,38 @@ class ErrorController {
 	 * 404 closure
 	 */
 	def notFound = {
+
 		// substract shortCode from original request uri
+		def studyId
 		def shortCode = request.forwardURI.replace("${request.contextPath}/", "")
 
-		// got a shortcode?
-		if (shortCode) {
-			// yeah, see if we've got a study with this
-			// shortcode
-			def study       = Study.findByCode(shortCode)
-			SecUser user    = authenticationService.getLoggedInUser()
+		if ( shortCode ) {
 
-			// got a study and is it readable?
-			if (study && study.canRead(user)) {
-				redirect(controller: "study", action: "show", id: study.id)
-			} else {
-				render(template: "404")
+			def study = Study.findByCode(shortCode)
+
+			if ( study ) {
+
+				if ( study.publicstudy ) {
+					studyId = study.id
+				}
+				else {
+					SecUser user = authenticationService.getLoggedInUser()
+
+					if ( user ) {
+						if (study.canRead(user) ) {
+							studyId = study.id
+						}
+					}
+				}
 			}
-		} else {
-			render(template: "404")
+
+			if (studyId) {
+				redirect(controller: "study", action: "show", id: studyId)
+				return
+			}
 		}
+
+
+		render(template: "404")
 	}
 }
