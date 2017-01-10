@@ -842,7 +842,7 @@ class GdtTagLib extends AjaxflowTagLib {
                         out << "$inputElement"(
                                 description: ucName,
                                 name: prependName + templateField.escapedName(),
-                                addDummy: !templateField.isRequired(),
+                                addDummy: true,
                                 entity: templateField.entity,
                                 value: fieldValue,
                                 required: templateField.isRequired()
@@ -1016,7 +1016,7 @@ class GdtTagLib extends AjaxflowTagLib {
                     description: ucName,
                     name: prependName + templateField.escapedName(),
                     value: fieldValue.toString(),
-                    addDummy: !templateField.isRequired(),
+                    addDummy: true,
                     required: templateField.isRequired()
                 ]
                 
@@ -1085,7 +1085,7 @@ class GdtTagLib extends AjaxflowTagLib {
                 out << "$inputElement"(
                         description: ucName,
                         name: prependName + templateField.escapedName(),
-                        addDummy: !templateField.isRequired(),
+                        addDummy: true,
                         entity: templateField.entity,
                         value: fieldValue,
                         required: templateField.isRequired()
