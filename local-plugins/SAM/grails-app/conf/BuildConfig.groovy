@@ -42,7 +42,7 @@ grails.project.dependency.resolution = {
         compile(
             ":hibernate4:4.3.6.1",
             ':famfamfam:1.0.1',
-            ':matrix-importer:0.2.4.0',
+            ':matrix-importer:0.2.5.0',
             ':ajaxflow:latest.integration',
             ':resources:latest.integration',
             ':jquery:latest.integration',
