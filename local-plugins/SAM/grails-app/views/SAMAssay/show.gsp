@@ -75,74 +75,45 @@
                       Because there might be multiple measurements for one cell, we first find all measurements for this cell.
                       We show always the value/operator of the first measurement, but show all data in the comments field.
                     --%>
-                        <g:set var="cellMeasurements" value="${[]}"/>
                         <g:set var="currentMeasurement"
                                value="${measurements[measurementIndex]}"/>
-                        <g:while
-                            test="${currentMeasurement?.sample?.id == sample.id && currentMeasurement?.feature?.id == feature.id}">
-                            <% cellMeasurements << currentMeasurement; %>
-                            <g:set var="currentMeasurement"
-                                   value="${measurements[++measurementIndex]}"/>
-                        </g:while>
+                        <g:set var="measurementIndex" value="${measurementIndex + 1}" />
 
                     <%--
                       Now we know all measurements for this cell and the measurementIndex points to the
                       next measurement. If there are multiple measurements, we combine the data.
                     --%>
-                        <g:if test="${cellMeasurements.size() > 0}">
+                        <g:if test="${currentMeasurement}">
                             <%
-                                def comments = cellMeasurements[0].comments?.encodeAsHTML()
-                                def isNumeric = cellMeasurements[0].value.toString().isNumber() %>
+                                def comments = currentMeasurement.comments?.encodeAsHTML()
+                                def isNumeric = currentMeasurement.value.toString().isNumber() %>
 
-                            <g:if test="${cellMeasurements.size() > 1}">
-                                <%
-                                    // Multiple measurements are no longer   allowed, so this code should not be triggered
-                                    // TODO: Remove the multiple measurements code
-                                    comments = cellMeasurements.collect {
-                                        def description = ""
-
-                                        if (it.value) {
-                                            description += (it.operator ?: "")
-                                            if (it.value == it.value.round(3)) {
-                                                description += it.value
-                                            } else {
-                                                description += "<span class='tooltip'>" + it.value.round(3).toString() + "<span>" + it.value + "</span></span>";
-                                            }
-                                        }
-
-                                        if (it.comments)
-                                            description += (description ? "<br />" : "") + "<span class='comments'>" + it.comments.encodeAsHTML() + "</span>";
-
-                                    }.join("<hr>");
-                                %>
-                            </g:if>
-                            <td id="td${cellMeasurements[0].id}"
+                            <td id="td${currentMeasurement.id}"
                                 class="${comments && isNumeric ? 'comments' : ''}">
-                                <% /* TODO: if multiple measurements are shown, this checkbox is not sufficient anymore */ %>
                                 <input type="checkbox"
-                                       id="check${cellMeasurements[0].id}"
+                                       id="check${currentMeasurement.id}"
                                        name="ids"
-                                       value="${cellMeasurements[0].id}"
+                                       value="${currentMeasurement.id}"
                                        style="display:none;"/>
 
                                 <g:if
-                                    test="${cellMeasurements[0].operator}">${cellMeasurements[0].operator}</g:if>
+                                    test="${currentMeasurement.operator}">${currentMeasurement.operator}</g:if>
                                 <g:if test="${isNumeric}">
                                     <g:if test="${comments}">
                                     <%-- numeric value and comments --%>
                                         <span class="tooltip"
-                                              title="${comments}">${cellMeasurements[0].value}</span>
+                                              title="${comments}">${currentMeasurement.value}</span>
                                     </g:if>
                                     <g:else>
                                         <g:if
-                                            test="${cellMeasurements[0].value == cellMeasurements[0].value.round(3)}">
+                                            test="${currentMeasurement.value == currentMeasurement.value.round(3)}">
                                         <%-- short numeric value without comments --%>
-                                            <span>${cellMeasurements[0].value}</span>
+                                            <span>${currentMeasurement.value}</span>
                                         </g:if>
                                         <g:else>
                                         <%-- long numeric value without comments; render short version and put entire number in tooltip --%>
                                             <span class="tooltip"
-                                                  title="${cellMeasurements[0].value}">${cellMeasurements[0].value.round(3).toString()}</span>
+                                                  title="${currentMeasurement.value}">${currentMeasurement.value.round(3).toString()}</span>
                                         </g:else>
                                     </g:else>
                                 </g:if>
