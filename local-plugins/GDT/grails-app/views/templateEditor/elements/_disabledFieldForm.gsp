@@ -39,7 +39,7 @@
 	</g:if>	
 	<label for="unit">Unit:</label> <g:textField disabled="disabled" name="unit" value="${templateField?.unit}" /><br />
 	<label for="comment">Comment:</label> <g:textArea name="comment" value="${templateField?.comment}" /><br />
-	<label for="required">Required:</label> <input type="checkbox" disabled <g:if test="${templateField?.required}">checked</g:if><br />
+	<label for="required">Required:</label> <g:checkBox disabled="disabled" name="required" value="${templateField?.required}" /><br />
 
 	<div class="templateFieldButtons">
 		<input type="button" value="Save" onClick="updateTemplateField( ${templateField?.id} );">
