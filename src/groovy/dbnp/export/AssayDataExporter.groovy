@@ -131,7 +131,7 @@ public class AssayDataExporter implements Exporter {
             def moduleMeasurementData
             println "Collecting data for " + assay
             try {
-                moduleMeasurementData = apiService.getMeasurementData(assay, user)
+                moduleMeasurementData = apiService.getMeasurementData(assay, user).sort()
                 data[ "Module Measurement Data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
             } catch (e) {
                 moduleMeasurementData = ['error' : [
