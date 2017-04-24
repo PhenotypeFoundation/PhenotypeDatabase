@@ -1,13 +1,10 @@
-Generic Study Capture Framework
-====
-
 ## WAR files
 We have the most recent builds available for download as ```war``` files which can be deployed on an application container (e.g. Apache Tomcat). 
 
-```production``` [PhenotypeDatabase.war](http://download.dbnp.org/production/PhenotypeDatabase.war) 
+```production``` [PhenotypeDatabase.war](http://download.dbnp.org/production/PhenotypeDatabase.war)<br/>
 ```continuous_integration``` [PhenotypeDatabase.war](http://download.dbnp.org/ci/PhenotypeDatabase.war)
 
-default config file: [default.properties](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
+Default config file: [default.properties](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
 
 ## Installation
 In this guide we will assume you use Linux as a hosting platform. While you will be able to run GSCF on Windows, using Linux is preferable. This guide is written with [Debian GNU/Linux](http://www.debian.org/) (or Ubuntu) as a hosting platform. As Linux distributions differ other distributions may require minor changes in setup, but following this guide you should be able to get things running on other distributions as well.
