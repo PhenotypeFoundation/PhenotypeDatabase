@@ -1,19 +1,15 @@
-Generic Study Capture Framework
-====
-
 ## WAR files
 We have the most recent builds available for download as ```war``` files which can be deployed on an application container (e.g. Apache Tomcat). 
 
-War file | Build Environment | Source | Config Location
---- | --- | --- | --- | ---
-[PhenotypeDatabase.war](http://download.dbnp.org/production/PhenotypeDatabase.war) | ```production``` | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/production.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
-[PhenotypeDatabase.war](http://download.dbnp.org/ci/PhenotypeDatabase.war) | ```continuous integration``` | [![github logo](https://raw.github.com/PhenotypeFoundation/GSCF/master/web-app/images/github-logo.png)](https://github.com/PhenotypeFoundation/GSCF) | ~/.gscf/ci.properties [?](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
-_Note: each project / environment requires a specific configuration file._
+```production``` [PhenotypeDatabase.war](http://download.dbnp.org/production/PhenotypeDatabase.war)<br/>
+```continuous_integration``` [PhenotypeDatabase.war](http://download.dbnp.org/ci/PhenotypeDatabase.war)
 
-# Installation
+Default config file: [default.properties](https://github.com/PhenotypeFoundation/GSCF/blob/master/grails-app/conf/default.properties)
+
+## Installation
 In this guide we will assume you use Linux as a hosting platform. While you will be able to run GSCF on Windows, using Linux is preferable. This guide is written with [Debian GNU/Linux](http://www.debian.org/) (or Ubuntu) as a hosting platform. As Linux distributions differ other distributions may require minor changes in setup, but following this guide you should be able to get things running on other distributions as well.
 
-### Assumptions
+## Assumptions
 The tutorial is based on a number of assumptions:
 * you have root access to the server
 * we will set up a gscf test instance on test.mysite.com on IP (1.2.3.4)
@@ -22,7 +18,7 @@ The tutorial is based on a number of assumptions:
 * we will have one administrator user (user 'admin', password 'adminpw')
 * we will have one default user (user 'user', password 'userpw')
 
-### Requirements
+## Requirements
 Before we can set up the server, the following requirements should be met:
 * Apache Tomcat ≥ 7.x.x
 * Apache Webserver ≥ 2.x (+mod_proxy, +mod_rewrite)
@@ -34,7 +30,7 @@ Installation is quick and easy:
 	apt-get install tomcat7 postgresql-9.2 apache2 libapache2-mod-proxy-html libapache2-mod-jk
 	
 
-### Set Up the Database
+## Set Up the Database
 su to user postgres and create the database:
 
 Note: you may have to use double quotes (") rather than single quotes (').
@@ -64,7 +60,7 @@ Note: you may have to use double quotes (") rather than single quotes (').
 	(16 rows)
 	
 
-### Set up the application configuration
+## Set up the application configuration
 As of GSCF 0.8.3 a setup wizard is included which will create a configuration file for you (/path/to/homedir/.gscf/environment.properties). However, to run this wizard, you need a working instance, so it might be more convenient to write the configuration yourself.
 If you start the application, you will see exactly at which location it is looking for a configuration file. It is probably /usr/share/tomcat7/.gscf/production.properties. You can use it to specify the database connection.
 
@@ -81,11 +77,11 @@ Grails uses a cache folder, which should be created if the tomcat user cannot cr
 	root@nmcdsp:~# mkdir -p /usr/share/tomcat7/.grails;chown tomcat7.tomcat7 /usr/share/tomcat7/.grails;chmod -R gou+rwx /usr/share/tomcat7/.grails
 	
 
-### Install GSCF
+## Install GSCF
 Download and install the latest WAR from the section above, and deploy it on your application container (e.g. Apache Tomcat).
 	
 	
-### Start GSCF
+## Start GSCF
 You should now be able to start tomcat and run the GSCF application:
 
 	
@@ -94,7 +90,7 @@ You should now be able to start tomcat and run the GSCF application:
 	root@nmcdsp:~# 
 	
 
-### Set Up Apache to proxy / rewrite request
+## Set Up Apache to proxy / rewrite request
 As tomcat is running (by default) on 8080, it is not very professional to have your application run on http://test.mysite.com:8080/gscf. Instead http://test.mysite.com is preferable. Also it is convenient to be able to add load balancing functionality in case you expect high load. Apache can solve these issues.
 
 First, make sure Apache loads all modules we require:
@@ -171,7 +167,7 @@ And reload apache to use the newly created virtual host configuration:
 	
 Your site should now be up and running and listening on http://test.mysite.com (and server alias test.gscf.mysite.com)
 
-### Loadbalancing
+## Loadbalancing
 If you, at some point in the future, require more nodes serving GSCF you can change the virtual host configuration above to include multiple BalancerMembers in the balancer configuration. For example, you could set up one Apache Webserver to act as a loadbalancer to a number of tomcat servers running in a DMZ:
 	
 			<Proxy balancer://gscf-cluster>
@@ -185,11 +181,11 @@ Caveats: GSCF has not yet been tested in such an environment. Other things to ke
 * the tomcat sessions need to be synchronized as well as shared storage (gfs seems best equiped), unless a client stays on the same node during the duration of his session
 * probably one PostgreSQL database can manager all members, however when load becomes too high one might also introduce one or more PostgreSQL servers. Possible read/write and read only database servers. This however required changes in the codebase to support such features.
 
-# Running the source
+## Running the source
 The project is developed using the [Grails](http://grails.org) Framework, so you either need an IDE that supports Grails (we use Intellij) or run it in your terminal. In either case you need to [download](http://grails.org/download) and install Grails (version [2.4.4](https://github.com/PhenotypeFoundation/GSCF/blob/master/application.properties) at the time of writing).
 
 
-### Running in your terminal
+## Running in your terminal
 When you have successfully installed the Grails web application framework, you should be able to run Grails in your terminal:
 
 	root@nmcdsp:~/projectRoot/ grails run-app 
@@ -197,17 +193,17 @@ When you have successfully installed the Grails web application framework, you s
 When the application is running, you should be able to access it at http://localhost:8080/gscf
 
 
-### Running in your IDE
+## Running in your IDE
 Most of the developers on this project favor [IntellijIDEA](https://www.jetbrains.com/idea/) over Eclipse/Netbeans, as we feel it integrates best with Groovy & Grails. Running GSCF in Intellij is as easy as configuring Grails and running the Application.
 
 
-### VM Options
+## VM Options
 
 ```
 -Xms1048m -Xmx1048m -XX:PermSize=1048m -XX:MaxPermSize=2048m -XX:MaxHeapFreeRatio=70 -XX:MaxGCPauseMillis=10 -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -Xverify:none
 ```
 
-# License
+## License
 Copyright 2009 Phenotype Foundation & Netherlands Metabolomics Centre
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -225,7 +221,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
    
 
-# Technologies
+## Technologies
 [![Grails](http://www.chip.de/ii/6/0/5/9/2/7/1/95f75d6b0f329cb3.jpg)](http://www.grails.org)
 [![jQuery](http://3.bp.blogspot.com/-Pv6D2RbhMoY/UfklyE_3fkI/AAAAAAAAAo0/wftYaC95wQg/s1600/logo-jquery2.png)](http://jquery.org)
 [![jQuery-UI](http://www.bits4beats.it/wp-content/uploads/2010/02/jquery_ui_logo.png)](http://jqueryui.com)
