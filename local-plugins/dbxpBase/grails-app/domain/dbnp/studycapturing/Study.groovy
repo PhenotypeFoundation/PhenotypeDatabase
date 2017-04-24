@@ -580,17 +580,17 @@ class Study extends TemplateEntity {
 	public boolean canRead(SecUser loggedInUser) {
 		// Public studies may be read by anyone
 		if( this.publicstudy ) {
-			return true;
+			return true
 		}
 
 		// Anonymous readers are only given access when published and public
 		if (loggedInUser == null) {
-			return false;
+			return false
 		}
 
 		// Administrators are allowed to read every study
 		if (loggedInUser.hasAdminRights()) {
-			return true;
+			return true
 		}
 
 		// Owners and writers are allowed to read this study

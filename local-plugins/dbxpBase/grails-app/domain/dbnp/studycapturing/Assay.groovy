@@ -71,15 +71,15 @@ class Assay extends TemplateEntity {
         publicassay defaultValue: "false"
     }
 
-    def String toString() {
+    String toString() {
 
         String string = ""
 
-        if ( parent ) {
+        if ( parent?.code ) {
             string = parent.code + " - "
         }
 
-        return string+=name;
+        return string+=name
     }
 
     /**
