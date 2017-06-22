@@ -24,6 +24,7 @@ import org.dbnp.gdt.*
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 
 class ApiController {
+    def grailsApplication
     def authenticationService
     def apiService
     def dataSource
@@ -741,6 +742,160 @@ class ApiController {
 		}
 	}
 
+    /**
+     * TESTING
+     *
+     * Export an assay to an Opal (obiba.org/pages/products/opal/) instance on the same server.
+     *
+     * @param string deviceID
+     * @param string validation md5 sum
+     * @param string assayToken
+     */
+    def exportAssayToOpal() {
+        println "api::ExportAssayToOpal: ${params}"
+
+        Assay assay = getAssay()
+        // fetch user based on deviceID
+        SecUser user = getUser()
+
+        String opalUrl = grailsApplication.config?.opalUrl
+        String opalUser = grailsApplication.config?.opalUser
+        String opalPassword = grailsApplication.config?.opalPassword
+
+        if ( !opalUrl || !opalUser || !opalPassword ) {
+            response.sendError(500, "opalUrl, opalUser and opalPassword not configured (in external config)" )
+            return
+        }
+
+        //wrap result in api call validator
+        apiService.executeApiCall(params,response,'assay',assay,{
+            // iterate through measurementData and build data matrix
+            try {
+
+                def subjectMap = [:]
+                def featureList = []
+
+                apiService.flattenDomainData( assay.parent.subjects ).each() { subjectList ->
+
+                    String subjectName = ''
+
+                    subjectList.each() { item, value ->
+
+                        switch (item) {
+                            case 'name':
+                                subjectName = value.toString()
+                                subjectMap[subjectName] = [:]
+                                break
+                            case ['species', 'token']:
+                                break
+                            default:
+
+                                String featureName = featureConverter(item).intern()
+
+                                subjectMap[subjectName][featureName] = value
+
+                                if (!featureList.contains(featureName)) {
+                                    featureList << featureName
+                                }
+
+                                break
+                        }
+                    }
+                }
+
+                apiService.getMeasurementData(assay, user).each() { feature, featureMeasurements ->
+                    featureMeasurements.each() { sampleId, value ->
+                        Sample sample = Sample.read(sampleId)
+
+                        String featureName = featureConverter(feature).intern()
+                        String subjectName = sample.getParentSubjectName().intern()
+
+                        subjectMap[subjectName][featureName] = value
+
+                        if (!featureList.contains(featureName)) {
+                            featureList << featureName
+                        }
+                    }
+                }
+
+                //Clean up all-null features
+                def featuresToRemoveFromList = []
+                featureList.each() { String featureName ->
+                    def uniqueValues = subjectMap.collect { it.value[featureName] }.unique()
+
+                    if ( uniqueValues.size() == 1 && uniqueValues[0].toString().equals('null') ) {
+                        featuresToRemoveFromList << featureName
+                    }
+                }
+
+                featureList.removeAll(featuresToRemoveFromList)
+
+                File opalImport = new File("/tmp/opalImport-${assay.UUID}.csv")
+
+                opalImport << "ID,"+featureList.join(',')+"\n"
+                subjectMap.each() { String subjectId, HashMap valueMap ->
+                    String row = subjectId
+
+                    featureList.each() { featureName ->
+
+                        def value
+
+//                        value = valueMap.getOrDefault(featureName, '')
+
+                        if ( valueMap.containsKey(featureName) ) {
+                            value = valueMap[featureName].toString()
+                        }
+
+                        if ( value ) {
+                            if ( value.contains('.0') ) {
+                                def split = value.split("\\.")
+
+                                if (split[1].size() == 1) {
+                                    value = split[0]
+                                }
+                            }
+                        }
+                        else {
+                            value = ''
+                        }
+
+                        row += ','+value
+                    }
+
+                    opalImport << row+'\n'
+                }
+
+                String table = "${assay.parent.code.replace(' ','_')}-${assay.name.replace(' ','_')}".toString()
+
+                String fileCommand = "opal file --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} -up /tmp/opalImport-${assay.UUID}.csv /home/${opalUser}".toString()
+                String importCommand = "opal import-csv -o ${opalUrl} --user ${opalUser} --password ${opalPassword} --destination phenotypedatabase-exported --table ${table} --path /home/${opalUser}/opalImport-${assay.UUID}.csv --type Participant".toString()
+                String removeCommand = "rm /tmp/opalImport-${assay.UUID}.csv".toString()
+
+                fileCommand.execute()
+                importCommand.execute()
+                removeCommand.execute()
+
+                def result = [
+                        'status': "Export to Opal succeeded",
+                        'project': 'phenotypedatabase-exported',
+                        'table': table
+                ]
+
+                if (params.containsKey('callback')) {
+                    render "${params.callback}(${result as JSON})"
+                    return
+                } else {
+                    render result as JSON
+                    return
+                }
+
+            } catch (Exception e) {
+                println "exportAssayToOpal exception: ${e.getMessage()}"
+                response.sendError(500, "There seems to be something wrong with either data retrieval or Opal connection")
+            }
+        })
+    }
+
 	/**
 	 * create a new entity
 	 *
@@ -1016,5 +1171,31 @@ class ApiController {
                 [startTime: it.startTime, description: it.description, eventGroupId: it.eventGroup.id]
             }]
         }
+    }
+
+    private String featureConverter(String inputName) {
+
+        String outputName = ''
+
+//        println inputName
+
+        switch(inputName) {
+            case 'age(years)':
+                outputName = 'AGE'
+                break
+            case 'bodyWeight(kg)':
+                outputName = 'WEIGHT'
+                break
+            case 'bodyHeight(cm)':
+                outputName = 'HEIGHT'
+                break
+            default:
+                outputName = inputName
+
+        }
+
+//        println outputName
+
+        return outputName
     }
 }
