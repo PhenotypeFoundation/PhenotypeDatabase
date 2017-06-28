@@ -188,12 +188,12 @@
                 <g:form url="[action:'add',controller:'userRegistration']" class="clearfix registration">
                     <ul class="form">
                         <li>
-                            <input class="field" type="text" name="username" id="username" size="23" placeholder="Username"/>
+                            <input class="field" type="text" name="username" id="username" size="23" placeholder="${grailsApplication.config.usernameRegistrationPreference ?: "Username"}"/>
                         </li>
                         <li>
-                            <input class="field" type="text" name="email" id="email" size="23" placeholder="Email"/>
+                            <input class="field" type="text" name="email" id="email" size="23" placeholder="email address"/>
                         </li>
-                        <li>A password will be emailed to you</li>
+                        <li style="font-size: smaller">A password will be emailed to you</li>
                         <li class="buttons">
                             <input class="button-2 pie" type="submit" value="Sign up" />
                         </li>
@@ -210,15 +210,15 @@
                     </g:if>
 
                     <li>
-                        <input type="text" placeholder="Username" name="j_username" id="j_username" value="${username}" size="23"/>
+                        <input type="text" placeholder="username" name="j_username" id="j_username" value="${username}" size="23"/>
                     </li>
                     <li>
-                        <input type="password" placeholder="Password" name="j_password" id="password" size="23"/>
+                        <input type="password" placeholder="password" name="j_password" id="password" size="23"/>
                     </li>
                     <li><input type="checkbox" class="icheckbox" name='_spring_security_remember_me' id='remember_me' <g:if test='${hasCookie}'>checked='checked'</g:if>/>
-                        <label for="remember_me">Remember me</label>
+                        <label for="remember_me" style="font-size: smaller">Remember me</label>
 
-                        <a class="lost-pwd" href="<g:createLink url="[action:'forgotPassword',controller:'register']"/>">Lost your password?</a>
+                        <a style="font-size: smaller" href="<g:createLink url="[action:'forgotPassword',controller:'register']"/>">Lost your password?</a>
                     </li>
                     <li class="buttons">
                         <input class="button-1 pie" type="submit" name="submit" value="Login"/>

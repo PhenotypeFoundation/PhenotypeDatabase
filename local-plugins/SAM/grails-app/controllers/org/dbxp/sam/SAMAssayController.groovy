@@ -122,8 +122,6 @@ class SAMAssayController {
 	   // This is not the most efficient way of performing this query, but still
 	   def extendedRecords = []
 
-
-
 	   if( records.size() > 0 ) {
 		   records.each { record ->
                //Should display number of filled samples but this gives performance issues with a large amount of assays. Something like:
@@ -166,8 +164,8 @@ class SAMAssayController {
         if (moduleService.validateModule(params?.module)) {
             def hideEmpty = params.hideEmpty ? Boolean.parseBoolean( params.hideEmpty ) : true
             def assayInstance = Assay.get(params.id)
-			def maxResults = params.max ?: 10;
-			def queryOffset = params.offset ?: 0;
+			def maxResults = params.max ?: 10
+			def queryOffset = params.offset ?: 0
 
             if (!assayInstance) {
                 flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'assay.label', default: 'Assay'), params.id])}"
@@ -175,7 +173,7 @@ class SAMAssayController {
                 return
             }
 
-            if( !assayInstance.parent.canRead( session.gscfUser ) ) {
+            if( !assayInstance.canRead( session.gscfUser ) ) {
                 flash.message = "You are not allowed to access assay " + assayInstance
                 redirect(action: "list", params: [module: params.module])
                 return
