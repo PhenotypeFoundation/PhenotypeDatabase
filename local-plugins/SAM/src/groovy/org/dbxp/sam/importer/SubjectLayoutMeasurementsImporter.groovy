@@ -202,7 +202,7 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
         log.debug "# samples without samsample for assay " + assay + " : " + samplesWithoutSamSample.size()
         samplesWithoutSamSample.each { sample ->
             def samSample = new SAMSample(parentSample: sample, parentAssay: assay)
-            samSample.save()
+            samSample.save(flush: true)
         }
         
         // Retrieve all samsamples
@@ -256,10 +256,10 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
                         // If we have a sample, we know that there is also a SAMSample object
                         // as we have created it before. If there is no sample for this subject/timepoint combination
                         // and the user wants to import data here, return an error
-                        if( value && !sampleId ) {
+                        if( isValue(value) && !sampleId ) {
                             errors << new ImportValidationError(
                                 code: 12,
-                                message: "No sample was found for subject '" + requiredSubjectName + "' and timepoint '" + timepoint + ".",
+                                message: "No sample was found for subject '" + requiredSubjectName + "' and timepoint '" + timepoint + "'.",
                                 line: lineNr,
                                 column: columnIndex
                             )
@@ -279,6 +279,18 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
                         }
                         
                         def samSampleId = samSampleMap[sampleId]
+
+                        // Should never occur while SamSamples are generated if they do not exist
+                        if (!samSampleId) {
+                            errors << new ImportValidationError(
+                                    code: 16,
+                                    message: "No module sample was found for sample matching '" + requiredSubjectName + "' and timepoint '" + timepoint + "'. Please assign all samples in the upload file to the assay (assay-samples in design)",
+                                    line: lineNr,
+                                    column: columnIndex
+                            )
+
+                            return
+                        }
                         
                         // Convert the value to a number, if necessary
                         if( value instanceof String && value.isDouble() ) {

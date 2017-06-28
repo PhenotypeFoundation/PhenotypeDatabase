@@ -136,18 +136,26 @@ grails.plugin.springsecurity.interceptUrlMap = [
         '/userRegistration/sendUserConfirmation':           ['permitAll'],
         '/userRegistration/confirmUser':                    ['permitAll'],
 
-        // Rest controllers have their own authentication
-        '/rest/**':                                         ['permitAll'],
-        '/measurements/*/rest/**':                          ['permitAll'],
-
-        // Design view of public studies
+        // Design view of a public studies
         '/studyEditDesign/eventGroupDetails/*':		        ['permitAll'],
         '/studyEditDesign/subjectGroupDetails/*':			['permitAll'],
         '/studyEditDesign/dataTableSubjectSelection/*':		['permitAll'],
 
+		// View of assay list for public assays
+        '/measurements/*/assay/list':				        ['permitAll'],
+        '/measurements/*/assay/datatables_list':			['permitAll'],
+
+        // View of measurements of a public assay
+        '/measurements/*/assay/show/*':				        ['permitAll'],
+		'/measurements/*/assay/showByToken/*':				['permitAll'],
+
+        // Rest controllers have their own authentication
+        '/rest/**':                                         ['permitAll'],
+        '/measurements/*/rest/**':                          ['permitAll'],
+
         // API authentication is only accessible for specific users
-        '/api/authenticate/**':								['ROLE_ADMIN', 'ROLE_CLIENT'],
         '/api/**':											['permitAll'],
+        '/api/authenticate/**':								['ROLE_ADMIN', 'ROLE_CLIENT'],
 
         // Template editor is only accessible for specific users
         '/template/**':                         	        ['ROLE_ADMIN', 'ROLE_TEMPLATEADMIN'],
