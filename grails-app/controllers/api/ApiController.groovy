@@ -743,7 +743,7 @@ class ApiController {
 	}
 
     /**
-     * TESTING
+     * STILL TESTING
      *
      * Export an assay to an Opal (obiba.org/pages/products/opal/) instance on the same server.
      *
@@ -766,6 +766,15 @@ class ApiController {
             response.sendError(500, "opalUrl, opalUser and opalPassword not configured (in external config)" )
             return
         }
+
+        String table = "${assay.parent.code.replace(' ','_')}-${assay.name.replace(' ','_')}".toString()
+
+        String deleteTableCommand = "opal delete-table --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} --project phenotypedatabase-exported --tables \"${table}\""
+
+        // Delete table if it already exists within the phenotypedatabase-exported project
+        deleteTableCommand.execute()
+
+        def result = [ 'status': "Export to Opal (${opalUrl}) failed" ]
 
         //wrap result in api call validator
         apiService.executeApiCall(params,response,'assay',assay,{
@@ -865,21 +874,35 @@ class ApiController {
                     opalImport << row+'\n'
                 }
 
-                String table = "${assay.parent.code.replace(' ','_')}-${assay.name.replace(' ','_')}".toString()
-
                 String fileCommand = "opal file --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} -up /tmp/opalImport-${assay.UUID}.csv /home/${opalUser}".toString()
-                String importCommand = "opal import-csv -o ${opalUrl} --user ${opalUser} --password ${opalPassword} --destination phenotypedatabase-exported --table ${table} --path /home/${opalUser}/opalImport-${assay.UUID}.csv --type Participant".toString()
+                String importCommand = "opal import-csv --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} --destination phenotypedatabase-exported --table ${table} --path /home/${opalUser}/opalImport-${assay.UUID}.csv --type Participant --json".toString()
                 String removeCommand = "rm /tmp/opalImport-${assay.UUID}.csv".toString()
 
                 fileCommand.execute()
-                importCommand.execute()
+                String importCommandExecuteText = importCommand.execute().text
                 removeCommand.execute()
 
-                def result = [
-                        'status': "Export to Opal succeeded",
-                        'project': 'phenotypedatabase-exported',
-                        'table': table
-                ]
+                String dataCommand = "opal dict phenotypedatabase-exported.${table} --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} --json".toString()
+
+                def i = 0
+                def assayInOpal = false
+
+                // Check if assay becomes available in Opal so the response does not come back while Opal is still processing
+                while( !assayInOpal && i < 30 ) {
+
+                    String dataCommandExecuteText = dataCommand.execute().text
+
+                    if ( !dataCommandExecuteText.contains("404 Not Found") ) {
+                        assayInOpal = true
+                        result = [ 'status': "Export to Opal succeeded", 'project': 'phenotypedatabase-exported', 'table': table ]
+                    }
+                    else {
+                        // Delay next try for two seconds
+                        sleep(2000)
+                    }
+
+                    i ++
+                }
 
                 if (params.containsKey('callback')) {
                     render "${params.callback}(${result as JSON})"
@@ -1177,8 +1200,6 @@ class ApiController {
 
         String outputName = ''
 
-//        println inputName
-
         switch(inputName) {
             case 'age(years)':
                 outputName = 'AGE'
@@ -1194,7 +1215,8 @@ class ApiController {
 
         }
 
-//        println outputName
+        outputName = outputName.replace("(","_")
+        outputName = outputName.replace(")","")
 
         return outputName
     }
