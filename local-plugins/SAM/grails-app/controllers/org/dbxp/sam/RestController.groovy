@@ -306,8 +306,8 @@ class RestController {
      *                      maps samples to values.
      */
     def getMeasurementData = {
-        def assayToken = params.assayToken;
-        def assay = getAssay( assayToken );
+        def assay = getAssay( params.assayToken )
+
         if( !assay ) {
             response.sendError(404)
             return false

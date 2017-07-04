@@ -474,7 +474,7 @@ class ApiController {
                 def count = 0
                 def measurements =  [:]
 
-                apiService.getMeasurementData(assay, user).each() { feature, featureMeasurements ->
+                apiService.getMeasurementDataForAssay(assay, user).each() { feature, featureMeasurements ->
                     featureMeasurements.each() { sampleId, value ->
                         Sample sample = Sample.read(sampleId)
 
@@ -812,7 +812,7 @@ class ApiController {
                     }
                 }
 
-                apiService.getMeasurementData(assay, user).each() { feature, featureMeasurements ->
+                apiService.getMeasurementDataForAssay(assay, user).each() { feature, featureMeasurements ->
                     featureMeasurements.each() { sampleId, value ->
                         Sample sample = Sample.read(sampleId)
 
@@ -894,7 +894,6 @@ class ApiController {
 
                     if ( !dataCommandExecuteText.contains("404 Not Found") ) {
                         assayInOpal = true
-                        result = [ 'status': "Export to Opal succeeded", 'project': 'phenotypedatabase-exported', 'table': table ]
                     }
                     else {
                         // Delay next try for two seconds
@@ -902,6 +901,13 @@ class ApiController {
                     }
 
                     i ++
+                }
+
+                if (assayInOpal) {
+                    result = [ 'status': "Export to Opal succeeded", 'project': 'phenotypedatabase-exported', 'table': table ]
+                }
+                else {
+                    log.error("ExportToOpal not successful after 1 minute for assayId ${assay.id}: ${importCommandExecuteText}")
                 }
 
                 if (params.containsKey('callback')) {
@@ -961,199 +967,198 @@ class ApiController {
 		Map relationships = [:]         // one to one relationship
 		Map reverseRelationships = [:]  // non belongsTo relationships (parent hasMany relationship)
 
-		if (entityType) {
-			try {
-				// get entity
-				def entity = apiService.getEntity(entityType)
+        if (entityType) {
+            try {
+                // get entity
+                def entity = apiService.getEntity(entityType)
 
-				// got an entity?
-				if (!entity) throw new Exception("invalid entity '${entityType}', call getEntityTypes for a list of valid entities. Note that entityType is case sensitive!")
+                // got an entity?
+                if (!entity) throw new Exception("invalid entity '${entityType}', call getEntityTypes for a list of valid entities. Note that entityType is case sensitive!")
 
-				// instantiate entity
-				def entityInstance = entity.newInstance()
+                // instantiate entity
+                def entityInstance = entity.newInstance()
 
-				// got a template token?
-				if (templateToken) {
-					// no entity token, but we have a template token instead
-					def template = Template.findWhere(UUID: templateToken)
+                // got a template token?
+                if (templateToken) {
+                    // no entity token, but we have a template token instead
+                    def template = Template.findWhere(UUID: templateToken)
 
-					// was a valid template specified?
-					if (template && entity.equals(template.entity)) {
-						// set template
-						entityInstance.setTemplate(template)
-					} else {
-						throw new Exception("invalid template token specified, call getTemplatesForEntity(${entityType}) for a list of valid templates")
-					}
-				}
+                    // was a valid template specified?
+                    if (template && entity.equals(template.entity)) {
+                        // set template
+                        entityInstance.setTemplate(template)
+                    } else {
+                        throw new Exception("invalid template token specified, call getTemplatesForEntity(${entityType}) for a list of valid templates")
+                    }
+                }
 
-				// iterate through all fields for this instance and try to set them
-				entityInstance.giveFields().each {
-					if (params.containsKey(it.name)) {
-						entityInstance.setFieldValue(it.name, params.get(it.name))
-					}
-				}
+                // iterate through all fields for this instance and try to set them
+                entityInstance.giveFields().each {
+                    if (params.containsKey(it.name)) {
+                        entityInstance.setFieldValue(it.name, params.get(it.name))
+                    }
+                }
 
-				// try to set the relationships
-				def changed = false
+                // try to set the relationships
+                def changed = false
 
-                                            if (entityInstance.hasProperty('belongsTo')) {
+                if (entityInstance.hasProperty('belongsTo')) {
 
-				entityInstance.belongsTo.each { name, type ->
-					def matches	= type.toString() =~ /\.([^\.]+)$/
-					def tokenEntity = matches[0][1]
-					def tokenName = "${tokenEntity.toLowerCase()[0]}${tokenEntity.substring(1)}Token".toString()
-					def uuid = (params.containsKey(tokenName)) ? params.remove(tokenName) : ''
+                    entityInstance.belongsTo.each { name, type ->
+                        def matches	= type.toString() =~ /\.([^\.]+)$/
+                        def tokenEntity = matches[0][1]
+                        def tokenName = "${tokenEntity.toLowerCase()[0]}${tokenEntity.substring(1)}Token".toString()
+                        def uuid = (params.containsKey(tokenName)) ? params.remove(tokenName) : ''
 
-					// does the tokenName exist in the parameters (e.g. studyToken)?
-					if (uuid) {
-						// yes, find an instance of this entity
-						def tokenInstance = apiService.getEntity(tokenEntity)
+                        // does the tokenName exist in the parameters (e.g. studyToken)?
+                        if (uuid) {
+                            // yes, find an instance of this entity
+                            def tokenInstance = apiService.getEntity(tokenEntity)
 
-						// find the entity with this particular token
-						def foundEntity = tokenInstance.findWhere(UUID: uuid)
+                            // find the entity with this particular token
+                            def foundEntity = tokenInstance.findWhere(UUID: uuid)
 
-						// did we indeed found the entity we need to set a relationship with?
-						if (foundEntity) {
-							// check if there is a hasMany relationship for this entity type
-							def relationship = foundEntity.hasMany.find { n, t ->
-								def m = t.toString() =~ /\.([^\.]+)$/
-								return (entityType == m[0][1])
-							}
+                            // did we indeed found the entity we need to set a relationship with?
+                            if (foundEntity) {
+                                // check if there is a hasMany relationship for this entity type
+                                def relationship = foundEntity.hasMany.find { n, t ->
+                                    def m = t.toString() =~ /\.([^\.]+)$/
+                                    return (entityType == m[0][1])
+                                }
 
-							// found a hasMany relationship?
-							if (relationship) {
-								// yes, set relationship
-								def relationsName = relationship.key.toString()
-								foundEntity."addTo${relationsName.toUpperCase()[0]}${relationsName.substring(1)}"( entityInstance )
-								hasManyRelationships["${relationsName.toUpperCase()[0]}${relationsName.substring(1)}"] = foundEntity
-								changed = true
-							} else {
-								// no, check if it's a one to one relationship
-								relationship = foundEntity.properties.find { n, t ->
-									def m = t.toString() =~ /\.([^\.]+)$/
-									return (m && entityType == m[0][1])
-								}
+                                // found a hasMany relationship?
+                                if (relationship) {
+                                    // yes, set relationship
+                                    def relationsName = relationship.key.toString()
+                                    foundEntity."addTo${relationsName.toUpperCase()[0]}${relationsName.substring(1)}"( entityInstance )
+                                    hasManyRelationships["${relationsName.toUpperCase()[0]}${relationsName.substring(1)}"] = foundEntity
+                                    changed = true
+                                } else {
+                                    // no, check if it's a one to one relationship
+                                    relationship = foundEntity.properties.find { n, t ->
+                                        def m = t.toString() =~ /\.([^\.]+)$/
+                                        return (m && entityType == m[0][1])
+                                    }
 
-								// got one?
-								if (relationship) {
-									// yes, set it
-									def relationsName = relationship.key.toString()
-									foundEntity."${relationsName}" = entityInstance
-									relationships["${relationsName}"] = foundEntity
-									changed = true
-								}
-							}
-						} else {
-							throw new Exception("A ${tokenEntity} with token ${uuid} does not exist")
-						}
-					}
-				}
-                                            }
+                                    // got one?
+                                    if (relationship) {
+                                        // yes, set it
+                                        def relationsName = relationship.key.toString()
+                                        foundEntity."${relationsName}" = entityInstance
+                                        relationships["${relationsName}"] = foundEntity
+                                        changed = true
+                                    }
+                                }
+                            } else {
+                                throw new Exception("A ${tokenEntity} with token ${uuid} does not exist")
+                            }
+                        }
+                    }
+                }
+                // do we have other relationships in the parameter set? E.g.
+                // reverse relationships where belongsTo (cascaded deletes) is
+                // not defined, yet in a parent object this instance is defined
+                // in a hasMany relationship?
+                params.findAll{ name, value -> name =~ /Token$/ }.each { name, value ->
+                    // get the reverse (parent) instance name
+                    // for example: Sample -> Assay where Assay does have a
+                    // hasMany relationship to Sample but Sample does not
+                    // have a belongsTo set for Assay
+                    def m = name =~ /^([a-zA-Z]+)Token$/
+                    def reverseInstanceName = m[0][1].toUpperCase()[0] + m[0][1].substring(1)
 
+                    // get an instance of this class
+                    def reverseBaseInstance = apiService.getEntity(reverseInstanceName)
+                    def reverseInstance = null
 
-				// do we have other relationships in the parameter set? E.g.
-				// reverse relationships where belongsTo (cascaded deletes) is
-				// not defined, yet in a parent object this instance is defined
-				// in a hasMany relationship?
-				params.findAll{ name, value -> name =~ /Token$/ }.each { name, value ->
-					// get the reverse (parent) instance name
-					// for example: Sample -> Assay where Assay does have a
-					// hasMany relationship to Sample but Sample does not
-					// have a belongsTo set for Assay
-					def m = name =~ /^([a-zA-Z]+)Token$/
-					def reverseInstanceName = m[0][1].toUpperCase()[0] + m[0][1].substring(1)
+                    // fetch the reverse instance (if possible)
+                    try {
+                        reverseInstance = reverseBaseInstance.findWhere(UUID: value)
+                    } catch (Exception e) { }
 
-					// get an instance of this class
-					def reverseBaseInstance = apiService.getEntity(reverseInstanceName)
-					def reverseInstance = null
+                    // got a reverse relationship?
+                    if (reverseInstance) {
+                        reverseInstance.hasMany.findAll { hasManyName, hasManyValue ->
+                            hasManyValue == entity
+                        }.each { hasManyName, hasManyValue ->
+                            def functionName = "${hasManyName.toUpperCase()[0]}${hasManyName.substring(1)}"
 
-					// fetch the reverse instance (if possible)
-					try {
-						reverseInstance = reverseBaseInstance.findWhere(UUID: value)
-					} catch (Exception e) { }
+                            // remember relationship for rollback purposes
+                            reverseRelationships[ functionName ] = reverseInstance
 
-					// got a reverse relationship?
-					if (reverseInstance) {
-						reverseInstance.hasMany.findAll { hasManyName, hasManyValue ->
-							hasManyValue == entity
-						}.each { hasManyName, hasManyValue ->
-							def functionName = "${hasManyName.toUpperCase()[0]}${hasManyName.substring(1)}"
+                            // add relationship
+                            reverseInstance."addTo${functionName}"( entityInstance )
+                        }
+                    }
+                }
 
-							// remember relationship for rollback purposes
-							reverseRelationships[ functionName ] = reverseInstance
+                // validate instance
+                if (entityInstance.validate()) {
+                    // wrap result in api call validator
+                    apiService.executeApiCall(params, response, entityType, entityInstance, {
+                        // try to save instance
+                        try {
+                            // save item, although it may already have been
+                            // implicitely saved by any addToXyz statement
+                            // earlier
+                            if (!changed) entityInstance.save()
 
-							// add relationship
-							reverseInstance."addTo${functionName}"( entityInstance )
-						}
-					}
-				}
+                            // set output headers
+                            response.status = 200
+                            response.contentType = 'application/json;charset=UTF-8'
 
-				// validate instance
-				if (entityInstance.validate()) {
-					// wrap result in api call validator
-					apiService.executeApiCall(params, response, entityType, entityInstance, {
-						// try to save instance
-						try {
-							// save item, although it may already have been
-							// implicitely saved by any addToXyz statement
-							// earlier
-							if (!changed) entityInstance.save()
+                            // fetch all fields
+                            def result = [
+                                    'success'   : true,
+                                    'entityType': entityType,
+                                    'token'     : entityInstance.UUID
+                            ]
 
-							// set output headers
-							response.status = 200
-							response.contentType = 'application/json;charset=UTF-8'
-
-							// fetch all fields
-							def result = [
-								'success'   : true,
-								'entityType': entityType,
-								'token'     : entityInstance.UUID
-							]
-
-							if (params.containsKey('callback')) {
-								render "${params.callback}(${result as JSON})"
-							} else {
-								render result as JSON
-							}
-						} catch (Exception e) {
-							response.sendError(500, "unknown error occured (${e.getMessage()})")
-						}
-					}, {
-						// undo relationships - CLEANUP!
-						hasManyRelationships.each { name, instance ->
-							instance."removeFrom${name}"(entityInstance)
-						}
-						relationships.each { name, instance ->
-							instance[name] = null
-						}
-						entityInstance.delete(flush: true)
-					}, 'create')
-				} else {
-					// blast, we've got errors
-					// undo relationships - CLEANUP!
-					hasManyRelationships.each { name, instance ->
+                            if (params.containsKey('callback')) {
+                                render "${params.callback}(${result as JSON})"
+                            } else {
+                                render result as JSON
+                            }
+                        } catch (Exception e) {
+                            response.sendError(500, "unknown error occured (${e.getMessage()})")
+                        }
+                    }, {
+                        // undo relationships - CLEANUP!
+                        hasManyRelationships.each { name, instance ->
+                            instance."removeFrom${name}"(entityInstance)
+                        }
+                        relationships.each { name, instance ->
+                            instance[name] = null
+                        }
+                        entityInstance.delete(flush: true)
+                    }, 'create')
+                }
+                else {
+                    // blast, we've got errors
+                    // undo relationships - CLEANUP!
+                    hasManyRelationships.each { name, instance ->
                         println "   rollback ${instance}::${name}"
-						instance."removeFrom${name}"(entityInstance)
-					}
-					relationships.each { name, instance ->
+                        instance."removeFrom${name}"(entityInstance)
+                    }
+                    relationships.each { name, instance ->
                         println "   rollback ${instance}::${name}"
-						instance[name] = null
-					}
-					reverseRelationships.each { name, instance ->
+                        instance[name] = null
+                    }
+                    reverseRelationships.each { name, instance ->
                         println "   rollback ${instance}::${name}"
-						instance."removeFrom${name}"(entityInstance)
-					}
-					entityInstance.delete(flush: true)
+                        instance."removeFrom${name}"(entityInstance)
+                    }
+                    entityInstance.delete(flush: true)
 
-					// propagate errors
-					throw new Exception(entityInstance.errors.getAllErrors().collect { validationTagLib.message(error: it) }.join(', '))
-				}
-			} catch (Exception e) {
-				response.sendError(500, "unknown error occured (${e.getMessage()})")
-			}
-		} else {
-			response.sendError(400, "entityType is missing")
-		}
+                    // propagate errors
+                    throw new Exception(entityInstance.errors.getAllErrors().collect { validationTagLib.message(error: it) }.join(', '))
+                }
+            } catch (Exception e) {
+                response.sendError(500, "unknown error occured (${e.getMessage()})")
+            }
+        } else {
+            response.sendError(400, "entityType is missing")
+        }
 	}
 
 	/**
