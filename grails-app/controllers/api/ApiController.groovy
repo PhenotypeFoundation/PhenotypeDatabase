@@ -111,7 +111,7 @@ class ApiController {
 
         // check
         if (!apiService.validateRequest(deviceID,validation)) {
-            response.sendError(401, 'Unauthorized')
+            response.sendError(401, 'Unauthorized: please check your validation hash and make sure you have the Client role assigned to your account')
         } else {
             def user = getUser()
             def readableStudies = Study.giveReadableStudies(user)
