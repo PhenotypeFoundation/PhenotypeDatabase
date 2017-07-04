@@ -308,7 +308,7 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @param user
      * @return
      */
-    def getMeasurements(Assay assay, SecUser user) {
+    def getMeasurementsForAssay(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.baseUrl}/rest/getMeasurements"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json
@@ -337,7 +337,7 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @param user
      * @return
      */
-    def getMeasurementData(Assay assay, SecUser user) {
+    def getMeasurementDataForAssay(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.baseUrl}/rest/getMeasurementData"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json
@@ -419,7 +419,7 @@ class ApiService implements Serializable, ApplicationContextAware {
      * @param user
      * @return
      */
-    def getMeasurementMetaData(Assay assay, SecUser user) {
+    def getMeasurementMetaDataForAssay(Assay assay, SecUser user) {
         def serviceURL = "${assay.module.baseUrl}/rest/getMeasurementMetaData"
         def serviceArguments = "assayToken=${assay.UUID}"
         def json

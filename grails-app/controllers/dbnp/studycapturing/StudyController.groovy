@@ -157,7 +157,7 @@ class StudyController {
             def data = datatablesService.defaultEntityFormatter(assay)
             
             // Remove the first column (ID) and add a link to this assay for the details column
-            data.tail() + g.link( url: assay.module.baseUrl + "/assay/showByToken/" + assay.UUID, "Details" ) 
+            data.tail() + g.link( url: assay.module.baseUrl + "/assay/showByToken/" + assay.UUID, "See measurements" )
         })
         
         render datatableData as JSON

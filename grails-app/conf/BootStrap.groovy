@@ -86,15 +86,36 @@ class BootStrap {
 		 * @see dbnp.studycapturing.Subject
 		 * @see dbnp.studycapturing.Sample
 		 */
-		TemplateEntity.getField(Subject.domainFields, 'species')
-				.ontologies = [
-				Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON"),
-				Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/ENVO")
-		]
-		TemplateEntity.getField(Sample.domainFields, 'material')
-				.ontologies = [
-				Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
-		]
+
+		try {
+
+			def species = TemplateEntity.getField(Subject.domainFields, 'species')
+
+			if ( species ) {
+
+				def ncbi = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON")
+				def envo = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/ENVO")
+
+				species.ontologies.contains(ncbi) ?: species.addToOntologies(ncbi)
+				species.ontologies.contains(envo) ?: species.addToOntologies(envo)
+
+				species.save()
+			}
+
+			def material = TemplateEntity.getField(Sample.domainFields, 'material')
+
+			if ( material ) {
+				def bto = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
+
+				material.ontologies.contains(bto) ?: material.addToOntologies(bto)
+
+				material.save()
+			}
+		}
+		catch(e) {
+			log.error("Could not add species and material ontologies: unable to connect to Bioportal, please check your connection and bioontology.apikey (in external config)")
+		}
+
 		
 		// Preventing SSL Handshake exception for HTTPS connections java 1.7 
 		// See http://stackoverflow.com/questions/7615645/ssl-handshake-alert-unrecognized-name-error-since-upgrade-to-java-1-7-0
