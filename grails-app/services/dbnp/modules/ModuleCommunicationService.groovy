@@ -52,7 +52,7 @@ class ModuleCommunicationService implements Serializable {
      * @return
      */
     def invalidateStudy( def study ) {
-        moduleNotificationService.invalidateStudy( study );
+        moduleNotificationService.invalidateStudy( study )
     }
 
     /**
@@ -83,7 +83,7 @@ class ModuleCommunicationService implements Serializable {
      * @deprecated		Use callModuleMethod instead
      */
     def callModuleRestMethodJSON( consumer, restUrl, userDependent = true ) throws Exception {
-        def parts = restUrl.split( /\?/ );
+        def parts = restUrl.split( /\?/ )
         def url = "";
         def query = "";
 
@@ -94,7 +94,7 @@ class ModuleCommunicationService implements Serializable {
             url = parts[ 0 ];
         }
 
-        return callModuleMethod( consumer, url, query, "GET", null, userDependent );
+        return callModuleMethod( consumer, url, query, "GET", null, userDependent )
     }
 
     /**
@@ -119,9 +119,9 @@ class ModuleCommunicationService implements Serializable {
 
         // Check whether the url is present in cache
         log.trace "Checking whether " + restUrl + " is present in cache with args " + args
-        def cacheData = retrieveFromCache( restUrl, args, userDependent, remoteUser );
+        def cacheData = retrieveFromCache( restUrl, args, userDependent, remoteUser )
         if( cacheData && cacheData[ "success" ] )
-            return cacheData[ "contents" ];
+            return cacheData[ "contents" ]
         else if( cacheData && !cacheData[ "success" ] )
             throw new Exception( "Error while fetching data from " + restUrl + " (from cache): " + cacheData[ "error" ] )
 
@@ -148,25 +148,25 @@ class ModuleCommunicationService implements Serializable {
             def textResponse
             switch( requestMethod.toUpperCase() ) {
                 case "GET":
-                    log.trace( "Using GET method" );
-                    def url = restUrl + "?" + args;
-                    def connection = url.toURL().openConnection();
+                    log.trace( "Using GET method" )
+                    def url = restUrl + "?" + args
+                    def connection = url.toURL().openConnection()
 
                     textResponse = url.toURL().getText()
 
                     break
                 case "POST":
-                    log.trace( "Using POST method" );
+                    log.trace( "Using POST method" )
                     def connection = restUrl.toURL().openConnection()
-                    connection.setRequestMethod( "POST" );
+                    connection.setRequestMethod( "POST" )
                     connection.doOutput = true
 
                     def writer = new OutputStreamWriter( connection.outputStream )
-                    writer.write( args );
+                    writer.write( args )
                     writer.flush()
                     writer.close()
 
-                    connection.connect();
+                    connection.connect()
 
                     textResponse = connection.content.text
 
@@ -182,12 +182,12 @@ class ModuleCommunicationService implements Serializable {
 
             restResponse = JSON.parse( textResponse )
         } catch (Exception e) {
-            storeErrorInCache( restUrl, e.getMessage(), args, userDependent, remoteUser );
-            throw new Exception( "An error occurred while fetching " + restUrl + ".", e )
+            storeErrorInCache( restUrl, e.getMessage(), args, userDependent, remoteUser )
+            throw new Exception( "An error occurred while fetching " + restUrl + ": ${e.getMessage()}", e )
         }
 
         // Store the response in cache
-        storeInCache( restUrl, restResponse, args, userDependent, remoteUser );
+        storeInCache( restUrl, restResponse, args, userDependent, remoteUser )
 
         return restResponse
 
@@ -275,8 +275,8 @@ class ModuleCommunicationService implements Serializable {
         if( args ) {
             // Remove sessionToken from args
             args = args;
-            def sessionFound = ( args =~ /sessionToken=[^&]/ );
-            args = sessionFound.replaceAll( "sessionToken=" );
+            def sessionFound = ( args =~ /sessionToken=[^&]/ )
+            args = sessionFound.replaceAll( "sessionToken=" )
 
             url += '?' + args
         }

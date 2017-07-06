@@ -32,6 +32,8 @@ class RestController {
      *
      */
     def getMeasurements = {
+        log.trace( "rest.getMeasurement called" )
+
         def assayToken = params.assayToken;
         def assay = getAssay( assayToken );
         def features
@@ -174,6 +176,8 @@ class RestController {
      *   {"name":"average quality", "unit":"Phred"} ]
      */
     def getMeasurementMetaData = {
+        log.trace( "rest.getMeasurementMetaData called" )
+
         def assayToken = params.assayToken;
         def assay = getAssay( assayToken );
         if( !assay ) {
@@ -261,8 +265,10 @@ class RestController {
     }
 
     def getFeaturesForAssay = {
-        def assayToken = params.assayToken;
-        def assay = getAssay( assayToken );
+        log.trace( "rest.getFeaturesForAssay called" )
+
+        def assayToken = params.assayToken
+        def assay = getAssay( assayToken )
         if( !assay ) {
             response.sendError(404)
             return false
@@ -306,6 +312,8 @@ class RestController {
      *                      maps samples to values.
      */
     def getMeasurementData = {
+        log.trace( "rest.getMeasurementData called" )
+
         def assay = getAssay( params.assayToken )
 
         if( !assay ) {
