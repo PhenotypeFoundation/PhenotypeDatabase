@@ -87,33 +87,36 @@ class BootStrap {
 		 * @see dbnp.studycapturing.Sample
 		 */
 
-		try {
+		def species = TemplateEntity.getField(Subject.domainFields, 'species')
 
-			def species = TemplateEntity.getField(Subject.domainFields, 'species')
+		if ( species ) {
 
-			if ( species ) {
+			def ncbi = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON")
+			def envo = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/ENVO")
 
-				def ncbi = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON")
-				def envo = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/ENVO")
-
-				species.ontologies.contains(ncbi) ?: species.addToOntologies(ncbi)
-				species.ontologies.contains(envo) ?: species.addToOntologies(envo)
-
+			if ( !species.ontologies || !species.ontologies?.contains(ncbi) || species.ontologies?.contains(envo) ) {
+				species.ontologies = [ ncbi, envo ]
 				species.save()
 			}
+		}
 
-			def material = TemplateEntity.getField(Sample.domainFields, 'material')
+		def material = TemplateEntity.getField(Sample.domainFields, 'material')
 
-			if ( material ) {
-				def bto = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
+		if ( material ) {
+			def bto = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
 
-				material.ontologies.contains(bto) ?: material.addToOntologies(bto)
-
+			if ( !species.ontologies || !species.ontologies?.contains(bto) ) {
+				material.ontologies = [ bto ]
 				material.save()
 			}
 		}
+
+		try {
+
+
+		}
 		catch(e) {
-			log.error("Could not add species and material ontologies: unable to connect to Bioportal, please check your connection and bioontology.apikey (in external config)")
+			log.error("Could not add species and material ontologies: unable to connect to Bioportal, please check your connection and bioontology.apikey (in external config): ${e.message}")
 		}
 
 		

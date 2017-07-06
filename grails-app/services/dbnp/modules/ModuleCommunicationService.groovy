@@ -175,10 +175,10 @@ class ModuleCommunicationService implements Serializable {
                     throw new Exception( "Unknown request method given. Use GET or POST" )
             }
 
-            log.trace "GSCF responsed"
+//            log.trace "GSCF got response"
 
             // textResponse can be really big
-            //log.trace "GSCF response: " + textResponse
+            log.trace "GSCF got response: " + textResponse
 
             restResponse = JSON.parse( textResponse )
         } catch (Exception e) {
