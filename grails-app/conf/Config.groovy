@@ -68,7 +68,7 @@ log4j = {
     warn   'org.codehaus.groovy.grails.orm.hibernate',
             'org.hibernate'                                  // hibernate integration
 
-    all    'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter', 'org.dbxp.sam'
+    all    'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter', 'org.dbxp.sam', "dbnp.modules"
 
     // Disable logging for resources plugin
     error  'grails.app.services.org.grails.plugin.resource',

@@ -321,9 +321,9 @@ class ApiService implements Serializable, ApplicationContextAware {
                     serviceArguments,
                     "POST",
                     user
-            );
+            )
         } catch (Exception e) {
-            log.error "api.getMeasurements failed :: ${e.getMessage()}"
+            log.error "api.getMeasurementsForAssay failed :: ${e.getMessage()}"
             json = new org.codehaus.groovy.grails.web.json.JSONArray()
         }
 
@@ -350,9 +350,9 @@ class ApiService implements Serializable, ApplicationContextAware {
                     serviceArguments,
                     "POST",
                     user
-            );
+            )
         } catch (Exception e) {
-            log.error "api.getMeasurementData failed :: ${e.getMessage()}"
+            log.error "api.getMeasurementDataForAssay failed :: ${e.getMessage()}"
             json = new org.codehaus.groovy.grails.web.json.JSONArray()
         }
 
@@ -403,9 +403,9 @@ class ApiService implements Serializable, ApplicationContextAware {
                     serviceArguments,
                     "POST",
                     user
-            );
+            )
         } catch (Exception e) {
-            log.error "api.getMeasurementData failed :: ${e.getMessage()}"
+            log.error "api.getFeaturesForAssay failed :: ${e.getMessage()}"
             json = new org.codehaus.groovy.grails.web.json.JSONArray()
         }
 
@@ -432,7 +432,7 @@ class ApiService implements Serializable, ApplicationContextAware {
                     serviceArguments,
                     "POST",
                     user
-            );
+            )
         } catch (Exception e) {
             log.error "api.getMeasurementMetaData failed :: ${e.getMessage()}"
             json = new org.codehaus.groovy.grails.web.json.JSONArray()

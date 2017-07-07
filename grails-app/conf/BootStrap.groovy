@@ -88,7 +88,6 @@ class BootStrap {
 		 */
 
 		try {
-
 			def species = TemplateEntity.getField(Subject.domainFields, 'species')
 
 			if ( species ) {
@@ -96,10 +95,10 @@ class BootStrap {
 				def ncbi = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/NCBITAXON")
 				def envo = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/ENVO")
 
-				species.ontologies.contains(ncbi) ?: species.addToOntologies(ncbi)
-				species.ontologies.contains(envo) ?: species.addToOntologies(envo)
-
-				species.save()
+				if ( !species.ontologies || !species.ontologies?.contains(ncbi) || species.ontologies?.contains(envo) ) {
+					species.ontologies = [ ncbi, envo ]
+					species.save()
+				}
 			}
 
 			def material = TemplateEntity.getField(Sample.domainFields, 'material')
@@ -107,13 +106,14 @@ class BootStrap {
 			if ( material ) {
 				def bto = Ontology.getOrCreateOntology("http://data.bioontology.org/ontologies/BTO")
 
-				material.ontologies.contains(bto) ?: material.addToOntologies(bto)
-
-				material.save()
+				if ( !species.ontologies || !species.ontologies?.contains(bto) ) {
+					material.ontologies = [ bto ]
+					material.save()
+				}
 			}
 		}
 		catch(e) {
-			log.error("Could not add species and material ontologies: unable to connect to Bioportal, please check your connection and bioontology.apikey (in external config)")
+			log.error("Could not add species and material ontologies: unable to connect to Bioportal, please check your connection and bioontology.apikey (in external config): ${e.message}")
 		}
 
 		
