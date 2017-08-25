@@ -30,6 +30,14 @@ StudyEdit.design = {
 		StudyEdit.design.tooltips.initialize();
 		StudyEdit.design.subjectGroups.initialize();
 	},
+
+    readableScaledItems: function () {
+        StudyEdit.design.timelineObject.repaintItems(true);
+    },
+
+    timeScaledItems: function () {
+        StudyEdit.design.timelineObject.repaintItems(false);
+    },
 	
 	determineRelativeTime: function( d ) {
 		return RelTime.fromDates( StudyEdit.design.studyStartDate, d );

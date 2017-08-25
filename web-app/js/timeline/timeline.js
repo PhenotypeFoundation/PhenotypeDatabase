@@ -1616,7 +1616,12 @@ links.Timeline.prototype.clearItems = function() {
  * @return {boolean} needsReflow   Returns true if the DOM is changed such that
  *                                 a reflow is needed.
  */
-links.Timeline.prototype.repaintItems = function() {
+links.Timeline.prototype.repaintItems = function(readableItemWidth) {
+
+    if ( typeof readableItemWidth === 'undefined' ) {
+        readableItemWidth = false;
+    }
+
     var i, iMax, item, index;
 
     var needsReflow = false,
@@ -1676,7 +1681,7 @@ links.Timeline.prototype.repaintItems = function() {
 
     // reposition all visible items
     renderedItems.forEach(function (item) {
-        item.updatePosition(timeline);
+        item.updatePosition(timeline, readableItemWidth);
     });
 
     // redraw the delete button and dragareas of the selected item (if any)
@@ -4019,7 +4024,7 @@ links.Timeline.ItemRange.prototype.updateDOM = function () {
  * @param {links.Timeline} timeline
  * @override
  */
-links.Timeline.ItemRange.prototype.updatePosition = function (timeline) {
+links.Timeline.ItemRange.prototype.updatePosition = function (timeline, readableWidth) {
     var dom = this.dom;
     if (dom) {
         var contentWidth = timeline.size.contentWidth,
@@ -4037,7 +4042,15 @@ links.Timeline.ItemRange.prototype.updatePosition = function (timeline) {
         dom.style.top = this.top + "px";
         dom.style.left = left + "px";
         //dom.style.width = Math.max(right - left - 2 * this.borderWidth, 1) + "px"; // TODO: borderWidth
-        dom.style.width = Math.max(right - left, 1) + "px";
+
+        var width = Math.max(right - left, 1);
+
+        if ( readableWidth == true ) {
+            dom.style.width = (width < 100 ? 100 : width) + "px";
+        }
+        else {
+            dom.style.width = width + "px";
+        }
     }
 };
 

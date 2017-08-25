@@ -20,6 +20,14 @@ StudyView.design = {
 		StudyView.design.subjectGroups.initialize();
 	},
 
+	readableScaledItems: function () {
+        StudyView.design.timelineObject.repaintItems(true);
+    },
+
+    timeScaledItems: function () {
+        StudyView.design.timelineObject.repaintItems(false);
+    },
+
 	determineRelativeTime: function( d ) {
 		return RelTime.fromDates( StudyView.design.studyStartDate, d );
 	},
@@ -82,7 +90,7 @@ StudyView.design = {
 
 	timeline: function( container, data, options, eventHandlers ) {
 		if( typeof( options ) === "undefined" )
-			options = {}
+			options = {};
 
 		options = $.extend( options, {
 			editable: false,
