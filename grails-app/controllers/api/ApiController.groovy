@@ -15,11 +15,9 @@
  */
 package api
 
-import grails.plugin.springsecurity.annotation.Secured
 import grails.converters.JSON
 import dbnp.authentication.SecUser
 import dbnp.studycapturing.*
-import org.codehaus.groovy.grails.web.json.JSONObject
 import org.dbnp.gdt.*
 import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
 
@@ -781,123 +779,165 @@ class ApiController {
             // iterate through measurementData and build data matrix
             try {
 
-                def subjectMap = [:]
-                def featureList = []
+                def sampleMap = [:]
+                def subjectTemplateFieldMap = [:]
+                def variableTypeMap = [:]
+
+                def featureNameList = []
+                def subjectTemplateFieldNameList = []
 
                 apiService.flattenDomainData( assay.parent.subjects ).each() { subjectList ->
 
                     String subjectName = ''
 
-                    subjectList.each() { item, value ->
+                    subjectList.each() { templateFieldName, value ->
+                        if ( value != null ) {
+                            switch (templateFieldName) {
+                                case 'name':
+                                    subjectName = value.toString()
+                                    subjectTemplateFieldMap[subjectName] = [:]
+                                    break
+                                case ['species', 'token']:
+                                    break
+                                default:
 
-                        switch (item) {
-                            case 'name':
-                                subjectName = value.toString()
-                                subjectMap[subjectName] = [:]
-                                break
-                            case ['species', 'token']:
-                                break
-                            default:
+                                    value = value.toString()
 
-                                String featureName = featureConverter(item).intern()
+                                    // replace comma's in values
+                                    subjectTemplateFieldMap[subjectName][templateFieldName] = value.replace(',',';')
 
-                                subjectMap[subjectName][featureName] = value
+                                    if ( !subjectTemplateFieldNameList.contains(templateFieldName) ) {
+                                        subjectTemplateFieldNameList << templateFieldName
 
-                                if (!featureList.contains(featureName)) {
-                                    featureList << featureName
-                                }
+                                        // Only one value has to be checked since a variable definition will only accept one type
+                                        variableTypeMap[templateFieldName] = determineValueType(value)
+                                    }
 
-                                break
-                        }
-                    }
-                }
-
-                apiService.getMeasurementDataForAssay(assay, user).each() { feature, featureMeasurements ->
-                    featureMeasurements.each() { sampleId, value ->
-                        Sample sample = Sample.read(sampleId)
-
-                        String featureName = featureConverter(feature).intern()
-                        String subjectName = sample.getParentSubjectName().intern()
-
-                        subjectMap[subjectName][featureName] = value
-
-                        if (!featureList.contains(featureName)) {
-                            featureList << featureName
-                        }
-                    }
-                }
-
-                //Clean up all-null features
-                def featuresToRemoveFromList = []
-                featureList.each() { String featureName ->
-                    def uniqueValues = subjectMap.collect { it.value[featureName] }.unique()
-
-                    if ( uniqueValues.size() == 1 && uniqueValues[0].toString().equals('null') ) {
-                        featuresToRemoveFromList << featureName
-                    }
-                }
-
-                featureList.removeAll(featuresToRemoveFromList)
-
-                File opalImport = new File("/tmp/opalImport-${assay.UUID}.csv")
-
-                opalImport << "ID,"+featureList.join(',')+"\n"
-                subjectMap.each() { String subjectId, HashMap valueMap ->
-                    String row = subjectId
-
-                    featureList.each() { featureName ->
-
-                        def value
-
-//                        value = valueMap.getOrDefault(featureName, '')
-
-                        if ( valueMap.containsKey(featureName) ) {
-                            value = valueMap[featureName].toString()
-                        }
-
-                        if ( value ) {
-                            if ( value.contains('.0') ) {
-                                def split = value.split("\\.")
-
-                                if (split[1].size() == 1) {
-                                    value = split[0]
-                                }
+                                    break
                             }
                         }
-                        else {
-                            value = ''
-                        }
-
-                        row += ','+value
                     }
-
-                    opalImport << row+'\n'
                 }
 
-                String fileCommand = "opal file --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} -up /tmp/opalImport-${assay.UUID}.csv /home/${opalUser}".toString()
-                String importCommand = "opal import-csv --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} --destination phenotypedatabase-exported --table ${table} --path /home/${opalUser}/opalImport-${assay.UUID}.csv --type Participant --json".toString()
-                String removeCommand = "rm /tmp/opalImport-${assay.UUID}.csv".toString()
+                apiService.getMeasurementDataForAssay(assay, user).each() { featureName, featureMeasurements ->
 
-                fileCommand.execute()
-                String importCommandExecuteText = importCommand.execute().text
-                removeCommand.execute()
+                    featureMeasurements.each() { sampleId, value ->
 
-                String dataCommand = "opal dict phenotypedatabase-exported.${table} --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} --json".toString()
+                        if ( value != null ) {
 
+                            value = value.toString()
+
+                            if ( !sampleMap.containsKey(sampleId) ) {
+                                sampleMap[sampleId] = [:]
+                            }
+
+                            sampleMap[sampleId][featureName] = value
+
+                            if ( !featureNameList.contains(featureName) ) {
+                                featureNameList << featureName
+
+                                // Only one value has to be checked since a variable definition will only accept one type
+                                variableTypeMap[featureName] = determineValueType( value )
+                            }
+                        }
+                    }
+                }
+
+                File opalDataImport = new File("/tmp/opalDataImport-${assay.UUID}.csv")
+                File opalFeatureImport = new File("/tmp/opalFeatureImport-${assay.UUID}.json")
+
+                def featureMap =  [ "name": table, "entityType": "Participant", "variables": [ ["name":"subjectName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Subject name","locale":"en"]]],["name":"eventGroupName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"EventGroup name","locale":"en"]]],["name":"subjectEventGroupStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup start time","locale":"en"]]],["name":"subjectEventGroupDuration","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup duration","locale":"en"]]],["name":"sampleRelativeStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Sample relative start time","locale":"en"]]] ] ]
+
+                def header = "ID,subjectName,eventGroupName,subjectEventGroupStartTime,subjectEventGroupDuration,sampleRelativeStartTime"
+                (subjectTemplateFieldNameList+featureNameList).each() { name ->
+
+                    // Opal & Datashield have some requirements for variable names
+                    def opalName = name.replace("(","_").replace(")","").replace(":","_").replace("/","_").replace(",","_")
+
+                    header += ",${opalName}".toString()
+
+                    featureMap['variables'] << [ "name": opalName, "entityType": "Participant", "valueType": variableTypeMap[name], "isRepeatable": false, "attributes": [ [ "name": "label", "value": name, "locale": "en" ] ] ]
+                }
+                header += "\n"
+
+                opalDataImport << header
+                opalFeatureImport << (featureMap as JSON).toString()
+
+                sampleMap.each() { sampleId, HashMap valueMap ->
+
+                    Sample sample = Sample.read(sampleId)
+
+                    def subjectName = sample.getParentSubject().name
+
+                    def row = "${sample.name},${subjectName},${sample.getParentEventGroupName().intern()},${sample.getParentSubjectEventGroupStartTimeString().intern()},${sample.getParentEventGroup().duration.toString().replaceAll(" ", "")},${sample.getSampleRelativeStartTimeString().intern()}".toString()
+
+                    subjectTemplateFieldNameList.each() { subjectTemplateFieldName ->
+                        row  += ','+subjectTemplateFieldMap[subjectName][subjectTemplateFieldName]
+                    }
+
+                    featureNameList.each() { featureName ->
+                        def value = valueMap[featureName]
+
+                        if ( value == null ) {
+                            value = ''
+                        }
+                        if ( value.contains('.0') ) {
+                            def split = value.split("\\.")
+
+                            if (split[1].size() == 1) {
+                                value = split[0]
+                            }
+                        }
+
+                        row  += ','+value
+                    }
+
+                    opalDataImport << row+'\n'
+                }
+
+                def authorizationHeader = "${opalUser}:${opalPassword}".toString().encodeAsBase64()
+
+                def featureImportCommand = [ 'bash', '-c', "curl -v -k -X POST -H \"Authorization: X-Opal-Auth ${authorizationHeader}\" -H \"Content-Type: application/json\" --data-binary \"@/tmp/opalFeatureImport-${assay.UUID}.json\" http://msb1.hex.tno.nl/ws/datasource/phenotypedatabase-exported/tables" ]
+                featureImportCommand.execute()
+
+                // Rm feature file
+                String featureFileRemoveCommand = "rm /tmp/opalFeatureImport-${assay.UUID}.json".toString()
+                featureFileRemoveCommand.execute()
+
+                // Wait for 5 seconds for featureImport
+                sleep( 5000 )
+
+                // Import data file into Opal
+                String dataFileCommand = "opal file --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} -up /tmp/opalDataImport-${assay.UUID}.csv /home/${opalUser}".toString()
+                dataFileCommand.execute()
+
+                // Import data into Opal
+                String dataImportCommand = "opal import-csv --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} --destination phenotypedatabase-exported --table ${table} --path /home/${opalUser}/opalDataImport-${assay.UUID}.csv --type Participant --json".toString()
+                String dataImportCommandExecuteText = dataImportCommand.execute().text
+
+                // Rm data file
+                String dataFileRemoveCommand = "rm /tmp/opalDataImport-${assay.UUID}.csv".toString()
+                dataFileRemoveCommand.execute()
+
+                String checkTableCommand = "opal data phenotypedatabase-exported.${table} --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} --json".toString()
+
+                println featureImportCommand[2]
+                println dataImportCommand
+//
                 def i = 0
                 def assayInOpal = false
 
                 // Check if assay becomes available in Opal so the response does not come back while Opal is still processing
                 while( !assayInOpal && i < 30 ) {
 
-                    String dataCommandExecuteText = dataCommand.execute().text
+                    String dataCommandOutput = checkTableCommand.execute().text
 
-                    if ( !dataCommandExecuteText.contains("404 Not Found") ) {
+                    if ( JSON.parse( dataCommandOutput ).size() != 0 ) {
                         assayInOpal = true
                     }
                     else {
                         // Delay next try for two seconds
-                        sleep(2000)
+                        sleep(2000 )
                     }
 
                     i ++
@@ -907,7 +947,7 @@ class ApiController {
                     result = [ 'status': "Export to Opal succeeded", 'project': 'phenotypedatabase-exported', 'table': table ]
                 }
                 else {
-                    log.error("ExportToOpal not successful after 1 minute for assayId ${assay.id}: ${importCommandExecuteText}")
+                    log.error("ExportToOpal not successful after 1 minute for assayId ${assay.id}: ${dataImportCommandExecuteText}")
                 }
 
                 if (params.containsKey('callback')) {
@@ -1201,28 +1241,16 @@ class ApiController {
         }
     }
 
-    private String featureConverter(String inputName) {
-
-        String outputName = ''
-
-        switch(inputName) {
-            case 'age(years)':
-                outputName = 'AGE'
-                break
-            case 'bodyWeight(kg)':
-                outputName = 'WEIGHT'
-                break
-            case 'bodyHeight(cm)':
-                outputName = 'HEIGHT'
-                break
-            default:
-                outputName = inputName
-
+    private determineValueType( String value ) {
+        if ( value.isNumber() ) {
+            if ( value.contains('.') ) {
+                return 'decimal'
+            }
+            else {
+                return 'integer'
+            }
         }
 
-        outputName = outputName.replace("(","_")
-        outputName = outputName.replace(")","")
-
-        return outputName
+        return 'text'
     }
 }
