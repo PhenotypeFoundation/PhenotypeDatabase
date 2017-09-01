@@ -846,7 +846,13 @@ class ApiController {
                 File opalDataImport = new File("/tmp/opalDataImport-${assay.UUID}.csv")
                 File opalFeatureImport = new File("/tmp/opalFeatureImport-${assay.UUID}.json")
 
-                def featureMap =  [ "name": table, "entityType": "Participant", "variables": [ ["name":"subjectName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Subject name","locale":"en"]]],["name":"eventGroupName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"EventGroup name","locale":"en"]]],["name":"subjectEventGroupStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup start time","locale":"en"]]],["name":"subjectEventGroupDuration","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup duration","locale":"en"]]],["name":"sampleRelativeStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Sample relative start time","locale":"en"]]] ] ]
+                def featureMap =  [ "name": table, "entityType": "Participant", "variables": [ ] ]
+
+                featureMap['variables'] << ["name":"subjectName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Subject name","locale":"en"]]]
+                featureMap['variables'] << ["name":"eventGroupName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"EventGroup name","locale":"en"]]]
+                featureMap['variables'] << ["name":"subjectEventGroupStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup start time","locale":"en"]]]
+                featureMap['variables'] << ["name":"subjectEventGroupDuration","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup duration","locale":"en"]]]
+                featureMap['variables'] << ["name":"sampleRelativeStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Sample relative start time","locale":"en"]]]
 
                 def header = "ID,subjectName,eventGroupName,subjectEventGroupStartTime,subjectEventGroupDuration,sampleRelativeStartTime"
                 (subjectTemplateFieldNameList+featureNameList).each() { name ->
