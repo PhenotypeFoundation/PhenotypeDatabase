@@ -32,6 +32,11 @@
 				<div id="timeline-eventgroups"></div>
 				<div class="overlay">The first step is to add one or more subject groups.<br />After that, you can create sample &amp; treatment groups and assign them to the subject groups.</div>
 			</div>
+
+			<div style="text-align: right; margin-bottom: 20px">
+				<a onclick="StudyEdit.design.readableScaledItems()">Readable scaled items</a> | <a onclick="StudyEdit.design.timeScaledItems()">Time scaled items</a>
+			</div>
+
 			<div id="design-meta">
 				<div id="subjectGroups" class="subjectgroups addToTimeline">
 					<ul>
@@ -57,7 +62,7 @@
 					</ul>
 				</div>
 			</div>
-			
+
 			<p class="options">
 				<g:link controller="studyEdit" action="subjects" id="${study.id}" class="previous">Previous</g:link>
 				<g:link controller="studyEdit" action="samples" id="${study.id}" class="next">Next</g:link>

@@ -31,9 +31,11 @@
 			<div id="studydesign">
 				<div id="timeline-eventgroups"></div>
 			</div>
-
-			<br clear="all" />
 		</g:form>
+
+		<div style="text-align: right; margin-bottom: 20px">
+			<a onclick="StudyView.design.readableScaledItems()">Readable scaled items</a> | <a onclick="StudyView.design.timeScaledItems()">Time scaled items</a>
+		</div>
 
 		<p class="options">
 			<g:if test="${study.canWrite(loggedInUser)}">
