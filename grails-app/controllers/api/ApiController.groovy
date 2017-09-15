@@ -846,7 +846,13 @@ class ApiController {
                 File opalDataImport = new File("/tmp/opalDataImport-${assay.UUID}.csv")
                 File opalFeatureImport = new File("/tmp/opalFeatureImport-${assay.UUID}.json")
 
-                def featureMap =  [ "name": table, "entityType": "Participant", "variables": [ ["name":"subjectName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Subject name","locale":"en"]]],["name":"eventGroupName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"EventGroup name","locale":"en"]]],["name":"subjectEventGroupStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup start time","locale":"en"]]],["name":"subjectEventGroupDuration","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup duration","locale":"en"]]],["name":"sampleRelativeStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Sample relative start time","locale":"en"]]] ] ]
+                def featureMap =  [ "name": table, "entityType": "Participant", "variables": [ ] ]
+
+                featureMap['variables'] << ["name":"subjectName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Subject name","locale":"en"]]]
+                featureMap['variables'] << ["name":"eventGroupName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"EventGroup name","locale":"en"]]]
+                featureMap['variables'] << ["name":"subjectEventGroupStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup start time","locale":"en"]]]
+                featureMap['variables'] << ["name":"subjectEventGroupDuration","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup duration","locale":"en"]]]
+                featureMap['variables'] << ["name":"sampleRelativeStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Sample relative start time","locale":"en"]]]
 
                 def header = "ID,subjectName,eventGroupName,subjectEventGroupStartTime,subjectEventGroupDuration,sampleRelativeStartTime"
                 (subjectTemplateFieldNameList+featureNameList).each() { name ->
@@ -900,24 +906,30 @@ class ApiController {
                 def featureImportCommand = [ 'bash', '-c', "curl -v -k -X POST -H \"Authorization: X-Opal-Auth ${authorizationHeader}\" -H \"Content-Type: application/json\" --data-binary \"@/tmp/opalFeatureImport-${assay.UUID}.json\" http://msb1.hex.tno.nl/ws/datasource/phenotypedatabase-exported/tables" ]
                 featureImportCommand.execute()
 
-                // Rm feature file
-                String featureFileRemoveCommand = "rm /tmp/opalFeatureImport-${assay.UUID}.json".toString()
-                featureFileRemoveCommand.execute()
-
-                // Wait for 5 seconds for featureImport
-                sleep( 5000 )
+                // Wait 2 sec for featureImport
+                sleep( 2000 )
 
                 // Import data file into Opal
                 String dataFileCommand = "opal file --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} -up /tmp/opalDataImport-${assay.UUID}.csv /home/${opalUser}".toString()
                 dataFileCommand.execute()
 
+                // Wait 2 sec for dataFileImport
+                sleep( 2000 )
+
                 // Import data into Opal
                 String dataImportCommand = "opal import-csv --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} --destination phenotypedatabase-exported --table ${table} --path /home/${opalUser}/opalDataImport-${assay.UUID}.csv --type Participant --json".toString()
                 String dataImportCommandExecuteText = dataImportCommand.execute().text
 
+                // Wait 2 sec for dataImport
+                sleep( 2000 )
+
                 // Rm data file
                 String dataFileRemoveCommand = "rm /tmp/opalDataImport-${assay.UUID}.csv".toString()
                 dataFileRemoveCommand.execute()
+
+                // Rm feature file
+                String featureFileRemoveCommand = "rm /tmp/opalFeatureImport-${assay.UUID}.json".toString()
+                featureFileRemoveCommand.execute()
 
                 String checkTableCommand = "opal data phenotypedatabase-exported.${table} --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} --json".toString()
 
