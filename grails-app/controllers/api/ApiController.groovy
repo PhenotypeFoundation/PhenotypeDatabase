@@ -903,7 +903,7 @@ class ApiController {
 
                 def authorizationHeader = "${opalUser}:${opalPassword}".toString().encodeAsBase64()
 
-                def featureImportCommand = [ 'bash', '-c', "curl -v -k -X POST -H \"Authorization: X-Opal-Auth ${authorizationHeader}\" -H \"Content-Type: application/json\" --data-binary \"@/tmp/opalFeatureImport-${assay.UUID}.json\" http://msb1.hex.tno.nl/ws/datasource/phenotypedatabase-exported/tables" ]
+                def featureImportCommand = [ 'bash', '-c', "curl -v -k -X POST -H \"Authorization: X-Opal-Auth ${authorizationHeader}\" -H \"Content-Type: application/json\" --data-binary \"@/tmp/opalFeatureImport-${assay.UUID}.json\" ${opalUrl}/ws/datasource/phenotypedatabase-exported/tables" ]
                 featureImportCommand.execute()
 
                 // Wait 2 sec for featureImport
