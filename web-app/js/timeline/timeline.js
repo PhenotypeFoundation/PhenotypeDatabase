@@ -4046,7 +4046,7 @@ links.Timeline.ItemRange.prototype.updatePosition = function (timeline, readable
         var width = Math.max(right - left, 1);
 
         if ( readableWidth == true ) {
-            dom.style.width = (width < 100 ? 100 : width) + "px";
+            dom.style.width = (width < 100 ? 50 : width) + "px";
         }
         else {
             dom.style.width = width + "px";

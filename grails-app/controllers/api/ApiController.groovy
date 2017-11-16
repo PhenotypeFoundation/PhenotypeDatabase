@@ -846,7 +846,7 @@ class ApiController {
                 File opalDataImport = new File("/tmp/opalDataImport-${assay.UUID}.csv")
                 File opalFeatureImport = new File("/tmp/opalFeatureImport-${assay.UUID}.json")
 
-                def featureMap =  [ "name": table, "entityType": "Participant", "variables": [ ] ]
+                def featureMap = [ "name": table, "entityType": "Participant", "variables": [ ] ]
 
                 featureMap['variables'] << ["name":"subjectName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Subject name","locale":"en"]]]
                 featureMap['variables'] << ["name":"eventGroupName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"EventGroup name","locale":"en"]]]

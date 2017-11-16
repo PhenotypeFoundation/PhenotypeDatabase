@@ -180,15 +180,8 @@ class SAMAssayController {
             }
 
             // Lookup all samples for this assay
-          	def numberOfSAMSamples = params?.numberOfSamples ?: SAMSample.executeQuery("SELECT COUNT(*) FROM SAMSample s WHERE s.parentAssay = :assay", [ assay: assayInstance ])[0]
-//          def numberOfSAMSamples = params?.numberOfSamples ?: SAMSample.executeQuery("select count(distinct m.sample) from Measurement m where m.sample.parentAssay = :assay", [ assay: assayInstance ])[0]
-
-            def samples
-			samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] )
-
-//			samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay AND s.measurements.size > 0 ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] )
-//			samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay AND s.id IN ( SELECT DISTINCT m.sample.id from Measurement m where m.sample.parentAssay = :assay ) ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] )
-//          samples = SAMSample.executeQuery( "SELECT DISTINCT m.sample from Measurement m where m.sample.parentAssay = :assay", [ assay: assayInstance ], [max: maxResults, offset: queryOffset])
+          	def numberOfSAMSamples = params?.numberOfSamples as Long ?: SAMSample.executeQuery("SELECT COUNT(*) FROM SAMSample s WHERE s.parentAssay = :assay", [ assay: assayInstance ])[0]
+			def samples = SAMSample.findAll( "from SAMSample s WHERE s.parentAssay = :assay ORDER BY s.parentSample.name", [ assay: assayInstance ], [max: maxResults, offset: queryOffset] )
 
             def measurements = []
             def features = []
@@ -199,9 +192,9 @@ class SAMAssayController {
                 measurements = Measurement.findAll( "from Measurement m WHERE m.sample IN (:samples) ORDER BY m.sample.parentSample.name, m.feature.name", [ samples: samples ] );
                 if( measurements ) {
 					features = measurements.feature.unique()
-//                  features = Feature.findAll( "from Feature f WHERE EXISTS( FROM Measurement m WHERE m IN (:measurements) AND m.feature = f ) ORDER BY f.name", [ measurements: measurements ] )
                 }
             }
+
             return [
 					assayInstance: assayInstance,
 					samples: samples,
@@ -214,7 +207,7 @@ class SAMAssayController {
 			]
         }
         else {
-            redirect(controller: 'error', action: 'notFound')
+            redirect( controller: 'error', action: 'notFound' )
         }
     }
 

@@ -35,32 +35,32 @@ class Search {
     /**
      * User that is performing this search. This has impact on the search results returned.
      */
-    public SecUser user;
+    public SecUser user
 
     /**
      * Date of execution of this search
      */
-    public Date executionDate;
+    public Date executionDate
 
     /**
      * Public identifier of this search. Is only used when this query is saved in session
      */
-    public int id;
+    public int id
 
     /**
      * Description of this search. Defaults to 'Search <id>'
      */
-    public String description;
+    public String description
 
     /**
      * URL to view the results of this search
      */
-    public String url;
+    public String url
 
     /**
      * Human readable entity name of the entities that can be found using this search
      */
-    public String entity;
+    public String entity
 
     /**
      * Mode to search: OR or AND.
@@ -68,9 +68,9 @@ class Search {
      */
     public SearchMode searchMode = SearchMode.and
 
-    protected List criteria;
-    protected Map _results;
-    protected Map resultFields = [:];
+    protected List criteria
+    protected Map _results
+    protected Map resultFields = [:]
 
     /**
      * Constructor of this search object. Sets the user field to the 
@@ -94,9 +94,9 @@ class Search {
      */
     public int getNumResults() {
         if( _results )
-            return _results.size();
+            return _results.size()
 
-        return 0;
+        return 0
     }
 
     /**
@@ -106,24 +106,24 @@ class Search {
      * @param	c	List with criteria to search on
      */
     public void execute( List c ) {
-        setCriteria( c );
-        execute();
+        setCriteria( c )
+        execute()
     }
 
     /**
      * Executes a search based on the given criteria. 
      */
     public void execute() {
-        this.executionDate = new Date();
+        this.executionDate = new Date()
 
         // Execute the search
         log.debug "Executing search"
-        executeSearch();
+        executeSearch()
         log.debug "Finished executing search"
 
         // Save the value of this results for later use
         log.debug "Skip saving result fields for now"
-        //saveResultFields();
+        //saveResultFields()
         log.debug "Finished saving result fields"
     }
 
@@ -136,7 +136,7 @@ class Search {
         def UUIDs = null
         if( hasModuleCriteria() ) {
             log.debug "Starting to filter on module criteria."
-            UUIDs = filterOnModuleCriteria( null );
+            UUIDs = filterOnModuleCriteria( null )
         }
 
         // If there are no local criteria, we can stop searching now, regardless of whether
@@ -145,7 +145,7 @@ class Search {
         // resulted in nothing. Combined with an AND search, we can skip the local criteria
         if( hasLocalCriteria() && ( (UUIDs == null || UUIDs.size() > 0 ) || searchMode == SearchMode.or) ) {
             // Create HQL query for criteria for the entity being sought
-            def fullHQL = createHQLForEntity( this.entity );
+            def fullHQL = createHQLForEntity( this.entity )
             def entityName = elementName(this.entity)
             
             // Afterwards, do a local search. If we already have a list of entities,
@@ -154,7 +154,7 @@ class Search {
             // afterwards selecting the study based on the entities found
             def resultsFound
 
-            def entityNames = [ "Study", "Subject", "Sample", "Assay", "Event", "SamplingEvent" ];
+            def entityNames = [ "Study", "Subject", "Sample", "Assay", "Event", "SamplingEvent" ]
             for( entityToSearch in entityNames ) {
                 // Add conditions for all criteria for the given entity. However,
                 // the conditions for the 'main' entity (the entity being sought) are already added
@@ -182,14 +182,14 @@ class Search {
             }
 
             // Generate where clause
-            def whereClause = "";
+            def whereClause = ""
             if( fullHQL.where ) {
                 whereClause += " ( " + fullHQL.where.join( " " + searchMode.toString() + " "  ) + " ) "
-                whereClause += " AND ";
+                whereClause += " AND "
             }
 
             // Add a filter such that only readable studies are returned
-            def studyName = elementName( "Study" );
+            def studyName = elementName( "Study" )
             if( this.user == null ) {
                 // Anonymous readers are only given access when published and public
                 whereClause +=  " ( " + studyName + ".publicstudy = true AND " + studyName + ".published = true )"
@@ -212,14 +212,14 @@ class Search {
             }
 
             // Combine all parts to generate a full HQL query
-            def hqlQuery = fullHQL.select + " " + fullHQL.from + ( whereClause ? " WHERE " + whereClause : "" );
+            def hqlQuery = fullHQL.select + " " + fullHQL.from + ( whereClause ? " WHERE " + whereClause : "" )
 
             // Find all objects
             log.debug "Using query " + hqlQuery + " and parameters " + fullHQL.parameters + " to do first filtering"
             def localUUIDs = entityClass().executeQuery( hqlQuery, fullHQL.parameters ).collect {
                 // Return only UUIDs
                 it[1] 
-            };
+            }
         
             log.debug "Results from local filtering: " + localUUIDs
 
@@ -227,7 +227,7 @@ class Search {
             // These criteria must be checked extra, since they are not correctly handled
             // by the HQL criteria. See also Criterion.manyToManyWhereCondition and
             // http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
-            localUUIDs = filterForComplexCriteria( localUUIDs, getEntityCriteria( this.entity ) );
+            localUUIDs = filterForComplexCriteria( localUUIDs, getEntityCriteria( this.entity ) )
             log.debug "Results after filtering complex criteria: " + localUUIDs
             
             if( searchMode == SearchMode.and ) {
@@ -471,13 +471,13 @@ class Search {
             entityCriteria = getEntityCriteria( entityName )
 
         // Create HQL for these criteria
-        def entityHQL = createHQLForEntity( entityName, entityCriteria );
+        def entityHQL = createHQLForEntity( entityName, entityCriteria )
 
         // If any clauses are generated for these criteria, find entities that match these criteria
         def whereClauses = entityHQL.where?.findAll { it && it?.trim() != "" }
         if( whereClauses ) {
             // First find all entities that match these criteria
-            def hqlQuery = entityHQL.select + " " + entityHQL.from + " WHERE " + whereClauses.join( searchMode == SearchMode.and ? " AND " : " OR " );
+            def hqlQuery = entityHQL.select + " " + entityHQL.from + " WHERE " + whereClauses.join( searchMode == SearchMode.and ? " AND " : " OR " )
             def UUIDs = entityClass.executeQuery( hqlQuery, entityHQL.parameters ).collect { it[1] }
 
             // If there are entities matching these criteria, put a where clause in the full HQL query
@@ -486,11 +486,11 @@ class Search {
                 // These criteria must be checked extra, since they are not correctly handled
                 // by the HQL criteria. See also Criterion.manyToManyWhereCondition and
                 // http://opensource.atlassian.com/projects/hibernate/browse/HHH-4615
-                UUIDs = filterForComplexCriteria( UUIDs, entityCriteria );
+                UUIDs = filterForComplexCriteria( UUIDs, entityCriteria )
 
                 if( UUIDs ) {
-                    def paramName = from.replaceAll( /\W/, '' );
-                    fullHQL.where << sprintf( entityClause( entityName ), from, alias, paramName );
+                    def paramName = from.replaceAll( /\W/, '' )
+                    fullHQL.where << sprintf( entityClause( entityName ), from, alias, paramName )
                     fullHQL.parameters[ paramName ] = UUIDs
                     return true;
                 }
@@ -511,7 +511,7 @@ class Search {
      */
     protected boolean addWildcardConditions( def fullHQL, def entities) {
         // Append study criteria
-        def entityCriteria = getEntityCriteria( "*" );
+        def entityCriteria = getEntityCriteria( "*" )
 
         // If no wildcard criteria are found, return immediately
         if( !entityCriteria )
@@ -538,7 +538,7 @@ class Search {
         }
 
         // Add these clauses to the full HQL statement
-        def whereClauses = wildcardHQL.where.findAll { it };
+        def whereClauses = wildcardHQL.where.findAll { it }
 
         if( whereClauses ) {
             fullHQL.from += wildcardHQL.from
@@ -564,14 +564,14 @@ class Search {
         def fromClause = includeFrom ? "FROM " + entityName + " " + entityName.toLowerCase() : ""
         def whereClause = []
         def parameters = [:]
-        def criterionNum = 0;
+        def criterionNum = 0
 
         // Append study criteria
         if( entityCriteria == null )
-            entityCriteria = getEntityCriteria( entityName );
+            entityCriteria = getEntityCriteria( entityName )
 
         entityCriteria.each {
-            def criteriaHQL = it.toHQL( "criterion" +entityName + criterionNum++, entityName.toLowerCase() );
+            def criteriaHQL = it.toHQL( "criterion" +entityName + criterionNum++, entityName.toLowerCase() )
 
             if( criteriaHQL[ "join" ] )
                 fromClause += " " + criteriaHQL[ "join" ]
@@ -619,41 +619,41 @@ class Search {
                 try {
                     return new SimpleDateFormat( "yyyy-MM-dd" ).parse( value.toString() )
                 } catch( Exception e ) {
-                    return value.toString();
+                    return value.toString()
                 }
             case TemplateFieldType.RELTIME:
                 try {
                     if( value instanceof Number ) {
-                        return new RelTime( value );
+                        return new RelTime( value )
                     } else if( value.toString().isNumber() ) {
                         return new RelTime( Long.parseLong( value.toString() ) )
                     } else {
-                        return new RelTime( value );
+                        return new RelTime( value )
                     }
                 } catch( Exception e ) {
                     try {
                         return Long.parseLong( value )
                     } catch( Exception e2 ) {
-                        return value.toString();
+                        return value.toString()
                     }
                 }
             case TemplateFieldType.DOUBLE:
                 try {
                     return Double.valueOf( value )
                 } catch( Exception e ) {
-                    return value.toString();
+                    return value.toString()
                 }
             case TemplateFieldType.BOOLEAN:
                 try {
                     return Boolean.valueOf( value )
                 } catch( Exception e ) {
-                    return value.toString();
+                    return value.toString()
                 }
             case TemplateFieldType.LONG:
                 try {
                     return Long.valueOf( value )
                 } catch( Exception e ) {
-                    return value.toString();
+                    return value.toString()
                 }
             case TemplateFieldType.STRING:
             case TemplateFieldType.TEXT:
@@ -663,7 +663,7 @@ class Search {
             case TemplateFieldType.FILE:
             case TemplateFieldType.ONTOLOGYTERM:
             default:
-                return value.toString();
+                return value.toString()
         }
 
     }
@@ -695,7 +695,7 @@ class Search {
     protected List filterEntityList( List entities, List<Criterion> criteria, Closure check ) {
         if( !entities || !criteria || criteria.size() == 0 ) {
             if( searchMode == SearchMode.and )
-                return entities;
+                return entities
             else if( searchMode == SearchMode.or )
                 return []
         }
@@ -704,17 +704,17 @@ class Search {
             if( searchMode == SearchMode.and ) {
                 for( criterion in criteria ) {
                     if( !check( entity, criterion ) ) {
-                        return false;
+                        return false
                     }
                 }
-                return true;
+                return true
             } else if( searchMode == SearchMode.or ) {
                 for( criterion in criteria ) {
                     if( check( entity, criterion ) ) {
-                        return true;
+                        return true
                     }
                 }
-                return false;
+                return false
             }
         }
     }
@@ -743,11 +743,11 @@ class Search {
                 if( value instanceof Collection ) {
                     return value.any { criterion.match( it ) }
                 } else {
-                    return criterion.match( value );
+                    return criterion.match( value )
                 }
             }
 
-            def entities = filterEntityList( getEntitiesByUUID(UUIDs), complexCriteria, checkCallback );
+            def entities = filterEntityList( getEntitiesByUUID(UUIDs), complexCriteria, checkCallback )
             UUIDs = entities*.uuid
         }
 
@@ -764,7 +764,7 @@ class Search {
         return AssayModule.list().any { module ->
             // Remove 'module' from module name
             def moduleName = module.name.replace( 'module', '' ).trim()
-            def moduleCriteria = getEntityCriteria( moduleName );
+            def moduleCriteria = getEntityCriteria( moduleName )
             return moduleCriteria?.size() > 0
         }
     }
@@ -780,7 +780,7 @@ class Search {
     protected List filterOnModuleCriteria( List entities ) {
         // Determine the moduleCommunicationService. Because this object
         // is mocked in the tests, it can't be converted to a ApplicationContext object
-        def ctx = Holders.grailsApplication.getMainContext();
+        def ctx = Holders.grailsApplication.getMainContext()
         def moduleCommunicationService = ctx.getBean("moduleCommunicationService");
 
         // Loop through all modules
@@ -795,16 +795,16 @@ class Search {
             // Remove 'module' from module name
             log.trace "Finding module criteria for module " + module
             def moduleName = module.name.replace( 'module', '' ).trim()
-            def moduleCriteria = getEntityCriteria( moduleName );
+            def moduleCriteria = getEntityCriteria( moduleName )
 
             if( moduleCriteria && moduleCriteria.size() > 0 ) {
                 log.info "Matching module criteria: " + moduleCriteria
-                def callUrl = moduleCriteriaUrl( module );
-                def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria );
+                def callUrl = moduleCriteriaUrl( module )
+                def callArgs = moduleCriteriaArguments( module, entities, moduleCriteria )
 
                 try {
                     log.debug "Retrieving module data from " + module
-                    def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST", user );
+                    def moduleEntityUUIDs = moduleCommunicationService.callModuleMethod( module.baseUrl, callUrl, callArgs, "POST", user )
 
                     if( searchMode == SearchMode.and ) {
                         log.debug "Filtering entity list for " + module
@@ -856,53 +856,53 @@ class Search {
 
             if( criterion.field == '*' ) {
                 // Collect the values from all fields
-                value = [];
+                value = []
                 json[ token ].each { field ->
                     if( field.value instanceof Collection ) {
                         field.value.each { value << it }
                     } else {
-                        value << field.value;
+                        value << field.value
                     }
                 }
             } else {
                 if( !json[ token ] || json[ token ][ criterion.field ] == null )
-                    return false;
+                    return false
 
                 // Check whether a list or string is given
-                value = json[ token ][ criterion.field ];
+                value = json[ token ][ criterion.field ]
 
                 // Save the value of this entity for later use
                 saveResultField( entity.id, criterion.entity + " " + criterion.field, value )
 
                 if( !( value instanceof Collection ) ) {
-                    value = [ value ];
+                    value = [ value ]
                 }
             }
 
             // Convert numbers to a long or double in order to process them correctly
             def values = value.collect { val ->
-                val = val.toString();
+                val = val.toString().replace(',','.')
                 if( val.isLong() ) {
-                    val = Long.parseLong( val );
+                    val = Long.parseLong( val )
                 } else if( val.isDouble() ) {
-                    val = Double.parseDouble( val );
+                    val = Double.parseDouble( val )
                 }
-                return val;
+                return val
             }
 
             // Loop through all values and match any
             for( val in values ) {
                 if( criterion.match( val ) )
-                    return true;
+                    return true
             }
 
-            return false;
+            return false
         }
     }
 
     protected String moduleCriteriaUrl( module ) {
         def callUrl = module.baseUrl + '/rest/search'
-        return callUrl;
+        return callUrl
     }
 
     protected String moduleCriteriaArguments( module, entities, moduleCriteria ) {
@@ -939,13 +939,13 @@ class Search {
 
         criteria.each { criterion ->
             if( criterion.field && criterion.field != '*' ) {
-                def valueCallback = valueCallback( criterion.entity );
+                def valueCallback = valueCallback( criterion.entity )
 
                 if( valueCallback != null ) {
                     def name = criterion.entity + ' ' + criterion.field
 
                     _results.each { result ->
-                        saveResultField( result.id, name, valueCallback( result, criterion ) );
+                        saveResultField( result.id, name, valueCallback( result, criterion ) )
                     }
                 }
             }
@@ -982,16 +982,16 @@ class Search {
 
         // Handle special cases
         if( value == null )
-            value = "";
+            value = ""
 
         if( fieldName == "*" )
-            return;
+            return
 
         if( value instanceof Collection ) {
             value = value.findAll { it != null }
         }
 
-        resultFields[ id ][ fieldName ] = value;
+        resultFields[ id ][ fieldName ] = value
     }
 
     /** 
@@ -1009,7 +1009,7 @@ class Search {
      * @return	Map with the entity id as a key, and a field-value map as value
      */
     public Map getShowableResultFields() {
-        def resultIds = getResults()*.id;
+        def resultIds = getResults()*.id
         return getResultFields().findAll {
             resultIds.contains( it.key )
         }
@@ -1023,7 +1023,7 @@ class Search {
      * @return
      */
     public List getShowableResultFieldNames( fields ) {
-        return fields.values()*.keySet().flatten().unique();
+        return fields.values()*.keySet().flatten().unique()
     }
 
 
@@ -1036,13 +1036,13 @@ class Search {
     /**
      * Returns a list of Criteria
      */
-    public List getCriteria() { return criteria; }
+    public List getCriteria() { return criteria }
 
     /**
      * Sets a new list of criteria
      * @param c	List with criteria objects
      */
-    public void setCriteria( List c ) { criteria = c; }
+    public void setCriteria( List c ) { criteria = c }
 
     /**
      * Adds a criterion to this query
@@ -1050,9 +1050,9 @@ class Search {
      */
     public void addCriterion( Criterion c ) {
         if( criteria )
-            criteria << c;
+            criteria << c
         else
-            criteria = [c];
+            criteria = [c]
     }
 
     /**
@@ -1065,7 +1065,7 @@ class Search {
      * Retrieves the results found using this query. The result is empty is
      * the query has not been executed yet.
      */
-    public List getResultIds() { return _results.keySet().asList(); }
+    public List getResultIds() { return _results.keySet().asList() }
 
 
     /**
@@ -1086,13 +1086,13 @@ class Search {
      * Returns a list of fields for the results of this query. The fields returned are those
      * fields that the query searched for.
      */
-    public Map getResultFields() { return resultFields; }
+    public Map getResultFields() { return resultFields }
 
     public String toString() {
         if( this.description ) {
             return this.description
         } else if( this.entity ) {
-            return this.entity + " search " + this.id;
+            return this.entity + " search " + this.id
         } else {
             return "Search " + this.id
         }
@@ -1105,12 +1105,12 @@ class Search {
         if( !( o instanceof Search ) )
             return false
 
-        Search s = (Search) o;
+        Search s = (Search) o
 
         // Determine criteria equality
-        def criteriaEqual = false;
+        def criteriaEqual = false
         if( !criteria && !s.criteria ) {
-            criteriaEqual = true;
+            criteriaEqual = true
         } else if( criteria && s.criteria ) {
             criteriaEqual =	criteria.size()== s.criteria.size() &&
                     s.criteria.containsAll( criteria ) &&
@@ -1120,7 +1120,7 @@ class Search {
         return (	searchMode		== s.searchMode &&
                 entity 			== s.entity &&
                 criteriaEqual
-                );
+                )
     }
 
     /**
@@ -1129,12 +1129,12 @@ class Search {
      */
     public Class entityClass() {
         if( !this.entity )
-            return null;
+            return null
 
         try {
             return TemplateEntity.parseEntity( 'dbnp.studycapturing.' + this.entity)
         } catch( Exception e ) {
-            throw new Exception( "Unknown entity for criterion " + this, e );
+            throw new Exception( "Unknown entity for criterion " + this, e )
         }
     }
 
@@ -1148,28 +1148,28 @@ class Search {
      * @return
      */
     public static Search register( String description, String url, String entity, def results ) {
-        Search s;
+        Search s
 
         // Determine entity
         switch( entity ) {
             case "Study":
-                s = new StudySearch();
-                break;
+                s = new StudySearch()
+                break
             case "Assay":
-                s = new AssaySearch();
-                break;
+                s = new AssaySearch()
+                break
             case "Sample":
-                s = new SampleSearch();
-                break;
+                s = new SampleSearch()
+                break
             default:
-                return null;
+                return null
         }
 
         // Set properties
-        s.description = description;
+        s.description = description
         s.url = url
         s._results = results
 
-        return s;
+        return s
     }
 }
