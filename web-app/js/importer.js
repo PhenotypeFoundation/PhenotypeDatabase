@@ -52,59 +52,75 @@ Importer.datatable = {
 
 				var headerColumnCount = data.aoColumns.length;
 
+                var validFile = true;
+
 				if ( headerColumnCount == 1 ) {
-                    previewMessage = 'Your file appears to have only one column, please make sure you selected the correct separator.'
+                    previewMessage = 'Your file appears to have only one column (should at least be two columns), please make sure you selected the correct separator.';
+                    validFile = false;
 				}
 
-                for ( var rowIndex in data.aaData ) {
-                    var columnsToAdd = headerColumnCount - data.aaData[rowIndex].length;
+                var rowIndex = 0;
+				while( rowIndex < data.aaData.length && validFile ) {
+                    var rowColumnCount = data.aaData[rowIndex].length;
 
-                    while( columnsToAdd != 0 ) {
-                        data.aaData[rowIndex].push("");
-                        columnsToAdd -= 1;
+                    if ( rowColumnCount <= headerColumnCount ) {
+                        var columnsToAdd = headerColumnCount - rowColumnCount;
+
+                        while( columnsToAdd != 0 ) {
+                            data.aaData[rowIndex].push("");
+                            columnsToAdd -= 1;
+                        }
                     }
+                    else {
+                        previewMessage = 'Your file appears to have more value columns than header columns, please check your file.';
+                        validFile = false;
+                    }
+
+				    rowIndex ++;
                 }
 
-				if ( headerColumnCount < 100 ) {
-					dataTable = element.find( "#datamatrix" ).dataTable({
-						"oLanguage": {
-							"sInfo": "Showing rows _START_ to _END_ out of a total of _TOTAL_ example rows"
-						},
+                if ( validFile ) {
+                    if ( headerColumnCount < 100 ) {
+                        dataTable = element.find( "#datamatrix" ).dataTable({
+                            "oLanguage": {
+                                "sInfo": "Showing rows _START_ to _END_ out of a total of _TOTAL_ example rows"
+                            },
 
-						"sScrollX": "100%",
-						"sScrollY": "200px",
-						"bScrollCollapse": true,
-						"bAutoWidth": false,
-						"bJQueryUI": true,
-						"bRetrieve": false,
-						"bDestroy": true,
-						"iDisplayLength": 5,
-						"bSort" : false,
-						"aaData": data.aaData,
-						"aoColumns": data.aoColumns,
-						"bFilter": false,
-						"bLengthChange": false
-					});
+                            "sScrollX": "100%",
+                            "sScrollY": "200px",
+                            "bScrollCollapse": true,
+                            "bAutoWidth": false,
+                            "bJQueryUI": true,
+                            "bRetrieve": false,
+                            "bDestroy": true,
+                            "iDisplayLength": 5,
+                            "bSort" : false,
+                            "aaData": data.aaData,
+                            "aoColumns": data.aoColumns,
+                            "bFilter": false,
+                            "bLengthChange": false
+                        });
 
-					//If the data file has <100 column, 'next' action should be 'match'.
-					element.parents().find('#next-exact').hide();
-					element.parents().find('#next-match').show();
-				}
-				else {
-
-                    previewMessage = "You are importing a large dataset ("+data.aoColumns.length+" columns). Make sure your matrix corresponds to the study perfectly since the wizard will skip the 'matching' step.";
-
-					if(parameters.indexOf('sample+layout') !== -1) {
-                        previewMessage += " Please make sure the first column is 'Sample name'."
+                        //If the data file has <100 column, 'next' action should be 'match'.
+                        element.parents().find('#next-exact').hide();
+                        element.parents().find('#next-match').show();
                     }
-                    else if(parameters.indexOf('subject+layout') !== -1) {
-                        previewMessage += " Please make sure the first column is 'Subject name'."
-                    }
+                    else {
 
-					//If the data file has >100 column, 'next' action should be 'exact'.
-					element.parents().find('#next-match').hide();
-					element.parents().find('#next-exact').show();
-				}
+                        previewMessage = "You are importing a large dataset ("+data.aoColumns.length+" columns). Make sure your matrix corresponds to the study perfectly since the wizard will skip the 'matching' step.";
+
+                        if(parameters.indexOf('sample+layout') !== -1) {
+                            previewMessage += " Please make sure the first column is 'Sample name'."
+                        }
+                        else if(parameters.indexOf('subject+layout') !== -1) {
+                            previewMessage += " Please make sure the first column is 'Subject name'."
+                        }
+
+                        //If the data file has >100 column, 'next' action should be 'exact'.
+                        element.parents().find('#next-match').hide();
+                        element.parents().find('#next-exact').show();
+                    }
+                }
 
 				if ( previewMessage ) {
                     element.empty().text( previewMessage );
