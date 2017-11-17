@@ -29,6 +29,7 @@ Importer.datatable = {
 	 * @return jQuery promise object to retrieve the data.
 	 */
 	load: function(element, url, parameters, callback) {
+
 		var dataTable;
 		var spinner = element.parent().find( ".spinner" );
 		
@@ -43,10 +44,28 @@ Importer.datatable = {
 				element.show();
 				spinner.hide();
 				
-				if( typeof(callback) != "undefined" )
-					data = callback(data);
+				if( typeof(callback) != "undefined" ) {
+                    data = callback(data);
+				}
 
-				if ( data.aoColumns.length < 100 ) {
+                var previewMessage = '';
+
+				var headerColumnCount = data.aoColumns.length;
+
+				if ( headerColumnCount == 1 ) {
+                    previewMessage = 'Your file appears to have only one column, please make sure you selected the correct separator.'
+				}
+
+                for ( var rowIndex in data.aaData ) {
+                    var columnsToAdd = headerColumnCount - data.aaData[rowIndex].length;
+
+                    while( columnsToAdd != 0 ) {
+                        data.aaData[rowIndex].push("");
+                        columnsToAdd -= 1;
+                    }
+                }
+
+				if ( headerColumnCount < 100 ) {
 					dataTable = element.find( "#datamatrix" ).dataTable({
 						"oLanguage": {
 							"sInfo": "Showing rows _START_ to _END_ out of a total of _TOTAL_ example rows"
@@ -73,7 +92,7 @@ Importer.datatable = {
 				}
 				else {
 
-                    var previewMessage = "You are importing a large dataset ("+data.aoColumns.length+" columns). Make sure your matrix corresponds to the study perfectly since the wizard will skip the 'matching' step.";
+                    previewMessage = "You are importing a large dataset ("+data.aoColumns.length+" columns). Make sure your matrix corresponds to the study perfectly since the wizard will skip the 'matching' step.";
 
 					if(parameters.indexOf('sample+layout') !== -1) {
                         previewMessage += " Please make sure the first column is 'Sample name'."
@@ -82,15 +101,17 @@ Importer.datatable = {
                         previewMessage += " Please make sure the first column is 'Subject name'."
                     }
 
-					// Hide the spinner and show the preview pane
-					element.empty().text( previewMessage );
-					element.show();
-					spinner.hide();
-
 					//If the data file has >100 column, 'next' action should be 'exact'.
 					element.parents().find('#next-match').hide();
 					element.parents().find('#next-exact').show();
 				}
+
+				if ( previewMessage ) {
+                    element.empty().text( previewMessage );
+                    element.show();
+				}
+
+                spinner.hide();
 			})
 			.fail(function() {
 				// Hide the spinner and show the preview pane

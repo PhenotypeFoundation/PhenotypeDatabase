@@ -25,29 +25,18 @@
                 params="${[module: module]}">Back to list</g:link></li>
 </content>
 
-<h1>${module} ${assayInstance.name} / ${assayInstance.parent.title}</h1>
-
-<span class="message info">
-    <span class="title">List of measurements</span>
-    You can select measurements by clicking on them. Comments to the measurements are denoted with an icon.
-</span>
+<h1 style="margin-bottom: 30px">${module} ${assayInstance.name} / ${assayInstance.parent.title}</h1>
 
 <g:if test="${measurements.size() > 0}">
-    <ul class="data_nav buttons ontop">
-        <li><g:link class="delete" controller="measurement" action="delete"
-                    onClick="if( \$( '#deleteform input:checked' ).length != 0 && confirm('Are you sure?') ) { \$( '#deleteform' ).submit(); } return false; ">Delete selected measurements</g:link></li>
-        <li><g:link class="delete" controller="measurement"
-                    action="deleteByAssay" id="${assayInstance.id}"
-                    params="${[module: module]}"
-                    onClick="return confirm('Are you sure?');">Delete all measurements</g:link></li>
-        <li><g:link class="delete" controller="SAMSample" action="deleteByAssay"
-                    id="${assayInstance.id}" params="${[module: module]}"
-                    onClick="return confirm('Are you sure?');">Delete all measurements & module samples</g:link></li>
-    </ul>
+    <span class="message info">
+        <span class="title">List of measurements</span>
+        You can select measurements by clicking on them.<br/>
+        Measurements are rounded by 3 decimals, additional comments are denoted with an icon.<br/>
+        Comments without measurement are always marked by quotes, only the first six characters are shown.<br/>
+        Hover over the values to see the full values.
+    </span>
 
-    <form id="deleteform"
-          action="<g:createLink controller="measurement" action="delete"/>"
-          method="post">
+    <form id="deleteform" action="<g:createLink controller="measurement" action="delete"/>" method="post">
         <input type="hidden" name="assayId" value="${assayInstance.id}"/>
         <input type="hidden" name="module" value="${module}"/>
         <table class="measurements">
@@ -60,67 +49,44 @@
             </tr>
             </thead>
             <tbody>
-            <g:set var="measurementIndex" value="${0}"/>
             <g:each var="sample" in="${samples}">
                 <tr>
                     <th style="min-width: 200px">${sample.name}</th>
 
                     <g:each var="feature" in="${features}">
-                    <%--
-                      In every table cell, we should lookup the measurement that belongs to this sample and feature.
-                      Because the measurements are ordered in the same way as they are outputted to the screen
-                      ( sample.name, feature.name ), we can easily check whether the 'current' measurement belongs
-                      to this cell. If not, we keep this cell empty.
+                        <g:set var="currentMeasurement" value="${measurements.find() { it.sample == sample && it.feature == feature } }"/>
 
-                      Because there might be multiple measurements for one cell, we first find all measurements for this cell.
-                      We show always the value/operator of the first measurement, but show all data in the comments field.
-                    --%>
-                        <g:set var="currentMeasurement"
-                               value="${measurements[measurementIndex]}"/>
-                        <g:set var="measurementIndex" value="${measurementIndex + 1}" />
-
-                    <%--
-                      Now we know all measurements for this cell and the measurementIndex points to the
-                      next measurement. If there are multiple measurements, we combine the data.
-                    --%>
                         <g:if test="${currentMeasurement}">
                             <%
                                 def comments = currentMeasurement.comments?.encodeAsHTML()
-                                def isNumeric = currentMeasurement.value.toString().isNumber() %>
+                                def isNumeric = currentMeasurement.value.toString().isNumber()
+                            %>
 
                             <td id="td${currentMeasurement.id}"
                                 class="${comments && isNumeric ? 'comments' : ''}">
-                                <input type="checkbox"
-                                       id="check${currentMeasurement.id}"
-                                       name="ids"
-                                       value="${currentMeasurement.id}"
-                                       style="display:none;"/>
+                                <input type="checkbox" id="check${currentMeasurement.id}" name="ids" value="${currentMeasurement.id}" style="display:none;"/>
 
                                 <g:if
                                     test="${currentMeasurement.operator}">${currentMeasurement.operator}</g:if>
                                 <g:if test="${isNumeric}">
                                     <g:if test="${comments}">
-                                    <%-- numeric value and comments --%>
-                                        <span class="tooltip"
-                                              title="${comments}">${currentMeasurement.value}</span>
+                                        <%-- numeric value and comments --%>
+                                        <span class="tooltip" title="'${comments}'">${currentMeasurement.value}</span>
                                     </g:if>
                                     <g:else>
-                                        <g:if
-                                            test="${currentMeasurement.value == currentMeasurement.value.round(3)}">
-                                        <%-- short numeric value without comments --%>
+                                        <g:if test="${currentMeasurement.value == currentMeasurement.value.round(3)}">
+                                            <%-- short numeric value without comments --%>
                                             <span>${currentMeasurement.value}</span>
                                         </g:if>
                                         <g:else>
-                                        <%-- long numeric value without comments; render short version and put entire number in tooltip --%>
-                                            <span class="tooltip"
-                                                  title="${currentMeasurement.value}">${currentMeasurement.value.round(3).toString()}</span>
+                                            <%-- long numeric value without comments; render short version and put entire number in tooltip --%>
+                                            <span class="tooltip" title="${currentMeasurement.value}">${currentMeasurement.value.round(3).toString()}</span>
                                         </g:else>
                                     </g:else>
                                 </g:if>
                                 <g:else>
                                 <%-- measurement is not numeric, so use text value from comments --%>
-                                    <span class="tooltip"
-                                          title="${comments}">${comments}</span>
+                                    <span class="tooltip" title="'${comments}'">'${comments.substring(0, comments.size() < 6 ? comments.size() : 6 )}'</span>
                                 </g:else>
                             </td>
                         </g:if>
@@ -134,50 +100,35 @@
         </table>
 
         <div class="paginateButtons">
-            <g:paginate controller="measurements" mapping="showAssayPagination"
-                        action="show" id="${assayInstance.id}"
-                        total="${numberOfSamples}" offset="${offset}"
-                        params='[numberOfSamples: numberOfSamples, module: "${module}"]'/>
+            <g:paginate controller="measurements" mapping="showAssayPagination" action="show" id="${assayInstance.id}" total="${numberOfSamples}" offset="${offset}" params='[numberOfSamples: numberOfSamples, module: "${module}"]'/>
         </div>
     </form>
 
     <br/>
     <ul class="data_nav buttons">
-        <li><g:link class="delete" controller="measurement" action="delete"
-                    onClick="if( \$( '#deleteform input:checked' ).length != 0 && confirm('Are you sure?') ) { \$( '#deleteform' ).submit(); } return false; ">Delete selected measurements</g:link></li>
-        <li><g:link class="delete" controller="measurement"
-                    action="deleteByAssay" id="${assayInstance.id}"
-                    params="${[module: module]}"
-                    onClick="return confirm('Are you sure?');">Delete all measurements</g:link></li>
-        <li><g:link class="delete" controller="SAMSample" action="deleteByAssay"
-                    id="${assayInstance.id}" params="${[module: module]}"
-                    onClick="return confirm('Are you sure?');">Delete all measurements & module samples</g:link></li>
+        <li><g:link class="delete" controller="measurement" action="delete" onClick="if( \$( '#deleteform input:checked' ).length != 0 && confirm('Are you sure?') ) { \$( '#deleteform' ).submit(); } return false; ">Delete selected measurements</g:link></li>
+        <li><g:link class="delete" controller="measurement" action="deleteByAssay" id="${assayInstance.id}" params="${[module: module]}" onClick="return confirm('Are you sure?');">Delete all measurements</g:link></li>
+        <li><g:link class="delete" controller="SAMSample" action="deleteByAssay" id="${assayInstance.id}" params="${[module: module]}" onClick="return confirm('Are you sure?');">Delete all measurements & module samples</g:link></li>
     </ul>
 
     <g:if test="${hideEmpty}">
         <g:if test="${emptySamples > 0}">
             <p>
                 ${emptySamples} sample(s) are not shown because they have no measurements.
-                Click <g:link action="show"
-                              params="['id': assayInstance.id, 'hideEmpty': false, module: module]">here</g:link> to show all.
+                Click <g:link action="show" params="['id': assayInstance.id, 'hideEmpty': false, module: module]">here</g:link> to show all.
             </p>
         </g:if>
     </g:if>
     <g:else>
         <p>
-            Click <g:link action="show"
-                          params="['id': assayInstance.id, 'hideEmpty': true, module: module]">here</g:link> to hide samples without measurements.
+            Click <g:link action="show" params="['id': assayInstance.id, 'hideEmpty': true, module: module]">here</g:link> to hide samples without measurements.
         </p>
     </g:else>
 </g:if>
 <g:else>
     <p>
-        No measurements were found for this assay. Use the
-        <g:link controller="SAMImporter" action="upload"
-                params="${[importer: "Measurements", module: module]}">importer</g:link>
-        to import your data  or add your measurements <g:link
-            controller="measurement" action="create"
-            params="${[module: module]}">manually</g:link>.
+        No measurements were found for this assay.<br/>
+        Use the <g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements (sample layout)", module: module]}">subject layout</g:link>/<g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements (sample layout)", module: module]}">sample layout</g:link> importer to import your data  or add your measurements <g:link controller="measurement" action="create" params="${[module: module]}">manually</g:link>.
     </p>
 </g:else>
 

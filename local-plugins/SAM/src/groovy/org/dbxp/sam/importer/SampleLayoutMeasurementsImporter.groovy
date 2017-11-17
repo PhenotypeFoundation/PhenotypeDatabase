@@ -279,8 +279,8 @@ public class SampleLayoutMeasurementsImporter extends AbstractImporter {
                         }
                         
                         // Convert the value to a number, if necessary
-                        if( value instanceof String && value.isDouble() ) {
-                            value = value.toDouble()
+                        if( value instanceof String && value.replace(',','.').isDouble() ) {
+                            value = value.replace(',','.').toDouble()
                         }
 
                         // Distinguish between numeric and text values

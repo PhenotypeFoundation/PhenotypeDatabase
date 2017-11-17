@@ -22,10 +22,12 @@ StudyView.design = {
 
 	readableScaledItems: function () {
         StudyView.design.timelineObject.repaintItems(true);
+        StudyView.design.timelineObject.stackItems();
     },
 
     timeScaledItems: function () {
         StudyView.design.timelineObject.repaintItems(false);
+        StudyView.design.timelineObject.stackItems();
     },
 
 	determineRelativeTime: function( d ) {
