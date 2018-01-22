@@ -933,14 +933,11 @@ class ApiController {
 
                 String checkTableCommand = "opal data phenotypedatabase-exported.${table} --opal ${opalUrl} --user ${opalUser} --password ${opalPassword} --json".toString()
 
-                println featureImportCommand[2]
-                println dataImportCommand
-//
                 def i = 0
                 def assayInOpal = false
 
                 // Check if assay becomes available in Opal so the response does not come back while Opal is still processing
-                while( !assayInOpal && i < 30 ) {
+                while( !assayInOpal && i < 60 ) {
 
                     String dataCommandOutput = checkTableCommand.execute().text
 
@@ -948,8 +945,8 @@ class ApiController {
                         assayInOpal = true
                     }
                     else {
-                        // Delay next try for two seconds
-                        sleep(2000 )
+                        // Delay next try for 10 seconds
+                        sleep( 10000 )
                     }
 
                     i ++
@@ -959,7 +956,7 @@ class ApiController {
                     result = [ 'status': "Export to Opal succeeded", 'project': 'phenotypedatabase-exported', 'table': table ]
                 }
                 else {
-                    log.error("ExportToOpal not successful after 1 minute for assayId ${assay.id}: ${dataImportCommandExecuteText}")
+                    log.error("ExportToOpal not successful after 10 minutes for assayId ${assay.id}: ${dataImportCommandExecuteText}")
                 }
 
                 if (params.containsKey('callback')) {
