@@ -165,7 +165,7 @@
                         </li>
                     </sec:ifAllGranted>
                 </ul>
-                <sec:ifLoggedIn>
+                %{--<sec:ifLoggedIn>--}%
                     <div class="search">
                         <g:form action="pages" name="simpleQueryForm" id="simpleQueryForm">
                             <g:if test="${search_term}"><g:set var="preterm" value="${search_term}"/></g:if>
@@ -173,7 +173,7 @@
                             <img name="search_spinner" id="search_spinner" class="search_spinner" src="${resource(dir: 'images', file: 'spinner.gif')}" alt="" />
                         </g:form>
                     </div>
-                </sec:ifLoggedIn>
+                %{--</sec:ifLoggedIn>--}%
             </div>
         </div>
     </div>

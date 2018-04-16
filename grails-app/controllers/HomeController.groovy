@@ -186,26 +186,26 @@ class HomeController {
 		}
 	}
 
-	/**
-	 * Log the user in as admin and jump to the setup wizard
-	 */
-	def setup = {
-		def config	= Holders.config
-		def db		= config.dataSource.driverClassName
-		def user	= authenticationService.getLoggedInUser()
-
-		// are we using the in-memory database in a non-development environment?
-		if (db == "org.hsqldb.jdbcDriver" && grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
-			// log in as administrator
-			springSecurityService.reauthenticate(
-				config.authentication.users.admin.username,
-				config.authentication.users.admin.password
-			)
-
-			// and jump to the setup controller
-			redirect(controller:"setup")
-		}
-
-		redirect(controller:"home")
-	}
+//	/**
+//	 * Log the user in as admin and jump to the setup wizard
+//	 */
+//	def setup = {
+//		def config	= Holders.config
+//		def db		= config.dataSource.driverClassName
+//		def user	= authenticationService.getLoggedInUser()
+//
+//		// are we using the in-memory database in a non-development environment?
+//		if (db == "org.hsqldb.jdbcDriver" && grails.util.GrailsUtil.environment == GrailsApplication.ENV_DEVELOPMENT) {
+//			// log in as administrator
+//			springSecurityService.reauthenticate(
+//				config.authentication.users.admin.username,
+//				config.authentication.users.admin.password
+//			)
+//
+//			// and jump to the setup controller
+//			redirect(controller:"setup")
+//		}
+//
+//		redirect(controller:"home")
+//	}
 }
