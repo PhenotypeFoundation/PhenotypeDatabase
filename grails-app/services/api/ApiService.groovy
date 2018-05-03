@@ -148,6 +148,9 @@ class ApiService implements Serializable, ApplicationContextAware {
                     item['sampleType'] = it.parentEvent.event?.UUID
                     item['sampleAndTreatmentGroup'] = it.eventGroup?.UUID
                 }
+                else if ( it instanceof Subject ) {
+                    item['subjectGroups'] = it.subjectGroups.name.join(', ')
+                }
             }
             else {
                 // and others don't at all, so far
