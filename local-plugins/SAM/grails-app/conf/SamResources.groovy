@@ -42,4 +42,9 @@ modules = {
         resource url:[plugin: 'gdt', dir:'js', file: 'tooltips.js']
         resource url:[plugin: 'gdt', dir:'js', file: 'jquery.qtip-1.0.0-rc3.js']
     }
+
+    mapper {
+        resource url: [dir: 'js', file: 'sammapper.js', plugin: 'dbxp-sam']
+        resource url: [dir: 'css', file: 'sammapper.css', plugin: 'dbxp-sam']
+    }
 }

@@ -67,7 +67,7 @@ class PlatformController {
 
         // Create the HQL query
         def hqlParams = [ module: params.module ]
-        def hql = "FROM Platform p LEFT JOIN p.template as t WHERE platformtype = :module"
+        def hql = "FROM Platform p LEFT JOIN p.template as t WHERE platformtype = :module "
         def orderHQL = ""
 
         // Search properties

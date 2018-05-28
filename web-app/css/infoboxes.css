@@ -36,7 +36,7 @@
 
 .info .title {
     color:#006DBA;
-    background: url(../plugins/famfamfam-1.0.1/images/icons/information.png) no-repeat center left;
+    /*background: url(../plugins/famfamfam-1.0.1/images/icons/information.png) no-repeat center left;*/
 }
 
 /* Error messages: red */
@@ -47,7 +47,7 @@
 
 .errormessage .title {
     color:#BA0000;
-    background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat center left;
+    /*background: url(../plugins/famfamfam-1.0.1/images/icons/error.png) no-repeat center left;*/
 }
 
 /* Warning messages: yellow */
@@ -58,7 +58,7 @@
 
 .warning .title {
     color:#A5B800;
-    background: url(../plugins/famfamfam-1.0.1/images/icons/exclamation.png) no-repeat center left;
+    /*background: url(../plugins/famfamfam-1.0.1/images/icons/exclamation.png) no-repeat center left;*/
 }
 
 /* Okay messages: green */
@@ -69,7 +69,7 @@
 
 .okay .title {
     color:#5BA300;
-    background: url(../plugins/famfamfam-1.0.1/images/icons/accept.png) no-repeat center left;
+    /*background: url(../plugins/famfamfam-1.0.1/images/icons/accept.png) no-repeat center left;*/
 }
 
 .famfamfam {

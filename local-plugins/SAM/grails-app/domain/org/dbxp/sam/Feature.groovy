@@ -21,6 +21,21 @@ class Feature extends TemplateEntity {
         return name
     }
 
+    public String getCleanedName() {
+        def name = name
+
+        name = name.split('.v0')[0]
+        name = name.split( " \\[")[0]
+        name = name.replace('[','')
+        name = name.replace(']','')
+        name = name.replace('(','')
+        name = name.replace(')','')
+        name = name.replace('\\','_')
+        name = name.replace('/','_')
+
+        return name
+    }
+
 	/**
 	 * Changes the template for this feature. If no template with the given name 
 	 * exists, the template is set to null.

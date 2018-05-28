@@ -160,6 +160,7 @@ class ApiService implements Serializable, ApplicationContextAware {
 
             // add subject field values
             fields.each { field ->
+                // TODO: fix issue that causes names with double spaces to result in error
                 // get a camelCased version of the field name
                 def name = field.name.split(camelCaseSeparators).collect {it[0].toUpperCase() + it.substring(1)}.join('')
                     name = name[0].toLowerCase() + name.substring(1)
