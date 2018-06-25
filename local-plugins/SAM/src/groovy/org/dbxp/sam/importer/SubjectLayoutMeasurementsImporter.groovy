@@ -65,7 +65,7 @@ public class SubjectLayoutMeasurementsImporter extends AbstractImporter {
      */
     public List getHeaderOptions(def parameters) {
         // The user could choose from the features belonging to the selected platform
-        // The user could also choose a column to contain the sample name
+        // The user could also choose a column to contain the subject name
         def options = [
             [ id: 'subject', name: "Subject name" ]
         ]

@@ -107,14 +107,18 @@ Importer.datatable = {
                     }
                     else {
 
-                        previewMessage = "You are importing a large dataset ("+data.aoColumns.length+" columns). Make sure your matrix corresponds to the study perfectly since the wizard will skip the 'matching' step.";
-
+                        var type = '';
                         if(parameters.indexOf('sample+layout') !== -1) {
-                            previewMessage += " Please make sure the first column is 'Sample name'."
+                            type = "sample"
                         }
                         else if(parameters.indexOf('subject+layout') !== -1) {
-                            previewMessage += " Please make sure the first column is 'Subject name'."
+                            type = "subject"
                         }
+
+                        previewMessage = "You are importing a large dataset ("+data.aoColumns.length+" columns).<br/>" +
+										 "Make sure your matrix corresponds to the study perfectly since the wizard will skip the 'matching' step.<br/>" +
+										 "Please make sure the first column is '"+type.capitalize+"' name (without quotes).<br/>" +
+										 "Quoted text values (features/"+type+" names) will result in mismatches!";
 
                         //If the data file has >100 column, 'next' action should be 'exact'.
                         element.parents().find('#next-match').hide();
@@ -123,7 +127,7 @@ Importer.datatable = {
                 }
 
 				if ( previewMessage ) {
-                    element.empty().text( previewMessage );
+                    element.empty().html( previewMessage );
                     element.show();
 				}
 
@@ -312,22 +316,29 @@ Importer.match = {
 };
 
 Importer.exact = {
-	initialize: function(sessionKey) {
+    initialize: function(sessionKey) {
         $( '.options' ).hide();
-		Importer.exact.matchHeaders( sessionKey );
-	},
+        Importer.exact.matchHeaders( sessionKey );
+    },
 
-	/**
-	 * Perform a match for each header against the possibilities
-	 */
-	matchHeaders: function( sessionKey ) {
+    /**
+     * Perform a match for each header against the possibilities
+     */
+    matchHeaders: function( sessionKey ) {
         var url = $( '#match-headers' ).data( "match-url" );
-		var parameters = { key: sessionKey };
+        var parameters = { key: sessionKey };
 
-		return $.get( url, parameters )
-			.done(function(data) {
-				$( '#match-text' ).text("Successful matched "+data.count+" Features, you can now import your data!");
-				$( '.options' ).show();
-			});
-	}
+        return $.get( url, parameters )
+            .done(function(data) {
+				console.log(data);
+
+				if ( data.error ) {
+					$( '#match-text' ).html("Failed to match '"+data.error+"' (feature number "+(data.count+1)+").<br/>Please correct and restart your import");
+				}
+				else {
+					$( '#match-text' ).text("Successful matched "+data.count+" headers, you can now import your data!");
+					$( '.options' ).show();
+				}
+            });
+    }
 };
