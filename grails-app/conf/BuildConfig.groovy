@@ -90,7 +90,7 @@ grails.project.dependency.resolution = {
                 ':jquery-ui:1.10.4',
 
                 ":resources:1.2.14",
-                ":spring-security-core:2.0-RC4",
+                ":spring-security-core:2.0.0",
                 
                 ':matrix-importer:0.2.5.0',
                 ':dbxp-module-base:0.6.2.0',
@@ -101,7 +101,7 @@ grails.project.dependency.resolution = {
                 ":ajaxflow:0.2.4",
                 ":webflow:2.1.0",
                 ":scaffolding:2.1.2"
-                )
+        )
 
         compile ":yui-war-minify:1.5"
         

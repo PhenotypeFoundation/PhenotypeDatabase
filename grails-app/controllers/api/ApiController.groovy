@@ -374,12 +374,13 @@ class ApiController {
 
         // wrap result in api call validator
         apiService.executeApiCall(params,response,'assay',assay,{
-            def subjects = apiService.flattenDomainData( assay.samples.parentSubject.unique() )
-
+            
+            def subjects = assay.samples.parentSubject.unique()
+            
             // define result
             def result = [
                     'count'     : subjects.size(),
-                    'subjects'  : subjects
+                    'subjects'  : subjects.name
             ]
 
             if (params.containsKey('callback')) {

@@ -48,6 +48,7 @@ abstract class Identity implements Serializable {
 
 	// UUID of this instance
 	String UUID
+	String externalIdentifier
 
 	// transients
 	static transients = [ "identifier", "iterator", "maximumIdentity" ]
@@ -55,6 +56,7 @@ abstract class Identity implements Serializable {
 	// constraints
 	static constraints = {
 		UUID(nullable:true, unique:true, maxSize: 255)
+		externalIdentifier(nullable:true)
 	}
 
 	/**

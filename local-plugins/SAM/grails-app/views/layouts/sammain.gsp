@@ -35,6 +35,9 @@
 							<li><g:link controller="SAMImporter" action="upload" params="${[importer: "Measurements (subject layout)", module: module]}">Measurements (subject layout)</g:link></li>
 						</ul>
 					</li>
+					<sec:ifAnyGranted roles="ROLE_ADMIN,ROLE_TEMPLATEADMIN">
+						<li><g:link controller="SAMIdmapper" params="${[module: module]}">Feature Mapper</g:link></li>
+					</sec:ifAnyGranted>
 					<li>
 						<a href="${grailsApplication.config.gscf.documents.sam_userguide}" target="_blank">
 							User Guide

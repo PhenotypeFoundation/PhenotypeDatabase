@@ -33,7 +33,7 @@
             </dt:dataTable>
             <br />
             <ul class="data_nav buttons">
-                    <li><a href="#" class="delete" onclick="if(confirm('Are you sure?')) {submitPaginatedForm('fList','delete?module=${module}', 'No rows selected');} else {return false;}">Delete all marked features</a></li>
+                <li><a href="#" class="delete" onclick="if(confirm('Are you sure?')) {submitPaginatedForm('fList','delete?module=${module}', 'No rows selected');} else {return false;}">Delete all marked features</a></li>
             </ul>
         </div>
     </body>

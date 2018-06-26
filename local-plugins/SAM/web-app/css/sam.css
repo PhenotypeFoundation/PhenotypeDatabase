@@ -221,7 +221,7 @@ table.measurements td {
 
 table.measurements td.comments { 
 	background-size: 12px 12px;
-	background-image: url(../../famfamfam-1.0.1/images/icons/page_edit.png);
+	/*background-image: url(../../famfamfam-1.0.1/images/icons/page_edit.png);*/
 	background-position: center right;
 	background-repeat: no-repeat; 
 }

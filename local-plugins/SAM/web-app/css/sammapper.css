@@ -1,0 +1,27 @@
+table {
+    border: none;
+}
+
+.mapper-searching {
+    font-size: xx-small;
+}
+
+.mapper-match {
+    color: #22c245 !important;
+}
+
+.mapper-multiple {
+    color: #d17b1a !important;
+}
+
+.mapper-none {
+    color: #c22a17 !important;
+}
+
+.mapper-error {
+    color: #ff361e !important;
+}
+
+.mapper-previously {
+    color: #808080 !important;
+}

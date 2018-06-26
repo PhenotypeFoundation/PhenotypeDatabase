@@ -697,12 +697,12 @@ class Study extends TemplateEntity {
 	 * @return
 	 */
 	public static textSearchReadableStudies(SecUser user, String query) {
-
-		if (user == null) {
+        if (user == null) {
 			// regular user
 			def c = Study.createCriteria()
 			return c.listDistinct {
 				or {
+					ilike("code", "%${query}%")
 					ilike("title", "%${query}%")
 					ilike("description", "%${query}%")
 				}
@@ -716,12 +716,15 @@ class Study extends TemplateEntity {
 			def c = Study.createCriteria()
 			return c.listDistinct {
 				or {
+					ilike("code", "%${query}%")
 					ilike("title", "%${query}%")
 					ilike("description", "%${query}%")
 				}
 			}
 		} else {
-			return Study.findAll("from Study s where s.title like '%${query}%' or s.description like '%${query}%' and (s.publicstudy = true or s.owner = :user or :user in elements(s.readers) OR :user in elements(s.writers)) order by s.title asc", [user: user])
+            query = query.toLowerCase()
+
+			return Study.findAll("from Study s where lower(s.code) like '%${query}%' or lower(s.title) like '%${query}%' or lower(s.description) like '%${query}%' and (s.publicstudy = true or s.owner = :user or :user in elements(s.readers) OR :user in elements(s.writers)) order by s.title asc", [user: user])
 		}
 	}
 

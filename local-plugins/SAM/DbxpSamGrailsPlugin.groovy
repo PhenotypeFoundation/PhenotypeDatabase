@@ -35,7 +35,7 @@ It can be used to store clinical data, such as Rules Based Medicine assays, but 
     // Location of the plugin's issue tracker.
     def issueManagement = [ system: "github", url: "https://github.com/PhenotypeFoundation/SAM/issues" ]
 
-    def developers      = [
+    def developers = [
             [ name: "Kees van Bochove", email: "kees@thehyve.nl" ],
             [ name: "Robert Horlings", email: "robert@thehyve.nl"],
             [ name: "Taco Steemers", email: "taco@thehyve.nl" ],

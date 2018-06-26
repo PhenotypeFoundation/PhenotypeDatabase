@@ -114,8 +114,8 @@ grails.plugin.springsecurity.fii.rejectPublicInvocations = false
 grails.plugin.springsecurity.securityConfigType = grails.plugin.springsecurity.SecurityConfigType.InterceptUrlMap
 
 grails.plugin.springsecurity.interceptUrlMap = [
-        '/*':                  						        ['permitAll'],
-        '/home':              						        ['permitAll'],
+        '/*':												['permitAll'],
+        '/home/**':											['permitAll'],
         '/study/**':          						        ['permitAll'],
         '/publication/list':  						        ['permitAll'],
         '/assets/**':         						        ['permitAll'],

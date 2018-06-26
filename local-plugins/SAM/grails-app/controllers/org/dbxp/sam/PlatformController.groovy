@@ -66,9 +66,9 @@ class PlatformController {
         def columns = [ 'p.name', 'p.comments', 'p.platformtype', 'p.platformversion', 't.name' ]
 
         // Create the HQL query
-        def hqlParams = [:];
-        def hql = "FROM Platform p LEFT JOIN p.template as t ";
-        def orderHQL = "";
+        def hqlParams = [ module: params.module ]
+        def hql = "FROM Platform p LEFT JOIN p.template as t WHERE platformtype = :module "
+        def orderHQL = ""
 
         // Search properties
         if( search ) {
@@ -79,12 +79,12 @@ class PlatformController {
                 hqlConstraints << "LOWER(" + columns[ i ] + ") LIKE :search"
             }
 
-            hql += "WHERE (" + hqlConstraints.join( " OR " ) + ") "
+            hql += "AND (" + hqlConstraints.join( " OR " ) + ") "
         }
 
         // Sort properties
         if( sortOn ) {
-            orderHQL = "ORDER BY " + sortOn.collect { columns[it.column] + " " + it.direction }.join( " " );
+            orderHQL = " ORDER BY " + sortOn.collect { columns[it.column] + " " + it.direction }.join( " " );
         }
 
         // Display properties

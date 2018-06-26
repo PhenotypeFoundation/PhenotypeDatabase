@@ -94,7 +94,7 @@ class ImporterController {
     }
     
     /**
-     * Screen to match headers and upload the file and select the parameters
+     * Screen to match headers
      */
     def match() {
         // Retrieve information from request and from session
@@ -167,7 +167,7 @@ class ImporterController {
     }
 
     /**
-     * Screen to match headers and upload the file and select the parameters
+     * Screen to check headers
      */
     def exact() {
         // Retrieve information from request and from session
@@ -360,30 +360,31 @@ class ImporterController {
         def headerOptions = importer.getHeaderOptions(importInfo.parameter)
 
         if ( params?.id.equals('exact') ) {
-            // Perform the exact match itself
-            def exactMap = [:]
+
+            importInfo.mapping = [:]
 
             def headerOptionNames = headerOptions*.name
             def headerOptionIds = headerOptions*.id
 
             headerOptions.clear()
 
-            fileHeaders.eachWithIndex{ String featureName, int i ->
+            def i = 0
+            for ( String featureName in fileHeaders ) {
                 // matchMap[i] = headerOptions.find() { it.name.equalsIgnoreCase(header) }.id
                 // This proved to be a lot faster than the find method above
-                def featureId = headerOptionIds[headerOptionNames.indexOf(featureName)]
+                def featureIndex = headerOptionNames.indexOf( featureName )
 
-                if (!featureId) {
-                    flash.message = "Header ${header} could not be matched!"
-                    doRedirect action: "chooseType"
-                    return
+                if (featureIndex < 0) {
+                    matchMap['error'] = featureName
+                    break
                 }
 
-                exactMap[i] = [ columnNumber: i, ignore: false, field: [ id: featureId, name: featureName ]]
+                importInfo.mapping[i] = [ columnNumber: i, ignore: false, field: [ id: headerOptionIds[featureIndex], name: featureName ]]
+
+                i += 1
             }
 
-            importInfo.mapping = exactMap
-            matchMap = [ count: exactMap.size() ]
+            matchMap['count'] = importInfo.mapping.size()
         }
         else {
             // Perform the match itself
@@ -509,10 +510,10 @@ class ImporterController {
         }
         
         // Disable logging for apache poi
-        System.setProperty("org.apache.poi.util.POILogger", "org.apache.commons.logging.impl.NoOpLog");
+        System.setProperty("org.apache.poi.util.POILogger", "org.apache.commons.logging.impl.NoOpLog")
         
         log.debug "Start parsing file " + data.file
-        def matrix = MatrixImporter.getInstance().importFile(importedFile, importOptions, false);
+        def matrix = MatrixImporter.getInstance().importFile(importedFile, importOptions, false)
         log.debug "Finished parsing file " + data.file
         
         return matrix

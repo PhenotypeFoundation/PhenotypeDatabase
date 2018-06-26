@@ -1,3 +1,5 @@
+//TODO: merge with 'sammapper.js' into a single function (url and message as params)
+
 // This variable can be set to false, if no warnings have to be given
 var warnOnRedirect = true;
 

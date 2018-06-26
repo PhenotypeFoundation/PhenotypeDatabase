@@ -127,7 +127,7 @@ public class SampleLayoutMeasurementsImporter extends AbstractImporter {
 
         // If we ran into errors already, there is no need to continue
         if( errors ) {
-            return false;
+            return false
         }
              
         // Afterwards, check for each line if the sample could be found and a measurement is given for each column
@@ -211,7 +211,7 @@ public class SampleLayoutMeasurementsImporter extends AbstractImporter {
 
         // If we ran into errors already, there is no need to continue
         if( errors ) {
-            return false;
+            return false
         }
         
         // Retrieve Assay
