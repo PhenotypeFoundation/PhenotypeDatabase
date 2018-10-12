@@ -20,7 +20,6 @@ class ErrorController {
 	def notFound = {
 
 		// substract shortCode from original request uri
-		def studyId
 		def shortCode = request.forwardURI.replace("${request.contextPath}/", "")
 
 		if ( shortCode ) {
@@ -29,6 +28,8 @@ class ErrorController {
 
 			if ( study ) {
 
+				def studyId
+
 				if ( study.publicstudy ) {
 					studyId = study.id
 				}
@@ -36,16 +37,20 @@ class ErrorController {
 					SecUser user = authenticationService.getLoggedInUser()
 
 					if ( user ) {
-						if (study.canRead(user) ) {
-							studyId = study.id
-						}
+						// User will see study or get 'unauthorized' message
+						studyId = study.id
+					}
+					else {
+						// User will be asked to sign in
+						redirect(controller: "home", action: "gotoStudy", id: study.id )
+						return
 					}
 				}
-			}
 
-			if (studyId) {
-				redirect(controller: "study", action: "show", id: studyId)
-				return
+				if ( studyId ) {
+					redirect(controller: "study", action: "show", id: studyId)
+					return
+				}
 			}
 		}
 

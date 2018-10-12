@@ -115,19 +115,23 @@ grails.plugin.springsecurity.securityConfigType = grails.plugin.springsecurity.S
 
 grails.plugin.springsecurity.interceptUrlMap = [
         '/*':												['permitAll'],
+
+		'/home/gotoStudy/*':								['IS_AUTHENTICATED_REMEMBERED'],
         '/home/**':											['permitAll'],
-        '/study/**':          						        ['permitAll'],
+
+		'/study/**':          						        ['permitAll'],
         '/publication/list':  						        ['permitAll'],
-        '/assets/**':         						        ['permitAll'],
-        '/**/js/**':          						        ['permitAll'],
+		'/login/**':          						        ['permitAll'],
+		'/logout/**':         						        ['permitAll'],
+		'/downloads/**':          						    ['permitAll'],
+		'/error/**':										['permitAll'],
+		'/info':                                            ['permitAll'],
+
+		'/assets/**':         						        ['permitAll'],
+		'/**/js/**':          						        ['permitAll'],
         '/**/css/**':         						        ['permitAll'],
         '/**/images/**':      						        ['permitAll'],
         '/**/favicon.ico':    						        ['permitAll'],
-        '/login/**':          						        ['permitAll'],
-        '/logout/**':         						        ['permitAll'],
-        '/downloads/**':          						    ['permitAll'],
-		'/error/**':										['permitAll'],
-        '/info':                                            ['permitAll'],
 
         // Registration and confirming new accounts
         '/register/forgotPassword':                         ['permitAll'],
@@ -168,7 +172,7 @@ grails.plugin.springsecurity.interceptUrlMap = [
         '/userRegistration/confirmAdmin':       	        ['ROLE_ADMIN', 'isFullyAuthenticated()'],
 
         // All other urls are allowed for logged in users
-        '/**':										        ['IS_AUTHENTICATED_REMEMBERED']
+        '/**':										        ['IS_AUTHENTICATED_REMEMBERED'],
  ]
 
 
