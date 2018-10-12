@@ -850,13 +850,23 @@ class ApiController {
                 def featureMap = [ "name": table, "entityType": "Participant", "variables": [ ] ]
 
                 featureMap['variables'] << ["name":"subjectName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Subject name","locale":"en"]]]
-                featureMap['variables'] << ["name":"eventGroupName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"EventGroup name","locale":"en"]]]
-                featureMap['variables'] << ["name":"subjectEventGroupStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup start time","locale":"en"]]]
-                featureMap['variables'] << ["name":"subjectEventGroupDuration","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup duration","locale":"en"]]]
-                featureMap['variables'] << ["name":"sampleRelativeStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Sample relative start time","locale":"en"]]]
+                featureMap['variables'] << ["name":"design_information_eventGroupName","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"EventGroup name","locale":"en"]]]
+                featureMap['variables'] << ["name":"design_information_subjectEventGroupStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup start time","locale":"en"]]]
+                featureMap['variables'] << ["name":"design_information_subjectEventGroupDuration","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"SubjectEventGroup duration","locale":"en"]]]
+                featureMap['variables'] << ["name":"design_information_sampleRelativeStartTime","entityType":"Participant","valueType":"text","isRepeatable":false,"attributes":[["name":"label","value":"Sample relative start time","locale":"en"]]]
 
                 def header = "ID,subjectName,eventGroupName,subjectEventGroupStartTime,subjectEventGroupDuration,sampleRelativeStartTime"
-                (subjectTemplateFieldNameList+featureNameList).each() { name ->
+                subjectTemplateFieldNameList.each() { name ->
+
+                    // Opal & Datashield have some requirements for variable names
+                    def opalName = "subject_information_"+name.replace("(","_").replace(")","").replace(":","_").replace("/","_").replace(",","_")
+
+                    header += ",${opalName}".toString()
+
+                    featureMap['variables'] << [ "name": opalName, "entityType": "Participant", "valueType": variableTypeMap[name], "isRepeatable": false, "attributes": [ [ "name": "label", "value": name, "locale": "en" ] ] ]
+                }
+
+                featureNameList.each() { name ->
 
                     // Opal & Datashield have some requirements for variable names
                     def opalName = name.replace("(","_").replace(")","").replace(":","_").replace("/","_").replace(",","_")
@@ -865,6 +875,7 @@ class ApiController {
 
                     featureMap['variables'] << [ "name": opalName, "entityType": "Participant", "valueType": variableTypeMap[name], "isRepeatable": false, "attributes": [ [ "name": "label", "value": name, "locale": "en" ] ] ]
                 }
+                
                 header += "\n"
 
                 opalDataImport << header

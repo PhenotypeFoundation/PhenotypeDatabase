@@ -186,6 +186,11 @@ class HomeController {
 		}
 	}
 
+	def gotoStudy = {
+		redirect(controller: "study", action: "show", id: params.id)
+		return
+	}
+
 //	/**
 //	 * Log the user in as admin and jump to the setup wizard
 //	 */
