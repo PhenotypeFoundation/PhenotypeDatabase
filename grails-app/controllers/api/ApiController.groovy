@@ -475,12 +475,14 @@ class ApiController {
 
                 apiService.getMeasurementDataForAssay(assay, user).each() { feature, featureMeasurements ->
                     featureMeasurements.each() { sampleId, value ->
-                        Sample sample = Sample.read(sampleId)
+
+                        Sample sample = Sample.read( sampleId )
 
                         String featureName = feature.intern()
                         String eventGroupName = sample.getParentEventGroupName().intern()
-                        String subjectEventGroupStartTime = sample.getParentSubjectEventGroupStartTimeString().intern()
-                        String sampleRelativeStartTime = sample.getSampleRelativeStartTimeString().intern()
+                        String subjectEventGroupStartTime = sample.getParentSubjectEventGroupStartTime().toString().intern()
+                        String sampleRelativeStartTime = sample.getSampleRelativeStartTime().toString().intern()
+                        String subjectGroupName = sample.getParentSubjectEventGroup().getSubjectGroup().getName().intern()
                         String subjectName = sample.getParentSubjectName().intern()
 
                         if ( !measurements[featureName] ) {
@@ -499,7 +501,11 @@ class ApiController {
                             measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime] = [:]
                         }
 
-                        measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime].put(subjectName, value)
+                        if ( !measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime][subjectGroupName] ) {
+                            measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime] = [:]
+                        }
+
+                        measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime][subjectGroupName].put(subjectName, value)
                         count += 1
                     }
                 }
