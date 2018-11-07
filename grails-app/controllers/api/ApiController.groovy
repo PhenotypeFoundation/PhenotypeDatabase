@@ -502,7 +502,7 @@ class ApiController {
                         }
 
                         if ( !measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime][subjectGroupName] ) {
-                            measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime] = [:]
+                            measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime][subjectGroupName] = [:]
                         }
 
                         measurements[featureName][eventGroupName][subjectEventGroupStartTime][sampleRelativeStartTime][subjectGroupName].put(subjectName, value)
