@@ -1,3 +1,4 @@
+import grails.util.Environment
 import org.codehaus.groovy.grails.commons.GrailsApplication
 
 /**
@@ -16,13 +17,17 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 // config files can either be Java properties files or ConfigSlurper scripts
 //
 grails.config.locations = [
-	// the default configuration properties
+	// The default configuration properties
 	"classpath:default.properties",
+	// The default configuration properties for run-app mode
+	"file:${basedir}/grails-app/conf/default.properties",
 
-	// the external configuration to override the default
-	// configuration (e.g. ~/.gscf/ci.properties)
-	"file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.properties",
-    "file:${userHome}/.${appName}/${grails.util.GrailsUtil.environment}.groovy"
+	// The external configuration to override the default
+	"file:${userHome}/.${appName}/${Environment.getCurrent().getName()}.groovy",
+
+	// DEPRECATED
+	//"file:${userHome}/.${appName}/${Environment.getCurrent().getName()}.properties",
+    "file:${userHome}/.grails/${appName}-${Environment.getCurrent().getName()}-config.groovy"
 ]
 
 grails.config.locations.each { println "Reading configuration from ${it}" }
@@ -53,28 +58,43 @@ grails.converters.encoding = "UTF-8"
 grails.enable.native2ascii = true
 
 log4j = {
-    error  'org.codehaus.groovy.grails.web.servlet',        // controllers
-            'org.codehaus.groovy.grails.web.pages',          // GSP
-            'org.codehaus.groovy.grails.web.sitemesh',       // layouts
-            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-            'org.codehaus.groovy.grails.web.mapping',        // URL mapping
-            'org.codehaus.groovy.grails.commons',            // core / classloading
-            'org.codehaus.groovy.grails.plugins',            // plugins
-            'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
+	String logFile = "${userHome}/.grails/logs/${appName}_${Environment.getCurrent().getName()}_stacktrace.log"
+	println "Logging to: ${logFile}"
+
+	appenders {
+		console name:'stdout', layout:pattern(conversionPattern: '%d{yyyy-MM-dd/HH:mm:ss.SSS} %x %-5p %c{2} - %m%n')
+		rollingFile name:'stacktrace', file:logFile, maxFileSize:"10MB", maxBackupIndex: 10, append:true, layout:pattern(conversionPattern: '%d{yyyy-MM-dd/HH:mm:ss.SSS} %x %-5p %c{2} - %m%n')
+	}
+
+	root {
+		info 'stacktrace','stdout'
+		error()
+		additivity = true
+	}
+
+    error   'org.codehaus.groovy.grails.web.servlet',			// controllers
+            'org.codehaus.groovy.grails.web.pages',				// GSP
+            'org.codehaus.groovy.grails.web.sitemesh',			// layouts
+            'org.codehaus.groovy.grails.web.mapping.filter',	// URL mapping
+            'org.codehaus.groovy.grails.web.mapping',			// URL mapping
+            'org.codehaus.groovy.grails.commons',				// core / classloading
+            'org.codehaus.groovy.grails.plugins',				// plugins
+            'org.codehaus.groovy.grails.orm.hibernate',			// hibernate integration
             'org.springframework',
             'org.hibernate',
             'net.sf.ehcache.hibernate'
 
-    warn   'org.codehaus.groovy.grails.orm.hibernate',
-            'org.hibernate'                                  // hibernate integration
+    warn	'org.codehaus.groovy.grails.orm.hibernate',
+            'org.hibernate'										// hibernate integration
 
-    all    'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter', 'org.dbxp.sam', "dbnp.modules"
+    error	'grails.app.services.org.grails.plugin.resource',
+            'grails.app.taglib.org.grails.plugin.resource'
 
-    // Disable logging for resources plugin
-    error  'grails.app.services.org.grails.plugin.resource',
-            'grails.app.taglib.org.grails.plugin.resource',
-            'grails.app.resourceMappers.org.grails.plugin.resource',
-            'org.grails.plugin.resource'
+//  error   'org.grails.plugin.resource',
+//			'grails.app.resourceMappers.org.grails.plugin.resource'
+
+//	all		'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter', 'org.dbxp.sam', "dbnp.modules"
+	warn	'grails.app', 'dbnp.query', 'dbnp.importer', 'org.dbxp.matriximporter', 'org.dbxp.sam', "dbnp.modules"
 }
 
 graphviz {
