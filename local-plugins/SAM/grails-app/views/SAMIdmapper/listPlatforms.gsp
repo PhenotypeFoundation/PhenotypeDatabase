@@ -21,7 +21,7 @@
         </span>
 
         <g:if test="${apiKeyConfigured}">
-            <g:form action="listFeatures">
+            <g:form action="listFeatures" id="platformForm" name="platformForm">
                 <g:hiddenField name="module" value="${module}"/>
                 <fieldset>
                     <legend>Parameters</legend>
@@ -45,7 +45,7 @@
                 </fieldset>
 
                 <p class="options">
-                    <a href="#" onClick="submit()" class="next">Next</a>
+                    <a href="#" onClick="$('#platformForm').submit()" class="next">Next</a>
                 </p>
             </g:form>
         </g:if>

@@ -19,7 +19,7 @@
         Successfully added an external identifier to the Features in the list below.
     </span>
 
-    <g:form controller="SAMHome">
+    <g:form controller="SAMHome" id="submitForm" name="submitForm">
         <g:hiddenField name="module" value="${module}"/>
         <fieldset>
             %{--<legend>Parameters</legend>--}%
@@ -39,7 +39,7 @@
         </fieldset>
 
         <p class="options">
-            <a href="#" onClick="submit()" class="next">Back to Home</a>
+            <a href="#" onClick="$('#submitForm').submit()" class="next">Back to Home</a>
             %{--<g:link controller="SAMHome" params="${[module: module]}" class="next">Back to home</g:link>--}%
         </p>
     </g:form>
