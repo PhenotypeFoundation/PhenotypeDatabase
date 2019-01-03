@@ -181,7 +181,7 @@
         Names in <div style="display: inline-block; color: #808080">gray</div> are already mapped on previous occasions.
     </span>
 
-    <g:form action="submitFeatures">
+    <g:form action="submitFeatures" id="featureForm" name="featureForm">
         <g:hiddenField name="module" value="${module}"/>
         <fieldset>
             <table>
@@ -217,7 +217,7 @@
         </fieldset>
 
         <p class="options">
-            <a href="#" onClick="submit()" class="next">Submit</a>
+            <a href="#" onClick="$('#featureForm').submit()" class="next">Submit</a>
         </p>
     </g:form>
 
