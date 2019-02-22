@@ -26,6 +26,7 @@ class StudyEditService {
 	 		int			ids				Total list of filtered ids
 	 */
     def getEntitiesForTemplate( searchParams, study, template ) {
+
 		def query = generateHQL( searchParams, study, template )
 		
 		// Also count the total number of results in the dataset
@@ -103,22 +104,26 @@ class StudyEditService {
 	 */
 	def generateOutput( query, searchParams, entity ) {
 		def output = [:]
-		
+
 		// First select the number of results
-		def filteredIds = entity.executeQuery( "SELECT DISTINCT s.id FROM " + query.from + " WHERE " + query.where, query.params );
+		def filteredIds = entity.executeQuery( "SELECT DISTINCT s.id FROM " + query.from + " WHERE " + query.where, query.params )
 		output.totalFiltered = filteredIds.size()
 		output.ids = filteredIds
-		
-		// Now find the results themselves
-		def hql = "SELECT " + query.select + " FROM " + query.from + " WHERE " + query.where + " " + ( query.order ? " ORDER BY " + query.order : "" )
-		output.entities = entity.executeQuery( hql, query.params, [ max: searchParams.max, offset: searchParams.offset ] )
 
-                if( query.chooseFirst ) {
-                    output.entities = output.entities.collect { it[0] }
-                }
+		// Now if filteredIds is not empty find the results themselves by that list
+		if ( filteredIds.size() != 0 ) {
+			def hql = "SELECT " + query.select + " FROM " + entity.simpleName + " " + query.select + " WHERE id IN :ids" + ( query.order ? " ORDER BY " + query.order : "" )
+			output.entities = entity.executeQuery( hql, [ ids: filteredIds ], [ max: searchParams.max, offset: searchParams.offset ] )
+		}
+		else {
+			output.entities = []
+		}
+
+		if( query.chooseFirst ) {
+			output.entities = output.entities.collect { it[0] }
+		}
         
 		output
-
 	}
 
 	/**
@@ -290,7 +295,7 @@ class StudyEditService {
 		
 		
 		// Create an HQL query as it gives us the most flexibility in searching and ordering
-		def from = " Sample s "
+		def from = " Sample s"
 		def joins = []
 		def whereClause = []
 		def hqlParams = [ study: study ]

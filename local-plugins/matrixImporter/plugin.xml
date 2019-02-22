@@ -1,0 +1,20 @@
+<plugin name='matrix-importer' version='0.2.5.0' grailsVersion='1.3.7 &gt; *'>
+  <author>Robert Horlings</author>
+  <authorEmail>robert@isdat.nl</authorEmail>
+  <title>MatrixImporter</title>
+  <description>\
+Plugin for reading files with matrix-like data structure (excel, csv etc.) into a two dimensional List
+</description>
+  <documentation>http://grails.org/plugin/matrix-importer</documentation>
+  <type>MatrixImporterGrailsPlugin</type>
+  <resources />
+  <repositories>
+    <repository name='grailsCentral' url='http://grails.org/plugins' />
+    <repository name='mavenCentral' url='http://repo1.maven.org/maven2/' />
+    <repository name='http://repo.grails.org/grails/plugins/' url='http://repo.grails.org/grails/plugins/' />
+  </repositories>
+  <dependencies />
+  <plugins />
+  <runtimePluginRequirements />
+  <behavior />
+</plugin>
