@@ -32,7 +32,7 @@
         <g:hiddenField name="_action" />
         <g:hiddenField name="key" value="${sessionKey}" />
 
-        <div id="match-headers" data-match-url="${g.createLink(action: 'matchHeaders', params: defaultParams, id: 'exact')}">
+        <div id="match-headers" data-match-url="${g.createLink(action: 'matchHeaders', params: defaultParams )}">
         </div>
 
         <div id="match-text">

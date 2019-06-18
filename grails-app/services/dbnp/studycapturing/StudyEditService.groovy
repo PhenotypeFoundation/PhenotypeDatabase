@@ -26,7 +26,6 @@ class StudyEditService {
 	 		int			ids				Total list of filtered ids
 	 */
     def getEntitiesForTemplate( searchParams, study, template ) {
-
 		def query = generateHQL( searchParams, study, template )
 		
 		// Also count the total number of results in the dataset
@@ -57,7 +56,7 @@ class StudyEditService {
 	 */
 	def getSamplesForAssaySamplePage( searchParams, study ) {
 		def query = generateHQLForAssaySamples( searchParams, study )
-		
+
 		// Also count the total number of results in the dataset
 		def output = generateOutput( query, searchParams, Sample )
 		output.total = Sample.countByParent( study )
@@ -103,6 +102,7 @@ class StudyEditService {
 			 int			ids				Total list of filtered ids
 	 */
 	def generateOutput( query, searchParams, entity ) {
+		
 		def output = [:]
 
 		// First select the number of results
@@ -110,14 +110,10 @@ class StudyEditService {
 		output.totalFiltered = filteredIds.size()
 		output.ids = filteredIds
 
-		// Now if filteredIds is not empty find the results themselves by that list
-		if ( filteredIds.size() != 0 ) {
-			def hql = "SELECT " + query.select + " FROM " + entity.simpleName + " " + query.select + " WHERE id IN :ids" + ( query.order ? " ORDER BY " + query.order : "" )
-			output.entities = entity.executeQuery( hql, [ ids: filteredIds ], [ max: searchParams.max, offset: searchParams.offset ] )
-		}
-		else {
-			output.entities = []
-		}
+		// Now find the results themselves
+		def hql = "SELECT " + query.select + " FROM " + query.from + " WHERE " + query.where + " " + ( query.order ? " ORDER BY " + query.order : "" )
+
+		output.entities = entity.executeQuery( hql, query.params, [ max: searchParams.max, offset: searchParams.offset ] )
 
 		if( query.chooseFirst ) {
 			output.entities = output.entities.collect { it[0] }
@@ -217,26 +213,22 @@ class StudyEditService {
 		def sortColumnIndex = searchParams.sortColumn ?: 0
 		def sortOrder = searchParams.sortDirection ?: "ASC"
 
-		//In order to have a natural 'order by' for the domainField 'name' we have to use a custom sort
-		def naturalSort = domainFields[ sortColumnIndex ]?.name.equals('name') ? true : false
-
 		// Prepare for differences in selection
-		def select = "DISTINCT s"
-
-		// Custom 'order by' is not allowed when using DISTINCT
-		if ( naturalSort ) {
-			select = "s"
-		}
+		def select = "DISTINCT (s)"
 
 		def chooseFirst = false
                 
 		if( sortColumnIndex != null || sortColumnIndex >= ( domainFields.size() + template.fields.size() ) ) {
 			if( sortColumnIndex < domainFields.size() ) {
 				def sortOn = domainFields[ sortColumnIndex ]?.name
-				orderBy = "s." + sortOn + " " + sortOrder
 
-				if ( naturalSort ) {
+				if ( sortColumnIndex == 0 ) {
 					orderBy = "length(s." + sortOn + ") " + sortOrder + ", s." + sortOn + " " + sortOrder
+					select += ", length(s." + sortOn + ")"
+					chooseFirst = true
+				}
+				else {
+					orderBy = "s."+sortOn + " " + sortOrder
 				}
 			} else {
 				// Sort on template field: use a join in the sql
@@ -248,11 +240,11 @@ class StudyEditService {
 				hqlParams[ "sortField" ] = sortField.name
 				orderBy = "orderJoin " + sortOrder
                                 
-                                // When ordering  by a templatefield, we have to include it in the query as well
-                                // However, in order to handle the object properly, we will need to tell the 
-                                // calling method that only the first object should be chosen.
-                                select += ", orderJoin"
-                                chooseFirst = true
+				// When ordering  by a templatefield, we have to include it in the query as well
+				// However, in order to handle the object properly, we will need to tell the
+				// calling method that only the first object should be chosen.
+				select += ", orderJoin"
+				chooseFirst = true
 			}
 		}
 			
@@ -271,7 +263,7 @@ class StudyEditService {
 			where: where,
 			order: orderBy,
 			params: hqlParams,
-                        chooseFirst: chooseFirst
+            chooseFirst: chooseFirst
 		]
 	}
 	
@@ -285,6 +277,7 @@ class StudyEditService {
 	 * 		params
 	 */
 	def generateHQLForAssaySamples( searchParams, study ) {
+
 		def entity = Sample
 		
 		// Search in
@@ -355,7 +348,7 @@ class StudyEditService {
 			where += " AND (" + whereClause.join( " OR " ) + ") "
 			
 		[
-			select: "s, " + fields.join( ", " ),
+			select: "DISTINCT (s), " + fields.join( ", " ) + (sortColumnIndex == 0 ? ", length(" + fields[ sortColumnIndex ] + ")" : ""),
 			from: from,
 			where: where,
 			order: orderBy,

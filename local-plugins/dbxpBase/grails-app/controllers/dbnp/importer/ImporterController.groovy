@@ -60,22 +60,27 @@ class ImporterController {
                 }
             }
         }
-        
+
         // Handle form submission
         if( request.post && params.importer ) {
             // Only do something if a file has been specified
             if( params.file && params.file != "existing*" ) {
                 def sessionKey = generateSessionKey()
-                storeInSession(sessionKey, parseUploadParams())
+
+                def uploadParams = parseUploadParams()
 
                 if (params._action == 'exact') {
+                    uploadParams.method = 'exact'
                     doRedirect action: 'exact', params: defaultParams + [key: sessionKey]
-                    return
                 }
                 else {
+                    uploadParams.method = 'match'
                     doRedirect action: 'match', params: defaultParams + [key: sessionKey]
-                    return
                 }
+
+                storeInSession(sessionKey, uploadParams)
+                return
+
             } else {
                 flash.error = "Please upload a valid file"
             }
@@ -97,6 +102,7 @@ class ImporterController {
      * Screen to match headers
      */
     def match() {
+
         // Retrieve information from request and from session
         def sessionKey = params.key
         def importInfo = getFromSession(sessionKey)
@@ -210,8 +216,6 @@ class ImporterController {
 
         // Determine the headers to match against
         def headerOptions = importer.getHeaderOptions(importInfo.parameter)
-
-        defaultParams['match'] = 'exact'
 
         render( view: "/importer/exact", model: [
                 sessionKey: sessionKey
@@ -359,7 +363,7 @@ class ImporterController {
         def importer = getImporter(importInfo.importer)
         def headerOptions = importer.getHeaderOptions(importInfo.parameter)
 
-        if ( params?.id.equals('exact') ) {
+        if ( importInfo.method.equals('exact') ) {
 
             importInfo.mapping = [:]
 
@@ -415,6 +419,7 @@ class ImporterController {
         
         [
             file: filename,
+            type: params.type,
             importer: params.importer,
 
             upload: [
