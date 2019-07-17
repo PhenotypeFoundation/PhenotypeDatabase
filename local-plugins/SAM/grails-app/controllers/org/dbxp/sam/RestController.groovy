@@ -276,7 +276,7 @@ class RestController {
 
         def sql = new Sql(dataSource)
 
-        def features = sql.rows("SELECT f.name, f.unit, fs.template_string_fields_idx, fs.template_string_fields_elt, ft.template_text_fields_idx, ft.template_text_fields_elt, p.name AS platform, p.platformtype, p.platformversion FROM feature AS f LEFT JOIN feature_template_string_fields fs ON (f.id = fs.feature_id) LEFT JOIN feature_template_text_fields ft ON (f.id = ft.feature_id) LEFT JOIN platform p ON (f.platform_id = p.id) WHERE f.id IN (SELECT DISTINCT feature_id FROM measurement WHERE sample_id IN (SELECT id FROM samsample WHERE parent_assay_id = ${assay.id})) ORDER BY f.name ASC;")
+        def features = sql.rows("SELECT f.name, f.unit, fs.template_string_fields_idx, fs.template_string_fields_elt, ft.template_text_fields_idx, ft.template_text_fields_elt, p.name AS platform, p.platformtype, p.platformversion, f.external_identifier FROM feature AS f LEFT JOIN feature_template_string_fields fs ON (f.id = fs.feature_id) LEFT JOIN feature_template_text_fields ft ON (f.id = ft.feature_id) LEFT JOIN platform p ON (f.platform_id = p.id) WHERE f.id IN (SELECT DISTINCT feature_id FROM measurement WHERE sample_id IN (SELECT id FROM samsample WHERE parent_assay_id = ${assay.id})) ORDER BY f.name ASC;")
 
         def fMap = [:]
         def propertyMap = [:]
@@ -294,6 +294,8 @@ class RestController {
                 propertyMap.put("platform", f.platform)
                 propertyMap.put("platformtype", f.platformtype)
                 propertyMap.put("platformversion", f.platformversion)
+                propertyMap.put("platformversion", f.platformversion)
+                propertyMap.put("externalidentifier", f.external_identifier)
                 fMap.put(f.name, propertyMap)
                 propertyMap = [:]
             }
