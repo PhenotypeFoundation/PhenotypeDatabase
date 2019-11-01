@@ -25,7 +25,8 @@
 
 		  $(document).ready(function() {
 			  $('#compare_templates').dataTable( {
-				"sPaginationType": "full_numbers"
+				"sPaginationType": "full_numbers",
+				"aLengthMenu": [10, 25, 50, 100, 250, 500, 1000]
 			  } );
 		  } );
 

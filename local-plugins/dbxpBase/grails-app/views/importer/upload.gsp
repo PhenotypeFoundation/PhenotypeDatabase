@@ -32,9 +32,17 @@
 									 description="Choose a file"
 									 id="importFileName"
 									 onUpload="Importer.upload.updateDataPreview" 
- 									 value="${savedParameters?.file}"
- 									 />
-	
+ 									 value="${savedParameters?.file}"/>
+
+				<div class="element">
+					<div class="description">Type</div>
+					<div class="input">
+						<g:select name="type" value="${savedParameters?.type}"
+								  from="${['new':'Import new data','add':'Import additional data']}"
+								  optionKey="key" optionValue="value"/>
+					</div>
+				</div>
+
 				<div class="element">
 					<div class="description">Use data from sheet</div>
 					<div class="input">

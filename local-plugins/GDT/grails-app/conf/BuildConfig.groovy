@@ -27,22 +27,17 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        build(  ":tomcat:7.0.55",
-                //Temporary static version of Rest Client Builder due to compile error
-                ":rest-client-builder:1.0.3"
-        ) {
-            // plugin only plugin, should not be transitive to the application
-            export = false
-        }
+        // Plugins for the build system only
+        build ":tomcat:7.0.70"
+        build ":rest-client-builder:1.0.3"
 
-        compile(":hibernate4:4.3.6.1",
-		":jquery:1.8.3",
-		":webflow:2.0.8.1",
-        ":ajaxflow:0.2.4",
-                ":rest:0.8",
-                ":webflow:2.1.0"
-        ) {
-            export = false
-        }
+        // Plugins needed at runtime but not for compilation
+        runtime ":hibernate4:4.3.10"
+        runtime ":jquery:1.11.1"
+
+        // Plugins needed for compilation
+        compile ":ajaxflow:0.2.4"
+        compile ":webflow:2.1.0"
+        compile ":rest:0.8"
     }
 }

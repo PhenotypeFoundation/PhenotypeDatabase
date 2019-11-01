@@ -30,22 +30,11 @@ grails.project.dependency.resolution = {
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     legacyResolve true
     repositories {
-        
-        grailsPlugins()
         grailsHome()
-        mavenLocal()
+        grailsPlugins()
         grailsCentral()
         mavenCentral()
-        
-        // grails 1.3.9 does not seem to properly inherit maven repo's from plugins
-        // so explicitely put mavenrepos in here. When upgraded to Grails 2.x this can
-        // probably be removed
-        mavenRepo "http://repo.grails.org/grails/plugins/"
-        mavenRepo "http://nexus.dbnp.org/content/repositories/releases"
-        //mavenRepo "http://repository.springsource.com/maven/bundles/release"
-        //mavenRepo "http://repository.springsource.com/maven/bundles/external"
-        //mavenRepo "http://repository.springsource.com/maven/libraries/release"
-        //mavenRepo "http://repository.springsource.com/maven/libraries/external"
+        mavenLocal()
 
         // Repository for ISATAB tools
         //mavenRepo "http://frog.oerc.ox.ac.uk:8080/nexus-2.1.2/content/repositories/releases"
@@ -80,35 +69,33 @@ grails.project.dependency.resolution = {
         compile('org.codehaus.groovy.modules.http-builder:http-builder:0.5.0') { excludes "commons-logging", "xml-apis", "groovy" }
     }
     plugins {
-        // plugins for the build system only
-        build ":tomcat:7.0.55.3"
-        
-        compile(
-                ":hibernate4:4.3.10",
+        // Plugins for the build system only
+        build ":tomcat:7.0.70"
 
-                ":jquery:1.11.1",
-                ':jquery-ui:1.10.4',
+        // Plugins needed at runtime but not for compilation
+        runtime ":hibernate4:4.3.10"
+        runtime ":jquery:1.11.1"
+        runtime ":resources:1.2.14"
 
-                ":resources:1.2.14",
-                ":spring-security-core:2.0.0",
-                
-                ':matrix-importer:0.2.5.0',
-                ':dbxp-module-base:0.6.2.0',
-                
-                ":famfamfam:1.0.1",
-                ":mail:1.0.7",
-                ":quartz:1.0.2",
-                ":ajaxflow:0.2.4",
-                ":webflow:2.1.0",
-                ":scaffolding:2.1.2"
-        )
-
+        // Plugins needed for compilation
+        compile ":spring-security-core:2.0.0"
+        compile ':jquery-ui:1.10.4'
+        compile ":mail:1.0.7"
+        compile ":famfamfam:1.0.1"
+        compile ":quartz:1.0.2"
+        compile ":ajaxflow:0.2.4"
+        compile ":webflow:2.1.0"
+        compile ":scaffolding:2.1.2"
         compile ":yui-war-minify:1.5"
         
         if (System.getProperty("grails.env") == "development") {
             // development mode only Plugins
             compile(":console:1.5.4")
         }
+
+        // Now included as local plugins
+//        compile ":matrix-importer:0.2.5.0"
+//        compile ":dbxp-module-base:0.6.2.0"
 
         // add { transative = false } to ignore dependency transition
     }
@@ -118,5 +105,5 @@ grails.plugin.location.'gdt' = './local-plugins/GDT'
 grails.plugin.location.'dbxpSam' = './local-plugins/SAM'
 grails.plugin.location.'dbxp-base' = './local-plugins/dbxpBase'
 
-//grails.plugin.location.'dbxpModuleBase' = '../dbxpModuleBase'
-//grails.plugin.location.'matrix-importer' = '../matrixImporter'
+grails.plugin.location.'dbxpModuleBase' = './local-plugins/dbxpModuleBase'
+grails.plugin.location.'matrix-importer' = './local-plugins/matrixImporter'

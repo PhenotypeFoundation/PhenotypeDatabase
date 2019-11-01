@@ -30,32 +30,38 @@ grails.project.dependency.resolution = {
     }
     plugins {
 
-        build(  ":tomcat:7.0.55",
-                ":release:2.2.1",
-                //Temporary static version of Rest Client Builder due to compile error
-                ":rest-client-builder:1.0.3"
-        ) {
-            // plugin only plugin, should not be transitive to the application
-            export = false
+        // Plugins for the build system only
+        build ":tomcat:7.0.70"
+        build ":release:2.2.1"
+        //Temporary static version of Rest Client Builder due to compile error
+        build ":rest-client-builder:1.0.3"
+
+        // Plugins needed at runtime but not for compilation
+        runtime ":hibernate4:4.3.10"
+        runtime ":jquery:1.11.1"
+        runtime ":resources:1.2.14"
+
+        // Plugins needed for compilation
+        compile ':jquery-ui:1.10.4'
+        compile ":famfamfam:1.0.1"
+        compile ":ajaxflow:0.2.4"
+        compile ":jquery-datatables:1.7.5"
+
+        if (System.getProperty("grails.env") == "development") {
+            // development mode only Plugins
+            compile(":console:1.5.4")
         }
 
-        compile(
-            ":hibernate4:4.3.6.1",
-            ':famfamfam:1.0.1',
-            ':matrix-importer:0.2.5.0',
-            ':ajaxflow:latest.integration',
-            ':resources:latest.integration',
-            ':jquery:latest.integration',
-            ':jquery-datatables:1.7.5',
-            ':jquery-ui:1.8.15') {
-            export = false
-        }
+        // Now included as local plugins
+//        compile ":matrix-importer:0.2.5.0"
+//        compile ":dbxp-module-base:0.6.2.0"
     }
 }
 
-//grails.plugin.location.'dbxpModuleBase' = '../dbxpModuleBase'
-//grails.plugin.location.'matrixImporter' = '../../../matrixImporter'
 grails.plugin.location.'gdt' = '../GDT'
 grails.plugin.location.'dbxpBase' = '../dbxpBase'
+
+//grails.plugin.location.'dbxpModuleBase' = '../dbxpModuleBase'
+grails.plugin.location.'matrixImporter' = '../matrixImporter'
 
 //grails.server.port.http = "8182"  // The modern way of setting the server port
