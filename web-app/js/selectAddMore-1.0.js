@@ -113,6 +113,9 @@ SelectAddMore.prototype = {
                     uri += arrVars[v] + '=' + ((val) ? val : '') + '&';
                 }
 
+                console.log( '!!!!' );
+                console.log( uri );
+
                 $('<iframe frameborder="0" src="' + uri + '" seamless />').dialog({
                     title   : label,
                     autoOpen: true,
