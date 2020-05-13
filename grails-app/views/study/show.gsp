@@ -75,11 +75,11 @@
 										${user}<br />
 									</g:each>
 								</span>
-								<span class="readers groups">
+								%{--<span class="readers groups">
 									<g:each in="${study?.readerGroups}" var="group">
 										${group.groupName}<br />
 									</g:each>
-								</span>
+								</span>--}%
 							</div>
 						</div>
 						<div class="element">
@@ -90,11 +90,11 @@
 										${user}<br />
 									</g:each>
 								</span>
-								<span class="writers groups">
+								%{--<span class="writers groups">
 									<g:each in="${study?.writerGroups}" var="group">
 										${group.groupName}<br />
 									</g:each>
-								</span>
+								</span>--}%
 							</div>
 						</div>
 					</div>

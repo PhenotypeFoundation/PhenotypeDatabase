@@ -46,11 +46,11 @@ class SecUserSecUserGroup implements Serializable {
 	}
 
 	static void removeAll(SecUser secUser) {
-                executeUpdate('DELETE FROM SecUserSecUserGroup WHERE secUser=:secUser', [secUser: secUser])
+		executeUpdate('DELETE FROM SecUserSecUserGroup WHERE secUser=:secUser', [secUser: secUser])
 	}
 
 	static void removeAll(SecUserGroup secUserGroup) {
-                executeUpdate('DELETE FROM SecUserSecUserGroup WHERE secUserGroup=:secUserGroup', [secUserGroup: secUserGroup])
+		executeUpdate('DELETE FROM SecUserSecUserGroup WHERE secUserGroup=:secUserGroup', [secUserGroup: secUserGroup])
 	}
 
 	static mapping = {

@@ -42,7 +42,9 @@ class UserGroupController {
 	}
 
 	def update = {
+
 		SecUserGroup userGroup = findById()
+
 		if (!userGroup) return
 
 		if (!versionCheck('usergroup.label', 'UserGroup', userGroup, [userGroup: userGroup])) {
@@ -54,68 +56,46 @@ class UserGroupController {
 		if (params.groupDescription && !params.groupDescription.equals(oldDescription)) {
 			userGroup.groupDescription = params.groupDescription
 		}
-		
-		// For the old users in the selected usergroup, remove them from the linked studies
-		def selectedUsers = userGroup.getUsers()
-		for(selectedUser in selectedUsers){
-				def selectedGroups = selectedUser.getUserGroups().id
-				def studies = Study.all.findAll{it.readers.contains(selectedUser)}
 
-				for (studyU in studies){
-						def studyGroups = studyU.readerGroups.id
-						def overlap = selectedGroups.intersect(studyGroups)
-						if(overlap.size() <= 1){
-								studyU.removeFromReaders(selectedUser)
-								studyU.save(flush: true)
-						}
-				}
-				studies = Study.all.findAll{it.writers.contains(selectedUser)}
-				for (studyU in studies){
-						def studyGroups = studyU.writerGroups.id
-						def overlap = selectedGroups.intersect(studyGroups)
-						if(overlap.size() <= 1){
-								studyU.removeFromWriters(selectedUser)
-								studyU.save(flush: true)
-						}
-				}
-				SecUserSecUserGroup.remove(selectedUser,userGroup, true)
+		def studies = Study.all
+
+		def newUserIds = params.list('optionalUsers').collect() { it.toLong() }
+		def currentUserIds = userGroup.getUsers().id
+
+		def removeUsers = (currentUserIds - newUserIds).collect() { SecUser.get(it) }
+		def addUsers = (newUserIds - currentUserIds).collect() { SecUser.get(it) }
+
+		removeUsers.each() { user ->
+
+			SecUserSecUserGroup.remove(user,userGroup, true)
+			removeUserWhenNoOtherAccess( user, studies )
 		}
 
-		def readerGroups = Study.all.findAll{it.readerGroups.contains(userGroup)}
-		def writerGroups = Study.all.findAll{it.writerGroups.contains(userGroup)}
+		if ( addUsers.size() != 0 ) {
 
-		if (!userGroup.save()) {
-			render view: 'edit', model: buildUserGroupModel(userGroup)
-			return
+			addUsers.each() { user ->
+				SecUserSecUserGroup.create(user,userGroup, true)
+			}
+
+			studies.findAll() { it.readerGroups.id.contains( userGroup.id ) }.each() { study ->
+				addUsers.each() { user ->
+					if ( !study.readers.contains( user ) ) {
+						study.addToReaders( user )
+						study.save( flush: true )
+					}
+				}
+			}
+
+			studies.findAll() { it.writerGroups.id.contains( userGroup.id ) }.each() { study ->
+				addUsers.each() { user ->
+					if ( !study.writers.contains( user ) ) {
+						study.addToWriters( user )
+						study.save( flush: true )
+					}
+				}
+			}
 		}
-                         
-                // For the selected users, add them to the selected usergroup and the studies
-                def users
-                if(params.optionalUsers){                  
-                    users = params.list('optionalUsers')
-                    for(user in users){
-                        SecUser singleUser = SecUser.get(user)
-                        SecUserSecUserGroup sec = new SecUserSecUserGroup(secUser:singleUser, secUserGroup: userGroup)
-                        sec.save(flush: true)
-                    }
-                }
-                
-                for (readerGroupStudy in readerGroups){
-                        for(user in users){
-                                SecUser singleUser = SecUser.get(user)
-                                readerGroupStudy.addToReaders(singleUser)
-                                readerGroupStudy.save(flush: true)
-                        }
-                }
-                for (writerGroupStudy in writerGroups){
-                       for(user in users){
-                                SecUser singleUser = SecUser.get(user)
-                                writerGroupStudy.addToWriters(singleUser)
-                                writerGroupStudy.save(flush: true)
-                        }
-                }
-        
-		
+
 		flash.message = "${message(code: 'default.updated.message', args: [message(code: 'userGroup.label', default: 'UserGroup'), userGroup.id])}"
 		redirect action: edit, id: userGroup.id
 	}
@@ -125,8 +105,13 @@ class UserGroupController {
 		if (!userGroup) return
 
 		try {
-			SecUserSecUserGroup.removeAll userGroup
-			userGroup.delete flush: true
+
+			userGroup.users.each() { user ->
+				removeUserWhenNoOtherAccess( user, Study.all )
+			}
+
+			SecUserSecUserGroup.removeAll(userGroup)
+			userGroup.delete(flush: true)
 			
 			flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'userGroup.label', default: 'UserGroup'), params.id])}"
 			redirect action: search
@@ -208,12 +193,6 @@ class UserGroupController {
 		render text: jsonData as JSON, contentType: 'application/json'
 	}
 
-	protected void addUsers(userGroup) {
-		for (String key in params.keySet()) {
-			
-		}
-	}
-
 	protected Map buildUserGroupModel(userGroup) {
 
                 def users = SecUser.all.sort { it.username }
@@ -250,5 +229,21 @@ class UserGroupController {
 			}
 		}
 		true
+	}
+
+	private removeUserWhenNoOtherAccess( SecUser user, List<Study> studies ) {
+
+		def groupIds = user.getUserGroups().id
+
+		// If user does not have read access to study via another group, remove user from study readers
+		studies.findAll() { it.readers.contains(user) && it.readerGroups.id.intersect( groupIds ).size() == 0 }.each() { study ->
+			study.removeFromReaders( user )
+			study.save( flush: true )
+		}
+
+		studies.findAll() { it.writers.contains(user) && it.writerGroups.id.intersect( groupIds ).size() == 0 }.each() { study ->
+			study.removeFromWriters( user )
+			study.save( flush: true )
+		}
 	}
 }
