@@ -625,6 +625,7 @@ class GdtTagLib extends AjaxflowTagLib {
      * @param String body
      */
     def renderTemplateFields = { attrs ->
+
         def renderType		= attrs.remove('renderType')
         def entity			= (attrs.get('entity'))
         def ignore			= attrs.get( 'ignore' );
@@ -751,10 +752,10 @@ class GdtTagLib extends AjaxflowTagLib {
                                 required: templateField.isRequired()
                         ) {helpText}
 
-                        def jsEntries = "";
+                        def jsEntries = ""
 
                         if( !templateField.listEntries.isEmpty() ) {
-                            jsEntries = templateField.listEntries.collect { '"' + templateField.name.encodeAsJavaScript() + '"' }.join( ', ' );
+                            jsEntries = templateField.listEntries.collect { '"' + it.encodeAsJavaScript() + '"' }.join( ', ' );
                         }
                         out << '<script type="text/javascript">' +
                                 'var existingTags = [ ' + jsEntries + ' ];' +
@@ -896,7 +897,8 @@ class GdtTagLib extends AjaxflowTagLib {
     }
 
     private void _showTemplateField( entity, templateField, value = null, attrs = null, renderType = "" ) {
-        def fieldValue;
+
+        def fieldValue
 
         // Use the user supplied value if given, otherwise
         if( value != null ) {

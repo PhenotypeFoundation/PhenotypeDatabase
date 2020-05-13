@@ -186,7 +186,7 @@ class WizardTagLib extends GdtTagLib {
 		}
 		out << '<input type="hidden" name="' + attrs.name + '_ids" value="' + ids + '" id="' + attrs.name + '_ids">';
 		
-		out << _publicationAddButton( attrs, body );
+		out << _publicationAddButton( attrs, body )
 	}
 
 	def _publicationAddButton = { attrs, body ->
@@ -195,22 +195,22 @@ class WizardTagLib extends GdtTagLib {
 			// Only show the add button. The dialog that is created with this method otherwise,
 			// should be created somewhere outside the form.
 		} else {
-			out << publicationDialog( attrs, body );
+			out << publicationDialog( attrs, body )
 		}
 	
-		out << '<input class="addButton" type="button" onClick="StudyEdit.publications.openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">';
+		out << '<input class="addButton" type="button" onClick="StudyEdit.publications.openPublicationDialog(\'' + attrs.name + '\' );" value="Add Publication">'
 	}
 	
 	// Show the add publications dialog
 	def publicationDialog = { attrs, body ->
 		// Output the dialog for the publications
-		out << '<div id="' + attrs.name + '_dialog">';
-		out << '<p>Search for a publication on pubmed. You can search on a part of the title, authors or pubmed ID. </p>';
-		out << publicationSelect(attrs, body);
-		out << '</div>';
-		out << '<script type="text/javascript">';
+		out << '<div id="' + attrs.name + '_dialog">'
+		out << '<p>Search for a publication on pubmed. You can search on a part of the title, authors or pubmed ID. </p>'
+		out << publicationSelect(attrs, body)
+		out << '</div>'
+		out << '<script type="text/javascript">'
 		out << '  StudyEdit.publications.createPublicationDialog( "' + attrs.name + '" );'
-		out << '</script>';
+		out << '</script>'
 	}
 	
 
@@ -305,7 +305,7 @@ class WizardTagLib extends GdtTagLib {
 	}
 
 	def _contactAddDialogButton = { attrs, body ->
-		out << '<input type="button" onClick="$( \'#' + attrs.name + '_dialog\' ).show(); $(this).hide();" id="' + attrs.name + '_dialogButton" value="Add Contact">';
+		out << '<input class="addButton" type="button" onClick="$( \'#' + attrs.name + '_dialog\' ).show(); $(this).hide();" id="' + attrs.name + '_dialogButton" value="Add Contact">';
 	}
 	/**
 	 * Person select element
@@ -401,7 +401,7 @@ class WizardTagLib extends GdtTagLib {
 	}
         
 	/**
-	 * Renders an input box for publications
+	 * Renders an input box for userGroups
 	 */
 	def userGroupSelect = { attrs, body ->
 		if (attrs.get('value') == null) {

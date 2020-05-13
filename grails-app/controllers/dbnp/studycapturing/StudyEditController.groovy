@@ -14,7 +14,8 @@ import org.hibernate.ObjectNotFoundException
  */
 @Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class StudyEditController {
-        def authenticationService
+
+    def authenticationService
         def datatablesService
         def studyEditService
         def dataSource
@@ -184,7 +185,7 @@ class StudyEditController {
             def subjectEventGroupIds = params.list( "subjectEventGroup" )
 
             def result = [:]
-            
+
             if ( !subjectEventGroupIds ) {
                 result = [ "No event groups were checked" ]
             }
@@ -208,7 +209,7 @@ class StudyEditController {
 
             render result as JSON
         }
-        
+
         /**
          * Regenerates the sample names for all samples, based on the subject and event it belongs to
          * @param id
@@ -276,7 +277,7 @@ class StudyEditController {
                 } else {
                     flash.error= "No assays were selected"
                 }
-                
+
                 redirect action: "assays", id: params.id
         }
 
@@ -315,47 +316,47 @@ class StudyEditController {
                         render [ "OK" ] as JSON
                         return
                 }
-                
+
                 // Only updates to the current situation are given. That could be two ways:
                 // Either the value of the property resolves to true, then the sample should
-                // be associated with an assay. Or the value resolves to false (is empty), then 
+                // be associated with an assay. Or the value resolves to false (is empty), then
                 // the sample should be removed from the assay
                 def assayIds = [] as Set
                 def sampleIds = [] as Set
                 def updates = [:]
-                
-                // Loop through the parameters, create a list of assay IDs and sample IDs so 
-                // the objects can be retrieved in a performant way. Also, build a map with 
-                // updates 
+
+                // Loop through the parameters, create a list of assay IDs and sample IDs so
+                // the objects can be retrieved in a performant way. Also, build a map with
+                // updates
                 data[ paramsProperty ].each { sampleId, assayData->
                         // Key should be a subject ID
                         if( !sampleId.isLong() ) {
                                 return;
                         }
-                        
-                        def sampleIdLong = sampleId.toLong() 
+
+                        def sampleIdLong = sampleId.toLong()
                         sampleIds << sampleIdLong
-                        
+
                         assayData.each { assayId, value ->
                             if( !assayId.isLong() ) {
                                 return
                             }
                             def assayIdLong = assayId.toLong()
                             assayIds << assayIdLong
-                            
+
                             if( !updates[assayIdLong] )
                                 updates[assayIdLong] = ["add": [], "remove": []]
-                                
+
                             if( value )
                                 updates[assayIdLong].add << sampleIdLong
                             else
                                 updates[assayIdLong].remove << sampleIdLong
                         }
                 }
-                
+
                 // Retrieve the objects from the database
                 def assays = Assay.getAll(assayIds).groupBy { it.id }
-                
+
                 // The database cannot handle queries that are too long (e.g. contains a list of many ids)
                 // This results in the database closing the connection with status 08003 and 08006
                 // For that reason, retrieve the data in batches
@@ -365,21 +366,21 @@ class StudyEditController {
                 batches.each { batch ->
                     samples += Sample.getAll(batch)
                 }
-                
+
                 def groupedSamples = samples.groupBy { it.id }
-                
+
                 // Perform the updates themselves
                 def success = true
                 def errors = [:]
                 updates.each { assayId, assayUpdates ->
                     log.debug "Start adding samples to " + assayId
                     def assay = assays[assayId][0]
-                    
+
                     if( !assay ) {
                         errors[ assayId + " not found" ] = "No assay could be found with id " + assayId
                         return
                     }
-                    
+
                     def i = 0
                     def limit = 1000
                     assayUpdates.each { type, actionSampleIds ->
@@ -390,13 +391,13 @@ class StudyEditController {
                             else
                                 assay.removeFromSamples(sample)
                         }
-                        
+
                         if( i++ > limit ) {
                             assay.save(flush: true)
                             i = 0
                         }
                     }
-                    
+
                     log.debug "Start saving assay " + assayId
                     assay.save(flush: true)
                     log.debug "Finished saving assay " + assayId
@@ -414,42 +415,42 @@ class StudyEditController {
 
                 render result as JSON
         }
-        
+
         protected def getDataFromParams( def propertyName = "data" ) {
             // Data is provided as JSON
             def providedData = JSON.parse(params[propertyName])
-            
+
             // Loop through all data entries, and create a map if the name contains a dot
             def data = [:]
             providedData.each { key, value ->
                 addValueToMap(key, value, data)
-            } 
-            
+            }
+
             data
         }
 
         protected def addValueToMap(key, value, data) {
             if( !key )
                 return
-                
+
             def idx = key.indexOf( "." )
-            
+
             if( idx == 0 && key.size() > 1 ) {
                 // If the key starts with a dot, ignore the dot
                 addValueToMap(key[1..-1], value, data)
             } else if( idx > 0 && key.size() > (idx+1) ) {
                 def head = key[0..idx-1]
                 def tail = key[idx+1..-1]
-                
+
                 if( !data[head] )
                     data[head] = [:]
-                    
+
                 addValueToMap( tail, value, data[head])
             }
-            
+
             data[key] = value
         }
-        
+
         /**
          * Returns data for the assaysample datatable
          * @return
@@ -470,7 +471,7 @@ class StudyEditController {
                 render datatablesService.createDatatablesOutput( data, params, { entry ->
                                 def output = entry as List
                                 def sample = entry[ 0 ]
-                                
+
                                 // Convert columns
                                 output[ 0 ] = sample.id
                                 output[ 6 ] = new RelTime( entry[ 6 ] ).toString()
@@ -534,14 +535,14 @@ class StudyEditController {
 
                         studyEditService.putParamsIntoEntity( entity, params )
                         def template = entity.template
-                        
+
                         if( params._action == "save" ) {
                                 if( entity.validate() ) {
                                         // Now we know that the entity validates, see how many entites
                                         // we have to store
                                         def originalEntityName = entity.name
                                         entity.discard();
-                                        
+
                                         for( index = 0; index < numEntities; index++ ) {
                                             def entityToSave = entity.class.newInstance()
                                             entityToSave.template = template
@@ -549,14 +550,14 @@ class StudyEditController {
                                             studyEditService.putParamsIntoEntity( entityToSave, params )
 
                                             // Add _<num> postfix to the entity name if multiple entities
-                                            // are created to ensure uniqueness 
+                                            // are created to ensure uniqueness
                                             if( numEntities > 1 ) {
                                                 entityToSave.name = originalEntityName + "_" + ( index + 1 )
                                             }
-                                            
+
                                             entityToSave.save(flush:true)
                                         }
-                                    
+
                                         // Tell the frontend the save has succeeded
                                         response.status = 210
                                         def returnJSON = [ templateId: template.id ]
@@ -593,7 +594,7 @@ class StudyEditController {
                                                         study.deleteSample( entity )
                                                         break
                                                     case Assay:
-                                                        // Can't delete assays with measurements    
+                                                        // Can't delete assays with measurements
                                                         if( entity.hasMeasurements() ) {
                                                             return
                                                         }
@@ -687,7 +688,7 @@ class StudyEditController {
                 }
 
                 def data = getDataFromParams()
-                
+
                 if(!data[ paramsProperty ] ) {
                         // Not a big problem, apparently no entities are altered
                         log.warn "No entities given while editing " + entityClass
@@ -695,9 +696,9 @@ class StudyEditController {
                 }
 
                 // Retrieve all entities at once to change something for
-                def entityIds = data[paramsProperty].keySet().findAll { it.isLong() }.collect { it.toLong() } 
+                def entityIds = data[paramsProperty].keySet().findAll { it.isLong() }.collect { it.toLong() }
                 def entities = entityClass.getAll(entityIds).groupBy { it.id }
-                
+
                 // Loop over all entities
                 def success = true
                 def errors = [:]
@@ -726,25 +727,25 @@ class StudyEditController {
                                         )
                                 }
                         }
-                        
+
                         if( entity.validate() ) {
                                 entitiesToSave << entity
                         } else {
                                 success = false
-                                
+
                                 entity.errors.allErrors.each { error ->
                                     if( !errors[entity.id] )
                                         errors[entity.id] = [:]
-                                        
+
                                     errors[entity.id][ error.getArguments()[0] ] = g.message(error: error)
                                 }
-                                
+
                                 entity.discard()
                         }
                 }
 
                 log.debug( "Finished updating entities, start saving" );
-                
+
                 def result
                 if( success ) {
                         // Save all subjects
@@ -1028,102 +1029,59 @@ class StudyEditController {
          * @return boolean
          */
         def handleStudyUserGroups(Study study, params, type) {
-                def userGroups = []
-             
-                if (type == "readerGroups" && study.readerGroups ) {
-                        userGroups += study.readerGroups
-                        for(userGroup in userGroups){
-                                def usersInGroup = userGroup.getUsers();
-                                for (userInGroup in usersInGroup){
-                                        study.removeFromReaders(userInGroup)
-                                        study.save(flush: true)
 
-                                }
-                        }
-                } else if (type == "writerGroups" && study.writerGroups ) {
-                        userGroups += study.writerGroups
-                        for(userGroup in userGroups){
-                                def usersInGroup = userGroup.getUsers();
-                                for (userInGroup in usersInGroup){
-                                        study.removeFromWriters(userInGroup)
-                                        study.save(flush: true)
+            def newUserGroupIds = params.get(type + '_ids') ? params.get(type + '_ids').split(',').collect() { it.toLong() } : []
+            def currentUserGroupIds = type.equals('readerGroups') ? study.readerGroups.id : study.writerGroups.id
 
-                                }
-                        }
+            def removeUserGroups = (currentUserGroupIds - newUserGroupIds).collect() { SecUserGroup.get(it) }
+            def addUserGroups = (newUserGroupIds - currentUserGroupIds ).collect() { SecUserGroup.get(it) }
+
+            removeUserGroups.each() { userGroup ->
+
+                if ( type.equals('readerGroups') ) {
+                    study.removeFromReaderGroups( userGroup )
+                }
+                else {
+                    study.removeFromWriterGroups( userGroup )
                 }
 
-                // Check the ids of the contacts that should be attached
-                // to this study. If they are already attached, keep 'm. If
-                // studies are attached that are not in the selected (i.e. the
-                // user deleted them), remove them
+                study.save( flush: true )
 
-                // UserGroups are saved as user_id
-                def userGroupIDs = params.get(type + '_ids')
+                def userIdsInOtherGroups = (type.equals('readerGroups') ? study.readerGroups.collect { it.getUsers().id } : study.writerGroups.collect { it.getUsers().id }).flatten().unique()
 
-                if (userGroupIDs) {
-                        // Find the individual IDs and make integers
-                        userGroupIDs = userGroupIDs.split(',').collect { Long.valueOf(it, 10) }
-
-                        // First remove the publication that are not present in the array
-                        userGroups.removeAll { userGroup -> !userGroupIDs.find { id -> id == userGroup.id } }
-
-                        // Add those publications not yet present in the database
-                        userGroupIDs.each { id ->
-                                if (!userGroups.find { userGroup -> id == userGroup.id }) {
-                                        def userGroup = SecUserGroup.get(id)
-                                        if (userGroup) {
-                                                userGroups.add(userGroup)
-                                                def usersInGroup = userGroup.getUsers()
-                                                
-                                                for(userInGroup in usersInGroup){
-                                                        if(type == "readerGroups"){
-                                                                study.addToReaders(userInGroup)
-                                                        } else if (type == "writerGroups") {
-                                                                study.addToWriters(userInGroup)
-                                                        }
-                                                }
-
-                                        } else {
-                                                log.info('.userGroup with ID ' + id + ' not found in database.')
-                                        }
-                                }
+                userGroup.getUsers().each() { user ->
+                    // If user does not have access (of type) to study via another group, remove access
+                    if ( !userIdsInOtherGroups.contains(user.id) ) {
+                        if ( type.equals('readerGroups') ) {
+                            study.removeFromReaders( user )
                         }
+                        else {
+                            study.removeFromWriters( user )
+                        }
+                    }
+                }
+            }
 
-                } else {
-                        log.info('.no userGroups selected.')
-                        userGroups.clear()
+            addUserGroups.each() { userGroup ->
+
+                if ( type.equals('readerGroups') ) {
+                    study.addToReaderGroups( userGroup )
+                }
+                else {
+                    study.addToWriterGroups( userGroup )
                 }
 
-                if (type == "readerGroups") {
-                        if (study.readerGroups) {
-                                study.readerGroups.clear();
-                        }
-
-                        userGroups.each { 
-                                study.addToReaderGroups(it)
-                                def usersInGroup = it.getUsers()
-                                                
-                                for(userInGroup in usersInGroup){
-                                        study.addToReaders(userInGroup)
-                                }
-                        }
-                        
-                } else if (type == "writerGroups") {
-
-                        if (study.writerGroups) {
-                                study.writerGroups.clear();
-                        }
-
-                        userGroups.each { 
-                                study.addToWriterGroups(it) 
-                                def usersInGroup = it.getUsers()
-                                                
-                                for(userInGroup in usersInGroup){
-                                        study.addToWriters(userInGroup)
-                                }
-                        }
-
+                userGroup.getUsers().each() { user ->
+                    if ( type.equals('readerGroups') && !study.readers.contains( user ) ) {
+                        study.addToReaders( user )
+                    }
+                    else if ( type.equals('writerGroups') && !study.writers.contains( user ) ) {
+                        study.addToWriters( user )
+                    }
                 }
+            }
+
+            study.save( flush: true )
         }
 
         /**
@@ -1162,7 +1120,7 @@ class StudyEditController {
                 return errors
         }
 
-    
+
     /**
      * Proxy for searching PubMed articles (or other articles from the Entrez DB).
      *
@@ -1182,12 +1140,12 @@ class StudyEditController {
             def url = grailsApplication.config.gscf.entrez.url ?:
                     "https://eutils.ncbi.nlm.nih.gov/entrez/eutils";
             def util = params.remove( "_utility" )
-            
+
             if( !util ) {
                     response.setStatus( 404, "File not found" );
                     return;
             }
-    
+
             def paramString = params.collect { k, v -> k + '=' + v.encodeAsURL() }.join( '&' );
 
             def fullUrl = url + '/' + util + '?' + paramString;

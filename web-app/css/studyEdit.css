@@ -1,7 +1,7 @@
 /** STUDY PAGE **/
 .studyProperties input, .studyProperties select, .studyProperties textarea { width: 220px; }
 .studyEdit .tableEditor input, .studyEdit .tableEditor  select { width: 100px; }
-.studyEdit .element .input .addButton { margin-left: 0px; }
+.studyEdit .element .input .addButton { margin-left: 0; margin-top: 12px }
 
 #contacts .required { background-position: 2px 4px; padding-left: 20px; }
 .samplespage td.required { background-position: 160px 6px; }
