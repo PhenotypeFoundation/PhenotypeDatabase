@@ -43,7 +43,7 @@
 		  </optgroup>
 		</g:each>
 	  </select><br />
-	  <input type="submit" value="Export" />
+		<input class="button-1" style="margin-top: 16px" type="submit" value="Export"/>
 	</form>
   </body>
 </html>
