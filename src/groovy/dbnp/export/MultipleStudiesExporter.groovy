@@ -181,8 +181,7 @@ public class MultipleStudiesExporter implements Exporter {
     def collectSampleData(assays, measurementTokens, samples, remoteUser) {
         //def data = assays.collect { assay -> assayService.collectAssayTemplateFields(assay, null) }
         //return assayService.convertColumnToRowStructure(data)
-        
-        
+
         def data = this.collectSampleDetails(samples)
 
         assays.each{ assay ->
@@ -195,7 +194,7 @@ public class MultipleStudiesExporter implements Exporter {
 
             def moduleMeasurementData
             try {
-                moduleMeasurementData = apiService.getMeasurementData(assay, remoteUser).sort()
+                moduleMeasurementData = apiService.getMeasurementDataForAssay(assay, remoteUser).sort()
                 data[ "Module measurement data: " + assay.name ] = apiService.organizeSampleMeasurements((Map)moduleMeasurementData, samples)
             } catch (e) {
                 moduleMeasurementData = ['error' : [

@@ -36,45 +36,57 @@ class UserRegistrationController {
      */
     def add = { RegisterUserCommand command ->
 
-        command.validate()
+        def success = false
 
-        if (command.hasErrors()) {
-            def addSendUserLink = false;
+        if ( params.honeypot.equals('') && params.answeredSum.isNumber() && params.answeredSum.toInteger() == params.correctSum.toInteger() ) {
 
-            // Check the errors and append a link if needed
-            command.errors.allErrors.each {
-                if( it.code == "registerUserCommand.username.notyetconfirmed" ) {
-                    addSendUserLink = true;
+            command.validate()
+
+            if (command.hasErrors()) {
+                def addSendUserLink = false
+
+                // Check the errors and append a link if needed
+                command.errors.allErrors.each {
+                    if( it.code == "registerUserCommand.username.notyetconfirmed" ) {
+                        addSendUserLink = true
+                    }
                 }
+
+                flash.message = ""
+                render(view: "index", model: [username: params.username, email: params.email, command: command, addSendUserLink: addSendUserLink])
+                return
             }
 
-            flash.message = "";
-            render(view: "index", model: [username: params.username, email: params.email, command: command, addSendUserLink: addSendUserLink])
-            return
+            // Generate a random password
+            def password = this.generatePassword(8)
+
+            def user = new SecUser(
+                    username	: params.username,
+                    email: params.email,
+                    password: springSecurityService.encodePassword(password, params.username),
+                    userConfirmed: false, adminConfirmed: false)
+
+            // Redirect user if save fails
+            if( !user.save(failOnError: true) ) {
+                render(view: "index", model: [username: params.username, email: params.email])
+                return
+            }
+
+            // Clear the flash message so the user does not see old messages
+            flash.message = ""
+
+            success = true
+
+            sendUserConfirmationMail( user, password )
+            sendAdminConfirmationMail( user )
+
+            // Give the user a nice welcome page
+        }
+        else {
+            flash.message = "Invalid registration"
         }
 
-        // Generate a random password
-        def password = this.generatePassword(8)
-
-        def user = new SecUser(
-                username	: params.username,
-                email: params.email,
-                password: springSecurityService.encodePassword(password, params.username),
-                userConfirmed: false, adminConfirmed: false)
-
-        // Redirect user if save fails
-        if( !user.save(failOnError: true) ) {
-            render(view: "index", model: [username: params.username, email: params.email])
-            return
-        }
-
-        // Clear the flash message so the user does not see old messages
-        flash.message = ""
-
-        sendUserConfirmationMail( user, password );
-        sendAdminConfirmationMail( user );
-
-        // Give the user a nice welcome page
+        [ success: success ]
     }
 
     def sendUserConfirmation = {
