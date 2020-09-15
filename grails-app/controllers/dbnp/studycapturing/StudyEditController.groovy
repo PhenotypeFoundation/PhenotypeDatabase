@@ -1031,7 +1031,7 @@ class StudyEditController {
         def handleStudyUserGroups(Study study, params, type) {
 
             def newUserGroupIds = params.get(type + '_ids') ? params.get(type + '_ids').split(',').collect() { it.toLong() } : []
-            def currentUserGroupIds = type.equals('readerGroups') ? study.readerGroups.id : study.writerGroups.id
+            def currentUserGroupIds = type.equals('readerGroups') ? (study.readerGroups?.id ?: []) : (study.writerGroups?.id ?: [])
 
             def removeUserGroups = (currentUserGroupIds - newUserGroupIds).collect() { SecUserGroup.get(it) }
             def addUserGroups = (newUserGroupIds - currentUserGroupIds ).collect() { SecUserGroup.get(it) }
